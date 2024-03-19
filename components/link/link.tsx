@@ -17,7 +17,10 @@ export function DmptoolLink(props:any) {
 }
 
 export function Link(props) {
-  let key = props?.index || "";
+  const index = props?.index || '';
+  const label = props?.label || '';
+  const href = props?.href || '';
+  let key = `${index}-${label}-${href}`;
   if (props?.remote === 'true') {
     return (
       <a href={props.href ? props.href : '#'} target="_blank" rel="noreferrer" key={key} className={props?.className}>

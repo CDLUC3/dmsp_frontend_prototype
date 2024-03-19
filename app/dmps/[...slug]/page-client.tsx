@@ -1,4 +1,6 @@
+'use client'
 
+import { useEffect, useState } from "react";
 import {redirect} from 'next/navigation';
 import Image from 'next/image';
 import narrativeLogo from '@/public/images/u153.svg';
@@ -15,8 +17,7 @@ import Outputs from "@/components/outputs";
 import Project from "@/components//project";
 import Versions from "@/components/versions";
 import Works from "@/components//works";
-import '../[...slug]/dmps.scss';
-
+import './dmps.scss';
 
 
 interface RelatedIdentifier {
@@ -69,26 +70,52 @@ interface FormData {
 }
 
 
-function getUrl() {
-    return "https://api.dmphub.uc3dev.cdlib.net/dmps/10.48321/D1SP4H";
-}
 
-async function getData() {
-    'use server'
-        // Fetch the DMP ID metadata from the DMPHub
-        let api = new DmpApi();
+function Landing() {
+  const [formData, setFormData] = useState<FormData>({
+    json_url: "",
+    title: "Loading ...",
+    description: "",
+    dmp_id: "",
+    privacy: "private",
+    created: "",
+    modified: "",
+    ethical_issues_exist: "unknown",
+    ethical_issues_report: "",
 
-        const url = getUrl();
-        const options = api.getOptions({});
-    try{
-        const response = await fetch(url,options);
+    funder_name: "",
+    funder_id: "",
+    award_id: "",
+    opportunity_number: "",
+
+    project_title: "",
+    project_abstract: "",
+    project_start: "",
+    project_end: "",
+
+    contact: {},
+    contributors: [],
+    datasets: [],
+    related_identifiers: [],
+    versions: [],
+  });
+
+  useEffect(() => {
+    // Fetch the DMP ID metadata from the DMPHub
+    let api = new DmpApi();
+    const controller = new AbortController();
+    const url = api.getUrl();
+    const options = api.getOptions({});
+    const fetchData = async () => {
+      try{
+        const response = await fetch(url, {...options,signal:controller.signal});
         api.handleResponse(response);
         const data = await response.json();
-        
         if (Array.isArray(data?.items) && data?.items[0] !== null) {
           let dmp = data.items[0].dmp;
-          const formData = {
-            json_url: url,
+
+          setFormData({
+            json_url: api.getUrl(),
             title: dmp.title || "",
             description: dmp.description || "",
             dmp_id: dmp.dmp_id?.identifier || "",
@@ -112,42 +139,27 @@ async function getData() {
             datasets: dmp.dataset || [],
             related_identifiers: dmp.dmproadmap_related_identifiers || [],
             versions: dmp.dmphub_versions || [],
-          };
-          return formData;
+          });
         } else {
           redirect('/not_found')
         }
       } catch(error:any) {
-        return null
+        if(error.name === 'AbortError') {
+          console.log('Fetch aborted');
+        }else {
+          console.error('Error fetching data:', error)
+        }
       }
-}
+    }
 
-const Landing = async() => {
+    fetchData();
 
-    const defaultData = {
-        title: "Loading ...",
-        description: "",
-        dmp_id: "",
-        privacy: "private",
-        modified: "",
-    
-        funder_name: "",
-        funder_id: "",
-        award_id: "",
-        opportunity_number: "",
-    
-        project_title: "",
-        project_abstract: "",
-        project_start: "",
-        project_end: "",
-    
-        contact: {},
-        contributors: [],
-        datasets: [],
-        related_identifiers: [],
-        versions: [],
-      }
-    const formData = await getData() || defaultData;
+    return () => {
+      //Cleanup function
+      controller.abort();
+    }
+   
+  }, []);
 
   function dmpIdWithoutAddress() {
     return formData.dmp_id?.replace('https://doi.org/', '');
