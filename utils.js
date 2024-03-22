@@ -19,7 +19,5 @@ export const SanitizeHTML = ({ html, options}) => (
 );
 
 export function inDevMode() {
-  const url = new URL(header_url);
-  return url.hostname === 'localhost';
-  //return window.location.hostname === 'localhost';
+  return window.location.hostname === 'localhost';
 }
