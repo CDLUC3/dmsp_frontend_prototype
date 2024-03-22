@@ -1,9 +1,7 @@
-import { gql, useQuery } from '@apollo/client';
-import createApolloClient from "@/apollo-client";
-import {headers} from 'next/headers';
 import {redirect} from 'next/navigation';
 import Image from 'next/image';
 import narrativeLogo from '@/public/images/u153.svg';
+import { DmpApi } from "../../../api";
 
 import { DmptoolLink, Link } from '@/components/link/link';
 
@@ -18,7 +16,7 @@ import Versions from "@/components/versions";
 import Works from "@/components//works";
 import '../[...slug]/dmps.scss';
 
-const client = createApolloClient();
+
 
 interface RelatedIdentifier {
     descriptor: string;
@@ -57,142 +55,61 @@ interface FormData {
     versions: String[],
 }
 
+
 function getUrl() {
-    const headersList = headers();
-    const header_url = headersList.get('x-url') || "";
-    const url = new URL(header_url);
-    let apiHost = (url.hostname === 'localhost') ? 'api.dmphub.uc3dev.cdlib.net' : `api.${url.hostname}`;
-    let version = url.search !== undefined ? url.search : '';
-    version = version.replace('?', '%3F').replace('=', '%3D')
-    return `https://${apiHost}${url.pathname}${version}`;
+    return "https://api.dmphub.uc3dev.cdlib.net/dmps/10.48321/D1SP4H";
 }
 
-const GET_DATA = gql `
-query getDMSP($pk: String!) {
-    getDMSP(PK: $pk) {
-        contact {
-            name
-          }
-          contributor {
-            name
-            role
-            contributor_id {
-              type
-              identifier
-            }
-            dmproadmap_affiliation {
-              name
-              affiliation_id {
-                type
-                identifier
-              }
-            }
-          }
-          created
-          description
-          dataset {
-            title
-            type
-            description
-            keyword
-            issued
-            distribution {
-              license {
-                license_ref
-              }
-              host {
-                url
-                title
-              }
-            }
-            metadata {
-              metadata_standard_id {
-                identifier
-              }
-              description
-            }
-          }
-          dmp_id {
-            identifier
-          }
-          dmphub_versions {
-            timestamp
-            url
-          }
-          dmproadmap_privacy
-          dmproadmap_related_identifiers {
-            descriptor
-            identifier
-            type
-            work_type
-          }
-          ethical_issues_exist
-          modified
-          project {
-            description
-            end
-            funding {
-              name
-              dmproadmap_opportunity_number
-              grant_id {
-                identifier
-              }
-              funder_id {
-                identifier
-              }
-              
-            }
-            start
-            title
-          }
-          title
-    }
-    
-}
-`;
 async function getData() {
-try{
-    const {data} = await client.query({
-      query: GET_DATA,
-      variables: {pk: "DMP#doi.org/10.48321/D136BA4701"}
-    })
-   
-    const dmp = data.getDMSP;
+    'use server'
+        // Fetch the DMP ID metadata from the DMPHub
+        let api = new DmpApi();
 
-    const formData = {
+        const url = getUrl();
+        const options = api.getOptions({});
+    try{
+        const response = await fetch(url,options);
+        api.handleResponse(response);
+        const data = await response.json();
+        
+        if (Array.isArray(data?.items) && data?.items[0] !== null) {
+          let dmp = data.items[0].dmp;
+          const formData = {
+            json_url: url,
+            title: dmp.title || "",
+            description: dmp.description || "",
+            dmp_id: dmp.dmp_id?.identifier || "",
+            privacy: dmp.dmproadmap_privacy || "private",
+            created: dmp.created || "",
+            modified: dmp.modified || "",
+            ethical_issues_exist: dmp.ethical_issues_exits || "unknown",
+            ethical_issues_report: dmp.ethical_issues_reports || "",
 
-        title: dmp.title || "",
-        description: dmp.description || "",
-        dmp_id: dmp.dmp_id?.identifier || "",
-        privacy: dmp.dmproadmap_privacy || "private",
-        created: dmp.created || "",
-        modified: dmp.modified || "",
-        ethical_issues_exist: dmp.ethical_issues_exits || "unknown",
-        ethical_issues_report: dmp.ethical_issues_reports || "",
+            funder_name: dmp.project[0]?.funding[0]?.name || "",
+            funder_id: dmp.project[0]?.funding[0]?.funder_id?.identifier || "",
+            award_id: dmp.project[0]?.funding[0]?.grant_id?.identifier || "",
+            opportunity_number: dmp.project[0]?.funding[0]?.dmproadmap_funding_opportunity_id?.identifiergetValue || "",
 
-        funder_name: dmp.project[0]?.funding[0]?.name || "",
-        funder_id: dmp.project[0]?.funding[0]?.funder_id?.identifier || "",
-        award_id: dmp.project[0]?.funding[0]?.grant_id?.identifier || "",
-        opportunity_number: dmp.project[0]?.funding[0]?.dmproadmap_funding_opportunity_id?.identifiergetValue || "",
-
-        project_title: dmp.project[0]?.title || "",
-        project_abstract: dmp.project[0]?.description || "",
-        project_start: dmp.project[0]?.start || "",
-        project_end: dmp.project[0]?.end || "",
-        contact: dmp.contact || {},
-        contributors: dmp.contributor || [],
-        datasets: dmp.dataset || [],
-        related_identifiers: dmp.dmproadmap_related_identifiers || [],
-        versions: dmp.dmphub_versions || [],
-      };
-      return formData;
-    }catch(error){
-      console.log(`Something went wrong: ${error.message}`)
-    }
+            project_title: dmp.project[0]?.title || "",
+            project_abstract: dmp.project[0]?.description || "",
+            project_start: dmp.project[0]?.start || "",
+            project_end: dmp.project[0]?.end || "",
+            contact: dmp.contact || {},
+            contributors: dmp.contributor || [],
+            datasets: dmp.dataset || [],
+            related_identifiers: dmp.dmproadmap_related_identifiers || [],
+            versions: dmp.dmphub_versions || [],
+          };
+          return formData;
+        } else {
+          redirect('/not_found')
+        }
+      } catch(error:any) {
+        return null
+      }
 }
 
 const Landing = async() => {
-    const pageUrl = getUrl();
 
     const defaultData = {
         title: "Loading ...",
@@ -269,7 +186,7 @@ const Landing = async() => {
       <div className="t-step__landing-title">
         <div className={isPublic() ? 'dmp-title' : 'dmp-title-wide'}>
           <p>This page describes a data management plan written for the <FunderLink/> using the <DmptoolLink/>.
-             You can access this infomation as <Link href={pageUrl} label='json' remote='true'/> here.</p>
+             You can access this infomation as <Link href={formData.json_url} label='json' remote='true'/> here.</p>
           <h1>{formData.title === '' ? formData.project_title : formData.title}</h1>
         </div>
         {isPublic() && narrativeUrl() && (

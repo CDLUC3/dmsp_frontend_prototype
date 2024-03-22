@@ -47,7 +47,7 @@ function OrcidLink(props:any) {
   if (person !== undefined) {
     if ('contributor_id' in person || 'contact_id' in person) {
       let orcid = 'contributor_id' in person ? person.contributor_id : person.contact_id
-      if ('identifier' in orcid) {
+      if (orcid && 'identifier' in orcid) {
         return (
           <Link href={orcid.identifier} label={orcid.identifier.replace(/https?:\/\/orcid.org\//i, '')}
                 remote='true' index={idx + 'oid'} className="c-orcid"/>

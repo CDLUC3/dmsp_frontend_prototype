@@ -6,7 +6,7 @@ function ResearchDomains(props) {
 
   if (Array.isArray(datasets) && datasets.length > 0) {
     let keywords = datasets.map((item) => item?.keyword);
-    if (keywords[0] !== undefined) {
+    if (keywords[0] && keywords[0] !== undefined) {
       keywords = keywords.flat().map((item) => item?.replace(/^[\d.]+\s+-\s+/i, ''));
       keywords = [...new Set(keywords)];
 
