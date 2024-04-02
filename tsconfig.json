@@ -21,6 +21,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/[...slug].tsx",".next/types/**/*.ts", "components/abstract.js", "utils.js", "utils.js", "app/sign-up/page.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/[...slug].tsx",".next/types/**/*.ts", "components/abstract.js", "utils.js", "utils.js"],
   "exclude": ["node_modules"]
 }

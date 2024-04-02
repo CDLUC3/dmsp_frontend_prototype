@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@apollo/client": "^3.9.8",
-    "@aws-amplify/ui-react": "^6.1.6",
     "@types/next": "^9.0.0",
     "aws-amplify": "^6.0.21",
     "graphql": "^16.8.1",
@@ -21,7 +20,6 @@
     "react-router-dom": "^6.22.3"
   },
   "devDependencies": {
-    "@aws-amplify/cli": "^12.10.1",
     "@types/node": "^20",
     "@types/react": "^18.2.70",
     "@types/react-dom": "^18",

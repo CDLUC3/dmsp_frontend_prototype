@@ -2,35 +2,46 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, run the development server:
+### Installation
 
+#### Prerequisites
+- Docker
+- Node.js
+
+#### Development
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone git@github.com:CDLUC3/dmsp_frontend_prototype.git
+cd dmsp_frontend_prototype
+```
+2. Build and run the development Docker container
+```bash
+docker build -f Dockerfile.dev -t dmsp_frontend_prototype:dmsp_frontend_dev .
+
+docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_dev
+```
+3. Run the following to check that your container is up
+```bash
+docker container ls -a
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Access the site at http://localhost:3000
+You can view the landing page by going directly to http://localhost:3000/dmps/10.48321/D1SP4H
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+#### Production
+1. Clone the repository (if not already done in the development steps)
+```bash
+git clone git@github.com:CDLUC3/dmsp_frontend_prototype.git
+cd dmsp_frontend_prototype
+```
+2. Build and run the production Docker container
+```bash
+docker build -f Dockerfile.prod -t dmsp_frontend_prototype:dmsp_frontend_prod .
 
-## Learn More
+docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
+```
+3. Access the Next.js app at http://localhost:3000
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
