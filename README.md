@@ -16,9 +16,8 @@ cd dmsp_frontend_prototype
 ```
 2. Build and run the development Docker container
 ```bash
-docker build -f Dockerfile.dev -t dmsp_frontend_prototype:dmsp_frontend_dev .
-
-docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_dev
+docker-compose build
+docker-compose up
 ```
 3. Run the following to check that your container is up
 ```bash
