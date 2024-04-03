@@ -1,48 +1,50 @@
 
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap');
 @import '@/components/responsive';
 
+.c-skipnav {
+  color: #fff !important;
+}
 body {
-  //margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
-
 :root {
-  // Colors:
-  --dmptool-brand-black: rgb(22, 64, 75);
-  --dmptool-brand-blue: rgb(0, 85, 129);
-  --dmptool-brand-gray: rgb(170, 170, 170);
-  --dmptool-brand-green: rgb(14, 130, 86);
-  --dmptool-brand-orange: rgb(207, 72, 23);
-  --dmptool-brand-red: rgb(255, 0, 0);
-  --dmptool-brand-white: rgb(255, 255, 255);
+  // TODO:: Use proper colour names here and replace the values for our
+  // components with those.
 
-  // Spacing:
-  --dmptool-brand-space1: 0.5em;
-  --dmptool-brand-space2: 1em;
-  --dmptool-brand-space3: 1.5em;
+  --dmpui-brand-gray-100: #f2f2f2;
 
-  // General:
-  --dmptool-brand-line-height0: 1.1;
-  --dmptool-brand-line-height1: 1.3;
-  --dmptool-brand-line-height2: 1.5;
+  --dmpui-brand-blue-100: #f0fbff;
+  --dmpui-brand-blue-200: #eff6ff;
+
+  --dmpui-brand-blue-400: #54d8ff;
+  --dmpui-brand-blue-500: #004eaa;
+  //--dmpui-brand-blue-600: #000;
+  //--dmpui-brand-blue-700: #000;
+  --dmpui-brand-blue-800: #0c0b57;
+  --dmpui-brand-blue-900: #05042e;
+
+  --dmpui-brand-red-500: #d3273e;
+
+  --dmpui-brand-yellow-100: #fefce8;
+  --dmpui-brand-yellow-500: #ffc845;
+
+  --dmpui-brand-green-100: #f0fdf4;
+  --dmpui-brand-green-500: #006c6c;
 
   /* Root level css variables go here */
-  --btn-font-family: 'Poppins', sans-serif;
+  --btn-font-family: "Poppins", sans-serif;
   --btn-basic-bg-color: #ddd;
   --btn-basic-fg-color: #333;
   --btn-border-radius: 20px;
@@ -56,265 +58,459 @@ code {
   --form-field-fg-color: #333;
   --form-field-border-color: #e1e1e1;
 
-  --input-required-color: red;
+  --input-required-color: var(--dmpui-brand-red-500);
+  --error-color: var(--dmpui-brand-red-500);
 
   /* Data Grid */
-  --grid-gap: 1em;
+  --grid-gap: 1rem;
+  --grid-row-selected-bg: var(--dmpui-brand-gray-100);
+  --grid-row-selected-fg: var(--dmpui-brand-blue-900);
 }
 
-
 #App {
-  font-family: 'Poppins', sans-serif;
-  font-weight: 500;
-  font-size: 1em;
-
-  max-width: 1200px;
-  margin: 0 auto;
-  line-height: var(--dmptool-brand-line-height0);
-
-  a,
-  a:hover,
-  a:active,
-  a:visited {
-    color: var(--dmptool-brand-green);
-  }
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
 
   h1,
   h2,
   h3,
-  h4 {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 400;
+  h4,
+  h5,
+  h6 {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    color: var(--dmpui-brand-blue-900);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
   }
 
-  h1 {
-    color: var(--dmptool-brand-blue);
-    font-size: 1.75em;
+  h1,
+  .h1 {
+    font-size: 1.875rem;
   }
 
-  h2 {
-    color: var(--dmptool-brand-green);
-    font-size: 1.5em;
-    margin-top: 10px;
+  h2,
+  .h2 {
+    font-size: 1.5625rem;
   }
 
-  h3 {
-    color: var(--dmptool-brand-white);
-    background-color: var(--dmptool-brand-blue);
-    font-size: 1.3em;
-    padding: 5px 10px 5px 3px;
-  }
-
-  h4 {
-    color: var(--dmptool-brand-green);
-    font-size: 1.2em;
+  h3,
+  .h3 {
+    font-size: 1.125rem;
   }
 
   p {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    font-size: 1em;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
     color: var(--dmpui-brand-blue-900);
   }
 
   a {
+    color: var(--dmpui-brand-blue-500);
+
     &:hover {
+      text-decoration: underline;
+      outline-offset: 2px;
+      color: var(--dmpui-brand-blue-900);
+    }
+    &:focus {
+      outline-offset: 2px;
+      color: #000;
+      background-color: #fd0;
+      box-shadow: 0 -2px 0px 0px rgba(255, 221, 0, 0.281),
+        0 4px rgba(255, 221, 0, 0.281);
+      text-decoration: none;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      outline: none !important;
       text-decoration: underline;
     }
   }
+}
 
-  .red {
-    color: var(--dmptool-brand-red);
+.todo {
+  --_color-todo: var(--color-todo, #700);
+
+  position: relative;
+  border: 1px dashed var(--_color-todo);
+}
+
+.todo:after {
+  content: "todo";
+  position: absolute;
+  background-color: var(--_color-todo);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 0.25em;
+  top: 0;
+  right: 0;
+}
+
+body {
+  /* TODO:: */
+}
+
+@import "components/forms";
+
+/* Dialog and Fullscreen API Styles */
+dialog {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  border-radius: 0.6rem;
+  background-color: white;
+  box-shadow: 0 0 1em black;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  max-width: 750px;
+  width: 80vw;
+}
+
+::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Tables */
+
+// TODO::FIXME:: This data grid component is just temporary. Chances are we'll
+// be using a third party grid. We use the following just wile setting up the
+// basic layout
+.data-grid {
+  display: grid;
+  grid-gap: var(--grid-gap);
+}
+
+.data-heading {
+  font-weight: 700;
+}
+
+#App p.dmpui-field-error {
+  color: var(--dmpui-brand-red-500);
+  &::before {
+    content: "⚠ ";
+  }
+}
+
+.dmpui-heading {
+  text-align: left;
+  margin-top: 1rem;
+
+  h1,
+  .h1 {
+    margin-bottom: 1.25rem;
   }
 
-  header,
-  #root,
-  footer {
-    padding: var(--dmptool-brand-space1) var(--dmptool-brand-space2);
+  h2,
+  .h2 {
+    margin-bottom: 1.25rem;
   }
 
-  // ***** Header Component ***** //
-  header {
+  &.with-action-button {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    column-gap: var(--dmptool-brand-space2);
-    row-gap: var(--dmptool-brand-space3);
+  }
+}
 
-    background-color: var(--dmptool-brand-blue);
-    color: var(--dmptool-brand-white);
-    font-size: 1.1em;
+.plan-steps {
+  text-align: left;
+  padding: 2.5rem 2.5rem 2.5rem 2.5rem;
+  border: 1px solid #eee;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+}
+
+.page-actions {
+  margin: 2rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+
+  button {
+    margin-left: 10px;
   }
-  header .dmptool-logo {
-    width: 140px;
-    height: auto;
+
+  .dmpui-status{
+    width: 100%;
+    text-align: right;
   }
-  header .dmp-menu {
-    margin: 0;
+  .dmpui-field-error {
+    width: 100%;
+    text-align: right;
+    margin-top: 10px;
   }
-  header .dmp-menu ul {
-    list-style: none;
+}
+
+.dmpdui-top-actions {
+  margin: 2rem 0 1rem 0;
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    margin-left: 10px;
+  }
+}
+
+.plan-steps-step {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  padding: 1.125rem 0;
+  align-items: center;
+
+  &.last {
+    border-bottom: 1px solid transparent;
+  }
+
+  p {
+    line-height: normal;
+    color: var(--dmpui-brand-blue-500);
+    text-decoration: none;
     margin: 0;
     padding: 0;
-  }
-  header .dmp-menu li {
-    display: inline;
-    margin-left: var(--dmptool-brand-space2);
-  }
-  header .dmp-menu li strong {
-    font-weight: 600;
-    margin-right: var(--dmptool-brand-space1);
+    font-size: 1.125rem;
   }
 
-  // Dropdown Versions menu
-  header .dropbtn {
-    background-color: var(--dmptool-brand-blue);
-    color: var(--dmptool-brand-white);
-    border: none;
-    font-size: 1em;
-    font-weight: 500;
-  }
-  header .dropdown {
-    position: relative;
-    display: inline-block;
-  }
-  header .dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background-color: var(--dmptool-brand-white);
-    min-width: 178px;
-    box-shadow: 0px 8px 16px 0px var(--dmptool-brand-gray);
-    z-index: 1;
-  }
-  header .dropdown-content a {
-    color: var(--dmptool-brand-blue);
-    padding: 12px 4px;
+  a {
+    line-height: normal;
+    color: var(--dmpui-brand-blue-500);
     text-decoration: none;
-    display: block;
-  }
-  header .dropdown-content a:hover {
-    background-color: var(--dmptool-brand-white);
-  }
-  header .dropdown:hover .dropdown-content {
-    display: block;
-  }
-  header .dropdown:hover .dropbtn {
-    background-color: var(--dmptool-brand-white);
-    color: var(--dmptool-brand-blue);
-  }
-  header span.arrow {
-    border: solid var(--dmptool-brand-white);
-    border-width: 0 3px 3px 0;
-    display: inline-block;
-    padding: 3px;
-    margin-left: 4px;
-  }
-  header span.up {
-    transform: rotate(-135deg);
-    -webkit-transform: rotate(-135deg);
-  }
-  header span.down {
-    transform: rotate(45deg);
-    -webkit-transform: rotate(45deg);
-  }
-
-  main {
-    margin-bottom: 25px;
-  }
-
-  
-
-  // ***** Footer Component ***** //
-  footer {
-    margin-block-end: var(--dmptool-brand-space2);
-    padding-block-start: var(--dmptool-brand-space2);
-    border-top: 2px solid var(--dmptool-brand-blue);
-  }
-  footer p {
     margin: 0;
-    font-size: 0.8em;
-  }
-  footer nav {
-    margin-bottom: 10px
-  }
-  footer nav a:not(:first-child) {
-    margin-left: 15px;
-    margin-right: 5px;
-  }
-}
+    padding: 0;
 
-/* NOTE:: Since we are doing responsive, all CSS that DOESN'T use
- * media queries will be assumed to be for mobile sizes.
- */
-
-// Responsive Sizes
-$mobile-small: 320px;
-$mobile: 375px;
-$mobile-large: 425px;
-$phablet: 560px;
-$tablet-small: 640px;
-$tablet: 768px;
-$laptop: 1024px;
-$laptop-large: 1440px;
-$display-4k: 2560px;
-
-
-// A quick helper to quickly create a media query block for a named device
-@mixin device($breakpoint) {
-  @if $breakpoint == mobile-small {
-    @media screen and (min-width: $mobile-small) {
-      @content;
+    &:hover {
+      outline: none !important;
+      text-decoration: underline;
     }
-  }
 
-  @if $breakpoint ==mobile {
-    @media screen and (min-width: $mobile-small) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==mobile-large {
-    @media screen and (min-width: $mobile-large) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==phablet {
-    @media screen and (min-width: $phablet) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==tablet-small {
-    @media screen and (min-width: $tablet-small) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==tablet {
-    @media screen and (min-width: $tablet) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==laptop {
-    @media screen and (min-width: $laptop) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==laptop-large {
-    @media screen and (min-width: $laptop-large) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==display-4k {
-    @media screen and (min-width: $display-4k) {
-      @content;
+    &:active,
+    &:focus {
+      color: #0b0c0c;
+      background-color: #fd0;
+      box-shadow: 0 -2px 0px 0px rgba(255, 221, 0, 0.281),
+        0 4px rgba(255, 221, 0, 0.281);
+      text-decoration: none;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      outline: none !important;
+      text-decoration: underline;
     }
   }
 }
+
+.step-status {
+  padding: 0.3rem 0.8rem;
+  background: var(--dmpui-brand-gray-100);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 300;
+  line-height: normal;
+  color: var(--dmpui-brand-blue-900);
+  margin-left: 1rem;
+
+  &.status-completed {
+    background-color: var(--dmpui-brand-green-100);
+    color: var(--dmpui-brand-blue-900);
+  }
+
+  &.status-recommended {
+    background-color: var(--dmpui-brand-blue-100);
+    color: var(--dmpui-brand-blue-900);
+  }
+
+  &.status-notstart {
+    background-color: var(--dmpui-brand-blue-200);
+    color: var(--dmpui-brand-blue-900);
+  }
+
+  &.status-error {
+    color: var(--dmpui-brand-red-500);
+    &::before { content: "⚠ "; }
+  }
+}
+
+.dmpdui-list {
+  padding: 2.5rem;
+  border: 1px solid #eee;
+  margin: 2rem 0;
+
+  display: grid;
+  grid-gap: var(--grid-gap);
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: auto;
+
+  align-items: center;
+
+  .empty-list {
+    grid-row: 1;
+    grid-column: 1 / span 2;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  [data-colname="actions"] {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    padding: 0
+  }
+
+  @include device(tablet) {
+    grid-template-columns: repeat(3, 1fr);
+
+    .empty-list {
+      grid-column: 1 / span 3;
+    }
+  }
+
+  @include device(laptop) {
+  }
+
+  @include device(laptop-large) {
+  }
+
+  &.dmpdui-list-research {
+    grid-template-columns: repeat(6, 1fr);
+
+    .empty-list {
+      grid-column: 1 / span 6;
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+.dmpui-table {
+    a:hover,
+    a:focus,
+    a:active {
+      outline-style: none;
+      outline-width: 0;
+    }
+  }
+  table thead th {
+    background-color: transparent;
+  }
+  table tbody tr:nth-child(2n) {
+    background-color: transparent;
+  }
+  td:focus-within,
+  td:focus,
+  td:hover {
+    outline-style: none !important;
+    outline-width: 0 !important;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .dmpui-table {
+    min-width: 600px; /* adjust this to the minimum width at which you want the table to start scrolling */
+
+    margin-bottom: 2rem;
+    min-width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-color: #e2e8f0;
+    thead tr {
+      border-bottom: 1px solid var(--dmpui-brand-blue-900) !important;
+    }
+    tr {
+      border-bottom: 1px solid #eee;
+    }
+
+    .empty-list{
+      text-align: center;
+      td{
+        padding: 2rem 0;
+      }
+
+    }
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+
+  .table-header-name {
+    padding: 0.875rem 0.75rem 0.875rem 1rem;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--dmpui-brand-blue-900);
+  }
+
+  .table-body {
+    border-top: 1px solid var(--dmpui-brand-blue-500);
+    background-color: #fff;
+    vertical-align: top;
+  }
+  .filter-button {
+    padding: 5px 10px;
+    font-size: 1rem;
+    background-color: #eee;
+    border-color: #ddd;
+    border-radius: 9px;
+  }
+  .filter-button:hover {
+    background-color: #e3e4eb;
+  }
+  .table-data-name {
+    padding: 1rem 0.75rem 1rem 1rem;
+
+    color: var(--dmpui-brand-blue-900);
+  }
+  .table-data-title a {
+    color: var(--dmpui-brand-blue-900);
+    font-weight: 400;
+  }
+  .table-data-date {
+    padding: 1rem 0.75rem 1rem 1rem;
+
+    white-space: nowrap;
+    color: var(--dmpui-brand-blue-900);
+  }
+  .table-data-actions a {
+    color: var(--dmpui-brand-blue-500) !important;
+    text-decoration: underline;
+    font-weight: 700;
+    line-height: normal;
+    text-decoration-thickness: 2px;
+    text-decoration-skip-ink: auto;
+  }
+
+
+  .hidden-accessibly {
+    /* Contain text within 1px box */
+    height: 1px;
+    overflow: hidden;
+    width: 1px;
+    /* Keep the layout */
+    position: absolute;
+    /* Remove any visible trace (e.g. background color) */
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%); /* browsers in the future */
+    /* Prevent the screen reader to skip spaces between words */
+    white-space: nowrap;
+  }
