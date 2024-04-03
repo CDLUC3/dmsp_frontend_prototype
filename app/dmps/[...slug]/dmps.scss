@@ -1,0 +1,150 @@
+/* Controls the DMP title and PDF link section */
+main .t-step__landing-title {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: var(--dmptool-brand-space2);
+    row-gap: var(--dmptool-brand-space3);
+    margin: 0 50px;
+  }
+  main .t-step__landing-title p {
+    font-size: .9em;
+    font-weight: 600;
+  }
+  main .t-step__landing-title .dmp-title {
+    max-width: 70%;
+  }
+  main .t-step__landing-title .dmp-title-wide {
+    max-width: 100%;
+  }
+  main .t-step__landing-title .dmp-pdf {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--dmptool-brand-green);
+    padding: 20px;
+    max-width: 240px;
+    font-size: 1.2em;
+  }
+  main .t-step__landing-title .dmp-pdf img{
+    height: 36px;
+    width: 27px;
+    margin-right: 20px;
+  }
+
+  /* Controls the content of the DMP */
+  main .t-step__content {
+    display: flex;
+    flex-direction: column;
+  }
+  main .t-step__content h2 {
+    border-left: 1pt solid var(--dmptool-brand-black);
+    border-top: 1pt solid var(--dmptool-brand-black);
+    font-size: 1.4em;
+    color: var(--dmptool-brand-blue);
+    margin: 10px 50px 10px 30px;
+    padding: 8px 10px;
+  }
+  main .t-step__content h3 {
+    background-color: var(--dmptool-brand-white);
+    color: var(--dmptool-brand-blue);
+    margin: 10px 0px 10px 0px;
+    font-size: 1.2em;
+  }
+  main .t-step__content div.text-block {
+    max-width: 80%;
+    margin: 0 0px 10px 20px;
+    font-size: 1.1em;
+  }
+  main .t-step__content div.text-block p {
+    margin: 0 0 5px 0;
+  }
+  main .t-step__content ul li ul {
+    max-width: 80%;
+    list-style: none;
+    margin: 0 0 15px 20px;
+    padding-left: 0;
+    font-size: 1.1em;
+  }
+  main .t-step__content ul {
+    max-width: 80%;
+    list-style: none;
+    margin: 0 30px 15px 20px;
+    font-size: 1.1em;
+  }
+  main .t-step__content ul li {
+    margin-bottom: 5px;
+  }
+  main .t-step__content ul li.margin10 {
+    margin-bottom: 10px;
+  }
+  main .t-step__content ul li strong {
+    font-weight: 600;
+    padding-right: 5px;
+  }
+  main .t-step__content ul li span {
+    padding-right: 8px;
+  }
+
+  main .landing-list li span a {
+   margin-right: 10px;
+  }
+
+  main .landing-list p {
+    line-height: var(--dmptool-brand-line-height1);
+  }
+
+  // ***** List item separators ***** //
+  li.comma-separated a:not(:last-child) {
+    &::after {
+      content: ',';
+      margin-right: 6px;
+    }
+  }
+  li.period-separated span:not(:last-child) {
+    &::after {
+      content: '.';
+    }
+  }
+
+  // ***** Citation ***** //
+  main .t-step__content ul.citation li span {
+    padding-right: 4px;
+  }
+
+  // ***** Project Abstract ***** //
+  main .t-step__content ul.abstract p {
+    line-height: var(--dmptool-brand-line-height2);
+  }
+  main .t-step__content ul.abstract ul {
+    list-style: revert;
+    list-style-type: disc;
+  }
+  main .t-step__content ul.abstract ol {
+    list-style: revert;
+  }
+  main .t-step__content ul.abstract table {
+    border: 1px solid var(--dmptool-brand-black);
+  }
+  main .t-step__content ul.abstract tr:not(:last-child) {
+    border-bottom: 1px solid var(--dmptool-brand-black);
+  }
+
+  // ***** Orcid Component ***** //
+  .c-orcid {
+    display: inline-block;
+    position: relative;
+    padding-inline-start: 1.2em;
+
+    &::before {
+      content: url('/images/orcid.svg');
+      position: absolute;
+      left: 0;
+      width: 1em;
+      padding-top: 2px;
+      inset-block: 0;
+      inset-inline-start: 0;
+      margin-inline-end: 1em;
+    }
+  }

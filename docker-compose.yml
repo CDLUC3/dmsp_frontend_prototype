@@ -1,0 +1,9 @@
+services:
+  dmsp-frontend-prototype:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev # development Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app # Mount the current directory to /app inside the container
