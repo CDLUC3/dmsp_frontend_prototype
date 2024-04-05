@@ -2,10 +2,10 @@ import Image from 'next/image';
 import DMPLogo from '@/public/images/DMP-logo.svg';
 import './contributor-roles.scss';
 
-export default function ContributorRolesLayout({children}) {
+export default function ContributorRolesLayout({ children }) {
     return (
         <div className="wrapper">
-            <header>
+            {/* <header>
                 <div className="dmpui-frontend-container dmpui-frontend dmpui-frontend-header">
                     <div className="header-logo dmpui-grow">
                         <a href="/">
@@ -13,8 +13,10 @@ export default function ContributorRolesLayout({children}) {
                         </a>
                     </div>
                 </div>
-            </header>
-            {children}
+            </header> */}
+            <div id="App">
+                {children}
+            </div>
         </div>
     )
 }

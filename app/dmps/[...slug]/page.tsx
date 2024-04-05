@@ -322,7 +322,6 @@ const Landing = async() => {
         <Works works={filterWorks(formData.related_identifiers)}/>
       }
 
-      <Footer/>
     </div>
   );
 }

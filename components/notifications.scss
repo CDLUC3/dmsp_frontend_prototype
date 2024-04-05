@@ -1,0 +1,48 @@
+@use '@/styles/variables/colours' as *;
+/* Notifications */
+.notification-area {
+  margin-bottom: 5px;
+}
+.c-notification--info,
+.c-notification--warning,
+.c-notification--danger {
+  padding: 5px;
+  border-radius: 10px;
+  margin: 2px 0;
+
+  p {
+    margin: 0;
+  }
+}
+
+.c-notification--info {
+  background-color: $color-green;
+  color: $color-grey;
+
+  a {
+    color: $color-grey;
+    text-decoration: underline;
+  }
+}
+.c-notification--warning {
+  background-color: $color-gold;
+  color: $color-black;
+
+  a {
+    color: $color-black;
+    text-decoration: underline;
+  }
+}
+.c-notification--danger {
+  background-color: $color-red;
+  color: $color-grey;
+
+  a {
+    color: $color-grey;
+    text-decoration: underline;
+  }
+}
+
+.alert.alert-info {
+  @extend .c-notification--warning;
+}

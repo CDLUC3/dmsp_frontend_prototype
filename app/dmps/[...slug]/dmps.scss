@@ -35,7 +35,7 @@ code {
   --dmptool-brand-line-height2: 1.5;
 
   /* Root level css variables go here */
-  --btn-font-family: 'Poppins', sans-serif;
+  --btn-font-family: var(--font-poppins), sans-serif;
   --btn-basic-bg-color: #ddd;
   --btn-basic-fg-color: #333;
   --btn-border-radius: 20px;
@@ -57,7 +57,7 @@ code {
 
 
 #App {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-poppins), sans-serif;
   font-weight: 500;
   font-size: 1em;
 
@@ -76,7 +76,7 @@ code {
   h2,
   h3,
   h4 {
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-poppins), sans-serif;
     font-weight: 400;
   }
 
@@ -104,7 +104,7 @@ code {
   }
 
   p {
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-poppins), sans-serif;
     font-weight: 500;
     font-size: 1em;
     color: var(--dmpui-brand-blue-900);
