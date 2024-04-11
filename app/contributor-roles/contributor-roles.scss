@@ -43,9 +43,15 @@ input:focus {
     width: 100%;
     margin: 0px auto;
 
+    button {
+      padding-right: 10px;
+      border: 0;
+    }
+
     button:hover {
       text-decoration: underline;
     }
+
     .dashboard-table {
   
       a:hover,
@@ -66,10 +72,20 @@ input:focus {
   
     .btn-close {
       transform: translate(10px, -20px);
-      padding: 0.5rem 0.7rem;
-      background: #eee;
+      border:1px solid black;
       border-radius: 50%;
+      background: #eee;
+      border: 1px solid black;
       margin-left: auto;
+      font-size: 14px;
+      width: 24px;
+      height: 24px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
     }
   
     td:focus-within,
@@ -135,9 +151,9 @@ input:focus {
     }
   
     .table-data-name {
-      padding: 1rem 0.75rem 1rem 1rem;
-  
       color: var(--dmpui-brand-blue-900);
+      padding: 1rem 0.75rem 1rem 1rem;
+      vertical-align:middle;
     }
   
     .table-data-title a {
@@ -272,6 +288,7 @@ input:focus {
   }
   
   @media screen and (min-width: 1024px) {
+    #Dashboard {
     .filter-clear-all-button {
       margin-left: 2rem;
     }
@@ -281,9 +298,11 @@ input:focus {
     }
 
     button {
+      border: 1px solid var(--dmpui-brand-blue-900);
       padding: 0.5rem 1rem;
       font-size: inherit;
     }
+  }
   }
   
   

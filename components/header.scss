@@ -25,9 +25,9 @@ button.mobile-icon {
   z-index: 100;
 }
 
-.dmpui-dropdown:hover .dmpui-dropdown-content {
-  display: block;
-}
+// .dmpui-dropdown:hover .dmpui-dropdown-content {
+//   display: block;
+// }
 
 
 .c-skipnav {
@@ -52,6 +52,8 @@ button.mobile-icon {
   transform: translate(0%);
 }
 
+/*Mobile menu*/
+.dmpui-frontend-header {
 .mobile-menu {
   position: fixed;
   top: 0;
@@ -113,11 +115,12 @@ button:hover img {
   overflow-y: scroll;
 }
 
-.dmpui-frontend-header ul.mobile-menu-submenu {
+ul.mobile-menu-submenu {
   margin-left: 15px;
   margin-bottom: 5px;
 }
 
 #mobile-menu-close {
   padding: 0.5rem 1rem;
+}
 }

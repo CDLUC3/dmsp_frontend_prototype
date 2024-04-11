@@ -4,7 +4,7 @@ import { ApolloClient, InMemoryCache } from "@apollo/client";
 
 const createApolloClient = () => {
   return new ApolloClient({
-    uri: "https://graphql.dmphub.uc3dev.cdlib.net/",
+    uri: "http://localhost:3000/",
     cache: new InMemoryCache(),
   });
 };

@@ -1,8 +1,12 @@
+import StateContext from '@/app/StateContext';
+import DispatchContext from '@/app/DispatchContext';
+
 import './notifications.scss';
 
 function Notifications() {
     return (
         <div id="notification-area" className="c-notificationgroup">
+
 
             {/*Success message */}
             <div id="js-notification-info" className="c-notification--info hide" role="alert">

@@ -1,32 +1,30 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, FormEventHandler } from 'react';
 import Page from '@/components/Page';
 import TextInput from '@/components/TextInput';
+import { getContributors } from '@/lib/graphql/queries';
+import { addContributor, deleteContributor, updateContributor } from '@/lib/graphql/mutations';
 
 
-interface RolesInterface {
-  id: number,
+type RolesInterface = {
+  id: string,
   label: string;
   url: string;
 }
 
 export default function ContributorRoles() {
-  const [roles, setRoles] = useState<RolesInterface[]>([
-    { "id": 1, "label": "Data Manager", "url": "https://credit.niso.org/contributor-roles/data-curation/" },
-    { "id": 2, "label": "Principal Investigator", "url": "https://credit.niso.org/contributor-roles/investigation/" },
-    { "id": 3, "label": "Project Administrator", "url": "https://credit.niso.org/contributor-roles/project-administration/" }
-  ]);
+  const [roles, setRoles] = useState<RolesInterface[]>([]);
   const [role, setRole] = useState<string>('');
   const [url, setUrl] = useState<string>('');
   const [open, setOpen] = useState(false);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editedRole, setEditedRole] = useState('');
   const [editedUrl, setEditedUrl] = useState('');
 
-  const inputRef = useRef(null);
-  const buttonRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const returnFocusToButton = () => {
     if (buttonRef.current) {
@@ -51,23 +49,35 @@ export default function ContributorRoles() {
     return false;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const count = roles.length + 1;
-    const newData = { id: count, label: role, url: url };
-    setRoles(prev => {
-      return [
-        ...prev,
-        newData
-      ]
-    })
+    /*TODO: validate fields*/
 
-    setRole('');
-    setUrl('');
-    setShowFilterDrawer(false)
+    try {
+      const data = await addContributor({ url, label: role });
+      const newRole: RolesInterface = {
+        id: data.id,
+        label: data.label,
+        url: data.url,
+      };
+
+      setRoles(prev => {
+        return [
+          ...prev,
+          newRole
+        ]
+      });
+      //call form.reset()?
+      setRole('');
+      setUrl('');
+      setShowFilterDrawer(false)
+    } catch (err) {
+      console.log("Something went wrong adding adding a contributor")
+    }
+
   }
 
-  function handleEdit(id: number) {
+  function handleEdit(id: string) {
     if (id) {
       setEditingId(id);
       const roleToEdit = roles.find(role => role.id === id);
@@ -78,24 +88,46 @@ export default function ContributorRoles() {
     }
   }
 
-  function handleDelete(id: number) {
-    setRoles(roles.filter(role => role.id !== id))
+  async function handleDelete(id: string) {
+    try {
+      await deleteContributor(id);
+      const contributorRoles = await getContributors();
+      setRoles(contributorRoles);
+    }
+    catch (err) {
+      console.log(`Something went wrong: ${err}`)
+    }
   }
 
-  const handleSave = () => {
-    const updatedData = roles.map(role => {
-      if (role.id === editingId) {
-        return {
-          ...role,
-          id: role.id, label: editedRole, url: editedUrl
-        }
+
+  const handleSave = async () => {
+    const roleToEdit = roles.find(role => role.id === editingId);
+    if (roleToEdit) {
+      try {
+        await updateContributor(roleToEdit.id, editedUrl, editedRole);
+        const contributorRoles = await getContributors();
+        setRoles(contributorRoles);
+        setEditingId(null)
+      } catch (err) {
+        console.log("Error saving edited fields");
       }
-      return role
-    })
-    setRoles(updatedData);
-    setEditingId(null)
-
+    }
   }
+
+  useEffect(() => {
+    async function getRoles() {
+      try {
+        const contributorRoles = await getContributors();
+        setRoles(contributorRoles);
+
+      } catch (err) {
+        console.log(`Something went wrong: ${err}`)
+      }
+
+    }
+
+    getRoles();
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -104,6 +136,7 @@ export default function ContributorRoles() {
       }
     }
   }, [open])
+
   return (
     <Page title="Contributor roles">
       <div id="Dashboard">
@@ -134,7 +167,8 @@ export default function ContributorRoles() {
                         forwardedRef={inputRef}
                         placeholder="Role"
                         inputValue={role}
-                        onChange={(e) => setRole(e.target.value)}
+                        required
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRole(e.target.value)}
                       />
 
                       <TextInput
@@ -144,7 +178,8 @@ export default function ContributorRoles() {
                         id="url"
                         placeholder="Url"
                         inputValue={url}
-                        onChange={(e) => setUrl(e.target.value)}
+                        required
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUrl(e.target.value)}
                       />
                     </div>
                   </div>
@@ -164,13 +199,13 @@ export default function ContributorRoles() {
           <table className="dashboard-table">
             <thead>
               <tr>
-                <th scope="col" className="table-header-name data-heading">
+                <th id="contributor" scope="col" className="table-header-name data-heading">
                   Contributor role
                 </th>
-                <th scope="col" className="table-header-name data-heading no-wrap">
+                <th id="url" scope="col" className="table-header-name data-heading no-wrap">
                   URL
                 </th>
-                <th scope="col" className="table-header-name data-heading">
+                <th id="actions" scope="col" className="table-header-name data-heading">
                   Actions
                 </th>
               </tr>
@@ -181,21 +216,21 @@ export default function ContributorRoles() {
                   <tr key={role.id}>
                     <td className="table-data-name">
                       {editingId === role.id ? (
-                        <input type="text" value={editedRole} onChange={e => setEditedRole(e.target.value)} />
+                        <input type="text" value={editedRole} onChange={e => setEditedRole(e.target.value)} aria-labelledby='contributor' autoFocus />
                       ) : (role.label)}
 
                     </td>
                     <td className="table-data-name">
                       {editingId === role.id ? (
-                        <input type="text" value={editedUrl} onChange={e => setEditedUrl(e.target.value)} />
+                        <input type="text" value={editedUrl} onChange={e => setEditedUrl(e.target.value)} aria-labelledby='url' />
                       ) : (role.url)}
 
                     </td>
                     <td className="table-data-name table-data-actions">
                       {editingId === role.id ? (
-                        <button onClick={handleSave}>Save</button>
-                      ) : (<div><button id={`editRole-${index}`} className="edit-button" onClick={() => handleEdit(role.id)}>Edit</button>
-                        <button id={`editRole-${index}`} className="delete-button" onClick={() => handleDelete(role.id)}>Delete</button> </div>)}
+                        <button onClick={handleSave} aria-labelledby='actions'>Save</button>
+                      ) : (<div><button id={`editRole-${role.id}`} className="edit-button" onClick={() => handleEdit(role.id)}>Edit</button>
+                        <button id={`editRole-${role.id}`} className="delete-button" onClick={() => handleDelete(role.id)} aria-labelledby='actions'>Delete</button> </div>)}
                     </td>
                   </tr>
                 )

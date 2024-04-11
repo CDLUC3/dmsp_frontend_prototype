@@ -4,7 +4,10 @@
 *,
 ::before,
 ::after {
-  box-sizing: border-box;
+  box-sizing: border-box;  
+  font-family: var(--font-poppins), sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
 }
 
 :root {
@@ -31,7 +34,6 @@
 
 body {
   margin: 0;
-  font-family: var(--font-poppins), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 16px;
@@ -81,10 +83,11 @@ dialog {
   display: block !important;
 }
 
+.dmpui-frontend a {
+  padding: 5px;
+}
+
 #App {
-  font-family: var(--font-poppins), sans-serif;
-  font-weight: 400;
-  font-size: 1rem;
 
   h1,
   h2,
@@ -172,7 +175,7 @@ dialog {
     */
   }
   
-  .dmpui-frontend-btn, .btn,
+  .dmpui-frontend .dmpui-frontend-btn, .btn,
   .c-search-clear,
   .js-facet-clear {
     display: inline-block;
@@ -368,64 +371,9 @@ dialog {
     padding-right: 3rem;
   }
   
-  .mobile-menu {
-    position: fixed;
-    top: 0;
-    right: -300px;
-    width: 300px;
-    height: 100%;
-    padding: 1rem;
-    z-index: 99;
-    background-color: var(--dmpui-brand-blue-400);
-    transition: all 0.35s ease;
-    background-image: url("/images/bg-arrow-Up.svg");
-    background-position: bottom right;
-    background-repeat: no-repeat;
-    background-size: 90% auto;
-  }
-  
-  .mobile-menu.show-mobile-menu {
-    right: 0px !important;
-  }
-  
-  .mobile-menu ul {
-    margin-bottom: 2rem;
-  }
-  
-  .mobile-menu li {
-    display: block !important;
-    margin-bottom: 0.8rem !important;
-    margin-left: 0 !important;
-  }
-  
-  .mobile-menu .dmpui-frontend-btn, .mobile-menu .btn,
-  .mobile-menu .c-search-clear,
-  .mobile-menu .js-facet-clear {
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-  
-  button {
-    border: 0;
-    background: none;
-    cursor: pointer;
-    transition: all 0.35s ease;
-  }
-  
-  button:hover img {
-    opacity: 0.7;
-  }
-  
-  .close-mobile-icon {
-    margin-bottom: 2rem;
-    height: 28px;
-  }
-
   .dmpui-frontend .dmpui-frontend-icon-grid {
     margin-top: 3rem;
   }
-  
-  
   
   .dmpui-frontend.dmpui-blog-latest {
     background-color: var(--dmpui-brand-blue-100);
@@ -484,72 +432,6 @@ dialog {
     .dmpui-frontend .stats-list {
       grid-template-columns: repeat(3, 1fr);
     }
-  }
-  .dmpui-frontend .stats-item {
-    padding: 2rem;
-    height: 330px;
-    border-radius: 1rem;
-    background-color: var(--dmpui-brand-blue-950);
-    background-image: url("/images/bg-arrow-Up.svg");
-    background-position: bottom right;
-    background-repeat: no-repeat;
-    background-size: auto 90%;
-  }
-  
-  .dmpui-frontend .stats-item-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    justify-items: end;
-    height: 100%;
-    text-align: center;
-    justify-content: flex-end;
-  }
-  
-  .dmpui-frontend .stats-item-headline {
-    margin-bottom: 0.7rem;
-  }
-  
-  .dmpui-frontend .stats-item-headline p {
-    font-size: 3rem;
-    margin-bottom: 8px;
-    font-weight: 700;
-    color: var(--dmpui-brand-blue-400);
-  }
-  
-  .dmpui-frontend .stats-item-text p a {
-    color: var(--dmpui-brand-blue-400);
-  }
-  
-  .dmpui-frontend .stats-item-text p {
-    color: #fff;
-    font-size: 1.25rem;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .dmpui-frontend .dmpui-frontend-cta {
-    margin: 4rem 0;
-    border-radius: 1rem;
-    padding: 2rem;
-    background-color: #fec744;
-    display: flex;
-    align-items: flex-end;
-  }
-  
-  .dmpui-frontend .benefit-intro-text {
-    background: #fff;
-    border-bottom-left-radius: 1rem;
-    border-bottom-right-radius: 1rem;
-    max-width: 600px;
-    padding: 3rem;
-  }
-  
-  .dmpui-frontend .benefit-cards {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 2rem;
-    margin: 2rem 0;
   }
   
   @media screen and (min-width: 1000px) {
@@ -628,28 +510,6 @@ dialog {
     display: none;
   }
   
-  /* Dropdown menus */
-.dmpui-dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dmpui-dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  list-style: none;
-  background-color: #54D8FF;
-  min-width: 240px;
-  box-shadow: 0px 8px 16px 0px #004EAA;
-  padding: 12px 16px;
-  z-index: 100;
-}
-
-.dmpui-dropdown:hover .dmpui-dropdown-content {
-  display: block;
-}
-
 /*SubHeader*/
 /* Subheader Org Branding */
 .c-subheader {
