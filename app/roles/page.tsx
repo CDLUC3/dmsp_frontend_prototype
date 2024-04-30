@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useRef, FormEventHandler } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Page from '@/components/Page';
 import TextInput from '@/components/TextInput';
 import { getContributors } from '@/lib/graphql/client/queries/contributorsQueries';

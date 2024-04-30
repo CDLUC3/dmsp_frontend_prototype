@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import createApolloClient from "@/apollo-client";
+import createApolloClient from '../apollo-client'
 
 const client = createApolloClient();
 

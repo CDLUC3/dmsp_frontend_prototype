@@ -1,8 +1,10 @@
-import Image from 'next/image';
-import DMPLogo from '@/public/images/DMP-logo.svg';
 import './contributor-roles.scss';
 
-export default function ContributorRolesLayout({ children }) {
+export default function ContributorRolesLayout({
+    children,
+}: Readonly<{
+    children: React.ReactNode;
+}>) {
     return (
         <div className="wrapper">
             {/* <header>
