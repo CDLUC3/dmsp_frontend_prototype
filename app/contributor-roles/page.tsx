@@ -3,9 +3,8 @@
 import React, { useEffect, useState, useRef, FormEventHandler } from 'react';
 import Page from '@/components/Page';
 import TextInput from '@/components/TextInput';
-import { getContributors } from '@/lib/graphql/queries/contributorsQueries';
-import { addContributor, deleteContributor, updateContributor } from '@/lib/graphql/mutations/contributorsMutations';
-
+import { getContributors } from '@/lib/graphql/client/queries/contributorsQueries';
+import { addContributor, deleteContributor, updateContributor } from '@/lib/graphql/client/mutations/contributorsMutations';
 type RolesInterface = {
   id: string,
   label: string;

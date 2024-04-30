@@ -3,9 +3,8 @@
 import React, { useEffect, useState, useRef, FormEventHandler } from 'react';
 import Page from '@/components/Page';
 import TextInput from '@/components/TextInput';
-import { getContributors } from '@/lib/graphql/queries/contributorsQueries';
-import { addContributor, deleteContributor, updateContributor } from '@/lib/graphql/mutations/contributorsMutations';
-
+import { getContributors } from '@/lib/graphql/client/queries/contributorsQueries';
+import { addContributor, deleteContributor, updateContributor } from '@/lib/graphql/client/mutations/contributorsMutations';
 
 type RolesInterface = {
     id: string,
@@ -13,7 +12,9 @@ type RolesInterface = {
     url: string;
 }
 
-export default function ContributorRoles() {
+// I duplicated the ContributorRoles() component and wanted to check that data
+// between the two client components stays in sync
+export default function Contributors() {
     const [roles, setRoles] = useState<RolesInterface[]>([]);
     const [role, setRole] = useState<string>('');
     const [url, setUrl] = useState<string>('');

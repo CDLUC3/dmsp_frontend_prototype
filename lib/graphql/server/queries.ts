@@ -27,4 +27,3 @@ export async function getContributorRoles(): Promise<RolesInterface[]> {
         throw new Error(`There was an error getting contributor roles: ${error.message}`)
     }
 }
-

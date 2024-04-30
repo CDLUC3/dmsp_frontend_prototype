@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import SubHeader from "@/components/SubHeader";
 import Notifications from "@/components/Notifications";
 import Footer from "@/components/footer";
-import { ApolloWrapper } from "./ApolloWrapper";
+import { ApolloWrapper } from "@/lib/apollo-wrapper";
 import "./globals.scss";
 
 
