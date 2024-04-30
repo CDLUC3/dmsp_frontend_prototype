@@ -1,10 +1,7 @@
-
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-
-
+@use '@/styles/variables/colours' as *;
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&display=swap');
 @import '@/components/responsive';
+
 
 body {
   //margin: 0;

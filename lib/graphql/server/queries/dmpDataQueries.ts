@@ -1,9 +1,5 @@
 import { gql } from '@apollo/client';
-import createApolloClient from '../apollo-client';
-
-const client = createApolloClient();
-
-
+import { getClient } from '@/lib/client';
 
 const GET_DATA = gql`
 query getDMSP($pk: String!) {
@@ -91,10 +87,14 @@ query getDMSP($pk: String!) {
 
 export async function getData() {
     try {
-        const { data } = await client.query({
+        const { data } = await getClient().query({
             query: GET_DATA,
             variables: { pk: "DMP#doi.org/10.48321/D136BA4701" },
-            fetchPolicy: 'cache-first'
+            context: {
+                fetchOptions: {
+                    next: { revalidate: 5 },
+                }
+            }
         })
 
         const dmp = data.getDMSP;
