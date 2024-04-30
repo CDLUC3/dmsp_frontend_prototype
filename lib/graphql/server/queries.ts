@@ -19,7 +19,14 @@ type RolesInterface = {
 
 export async function getContributorRoles(): Promise<RolesInterface[]> {
     try {
-        const { data } = await getClient().query({ query: GET_CONTRIBUTOR_ROLES });
+        const { data } = await getClient().query({
+            query: GET_CONTRIBUTOR_ROLES,
+            context: {
+                fetchOptions: {
+                    next: { revalidate: 5 },
+                }
+            }
+        });
 
         return data.contributorRoles;
     } catch (error: any) {

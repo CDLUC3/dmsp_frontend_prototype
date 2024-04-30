@@ -7,7 +7,7 @@ export const { getClient } = registerApolloClient(() => {
         link: new HttpLink({
             // https://studio.apollographql.com/public/spacex-l4uc6p/
             uri: "http://localhost:3000/",
-            fetchOptions: { cache: 'no-store' } // I had to set cache to 'no-store' unfortunately. If I didn't, the cache for this
+            //fetchOptions: { cache: 'no-store' } // I had to set cache to 'no-store' unfortunately. If I didn't, the cache for this
             //would not be in sync with the client-side caches
         }),
     });
