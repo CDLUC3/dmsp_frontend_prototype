@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import Header from "@/components/Header";
-import Notifications from "@/components/Notifications";
 import Footer from "@/components/Footer";
 import { ApolloWrapper } from "@/lib/apollo-wrapper";
 
@@ -30,7 +29,6 @@ export default function RootLayout({
       <body className={poppins_init.className}>
         <a href="#maincontent" className="c-skipnav dmpui-skipnav">Skip to main content</a>
         <Header />
-        <Notifications />
         <div id="App">
           <main id="maincontent"><ApolloWrapper>{children}</ApolloWrapper></main>
         </div>
