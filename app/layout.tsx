@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ApolloWrapper } from "@/lib/apollo-wrapper";
+import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
 
 import "./globals.scss";
 

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { getClient } from '@/lib/client';
+import { getClient } from '@/lib/graphql/client';
 
 const GET_CONTRIBUTOR_ROLES = gql`
 query ContributorRoles{
