@@ -3,9 +3,8 @@
 import React, { useEffect, useState, useRef, FormEventHandler } from 'react';
 import Page from '@/components/Page';
 import TextInput from '@/components/TextInput';
-import { getContributors } from '@/lib/graphql/queries';
-import { addContributor, deleteContributor, updateContributor } from '@/lib/graphql/mutations';
-
+import { getContributors } from '@/lib/graphql/queries/contributorsQueries';
+import { addContributor, deleteContributor, updateContributor } from '@/lib/graphql/mutations/contributorsMutations';
 
 type RolesInterface = {
   id: string,
@@ -91,8 +90,7 @@ export default function ContributorRoles() {
   async function handleDelete(id: string) {
     try {
       await deleteContributor(id);
-      const contributorRoles = await getContributors();
-      setRoles(contributorRoles);
+      setRoles(prevRoles => prevRoles.filter(role => role.id !== id));
     }
     catch (err) {
       console.log(`Something went wrong: ${err}`)
@@ -105,8 +103,14 @@ export default function ContributorRoles() {
     if (roleToEdit) {
       try {
         await updateContributor(roleToEdit.id, editedUrl, editedRole);
-        const contributorRoles = await getContributors();
-        setRoles(contributorRoles);
+        setRoles(prevRoles => {
+          const updatedRoles = [...prevRoles];
+          const index = updatedRoles.findIndex(role => role.id === roleToEdit.id);
+          if (index !== -1) {
+            updatedRoles[index] = { ...roleToEdit, url: editedUrl, label: editedRole };
+          }
+          return updatedRoles;
+        });
         setEditingId(null)
       } catch (err) {
         console.log("Error saving edited fields");

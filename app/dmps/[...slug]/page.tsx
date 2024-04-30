@@ -16,7 +16,7 @@ import Project from "@/components//project";
 import Versions from "@/components/versions";
 import Works from "@/components//works";
 
-import { getData } from '@/lib/graphql/queries'
+import { getData } from '@/lib/graphql/queries/dmpDataQueries';
 import '../[...slug]/dmps.scss';
 
 const client = createApolloClient();

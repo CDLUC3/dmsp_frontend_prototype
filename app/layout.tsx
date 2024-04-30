@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import SubHeader from "@/components/SubHeader";
 import Notifications from "@/components/Notifications";
 import Footer from "@/components/footer";
+import { ApolloWrapper } from "./ApolloWrapper";
 import "./globals.scss";
 
 
@@ -33,7 +34,7 @@ export default function RootLayout({
         <SubHeader />
         <Notifications />
         <div id="App">
-          <main id="maincontent">{children}</main>
+          <main id="maincontent"><ApolloWrapper>{children}</ApolloWrapper></main>
         </div>
         <Footer />
       </body>

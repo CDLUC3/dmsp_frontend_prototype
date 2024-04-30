@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, gql, createHttpLink, ApolloLink, concat } from '@apollo/client';
+import { gql } from '@apollo/client';
 import createApolloClient from "@/apollo-client";
 
 const client = createApolloClient();
