@@ -1,5 +1,7 @@
 import { gql } from '@apollo/client';
 import { getClient } from '@/lib/graphql/client';
+import logger from '@/utils/logger';
+import userFriendlyErrorMessages, { ErrorMessages } from '@/utils/userFriendlyErrorMessages';
 
 const GET_DATA = gql`
 query getDMSP($pk: String!) {
@@ -127,6 +129,18 @@ export async function getData() {
     };
     return formData;
   } catch (error: any) {
-    console.log(`Something went wrong: ${error.message}`)
+    const err = JSON.parse(JSON.stringify(error));
+    const errCode = err?.graphQLErrors[0]?.extensions?.code;
+    const friendlyError = userFriendlyErrorMessages[errCode as keyof ErrorMessages];
+    const loggerPath = err?.graphQLErrors[0]?.path[0];
+
+    logger.error({ loggerPath: loggerPath }, err.message);//Can add additional data to the logger
+
+    if (errCode) {
+      throw new Error(friendlyError);
+    }
+
+    throw new Error(error);
+
   }
 }
