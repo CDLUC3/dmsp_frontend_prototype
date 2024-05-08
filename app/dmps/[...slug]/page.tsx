@@ -1,5 +1,4 @@
 
-import createApolloClient from "@/apollo-client";
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import narrativeLogo from '@/public/images/u153.svg';
@@ -17,8 +16,6 @@ import Works from "@/components//works";
 
 import { getData } from "@/lib/graphql/server/queries/dmpDataQueries";
 import '../[...slug]/dmps.scss';
-
-const client = createApolloClient();
 
 interface RelatedIdentifier {
   descriptor: string;
@@ -93,7 +90,15 @@ const Landing = async () => {
     related_identifiers: [],
     versions: [],
   }
-  const formData = await getData() || defaultData;
+
+  let formData = defaultData;
+
+  try {
+    formData = await getData() || defaultData;
+  } catch (err) {
+    throw err; //The error thrown here will be caught by error.tsx and display err.message
+  }
+
 
   function dmpIdWithoutAddress() {
     return formData.dmp_id?.replace('https://doi.org/', '');
