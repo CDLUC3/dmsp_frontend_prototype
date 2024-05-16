@@ -6,4 +6,5 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/app # Mount the current directory to /app inside the container
+      - .:/app
+      - /app/node_modules

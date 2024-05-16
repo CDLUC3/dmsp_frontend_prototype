@@ -3,7 +3,7 @@ import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rs
 import { onError } from '@apollo/client/link/error';
 
 const httpLink = createHttpLink({
-    uri: "http://localhost:3000/"
+    uri: "http://localhost:4000/"
 });
 
 interface CustomError extends Error {

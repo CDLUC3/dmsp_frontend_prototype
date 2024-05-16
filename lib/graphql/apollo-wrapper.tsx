@@ -14,7 +14,7 @@ import {
 
 function makeClient() {
     const httpLink = new HttpLink({
-        uri: "http://localhost:3000/",
+        uri: "http://localhost:4000/",
         fetchOptions: 'cache-first'
     });
 
