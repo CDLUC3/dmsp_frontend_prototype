@@ -4,7 +4,9 @@ phases:
   install:
     runtime-versions:
       nodejs: 20
-
+    commands:
+      - echo "Installing source NPM dependencies"
+      - npm ci
   pre_build:
     commands:
       # Set some ENV variables here because CF only allows a limit of 1000 characters in the
@@ -25,10 +27,6 @@ phases:
   build:
       commands:
         - echo "Running build in ${BUILD_ENV} mode - started on `date`"
-
-        #- echo Checking for DB migrations
-        #- cd data-migrations && ./process.sh $BUILD_ENV && cd ..
-
         - echo Building the Docker image...
         - cd $CODEBUILD_SRC_DIR
         - docker build -f Dockerfile.dev -t $SHORT_ECR_URI:latest .

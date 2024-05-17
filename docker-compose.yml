@@ -1,5 +1,6 @@
 services:
   dmsp-frontend-prototype:
+    container_name: dmsp_frontend
     build:
       context: .
       dockerfile: Dockerfile.dev # development Dockerfile
