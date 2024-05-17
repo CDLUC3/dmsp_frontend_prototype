@@ -1,17 +1,20 @@
-import {DMPTOOL_NAME, DMPTOOL_URL} from '@/tmp';
+//import {DMPTOOL_NAME, DMPTOOL_URL} from '@/tmp';
 import Image from 'next/image';
 import dmptoolLogo from '@/public/images/dmptool_logo_u166.svg';
 
-export function DmptoolLink(props:any) {
+const DMPTOOL_NAME = 'DMPTool';
+const DMPTOOL_URL = 'https://dmptool-dev.cdlib.org';
+
+export function DmptoolLink(props: any) {
   if (props.withLogo === 'true') {
-    const logo = <Image src={dmptoolLogo} alt={`${DMPTOOL_NAME} logo`}/>;
+    const logo = <Image src={dmptoolLogo} alt={`${DMPTOOL_NAME} logo`} />;
 
     return (
-      <Link href={DMPTOOL_URL} remote='true' label={logo}/>
+      <Link href={DMPTOOL_URL} remote='true' label={logo} />
     );
   } else {
     return (
-      <Link href={DMPTOOL_URL} label={DMPTOOL_NAME} remote='true'/>
+      <Link href={DMPTOOL_URL} label={DMPTOOL_NAME} remote='true' />
     );
   }
 }
