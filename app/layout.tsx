@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Footer from "@/components/footer";
 import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
 
 import "./globals.scss";
