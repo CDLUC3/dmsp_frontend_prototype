@@ -4,9 +4,6 @@ phases:
   install:
     runtime-versions:
       nodejs: 20
-    commands:
-      - echo "Installing source NPM dependencies"
-      - npm ci
   pre_build:
     commands:
       # Set some ENV variables here because CF only allows a limit of 1000 characters in the
