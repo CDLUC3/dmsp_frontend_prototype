@@ -31,7 +31,7 @@ phases:
 
         - echo Building the Docker image...
         - cd $CODEBUILD_SRC_DIR
-        - docker build -f Dockerfile.aws -t $SHORT_ECR_URI:latest .
+        - docker build -f Dockerfile.dev -t $SHORT_ECR_URI:latest .
         - docker tag $ECR_REPOSITORY_URI:latest $SHORT_ECR_URI:$IMAGE_TAG
 
   post_build:
