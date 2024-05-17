@@ -26,8 +26,8 @@ phases:
       commands:
         - echo "Running build in ${BUILD_ENV} mode - started on `date`"
 
-        - echo Checking for DB migrations
-        - cd data-migrations && ./process.sh $BUILD_ENV && cd ..
+        #- echo Checking for DB migrations
+        #- cd data-migrations && ./process.sh $BUILD_ENV && cd ..
 
         - echo Building the Docker image...
         - cd $CODEBUILD_SRC_DIR
