@@ -1,7 +1,8 @@
 ## [1.0.0]
 
 ### Added
--Added graphql file structure and client creation. [#36]
+- Added buildspec.yaml file for CI/CD pipeline [#81]
+- Added graphql file structure and client creation. [#36]
 
 ### Updates
 - Updated lib/graphql/client.ts with adding an errorLink to the client instance, and intercepting specific error types or codes to handle them differently if we want.[#29]
