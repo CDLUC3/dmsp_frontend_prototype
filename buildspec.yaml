@@ -43,6 +43,6 @@ phases:
 
       - echo Build completed on `date`
 
-  artifacts:
-    # The Deploy step is expecting this name
-    files: imagedefinitions.json
+artifacts:
+  # The Deploy step is expecting this name
+  files: imagedefinitions.json
