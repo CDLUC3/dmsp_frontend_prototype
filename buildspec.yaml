@@ -19,15 +19,15 @@ phases:
       # commit ID of the source.
       - echo Logging in to Amazon ECR ...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $SHORT_ECR_URI
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - IMAGE_TAG=${COMMIT_HASH:=nextJS-latest}
 
   build:
       commands:
-        - echo "Running build in ${BUILD_ENV} mode - started on `date`"
+        - echo "Running build in ${NODE_ENV} mode - started on `date`"
         - echo Building the Docker image...
         - cd $CODEBUILD_SRC_DIR
-        - docker build -f Dockerfile.dev -t $SHORT_ECR_URI:latest .
-        - docker tag $ECR_REPOSITORY_URI:latest $SHORT_ECR_URI:$IMAGE_TAG
+        - docker build -f Dockerfile.dev -t $SHORT_ECR_URI:nextJS-latest .
+        - docker tag $ECR_REPOSITORY_URI:nextJS-latest $SHORT_ECR_URI:$IMAGE_TAG
 
   post_build:
     commands:
@@ -35,11 +35,14 @@ phases:
       - echo Build completed on `date`
       - echo Pushing the Docker images...
       - cd $CODEBUILD_SRC_DIR
-      - docker push $SHORT_ECR_URI:latest
+      - docker push $SHORT_ECR_URI:nextJS-latest
       - docker push $SHORT_ECR_URI:$IMAGE_TAG
 
       - echo Writing image definitions file...
-      - printf '[{"name":"dmptool","imageUri":"%s"}]' $ECR_REPOSITORY_URI:$IMAGE_TAG > dmptool_image.json
-      - cat dmptool_image.json
+      - printf '[{"name":"%s","imageUri":"%s"}]' $TASK_DEFINITION_CONTAINER_NAME $ECR_REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
       - echo Build completed on `date`
+
+  artifacts:
+    # The Deploy step is expecting this name
+    files: imagedefinitions.json
