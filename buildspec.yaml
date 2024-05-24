@@ -20,6 +20,7 @@ phases:
       - echo Logging in to Amazon ECR ...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $SHORT_ECR_URI
       - IMAGE_TAG=${COMMIT_HASH:=nextJS-latest}
+      - export GRAPHQL_ENDPOINT=$(aws ssm get-parameter --name /myapp/graphql_endpoint --with-decryption --query Parameter.Value --output text)
 
   build:
       commands:
