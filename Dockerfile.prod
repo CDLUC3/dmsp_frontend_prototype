@@ -16,7 +16,7 @@ ENV GRAPHQL_ENDPOINT="https://ui.dmphub.uc3dev.cdlib.net"
 COPY package*.json ./
 
 # Install dependencies in /app (excluding devDependencies)
-RUN npm install --production
+RUN npm install --only=production
 
 # Copy the rest of our Next.js folder into /app
 COPY . .
