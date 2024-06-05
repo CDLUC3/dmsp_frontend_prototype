@@ -1,10 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signUp, confirmSignUp } from "aws-amplify/auth";
-import ConfirmUser from '@/components/confirmation';
-
 import './signup.scss';
 
 
@@ -37,38 +34,33 @@ const SignUp: React.FC = () => {
         }
     };
 
-    const handleConfirmSignUp = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-
-    }
     return (
         <main className="signup-wrapper">
-            {newUser ? <ConfirmUser verificationCode={verificationCode} handleConfirmSignUp={handleConfirmSignUp} setVerificationCode={setVerificationCode} /> :
-                <form className="signup-form" onSubmit={handleSignUp}>
-                    <h3 className="heading-3">Create an account</h3>
 
-                    <label htmlFor="email">Email address:</label>
-                    <input
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        required />
+            <form className="signup-form" onSubmit={handleSignUp}>
+                <h3 className="heading-3">Create an account</h3>
 
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        required />
+                <label htmlFor="email">Email address:</label>
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required />
 
-                    <button type="submit">Sign Up</button>
-                </form>
-            }
+                <label htmlFor="password">Password:</label>
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required />
+
+                <button type="submit">Sign Up</button>
+            </form>
+
         </main>
     );
 };
