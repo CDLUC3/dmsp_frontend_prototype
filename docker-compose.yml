@@ -1,11 +1,21 @@
 services:
+<<<<<<< Updated upstream
   dmsp-frontend-prototype:
     container_name: dmsp_frontend
+=======
+  nodebox:
+>>>>>>> Stashed changes
     build:
       context: .
-      dockerfile: Dockerfile.dev # development Dockerfile
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
     volumes:
+<<<<<<< Updated upstream
       - .:/app
       - /app/node_modules
+=======
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+      - .:/app/src
+>>>>>>> Stashed changes

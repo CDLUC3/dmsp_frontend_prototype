@@ -25,6 +25,7 @@
     "pino": "^7.0.0",
     "pino-pretty": "^11.0.0",
     "react": "^18",
+    "react-aria-components": "^1.2.1",
     "react-dom": "^18"
   },
   "devDependencies": {
