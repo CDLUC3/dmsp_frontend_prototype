@@ -35,8 +35,24 @@ const LoginPage: React.FC = () => {
                 throw new Error('Network response was not ok');
             }
 
-            const data = await response.json();
-            console.log('Login successful:', data);
+            const { token } = await response.json();
+
+            console.log('Login successful:', token);
+
+            //Set the cookie
+            const result = await fetch('/api/setCookie', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token })
+            })
+            if (result.ok) {
+                console.log('Cookie set successfully');
+            } else {
+                console.error('Failed to set cookie');
+            }
+
         } catch (err) {
             console.error('Error:', err);
         }
