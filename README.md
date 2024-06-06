@@ -14,7 +14,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 git clone git@github.com:CDLUC3/dmsp_frontend_prototype.git
 cd dmsp_frontend_prototype
 ```
-2. Build and run the development Docker container
+2. Build and run the development Docker containers
 ```bash
 docker-compose build
 docker-compose up
@@ -41,6 +41,3 @@ docker build -f Dockerfile.prod -t dmsp_frontend_prototype:dmsp_frontend_prod .
 docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
 ```
 3. Access the Next.js app at http://localhost:3000
-
-
-

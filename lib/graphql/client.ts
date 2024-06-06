@@ -3,7 +3,7 @@ import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rs
 import { onError } from '@apollo/client/link/error';
 
 const httpLink = createHttpLink({
-    uri: "http://localhost:4000/"
+    uri: `${process.env.GRAPHQL_ENDPOINT}/graphql`
 });
 
 interface CustomError extends Error {
