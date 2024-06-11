@@ -5,11 +5,9 @@ import { useRouter } from 'next/navigation';
 import './signup.scss';
 
 
-const SignUp: React.FC = () => {
+const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [newUser, setNewUser] = useState(false);
-    const [verificationCode, setVerificationCode] = useState("");
     const router = useRouter();
 
     const handleSignUp = async (event: React.FormEvent) => {
@@ -28,9 +26,9 @@ const SignUp: React.FC = () => {
             }
 
             const data = await response.json();
-            console.log('Login successful:', data);
-        } catch (err) {
-            console.error('Error:', err);
+            router.push('/')
+        } catch (err: any) {
+            console.error(err.message);
         }
     };
 
@@ -64,4 +62,4 @@ const SignUp: React.FC = () => {
         </main>
     );
 };
-export default SignUp; 
+export default SignUpPage; 

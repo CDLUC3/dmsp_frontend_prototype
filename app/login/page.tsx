@@ -2,12 +2,13 @@
 
 import React, { useState } from "react";
 
-import './login.scss';
+import '@/app/login/login.scss';
 
 type User = {
     email: string;
     password: string;
 };
+
 const LoginPage: React.FC = () => {
     const [user, setUser] = useState<User>({
         email: "",
@@ -37,8 +38,8 @@ const LoginPage: React.FC = () => {
 
             const { token } = await response.json();
 
-            console.log('Login successful:', token);
-
+            const data = JSON.stringify({ "token": token });
+            console.log("TOKEN,", data)
             //Set the cookie
             const result = await fetch('/api/setCookie', {
                 method: 'POST',
@@ -47,14 +48,16 @@ const LoginPage: React.FC = () => {
                 },
                 body: JSON.stringify({ token })
             })
+
             if (result.ok) {
-                console.log('Cookie set successfully');
+                const data = await result.json();
+                console.log(data.message);
             } else {
                 console.error('Failed to set cookie');
             }
 
-        } catch (err) {
-            console.error('Error:', err);
+        } catch (err: any) {
+            console.error(err.message);
         }
 
     };
