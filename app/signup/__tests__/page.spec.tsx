@@ -1,14 +1,20 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { useRouter } from 'next/navigation';
 import SignUpPage from '../page';
 
-describe('SignUpPage', () => {
-    beforeEach(() => {
-        jest.mock('next/navigation', () => {
-            useRouter: jest.fn()
-        })
+jest.mock('next/navigation', () => ({
+    useRouter: jest.fn()
+}));
 
+import { useRouter } from 'next/navigation';
+
+const mockUseRouter = useRouter as jest.Mock;
+describe('SignUpPage', () => {
+
+    beforeEach(() => {
+        mockUseRouter.mockReturnValue({
+            push: jest.fn(),
+        })
         jest.spyOn(console, 'error').mockImplementation(() => { });
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
             if (url === 'http://localhost:4000/register') {
@@ -28,9 +34,6 @@ describe('SignUpPage', () => {
     })
 
     it('should render signup form and submits successfully', async () => {
-        const push = jest.fn();
-        const mockRouter = { push }
-        require('next/navigation').useRouter.mockReturnValue({ push: push })
         render(<SignUpPage />);
 
         //Find input fields and button in screen
@@ -56,13 +59,11 @@ describe('SignUpPage', () => {
             },
             body: JSON.stringify({ email: 'test@test.com', password: 'password123' }),
         });
+        expect(mockUseRouter().push).toHaveBeenCalledWith('/')
 
     });
 
     it('should handle fetch error', async () => {
-        const push = jest.fn();
-        const mockRouter = { push }
-        require('next/navigation').useRouter.mockReturnValue({ push: push })
         jest.spyOn(global, 'fetch').mockImplementation(url => {
             if (url === 'http://localhost:4000/register') {
                 return Promise.resolve({
