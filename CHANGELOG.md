@@ -1,6 +1,7 @@
 ## [1.0.0]
 
 ### Added
+- Added .editorconfig file to help maintain consistent coding styles [#37]
 - Added buildspec.yaml file for CI/CD pipeline [#81]
 - Added graphql file structure and client creation. [#36]
 
