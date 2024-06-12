@@ -1,93 +1,54 @@
-:root {
-    // Colors:
-    --dmptool-brand-black: rgb(22, 64, 75);
-    --dmptool-brand-blue: rgb(0, 85, 129);
-    --dmptool-brand-gray: rgb(170, 170, 170);
-    --dmptool-brand-green: rgb(14, 130, 86);
-    --dmptool-brand-orange: rgb(207, 72, 23);
-    --dmptool-brand-red: rgb(255, 0, 0);
-    --dmptool-brand-white: rgb(255, 255, 255);
-  
-    // Spacing:
-    --dmptool-brand-space1: 0.5em;
-    --dmptool-brand-space2: 1em;
-    --dmptool-brand-space3: 1.5em;
-  
-    // General:
-    --dmptool-brand-line-height0: 1.1;
-    --dmptool-brand-line-height1: 1.3;
-    --dmptool-brand-line-height2: 1.5;
-  
-    /* Root level css variables go here */
-    --btn-font-family: var(--font-poppins), sans-serif;
-    --btn-basic-bg-color: #ddd;
-    --btn-basic-fg-color: #333;
-    --btn-border-radius: 20px;
-  
-    --btn-primary-bg-color: #05042e;
-    --btn-primary-fg-color: white;
-  
-    /* Form components */
-    --form-field-label-color: #050a69;
-    --form-field-bg-color: white;
-    --form-field-fg-color: #333;
-    --form-field-border-color: #e1e1e1;
-  
-    --input-required-color: red;
-  
-    /* Data Grid */
-    --grid-gap: 1em;
-  }
-
+//Placeholder styles for placeholder /login page. Needs to be updated
 .login-wrapper {
-    background-color: var( --btn-basic-bg-color);
-    height: 100vh;
     display: flex; 
     align-items: center;
     justify-content: center;
-}
+    background-color: var( --btn-basic-bg-color);
+    height: 100vh;
 
-.login-form {
-    max-width: 32rem;
-    width: 100%;
-    background-color: var(--form-field-bg-color);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.heading-3 {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-input {
-    border-width: 1px;
-    padding: 0.5rem 1rem;
-    border-color: var(--dmptool-brand-gray);
-    margin-bottom: 1rem;
-
-    &:focus {
-        outline: 2px solid transparent;
-        outline-offset: 2px;
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        max-width: 32rem;
+        width: 100%;
+        background-color: var(--form-field-bg-color);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        padding: 2rem;
+    }
+    
+    .heading-3 {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    input {
+        border-width: 1px;
+        padding: 0.5rem 1rem;
+        border-color: var(--dmptool-brand-gray);
+        margin-bottom: 1rem;
+    
+        &:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+        }
+    }
+    
+    button {
+        background-color: var(--dmptool-brand-blue);
+        color: rgb(229 231 235);
+        border-radius: 10px;
+        margin-top: 0.75rem;
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        font-weight: 600;
+        padding: 1rem;
+    
+        &:hover {
+            background-color: var(--dmptool-brand-gray);
+            color: black;
+        }
     }
 }
 
-button {
-    border-radius: 10px;
-    margin-top: 0.75rem;
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    font-weight: 600;
-    padding: 1rem;
-    background-color: var(--dmptool-brand-blue);
-    color: rgb(229 231 235);
-
-    &:hover {
-        background-color: var(--dmptool-brand-gray);
-        color: black;
-    }
-}

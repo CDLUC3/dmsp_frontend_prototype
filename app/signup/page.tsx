@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import './signup.scss';
+import '@/app/signup/signup.scss';
 
 
 const SignUpPage: React.FC = () => {
@@ -26,7 +26,7 @@ const SignUpPage: React.FC = () => {
             }
 
             const data = await response.json();
-            router.push('/')
+            router.push('/') //redirect to home page
         } catch (err: any) {
             console.error(err.message);
         }

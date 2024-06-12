@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { POST } from './route'; // Assuming this is the correct path to your route file
+import { POST } from './route';
 import * as AuthMethods from '@/lib/server/auth';
 import httpMocks from 'node-mocks-http';
 
@@ -13,11 +13,10 @@ jest.mock('@/lib/server/auth', () => ({
 
 describe('/api/setCookie/route', () => {
     beforeEach(() => {
-        jest.clearAllMocks(); // Clear all mocks before each test
         jest.resetAllMocks();
     });
 
-    it('should return a 200 status code', async () => {
+    it('should return a 200 status code when verifyJwtToken returns true', async () => {
         // Mock the verifyJwtToken function to return true
         (AuthMethods.verifyJwtToken as jest.Mock).mockReturnValueOnce(true);
 
@@ -39,8 +38,7 @@ describe('/api/setCookie/route', () => {
         expect(data.message).toEqual('Cookie set successfully');
     });
 
-    it('should return a 400 status code if no token', async () => {
-        // Mock the verifyJwtToken function to return true
+    it('should return a 400 status code if there is no token', async () => {
         (AuthMethods.verifyJwtToken as jest.Mock).mockReturnValueOnce(true);
 
 
@@ -63,7 +61,6 @@ describe('/api/setCookie/route', () => {
     });
 
     it('should return a 401 if verifyJwtToken() returns false', async () => {
-        // Mock the verifyJwtToken function to return true
         (AuthMethods.verifyJwtToken as jest.Mock).mockReturnValueOnce(false);
 
 
@@ -86,7 +83,6 @@ describe('/api/setCookie/route', () => {
     });
 
     it('should return a 500 if there was an error', async () => {
-        // Mock the verifyJwtToken function to return true
         (AuthMethods.verifyJwtToken as jest.Mock).mockReturnValueOnce(false);
 
 

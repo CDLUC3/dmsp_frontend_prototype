@@ -9,13 +9,12 @@ type User = {
     password: string;
 };
 
+// Placeholder Login page until we get new design
 const LoginPage: React.FC = () => {
     const [user, setUser] = useState<User>({
         email: "",
         password: "",
     });
-    const [userInfo, setUserInfo] = useState();
-    const [accessToken, setAccessToken] = useState<String>();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUser({ ...user, [event.target.name]: event.target.value });
@@ -39,8 +38,8 @@ const LoginPage: React.FC = () => {
             const { token } = await response.json();
 
             const data = JSON.stringify({ "token": token });
-            console.log("TOKEN,", data)
-            //Set the cookie
+
+            //Set the cookie. Needs to be set on server side in order to have security configs like httpOnly
             const result = await fetch('/api/setCookie', {
                 method: 'POST',
                 headers: {

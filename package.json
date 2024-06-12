@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest --transformIgnorePatterns \"node_modules/(?!@toolz/allow)/\" --env=jsdom"
+    "test": "jest"
   },
   "dependencies": {
     "@apollo/client": "^3.9.8",

@@ -2,8 +2,10 @@ import { NextResponse, NextRequest } from 'next/server';
 import { verifyJwtToken } from './lib/server/auth';
 
 
+// TODO: These routes will need to be updated.
 const authRoutes = ['/dmps/*', '/api/*', '/admin/*'];
 const excludedPaths = ['/api/setCookie', '/*']
+
 function matchesWildcard(path: string, pattern: string): boolean {
   if (pattern.endsWith('/*')) {
     const basePattern = pattern.slice(0, -2);
@@ -12,6 +14,7 @@ function matchesWildcard(path: string, pattern: string): boolean {
   return path === pattern;
 }
 
+//Middleware will handle access to certain pages based on authentication and role
 export function middleware(request: NextRequest) {
 
   let redirectToApp = false;
@@ -22,7 +25,8 @@ export function middleware(request: NextRequest) {
   }
 
   const LOGIN = `${process.env.NEXT_PUBLIC_BASE_URL}/login`
-  // TODO: might want to add a 'redirect' query param to redirect user after login to the original page they were trying to get to.
+  /* TODO: might want to add a 'redirect' query param to url to redirect user after
+   login to the original page they were trying to get to.*/
 
   if (authRoutes.some(pattern => matchesWildcard(request.nextUrl.pathname, pattern))) {
 

@@ -1,6 +1,11 @@
+/**
+ * @jest-environment node
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from '../middleware';
 import { verifyJwtToken } from '../lib/server/auth';
+
 
 jest.mock('../lib/server/auth', () => ({
     verifyJwtToken: jest.fn(),
@@ -8,7 +13,8 @@ jest.mock('../lib/server/auth', () => ({
 
 const redirectSpy = jest.spyOn(NextResponse, 'redirect');
 
-describe('middleware', () => {
+describe('middleware.ts', () => {
+
     const mockNextRequest = (url: string, cookies: Record<string, string> = {}) => {
         return {
             nextUrl: new URL(url, 'http://localhost:3000'),
@@ -20,18 +26,12 @@ describe('middleware', () => {
         } as unknown as NextRequest;
     };
 
-    const mockNextResponse = () => {
-        const response = NextResponse.next();
-        jest.spyOn(NextResponse, 'redirect').mockImplementation((url: string | URL) => NextResponse.next({ headers: { location: url.toString() } }));
-        jest.spyOn(NextResponse, 'next').mockImplementation(() => response);
-        return response;
-    };
-
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     it('should skip authentication for excluded paths', () => {
+        // @ts-ignore
         const request = mockNextRequest('/api/setCookie');
         const response = middleware(request);
 
@@ -47,7 +47,7 @@ describe('middleware', () => {
 
     it('should delete token and redirect to login if token is invalid', () => {
         const request = mockNextRequest('/dmps/123', { dmspt: 'invalid_token' });
-        (verifyJwtToken as jest.Mock).mockImplementation(() => null);
+        (verifyJwtToken as jest.Mock).mockImplementation(() => false);
         middleware(request);
 
         expect(request.cookies.delete).toHaveBeenCalledWith('dmspt');
@@ -81,6 +81,7 @@ describe('middleware', () => {
         const request = mockNextRequest('/login');
         const response = middleware(request);
 
+        expect(redirectSpy).not.toHaveBeenCalled();
         expect(response.status).toEqual(200);
     });
 });

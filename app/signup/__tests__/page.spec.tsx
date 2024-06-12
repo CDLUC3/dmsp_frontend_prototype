@@ -6,9 +6,11 @@ jest.mock('next/navigation', () => ({
     useRouter: jest.fn()
 }));
 
+//Need to import this useRouter after the jest.mock is in place
 import { useRouter } from 'next/navigation';
 
 const mockUseRouter = useRouter as jest.Mock;
+
 describe('SignUpPage', () => {
 
     beforeEach(() => {
@@ -16,6 +18,7 @@ describe('SignUpPage', () => {
             push: jest.fn(),
         })
         jest.spyOn(console, 'error').mockImplementation(() => { });
+        // @ts-ignore
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
             if (url === 'http://localhost:4000/register') {
                 return Promise.resolve({
@@ -33,7 +36,7 @@ describe('SignUpPage', () => {
         jest.restoreAllMocks();
     })
 
-    it('should render signup form and submits successfully', async () => {
+    it('should render signup form and submit successfully', async () => {
         render(<SignUpPage />);
 
         //Find input fields and button in screen

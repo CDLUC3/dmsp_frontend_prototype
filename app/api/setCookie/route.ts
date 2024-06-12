@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
         response.headers.set('Set-Cookie', `dmspt=${token}; HttpOnly; Secure;Path=/;SameSite=Strict;`)
 
         return response;
-    } catch (err: unknown) {
+    } catch (err) {
         let errorMessage = "An unknown error occurred";
         if (err instanceof Error) {
             errorMessage = err.message;

@@ -5,6 +5,7 @@ import LoginPage from '../page';
 describe('LoginPage', () => {
     beforeEach(() => {
         jest.spyOn(console, 'error').mockImplementation(() => { });
+        // @ts-ignore
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
             if (url === 'http://localhost:4000/login') {
                 return Promise.resolve({
@@ -29,7 +30,7 @@ describe('LoginPage', () => {
         jest.restoreAllMocks();
     })
 
-    test('renders login form and submits successfully', async () => {
+    it('should render the login form and submit successfully', async () => {
         render(<LoginPage />);
 
         //Find input fields and button in screen
@@ -66,7 +67,7 @@ describe('LoginPage', () => {
 
     });
 
-    test('handles fetch error', async () => {
+    it('should handle fetch error', async () => {
         jest.spyOn(global, 'fetch').mockImplementation(url => {
             if (url === 'http://localhost:4000/login') {
                 return Promise.resolve({
@@ -93,7 +94,7 @@ describe('LoginPage', () => {
         //Simulate form submission
         fireEvent.click(submitButton);
 
-        // //Check that error logged to the console
+        //Check that error logged to the console
         await waitFor(() => {
             expect(console.error).toHaveBeenCalledWith("Network response was not ok");
         })
