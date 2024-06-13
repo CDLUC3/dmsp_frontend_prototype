@@ -1,11 +1,28 @@
 import { ApolloClient, createHttpLink, InMemoryCache, from } from "@apollo/client";
 import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rsc";
 import { onError } from '@apollo/client/link/error';
+import { setContext } from '@apollo/client/link/context';
+import { cookies } from 'next/headers';
+
+
+const cookieStore = cookies();
+const authToken = cookieStore.get('dmspt');
 
 const httpLink = createHttpLink({
     uri: `${process.env.GRAPHQL_ENDPOINT}/graphql`
 });
 
+const authLink = setContext((_, { headers }) => {
+    // get auth token from cookie
+    const token = authToken?.value;
+    //return the headers to the context so httpLink can read them
+    return {
+        headers: {
+            ...headers,
+            authorization: token ? `Bearer ${token}` : "",
+        }
+    }
+})
 interface CustomError extends Error {
     customInfo?: Record<string, any>;
 }
@@ -43,9 +60,10 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     }
 });
 
+
 export const { getClient } = registerApolloClient(() => {
     return new ApolloClient({
-        link: from([errorLink, httpLink]),
+        link: from([errorLink, authLink, httpLink]),
         cache: new InMemoryCache(),
     });
 });

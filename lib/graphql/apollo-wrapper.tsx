@@ -14,7 +14,7 @@ import {
 
 function makeClient() {
     const httpLink = new HttpLink({
-        uri: `${process.env.GRAPHQL_ENDPOINT}/graphql`,
+        uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`,
         fetchOptions: 'cache-first'
     });
 
