@@ -52,6 +52,7 @@
     "sanitize-html": "^2.12.1",
     "sass": "^1.72.0",
     "ts-jest": "^29.1.4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

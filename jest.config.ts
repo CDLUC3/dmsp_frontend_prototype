@@ -1,9 +1,13 @@
 const nextJest = require("next/jest");
+import type { Config } from 'jest'
 const createJestConfig = nextJest({
     dir: "./",
 });
 
-const customJestConfig = {
+const config: Config = {
+    collectCoverage: true,
+    coverageProvider: 'v8',
+    coverageDirectory: "coverage",
     testEnvironment: "jest-environment-jsdom",
     transform: {
         "^.+\\.(js|jsx|ts|tsx)$": "ts-jest",
@@ -19,5 +23,7 @@ const customJestConfig = {
         },
         'fetch': global.fetch //added this to be able to mock 'fetch' in tests
     },
-};
-module.exports = createJestConfig(customJestConfig);
+}
+
+
+module.exports = createJestConfig(config);
