@@ -14,6 +14,7 @@ export function getJwtSecretKey(): Secret {
 
 export function verifyJwtToken(token: string): boolean | null {
     try {
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const decoded = jwt.verify(token, getJwtSecretKey()) as { [key: string]: any };
 
         return !!decoded;
