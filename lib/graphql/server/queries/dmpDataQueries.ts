@@ -128,19 +128,19 @@ export async function getData() {
       versions: dmp.dmphub_versions || [],
     };
     return formData;
-  } catch (error: any) {
+  } catch (error: unknown) {
     const err = JSON.parse(JSON.stringify(error));
     const errCode = err?.graphQLErrors[0]?.extensions?.code;
     const friendlyError = userFriendlyErrorMessages[errCode as keyof ErrorMessages];
     const loggerPath = err?.graphQLErrors[0]?.path[0];
 
-    logger.error({ loggerPath: loggerPath }, err.message);//Can add additional data to the logger
+    logger.error({ loggerPath }, err.message);//Can add additional data to the logger
 
     if (errCode) {
       throw new Error(friendlyError);
     }
 
-    throw new Error(error);
+    throw new Error(err);
 
   }
 }

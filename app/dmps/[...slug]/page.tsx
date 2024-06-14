@@ -17,48 +17,12 @@ import Works from "@/components//works";
 import { getData } from "@/lib/graphql/server/queries/dmpDataQueries";
 import '../[...slug]/dmps.scss';
 
-interface RelatedIdentifier {
-  descriptor: string;
-  work_type: string;
-  identifier: string
-}
-
-interface ContactInterface {
-  name: string
-}
-interface FormData {
-  json_url: string,
-  title: string,
-  description: string,
-  dmp_id: string,
-  privacy: string,
-  created: string,
-  modified: string,
-  ethical_issues_exist: string,
-  ethical_issues_report: string,
-
-  funder_name: string,
-  funder_id: string,
-  award_id: string,
-  opportunity_number: string,
-
-  project_title: string,
-  project_abstract: string,
-  project_start: string,
-  project_end: string,
-
-  contact: ContactInterface | {},
-  contributors: String[],
-  datasets: String[],
-  related_identifiers: RelatedIdentifier[],
-  versions: String[],
-}
 
 function getUrl() {
   const headersList = headers();
   const header_url = headersList.get('x-url') || "";
   const url = new URL(header_url);
-  let apiHost = (url.hostname === 'localhost') ? 'api.dmphub.uc3dev.cdlib.net' : `api.${url.hostname}`;
+  const apiHost = (url.hostname === 'localhost') ? 'api.dmphub.uc3dev.cdlib.net' : `api.${url.hostname}`;
   let version = url.search !== undefined ? url.search : '';
   version = version.replace('?', '%3F').replace('=', '%3D')
   return `https://${apiHost}${url.pathname}${version}`;
@@ -93,19 +57,15 @@ const Landing = async () => {
 
   let formData = defaultData;
 
-  try {
-    formData = await getData() || defaultData;
-  } catch (err) {
-    throw err; //The error thrown here will be caught by error.tsx and display err.message
-  }
 
+  formData = await getData() || defaultData;
 
   function dmpIdWithoutAddress() {
     return formData.dmp_id?.replace('https://doi.org/', '');
   }
 
   function FunderLink() {
-    let nameUrlRegex = /\s+\(.*\)\s?/i;
+    const nameUrlRegex = /\s+\(.*\)\s?/i;
     if (formData.funder_id !== '') {
       return (<Link href={formData.funder_id} label={formData.funder_name.replace(nameUrlRegex, '')} remote='true' />);
     } else {
@@ -119,7 +79,7 @@ const Landing = async () => {
   function narrativeUrl() {
 
     if (Array.isArray(formData.related_identifiers)) {
-      let id = formData.related_identifiers.find(id => id.descriptor === 'is_metadata_for' && id.work_type === 'output_management_plan');
+      const id = formData.related_identifiers.find(id => id.descriptor === 'is_metadata_for' && id.work_type === 'output_management_plan');
       return id?.identifier
     } else {
       return '';
@@ -129,7 +89,7 @@ const Landing = async () => {
     if (works !== undefined) {
       return works.filter((work: any) => work?.work_type !== 'output_management_plan');
     } else {
-      return [];
+      return [] as string[]
     }
   }
 
