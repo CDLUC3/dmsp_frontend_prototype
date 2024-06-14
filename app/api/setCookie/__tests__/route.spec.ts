@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { POST } from './route';
+import { POST } from '../route';
 import * as AuthMethods from '@/lib/server/auth';
 import httpMocks from 'node-mocks-http';
 
