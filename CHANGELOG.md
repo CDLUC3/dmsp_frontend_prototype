@@ -1,6 +1,8 @@
 ## [1.0.0]
 
 ### Added
+- Added placeholders for /signup and /login pages and added a new api endpoint for setting the access token in a cookie [#19]
+- Added .editorconfig file to help maintain consistent coding styles [#37]
 - Added buildspec.yaml file for CI/CD pipeline [#81]
 - Added graphql file structure and client creation. [#36]
 

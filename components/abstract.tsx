@@ -1,6 +1,6 @@
 import { SanitizeHTML } from '@/utils';
 
-function Abstract(props:any) {
+function Abstract(props: any) {
   let abstract = props?.project_abstract || props.description
 
   return (
