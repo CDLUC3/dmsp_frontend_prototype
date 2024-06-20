@@ -24,12 +24,12 @@ const authLink = setContext((_, { headers }) => {
     }
 })
 interface CustomError extends Error {
-    customInfo?: Record<string, any>;
+    customInfo?: { customMessage: string }
 }
 
-const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
     if (graphQLErrors) {
-        graphQLErrors.forEach(({ message, extensions, locations, path }) => {
+        graphQLErrors.forEach(({ message, extensions }) => {
             //Check for specific error codes
             switch (extensions?.code) {
                 case 'UNAUTHORIZED':

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-    ApolloClient,
     ApolloLink,
     HttpLink,
 } from "@apollo/client";

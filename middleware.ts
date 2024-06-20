@@ -67,6 +67,7 @@ export function middleware(request: NextRequest) {
         const payload = verifyJwtToken(token.value);
 
         if (payload) {
+          console.log("")
           redirectToApp = true;
         } else {
           //Delete token

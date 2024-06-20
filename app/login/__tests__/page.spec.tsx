@@ -5,7 +5,7 @@ import LoginPage from '../page';
 describe('LoginPage', () => {
     beforeEach(() => {
         jest.spyOn(console, 'error').mockImplementation(() => { });
-        // @ts-ignore
+
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
             if (url === 'http://localhost:4000/login') {
                 return Promise.resolve({

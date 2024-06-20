@@ -28,8 +28,8 @@ export async function getContributorRoles(): Promise<RolesInterface[]> {
         });
 
         return data.contributorRoles;
-    } catch (error: any) {
-        console.log(`Something went wrong: ${error.message}`)
-        throw new Error(`There was an error getting contributor roles: ${error.message}`)
+    } catch (error: unknown) {
+        console.log(`Something went wrong: ${error}`)
+        throw new Error(`There was an error getting contributor roles: ${error}`)
     }
 }

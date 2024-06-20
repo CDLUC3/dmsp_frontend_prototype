@@ -12,6 +12,7 @@ const SignUpPage: React.FC = () => {
 
     const handleSignUp = async (event: React.FormEvent) => {
         event.preventDefault();
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         try {
             const response = await fetch('http://localhost:4000/register', {
                 method: 'POST',
@@ -25,7 +26,6 @@ const SignUpPage: React.FC = () => {
                 throw new Error('Network response was not ok');
             }
 
-            const data = await response.json();
             router.push('/') //redirect to home page
         } catch (err: any) {
             console.error(err.message);

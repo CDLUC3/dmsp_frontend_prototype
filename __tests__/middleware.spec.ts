@@ -84,4 +84,22 @@ describe('middleware.ts', () => {
         expect(redirectSpy).not.toHaveBeenCalled();
         expect(response.status).toEqual(200);
     });
+
+    it('should delete cookie when user goes to /login and has token but verifyJwtToken returns null', () => {
+        const request = mockNextRequest('/login', { dmspt: 'token' });
+        (verifyJwtToken as jest.Mock).mockImplementation(() => null);
+        const response = middleware(request);
+
+        expect(request.cookies.delete).toHaveBeenCalled();
+        expect(request.cookies.delete).toHaveBeenCalledWith('dmspt');
+    });
+
+    it('should delete cookie when user goes to /login and there is an error calling verifyJwtToken', () => {
+        const request = mockNextRequest('/login', { dmspt: 'token' });
+        (verifyJwtToken as jest.Mock).mockImplementation(() => { throw new Error('Could not verify cookie') });
+        const response = middleware(request);
+
+        expect(request.cookies.delete).toHaveBeenCalled();
+        expect(request.cookies.delete).toHaveBeenCalledWith('dmspt');
+    });
 });

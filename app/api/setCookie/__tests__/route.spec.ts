@@ -1,15 +1,23 @@
 /**
  * @jest-environment node
  */
-import { POST } from './route';
+import { NextRequest, NextResponse } from 'next/server';
+import { POST } from '../route';
 import * as AuthMethods from '@/lib/server/auth';
-import httpMocks from 'node-mocks-http';
+import { createMocks as _createMocks, } from 'node-mocks-http';
 
 
 // Mock the verifyJwtToken function
 jest.mock('@/lib/server/auth', () => ({
     verifyJwtToken: jest.fn(),
 }));
+
+/*createMocks requires an express.Request as the first generic argument, so when the types for that suddenly exist,
+NextRequest is then not a valid argument for it. express.Request and NextRequest both extend Node's http.IncomingMessage, but they
+are not compatible with one another. Therefore, I had to set up createMocks like below*/
+
+const createMocks = _createMocks as (
+) => Mocks<NextRequest, NextResponse>;
 
 describe('/api/setCookie/route', () => {
     beforeEach(() => {
@@ -20,8 +28,7 @@ describe('/api/setCookie/route', () => {
         // Mock the verifyJwtToken function to return true
         (AuthMethods.verifyJwtToken as jest.Mock).mockReturnValueOnce(true);
 
-
-        const req = httpMocks.createRequest({
+        const { req } = createMocks({
             method: 'POST',
             url: '/api/setCookie',
             params: {
@@ -30,7 +37,7 @@ describe('/api/setCookie/route', () => {
             text: jest.fn().mockImplementation(() => JSON.stringify({ token: 'valid_token' }))
         })
 
-        const jsonResponse = await POST(req as any);
+        const jsonResponse = await POST(req);
 
         const responseData = jsonResponse.json();
         const data = await responseData;
@@ -42,7 +49,7 @@ describe('/api/setCookie/route', () => {
         (AuthMethods.verifyJwtToken as jest.Mock).mockReturnValueOnce(true);
 
 
-        const req = httpMocks.createRequest({
+        const { req } = createMocks({
             method: 'POST',
             url: '/api/setCookie',
             params: {
@@ -51,8 +58,7 @@ describe('/api/setCookie/route', () => {
             text: jest.fn().mockImplementation(() => JSON.stringify({}))
         })
 
-        const response = httpMocks.createResponse();
-        const jsonResponse = await POST(req as any);
+        const jsonResponse = await POST(req);
 
         const responseData = jsonResponse.json();
         const data = await responseData;
@@ -64,7 +70,7 @@ describe('/api/setCookie/route', () => {
         (AuthMethods.verifyJwtToken as jest.Mock).mockReturnValueOnce(false);
 
 
-        const req = httpMocks.createRequest({
+        const { req } = createMocks({
             method: 'POST',
             url: '/api/setCookie',
             params: {
@@ -73,8 +79,7 @@ describe('/api/setCookie/route', () => {
             text: jest.fn().mockImplementation(() => JSON.stringify({ token: 'valid_token' }))
         })
 
-        const response = httpMocks.createResponse();
-        const jsonResponse = await POST(req as any);
+        const jsonResponse = await POST(req);
 
         const responseData = jsonResponse.json();
         const data = await responseData;
@@ -86,7 +91,7 @@ describe('/api/setCookie/route', () => {
         (AuthMethods.verifyJwtToken as jest.Mock).mockReturnValueOnce(false);
 
 
-        const req = httpMocks.createRequest({
+        const { req } = createMocks({
             method: 'POST',
             url: '/api/setCookie',
             params: {
@@ -95,8 +100,7 @@ describe('/api/setCookie/route', () => {
             text: () => { throw new Error('Something went wrong') }
         })
 
-        const response = httpMocks.createResponse();
-        const jsonResponse = await POST(req as any);
+        const jsonResponse = await POST(req);
 
         const responseData = jsonResponse.json();
         const data = await responseData;

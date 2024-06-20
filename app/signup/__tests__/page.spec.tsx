@@ -18,7 +18,7 @@ describe('SignUpPage', () => {
             push: jest.fn(),
         })
         jest.spyOn(console, 'error').mockImplementation(() => { });
-        // @ts-ignore
+
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
             if (url === 'http://localhost:4000/register') {
                 return Promise.resolve({
