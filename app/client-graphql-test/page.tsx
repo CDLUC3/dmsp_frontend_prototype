@@ -1,17 +1,8 @@
 "use client";
 
-import { useSuspenseQuery, useQuery } from "@apollo/experimental-nextjs-app-support/ssr";
+import { useQuery } from "@apollo/experimental-nextjs-app-support/ssr";
 
 import { gql } from "@apollo/client";
-
-const query = gql`
-query ContributorRoles{
-    contributorRoles {
-        id
-        label
-        url
-    }
-}`;
 
 const GET_CONTRIBUTOR_ROLES = gql`
 query ContributorRoles{
@@ -22,10 +13,8 @@ query ContributorRoles{
     }
 }`;
 
+// This was placed here as an example of a client-side graphql request
 export default function Page() {
-    // const { data } = useSuspenseQuery(query);
-
-    // const roles = data.contributorRoles;
 
     const { loading, error, data } = useQuery(GET_CONTRIBUTOR_ROLES);
 

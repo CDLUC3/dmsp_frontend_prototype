@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
     ApolloLink,
@@ -10,12 +10,15 @@ import {
     SSRMultipartLink,
     NextSSRApolloClient,
 } from "@apollo/experimental-nextjs-app-support/ssr";
+import { createAuthLink } from '@/utils/authLink';
 
 function makeClient() {
     const httpLink = new HttpLink({
         uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`,
         fetchOptions: 'cache-first'
     });
+
+    const authLink = createAuthLink();
 
     return new NextSSRApolloClient({
         cache: new NextSSRInMemoryCache(),
@@ -27,7 +30,10 @@ function makeClient() {
                     }),
                     httpLink,
                 ])
-                : httpLink,
+                : ApolloLink.from([
+                    authLink,
+                    httpLink,
+                ]),
     });
 }
 
