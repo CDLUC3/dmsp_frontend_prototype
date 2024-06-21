@@ -52,7 +52,7 @@ describe('/api/setCookie/route', () => {
             text: jest.fn().mockImplementation(() => JSON.stringify({}))
         })
 
-        const jsonResponse = await POST(req as NextRequest);
+        const jsonResponse = await POST(req as unknown as NextRequest);
 
         const responseData = jsonResponse.json();
         const data = await responseData;
