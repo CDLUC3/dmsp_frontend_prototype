@@ -324,6 +324,7 @@ function Page() {
                 <TextField
                   name="email"
                   type="email"
+                  aria-label="Email"
                   isRequired
                 />
                 <TextField
