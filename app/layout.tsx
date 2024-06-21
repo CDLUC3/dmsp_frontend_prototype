@@ -7,7 +7,6 @@ import Footer from "@/components/footer";
 import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
 
 
-// TODO: Why this method? Is the CSS Import not enough in globals.css?
 const poppins_init = Poppins({
   subsets: ["latin"],
   weight: ['400', '600'],
