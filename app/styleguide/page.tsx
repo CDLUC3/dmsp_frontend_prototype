@@ -22,7 +22,7 @@ import {
 import {
   Example,
   BrandColor,
-} from "./sg-components.tsx";
+} from "./sg-components";
 
 
 function Page() {
@@ -195,6 +195,28 @@ function Page() {
   FieldError,
   Form,
 } from "react-area-components";
+`}
+                </code></pre></div>
+              </li>
+
+              <li>
+                Use a <em>leading underscore</em> for "private" css variables.
+                This is handy when working on larger components that use
+                duplicate styles throughout.  We create a private variable to
+                reduce duplication and potential typos, especially when working
+                with larger components.
+
+                <div><pre><code>
+{`.grid-view {
+  --_gap: var(--grid-list-grid-gap, 1rem);
+
+  display: grid;
+
+  padding: var(--_gap);
+  grid-gap: var(--_gap);
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto;
+}
 `}
                 </code></pre></div>
               </li>

@@ -1,5 +1,11 @@
+import React, { ReactNode } from 'react';
 
-export function Example({children}) {
+
+interface ExampleProps {
+  children: ReactNode;
+}
+
+export function Example({ children }: ExampleProps) {
   return (
     <div className="sg-example">
       {children}
@@ -8,10 +14,14 @@ export function Example({children}) {
 }
 
 
-export function BrandColor({varname}) {
+interface BrandColorProps {
+  varname: string,
+}
+
+export function BrandColor({ varname }: BrandColorProps) {
   let styleprops = {
     '--_color': `var(${varname})`,
-  };
+  } as React.CSSProperties;
 
   return (
     <div className="brand-color" style={styleprops}>
