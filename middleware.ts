@@ -1,103 +1,75 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { verifyJwtToken } from './lib/server/auth';
-
+import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
+import { deleteCookie } from '@/utils/cookiesUtil';
 
 // TODO: These routes will need to be updated.
-const authRoutes = ['/dmps/*', '/api/*', '/admin/*'];
-const excludedPaths = ['/api/setCookie', '/*']
+const protectedPaths = ['/dmps/', '/admin/']
+const LOGIN = `${process.env.NEXT_PUBLIC_BASE_URL}/login`;
+const HOME = `${process.env.NEXT_PUBLIC_BASE_URL}`;
 
-function matchesWildcard(path: string, pattern: string): boolean {
-  if (pattern.endsWith('/*')) {
-    const basePattern = pattern.slice(0, -2);
-    return path.startsWith(basePattern);
-  }
-  return path === pattern;
-}
 
-//Middleware will handle access to certain pages based on authentication and role
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+  const { pathname } = request.nextUrl;
 
-  let redirectToApp = false;
-
-  // Skip authentication for excluded paths
-  if (excludedPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
-    return NextResponse.next();
-  }
-
-  const LOGIN = `${process.env.NEXT_PUBLIC_BASE_URL}/login`
   /* TODO: might want to add a 'redirect' query param to url to redirect user after
    login to the original page they were trying to get to.*/
 
-  if (authRoutes.some(pattern => matchesWildcard(request.nextUrl.pathname, pattern))) {
-
-    const token = request.cookies.get('dmspt');
+  if (protectedPaths.some(path => pathname.startsWith(path))) {
+    const token = await getAuthTokenServer();
 
     if (!token) {
       return NextResponse.redirect(LOGIN);
     }
 
     try {
-      const user = verifyJwtToken(token.value);
+      const user = await verifyJwtToken(token);
 
       if (!user) {
-        //Delete token
-        request.cookies.delete('dmspt');
+        //Delete token cookie
+        deleteCookie(response, 'dmspt');
         return NextResponse.redirect(LOGIN);
       }
 
       // For admin role/path
-      if (request.nextUrl.pathname.startsWith('/admin')) {
+      if (pathname.startsWith('/admin')) {
         // if (user.role !== 'admin') {
         //   return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/access-denied`);
         // }
       }
     } catch (err) {
-      // Delete token if authentication fails
-      request.cookies.delete('dmspt');
+      // Delete token cookie if authentication fails
+      deleteCookie(response, 'dmspt');
       return NextResponse.redirect(LOGIN);
     }
   }
 
 
-  if (request.nextUrl.pathname === '/login') {
-    const token = request.cookies.get('dmspt');
-
+  if (pathname === '/login') {
+    const token = await getAuthTokenServer();
     if (token) {
       try {
-        const payload = verifyJwtToken(token.value);
+        const payload = await verifyJwtToken(token);
 
         if (payload) {
-          console.log("")
-          redirectToApp = true;
+          return NextResponse.redirect(HOME);
         } else {
           //Delete token
-          request.cookies.delete('dmspt');
+          deleteCookie(response, 'dmspt');
         }
       } catch (error) {
         // Delete token
-        request.cookies.delete('dmspt');
+        deleteCookie(response, 'dmspt');
       }
     }
   }
 
   // Add url info to custom header. Need this for just the /dmps landing page
-  const requestHeaders = new Headers(request.headers);
   if (request.nextUrl.pathname.startsWith('/dmps')) {
-    requestHeaders.set('x-url', request.nextUrl.href);
+    response.headers.set('x-url', request.nextUrl.href);
   }
 
-  if (redirectToApp) {
-    // Redirect to app home page?
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/`);
-  } else {
-    // Return the original response unaltered
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
-  }
-
-
+  return response;
 
 }
