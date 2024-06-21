@@ -23,16 +23,6 @@ jest.mock('@/utils/cookiesUtil', () => ({
 
 describe('middleware.ts', () => {
     let redirectSpy: jest.SpyInstance;
-    const mockNextRequest = (url: string, cookies: Record<string, string> = {}) => {
-        return {
-            nextUrl: new URL(url, 'http://localhost:3000'),
-            cookies: {
-                get: (name: string) => (cookies[name] ? { value: cookies[name] } : undefined),
-                delete: jest.fn(),
-            },
-            headers: new Headers(),
-        } as unknown as NextRequest;
-    };
 
     beforeEach(() => {
         redirectSpy = jest.spyOn(NextResponse, 'redirect');

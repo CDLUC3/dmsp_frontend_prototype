@@ -3,12 +3,18 @@ import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 
 const isServer = typeof window === 'undefined';
 
+/**
+ * Creates an authLink for the GraphQL Client instance.
+ * The token value will be obtained differently based on whether it is for a
+ * client-side or server-side component
+ * @returns
+ */
 export const createAuthLink = () => {
     return setContext(async (_, { headers }) => {
         let token;
 
+        //Server side
         if (typeof window === 'undefined') {
-            //Server side
             token = await getAuthTokenServer();
         } else {
             //Client-side: fetch the token from an endpoint

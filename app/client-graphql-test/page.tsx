@@ -13,7 +13,7 @@ query ContributorRoles{
     }
 }`;
 
-// This was placed here as an example of a client-side graphql request
+// This is a test page to demo and test the use of graphql hooks on the client side
 export default function Page() {
 
     const { loading, error, data } = useQuery(GET_CONTRIBUTOR_ROLES);
