@@ -13,7 +13,11 @@ query ContributorRoles{
     }
 }`;
 
-// This is a test page to demo and test the use of graphql hooks on the client side
+/**
+ * This is a test page to demo and test the use of graphql hooks on the client side.
+ * Client-side graphql requests uses the apollo-wrapper.tsx file
+ * @returns 
+ */
 export default function Page() {
 
     const { loading, error, data } = useQuery(GET_CONTRIBUTOR_ROLES);

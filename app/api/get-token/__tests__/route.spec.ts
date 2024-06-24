@@ -54,7 +54,7 @@ describe('POST Function', () => {
 })
 
 describe('PUT Function', () => {
-    it('should return an error if a POST is attempted at this endpoint', async () => {
+    it('should return an error if a PUT is attempted at this endpoint', async () => {
         const response = PUT();
         expect(response.status).toEqual(405);
         const data = await response.json();
@@ -63,7 +63,7 @@ describe('PUT Function', () => {
 })
 
 describe('DELETE Function', () => {
-    it('should return an error if a POST is attempted at this endpoint', async () => {
+    it('should return an error if a DELETE is attempted at this endpoint', async () => {
         const response = DELETE();
         expect(response.status).toEqual(405);
         const data = await response.json();
