@@ -23,14 +23,14 @@ describe('GET Function', () => {
         expect(data).toEqual({ token: 'valid-token' })
     })
 
-    it('should return error if token is not available', async () => {
+    it('should return value null for token if token is not available', async () => {
         (getAuthTokenServer as jest.Mock).mockResolvedValue(null);
 
         const response = await GET();
-        expect(response.status).toEqual(404);
+        expect(response.status).toEqual(200);
         const data = await response.json();
 
-        expect(data).toEqual({ error: 'Token not found' })
+        expect(data).toEqual({ token: null })
     })
 
     it('should handle internal server error', async () => {

@@ -13,14 +13,22 @@ export const createAuthLink = () => {
     return setContext(async (_, { headers }) => {
         let token;
 
-        //Server side
-        if (typeof window === 'undefined') {
-            token = await getAuthTokenServer();
-        } else {
-            //Client-side: fetch the token from an endpoint
-            const response = await fetch('/api/get-token');
-            const data = await response.json();
-            token = data.token;
+        try {
+            //Server side
+            if (typeof window === 'undefined') {
+                token = await getAuthTokenServer();
+            } else {
+                //Client-side: fetch the token from an endpoint
+                const response = await fetch('/api/get-tokens');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch tokens: ${response.statusText}`);
+                }
+                const data = await response.json();
+                token = data.token;
+            }
+        } catch (err) {
+            console.error('Error fetching tokens:', err);
+            token = null;
         }
 
         return {
@@ -29,5 +37,6 @@ export const createAuthLink = () => {
                 authorization: token ? `Bearer ${token}` : "",
             }
         }
+
     })
 }
