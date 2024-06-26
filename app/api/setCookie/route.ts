@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
         if (!token) {
             return NextResponse.json({ message: 'Token not provided', status: 400 })
         }
-        const isValid = verifyJwtToken(token);
+        const isValid = await verifyJwtToken(token);
 
         if (!isValid) {
             return NextResponse.json({ message: 'Invalid token', status: 401 })
