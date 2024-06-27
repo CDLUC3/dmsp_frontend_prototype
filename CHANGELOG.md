@@ -5,6 +5,11 @@
 - Added .editorconfig file to help maintain consistent coding styles [#37]
 - Added buildspec.yaml file for CI/CD pipeline [#81]
 - Added graphql file structure and client creation. [#36]
+- Added Styleguide Page, as well as custom components and css that are only to
+  be used on the Styleguide. [#51]
+- Added some default CSS variables that we can hook into when we start doing the
+  theming, many of these variables are also used by the newly added `react-aria`
+  components. [#51]
 
 ### Updates
 - Updated lib/graphql/client.ts with adding an errorLink to the client instance, and intercepting specific error types or codes to handle them differently if we want.[#29]
@@ -13,3 +18,10 @@
 - Installed pino and @elastic/ecs-pino-format to output formatted logs[#29]
 - Added app/not-found.tsx to handle 404 errors[#29]
 - Added app/error.tsx to handle server-side errors. Client components will most likely display returned errors in the page using useState().[#29]
+- Moved `globals.scss` to the `styles` directory. The goal here is to have
+  global style in their own directory. [#51]
+- Extracted some common styles for Typography, Elements, and Page into their own
+  css modules, which we import in globals. [#51]
+- Updated `layout.tsx` to use the code formatting for classes and id's as
+  outline in the styleguide. [#51]
+- Updated some CSS classes to remove verbose naming. [#51]
