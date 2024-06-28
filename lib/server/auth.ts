@@ -1,11 +1,12 @@
 import { jwtVerify, JWTPayload } from 'jose';
+import { getSecret } from '@/utils/getSecret';
 
 /**
  * Get the JWT Secret
  * @returns 
  */
-export function getJwtSecretKey(): Uint8Array {
-    const secret = process.env.JWT_SECRET
+export async function getJwtSecretKey(): Promise<Uint8Array> {
+    const secret = await getSecret();
 
     if (!secret) {
         throw new Error('JWT Secret key is not set');
@@ -21,7 +22,7 @@ export function getJwtSecretKey(): Uint8Array {
  */
 export async function verifyJwtToken(token: string): Promise<boolean | null> {
     try {
-        const secretKey = getJwtSecretKey();
+        const secretKey = await getJwtSecretKey();
 
         const { payload } = await jwtVerify(token, secretKey) as { payload: JWTPayload };
 

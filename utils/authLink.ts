@@ -34,6 +34,8 @@ export const createAuthLink = () => {
         return {
             headers: {
                 ...headers,
+                'CONTENT-TYPE': 'application/json', // CSRF prevention
+                'Apollo-Require-Preflight': '', // This requires that the GraphQL server requires a 'preflight' from browser to prevent CSRF attack
                 authorization: token ? `Bearer ${token}` : "",
             }
         }

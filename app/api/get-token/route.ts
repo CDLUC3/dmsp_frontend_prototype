@@ -9,7 +9,7 @@ export const GET = async () => {
 
     } catch (err) {
         console.error('Error fetching token:', err);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 405 });
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 };
 

@@ -37,7 +37,7 @@ describe('GET Function', () => {
         (getAuthTokenServer as jest.Mock).mockRejectedValue(new Error('Test error'));
 
         const response = await GET();
-        expect(response.status).toEqual(405);
+        expect(response.status).toEqual(500);
         const data = await response.json();
 
         expect(data).toEqual({ error: 'Internal Server Error' })
