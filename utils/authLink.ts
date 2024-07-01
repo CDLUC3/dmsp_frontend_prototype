@@ -1,8 +1,6 @@
 import { setContext } from '@apollo/client/link/context';
 import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 
-const isServer = typeof window === 'undefined';
-
 /**
  * Creates an authLink for the GraphQL Client instance.
  * The token value will be obtained differently based on whether it is for a
@@ -19,7 +17,7 @@ export const createAuthLink = () => {
                 token = await getAuthTokenServer();
             } else {
                 //Client-side: fetch the token from an endpoint
-                const response = await fetch('/api/get-tokens');
+                const response = await fetch('/api/get-token');
                 if (!response.ok) {
                     throw new Error(`Failed to fetch tokens: ${response.statusText}`);
                 }

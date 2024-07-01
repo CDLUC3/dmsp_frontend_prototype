@@ -36,8 +36,7 @@ describe('middleware.ts', () => {
     it('should redirect to login if no token is found for protected path', async () => {
         (getAuthTokenServer as jest.Mock).mockResolvedValue(null);
         const request = new NextRequest(new Request('http://localhost:3000/dmps/123'));
-        const response = await middleware(request);
-
+        await middleware(request);
         expect(redirectSpy).toHaveBeenCalledWith('http://localhost:3000/login');
     });
 
@@ -82,7 +81,7 @@ describe('middleware.ts', () => {
         (getAuthTokenServer as jest.Mock).mockResolvedValue('valid_token');
         const request = new NextRequest(new Request('http://localhost:3000/login'));
         (verifyJwtToken as jest.Mock).mockImplementation(() => null);
-        const response = await middleware(request);
+        await middleware(request);
 
         expect(deleteCookie).toHaveBeenCalled();
     });
