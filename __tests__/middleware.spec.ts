@@ -5,101 +5,93 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from '../middleware';
 import { verifyJwtToken } from '../lib/server/auth';
+import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
+import { deleteCookie } from '@/utils/cookiesUtil';
 
 
 jest.mock('../lib/server/auth', () => ({
     verifyJwtToken: jest.fn(),
 }));
 
-const redirectSpy = jest.spyOn(NextResponse, 'redirect');
+jest.mock('@/utils/getAuthTokenServer', () => ({
+    getAuthTokenServer: jest.fn(),
+}));
+
+jest.mock('@/utils/cookiesUtil', () => ({
+    deleteCookie: jest.fn()
+}))
 
 describe('middleware.ts', () => {
-
-    const mockNextRequest = (url: string, cookies: Record<string, string> = {}) => {
-        return {
-            nextUrl: new URL(url, 'http://localhost:3000'),
-            cookies: {
-                get: (name: string) => (cookies[name] ? { value: cookies[name] } : undefined),
-                delete: jest.fn(),
-            },
-            headers: new Headers(),
-        } as unknown as NextRequest;
-    };
+    let redirectSpy: jest.SpyInstance;
 
     beforeEach(() => {
+        redirectSpy = jest.spyOn(NextResponse, 'redirect');
         jest.clearAllMocks();
     });
 
-    it('should skip authentication for excluded paths', () => {
-        // @ts-ignore
-        const request = mockNextRequest('/api/setCookie');
-        const response = middleware(request);
+    afterEach(() => {
+        redirectSpy.mockRestore();
+    })
 
-        expect(response).toEqual(NextResponse.next());
+    it('should redirect to login if no token is found for protected path', async () => {
+        (getAuthTokenServer as jest.Mock).mockResolvedValue(null);
+        const request = new NextRequest(new Request('http://localhost:3000/dmps/123'));
+        await middleware(request);
+        expect(redirectSpy).toHaveBeenCalledWith('http://localhost:3000/login');
     });
 
-    it('should redirect to login if no token is found for protected routes', () => {
-        const request = mockNextRequest('/dmps/123');
-        middleware(request);
-
-        expect(redirectSpy).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_BASE_URL}/login`);
-    });
-
-    it('should delete token and redirect to login if token is invalid', () => {
-        const request = mockNextRequest('/dmps/123', { dmspt: 'invalid_token' });
+    it('should delete token and redirect to login if token is invalid', async () => {
+        (getAuthTokenServer as jest.Mock).mockResolvedValue('invalid_token');
+        const request = new NextRequest(new Request('http://localhost:3000/dmps/123'));
         (verifyJwtToken as jest.Mock).mockImplementation(() => false);
-        middleware(request);
+        await middleware(request);
 
-        expect(request.cookies.delete).toHaveBeenCalledWith('dmspt');
-        expect(redirectSpy).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_BASE_URL}/login`);
+        expect(deleteCookie).toHaveBeenCalled();
+        expect(redirectSpy).toHaveBeenCalledWith('http://localhost:3000/login');
     });
 
-    it('should allow access to protected routes if token is valid', () => {
-        const request = mockNextRequest('/dmps/123', { dmspt: 'valid_token' });
-        (verifyJwtToken as jest.Mock).mockImplementation(() => ({ user: 'valid_user' }));
-        const response = middleware(request);
+    it('should allow access to protected routes if token is valid and include correct header', async () => {
+        (getAuthTokenServer as jest.Mock).mockResolvedValue('valid_token');
+        const request = new NextRequest(new Request('http://localhost:3000/dmps/123'));
+        (verifyJwtToken as jest.Mock).mockImplementation(() => true);
+        const response = await middleware(request);
         expect(response.status).toEqual(200);
+        expect(response.headers.get('x-url')).toBe('http://localhost:3000/dmps/123');
     });
 
-    it('should set x-url header for dmps routes', () => {
-        const request = mockNextRequest('/dmps/landing', { dmspt: 'valid_token' });
-        (verifyJwtToken as jest.Mock).mockImplementation(() => ({ user: 'valid_user' }));
-        const response = middleware(request);
+    it('should redirect to app home page if user is already logged in and visits /login', async () => {
+        (getAuthTokenServer as jest.Mock).mockResolvedValue('valid_token');
+        const request = new NextRequest(new Request('http://localhost:3000/login'));
+        (verifyJwtToken as jest.Mock).mockImplementation(() => true);
+        await middleware(request);
 
-        expect(response.headers.get('x-middleware-request-x-url')).toBe('http://localhost:3000/dmps/landing');
+        expect(redirectSpy).toHaveBeenCalledWith('http://localhost:3000');
     });
 
-    it('should redirect to app home page if user is already logged in and visits /login', () => {
-        const request = mockNextRequest('/login', { dmspt: 'valid_token' });
-        (verifyJwtToken as jest.Mock).mockImplementation(() => ({ user: 'valid_user' }));
-        middleware(request);
-
-        expect(redirectSpy).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_BASE_URL}/`);
-    });
-
-    it('should not redirect if user is not logged in and visits /login', () => {
-        const request = mockNextRequest('/login');
-        const response = middleware(request);
+    it('should not redirect if user is not logged in and visits /login', async () => {
+        (getAuthTokenServer as jest.Mock).mockResolvedValue(undefined);
+        const request = new NextRequest(new Request('http://localhost:3000/login'));
+        const response = await middleware(request);
 
         expect(redirectSpy).not.toHaveBeenCalled();
         expect(response.status).toEqual(200);
     });
 
-    it('should delete cookie when user goes to /login and has token but verifyJwtToken returns null', () => {
-        const request = mockNextRequest('/login', { dmspt: 'token' });
+    it('should delete cookie when user goes to /login and has token but verifyJwtToken returns null', async () => {
+        (getAuthTokenServer as jest.Mock).mockResolvedValue('valid_token');
+        const request = new NextRequest(new Request('http://localhost:3000/login'));
         (verifyJwtToken as jest.Mock).mockImplementation(() => null);
-        const response = middleware(request);
+        await middleware(request);
 
-        expect(request.cookies.delete).toHaveBeenCalled();
-        expect(request.cookies.delete).toHaveBeenCalledWith('dmspt');
+        expect(deleteCookie).toHaveBeenCalled();
     });
 
-    it('should delete cookie when user goes to /login and there is an error calling verifyJwtToken', () => {
-        const request = mockNextRequest('/login', { dmspt: 'token' });
+    it('should delete cookie when user goes to /login and there is an error calling verifyJwtToken', async () => {
+        (getAuthTokenServer as jest.Mock).mockResolvedValue('valid_token');
+        const request = new NextRequest(new Request('http://localhost:3000/login'));
         (verifyJwtToken as jest.Mock).mockImplementation(() => { throw new Error('Could not verify cookie') });
-        const response = middleware(request);
+        await middleware(request);
 
-        expect(request.cookies.delete).toHaveBeenCalled();
-        expect(request.cookies.delete).toHaveBeenCalledWith('dmspt');
+        expect(deleteCookie).toHaveBeenCalled();
     });
 });

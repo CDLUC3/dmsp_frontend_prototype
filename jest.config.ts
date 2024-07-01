@@ -1,4 +1,4 @@
-const nextJest = require("next/jest");
+import nextJest from "next/jest";
 import type { Config } from 'jest'
 const createJestConfig = nextJest({
     dir: "./",
@@ -21,7 +21,7 @@ const config: Config = {
         'ts-jest': {
             tsconfig: 'tsconfig.json'
         },
-        'fetch': global.fetch //added this to be able to mock 'fetch' in tests
+        fetch: global.fetch //added this to be able to mock 'fetch' in tests
     },
 }
 

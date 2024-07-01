@@ -1,10 +1,14 @@
 import { ApolloClient, createHttpLink, InMemoryCache, from } from "@apollo/client";
 import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rsc";
 import { onError } from '@apollo/client/link/error';
+import { createAuthLink } from '@/utils/authLink';
+
 
 const httpLink = createHttpLink({
-    uri: `${process.env.GRAPHQL_ENDPOINT}/graphql`
+    uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`
 });
+
+const authLink = createAuthLink();
 
 interface CustomError extends Error {
     customInfo?: { customMessage: string }
@@ -43,9 +47,10 @@ const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
     }
 });
 
+
 export const { getClient } = registerApolloClient(() => {
     return new ApolloClient({
-        link: from([errorLink, httpLink]),
+        link: from([errorLink, authLink, httpLink]),
         cache: new InMemoryCache(),
     });
 });

@@ -1,23 +1,32 @@
-import jwt, { Secret } from 'jsonwebtoken';
+import { jwtVerify, JWTPayload } from 'jose';
+import { getSecret } from '@/utils/getSecret';
 
-export function getJwtSecretKey(): Secret {
-    // Secret is hardcoded for now
-    // TODO: Need to figure out where the secret will be stored
-    const secret = Buffer.from('Zn8Q5tyZ/G1MHltc4F/gTkVJMlrbKiZt', 'base64');
+/**
+ * Get the JWT Secret
+ * @returns 
+ */
+export async function getJwtSecretKey(): Promise<Uint8Array> {
+    const secret = await getSecret();
 
     if (!secret) {
         throw new Error('JWT Secret key is not set');
     }
 
-    return secret;
+    return new TextEncoder().encode(secret);
 }
 
-export function verifyJwtToken(token: string): boolean | null {
+/**
+ * Determine if token is valid
+ * @param token 
+ * @returns 
+ */
+export async function verifyJwtToken(token: string): Promise<boolean | null> {
     try {
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        const decoded = jwt.verify(token, getJwtSecretKey()) as { [key: string]: any };
+        const secretKey = await getJwtSecretKey();
 
-        return !!decoded;
+        const { payload } = await jwtVerify(token, secretKey) as { payload: JWTPayload };
+
+        return !!payload; //return boolean
     } catch (error) {
         console.error('Token verification failed:', error)
         return null;
