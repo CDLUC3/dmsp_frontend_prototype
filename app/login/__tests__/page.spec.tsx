@@ -1,13 +1,45 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginPage from '../page';
+import logECS from '@/utils/clientLogger';
+
+jest.mock('next/navigation', () => ({
+    useRouter: jest.fn()
+}));
+
+jest.mock('@/utils/clientLogger', () => ({
+    __esModule: true,
+    default: jest.fn()
+}))
+
+// Create a mock for scrollIntoView and focus
+const mockScrollIntoView = jest.fn();
+const mockFocus = jest.fn();
+
+//Need to import this useRouter after the jest.mock is in place
+import { useRouter } from 'next/navigation';
+
+const mockUseRouter = useRouter as jest.Mock;
 
 describe('LoginPage', () => {
     beforeEach(() => {
+        HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+        HTMLElement.prototype.focus = mockFocus;
+        mockUseRouter.mockReturnValue({
+            push: jest.fn(),
+        })
         jest.spyOn(console, 'error').mockImplementation(() => { });
+    });
 
+    afterEach(() => {
+        HTMLElement.prototype.scrollIntoView = jest.fn();
+        HTMLElement.prototype.focus = jest.fn();
+        jest.restoreAllMocks();
+    })
+
+    it('should render login form, save token in cookie, and redirect to home page', async () => {
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
-            if (url === 'http://localhost:4000/login') {
+            if (url === 'http://localhost:4000/signin') {
                 return Promise.resolve({
                     ok: true,
                     status: 200,
@@ -24,13 +56,7 @@ describe('LoginPage', () => {
 
             return Promise.reject(new Error('Unknown URL'));
         });
-    });
 
-    afterEach(() => {
-        jest.restoreAllMocks();
-    })
-
-    it('should render the login form and submit successfully', async () => {
         render(<LoginPage />);
 
         //Find input fields and button in screen
@@ -45,26 +71,81 @@ describe('LoginPage', () => {
         //Simulate form submission
         fireEvent.click(submitButton);
 
-        //Wait for the async fetch calls to be made
-        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
+        await waitFor(() => {
+            //Assert that the fetch calls were made with the correct arguments
+            expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: 'test@test.com', password: 'password123' }),
+            });
+            expect(mockUseRouter().push).toHaveBeenCalledTimes(1);
+            expect(global.fetch).toHaveBeenCalledWith('/api/setCookie', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: 'valid-token' }),
+            });
+        })
+    });
 
-        //Assert that the fetch calls were made with the correct arguments
-        expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email: 'test@test.com', password: 'password123' }),
+    it('should handle 401 error', async () => {
+        jest.spyOn(global, 'fetch').mockImplementation(() => {
+            return Promise.resolve({
+                ok: false,
+                status: 401,
+                json: () => Promise.resolve({ success: false, message: 'Invalid credentials' }),
+            } as unknown as Response);
         });
+        render(<LoginPage />);
 
-        expect(global.fetch).toHaveBeenCalledWith('/api/setCookie', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ token: 'valid-token' }),
+        //Find input fields and button in screen
+        const emailInput = screen.getByLabelText(/email/i);
+        const passwordInput = screen.getByLabelText(/password/i);
+        const submitButton = screen.getByRole('button', { name: /login/i });
+
+        //Simulate user input
+        fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
+        fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+        //Simulate form submission
+        fireEvent.click(submitButton);
+
+        await waitFor(() => {
+            const errorDiv = screen.getByText('Invalid credentials').closest('div');
+            expect(errorDiv).toHaveClass('error');
+            expect(errorDiv).toContainHTML('<p>Invalid credentials</p>')
+        })
+    });
+
+    it('should handle 500 error', async () => {
+        jest.spyOn(global, 'fetch').mockImplementation(() => {
+            return Promise.resolve({
+                ok: false,
+                status: 500,
+                json: () => Promise.resolve({ success: false, message: 'Internal server error' }),
+            } as unknown as Response);
         });
+        render(<LoginPage />);
 
+        //Find input fields and button in screen
+        const emailInput = screen.getByLabelText(/email/i);
+        const passwordInput = screen.getByLabelText(/password/i);
+        const submitButton = screen.getByRole('button', { name: /login/i });
+
+        //Simulate user input
+        fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
+        fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+        //Simulate form submission
+        fireEvent.click(submitButton);
+
+        // Check that user is redirected to 500 error page
+        await waitFor(() => {
+            expect(mockUseRouter().push).toHaveBeenCalledWith('/500')
+        })
     });
 
     it('should handle fetch error', async () => {
@@ -94,9 +175,16 @@ describe('LoginPage', () => {
         //Simulate form submission
         fireEvent.click(submitButton);
 
-        //Check that error logged to the console
+        // //Check that error logged 
         await waitFor(() => {
-            expect(console.error).toHaveBeenCalledWith("Network response was not ok");
+            expect(logECS).toHaveBeenCalledWith(
+                'error',
+                'Signin error',
+                expect.objectContaining({
+                    error: expect.anything(),
+                    url: { path: '/signin' },
+                })
+            )
         })
     })
 })
