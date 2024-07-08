@@ -14,12 +14,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Debug Info
+        run: |
+          echo "Running on branch: ${{ github.ref }}"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Action: ${{ github.action }}"
+          
       - name: Get PR template
         run: |
           TEMPLATE=$(cat .github/PULL_REQUEST_TEMPLATE.md)
           echo "TEMPLATE<<EOF" >> $GITHUB_ENV
           echo "$TEMPLATE" >> $GITHUB_ENV
-          echo "EOF" << $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Update PR description
         uses: actions/github-script@v3
@@ -29,7 +35,8 @@ jobs:
             const context = github.context;
             const template = process.env.TEMPLATE;
             github.rest.pulls.update({
-              ... context, repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
               body: template
             })
