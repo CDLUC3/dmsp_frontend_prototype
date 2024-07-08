@@ -19,7 +19,7 @@ interface BrandColorProps {
 }
 
 export function BrandColor({ varname }: BrandColorProps) {
-  let styleprops = {
+  const styleprops = {
     '--_color': `var(${varname})`,
   } as React.CSSProperties;
 
