@@ -25,6 +25,9 @@ const SignUpPage: React.FC = () => {
                 })
             }
         } else if (response.status === 500) {
+            logECS('error', 'Internal server error', {
+                url: { path: '/signup' }
+            });
             router.push('/500');
         } else {
             setErrors(['An unexpected error occurred. Please try again.'])
@@ -49,7 +52,7 @@ const SignUpPage: React.FC = () => {
 
         } catch (err: any) {
             logECS('error', 'Signup error', {
-                error: { err },
+                error: err,
                 url: { path: '/signup' }
             });
         }

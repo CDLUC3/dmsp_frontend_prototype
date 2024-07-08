@@ -36,11 +36,15 @@ const LoginPage: React.FC = () => {
             body: JSON.stringify({ token })
         })
 
-        if (result.ok) {
-            const data = await result.json();
-            console.log(data.message);
+        const data = await result.json();
+        if (data.status !== 200) {
+            logECS('error', data.message, {
+                url: { path: '/signin' }
+            });
         } else {
-            console.error('Failed to set cookie');
+            logECS('info', data.message, {
+                url: { path: '/signin' }
+            });
         }
     }
 
@@ -55,6 +59,9 @@ const LoginPage: React.FC = () => {
                 setErrors(prevErrors => [...prevErrors, message])
             }
         } else if (response.status === 500) {
+            logECS('error', 'Internal server error', {
+                url: { path: '/signin' }
+            });
             router.push('/500');
         } else {
             setErrors(['An unexpected error occurred. Please try again.'])
@@ -77,7 +84,7 @@ const LoginPage: React.FC = () => {
 
         } catch (err: any) {
             logECS('error', 'Signin error', {
-                error: { err },
+                error: err,
                 url: { path: '/signin' }
             });
         }
