@@ -122,7 +122,7 @@ function Page() {
 
             <h2>Typographic Spacing</h2>
             <p>Different variables for enforcing consistent line heights and
-            legible typography.</p>
+              legible typography.</p>
 
             <dl>
               <dt><code>--brand-line-height0</code></dt>
@@ -151,11 +151,11 @@ function Page() {
             <h2>Naming Conventions</h2>
             <ul className="sg-spaced">
               <li>
-                Use <code>TitleCase</code> for componen tags, ie.<br/>
+                Use <code>TitleCase</code> for componen tags, ie.<br />
                 <code>{"<SomeElement />"}</code>
               </li>
               <li>
-                Use <code>camelCase</code> for element ID's, ie.<br/>
+                Use <code>camelCase</code> for element ID&lsquo;s, ie.<br />
                 <code>{'<SomeElement id="myElement"/>'}</code>
               </li>
               <li>
@@ -169,11 +169,11 @@ function Page() {
               </li>
               <li>
                 When elements have multiple properties, prefer to have each
-                property on it's own line, so that it's faster to find specific
+                property on it&lsquo;s own line, so that it&lsquo;s faster to find specific
                 properties, and easier to add &amp; remove. Eg.
 
                 <div><pre><code>
-{`<SomeElement
+                  {`<SomeElement
   prop1="A"
   prop2="B"
   prop3="C"
@@ -187,7 +187,7 @@ function Page() {
                 for better legibility and faster changes.
 
                 <div><pre><code>
-{`import {
+                  {`import {
   Button,
   Label,
   TextField,
@@ -200,14 +200,14 @@ function Page() {
               </li>
 
               <li>
-                Use a <em>leading underscore</em> for "private" css variables.
+                Use a <em>leading underscore</em> for &ldquo;private&ldquo; css variables.
                 This is handy when working on larger components that use
                 duplicate styles throughout.  We create a private variable to
                 reduce duplication and potential typos, especially when working
                 with larger components.
 
                 <div><pre><code>
-{`.grid-view {
+                  {`.grid-view {
   --_gap: var(--grid-list-grid-gap, 1rem);
 
   display: grid;
@@ -238,8 +238,8 @@ function Page() {
             <dl>
               <dt><code>--focus-ring-color</code></dt>
               <dd>
-                This is the highlight around input fields and other “selectable”
-                elements. It's a visual indicator of where the current focus is.
+                This is the highlight around input fields and other &ldquo;selectable&ldquo;
+                elements. It&lsquo;s a visual indicator of where the current focus is.
               </dd>
 
               <dt><code>--text-color</code></dt>
