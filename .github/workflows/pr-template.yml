@@ -31,7 +31,6 @@ jobs:
         uses: actions/github-script@v3
         with:
           script: |
-            const github = require('@actions/github');
             const context = github.context;
             const template = process.env.TEMPLATE;
             github.rest.pulls.update({
