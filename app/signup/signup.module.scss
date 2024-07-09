@@ -1,12 +1,13 @@
+
 // TODO: This css will be updated when we get the final signup page design
-.signup-wrapper {
+.signupWrapper {
     background-color: var( --btn-basic-bg-color);
-    height: 100vh;
     display: flex; 
+    flex-direction:column;
     align-items: center;
     justify-content: center;
 
-    .signup-form {
+    .signupForm {
         display: flex;
         flex-direction: column;
         max-width: 32rem;
@@ -16,7 +17,7 @@
         padding: 2rem;
     }
     
-    .heading-3 {
+    .heading3 {
         font-size: 1.25rem;
         line-height: 1.75rem;
         margin-bottom: 1rem;
@@ -42,12 +43,12 @@
         line-height: 1.75rem;
         font-weight: 600;
         padding: 1rem;
-        background-color: var(--dmptool-brand-blue);
+        background-color: var(--brand-primary);
         color: rgb(229 231 235);
     
         &:hover {
-            background-color: var(--dmptool-brand-gray);
-            color: black;
+            color: var(--text-color);
+            background: var(--button-background);
         }
     }
 }
