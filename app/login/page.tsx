@@ -76,7 +76,7 @@ const LoginPage: React.FC = () => {
         setErrors([]); // Clear previous errors
 
         if (attempts >= 5) {
-            setErrors(['Too many attempts. Please wait before trying again.']);
+            setErrors(['Too many attempts. Please wait 15 minutes before trying again.']);
             return;
         }
 
@@ -153,7 +153,7 @@ const LoginPage: React.FC = () => {
                     onChange={handleInputChange}
                     required
                 />
-                <button type="submit" disabled={(loading || attempts > 5) ? true : false}>{attempts}{loading ? 'Logging in ...' : 'Login'}</button>
+                <button type="submit" disabled={(loading || attempts > 5) ? true : false}>{loading ? 'Logging in ...' : 'Login'}</button>
             </form>
         </div>
     );

@@ -42,7 +42,7 @@ const SignUpPage: React.FC = () => {
         setErrors([]); // Clear previous errors
 
         if (attempts >= 5) {
-            setErrors(['Too many attempts. Please wait before trying again.']);
+            setErrors(['Too many attempts. Please wait 15 minutes before trying again.']);
             return;
         }
 
