@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import LoginPage from '../page';
 import logECS from '@/utils/clientLogger';
 
@@ -89,6 +90,95 @@ describe('LoginPage', () => {
                 body: JSON.stringify({ token: 'valid-token' }),
             });
         })
+    });
+
+    it('should initially disable submit button after submitting form until response is returned ', async () => {
+        jest.spyOn(global, 'fetch').mockImplementation((url) => {
+            if (url === 'http://localhost:4000/signin') {
+                return Promise.resolve({
+                    ok: true,
+                    status: 200,
+                    json: () => Promise.resolve({ token: 'valid-token' }),
+                } as unknown as Response);
+            }
+            if (url === '/api/setCookie') {
+                return Promise.resolve({
+                    ok: true,
+                    status: 200,
+                    json: () => Promise.resolve({ message: 'Cookie set successfully' }),
+                } as unknown as Response);
+            }
+
+            return Promise.reject(new Error('Unknown URL'));
+        });
+
+        render(<LoginPage />);
+
+        //Find input fields and button in screen
+        const emailInput = screen.getByLabelText(/email/i);
+        const passwordInput = screen.getByLabelText(/password/i);
+        const submitButton = screen.getByRole('button', { name: /login/i });
+
+        //Simulate user input
+        fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
+        fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+        //Simulate form submission
+        fireEvent.click(submitButton);
+
+        expect(submitButton).toBeDisabled();
+        expect(submitButton).toHaveTextContent('Logging in ...');
+
+        await waitFor(() => {
+            expect(submitButton).not.toBeDisabled();
+            expect(submitButton).toHaveTextContent('Login');
+        });
+    });
+
+    it('should show error message after too many attempts ', async () => {
+        jest.spyOn(global, 'fetch').mockImplementation((url) => {
+            if (url === 'http://localhost:4000/signin') {
+                return Promise.resolve({
+                    ok: true,
+                    status: 200,
+                    json: () => Promise.resolve({ token: 'valid-token' }),
+                } as unknown as Response);
+            }
+            if (url === '/api/setCookie') {
+                return Promise.resolve({
+                    ok: true,
+                    status: 200,
+                    json: () => Promise.resolve({ message: 'Cookie set successfully' }),
+                } as unknown as Response);
+            }
+
+            return Promise.reject(new Error('Unknown URL'));
+        });
+
+        render(<LoginPage />);
+
+        //Find input fields and button in screen
+        const emailInput = screen.getByLabelText(/email/i);
+        const passwordInput = screen.getByLabelText(/password/i);
+        const submitButton = screen.getByRole('button', { name: /login/i });
+
+        //Simulate user input
+        fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
+        fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+        for (let i = 0; i < 15; i++) {
+            userEvent.click(submitButton);
+            await waitFor(() => {
+                expect(submitButton).toHaveTextContent('Logging in ...')
+            })
+        }
+
+        fireEvent.click(submitButton);
+        await waitFor(() => {
+            expect(submitButton).toBeDisabled();
+            expect(screen.getByText(/Too many attempts. Please wait before trying again./i)).toBeInTheDocument();
+        });
+
     });
 
     it('should handle 401 error', async () => {

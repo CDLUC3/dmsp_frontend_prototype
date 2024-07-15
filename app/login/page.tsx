@@ -17,6 +17,8 @@ const LoginPage: React.FC = () => {
         password: "",
     });
     const [errors, setErrors] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [attempts, setAttempts] = useState(0);
     const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
 
@@ -70,6 +72,14 @@ const LoginPage: React.FC = () => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setLoading(true);
+        setErrors([]); // Clear previous errors
+
+        if (attempts >= 5) {
+            setErrors(['Too many attempts. Please wait before trying again.']);
+            return;
+        }
+
         /* eslint-disable @typescript-eslint/no-explicit-any */
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/signin`, {
@@ -87,6 +97,9 @@ const LoginPage: React.FC = () => {
                 error: err,
                 url: { path: '/signin' }
             });
+        } finally {
+            setLoading(false);
+            setAttempts(attempts + 1);
         }
 
     };
@@ -99,6 +112,16 @@ const LoginPage: React.FC = () => {
             }
         }
     }, [errors])
+
+    useEffect(() => {
+        if (attempts > 5) {
+            const timer = setTimeout(() => {
+                setAttempts(0);
+            }, 15 * 60 * 1000); // 15 minutes
+
+            return () => clearTimeout(timer);
+        }
+    }, [attempts])
 
     return (
         <div className={styles.loginWrapper} ref={errorRef}>
@@ -130,7 +153,7 @@ const LoginPage: React.FC = () => {
                     onChange={handleInputChange}
                     required
                 />
-                <button type="submit">Login</button>
+                <button type="submit" disabled={(loading || attempts > 5) ? true : false}>{attempts}{loading ? 'Logging in ...' : 'Login'}</button>
             </form>
         </div>
     );
