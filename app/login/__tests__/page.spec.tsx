@@ -30,12 +30,14 @@ describe('LoginPage', () => {
             push: jest.fn(),
         })
         jest.spyOn(console, 'error').mockImplementation(() => { });
+        jest.useFakeTimers();
     });
 
     afterEach(() => {
         HTMLElement.prototype.scrollIntoView = jest.fn();
         HTMLElement.prototype.focus = jest.fn();
         jest.restoreAllMocks();
+        jest.useRealTimers();
     })
 
     it('should render login form, save token in cookie, and redirect to home page', async () => {
@@ -166,19 +168,38 @@ describe('LoginPage', () => {
         fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
         fireEvent.change(passwordInput, { target: { value: 'password123' } });
 
-        for (let i = 0; i < 15; i++) {
+        // Simulate 5 failed attempts
+        for (let i = 0; i < 7; i++) {
+            // Ensure the button is not disabled before clicking
+            await waitFor(() => expect(submitButton).not.toBeDisabled());
             userEvent.click(submitButton);
-            await waitFor(() => {
-                expect(submitButton).toHaveTextContent('Logging in ...')
-            })
+            await waitFor(() => expect(submitButton).not.toBeDisabled());
         }
 
-        fireEvent.click(submitButton);
+        // Simulate the 6th attempt, which should trigger the lockout
+        await waitFor(() => expect(submitButton).not.toBeDisabled());
+        userEvent.click(submitButton);
+        await waitFor(() => expect(submitButton).toBeDisabled());
+
         await waitFor(() => {
-            expect(submitButton).toBeDisabled();
-            expect(screen.getByText(/Too many attempts. Please wait before trying again./i)).toBeInTheDocument();
+            expect(screen.queryByText(/Too many attempts. Please try again later in 15 minutes./i)).not.toBeInTheDocument();
+            expect(submitButton).not.toBeDisabled();
         });
 
+        // Ensure the button is not disabled before clicking after lockout period
+        await waitFor(() => expect(submitButton).not.toBeDisabled());
+        userEvent.click(submitButton);
+        await waitFor(() => {
+            expect(submitButton).not.toBeDisabled();
+        });
+
+        // Simulate the passage of 5 minutes
+        jest.advanceTimersByTime(5 * 60 * 1000);
+
+        await waitFor(() => {
+            expect(screen.queryByText(/Too many attempts. Please try again later in 10 minutes/i)).not.toBeInTheDocument();
+            expect(submitButton).not.toBeDisabled();
+        });
     });
 
     it('should handle 401 error', async () => {

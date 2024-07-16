@@ -11,6 +11,7 @@ const SignUpPage: React.FC = () => {
     const [errors, setErrors] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [attempts, setAttempts] = useState(0);
+    const [lockoutTime, setLockoutTime] = useState<number | null>(null);
     const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
 
@@ -41,8 +42,12 @@ const SignUpPage: React.FC = () => {
         setLoading(true);
         setErrors([]); // Clear previous errors
 
-        if (attempts >= 5) {
-            setErrors(['Too many attempts. Please wait 15 minutes before trying again.']);
+        if (attempts > 5) {
+            const remainingTime = lockoutTime ? Math.max(lockoutTime - Date.now(), 0) : 0;
+            const minutesLeft = Math.ceil(remainingTime / 60000);
+            const remainingMinutesText = minutesLeft < 2 ? 'minute' : 'minutes'
+            setErrors([`Too many attempts. Please try again later${remainingTime > 0 ? ` in ${Math.ceil(remainingTime / 60000)} ${remainingMinutesText}.` : '.'}`]);
+            setLoading(false);
             return;
         }
 
@@ -79,10 +84,14 @@ const SignUpPage: React.FC = () => {
     }, [errors])
 
     useEffect(() => {
-        if (attempts > 5) {
+        if (attempts >= 5) {
+            const lockoutDuration = 15 * 60 * 1000; //15 minutes
+            const newLockoutTime = Date.now() + lockoutDuration;
+            setLockoutTime(newLockoutTime);
             const timer = setTimeout(() => {
                 setAttempts(0);
-            }, 15 * 60 * 1000); // 15 minutes
+                setLockoutTime(null);
+            }, lockoutDuration); // 15 minutes
 
             return () => clearTimeout(timer);
         }
@@ -118,7 +127,7 @@ const SignUpPage: React.FC = () => {
                     onChange={e => setPassword(e.target.value)}
                     required />
 
-                <button type="submit" disabled={loading || attempts > 5}>{loading ? 'Signing up ...' : 'Sign Up'}</button>
+                <button type="submit" disabled={loading}>{loading ? 'Signing up ...' : 'Sign Up'}</button>
             </form>
 
         </div>

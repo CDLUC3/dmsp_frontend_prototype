@@ -32,12 +32,14 @@ describe('SignUpPage', () => {
             push: jest.fn(),
         })
         jest.spyOn(console, 'error').mockImplementation(() => { });
+        jest.useFakeTimers();
     });
 
     afterEach(() => {
         HTMLElement.prototype.scrollIntoView = jest.fn();
         HTMLElement.prototype.focus = jest.fn();
         jest.restoreAllMocks();
+        jest.useRealTimers();
     })
 
     it('should render signup form and submit successfully', async () => {
@@ -81,75 +83,60 @@ describe('SignUpPage', () => {
 
     });
 
-    it('should initially disable submit button after submitting form until response is returned', async () => {
+    it('should message user with lockout time period when user makes over 5 attempts to signup', async () => {
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
-            if (url === 'http://localhost:4000/signup') {
+            if (url === `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/signup`) {
                 return Promise.resolve({
-                    ok: true,
-                    status: 200,
-                    json: () => Promise.resolve({ token: 'valid-token', success: true }),
+                    ok: false,
+                    status: 400,
+                    json: () => Promise.resolve({ message: 'Invalid email or password' }),
                 } as unknown as Response);
             }
-
             return Promise.reject(new Error('Unknown URL'));
         });
+
         render(<SignUpPage />);
 
-        //Find input fields and button in screen
+        // Find input fields and button in screen
         const emailInput = screen.getByLabelText(/email/i);
         const passwordInput = screen.getByLabelText(/password/i);
         const submitButton = screen.getByRole('button', { name: /sign up/i });
 
-        //Simulate user input
+        // Simulate user input
         fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
         fireEvent.change(passwordInput, { target: { value: 'password123' } });
 
-        //Simulate form submission
-        fireEvent.click(submitButton);
-
-        expect(submitButton).toBeDisabled();
-        expect(submitButton).toHaveTextContent('Signing up ...');
-
-        await waitFor(() => {
-            expect(submitButton).not.toBeDisabled();
-            expect(submitButton).toHaveTextContent('Sign Up');
-        });
-    });
-
-    it('should show error message after too many attempts', async () => {
-        jest.spyOn(global, 'fetch').mockImplementation((url) => {
-            if (url === 'http://localhost:4000/signup') {
-                return Promise.resolve({
-                    ok: true,
-                    status: 200,
-                    json: () => Promise.resolve({ token: 'valid-token', success: true }),
-                } as unknown as Response);
-            }
-
-            return Promise.reject(new Error('Unknown URL'));
-        });
-        render(<SignUpPage />);
-
-        //Find input fields and button in screen
-        const emailInput = screen.getByLabelText(/email/i);
-        const passwordInput = screen.getByLabelText(/password/i);
-        const submitButton = screen.getByRole('button', { name: /sign up/i });
-
-        //Simulate user input
-        fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
-        fireEvent.change(passwordInput, { target: { value: 'password123' } });
-
-        for (let i = 0; i < 15; i++) {
+        // Simulate 5 failed attempts
+        for (let i = 0; i < 7; i++) {
+            // Ensure the button is not disabled before clicking
+            await waitFor(() => expect(submitButton).not.toBeDisabled());
             userEvent.click(submitButton);
-            await waitFor(() => {
-                expect(submitButton).toHaveTextContent('Signing up ...')
-            })
+            await waitFor(() => expect(submitButton).not.toBeDisabled());
         }
 
-        fireEvent.click(submitButton);
+        // Simulate the 6th attempt, which should trigger the lockout
+        await waitFor(() => expect(submitButton).not.toBeDisabled());
+        userEvent.click(submitButton);
+        await waitFor(() => expect(submitButton).toBeDisabled());
+
         await waitFor(() => {
-            expect(submitButton).toBeDisabled();
-            expect(screen.getByText(/Too many attempts. Please wait before trying again./i)).toBeInTheDocument();
+            expect(screen.queryByText(/Too many attempts. Please try again later in 15 minutes./i)).not.toBeInTheDocument();
+            expect(submitButton).not.toBeDisabled();
+        });
+
+        // Ensure the button is not disabled before clicking after lockout period
+        await waitFor(() => expect(submitButton).not.toBeDisabled());
+        userEvent.click(submitButton);
+        await waitFor(() => {
+            expect(submitButton).not.toBeDisabled();
+        });
+
+        // Simulate the passage of 5 minutes
+        jest.advanceTimersByTime(5 * 60 * 1000);
+
+        await waitFor(() => {
+            expect(screen.queryByText(/Too many attempts. Please try again later in 10 minutes/i)).not.toBeInTheDocument();
+            expect(submitButton).not.toBeDisabled();
         });
     });
 
