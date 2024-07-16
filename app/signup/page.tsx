@@ -9,6 +9,9 @@ const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [attempts, setAttempts] = useState(0);
+    const [lockoutTime, setLockoutTime] = useState<number | null>(null);
     const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +39,17 @@ const SignUpPage: React.FC = () => {
 
     const handleSignUp = async (event: React.FormEvent) => {
         event.preventDefault();
+        setLoading(true);
         setErrors([]); // Clear previous errors
+
+        if (attempts > 5) {
+            const remainingTime = lockoutTime ? Math.max(lockoutTime - Date.now(), 0) : 0;
+            const minutesLeft = Math.ceil(remainingTime / 60000);
+            const remainingMinutesText = minutesLeft < 2 ? 'minute' : 'minutes'
+            setErrors([`Too many attempts. Please try again later${remainingTime > 0 ? ` in ${Math.ceil(remainingTime / 60000)} ${remainingMinutesText}.` : '.'}`]);
+            setLoading(false);
+            return;
+        }
 
         /* eslint-disable @typescript-eslint/no-explicit-any */
         try {
@@ -55,6 +68,9 @@ const SignUpPage: React.FC = () => {
                 error: err,
                 url: { path: '/signup' }
             });
+        } finally {
+            setLoading(false);
+            setAttempts(prev => prev + 1);
         }
     };
 
@@ -66,6 +82,20 @@ const SignUpPage: React.FC = () => {
             }
         }
     }, [errors])
+
+    useEffect(() => {
+        if (attempts >= 5) {
+            const lockoutDuration = 15 * 60 * 1000; //15 minutes
+            const newLockoutTime = Date.now() + lockoutDuration;
+            setLockoutTime(newLockoutTime);
+            const timer = setTimeout(() => {
+                setAttempts(0);
+                setLockoutTime(null);
+            }, lockoutDuration); // 15 minutes
+
+            return () => clearTimeout(timer);
+        }
+    }, [attempts])
 
     return (
         <div className={styles.signupWrapper} ref={errorRef}>
@@ -97,7 +127,7 @@ const SignUpPage: React.FC = () => {
                     onChange={e => setPassword(e.target.value)}
                     required />
 
-                <button type="submit">Sign Up</button>
+                <button type="submit" disabled={loading}>{loading ? 'Signing up ...' : 'Sign Up'}</button>
             </form>
 
         </div>

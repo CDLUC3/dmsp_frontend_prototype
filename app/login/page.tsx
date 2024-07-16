@@ -17,6 +17,9 @@ const LoginPage: React.FC = () => {
         password: "",
     });
     const [errors, setErrors] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [attempts, setAttempts] = useState(0);
+    const [lockoutTime, setLockoutTime] = useState<number | null>(null);
     const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
 
@@ -70,6 +73,18 @@ const LoginPage: React.FC = () => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setLoading(true);
+        setErrors([]); // Clear previous errors
+
+        if (attempts > 5) {
+            const remainingTime = lockoutTime ? Math.max(lockoutTime - Date.now(), 0) : 0;
+            const minutesLeft = Math.ceil(remainingTime / 60000);
+            const remainingMinutesText = minutesLeft < 2 ? 'minute' : 'minutes'
+            setErrors([`Too many attempts. Please try again later${remainingTime > 0 ? ` in ${Math.ceil(remainingTime / 60000)} ${remainingMinutesText}.` : '.'}`]);
+            setLoading(false);
+            return;
+        }
+
         /* eslint-disable @typescript-eslint/no-explicit-any */
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/signin`, {
@@ -87,6 +102,9 @@ const LoginPage: React.FC = () => {
                 error: err,
                 url: { path: '/signin' }
             });
+        } finally {
+            setLoading(false);
+            setAttempts(attempts + 1);
         }
 
     };
@@ -99,6 +117,20 @@ const LoginPage: React.FC = () => {
             }
         }
     }, [errors])
+
+    useEffect(() => {
+        if (attempts >= 5) {
+            const lockoutDuration = 15 * 60 * 1000; //15 minutes
+            const newLockoutTime = Date.now() + lockoutDuration;
+            setLockoutTime(newLockoutTime);
+            const timer = setTimeout(() => {
+                setAttempts(0);
+                setLockoutTime(null);
+            }, lockoutDuration); // 15 minutes
+
+            return () => clearTimeout(timer);
+        }
+    }, [attempts])
 
     return (
         <div className={styles.loginWrapper} ref={errorRef}>
@@ -130,7 +162,7 @@ const LoginPage: React.FC = () => {
                     onChange={handleInputChange}
                     required
                 />
-                <button type="submit">Login</button>
+                <button type="submit" disabled={loading}>{loading ? 'Logging in ...' : 'Login'}</button>
             </form>
         </div>
     );
