@@ -12,7 +12,6 @@ export async function GET() {
         if (token) {
             try {
                 const user = await verifyJwtToken(token);
-                console.log("***USER", user);
                 if (user) {
                     return NextResponse.json({ authenticated: true });
                 } else {
@@ -20,7 +19,6 @@ export async function GET() {
                     return NextResponse.json({ authenticated: false });
                 }
             } catch (err) {
-                console.log("TOKEN ERROR")
                 logger.error('Token verification error', { error: err })
                 return NextResponse.redirect(LOGIN);
             }
