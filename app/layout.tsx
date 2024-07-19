@@ -5,6 +5,7 @@ import "@/styles/globals.scss";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
+import { AuthProvider } from "@/context/AuthContext";
 
 
 const poppins_init = Poppins({
@@ -28,11 +29,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={poppins_init.className}>
         <a href="#mainContent" className="skip-nav">Skip to main content</a>
-        <Header />
-        <div id="App">
-          <main id="mainContent"><ApolloWrapper>{children}</ApolloWrapper></main>
-        </div>
-        <Footer />
+        <AuthProvider>
+          <Header />
+          <div id="App">
+            <main id="mainContent"><ApolloWrapper>{children}</ApolloWrapper></main>
+          </div>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

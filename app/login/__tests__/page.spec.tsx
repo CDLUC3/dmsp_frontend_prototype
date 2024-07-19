@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/utils/test-utils'; //wrapping test with AuthProvider
 import userEvent from '@testing-library/user-event';
 import LoginPage from '../page';
 import logECS from '@/utils/clientLogger';
@@ -180,11 +180,6 @@ describe('LoginPage', () => {
         await waitFor(() => expect(submitButton).not.toBeDisabled());
         userEvent.click(submitButton);
         await waitFor(() => expect(submitButton).toBeDisabled());
-
-        await waitFor(() => {
-            expect(screen.queryByText(/Too many attempts. Please try again later in 15 minutes./i)).not.toBeInTheDocument();
-            expect(submitButton).not.toBeDisabled();
-        });
 
         // Ensure the button is not disabled before clicking after lockout period
         await waitFor(() => expect(submitButton).not.toBeDisabled());

@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from 'next/navigation';
 import styles from './login.module.scss'
 import logECS from '@/utils/clientLogger';
+import { useAuthContext } from "@/context/AuthContext";
 
 type User = {
     email: string;
@@ -22,6 +23,7 @@ const LoginPage: React.FC = () => {
     const [lockoutTime, setLockoutTime] = useState<number | null>(null);
     const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
+    const { setIsAuthenticated } = useAuthContext();
 
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +58,7 @@ const LoginPage: React.FC = () => {
 
         if (response.status === 200) {
             await saveTokenInCookie(token)
+            setIsAuthenticated(true);
             router.push('/') //redirect to home page
         } else if (response.status === 401) {
             if (message) {
