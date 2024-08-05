@@ -1,18 +1,22 @@
 import { ApolloClient, createHttpLink, InMemoryCache, from } from "@apollo/client";
 import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rsc";
 import { onError } from '@apollo/client/link/error';
+import { createAuthLink } from '@/utils/authLink';
+
 
 const httpLink = createHttpLink({
-    uri: "http://localhost:3000/"
+    uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`
 });
 
+const authLink = createAuthLink();
+
 interface CustomError extends Error {
-    customInfo?: Record<string, any>;
+    customInfo?: { customMessage: string }
 }
 
-const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
     if (graphQLErrors) {
-        graphQLErrors.forEach(({ message, extensions, locations, path }) => {
+        graphQLErrors.forEach(({ message, extensions }) => {
             //Check for specific error codes
             switch (extensions?.code) {
                 case 'UNAUTHORIZED':
@@ -43,9 +47,10 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     }
 });
 
+
 export const { getClient } = registerApolloClient(() => {
     return new ApolloClient({
-        link: from([errorLink, httpLink]),
+        link: from([errorLink, authLink, httpLink]),
         cache: new InMemoryCache(),
     });
 });

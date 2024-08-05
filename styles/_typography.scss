@@ -1,0 +1,59 @@
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-family);
+  font-weight: 400;
+}
+
+h1 {
+  color: var(--heading-color);
+  font-size: 1.75em;
+}
+
+h2, h3, h4 {
+  color: var(--heading-color);
+}
+
+h2 {
+  font-size: 1.5em;
+  margin-top: 10px;
+}
+
+h3 {
+  font-size: 1.3em;
+  padding: 5px 10px 5px 3px;
+}
+
+h4 {
+  font-size: 1.2em;
+}
+
+p, dd {
+  font-family: var(--font-family);
+  font-size: 1em;
+  line-height: var(--brand-line-height1);
+}
+
+a,
+a:active,
+a:visited {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code {
+  font-family:
+    source-code-pro,
+    Menlo,
+    Monaco,
+    Consolas,
+    'Courier New',
+    monospace;
+  color: var(--brand-tertiary);
+  font-weight: bold;
+}

@@ -1,0 +1,123 @@
+/*
+ * Styles related to the overall structure of the browser page.
+ * These are the core sections that make up the structure of the
+ * App
+ *
+ */
+header,
+#root,
+footer {
+  padding: var(--brand-space1) var(--brand-space2);
+}
+
+
+/* HEADER */
+header {
+  --text-color: white;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: var(--brand-space2);
+  row-gap: var(--brand-space3);
+  background-color: var(--brand-primary);
+  color: var(--text-color);
+  font-size: 1.1em;
+
+  h1 {
+    --heading-color: white;
+  }
+
+  .dmptool-logo {
+    width: 140px;
+    height: auto;
+  }
+
+  .dmp-menu {
+    margin: 0;
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      display: inline;
+      margin-left: var(--brand-space2);
+    }
+
+    li strong {
+      font-weight: 600;
+      margin-right: var(--brand-space1);
+    }
+  }
+}
+
+
+// TODO/FIXME: I'm not convinced that we should isolate dropdown styles
+// for a single area of the page like this.
+//
+// Dropdown Versions menu
+header .dropdown-content a {
+  color: var(--brand-primary);
+  padding: 12px 4px;
+  text-decoration: none;
+  display: block;
+}
+header .dropdown-content a:hover {
+  background-color: white;
+}
+header .dropdown:hover .dropdown-content {
+  display: block;
+}
+header .dropdown:hover .dropbtn {
+  background-color: white;
+  color: var(--brand-primary);
+}
+header span.arrow {
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+  margin-left: 4px;
+}
+header span.up {
+  transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+}
+header span.down {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
+
+
+// ** Main Section ** //
+main {
+  margin-bottom: 25px;
+}
+
+
+
+// ** Footer Component ** //
+footer {
+  margin-block-end: var(--brand-space2);
+  padding-block-start: var(--brand-space2);
+  border-top: 2px solid var(--brand-blue);
+
+  p {
+    margin: 0;
+    font-size: 0.8em;
+  }
+
+  nav {
+    margin-bottom: 10px
+  }
+
+  nav a:not(:first-child) {
+    margin-left: 15px;
+    margin-right: 5px;
+  }
+}

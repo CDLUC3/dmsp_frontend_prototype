@@ -1,0 +1,54 @@
+
+// TODO: This css will be updated when we get the final signup page design
+.signupWrapper {
+    background-color: var( --btn-basic-bg-color);
+    display: flex; 
+    flex-direction:column;
+    align-items: center;
+    justify-content: center;
+
+    .signupForm {
+        display: flex;
+        flex-direction: column;
+        max-width: 32rem;
+        width: 100%;
+        background-color: var(--form-field-bg-color);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        padding: 2rem;
+    }
+    
+    .heading3 {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    input {
+        border-width: 1px;
+        padding: 0.5rem 1rem;
+        border-color: var(--dmptool-brand-gray);
+        margin-bottom: 1rem;
+    
+        &:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+        }
+    }
+    
+    button {
+        border-radius: 10px;
+        margin-top: 0.75rem;
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        font-weight: 600;
+        padding: 1rem;
+        background-color: var(--brand-primary);
+        color: rgb(229 231 235);
+    
+        &:hover {
+            color: var(--text-color);
+            background: var(--button-background);
+        }
+    }
+}

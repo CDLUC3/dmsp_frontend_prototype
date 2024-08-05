@@ -1,4 +1,4 @@
-import Footer from "@/components/Footer";
+import Footer from "@/components/footer";
 import { DmptoolLink } from '@/components/link/link';
 import './loading.scss';
 
