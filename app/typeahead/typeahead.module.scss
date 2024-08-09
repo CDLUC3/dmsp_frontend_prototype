@@ -1,0 +1,91 @@
+
+.autocompleteResults {
+    visibility: hidden;
+    position: absolute;
+    top: 61px;
+    margin-top: 0;
+    width: 100%;
+    overflow-y: auto;
+    border: none;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    outline: none;
+    padding: 0;
+    max-height: 200px;
+    z-index: 1;
+
+    &.visible {
+        visibility: visible;
+        background-color: white;
+    }
+  }
+
+  .autocompleteResults > li.other-option {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    border-bottom: 1px solid #999;
+  }
+  
+  .autocompleteResults > li {
+    list-style: none;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+  }
+  
+  .autocompleteResults > li:hover {
+    background: hsl(212, 10%, 60%);
+  }
+  
+  .autocompleteResults > li:focus {
+    background: hsl(212, 10%, 70%);
+  }
+
+  .helpText {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    margin-top: 5px;
+  }
+
+  .autocompleteDropdownArrow {
+    position: absolute;
+    right: 0;
+    top: 33%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    height: 30px;
+    transition: transform 0.2s linear;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center; // Vertically centers the SVG
+    justify-content: center; // Horizontally centers the SVG if needed
+  
+
+    &.expanded {
+        transform: rotate(-180deg);
+      }
+  }
+
+
+  .autocompleteContainer {
+    position: relative;
+    width: fit-content;
+  }
+
+  .autocompleteItem {
+
+    &:focus {
+      outline: none;
+      background: hsl(212, 10%, 70%);
+    }
+  }
+
+
+  .searchInput {
+    width: 100%;
+  }
+ .expanded {
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
