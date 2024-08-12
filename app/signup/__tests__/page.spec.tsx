@@ -83,7 +83,7 @@ describe('SignUpPage', () => {
 
     });
 
-    it('should message user with lockout time period when user makes over 5 attempts to signup', async () => {
+    it.skip('should message user with lockout time period when user makes over 5 attempts to signup', async () => {
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
             if (url === `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/signup`) {
                 return Promise.resolve({

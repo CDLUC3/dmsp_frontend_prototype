@@ -6,6 +6,14 @@ const createJestConfig = nextJest({
 
 const config: Config = {
     collectCoverage: true,
+    coverageThreshold: {
+        global: {
+            branches: 70,
+            functions: 70,
+            lines: 80,
+            statements: 80,
+        }
+    },
     coverageProvider: 'v8',
     coverageDirectory: "coverage",
     testEnvironment: "jest-environment-jsdom",

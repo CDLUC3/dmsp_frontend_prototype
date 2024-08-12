@@ -89,3 +89,34 @@
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
   }
+
+
+.searchSpinner {
+  animation-name: fade;
+  animation-duration: 5s;
+  position: absolute;
+  top: 35%;
+  right: 50%;
+  text-align: center;
+  transition: opacity 1s ease-in-out;
+}
+
+@keyframes fade {
+  0% {
+      opacity: 0
+  }
+  40% {
+      opacity: 0.5
+  }
+  100% {
+      opacity: 1
+  }
+}
+
+.autocompleteContainer .searchInput {
+    max-width: 396px;
+    overflow:hidden;
+    padding-right: 25px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

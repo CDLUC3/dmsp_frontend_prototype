@@ -1,8 +1,6 @@
 "use client";
 
-import { useQuery } from "@apollo/experimental-nextjs-app-support/ssr";
-
-import { gql } from "@apollo/client";
+import { useQuery, gql } from "@apollo/client"
 
 const GET_CONTRIBUTOR_ROLES = gql`
 query ContributorRoles{

@@ -23,7 +23,7 @@ const ecsFormat = (level: string, message: string, details: object = {}): ECSLog
 
 log.setLevel('info');
 
-const logECS = (level: LogLevelDesc, message: string, details: object) => {
+export const logECS = (level: LogLevelDesc, message: string, details: object) => {
     const logEntry = ecsFormat(level as string, message, details);
     switch (level) {
         case 'debug':
@@ -43,5 +43,3 @@ const logECS = (level: LogLevelDesc, message: string, details: object) => {
             break;
     }
 }
-
-export default logECS;
