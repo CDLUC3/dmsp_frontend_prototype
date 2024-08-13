@@ -1,0 +1,238 @@
+
+.react-aria-FieldError {
+  font-size: 1rem;
+  color: var(--invalid-color);
+  margin: 5px 0px;
+  display: inline-block;
+}
+
+// Mixins
+@mixin input-base {
+  color: var(--slate-900);
+  border-radius: 6px;
+  border: 1px solid var(--slate-300);
+  background: var(--bg-white);
+  padding: 8px 12px;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: all 0.2s ease-in-out;
+  display: block;
+
+  &::placeholder {
+    color: var(--slate-500);
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--slate-400);
+    background-color: var(--slate-100);
+  }
+
+  &:focus:not(:disabled) {
+    outline: none;
+    border-color: var(--focus-ring);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &:disabled {
+    background-color: var(--slate-200);
+    color: var(--slate-600);
+    cursor: not-allowed;
+  }
+}
+
+// Styles for text inputs, number inputs, email inputs, etc.
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"] {
+  @include input-base;
+}
+
+// Styles for text areas
+textarea {
+  @include input-base;
+  resize: vertical;
+  min-height: 100px;
+}
+
+// Styles for select dropdowns
+select {
+  @include input-base;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.5l-5-5h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+
+  &::-ms-expand {
+    display: none;
+  }
+}
+
+.eact-aria-SelectValue{
+  @include input-base;
+}
+
+
+
+
+.react-aria-Label {
+  display: block;
+  color: var(--slate-900);
+}
+
+.react-aria-TextField {
+  margin-bottom: 1rem;
+}
+
+.react-aria-TextField .help {
+  font-size: 1rem;
+  color: var(--slate-600);
+  margin: 0px 0px 5px;
+}
+
+
+// Focus visible styles for better keyboard navigation
+*:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+
+
+
+
+
+
+
+
+
+
+.react-aria-Checkbox {
+  --selected-color: var(--highlight-background);
+  --selected-color-pressed: var(--highlight-background-pressed);
+  --checkmark-color: var(--highlight-foreground);
+
+  display: flex;
+  align-items: center;
+  gap: 0.571rem;
+  font-size: 1.143rem;
+  color: var(--text-color);
+  forced-color-adjust: none;
+
+  .checkbox {
+    width: 1.143rem;
+    height: 1.143rem;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    transition: all 200ms;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: var(--checkmark-color);
+    stroke-width: 3px;
+    stroke-dasharray: 22px;
+    stroke-dashoffset: 66;
+    transition: all 200ms;
+  }
+
+  &[data-pressed] .checkbox {
+    border-color: var(--border-color-pressed);
+  }
+
+  &[data-focus-visible] .checkbox {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+  }
+
+  &[data-selected],
+  &[data-indeterminate] {
+    .checkbox {
+      border-color: var(--selected-color);
+      background: var(--selected-color);
+    }
+
+    &[data-pressed] .checkbox {
+      border-color: var(--selected-color-pressed);
+      background: var(--selected-color-pressed);
+    }
+
+    svg {
+      stroke-dashoffset: 44;
+    }
+  }
+
+  &[data-indeterminate] {
+    & svg {
+      stroke: none;
+      fill: var(--checkmark-color);
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+.react-aria-RadioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-color);
+}
+
+.react-aria-Radio {
+  display: flex;
+  align-items: center;
+  gap: 0.571rem;
+  font-size: 1.143rem;
+  color: var(--text-color);
+  forced-color-adjust: none;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 1.286rem;
+    height: 1.286rem;
+    box-sizing: border-box;
+    border: 0.143rem solid var(--border-color);
+    background: var(--field-background);
+    border-radius: 1.286rem;
+    transition: all 200ms;
+  }
+
+  &[data-pressed]:before {
+    border-color: var(--border-color-pressed);
+  }
+
+  &[data-selected] {
+    &:before {
+      border-color: var(--highlight-background);
+      border-width: 0.429rem;
+    }
+
+    &[data-pressed]:before {
+      border-color: var(--highlight-background-pressed);
+    }
+  }
+
+  &[data-focus-visible]:before {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+  }
+}

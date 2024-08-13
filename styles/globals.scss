@@ -36,6 +36,21 @@ html, body {
   --red-600: #731200;
   --highlight-hover: rgb(0 0 0 / 0.07);
   --highlight-pressed: rgb(0 0 0 / 0.15);
+
+
+  --slate-900: #0F172A;
+  --slate-800: #1E293B;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748B;
+  --slate-400: #94A3B8;
+  --slate-300: #CBD5E1;
+  --slate-200: #E2E8F0;
+  --slate-100: #F1F5F9;
+  --bg-white: #FFFFFF;
+  --focus-ring: #3B82F6;
+  --focus-ring-offset: 2px;
+
 }
 
 /* Dark: https://leonardocolor.io/theme.html?name=Dark&config=%7B%22baseScale%22%3A%22Gray%22%2C%22colorScales%22%3A%5B%7B%22name%22%3A%22Gray%22%2C%22colorKeys%22%3A%5B%22%23000000%22%5D%2C%22colorspace%22%3A%22RGB%22%2C%22ratios%22%3A%5B%22-1.12%22%2C%221.45%22%2C%222.05%22%2C%223.02%22%2C%224.54%22%2C%227%22%2C%2210.86%22%5D%2C%22smooth%22%3Afalse%7D%2C%7B%22name%22%3A%22Purple%22%2C%22colorKeys%22%3A%5B%22%235e30eb%22%5D%2C%22colorspace%22%3A%22RGB%22%2C%22ratios%22%3A%5B%22-1.12%22%2C%221.45%22%2C%222.05%22%2C%223.02%22%2C%224.54%22%2C%227%22%2C%2210.86%22%5D%2C%22smooth%22%3Afalse%7D%2C%7B%22name%22%3A%22Red%22%2C%22colorKeys%22%3A%5B%22%23e32400%22%5D%2C%22colorspace%22%3A%22RGB%22%2C%22ratios%22%3A%5B%22-1.12%22%2C%221.45%22%2C%222.05%22%2C%223.02%22%2C%224.54%22%2C%227%22%2C%2210.86%22%5D%2C%22smooth%22%3Afalse%7D%5D%2C%22lightness%22%3A11%2C%22contrast%22%3A1%2C%22saturation%22%3A100%2C%22formula%22%3A%22wcag2%22%7D */
@@ -105,8 +120,8 @@ html, body {
 
   /* these colors are the same between light and dark themes
    * to ensure contrast with the foreground color */
-  --highlight-background: #6f46ed; /* purple-300 from dark theme, 3.03:1 against background-color */
-  --highlight-background-pressed: #522acd; /* purple-200 from dark theme */
+  --highlight-background: #000000; /* purple-300 from dark theme, 3.03:1 against background-color */
+  --highlight-background-pressed: #2a9ccd; /* purple-200 from dark theme */
   --highlight-background-invalid: #cc2000; /* red-300 from dark theme */
   --highlight-foreground: white; /* 5.56:1 against highlight-background */
   --highlight-foreground-pressed: #ddd;

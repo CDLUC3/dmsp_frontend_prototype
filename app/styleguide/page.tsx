@@ -9,7 +9,7 @@ import {
   Input,
   FieldError,
   Link,
-  Form,
+  ListBoxItem,
   Menu,
   MenuItem,
   MenuTrigger,
@@ -18,7 +18,17 @@ import {
   OverlayArrow,
   Dialog,
   Switch,
-} from "react-aria-components";
+  CheckboxGroup,
+  Checkbox,
+  RadioGroup,
+  Radio,
+  NumberField,
+  Group,
+  Form,
+  Select, ListBox, SelectValue,
+}
+  from
+    "react-aria-components";
 import {
   Example,
   BrandColor,
@@ -51,22 +61,22 @@ function Page() {
             <h2>Colours</h2>
             <p>Main Brand Colours</p>
             <div className="brand-color-list">
-              <BrandColor varname="--brand-primary" />
-              <BrandColor varname="--brand-secondary" />
-              <BrandColor varname="--brand-tertiary" />
-              <BrandColor varname="--brand-error" />
+              <BrandColor varname="--brand-primary"/>
+              <BrandColor varname="--brand-secondary"/>
+              <BrandColor varname="--brand-tertiary"/>
+              <BrandColor varname="--brand-error"/>
             </div>
 
             <p>Grayscale pallette</p>
             <div className="layout-horizontal">
               <div className="brand-color-list">
-                <BrandColor varname="--gray-50" />
-                <BrandColor varname="--gray-100" />
-                <BrandColor varname="--gray-200" />
-                <BrandColor varname="--gray-300" />
-                <BrandColor varname="--gray-400" />
-                <BrandColor varname="--gray-500" />
-                <BrandColor varname="--gray-600" />
+                <BrandColor varname="--gray-50"/>
+                <BrandColor varname="--gray-100"/>
+                <BrandColor varname="--gray-200"/>
+                <BrandColor varname="--gray-300"/>
+                <BrandColor varname="--gray-400"/>
+                <BrandColor varname="--gray-500"/>
+                <BrandColor varname="--gray-600"/>
               </div>
             </div>
           </div>
@@ -151,25 +161,26 @@ function Page() {
             <h2>Naming Conventions</h2>
             <ul className="sg-spaced">
               <li>
-                Use <code>TitleCase</code> for componen tags, ie.<br />
+                Use <code>TitleCase</code> for componen tags, ie.<br/>
                 <code>{"<SomeElement />"}</code>
               </li>
               <li>
-                Use <code>camelCase</code> for element ID&lsquo;s, ie.<br />
+                Use <code>camelCase</code> for element ID&lsquo;s, ie.<br/>
                 <code>{'<SomeElement id="myElement"/>'}</code>
               </li>
               <li>
                 Use <code>kebab-case</code> for css classnames (Using titlecase
-                for every word beween hiphens is okay), ie.<br />
+                for every word beween hiphens is okay), ie.<br/>
                 <code>{'<SomeElement className="some-class-Name"/>'}</code>
               </li>
               <li>
-                Use <code>snake_case</code> for field names, ie.<br />
+                Use <code>snake_case</code> for field names, ie.<br/>
                 <code>{'<SomeElement name="field_name" />'}</code>
               </li>
               <li>
                 When elements have multiple properties, prefer to have each
-                property on it&lsquo;s own line, so that it&lsquo;s faster to find specific
+                property on it&lsquo;s own line, so that it&lsquo;s faster to
+                find specific
                 properties, and easier to add &amp; remove. Eg.
 
                 <div><pre><code>
@@ -179,11 +190,13 @@ function Page() {
   prop3="C"
   prop4="D"
 \\>`}
-                </code></pre></div>
+                </code></pre>
+                </div>
               </li>
 
               <li>
-                The same applies to import statements. Though more verbose, allows
+                The same applies to import statements. Though more verbose,
+                allows
                 for better legibility and faster changes.
 
                 <div><pre><code>
@@ -196,13 +209,15 @@ function Page() {
   Form,
 } from "react-area-components";
 `}
-                </code></pre></div>
+                </code></pre>
+                </div>
               </li>
 
               <li>
-                Use a <em>leading underscore</em> for &ldquo;private&ldquo; css variables.
+                Use a <em>leading underscore</em> for &ldquo;private&ldquo; css
+                variables.
                 This is handy when working on larger components that use
-                duplicate styles throughout.  We create a private variable to
+                duplicate styles throughout. We create a private variable to
                 reduce duplication and potential typos, especially when working
                 with larger components.
 
@@ -218,7 +233,8 @@ function Page() {
   grid-template-rows: auto;
 }
 `}
-                </code></pre></div>
+                </code></pre>
+                </div>
               </li>
             </ul>
 
@@ -238,13 +254,15 @@ function Page() {
             <dl>
               <dt><code>--focus-ring-color</code></dt>
               <dd>
-                This is the highlight around input fields and other &ldquo;selectable&ldquo;
-                elements. It&lsquo;s a visual indicator of where the current focus is.
+                This is the highlight around input fields and
+                other &ldquo;selectable&ldquo;
+                elements. It&lsquo;s a visual indicator of where the current
+                focus is.
               </dd>
 
               <dt><code>--text-color</code></dt>
               <dd>
-                This sets the main text color for the element.<br />
+                This sets the main text color for the element.<br/>
                 Related hooks include:
                 <ul>
                   <li><code>--text-color-hover</code></li>
@@ -255,7 +273,7 @@ function Page() {
 
               <dt><code>--link-color</code></dt>
               <dd>
-                This is the main color for links and anchors.<br />
+                This is the main color for links and anchors.<br/>
                 Related hooks include:
                 <ul>
                   <li><code>--link-color-secondary</code></li>
@@ -265,7 +283,7 @@ function Page() {
 
               <dt><code>--border-color</code></dt>
               <dd>
-                The border colour to use for the component. <br />
+                The border colour to use for the component. <br/>
                 Related hooks include:
                 <ul>
                   <li><code>--border-color-hover</code></li>
@@ -296,7 +314,9 @@ function Page() {
             <h2>Buttons</h2>
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Button.html">component docs here.</a>
+              the <a
+              href="https://react-spectrum.adobe.com/react-aria/Button.html">component
+              docs here.</a>
             </p>
 
             <Example>
@@ -316,29 +336,93 @@ function Page() {
 
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Form.html">component docs here.</a>
+              the <a
+              href="https://react-spectrum.adobe.com/react-aria/Form.html">component
+              docs here.</a>
             </p>
 
             <Example>
               <Form>
-                <TextField
-                  name="email"
-                  type="email"
-                  aria-label="Email"
-                  isRequired
-                />
                 <TextField
                   name="example_email"
                   type="email"
                   isRequired
                 >
                   <Label>Email</Label>
-                  <Input />
                   <p className="help">Descriptive text related to the field</p>
-                  <FieldError />
+                  <Input/>
+                  <FieldError/>
                 </TextField>
 
-                <div className="form-actions">
+
+                <CheckboxGroup>
+                  <Label>Favorite sports</Label>
+                  <Checkbox value="soccer">
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    Test
+                  </Checkbox>
+                  <Checkbox value="test">
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    Test
+                  </Checkbox>
+
+                </CheckboxGroup>
+
+
+
+                <RadioGroup>
+                  <Label>Favorite pet</Label>
+                  <Radio value="dogs">Dog</Radio>
+                  <Radio value="cats">Cat</Radio>
+                  <Radio value="dragon">Dragon</Radio>
+                </RadioGroup>
+
+                <NumberField defaultValue={1024} minValue={0}>
+                  <Label>Width</Label>
+                  <Group>
+                    <Button slot="decrement">-</Button>
+                    <Input/>
+                    <Button slot="increment">+</Button>
+                  </Group>
+                </NumberField>
+
+                <Select>
+                  <Label>Favorite Animal</Label>
+                  <Button>
+                    <SelectValue/>
+                    <span aria-hidden="true">▼</span>
+                  </Button>
+                  <Popover>
+                    <ListBox>
+                      <ListBoxItem>Aardvark</ListBoxItem>
+                      <ListBoxItem>Cat</ListBoxItem>
+                      <ListBoxItem>Dog</ListBoxItem>
+                      <ListBoxItem>Kangaroo</ListBoxItem>
+                      <ListBoxItem>Panda</ListBoxItem>
+                      <ListBoxItem>Snake</ListBoxItem>
+                    </ListBox>
+                  </Popover>
+                </Select>
+
+
+                <Checkbox>
+                  <div className="checkbox">
+                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                      <polyline points="1 9 7 14 15 4" />
+                    </svg>
+                  </div>
+                  Unsubscribe
+                </Checkbox>
+
+                <div className="form-actions mt-5">
                   <Button type="submit">Submit</Button>
                 </div>
               </Form>
@@ -355,13 +439,15 @@ function Page() {
 
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/TextField.html">component docs here.</a>
+              the <a
+              href="https://react-spectrum.adobe.com/react-aria/TextField.html">component
+              docs here.</a>
             </p>
 
             <Example>
               <TextField name="example_text" isRequired>
                 <Label>Example Text Field</Label>
-                <Input />
+                <Input/>
                 <p className="help">Descriptive text related to the field</p>
               </TextField>
             </Example>
@@ -374,18 +460,23 @@ function Page() {
             <h2>Toggle Switch</h2>
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Switch.html">component docs here.</a>
+              the <a
+              href="https://react-spectrum.adobe.com/react-aria/Switch.html">component
+              docs here.</a>
             </p>
             <Example>
               <Switch defaultSelected>
-                <div className="indicator" /> Toggle
+                <div className="indicator"/>
+                Toggle
               </Switch>
             </Example>
 
             <h2>Popover</h2>
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Popover.html">component docs here.</a>
+              the <a
+              href="https://react-spectrum.adobe.com/react-aria/Popover.html">component
+              docs here.</a>
             </p>
             <Example>
               <DialogTrigger>
@@ -393,19 +484,22 @@ function Page() {
                 <Popover>
                   <OverlayArrow>
                     <svg width={12} height={12} viewBox="0 0 12 12">
-                      <path d="M0 0 L6 6 L12 0" />
+                      <path d="M0 0 L6 6 L12 0"/>
                     </svg>
                   </OverlayArrow>
                   <Dialog>
                     <div className="flex-col">
                       <Switch defaultSelected>
-                        <div className="indicator" /> Wi-Fi
+                        <div className="indicator"/>
+                        Wi-Fi
                       </Switch>
                       <Switch defaultSelected>
-                        <div className="indicator" /> Bluetooth
+                        <div className="indicator"/>
+                        Bluetooth
                       </Switch>
                       <Switch>
-                        <div className="indicator" /> Mute
+                        <div className="indicator"/>
+                        Mute
                       </Switch>
                     </div>
                   </Dialog>
@@ -416,7 +510,9 @@ function Page() {
             <h2>Menu</h2>
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Menu.html">component docs here.</a>
+              the <a
+              href="https://react-spectrum.adobe.com/react-aria/Menu.html">component
+              docs here.</a>
             </p>
             <Example>
               <MenuTrigger>
@@ -424,10 +520,13 @@ function Page() {
                 <Popover>
                   <Menu>
                     <MenuItem onAction={() => alert('open')}>Open</MenuItem>
-                    <MenuItem onAction={() => alert('rename')}>Rename…</MenuItem>
-                    <MenuItem onAction={() => alert('duplicate')}>Duplicate</MenuItem>
+                    <MenuItem
+                      onAction={() => alert('rename')}>Rename…</MenuItem>
+                    <MenuItem
+                      onAction={() => alert('duplicate')}>Duplicate</MenuItem>
                     <MenuItem onAction={() => alert('share')}>Share…</MenuItem>
-                    <MenuItem onAction={() => alert('delete')}>Delete…</MenuItem>
+                    <MenuItem
+                      onAction={() => alert('delete')}>Delete…</MenuItem>
                   </Menu>
                 </Popover>
               </MenuTrigger>
