@@ -11,7 +11,7 @@ import { createApolloClient } from '@/lib/graphql/client/apollo-client';
 import Spinner from '@/components/Spinner';
 import classNames from 'classnames';
 import styles from './typeaheadInput.module.scss'
-import { logECS } from '@/utils/clientLogger';
+import logECS from '@/utils/clientLogger';
 
 type TypeAheadInputProps = {
     graphqlQuery: DocumentNode;
@@ -49,11 +49,11 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
     }
 
     const handleSelection = (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
-        setOpen(false);
         const item = (e.target as HTMLLIElement | HTMLInputElement).innerText?.toString() ||
             (e.target as HTMLLIElement | HTMLInputElement).value?.toString();
         const activeDescendentId = (e.target as HTMLLIElement | HTMLInputElement).id;
         setSelected(item);
+        setOpen(false);
         setInputValue(item);
         setCurrentListItemFocused(-1);
         setActiveDescendentId(activeDescendentId);

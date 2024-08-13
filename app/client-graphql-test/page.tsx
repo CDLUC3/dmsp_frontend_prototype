@@ -11,6 +11,11 @@ query ContributorRoles{
     }
 }`;
 
+type ContributorRoles = {
+    id: string;
+    label: string;
+}
+
 /**
  * This is a test page to demo and test the use of graphql hooks on the client side.
  * Client-side graphql requests uses the apollo-wrapper.tsx file
@@ -29,7 +34,7 @@ export default function Page() {
         return <div>Error</div>
     }
 
-    const roles = data.contributorRoles;
+    const roles: ContributorRoles[] = data.contributorRoles;
     return (
         <>
             <h1>Clientside GraphQL query test</h1>

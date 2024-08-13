@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import './spinner.scss'
-function Spinner(props) {
+
+type SpinnerProps = {
+    id?: string;
+    isActive: boolean;
+    className: string;
+}
+function Spinner(props: SpinnerProps) {
     return (
         <>
             {props?.isActive && (
                 <div
                     id={(props.id ? props.id : "spinner")}
-                    tabIndex="-1"
+                    tabIndex={-1}
                     aria-hidden="true"
                     className={"spinner " + (props.className ? props.className : "")}>
                     <svg

@@ -5,11 +5,12 @@ import TypeAheadWithOther from '..';
 
 import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 import { GET_AFFILIATIONS } from '@/lib/graphql/queries/affiliations';
-import { logECS } from '@/utils/clientLogger';
+import logECS from '@/utils/clientLogger';
 
 jest.mock('@/lib/graphql/client/apollo-client');
 jest.mock('@/utils/clientLogger', () => ({
-    logECS: jest.fn()
+    __esModule: true,
+    default: jest.fn(),
 }));
 const mockQuery = jest.fn();
 const mockSetOtherField = jest.fn();
