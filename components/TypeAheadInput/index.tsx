@@ -161,6 +161,7 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
                 if (!signal.aborted) {
                     const affiliations = data.affiliations;
                     setSuggestions(affiliations);
+                    setOpen(true);
                 }
 
             } catch (error) {

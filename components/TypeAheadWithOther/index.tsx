@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { DocumentNode } from '@apollo/client';
-import { gql } from "@apollo/client";
 import {
     Input,
     Label,
@@ -131,7 +130,7 @@ const TypeAheadWithOther = ({
                 //If user hits "Enter" on a list item, then set as current input value
                 if (currentListItemFocused !== -1) {
                     handleSelection(e)
-                    setOtherSelected(false);
+                    //setOtherSelected(false);
                 }
                 break;
             case "Tab":
@@ -141,9 +140,8 @@ const TypeAheadWithOther = ({
 
                 if (!hasSelectedValue) {
                     e.preventDefault();
-                } else {
-                    setOtherSelected(false);
                 }
+
                 break;
             default:
                 if (/([a-zA-Z0-9_]|ArrowLeft|ArrowRight)/.test(e.key)) {
@@ -184,6 +182,7 @@ const TypeAheadWithOther = ({
                 if (!signal.aborted) {
                     const affiliations = data.affiliations;
                     setSuggestions(affiliations);
+                    setOpen(true);
                 }
 
             } catch (error) {
