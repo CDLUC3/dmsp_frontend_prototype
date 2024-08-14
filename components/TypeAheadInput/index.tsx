@@ -207,16 +207,16 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
 
     return (
         <>
-            <div className={`${styles.autocompleteContainer} ${styles.expanded}`}>
+            <div className={`${styles.autocompleteContainer} ${styles.expanded}`} aria-expanded={open} role="combobox">
                 <TextField>
                     <Label>{label}</Label>
                     <Input
                         name="institutions"
                         type="text"
+                        role="textbox"
                         value={inputValue}
                         aria-controls="results"
                         aria-activedescendant={activeDescendentId}
-                        aria-expanded={open}
                         className={classNames('react-aria-Input', styles.searchInput)}
                         onChange={(e) => setInputValue(e.target.value)}
                         onClick={handleInputClick}
@@ -246,6 +246,7 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
                     className={`${styles.autocompleteResults} ${open ? styles.visible : ''}`}
                     ref={listRef}
                     id="results"
+                    role="listbox"
                     onKeyDown={handleKeyboardEvents}
                     tabIndex={-1}
                 >

@@ -1,8 +1,9 @@
 import React from 'react';
 import "@testing-library/jest-dom";
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
-import TypeAheadWithOther from '..';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
+import TypeAheadWithOther from '..';
 import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 import { GET_AFFILIATIONS } from '@/lib/graphql/queries/affiliations';
 import logECS from '@/utils/clientLogger';
@@ -12,6 +13,8 @@ jest.mock('@/utils/clientLogger', () => ({
     __esModule: true,
     default: jest.fn(),
 }));
+
+expect.extend(toHaveNoViolations);
 const mockQuery = jest.fn();
 const mockSetOtherField = jest.fn();
 const mockClient = { query: mockQuery };
@@ -43,6 +46,21 @@ describe('TypeAheadWithOther', () => {
         expect(screen.getByPlaceholderText('Type to search...')).toBeInTheDocument();
         expect(screen.getByText('Search for an institution')).toBeInTheDocument();
     });
+
+    it('should pass axe accessibility test', async () => {
+        const { container } = render(
+            <TypeAheadWithOther
+                graphqlQuery={GET_AFFILIATIONS}
+                label="Institution"
+                helpText="Search for an institution"
+                setOtherField={mockSetOtherField}
+            />
+        );
+        jest.useRealTimers();
+        const results = await axe(container);
+        jest.useFakeTimers();
+        expect(results).toHaveNoViolations();
+    })
 
     it('should fetch and display suggestions', async () => {
         mockClient.query.mockResolvedValueOnce({

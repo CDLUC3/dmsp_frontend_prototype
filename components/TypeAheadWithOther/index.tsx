@@ -226,16 +226,16 @@ const TypeAheadWithOther = ({
 
     return (
         <>
-            <div className={`${styles.autocompleteContainer} ${styles.expanded}`}>
+            <div className={`${styles.autocompleteContainer} ${styles.expanded}`} aria-expanded={open} role="combobox">
                 <TextField>
                     <Label>{label}</Label>
                     <Input
                         name="institutions"
                         type="text"
                         value={inputValue}
+                        role="textbox"
                         aria-controls="results"
                         aria-activedescendant={activeDescendentId}
-                        aria-expanded={open}
                         className={classNames('react-aria-Input', styles.searchInput)}
                         onChange={(e) => setInputValue(e.target.value)}
                         onClick={handleInputClick}
@@ -265,6 +265,7 @@ const TypeAheadWithOther = ({
                     className={`${styles.autocompleteResults} ${open ? styles.visible : ''}`}
                     ref={listRef}
                     id="results"
+                    role="listbox"
                     onKeyDown={handleKeyboardEvents}
                     tabIndex={-1}
                 >
