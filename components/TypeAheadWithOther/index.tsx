@@ -302,7 +302,7 @@ const TypeAheadWithOther = ({
                                 role="listitem"
                                 data-value="other"
                                 tabIndex={-1}>
-                                Other
+                                Other(organization not listed)
                             </li>
 
                             {suggestions?.map((suggestion, index) => {

@@ -161,7 +161,7 @@ describe('TypeAheadWithOther', () => {
         // Test arrow down
         fireEvent.keyDown(input, { key: 'ArrowDown' });
         await waitFor(() => {
-            expect(screen.getByText('Other')).toHaveFocus();
+            expect(screen.getByText('Other(organization not listed)')).toHaveFocus();
         })
 
         // Test arrow up
