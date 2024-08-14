@@ -6,7 +6,7 @@ import {
     Input,
     Label,
     TextField,
-} from "react-aria-components";
+} from 'react-aria-components';
 import { createApolloClient } from '@/lib/graphql/client/apollo-client';
 import Spinner from '@/components/Spinner';
 import classNames from 'classnames';
@@ -84,24 +84,24 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
         }
 
 
-        if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
+        if (['ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) {
             e.preventDefault();
         }
 
         switch (e.key) {
-            case "ArrowDown":
+            case 'ArrowDown':
                 // Allow user to navigate through list items using down arrow key
                 if (currentListItemFocused < listItems.length - 1) {
                     focusListItem(currentListItemFocused + 1);
                 }
                 break;
-            case "ArrowUp":
+            case 'ArrowUp':
                 // Allow user to navigate through list items using up arrow key
                 if (currentListItemFocused > 0) {
                     focusListItem(currentListItemFocused - 1);
                 } else {
                     setCurrentListItemFocused(-1);
-                    setActiveDescendentId("");
+                    setActiveDescendentId('');
                     if (inputRef && inputRef.current) {
                         inputRef.current.focus();
                     }
@@ -228,6 +228,14 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
 
                     <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
                         isActive={showSuggestionSpinner} />
+
+                    {/*Visually hidden element for screen readers */}
+                    <div
+                        aria-live="polite"
+                        className="hidden-accessibly">
+                        {showSuggestionSpinner ? "Loading..." : ""}
+                    </div>
+
                     <div
                         className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
                         onClick={e => e.preventDefault()}
@@ -240,7 +248,7 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
                         </svg>
                     </div>
                     <p className={styles.helpText}>{helpText}</p>
-                </TextField>
+                </TextField >
 
                 <ul
                     className={`${styles.autocompleteResults} ${open ? styles.visible : ''}`}
@@ -274,7 +282,7 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
                         >{suggestion.name}</li>
                     ))}
                 </ul>
-            </div>
+            </div >
         </>
     );
 };

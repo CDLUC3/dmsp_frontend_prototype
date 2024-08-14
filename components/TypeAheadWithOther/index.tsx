@@ -247,6 +247,14 @@ const TypeAheadWithOther = ({
 
                     <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
                         isActive={showSuggestionSpinner} />
+
+                    {/*Visually hidden element for screen readers */}
+                    <div
+                        aria-live="polite"
+                        className="hidden-accessibly">
+                        {showSuggestionSpinner ? "Loading..." : ""}
+                    </div>
+
                     <div
                         className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
                         onClick={e => e.preventDefault()}
