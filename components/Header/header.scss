@@ -1,0 +1,126 @@
+
+p {
+    margin: 0 0 10px;
+}
+
+button.mobile-icon {
+  padding: .5rem 1rem;
+}
+
+/* Dropdown menus */
+.dmpui-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dmpui-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  list-style: none;
+  background-color: #54D8FF;
+  min-width: 240px;
+  box-shadow: 0px 8px 16px 0px #004EAA;
+  padding: 12px 16px;
+  z-index: 100;
+}
+
+// .dmpui-dropdown:hover .dmpui-dropdown-content {
+//   display: block;
+// }
+
+
+.c-skipnav {
+  color: #fff !important;
+}
+
+.dmpui-skipnav {
+  background: var(--dmpui-brand-blue-900);
+  color: #fff;
+  height: 30px;
+  left: 50%;
+  // top: 0;
+  padding: 4px 12px;
+  position: absolute;
+  transform: translateY(-100%) translateX(-50%);
+  transition: transform 0.3s;
+  border-radius: 0 0 5px 5px;
+  text-decoration: none;
+}
+
+.dmpui-skipnav:focus{
+  transform: translate(0%);
+}
+
+/*Mobile menu*/
+.dmpui-frontend-header {
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100%;
+  padding: 1rem;
+  z-index: 99;
+  background-color: var(--dmpui-brand-blue-400);
+  transition: all 0.35s ease;
+  background-image: url("/images/bg-arrow-Up.svg");
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  background-size: 90% auto;
+}
+
+.mobile-menu.show-mobile-menu {
+  right: 0px !important;
+}
+
+.mobile-menu ul {
+  margin-bottom: 2rem;
+}
+
+.mobile-menu li {
+  display: block !important;
+  margin-bottom: 0.8rem !important;
+  margin-left: 0 !important;
+}
+
+.mobile-menu .dmpui-frontend-btn, .mobile-menu .btn,
+.mobile-menu .c-search-clear,
+.mobile-menu .js-facet-clear {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+
+button:hover img {
+  opacity: 0.7;
+}
+
+.close-mobile-icon {
+  margin-bottom: 2rem;
+  height: 28px;
+}
+
+.mobile-menu.show-menu {
+  right: 0;
+}
+
+#mobile-navigation {
+  overflow-y: scroll;
+}
+
+ul.mobile-menu-submenu {
+  margin-left: 15px;
+  margin-bottom: 5px;
+}
+
+#mobile-menu-close {
+  padding: 0.5rem 1rem;
+}
+}
