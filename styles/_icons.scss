@@ -1,0 +1,35 @@
+/*
+ * Enable this if we are self-hosting the icons
+ */
+// @font-face {
+//   font-family: 'Material Symbols Outlined';
+//   font-style: normal;
+//   src: url(https://example.com/material-symbols.woff) format('woff');
+// }
+
+// .material-symbols-outlined {
+//   font-family: 'Material Symbols Outlined';
+//   font-weight: normal;
+//   font-style: normal;
+//   font-size: 24px;  /* Preferred icon size */
+//   display: inline-block;
+//   line-height: 1;
+//   text-transform: none;
+//   letter-spacing: normal;
+//   word-wrap: normal;
+//   white-space: nowrap;
+//   direction: ltr;
+// }
+
+/*
+ * The options here are modified using the guidelines here:
+ *
+ *  https://developers.google.com/fonts/docs/material_symbols
+ */
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 48;
+}

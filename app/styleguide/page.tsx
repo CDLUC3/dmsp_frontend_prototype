@@ -21,6 +21,7 @@ import {
 import "./styleguide.scss";
 
 import { DmpEditor } from "/components/Editor";
+import { DmpIcon } from "/components/Icons";
 
 import {
   Example,
@@ -200,6 +201,7 @@ function Page() {
           <a href="#_intro">Introduction</a>
           <a href="#_brand">Branding & Colours</a>
           <a href="#_typography">Typography</a>
+          <a href="#_icons">Icons</a>
           <a href="#_layout">Layout</a>
           <a href="#_forms">Forms</a>
           <a href="#_fields">Form Fields</a>
@@ -257,6 +259,32 @@ function Page() {
             <p>This is a descriptive paragraph with <em>emphasized text</em>,
               some <strong>bold text</strong>, a <a href="#">anchor</a>,
               and a <Link>Link to somewhere</Link>
+            </p>
+          </div>
+
+          <div id="_icons">
+            <h2>Icons</h2>
+            <Example>
+              <div className="sg-icons">
+                <DmpIcon icon="search" />
+                <DmpIcon icon="home" />
+                <DmpIcon icon="settings" />
+                <DmpIcon icon="favorite" />
+              </div>
+            </Example>
+            <p>
+              A list of available icons can be found on the
+              &nbsp;<a href="https://fonts.google.com/icons" target="_blank">Google Web Fonts</a> website.
+            </p>
+            <p>
+              The styling of the icons, including the fill line weight can be
+              changed as specified
+              &nbsp;<a href="https://developers.google.com/fonts/docs/material_symbols" target="_blank">
+                Material Symbols Guide
+              </a>.
+            </p>
+            <p>
+              You can find the icon setings in <code>styles/_icons.scss</code>.
             </p>
           </div>
 
