@@ -72,7 +72,7 @@ const TypeAheadWithOther = ({
             inputRef.current.focus();
         }
 
-        if (item.toLowerCase() === 'other') {
+        if (item.toLowerCase() === 'other(organization not listed)') {
             setOtherField(true);
             setOtherSelected(true);
         } else {

@@ -27,7 +27,7 @@ import {
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/TypeAheadWithOther';
-import { GET_AFFILIATIONS } from '@/lib/graphql/queries/affiliations';
+import { AffiliationsDocument } from '@/generated/graphql';
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
@@ -379,7 +379,7 @@ function Page() {
             <Example>
               <TypeAheadInput
                 label="Example input"
-                graphqlQuery={GET_AFFILIATIONS}
+                graphqlQuery={AffiliationsDocument}
                 helpText="Help text describing what types of data the user can search for"
               />
             </Example>
@@ -392,7 +392,7 @@ function Page() {
             <Example>
               <TypeAheadWithOther
                 label="Example input"
-                graphqlQuery={GET_AFFILIATIONS}
+                graphqlQuery={AffiliationsDocument}
                 helpText="Help text describing what types of data the user can search for"
                 setOtherField={setOtherField}
               />
