@@ -1,3 +1,6 @@
+//globals
+@use '@/styles/variables/spacing' as *;
+@import '@/components/responsive';
 @import '@/components/responsive';
 
 *,
@@ -224,9 +227,6 @@ body {
   max-width: 260px;
 }
 
-//globals
-@use '@/styles/variables/spacing' as *;
-@import '@/components/responsive';
 
 *,
 ::before,
