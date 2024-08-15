@@ -4,6 +4,7 @@ import '@fortawesome/fontawesome-svg-core/styles.css'
 import "@/styles/globals.scss";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SubHeader from "@/components/SubHeader";
 import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
 import { AuthProvider } from "@/context/AuthContext";
 
@@ -31,6 +32,7 @@ export default function RootLayout({
         <a href="#mainContent" className="skip-nav">Skip to main content</a>
         <AuthProvider>
           <Header />
+          <SubHeader />
           <div id="App">
             <main id="mainContent"><ApolloWrapper>{children}</ApolloWrapper></main>
           </div>
