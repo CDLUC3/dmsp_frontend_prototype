@@ -220,6 +220,10 @@ body {
   line-height: var(--brand-line-height0);
 }
 
+.header-log {
+  max-width: 260px;
+}
+
 @import "typography";
 @import "page";
 @import "elements";
