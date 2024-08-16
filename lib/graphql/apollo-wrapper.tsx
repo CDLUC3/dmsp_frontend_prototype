@@ -14,7 +14,7 @@ import { createAuthLink } from '@/utils/authLink';
 
 function makeClient() {
     const httpLink = new HttpLink({
-        uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`,
+        uri: `${process.env.NEXT_PUBLIC_GRAPHQL_SERVER_ENDPOINT}`,
         fetchOptions: 'cache-first'
     });
 
