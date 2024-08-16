@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 
-
 interface ExampleProps {
   children: ReactNode;
 }
@@ -10,18 +9,17 @@ export function Example({ children }: ExampleProps) {
     <div className="sg-example">
       {children}
     </div>
-  )
+  );
 }
 
-
 interface BrandColorProps {
-  varname: string,
+  varname: string;
 }
 
 export function BrandColor({ varname }: BrandColorProps) {
-  const styleprops = {
+  const styleprops: React.CSSProperties = {
     '--_color': `var(${varname})`,
-  } as React.CSSProperties;
+  };
 
   return (
     <div className="brand-color" style={styleprops}>

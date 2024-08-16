@@ -5,6 +5,7 @@ import "./styleguide.scss";
 import {
   Button,
   Label,
+  Text,
   TextField,
   Input,
   FieldError,
@@ -29,6 +30,17 @@ import {
 }
   from
     "react-aria-components";
+
+
+import {
+  Card,
+  CardEyebrow,
+  CardHeading,
+  CardBody,
+  CardMutedText,
+  CardFooter
+} from "@/components/Card/card";
+
 import {
   Example,
   BrandColor,
@@ -47,6 +59,10 @@ function Page() {
           <a href="#_typography">Typography</a>
           <a href="#_layout">Layout</a>
           <a href="#_forms">Forms</a>
+          <a href="#_fields_text">Text Fields</a>
+          <a href="#_fields_textarea">Textarea Fields</a>
+          <a href="#_fields_radio">Radio Fields</a>
+          <a href="#_fields_checkbox">Checkbox Fields</a>
           <a href="#_fields">Form Fields</a>
           <a href="#_widgets">Custom Widget</a>
         </div>
@@ -310,6 +326,65 @@ function Page() {
             </dl>
           </div>
 
+
+          <div id="_fields_text">
+            <h2>TextField</h2>
+
+
+            <h3>
+              Text
+            </h3>
+            <p>
+              A text field allows a user to enter a plain text value with a
+              keyboard.
+            </p>
+
+            <p>
+              This is a <em>core component</em>, see
+              the <a
+              href="https://react-spectrum.adobe.com/react-aria/TextField.html">component
+              docs here.</a>
+            </p>
+
+
+            <Example>
+              <TextField name="example_text" isRequired>
+                <Label>Example Text Field</Label>
+                <Text slot="description" className="help">
+                  Descriptive text related to the field
+                </Text>
+                <Input/>
+              </TextField>
+            </Example>
+
+
+            <h3>
+              Email
+            </h3>
+
+
+            <TextField
+              name="example_email"
+              type="email"
+              isRequired
+            >
+              <Label>Email</Label>
+              <Text slot="description" className="help">
+                Your email address
+              </Text>
+              <Input/>
+              <FieldError/>
+            </TextField>
+
+
+          </div>
+          <div id="_fields_textarea">
+
+          </div>
+          <div id="_fields_radio"></div>
+          <div id="_fields_checkbox"></div>
+
+
           <div id="_forms">
             <h2>Buttons</h2>
             <p>
@@ -360,7 +435,7 @@ function Page() {
                   <Checkbox value="soccer">
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
+                        <polyline points="1 9 7 14 15 4"/>
                       </svg>
                     </div>
                     Test
@@ -368,14 +443,13 @@ function Page() {
                   <Checkbox value="test">
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
+                        <polyline points="1 9 7 14 15 4"/>
                       </svg>
                     </div>
                     Test
                   </Checkbox>
 
                 </CheckboxGroup>
-
 
 
                 <RadioGroup>
@@ -416,7 +490,7 @@ function Page() {
                 <Checkbox>
                   <div className="checkbox">
                     <svg viewBox="0 0 18 18" aria-hidden="true">
-                      <polyline points="1 9 7 14 15 4" />
+                      <polyline points="1 9 7 14 15 4"/>
                     </svg>
                   </div>
                   Unsubscribe
@@ -430,27 +504,21 @@ function Page() {
 
           </div>
 
+
           <div id="_fields">
-            <h2>TextField</h2>
-            <p>
-              A text field allows a user to enter a plain text value with a
-              keyboard.
-            </p>
 
-            <p>
-              This is a <em>core component</em>, see
-              the <a
-              href="https://react-spectrum.adobe.com/react-aria/TextField.html">component
-              docs here.</a>
-            </p>
 
-            <Example>
-              <TextField name="example_text" isRequired>
-                <Label>Example Text Field</Label>
-                <Input/>
-                <p className="help">Descriptive text related to the field</p>
-              </TextField>
-            </Example>
+            <Card id="card1" data-test='date-test'>
+              <CardEyebrow>NSF</CardEyebrow>
+              <CardHeading>NSF Health research</CardHeading>
+              <CardBody>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              </CardBody>
+              <CardMutedText>Updated 1 year ago</CardMutedText>
+              <CardFooter>
+                <Button>Select</Button>
+              </CardFooter>
+            </Card>
           </div>
 
           <div id="_widgets">

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { faUser, faGlobe } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+//import { faUser, faGlobe } from '@fortawesome/free-solid-svg-icons';
+//import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './header.scss'
 function Header() {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -85,7 +85,7 @@ function Header() {
                         {/*if user is signed in */}
                         <li>
                             <div className="dmpui-dropdown">
-                                <FontAwesomeIcon icon={faUser} fixedWidth />
+
                                 <div className="dmpui-dropdown-content">
                                     <p><a href="" role="menuitem">Edit profile</a></p>
                                     <p><a href="" role="menuitem">3rd party apps</a></p>
@@ -97,7 +97,7 @@ function Header() {
 
                         <li>
                             <div className="dmpui-dropdown">
-                                <a href="#"><FontAwesomeIcon icon={faGlobe} aria-label="Language" /></a>
+
                                 <div className="dmpui-dropdown-content">
                                     {/*Need list of languages from backend */}
                                     <p><a role="menuitem" rel="nofollow" data-method="patch" href="/locale/en-US">English (US)</a></p>

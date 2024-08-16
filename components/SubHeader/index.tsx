@@ -1,5 +1,5 @@
-import { faCloud, faEnvelope } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+//import { faCloud, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+//import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './subHeader.scss';
 
 function SubHeader() {
@@ -13,14 +13,14 @@ function SubHeader() {
 
                 <li>
                     <a href="http://www.ucop.edu/" className="c-links-org__ucop" target="_blank">
-                        <FontAwesomeIcon icon={faCloud} />
+
                         UCOP homepage
                     </a>
                 </li>
 
                 <li>
                     <a href="mailto:dmptool@ucop.edu" className="c-links-org__uc3-helpdesk">
-                        <FontAwesomeIcon icon={faEnvelope} />
+
                         UC3 Helpdesk
                     </a>
                 </li>
