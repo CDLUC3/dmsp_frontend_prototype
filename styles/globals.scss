@@ -1,3 +1,5 @@
+//globals
+@use '@/styles/variables/spacing' as *;
 @import '@/components/responsive';
 
 *,
@@ -233,6 +235,10 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   line-height: var(--brand-line-height0);
+}
+
+.header-log {
+  max-width: 260px;
 }
 
 @import "typography";
