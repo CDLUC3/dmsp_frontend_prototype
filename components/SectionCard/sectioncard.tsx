@@ -1,5 +1,5 @@
-import './sectioncard.scss.scss';
-import React, { ReactNode } from 'react';
+import './sectioncard.scss';
+import React, {ReactNode} from 'react';
 
 // Main SectionCard component
 interface SectionCardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -7,12 +7,12 @@ interface SectionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-export const Sectionard: React.FC<SectionCardProps> = ({
+export const SectionCard: React.FC<SectionCardProps> = ({
                                             children,
                                             className = '',
                                             ...rest
                                           }) => (
-  <div className={`card ${className}`} {...rest}>
+  <div className={`section-card ${className}`} {...rest}>
     {children}
   </div>
 );
@@ -28,7 +28,7 @@ export const SectionCardEyebrow: React.FC<EyebrowProps> = ({
                                                       className = '',
                                                       ...rest
                                                     }) => (
-  <div className={`card-eyebrow ${className}`} {...rest}>
+  <div className={`section-card-eyebrow ${className}`} {...rest}>
     {children}
   </div>
 );
@@ -44,9 +44,9 @@ export const SectionCardHeading: React.FC<HeadingProps> = ({
                                                       className = '',
                                                       ...rest
                                                     }) => (
-  <h2 className={`card-heading ${className}`} {...rest}>
+  <h3 className={`section-card-heading ${className}`} {...rest}>
     {children}
-  </h2>
+  </h3>
 );
 
 // Body component
@@ -60,7 +60,7 @@ export const SectionCardBody: React.FC<BodyProps> = ({
                                                 className = '',
                                                 ...rest
                                               }) => (
-  <div className={`card-body ${className}`} {...rest}>
+  <div className={`section-card-body ${className}`} {...rest}>
     {children}
   </div>
 );
@@ -76,7 +76,7 @@ export const SectionCardMutedText: React.FC<MutedTextProps> = ({
                                                           className = '',
                                                           ...rest
                                                         }) => (
-  <div className={`card-text-muted ${className}`} {...rest}>
+  <div className={`section-card-text-muted ${className}`} {...rest}>
     {children}
   </div>
 );
@@ -87,12 +87,12 @@ interface FooterProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-export const SectionCardFooter: React.FC<FooterProps> = ({
+export const SectionCardControls: React.FC<FooterProps> = ({
                                                     children,
                                                     className = '',
                                                     ...rest
                                                   }) => (
-  <div className={`card-footer ${className}`} {...rest}>
+  <div className={`section-card-controls ${className}`} {...rest}>
     {children}
   </div>
 );

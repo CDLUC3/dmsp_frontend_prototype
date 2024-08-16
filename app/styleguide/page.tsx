@@ -4,47 +4,51 @@ import "./styleguide.scss";
 
 import {
   Button,
-  Label,
-  Text,
-  TextField,
-  Input,
+  Checkbox,
+  CheckboxGroup,
+  Dialog,
+  DialogTrigger,
   FieldError,
+  Form,
+  Group,
+  Input,
+  Label,
   Link,
+  ListBox,
   ListBoxItem,
   Menu,
   MenuItem,
   MenuTrigger,
-  Popover,
-  DialogTrigger,
-  OverlayArrow,
-  Dialog,
-  Switch,
-  CheckboxGroup,
-  Checkbox,
-  RadioGroup,
-  Radio,
   NumberField,
-  Group,
-  Form,
-  Select, ListBox, SelectValue,
-}
-  from
-    "react-aria-components";
+  OverlayArrow,
+  Popover,
+  Radio,
+  RadioGroup,
+  Select,
+  SelectValue,
+  Switch,
+  Text,
+  TextField,
+} from "react-aria-components";
 
 
 import {
   Card,
-  CardEyebrow,
-  CardHeading,
   CardBody,
-  CardMutedText,
-  CardFooter
+  CardEyebrow,
+  CardFooter,
+  CardHeading,
+  CardMutedText
 } from "@/components/Card/card";
 
 import {
-  Example,
-  BrandColor,
-} from "./sg-components";
+  SectionCard,
+  SectionCardBody,
+  SectionCardControls,
+  SectionCardEyebrow,
+} from "@/components/SectionCard/sectioncard";
+
+import {BrandColor, Example,} from "./sg-components";
 
 
 function Page() {
@@ -430,6 +434,10 @@ function Page() {
                 </TextField>
 
 
+                <h3>
+                  Checkboxes
+                </h3>
+
                 <CheckboxGroup>
                   <Label>Favorite sports</Label>
                   <Checkbox value="soccer">
@@ -452,6 +460,21 @@ function Page() {
                 </CheckboxGroup>
 
 
+                <h3>
+                  Checkbox
+                </h3>
+                <Checkbox>
+                  <div className="checkbox">
+                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                      <polyline points="1 9 7 14 15 4"/>
+                    </svg>
+                  </div>
+                  Unsubscribe
+                </Checkbox>
+
+                <h3>
+                  Radio
+                </h3>
                 <RadioGroup>
                   <Label>Favorite pet</Label>
                   <Radio value="dogs">Dog</Radio>
@@ -468,6 +491,9 @@ function Page() {
                   </Group>
                 </NumberField>
 
+                <h3>
+                  Select
+                </h3>
                 <Select>
                   <Label>Favorite Animal</Label>
                   <Button>
@@ -487,15 +513,9 @@ function Page() {
                 </Select>
 
 
-                <Checkbox>
-                  <div className="checkbox">
-                    <svg viewBox="0 0 18 18" aria-hidden="true">
-                      <polyline points="1 9 7 14 15 4"/>
-                    </svg>
-                  </div>
-                  Unsubscribe
-                </Checkbox>
-
+                <h3>
+                  Submit button
+                </h3>
                 <div className="form-actions mt-5">
                   <Button type="submit">Submit</Button>
                 </div>
@@ -508,6 +528,9 @@ function Page() {
           <div id="_fields">
 
 
+            <h3>
+              Card
+            </h3>
             <Card id="card1" data-test='date-test'>
               <CardEyebrow>NSF</CardEyebrow>
               <CardHeading>NSF Health research</CardHeading>
@@ -519,7 +542,79 @@ function Page() {
                 <Button>Select</Button>
               </CardFooter>
             </Card>
+
+            <h3>
+              Card with Icon
+            </h3>
+            <Card id="card1" data-test='date-test'>
+              <CardEyebrow>NSF</CardEyebrow>
+              <CardHeading>NSF Health research</CardHeading>
+              <CardBody>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              </CardBody>
+              <CardMutedText>Updated 1 year ago</CardMutedText>
+              <CardFooter>
+                <Button>Select</Button>
+              </CardFooter>
+            </Card>
+
+
+            <h3>
+              Question Card
+            </h3>
+
+            <SectionCard id="card1" data-test='date-test'>
+              <SectionCardEyebrow>Question</SectionCardEyebrow>
+              <SectionCardBody>
+                What parties and individuals will be involved with data
+                management in this project?
+              </SectionCardBody>
+              <SectionCardControls>
+                Test
+              </SectionCardControls>
+            </SectionCard>
+
+            <h3>
+              Section Header
+            </h3>
+            <p>
+              This is used in template builder where the section is editable
+              below this will be a list of questions cards
+            </p>
+            <div className="">
+              <div>
+                <div className="">
+                  <div className="eyebrow">Section #</div>
+                  <h2>Section Title</h2>
+                </div>
+                <div className="">
+                  <Link>Edit section</Link>
+                  <div>
+                    Move
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <h3>
+              Empty State
+            </h3>
+
+            <div className="">
+              <div className="empty-state">
+                <Button>Get Started</Button>
+              </div>
+            </div>
+
+
+            <h3>
+              Tabs
+            </h3>
+
+
           </div>
+
 
           <div id="_widgets">
             <h2>Widgets</h2>

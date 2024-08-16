@@ -2,7 +2,7 @@
 .react-aria-FieldError {
   font-size: 1rem;
   color: var(--invalid-color);
-  margin: 5px 0px;
+  margin: 5px 0;
   display: inline-block;
 }
 
@@ -17,6 +17,8 @@
   line-height: 1.5;
   transition: all 0.2s ease-in-out;
   display: block;
+  width: 100%;
+  max-width: 600px;
 
   &::placeholder {
     color: var(--slate-500);
@@ -72,16 +74,15 @@ select {
   }
 }
 
-.eact-aria-SelectValue{
+.eact-aria-SelectValue {
   @include input-base;
 }
-
-
 
 
 .react-aria-Label {
   display: block;
   color: var(--slate-900);
+  font-weight: 600;
 }
 
 .react-aria-TextField {
@@ -92,7 +93,7 @@ select {
   font-size: 1rem;
   color: var(--slate-600);
   display: block;
-  margin: 0px 0px 5px;
+  margin: 0 0 5px;
 }
 
 
@@ -101,13 +102,6 @@ select {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
-
-
-
-
-
-
-
 
 
 .react-aria-NumberField {
@@ -121,6 +115,7 @@ select {
 
     &[data-focus-within] {
       outline: 1px solid var(--focus-ring-color);
+
       .react-aria-Input,
       .react-aria-Button {
         border-color: var(--focus-ring-color);
@@ -164,10 +159,6 @@ select {
     flex: 1;
   }
 }
-
-
-
-
 
 
 .react-aria-Checkbox {
@@ -237,15 +228,6 @@ select {
     }
   }
 }
-
-
-
-
-
-
-
-
-
 
 
 .react-aria-RadioGroup {
