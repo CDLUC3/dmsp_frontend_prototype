@@ -173,9 +173,20 @@ Label {
 
 // Toggle Button
 .react-aria-ToggleButton {
-  color: var(--text-color);
-  background: var(--button-background);
-  border: 1px solid var(--border-color);
+  --_color: var(--button-foreground);
+  --_bg: var(--button-background);
+  --_bg-pressed: var(--button-backround-pressed);
+  --_border-color: var(--border-color);
+  --_border-color-pressed: var(--border-color-pressed);
+  --_hl-bg: var(--highlight-background);
+  --_hl-fg: var(--highlight-foreground);
+  --_hl-bg-pressed: var(--highlight-background-pressed);
+  --_hl-fg-pressed: var(--highlight-foreground-pressed);
+  --_outline-color: var(--focus-ring-color);
+
+  color: var(--_color);
+  background: var(--_background);
+  border: 1px solid var(--_border-color);
   forced-color-adjust: none;
   border-radius: 4px;
   appearance: none;
@@ -188,23 +199,23 @@ Label {
 
   &[data-pressed] {
     box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.1);
-    background: var(--button-background-pressed);
-    border-color: var(--border-color-pressed);
+    background: var(--_bg-pressed);
+    border-color: var(--_border-color-pressed);
   }
 
   &[data-selected] {
-    background: var(--highlight-background);
-    border-color: var(--highlight-background);
-    color: var(--highlight-foreground);
+    background: var(--_hl-bg);
+    border-color: var(--_hl-bg);
+    color: var(--_hl-fg);
 
     &[data-pressed] {
-      background: var(--highlight-background-pressed);
-      border-color: var(--highlight-background-pressed);
+      background: var(--hl-bg-pressed);
+      border-color: var(--hl-bg-pressed);
     }
   }
 
   &[data-focus-visible] {
-    outline: 2px solid var(--focus-ring-color);
+    outline: 2px solid var(--_outline-color);
     outline-offset: 2px;
   }
 }
@@ -322,6 +333,27 @@ Label {
   &[aria-orientation=vertical] {
     width: 1px;
     margin: 0px 10px;
+  }
+}
+
+.react-aria-Toolbar {
+  .react-aria-ToggleButton {
+    --_bg-pressed: transparent;
+    --_border-color: transparent;
+    --_border-color-pressed: transparent;
+    --_hl-bg: transparent;
+    --_hl-fg: var(--highlight-background);
+    --_hl-bg-pressed: transparent;
+    --_hl-fg-pressed: var(--highlight-background);
+
+    font-weight: normal;
+    box-sizing: border-box;
+    padding: 0;
+    width: auto;
+  }
+
+  .toolbar-break {
+    width: 100%;
   }
 }
 

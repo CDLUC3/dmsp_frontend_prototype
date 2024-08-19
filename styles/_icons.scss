@@ -27,9 +27,14 @@
  *  https://developers.google.com/fonts/docs/material_symbols
  */
 .material-symbols-outlined {
+  --_fill: var(--icon-fill-amount, 0);
+  --_weight: var(--icon-weight, 100);
+  --_grade: var(--icon-grade, -20);
+  --_opsz: var(--icon-opsz, 48);
+
   font-variation-settings:
-    'FILL' 0,
-    'wght' 300,
-    'GRAD' 0,
-    'opsz' 48;
+    'FILL' var(--_fill),
+    'wght' var(--_weight),
+    'GRAD' var(--_grade),
+    'opsz' var(--_opsz);
 }

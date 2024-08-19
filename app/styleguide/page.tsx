@@ -36,7 +36,8 @@ function Page() {
   const [otherField, setOtherField] = useState(false);
 
     // NOTE: This text is just for testing the richtext editors
-  const richtextDefault = `
+  const html = String.raw;
+  const richtextDefault = html`
 <p>In the project, various analytical methods will be used for characterization of compounds. For the (re)synthesis of guanidine-modified monomers and metal complexes nuclear magnetic resonance spectroscopy (NMR), infrared spectroscopy (IR), mass spectrometry (MS), X-Ray diffraction (XRD), and electron paramagnetic resonance spectroscopy (EPR) will be used as analytical methods if applicable. Guanidine-modified microgels and metal-loaded microgels will be analyzed if applicable with NMR, IR, dynamic light scattering (DLS), scanning transmission electron microscopy (STEM), Raman, EPR, and inductively coupled plasma optical emission spectroscopy (ICP-OES). NMR, ICP-OES and gas chromatography (GC) will be used as analytical methods for catalytic reactions.</p>
 <p>For all analytical methods the data type, format, and estimated volume of a single data file are summarized in the following table. Data that will be measured by cooperation partners are marked with an asterisk (*). Already existing data of the analytical methods will be reused in the stated formats.</p>
 <table style="border-collapse: collapse; width: 100%; height: 371px;" border="1"><colgroup><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"></colgroup>
