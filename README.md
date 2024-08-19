@@ -38,6 +38,7 @@ This app was bootstrapped with [`create-next-app`](https://github.com/vercel/nex
 - **Apollo Client:** Uses Apollo Client to make GraphQL requests to the backend
 - **SCSS/CSS Modules:** Uses Sass along with CSS Modules for styling.
 - **Unit Testing:** Uses Jest with React Testing Library
+- **Accessibility Testing:** Uses jest-axe package
 - **UI Components:** React Aria Components library used with custom components
 - **Authentication:** Auth tokens from backend stored in cookie. Token is passed via headers in requests to backend
 
@@ -97,7 +98,7 @@ docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
 
 
 ## Environment Variables
-* `NEXT_PUBLIC_BASE_URL` - "http://localhost:3000"
+* `NEXT_PUBLIC_BASE_URL` - Base url for this app (e.g., http://localhost:3000)
 * `NEXT_PUBLIC_SERVER_ENDPOINT` - Base url for backend server
 * `NEXT_PUBLIC_GRAPHQL_SERVER_ENDPOINT` - Graphql server schema endpoint
 * `JWT_SECRET` - Secret key for JWT authentication
