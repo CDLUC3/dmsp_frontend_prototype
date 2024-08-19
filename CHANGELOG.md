@@ -2,6 +2,8 @@
 
 ### Added
 - Added existing header and footer from production to app [#89]
+- Added two new TypeAhead/Autosuggest components, one with and one without the "Other" option [#10]
+- Added the use of graphql-codegen to generate types for graphql requests [#10]
 - Added logout api and link [#65]
 - Added loading state and velocity controls to the login and signup forms [#66]
 - Added placeholders for /signup and /login pages and added a new api endpoint for setting the access token in a cookie [#19]

@@ -5,9 +5,6 @@ const createJestConfig = nextJest({
 });
 
 const config: Config = {
-    collectCoverage: true,
-    coverageProvider: 'v8',
-    coverageDirectory: "coverage",
     testEnvironment: "jest-environment-jsdom",
     transform: {
         "^.+\\.(js|jsx|ts|tsx)$": "ts-jest",
@@ -23,6 +20,17 @@ const config: Config = {
         },
         fetch: global.fetch //added this to be able to mock 'fetch' in tests
     },
+    collectCoverage: true,
+    coverageThreshold: {
+        global: {
+            branches: 70,
+            functions: 70,
+            lines: 80,
+            statements: 80,
+        }
+    },
+    coverageDirectory: "coverage",
+    coverageProvider: 'v8',
 }
 
 

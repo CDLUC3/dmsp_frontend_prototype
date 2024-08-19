@@ -15,6 +15,28 @@ $color-grey: #F2F2F2;
 $color-green: #006C6C;
 $color-red: #D3273E;
 
+:root {
+  --dmpui-frontend-font-size-base: 16px;
+  --dmpui-brand-white: #fff;
+  --dmpui-brand-focus-color: #fd0;
+  --dmpui-brand-focus-text-color: #04032d;
+  --dmpui-brand-gray-100: #f2f2f2;
+  --dmpui-brand-blue-100: #f0fbff;
+  --dmpui-brand-blue-200: #eff6ff;
+  --dmpui-brand-blue-300: #effbfe;
+  --dmpui-brand-blue-400: #54d8ff;
+  --dmpui-brand-blue-500: #004eaa;
+  --dmpui-brand-blue-800: #0c0b57;
+  --dmpui-brand-blue-900: #05042e;
+  --dmpui-brand-blue-950: #04032d;
+  --dmpui-gutter-x: 1.5rem;
+  --btn-primary-fg-color: white;
+  --btn-border-radius: 20px;
+  --form-field-border-color: #e1e1e1;
+  --form-field-fg-color: #333;
+  --form-field-bg-color: white;
+}
+
 header {
   background-color: #f8f8f8 !important;
 }
@@ -52,7 +74,6 @@ button.mobile-icon {
 .dmpui-dropdown:hover .dmpui-dropdown-content {
   display: block;
 }
-
 
 .c-skipnav {
   color: $color-white;
@@ -149,46 +170,17 @@ ul.mobile-menu-submenu {
 }
 }
 
-
-
 ***********************
 
-*,
-::before,
-::after {
-  box-sizing: border-box;  
-  font-family: var(--font-poppins), sans-serif;
-  font-weight: 400;
-  font-size: 1rem;
-}
-
-:root {
-  --dmpui-frontend-font-size-base: 16px;
-  --dmpui-brand-white: #fff;
-  --dmpui-brand-focus-color: #fd0;
-  --dmpui-brand-focus-text-color: #04032d;
-  --dmpui-brand-gray-100: #f2f2f2;
-  --dmpui-brand-blue-100: #f0fbff;
-  --dmpui-brand-blue-200: #eff6ff;
-  --dmpui-brand-blue-300: #effbfe;
-  --dmpui-brand-blue-400: #54d8ff;
-  --dmpui-brand-blue-500: #004eaa;
-  --dmpui-brand-blue-800: #0c0b57;
-  --dmpui-brand-blue-900: #05042e;
-  --dmpui-brand-blue-950: #04032d;
-  --dmpui-gutter-x: 1.5rem;
-  --btn-primary-fg-color: white;
-  --btn-border-radius: 20px;
-  --form-field-border-color: #e1e1e1;
-  --form-field-fg-color: #333;
-  --form-field-bg-color: white;
-}
-
-body {
-  margin: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 16px;
+header {
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;  
+    font-family: var(--font-poppins), sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+  }
 }
 
 code {
@@ -210,23 +202,6 @@ code {
   white-space: nowrap;
 }
 
-dialog {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 10px;
-  border-radius: 0.6rem;
-  background-color: white;
-  box-shadow: 0 0 1em black;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  max-width: 750px;
-  width: 80vw;
-}
-
 .hide {
   display: none;
 }
@@ -238,68 +213,6 @@ dialog {
 .dmpui-frontend a {
   padding: 5px;
 }
-
-#App {
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-poppins), sans-serif;
-    font-weight: 700;
-    color: var(--dmpui-brand-blue-900);
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-  }
-
-  h1,
-  .h1 {
-    font-size: 1.875rem;
-  }
-
-  h2,
-  .h2 {
-    font-size: 1.5625rem;
-  }
-
-  h3,
-  .h3 {
-    font-size: 1.125rem;
-  }
-
-  p {
-    font-family: var(--font-poppins), sans-serif;
-    font-weight: 400;
-    font-size: 1rem;
-    color: var(--dmpui-brand-blue-900);
-  }
-
-  a {
-    color: var(--dmpui-brand-blue-500);
-
-    &:hover {
-      text-decoration: underline;
-      outline-offset: 2px;
-      color: var(--dmpui-brand-blue-900);
-    }
-    &:focus {
-      outline-offset: 2px;
-      color: #000;
-      background-color: #fd0;
-      box-shadow: 0 -2px 0px 0px rgba(255, 221, 0, 0.281),
-        0 4px rgba(255, 221, 0, 0.281);
-      text-decoration: none;
-      -webkit-box-decoration-break: clone;
-      box-decoration-break: clone;
-      outline: none;
-      text-decoration: underline;
-    }
-  }
-
-}
-
 
   .dmpui-frontend-container, #maincontent > div.static-page,
   #maincontent > div.row,
@@ -319,10 +232,6 @@ dialog {
   .dmpui-frontend-container-full {
     width: 100%;
     margin: 0 auto;
-    /*
-    padding-right: calc(var(--dmpui-gutter-x) * 0.5);
-    padding-left: calc(var(--bs-gutter-x) * 0.5);
-    */
   }
   
   .dmpui-frontend .dmpui-frontend-btn, .btn,
@@ -653,8 +562,6 @@ dialog {
     background-repeat: no-repeat;
     background-size: 50%;
   }
-  
-
   
   .dmpui-mobile {
     display: none;
