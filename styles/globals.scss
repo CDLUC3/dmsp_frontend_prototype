@@ -214,6 +214,20 @@ body {
   left: -10000px;
 }
 
+.hidden-accessibly {
+  /*Contain text within 1px box*/
+  height: 1px;
+  overflow: hidden;
+  width: 1px;
+  /*keep the layout*/
+  position: absolute;
+  /*Remove any visible trace (e.g., background color)*/
+  clip: rect(1px, 1px, 1px, 1px);
+  clip-path: inset(50%);
+  /*Prevent screen reader skipping spaces between words*/
+  white-space: nowrap;
+}
+
 #App {
   max-width: 1200px;
   margin: 0 auto;
