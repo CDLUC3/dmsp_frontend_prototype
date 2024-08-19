@@ -1,6 +1,7 @@
 ## [1.0.0]
 
 ### Added
+- Added existing header and footer from production to app [#89]
 - Added two new TypeAhead/Autosuggest components, one with and one without the "Other" option [#10]
 - Added the use of graphql-codegen to generate types for graphql requests [#10]
 - Added logout api and link [#65]

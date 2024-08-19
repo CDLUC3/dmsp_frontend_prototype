@@ -1,0 +1,18 @@
+subHeader.scss
+a {
+    color: #337ab7;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+a:focus,
+a:hover {
+    outline-offset: -2px;
+    outline-style: solid;
+    outline-color: #54D8FF;
+    outline-width: 2px;
+}
+a:hover, a:focus {
+    color: #23527c;
+    text-decoration: underline;
+}
