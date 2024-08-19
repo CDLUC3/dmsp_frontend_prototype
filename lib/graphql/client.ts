@@ -5,7 +5,7 @@ import { createAuthLink } from '@/utils/authLink';
 
 
 const httpLink = createHttpLink({
-    uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`
+    uri: process.env.NEXT_PUBLIC_GRAPHQL_SERVER_ENDPOINT
 });
 
 const authLink = createAuthLink();
