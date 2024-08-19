@@ -7,7 +7,7 @@
     "build": "next build && graphql-codegen --config codegen.ts",
     "start": "next start",
     "lint": "next lint && npx eslint .",
-    "generate":"graphql-codegen --config codegen.ts",
+    "generate": "graphql-codegen --config codegen.ts",
     "prepare": "husky",
     "test": "jest --coverage"
   },
@@ -15,7 +15,7 @@
     "@apollo/client": "^3.10.8",
     "@apollo/experimental-nextjs-app-support": "^0.11.2",
     "@elastic/ecs-pino-format": "^1.5.0",
-    "@fortawesome/fontawesome-svg-core": "^6.5.2",
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@graphql-codegen/cli": "^5.0.2",
@@ -38,6 +38,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
