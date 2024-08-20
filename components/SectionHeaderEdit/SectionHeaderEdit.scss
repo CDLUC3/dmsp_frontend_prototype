@@ -1,0 +1,47 @@
+.section-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.section-title {
+  flex-grow: 1;
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.section-number {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  font-weight: normal;
+}
+
+.button-group {
+  display: flex;
+  align-items: center;
+}
+
+.edit-button, .order-button, .expand-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.edit-button {
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.order-button {
+  font-size: 16px;
+}
+
+.expand-button {
+  transform: rotate(180deg);
+}

@@ -2,6 +2,8 @@
 
 import React from 'react';
 import {Button, Link} from 'react-aria-components';
+import SectionHeaderEdit from "@/components/SectionHeaderEdit";
+import QuestionEdit from "@/components/QuestionEdit";
 
 interface Question {
   id: string;
@@ -82,7 +84,7 @@ const template: Template = {
 
 const TemplateEditPage: React.FC = () => {
   return (
-    <div style={{padding: '20px', fontFamily: 'Arial, sans-serif'}}>
+    <div style={{padding: '20px'}}>
       <Link href="/template" style={{textDecoration: 'none', color: 'black'}}>←
         Back</Link>
 
@@ -92,47 +94,51 @@ const TemplateEditPage: React.FC = () => {
         Published: {template.publishedDate}
       </p>
 
-      {template.sections.map((section) => (
-        <div key={section.id} style={{marginBottom: '40px'}}>
-          <h2 style={{fontSize: '20px'}}>{section.name}</h2>
-          <Link href={section.link}
-                style={{textDecoration: 'underline', color: 'blue'}}>Edit
-            section</Link>
+      <div className="" style={{maxWidth: '70%' }}>
+        <div className="">
+          {template.sections.map((section, index) => (
+            <div key={section.id} style={{marginBottom: '40px'}}>
 
-          {section.questions.map((question) => (
-            <div
-              key={question.id}
-              style={{
-                border: '1px solid #ddd',
-                padding: '10px',
-                marginTop: '10px',
-                borderRadius: '5px',
-                backgroundColor: '#f9f9f9',
-              }}
-            >
-              <p style={{fontSize: '16px', marginBottom: '5px'}}>Question</p>
-              <p style={{fontSize: '18px'}}>{question.name}</p>
-              <Link href={question.link}
-                    style={{textDecoration: 'underline', color: 'blue'}}>Edit
-                question</Link>
+              <SectionHeaderEdit
+                key={section.id}
+                sectionNumber={index + 1}
+                title={section.name}
+                editUrl={section.link}
+                onMoveUp={() => null}
+                onMoveDown={() => null}
+              />
+
+              {section.questions.map((question) => (
+
+                <QuestionEdit
+                  id={question.id}
+                  name={question.name}
+                  link={question.link}
+                  onMoveUp={() => null}
+
+                />
+
+              ))}
+
+              <Button
+                style={{
+                  marginTop: '10px',
+                  padding: '10px',
+                  fontSize: '16px',
+                  backgroundColor: '#e5e5e5',
+                  borderRadius: '5px',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                + Add question
+              </Button>
             </div>
           ))}
-
-          <Button
-            style={{
-              marginTop: '10px',
-              padding: '10px',
-              fontSize: '16px',
-              backgroundColor: '#e5e5e5',
-              borderRadius: '5px',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            + Add question
-          </Button>
         </div>
-      ))}
+        <div className=""></div>
+      </div>
+
 
       <Button
         style={{
