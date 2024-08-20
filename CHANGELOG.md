@@ -1,6 +1,7 @@
 ## [1.0.0]
 
 ### Added
+- Added more documentation to README.md [#91]
 - Added logout api and link [#65]
 - Added loading state and velocity controls to the login and signup forms [#66]
 - Added placeholders for /signup and /login pages and added a new api endpoint for setting the access token in a cookie [#19]

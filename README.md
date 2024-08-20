@@ -61,6 +61,16 @@ cd dmsp_frontend_prototype
 npm install
 ```
 
+### Environment Variables
+For the development environment, the environment variables are stored at `.env.local`. This is set as the default env file in jest.setup.ts.
+These variables must be set in order for the app to work.
+
+* `NEXT_PUBLIC_BASE_URL` - Base url for this app (e.g., "http://localhost:3000")
+* `NEXT_PUBLIC_SERVER_ENDPOINT` - Base url for backend server (e.g., "http://localhost:4000")
+* `NEXT_PUBLIC_GRAPHQL_SERVER_ENDPOINT` - Graphql server schema endpoint (e.g., "http://localhost:4000/graphql")
+* `JWT_SECRET` - Secret key for JWT authentication
+
+
 ### Running the App
 ```bash
 npm run dev
@@ -81,6 +91,12 @@ This project users Docker for both development and production environments. The 
 docker-compose build
 docker-compose up
 ```
+
+2. To stop the docker container, run 
+```bash
+docker-compose down
+```
+
 3. Run the following to check that your container is up
 ```bash
 docker container ls -a
@@ -95,13 +111,6 @@ docker build -f Dockerfile.prod -t dmsp_frontend_prototype:dmsp_frontend_prod .
 docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
 ```
 2. Access the Next.js app at http://localhost:3000
-
-
-## Environment Variables
-* `NEXT_PUBLIC_BASE_URL` - Base url for this app (e.g., http://localhost:3000)
-* `NEXT_PUBLIC_SERVER_ENDPOINT` - Base url for backend server
-* `NEXT_PUBLIC_GRAPHQL_SERVER_ENDPOINT` - Graphql server schema endpoint
-* `JWT_SECRET` - Secret key for JWT authentication
 
 
 ## Project Structure
@@ -157,7 +166,6 @@ docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
 * `GET /api/get-token`: returns auth token to pass to backend requests
 * `POST /api/logout`: logs user out
 * `POST /api/setCookie`: sets auth token in http-only cookie
-
 
 ## Contributing
 1. Clone the repo from github (`git clone git@github.com:CDLUC3/dmsp_frontend_prototype.git`)
