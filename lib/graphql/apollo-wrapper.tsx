@@ -1,15 +1,15 @@
 "use client"
-
+//From https://github.com/apollographql/apollo-client-nextjs
 import {
     ApolloLink,
     HttpLink,
 } from "@apollo/client";
+
 import {
     ApolloNextAppProvider,
-    NextSSRInMemoryCache,
-    SSRMultipartLink,
-    NextSSRApolloClient,
-} from "@apollo/experimental-nextjs-app-support/ssr";
+    ApolloClient,
+    InMemoryCache,
+} from "@apollo/experimental-nextjs-app-support";
 import { createAuthLink } from '@/utils/authLink';
 
 function makeClient() {
@@ -20,23 +20,18 @@ function makeClient() {
 
     const authLink = createAuthLink();
 
-    return new NextSSRApolloClient({
-        cache: new NextSSRInMemoryCache(),
-        link:
-            typeof window === "undefined"
-                ? ApolloLink.from([
-                    new SSRMultipartLink({
-                        stripDefer: true,
-                    }),
-                    httpLink,
-                ])
-                : ApolloLink.from([
-                    authLink,
-                    httpLink,
-                ]),
+    // use the `ApolloClient` from "@apollo/experimental-nextjs-app-support"
+    return new ApolloClient({
+        // use the `InMemoryCache` from "@apollo/experimental-nextjs-app-support"
+        cache: new InMemoryCache(),
+        link: ApolloLink.from([
+            authLink,
+            httpLink,
+        ]),
     });
 }
 
+//To create a component to wrap the app in
 export function ApolloWrapper({ children }: React.PropsWithChildren) {
     return (
         <ApolloNextAppProvider makeClient={makeClient} >

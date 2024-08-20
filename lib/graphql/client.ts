@@ -1,5 +1,5 @@
 import { ApolloClient, createHttpLink, InMemoryCache, from } from "@apollo/client";
-import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rsc";
+import { registerApolloClient } from "@apollo/experimental-nextjs-app-support";
 import { onError } from '@apollo/client/link/error';
 import { createAuthLink } from '@/utils/authLink';
 
@@ -54,3 +54,4 @@ export const { getClient } = registerApolloClient(() => {
         cache: new InMemoryCache(),
     });
 });
+

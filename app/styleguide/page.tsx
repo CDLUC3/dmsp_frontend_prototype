@@ -1,7 +1,6 @@
 'use client';
 
-import "./styleguide.scss";
-
+import React, { useState } from 'react';
 import {
   Button,
   Label,
@@ -19,13 +18,19 @@ import {
   Dialog,
   Switch,
 } from "react-aria-components";
+import "./styleguide.scss";
+
 import {
   Example,
   BrandColor,
 } from "./sg-components";
 
+import TypeAheadInput from '@/components/TypeAheadInput';
+import TypeAheadWithOther from '@/components/TypeAheadWithOther';
+import { AffiliationsDocument } from '@/generated/graphql';
 
 function Page() {
+  const [otherField, setOtherField] = useState(false);
   return (
     <>
       <h1>Living Styleguide</h1>
@@ -364,6 +369,41 @@ function Page() {
                 <Input />
                 <p className="help">Descriptive text related to the field</p>
               </TextField>
+            </Example>
+
+            <h2>Typeahead</h2>
+            <p>
+              Typeahead, also known as an autosuggest, shows matches to a user query as the user types.
+            </p>
+
+            <Example>
+              <TypeAheadInput
+                label="Example input"
+                graphqlQuery={AffiliationsDocument}
+                helpText="Help text describing what types of data the user can search for"
+              />
+            </Example>
+
+            <h2>Typeahead with Other option</h2>
+            <p>
+              Typeahead with the inclusion of the &ldquo;Other&rdquo; option. You can pass a setOtherField() method to set it to true when the user selects &ldquo;Other&rdquo; option.
+            </p>
+
+            <Example>
+              <TypeAheadWithOther
+                label="Example input"
+                graphqlQuery={AffiliationsDocument}
+                helpText="Help text describing what types of data the user can search for"
+                setOtherField={setOtherField}
+              />
+              {otherField && (
+                <TextField>
+                  <Label>Other</Label>
+                  <Input
+                    placeholder="other"
+                  />
+                </TextField>
+              )}
             </Example>
           </div>
 

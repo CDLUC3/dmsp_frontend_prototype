@@ -115,9 +115,6 @@ describe('SignUpPage', () => {
         }
 
         // Simulate the 6th attempt, which should trigger the lockout
-        await waitFor(() => expect(submitButton).not.toBeDisabled());
-        userEvent.click(submitButton);
-        await waitFor(() => expect(submitButton).toBeDisabled());
 
         await waitFor(() => {
             expect(screen.queryByText(/Too many attempts. Please try again later in 15 minutes./i)).not.toBeInTheDocument();

@@ -55,6 +55,7 @@ This app was bootstrapped with [`create-next-app`](https://github.com/vercel/nex
 ```bash
 git clone git@github.com:CDLUC3/dmsp_frontend_prototype.git
 cd dmsp_frontend_prototype
+npm install
 ```
 2. Install dependencies
 ```bash
