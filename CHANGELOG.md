@@ -31,3 +31,6 @@
 - Updated `layout.tsx` to use the code formatting for classes and id's as
   outline in the styleguide. [#51]
 - Updated some CSS classes to remove verbose naming. [#51]
+
+### Fixed
+- Fixed an issue with docker-compose not starting the app [#93]
