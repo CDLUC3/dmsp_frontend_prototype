@@ -18,7 +18,7 @@ jest.mock('next/navigation', () => ({
 const mockScrollIntoView = jest.fn();
 const mockFocus = jest.fn();
 
-
+import { redirect } from 'next/navigation';
 
 describe('LoginPage', () => {
     beforeEach(() => {
@@ -78,7 +78,7 @@ describe('LoginPage', () => {
                 },
                 body: JSON.stringify({ email: 'test@test.com', password: 'password123' }),
             });
-            expect(require('next/navigation').redirect).toHaveBeenCalledTimes(1);
+            expect(redirect).toHaveBeenCalledTimes(1);
             expect(global.fetch).toHaveBeenCalledWith('/api/setCookie', {
                 method: 'POST',
                 headers: {
@@ -245,7 +245,7 @@ describe('LoginPage', () => {
 
         // Check that user is redirected to 500 error page
         await waitFor(() => {
-            expect(require('next/navigation').redirect).toHaveBeenCalledWith('/500-error');
+            expect(redirect).toHaveBeenCalledWith('/500-error');
         })
     });
 
