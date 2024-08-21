@@ -1,5 +1,5 @@
 import { ApolloClient, createHttpLink, InMemoryCache, from } from "@apollo/client";
-import { registerApolloClient } from "@apollo/experimental-nextjs-app-support";
+import { registerApolloClient } from "@apollo/experimental-nextjs-app-support/rsc";
 import { onError } from '@apollo/client/link/error';
 import { createAuthLink } from '@/utils/authLink';
 

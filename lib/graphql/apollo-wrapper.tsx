@@ -7,8 +7,11 @@ import {
 
 import {
     ApolloNextAppProvider,
+} from "@apollo/experimental-nextjs-app-support/ssr";
+
+import {
     ApolloClient,
-    InMemoryCache,
+    InMemoryCache
 } from "@apollo/experimental-nextjs-app-support";
 import { createAuthLink } from '@/utils/authLink';
 
