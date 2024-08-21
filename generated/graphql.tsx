@@ -136,17 +136,22 @@ export type Contributor = Person & {
 
 export type ContributorRole = {
   __typename?: 'ContributorRole';
-  /** The timestamp of when the contributor role was created */
-  created: Scalars['DateTimeISO']['output'];
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
   /** A longer description of the contributor role useful for tooltips */
   description?: Maybe<Scalars['String']['output']>;
   /** The order in which to display these items when displayed in the UI */
   displayOrder: Scalars['Int']['output'];
-  id: Scalars['Int']['output'];
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
   /** The Ui label to display for the contributor role */
   label: Scalars['String']['output'];
-  /** The timestamp of when the contributor role last modified */
-  modified: Scalars['DateTimeISO']['output'];
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The URL for the contributor role */
   url: Scalars['URL']['output'];
 };
@@ -207,10 +212,28 @@ export type Mutation = {
   _empty?: Maybe<Scalars['String']['output']>;
   /** Add a new contributor role (URL and label must be unique!) */
   addContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  /** Create a new Template */
+  addTemplate?: Maybe<Template>;
+  /** Add a collaborator to a Template */
+  addTemplateCollaborator?: Maybe<Scalars['Boolean']['output']>;
+  /** Archive a Template (unpublishes any associated PublishedTemplate */
+  archiveTemplate?: Maybe<Scalars['Boolean']['output']>;
+  /** Create a Template from another PublishedTemplate */
+  copyTemplate?: Maybe<Template>;
+  /** Save a Draft */
+  draftTemplate?: Maybe<VersionedTemplate>;
+  /** Publish a Template */
+  publishTemplate?: Maybe<VersionedTemplate>;
   /** Delete the contributor role */
   removeContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  /** Remove a TemplateCollaborator from a Template */
+  removeTemplateCollaborator?: Maybe<Scalars['Boolean']['output']>;
+  /** Unpublish the specified PublishedTemplate */
+  unpublishTemplate?: Maybe<Scalars['Boolean']['output']>;
   /** Update the contributor role */
   updateContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  /** Update a Template */
+  updateTemplate?: Maybe<Template>;
 };
 
 
@@ -222,8 +245,53 @@ export type MutationAddContributorRoleArgs = {
 };
 
 
+export type MutationAddTemplateArgs = {
+  name: Scalars['String']['input'];
+};
+
+
+export type MutationAddTemplateCollaboratorArgs = {
+  email: Scalars['String']['input'];
+  templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationArchiveTemplateArgs = {
+  templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationCopyTemplateArgs = {
+  name: Scalars['String']['input'];
+  publishedTemplateId: Scalars['Int']['input'];
+};
+
+
+export type MutationDraftTemplateArgs = {
+  comment?: InputMaybe<Scalars['String']['input']>;
+  templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationPublishTemplateArgs = {
+  comment?: InputMaybe<Scalars['String']['input']>;
+  templateId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveContributorRoleArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveTemplateCollaboratorArgs = {
+  email: Scalars['String']['input'];
+  templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationUnpublishTemplateArgs = {
+  publishedTemplateId: Scalars['Int']['input'];
 };
 
 
@@ -233,6 +301,13 @@ export type MutationUpdateContributorRoleArgs = {
   id: Scalars['ID']['input'];
   label: Scalars['String']['input'];
   url: Scalars['URL']['input'];
+};
+
+
+export type MutationUpdateTemplateArgs = {
+  name: Scalars['String']['input'];
+  templateId: Scalars['Int']['input'];
+  visibility: Visibility;
 };
 
 export type OrganizationIdentifier = {
@@ -268,6 +343,8 @@ export type Query = {
   affiliation?: Maybe<Affiliation>;
   /** Perform a search for Affiliations matching the specified name */
   affiliations?: Maybe<Array<Maybe<AffiliationSearch>>>;
+  /** Get the DMPTool Best Practice VersionedTemplate */
+  bestPracticeTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
   /** Get the contributor role by it's id */
   contributorRoleById?: Maybe<ContributorRole>;
   /** Get the contributor role by it's URL */
@@ -276,8 +353,23 @@ export type Query = {
   contributorRoles?: Maybe<Array<Maybe<ContributorRole>>>;
   /** Get the DMSP by its DMP ID */
   dmspById?: Maybe<SingleDmspResponse>;
+  /** Returns the currently logged in user's information */
   me?: Maybe<User>;
+  /** Get the specified VersionedTemplate */
+  publishedTemplate?: Maybe<VersionedTemplate>;
+  /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
+  publishedTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
+  /** Get the specified Template (user must be an Admin) */
+  template?: Maybe<Template>;
+  /** Get all of the Users that belong to another affiliation that can edit the Template */
+  templateCollaborators?: Maybe<Array<Maybe<TemplateCollaborator>>>;
+  /** Get all of the VersionedTemplate for the specified Template (a.k. the Template history) */
+  templateVersions?: Maybe<Array<Maybe<VersionedTemplate>>>;
+  /** Get the Templates that belong to the current user's affiliation (user must be an Admin) */
+  templates?: Maybe<Array<Maybe<Template>>>;
+  /** Returns the specified user (Admin only) */
   user?: Maybe<User>;
+  /** Returns all of the users associated with the current user's affiliation (Admin only) */
   users?: Maybe<Array<Maybe<User>>>;
 };
 
@@ -308,8 +400,33 @@ export type QueryDmspByIdArgs = {
 };
 
 
+export type QueryPublishedTemplateArgs = {
+  publishedTemplateId: Scalars['Int']['input'];
+};
+
+
+export type QueryPublishedTemplatesArgs = {
+  term: Scalars['String']['input'];
+};
+
+
+export type QueryTemplateArgs = {
+  templateId: Scalars['Int']['input'];
+};
+
+
+export type QueryTemplateCollaboratorsArgs = {
+  templateId: Scalars['Int']['input'];
+};
+
+
+export type QueryTemplateVersionsArgs = {
+  templateId: Scalars['Int']['input'];
+};
+
+
 export type QueryUserArgs = {
-  userId: Scalars['String']['input'];
+  userId: Scalars['Int']['input'];
 };
 
 export type RelatedIdentifier = {
@@ -332,23 +449,147 @@ export type SingleDmspResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+/** A Template used to create DMPs */
+export type Template = {
+  __typename?: 'Template';
+  /** Whether or not this Template is designated as a 'Best Practice' template */
+  bestPractice: Scalars['Boolean']['output'];
+  /** Users from different affiliations who have been invited to collaborate on this template */
+  collaborators?: Maybe<Array<TemplateCollaborator>>;
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The current published version */
+  currentVersion?: Maybe<Scalars['String']['output']>;
+  /** A description of the purpose of the template */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not the Template has had any changes since it was last published */
+  isDirty: Scalars['Boolean']['output'];
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name/title of the template */
+  name: Scalars['String']['output'];
+  /** The affiliation that the template belongs to */
+  owner?: Maybe<Affiliation>;
+  /** The template that this one was derived from */
+  sourceTemplateId?: Maybe<Scalars['Int']['output']>;
+  /** The template's availability setting: Public is available to everyone, Private only your affiliation */
+  visibility: Visibility;
+};
+
+/** A user that that belongs to a different affiliation that can edit the Template */
+export type TemplateCollaborator = {
+  __typename?: 'TemplateCollaborator';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The collaborator's email */
+  email: Scalars['String']['output'];
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The user who invited the collaborator */
+  invitedBy?: Maybe<User>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The template the collaborator may edit */
+  template?: Maybe<Template>;
+  /** The collaborator (if they have an account) */
+  user?: Maybe<User>;
+};
+
+/** A user of the DMPTool */
 export type User = {
   __typename?: 'User';
+  /** The user's organizational affiliation */
   affiliation?: Maybe<Affiliation>;
-  created: Scalars['DateTimeISO']['output'];
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The user's primary email address */
   email: Scalars['EmailAddress']['output'];
+  /** The user's first/given name */
   givenName?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
-  modified: Scalars['DateTimeISO']['output'];
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The user's ORCID */
   orcid?: Maybe<Scalars['Orcid']['output']>;
+  /** The user's role within the DMPTool */
   role: UserRole;
+  /** The user's last/family name */
   surName?: Maybe<Scalars['String']['output']>;
 };
 
+/** The types of roles supported by the DMPTool */
 export enum UserRole {
   Admin = 'ADMIN',
   Researcher = 'RESEARCHER',
-  SuperAdmin = 'SUPER_ADMIN'
+  Superadmin = 'SUPERADMIN'
+}
+
+/** Template version type */
+export enum VersionType {
+  /** Draft - saved state for internal review */
+  Draft = 'Draft',
+  /** Published - saved state for use when creating DMPs */
+  Published = 'Published'
+}
+
+/** A snapshot of a Template when it became published. DMPs are created from published templates */
+export type VersionedTemplate = {
+  __typename?: 'VersionedTemplate';
+  /** Whether or not this is the version provided when users create a new DMP (default: false) */
+  active: Scalars['Boolean']['output'];
+  /** Whether or not this Template is designated as a 'Best Practice' template */
+  bestPractice: Scalars['Boolean']['output'];
+  /** A comment/note the user enters when publishing the Template */
+  comment?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the purpose of the template */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name/title of the template */
+  name: Scalars['String']['output'];
+  /** The owner of the Template */
+  owner?: Maybe<Affiliation>;
+  /** The template that this published version stems from */
+  template?: Maybe<Template>;
+  /** The major.minor semantic version */
+  version: Scalars['String']['output'];
+  /** The type of version: Published or Draft (default: Draft) */
+  versionType?: Maybe<VersionType>;
+  /** The publisher of the Template */
+  versionedBy?: Maybe<User>;
+  /** The template's availability setting: Public is available to everyone, Private only your affiliation */
+  visibility: Visibility;
+};
+
+/** Template visibility */
+export enum Visibility {
+  /** Visible only to users of your institution */
+  Private = 'Private',
+  /** Visible to all users */
+  Public = 'Public'
 }
 
 export enum YesNoUnknown {
@@ -367,7 +608,7 @@ export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ _
 export type ContributorRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ContributorRolesQuery = { __typename?: 'Query', contributorRoles?: Array<{ __typename?: 'ContributorRole', id: number, label: string, url: any } | null> | null };
+export type ContributorRolesQuery = { __typename?: 'Query', contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, url: any } | null> | null };
 
 
 export const AffiliationsDocument = gql`

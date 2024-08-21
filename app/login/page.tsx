@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useRef } from "react";
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import styles from './login.module.scss'
 import logECS from '@/utils/clientLogger';
 import { useAuthContext } from "@/context/AuthContext";
@@ -21,7 +21,6 @@ const LoginPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [attempts, setAttempts] = useState(0);
     const [lockoutTime, setLockoutTime] = useState<number | null>(null);
-    const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
     const { setIsAuthenticated } = useAuthContext();
 
@@ -59,7 +58,7 @@ const LoginPage: React.FC = () => {
         if (response.status === 200) {
             await saveTokenInCookie(token)
             setIsAuthenticated(true);
-            router.push('/') //redirect to home page
+            redirect('/') //redirect to home page
         } else if (response.status === 401) {
             if (message) {
                 setErrors(prevErrors => [...prevErrors, message])
@@ -68,7 +67,7 @@ const LoginPage: React.FC = () => {
             logECS('error', 'Internal server error', {
                 url: { path: '/signin' }
             });
-            router.push('/500');
+            redirect('/500-error');
         } else {
             setErrors(['An unexpected error occurred. Please try again.'])
         }

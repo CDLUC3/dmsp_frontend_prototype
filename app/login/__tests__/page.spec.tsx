@@ -4,31 +4,26 @@ import userEvent from '@testing-library/user-event';
 import LoginPage from '../page';
 import logECS from '@/utils/clientLogger';
 
-jest.mock('next/navigation', () => ({
-    useRouter: jest.fn()
-}));
-
 jest.mock('@/utils/clientLogger', () => ({
     __esModule: true,
     default: jest.fn()
 }))
 
+// Mock the 'next/navigation' module
+jest.mock('next/navigation', () => ({
+    redirect: jest.fn(), // Mock the redirect function
+}));
+
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
 const mockFocus = jest.fn();
 
-//Need to import this useRouter after the jest.mock is in place
-import { useRouter } from 'next/navigation';
 
-const mockUseRouter = useRouter as jest.Mock;
 
 describe('LoginPage', () => {
     beforeEach(() => {
         HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
         HTMLElement.prototype.focus = mockFocus;
-        mockUseRouter.mockReturnValue({
-            push: jest.fn(),
-        })
         jest.spyOn(console, 'error').mockImplementation(() => { });
         jest.useFakeTimers();
     });
@@ -83,7 +78,7 @@ describe('LoginPage', () => {
                 },
                 body: JSON.stringify({ email: 'test@test.com', password: 'password123' }),
             });
-            expect(mockUseRouter().push).toHaveBeenCalledTimes(1);
+            expect(require('next/navigation').redirect).toHaveBeenCalledTimes(1);
             expect(global.fetch).toHaveBeenCalledWith('/api/setCookie', {
                 method: 'POST',
                 headers: {
@@ -250,7 +245,7 @@ describe('LoginPage', () => {
 
         // Check that user is redirected to 500 error page
         await waitFor(() => {
-            expect(mockUseRouter().push).toHaveBeenCalledWith('/500')
+            expect(require('next/navigation').redirect).toHaveBeenCalledWith('/500-error');
         })
     });
 
