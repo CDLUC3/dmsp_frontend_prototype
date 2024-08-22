@@ -89,7 +89,7 @@ const LoginPage: React.FC = () => {
 
         /* eslint-disable @typescript-eslint/no-explicit-any */
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/signin`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/signin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import '@fortawesome/fontawesome-svg-core/styles.css'
@@ -7,6 +8,8 @@ import Footer from "@/components/Footer";
 import SubHeader from "@/components/SubHeader";
 import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
 import { AuthProvider } from "@/context/AuthContext";
+import { FlashMessageProvider } from "@/context/FlashMessageContext";
+import FlashMessage from "@/components/FlashMessage";
 
 const poppins_init = Poppins({
   subsets: ["latin"],
@@ -30,12 +33,15 @@ export default function RootLayout({
       <body className={poppins_init.className}>
         <a href="#mainContent" className="skip-nav">Skip to main content</a>
         <AuthProvider>
-          <Header />
-          <SubHeader />
-          <div id="App">
-            <main id="mainContent"><ApolloWrapper>{children}</ApolloWrapper></main>
-          </div>
-          <Footer />
+          <FlashMessageProvider>
+            <Header />
+            <SubHeader />
+            <FlashMessage />
+            <div id="App">
+              <main id="mainContent"><ApolloWrapper>{children}</ApolloWrapper></main>
+            </div>
+            <Footer />
+          </FlashMessageProvider>
         </AuthProvider>
       </body>
     </html>

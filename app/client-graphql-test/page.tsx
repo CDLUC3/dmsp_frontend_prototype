@@ -1,30 +1,40 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { useContributorRolesQuery } from '@/generated/graphql';
+import { handleError } from '@/utils/errorHandler';
+import logECS from '@/utils/clientLogger';
+import { useFlashMessage } from "@/context/FlashMessageContext";
 
-/**
- * This is a test page to demo and test the use of graphql hooks on the client side.
- * Client-side graphql requests uses the apollo-wrapper.tsx file
- * @returns 
- */
 export default function Page() {
-    let roles;
-    const { data, loading, error } = useContributorRolesQuery();
+    const [error, setError] = useState<string | null>(null);
+    const { setFlashMessage } = useFlashMessage();
+    const { data, loading, error: queryError } = useContributorRolesQuery();
+
+    useEffect(() => {
+        if (queryError) {
+            logECS('error', queryError.message, {
+                error: queryError
+            });
+
+            const customError = handleError(queryError, setFlashMessage);
+            if (customError) {
+                setError(customError);
+            }
+        }
+    }, [queryError, setFlashMessage]);
+
     if (loading) {
         return <div>Loading...</div>
     }
 
-    if (error) {
-        console.error(error);
-        return <div>Error</div>
-    }
-
-    if (data) {
-        roles = data.contributorRoles;
-    }
+    const roles = data?.contributorRoles;
 
     return (
         <>
+            {error &&
+                <div><p>{error}</p></div>
+            }
             <h1>Clientside GraphQL query test</h1>
             <ul>
                 {roles && roles.map(role => {
@@ -36,4 +46,3 @@ export default function Page() {
         </>
     )
 }
-

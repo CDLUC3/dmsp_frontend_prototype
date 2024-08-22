@@ -5,3 +5,19 @@
     padding-right: 15px;
     font-size: 0.8rem;
 }
+
+.success {
+    background: rgba(100, 238, 123, 0.405);
+    color: var(--text-color);
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 0.8rem;
+}
+
+.info {
+    background: rgba(236, 238, 100, 0.405);
+    color: var(--text-color);
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 0.8rem;
+}
