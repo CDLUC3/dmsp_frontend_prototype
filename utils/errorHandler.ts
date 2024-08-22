@@ -1,3 +1,5 @@
+'use client'
+
 import { ApolloError } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
