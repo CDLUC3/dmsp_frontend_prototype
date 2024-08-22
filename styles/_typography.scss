@@ -8,7 +8,7 @@ h4 {
 
 h1 {
   color: var(--heading-color);
-  font-size: 1.75em;
+  font-size: 1.5rem; //24px
 }
 
 h2, h3, h4 {
@@ -16,17 +16,17 @@ h2, h3, h4 {
 }
 
 h2 {
-  font-size: 1.5em;
+  font-size: 1.25rem;//20px
   margin-top: 10px;
 }
 
 h3 {
-  font-size: 1.3em;
+  font-size: 1.125rem;//18px
   padding: 5px 10px 5px 3px;
 }
 
 h4 {
-  font-size: 1.2em;
+  font-size: 1rem;//16px
 }
 
 p, dd {
@@ -56,4 +56,20 @@ code {
     monospace;
   color: var(--brand-tertiary);
   font-weight: bold;
+}
+
+
+@media only screen and (min-width: 600px) {
+  h1 {
+    font-size: 2rem;
+  }
+  h2 {
+      font-size: 1.75rem;
+  }
+  h3 {
+    font-size: 1.5rem;
+  }
+  h4 {
+    font-size: 1.25rem;
+  }
 }

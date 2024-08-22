@@ -1,0 +1,17 @@
+.withSubheader {
+    margin-bottom: 5px;
+}
+.subHeader {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: left;
+    gap: 5px 20px;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0;
+}
+
+.historyVersion {
+    margin-right: 10px;
+}

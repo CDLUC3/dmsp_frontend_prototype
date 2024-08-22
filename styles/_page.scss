@@ -56,6 +56,9 @@ header {
   }
 }
 
+main {
+  padding: var(--brand-space1) var(--brand-space2);
+}
 
 // TODO/FIXME: I'm not convinced that we should isolate dropdown styles
 // for a single area of the page like this.
@@ -119,5 +122,12 @@ footer {
   nav a:not(:first-child) {
     margin-left: 15px;
     margin-right: 5px;
+  }
+}
+
+
+@media only screen and (min-width: 600px) {
+  main {
+    padding: var(--brand-space2) var(--brand-space3);
   }
 }
