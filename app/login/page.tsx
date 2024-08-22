@@ -44,11 +44,11 @@ const LoginPage: React.FC = () => {
         const data = await result.json();
         if (data.status !== 200) {
             logECS('error', data.message, {
-                url: { path: '/signin' }
+                url: { path: '/apollo-signin' }
             });
         } else {
             logECS('info', data.message, {
-                url: { path: '/signin' }
+                url: { path: '/apollo-signin' }
             });
         }
     }
@@ -66,9 +66,9 @@ const LoginPage: React.FC = () => {
             }
         } else if (response.status === 500) {
             logECS('error', 'Internal server error', {
-                url: { path: '/signin' }
+                url: { path: '/apollo-signin' }
             });
-            router.push('/500');
+            router.push('/500-error');
         } else {
             setErrors(['An unexpected error occurred. Please try again.'])
         }
@@ -90,7 +90,7 @@ const LoginPage: React.FC = () => {
 
         /* eslint-disable @typescript-eslint/no-explicit-any */
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/signin`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ const LoginPage: React.FC = () => {
         } catch (err: any) {
             logECS('error', 'Signin error', {
                 error: err,
-                url: { path: '/signin' }
+                url: { path: '/apollo-signin' }
             });
         } finally {
             setLoading(false);
