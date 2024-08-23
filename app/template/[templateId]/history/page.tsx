@@ -1,19 +1,61 @@
 'use client'
 
 import React from "react";
+import { useParams } from "next/navigation";
+import { useTemplateVersionsQuery } from '@/generated/graphql';
 import PageWrapper from "@/components/PageWrapper";
+import { formatWithTimeAndDate, formatShortMonthDayYear } from "@/utils/dateUtils"
 import styles from './history.module.scss';
 
+
 const TemplateHistory = () => {
+    const params = useParams();
+    const templateId = Number(params.templateId);
+
+    const { data, loading, error } = useTemplateVersionsQuery(
+        { variables: { templateId } }
+    );
+
+    // Handle loading state
+    if (loading) {
+        return <p>Loading publication history...</p>;
+    }
+
+    if (error) {
+        return <p>There was a problem.</p>
+    }
+
+    const templateVersions = data?.templateVersions || [];
+    const sortedTemplates = templateVersions.slice().sort((a, b) => {
+        if (a === null || b === null) {
+            return a === null ? 1 : -1;
+        }
+        const versionA = parseInt(a.version.slice(1), 10);
+        const versionB = parseInt(b.version.slice(1), 10);
+        return versionB - versionA;
+    });
+
+    const lastPublication = sortedTemplates.length > 0 ? sortedTemplates[0] : null;
+    const lastPublicationDate = formatShortMonthDayYear(lastPublication?.created);
     return (
-        <PageWrapper title={"Template History"}>
+        <PageWrapper title={"Template History"} backButton={true}>
+            {loading && <p>Template history is loading...</p>}
             <div>
-                <h1 className={styles.withSubheader}>Arctic Data Center: NSF Polar Programs</h1>
-                <div className={styles.subHeader}>
-                    <div>by National Science Foundation (nsf.gov)</div>
-                    <div><span className={styles.historyVersion}>Version 6.2</span><span>Published: Jan 1, 2024</span></div>
-                </div>
-                <table className="history-table">
+                {lastPublication && (
+                    <>
+                        <h1 className="with-subheader">{lastPublication?.name || 'Unknown'}</h1>
+                        <div className="subheader">
+                            <div>{`by ${lastPublication?.versionedBy?.affiliation?.name}`}</div>
+                            <div>
+                                <span className={styles.historyVersion}>Version {lastPublication?.version.slice(1)}</span>
+                                <span>Published: {lastPublicationDate}</span>
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                <h2>History</h2>
+                <table>
                     <thead>
                         <tr>
                             <th>Action</th>
@@ -22,14 +64,34 @@ const TemplateHistory = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <div>Published v6</div>
-                                <div><small>Change log: Added section for data type</small></div>
-                            </td>
-                            <td>Frederick Cook</td>
-                            <td>09:44 on Jan 22 2024</td>
-                        </tr>
+                        {
+                            sortedTemplates.length > 0
+                                ? sortedTemplates.map((item) => {
+                                    const publishDate = formatWithTimeAndDate(item?.created);
+                                    const versionedBy = item?.versionedBy;
+
+                                    return (
+                                        <tr key={item?.id}>
+                                            <td>
+                                                <div>Published {item?.version}</div>
+                                                <div>
+                                                    <small className={styles.changeLog}>
+                                                        Change log:<br />{item?.comment}
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {versionedBy
+                                                    ? `${versionedBy.givenName || ''} ${versionedBy.surName || ''}`
+                                                    : 'Unknown'}</td>
+                                            <td>{publishDate}</td>
+                                        </tr>
+                                    );
+                                })
+                                : <tr><td colSpan={3}>No template history available.</td></tr>
+
+                        }
+
                     </tbody>
                 </table>
             </div>

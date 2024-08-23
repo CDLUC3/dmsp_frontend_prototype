@@ -1,6 +1,7 @@
 ## [1.0.0]
 
 ### Added
+- Added the Template History page [#86]
 - Added more documentation to README.md [#91]
 - Added existing header and footer from production to app [#89]
 - Added two new TypeAhead/Autosuggest components, one with and one without the "Other" option [#10]

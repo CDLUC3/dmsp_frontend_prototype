@@ -1,3 +1,6 @@
+@import 'variables';
+@import 'mixins';
+
 /*
  * Styles related to the overall structure of the browser page.
  * These are the core sections that make up the structure of the
@@ -56,9 +59,36 @@ header {
   }
 }
 
-main {
-  padding: var(--brand-space1) var(--brand-space2);
+.with-subheader {
+  margin-bottom: 5px;
 }
+
+.subheader {
+  @include respond-to(lg) {
+    font-size: 1rem;
+  }
+  
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: left;
+  gap: 5px 20px;
+  font-size: 0.8rem;
+  color: var(--gray-600);
+  margin-top: 0;
+}
+
+// ** Main Section ** //
+main {
+  @include respond-to(lg) {
+    padding: var(--brand-space2) var(--brand-space3);
+  }
+  @include respond-to(sm) {
+    padding: var(--brand-space1) var(--brand-space2);
+  }
+  margin-bottom: 25px;
+}
+
 
 // TODO/FIXME: I'm not convinced that we should isolate dropdown styles
 // for a single area of the page like this.
@@ -96,10 +126,19 @@ header span.down {
   -webkit-transform: rotate(45deg);
 }
 
+// ** Table Cells ** //
+table {
+  border-spacing: 0;
+  margin-top: 25px;
+  th {
+    padding-bottom: 15px;
+    text-align: left;
+  }
 
-// ** Main Section ** //
-main {
-  margin-bottom: 25px;
+  td {
+    padding: 15px 25px 10px 0;
+    vertical-align: top;
+  }
 }
 
 
@@ -126,8 +165,18 @@ footer {
 }
 
 
-@media only screen and (min-width: 600px) {
-  main {
-    padding: var(--brand-space2) var(--brand-space3);
-  }
+.back-link-button {
+  background: none;
+  border: none;
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.back-link-button:hover,
+.back-link-button:focus {
+  color: var(--purple-600);
+  text-decoration: underline;
 }
