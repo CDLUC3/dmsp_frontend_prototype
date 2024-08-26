@@ -4,6 +4,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { useTemplateVersionsQuery } from '@/generated/graphql';
 import PageWrapper from "@/components/PageWrapper";
+import BackButton from "@/components/BackButton";
 import { formatWithTimeAndDate, formatShortMonthDayYear } from "@/utils/dateUtils"
 import styles from './history.module.scss';
 
@@ -12,7 +13,7 @@ const TemplateHistory = () => {
     const params = useParams();
     const templateId = Number(params.templateId);
 
-    const { data, loading, error } = useTemplateVersionsQuery(
+    const { data = {}, loading, error } = useTemplateVersionsQuery(
         { variables: { templateId } }
     );
 
@@ -37,18 +38,20 @@ const TemplateHistory = () => {
 
     const lastPublication = sortedTemplates.length > 0 ? sortedTemplates[0] : null;
     const lastPublicationDate = formatShortMonthDayYear(lastPublication?.created);
+
     return (
-        <PageWrapper title={"Template History"} backButton={true}>
+        <PageWrapper title={"Template History"}>
+            <BackButton />
             {loading && <p>Template history is loading...</p>}
             <div>
                 {lastPublication && (
                     <>
                         <h1 className="with-subheader">{lastPublication?.name || 'Unknown'}</h1>
                         <div className="subheader">
-                            <div>{`by ${lastPublication?.versionedBy?.affiliation?.name}`}</div>
+                            <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.name}`}</div>
                             <div>
-                                <span className={styles.historyVersion}>Version {lastPublication?.version.slice(1)}</span>
-                                <span>Published: {lastPublicationDate}</span>
+                                <span data-testid="latest-version" className={styles.historyVersion}>Version {lastPublication?.version.slice(1)}</span>
+                                <span data-testid="publication-date">Published: {lastPublicationDate}</span>
                             </div>
                         </div>
                     </>
@@ -66,12 +69,12 @@ const TemplateHistory = () => {
                     <tbody>
                         {
                             sortedTemplates.length > 0
-                                ? sortedTemplates.map((item) => {
+                                ? sortedTemplates.map((item, index) => {
                                     const publishDate = formatWithTimeAndDate(item?.created);
                                     const versionedBy = item?.versionedBy;
 
                                     return (
-                                        <tr key={item?.id}>
+                                        <tr key={`${item?.id}-${index}`}>
                                             <td>
                                                 <div>Published {item?.version}</div>
                                                 <div>
