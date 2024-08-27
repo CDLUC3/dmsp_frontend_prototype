@@ -65,12 +65,12 @@ const TemplateHistory = () => {
                 )}
 
                 <h2 id="templateHistoryHeading">History</h2>
-                <Table aria-labelledby="templateHistoryHeading">
-                    <TableHeader>
+                <Table aria-labelledby="templateHistoryHeading" className="react-aria-Table">
+                    <TableHeader className="react-aria-TableHeader">
 
-                        <Column isRowHeader={true}>Action</Column>
-                        <Column isRowHeader={true}>User</Column>
-                        <Column isRowHeader={true}>Time and Date</Column>
+                        <Column isRowHeader={true} className="react-aria-Column">Action</Column>
+                        <Column isRowHeader={true} className="react-aria-Column">User</Column>
+                        <Column isRowHeader={true} className="react-aria-Column">Time and Date</Column>
                     </TableHeader>
                     <TableBody>
                         {
@@ -80,8 +80,8 @@ const TemplateHistory = () => {
                                     const versionedBy = item?.versionedBy;
 
                                     return (
-                                        <Row key={`${item?.id}-${index}`}>
-                                            <Cell>
+                                        <Row key={`${item?.id}-${index}`} className="react-aria-Row">
+                                            <Cell className="react-aria-Cell">
                                                 <div>Published {item?.version}</div>
                                                 <div>
                                                     <small className={styles.changeLog}>
@@ -89,7 +89,7 @@ const TemplateHistory = () => {
                                                     </small>
                                                 </div>
                                             </Cell>
-                                            <Cell>
+                                            <Cell className="react-aria-Cell">
                                                 {versionedBy
                                                     ? `${versionedBy.givenName || ''} ${versionedBy.surName || ''}`
                                                     : 'Unknown'}</Cell>
