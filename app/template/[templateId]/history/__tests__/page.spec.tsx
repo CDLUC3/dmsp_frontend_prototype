@@ -4,8 +4,10 @@ import TemplateHistory from '../page';
 import { useTemplateVersionsQuery } from '@/generated/graphql';
 import { MockedProvider } from '@apollo/client/testing';
 import { useParams } from 'next/navigation';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import mockData from './mockedResponse.json'
 
+expect.extend(toHaveNoViolations);
 
 jest.mock('@/generated/graphql', () => ({
     useTemplateVersionsQuery: jest.fn(),
@@ -148,4 +150,12 @@ describe('TemplateHistory', () => {
         render(<TemplateHistory />);
         expect(screen.getByText('No template history available.')).toBeInTheDocument();
     });
+
+    it('should pass axe accessibility test', async () => {
+        const { container } = render(
+            <TemplateHistory />
+        );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
+    })
 });
