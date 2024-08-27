@@ -127,8 +127,7 @@ describe('TemplateHistory', () => {
         });
 
         render(<TemplateHistory />);
-
-        const table = screen.getByRole('table');
+        const table = screen.getByRole('grid');
         // Get all rows in table body
         const rows = table.querySelectorAll('tbody tr');
 
@@ -138,7 +137,7 @@ describe('TemplateHistory', () => {
         const row1Cells = targetRow1.querySelectorAll('td');
         expect(row1Cells[0].textContent).toBe('Published v3Change log:This is the initial version of our template!');
         expect(row1Cells[1].textContent).toBe('Severus Snape');
-        expect(row1Cells[2].textContent).toBe('02:03 on Apr 1, 2024');
+        expect(row1Cells[2].textContent).toBe('19:03 on Mar 31, 2024');
     })
 
     it('should render "No template history available" when no data is available', () => {

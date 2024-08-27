@@ -7,11 +7,11 @@ export const formatWithTimeAndDate = (isoString: Date) => {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         // Extract date components
-        const hours = date.getUTCHours();
-        const minutes = date.getUTCMinutes();
-        const day = date.getUTCDate();
-        const month = date.getUTCMonth(); // Month is 0-based
-        const year = date.getUTCFullYear();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const day = date.getDate();
+        const month = date.getMonth(); // Month is 0-based
+        const year = date.getFullYear();
 
         // Format hours and minutes
         const formattedHours = hours.toString().padStart(2, '0'); // Add leading zero if needed

@@ -1,5 +1,3 @@
-@import 'variables';
-@import 'mixins';
 
 /*
  * Styles related to the overall structure of the browser page.
@@ -64,7 +62,7 @@ header {
 }
 
 .subheader {
-  @include respond-to(lg) {
+  @include device(tablet) {
     font-size: 1rem;
   }
   
@@ -80,10 +78,10 @@ header {
 
 // ** Main Section ** //
 main {
-  @include respond-to(lg) {
+  @include device(table) {
     padding: var(--brand-space2) var(--brand-space3);
   }
-  @include respond-to(sm) {
+  @include device(mobile) {
     padding: var(--brand-space1) var(--brand-space2);
   }
   margin-bottom: 25px;

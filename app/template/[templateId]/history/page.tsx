@@ -3,11 +3,18 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { useTemplateVersionsQuery } from '@/generated/graphql';
+import {
+    Table,
+    TableHeader,
+    TableBody,
+    Column,
+    Row,
+    Cell,
+} from "react-aria-components";
 import PageWrapper from "@/components/PageWrapper";
 import BackButton from "@/components/BackButton";
 import { formatWithTimeAndDate, formatShortMonthDayYear } from "@/utils/dateUtils"
 import styles from './history.module.scss';
-
 
 const TemplateHistory = () => {
     const params = useParams();
@@ -57,16 +64,15 @@ const TemplateHistory = () => {
                     </>
                 )}
 
-                <h2>History</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Action</th>
-                            <th>User</th>
-                            <th>Time and Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <h2 id="templateHistoryHeading">History</h2>
+                <Table aria-labelledby="templateHistoryHeading">
+                    <TableHeader>
+
+                        <Column isRowHeader={true}>Action</Column>
+                        <Column isRowHeader={true}>User</Column>
+                        <Column isRowHeader={true}>Time and Date</Column>
+                    </TableHeader>
+                    <TableBody>
                         {
                             sortedTemplates.length > 0
                                 ? sortedTemplates.map((item, index) => {
@@ -74,29 +80,28 @@ const TemplateHistory = () => {
                                     const versionedBy = item?.versionedBy;
 
                                     return (
-                                        <tr key={`${item?.id}-${index}`}>
-                                            <td>
+                                        <Row key={`${item?.id}-${index}`}>
+                                            <Cell>
                                                 <div>Published {item?.version}</div>
                                                 <div>
                                                     <small className={styles.changeLog}>
                                                         Change log:<br />{item?.comment}
                                                     </small>
                                                 </div>
-                                            </td>
-                                            <td>
+                                            </Cell>
+                                            <Cell>
                                                 {versionedBy
                                                     ? `${versionedBy.givenName || ''} ${versionedBy.surName || ''}`
-                                                    : 'Unknown'}</td>
-                                            <td>{publishDate}</td>
-                                        </tr>
+                                                    : 'Unknown'}</Cell>
+                                            <Cell>{publishDate}</Cell>
+                                        </Row>
                                     );
                                 })
-                                : <tr><td colSpan={3}>No template history available.</td></tr>
-
+                                : <Row><Cell>No template history available.</Cell></Row>
                         }
 
-                    </tbody>
-                </table>
+                    </TableBody>
+                </Table>
             </div>
         </PageWrapper>
     )
