@@ -1,9 +1,4 @@
-import React, {
-  // ReactNode,
-  useRef,
-  // useEffect,
-  // useState,
-} from 'react';
+import React from 'react';
 
 import {
   Remirror,
@@ -33,7 +28,12 @@ import {
   Group,
   Separator,
   ToggleButton,
-  Toolbar
+  Toolbar,
+  Form,
+  Menu,
+  MenuItem,
+  MenuTrigger,
+  Popover,
 } from 'react-aria-components';
 
 
@@ -52,27 +52,9 @@ const AnnotationButton: React.FC = () => {
   };
 
   return (
-    <Button onPress={handleAnnotation}> 💬 </Button>
-  )
-}
-
-// TODO: Finish this
-const LinkButton: React.FC = () => {
-  const { helpers, commands, getState } = useRemirrorContext({ autoUpdate: true });
-
-  const handleLinkEdit = () => {
-    const selectedText = getState().selection;
-    console.log(selectedText);
-    console.log('TODO: Open modal to create the link');
-  }
-
-  return (
-      <Button
-        aria-label="Link"
-        onPress={handleLinkEdit}
-      >
-        Link
-      </Button>
+    <Button onPress={handleAnnotation}>
+      <DmpIcon icon="message" />
+    </Button>
   )
 }
 
@@ -86,93 +68,32 @@ const TableGroup: React.FC = () => {
 
   return (
     <Group aria-label="Table Tools">
-      <span className="toolbar-break"></span>
-      <Button
-        aria-label="Insert Table"
-        title="Insert Table"
-        onPress={() => {
-          commands.createTable();
-        }}
-      >
-        <DmpIcon icon="table" />
-      </Button>
-
-      <Button
-        aria-label="Delete Table"
-        title="Delete Table"
-        onPress={() => {
-          commands.deleteTable();
-        }}
-      >
-        <DmpIcon icon="delete" />
-        Table
-      </Button>
-
-      <Button
-        aria-label="Add Column Left"
-        title="Add Column Left"
-        onPress={() => {
-          commands.addTableColumnBefore();
-        }}
-      >
-        <DmpIcon icon="add_column_left" />
-      </Button>
-
-      <Button
-        aria-label="Add Column Right"
-        title="Add Column Right"
-        onPress={() => {
-          commands.addTableColumnAfter();
-        }}
-      >
-        <DmpIcon icon="add_column_right" />
-      </Button>
-
-      <Button
-        aria-label="Delete Column"
-        title="Delete Column"
-        onPress={() => {
-          commands.deleteTableColumn();
-        }}
-      >
-        DC
-      </Button>
-
-      <Button
-        aria-label="Add Row Above"
-        title="Add Row Above"
-        onPress={() => {
-          commands.addTableRowBefore();
-        }}
-      >
-        <DmpIcon icon="add_row_above" />
-      </Button>
-
-      <Button
-        aria-label="Add Row Below"
-        title="Add Row Below"
-        onPress={() => {
-          commands.addTableRowAfter();
-        }}
-      >
-        <DmpIcon icon="add_row_below" />
-      </Button>
-
-      <Button
-        aria-label="Delete Row"
-        title="Delete Row"
-        onPress={() => {
-          commands.deleteTableRow();
-        }}
-      >
-        <DmpIcon icon="variable_remove" />
-      </Button>
+      <MenuTrigger>
+        <Button aria-label="Menu">
+          <DmpIcon icon="table" />
+        </Button>
+        <Popover>
+          <Menu>
+            <MenuItem onAction={() => commands.createTable()}>Insert Table</MenuItem>
+            <Separator />
+            <MenuItem onAction={() => commands.addTableColumnBefore()}>Add Column Left</MenuItem>
+            <MenuItem onAction={() => commands.addTableColumnAfter()}>Add Column Right</MenuItem>
+            <MenuItem onAction={() => commands.deleteTableColumn()}>Delete Column</MenuItem>
+            <Separator />
+            <MenuItem onAction={() => commands.addTableRowBefore()}>Add Row Above</MenuItem>
+            <MenuItem onAction={() => commands.addTableRowAfter()}>Add Row Below</MenuItem>
+            <MenuItem onAction={() => commands.deleteTableRow()}>Delete Row</MenuItem>
+            <Separator />
+            <MenuItem onAction={() => commands.deleteTable()}>Delete Table</MenuItem>
+          </Menu>
+        </Popover>
+      </MenuTrigger>
     </Group>
   )
 }
 
 
-const Menu = () => {
+const EditorToolbar = () => {
   const chain = useChainedCommands();
   const active = useActive();
 
@@ -215,9 +136,6 @@ const Menu = () => {
         >
           <DmpIcon icon="format_underlined" />
         </ToggleButton>
-
-        <LinkButton />
-
       </Group>
 
       <Separator orientation="vertical" />
@@ -251,10 +169,6 @@ const Menu = () => {
       </Group>
 
       <Separator orientation="vertical" />
-
-      <Group aria-label="Comments">
-        <AnnotationButton />
-      </Group>
 
       <TableGroup />
 
@@ -303,7 +217,7 @@ export function DmpEditor({content}: DmpEditorProps) {
           setState(parameter.state);
         }}
       >
-        <Menu />
+        <EditorToolbar />
         <EditorComponent />
         <CommentList />
       </Remirror>
