@@ -45,7 +45,7 @@ describe('SignUpPage', () => {
 
     it('should render signup form and submit successfully', async () => {
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
-            if (url === 'http://localhost:4000/signup') {
+            if (url === 'http://localhost:4000/apollo-signup') {
                 return Promise.resolve({
                     ok: true,
                     status: 200,
@@ -73,7 +73,7 @@ describe('SignUpPage', () => {
         await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
 
         //Assert that the fetch calls were made with the correct arguments
-        expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/signup', {
+        expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/apollo-signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ describe('SignUpPage', () => {
 
     it('should message user with lockout time period when user makes over 5 attempts to signup', async () => {
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
-            if (url === `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/signup`) {
+            if (url === `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`) {
                 return Promise.resolve({
                     ok: false,
                     status: 400,
@@ -254,7 +254,7 @@ describe('SignUpPage', () => {
                 'Signup error',
                 expect.objectContaining({
                     error: expect.anything(),
-                    url: { path: '/signup' },
+                    url: { path: '/apollo-signup' },
                 })
             )
         })
