@@ -7,7 +7,7 @@ h4 {
 }
 
 h1 {
-  @include device(tablet) {
+  @include device(md) {
     font-size: 2rem;
   }
   color: var(--heading-color);
@@ -20,14 +20,14 @@ h2, h3, h4 {
 }
 
 h2 {
-  @include device(tablet) {
+  @include device(md) {
     font-size: 1.75rem;
   }
   font-size: 1.25rem;//20px
 }
 
 h3 {
-  @include device(tablet) {
+  @include device(md) {
     font-size: 1.5rem;
   }
   font-size: 1.125rem;//18px
@@ -35,7 +35,7 @@ h3 {
 }
 
 h4 {
-  @include device(tablet) {
+  @include device(md) {
     font-size: 1.25rem;
   }
   font-size: 1rem;//16px

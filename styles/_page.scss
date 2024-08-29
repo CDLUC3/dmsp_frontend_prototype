@@ -62,7 +62,7 @@ header {
 }
 
 .subheader {
-  @include device(tablet) {
+  @include device(md) {
     font-size: 1rem;
   }
   
@@ -78,11 +78,11 @@ header {
 
 // ** Main Section ** //
 main {
-  @include device(table) {
-    padding: var(--brand-space2) var(--brand-space3);
-  }
-  @include device(mobile) {
+  @include device(xs) {
     padding: var(--brand-space1) var(--brand-space2);
+  }
+  @include device(md) {
+    padding: var(--brand-space2) var(--brand-space3);
   }
   margin-bottom: 25px;
 }

@@ -3,69 +3,47 @@
  */
 
 // Responsive Sizes
-$mobile-small: 320px;
-$mobile: 375px;
-$mobile-large: 425px;
-$phablet: 560px;
-$tablet-small: 640px;
-$tablet: 768px;
-$laptop: 1024px;
-$laptop-large: 1440px;
-$display-4k: 2560px;
+$xs: 0;
+$sm: 640px;
+$md: 768px;
+$lg: 1024px;
+$xxl: 1440px;
 
 
 // A quick helper to quickly create a media query block for a named device
 @mixin device($breakpoint) {
-  @if $breakpoint == mobile-small {
-    @media screen and (min-width: $mobile-small) {
+  @if $breakpoint == xs {
+    @media screen and (min-width: $xs) {
       @content;
     }
   }
 
-  @if $breakpoint ==mobile {
-    @media screen and (min-width: $mobile-small) {
+  @if $breakpoint == sm {
+    @media screen and (min-width: $sm) {
       @content;
     }
   }
 
-  @if $breakpoint ==mobile-large {
-    @media screen and (min-width: $mobile-large) {
+  @if $breakpoint == md {
+    @media screen and (min-width: $md) {
       @content;
     }
   }
 
-  @if $breakpoint ==phablet {
-    @media screen and (min-width: $phablet) {
+  @if $breakpoint == lg {
+    @media screen and (min-width: $lg) {
       @content;
     }
   }
 
-  @if $breakpoint ==tablet-small {
-    @media screen and (min-width: $tablet-small) {
+  @if $breakpoint == xl {
+    @media screen and (min-width: $xl) {
       @content;
     }
   }
 
-  @if $breakpoint ==tablet {
-    @media screen and (min-width: $tablet) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==laptop {
-    @media screen and (min-width: $laptop) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==laptop-large {
-    @media screen and (min-width: $laptop-large) {
-      @content;
-    }
-  }
-
-  @if $breakpoint ==display-4k {
-    @media screen and (min-width: $display-4k) {
+  @if $breakpoint == xxl{
+    @media screen and (min-width: $xxl) {
       @content;
     }
   }
