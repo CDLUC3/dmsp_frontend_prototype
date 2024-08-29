@@ -1,16 +1,24 @@
-## [1.0.0]
-
 ### Added
+- Added the Template History page [#86]
 - Added more documentation to README.md [#91]
 - Added existing header and footer from production to app [#89]
 - Added two new TypeAhead/Autosuggest components, one with and one without the "Other" option [#10]
 - Added the use of graphql-codegen to generate types for graphql requests [#10]
+
+### Updates
+- Updated endpoints for 'signin' and 'signup' to be 'apollo-signin' and 'apollo-signup' [#99]
+
+### Fixed
+- Fixed Logout button/link not working in header [#103]
+- Fixed an issue with docker-compose not starting the app [#93]
+
+## v0.0.1
+
+### Added
 - Added logout api and link [#65]
 - Added loading state and velocity controls to the login and signup forms [#66]
 - Added placeholders for /signup and /login pages and added a new api endpoint for setting the access token in a cookie [#19]
 - Added .editorconfig file to help maintain consistent coding styles [#37]
-- Added buildspec.yaml file for CI/CD pipeline [#81]
-- Added graphql file structure and client creation. [#36]
 - Added Styleguide Page, as well as custom components and css that are only to
   be used on the Styleguide. [#51]
 - Added some default CSS variables that we can hook into when we start doing the
@@ -35,5 +43,4 @@
 - Updated some CSS classes to remove verbose naming. [#51]
 
 ### Fixed
-- Fixed Logout button/link not working in header [#103]
 - Fixed an issue with docker-compose not starting the app [#93]

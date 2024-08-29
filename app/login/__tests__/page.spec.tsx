@@ -21,6 +21,8 @@ const mockFocus = jest.fn();
 import { useRouter } from 'next/navigation';
 
 const mockUseRouter = useRouter as jest.Mock;
+// Assign fetch to global object in Node.js environment
+global.fetch = global.fetch || require('node-fetch');
 
 // Assign fetch to global object in Node.js environment
 global.fetch = global.fetch || require('node-fetch');
