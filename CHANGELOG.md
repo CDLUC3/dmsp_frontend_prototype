@@ -9,6 +9,7 @@
 - Updated endpoints for 'signin' and 'signup' to be 'apollo-signin' and 'apollo-signup' [#99]
 
 ### Fixed
+- Fixed Logout button/link not working in header [#103]
 - Fixed an issue with docker-compose not starting the app [#93]
 
 ## v0.0.1
@@ -41,3 +42,5 @@
   outline in the styleguide. [#51]
 - Updated some CSS classes to remove verbose naming. [#51]
 
+### Fixed
+- Fixed an issue with docker-compose not starting the app [#93]

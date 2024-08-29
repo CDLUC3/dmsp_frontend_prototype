@@ -23,6 +23,9 @@ import { useRouter } from 'next/navigation';
 const mockUseRouter = useRouter as jest.Mock;
 global.fetch = global.fetch || require('node-fetch');
 
+// Assign fetch to global object in Node.js environment
+global.fetch = global.fetch || require('node-fetch');
+
 describe('SignUpPage', () => {
 
     beforeEach(() => {
