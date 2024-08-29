@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import {
   Remirror,
   useRemirror,
   useRemirrorContext,
   EditorComponent,
+  EditorState,
   useChainedCommands,
   useActive,
 } from '@remirror/react';
+import { prosemirrorNodeToHtml } from '@remirror/core-utils';
 
 import {
   BoldExtension,
@@ -177,9 +179,10 @@ const EditorToolbar = () => {
 
 interface DmpEditorProps {
   content: string;
+  setContent: (newContent: string) => void;
 }
 
-export function DmpEditor({content}: DmpEditorProps) {
+export function DmpEditor({content, setContent}: DmpEditorProps) {
   const { manager, state, setState } = useRemirror({
     extensions: () => [
       new BoldExtension(),
@@ -205,38 +208,23 @@ export function DmpEditor({content}: DmpEditorProps) {
     stringHandler: 'html',
   });
 
+  const handleChange = (newState: EditorState) => {
+    const html = prosemirrorNodeToHtml(newState.doc);
+    setContent(html);
+    setState(newState);
+  }
+
   return (
     <div className="dmp-editor">
       <Remirror
         manager={manager}
         state={state}
         initialContent={state}
-        onChange={(parameter) => {
-          setState(parameter.state);
-        }}
+        onChange={({state}) => handleChange(state)}
       >
         <EditorToolbar />
         <EditorComponent />
-        <CommentList />
       </Remirror>
     </div>
   )
 }
-
-const CommentList: React.FC = () => {
-  const { manager, commands, helpers } = useRemirrorContext({autoUpdate: true});
-  const comments = helpers.getAnnotations();
-
-  return (
-    <div>
-      <h3>Comments</h3>
-      <ul>
-        {comments.map((comment, i) => (
-          <li key={i}>
-            <strong>TODO</strong>: "highlited text snippet ..." {comment.annotation}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};

@@ -16,6 +16,8 @@
 - Added some default CSS variables that we can hook into when we start doing the
   theming, many of these variables are also used by the newly added `react-aria`
   components. [#51]
+- Added Material Symbols and a custom `DmpIcon` component that will render a specific icon using it's short-code. [#80]
+- Added the initial version of our custom ReMirror text editor [#74].
 
 ### Updates
 - Updated endpoints for 'signin' and 'signup' to be 'apollo-signin' and 'apollo-signup' [#99]

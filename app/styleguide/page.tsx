@@ -193,6 +193,9 @@ function Page() {
   </ul>
   <p>&nbsp;</p>
   `;
+
+  const [editorContent, setEditorContent] = useState(richtextDefault);
+
   return (
     <>
       <h1>Living Styleguide</h1>
@@ -666,7 +669,20 @@ function Page() {
 
           <div id="_richtext">
             <h2>ReMirror Editor (Custom)</h2>
-            <DmpEditor content={richtextDefault} />
+            <p>Required properties:</p>
+            <dl>
+              <dt><code>content</code></dt>
+              <dd>The variable that hold the html content for the editor.</dd>
+
+              <dt><code>setContent</code></dt>
+              <dd>The effect function that will update the content variable</dd>
+            </dl>
+            <p>Example Usage:</p>
+            <div><pre><code>
+              {`<DmpEditor content={editorContent} setContent={setEditorContent} \\>`}
+            </code></pre></div>
+            <hr />
+            <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
         </div>
       </div>
