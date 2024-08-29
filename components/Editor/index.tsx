@@ -64,9 +64,6 @@ const TableGroup: React.FC = () => {
   const chain = useChainedCommands();
   const { helpers, commands, getState } = useRemirrorContext({ autoUpdate: true });
 
-  // TODO: Detect is the cursor is inside a table, and if so, show the expanded
-  // table tools.
-
   return (
     <Group aria-label="Table Tools">
       <MenuTrigger>

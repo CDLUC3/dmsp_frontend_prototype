@@ -666,16 +666,6 @@ function Page() {
 
           <div id="_richtext">
             <h2>ReMirror Editor (Custom)</h2>
-            <p>Note the comments below is very basic. If we decide to go with
-              remirror, then we will update the comments with:</p>
-            <ul>
-              <li>Show a short truncated snippet of the original text higlighted</li>
-              <li>When the comment is clicked, it should move the editor cursor to the
-              location of the text</li>
-              <li>We will expand comments to allow for authors, and comment "threads".</li>
-              <li>Currently, you can only add one comment. Adding a second will
-              just override the first one.</li>
-            </ul>
             <DmpEditor content={richtextDefault} />
           </div>
         </div>
