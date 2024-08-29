@@ -1,0 +1,94 @@
+{
+    "templateVersions": [
+        {
+            "name": "NIH-GDS: Genomic Data Sharing",
+            "version": "v3.1",
+            "created": "2024-08-02T02:03:01.000Z",
+            "comment": "Added some additional requirements to Preservation section!",
+            "versionedBy": {
+                "givenName": "Severus",
+                "surName": "Snape",
+                "affiliation": {
+                    "name": "National Institutes of Health"
+                },
+                "modified": "2024-08-21T18:05:57.000Z",
+                "modifiedById": 459
+            }
+        },
+        {
+            "name": "NIH-GDS: Genomic Data Sharing",
+            "version": "v3",
+            "created": "2024-04-01T02:03:00.000Z",
+            "comment": "This is the initial version of our template!",
+            "versionedBy": {
+                "givenName": "Severus",
+                "surName": "Snape",
+                "affiliation": {
+                    "name": "National Institutes of Health"
+                },
+                "modified": "2024-08-21T18:05:57.000Z",
+                "modifiedById": 320
+            }
+        },
+        {
+            "name": "NIH-GDS: Genomic Data Sharing",
+            "version": "v2.2",
+            "created": "2024-03-21T22:23:20.000Z",
+            "comment": "Added some additional requirements to Preservation section!",
+            "versionedBy": {
+                "givenName": "Severus",
+                "surName": "Snape",
+                "affiliation": {
+                    "name": "National Institutes of Health"
+                },
+                "modified": "2024-08-21T18:05:57.000Z",
+                "modifiedById": 779
+            }
+        },
+        {
+            "name": "NIH-GDS: Genomic Data Sharing",
+            "version": "v2.1",
+            "created": "2024-03-19T19:20:18.000Z",
+            "comment": "Added some additional requirements to Preservation section!",
+            "versionedBy": {
+                "givenName": "Severus",
+                "surName": "Snape",
+                "affiliation": {
+                    "name": "National Institutes of Health"
+                },
+                "modified": "2024-08-21T18:05:57.000Z",
+                "modifiedById": 822
+            }
+        },
+        {
+            "name": "NIH-GDS: Genomic Data Sharing",
+            "version": "v2",
+            "created": "2024-02-18T16:17:15.000Z",
+            "comment": "This is the initial version of our template!",
+            "versionedBy": {
+                "givenName": "Severus",
+                "surName": "Snape",
+                "affiliation": {
+                    "name": "National Institutes of Health"
+                },
+                "modified": "2024-08-21T18:05:57.000Z",
+                "modifiedById": 89
+            }
+        },
+        {
+            "name": "NIH-GDS: Genomic Data Sharing",
+            "version": "v1",
+            "created": "2024-01-17T13:14:15.000Z",
+            "comment": "This is the initial version of our template!",
+            "versionedBy": {
+                "givenName": "Severus",
+                "surName": "Snape",
+                "affiliation": {
+                    "name": "National Institutes of Health"
+                },
+                "modified": "2024-08-21T18:05:57.000Z",
+                "modifiedById": 551
+            }
+        }
+    ]
+}

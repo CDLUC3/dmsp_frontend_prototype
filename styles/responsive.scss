@@ -1,0 +1,50 @@
+/* NOTE:: Since we are doing responsive, all CSS that DOESN'T use
+ * media queries will be assumed to be for mobile sizes.
+ */
+
+// Responsive Sizes
+$xs: 0;
+$sm: 640px;
+$md: 768px;
+$lg: 1024px;
+$xxl: 1440px;
+
+
+// A quick helper to quickly create a media query block for a named device
+@mixin device($breakpoint) {
+  @if $breakpoint == xs {
+    @media screen and (min-width: $xs) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == sm {
+    @media screen and (min-width: $sm) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == md {
+    @media screen and (min-width: $md) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == lg {
+    @media screen and (min-width: $lg) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == xl {
+    @media screen and (min-width: $xl) {
+      @content;
+    }
+  }
+
+  @if $breakpoint == xxl{
+    @media screen and (min-width: $xxl) {
+      @content;
+    }
+  }
+}
