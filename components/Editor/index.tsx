@@ -21,6 +21,7 @@ import {
 } from 'remirror/extensions';
 
 import 'remirror/styles/all.css';
+import './Editor.scss';
 
 import { DmpIcon } from '/components/Icons';
 import {
