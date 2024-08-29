@@ -35,4 +35,5 @@
 - Updated some CSS classes to remove verbose naming. [#51]
 
 ### Fixed
+- Fixed Logout button/link not working in header [#103]
 - Fixed an issue with docker-compose not starting the app [#93]

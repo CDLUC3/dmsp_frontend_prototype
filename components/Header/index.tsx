@@ -1,11 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, MouseEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthContext } from '@/context/AuthContext';
+import Link from 'next/link';
 import { faUser, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './header.scss'
 function Header() {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const { isAuthenticated, setIsAuthenticated } = useAuthContext();
+    const router = useRouter();
+
+    const handleLogout = async (e: MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch('/api/logout', {
+                method: 'POST'
+            })
+
+            if (response.ok) {
+                setIsAuthenticated(false);
+                router.push('/login')
+            } else {
+                console.error('Failed to logout');
+            }
+        } catch (err) {
+            console.error('An error occurred during logout:', err);
+        }
+
+    }
+
     function handleClick() {
         setShowMobileMenu(true);
     }
@@ -106,12 +132,14 @@ function Header() {
                             </div>
                         </li>
 
-                        {/*if user is signed in */}
-                        <li><a className="dmpui-frontend-btn dmpui-frontend-btn-secondary" rel="nofollow" data-method="delete" href="/users/sign_out">Logout</a></li>
-                        {/*else */}
-                        {/* <li><a href="/auth?m=l" className="dmpui-frontend-btn dmpui-frontend-btn-primary ">Login</a></li>
-                <li><a href="/auth?m=s" className="dmpui-frontend-btn dmpui-frontend-btn-secondary ">Sign Up</a></li> */}
-                        {/*end user is signed in */}
+                        {isAuthenticated ? (
+                            <li><Link href="/" className="dmpui-frontend-btn dmpui-frontend-btn-secondary" rel="nofollow" data-method="delete" onClick={handleLogout}>Logout</Link></li>
+                        ) : (
+                            <>
+                                <li><Link href="/login" className="dmpui-frontend-btn dmpui-frontend-btn-secondary">Login</Link></li>
+                                <li><Link href="/signup" className="dmpui-frontend-btn dmpui-frontend-btn-secondary ">Sign Up</Link></li>
+                            </>
+                        )}
                     </ul>
                 </div>
 
