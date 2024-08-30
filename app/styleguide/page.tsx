@@ -17,6 +17,12 @@ import {
   OverlayArrow,
   Dialog,
   Switch,
+  Table,
+  TableHeader,
+  TableBody,
+  Column,
+  Row,
+  Cell,
 } from "react-aria-components";
 import "./styleguide.scss";
 
@@ -209,6 +215,7 @@ function Page() {
           <a href="#_layout">Layout</a>
           <a href="#_forms">Forms</a>
           <a href="#_fields">Form Fields</a>
+          <a href="#_table">Table</a>
           <a href="#_widgets">Custom Widget</a>
           <a href="#_richtext">RichText Editor</a>
         </div>
@@ -600,6 +607,36 @@ function Page() {
             </Example>
           </div>
 
+          <div id="_table">
+            <h2>Table</h2>
+            <p>
+              A table displays data in rows and columns and enables a user to navigate its contents via directional navigation keys, and optionally supports row selection and sorting.
+            </p>
+
+            <p>
+              This is a <em>core component</em>, see
+              the <a href="https://react-spectrum.adobe.com/react-aria/Table.html">component docs here.</a>
+            </p>
+
+            <Example>
+              <Table>
+                <TableHeader>
+                  <Column isRowHeader={true}>One</Column>
+                  <Column isRowHeader={true}>Two</Column>
+                  <Column isRowHeader={true}>Three</Column>
+                </TableHeader>
+                <TableBody>
+                  <Row>
+                    <Cell>Item One</Cell>
+                    <Cell>Item Two</Cell>
+                    <Cell>Item Three</Cell>
+                  </Row>
+                </TableBody>
+              </Table>
+            </Example>
+          </div>
+
+
           <div id="_widgets">
             <h2>Widgets</h2>
             <p>TBD (Custom Components, etc…)</p>
@@ -685,7 +722,8 @@ function Page() {
             <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
         </div>
-      </div>
+      </div >
+
     </>
   )
 }
