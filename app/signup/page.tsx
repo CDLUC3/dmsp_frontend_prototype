@@ -29,7 +29,7 @@ const SignUpPage: React.FC = () => {
             }
         } else if (response.status === 500) {
             logECS('error', 'Internal server error', {
-                url: { path: '/signup' }
+                url: { path: '/apollo-signup' }
             });
             router.push('/500');
         } else {
@@ -53,7 +53,7 @@ const SignUpPage: React.FC = () => {
 
         /* eslint-disable @typescript-eslint/no-explicit-any */
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/signup`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ const SignUpPage: React.FC = () => {
         } catch (err: any) {
             logECS('error', 'Signup error', {
                 error: err,
-                url: { path: '/signup' }
+                url: { path: '/apollo-signup' }
             });
         } finally {
             setLoading(false);

@@ -21,6 +21,11 @@ const mockFocus = jest.fn();
 import { useRouter } from 'next/navigation';
 
 const mockUseRouter = useRouter as jest.Mock;
+// Assign fetch to global object in Node.js environment
+global.fetch = global.fetch || require('node-fetch');
+
+// Assign fetch to global object in Node.js environment
+global.fetch = global.fetch || require('node-fetch');
 
 describe('LoginPage', () => {
     beforeEach(() => {
@@ -42,7 +47,7 @@ describe('LoginPage', () => {
 
     it('should render login form, save token in cookie, and redirect to home page', async () => {
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
-            if (url === 'http://localhost:4000/signin') {
+            if (url === 'http://localhost:4000/apollo-signin') {
                 return Promise.resolve({
                     ok: true,
                     status: 200,
@@ -76,7 +81,7 @@ describe('LoginPage', () => {
 
         await waitFor(() => {
             //Assert that the fetch calls were made with the correct arguments
-            expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/signin', {
+            expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/apollo-signin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -96,7 +101,7 @@ describe('LoginPage', () => {
 
     it('should initially disable submit button after submitting form until response is returned ', async () => {
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
-            if (url === 'http://localhost:4000/signin') {
+            if (url === 'http://localhost:4000/apollo-signin') {
                 return Promise.resolve({
                     ok: true,
                     status: 200,
@@ -139,7 +144,7 @@ describe('LoginPage', () => {
 
     it('should show error message after too many attempts ', async () => {
         jest.spyOn(global, 'fetch').mockImplementation((url) => {
-            if (url === 'http://localhost:4000/signin') {
+            if (url === 'http://localhost:4000/apollo-signin') {
                 return Promise.resolve({
                     ok: true,
                     status: 200,
@@ -250,7 +255,7 @@ describe('LoginPage', () => {
 
         // Check that user is redirected to 500 error page
         await waitFor(() => {
-            expect(mockUseRouter().push).toHaveBeenCalledWith('/500')
+            expect(mockUseRouter().push).toHaveBeenCalledWith('/500-error')
         })
     });
 
@@ -288,7 +293,7 @@ describe('LoginPage', () => {
                 'Signin error',
                 expect.objectContaining({
                     error: expect.anything(),
-                    url: { path: '/signin' },
+                    url: { path: '/apollo-signin' },
                 })
             )
         })

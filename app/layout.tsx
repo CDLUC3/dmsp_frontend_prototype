@@ -8,7 +8,6 @@ import {ApolloWrapper} from "@/lib/graphql/apollo-wrapper";
 import {AuthProvider} from "@/context/AuthContext";
 import "@/styles/globals.scss";
 
-
 const inter_init = Inter({
   subsets: ["latin"],
   variable: '--font-inter',
