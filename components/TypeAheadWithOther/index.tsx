@@ -1,17 +1,15 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
-import { DocumentNode } from '@apollo/client';
-import {
-    Input,
-    Label,
-    TextField,
-} from "react-aria-components";
-import { createApolloClient } from '@/lib/graphql/client/apollo-client';
+import React, {useEffect, useRef, useState} from 'react';
+import {DocumentNode} from '@apollo/client';
+import {Input, Label, TextField,} from "react-aria-components";
+import {createApolloClient} from '@/lib/graphql/client/apollo-client';
 
 import Spinner from '@/components/Spinner';
 import classNames from 'classnames';
-import styles from './typeaheadWithOther.module.scss';
+import styles from './typeaheadwithOther.module.scss';
+
+
 import logECS from '@/utils/clientLogger';
 
 type TypeAheadInputProps = {

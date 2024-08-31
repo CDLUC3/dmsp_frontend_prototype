@@ -111,10 +111,11 @@ const TemplateEditPage: React.FC = () => {
               {section.questions.map((question) => (
 
                 <QuestionEdit
+                  key={question.id}
                   id={question.id}
                   name={question.name}
                   link={question.link}
-                  onMoveUp={() => null}
+
 
                 />
 
