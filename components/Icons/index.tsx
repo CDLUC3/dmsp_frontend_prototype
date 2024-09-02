@@ -2,7 +2,7 @@ import React from 'react';
 
 
 interface IconProps {
-  name: string;
+  icon: string;
 }
 
 export function DmpIcon({ icon }: IconProps) {

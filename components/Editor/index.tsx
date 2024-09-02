@@ -5,11 +5,14 @@ import {
   useRemirror,
   useRemirrorContext,
   EditorComponent,
-  EditorState,
   useChainedCommands,
   useActive,
 } from '@remirror/react';
-import { prosemirrorNodeToHtml } from '@remirror/core-utils';
+
+import {
+  EditorState,
+  prosemirrorNodeToHtml,
+} from '@remirror/core-utils';
 
 import {
   BoldExtension,
@@ -25,7 +28,7 @@ import {
 import 'remirror/styles/all.css';
 import './Editor.scss';
 
-import { DmpIcon } from '/components/Icons';
+import { DmpIcon } from '@/components/Icons';
 import {
   Button,
   Group,
@@ -41,7 +44,7 @@ import {
 
 
 const AnnotationButton: React.FC = () => {
-  const { helpers, commands, getState } = useRemirrorContext({ autoUpdate: true });
+  const { commands, getState } = useRemirrorContext({ autoUpdate: true });
 
   const handleAnnotation = () => {
     const selectedText = getState().selection;
@@ -63,8 +66,7 @@ const AnnotationButton: React.FC = () => {
 
 
 const TableGroup: React.FC = () => {
-  const chain = useChainedCommands();
-  const { helpers, commands, getState } = useRemirrorContext({ autoUpdate: true });
+  const { commands } = useRemirrorContext({ autoUpdate: true });
 
   return (
     <Group aria-label="Table Tools">
@@ -74,7 +76,7 @@ const TableGroup: React.FC = () => {
         </Button>
         <Popover>
           <Menu>
-            <MenuItem onAction={() => commands.createTable()}>Insert Table</MenuItem>
+            <MenuItem onAction={() => commands.createTable()}>Add Table</MenuItem>
             <Separator />
             <MenuItem onAction={() => commands.addTableColumnBefore()}>Add Column Left</MenuItem>
             <MenuItem onAction={() => commands.addTableColumnAfter()}>Add Column Right</MenuItem>
@@ -185,14 +187,14 @@ interface DmpEditorProps {
 export function DmpEditor({content, setContent}: DmpEditorProps) {
   const { manager, state, setState } = useRemirror({
     extensions: () => [
-      new BoldExtension(),
+      new BoldExtension({}),
       new ItalicExtension(),
-      new UnderlineExtension(),
+      new UnderlineExtension({}),
       new LinkExtension({autoLink: true}),
-      new BulletListExtension(),
+      new BulletListExtension({}),
       new OrderedListExtension(),
-      new TableExtension(),
-      new AnnotationExtension(),
+      new TableExtension({}),
+      new AnnotationExtension({}),
     ],
 
     content: content,

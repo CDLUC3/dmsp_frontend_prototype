@@ -26,8 +26,8 @@ import {
 } from "react-aria-components";
 import "./styleguide.scss";
 
-import { DmpEditor } from "/components/Editor";
-import { DmpIcon } from "/components/Icons";
+import { DmpEditor } from "@/components/Editor";
+import { DmpIcon } from "@/components/Icons";
 
 import {
   Example,
