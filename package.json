@@ -22,6 +22,8 @@
     "@graphql-codegen/typescript": "^4.0.9",
     "@graphql-codegen/typescript-operations": "^4.2.3",
     "@graphql-codegen/typescript-react-apollo": "^4.3.0",
+    "@remirror/pm": "^3.0.0",
+    "@remirror/react": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
     "classnames": "^2.5.1",
@@ -35,7 +37,8 @@
     "prop-types": "^15.8.1",
     "react": "^18",
     "react-aria-components": "^1.2.1",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "remirror": "^3.0.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.6",
