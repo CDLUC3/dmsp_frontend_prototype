@@ -41,7 +41,7 @@ import { AffiliationsDocument } from '@/generated/graphql';
 function Page() {
   const [otherField, setOtherField] = useState(false);
 
-    // NOTE: This text is just for testing the richtext editors
+  // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
   const richtextDefault = html`
 <p>In the project, various analytical methods will be used for characterization of compounds. For the (re)synthesis of guanidine-modified monomers and metal complexes nuclear magnetic resonance spectroscopy (NMR), infrared spectroscopy (IR), mass spectrometry (MS), X-Ray diffraction (XRD), and electron paramagnetic resonance spectroscopy (EPR) will be used as analytical methods if applicable. Guanidine-modified microgels and metal-loaded microgels will be analyzed if applicable with NMR, IR, dynamic light scattering (DLS), scanning transmission electron microscopy (STEM), Raman, EPR, and inductively coupled plasma optical emission spectroscopy (ICP-OES). NMR, ICP-OES and gas chromatography (GC) will be used as analytical methods for catalytic reactions.</p>
@@ -285,12 +285,12 @@ function Page() {
             </Example>
             <p>
               A list of available icons can be found on the
-              &nbsp;<a href="https://fonts.google.com/icons" target="_blank">Google Web Fonts</a> website.
+              &nbsp;<a href="https://fonts.google.com/icons" target="_blank" rel="noreferrer">Google Web Fonts</a> website.
             </p>
             <p>
               The styling of the icons, including the fill line weight can be
               changed as specified
-              &nbsp;<a href="https://developers.google.com/fonts/docs/material_symbols" target="_blank">
+              &nbsp;<a href="https://developers.google.com/fonts/docs/material_symbols" target="_blank" rel="noreferrer">
                 Material Symbols Guide
               </a>.
             </p>
