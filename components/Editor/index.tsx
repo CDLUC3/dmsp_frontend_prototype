@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import {
   Remirror,
@@ -59,7 +59,7 @@ const AnnotationButton: React.FC = () => {
 
   return (
     <Button onPress={handleAnnotation}>
-      <DmpIcon icon="message" />
+      <DmpIcon icon="chat" />
     </Button>
   )
 }

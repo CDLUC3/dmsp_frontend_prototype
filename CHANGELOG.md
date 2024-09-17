@@ -5,6 +5,7 @@
 - Added two new TypeAhead/Autosuggest components, one with and one without the "Other" option [#10]
 - Added the use of graphql-codegen to generate types for graphql requests [#10]
 - Added Material Symbols and a custom `DmpIcon` component that will render a specific icon using it's short-code. [#80]
+- Added custom SVG icon set to be used by `DmpIcon` [#80]
 - Added the initial version of our custom ReMirror text editor [#74].
 
 ### Updates
