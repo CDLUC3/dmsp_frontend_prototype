@@ -91,7 +91,7 @@ const TemplateEditPage: React.FC = () => {
           &larr; Back to template
         </Link>
 
-        <h1 >{template.name}</h1>
+        <h1>{template.name}</h1>
         <p style={{color: 'gray', fontSize: '14px'}}>
           by {template.author} - Version: {template.version} -
           Published: {template.publishedDate}
@@ -101,63 +101,49 @@ const TemplateEditPage: React.FC = () => {
       <div className="template-editor-container">
         <div className="main-content">
 
-          {template.sections.map((section, index) => (
-            <div key={section.id} style={{marginBottom: '40px'}}>
+          <div className="">
+            {template.sections.map((section, index) => (
+              <div key={section.id} style={{marginBottom: '40px'}}>
 
-              <SectionHeaderEdit
-                key={section.id}
-                sectionNumber={index + 1}
-                title={section.name}
-                editUrl={section.link}
-                onMoveUp={() => null}
-                onMoveDown={() => null}
-              />
-
-              {section.questions.map((question) => (
-                <QuestionEdit
-                  key={question.id}
-                  id={question.id}
-                  name={question.name}
-                  link={question.link}
-
-
+                <SectionHeaderEdit
+                  key={section.id}
+                  sectionNumber={index + 1}
+                  title={section.name}
+                  editUrl={section.link}
+                  onMoveUp={() => null}
+                  onMoveDown={() => null}
                 />
-              ))}
 
-              <Button
-                style={{
-                  marginTop: '10px',
-                  padding: '10px',
-                  fontSize: '16px',
-                  backgroundColor: '#e5e5e5',
-                  borderRadius: '5px',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                + Add question
-              </Button>
-            </div>
-          ))}
+                {section.questions.map((question) => (
+                  <QuestionEdit
+                    key={question.id}
+                    id={question.id}
+                    name={question.name}
+                    link={question.link}
 
 
+                  />
+                ))}
+              </div>
+            ))}
+            <Button
+              className="add-question-button tertiary mx-auto">
+              + Add question
+            </Button>
 
-          <Button
-            style={{
-              padding: '15px',
-              fontSize: '18px',
-              backgroundColor: '#e5e5e5',
-              borderRadius: '5px',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            + Add new section
-          </Button>
+          </div>
+
+          <div className="section-add-cont">
+            <Button
+              className="add-section-button tertiary"
+            >
+              + Add new section
+            </Button>
+          </div>
+
 
           <div style={{marginTop: '30px'}}>
             <Button
-
             >
               Save as draft
             </Button>

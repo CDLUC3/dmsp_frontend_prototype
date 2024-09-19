@@ -65,6 +65,7 @@ html, body {
   --slate-200: #E2E8F0;
   --slate-100: #F1F5F9;
   --bg-white: #FFFFFF;
+  --bg-black: #000000;
   --focus-ring: #3B82F6;
   --focus-ring-offset: 2px;
 
@@ -110,7 +111,7 @@ html, body {
   --button-background: var(--gray-50);
   --button-background-pressed: var(--background-color);
 
-  --heading-color: var(--brand-primary);
+  --heading-color: var(--bg-black);
 
   /* these colors are the same between light and dark themes
    * to ensure contrast with the foreground color */

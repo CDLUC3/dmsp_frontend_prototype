@@ -213,3 +213,17 @@ footer {
   }
 
 }
+
+
+.mx-auto{
+  margin: 0 auto;
+}
+.section-add-cont {
+  border: 1px dashed #D1D1D1;
+  background: rgba(255, 255, 255, 0.50);
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+}
