@@ -73,3 +73,13 @@ dd {
     background-color: var(--_color);
   }
 }
+
+#_richtext {
+  max-width: 65em;
+}
+
+#_icons {
+  .material-symbols-outlined {
+    margin-right: 1em;
+  }
+}
