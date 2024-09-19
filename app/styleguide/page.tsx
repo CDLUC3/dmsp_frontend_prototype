@@ -709,6 +709,8 @@ function Page() {
               <div className="sg-button-list">
                 <Button>Standard</Button>
                 <Button data-primary>Primary</Button>
+                <Button className="secondary">Secondary</Button>
+                <Button className="tertiary">Tertiary</Button>
                 <Button isDisabled>Disabled</Button>
               </div>
             </Example>
