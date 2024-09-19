@@ -84,18 +84,23 @@ const template: Template = {
 
 const TemplateEditPage: React.FC = () => {
   return (
-    <div style={{padding: '20px'}}>
-      <Link href="/template" style={{textDecoration: 'none', color: 'black'}}>←
-        Back</Link>
+    <div>
+      <div className="template-editor-header">
+        {/* Using templateId from the URL to create a back link */}
+        <Link className="back-link-button" href={`/template`}>
+          &larr; Back to template
+        </Link>
 
-      <h1 style={{fontSize: '24px', marginTop: '20px'}}>{template.name}</h1>
-      <p style={{color: 'gray', fontSize: '14px'}}>
-        by {template.author} - Version: {template.version} -
-        Published: {template.publishedDate}
-      </p>
+        <h1 >{template.name}</h1>
+        <p style={{color: 'gray', fontSize: '14px'}}>
+          by {template.author} - Version: {template.version} -
+          Published: {template.publishedDate}
+        </p>
+      </div>
 
-      <div className="" style={{maxWidth: '70%' }}>
-        <div className="">
+      <div className="template-editor-container">
+        <div className="main-content">
+
           {template.sections.map((section, index) => (
             <div key={section.id} style={{marginBottom: '40px'}}>
 
@@ -109,7 +114,6 @@ const TemplateEditPage: React.FC = () => {
               />
 
               {section.questions.map((question) => (
-
                 <QuestionEdit
                   key={question.id}
                   id={question.id}
@@ -118,7 +122,6 @@ const TemplateEditPage: React.FC = () => {
 
 
                 />
-
               ))}
 
               <Button
@@ -136,41 +139,46 @@ const TemplateEditPage: React.FC = () => {
               </Button>
             </div>
           ))}
+
+
+
+          <Button
+            style={{
+              padding: '15px',
+              fontSize: '18px',
+              backgroundColor: '#e5e5e5',
+              borderRadius: '5px',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            + Add new section
+          </Button>
+
+          <div style={{marginTop: '30px'}}>
+            <Button
+
+            >
+              Save as draft
+            </Button>
+            <Button
+
+            >
+              Preview template
+            </Button>
+            <Button
+
+            >
+              Save and publish
+            </Button>
+          </div>
+
+
         </div>
-        <div className=""></div>
+
       </div>
 
 
-      <Button
-        style={{
-          padding: '15px',
-          fontSize: '18px',
-          backgroundColor: '#e5e5e5',
-          borderRadius: '5px',
-          border: 'none',
-          cursor: 'pointer',
-        }}
-      >
-        + Add new section
-      </Button>
-
-      <div style={{marginTop: '30px'}}>
-        <Button
-
-        >
-          Save as draft
-        </Button>
-        <Button
-
-        >
-          Preview template
-        </Button>
-        <Button
-
-        >
-          Save and publish
-        </Button>
-      </div>
     </div>
   );
 }

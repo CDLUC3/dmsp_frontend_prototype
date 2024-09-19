@@ -34,18 +34,13 @@ const QuestionEditPage: React.FC = () => {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      padding: '20px',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      <div style={{width: '60%'}}>
+    <div className="template-editor-container">
+      <div className="main-content">
 
 
         {/* Using templateId from the URL to create a back link */}
-        <Link href={`/template/${question.templateId}`}>
-          ← Back to template
+        <Link className="back-link-button" href={`/template/${question.templateId}`}>
+          &larr; Back to template
         </Link>
 
 
@@ -143,12 +138,7 @@ const QuestionEditPage: React.FC = () => {
         </Card>
       </div>
 
-      <div style={{
-        width: '35%',
-        padding: '20px',
-        backgroundColor: '#f9f9f9',
-        borderRadius: '5px'
-      }}>
+      <div className="sidebar">
         <h2>Preview</h2>
         <p>See how this question will look to users.</p>
         <Button>Preview question</Button>
