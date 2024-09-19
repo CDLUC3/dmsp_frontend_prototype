@@ -10,16 +10,19 @@
 
   &__content {
     flex-grow: 1;
+    max-width: 74%;
   }
 
   &__label {
     font-size: 0.875rem !important;
-    color: #666 !important;
+    color: var(--gray-600);
     margin-bottom: 0.3125rem;
   }
 
   &__name {
-    font-size: 1rem;
+    font-size: 1.125rem;
+    font-family: var(--font-sans);
+    color: var(--black);
     margin: 0;
   }
 

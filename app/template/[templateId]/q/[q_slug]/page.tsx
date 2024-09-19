@@ -8,11 +8,14 @@ import {
   Input,
   Label,
   Link,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
   Text,
   TextArea,
-  TextField,
+  TextField
 } from "react-aria-components";
-import {Card} from "@/components/Card/card";
 
 // Sample data stub representing data fetched from a GraphQL server
 const sampleQuestion = {
@@ -39,7 +42,8 @@ const QuestionEditPage: React.FC = () => {
 
 
         {/* Using templateId from the URL to create a back link */}
-        <Link className="back-link-button" href={`/template/${question.templateId}`}>
+        <Link className="back-link-button"
+              href={`/template/${question.templateId}`}>
           &larr; Back to template
         </Link>
 
@@ -47,95 +51,110 @@ const QuestionEditPage: React.FC = () => {
         <h1>Edit: {question.text}</h1>
 
 
-        <Card>
-          <Form>
-            <TextField
-              name="type"
-              type="text"
-              isRequired
-              value={question.type}
-            >
-              <Label>Type (required)</Label>
-              <Input disabled/>
-              <FieldError/>
-              <Button type="button">Change type</Button>
-            </TextField>
+        <Tabs>
+          <TabList aria-label="Question editing">
+            <Tab id="edit">Edit Question</Tab>
+            <Tab id="options">Options</Tab>
+            <Tab id="logic">Logic</Tab>
+          </TabList>
+          <TabPanel id="edit">
+            <Form>
+              <TextField
+                name="type"
+                type="text"
+                isRequired
+                value={question.type}
+              >
+                <Label>Type (required)</Label>
+                <Input disabled/>
+                <FieldError/>
+                <Button type="button">Change type</Button>
+              </TextField>
 
-            <TextField
-              name="question_text"
-              type="text"
-              isRequired
-              value={question.text}
-            >
-              <Label>Question text (required)</Label>
-              <Input
+              <TextField
+                name="question_text"
+                type="text"
+                isRequired
                 value={question.text}
-                onChange={(e) => setQuestion({
-                  ...question,
-                  text: e.currentTarget.value
-                })}
-              />
-              <FieldError/>
-            </TextField>
+              >
+                <Label>Question text (required)</Label>
+                <Input
+                  value={question.text}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    text: e.currentTarget.value
+                  })}
+                />
+                <FieldError/>
+              </TextField>
 
-            <TextField
-              name="question_requirements"
-              isRequired
-              value={question.requirements}
-            >
-              <Label>Question requirements (required)</Label>
-              <Text slot="description" className="help">
-                Keep the question concise and clear. Use the requirements or
-                guidance to provide additional explanation.
-              </Text>
-              <TextArea
+              <TextField
+                name="question_requirements"
+                isRequired
                 value={question.requirements}
-                onChange={(e) => setQuestion({
-                  ...question,
-                  requirements: e.currentTarget.value
-                })}
-                style={{height: '100px'}}
-              />
-              <FieldError/>
-            </TextField>
+              >
+                <Label>Question requirements (required)</Label>
+                <Text slot="description" className="help">
+                  Keep the question concise and clear. Use the requirements or
+                  guidance to provide additional explanation.
+                </Text>
+                <TextArea
+                  value={question.requirements}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    requirements: e.currentTarget.value
+                  })}
+                  style={{height: '100px'}}
+                />
+                <FieldError/>
+              </TextField>
 
-            <TextField
-              name="question_guidance"
-              value={question.guidance}
-            >
-              <Label>Question guidance (optional but recommended)</Label>
-              <TextArea
+              <TextField
+                name="question_guidance"
                 value={question.guidance}
-                onChange={handleGuidanceChange}
-                style={{height: '150px'}}
-              />
-              <FieldError/>
-            </TextField>
+              >
+                <Label>Question guidance (optional but recommended)</Label>
+                <TextArea
+                  value={question.guidance}
+                  onChange={handleGuidanceChange}
+                  style={{height: '150px'}}
+                />
+                <FieldError/>
+              </TextField>
 
-            <TextField
-              name="sample_text"
-              value={question.sampleText}
-            >
-              <Label>Sample text</Label>
-              <Text slot="description" className="help">
-                Provide an example or template of expected answer (optional but
-                recommended)
-              </Text>
-              <TextArea
+              <TextField
+                name="sample_text"
                 value={question.sampleText}
-                onChange={(e) => setQuestion({
-                  ...question,
-                  sampleText: e.currentTarget.value
-                })}
-                style={{height: '80px'}}
-              />
-              <FieldError/>
-            </TextField>
+              >
+                <Label>Sample text</Label>
+                <Text slot="description" className="help">
+                  Provide an example or template of expected answer (optional
+                  but
+                  recommended)
+                </Text>
+                <TextArea
+                  value={question.sampleText}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    sampleText: e.currentTarget.value
+                  })}
+                  style={{height: '80px'}}
+                />
+                <FieldError/>
+              </TextField>
 
-            <Button type="submit">Save</Button>
+              <Button type="submit">Save</Button>
 
-          </Form>
-        </Card>
+            </Form>
+          </TabPanel>
+          <TabPanel id="options">
+            <h2>Options</h2>
+          </TabPanel>
+          <TabPanel id="logic">
+            <h2>logic</h2>
+          </TabPanel>
+        </Tabs>
+
       </div>
 
       <div className="sidebar">

@@ -51,12 +51,6 @@ import {
   CardMutedText
 } from "@/components/Card/card";
 
-import {
-  SectionCard,
-  SectionCardBody,
-  SectionCardControls,
-  SectionCardEyebrow,
-} from "@/components/SectionCard/sectioncard";
 
 import {BrandColor, Example,} from "./sg-components";
 
@@ -65,6 +59,8 @@ import TypeAheadWithOther from '@/components/TypeAheadWithOther';
 import {AffiliationsDocument} from '@/generated/graphql';
 
 import "./styleguide.scss";
+import SectionHeaderEdit from "@/components/SectionHeaderEdit";
+import QuestionEdit from "@/components/QuestionEdit";
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
@@ -882,51 +878,39 @@ function Page() {
             </Card>
 
 
-            <h3>
-              Question Card
-            </h3>
-
-            <SectionCard id="card1" data-test='date-test'>
-              <SectionCardEyebrow>Question</SectionCardEyebrow>
-              <SectionCardBody>
-                What parties and individuals will be involved with data
-                management in this project?
-              </SectionCardBody>
-              <SectionCardControls>
-                Test
-              </SectionCardControls>
-            </SectionCard>
-
-            <h3>
+            <h2>
               Section Header
-            </h3>
+            </h2>
             <p>
               This is used in template builder where the section is editable
               below this will be a list of questions cards
             </p>
-            <div className="">
-              <div>
-                <div className="">
-                  <div className="eyebrow">Section #</div>
-                  <h2>Section Title</h2>
-                </div>
-                <div className="">
-                  <Link>Edit section</Link>
-                  <div>
-                    Move
-                  </div>
-                </div>
-              </div>
-            </div>
 
 
-            <Example>
-              <TextField name="example_text" isRequired>
-                <Label>Example Text Field</Label>
-                <Input/>
-                <p className="help">Descriptive text related to the field</p>
-              </TextField>
-            </Example>
+            <SectionHeaderEdit
+              key="22424"
+              sectionNumber={2}
+              title="Test"
+              editUrl="/edit"
+              onMoveUp={() => null}
+              onMoveDown={() => null}
+            />
+
+
+            <h2>
+              Question Card
+            </h2>
+
+            <QuestionEdit
+              key={2552}
+              id={24}
+              name="This is a question"
+              link="/edit"
+            />
+
+
+
+
 
             <h2>Typeahead</h2>
             <p>
