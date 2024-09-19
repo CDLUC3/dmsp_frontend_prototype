@@ -27,11 +27,15 @@ import {
   Select,
   SelectValue,
   Switch,
+  Tab,
   Table,
   TableBody,
   TableHeader,
+  TabList,
+  TabPanel,
+  Tabs,
   Text,
-  TextField,
+  TextField
 } from "react-aria-components";
 
 
@@ -735,7 +739,8 @@ function Page() {
                   isRequired
                 >
                   <Label>Email</Label>
-                  <p className="help">Descriptive text related to the field</p>
+                  <Text slot="description" className="help">Descriptive text
+                    related to the field</Text>
                   <Input/>
                   <FieldError/>
                 </TextField>
@@ -747,6 +752,8 @@ function Page() {
 
                 <CheckboxGroup>
                   <Label>Favorite sports</Label>
+                  <Text slot="description" className="help">This is help
+                    text</Text>
                   <Checkbox value="soccer">
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
@@ -784,6 +791,8 @@ function Page() {
                 </h3>
                 <RadioGroup>
                   <Label>Favorite pet</Label>
+                  <Text slot="description" className="help">This is help
+                    text</Text>
                   <Radio value="dogs">Dog</Radio>
                   <Radio value="cats">Cat</Radio>
                   <Radio value="dragon">Dragon</Radio>
@@ -795,7 +804,8 @@ function Page() {
                 </h3>
                 <Select>
                   <Label>Favorite Animal</Label>
-                  <Text slot="description" />
+                  <Text slot="description" className="help">This is help
+                    text</Text>
                   <Button>
                     <SelectValue/>
                     <span aria-hidden="true">▼</span>
@@ -810,7 +820,7 @@ function Page() {
                       <ListBoxItem>Snake</ListBoxItem>
                     </ListBox>
                   </Popover>
-                  <FieldError />
+                  <FieldError/>
                 </Select>
 
                 <h3>
@@ -992,6 +1002,96 @@ function Page() {
 
 
           <div id="_widgets">
+
+            <h2>
+              Tabs
+            </h2>
+
+
+            <Tabs>
+              <TabList aria-label="Question editing">
+                <Tab id="edit">Edit Question</Tab>
+                <Tab id="second">Second tab</Tab>
+                <Tab id="third">Third tab</Tab>
+              </TabList>
+              <TabPanel id="edit">
+
+                <h2>Create a New Question</h2>
+
+                <Form>
+                  <TextField
+                    name="question_text"
+                    type="text"
+                    isRequired
+                  >
+                    <Label>Question text</Label>
+                    <Text slot="description" className="help">
+                      Enter the question that you want to include in this
+                      section.
+                    </Text>
+                    <Input/>
+                    <FieldError/>
+                  </TextField>
+
+                  <TextField
+                    name="question_help_text"
+                    type="text"
+                  >
+                    <Label>Help text</Label>
+                    <Text slot="description" className="help">
+                      Optionally, provide help text or additional context for
+                      this question.
+                    </Text>
+                    <Input/>
+                    <FieldError/>
+                  </TextField>
+
+                  <Button type="submit">Create Question</Button>
+
+                </Form>
+
+              </TabPanel>
+              <TabPanel id="second">
+                <h3>Text</h3>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                </p>
+              </TabPanel>
+              <TabPanel id="third">
+                <h3>Options</h3>
+
+                <Form>
+
+
+                  <TextField
+                    name="question_help_text"
+                    type="text"
+                  >
+                    <Label>Help text</Label>
+                    <Text slot="description" className="help">
+                      Optionally, provide help text or additional context for
+                      this question.
+                    </Text>
+                    <Input/>
+                    <FieldError/>
+                  </TextField>
+
+                  <Button type="submit">Create Question</Button>
+
+                </Form>
+              </TabPanel>
+            </Tabs>
+
+
             <h2>Widgets</h2>
             <p>TBD (Custom Components, etc…)</p>
 
