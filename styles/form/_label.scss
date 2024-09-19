@@ -1,5 +1,8 @@
 
-Label {
-  line-height: var(--brand-line-height2);
+label,
+.react-aria-Label {
+  display: block;
+  color: var(--slate-900);
+  font-weight: 600;
   margin-bottom: 0.25em;
 }

@@ -1,4 +1,4 @@
-
+/*
 Label {
   line-height: var(--brand-line-height2);
   margin-bottom: 0.25em;
@@ -42,9 +42,15 @@ Label {
     border-color: var(--border-color-disabled);
   }
 }
-
-@import "form/button";
+*/
 @import "form/text";
+@import "form/button";
+@import "form/label";
+@import "form/select";
+@import "form/radio";
+@import "form/checkbox";
+@import "form/switch";
+
 
 
 // Link
