@@ -5,9 +5,12 @@
 
   .react-aria-Button {
     @include input-base;
+
+
+
+
     background: var(--field-background);
     border: 1px solid var(--border-color);
-    border-radius: 0;
     color: var(--field-text-color);
     margin: 0 -1px;
     z-index: 1;

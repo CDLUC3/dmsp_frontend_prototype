@@ -4,5 +4,13 @@ label,
   display: block;
   color: var(--slate-900);
   font-weight: 600;
-  margin-bottom: 0.25em;
+  margin-bottom: 0.25rem;
+}
+
+
+.help {
+  font-size: 1rem;
+  color: var(--slate-600);
+  display: block;
+  margin: 0 0 0.6rem;
 }

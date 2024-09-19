@@ -11,8 +11,8 @@
   font-family: var(--font-family);
   color: var(--slate-900);
   border-radius: 6px;
-  border: 1px solid var(--slate-300);
-  background: var(--bg-white);
+  border: 1px solid var(--border-color);
+  background: var(--field-background);
   padding: 8px 12px;
   font-size: 1rem;
   line-height: 1.5;
@@ -83,12 +83,7 @@ select {
   margin-bottom: 1rem;
 }
 
-.react-aria-TextField .help {
-  font-size: 1rem;
-  color: var(--slate-600);
-  display: block;
-  margin: 0 0 5px;
-}
+
 
 
 // Focus visible styles for better keyboard navigation
