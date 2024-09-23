@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './signup.module.scss';
+import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
 
 const SignUpPage: React.FC = () => {
@@ -14,6 +15,7 @@ const SignUpPage: React.FC = () => {
     const [lockoutTime, setLockoutTime] = useState<number | null>(null);
     const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
+    const { csrfToken } = useCsrf();
 
     const handleResponse = async (response: Response) => {
         const { message } = await response.json();
@@ -57,6 +59,7 @@ const SignUpPage: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '',
                 },
                 body: JSON.stringify({ email, password }),
             });

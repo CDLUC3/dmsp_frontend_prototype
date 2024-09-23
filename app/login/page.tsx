@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import styles from './login.module.scss'
 import logECS from '@/utils/clientLogger';
 import { useAuthContext } from "@/context/AuthContext";
+import { useCsrf } from '@/context/CsrfContext';
 
 type User = {
     email: string;
@@ -24,40 +25,17 @@ const LoginPage: React.FC = () => {
     const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
     const { setIsAuthenticated } = useAuthContext();
+    const { csrfToken } = useCsrf();
 
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUser({ ...user, [event.target.name]: event.target.value });
     };
 
-    const saveTokenInCookie = async (token: string) => {
-
-        //Set the cookie. Needs to be set on server side in order to have security configs like httpOnly
-        const result = await fetch('/api/setCookie', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ token })
-        })
-
-        const data = await result.json();
-        if (data.status !== 200) {
-            logECS('error', data.message, {
-                url: { path: '/apollo-signin' }
-            });
-        } else {
-            logECS('info', data.message, {
-                url: { path: '/apollo-signin' }
-            });
-        }
-    }
-
     const handleResponse = async (response: Response) => {
         const { token, message } = await response.json();
 
         if (response.status === 200) {
-            await saveTokenInCookie(token)
             setIsAuthenticated(true);
             router.push('/') //redirect to home page
         } else if (response.status === 401) {
@@ -94,6 +72,7 @@ const LoginPage: React.FC = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '',
                 },
                 body: JSON.stringify(user),
             });
