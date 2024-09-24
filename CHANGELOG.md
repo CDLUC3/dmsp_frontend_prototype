@@ -1,4 +1,23 @@
 ### Added
+- Checkbox & Checkbox group component
+- Radio component
+- Select component
+- Basic Cards
+- Section header component
+- Question card component
+- Tabs component
+- Template Overview - blocked out page for component builder assistance 
+- Template Edit Section  - blocked out page for component builder assistance
+- Template Edit Question - blocked out page for component builder assistance
+
+### Updates
+- Button styles
+- Text input styles
+- 
+
+
+
+### Added
 - Added the Template History page [#86]
 - Added more documentation to README.md [#91]
 - Added existing header and footer from production to app [#89]
