@@ -8,7 +8,6 @@
 
 # testing
 /coverage
-/.idea/
 # next.js
 /.next/
 /out/
@@ -30,6 +29,8 @@ yarn-error.log*
 
 # Visual Studio Code
 .vscode
+# jetbrains based IDE (PHP Storm etc)
+/.idea/
 
 # typescript
 *.tsbuildinfo
