@@ -17,7 +17,4 @@ export default async function Home() {
       })}
     </ul>
   )
-  return (
-    <h1>Home</h1>
-  )
 }

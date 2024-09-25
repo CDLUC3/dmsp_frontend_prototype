@@ -4,8 +4,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from 'next/navigation';
 import styles from './login.module.scss'
 import logECS from '@/utils/clientLogger';
-import { useAuthContext } from "@/context/AuthContext";
 import { useCsrf } from '@/context/CsrfContext';
+import { handleErrors } from '@/utils/errorHandler';
 
 type User = {
     email: string;
@@ -20,36 +20,12 @@ const LoginPage: React.FC = () => {
     });
     const [errors, setErrors] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
-    const [attempts, setAttempts] = useState(0);
-    const [lockoutTime, setLockoutTime] = useState<number | null>(null);
-    const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
-    const { setIsAuthenticated } = useAuthContext();
     const { csrfToken } = useCsrf();
-
+    const router = useRouter();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUser({ ...user, [event.target.name]: event.target.value });
-    };
-
-    const handleResponse = async (response: Response) => {
-        const { token, message } = await response.json();
-
-        if (response.status === 200) {
-            setIsAuthenticated(true);
-            router.push('/') //redirect to home page
-        } else if (response.status === 401) {
-            if (message) {
-                setErrors(prevErrors => [...prevErrors, message])
-            }
-        } else if (response.status === 500) {
-            logECS('error', 'Internal server error', {
-                url: { path: '/apollo-signin' }
-            });
-            router.push('/500-error');
-        } else {
-            setErrors(['An unexpected error occurred. Please try again.'])
-        }
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -57,27 +33,23 @@ const LoginPage: React.FC = () => {
         setLoading(true);
         setErrors([]); // Clear previous errors
 
-        if (attempts > 5) {
-            const remainingTime = lockoutTime ? Math.max(lockoutTime - Date.now(), 0) : 0;
-            const minutesLeft = Math.ceil(remainingTime / 60000);
-            const remainingMinutesText = minutesLeft < 2 ? 'minute' : 'minutes'
-            setErrors([`Too many attempts. Please try again later${remainingTime > 0 ? ` in ${Math.ceil(remainingTime / 60000)} ${remainingMinutesText}.` : '.'}`]);
-            setLoading(false);
-            return;
+        const loginRequest = async (token: string | null) => {
+            return await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signin`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token || '',
+                },
+                body: JSON.stringify(user),
+            });
         }
 
         /* eslint-disable @typescript-eslint/no-explicit-any */
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signin`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken || '',
-                },
-                body: JSON.stringify(user),
-            });
+            const response = await loginRequest(csrfToken);
 
-            await handleResponse(response);
+            await handleErrors(response, loginRequest, setErrors, router);
 
         } catch (err: any) {
             logECS('error', 'Signin error', {
@@ -86,7 +58,6 @@ const LoginPage: React.FC = () => {
             });
         } finally {
             setLoading(false);
-            setAttempts(attempts + 1);
         }
 
     };
@@ -100,19 +71,6 @@ const LoginPage: React.FC = () => {
         }
     }, [errors])
 
-    useEffect(() => {
-        if (attempts >= 5) {
-            const lockoutDuration = 15 * 60 * 1000; //15 minutes
-            const newLockoutTime = Date.now() + lockoutDuration;
-            setLockoutTime(newLockoutTime);
-            const timer = setTimeout(() => {
-                setAttempts(0);
-                setLockoutTime(null);
-            }, lockoutDuration); // 15 minutes
-
-            return () => clearTimeout(timer);
-        }
-    }, [attempts])
 
     return (
         <div className={styles.loginWrapper} ref={errorRef}>
@@ -144,7 +102,7 @@ const LoginPage: React.FC = () => {
                     onChange={handleInputChange}
                     required
                 />
-                <button type="submit" disabled={loading}>{loading ? 'Logging in ...' : 'Login'}</button>
+                <button type="submit" disabled={loading}>Login</button>
             </form>
         </div>
     );

@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+'use client'
+
+import React, { useEffect, useState } from 'react';
 
 import {
   Remirror,
@@ -11,6 +13,9 @@ import {
 
 import {
   EditorState,
+} from '@remirror/pm/state';
+
+import {
   prosemirrorNodeToHtml,
 } from '@remirror/core-utils';
 
@@ -184,13 +189,14 @@ interface DmpEditorProps {
   setContent: (newContent: string) => void;
 }
 
-export function DmpEditor({content, setContent}: DmpEditorProps) {
+export function DmpEditor({ content, setContent }: DmpEditorProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const { manager, state, setState } = useRemirror({
     extensions: () => [
       new BoldExtension({}),
       new ItalicExtension(),
       new UnderlineExtension({}),
-      new LinkExtension({autoLink: true}),
+      new LinkExtension({ autoLink: true }),
       new BulletListExtension({}),
       new OrderedListExtension(),
       new TableExtension({}),
@@ -210,11 +216,19 @@ export function DmpEditor({content, setContent}: DmpEditorProps) {
     stringHandler: 'html',
   });
 
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
   const handleChange = (newState: EditorState) => {
     const html = prosemirrorNodeToHtml(newState.doc);
     setContent(html);
     setState(newState);
   }
+
+  if (!isMounted) {
+    return null; // or a loading indicator
+  }
+
 
   return (
     <div className="dmp-editor">
@@ -222,7 +236,7 @@ export function DmpEditor({content, setContent}: DmpEditorProps) {
         manager={manager}
         state={state}
         initialContent={state}
-        onChange={({state}) => handleChange(state)}
+        onChange={({ state }) => handleChange(state)}
       >
         <EditorToolbar />
         <EditorComponent />

@@ -1,11 +1,12 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import logECS from '@/utils/clientLogger';
+import { fetchCsrfToken } from '@/utils/authHelper';
 
 interface CsrfContextProps {
   csrfToken: string | null;
-  fetchCsrfToken: () => Promise<void>;
+  refreshCsrfToken: () => Promise<string | null>;
 }
 
 const CsrfContext = createContext<CsrfContextProps | undefined>(undefined);
@@ -16,28 +17,41 @@ export function CsrfProvider({ children }: {
 }) {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
 
-  //Function to fetch CSRF token from the backend
-  const fetchCsrfToken = async () => {
+  const refreshCsrfToken = async () => {
     try {
-      const response = await fetch('/apollo-csrf');
-      const data = await response.json();
+      const response = await fetchCsrfToken();
+      if (response) {
+        const csrfToken = response.headers.get('X-CSRF-TOKEN');
 
-      setCsrfToken(data.csrfToken);
+        if (csrfToken) {
+          setCsrfToken(csrfToken);
+          return csrfToken;
+        } else {
+          throw new Error('CSRF token not found in response header');
+        }
+      } else {
+        logECS('error', 'No response from fetching new CSRF token', {
+          source: 'CsrfProvider'
+        });
+        return null
+      }
     } catch (err) {
       logECS('error', `Error getting csrf token from backend: ${err}`, {
         source: 'CsrfProvider'
       });
       setCsrfToken(null);
+      return null;
     }
-  };
+
+  }
 
   useEffect(() => {
     // Fetch CSRF token when component mounts
-    fetchCsrfToken();
+    refreshCsrfToken();
   }, []);
 
   return (
-    <CsrfContext.Provider value={{ csrfToken, fetchCsrfToken }}>
+    <CsrfContext.Provider value={{ csrfToken, refreshCsrfToken }}>
       {children}
     </CsrfContext.Provider>
   )

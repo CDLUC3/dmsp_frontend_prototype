@@ -16,7 +16,7 @@ function Header() {
         e.preventDefault();
 
         try {
-            const response = await fetch('/api/logout', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signout`, {
                 method: 'POST'
             })
 
