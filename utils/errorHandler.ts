@@ -1,16 +1,19 @@
 'use client'
 
-import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
 import { fetchCsrfToken } from "@/utils/authHelper";
 
 type RetryRequestType = (csrfToken: string | null) => Promise<Response>;
 
+interface CustomRouter {
+  push: (url: string) => void;
+}
 export const handleErrors = async (
   response: Response,
   retryRequest: RetryRequestType,
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  router: ReturnType<typeof useRouter>
+  router: CustomRouter
+
 ) => {
   const { message } = await response.json();
 
@@ -21,7 +24,6 @@ export const handleErrors = async (
 
     case 400:
     case 401:
-      console.log("***400 ERROR")
       if (message) {
         setErrors(prevErrors => [...prevErrors, message]);
       }
