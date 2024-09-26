@@ -1,0 +1,7 @@
+
+.dmp-icon {
+  stroke: var(--icon-stroke, transparent);
+  fill: var(--icon-fill, var(--text-color));
+  stroke-width: var(--icon-stroke-width, 0);
+  paint-order: stroke;
+}
