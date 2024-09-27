@@ -164,6 +164,7 @@ describe('LoginPage', () => {
     });
 
     it('should setError on a 401 error when there is no response', async () => {
+        /* eslint-disable @typescript-eslint/no-var-requires */
         const { refreshAuthTokens } = require('@/utils/authHelper');
 
         // Override refreshAuthTokens for this test case only
