@@ -1,8 +1,20 @@
 /// <reference types="cypress" />
 
+function generateUniqueUser() {
+  const timestamp = new Date().getTime();
+  return {
+    email: `user${timestamp}@example.com`,
+    password: 'Password123$9',
+    acceptedTerms: 1
+  };
+}
 
-describe('Login', () => {
-  it('Should log in an existing user', () => {
+describe('Signup', () => {
+  it('Should sign up a new user', () => {
+
+    const newUser = generateUniqueUser();
+
+    cy.visit('http://localhost:3000/signup')
 
     // I need to run the test like this because Cypress wasn't picking up on the 
     // CsrfContext adding the token to the header
@@ -16,20 +28,17 @@ describe('Login', () => {
         // Now use the token in your subsequent request
         cy.request({
           method: 'POST',
-          url: 'http://localhost:4000/apollo-signin',
+          url: 'http://localhost:4000/apollo-signup',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': csrfToken || '',
           },
-          body: {
-            email: 'admin@colorado.edu',
-            password: 'Password123$9'
-          }
-        }).then((signinResponse) => {
+          body: newUser,
+        }).then((signupResponse) => {
           // If you want to make the entire response object available in the Cypress command log
-          cy.wrap(signinResponse).as('signinResponse');
+          cy.wrap(signupResponse).as('signupResponse');
 
-          cy.wrap(signinResponse).its('status').should('equal', 200);
+          cy.wrap(signupResponse).its('status').should('equal', 201);
 
           // Check that cookies were added
           cy.getCookie('dmspt').should('exist')
