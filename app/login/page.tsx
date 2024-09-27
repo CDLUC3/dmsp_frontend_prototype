@@ -6,6 +6,7 @@ import styles from './login.module.scss'
 import logECS from '@/utils/clientLogger';
 import { useCsrf } from '@/context/CsrfContext';
 import { handleErrors } from '@/utils/errorHandler';
+import { useAuthContext } from '@/context/AuthContext';
 
 type User = {
     email: string;
@@ -23,6 +24,7 @@ const LoginPage: React.FC = () => {
     const errorRef = useRef<HTMLDivElement>(null);
     const { csrfToken } = useCsrf();
     const router = useRouter();
+    const { setIsAuthenticated } = useAuthContext();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUser({ ...user, [event.target.name]: event.target.value });
@@ -49,7 +51,12 @@ const LoginPage: React.FC = () => {
         try {
             const response = await loginRequest(csrfToken);
 
-            await handleErrors(response, loginRequest, setErrors, router, '/login', '/apollo-sigin');
+            if (response.ok) {
+                setIsAuthenticated(true);
+                router.push('/')
+            } else {
+                await handleErrors(response, loginRequest, setErrors, router, '/login', '/apollo-sigin');
+            }
 
         } catch (err: any) {
             logECS('error', 'Signin error', {
@@ -74,7 +81,7 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className={styles.loginWrapper} ref={errorRef}>
-            <form className={styles.loginForm} onSubmit={handleSubmit}>
+            <form className={styles.loginForm} id="login" onSubmit={handleSubmit}>
                 {errors && errors.length > 0 &&
                     <div className="error">
                         {errors.map((error, index) => (
@@ -102,7 +109,7 @@ const LoginPage: React.FC = () => {
                     onChange={handleInputChange}
                     required
                 />
-                <button type="submit" disabled={loading}>Login</button>
+                <button type="submit" id="login-button" disabled={loading}>Login</button>
             </form>
         </div>
     );

@@ -6,6 +6,7 @@ import styles from './signup.module.scss';
 import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
 import { handleErrors } from '@/utils/errorHandler';
+import { useAuthContext } from '@/context/AuthContext';
 
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ const SignUpPage: React.FC = () => {
     const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
     const { csrfToken } = useCsrf();
+    const { setIsAuthenticated } = useAuthContext();
 
     const handleAcceptedTerms = async (event: React.ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
@@ -47,7 +49,12 @@ const SignUpPage: React.FC = () => {
         try {
             const response = await signupRequest(csrfToken);
 
-            await handleErrors(response, signupRequest, setErrors, router, '/signup', '/apollo-signup');
+            if (response && response.ok) {
+                setIsAuthenticated(true);
+                router.push('/')
+            } else {
+                await handleErrors(response, signupRequest, setErrors, router, '/signup', '/apollo-signup');
+            }
 
         } catch (err: any) {
             logECS('error', 'Signup error', {
@@ -70,7 +77,7 @@ const SignUpPage: React.FC = () => {
 
     return (
         <div className={styles.signupWrapper} ref={errorRef}>
-            <form className={styles.signupForm} onSubmit={handleSignUp}>
+            <form className={styles.signupForm} id="signup" onSubmit={handleSignUp}>
                 {errors && errors.length > 0 &&
                     <div className="error">
                         {errors.map((error, index) => (
@@ -106,7 +113,7 @@ const SignUpPage: React.FC = () => {
                     onChange={e => handleAcceptedTerms(e)}
                 />
 
-                <button type="submit" disabled={loading}>Sign up</button>
+                <button type="submit" id="signup-button" disabled={loading}>Sign up</button>
             </form>
 
         </div>

@@ -13,8 +13,8 @@ jest.mock('@/utils/clientLogger', () => ({
 }))
 
 jest.mock('@/utils/authHelper', () => ({
-    refreshAuthTokens: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
-    fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
+    refreshAuthTokens: jest.fn(async () => Promise.resolve({ response: true, message: 'ok', headers: { 'content-type': 'application/json', 'x-csrf-token': 1234 } })),
+    fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok', headers: { 'content-type': 'application/json', 'x-csrf-token': 1234 } })),
 }));
 
 
@@ -264,9 +264,7 @@ describe('SignUpPage', () => {
 
     it('should render default error message when no response', async () => {
         jest.spyOn(global, 'fetch').mockImplementation(() => {
-            return Promise.resolve({
-                json: () => Promise.resolve({}),
-            } as unknown as Response);
+            return Promise.resolve(undefined as unknown as Response);
         });
 
         renderWithAuth(<SignUpPage />);
