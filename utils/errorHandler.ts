@@ -1,7 +1,7 @@
 'use client'
 
 import logECS from '@/utils/clientLogger';
-import { fetchCsrfToken } from "@/utils/authHelper";
+import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 
 type RetryRequestType = (csrfToken: string | null) => Promise<Response>;
 
@@ -12,7 +12,9 @@ export const handleErrors = async (
   response: Response,
   retryRequest: RetryRequestType,
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  router: CustomRouter
+  router: CustomRouter,
+  pageRedirect: string,
+  path: string
 
 ) => {
   const { message } = await response.json();
@@ -23,16 +25,36 @@ export const handleErrors = async (
       break;
 
     case 400:
-    case 401:
       if (message) {
         setErrors(prevErrors => [...prevErrors, message]);
+      } else {
+        setErrors(['An unexpected error occurred. Please try again.']);
+      }
+    case 401:
+      if (message) {
+        logECS('error', message, {
+          url: { path: path }
+        });
+
+        try {
+          // Attempt to get new auth tokens
+          const response = await refreshAuthTokens();
+
+          if (response) {
+            router.push(pageRedirect);
+          } else {
+            setErrors(prevErrors => [...prevErrors, message]);
+          }
+        } catch (err) {
+          throw new Error(`Error fetching new Auth tokens - ${err}`);
+        }
       }
       break;
 
     case 403:
       if (message === 'Invalid CSRF token') {
         logECS('error', message, {
-          url: { path: '/apollo-signin' }
+          url: { path: path }
         });
 
         try {
@@ -41,10 +63,10 @@ export const handleErrors = async (
           if (response) {
             const csrfToken = response.headers.get('X-CSRF-TOKEN');
             if (csrfToken) {
-              // Retry login
+              // Retry request
               const newResponse = await retryRequest(csrfToken);
               if (newResponse.ok) {
-                router.push('/');
+                router.push(pageRedirect);
               } else {
                 const errorMessage = await newResponse.json();
                 setErrors(prevErrors => [...prevErrors, errorMessage]);

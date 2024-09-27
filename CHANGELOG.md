@@ -1,4 +1,5 @@
 ### Added
+- Added csrf token to header for /login and /signup page and error handling to refresh csrf and auth tokens [#116]
 - Added the Template History page [#86]
 - Added more documentation to README.md [#91]
 - Added existing header and footer from production to app [#89]

@@ -47,7 +47,7 @@ const SignUpPage: React.FC = () => {
         try {
             const response = await signupRequest(csrfToken);
 
-            await handleErrors(response, signupRequest, setErrors, router);
+            await handleErrors(response, signupRequest, setErrors, router, '/signup', '/apollo-signup');
 
         } catch (err: any) {
             logECS('error', 'Signup error', {

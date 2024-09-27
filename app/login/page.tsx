@@ -49,7 +49,7 @@ const LoginPage: React.FC = () => {
         try {
             const response = await loginRequest(csrfToken);
 
-            await handleErrors(response, loginRequest, setErrors, router);
+            await handleErrors(response, loginRequest, setErrors, router, '/login', '/apollo-sigin');
 
         } catch (err: any) {
             logECS('error', 'Signin error', {

@@ -13,8 +13,10 @@ jest.mock('@/utils/clientLogger', () => ({
 }))
 
 jest.mock('@/utils/authHelper', () => ({
-    fetchCsrfToken: jest.fn()
+    refreshAuthTokens: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
+    fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
 }));
+
 
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
@@ -24,8 +26,9 @@ const mockFocus = jest.fn();
 import { useRouter } from 'next/navigation';
 const mockUseRouter = useRouter as jest.Mock;
 
-import { fetchCsrfToken } from "@/utils/authHelper";
+import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
+const mockRefreshAuthTokens = refreshAuthTokens as jest.Mock;
 
 global.fetch = global.fetch || require('node-fetch');
 
@@ -154,10 +157,13 @@ describe('SignUpPage', () => {
         //Simulate form submission
         fireEvent.click(submitButton);
 
+        // Check that user is redirected to 500 error page
         await waitFor(() => {
-            const errorDiv = screen.getByText('Invalid credentials').closest('div');
-            expect(errorDiv).toHaveClass('error');
-            expect(errorDiv).toContainHTML('<p>Invalid credentials</p>')
+            expect(mockRefreshAuthTokens).toHaveBeenCalled();
+        })
+        // Check that user is redirected to home page
+        await waitFor(() => {
+            expect(mockUseRouter().push).toHaveBeenCalledWith('/signup');
         })
     });
 
