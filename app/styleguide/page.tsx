@@ -277,26 +277,31 @@ function Page() {
             <h2>Icons</h2>
             <Example>
               <div className="sg-icons">
-                <DmpIcon icon="search" />
                 <DmpIcon icon="home" />
+                <DmpIcon icon="search" />
                 <DmpIcon icon="settings" />
                 <DmpIcon icon="favorite" />
+                <DmpIcon icon="bold" />
               </div>
             </Example>
-            <p>
-              A list of available icons can be found on the
-              &nbsp;<a href="https://fonts.google.com/icons" target="_blank" rel="noreferrer">Google Web Fonts</a> website.
-            </p>
-            <p>
-              The styling of the icons, including the fill line weight can be
-              changed as specified
-              &nbsp;<a href="https://developers.google.com/fonts/docs/material_symbols" target="_blank" rel="noreferrer">
-                Material Symbols Guide
-              </a>.
-            </p>
-            <p>
-              You can find the icon setings in <code>styles/_icons.scss</code>.
-            </p>
+
+            <p>You can style the icons with the following CSS variables:</p>
+            <dl>
+              <dt><code>--icon-stroke</code></dt>
+              <dd>Set the icon stroke colour. The default stroke colour
+                is <code>transparent</code>.
+              </dd>
+
+              <dt><code>--icon-fill</code></dt>
+              <dd>Set the icon fill colour. The default
+                is <code>var(--text-color)</code>
+              </dd>
+
+              <dt><code>--icon-stroke-width</code></dt>
+              <dd>Set the stroke width. The default for this
+                is <code>0</code>.
+              </dd>
+            </dl>
           </div>
 
           <div id="_layout">

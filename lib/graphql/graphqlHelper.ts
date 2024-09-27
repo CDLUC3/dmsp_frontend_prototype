@@ -1,7 +1,6 @@
 import { fromPromise } from "@apollo/client/link/utils";
 import { onError } from "@apollo/client/link/error";
 import { redirect } from "next/navigation";
-import { createHttpLink } from "@apollo/client";
 import logECS from "@/utils/clientLogger";
 import { refreshAuthTokens, fetchCsrfToken } from "@/utils/authHelper";
 import { RetryLink } from "@apollo/client/link/retry";
@@ -103,10 +102,6 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
 });
 
 export const authLink = createAuthLink();
-
-export const httpLink = createHttpLink({
-  uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`
-});
 
 export const retryLink = new RetryLink({
   attempts: {

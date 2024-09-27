@@ -40,7 +40,6 @@ import {
   Separator,
   ToggleButton,
   Toolbar,
-  Form,
   Menu,
   MenuItem,
   MenuTrigger,
@@ -48,26 +47,30 @@ import {
 } from 'react-aria-components';
 
 
-const AnnotationButton: React.FC = () => {
-  const { commands, getState } = useRemirrorContext({ autoUpdate: true });
-
-  const handleAnnotation = () => {
-    const selectedText = getState().selection;
-
-    if (selectedText) {
-      const annotation = prompt('Enter your annotation:', '');
-      if (annotation) {
-        commands.addAnnotation({ text: selectedText, annotation });
-      }
-    }
-  };
-
-  return (
-    <Button onPress={handleAnnotation}>
-      <DmpIcon icon="message" />
-    </Button>
-  )
-}
+// NOTE: Disabling this for now due to typescript warnings. We will need this
+// when we start work on inline annotations and comments, so leaving it
+// uncommented here for now...
+//
+// const AnnotationButton: React.FC = () => {
+//   const { commands, getState } = useRemirrorContext({ autoUpdate: true });
+//
+//   const handleAnnotation = () => {
+//     const selectedText = getState().selection;
+//
+//     if (selectedText) {
+//       const annotation = prompt('Enter your annotation:', '');
+//       if (annotation) {
+//         commands.addAnnotation({ text: selectedText, annotation });
+//       }
+//     }
+//   };
+//
+//   return (
+//     <Button onPress={handleAnnotation}>
+//       <DmpIcon icon="chat" />
+//     </Button>
+//   )
+// }
 
 
 const TableGroup: React.FC = () => {
@@ -203,7 +206,7 @@ export function DmpEditor({ content, setContent }: DmpEditorProps) {
       new AnnotationExtension({}),
     ],
 
-    content: content,
+    content,
 
     // Place the cursor at the start of the document. This can also be set to
     // `end`, `all` or a numbered position.
