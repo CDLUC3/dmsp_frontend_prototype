@@ -219,7 +219,7 @@ function Header() {
                             </div>
                         </li>
 
-                        <li><a className="dmpui-frontend-btn dmpui-frontend-btn-secondary" rel="nofollow" data-method="delete" href="/users/sign_out">Logout</a>
+                        <li><a className="dmpui-frontend-btn dmpui-frontend-btn-secondary" rel="nofollow" data-method="delete" href="/users/sign_out" onClick={handleLogout}>Logout</a>
                         </li></ul>
                 </div>
             </div>

@@ -1,3 +1,4 @@
+// enable TypeScript and IntelliSense support for Cypress
 /// <reference types="cypress" />
 
 
