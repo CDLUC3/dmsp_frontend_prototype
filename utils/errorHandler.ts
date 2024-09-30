@@ -1,7 +1,7 @@
 'use client'
 
 import logECS from '@/utils/clientLogger';
-import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
+import { fetchCsrfToken } from "@/utils/authHelper";
 
 type RetryRequestType = (csrfToken: string | null) => Promise<Response>;
 

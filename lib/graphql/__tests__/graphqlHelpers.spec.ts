@@ -65,6 +65,7 @@ describe("GraphQL Errors", () => {
     // Compose the error link with the mock forward link
     const link = ApolloLink.from([errorLink, mockForward]);
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     link.request(mockOperation as any)?.subscribe({
       next: (result) => {
         // Check if the error was caught and handled correctly
