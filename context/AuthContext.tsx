@@ -29,7 +29,7 @@ export function AuthProvider({ children }: {
                 setIsAuthenticated(data.authenticated);
             } catch (err) {
                 logECS('error', `Error checking authentication status: ${err}`, {
-                    source: 'CsrfProvider'
+                    source: 'AuthProvider'
                 });
                 setIsAuthenticated(false);
             }
