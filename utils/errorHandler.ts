@@ -44,20 +44,9 @@ export const handleErrors = async (
           logECS('error', message, {
             url: { path: path }
           });
-
-          try {
-            // Attempt to get new auth tokens
-            const response = await refreshAuthTokens();
-
-            if (response) {
-              router.push(pageRedirect);
-            } else {
-              setErrors(prevErrors => [...prevErrors, message]);
-            }
-          } catch (err) {
-            throw new Error(`Error fetching new Auth tokens - ${err}`);
-          }
         }
+
+        router.push('/login');
         break;
 
       case 403:

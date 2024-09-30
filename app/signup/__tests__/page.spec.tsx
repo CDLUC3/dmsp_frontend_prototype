@@ -13,7 +13,6 @@ jest.mock('@/utils/clientLogger', () => ({
 }))
 
 jest.mock('@/utils/authHelper', () => ({
-    refreshAuthTokens: jest.fn(async () => Promise.resolve({ response: true, message: 'ok', headers: { 'content-type': 'application/json', 'x-csrf-token': 1234 } })),
     fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok', headers: { 'content-type': 'application/json', 'x-csrf-token': 1234 } })),
 }));
 
@@ -26,9 +25,8 @@ const mockFocus = jest.fn();
 import { useRouter } from 'next/navigation';
 const mockUseRouter = useRouter as jest.Mock;
 
-import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
+import { fetchCsrfToken } from "@/utils/authHelper";
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
-const mockRefreshAuthTokens = refreshAuthTokens as jest.Mock;
 
 global.fetch = global.fetch || require('node-fetch');
 
@@ -157,13 +155,9 @@ describe('SignUpPage', () => {
         //Simulate form submission
         fireEvent.click(submitButton);
 
-        // Check that user is redirected to 500 error page
-        await waitFor(() => {
-            expect(mockRefreshAuthTokens).toHaveBeenCalled();
-        })
         // Check that user is redirected to home page
         await waitFor(() => {
-            expect(mockUseRouter().push).toHaveBeenCalledWith('/signup');
+            expect(mockUseRouter().push).toHaveBeenCalledWith('/login');
         })
     });
 

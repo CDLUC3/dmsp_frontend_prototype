@@ -10,6 +10,7 @@ export const createAuthLink = () => {
     return setContext(async (_, { headers }) => {
 
         return {
+            credentials: 'include',
             headers: {
                 ...headers,
                 'CONTENT-TYPE': 'application/json', // CSRF prevention

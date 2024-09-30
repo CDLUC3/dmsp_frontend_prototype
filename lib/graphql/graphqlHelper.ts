@@ -2,7 +2,7 @@ import { fromPromise } from "@apollo/client/link/utils";
 import { onError } from "@apollo/client/link/error";
 import { redirect } from "next/navigation";
 import logECS from "@/utils/clientLogger";
-import { refreshAuthTokens, fetchCsrfToken } from "@/utils/authHelper";
+import { fetchCsrfToken } from "@/utils/authHelper";
 import { RetryLink } from "@apollo/client/link/retry";
 import { createAuthLink } from "@/utils/authLink";
 
@@ -21,31 +21,8 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
             errorCode: 'UNAUTHORIZED'
           });
 
-          if (refreshAuthTokens) {
-            return fromPromise(
-              refreshAuthTokens()
-                .then(({ response, message }) => {
-                  if (response && message === 'ok') {
-                    // Retry the operation after refreshing the token
-                    return forward(operation);
-
-                  } else {
-                    logECS('error', 'Error refreshing auth tokens', {
-                      source: 'apollo-client'
-                    });
-                    redirect('/login');
-                  }
-                })
-                .catch(error => {
-                  logECS('error', 'Token refresh failed', { error });
-                  redirect('/login');
-                })
-            );
-          } else {
-            logECS('error', 'No token refresh function available', { source: 'apollo-client' });
-            return forward(operation);
-          }
-
+          redirect('/login');
+          break;
         case 'FORBIDDEN':
           logECS('error', `[GraphQL Error]: FORBIDDEN - ${message}`, {
             errorCode: 'FORBIDDEN'
