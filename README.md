@@ -174,9 +174,9 @@ docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
 ## Authentication
 There are currently two context files, AuthContext.tsx and CsrfContext.tsx, that help manage the auth state and the csrf token state.
 
-All forms submitted to the backend need to include the CSRF token in the header of the request. GraphQL queries have inherent handling of csrf protection as long as we remember to include the CONTENT-TYPE as application/json in the header, which is currently added by the 'utils/authLink' used in the apollo client instance.
+All forms submitted to the backend need to include the CSRF token in the header of the request. GraphQL queries have inherent handling of csrf protection as long as we remember to include the `CONTENT-TYPE` as `application/json`in the header, which is currently added by the `utils/authLink` used in the apollo client instance.
 
-Endpoints to refresh the auth tokens and the csrf tokens are called when getting a 401 or 403 error returned from the backend server.
+The endpoint to refresh the csrf token is called when getting a 403 returned from the backend server.
 
 ## Testing
 When new components or functions are added, corresponding unit tests should ideally be added. We want to shoot for above 70% coverage. React components are tested using jest and React Testing Library.

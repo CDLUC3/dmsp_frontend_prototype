@@ -6,7 +6,6 @@ import { fetchCsrfToken } from '@/utils/authHelper';
 
 interface CsrfContextProps {
   csrfToken: string | null;
-  refreshCsrfToken: () => Promise<string | null>;
 }
 
 const CsrfContext = createContext<CsrfContextProps | undefined>(undefined);
@@ -51,7 +50,7 @@ export function CsrfProvider({ children }: {
   }, []);
 
   return (
-    <CsrfContext.Provider value={{ csrfToken, refreshCsrfToken }}>
+    <CsrfContext.Provider value={{ csrfToken }}>
       {children}
     </CsrfContext.Provider>
   )
