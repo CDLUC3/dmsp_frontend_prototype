@@ -37,7 +37,7 @@ describe("GraphQL Errors", () => {
     jest.restoreAllMocks();
   })
 
-  it("should handle Unauthorized GraphQL errors", () => {
+  it("should handle Unauthorized GraphQL errors", (done) => {
     // Explicitly cast refreshAuthTokens as a jest mock
     const mockRefreshAuthTokens = refreshAuthTokens as jest.Mock;
 
@@ -65,18 +65,28 @@ describe("GraphQL Errors", () => {
     // Compose the error link with the mock forward link
     const link = ApolloLink.from([errorLink, mockForward]);
 
+    // Execute the request
     /* eslint-disable @typescript-eslint/no-explicit-any */
     link.request(mockOperation as any)?.subscribe({
       next: (result) => {
-        // Check if the error was caught and handled correctly
-        expect(result.errors?.[0].message).toBe('Unauthorized');
-        expect(logECS).toHaveBeenCalledWith(
-          'error',
-          expect.stringContaining('Unauthorized'),
-          expect.objectContaining({ errorCode: 'UNAUTHORIZED' })
-        );
-        expect(redirect).toHaveBeenCalledWith("/login");
+        try {
+          // Check if the error was caught and handled correctly
+          expect(result.errors?.[0].message).toBe('Unauthorized');
+          expect(logECS).toHaveBeenCalledWith(
+            'error',
+            expect.stringContaining('Unauthorized'),
+            expect.objectContaining({ errorCode: 'UNAUTHORIZED' })
+          );
+          expect(refreshAuthTokens).toHaveBeenCalled();
+          done(); // Signal that the test is done
+        } catch (error) {
+          done(error);
+        }
+
       },
+      error: (error) => {
+        done(error) //Fail the test if there's an unexpected error
+      }
     });
 
   });

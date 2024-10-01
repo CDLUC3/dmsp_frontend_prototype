@@ -53,7 +53,7 @@ const SignUpPage: React.FC = () => {
                 setIsAuthenticated(true);
                 router.push('/')
             } else {
-                await handleErrors(response, signupRequest, setErrors, router, '/signup', '/apollo-signup');
+                await handleErrors(response, signupRequest, setErrors, router, '/signup');
             }
 
         } catch (err: any) {

@@ -1,7 +1,7 @@
 'use client'
 
 import logECS from '@/utils/clientLogger';
-import { fetchCsrfToken } from "@/utils/authHelper";
+import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 
 type RetryRequestType = (csrfToken: string | null) => Promise<Response>;
 
@@ -24,7 +24,6 @@ export const handleErrors = async (
   retryRequest: RetryRequestType,
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
   router: CustomRouter,
-  pageRedirect: string,
   path: string
 
 ) => {
@@ -44,9 +43,20 @@ export const handleErrors = async (
           logECS('error', message, {
             url: { path: path }
           });
-        }
 
-        router.push('/login');
+          try {
+            // Attempt to get new auth tokens
+            const response = await refreshAuthTokens();
+
+            if (response) {
+              router.push("/");
+            } else {
+              router.push('/login')
+            }
+          } catch (err) {
+            router.push('/login');
+          }
+        }
         break;
 
       case 403:
@@ -64,7 +74,7 @@ export const handleErrors = async (
                 // Retry request
                 const newResponse = await retryRequest(csrfToken);
                 if (newResponse.ok) {
-                  router.push(pageRedirect);
+                  router.push("/");
                 } else {
                   const errorMessage = await newResponse.json();
                   setErrors(prevErrors => [...prevErrors, errorMessage]);

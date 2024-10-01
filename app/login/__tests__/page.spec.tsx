@@ -13,6 +13,7 @@ jest.mock('@/utils/clientLogger', () => ({
 }))
 
 jest.mock('@/utils/authHelper', () => ({
+    refreshAuthTokens: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
     fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
 }));
 
@@ -25,8 +26,9 @@ import { useRouter } from 'next/navigation';
 
 const mockUseRouter = useRouter as jest.Mock;
 
-import { fetchCsrfToken } from "@/utils/authHelper";
+import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
+const mockRefreshAuthTokens = refreshAuthTokens as jest.Mock;
 
 // Assign fetch to global object in Node.js environment
 global.fetch = global.fetch || require('node-fetch');
@@ -129,7 +131,7 @@ describe('LoginPage', () => {
         });
     });
 
-    it('should redirect back to /login page after getting 401 error', async () => {
+    it('should redirect back to home page after successfully calling refreshAuthTokens for a 401 error', async () => {
         jest.spyOn(global, 'fetch').mockImplementation(() => {
             return Promise.resolve({
                 ok: false,
@@ -151,10 +153,50 @@ describe('LoginPage', () => {
         //Simulate form submission
         fireEvent.click(submitButton);
 
+        // Check that user is redirected to 500 error page
+        await waitFor(() => {
+            expect(mockRefreshAuthTokens).toHaveBeenCalled();
+        })
+
         // Check that user is redirected to home page
+        await waitFor(() => {
+            expect(mockUseRouter().push).toHaveBeenCalledWith('/');
+        })
+    });
+
+    it('should redirect to /login on a 401 error when there is no response', async () => {
+        /* eslint-disable @typescript-eslint/no-var-requires */
+        const { refreshAuthTokens } = require('@/utils/authHelper');
+
+        // Override refreshAuthTokens for this test case only
+        refreshAuthTokens.mockImplementationOnce(async () => Promise.resolve(undefined));
+
+        jest.spyOn(global, 'fetch').mockImplementation(() => {
+            return Promise.resolve({
+                ok: false,
+                status: 401,
+                json: () => Promise.resolve({ success: false, message: 'Invalid credentials' }),
+            } as unknown as Response);
+        });
+        renderWithAuth(<LoginPage />);
+
+        //Find input fields and button in screen
+        const emailInput = screen.getByLabelText(/email/i);
+        const passwordInput = screen.getByLabelText(/password/i);
+        const submitButton = screen.getByRole('button', { name: /login/i });
+
+        //Simulate user input
+        fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
+        fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+        //Simulate form submission
+        fireEvent.click(submitButton);
+
+        // Check that user is redirected to login page
         await waitFor(() => {
             expect(mockUseRouter().push).toHaveBeenCalledWith('/login');
         })
+
     });
 
     it('should handle 403 error by calling fetchCsrfToken and displaying error on page', async () => {
