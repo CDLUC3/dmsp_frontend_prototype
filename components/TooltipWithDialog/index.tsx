@@ -20,7 +20,7 @@ interface TooltipWithDialogProps {
   dialogHeading?: string;
   dialogContent?: string;
   icon?: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 const TooltipWithDialog = ({
@@ -59,7 +59,7 @@ const TooltipWithDialog = ({
           <Button {...buttonProps as {}} className={classNames('react-aria-Button', styles.tooltipButton)}>
             {icon || <DmpIcon icon="cancel" />}
           </Button>
-          <Tooltip placement="bottom left" className={styles.tooltip}>
+          <Tooltip placement="bottom left" className={styles.tooltip} data-testid="tooltip-container">
             <OverlayArrow className={styles.tooltipArrow} />
             {tooltipText}
           </Tooltip>
