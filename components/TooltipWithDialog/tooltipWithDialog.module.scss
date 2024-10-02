@@ -1,0 +1,27 @@
+.tooltipButton {
+  background: none;
+  border: none;
+}
+
+.tooltip {
+  background-color: var(--gray-600);
+  color: var(--gray-50);
+  padding: 5px;
+  position: relative;
+
+  .tooltipArrow {
+    background-color: inherit; // Match background color of tooltip
+    position: absolute;
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: inherit;
+      transform: rotate(45deg);
+      bottom: -5px;
+      left: 0;
+    }
+}
+}

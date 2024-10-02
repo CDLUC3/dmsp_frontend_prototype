@@ -1,13 +1,19 @@
-
-
 .leftSidebar {
 
   .menuList {
     padding-left: 0;
     list-style: none;
+
+    li {
+      line-height: 1.5rem;
+    }
   }
 
   .title {
     padding-left: 0;
+  }
+
+  .emphasis {
+    font-weight: 600;
   }
 }
