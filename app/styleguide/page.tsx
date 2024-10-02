@@ -23,9 +23,6 @@ import {
   Column,
   Row,
   Cell,
-  Heading,
-  Modal,
-  ModalOverlay
 } from "react-aria-components";
 import "./styleguide.scss";
 

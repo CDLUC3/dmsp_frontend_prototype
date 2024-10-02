@@ -13,7 +13,7 @@ const ConnectionsPage: React.FC = () => {
       <ContentContainer>
         <div className={styles.connectionSection}>
           <h4>ORCID iD</h4>
-          <p>ORCID provides a persistent identifier - an ORCID iD - that distinguishes you from other users. Learn more at <a href="https://orcid.org/" target="_blank" rel="noopener" >ORCID.org</a>.</p>
+          <p>ORCID provides a persistent identifier - an ORCID iD - that distinguishes you from other users. Learn more at <a href="https://orcid.org/" target="_blank" rel="noopener noreferrer" >ORCID.org</a>.</p>
           <ButtonWithImage imageUrl="/images/orcid.svg" buttonText="Connect your ORCID iD" />
         </div>
         <div className={styles.connectionSection}>

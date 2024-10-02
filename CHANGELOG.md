@@ -1,4 +1,6 @@
 ### Added
+- Set up a directory for the account pages, and added the Connections page [#128]
+- Added new shared LeftSidebar, TooltipWithDialog, ButtonWithImage, and ContentContainer components. Updated styleguide with the new TooltipWithDialog and ButtonWithImage components. [#128]
 - Added the Template History page [#86]
 - Added more documentation to README.md [#91]
 - Added existing header and footer from production to app [#89]
