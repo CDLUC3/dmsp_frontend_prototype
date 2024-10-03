@@ -1,14 +1,8 @@
 import { ApolloLink, Observable } from "@apollo/client";
 import { redirect } from "next/navigation";
-import { refreshAuthTokens, fetchCsrfToken } from "@/utils/authHelper";
 import { GraphQLError } from "graphql";
 import { errorLink } from "@/lib/graphql/graphqlHelper";
 import logECS from "@/utils/clientLogger";
-
-jest.mock("@/utils/authHelper", () => ({
-  refreshAuthTokens: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
-  fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
-}));
 
 // Mock the entire module
 jest.mock("@/utils/clientLogger", () => ({
@@ -38,11 +32,6 @@ describe("GraphQL Errors", () => {
   })
 
   it("should handle Unauthorized GraphQL errors", (done) => {
-    // Explicitly cast refreshAuthTokens as a jest mock
-    const mockRefreshAuthTokens = refreshAuthTokens as jest.Mock;
-
-    // Mock the implementation of refreshAuthTokens
-    mockRefreshAuthTokens.mockResolvedValueOnce({ response: { ok: true }, message: 'ok' });
     const mockOperation = {
       setContext: jest.fn(),
       getContext: jest.fn(),
@@ -53,8 +42,8 @@ describe("GraphQL Errors", () => {
       new Observable((observer) => {
         observer.next({
           errors: [
-            new GraphQLError('Unauthorized', {
-              extensions: { code: 'UNAUTHORIZED' },
+            new GraphQLError('Unauthenticated', {
+              extensions: { code: 'UNAUTHENTICATED' },
             }),
           ],
         });
@@ -71,13 +60,12 @@ describe("GraphQL Errors", () => {
       next: (result) => {
         try {
           // Check if the error was caught and handled correctly
-          expect(result.errors?.[0].message).toBe('Unauthorized');
+          expect(result.errors?.[0].message).toBe('Unauthenticated');
           expect(logECS).toHaveBeenCalledWith(
             'error',
-            expect.stringContaining('Unauthorized'),
-            expect.objectContaining({ errorCode: 'UNAUTHORIZED' })
+            expect.stringContaining('Unauthenticated'),
+            expect.objectContaining({ errorCode: 'UNAUTHENTICATED' })
           );
-          expect(refreshAuthTokens).toHaveBeenCalled();
           done(); // Signal that the test is done
         } catch (error) {
           done(error);
@@ -92,11 +80,6 @@ describe("GraphQL Errors", () => {
   });
 
   it("should handle Forbidden GraphQL errors", (done) => {
-    // Explicitly cast refreshAuthTokens as a jest mock
-    const mockFetchAuthTokens = fetchCsrfToken as jest.Mock;
-    // Mock the implementation of refreshAuthTokens
-    mockFetchAuthTokens.mockResolvedValueOnce({ response: { ok: true }, message: 'ok' });
-
     const mockOperation = {
       setContext: jest.fn(),
       getContext: jest.fn(),
@@ -131,7 +114,6 @@ describe("GraphQL Errors", () => {
             expect.stringContaining('Forbidden'),
             expect.objectContaining({ errorCode: 'FORBIDDEN' })
           );
-          expect(fetchCsrfToken).toHaveBeenCalled();
           done(); // Signal that the test is done
         } catch (error) {
           done(error);

@@ -13,7 +13,7 @@ function Header() {
     const router = useRouter();
 
     useEffect(() => {
-        console.log('Authentication status changed:', isAuthenticated);
+        //this is just to trigger a refresh on authentication change
     }, [isAuthenticated]);
 
 

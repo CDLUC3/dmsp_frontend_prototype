@@ -23,6 +23,26 @@ export type Scalars = {
   URL: { input: any; output: any; }
 };
 
+/** Input for adding a new section */
+export type AddSectionInput = {
+  /** The Section you want to copy from */
+  copyFromVersionedSectionId?: InputMaybe<Scalars['Int']['input']>;
+  /** The order in which the section will be displayed in the template */
+  displayOrder?: InputMaybe<Scalars['Int']['input']>;
+  /** The guidance to help user with section */
+  guidance?: InputMaybe<Scalars['String']['input']>;
+  /** The section introduction */
+  introduction?: InputMaybe<Scalars['String']['input']>;
+  /** The section name */
+  name: Scalars['String']['input'];
+  /** Requirements that a user must consider in this section */
+  requirements?: InputMaybe<Scalars['String']['input']>;
+  /** The Tags associated with this section. A section might not have any tags */
+  tags?: InputMaybe<Array<TagInput>>;
+  /** The id of the template that the section belongs to */
+  templateId: Scalars['Int']['input'];
+};
+
 /** A respresentation of an institution, organization or company */
 export type Affiliation = {
   __typename?: 'Affiliation';
@@ -137,7 +157,7 @@ export type Contributor = Person & {
 export type ContributorRole = {
   __typename?: 'ContributorRole';
   /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** A longer description of the contributor role useful for tooltips */
@@ -151,7 +171,7 @@ export type ContributorRole = {
   /** The Ui label to display for the contributor role */
   label: Scalars['String']['output'];
   /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The URL for the contributor role */
@@ -183,7 +203,7 @@ export type Dmsp = {
   __typename?: 'Dmsp';
   contact: PrimaryContact;
   contributor?: Maybe<Array<Maybe<Contributor>>>;
-  created: Scalars['DateTimeISO']['output'];
+  created?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   dmp_id: DmspIdentifier;
   dmproadmap_featured?: Maybe<Scalars['String']['output']>;
@@ -193,7 +213,7 @@ export type Dmsp = {
   ethical_issues_exist: YesNoUnknown;
   ethical_issues_report?: Maybe<Scalars['URL']['output']>;
   language?: Maybe<Scalars['String']['output']>;
-  modified: Scalars['DateTimeISO']['output'];
+  modified?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
 };
 
@@ -214,6 +234,10 @@ export type Mutation = {
   _empty?: Maybe<Scalars['String']['output']>;
   /** Add a new contributor role (URL and label must be unique!) */
   addContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  /** Create a new Section. Leave the 'copyFromVersionedSectionId' blank to create a new section from scratch */
+  addSection: Section;
+  /** Add a new tag to available list of tags */
+  addTag?: Maybe<Tag>;
   /** Create a new Template. Leave the 'copyFromTemplateId' blank to create a new template from scratch */
   addTemplate?: Maybe<Template>;
   /** Add a collaborator to a Template */
@@ -224,10 +248,18 @@ export type Mutation = {
   createVersion?: Maybe<Template>;
   /** Delete the contributor role */
   removeContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  /** Delete a section */
+  removeSection: Section;
+  /** Delete a tag */
+  removeTag?: Maybe<Tag>;
   /** Remove a TemplateCollaborator from a Template */
   removeTemplateCollaborator?: Maybe<Scalars['Boolean']['output']>;
   /** Update the contributor role */
   updateContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  /** Update a Section */
+  updateSection: Section;
+  /** Update a tag */
+  updateTag?: Maybe<Tag>;
   /** Update a Template */
   updateTemplate?: Maybe<Template>;
 };
@@ -238,6 +270,17 @@ export type MutationAddContributorRoleArgs = {
   displayOrder: Scalars['Int']['input'];
   label: Scalars['String']['input'];
   url: Scalars['URL']['input'];
+};
+
+
+export type MutationAddSectionArgs = {
+  input: AddSectionInput;
+};
+
+
+export type MutationAddTagArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
 };
 
 
@@ -270,6 +313,16 @@ export type MutationRemoveContributorRoleArgs = {
 };
 
 
+export type MutationRemoveSectionArgs = {
+  sectionId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveTagArgs = {
+  tagId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveTemplateCollaboratorArgs = {
   email: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
@@ -282,6 +335,18 @@ export type MutationUpdateContributorRoleArgs = {
   id: Scalars['ID']['input'];
   label: Scalars['String']['input'];
   url: Scalars['URL']['input'];
+};
+
+
+export type MutationUpdateSectionArgs = {
+  input: UpdateSectionInput;
+};
+
+
+export type MutationUpdateTagArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  tagId: Scalars['Int']['input'];
 };
 
 
@@ -334,8 +399,19 @@ export type Query = {
   dmspById?: Maybe<SingleDmspResponse>;
   /** Returns the currently logged in user's information */
   me?: Maybe<User>;
+  /** Search for VersionedSection whose name contains the search term */
+  publishedSections?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
   publishedTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
+  /** Get the specified section */
+  section?: Maybe<Section>;
+  /** Get all of the VersionedSection for the specified Section ID */
+  sectionVersions?: Maybe<Array<Maybe<VersionedSection>>>;
+  /** Get the Sections that belong to the associated templateId */
+  sections?: Maybe<Array<Maybe<Section>>>;
+  /** Get all available tags to display */
+  tags: Array<Tag>;
+  tagsBySectionId?: Maybe<Array<Maybe<Tag>>>;
   /** Get the specified Template (user must be an Admin) */
   template?: Maybe<Template>;
   /** Get all of the Users that belong to another affiliation that can edit the Template */
@@ -377,8 +453,33 @@ export type QueryDmspByIdArgs = {
 };
 
 
+export type QueryPublishedSectionsArgs = {
+  term: Scalars['String']['input'];
+};
+
+
 export type QueryPublishedTemplatesArgs = {
   term: Scalars['String']['input'];
+};
+
+
+export type QuerySectionArgs = {
+  sectionId: Scalars['Int']['input'];
+};
+
+
+export type QuerySectionVersionsArgs = {
+  sectionId: Scalars['Int']['input'];
+};
+
+
+export type QuerySectionsArgs = {
+  templateId: Scalars['Int']['input'];
+};
+
+
+export type QueryTagsBySectionIdArgs = {
+  sectionId: Scalars['Int']['input'];
 };
 
 
@@ -409,6 +510,49 @@ export type RelatedIdentifier = {
   work_type: Scalars['String']['output'];
 };
 
+/** A Section that contains a list of questions in a template */
+export type Section = {
+  __typename?: 'Section';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The order in which the section will be displayed in the template */
+  displayOrder?: Maybe<Scalars['Int']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The guidance to help user with section */
+  guidance?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The section introduction */
+  introduction?: Maybe<Scalars['String']['output']>;
+  /** Indicates whether or not the section has changed since the template was last published */
+  isDirty: Scalars['Boolean']['output'];
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The section title */
+  name: Scalars['String']['output'];
+  /** Requirements that a user must consider in this section */
+  requirements?: Maybe<Scalars['String']['output']>;
+  /** The Tags associated with this section. A section might not have any tags */
+  tags?: Maybe<Array<Maybe<Tag>>>;
+  /** The template that the section is associated with */
+  template?: Maybe<Template>;
+  /** The template ID that the section belongs to */
+  templateId?: Maybe<Scalars['Int']['output']>;
+};
+
+/** Section version type */
+export enum SectionVersionType {
+  /** Draft - saved state for internal review */
+  Draft = 'DRAFT',
+  /** Published - saved state for use when creating DMPs */
+  Published = 'PUBLISHED'
+}
+
 export type SingleDmspResponse = {
   __typename?: 'SingleDmspResponse';
   /** Similar to HTTP status code, represents the status of the mutation */
@@ -421,6 +565,37 @@ export type SingleDmspResponse = {
   success: Scalars['Boolean']['output'];
 };
 
+/** A Tag is a way to group similar types of categories together */
+export type Tag = {
+  __typename?: 'Tag';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The tag description */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The tag name */
+  name: Scalars['String']['output'];
+};
+
+/** Input for Tag operations */
+export type TagInput = {
+  /** The description of the Tag */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The unique identifier for the Tag */
+  id?: InputMaybe<Scalars['Int']['input']>;
+  /** The name of the Tag */
+  name: Scalars['String']['input'];
+};
+
 /** A Template used to create DMPs */
 export type Template = {
   __typename?: 'Template';
@@ -429,7 +604,7 @@ export type Template = {
   /** Users from different affiliations who have been invited to collaborate on this template */
   collaborators?: Maybe<Array<TemplateCollaborator>>;
   /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** The current published version */
@@ -443,13 +618,15 @@ export type Template = {
   /** Whether or not the Template has had any changes since it was last published */
   isDirty: Scalars['Boolean']['output'];
   /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The name/title of the template */
   name: Scalars['String']['output'];
   /** The affiliation that the template belongs to */
   owner?: Maybe<Affiliation>;
+  /** The Sections associated with the template */
+  sections?: Maybe<Array<Maybe<Section>>>;
   /** The template that this one was derived from */
   sourceTemplateId?: Maybe<Scalars['Int']['output']>;
   /** The template's availability setting: Public is available to everyone, Private only your affiliation */
@@ -460,7 +637,7 @@ export type Template = {
 export type TemplateCollaborator = {
   __typename?: 'TemplateCollaborator';
   /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** The collaborator's email */
@@ -472,7 +649,7 @@ export type TemplateCollaborator = {
   /** The user who invited the collaborator */
   invitedBy?: Maybe<User>;
   /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The template the collaborator may edit */
@@ -497,13 +674,33 @@ export enum TemplateVisibility {
   Public = 'PUBLIC'
 }
 
+/** Input for updating a section */
+export type UpdateSectionInput = {
+  /** The order in which the section will be displayed in the template */
+  displayOrder?: InputMaybe<Scalars['Int']['input']>;
+  /** The guidance to help user with section */
+  guidance?: InputMaybe<Scalars['String']['input']>;
+  /** The section introduction */
+  introduction?: InputMaybe<Scalars['String']['input']>;
+  /** The section name */
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** Requirements that a user must consider in this section */
+  requirements?: InputMaybe<Scalars['String']['input']>;
+  /** The unique identifer for the Section */
+  sectionId: Scalars['Int']['input'];
+  /** The Tags associated with this section. A section might not have any tags */
+  tags?: InputMaybe<Array<TagInput>>;
+};
+
 /** A user of the DMPTool */
 export type User = {
   __typename?: 'User';
+  /** Whether the user has accepted the terms and conditions of having an account */
+  acceptedTerms?: Maybe<Scalars['Boolean']['output']>;
   /** The user's organizational affiliation */
   affiliation?: Maybe<Affiliation>;
   /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** The user's primary email address */
@@ -515,7 +712,7 @@ export type User = {
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The user's ORCID */
@@ -533,6 +730,43 @@ export enum UserRole {
   Superadmin = 'SUPERADMIN'
 }
 
+/** A snapshot of a Section when it became published. */
+export type VersionedSection = {
+  __typename?: 'VersionedSection';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The displayOrder of this VersionedSection */
+  displayOrder: Scalars['Int']['output'];
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The guidance to help user with VersionedSection */
+  guidance?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The VersionedSection introduction */
+  introduction?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The VersionedSection name/title */
+  name: Scalars['String']['output'];
+  /** Requirements that a user must consider in this VersionedSection */
+  requirements?: Maybe<Scalars['String']['output']>;
+  /** The section that this is a snapshot of */
+  section?: Maybe<Section>;
+  /** The sectionId for the snapshot section */
+  sectionId?: Maybe<Scalars['Int']['output']>;
+  /** The Tags associated with this VersionedSection */
+  tags?: Maybe<Array<Maybe<Tag>>>;
+  /** The type of version: Published or Draft (default: Draft) */
+  versionType?: Maybe<SectionVersionType>;
+  /** The parent VersionedTemplate */
+  versionedTemplate: VersionedTemplate;
+};
+
 /** A snapshot of a Template when it became published. DMPs are created from published templates */
 export type VersionedTemplate = {
   __typename?: 'VersionedTemplate';
@@ -543,7 +777,7 @@ export type VersionedTemplate = {
   /** A comment/note the user enters when publishing the Template */
   comment?: Maybe<Scalars['String']['output']>;
   /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['DateTimeISO']['output']>;
+  created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** A description of the purpose of the template */
@@ -553,7 +787,7 @@ export type VersionedTemplate = {
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['DateTimeISO']['output']>;
+  modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The name/title of the template */
@@ -568,6 +802,8 @@ export type VersionedTemplate = {
   versionType?: Maybe<TemplateVersionType>;
   /** The publisher of the Template */
   versionedBy?: Maybe<User>;
+  /** The VersionedSections that go with the VersionedTemplate */
+  versionedSection?: Maybe<Array<Maybe<VersionedSection>>>;
   /** The template's availability setting: Public is available to everyone, Private only your affiliation */
   visibility: TemplateVisibility;
 };
@@ -595,7 +831,7 @@ export type TemplateVersionsQueryVariables = Exact<{
 }>;
 
 
-export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: Array<{ __typename?: 'VersionedTemplate', name: string, version: string, created?: any | null, comment?: string | null, id?: number | null, versionedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, modified?: any | null, affiliation?: { __typename?: 'Affiliation', name: string } | null } | null } | null> | null };
+export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: Array<{ __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, comment?: string | null, id?: number | null, versionedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, modified?: string | null, affiliation?: { __typename?: 'Affiliation', name: string } | null } | null } | null> | null };
 
 
 export const AffiliationsDocument = gql`
@@ -623,18 +859,18 @@ export const AffiliationsDocument = gql`
  *   },
  * });
  */
-export function useAffiliationsQuery(baseOptions: Apollo.QueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables> & ({ variables: AffiliationsQueryVariables; skip?: boolean; } | { skip: boolean; })) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
-}
+export function useAffiliationsQuery(baseOptions: Apollo.QueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables> & ({ variables: AffiliationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
+      }
 export function useAffiliationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
-}
-export function useAffiliationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
+        }
+export function useAffiliationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
+        }
 export type AffiliationsQueryHookResult = ReturnType<typeof useAffiliationsQuery>;
 export type AffiliationsLazyQueryHookResult = ReturnType<typeof useAffiliationsLazyQuery>;
 export type AffiliationsSuspenseQueryHookResult = ReturnType<typeof useAffiliationsSuspenseQuery>;
@@ -665,17 +901,17 @@ export const ContributorRolesDocument = gql`
  * });
  */
 export function useContributorRolesQuery(baseOptions?: Apollo.QueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
+      }
 export function useContributorRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
-}
-export function useContributorRolesSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
+        }
+export function useContributorRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
+        }
 export type ContributorRolesQueryHookResult = ReturnType<typeof useContributorRolesQuery>;
 export type ContributorRolesLazyQueryHookResult = ReturnType<typeof useContributorRolesLazyQuery>;
 export type ContributorRolesSuspenseQueryHookResult = ReturnType<typeof useContributorRolesSuspenseQuery>;
@@ -716,18 +952,18 @@ export const TemplateVersionsDocument = gql`
  *   },
  * });
  */
-export function useTemplateVersionsQuery(baseOptions: Apollo.QueryHookOptions<TemplateVersionsQuery, TemplateVersionsQueryVariables> & ({ variables: TemplateVersionsQueryVariables; skip?: boolean; } | { skip: boolean; })) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
-}
+export function useTemplateVersionsQuery(baseOptions: Apollo.QueryHookOptions<TemplateVersionsQuery, TemplateVersionsQueryVariables> & ({ variables: TemplateVersionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
+      }
 export function useTemplateVersionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TemplateVersionsQuery, TemplateVersionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
-}
-export function useTemplateVersionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<TemplateVersionsQuery, TemplateVersionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
+        }
+export function useTemplateVersionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TemplateVersionsQuery, TemplateVersionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
+        }
 export type TemplateVersionsQueryHookResult = ReturnType<typeof useTemplateVersionsQuery>;
 export type TemplateVersionsLazyQueryHookResult = ReturnType<typeof useTemplateVersionsLazyQuery>;
 export type TemplateVersionsSuspenseQueryHookResult = ReturnType<typeof useTemplateVersionsSuspenseQuery>;

@@ -55,7 +55,7 @@ const LoginPage: React.FC = () => {
                 setIsAuthenticated(true);
                 router.push('/')
             } else {
-                await handleErrors(response, loginRequest, setErrors, router, '/login', '/apollo-sigin');
+                await handleErrors(response, loginRequest, setErrors, router, '/login');
             }
 
         } catch (err: any) {

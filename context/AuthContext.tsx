@@ -18,7 +18,6 @@ export function AuthProvider({ children }: {
     children: React.ReactNode;
 }) {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
     useEffect(() => {
         const checkAuth = async () => {
             try {
