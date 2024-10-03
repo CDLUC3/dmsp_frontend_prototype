@@ -257,7 +257,6 @@ describe('SignUpPage', () => {
 
         // //Check that error is rendered
         await waitFor(() => {
-            screen.debug;
             const errorElement = screen.getByText(/Invalid email address/i);
             expect(errorElement).toBeInTheDocument();
         })
