@@ -1,7 +1,13 @@
+@import '../../styles/responsive.scss';
+
 .imageButton {
+  @include device(md) {
+    max-width:30%;
+  }
   display: flex;
   align-items: center;
   justify-content: center;
+  max-width:40%;
 }
 
 .imageButton:hover {

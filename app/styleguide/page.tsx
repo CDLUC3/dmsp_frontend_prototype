@@ -518,7 +518,7 @@ function Page() {
                 <Button>Standard</Button>
                 <Button data-primary>Primary</Button>
                 <Button isDisabled>Disabled</Button>
-                <ButtonWithImage imageUrl="/images/orcid.svg" buttonText="Connect institutional credentials" />
+                <ButtonWithImage url="http://localhost:3000" imageUrl="/images/orcid.svg" buttonText="Connect institutional credentials" />
               </div>
             </Example>
 
