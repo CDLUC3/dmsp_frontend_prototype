@@ -32,13 +32,14 @@ import { DmpIcon } from "@/components/Icons";
 import {
   Example,
   BrandColor,
-  ModalOverlayComponent
+  handleDelete,
 } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/TypeAheadWithOther';
 import { AffiliationsDocument } from '@/generated/graphql';
 import TooltipWithDialog from "@/components/TooltipWithDialog";
+import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
 
 function Page() {
@@ -719,12 +720,18 @@ function Page() {
             <p>This tooltip displays a message when a user hovers over the icon that is passed to TooltipWithDialog.</p>
             <p>Users can also pass in the tooltip message, as well as the modal that they want displayed when the user clicks the icon.</p>
             <Example>
-              You have an existing connection to ORCID.<TooltipWithDialog
+              <TooltipWithDialog
+                text='You have an existing connection to ORCID.'
                 tooltipText="Disconnect your account from ORCID. You can reconnect at any time."
                 icon={<DmpIcon icon="cancel" />}
               >
-                <ModalOverlayComponent />
+                <ModalOverlayComponent
+                  heading='Confirm deletion'
+                  content='Are you sure you want to disconnect your ORCID ID?'
+                  onPressAction={handleDelete}
+                />
               </TooltipWithDialog>
+
             </Example>
           </div>
 

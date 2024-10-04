@@ -13,10 +13,10 @@ describe('ButtonWithImage', () => {
   const mockButtonText = 'Click me';
 
   it('should render button with the correct text and image', () => {
-    render(<ButtonWithImage imageUrl={mockImageUrl} buttonText={mockButtonText} />);
+    render(<ButtonWithImage url="http://localhost:3000" imageUrl={mockImageUrl} buttonText={mockButtonText} />);
 
     // Check if the button text is rendered
-    const button = screen.getByRole('button', { name: /click me/i });
+    const button = screen.getByRole('link', { name: /click me/i });
     expect(button).toBeInTheDocument();
 
     // Check if the image is rendered with the correct URL and alt attributes
@@ -27,7 +27,7 @@ describe('ButtonWithImage', () => {
   });
 
   it('should apply the correct styles', () => {
-    const { container } = render(<ButtonWithImage imageUrl={mockImageUrl} buttonText={mockButtonText} />);
+    const { container } = render(<ButtonWithImage url="http://localhost:3000" imageUrl={mockImageUrl} buttonText={mockButtonText} />);
 
     const button = container.querySelector('.react-aria-Button');
     expect(button).toHaveClass('react-aria-Button');

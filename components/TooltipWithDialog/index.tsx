@@ -11,23 +11,28 @@ import {
   OverlayArrow
 } from "react-aria-components";
 import { useButton } from 'react-aria';
+import Image from 'next/image';
 import { DmpIcon } from "@/components/Icons";
 import classNames from 'classnames';
 import styles from "./tooltipWithDialog.module.scss";
 
 interface TooltipWithDialogProps {
+  text: string;
   tooltipText: string;
   dialogHeading?: string;
   dialogContent?: string;
   icon?: ReactNode;
+  imageUrl?: string;
   children?: ReactNode;
 }
 
 const TooltipWithDialog = ({
+  text,
   tooltipText,
   dialogHeading,
   dialogContent,
   icon,
+  imageUrl,
   children
 }: TooltipWithDialogProps) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -57,7 +62,9 @@ const TooltipWithDialog = ({
       <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
         <TooltipTrigger delay={0}>
           <Button {...buttonProps as {}} className={classNames('react-aria-Button', styles.tooltipButton)}>
-            {icon || <DmpIcon icon="cancel" />}
+            {imageUrl && (
+              <span><Image src={imageUrl} className={styles.icon} width={20} height={20} alt="" /></span>
+            )}<span>{text}</span><span>{icon || <DmpIcon icon="cancel" />}</span>
           </Button>
           <Tooltip placement="bottom left" className={styles.tooltip} data-testid="tooltip-container">
             <OverlayArrow className={styles.tooltipArrow} />

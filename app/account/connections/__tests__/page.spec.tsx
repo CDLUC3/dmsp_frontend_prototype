@@ -19,9 +19,9 @@ describe('Connections page', () => {
     expect(heading).toHaveTextContent('Connections')
 
     const heading4Elements = screen.getAllByRole('heading', { level: 4 });
-    expect(heading4Elements.length).toBe(2);
+    expect(heading4Elements.length).toBe(3);
 
-    const buttons = screen.getAllByRole('button');
-    expect(buttons.length).toBe(2);
+    const buttons = screen.getAllByRole('link');
+    expect(buttons.length).toBe(3);
   });
 })

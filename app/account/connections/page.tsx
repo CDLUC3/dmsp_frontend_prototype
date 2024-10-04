@@ -1,29 +1,52 @@
 'use client'
 
 import React from "react";
+import sanitizeHtml from 'sanitize-html';
 import ContentContainer from "@/components/ContentContainer";
-import ButtonWithImage from "@/components/ButtonWithImage";
-import styles from "./connections.module.scss";
+import ConnectionSection from "@/components/ConnectionSection";
 
-const redirectURI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
-const orcidClientId = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
+const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
+const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
+
+interface AuthData {
+  id: string;
+  token: string;
+}
 
 const ConnectionsPage: React.FC = () => {
-  const orcidUri = `https://sandbox.orcid.org/oauth/authorize?client_id=${orcidClientId}&response_type=code&scope=/read-limited&redirect_uri=${redirectURI}`;
+
+  // Sandbox Uri
+  //const orcidUri = `https://sandbox.orcid.org/oauth/authorize?client_id=${orcidClientId}&response_type=code&scope=/read-limited&redirect_uri=${redirectURI}`;
+
+  //Production Uri
+  const orcidUri = `https://orcid.org/oauth/authorize?client_id=${ORCID_CLIENT_ID}&response_type=code&scope=/authenticate&redirect_uri=${REDIRECT_URI}`;
+
+  const orcidContentString = sanitizeHtml('ORCID provides a persistent identifier - an ORCID iD - that distinguishes you from other users. Learn more at <a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">ORCID.org</a>.');
+
   return (
     <>
       <h1>Connections</h1>
       <ContentContainer>
-        <div className={styles.connectionSection}>
-          <h4>ORCID iD</h4>
-          <p>ORCID provides a persistent identifier - an ORCID iD - that distinguishes you from other users. Learn more at <a href="https://orcid.org/" target="_blank" rel="noopener noreferrer" >ORCID.org</a>.</p>
-          <ButtonWithImage url={orcidUri} imageUrl="/images/orcid.svg" buttonText="Connect your ORCID iD" />
-        </div>
-        <div className={styles.connectionSection}>
-          <h4>Single Sign On</h4>
-          <p>Connect your account so that you can log into DMP Tool via your institution.</p>
-          <ButtonWithImage url="" imageUrl="/images/orcid.svg" buttonText="Connect institutional credentials" />
-        </div>
+        <ConnectionSection
+          title='ORCID iD'
+          content={orcidContentString}
+          btnUrl={orcidUri}
+          btnImageUrl='/images/orcid.svg'
+          btnText='Connect your ORCID iD'
+        />
+        <ConnectionSection
+          title='Test orcid'
+          content='This is to test the display of the orcid id once the user has connected.'
+          btnUrl='/users/auth/orcid/test'
+          btnImageUrl='/images/orcid.svg'
+          btnText='Connect your ORCID iD'
+        />
+        <ConnectionSection
+          title='Single Sign On'
+          content='Connect your account so that you can log into DMP Tool via your institution.'
+          btnUrl=''
+          btnText='Connect institutional credentials'
+        />
       </ContentContainer>
     </>
   )

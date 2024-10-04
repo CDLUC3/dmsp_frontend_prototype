@@ -1,6 +1,13 @@
 .tooltipButton {
   background: none;
   border: none;
+  display: flex;
+  align-items: center;
+  margin: 15px 0;
+
+  span {
+    padding: 5px;
+  }
 }
 
 .tooltip {
