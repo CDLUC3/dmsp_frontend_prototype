@@ -44,7 +44,9 @@ const TemplateHistory = () => {
     });
 
     const lastPublication = sortedTemplates.length > 0 ? sortedTemplates[0] : null;
-    const lastPublicationDate = formatShortMonthDayYear(lastPublication?.created);
+    const lastPublicationDate = lastPublication?.created
+        ? formatShortMonthDayYear(new Date(lastPublication.created))
+        : '';
 
     return (
         <PageWrapper title={"Template History"}>
@@ -76,7 +78,9 @@ const TemplateHistory = () => {
                         {
                             sortedTemplates.length > 0
                                 ? sortedTemplates.map((item, index) => {
-                                    const publishDate = formatWithTimeAndDate(item?.created);
+                                    const publishDate = item?.created
+                                        ? formatWithTimeAndDate(new Date(item.created))
+                                        : '';
                                     const versionedBy = item?.versionedBy;
 
                                     return (
@@ -108,3 +112,4 @@ const TemplateHistory = () => {
 }
 
 export default TemplateHistory;
+
