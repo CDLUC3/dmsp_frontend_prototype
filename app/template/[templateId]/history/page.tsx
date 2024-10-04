@@ -43,10 +43,9 @@ const TemplateHistory = () => {
         return versionB - versionA;
     });
 
+
     const lastPublication = sortedTemplates.length > 0 ? sortedTemplates[0] : null;
-    const lastPublicationDate = lastPublication?.created
-        ? formatShortMonthDayYear(new Date(lastPublication.created))
-        : '';
+    const lastPublicationDate = lastPublication?.created ? formatShortMonthDayYear(lastPublication.created) : '';
 
     return (
         <PageWrapper title={"Template History"}>
@@ -78,9 +77,8 @@ const TemplateHistory = () => {
                         {
                             sortedTemplates.length > 0
                                 ? sortedTemplates.map((item, index) => {
-                                    const publishDate = item?.created
-                                        ? formatWithTimeAndDate(new Date(item.created))
-                                        : '';
+
+                                    const publishDate = item?.created ? formatWithTimeAndDate(item?.created) : '';
                                     const versionedBy = item?.versionedBy;
 
                                     return (
