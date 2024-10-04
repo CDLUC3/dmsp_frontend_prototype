@@ -4,6 +4,7 @@ import React from "react";
 import sanitizeHtml from 'sanitize-html';
 import ContentContainer from "@/components/ContentContainer";
 import ConnectionSection from "@/components/ConnectionSection";
+import styles from "./connections.module.scss";
 
 const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
 const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
@@ -20,9 +21,10 @@ const ConnectionsPage: React.FC = () => {
 
   return (
     <>
-      <h1>Connections</h1>
+      <h1 className={styles.title}>Connections</h1>
       <ContentContainer>
         <ConnectionSection
+          type='orcid'
           title='ORCID iD'
           content={orcidContentString}
           btnUrl={orcidUri}
@@ -30,13 +32,15 @@ const ConnectionsPage: React.FC = () => {
           btnText='Connect your ORCID iD'
         />
         <ConnectionSection
+          type='orcidtest'
           title='Test orcid'
           content='This is to test the display of the orcid id once the user has connected.'
           btnUrl='/users/auth/orcid/test'
           btnImageUrl='/images/orcid.svg'
-          btnText='Connect your ORCID iD'
+          btnText='Connect your ORCID iD Test'
         />
         <ConnectionSection
+          type='sso'
           title='Single Sign On'
           content='Connect your account so that you can log into DMP Tool via your institution.'
           btnUrl=''

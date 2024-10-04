@@ -2,7 +2,7 @@
 
 
 .container {
-  @include device(md) {
+  @include device(sm) {
     padding: 10px 20px 20px;
   }
   border-radius: 5px;

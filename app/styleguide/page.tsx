@@ -724,6 +724,7 @@ function Page() {
                 text='You have an existing connection to ORCID.'
                 tooltipText="Disconnect your account from ORCID. You can reconnect at any time."
                 icon={<DmpIcon icon="cancel" />}
+                onPressAction={handleDelete}
               >
                 <ModalOverlayComponent
                   heading='Confirm deletion'

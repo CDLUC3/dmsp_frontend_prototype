@@ -8,7 +8,8 @@ import {
   Heading,
   Modal,
   ModalOverlay,
-  OverlayArrow
+  OverlayArrow,
+  PressEvent
 } from "react-aria-components";
 import { useButton } from 'react-aria';
 import Image from 'next/image';
@@ -23,6 +24,7 @@ interface TooltipWithDialogProps {
   dialogContent?: string;
   icon?: ReactNode;
   imageUrl?: string;
+  onPressAction: (e: PressEvent, close: () => void) => void; // Allow passing arguments
   children?: ReactNode;
 }
 
@@ -33,6 +35,7 @@ const TooltipWithDialog = ({
   dialogContent,
   icon,
   imageUrl,
+  onPressAction,
   children
 }: TooltipWithDialogProps) => {
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -47,15 +50,6 @@ const TooltipWithDialog = ({
     },
     buttonRef
   );
-
-  const handleDelete = async () => {
-    try {
-      setIsConfirmed(true);
-      setIsOpen(false);
-    } catch (error) {
-      console.error("An error occurred while deleting the item:", error);
-    }
-  };
 
   return (
     <>
@@ -83,7 +77,7 @@ const TooltipWithDialog = ({
                     <p>{dialogContent}</p>
                     <div>
                       <Button onPress={close}>Cancel</Button>
-                      <Button onPress={handleDelete}>Delete</Button>
+                      <Button onPress={e => onPressAction(e, close)}>Delete</Button>
                     </div>
                   </>
                 )}

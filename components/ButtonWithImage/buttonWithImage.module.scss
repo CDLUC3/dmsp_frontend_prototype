@@ -3,10 +3,9 @@
 .imageButton {
   @include device(md) {
   }
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 300px;
 }
 
 .imageButton:hover {

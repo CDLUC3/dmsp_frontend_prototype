@@ -4,26 +4,32 @@ import React, { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import logECS from '@/utils/clientLogger';
-
 interface AuthData {
   id: string;
   token: string;
 }
+
 const ORCID_AUTH_URL = "https://orcid.org/oauth/token";
 
+// This is the return uri page used by ORCiD's 3-legged OAuth
+// per instructions provided here: https://info.orcid.org/documentation/api-tutorials/api-tutorial-get-and-authenticated-orcid-id/
 const ORCIDCallback: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const code = searchParams.get('code');
+  const code = searchParams.get('code'); //obtained for query param 'code' in url
 
   const saveAuthData = (id: string, token: string) => {
+    /* TODO: Once there is an API endpoint to update the db table with this third party access token,
+    we will need to call that endpoint to save the auth data. For now, we are using localStorage for testing
+    */
     const data: AuthData = { id, token };
-    localStorage.setItem('connectionData', JSON.stringify(data));
+    localStorage.setItem('connectionorcid', JSON.stringify(data));
     logECS('info', 'Token stored successfully', {
       url: { path: '/users/auth/orcid/callback' }
     });
   }
 
+  // Send the auth code from orcid in the body of the request to get the access token
   const exchangeAuthCode = async (code: string) => {
     const data = new URLSearchParams({
       'client_id': process.env.NEXT_PUBLIC_ORCID_CLIENT_ID as string,
@@ -44,29 +50,25 @@ const ORCIDCallback: React.FC = () => {
         body: data
       })
 
-      const response = await result.json();
-      if (!response.ok) {
-        logECS('error', 'Something went wrong getting tokens', {
-          url: { path: '/users/auth/orcid/callback' }
-        });
+      if (!result.ok) {
         throw new Error('Something went wrong')
       }
 
-      //Store the token from the response
+      const response = await result.json();
+
+      //Store the orcid id and access token from the response
       if (response.access_token) {
-        /*TBD: Wil eventually need to POST this info to the backend to be stored in
-        a db table along with user id and external service name, like orcid*/
         saveAuthData(response.orcid, response.access_token);
       }
     } catch (err) {
-      logECS('error', `Something went wrong getting tokens ${err}`, {
+      logECS('error', `Something went wrong getting tokens`, {
         url: { path: '/users/auth/orcid/callback' }
       });
       router.push('/account/connections');
     }
   }
 
-  // Get auth code from orcid
+  // Get auth code from orcid on page load
   useEffect(() => {
     if (code) {
       exchangeAuthCode(code);
@@ -75,7 +77,7 @@ const ORCIDCallback: React.FC = () => {
     }
   }, [])
   return (
-    <h1>ORCID Redirect URI</h1>
+    <p>orcid redirect</p>
   )
 
 }

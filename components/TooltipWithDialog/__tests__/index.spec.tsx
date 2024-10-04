@@ -1,11 +1,13 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TooltipWithDialog from '..';
+import { PressEvent } from "react-aria-components";
 
-const handleDelete = async () => {
+const handleDelete = async (e: PressEvent, close: any) => {
   try {
     console.log('Deleted');
+    close();
   } catch (error) {
     console.error("An error occurred while deleting the item:", error);
   }
@@ -13,9 +15,11 @@ const handleDelete = async () => {
 
 describe('TooltipWithDialog', () => {
   const defaultProps = {
+    text: 'orcid id',
     tooltipText: 'Delete this item',
     dialogHeading: 'Confirm Deletion',
     dialogContent: 'Are you sure you want to delete this item?',
+    onPressAction: handleDelete
   };
 
   it('should render button with tooltip', async () => {
@@ -47,19 +51,30 @@ describe('TooltipWithDialog', () => {
     });
   });
 
-  it('should close dialog and shows confirmation on delete', async () => {
-    render(<TooltipWithDialog {...defaultProps} />);
+  it('should close dialog', async () => {
+    const mockOnPressAction = jest.fn((e, close) => close()); // Mock function for onPressAction
+
+    render(<TooltipWithDialog
+      text="Delete"
+      tooltipText="Delete this item"
+      dialogHeading="Confirm Deletion"
+      dialogContent="Are you sure you want to delete this item?"
+      onPressAction={mockOnPressAction}
+    />)
 
     const button = screen.getByRole('button', { name: 'Delete Item' });
     fireEvent.click(button);
 
-    const deleteButton = await screen.findByText('Delete');
-    fireEvent.click(deleteButton);
-
     await waitFor(() => {
-      expect(screen.queryByText('Confirm Deletion')).not.toBeInTheDocument();
-      expect(screen.getByText('Item has been deleted')).toBeInTheDocument();
+      expect(screen.getByText('Confirm Deletion')).toBeInTheDocument();
+      expect(screen.getByText('Are you sure you want to delete this item?')).toBeInTheDocument();
     });
+
+    const deleteButton = screen.getAllByRole('button', { name: 'Delete' });
+    fireEvent.click(deleteButton[0]);
+
+    expect(mockOnPressAction).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
   it('should close dialog on cancel', async () => {

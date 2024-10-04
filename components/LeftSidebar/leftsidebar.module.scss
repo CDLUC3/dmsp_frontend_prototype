@@ -1,5 +1,8 @@
 .leftSidebar {
-
+  font-size: 0.75rem;
+  h3 {
+    margin-top:0;
+  }
   .menuList {
     padding-left: 0;
     list-style: none;
@@ -10,6 +13,7 @@
   }
 
   .title {
+    font-size: 1rem;
     padding-left: 0;
   }
 
