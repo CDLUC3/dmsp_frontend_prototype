@@ -1,6 +1,10 @@
 ### Added
+
 - Set up a directory for the account pages, and added the Connections page [#128]
 - Added new shared LeftSidebar, TooltipWithDialog, ButtonWithImage, and ContentContainer components. Updated styleguide with the new TooltipWithDialog and ButtonWithImage components. [#128]
+- Fixed type bugs in the template history page which was breaking the build.
+- Added csrf token to header for /login and /signup page and error handling to refresh csrf and auth tokens [#116]
+- Added cypress for functional tests. Added a functional test to check for HTTP-only auth cookies [#116]
 - Added the Template History page [#86]
 - Added more documentation to README.md [#91]
 - Added existing header and footer from production to app [#89]

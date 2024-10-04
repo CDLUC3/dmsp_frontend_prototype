@@ -20,13 +20,13 @@ export async function getJwtSecretKey(): Promise<Uint8Array> {
  * @param token 
  * @returns 
  */
-export async function verifyJwtToken(token: string): Promise<boolean | null> {
+export async function verifyJwtToken(token: string): Promise<JWTPayload | null> {
     try {
         const secretKey = await getJwtSecretKey();
 
         const { payload } = await jwtVerify(token, secretKey) as { payload: JWTPayload };
 
-        return !!payload; //return boolean
+        return payload; //return boolean
     } catch (error) {
         console.error('Token verification failed:', error)
         return null;

@@ -14,6 +14,7 @@ import {
 import {
   EditorState,
 } from '@remirror/pm/state';
+
 import {
   prosemirrorNodeToHtml,
 } from '@remirror/core-utils';
@@ -218,7 +219,6 @@ export function DmpEditor({ content, setContent }: DmpEditorProps) {
     stringHandler: 'html',
   });
 
-
   useEffect(() => {
     setIsMounted(true)
   }, [])
@@ -232,6 +232,7 @@ export function DmpEditor({ content, setContent }: DmpEditorProps) {
   if (!isMounted) {
     return null; // or a loading indicator
   }
+
   return (
     <div className="dmp-editor">
       <Remirror

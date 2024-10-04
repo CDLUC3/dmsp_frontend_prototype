@@ -1,67 +1,60 @@
-'use client';
+'use client'
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './signup.module.scss';
+import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
+import { handleErrors } from '@/utils/errorHandler';
+import { useAuthContext } from '@/context/AuthContext';
 
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [acceptedTerms, setAcceptedTerms] = useState<number>(0);
     const [errors, setErrors] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
-    const [attempts, setAttempts] = useState(0);
-    const [lockoutTime, setLockoutTime] = useState<number | null>(null);
     const router = useRouter();
     const errorRef = useRef<HTMLDivElement>(null);
+    const { csrfToken } = useCsrf();
+    const { setIsAuthenticated } = useAuthContext();
 
-    const handleResponse = async (response: Response) => {
-        const { message } = await response.json();
-        if (response.status === 200) {
-            router.push('/') //redirect to home page
-        } else if (response.status === 400) {
-            if (message) {
-                // Convert string into array
-                const errorMessages = message.split('| ');
-                setErrors(prevErrors => {
-                    return [...prevErrors, ...errorMessages]
-                })
-            }
-        } else if (response.status === 500) {
-            logECS('error', 'Internal server error', {
-                url: { path: '/apollo-signup' }
-            });
-            router.push('/500');
-        } else {
-            setErrors(['An unexpected error occurred. Please try again.'])
+    const handleAcceptedTerms = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault();
+
+        if (event.target.checked) {
+            setAcceptedTerms(1)
         }
-    };
+    }
 
     const handleSignUp = async (event: React.FormEvent) => {
         event.preventDefault();
         setLoading(true);
         setErrors([]); // Clear previous errors
 
-        if (attempts > 5) {
-            const remainingTime = lockoutTime ? Math.max(lockoutTime - Date.now(), 0) : 0;
-            const minutesLeft = Math.ceil(remainingTime / 60000);
-            const remainingMinutesText = minutesLeft < 2 ? 'minute' : 'minutes'
-            setErrors([`Too many attempts. Please try again later${remainingTime > 0 ? ` in ${Math.ceil(remainingTime / 60000)} ${remainingMinutesText}.` : '.'}`]);
-            setLoading(false);
-            return;
+
+        const signupRequest = async (token: string | null) => {
+            return await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token || '',
+                },
+                body: JSON.stringify({ email, password, acceptedTerms }),
+            });
         }
 
         /* eslint-disable @typescript-eslint/no-explicit-any */
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
+            const response = await signupRequest(csrfToken);
 
-            await handleResponse(response);
+            if (response && response.ok) {
+                setIsAuthenticated(true);
+                router.push('/')
+            } else {
+                await handleErrors(response, signupRequest, setErrors, router, '/signup');
+            }
 
         } catch (err: any) {
             logECS('error', 'Signup error', {
@@ -70,7 +63,6 @@ const SignUpPage: React.FC = () => {
             });
         } finally {
             setLoading(false);
-            setAttempts(prev => prev + 1);
         }
     };
 
@@ -83,23 +75,9 @@ const SignUpPage: React.FC = () => {
         }
     }, [errors])
 
-    useEffect(() => {
-        if (attempts >= 5) {
-            const lockoutDuration = 15 * 60 * 1000; //15 minutes
-            const newLockoutTime = Date.now() + lockoutDuration;
-            setLockoutTime(newLockoutTime);
-            const timer = setTimeout(() => {
-                setAttempts(0);
-                setLockoutTime(null);
-            }, lockoutDuration); // 15 minutes
-
-            return () => clearTimeout(timer);
-        }
-    }, [attempts])
-
     return (
         <div className={styles.signupWrapper} ref={errorRef}>
-            <form className={styles.signupForm} onSubmit={handleSignUp}>
+            <form className={styles.signupForm} id="signup" onSubmit={handleSignUp}>
                 {errors && errors.length > 0 &&
                     <div className="error">
                         {errors.map((error, index) => (
@@ -127,7 +105,15 @@ const SignUpPage: React.FC = () => {
                     onChange={e => setPassword(e.target.value)}
                     required />
 
-                <button type="submit" disabled={loading}>{loading ? 'Signing up ...' : 'Sign Up'}</button>
+                <label htmlFor="acceptedTerms">Accept terms:</label>
+                <input
+                    type="checkbox"
+                    id="acceptedTerms"
+                    name="acceptedTerms"
+                    onChange={e => handleAcceptedTerms(e)}
+                />
+
+                <button type="submit" id="signup-button" disabled={loading}>Sign up</button>
             </form>
 
         </div>
