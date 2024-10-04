@@ -8,11 +8,6 @@ import ConnectionSection from "@/components/ConnectionSection";
 const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
 const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
 
-interface AuthData {
-  id: string;
-  token: string;
-}
-
 const ConnectionsPage: React.FC = () => {
 
   // Sandbox Uri
