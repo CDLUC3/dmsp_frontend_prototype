@@ -1,15 +1,15 @@
 'use client'
 
-import React, { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 import logECS from '@/utils/clientLogger';
 interface AuthData {
   id: string;
   token: string;
 }
 
-const ORCID_AUTH_URL = "https://orcid.org/oauth/token";
+const ORCID_AUTH_URL = 'https://orcid.org/oauth/token';
 
 // This is the return uri page used by ORCiD's 3-legged OAuth
 // per instructions provided here: https://info.orcid.org/documentation/api-tutorials/api-tutorial-get-and-authenticated-orcid-id/
@@ -23,7 +23,7 @@ const ORCIDCallback: React.FC = () => {
     we will need to call that endpoint to save the auth data. For now, we are using localStorage for testing
     */
     const data: AuthData = { id, token };
-    localStorage.setItem('connectionorcid', JSON.stringify(data));
+    localStorage.setItem('connectionDataorcid', JSON.stringify(data));
     logECS('info', 'Token stored successfully', {
       url: { path: '/users/auth/orcid/callback' }
     });

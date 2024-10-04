@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
 
 interface AuthData {

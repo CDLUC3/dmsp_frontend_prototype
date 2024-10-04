@@ -70,7 +70,7 @@ describe('TemplateHistory', () => {
             </MockedProvider>
         );
 
-        expect(useTemplateVersionsQuery).toHaveBeenCalledWith({ "variables": { "templateId": 123 } })
+        expect(useTemplateVersionsQuery).toHaveBeenCalledWith({ 'variables': { 'templateId': 123 } })
     });
 
     it('should render loading state correctly', () => {

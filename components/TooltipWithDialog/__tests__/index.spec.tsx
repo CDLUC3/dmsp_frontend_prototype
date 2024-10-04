@@ -2,14 +2,14 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TooltipWithDialog from '..';
-import { PressEvent } from "react-aria-components";
+import { PressEvent } from 'react-aria-components';
 
 const handleDelete = async (e: PressEvent, close: any) => {
   try {
     console.log('Deleted');
     close();
   } catch (error) {
-    console.error("An error occurred while deleting the item:", error);
+    console.error('An error occurred while deleting the item:', error);
   }
 };
 
@@ -33,9 +33,9 @@ describe('TooltipWithDialog', () => {
     fireEvent.mouseEnter(button);
 
     waitFor(() => {
-      const tooltip = screen.queryByRole("tooltip");
+      const tooltip = screen.queryByRole('tooltip');
       expect(tooltip).toBeInTheDocument();
-      expect(tooltip).toHaveTextContent("Delete this item");
+      expect(tooltip).toHaveTextContent('Delete this item');
     })
   });
 
@@ -55,10 +55,10 @@ describe('TooltipWithDialog', () => {
     const mockOnPressAction = jest.fn((e, close) => close()); // Mock function for onPressAction
 
     render(<TooltipWithDialog
-      text="Delete"
-      tooltipText="Delete this item"
-      dialogHeading="Confirm Deletion"
-      dialogContent="Are you sure you want to delete this item?"
+      text='Delete'
+      tooltipText='Delete this item'
+      dialogHeading='Confirm Deletion'
+      dialogContent='Are you sure you want to delete this item?'
       onPressAction={mockOnPressAction}
     />)
 

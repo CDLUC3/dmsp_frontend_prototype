@@ -1,10 +1,10 @@
 'use client'
 
-import React from "react";
+import React from 'react';
 import sanitizeHtml from 'sanitize-html';
-import ContentContainer from "@/components/ContentContainer";
-import ConnectionSection from "@/components/ConnectionSection";
-import styles from "./connections.module.scss";
+import ContentContainer from '@/components/ContentContainer';
+import ConnectionSection from '@/components/ConnectionSection';
+import styles from './connections.module.scss';
 
 const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
 const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;

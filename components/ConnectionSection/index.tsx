@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
-import ButtonWithImage from "../ButtonWithImage";
-import TooltipWithDialog from "../TooltipWithDialog";
-import { ModalOverlayComponent } from "../ModalOverlayComponent";
-import { DmpIcon } from "@/components/Icons";
-import styles from "./connectionSection.module.scss";
+import React, { useEffect, useState } from 'react';
+import ButtonWithImage from '../ButtonWithImage';
+import TooltipWithDialog from '../TooltipWithDialog';
+import { ModalOverlayComponent } from '../ModalOverlayComponent';
+import { DmpIcon } from '@/components/Icons';
+import styles from './connectionSection.module.scss';
 import connectionData from './connection-types.json';
 
 import {
   PressEvent
-} from "react-aria-components";
+} from 'react-aria-components';
 
 interface ConnectionSectionProps {
   type: string;
@@ -54,14 +54,13 @@ const ConnectionSection = ({
       setAuthData(null);
       close();
     } catch (error) {
-      console.error("An error occurred while deleting the item:", error);
+      console.error('An error occurred while deleting the item:', error);
     }
   };
 
   useEffect(() => {
     const getAuthData = (): AuthData | null => {
       const storageKey = `connectionData${type}`;
-      console.log(storageKey);
       const data = localStorage.getItem(storageKey);
       return data ? JSON.parse(data) : null;
     };
