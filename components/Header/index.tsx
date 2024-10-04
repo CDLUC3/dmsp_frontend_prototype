@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, MouseEvent } from 'react';
+import { useState, MouseEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/context/AuthContext';
 import Link from 'next/link';
@@ -12,11 +12,16 @@ function Header() {
     const { isAuthenticated, setIsAuthenticated } = useAuthContext();
     const router = useRouter();
 
+    useEffect(() => {
+        //this is just to trigger a refresh on authentication change
+    }, [isAuthenticated]);
+
+
     const handleLogout = async (e: MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
 
         try {
-            const response = await fetch('/api/logout', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signout`, {
                 method: 'POST'
             })
 
@@ -39,6 +44,7 @@ function Header() {
     function hideMenu() {
         setShowMobileMenu(false)
     }
+
     return (
         <header>
             <div className="dmpui-frontend-container dmpui-frontend dmpui-frontend-header">
@@ -194,7 +200,7 @@ function Header() {
 
                         <li>
                             <div className="dmpui-dropdown">
-                                <span>Juliet Shin</span>
+                                <span>User</span>
                                 <ul className="mobile-menu-submenu">
                                     <li><a role="menuitem" href="/users/edit">Edit profile</a></li>
                                     <li><a role="menuitem" href="/users/third_party_apps">3rd party apps</a></li>
@@ -213,7 +219,7 @@ function Header() {
                             </div>
                         </li>
 
-                        <li><a className="dmpui-frontend-btn dmpui-frontend-btn-secondary" rel="nofollow" data-method="delete" href="/users/sign_out">Logout</a>
+                        <li><a className="dmpui-frontend-btn dmpui-frontend-btn-secondary" rel="nofollow" data-method="delete" href="/users/sign_out" onClick={handleLogout}>Logout</a>
                         </li></ul>
                 </div>
             </div>

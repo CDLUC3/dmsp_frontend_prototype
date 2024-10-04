@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import logECS from '@/utils/clientLogger';
 
 interface AuthContextType {
     isAuthenticated: boolean | null;
@@ -10,17 +11,13 @@ interface AuthContextType {
 // Create a context with a default value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * Will wrap the content with this AuthProvider so that we can use context to check
- * the authentication state, and to update the state
- * @param param0 
- * @returns 
- */
+
+/*Will wrap the content with this AuthProvider so that we can use context to check
+the authentication state, and to update the state*/
 export function AuthProvider({ children }: {
     children: React.ReactNode;
 }) {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-
     useEffect(() => {
         const checkAuth = async () => {
             try {
@@ -30,12 +27,14 @@ export function AuthProvider({ children }: {
                 const data = await response.json();
                 setIsAuthenticated(data.authenticated);
             } catch (err) {
-                console.error('Error checking authentication status: ', err);
+                logECS('error', `Error checking authentication status: ${err}`, {
+                    source: 'AuthProvider'
+                });
                 setIsAuthenticated(false);
             }
         };
         checkAuth();
-    }, []);
+    }, [isAuthenticated]);
 
 
     return (

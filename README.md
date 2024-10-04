@@ -14,6 +14,8 @@
     - [Docker Setup](#docker-setup)
 - [Environment variables](#environment-variables)
 - [Project Structure](#project-structure)
+- [Authentication](#authentication)
+- [Testing](#testing)
 - [API Routes](#api-routes)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
@@ -135,6 +137,10 @@ docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
 |       |-- index.tsx
 |   |-- context
 |       |-- AuthContext.tsx
+|       |-- CsrfContext.tsx
+|-- cypress
+|   |-- e2e
+|       |-- spec.cy.ts
 |-- generated
 |   |-- graphql.tsx
 |-- graphql
@@ -151,6 +157,9 @@ docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
 |   |-- elements.scss
 |-- utils
 |   |-- logger.ts
+|   |-- authHelper.ts
+|   |-- authLink.ts
+|   |-- errorHandler.ts
 |-- buildspec.yaml
 |-- codegen.ts
 |-- docker-compose.yml
@@ -162,11 +171,22 @@ docker run -p 3000:3000 dmsp_frontend_prototype:dmsp_frontend_prod
 |-- tsconfig.json
 ```
 
+## Authentication
+There are currently two context files, AuthContext.tsx and CsrfContext.tsx, that help manage the auth state and the csrf token state.
+
+All forms submitted to the backend need to include the CSRF token in the header of the request. GraphQL queries have inherent handling of csrf protection as long as we remember to include the `CONTENT-TYPE` as `application/json`in the header, which is currently added by the `utils/authLink` used in the apollo client instance.
+
+The endpoint to refresh the csrf token is called when getting a 403 returned from the backend server.
+
+## Testing
+When new components or functions are added, corresponding unit tests should ideally be added. We want to shoot for above 70% coverage. React components are tested using jest and React Testing Library.
+
+Unit tests should generally be placed in a `__tests__` folder adjacent to the component or file being tested.
+
+Functional tests are conducted using Cypress. These tests can be run in headless mode using the command `npm run cypress:run` or in headed mode is `npm run cypress:open`. Functional tests should be placed in the `cypress` directory.
+
 ## API Routes
 * `GET /api/check-auth`: returns whether user is authenticated based on presence of auth token in cookie
-* `GET /api/get-token`: returns auth token to pass to backend requests
-* `POST /api/logout`: logs user out
-* `POST /api/setCookie`: sets auth token in http-only cookie
 
 ## Contributing
 1. Clone the repo from github (`git clone git@github.com:CDLUC3/dmsp_frontend_prototype.git`)

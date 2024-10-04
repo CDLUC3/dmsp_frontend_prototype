@@ -1,22 +1,32 @@
 "use client";
 
-import { useContributorRolesQuery } from '@/generated/graphql';
+import React, { useState, useEffect } from "react";
+import { useContributorRolesQuery } from "@/generated/graphql";
+import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 
-/**
- * This is a test page to demo and test the use of graphql hooks on the client side.
- * Client-side graphql requests uses the apollo-wrapper.tsx file
- * @returns 
- */
 export default function Page() {
+    const [errors, setErrors] = useState<string[]>([]);
+    const { data, loading, error, refetch } = useContributorRolesQuery();
     let roles;
-    const { data, loading, error } = useContributorRolesQuery();
-    if (loading) {
-        return <div>Loading...</div>
-    }
 
-    if (error) {
-        console.error(error);
-        return <div>Error</div>
+    // UseEffect to handle async error handling
+    useEffect(() => {
+        if (error) {
+            const handleErrors = async () => {
+                await handleApolloErrors(
+                    error.graphQLErrors,
+                    error.networkError,
+                    setErrors,
+                    refetch
+                );
+            };
+
+            handleErrors();
+        }
+    }, [error, refetch]); // Runs when 'error' changes
+
+    if (loading) {
+        return <div>Loading...</div>;
     }
 
     if (data) {
@@ -25,15 +35,18 @@ export default function Page() {
 
     return (
         <>
-            <h1>Clientside GraphQL query test</h1>
+            <div>
+                {errors && errors.map((err, index) => (
+                    <p key={index}>{err}</p>
+                ))}
+            </div>
+            <h1>Client-side GraphQL query test</h1>
             <ul>
-                {roles && roles.map(role => {
-                    return (
+                {roles &&
+                    roles.map((role) => (
                         <li key={role?.id}>{role?.label}</li>
-                    )
-                })}
+                    ))}
             </ul>
         </>
-    )
+    );
 }
-
