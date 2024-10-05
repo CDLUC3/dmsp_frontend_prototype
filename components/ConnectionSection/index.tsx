@@ -81,7 +81,7 @@ const ConnectionSection = ({
     <>
       {(authData) ? (
         <div className={styles.connectionSection}>
-          <h4>{title}</h4>
+          <h2>{title}</h2>
           <TooltipWithDialog
             text={authData.id}
             tooltipText={tooltipText}
@@ -98,7 +98,7 @@ const ConnectionSection = ({
         </div >
       ) : (
         <div className={styles.connectionSection}>
-          <h4>{title}</h4>
+          <h2>{title}</h2>
           {content && (
             <p dangerouslySetInnerHTML={{ __html: content }} />
           )}

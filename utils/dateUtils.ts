@@ -23,7 +23,6 @@ export const formatWithTimeAndDate = (timestamp: string): string => {
 export const formatShortMonthDayYear = (timestamp: string): string => {
     if (timestamp) {
         const date = new Date(parseInt(timestamp));
-        console.log("***DATE", date);
         const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
         return date.toLocaleDateString('en-US', options);
     } else {

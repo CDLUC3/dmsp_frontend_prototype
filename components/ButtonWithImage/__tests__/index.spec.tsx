@@ -16,7 +16,7 @@ describe('ButtonWithImage', () => {
     render(<ButtonWithImage url="http://localhost:3000" imageUrl={mockImageUrl} buttonText={mockButtonText} />);
 
     // Check if the button text is rendered
-    const button = screen.getByRole('link', { name: /click me/i });
+    const button = screen.getByRole('button', { name: /click me/i });
     expect(button).toBeInTheDocument();
 
     // Check if the image is rendered with the correct URL and alt attributes
