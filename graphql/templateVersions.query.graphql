@@ -9,7 +9,7 @@ query TemplateVersions($templateId: Int!) {
       givenName
       surName
       affiliation {
-        name
+        displayName
       }
       modified
     }
