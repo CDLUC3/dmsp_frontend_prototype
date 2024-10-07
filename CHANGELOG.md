@@ -12,6 +12,7 @@
 - Added the initial version of our custom ReMirror text editor [#74].
 
 ### Updates
+- Made updates to change 'name' to 'displayName' for affiliations, in response to backend changes [#137]
 - Updated endpoints for 'signin' and 'signup' to be 'apollo-signin' and 'apollo-signup' [#99]
 
 ### Fixed
