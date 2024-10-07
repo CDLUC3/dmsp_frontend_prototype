@@ -1,16 +1,14 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import '@testing-library/jest-dom';
-import { useRouter } from 'next/router';
-import { useSearchParams } from 'next/navigation';
 import ORCIDCallback from '../page';
+
 import logECS from '@/utils/clientLogger';
 
 // Mock useRouter and useSearchParams
-jest.mock('next/router', () => ({
-  useRouter: jest.fn(),
-}));
 jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
   useSearchParams: jest.fn(),
 }));
 
@@ -19,7 +17,7 @@ jest.mock('@/utils/clientLogger', () => ({
   default: jest.fn()
 }))
 
-
+//Need to import this useRouter after the jest.mock is in place
 describe('ORCIDCallback', () => {
   const mockPush = jest.fn();
   const mockGet = jest.fn();
@@ -30,8 +28,15 @@ describe('ORCIDCallback', () => {
     // Mock fetch
     global.fetch = jest.fn();
 
-    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
-    (useSearchParams as jest.Mock).mockReturnValue({ get: mockGet });
+    // Mock the useRouter hook from next/navigation
+    (useRouter as jest.Mock).mockReturnValue({
+      push: mockPush, // this mimics the push function in the hook
+    });
+
+    // Mock useSearchParams for the code parameter
+    (useSearchParams as jest.Mock).mockReturnValue({
+      get: mockGet,
+    });
   });
 
   afterEach(() => {
@@ -58,6 +63,9 @@ describe('ORCIDCallback', () => {
 
     render(<ORCIDCallback />);
 
+    // Wait for the Suspense fallback (Loading...) to be removed
+    await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument());
+
     // Wait for the useEffect to run
     expect(mockGet).toHaveBeenCalledWith('code');
     await waitFor(() => {
@@ -67,14 +75,19 @@ describe('ORCIDCallback', () => {
     })
   });
 
-  it('should redirect to /account/connections if no code is present', () => {
+  it('should redirect to /account/connections if no code is present', async () => {
     // Mock the query param to return null (no code)
     mockGet.mockReturnValue(null);
 
     render(<ORCIDCallback />);
 
-    // Ensure router.push is called if there is no code
-    expect(mockPush).toHaveBeenCalledWith('/account/connections');
+    // Wait for the Suspense fallback (Loading...) to be removed
+    await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument());
+
+    // Check that user is redirected to connections page
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/account/connections');
+    })
   });
 
   it('should handle error when fetching tokens fails', async () => {
@@ -99,11 +112,15 @@ describe('ORCIDCallback', () => {
 
     render(<ORCIDCallback />);
 
+    // Wait for the Suspense fallback (Loading...) to be removed
+    await waitFor(() => expect(screen.queryByText('Loading...')).not.toBeInTheDocument());
+
+
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith('error', 'Something went wrong getting tokens', {
         url: { path: '/users/auth/orcid/callback' },
       })
-      // Ensure router.push is called after an error
+      // Check that user is redirected to connections page
       expect(mockPush).toHaveBeenCalledWith('/account/connections');
     })
   });

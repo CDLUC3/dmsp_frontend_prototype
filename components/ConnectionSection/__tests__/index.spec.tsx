@@ -59,7 +59,6 @@ describe('ConnectionSection', () => {
 
   it('should not render TooltipWithDialog when auth data is not present', () => {
     render(<ConnectionSection {...mockProps} />);
-    screen.debug();
     waitFor(() => {
       expect(screen.getByTestId('tooltip-with-dialog')).not.toBeInTheDocument();
       expect(screen.getByTestId('button-with-image')).toBeInTheDocument();
