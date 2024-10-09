@@ -2,7 +2,6 @@
 
 import React from 'react';
 import sanitizeHtml from 'sanitize-html';
-import ContentContainer from '@/components/ContentContainer';
 import ConnectionSection from '@/components/ConnectionSection';
 import styles from './connections.module.scss';
 
@@ -22,7 +21,7 @@ const ConnectionsPage: React.FC = () => {
   return (
     <>
       <h1 className={styles.title}>Connections</h1>
-      <ContentContainer>
+      <div className="container">
         <ConnectionSection
           type='orcid'
           title='ORCID iD - not connected'
@@ -46,7 +45,7 @@ const ConnectionsPage: React.FC = () => {
           btnUrl=''
           btnText='Connect institutional credentials'
         />
-      </ContentContainer>
+      </div>
     </>
   )
 }
