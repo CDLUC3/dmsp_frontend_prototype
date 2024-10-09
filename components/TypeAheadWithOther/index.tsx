@@ -23,7 +23,7 @@ type TypeAheadInputProps = {
 
 type SuggestionInterface = {
     id: string;
-    name: string;
+    displayName: string;
 }
 
 const TypeAheadWithOther = ({
@@ -136,7 +136,7 @@ const TypeAheadWithOther = ({
             case "Tab":
                 setCurrentListItemFocused(-1);
                 // If the entered value is not in the response, then don't let user tab
-                const hasSelectedValue = (suggestions ? suggestions.some(item => item.name === selected) : false) || otherSelected === true;
+                const hasSelectedValue = (suggestions ? suggestions.some(item => item.displayName === selected) : false) || otherSelected === true;
 
                 if (!hasSelectedValue) {
                     e.preventDefault();
@@ -306,7 +306,7 @@ const TypeAheadWithOther = ({
                             </li>
 
                             {suggestions?.map((suggestion, index) => {
-                                if (suggestion.name !== '') {
+                                if (suggestion.displayName !== '') {
                                     return (
                                         <li
                                             key={index}
@@ -319,7 +319,7 @@ const TypeAheadWithOther = ({
                                             ref={(el) => {
                                                 listItemRefs.current[index + 1] = el;
                                             }}
-                                        >{suggestion.name}</li>
+                                        >{suggestion.displayName}</li>
                                     )
                                 }
                             })}
