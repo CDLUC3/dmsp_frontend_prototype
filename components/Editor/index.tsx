@@ -222,6 +222,7 @@ export function DmpEditor({ content, setContent }: DmpEditorProps) {
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
   const handleChange = (newState: EditorState) => {
     const html = prosemirrorNodeToHtml(newState.doc);
     setContent(html);
@@ -231,7 +232,6 @@ export function DmpEditor({ content, setContent }: DmpEditorProps) {
   if (!isMounted) {
     return null; // or a loading indicator
   }
-
 
   return (
     <div className="dmp-editor">

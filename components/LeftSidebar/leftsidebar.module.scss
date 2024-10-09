@@ -1,0 +1,23 @@
+.leftSidebar {
+  font-size: 0.75rem;
+  h3 {
+    margin-top:0;
+  }
+  .menuList {
+    padding-left: 0;
+    list-style: none;
+
+    li {
+      line-height: 1.5rem;
+    }
+  }
+
+  .title {
+    font-size: 1rem;
+    padding-left: 0;
+  }
+
+  .active {
+    font-weight: 600;
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "orcid": {
+    "tooltipText": "Disconnect your account from ORCID. You can reconnect at any time.",
+    "content": "Are you sure you want to disconnect you ORCID iD?"
+  },
+  "orcidtest": {
+    "tooltipText": "Disconnect your account from ORCID. You can reconnect at any time.",
+    "content": "Are you sure you want to disconnect you ORCID iD?"
+  },
+  "sso": {
+    "tooltipText": "Disconnect your account from SSO. You can reconnect at any time.",
+    "content": "Are you sure you want to disconnect from SSO?"
+  }
+}
