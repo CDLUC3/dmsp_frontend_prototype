@@ -39,14 +39,7 @@ describe('ConnectionSection', () => {
     localStorage.clear();
   });
 
-  it('should render ButtonWithImage when no auth data is present', () => {
-    render(<ConnectionSection {...mockProps} />);
-    expect(screen.getByText('Test Title')).toBeInTheDocument();
-    expect(screen.getByText('Test Content')).toBeInTheDocument();
-    expect(screen.getByTestId('button-with-image')).toBeInTheDocument();
-  });
-
-  it('should render TooltipWithDialog when auth data is present', () => {
+  it('should render TooltipWithDialog when type is of orcidtest', () => {
     localStorage.setItem('connectionDataorcidtest', JSON.stringify({ id: 'testId', token: 'testToken' }));
     render(<ConnectionSection {...mockProps} />);
     waitFor(() => {
@@ -57,11 +50,10 @@ describe('ConnectionSection', () => {
     })
   });
 
-  it('should not render TooltipWithDialog when auth data is not present', () => {
+  it('should not render TooltipWithDialog it is not the orcidtest type', () => {
     render(<ConnectionSection {...mockProps} />);
     waitFor(() => {
       expect(screen.getByTestId('tooltip-with-dialog')).not.toBeInTheDocument();
-      expect(screen.getByTestId('button-with-image')).toBeInTheDocument();
     })
   });
 });

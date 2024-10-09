@@ -48,42 +48,22 @@ const ConnectionSection = ({
 
   const handleDelete: HandleDeleteFunction = async (e, close) => {
     try {
-      /*TODO: Eventually we will need to call an API to delete the relevant token from the database.
-      For now, just to see it in action, we're using localStorage*/
-      localStorage.removeItem(`connectionData${type}`);
-      setAuthData(null);
       close();
     } catch (error) {
       console.error('An error occurred while deleting the item:', error);
     }
   };
 
-  useEffect(() => {
-    const getAuthData = (): AuthData | null => {
-      const storageKey = `connectionData${type}`;
-      const data = localStorage.getItem(storageKey);
-      return data ? JSON.parse(data) : null;
-    };
-
-    const data = getAuthData();
-    setAuthData(data);
-  }, [btnUrl]);
-
-
-  useEffect(() => {
-    // refresh page after authData changes, so we can see the toggled view
-  }, [authData]);
-
   const tooltipText = (connectionData as ConnectionDataType)[type]?.tooltipText || '';
   const tooltipContent = (connectionData as ConnectionDataType)[type]?.content || '';
 
   return (
     <>
-      {(authData) ? (
+      {(type === 'orcidtest') ? (
         <div className={styles.connectionSection}>
           <h2>{title}</h2>
           <TooltipWithDialog
-            text={authData.id}
+            text="0000-0001-2345-6789"
             tooltipText={tooltipText}
             icon={<DmpIcon icon="cancel" />}
             imageUrl={btnImageUrl}

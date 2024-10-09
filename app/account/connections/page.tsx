@@ -25,7 +25,7 @@ const ConnectionsPage: React.FC = () => {
       <ContentContainer>
         <ConnectionSection
           type='orcid'
-          title='ORCID iD'
+          title='ORCID iD - not connected'
           content={orcidContentString}
           btnUrl={orcidUri}
           btnImageUrl='/images/orcid.svg'
@@ -33,7 +33,7 @@ const ConnectionsPage: React.FC = () => {
         />
         <ConnectionSection
           type='orcidtest'
-          title='Test orcid'
+          title='ORCiD state when user is connected'
           content='This is to test the display of the orcid id once the user has connected.'
           btnUrl='/users/auth/orcid/test'
           btnImageUrl='/images/orcid.svg'
