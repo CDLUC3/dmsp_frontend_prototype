@@ -643,8 +643,6 @@ export type Section = {
   tags?: Maybe<Array<Maybe<Tag>>>;
   /** The template that the section is associated with */
   template?: Maybe<Template>;
-  /** The template ID that the section belongs to */
-  templateId?: Maybe<Scalars['Int']['output']>;
 };
 
 /** Section version type */
@@ -859,12 +857,8 @@ export type VersionedSection = {
   requirements?: Maybe<Scalars['String']['output']>;
   /** The section that this is a snapshot of */
   section?: Maybe<Section>;
-  /** The sectionId for the snapshot section */
-  sectionId?: Maybe<Scalars['Int']['output']>;
   /** The Tags associated with this VersionedSection */
   tags?: Maybe<Array<Maybe<Tag>>>;
-  /** The type of version: Published or Draft (default: Draft) */
-  versionType?: Maybe<SectionVersionType>;
   /** The parent VersionedTemplate */
   versionedTemplate: VersionedTemplate;
 };

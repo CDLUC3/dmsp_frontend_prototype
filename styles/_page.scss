@@ -65,7 +65,7 @@ header {
   @include device(md) {
     font-size: 1rem;
   }
-  
+
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -167,14 +167,63 @@ footer {
   background: none;
   border: none;
   color: #000;
+  font-size: 1rem;
   text-decoration: none;
   cursor: pointer;
   padding: 0;
-  font: inherit;
 }
 
 .back-link-button:hover,
 .back-link-button:focus {
   color: var(--purple-600);
   text-decoration: underline;
+}
+
+
+
+.template-editor-container {
+  @include device(lg) {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .main-content {
+    @include device(lg) {
+      width: 60%;
+    }
+
+    @include device(xl) {
+      width: 66%;
+    }
+  }
+  .sidebar{
+
+    margin-top: 2rem;
+    @include device(lg) {
+      margin-top: 0;
+      margin-left: 5%;
+      width: 35%;
+    }
+
+    @include device( xl) {
+      margin-left: 3%;
+      width: 30%;
+    }
+
+  }
+
+}
+
+
+.mx-auto{
+  margin: 0 auto;
+}
+.section-add-cont {
+  border: 1px dashed #D1D1D1;
+  background: rgba(255, 255, 255, 0.50);
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
 }

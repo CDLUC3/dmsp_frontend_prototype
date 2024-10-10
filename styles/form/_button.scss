@@ -1,0 +1,127 @@
+@mixin button-base {
+  display: inline-flex;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-right: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  position: relative;
+  background: var(--slate-900);
+  color: var(--bg-white);
+
+  &:hover:not(:disabled) {
+    background: var(--slate-700);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+@mixin button-primary {
+  background: var(--slate-900);
+  color: var(--bg-white);
+
+
+  &:active:not(:disabled),
+  &[data-pressed]:not(:disabled) {
+    background: var(--slate-700);
+  }
+
+  &:disabled {
+    background: var(--slate-400);
+  }
+}
+
+@mixin button-secondary {
+  background: var(--slate-300);
+  color: var(--slate-900);
+
+  &:hover:not(:disabled) {
+    background: var(--slate-400);
+  }
+
+  &:active:not(:disabled),
+  &[data-pressed]:not(:disabled) {
+    background: var(--slate-500);
+  }
+
+  &:disabled {
+    background: var(--slate-200);
+    color: var(--slate-500);
+  }
+}
+
+@mixin button-tertiary {
+  background: transparent;
+  color: var(--slate-900);
+  border: 1px solid var(--slate-300);
+
+  &:hover:not(:disabled) {
+    background: var(--slate-100);
+  }
+
+  &:active:not(:disabled),
+  &[data-pressed]:not(:disabled) {
+    background: var(--slate-200);
+  }
+
+  &:disabled {
+    color: var(--slate-400);
+    border-color: var(--slate-200);
+  }
+}
+
+// Styles for both react-aria buttons and default HTML buttons
+.react-aria-Button,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+  @include button-base;
+}
+
+// Primary button styles
+.react-aria-Button.primary,
+.react-aria-Button--primary,
+button.primary,
+button--primary,
+input[type="submit"],
+input[type="button"].primary,
+input[type="reset"].primary {
+  @include button-primary;
+}
+
+// Secondary button styles
+.react-aria-Button.secondary,
+.react-aria-Button--secondary,
+button.secondary,
+button--secondary,
+input[type="button"].secondary,
+input[type="reset"].secondary,
+input[type="submit"].secondary {
+  @include button-secondary;
+}
+
+// Tertiary button styles
+.react-aria-Button.tertiary,
+.react-aria-Button--tertiary,
+button.tertiary,
+button--tertiary,
+input[type="button"].tertiary,
+input[type="reset"].tertiary,
+input[type="submit"].tertiary {
+  @include button-tertiary;
+}

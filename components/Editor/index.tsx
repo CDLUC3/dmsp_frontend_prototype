@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from 'react';
 
 import {
+  EditorComponent,
   Remirror,
+  useActive,
+  useChainedCommands,
   useRemirror,
   useRemirrorContext,
-  EditorComponent,
-  useChainedCommands,
-  useActive,
 } from '@remirror/react';
 
 import {
@@ -20,14 +20,14 @@ import {
 } from '@remirror/core-utils';
 
 import {
-  BoldExtension,
-  ItalicExtension,
-  UnderlineExtension,
-  LinkExtension,
-  BulletListExtension,
-  OrderedListExtension,
   AnnotationExtension,
+  BoldExtension,
+  BulletListExtension,
+  ItalicExtension,
+  LinkExtension,
+  OrderedListExtension,
   TableExtension,
+  UnderlineExtension,
 } from 'remirror/extensions';
 
 import 'remirror/styles/all.css';
