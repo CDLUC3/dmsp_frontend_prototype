@@ -44,7 +44,9 @@ const TemplateHistory = () => {
     });
 
     const lastPublication = sortedTemplates.length > 0 ? sortedTemplates[0] : null;
-    const lastPublicationDate = formatShortMonthDayYear(lastPublication?.created);
+    const lastPublicationDate = lastPublication?.created
+        ? formatShortMonthDayYear(new Date(lastPublication.created))
+        : '';
 
     return (
         <PageWrapper title={"Template History"}>
@@ -55,7 +57,7 @@ const TemplateHistory = () => {
                     <>
                         <h1 className="with-subheader">{lastPublication?.name || 'Unknown'}</h1>
                         <div className="subheader">
-                            <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.name}`}</div>
+                            <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.displayName}`}</div>
                             <div>
                                 <span data-testid="latest-version" className={styles.historyVersion}>Version {lastPublication?.version.slice(1)}</span>
                                 <span data-testid="publication-date">Published: {lastPublicationDate}</span>
@@ -76,7 +78,9 @@ const TemplateHistory = () => {
                         {
                             sortedTemplates.length > 0
                                 ? sortedTemplates.map((item, index) => {
-                                    const publishDate = formatWithTimeAndDate(item?.created);
+                                    const publishDate = item?.created
+                                        ? formatWithTimeAndDate(new Date(item.created))
+                                        : '';
                                     const versionedBy = item?.versionedBy;
 
                                     return (
@@ -108,3 +112,4 @@ const TemplateHistory = () => {
 }
 
 export default TemplateHistory;
+

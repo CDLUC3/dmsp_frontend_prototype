@@ -8,10 +8,10 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const Card: React.FC<CardProps> = ({
-                                            children,
-                                            className = '',
-                                            ...rest
-                                          }) => (
+  children,
+  className = '',
+  ...rest
+}) => (
   <div className={`card ${className}`} {...rest}>
     {children}
   </div>
@@ -24,10 +24,10 @@ interface EyebrowProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const CardEyebrow: React.FC<EyebrowProps> = ({
-                                                      children,
-                                                      className = '',
-                                                      ...rest
-                                                    }) => (
+  children,
+  className = '',
+  ...rest
+}) => (
   <div className={`card-eyebrow ${className}`} {...rest}>
     {children}
   </div>
@@ -40,10 +40,10 @@ interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
 }
 
 export const CardHeading: React.FC<HeadingProps> = ({
-                                                      children,
-                                                      className = '',
-                                                      ...rest
-                                                    }) => (
+  children,
+  className = '',
+  ...rest
+}) => (
   <h2 className={`card-heading ${className}`} {...rest}>
     {children}
   </h2>
@@ -56,10 +56,10 @@ interface BodyProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const CardBody: React.FC<BodyProps> = ({
-                                                children,
-                                                className = '',
-                                                ...rest
-                                              }) => (
+  children,
+  className = '',
+  ...rest
+}) => (
   <div className={`card-body ${className}`} {...rest}>
     {children}
   </div>
@@ -72,10 +72,10 @@ interface MutedTextProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const CardMutedText: React.FC<MutedTextProps> = ({
-                                                          children,
-                                                          className = '',
-                                                          ...rest
-                                                        }) => (
+  children,
+  className = '',
+  ...rest
+}) => (
   <div className={`card-text-muted ${className}`} {...rest}>
     {children}
   </div>
@@ -88,10 +88,10 @@ interface FooterProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const CardFooter: React.FC<FooterProps> = ({
-                                                    children,
-                                                    className = '',
-                                                    ...rest
-                                                  }) => (
+  children,
+  className = '',
+  ...rest
+}) => (
   <div className={`card-footer ${className}`} {...rest}>
     {children}
   </div>

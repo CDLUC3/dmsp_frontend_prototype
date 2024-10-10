@@ -1,32 +1,30 @@
 ### Added
-- Checkbox & Checkbox group component
-- Radio component
-- Select component
-- Basic Cards
-- Section header component
-- Question card component
-- Tabs component
-- Template Overview - blocked out page for component builder assistance 
-- Template Edit Section  - blocked out page for component builder assistance
-- Template Edit Question - blocked out page for component builder assistance
-
-### Updates
-- Button styles
-- Text input styles
-- 
-
-
-
-### Added
+- Checkbox & Checkbox group component [#75]
+- Radio component [#75]
+- Select component [#75]
+- Basic Cards [#75]
+- Section header component [#75]
+- Question card component [#75]
+- Tabs component [#75]
+- Template Overview - blocked out page for component builder assistance [#75]
+- Template Edit Section  - blocked out page for component builder assistance [#75]
+- Template Edit Question - blocked out page for component builder assistance [#75]
+- Fixed type bugs in the template history page which was breaking the build.
+- Added csrf token to header for /login and /signup page and error handling to refresh csrf and auth tokens [#116]
+- Added cypress for functional tests. Added a functional test to check for HTTP-only auth cookies [#116]
 - Added the Template History page [#86]
 - Added more documentation to README.md [#91]
 - Added existing header and footer from production to app [#89]
 - Added two new TypeAhead/Autosuggest components, one with and one without the "Other" option [#10]
 - Added the use of graphql-codegen to generate types for graphql requests [#10]
 - Added Material Symbols and a custom `DmpIcon` component that will render a specific icon using it's short-code. [#80]
+- Added custom SVG icon set to be used by `DmpIcon` [#80]
 - Added the initial version of our custom ReMirror text editor [#74].
 
 ### Updates
+- Button styles [#75]
+- Text input styles [#75]
+- Made updates to change 'name' to 'displayName' for affiliations, in response to backend changes [#137]
 - Updated endpoints for 'signin' and 'signup' to be 'apollo-signin' and 'apollo-signup' [#99]
 
 ### Fixed

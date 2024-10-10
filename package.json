@@ -9,7 +9,10 @@
     "lint": "next lint && npx eslint .",
     "generate": "graphql-codegen --config codegen.ts",
     "prepare": "husky",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "jest": "jest",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@apollo/client": "^3.10.8",
@@ -24,6 +27,7 @@
     "@graphql-codegen/typescript-react-apollo": "^4.3.0",
     "@remirror/pm": "^3.0.0",
     "@remirror/react": "^3.0.1",
+    "@types/testing-library__jest-dom": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
     "classnames": "^2.5.1",
@@ -44,14 +48,15 @@
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
-    "@types/jest": "^29.5.12",
+    "@types/jest": "^29.5.13",
     "@types/jest-axe": "^3.5.9",
     "@types/next": "^9.0.0",
     "@types/node": "^20",
     "@types/pino": "^7.0.5",
-    "@types/react": "^18.3.3",
+    "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
     "@types/sanitize-html": "^2.11.0",
+    "cypress": "^13.15.0",
     "dotenv": "^16.4.5",
     "eslint": "^8",
     "eslint-config-next": "14.2.4",
@@ -64,6 +69,6 @@
     "sass": "^1.77.6",
     "ts-jest": "^29.1.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5.6.2"
   }
 }

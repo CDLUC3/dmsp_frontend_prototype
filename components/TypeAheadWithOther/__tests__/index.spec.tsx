@@ -66,8 +66,8 @@ describe('TypeAheadWithOther', () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
                 affiliations: [
-                    { id: '1', name: 'Test University' },
-                    { id: '2', name: 'Test Institution' }
+                    { id: '1', displayName: 'Test University' },
+                    { id: '2', displayName: 'Test Institution' }
                 ]
             }
         });
@@ -132,8 +132,8 @@ describe('TypeAheadWithOther', () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
                 affiliations: [
-                    { id: '1', name: 'Test University' },
-                    { id: '2', name: 'Test Institution' }
+                    { id: '1', displayName: 'Test University' },
+                    { id: '2', displayName: 'Test Institution' }
                 ]
             }
         });
@@ -173,8 +173,8 @@ describe('TypeAheadWithOther', () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
                 affiliations: [
-                    { id: '1', name: 'Test University' },
-                    { id: '2', name: 'Test Institution' }
+                    { id: '1', displayName: 'Test University' },
+                    { id: '2', displayName: 'Test Institution' }
                 ]
             }
         });
@@ -243,8 +243,8 @@ describe('TypeAheadWithOther', () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
                 affiliations: [
-                    { id: '1', name: 'Test University' },
-                    { id: '2', name: 'Test Institution' }
+                    { id: '1', displayName: 'Test University' },
+                    { id: '2', displayName: 'Test Institution' }
                 ]
             }
         });

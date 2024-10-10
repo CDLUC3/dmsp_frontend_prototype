@@ -1,9 +1,17 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { ApolloClient, InMemoryCache, from, createHttpLink } from "@apollo/client";
+import { errorLink, authLink, retryLink } from "../graphqlHelper";
 
 export const createApolloClient = () => {
+    const httpLink = createHttpLink({
+        uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`
+    });
     return new ApolloClient({
-        uri: process.env.NEXT_PUBLIC_GRAPHQL_SERVER_ENDPOINT,
+        link: from([errorLink, authLink, retryLink, httpLink]),
         cache: new InMemoryCache(),
     });
-};
+}
+
+
+
+
 

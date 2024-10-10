@@ -1,4 +1,6 @@
-import React from 'react';
+'use client'
+
+import React, { useEffect, useState } from 'react';
 
 import {
   EditorComponent,
@@ -9,7 +11,13 @@ import {
   useRemirrorContext,
 } from '@remirror/react';
 
-import {EditorState, prosemirrorNodeToHtml,} from '@remirror/core-utils';
+import {
+  EditorState,
+} from '@remirror/pm/state';
+
+import {
+  prosemirrorNodeToHtml,
+} from '@remirror/core-utils';
 
 import {
   AnnotationExtension,
@@ -25,40 +33,44 @@ import {
 import 'remirror/styles/all.css';
 import './Editor.scss';
 
-import {DmpIcon} from '@/components/Icons';
+import { DmpIcon } from '@/components/Icons';
 import {
   Button,
   Group,
+  Separator,
+  ToggleButton,
+  Toolbar,
   Menu,
   MenuItem,
   MenuTrigger,
   Popover,
-  Separator,
-  ToggleButton,
-  Toolbar,
 } from 'react-aria-components';
 
 
-const AnnotationButton: React.FC = () => {
-  const { commands, getState } = useRemirrorContext({ autoUpdate: true });
-
-  const handleAnnotation = () => {
-    const selectedText = getState().selection;
-
-    if (selectedText) {
-      const annotation = prompt('Enter your annotation:', '');
-      if (annotation) {
-        commands.addAnnotation({ text: selectedText, annotation });
-      }
-    }
-  };
-
-  return (
-    <Button onPress={handleAnnotation}>
-      <DmpIcon icon="message" />
-    </Button>
-  )
-}
+// NOTE: Disabling this for now due to typescript warnings. We will need this
+// when we start work on inline annotations and comments, so leaving it
+// uncommented here for now...
+//
+// const AnnotationButton: React.FC = () => {
+//   const { commands, getState } = useRemirrorContext({ autoUpdate: true });
+//
+//   const handleAnnotation = () => {
+//     const selectedText = getState().selection;
+//
+//     if (selectedText) {
+//       const annotation = prompt('Enter your annotation:', '');
+//       if (annotation) {
+//         commands.addAnnotation({ text: selectedText, annotation });
+//       }
+//     }
+//   };
+//
+//   return (
+//     <Button onPress={handleAnnotation}>
+//       <DmpIcon icon="chat" />
+//     </Button>
+//   )
+// }
 
 
 const TableGroup: React.FC = () => {
@@ -180,20 +192,21 @@ interface DmpEditorProps {
   setContent: (newContent: string) => void;
 }
 
-export function DmpEditor({content, setContent}: DmpEditorProps) {
+export function DmpEditor({ content, setContent }: DmpEditorProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const { manager, state, setState } = useRemirror({
     extensions: () => [
       new BoldExtension({}),
       new ItalicExtension(),
       new UnderlineExtension({}),
-      new LinkExtension({autoLink: true}),
+      new LinkExtension({ autoLink: true }),
       new BulletListExtension({}),
       new OrderedListExtension(),
       new TableExtension({}),
       new AnnotationExtension({}),
     ],
 
-    content: content,
+    content,
 
     // Place the cursor at the start of the document. This can also be set to
     // `end`, `all` or a numbered position.
@@ -206,11 +219,19 @@ export function DmpEditor({content, setContent}: DmpEditorProps) {
     stringHandler: 'html',
   });
 
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
   const handleChange = (newState: EditorState) => {
     const html = prosemirrorNodeToHtml(newState.doc);
     setContent(html);
     setState(newState);
   }
+
+  if (!isMounted) {
+    return null; // or a loading indicator
+  }
+
 
   return (
     <div className="dmp-editor">
@@ -218,7 +239,7 @@ export function DmpEditor({content, setContent}: DmpEditorProps) {
         manager={manager}
         state={state}
         initialContent={state}
-        onChange={({state}) => handleChange(state)}
+        onChange={({ state }) => handleChange(state)}
       >
         <EditorToolbar />
         <EditorComponent />
