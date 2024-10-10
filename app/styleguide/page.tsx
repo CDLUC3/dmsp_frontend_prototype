@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Cell,
@@ -39,8 +39,8 @@ import {
 } from "react-aria-components";
 
 
-import {DmpEditor} from "@/components/Editor";
-import {DmpIcon} from "@/components/Icons";
+import { DmpEditor } from "@/components/Editor";
+import { DmpIcon } from "@/components/Icons";
 
 import {
   Card,
@@ -52,11 +52,11 @@ import {
 } from "@/components/Card/card";
 
 
-import {BrandColor, Example,} from "./sg-components";
+import { BrandColor, Example, } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/TypeAheadWithOther';
-import {AffiliationsDocument} from '@/generated/graphql';
+import { AffiliationsDocument } from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
@@ -359,22 +359,22 @@ function Page() {
             <h2>Colours</h2>
             <p>Main Brand Colours</p>
             <div className="brand-color-list">
-              <BrandColor varname="--brand-primary"/>
-              <BrandColor varname="--brand-secondary"/>
-              <BrandColor varname="--brand-tertiary"/>
-              <BrandColor varname="--brand-error"/>
+              <BrandColor varname="--brand-primary" />
+              <BrandColor varname="--brand-secondary" />
+              <BrandColor varname="--brand-tertiary" />
+              <BrandColor varname="--brand-error" />
             </div>
 
             <p>Grayscale pallette</p>
             <div className="layout-horizontal">
               <div className="brand-color-list">
-                <BrandColor varname="--gray-50"/>
-                <BrandColor varname="--gray-100"/>
-                <BrandColor varname="--gray-200"/>
-                <BrandColor varname="--gray-300"/>
-                <BrandColor varname="--gray-400"/>
-                <BrandColor varname="--gray-500"/>
-                <BrandColor varname="--gray-600"/>
+                <BrandColor varname="--gray-50" />
+                <BrandColor varname="--gray-100" />
+                <BrandColor varname="--gray-200" />
+                <BrandColor varname="--gray-300" />
+                <BrandColor varname="--gray-400" />
+                <BrandColor varname="--gray-500" />
+                <BrandColor varname="--gray-600" />
               </div>
             </div>
           </div>
@@ -406,25 +406,25 @@ function Page() {
             <h2>Icons</h2>
             <Example>
               <div className="sg-icons">
-                <DmpIcon icon="search"/>
-                <DmpIcon icon="home"/>
-                <DmpIcon icon="settings"/>
-                <DmpIcon icon="favorite"/>
+                <DmpIcon icon="search" />
+                <DmpIcon icon="home" />
+                <DmpIcon icon="settings" />
+                <DmpIcon icon="favorite" />
               </div>
             </Example>
             <p>
               A list of available icons can be found on the
               &nbsp;<a href="https://fonts.google.com/icons" target="_blank"
-                       rel="noreferrer">Google Web Fonts</a> website.
+                rel="noreferrer">Google Web Fonts</a> website.
             </p>
             <p>
               The styling of the icons, including the fill line weight can be
               changed as specified
               &nbsp;<a
-              href="https://developers.google.com/fonts/docs/material_symbols"
-              target="_blank" rel="noreferrer">
-              Material Symbols Guide
-            </a>.
+                href="https://developers.google.com/fonts/docs/material_symbols"
+                target="_blank" rel="noreferrer">
+                Material Symbols Guide
+              </a>.
             </p>
             <p>
               You can find the icon setings in <code>styles/_icons.scss</code>.
@@ -488,20 +488,20 @@ function Page() {
             <h2>Naming Conventions</h2>
             <ul className="sg-spaced">
               <li>
-                Use <code>TitleCase</code> for componen tags, ie.<br/>
+                Use <code>TitleCase</code> for componen tags, ie.<br />
                 <code>{"<SomeElement />"}</code>
               </li>
               <li>
-                Use <code>camelCase</code> for element ID&lsquo;s, ie.<br/>
+                Use <code>camelCase</code> for element ID&lsquo;s, ie.<br />
                 <code>{'<SomeElement id="myElement"/>'}</code>
               </li>
               <li>
                 Use <code>kebab-case</code> for css classnames (Using titlecase
-                for every word beween hiphens is okay), ie.<br/>
+                for every word beween hiphens is okay), ie.<br />
                 <code>{'<SomeElement className="some-class-Name"/>'}</code>
               </li>
               <li>
-                Use <code>snake_case</code> for field names, ie.<br/>
+                Use <code>snake_case</code> for field names, ie.<br />
                 <code>{'<SomeElement name="field_name" />'}</code>
               </li>
               <li>
@@ -589,7 +589,7 @@ function Page() {
 
               <dt><code>--text-color</code></dt>
               <dd>
-                This sets the main text color for the element.<br/>
+                This sets the main text color for the element.<br />
                 Related hooks include:
                 <ul>
                   <li><code>--text-color-hover</code></li>
@@ -600,7 +600,7 @@ function Page() {
 
               <dt><code>--link-color</code></dt>
               <dd>
-                This is the main color for links and anchors.<br/>
+                This is the main color for links and anchors.<br />
                 Related hooks include:
                 <ul>
                   <li><code>--link-color-secondary</code></li>
@@ -610,7 +610,7 @@ function Page() {
 
               <dt><code>--border-color</code></dt>
               <dd>
-                The border colour to use for the component. <br/>
+                The border colour to use for the component. <br />
                 Related hooks include:
                 <ul>
                   <li><code>--border-color-hover</code></li>
@@ -653,8 +653,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/TextField.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/TextField.html">component
+                docs here.</a>
             </p>
 
 
@@ -664,7 +664,7 @@ function Page() {
                 <Text slot="description" className="help">
                   Descriptive text related to the field
                 </Text>
-                <Input/>
+                <Input />
               </TextField>
             </Example>
 
@@ -683,8 +683,8 @@ function Page() {
               <Text slot="description" className="help">
                 Your email address
               </Text>
-              <Input/>
-              <FieldError/>
+              <Input />
+              <FieldError />
             </TextField>
 
 
@@ -701,8 +701,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Button.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Button.html">component
+                docs here.</a>
             </p>
 
             <Example>
@@ -725,8 +725,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Form.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Form.html">component
+                docs here.</a>
             </p>
 
             <Example>
@@ -739,8 +739,8 @@ function Page() {
                   <Label>Email</Label>
                   <Text slot="description" className="help">Descriptive text
                     related to the field</Text>
-                  <Input/>
-                  <FieldError/>
+                  <Input />
+                  <FieldError />
                 </TextField>
 
 
@@ -755,7 +755,7 @@ function Page() {
                   <Checkbox value="soccer">
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4"/>
+                        <polyline points="1 9 7 14 15 4" />
                       </svg>
                     </div>
                     Test
@@ -763,7 +763,7 @@ function Page() {
                   <Checkbox value="test">
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4"/>
+                        <polyline points="1 9 7 14 15 4" />
                       </svg>
                     </div>
                     Test
@@ -778,7 +778,7 @@ function Page() {
                 <Checkbox>
                   <div className="checkbox">
                     <svg viewBox="0 0 18 18" aria-hidden="true">
-                      <polyline points="1 9 7 14 15 4"/>
+                      <polyline points="1 9 7 14 15 4" />
                     </svg>
                   </div>
                   Unsubscribe
@@ -805,7 +805,7 @@ function Page() {
                   <Text slot="description" className="help">This is help
                     text</Text>
                   <Button>
-                    <SelectValue/>
+                    <SelectValue />
                     <span aria-hidden="true">▼</span>
                   </Button>
                   <Popover>
@@ -818,7 +818,7 @@ function Page() {
                       <ListBoxItem>Snake</ListBoxItem>
                     </ListBox>
                   </Popover>
-                  <FieldError/>
+                  <FieldError />
                 </Select>
 
                 <h3>
@@ -905,7 +905,7 @@ function Page() {
 
             <QuestionEdit
               key={2552}
-              id={24}
+              id="24"
               name="This is a question"
               link="/edit"
             />
@@ -964,8 +964,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Table.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Table.html">component
+                docs here.</a>
             </p>
 
             <Example>
@@ -1015,8 +1015,8 @@ function Page() {
                       Enter the question that you want to include in this
                       section.
                     </Text>
-                    <Input/>
-                    <FieldError/>
+                    <Input />
+                    <FieldError />
                   </TextField>
 
                   <TextField
@@ -1028,8 +1028,8 @@ function Page() {
                       Optionally, provide help text or additional context for
                       this question.
                     </Text>
-                    <Input/>
-                    <FieldError/>
+                    <Input />
+                    <FieldError />
                   </TextField>
 
                   <Button type="submit">Create Question</Button>
@@ -1067,8 +1067,8 @@ function Page() {
                       Optionally, provide help text or additional context for
                       this question.
                     </Text>
-                    <Input/>
-                    <FieldError/>
+                    <Input />
+                    <FieldError />
                   </TextField>
 
                   <Button type="submit">Create Question</Button>
@@ -1085,12 +1085,12 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Switch.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Switch.html">component
+                docs here.</a>
             </p>
             <Example>
               <Switch defaultSelected>
-                <div className="indicator"/>
+                <div className="indicator" />
                 Toggle
               </Switch>
             </Example>
@@ -1099,8 +1099,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Popover.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Popover.html">component
+                docs here.</a>
             </p>
             <Example>
               <DialogTrigger>
@@ -1108,21 +1108,21 @@ function Page() {
                 <Popover>
                   <OverlayArrow>
                     <svg width={12} height={12} viewBox="0 0 12 12">
-                      <path d="M0 0 L6 6 L12 0"/>
+                      <path d="M0 0 L6 6 L12 0" />
                     </svg>
                   </OverlayArrow>
                   <Dialog>
                     <div className="flex-col">
                       <Switch defaultSelected>
-                        <div className="indicator"/>
+                        <div className="indicator" />
                         Wi-Fi
                       </Switch>
                       <Switch defaultSelected>
-                        <div className="indicator"/>
+                        <div className="indicator" />
                         Bluetooth
                       </Switch>
                       <Switch>
-                        <div className="indicator"/>
+                        <div className="indicator" />
                         Mute
                       </Switch>
                     </div>
@@ -1135,8 +1135,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Menu.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Menu.html">component
+                docs here.</a>
             </p>
             <Example>
               <MenuTrigger>
@@ -1172,8 +1172,8 @@ function Page() {
               {`<DmpEditor content={editorContent} setContent={setEditorContent} \\>`}
             </code></pre>
             </div>
-            <hr/>
-            <DmpEditor content={editorContent} setContent={setEditorContent}/>
+            <hr />
+            <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
         </div>
       </div>
