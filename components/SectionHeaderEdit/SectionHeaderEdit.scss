@@ -1,0 +1,66 @@
+.section-header {
+  display: flex;
+  align-items: end;
+  padding: 0.625rem 0;
+  border-bottom: 0.0625rem solid #e0e0e0;
+}
+
+.section-title {
+  flex-grow: 1;
+  margin: 0;
+  font-size: 1.675rem;
+  font-weight: 600;
+}
+
+.section-number {
+  display: block;
+  font-size: 1rem;
+  color: #666;
+  font-weight: normal;
+  font-family: var(--font-family);
+  margin-bottom: 0.3125rem;
+}
+
+.button-group {
+  display: flex;
+  align-items: center;
+}
+
+.edit-button, .order-button, .expand-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3125rem 0.625rem;
+  margin-left: 0.625rem;
+  font-size: 0.875rem;
+}
+
+.edit-button {
+  color: var(--gray-600);
+  text-decoration: underline;
+  &:visited,
+  &:active{
+    color: var(--gray-600);
+  }
+  &:focus {
+    color: var(--slate-900);
+  }
+  &:hover {
+    color: var(--slate-800);
+  }
+}
+
+.order-button {
+  font-size: 0.875rem;
+  &:focus,
+  &:hover {
+    font-size: 0.875rem;
+    background: transparent!important;
+    color: #333;
+    padding: 0.3125rem 0.625rem!important;
+  }
+}
+
+.expand-button {
+  transform: rotate(180deg);
+}

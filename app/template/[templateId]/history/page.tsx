@@ -82,7 +82,7 @@ const TemplateHistory = () => {
                     <>
                         <h1 className="with-subheader">{lastPublication?.name || 'Unknown'}</h1>
                         <div className="subheader">
-                            <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.name}`}</div>
+                            <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.displayName}`}</div>
                             <div>
                                 <span data-testid="latest-version" className={styles.historyVersion}>Version {lastPublication?.version.slice(1)}</span>
                                 <span data-testid="publication-date">Published: {lastPublicationDate}</span>

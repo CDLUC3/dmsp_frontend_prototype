@@ -47,103 +47,175 @@ export type AddSectionInput = {
 export type Affiliation = {
   __typename?: 'Affiliation';
   /** Acronyms for the affiliation */
-  acronyms?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** Whether or not the affiliation is active. Inactive records shoould not appear in typeaheads! */
+  acronyms?: Maybe<Array<Scalars['String']['output']>>;
+  /** Whether or not the affiliation is active. Inactive records should not appear in typeaheads! */
   active: Scalars['Boolean']['output'];
-  /** The address(es) for the affiliation */
-  addresses?: Maybe<Array<Maybe<AffiliationAddress>>>;
   /** Alias names for the affiliation */
-  aliases?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** The official ISO 2 character country code for the affiliation */
-  countryCode?: Maybe<Scalars['String']['output']>;
-  /** The country name for the affiliation */
-  countryName?: Maybe<Scalars['String']['output']>;
+  aliases?: Maybe<Array<Scalars['String']['output']>>;
+  /** The primary contact email */
+  contactEmail?: Maybe<Scalars['String']['output']>;
+  /** The primary contact name */
+  contactName?: Maybe<Scalars['String']['output']>;
   /** The display name to help disambiguate similar names (typically with domain or country appended) */
   displayName: Scalars['String']['output'];
-  /** The official homepage for the affiliation */
-  domain?: Maybe<Scalars['String']['output']>;
+  /** The email address(es) to notify when feedback has been requested (stored as JSON array) */
+  feedbackEmails?: Maybe<Scalars['String']['output']>;
+  /** Whether or not the affiliation wants to use the feedback workflow */
+  feedbackEnabled: Scalars['Boolean']['output'];
+  /** The message to display to users when they request feedback */
+  feedbackMessage?: Maybe<Scalars['String']['output']>;
   /** Whether or not this affiliation is a funder */
   funder: Scalars['Boolean']['output'];
   /** The Crossref Funder id */
-  fundref?: Maybe<Scalars['String']['output']>;
-  /** The unique identifer for the affiliation (typically the ROR id) */
-  id: Scalars['String']['output'];
-  /** URL links associated with the affiliation */
-  links?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** Localization options for the affiliation name */
-  locales?: Maybe<Array<Maybe<AffiliationLocale>>>;
+  fundrefId?: Maybe<Scalars['String']['output']>;
+  /** The official homepage for the affiliation */
+  homepage?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the affiliation (assigned by the Database) */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The logo file name */
+  logoName?: Maybe<Scalars['String']['output']>;
+  /** The URI of the logo */
+  logoURI?: Maybe<Scalars['String']['output']>;
+  /** Whether or not the affiliation is allowed to have administrators */
+  managed: Scalars['Boolean']['output'];
   /** The official name for the affiliation (defined by the system of provenance) */
   name: Scalars['String']['output'];
   /** The system the affiliation's data came from (e.g. ROR, DMPTool, etc.) */
   provenance: Scalars['String']['output'];
-  /** The last time the data for the affiliation was synced with the system of provenance */
-  provenanceSyncDate: Scalars['String']['output'];
-  /** Other related affiliations */
-  relationships?: Maybe<Array<Maybe<AffiliationRelationship>>>;
+  /** The combined name, homepage, aliases and acronyms to facilitate search */
+  searchName: Scalars['String']['output'];
+  /** The email domains associated with the affiliation (for SSO) */
+  ssoEmailDomains?: Maybe<Array<AffiliationEmailDomain>>;
+  /** The SSO entityId */
+  ssoEntityId?: Maybe<Scalars['String']['output']>;
+  /** The links the affiliation's users can use to get help */
+  subHeaderLinks?: Maybe<Array<AffiliationLink>>;
   /** The types of the affiliation (e.g. Company, Education, Government, etc.) */
-  types?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** The URL for the affiliation's Wikipedia entry */
-  wikipediaURL?: Maybe<Scalars['URL']['output']>;
+  types: Array<AffiliationType>;
+  /** The properties of this object that are NOT editable. Determined by the record's provenance */
+  uneditableProperties: Array<Scalars['String']['output']>;
+  /** The unique identifer for the affiliation (assigned by the provenance e.g. https://ror.org/12345) */
+  uri: Scalars['String']['output'];
 };
 
-export type AffiliationAddress = {
-  __typename?: 'AffiliationAddress';
-  /** The name of the affiliation's city */
-  city?: Maybe<Scalars['String']['output']>;
-  /** The Geonames identify of the affiliation's country */
-  countryGeonamesId?: Maybe<Scalars['Int']['output']>;
-  /** The latitude coordinate */
-  lat?: Maybe<Scalars['Float']['output']>;
-  /** The longitude coordinate */
-  lng?: Maybe<Scalars['Float']['output']>;
-  /** The name of the affiliation's state/province */
-  state?: Maybe<Scalars['String']['output']>;
-  /** The code of the affiliation's state/province */
-  stateCode?: Maybe<Scalars['String']['output']>;
+/** Email domains linked to the affiliation for purposes of determining if SSO is applicable */
+export type AffiliationEmailDomain = {
+  __typename?: 'AffiliationEmailDomain';
+  /** The email domain (e.g. example.com, law.example.com, etc.) */
+  domain: Scalars['String']['output'];
+  /** Unique identifier for the email domain */
+  id: Scalars['Int']['output'];
 };
 
-export type AffiliationLocale = {
-  __typename?: 'AffiliationLocale';
-  /** The localized name of the affiliation */
-  label: Scalars['String']['output'];
-  /** The language code */
-  locale: Scalars['String']['output'];
+/** Input for email domains linked to the affiliation for purposes of determining if SSO is applicable */
+export type AffiliationEmailDomainInput = {
+  /** The email domain (e.g. example.com, law.example.com, etc.) */
+  domain: Scalars['String']['input'];
+  /** Unique identifier for the email domain */
+  id: Scalars['Int']['input'];
 };
 
-export type AffiliationRelationship = {
-  __typename?: 'AffiliationRelationship';
-  /** The unique identifer for the related affiliation (typically the ROR id) */
-  id: Scalars['String']['output'];
-  /** The official name of the related affiliation */
-  name: Scalars['String']['output'];
-  /** The relationship type (e.g. Parent) */
-  type: Scalars['String']['output'];
+/** Input options for adding an Affiliation */
+export type AffiliationInput = {
+  /** Acronyms for the affiliation */
+  acronyms?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Whether or not the Affiliation is active and available in search results */
+  active: Scalars['Boolean']['input'];
+  /** Alias names for the affiliation */
+  aliases?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The primary contact email */
+  contactEmail?: InputMaybe<Scalars['String']['input']>;
+  /** The primary contact name */
+  contactName?: InputMaybe<Scalars['String']['input']>;
+  /** The display name to help disambiguate similar names (typically with domain or country appended) */
+  displayName: Scalars['String']['input'];
+  /** The email address(es) to notify when feedback has been requested (stored as JSON array) */
+  feedbackEmails?: InputMaybe<Scalars['String']['input']>;
+  /** Whether or not the affiliation wants to use the feedback workflow */
+  feedbackEnabled: Scalars['Boolean']['input'];
+  /** The message to display to users when they request feedback */
+  feedbackMessage?: InputMaybe<Scalars['String']['input']>;
+  /** Whether or not this affiliation is a funder */
+  funder: Scalars['Boolean']['input'];
+  /** The Crossref Funder id */
+  fundrefId?: InputMaybe<Scalars['String']['input']>;
+  /** The official homepage for the affiliation */
+  homepage?: InputMaybe<Scalars['String']['input']>;
+  /** The logo file name */
+  logoName?: InputMaybe<Scalars['String']['input']>;
+  /** The URI of the logo */
+  logoURI?: InputMaybe<Scalars['String']['input']>;
+  /** Whether or not the affiliation is allowed to have administrators */
+  managed: Scalars['Boolean']['input'];
+  /** The official name for the affiliation (defined by the system of provenance) */
+  name: Scalars['String']['input'];
+  /** The email domains associated with the affiliation (for SSO) */
+  ssoEmailDomains?: InputMaybe<Array<AffiliationEmailDomainInput>>;
+  /** The SSO entityId */
+  ssoEntityId?: InputMaybe<Scalars['String']['input']>;
+  /** The links the affiliation's users can use to get help */
+  subHeaderLinks?: InputMaybe<Array<AffiliationLinkInput>>;
+  /** The types of the affiliation (e.g. Company, Education, Government, etc.) */
+  types: Array<AffiliationType>;
+  /** The unique identifer for the affiliation (Not editable!) */
+  uri: Scalars['String']['input'];
 };
+
+/** A hyperlink displayed in the sub-header of the UI for the afiliation's users */
+export type AffiliationLink = {
+  __typename?: 'AffiliationLink';
+  /** Unique identifier for the link */
+  id: Scalars['Int']['output'];
+  /** The text to display (e.g. Helpdesk, Grants Office, etc.) */
+  text?: Maybe<Scalars['String']['output']>;
+  /** The URL */
+  url: Scalars['String']['output'];
+};
+
+/** Input for a hyperlink displayed in the sub-header of the UI for the afiliation's users */
+export type AffiliationLinkInput = {
+  /** Unique identifier for the link */
+  id: Scalars['Int']['input'];
+  /** The text to display (e.g. Helpdesk, Grants Office, etc.) */
+  text?: InputMaybe<Scalars['String']['input']>;
+  /** The URL */
+  url: Scalars['String']['input'];
+};
+
+/** The provenance of an Affiliation record */
+export enum AffiliationProvenance {
+  /** Created and managed within the DMPTool */
+  Dmptool = 'DMPTOOL',
+  /** Created and managed by the Research Organization Registry (ROR) https://ror.org */
+  Ror = 'ROR'
+}
 
 /** Search result - An abbreviated version of an Affiliation */
 export type AffiliationSearch = {
   __typename?: 'AffiliationSearch';
-  /** Alias names and acronyms for the affiliation */
-  aliases?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** The official ISO 2 character country code for the affiliation */
-  countryCode?: Maybe<Scalars['String']['output']>;
-  /** The country name for the affiliation */
-  countryName?: Maybe<Scalars['String']['output']>;
   /** The official display name */
   displayName: Scalars['String']['output'];
   /** Whether or not this affiliation is a funder */
   funder: Scalars['Boolean']['output'];
-  /** The Crossref Funder id */
-  fundref?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the affiliation (typically the ROR id) */
-  id: Scalars['String']['output'];
-  /** URL links associated with the affiliation */
-  links?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** Localization options for the affiliation name */
-  locales?: Maybe<Array<Maybe<AffiliationLocale>>>;
-  /** The official name of the affiliation from the system of provenance */
-  name: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  /** The categories the Affiliation belongs to */
+  types: Array<AffiliationType>;
+  /** The URI of the affiliation */
+  uri: Scalars['String']['output'];
 };
+
+/** Categories for Affiliation */
+export enum AffiliationType {
+  Archive = 'ARCHIVE',
+  Company = 'COMPANY',
+  Education = 'EDUCATION',
+  Facility = 'FACILITY',
+  Government = 'GOVERNMENT',
+  Healthcare = 'HEALTHCARE',
+  Nonprofit = 'NONPROFIT',
+  Other = 'OTHER'
+}
 
 export type Contributor = Person & {
   __typename?: 'Contributor';
@@ -232,6 +304,8 @@ export type Identifier = {
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
+  /** Create a new Affiliation */
+  addAffiliation?: Maybe<Affiliation>;
   /** Add a new contributor role (URL and label must be unique!) */
   addContributorRole?: Maybe<ContributorRoleMutationResponse>;
   /** Create a new Section. Leave the 'copyFromVersionedSectionId' blank to create a new section from scratch */
@@ -246,6 +320,8 @@ export type Mutation = {
   archiveTemplate?: Maybe<Scalars['Boolean']['output']>;
   /** Publish the template or save as a draft */
   createVersion?: Maybe<Template>;
+  /** Delete an Affiliation (only applicable to AffiliationProvenance == DMPTOOL) */
+  removeAffiliation?: Maybe<Affiliation>;
   /** Delete the contributor role */
   removeContributorRole?: Maybe<ContributorRoleMutationResponse>;
   /** Delete a section */
@@ -254,6 +330,8 @@ export type Mutation = {
   removeTag?: Maybe<Tag>;
   /** Remove a TemplateCollaborator from a Template */
   removeTemplateCollaborator?: Maybe<Scalars['Boolean']['output']>;
+  /** Update an Affiliation */
+  updateAffiliation?: Maybe<Affiliation>;
   /** Update the contributor role */
   updateContributorRole?: Maybe<ContributorRoleMutationResponse>;
   /** Update a Section */
@@ -262,6 +340,11 @@ export type Mutation = {
   updateTag?: Maybe<Tag>;
   /** Update a Template */
   updateTemplate?: Maybe<Template>;
+};
+
+
+export type MutationAddAffiliationArgs = {
+  input: AffiliationInput;
 };
 
 
@@ -308,6 +391,11 @@ export type MutationCreateVersionArgs = {
 };
 
 
+export type MutationRemoveAffiliationArgs = {
+  affiliationId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveContributorRoleArgs = {
   id: Scalars['ID']['input'];
 };
@@ -326,6 +414,11 @@ export type MutationRemoveTagArgs = {
 export type MutationRemoveTemplateCollaboratorArgs = {
   email: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
+};
+
+
+export type MutationUpdateAffiliationArgs = {
+  input: AffiliationInput;
 };
 
 
@@ -386,7 +479,11 @@ export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
   /** Retrieve a specific Affiliation by its ID */
-  affiliation?: Maybe<Affiliation>;
+  affiliationById?: Maybe<Affiliation>;
+  /** Retrieve a specific Affiliation by its URI */
+  affiliationByURI?: Maybe<Affiliation>;
+  /** Retrieve all of the valid Affiliation types */
+  affiliationTypes?: Maybe<Array<Scalars['String']['output']>>;
   /** Perform a search for Affiliations matching the specified name */
   affiliations?: Maybe<Array<Maybe<AffiliationSearch>>>;
   /** Get the contributor role by it's id */
@@ -427,8 +524,13 @@ export type Query = {
 };
 
 
-export type QueryAffiliationArgs = {
-  affiliationId: Scalars['String']['input'];
+export type QueryAffiliationByIdArgs = {
+  affiliationId: Scalars['Int']['input'];
+};
+
+
+export type QueryAffiliationByUriArgs = {
+  uri: Scalars['String']['input'];
 };
 
 
@@ -813,7 +915,7 @@ export type AffiliationsQueryVariables = Exact<{
 }>;
 
 
-export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ __typename?: 'AffiliationSearch', id: string, name: string } | null> | null };
+export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string } | null> | null };
 
 export type ContributorRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -825,14 +927,14 @@ export type TemplateVersionsQueryVariables = Exact<{
 }>;
 
 
-export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: Array<{ __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, comment?: string | null, id?: number | null, versionedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, modified?: string | null, affiliation?: { __typename?: 'Affiliation', name: string } | null } | null } | null> | null };
+export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: Array<{ __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, comment?: string | null, id?: number | null, versionedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, modified?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null } | null> | null };
 
 
 export const AffiliationsDocument = gql`
     query Affiliations($name: String!) {
   affiliations(name: $name) {
     id
-    name
+    displayName
   }
 }
     `;
@@ -922,7 +1024,7 @@ export const TemplateVersionsDocument = gql`
       givenName
       surName
       affiliation {
-        name
+        displayName
       }
       modified
     }

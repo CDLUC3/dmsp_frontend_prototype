@@ -3,31 +3,53 @@
 import React, { useState } from 'react';
 import {
   Button,
-  Label,
-  TextField,
-  Input,
+  Cell,
+  Checkbox,
+  CheckboxGroup,
+  Column,
+  Dialog,
+  DialogTrigger,
   FieldError,
-  Link,
   Form,
+  Input,
+  Label,
+  Link,
+  ListBox,
+  ListBoxItem,
   Menu,
   MenuItem,
   MenuTrigger,
-  Popover,
-  DialogTrigger,
   OverlayArrow,
-  Dialog,
-  Switch,
-  Table,
-  TableHeader,
-  TableBody,
-  Column,
+  Popover,
+  Radio,
+  RadioGroup,
   Row,
-  Cell,
+  Select,
+  SelectValue,
+  Switch,
+  Tab,
+  Table,
+  TableBody,
+  TableHeader,
+  TabList,
+  TabPanel,
+  Tabs,
+  Text,
+  TextField
 } from "react-aria-components";
-import "./styleguide.scss";
+
 
 import { DmpEditor } from "@/components/Editor";
 import { DmpIcon } from "@/components/Icons";
+
+import {
+  Card,
+  CardBody,
+  CardEyebrow,
+  CardFooter,
+  CardHeading,
+  CardMutedText,
+} from "@/components/Card/card";
 
 import {
   Example,
@@ -38,6 +60,11 @@ import {
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/TypeAheadWithOther';
 import { AffiliationsDocument } from '@/generated/graphql';
+
+import "./styleguide.scss";
+import SectionHeaderEdit from "@/components/SectionHeaderEdit";
+import QuestionEdit from "@/components/QuestionEdit";
+import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
 import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
@@ -48,160 +75,261 @@ function Page() {
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
   const richtextDefault = html`
-<p>In the project, various analytical methods will be used for characterization of compounds. For the (re)synthesis of guanidine-modified monomers and metal complexes nuclear magnetic resonance spectroscopy (NMR), infrared spectroscopy (IR), mass spectrometry (MS), X-Ray diffraction (XRD), and electron paramagnetic resonance spectroscopy (EPR) will be used as analytical methods if applicable. Guanidine-modified microgels and metal-loaded microgels will be analyzed if applicable with NMR, IR, dynamic light scattering (DLS), scanning transmission electron microscopy (STEM), Raman, EPR, and inductively coupled plasma optical emission spectroscopy (ICP-OES). NMR, ICP-OES and gas chromatography (GC) will be used as analytical methods for catalytic reactions.</p>
-<p>For all analytical methods the data type, format, and estimated volume of a single data file are summarized in the following table. Data that will be measured by cooperation partners are marked with an asterisk (*). Already existing data of the analytical methods will be reused in the stated formats.</p>
-<table style="border-collapse: collapse; width: 100%; height: 371px;" border="1"><colgroup><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"></colgroup>
-<tbody>
-<tr style="height: 39px;">
-<td><strong>Analytical method</strong></td>
-<td><strong>Data type</strong></td>
-<td><strong>Data format</strong></td>
-<td><strong>Estimated volume for a single data file</strong></td>
-<td><strong>Preferred software for data evaluation</strong></td>
-</tr>
-<tr>
-<td>NMR</td>
-<td>Measurement raw data in xy file format</td>
-<td>Raw data: .fid<br>Final data: .jcamp</td>
-<td>1-30 MB<br>1-5 MB</td>
-<td>Chemotion ELN (or Mestre Nova)</td>
-</tr>
-<tr style="height: 39px;">
-<td>IR</td>
-<td>Measurement raw data in xy file format</td>
-<td>Raw data: .dx<br>Final data: .dx</td>
-<td>&lt;50 KB</td>
-<td>Chemotion ELN</td>
-</tr>
-<tr style="height: 39px;">
-<td>MS</td>
-<td>Measurement raw data in xy file format</td>
-<td>Raw data: .xy<br>Final data: .pdf</td>
-<td>10 MB<br>&lt;100 KB</td>
-<td>---</td>
-</tr>
-<tr style="height: 21px;">
-<td>XRD</td>
-<td>final integrated and refined XRD data</td>
-<td>.cif<br>.res<br>.docx</td>
-<td><br>&lt;50 KB<br>&lt;100 KB</td>
-<td>&nbsp;</td>
-</tr>
-<tr style="height: 39px;">
-<td>EPR</td>
-<td>Measurement raw data in xy file format</td>
-<td>.txt</td>
-<td>&lt;100 KB</td>
-<td>&nbsp;</td>
-</tr>
-<tr style="height: 21px;">
-<td>DLS *</td>
-<td>Data measured by cooperation partners</td>
-<td>.asc</td>
-<td>&lt;50 KB</td>
-<td>---</td>
-</tr>
-<tr style="height: 21px;">
-<td>STEM *</td>
-<td>Data measured by cooperation partners</td>
-<td>.tif</td>
-<td>5 MB</td>
-<td>---</td>
-</tr>
-<tr style="height: 21px;">
-<td>Raman *</td>
-<td>Data measured by cooperation partners</td>
-<td>???</td>
-<td>???</td>
-<td>---</td>
-</tr>
-<tr style="height: 21px;">
-<td>ICP-OES *</td>
-<td>Summarized evaluation of the data measured by cooperation partners</td>
-<td>.xlsx</td>
-<td>&lt;50 KB</td>
-<td>---</td>
-</tr>
-<tr style="height: 39px;">
-<td>GC</td>
-<td>Measurement raw data in xy file format</td>
-<td>Raw data: .txt<br>Final data: .pdf</td>
-<td>&lt;1 MB<br>&lt;100 KB</td>
-<td>---</td>
-</tr>
-</tbody>
-</table>
-<p>(Raw) data generated within the working group Herres-Pawlis at the Institute of Inorganic Chemistry, RWTH Aachen University will be saved at least in a non-proprietary file format for reuse by scientists within the project, by collaboration partners, and by others after publication of the (raw) data.</p>
-<ol>
-  <li style="font-weight: bold;"><strong>Information Needed for Future Interpretation:</strong></li>
-  </ol>
-  <p>The following information will be required in order to guarantee that the data can be read and interpreted in the future:</p>
-  <ul>
-  <li><em><strong>Data Provenance</strong></em>: Information about who created or contributed to the data, including contact details.</li>
-  <li><em><strong>Title and Description</strong></em>: a detailed description of the data, including the research context and objectives.</li>
-  <li><strong><em>Creation Date:</em></strong> When the data was collected or created.</li>
-  <li><em>Conditions <strong>of Access:</strong></em> Any restrictions on access, including licensing and consent.</li>
-  <li><em><strong>Methodology:</strong></em> Detailed information on how the data was collected, processed, and analyzed.</li>
-  <li><em><strong>Variable Definitions</strong></em>: Definitions and descriptions of all variables and data fields.</li>
-  <li><em><strong>Units of Measurement</strong></em>: Specifications of units for all quantitative data.</li>
-  <li><em><strong>Assumptions</strong></em>: Any assumptions made during data collection and processing.<br>Formats and File Types: Details of the file formats and types used.</li>
-  <li><em><strong>Metadata Standards</strong></em>: Standards used for metadata to ensure consistency and interoperability.</li>
-  </ul>
-  <p>2. <strong>Capturing and creating Documentation and Metadata:</strong></p>
-  <p><strong>Data Collection Phase:</strong></p>
-  <ul>
-  <li><em><strong>Documentation Forms</strong></em>: during data collection, metadata can be captured using standardized documentation forms.</li>
-  <li><em><strong>Electronic Data Capture Systems:</strong></em> Implement electronic data capture (EDC) systems with built-in metadata fields.</li>
-  </ul>
-  <p><strong>Post-Collection Phase</strong>:</p>
-  <ul>
-  <li><em><strong>Metadata Repositories: </strong></em>Store metadata in centralized repository with controlled access.</li>
-  <li><em><strong>Version Control Systems:</strong></em> Version control systems can be used to keep track of metadata updates and changes.</li>
-  </ul>
-  <p><strong>3. Metadata Standards:&nbsp;</strong></p>
-  <ul>
-  <li>Dublin Core Metadata Element Set (DCMES):</li>
-  <li><em><strong>Reason:</strong></em> Widely used and accepted standard for basic metadata, ensuring broad compatibility and interoperability.</li>
-  <li><em><strong>Elements: </strong></em>Includes elements like Title, Creator, Subject, Description, Publisher, Contributor, Date, Type, Format, Identifier, Source, Language, Relation, Coverage, and Rights.</li>
-  </ul>
-  <p><strong>Data Documentation Initiative (DDI):</strong></p>
-  <ul>
-  <li><em><strong>Reason:</strong></em> Specifically designed for the social, behavioral, economic, and health sciences.</li>
-  <li><em><strong>Elements:</strong></em> Provides detailed metadata for surveys, including study-level, file-level, and variable-level metadata.</li>
-  </ul>
-  <p><strong>4. Types of Documentation Accompanying the Data:</strong></p>
-  <p><strong>Basic Details:</strong></p>
-  <ul>
-  <li><em><strong>Creator/Contributor Information:</strong></em> Names, roles, and contact details of data creators and contributors.</li>
-  <li><em><strong>Title:</strong></em> A clear and descriptive title for the dataset.</li>
-  <li><em><strong>Date of Creation:</strong></em> The date when the dataset was created.</li>
-  <li><em><strong>Access Conditions: </strong></em>Licensing information, consent details, and any access restrictions.</li>
-  </ul>
-  <p><strong>Methodological Documentation:</strong></p>
-  <ul>
-  <li><em><strong>Research Methodology: </strong></em>Detailed explanation of the research design, data collection methods, and analytical techniques.</li>
-  <li><strong><em>Procedural Information</em>:</strong> Step-by-step procedures followed during data collection and processing.</li>
-  <li><em><strong>Analytical Methods:</strong></em> Description of analytical methods and software used.</li>
-  </ul>
-  <p><strong>Variable Documentation:</strong></p>
-  <ul>
-  <li><strong>Variable Definitions:</strong> Clear definitions and descriptions of each variable in the dataset.</li>
-  <li><strong>Units of Measurement:</strong> Specifications of units for all quantitative data.</li>
-  <li><strong>Vocabularies and Ontologies:</strong> Controlled vocabularies and ontologies used for data annotation.</li>
-  </ul>
-  <p><strong>Data File Information:</strong></p>
-  <ul>
-  <li><strong>File Formats and Types:</strong> Details of file formats (e.g., CSV, JSON, XML) and their structures.</li>
-  <li><strong>Data Structure:</strong> Description of the organization of data within files (e.g., rows, columns, headers).</li>
-  </ul>
-  <p>5. <strong>Capturing and Recording Information:</strong></p>
-  <ul>
-  <li><em><strong>Metadata Templates:</strong></em> Use standardized templates to ensure consistent metadata capture.</li>
-  <li><em><strong>Electronic Documentation: </strong></em>Store documentation in electronic formats (e.g., PDF, DOCX) alongside data files.</li>
-  <li><em><strong>Metadata Fields in Data Files:</strong></em> Include metadata fields directly within data files where appropriate (e.g., CSV headers, JSON metadata sections).</li>
-  <li><em><strong>Centralized Repositories:</strong></em> Maintain a centralized metadata repository for easy access and management.</li>
-  </ul>
-  <p>&nbsp;</p>
+    <p>In the project, various analytical methods will be used for
+      characterization of compounds. For the (re)synthesis of guanidine-modified
+      monomers and metal complexes nuclear magnetic resonance spectroscopy
+      (NMR), infrared spectroscopy (IR), mass spectrometry (MS), X-Ray
+      diffraction (XRD), and electron paramagnetic resonance spectroscopy (EPR)
+      will be used as analytical methods if applicable. Guanidine-modified
+      microgels and metal-loaded microgels will be analyzed if applicable with
+      NMR, IR, dynamic light scattering (DLS), scanning transmission electron
+      microscopy (STEM), Raman, EPR, and inductively coupled plasma optical
+      emission spectroscopy (ICP-OES). NMR, ICP-OES and gas chromatography (GC)
+      will be used as analytical methods for catalytic reactions.</p>
+    <p>For all analytical methods the data type, format, and estimated volume of
+      a single data file are summarized in the following table. Data that will
+      be measured by cooperation partners are marked with an asterisk (*).
+      Already existing data of the analytical methods will be reused in the
+      stated formats.</p>
+    <table style="border-collapse: collapse; width: 100%; height: 371px;"
+           border="1">
+      <colgroup>
+        <col style="width: 20%;">
+        <col style="width: 20%;">
+        <col style="width: 20%;">
+        <col style="width: 20%;">
+        <col style="width: 20%;">
+      </colgroup>
+      <tbody>
+      <tr style="height: 39px;">
+        <td><strong>Analytical method</strong></td>
+        <td><strong>Data type</strong></td>
+        <td><strong>Data format</strong></td>
+        <td><strong>Estimated volume for a single data file</strong></td>
+        <td><strong>Preferred software for data evaluation</strong></td>
+      </tr>
+      <tr>
+        <td>NMR</td>
+        <td>Measurement raw data in xy file format</td>
+        <td>Raw data: .fid<br>Final data: .jcamp</td>
+        <td>1-30 MB<br>1-5 MB</td>
+        <td>Chemotion ELN (or Mestre Nova)</td>
+      </tr>
+      <tr style="height: 39px;">
+        <td>IR</td>
+        <td>Measurement raw data in xy file format</td>
+        <td>Raw data: .dx<br>Final data: .dx</td>
+        <td>&lt;50 KB</td>
+        <td>Chemotion ELN</td>
+      </tr>
+      <tr style="height: 39px;">
+        <td>MS</td>
+        <td>Measurement raw data in xy file format</td>
+        <td>Raw data: .xy<br>Final data: .pdf</td>
+        <td>10 MB<br>&lt;100 KB</td>
+        <td>---</td>
+      </tr>
+      <tr style="height: 21px;">
+        <td>XRD</td>
+        <td>final integrated and refined XRD data</td>
+        <td>.cif<br>.res<br>.docx</td>
+        <td><br>&lt;50 KB<br>&lt;100 KB</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr style="height: 39px;">
+        <td>EPR</td>
+        <td>Measurement raw data in xy file format</td>
+        <td>.txt</td>
+        <td>&lt;100 KB</td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr style="height: 21px;">
+        <td>DLS *</td>
+        <td>Data measured by cooperation partners</td>
+        <td>.asc</td>
+        <td>&lt;50 KB</td>
+        <td>---</td>
+      </tr>
+      <tr style="height: 21px;">
+        <td>STEM *</td>
+        <td>Data measured by cooperation partners</td>
+        <td>.tif</td>
+        <td>5 MB</td>
+        <td>---</td>
+      </tr>
+      <tr style="height: 21px;">
+        <td>Raman *</td>
+        <td>Data measured by cooperation partners</td>
+        <td>???</td>
+        <td>???</td>
+        <td>---</td>
+      </tr>
+      <tr style="height: 21px;">
+        <td>ICP-OES *</td>
+        <td>Summarized evaluation of the data measured by cooperation partners
+        </td>
+        <td>.xlsx</td>
+        <td>&lt;50 KB</td>
+        <td>---</td>
+      </tr>
+      <tr style="height: 39px;">
+        <td>GC</td>
+        <td>Measurement raw data in xy file format</td>
+        <td>Raw data: .txt<br>Final data: .pdf</td>
+        <td>&lt;1 MB<br>&lt;100 KB</td>
+        <td>---</td>
+      </tr>
+      </tbody>
+    </table>
+    <p>(Raw) data generated within the working group Herres-Pawlis at the
+      Institute of Inorganic Chemistry, RWTH Aachen University will be saved at
+      least in a non-proprietary file format for reuse by scientists within the
+      project, by collaboration partners, and by others after publication of the
+      (raw) data.</p>
+    <ol>
+      <li style="font-weight: bold;"><strong>Information Needed for Future
+        Interpretation:</strong></li>
+    </ol>
+    <p>The following information will be required in order to guarantee that the
+      data can be read and interpreted in the future:</p>
+    <ul>
+      <li><em><strong>Data Provenance</strong></em>: Information about who
+        created or contributed to the data, including contact details.
+      </li>
+      <li><em><strong>Title and Description</strong></em>: a detailed
+        description of the data, including the research context and objectives.
+      </li>
+      <li><strong><em>Creation Date:</em></strong> When the data was collected
+        or created.
+      </li>
+      <li><em>Conditions <strong>of Access:</strong></em> Any restrictions on
+        access, including licensing and consent.
+      </li>
+      <li><em><strong>Methodology:</strong></em> Detailed information on how the
+        data was collected, processed, and analyzed.
+      </li>
+      <li><em><strong>Variable Definitions</strong></em>: Definitions and
+        descriptions of all variables and data fields.
+      </li>
+      <li><em><strong>Units of Measurement</strong></em>: Specifications of
+        units for all quantitative data.
+      </li>
+      <li><em><strong>Assumptions</strong></em>: Any assumptions made during
+        data collection and processing.<br>Formats and File Types: Details of
+        the file formats and types used.
+      </li>
+      <li><em><strong>Metadata Standards</strong></em>: Standards used for
+        metadata to ensure consistency and interoperability.
+      </li>
+    </ul>
+    <p>2. <strong>Capturing and creating Documentation and Metadata:</strong>
+    </p>
+    <p><strong>Data Collection Phase:</strong></p>
+    <ul>
+      <li><em><strong>Documentation Forms</strong></em>: during data collection,
+        metadata can be captured using standardized documentation forms.
+      </li>
+      <li><em><strong>Electronic Data Capture Systems:</strong></em> Implement
+        electronic data capture (EDC) systems with built-in metadata fields.
+      </li>
+    </ul>
+    <p><strong>Post-Collection Phase</strong>:</p>
+    <ul>
+      <li><em><strong>Metadata Repositories: </strong></em>Store metadata in
+        centralized repository with controlled access.
+      </li>
+      <li><em><strong>Version Control Systems:</strong></em> Version control
+        systems can be used to keep track of metadata updates and changes.
+      </li>
+    </ul>
+    <p><strong>3. Metadata Standards:&nbsp;</strong></p>
+    <ul>
+      <li>Dublin Core Metadata Element Set (DCMES):</li>
+      <li><em><strong>Reason:</strong></em> Widely used and accepted standard
+        for basic metadata, ensuring broad compatibility and interoperability.
+      </li>
+      <li><em><strong>Elements: </strong></em>Includes elements like Title,
+        Creator, Subject, Description, Publisher, Contributor, Date, Type,
+        Format, Identifier, Source, Language, Relation, Coverage, and Rights.
+      </li>
+    </ul>
+    <p><strong>Data Documentation Initiative (DDI):</strong></p>
+    <ul>
+      <li><em><strong>Reason:</strong></em> Specifically designed for the
+        social, behavioral, economic, and health sciences.
+      </li>
+      <li><em><strong>Elements:</strong></em> Provides detailed metadata for
+        surveys, including study-level, file-level, and variable-level metadata.
+      </li>
+    </ul>
+    <p><strong>4. Types of Documentation Accompanying the Data:</strong></p>
+    <p><strong>Basic Details:</strong></p>
+    <ul>
+      <li><em><strong>Creator/Contributor Information:</strong></em> Names,
+        roles, and contact details of data creators and contributors.
+      </li>
+      <li><em><strong>Title:</strong></em> A clear and descriptive title for the
+        dataset.
+      </li>
+      <li><em><strong>Date of Creation:</strong></em> The date when the dataset
+        was created.
+      </li>
+      <li><em><strong>Access Conditions: </strong></em>Licensing information,
+        consent details, and any access restrictions.
+      </li>
+    </ul>
+    <p><strong>Methodological Documentation:</strong></p>
+    <ul>
+      <li><em><strong>Research Methodology: </strong></em>Detailed explanation
+        of the research design, data collection methods, and analytical
+        techniques.
+      </li>
+      <li><strong><em>Procedural Information</em>:</strong> Step-by-step
+        procedures followed during data collection and processing.
+      </li>
+      <li><em><strong>Analytical Methods:</strong></em> Description of
+        analytical methods and software used.
+      </li>
+    </ul>
+    <p><strong>Variable Documentation:</strong></p>
+    <ul>
+      <li><strong>Variable Definitions:</strong> Clear definitions and
+        descriptions of each variable in the dataset.
+      </li>
+      <li><strong>Units of Measurement:</strong> Specifications of units for all
+        quantitative data.
+      </li>
+      <li><strong>Vocabularies and Ontologies:</strong> Controlled vocabularies
+        and ontologies used for data annotation.
+      </li>
+    </ul>
+    <p><strong>Data File Information:</strong></p>
+    <ul>
+      <li><strong>File Formats and Types:</strong> Details of file formats
+        (e.g., CSV, JSON, XML) and their structures.
+      </li>
+      <li><strong>Data Structure:</strong> Description of the organization of
+        data within files (e.g., rows, columns, headers).
+      </li>
+    </ul>
+    <p>5. <strong>Capturing and Recording Information:</strong></p>
+    <ul>
+      <li><em><strong>Metadata Templates:</strong></em> Use standardized
+        templates to ensure consistent metadata capture.
+      </li>
+      <li><em><strong>Electronic Documentation: </strong></em>Store
+        documentation in electronic formats (e.g., PDF, DOCX) alongside data
+        files.
+      </li>
+      <li><em><strong>Metadata Fields in Data Files:</strong></em> Include
+        metadata fields directly within data files where appropriate (e.g., CSV
+        headers, JSON metadata sections).
+      </li>
+      <li><em><strong>Centralized Repositories:</strong></em> Maintain a
+        centralized metadata repository for easy access and management.
+      </li>
+    </ul>
+    <p>&nbsp;</p>
   `;
 
   const [editorContent, setEditorContent] = useState(richtextDefault);
@@ -218,6 +346,10 @@ function Page() {
           <a href="#_icons">Icons</a>
           <a href="#_layout">Layout</a>
           <a href="#_forms">Forms</a>
+          <a href="#_fields_text">Text Fields</a>
+          <a href="#_fields_textarea">Textarea Fields</a>
+          <a href="#_fields_radio">Radio Fields</a>
+          <a href="#_fields_checkbox">Checkbox Fields</a>
           <a href="#_fields">Form Fields</a>
           <a href="#_table">Table</a>
           <a href="#_widgets">Custom Widget</a>
@@ -384,7 +516,8 @@ function Page() {
               </li>
               <li>
                 When elements have multiple properties, prefer to have each
-                property on it&lsquo;s own line, so that it&lsquo;s faster to find specific
+                property on it&lsquo;s own line, so that it&lsquo;s faster to
+                find specific
                 properties, and easier to add &amp; remove. Eg.
 
                 <div><pre><code>
@@ -394,11 +527,13 @@ function Page() {
   prop3="C"
   prop4="D"
 \\>`}
-                </code></pre></div>
+                </code></pre>
+                </div>
               </li>
 
               <li>
-                The same applies to import statements. Though more verbose, allows
+                The same applies to import statements. Though more verbose,
+                allows
                 for better legibility and faster changes.
 
                 <div><pre><code>
@@ -411,13 +546,15 @@ function Page() {
   Form,
 } from "react-area-components";
 `}
-                </code></pre></div>
+                </code></pre>
+                </div>
               </li>
 
               <li>
-                Use a <em>leading underscore</em> for &ldquo;private&ldquo; css variables.
+                Use a <em>leading underscore</em> for &ldquo;private&ldquo; css
+                variables.
                 This is handy when working on larger components that use
-                duplicate styles throughout.  We create a private variable to
+                duplicate styles throughout. We create a private variable to
                 reduce duplication and potential typos, especially when working
                 with larger components.
 
@@ -433,7 +570,8 @@ function Page() {
   grid-template-rows: auto;
 }
 `}
-                </code></pre></div>
+                </code></pre>
+                </div>
               </li>
             </ul>
 
@@ -453,8 +591,10 @@ function Page() {
             <dl>
               <dt><code>--focus-ring-color</code></dt>
               <dd>
-                This is the highlight around input fields and other &ldquo;selectable&ldquo;
-                elements. It&lsquo;s a visual indicator of where the current focus is.
+                This is the highlight around input fields and
+                other &ldquo;selectable&ldquo;
+                elements. It&lsquo;s a visual indicator of where the current
+                focus is.
               </dd>
 
               <dt><code>--text-color</code></dt>
@@ -507,17 +647,81 @@ function Page() {
             </dl>
           </div>
 
+
+          <div id="_fields_text">
+            <h2>TextField</h2>
+
+
+            <h3>
+              Text
+            </h3>
+            <p>
+              A text field allows a user to enter a plain text value with a
+              keyboard.
+            </p>
+
+            <p>
+              This is a <em>core component</em>, see
+              the <a
+                href="https://react-spectrum.adobe.com/react-aria/TextField.html">component
+                docs here.</a>
+            </p>
+
+
+            <Example>
+              <TextField name="example_text" isRequired>
+                <Label>Example Text Field</Label>
+                <Text slot="description" className="help">
+                  Descriptive text related to the field
+                </Text>
+                <Input />
+              </TextField>
+            </Example>
+
+
+            <h3>
+              Email
+            </h3>
+
+            <h3>SubHeader</h3>
+            <SubHeader />
+            <TextField
+              name="example_email"
+              type="email"
+              isRequired
+            >
+              <Label>Email</Label>
+              <Text slot="description" className="help">
+                Your email address
+              </Text>
+              <Input />
+              <FieldError />
+            </TextField>
+
+
+          </div>
+          <div id="_fields_textarea">
+
+          </div>
+          <div id="_fields_radio"></div>
+          <div id="_fields_checkbox"></div>
+
+
           <div id="_forms">
             <h2>Buttons</h2>
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Button.html">component docs here.</a>
+              the <a
+                href="https://react-spectrum.adobe.com/react-aria/Button.html">component
+                docs here.</a>
             </p>
 
             <Example>
               <div className="sg-button-list">
                 <Button>Standard</Button>
                 <Button data-primary>Primary</Button>
+                <Button className="secondary">Secondary</Button>
+                <Button className="tertiary">Tertiary</Button>
                 <Button isDisabled>Disabled</Button>
                 <ButtonWithImage url="http://localhost:3000" imageUrl="/images/orcid.svg" buttonText="Connect institutional credentials" />
               </div>
@@ -532,29 +736,120 @@ function Page() {
 
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Form.html">component docs here.</a>
+              the <a
+                href="https://react-spectrum.adobe.com/react-aria/Form.html">component
+                docs here.</a>
             </p>
 
             <Example>
               <Form>
-                <TextField
-                  name="email"
-                  type="email"
-                  aria-label="Email"
-                  isRequired
-                />
                 <TextField
                   name="example_email"
                   type="email"
                   isRequired
                 >
                   <Label>Email</Label>
+                  <Text slot="description" className="help">Descriptive text
+                    related to the field</Text>
                   <Input />
-                  <p className="help">Descriptive text related to the field</p>
                   <FieldError />
                 </TextField>
 
-                <div className="form-actions">
+
+                <h3>
+                  Checkboxes
+                </h3>
+
+                <CheckboxGroup>
+                  <Label>Favorite sports</Label>
+                  <Text slot="description" className="help">This is help
+                    text</Text>
+                  <Checkbox value="soccer">
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    Test
+                  </Checkbox>
+                  <Checkbox value="test">
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    Test
+                  </Checkbox>
+
+                </CheckboxGroup>
+
+
+                <h3>
+                  Checkbox
+                </h3>
+                <Checkbox>
+                  <div className="checkbox">
+                    <svg viewBox="0 0 18 18" aria-hidden="true">
+                      <polyline points="1 9 7 14 15 4" />
+                    </svg>
+                  </div>
+                  Unsubscribe
+                </Checkbox>
+
+                <h3>
+                  Radio
+                </h3>
+                <RadioGroup>
+                  <Label>Favorite pet</Label>
+                  <Text slot="description" className="help">This is help
+                    text</Text>
+                  <Radio value="dogs">Dog</Radio>
+                  <Radio value="cats">Cat</Radio>
+                  <Radio value="dragon">Dragon</Radio>
+                </RadioGroup>
+
+
+                <h3>
+                  Select
+                </h3>
+                <Select>
+                  <Label>Favorite Animal</Label>
+                  <Text slot="description" className="help">This is help
+                    text</Text>
+                  <Button>
+                    <SelectValue />
+                    <span aria-hidden="true">▼</span>
+                  </Button>
+                  <Popover>
+                    <ListBox>
+                      <ListBoxItem>Aardvark</ListBoxItem>
+                      <ListBoxItem>Cat</ListBoxItem>
+                      <ListBoxItem>Dog</ListBoxItem>
+                      <ListBoxItem>Kangaroo</ListBoxItem>
+                      <ListBoxItem>Panda</ListBoxItem>
+                      <ListBoxItem>Snake</ListBoxItem>
+                    </ListBox>
+                  </Popover>
+                  <FieldError />
+                </Select>
+
+                <h3>
+                  Native Select Field
+                </h3>
+                <Label>Favorite Animal</Label>
+                <select>
+                  <option>
+                    Aardvark
+                  </option>
+                  <option>
+                    Cat
+                  </option>
+                </select>
+
+                <h3>
+                  Submit button
+                </h3>
+                <div className="form-actions mt-5">
                   <Button type="submit">Submit</Button>
                 </div>
               </Form>
@@ -562,29 +857,79 @@ function Page() {
 
           </div>
 
+
           <div id="_fields">
-            <h2>TextField</h2>
+
+
+            <h3>
+              Card
+            </h3>
+            <Card id="card1" data-test='date-test'>
+              <CardEyebrow>NSF</CardEyebrow>
+              <CardHeading>NSF Health research</CardHeading>
+              <CardBody>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              </CardBody>
+              <CardMutedText>Updated 1 year ago</CardMutedText>
+              <CardFooter>
+                <Button>Select</Button>
+              </CardFooter>
+            </Card>
+
+            <h3>
+              Card with Icon
+            </h3>
+            <Card id="card1" data-test='date-test'>
+              <CardEyebrow>NSF</CardEyebrow>
+              <CardHeading>NSF Health research</CardHeading>
+              <CardBody>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              </CardBody>
+              <CardMutedText>Updated 1 year ago</CardMutedText>
+              <CardFooter>
+                <Button>Select</Button>
+              </CardFooter>
+            </Card>
+
+
+            <h2>
+              Section Header
+            </h2>
             <p>
-              A text field allows a user to enter a plain text value with a
-              keyboard.
+              This is used in template builder where the section is editable
+              below this will be a list of questions cards
             </p>
 
-            <p>
-              This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/TextField.html">component docs here.</a>
-            </p>
 
-            <Example>
-              <TextField name="example_text" isRequired>
-                <Label>Example Text Field</Label>
-                <Input />
-                <p className="help">Descriptive text related to the field</p>
-              </TextField>
-            </Example>
+            <SectionHeaderEdit
+              key="22424"
+              sectionNumber={2}
+              title="Test"
+              editUrl="/edit"
+              onMoveUp={() => null}
+              onMoveDown={() => null}
+            />
+
+
+            <h2>
+              Question Card
+            </h2>
+
+            <QuestionEdit
+              key={2552}
+              id="24"
+              name="This is a question"
+              link="/edit"
+            />
+
+
+
+
 
             <h2>Typeahead</h2>
             <p>
-              Typeahead, also known as an autosuggest, shows matches to a user query as the user types.
+              Typeahead, also known as an autosuggest, shows matches to a user
+              query as the user types.
             </p>
 
             <Example>
@@ -597,7 +942,9 @@ function Page() {
 
             <h2>Typeahead with Other option</h2>
             <p>
-              Typeahead with the inclusion of the &ldquo;Other&rdquo; option. You can pass a setOtherField() method to set it to true when the user selects &ldquo;Other&rdquo; option.
+              Typeahead with the inclusion of the &ldquo;Other&rdquo; option.
+              You can pass a setOtherField() method to set it to true when the
+              user selects &ldquo;Other&rdquo; option.
             </p>
 
             <Example>
@@ -621,12 +968,16 @@ function Page() {
           <div id="_table">
             <h2>Table</h2>
             <p>
-              A table displays data in rows and columns and enables a user to navigate its contents via directional navigation keys, and optionally supports row selection and sorting.
+              A table displays data in rows and columns and enables a user to
+              navigate its contents via directional navigation keys, and
+              optionally supports row selection and sorting.
             </p>
 
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Table.html">component docs here.</a>
+              the <a
+                href="https://react-spectrum.adobe.com/react-aria/Table.html">component
+                docs here.</a>
             </p>
 
             <Example>
@@ -649,24 +1000,119 @@ function Page() {
 
 
           <div id="_widgets">
+
+            <h2>
+              Tabs
+            </h2>
+
+
+            <Tabs>
+              <TabList aria-label="Question editing">
+                <Tab id="edit">Edit Question</Tab>
+                <Tab id="second">Second tab</Tab>
+                <Tab id="third">Third tab</Tab>
+              </TabList>
+              <TabPanel id="edit">
+
+                <h2>Create a New Question</h2>
+
+                <Form>
+                  <TextField
+                    name="question_text"
+                    type="text"
+                    isRequired
+                  >
+                    <Label>Question text</Label>
+                    <Text slot="description" className="help">
+                      Enter the question that you want to include in this
+                      section.
+                    </Text>
+                    <Input />
+                    <FieldError />
+                  </TextField>
+
+                  <TextField
+                    name="question_help_text"
+                    type="text"
+                  >
+                    <Label>Help text</Label>
+                    <Text slot="description" className="help">
+                      Optionally, provide help text or additional context for
+                      this question.
+                    </Text>
+                    <Input />
+                    <FieldError />
+                  </TextField>
+
+                  <Button type="submit">Create Question</Button>
+
+                </Form>
+
+              </TabPanel>
+              <TabPanel id="second">
+                <h3>Text</h3>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                </p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
+                </p>
+              </TabPanel>
+              <TabPanel id="third">
+                <h3>Options</h3>
+
+                <Form>
+
+
+                  <TextField
+                    name="question_help_text"
+                    type="text"
+                  >
+                    <Label>Help text</Label>
+                    <Text slot="description" className="help">
+                      Optionally, provide help text or additional context for
+                      this question.
+                    </Text>
+                    <Input />
+                    <FieldError />
+                  </TextField>
+
+                  <Button type="submit">Create Question</Button>
+
+                </Form>
+              </TabPanel>
+            </Tabs>
+
+
             <h2>Widgets</h2>
             <p>TBD (Custom Components, etc…)</p>
 
             <h2>Toggle Switch</h2>
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Switch.html">component docs here.</a>
+              the <a
+                href="https://react-spectrum.adobe.com/react-aria/Switch.html">component
+                docs here.</a>
             </p>
             <Example>
               <Switch defaultSelected>
-                <div className="indicator" /> Toggle
+                <div className="indicator" />
+                Toggle
               </Switch>
             </Example>
 
             <h2>Popover</h2>
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Popover.html">component docs here.</a>
+              the <a
+                href="https://react-spectrum.adobe.com/react-aria/Popover.html">component
+                docs here.</a>
             </p>
             <Example>
               <DialogTrigger>
@@ -680,13 +1126,16 @@ function Page() {
                   <Dialog>
                     <div className="flex-col">
                       <Switch defaultSelected>
-                        <div className="indicator" /> Wi-Fi
+                        <div className="indicator" />
+                        Wi-Fi
                       </Switch>
                       <Switch defaultSelected>
-                        <div className="indicator" /> Bluetooth
+                        <div className="indicator" />
+                        Bluetooth
                       </Switch>
                       <Switch>
-                        <div className="indicator" /> Mute
+                        <div className="indicator" />
+                        Mute
                       </Switch>
                     </div>
                   </Dialog>
@@ -697,7 +1146,9 @@ function Page() {
             <h2>Menu</h2>
             <p>
               This is a <em>core component</em>, see
-              the <a href="https://react-spectrum.adobe.com/react-aria/Menu.html">component docs here.</a>
+              the <a
+                href="https://react-spectrum.adobe.com/react-aria/Menu.html">component
+                docs here.</a>
             </p>
             <Example>
               <MenuTrigger>
@@ -705,10 +1156,13 @@ function Page() {
                 <Popover>
                   <Menu>
                     <MenuItem onAction={() => alert('open')}>Open</MenuItem>
-                    <MenuItem onAction={() => alert('rename')}>Rename…</MenuItem>
-                    <MenuItem onAction={() => alert('duplicate')}>Duplicate</MenuItem>
+                    <MenuItem
+                      onAction={() => alert('rename')}>Rename…</MenuItem>
+                    <MenuItem
+                      onAction={() => alert('duplicate')}>Duplicate</MenuItem>
                     <MenuItem onAction={() => alert('share')}>Share…</MenuItem>
-                    <MenuItem onAction={() => alert('delete')}>Delete…</MenuItem>
+                    <MenuItem
+                      onAction={() => alert('delete')}>Delete…</MenuItem>
                   </Menu>
                 </Popover>
               </MenuTrigger>
@@ -749,12 +1203,13 @@ function Page() {
             <p>Example Usage:</p>
             <div><pre><code>
               {`<DmpEditor content={editorContent} setContent={setEditorContent} \\>`}
-            </code></pre></div>
+            </code></pre>
+            </div>
             <hr />
             <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
         </div>
-      </div >
+      </div>
 
     </>
   )

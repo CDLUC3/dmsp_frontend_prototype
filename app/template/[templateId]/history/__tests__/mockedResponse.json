@@ -9,7 +9,7 @@
                 "givenName": "Severus",
                 "surName": "Snape",
                 "affiliation": {
-                    "name": "National Institutes of Health"
+                    "displayName": "National Institutes of Health"
                 },
                 "modified": "2024-08-21T18:05:57.000Z",
                 "modifiedById": 459
@@ -24,7 +24,7 @@
                 "givenName": "Severus",
                 "surName": "Snape",
                 "affiliation": {
-                    "name": "National Institutes of Health"
+                    "displayName": "National Institutes of Health"
                 },
                 "modified": "2024-08-21T18:05:57.000Z",
                 "modifiedById": 320
@@ -39,7 +39,7 @@
                 "givenName": "Severus",
                 "surName": "Snape",
                 "affiliation": {
-                    "name": "National Institutes of Health"
+                    "displayName": "National Institutes of Health"
                 },
                 "modified": "2024-08-21T18:05:57.000Z",
                 "modifiedById": 779
@@ -54,7 +54,7 @@
                 "givenName": "Severus",
                 "surName": "Snape",
                 "affiliation": {
-                    "name": "National Institutes of Health"
+                    "displayName": "National Institutes of Health"
                 },
                 "modified": "2024-08-21T18:05:57.000Z",
                 "modifiedById": 822
@@ -69,7 +69,7 @@
                 "givenName": "Severus",
                 "surName": "Snape",
                 "affiliation": {
-                    "name": "National Institutes of Health"
+                    "displayName": "National Institutes of Health"
                 },
                 "modified": "2024-08-21T18:05:57.000Z",
                 "modifiedById": 89
@@ -84,7 +84,7 @@
                 "givenName": "Severus",
                 "surName": "Snape",
                 "affiliation": {
-                    "name": "National Institutes of Health"
+                    "displayName": "National Institutes of Health"
                 },
                 "modified": "2024-08-21T18:05:57.000Z",
                 "modifiedById": 551

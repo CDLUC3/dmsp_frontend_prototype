@@ -11,10 +11,26 @@ html, body {
   overflow: auto;
 }
 
-
 /* color themes for dark and light modes, generated with Leonardo.
  * Light: https://leonardocolor.io/theme.html?name=Light&config=%7B%22baseScale%22%3A%22Gray%22%2C%22colorScales%22%3A%5B%7B%22name%22%3A%22Gray%22%2C%22colorKeys%22%3A%5B%22%23000000%22%5D%2C%22colorspace%22%3A%22RGB%22%2C%22ratios%22%3A%5B%22-1.12%22%2C%221.45%22%2C%222.05%22%2C%223.02%22%2C%224.54%22%2C%227%22%2C%2210.86%22%5D%2C%22smooth%22%3Afalse%7D%2C%7B%22name%22%3A%22Purple%22%2C%22colorKeys%22%3A%5B%22%235e30eb%22%5D%2C%22colorspace%22%3A%22RGB%22%2C%22ratios%22%3A%5B%22-1.12%22%2C%221.45%22%2C%222.05%22%2C%223.02%22%2C%224.54%22%2C%227%22%2C%2210.86%22%5D%2C%22smooth%22%3Afalse%7D%2C%7B%22name%22%3A%22Red%22%2C%22colorKeys%22%3A%5B%22%23e32400%22%5D%2C%22colorspace%22%3A%22RGB%22%2C%22ratios%22%3A%5B%22-1.12%22%2C%221.45%22%2C%222.05%22%2C%223.02%22%2C%224.54%22%2C%227%22%2C%2210.86%22%5D%2C%22smooth%22%3Afalse%7D%5D%2C%22lightness%22%3A98%2C%22contrast%22%3A1%2C%22saturation%22%3A100%2C%22formula%22%3A%22wcag2%22%7D */
 :root {
+
+  --fs-small: 0.875rem; /* 14px */
+  --fs-base: 1rem; /* 16px - base font size */
+  --fs-lg: 1.125rem; /* 18px */
+  --fs-xl: 1.25rem; /* 20px */
+  --fs-2xl: 1.5rem; /* 24px */
+  --fs-3xl: 1.875rem; /* 30px */
+  --fs-4xl: 2.25rem; /* 36px */
+
+  --fs-body: var(--fs-base);
+
+  // line height
+  --lh-tight: 1.1;
+  --lh-normal: 1.5;
+  --lh-loose: 1.8;
+
+
   --background-color: #f8f8f8;
   --gray-50: #ffffff;
   --gray-100: #d0d0d0;
@@ -37,38 +53,30 @@ html, body {
   --red-600: #731200;
   --highlight-hover: rgb(0 0 0 / 0.07);
   --highlight-pressed: rgb(0 0 0 / 0.15);
-}
 
-/* Dark: https://leonardocolor.io/theme.html?name=Dark&config=%7B%22baseScale%22%3A%22Gray%22%2C%22colorScales%22%3A%5B%7B%22name%22%3A%22Gray%22%2C%22colorKeys%22%3A%5B%22%23000000%22%5D%2C%22colorspace%22%3A%22RGB%22%2C%22ratios%22%3A%5B%22-1.12%22%2C%221.45%22%2C%222.05%22%2C%223.02%22%2C%224.54%22%2C%227%22%2C%2210.86%22%5D%2C%22smooth%22%3Afalse%7D%2C%7B%22name%22%3A%22Purple%22%2C%22colorKeys%22%3A%5B%22%235e30eb%22%5D%2C%22colorspace%22%3A%22RGB%22%2C%22ratios%22%3A%5B%22-1.12%22%2C%221.45%22%2C%222.05%22%2C%223.02%22%2C%224.54%22%2C%227%22%2C%2210.86%22%5D%2C%22smooth%22%3Afalse%7D%2C%7B%22name%22%3A%22Red%22%2C%22colorKeys%22%3A%5B%22%23e32400%22%5D%2C%22colorspace%22%3A%22RGB%22%2C%22ratios%22%3A%5B%22-1.12%22%2C%221.45%22%2C%222.05%22%2C%223.02%22%2C%224.54%22%2C%227%22%2C%2210.86%22%5D%2C%22smooth%22%3Afalse%7D%5D%2C%22lightness%22%3A11%2C%22contrast%22%3A1%2C%22saturation%22%3A100%2C%22formula%22%3A%22wcag2%22%7D */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background-color: #1d1d1d;
-    --gray-50: #101010;
-    --gray-100: #393939;
-    --gray-200: #4f4f4f;
-    --gray-300: #686868;
-    --gray-400: #848484;
-    --gray-500: #a7a7a7;
-    --gray-600: #cfcfcf;
-    --purple-100: #3c1e95;
-    --purple-200: #522acd;
-    --purple-300: #6f46ed;
-    --purple-400: #8e6ef1;
-    --purple-500: #b099f5;
-    --purple-600: #d5c8fa;
-    --red-100: #721200;
-    --red-200: #9c1900;
-    --red-300: #cc2000;
-    --red-400: #e95034;
-    --red-500: #f08c79;
-    --red-600: #f7c3ba;
-    --highlight-hover: rgb(255 255 255 / 0.1);
-    --highlight-pressed: rgb(255 255 255 / 0.2);
-  }
-}
 
-/* Semantic colors */
-:root {
+  --slate-900: #0F172A;
+  --slate-800: #1E293B;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748B;
+  --slate-400: #94A3B8;
+  --slate-300: #CBD5E1;
+  --slate-200: #E2E8F0;
+  --slate-100: #F1F5F9;
+  --bg-white: #FFFFFF;
+  --bg-black: #000000;
+  --focus-ring: #3B82F6;
+  --focus-ring-offset: 2px;
+
+  // card
+  --card-background: #fff;
+  --card-border: none;
+  --card-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.09);
+  --card-padding: 1rem;
+  --card-border-radius: 0.3125rem;
+
+
   // Named brand colours
   --brand-primary: rgb(0, 85, 129);
   --brand-secondary: rgb(14, 130, 86);
@@ -103,12 +111,12 @@ html, body {
   --button-background: var(--gray-50);
   --button-background-pressed: var(--background-color);
 
-  --heading-color: var(--brand-primary);
+  --heading-color: var(--bg-black);
 
   /* these colors are the same between light and dark themes
    * to ensure contrast with the foreground color */
-  --highlight-background: #6f46ed; /* purple-300 from dark theme, 3.03:1 against background-color */
-  --highlight-background-pressed: #522acd; /* purple-200 from dark theme */
+  --highlight-background: #000000; /* purple-300 from dark theme, 3.03:1 against background-color */
+  --highlight-background-pressed: #2a9ccd; /* purple-200 from dark theme */
   --highlight-background-invalid: #cc2000; /* red-300 from dark theme */
   --highlight-foreground: white; /* 5.56:1 against highlight-background */
   --highlight-foreground-pressed: #ddd;
@@ -160,7 +168,7 @@ html, body {
 
 /* Set up the rest of the theme here */
 :root {
-  --font-family: var(--font-poppins), sans-serif;
+  --font-family: var(--font-inter), sans-serif;
 
   // Spacing:
   --brand-space1: 0.5em;
@@ -193,15 +201,21 @@ html, body {
 }
 
 
+
+html {
+  font-family: var(--font-family);
+}
+
 body {
   font-family: var(--font-family);
-  font-size: 1em;
+  font-size: 1rem;
   color: var(--text-color);
   background-color: var(--background-color);
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 
 .error {
   background: rgba(238, 100, 100, 0.405);
@@ -237,6 +251,6 @@ body {
 }
 
 @import "typography";
-@import "page";
 @import "elements";
 @import "messages";
+@import "page";
