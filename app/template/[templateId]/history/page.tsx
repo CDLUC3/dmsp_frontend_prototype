@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useTemplateVersionsQuery } from '@/generated/graphql';
 import {
     Table,
@@ -10,17 +10,18 @@ import {
     Column,
     Row,
     Cell,
-} from 'react-aria-components';
-import PageWrapper from '@/components/PageWrapper';
-import BackButton from '@/components/BackButton';
-import { formatWithTimeAndDate, formatShortMonthDayYear } from '@/utils/dateUtils';
-import { handleApolloErrors } from '@/utils/gqlErrorHandler';
+} from "react-aria-components";
+import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import PageWrapper from "@/components/PageWrapper";
+import BackButton from "@/components/BackButton";
+import { formatWithTimeAndDate, formatShortMonthDayYear } from "@/utils/dateUtils"
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {
     const [errors, setErrors] = useState<string[]>([]);
     const params = useParams();
     const templateId = Number(params.templateId);
+    const router = useRouter();
 
     const { data = {}, loading, error, refetch } = useTemplateVersionsQuery(
         { variables: { templateId } }
@@ -34,7 +35,8 @@ const TemplateHistory = () => {
                     error.graphQLErrors,
                     error.networkError,
                     setErrors,
-                    refetch
+                    refetch,
+                    router
                 );
             };
 
@@ -45,10 +47,6 @@ const TemplateHistory = () => {
     // Handle loading state
     if (loading) {
         return <p>Loading publication history...</p>;
-    }
-
-    if (error) {
-        return <p>There was a problem.</p>
     }
 
     const templateVersions = data?.templateVersions || [];
