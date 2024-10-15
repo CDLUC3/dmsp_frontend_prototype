@@ -50,7 +50,14 @@ import {
   CardMutedText,
 } from "@/components/Card/card";
 
-import { BrandColor, Example, handleDelete, } from "./sg-components";
+import { useResponsive } from "@/hooks/responsive";
+import {
+  LayoutWithSidebar,
+  SidebarContainer,
+  ContentContainer,
+} from '@/components/Container';
+
+import { BrandColor, Example, handleDelete } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
@@ -331,15 +338,14 @@ function Page() {
 
   return (
     <>
-      <h1>Living Styleguide</h1>
-
-      <div id="sgLayout">
-        <div id="sgNav">
+      <LayoutWithSidebar id="sgLayout" sidebarPosition="right">
+        <SidebarContainer>
           <a href="#_intro">Introduction</a>
           <a href="#_brand">Branding & Colours</a>
           <a href="#_typography">Typography</a>
           <a href="#_icons">Icons</a>
           <a href="#_layout">Layout</a>
+          <a href="#_containers">Containers</a>
           <a href="#_forms">Forms</a>
           <a href="#_fields_text">Text Fields</a>
           <a href="#_fields_textarea">Textarea Fields</a>
@@ -350,9 +356,11 @@ function Page() {
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
-        </div>
+        </SidebarContainer>
 
-        <div id="sgContent">
+        <ContentContainer id="sgContent">
+          <h1>Living Styleguide</h1>
+
           <div id="_intro">
             <h2>Introduction</h2>
             <p>TBD... (Why, Living Styleguide?, Updates, How-to-use)</p>
@@ -667,7 +675,8 @@ function Page() {
                 <DmpIcon icon="search" />
                 <DmpIcon icon="settings" />
                 <DmpIcon icon="favorite" />
-                <DmpIcon icon="bold" />
+                <DmpIcon icon="format_bold" />
+                <DmpIcon icon="double_arrow" />
               </div>
             </Example>
 
@@ -1054,7 +1063,6 @@ function Page() {
 
             <h2>Layout</h2>
             <p>TBD ...</p>
-
           </div>
 
           <div id="_theme">
@@ -1690,11 +1698,39 @@ function Page() {
             <hr />
             <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
-        </div>
-      </div>
-
+        </ContentContainer>
+      </LayoutWithSidebar>
     </>
   )
 }
+
+//           <div id="_containers">
+//             <h2>Sidebar Container</h2>
+//             <p>Container with a sidebar.</p>
+//             <div className="sg-sidebar">
+//               <SidebarContainer>
+//                 <div className="sidebar-content">
+//                   <p>This is the primary content for the slider component</p>
+//                 </div>
+//
+//                 <aside>
+//                   <p>This is the sidebar for the slider component</p>
+//                 </aside>
+//               </SidebarContainer>
+//             </div>
+//
+//             <h2>Sidebar collapsed</h2>
+//             <div className="sg-sidebar-collapsed">
+//               <SidebarContainer>
+//                 <div className="sidebar-content">
+//                   <p>This is the primary content for the slider component</p>
+//                 </div>
+//
+//                 <aside>
+//                   <p>This is the sidebar for the slider component</p>
+//                 </aside>
+//               </SidebarContainer>
+//             </div>
+//           </div>
 
 export default Page;
