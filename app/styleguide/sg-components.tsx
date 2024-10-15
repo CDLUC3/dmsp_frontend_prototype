@@ -27,3 +27,11 @@ export function BrandColor({ varname }: BrandColorProps) {
     </div>
   );
 }
+
+export const handleDelete = async () => {
+  try {
+    console.log('Deleted');
+  } catch (error) {
+    console.error("An error occurred while deleting the item:", error);
+  }
+};

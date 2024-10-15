@@ -18,9 +18,9 @@ import { formatWithTimeAndDate, formatShortMonthDayYear } from "@/utils/dateUtil
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {
+    const [errors, setErrors] = useState<string[]>([]);
     const params = useParams();
     const templateId = Number(params.templateId);
-    const [errors, setErrors] = useState<string[]>([]);
     const router = useRouter();
 
     const { data = {}, loading, error, refetch } = useTemplateVersionsQuery(
@@ -59,21 +59,23 @@ const TemplateHistory = () => {
         return versionB - versionA;
     });
 
+
     const lastPublication = sortedTemplates.length > 0 ? sortedTemplates[0] : null;
-    const lastPublicationDate = lastPublication?.created
-        ? formatShortMonthDayYear(new Date(lastPublication.created))
-        : '';
+    const lastPublicationDate = lastPublication?.created ? formatShortMonthDayYear(lastPublication.created) : '';
 
     return (
-        <PageWrapper title={"Template History"}>
+        <PageWrapper title={'Template History'}>
             <BackButton />
-            {loading && <p>Template history is loading...</p>}
-            <div>
+            {errors && (
                 <div>
                     {errors && errors.map((err, index) => (
                         <p key={index}>{err}</p>
                     ))}
                 </div>
+            )}
+
+            {loading && <p>Template history is loading...</p>}
+            <div>
                 {lastPublication && (
                     <>
                         <h1 className="with-subheader">{lastPublication?.name || 'Unknown'}</h1>
@@ -99,9 +101,8 @@ const TemplateHistory = () => {
                         {
                             sortedTemplates.length > 0
                                 ? sortedTemplates.map((item, index) => {
-                                    const publishDate = item?.created
-                                        ? formatWithTimeAndDate(new Date(item.created))
-                                        : '';
+
+                                    const publishDate = item?.created ? formatWithTimeAndDate(item?.created) : '';
                                     const versionedBy = item?.versionedBy;
 
                                     return (

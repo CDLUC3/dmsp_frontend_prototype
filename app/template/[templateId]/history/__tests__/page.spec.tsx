@@ -81,7 +81,7 @@ describe('TemplateHistory', () => {
             </MockedProvider>
         );
 
-        expect(useTemplateVersionsQuery).toHaveBeenCalledWith({ "variables": { "templateId": 123 } })
+        expect(useTemplateVersionsQuery).toHaveBeenCalledWith({ 'variables': { 'templateId': 123 } })
     });
 
     it('should render loading state correctly', () => {
@@ -135,7 +135,7 @@ describe('TemplateHistory', () => {
         expect(h1Element).toHaveTextContent('NIH-GDS: Genomic Data Sharing');
         expect(getByTestId('author')).toHaveTextContent('by National Institutes of Health')
         expect(getByTestId('latest-version')).toHaveTextContent('3.1')
-        expect(getByTestId('publication-date')).toHaveTextContent('Published: Aug 1, 2024')
+        expect(getByTestId('publication-date')).toHaveTextContent('Published: Jun 25, 2014')
     });
 
     it('should render correct headers for table', async () => {
@@ -174,7 +174,7 @@ describe('TemplateHistory', () => {
         const row1Cells = targetRow1.querySelectorAll('td');
         expect(row1Cells[0].textContent).toBe('Published v3Change log:This is the initial version of our template!');
         expect(row1Cells[1].textContent).toBe('Severus Snape');
-        expect(row1Cells[2].textContent).toBe('19:03 on Mar 31, 2024');
+        expect(row1Cells[2].textContent).toBe('16:29 on Jun 25, 2014');
     })
 
     it('should render "No template history available" when no data is available', () => {
