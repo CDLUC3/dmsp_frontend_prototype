@@ -1,0 +1,39 @@
+@import '@/styles/responsive';
+
+.sidebar-content {
+  --_sidebar-width: var(--sidebar-width, 30%);
+
+  &.state-open,
+  &.state-closed {
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 300px;
+    background: var(--overlay-background);
+    outline: none;
+    border-left: 1px solid var(--border-color);
+    box-shadow: -8px 0 20px rgba(0 0 0 / 0.1);
+    overflow-y: auto;
+    z-index: 100;
+
+    &.direction-left {
+      transition: left 0.3s ease-out;
+      left: calc(var(--_sidebar-width) * -1);
+
+      &.state-open {
+        left: 0;
+      }
+    }
+
+    &.direction-right {
+      transition: right 0.3s ease-in;
+      right: calc(var(--_sidebar-width) * -1);
+
+      &.state-open {
+        right: 0;
+      }
+    }
+  }
+}

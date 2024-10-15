@@ -51,6 +51,10 @@ import {
   CardMutedText,
 } from "@/components/Card/card";
 
+import {
+  SidebarContainer,
+  useResponsive,
+} from '@/components/Container';
 
 import { BrandColor, Example, } from "./sg-components";
 
@@ -327,18 +331,31 @@ function Page() {
   `;
 
   const [editorContent, setEditorContent] = useState(richtextDefault);
+  const [sidebarState, setSidebarState] = useState(false);
+  const size = useResponsive();
+
+  function toggleSidebar(ev) {
+    setSidebarState(!sidebarState);
+  }
 
   return (
     <>
-      <h1>Living Styleguide</h1>
-
       <div id="sgLayout">
-        <div id="sgNav">
+        <SidebarContainer
+          id="sgNav"
+          collapseSize="md"
+          direction="left"
+          isOpen={sidebarState}
+          onStateChange={(newState) => {
+            setSidebarState((newState === "open"));
+          }}
+        >
           <a href="#_intro">Introduction</a>
           <a href="#_brand">Branding & Colours</a>
           <a href="#_typography">Typography</a>
           <a href="#_icons">Icons</a>
           <a href="#_layout">Layout</a>
+          <a href="#_containers">Containers</a>
           <a href="#_forms">Forms</a>
           <a href="#_fields_text">Text Fields</a>
           <a href="#_fields_textarea">Textarea Fields</a>
@@ -348,9 +365,15 @@ function Page() {
           <a href="#_table">Table</a>
           <a href="#_widgets">Custom Widget</a>
           <a href="#_richtext">RichText Editor</a>
-        </div>
+        </SidebarContainer>
 
         <div id="sgContent">
+          { size[0] < 768 ? (
+            <Button onPress={toggleSidebar}>Show Nav?</Button>
+          ) : ""}
+
+          <h1>Living Styleguide</h1>
+
           <div id="_intro">
             <h2>Introduction</h2>
             <p>TBD... (Why, Living Styleguide?, Updates, How-to-use)</p>
@@ -570,7 +593,6 @@ function Page() {
 
             <h2>Layout</h2>
             <p>TBD ...</p>
-
           </div>
 
           <div id="_theme">
@@ -1181,9 +1203,37 @@ function Page() {
           </div>
         </div>
       </div>
-
     </>
   )
 }
+
+//           <div id="_containers">
+//             <h2>Sidebar Container</h2>
+//             <p>Container with a sidebar.</p>
+//             <div className="sg-sidebar">
+//               <SidebarContainer>
+//                 <div className="sidebar-content">
+//                   <p>This is the primary content for the slider component</p>
+//                 </div>
+//
+//                 <aside>
+//                   <p>This is the sidebar for the slider component</p>
+//                 </aside>
+//               </SidebarContainer>
+//             </div>
+//
+//             <h2>Sidebar collapsed</h2>
+//             <div className="sg-sidebar-collapsed">
+//               <SidebarContainer>
+//                 <div className="sidebar-content">
+//                   <p>This is the primary content for the slider component</p>
+//                 </div>
+//
+//                 <aside>
+//                   <p>This is the sidebar for the slider component</p>
+//                 </aside>
+//               </SidebarContainer>
+//             </div>
+//           </div>
 
 export default Page;
