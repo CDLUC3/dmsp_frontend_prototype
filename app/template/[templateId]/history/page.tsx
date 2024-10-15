@@ -1,7 +1,7 @@
 'use client'
 
-import React from "react";
-import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useTemplateVersionsQuery } from '@/generated/graphql';
 import {
     Table,
@@ -11,6 +11,7 @@ import {
     Row,
     Cell,
 } from "react-aria-components";
+import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import PageWrapper from "@/components/PageWrapper";
 import BackButton from "@/components/BackButton";
 import { formatWithTimeAndDate, formatShortMonthDayYear } from "@/utils/dateUtils"
@@ -19,18 +20,33 @@ import styles from './history.module.scss';
 const TemplateHistory = () => {
     const params = useParams();
     const templateId = Number(params.templateId);
+    const [errors, setErrors] = useState<string[]>([]);
+    const router = useRouter();
 
-    const { data = {}, loading, error } = useTemplateVersionsQuery(
+    const { data = {}, loading, error, refetch } = useTemplateVersionsQuery(
         { variables: { templateId } }
     );
+
+    // UseEffect to handle async error handling
+    useEffect(() => {
+        if (error) {
+            const handleErrors = async () => {
+                await handleApolloErrors(
+                    error.graphQLErrors,
+                    error.networkError,
+                    setErrors,
+                    refetch,
+                    router
+                );
+            };
+
+            handleErrors();
+        }
+    }, [error, refetch]); // Runs when 'error' changes
 
     // Handle loading state
     if (loading) {
         return <p>Loading publication history...</p>;
-    }
-
-    if (error) {
-        return <p>There was a problem.</p>
     }
 
     const templateVersions = data?.templateVersions || [];
@@ -53,6 +69,11 @@ const TemplateHistory = () => {
             <BackButton />
             {loading && <p>Template history is loading...</p>}
             <div>
+                <div>
+                    {errors && errors.map((err, index) => (
+                        <p key={index}>{err}</p>
+                    ))}
+                </div>
                 {lastPublication && (
                     <>
                         <h1 className="with-subheader">{lastPublication?.name || 'Unknown'}</h1>

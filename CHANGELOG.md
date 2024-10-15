@@ -1,4 +1,10 @@
 ### Added
+- Made some updates related to authentication [#142]
+  - Updated middleware to redirect to /login if both access token and refresh token is missing
+  - Updated refreshAuthTokens method to throw errors that will be caught gqlErrorHandler
+  - Updated gqlErrorHandler to redirect to /login when refreshAuthTokens returns an error
+  - Updated template history page to use handleApolloErrors, and updated handleApolloErrors to have a router param
+  - Updated client-graphql-test page to pass router to handleApolloErrors
 - Checkbox & Checkbox group component [#75]
 - Radio component [#75]
 - Select component [#75]
