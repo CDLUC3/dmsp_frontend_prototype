@@ -51,8 +51,11 @@ import {
   CardMutedText,
 } from "@/components/Card/card";
 
-
-import { BrandColor, Example, } from "./sg-components";
+import {
+  Example,
+  BrandColor,
+  handleDelete,
+} from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/TypeAheadWithOther';
@@ -62,6 +65,9 @@ import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import SubHeader from "@/components/SubHeader";
+import TooltipWithDialog from "@/components/TooltipWithDialog";
+import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
+import ButtonWithImage from '@/components/ButtonWithImage';
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
@@ -347,6 +353,7 @@ function Page() {
           <a href="#_fields">Form Fields</a>
           <a href="#_table">Table</a>
           <a href="#_widgets">Custom Widget</a>
+          <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
         </div>
 
@@ -716,6 +723,7 @@ function Page() {
                 <Button className="secondary">Secondary</Button>
                 <Button className="tertiary">Tertiary</Button>
                 <Button isDisabled>Disabled</Button>
+                <ButtonWithImage url="http://localhost:3000" imageUrl="/images/orcid.svg" buttonText="Connect institutional credentials" />
               </div>
             </Example>
 
@@ -1158,6 +1166,27 @@ function Page() {
                   </Menu>
                 </Popover>
               </MenuTrigger>
+            </Example>
+          </div>
+
+          <div id="_tooltipWithDialog">
+            <h2>Tooltip with dialog</h2>
+            <p>This tooltip displays a message when a user hovers over the icon that is passed to TooltipWithDialog.</p>
+            <p>Users can also pass in the tooltip message, as well as the modal that they want displayed when the user clicks the icon.</p>
+            <Example>
+              <TooltipWithDialog
+                text='You have an existing connection to ORCID.'
+                tooltipText="Disconnect your account from ORCID. You can reconnect at any time."
+                icon={<DmpIcon icon="cancel" />}
+                onPressAction={handleDelete}
+              >
+                <ModalOverlayComponent
+                  heading='Confirm deletion'
+                  content='Are you sure you want to disconnect your ORCID ID?'
+                  onPressAction={handleDelete}
+                />
+              </TooltipWithDialog>
+
             </Example>
           </div>
 

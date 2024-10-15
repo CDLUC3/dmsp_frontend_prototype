@@ -3,6 +3,7 @@
 import { useState, MouseEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/context/AuthContext';
+import { useCsrf } from '@/context/CsrfContext';
 import Link from 'next/link';
 import { faUser, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,6 +12,7 @@ function Header() {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const { isAuthenticated, setIsAuthenticated } = useAuthContext();
     const router = useRouter();
+    const { csrfToken } = useCsrf();
 
     useEffect(() => {
         //this is just to trigger a refresh on authentication change
@@ -22,7 +24,12 @@ function Header() {
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signout`, {
-                method: 'POST'
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '',
+                },
             })
 
             if (response.ok) {
@@ -228,3 +235,4 @@ function Header() {
 }
 
 export default Header;
+

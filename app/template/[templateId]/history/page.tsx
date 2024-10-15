@@ -1,7 +1,7 @@
 'use client'
 
-import React from "react";
-import { useParams } from "next/navigation";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import { useTemplateVersionsQuery } from '@/generated/graphql';
 import {
     Table,
@@ -10,19 +10,37 @@ import {
     Column,
     Row,
     Cell,
-} from "react-aria-components";
-import PageWrapper from "@/components/PageWrapper";
-import BackButton from "@/components/BackButton";
-import { formatWithTimeAndDate, formatShortMonthDayYear } from "@/utils/dateUtils"
+} from 'react-aria-components';
+import PageWrapper from '@/components/PageWrapper';
+import BackButton from '@/components/BackButton';
+import { formatWithTimeAndDate, formatShortMonthDayYear } from '@/utils/dateUtils';
+import { handleApolloErrors } from '@/utils/gqlErrorHandler';
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {
+    const [errors, setErrors] = useState<string[]>([]);
     const params = useParams();
     const templateId = Number(params.templateId);
 
-    const { data = {}, loading, error } = useTemplateVersionsQuery(
+    const { data = {}, loading, error, refetch } = useTemplateVersionsQuery(
         { variables: { templateId } }
     );
+
+    // UseEffect to handle async error handling
+    useEffect(() => {
+        if (error) {
+            const handleErrors = async () => {
+                await handleApolloErrors(
+                    error.graphQLErrors,
+                    error.networkError,
+                    setErrors,
+                    refetch
+                );
+            };
+
+            handleErrors();
+        }
+    }, [error, refetch]); // Runs when 'error' changes
 
     // Handle loading state
     if (loading) {
@@ -43,14 +61,21 @@ const TemplateHistory = () => {
         return versionB - versionA;
     });
 
+
     const lastPublication = sortedTemplates.length > 0 ? sortedTemplates[0] : null;
-    const lastPublicationDate = lastPublication?.created
-        ? formatShortMonthDayYear(new Date(lastPublication.created))
-        : '';
+    const lastPublicationDate = lastPublication?.created ? formatShortMonthDayYear(lastPublication.created) : '';
 
     return (
-        <PageWrapper title={"Template History"}>
+        <PageWrapper title={'Template History'}>
             <BackButton />
+            {errors && (
+                <div>
+                    {errors && errors.map((err, index) => (
+                        <p key={index}>{err}</p>
+                    ))}
+                </div>
+            )}
+
             {loading && <p>Template history is loading...</p>}
             <div>
                 {lastPublication && (
@@ -78,9 +103,8 @@ const TemplateHistory = () => {
                         {
                             sortedTemplates.length > 0
                                 ? sortedTemplates.map((item, index) => {
-                                    const publishDate = item?.created
-                                        ? formatWithTimeAndDate(new Date(item.created))
-                                        : '';
+
+                                    const publishDate = item?.created ? formatWithTimeAndDate(item?.created) : '';
                                     const versionedBy = item?.versionedBy;
 
                                     return (
