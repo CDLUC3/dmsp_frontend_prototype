@@ -1,0 +1,13 @@
+@import '../../styles/responsive.scss';
+
+
+.container {
+  @include device(sm) {
+    padding: var(--fs-4xl);
+  }
+  border-radius: 5px;
+  background-color: white;
+  box-shadow: 1px 2px 5px rgb(174, 168, 168);
+  padding: var(--fs-xl);
+  width: 100%;
+}
