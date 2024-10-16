@@ -6,7 +6,6 @@ import {
   Button
 } from 'react-aria-components';
 import PageWrapper from '@/components/PageWrapper';
-import styles from './email-confirmed.module.scss';
 
 
 const EmailConfirmed: React.FC = () => {
@@ -20,7 +19,7 @@ const EmailConfirmed: React.FC = () => {
       <h1>Email confirmed</h1>
       <div className="container">
         <p>Thanks for confirming your alias email. Click below to log in and access your plans. Remember you still need to use your primary email to log in.</p>
-        <Button className={`${styles.loginButton} react-aria-Button`} data-primary onPress={handleGoToLogin}>Log in</Button>
+        <Button data-primary onPress={handleGoToLogin}>Log in</Button>
       </div>
     </PageWrapper>
   )
