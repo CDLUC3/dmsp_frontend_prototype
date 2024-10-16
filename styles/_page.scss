@@ -29,6 +29,7 @@ header {
 
   h1 {
     --heading-color: white;
+    margin-top: 0;
   }
 
   .dmptool-logo {
@@ -142,12 +143,12 @@ table {
 
 .container {
   @include device(sm) {
-    padding: 10px 20px 20px;
+    padding: 40px;
   }
   border-radius: 5px;
   background-color: white;
   box-shadow: 1px 2px 5px rgb(174, 168, 168);
-  padding: 10px;
+  padding: 20px;
   width: 100%;
 }
 

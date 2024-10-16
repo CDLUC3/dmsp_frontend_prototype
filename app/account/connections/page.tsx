@@ -3,7 +3,6 @@
 import React from 'react';
 import sanitizeHtml from 'sanitize-html';
 import ConnectionSection from '@/components/ConnectionSection';
-import styles from './connections.module.scss';
 
 const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
 const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
@@ -20,7 +19,7 @@ const ConnectionsPage: React.FC = () => {
 
   return (
     <>
-      <h1 className={styles.title}>Connections</h1>
+      <h1>Connections</h1>
       <div className="container">
         <ConnectionSection
           type='orcid'
