@@ -3,6 +3,13 @@
 
 .layout-container {
   overflow-x: hidden;
+
+  @include device(xs) {
+    padding: var(--brand-space1) var(--brand-space2);
+  }
+  @include device(md) {
+    padding: var(--brand-space2) var(--brand-space3);
+  }
 }
 
 .layout-content-container {
