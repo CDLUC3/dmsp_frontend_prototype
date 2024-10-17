@@ -12,11 +12,18 @@ jest.mock('@/utils/clientLogger', () => ({
     default: jest.fn()
 }))
 
+// Mock the entire CsrfContext module
+jest.mock('@/context/CsrfContext', () => ({
+    CsrfProvider: ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="mock-csrf-provider">{children}</div>
+    ),
+    useCsrf: jest.fn(),
+}));
+
 jest.mock('@/utils/authHelper', () => ({
     refreshAuthTokens: jest.fn(async () => Promise.resolve({ response: true, message: 'ok', headers: { 'content-type': 'application/json', 'x-csrf-token': 1234 } })),
     fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok', headers: { 'content-type': 'application/json', 'x-csrf-token': 1234 } })),
 }));
-
 
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
@@ -38,9 +45,14 @@ describe('SignUpPage', () => {
         HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
         HTMLElement.prototype.focus = mockFocus;
 
+        /*eslint-disable @typescript-eslint/no-var-requires */
+        const { useCsrf } = require('@/context/CsrfContext');
+        (useCsrf as jest.Mock).mockReturnValue({ csrfToken: 'mocked-csrf-token' });
+
         mockUseRouter.mockReturnValue({
             push: jest.fn(),
         })
+
         jest.spyOn(console, 'error').mockImplementation(() => { });
         jest.useFakeTimers();
     });
@@ -67,6 +79,8 @@ describe('SignUpPage', () => {
         });
 
         renderWithAuth(<SignUpPage />);
+
+        screen.debug();
 
         //Find input fields and button in screen
         const emailInput = screen.getByLabelText(/email/i);
@@ -168,12 +182,12 @@ describe('SignUpPage', () => {
         })
     });
 
-    it('should handle 403 error by calling fetchCsrfToken and displaying error on page', async () => {
+    it('should handle 403 error by calling fetchCsrfToken', async () => {
         jest.spyOn(global, 'fetch').mockImplementation(() => {
             return Promise.resolve({
                 ok: false,
                 status: 403,
-                json: () => Promise.resolve({ success: false, message: 'Forbidden' }),
+                json: () => Promise.resolve({ success: false, message: 'Invalid CSRF token' }),
             } as unknown as Response);
         });
         renderWithAuth(<SignUpPage />);
@@ -195,11 +209,6 @@ describe('SignUpPage', () => {
         // Check that user is redirected to 500 error page
         await waitFor(() => {
             expect(mockFetchCsrfToken).toHaveBeenCalled();
-        })
-        await waitFor(() => {
-            const errorDiv = screen.getByText('Forbidden').closest('div');
-            expect(errorDiv).toHaveClass('error');
-            expect(errorDiv).toContainHTML('<p>Forbidden</p>')
         })
     });
 

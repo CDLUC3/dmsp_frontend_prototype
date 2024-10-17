@@ -50,4 +50,13 @@ describe('middleware.ts', () => {
         expect(redirectSpy).not.toHaveBeenCalled();
         expect(response.status).toEqual(200);
     });
+
+    it('should not redirect if user visits /email/', async () => {
+        (getAuthTokenServer as jest.Mock).mockResolvedValue(undefined);
+        const request = new NextRequest(new Request('http://localhost:3000/email/confirm-email'));
+        const response = await middleware(request);
+
+        expect(redirectSpy).not.toHaveBeenCalled();
+        expect(response.status).toEqual(200);
+    });
 });
