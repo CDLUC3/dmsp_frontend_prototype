@@ -3,6 +3,7 @@
 import React from 'react';
 import sanitizeHtml from 'sanitize-html';
 import ConnectionSection from '@/components/ConnectionSection';
+import ContentContainer from '@/components/ContentContainer';
 
 const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
 const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
@@ -20,7 +21,7 @@ const ConnectionsPage: React.FC = () => {
   return (
     <>
       <h1>Connections</h1>
-      <div className="container">
+      <ContentContainer>
         <ConnectionSection
           type='orcid'
           title='ORCID iD - not connected'
@@ -44,7 +45,7 @@ const ConnectionsPage: React.FC = () => {
           btnUrl=''
           btnText='Connect institutional credentials'
         />
-      </div>
+      </ContentContainer>
     </>
   )
 }
