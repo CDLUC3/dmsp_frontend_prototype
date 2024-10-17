@@ -51,9 +51,11 @@ import {
   CardMutedText,
 } from "@/components/Card/card";
 
+import { useResponsive } from "@/hooks/responsive";
 import {
+  LayoutWithSidebar,
   SidebarContainer,
-  useResponsive,
+  ContentContainer,
 } from '@/components/Container';
 
 import { BrandColor, Example, } from "./sg-components";
@@ -331,25 +333,11 @@ function Page() {
   `;
 
   const [editorContent, setEditorContent] = useState(richtextDefault);
-  const [sidebarState, setSidebarState] = useState(false);
-  const size = useResponsive();
-
-  function toggleSidebar(ev) {
-    setSidebarState(!sidebarState);
-  }
 
   return (
     <>
-      <div id="sgLayout">
-        <SidebarContainer
-          id="sgNav"
-          collapseSize="md"
-          direction="left"
-          isOpen={sidebarState}
-          onStateChange={(newState) => {
-            setSidebarState((newState === "open"));
-          }}
-        >
+      <LayoutWithSidebar id="sgLayout" sidebarPosition="right">
+        <SidebarContainer>
           <a href="#_intro">Introduction</a>
           <a href="#_brand">Branding & Colours</a>
           <a href="#_typography">Typography</a>
@@ -367,11 +355,7 @@ function Page() {
           <a href="#_richtext">RichText Editor</a>
         </SidebarContainer>
 
-        <div id="sgContent">
-          { size[0] < 768 ? (
-            <Button onPress={toggleSidebar}>Show Nav?</Button>
-          ) : ""}
-
+        <ContentContainer id="sgContent">
           <h1>Living Styleguide</h1>
 
           <div id="_intro">
@@ -434,7 +418,8 @@ function Page() {
                 <DmpIcon icon="search" />
                 <DmpIcon icon="settings" />
                 <DmpIcon icon="favorite" />
-                <DmpIcon icon="bold" />
+                <DmpIcon icon="format_bold" />
+                <DmpIcon icon="double_arrow" />
               </div>
             </Example>
 
@@ -1201,8 +1186,8 @@ function Page() {
             <hr />
             <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
-        </div>
-      </div>
+        </ContentContainer>
+      </LayoutWithSidebar>
     </>
   )
 }
