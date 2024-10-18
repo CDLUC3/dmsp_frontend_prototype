@@ -18,7 +18,7 @@
 
 .layout-sidebar {
   --_sidebar-width: var(--sidebar-width, 30%);
-  --_sidebar-border-color: var(--sidebar-border-color, var(--purple-400));
+  --_sidebar-border: 1px solid var(--sidebar-border-color, var(--slate-400));
 
   display: flex;
   flex-direction: row;
@@ -30,23 +30,24 @@
     transition: 0.3s ease-in-out;
 
     padding: var(--layout-content-padding, 1rem);
-    background-color: var(--layout-sidebar-bg, var(--purple-100));
-    color: var(--layout-sidebar-fg, var(--purple-600));
+    background-color: var(--layout-sidebar-background, var(--slate-100));
+    color: var(--layout-sidebar-fg, var(--slate-800));
 
     .sidebar-actions {
       position: absolute;
       top: 1rem;
 
       .action-toggle-state {
-        background-color: var(--slate-100);
-        border: 2px solid var(--slate-300);
+        background-color: var(--sidebar-toggle-background, var(--slate-100));
+        color: var(--sidebar-toggle-color, var(--slate-800));
+        border: var(--_sidebar-border);
         font-size: 0.5rem;
         padding: 8px;
         margin: 0;
 
         .dmp-icon {
           width: 17px;
-          height: 100px;
+          height: 17px;
         }
       }
     }
@@ -54,7 +55,7 @@
 
   &.direction-left .layout-content-container { order: 2; }
   &.direction-left .layout-sidebar-container {
-    border-right: 2px solid var(--_sidebar-border-color);
+    border-right: var(--_sidebar-border);
     order: 1;
 
     .sidebar-actions { right: calc((1rem + 4px) * -1); }
@@ -68,7 +69,7 @@
 
   &.direction-right .layout-content-container { order: 1; }
   &.direction-right .layout-sidebar-container {
-    border-left: 2px solid var(--_sidebar-border-color);
+    border-left: var(--_sidebar-border);
     order: 2;
 
     .sidebar-actions { left: calc((1rem + 4px) * -1); }

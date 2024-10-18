@@ -145,11 +145,10 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
       const w = thisRef.current.offsetWidth;
       setStyleProps({'--_sidebar-width': `${w}px`})
     }
-  }, []);
 
-  useEffect(() => {
     // const cw = getSizeByName(collapseWithin)[0];
     // if (size[0] < cw) setIsOpenState(false);
+
   }, [size, isOpen]);
 
   function toggleState(ev) {
