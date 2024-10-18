@@ -33,9 +33,18 @@
     background-color: var(--layout-sidebar-background, var(--slate-100));
     color: var(--layout-sidebar-fg, var(--slate-800));
 
+    &.floating {
+      box-sizing: border-box;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
     .sidebar-actions {
       position: absolute;
-      top: 1rem;
+      display: flex;
+      flex-direction: column;
 
       .action-toggle-state {
         background-color: var(--sidebar-toggle-background, var(--slate-100));
@@ -49,6 +58,14 @@
           width: 17px;
           height: 17px;
         }
+      }
+    }
+
+    &.floating {
+      width: var(--_doc-width);
+      .sidebar-actions {
+        height: 100%;
+        justify-content: center;
       }
     }
   }
@@ -74,9 +91,13 @@
 
     .sidebar-actions { left: calc((1rem + 4px) * -1); }
 
-    &.state-open { left: 0; }
+    &.state-open {
+      left: 0;
+      &.floating { left: 1rem; }
+    }
+
     &.state-closed {
-      left: var(--_sidebar-width);
+      left: calc(var(--_doc-width) - 1rem);
       .sidebar-actions .action-toggle-state .dmp-icon { transform: rotate(180deg); }
     }
   }
