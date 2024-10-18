@@ -1,14 +1,14 @@
 'use client'
 
-import React, {useEffect, useRef, useState} from 'react';
-import {DocumentNode} from '@apollo/client';
-import {Input, Label, TextField,} from "react-aria-components";
-import {createApolloClient} from '@/lib/graphql/client/apollo-client';
+import React, { useEffect, useRef, useState } from 'react';
+import { DocumentNode } from '@apollo/client';
+import { Input, Label, TextField, } from "react-aria-components";
+import { createApolloClient } from '@/lib/graphql/client/apollo-client';
 
 import Spinner from '@/components/Spinner';
 import classNames from 'classnames';
 import styles
-  from '@/components/TypeAheadWithOther/typeaheadWithOther.module.scss';
+    from '@/components/TypeAheadWithOther/typeaheadWithOther.module.scss';
 
 
 import logECS from '@/utils/clientLogger';
@@ -16,6 +16,7 @@ import logECS from '@/utils/clientLogger';
 type TypeAheadInputProps = {
     graphqlQuery: DocumentNode;
     label: string;
+    placeholder?: string;
     helpText?: string;
     setOtherField: Function;
 }
@@ -28,6 +29,7 @@ type SuggestionInterface = {
 const TypeAheadWithOther = ({
     graphqlQuery,
     label,
+    placeholder,
     helpText,
     setOtherField
 }: TypeAheadInputProps) => {
@@ -239,7 +241,7 @@ const TypeAheadWithOther = ({
                         onChange={(e) => setInputValue(e.target.value)}
                         onClick={handleInputClick}
                         onKeyDown={handleKeyboardEvents}
-                        placeholder="Type to search..."
+                        placeholder={placeholder ? placeholder : 'Type to search...'}
                         ref={inputRef}
                         autoComplete="off"
                     />

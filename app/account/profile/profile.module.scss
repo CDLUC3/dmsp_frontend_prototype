@@ -1,0 +1,60 @@
+@import '@/styles/responsive';
+.twoItemRow {
+  display: flex;
+  gap: 20px;
+
+  > div {
+    flex: 1; /* Make both fields take equal width */
+  }
+}
+
+.oneItemRow {
+  max-width: 100%;
+  input {
+    max-width: 100%;
+  }
+}
+
+.addContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+
+  button {
+    border-radius: 6px;
+    margin-bottom: 26px;
+    padding:12px;
+  }
+  .textField{
+    width: 100%;
+  }
+}
+
+.helpText {
+  font-size: var(--fs-small);
+}
+
+.relatedItems {
+  list-style-type: none;
+  padding-left: 0;
+
+  li {
+    padding-bottom: 12px;
+  }
+}
+
+.mainContent {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.leftContent {
+  flex: 1;
+}
+
+.rightSidebar {
+  flex-basis: 300px; /*Fixed width for sidebar*/
+  padding-left: 40px;
+}
+

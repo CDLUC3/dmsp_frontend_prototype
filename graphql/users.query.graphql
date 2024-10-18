@@ -1,0 +1,12 @@
+query User{
+  me {
+    id
+    givenName
+    surName
+    email
+    affiliation {
+      id
+      name
+    }
+  }
+}

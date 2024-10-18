@@ -1,0 +1,20 @@
+.emailRow {
+  display: flex;
+  justify-content:space-between;
+  padding: 10px 0;
+  margin: 0 var(--fs-xl)
+}
+
+.emailContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.emailAddress {
+  margin-bottom: 0;
+  font-weight: 700;
+}
+
+.emailLink {
+  font-size: var(--fs-small);
+}
