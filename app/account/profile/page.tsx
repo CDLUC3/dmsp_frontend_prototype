@@ -207,7 +207,7 @@ const ProfilePage: React.FC = () => {
 
               <hr />
               <h3>Alias email addresses</h3>
-              <p>Alias email addresses may be used to help others find you, for example if they'd like to share a DMP with you.</p>
+              <p>Alias email addresses may be used to help others find you, for example if they&lsquo;d like to share a DMP with you.</p>
               <EmailAddressRow email="alias1@test.com" isAlias={true} />
               <EmailAddressRow email="alias2@test.com" isAlias={true} />
               <hr />
