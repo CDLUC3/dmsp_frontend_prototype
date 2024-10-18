@@ -1,3 +1,4 @@
+@import '@/styles/responsive';
 
 #sgLayout {
   display: flex;
@@ -16,9 +17,8 @@
 }
 
 #sgContent {
-  & > div {
-    margin-bottom: 3em;
-    max-width: 35em;
+  @include device(md) {
+    width: 65%;
   }
 }
 
