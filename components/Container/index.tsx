@@ -136,19 +136,31 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
   const thisRef = useRef(null);
   const size = useResponsive();
   const [isOpenState, setIsOpenState] = useState(true);
+  const [isFloating, setIsFloating] = useState(false);
   const [styleProps, setStyleProps] = useState({
     '--_sidebar-width': '0px',
   });
 
   useEffect(() => {
-    if (thisRef.current) {
-      const w = thisRef.current.offsetWidth;
-      setStyleProps({'--_sidebar-width': `${w}px`})
+    const cw = getSizeByName(collapseWithin)[0];
+
+    if (size[0] < cw) {
+      setIsFloating(true);
+    } else {
+      setIsFloating(false);
     }
 
-    // const cw = getSizeByName(collapseWithin)[0];
-    // if (size[0] < cw) setIsOpenState(false);
-
+    if (thisRef.current) {
+      const w = thisRef.current.offsetWidth;
+      if (size[0] < cw) {
+        setStyleProps({
+          '--_sidebar-width': '80vw',
+          '--_doc-width': document.documentElement.clientWidth + 'px',
+        });
+      } else {
+        setStyleProps({'--_sidebar-width': `${w}px`})
+      }
+    }
   }, [size, isOpen]);
 
   function toggleState(ev) {
@@ -164,7 +176,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
         ref={thisRef}
         id={id}
         style={styleProps}
-        className={`layout-sidebar-container ${className} ${isOpenState ? "state-open" : "state-closed"}`}>
+        className={`layout-sidebar-container ${className} ${isOpenState ? "state-open" : "state-closed"} ${isFloating ? "floating" : ""}`}>
         <div className="sidebar-actions">
           <Button onPress={toggleState} className="action-toggle-state">
             <DmpIcon icon="double_arrow"> </DmpIcon>
