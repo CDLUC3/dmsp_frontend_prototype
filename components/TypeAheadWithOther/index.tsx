@@ -19,6 +19,7 @@ type TypeAheadInputProps = {
     placeholder?: string;
     helpText?: string;
     setOtherField: Function;
+    fieldName: string;
 }
 
 type SuggestionInterface = {
@@ -31,7 +32,8 @@ const TypeAheadWithOther = ({
     label,
     placeholder,
     helpText,
-    setOtherField
+    setOtherField,
+    fieldName
 }: TypeAheadInputProps) => {
     const [inputValue, setInputValue] = useState('');
     const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
@@ -231,7 +233,7 @@ const TypeAheadWithOther = ({
                 <TextField>
                     <Label>{label}</Label>
                     <Input
-                        name="institutions"
+                        name={fieldName}
                         type="text"
                         value={inputValue}
                         role="textbox"

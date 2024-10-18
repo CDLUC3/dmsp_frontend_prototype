@@ -935,6 +935,7 @@ function Page() {
             <Example>
               <TypeAheadInput
                 label="Example input"
+                fieldName="test"
                 graphqlQuery={AffiliationsDocument}
                 helpText="Help text describing what types of data the user can search for"
               />
@@ -950,6 +951,7 @@ function Page() {
             <Example>
               <TypeAheadWithOther
                 label="Example input"
+                fieldName="test"
                 graphqlQuery={AffiliationsDocument}
                 helpText="Help text describing what types of data the user can search for"
                 setOtherField={setOtherField}

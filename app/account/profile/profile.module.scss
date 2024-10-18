@@ -1,4 +1,6 @@
 @import '@/styles/responsive';
+
+
 .twoItemRow {
   display: flex;
   gap: 20px;
@@ -13,6 +15,10 @@
   input {
     max-width: 100%;
   }
+}
+
+.section {
+  margin: 40px 0;
 }
 
 .addContainer {

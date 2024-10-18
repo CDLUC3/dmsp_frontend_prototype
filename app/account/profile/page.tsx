@@ -44,7 +44,6 @@ const ProfilePage: React.FC = () => {
     otherInstitution: '',
     language: ''
   })
-  const [isChecked, setIsChecked] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -78,13 +77,10 @@ const ProfilePage: React.FC = () => {
     }
   }, [error, refetch]); // Runs when 'error' changes
 
-  const handleUpdate = (e) => {
+  const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  const toggleCheckbox = () => {
-    setIsChecked(!isChecked)
-  }
   const toggleEdit = () => {
     setIsEditing(!isEditing)
   }
@@ -103,131 +99,135 @@ const ProfilePage: React.FC = () => {
       <BackButton />
       <div className={styles.mainContent}>
         <div className={styles.leftContent}>
-          <h1 className={styles.title}>Your Profile</h1>
-          <ContentContainer>
-            <Form>
-              {errors && errors.length > 0 &&
-                <div className="error">
-                  {errors.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
-              <div className={styles.twoItemRow}>
-                <TextField
-                  name="question_text"
-                  type="text"
-                  isRequired
-                >
-                  <Label>First name</Label>
-                  {isEditing ? (
-                    <Input placeholder={formData.firstName} />
-                  ) : (
-                    <p>{formData.firstName}</p>
-                  )}
-
-                  <FieldError />
-                </TextField>
-
-                <TextField
-                  name="question_help_text"
-                  type="text"
-                >
-                  <Label>Last name</Label>
-                  {isEditing ? (
-                    <Input placeholder={formData.lastName} />
-                  ) : (
-                    <p>{formData.lastName}</p>
-                  )}
-
-                  <FieldError />
-                </TextField>
-              </div>
-              <div className={styles.oneItemRow}>
-                {isEditing ? (
-                  <>
-                    <TypeAheadWithOther
-                      label="Institution"
-                      placeholder={formData.institution}
-                      graphqlQuery={AffiliationsDocument}
-                      setOtherField={setOtherField}
-                    />
-                    {otherField && (
-                      <TextField>
-                        <Label>Other institution</Label>
-                        <Input placeholder="Enter custom institution name" />
-                      </TextField>
-                    )}
-                  </>
-                ) : (
+          <div className={styles.section}>
+            <h1 className={styles.title}>Your Profile</h1>
+            <ContentContainer>
+              <Form>
+                {errors && errors.length > 0 &&
+                  <div className="error">
+                    {errors.map((error, index) => (
+                      <p key={index}>{error}</p>
+                    ))}
+                  </div>
+                }
+                <div className={styles.twoItemRow}>
                   <TextField
-                    name="question_text"
+                    name="firstName"
                     type="text"
                     isRequired
                   >
-                    <Label>Institution</Label>
-                    <p>{formData.institution}</p>
+                    <Label>First name</Label>
+                    {isEditing ? (
+                      <Input placeholder={formData.firstName} onChange={e => handleUpdate(e)} />
+                    ) : (
+                      <p>{formData.firstName}</p>
+                    )}
                     <FieldError />
                   </TextField>
-                )}
-              </div>
 
-              <div className={styles.oneItemRow}>
-                <TextField
-                  name="question_text"
-                  type="text"
-                  isRequired
-                >
-                  <Label>Language</Label>
+                  <TextField
+                    name="lastName"
+                    type="text"
+                  >
+                    <Label>Last name</Label>
+                    {isEditing ? (
+                      <Input placeholder={formData.lastName} onChange={e => handleUpdate(e)} />
+                    ) : (
+                      <p>{formData.lastName}</p>
+                    )}
+
+                    <FieldError />
+                  </TextField>
+                </div>
+                <div className={styles.oneItemRow}>
                   {isEditing ? (
-                    <Input placeholder="CDL(UC)" />
+                    <>
+                      <TypeAheadWithOther
+                        label="Institution"
+                        fieldName="institution"
+                        placeholder={formData.institution}
+                        graphqlQuery={AffiliationsDocument}
+                        setOtherField={setOtherField}
+                      />
+                      {otherField && (
+                        <TextField>
+                          <Label>Other institution</Label>
+                          <Input placeholder="Enter custom institution name" onChange={e => handleUpdate(e)} />
+                        </TextField>
+                      )}
+                    </>
                   ) : (
-                    <p>{formData.language}</p>
+                    <TextField
+                      name="institution"
+                      type="text"
+                      isRequired
+                    >
+                      <Label>Institution</Label>
+                      <p>{formData.institution}</p>
+                      <FieldError />
+                    </TextField>
                   )}
+                </div>
 
-                  <FieldError />
-                </TextField>
-              </div>
-              {isEditing ? (
-                <Button type="submit" onPress={handleSave}>Update</Button>
-              ) : (
-                <Button type="submit" onPress={toggleEdit}>Edit</Button>
-              )}
-            </Form>
-          </ContentContainer>
-          <h2 className={styles.title}>Email and Authentication</h2>
-          <ContentContainer>
-            <h3>Primary email address</h3>
-            <p>This email will be used for your account login. It can also be used for password resets.</p>
-            <EmailAddressRow email={formData.email} isAlias={false} />
+                <div className={styles.oneItemRow}>
+                  <TextField
+                    name="language"
+                    type="text"
+                    isRequired
+                  >
+                    <Label>Language</Label>
+                    {isEditing ? (
+                      <Input placeholder="CDL(UC)" />
+                    ) : (
+                      <p>{formData.language}</p>
+                    )}
 
-            <h4>Single sign on activated</h4>
-            <p>This email address is managed by cdl.edu and connected to the institution.</p>
-            <h4>Receives notifications</h4>
-            <p>This email address will be used for DMP notifications. <Link href="">Manage your notifications</Link>.</p>
+                    <FieldError />
+                  </TextField>
+                </div>
+                {isEditing ? (
+                  <Button type="submit" onPress={handleSave}>Update</Button>
+                ) : (
+                  <Button type="submit" onPress={toggleEdit}>Edit</Button>
+                )}
+              </Form>
+            </ContentContainer>
+          </div>
+          <div className={styles.section}>
+            <h2 className={styles.title}>Email and Authentication</h2>
+            <ContentContainer>
+              <h3>Primary email address</h3>
+              <p>This email will be used for your account login. It can also be used for password resets.</p>
+              <EmailAddressRow email={formData.email} isAlias={false} />
 
-            <hr />
-            <h3>Alias email addresses</h3>
-            <p>Alias email addresses may be used to help others find you, for example if they'd like to share a DMP with you.</p>
-            <EmailAddressRow email="alias1@test.com" isAlias={true} />
-            <EmailAddressRow email="alias2@test.com" isAlias={true} />
-            <hr />
-            <Form>
-              <div className={styles.addContainer}>
-                <TextField
-                  name="question_help_text"
-                  type="text"
-                >
-                  <Label>Add alias email address</Label>
-                  <Input />
-                  <Text slot="description" className={styles.helpText}>You will be sent ane mail to confirm this addition.</Text>
-                  <FieldError />
+              <h4>Single sign on activated</h4>
+              <p>This email address is managed by cdl.edu and connected to the institution.</p>
+              <h4>Receives notifications</h4>
+              <p>This email address will be used for DMP notifications. <Link href="">Manage your notifications</Link>.</p>
 
-                </TextField>
-                <Button type="submit">Add</Button>
-              </div>
-            </Form>
-          </ContentContainer>
+              <hr />
+              <h3>Alias email addresses</h3>
+              <p>Alias email addresses may be used to help others find you, for example if they'd like to share a DMP with you.</p>
+              <EmailAddressRow email="alias1@test.com" isAlias={true} />
+              <EmailAddressRow email="alias2@test.com" isAlias={true} />
+              <hr />
+              <Form>
+                <div className={styles.addContainer}>
+                  <TextField
+                    name="add-alias"
+                    type="text"
+                  >
+                    <Label>Add alias email address</Label>
+                    <Input />
+                    <Text slot="description" className={styles.helpText}>You will be sent ane mail to confirm this addition.</Text>
+                    <FieldError />
+
+                  </TextField>
+                  <Button type="submit">Add</Button>
+                </div>
+              </Form>
+            </ContentContainer>
+          </div>
         </div>
         <div className={styles.rightSidebar}>
           <RightSidebar>
