@@ -137,6 +137,7 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
   const [isOpenState, setIsOpenState] = useState(true);
   const [isFloating, setIsFloating] = useState(false);
   const [styleProps, setStyleProps] = useState({});
+  const [prevActive, setPrevActive] = useState(null);
 
   useEffect(() => {
     const cw = getSizeByName(collapseWithin)[0];
@@ -179,6 +180,21 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
     }
   }, [size]);
 
+  useEffect(() => {
+    //
+    // TODO:FIXME: Restoring the previous focus does not work because the
+    // act of pressing the show/hide button changes the focus to that button.
+    // After that we change the state, then this effect runs, setting
+    // prevActive to the toggle button.
+    //
+    if (isOpenState) {
+      setPrevActive(document.activeElement);
+      if (thisRef.current) thisRef.current.focus();
+    } else {
+      prevActive.focus();
+    }
+  }, [isOpenState]);
+
   function toggleState(ev) {
     setIsOpenState(!isOpenState);
     if (onToggle) {
@@ -192,7 +208,9 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
         ref={thisRef}
         id={id}
         style={styleProps}
-        className={`layout-sidebar-container ${className} ${isOpenState ? "state-open" : "state-closed"} ${isFloating ? "floating" : ""}`}>
+        className={`layout-sidebar-container ${className} ${isOpenState ? "state-open" : "state-closed"} ${isFloating ? "floating" : ""}`}
+        tabIndex="0"
+      >
         <div className="sidebar-actions">
           <Button onPress={toggleState} className="action-toggle-state">
             <DmpIcon icon="double_arrow"> </DmpIcon>

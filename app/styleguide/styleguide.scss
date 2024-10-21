@@ -17,6 +17,8 @@
 }
 
 #sgContent {
+  width: 100%;
+
   @include device(md) {
     width: 65%;
   }

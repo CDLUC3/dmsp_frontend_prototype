@@ -13,7 +13,7 @@
 }
 
 .layout-content-container {
-  padding: var(--layout-content-padding, 1rem);
+  padding: var(--layout-content-padding, var(--brand-space2));
 }
 
 .layout-with-sidebar {
@@ -84,6 +84,9 @@
     &.state-closed { right: var(--_sidebar-width); }
   }
 
+  &.direction-right {
+    padding-right: 2.2rem;
+  }
   &.direction-right .layout-content-container { order: 1; }
   &.direction-right .layout-sidebar-container {
     border-left: var(--_sidebar-border);
