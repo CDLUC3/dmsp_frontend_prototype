@@ -12,7 +12,7 @@ type SizeName =
   'xl' |
   'xxl';
 
-const responsiveSizes = [
+const breakpoints = [
   [0, 'xs'],
   [640, 'sm'],
   [768, 'md'],
@@ -21,29 +21,46 @@ const responsiveSizes = [
   [1440, 'xxl'],
 ];
 
+export interface DeviceProps {
+  viewport: [number, number];
+  deviceSize: string;
+}
+
 export const getSizeByName = (name: string) => {
-  return responsiveSizes.find(rs => rs[1] == name);
+  return breakpoints.find(rs => rs[1] == name);
 }
 
 export const getSizeByWidth = (w: number) => {
-  return responsiveSizes.find(rs => rs[0] == w);
+  return breakpoints.find(rs => rs[0] == w);
 }
 
-export const useResponsive = () => {
-  const [deviceSize, setDeviceSize] = useState(responsiveSizes[0]);
+export const getDeviceSize = (w: number): string => {
+  let size: string;
+  breakpoints.forEach((br) => {
+    if (br[0] < w) size = br[1];
+  });
+  return size;
+}
+
+export const useResponsive = (): DeviceProps => {
+  const [deviceSize, setDeviceSize] = useState(null);
+  const [viewport, setViewport] = useState([0, 0]);
 
   useEffect(() => {
-    function handleResize() {
-      responsiveSizes.forEach((rs) => {
-        if (rs[0] < window.innerWidth) setDeviceSize(rs);
-      });
+    function updateDevice() {
+      setDeviceSize(getDeviceSize(window.innerWidth));
+      setViewport([window.innerWidth, window.innerHeight]);
     }
 
-    window.addEventListener('resize', handleResize);
+    updateDevice();
+    window.addEventListener('resize', updateDevice);
 
     // Clean up the event listener on component unmount
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', updateDevice);
   }, []);
 
-  return deviceSize;
+  return {
+    viewport: viewport,
+    breakpoint: deviceSize,
+  };
 }
