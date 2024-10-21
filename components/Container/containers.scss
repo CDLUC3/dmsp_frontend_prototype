@@ -16,7 +16,7 @@
   padding: var(--layout-content-padding, 1rem);
 }
 
-.layout-sidebar {
+.layout-with-sidebar {
   --_sidebar-width: var(--sidebar-width, 30%);
   --_sidebar-border: 1px solid var(--sidebar-border-color, var(--slate-400));
 
@@ -93,11 +93,13 @@
 
     &.state-open {
       left: 0;
-      &.floating { left: 1rem; }
+      &.floating { left: 1.2rem; }
     }
 
     &.state-closed {
-      left: calc(var(--_doc-width) - 1rem);
+      left: var(--_sidebar-width);
+
+      &.floating { left: calc(var(--_doc-width) - 1rem); }
       .sidebar-actions .action-toggle-state .dmp-icon { transform: rotate(180deg); }
     }
   }

@@ -96,7 +96,7 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
 }) => {
   return (
     <>
-      <div id={id} className={`layout-container layout-sidebar direction-${sidebarPosition} ${className}`}>
+      <div id={id} className={`layout-container layout-with-sidebar direction-${sidebarPosition} ${className}`}>
         {children}
       </div>
     </>
@@ -132,36 +132,52 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
    */
   onToggle,
 }) => {
-
   const thisRef = useRef(null);
   const size = useResponsive();
   const [isOpenState, setIsOpenState] = useState(true);
   const [isFloating, setIsFloating] = useState(false);
-  const [styleProps, setStyleProps] = useState({
-    '--_sidebar-width': '0px',
-  });
+  const [styleProps, setStyleProps] = useState({});
 
   useEffect(() => {
     const cw = getSizeByName(collapseWithin)[0];
 
-    if (size[0] < cw) {
+    if (size.viewport[0] < cw) {
       setIsFloating(true);
     } else {
       setIsFloating(false);
     }
 
     if (thisRef.current) {
-      const w = thisRef.current.offsetWidth;
-      if (size[0] < cw) {
-        setStyleProps({
+      let newStyles = {};
+
+      if (size.viewport[0] < cw) {
+        newStyles = {
           '--_sidebar-width': '80vw',
-          '--_doc-width': document.documentElement.clientWidth + 'px',
-        });
+          '--_doc-width': `${size.viewport[0]}px`,
+        };
       } else {
-        setStyleProps({'--_sidebar-width': `${w}px`})
+        const w = thisRef.current.offsetWidth;
+        newStyles = {
+          '--_sidebar-width': `${w}px`,
+          '--_doc-width': `${size.viewport[0]}px`,
+        };
+      }
+
+      // Developer NOTE:
+      //
+      // We use `--_doc-width` css variable so that we can pass the actual
+      // width in pixels to the CSS. This is needed because in CSS we cannot
+      // percentage or `vw`, because this doesn't work with transitions.
+      //
+      // The DOWNSIDE of this is, every time we set the variable, it
+      // will trigger style effects in react, cause a size udpate, and then
+      // this effect runs again.
+      // This is why we check for state before changing. Don't remove the check
+      if (JSON.stringify(newStyles) !== JSON.stringify(styleProps)) {
+        setStyleProps(newStyles);
       }
     }
-  }, [size, isOpen]);
+  }, [size]);
 
   function toggleState(ev) {
     setIsOpenState(!isOpenState);
