@@ -13,10 +13,10 @@
 }
 
 .layout-content-container {
-  padding: var(--layout-content-padding, 1rem);
+  padding: var(--layout-content-padding, var(--brand-space2));
 }
 
-.layout-sidebar {
+.layout-with-sidebar {
   --_sidebar-width: var(--sidebar-width, 30%);
   --_sidebar-border: 1px solid var(--sidebar-border-color, var(--slate-400));
 
@@ -84,6 +84,9 @@
     &.state-closed { right: var(--_sidebar-width); }
   }
 
+  &.direction-right {
+    padding-right: 2.2rem;
+  }
   &.direction-right .layout-content-container { order: 1; }
   &.direction-right .layout-sidebar-container {
     border-left: var(--_sidebar-border);
@@ -93,11 +96,13 @@
 
     &.state-open {
       left: 0;
-      &.floating { left: 1rem; }
+      &.floating { left: 1.2rem; }
     }
 
     &.state-closed {
-      left: calc(var(--_doc-width) - 1rem);
+      left: var(--_sidebar-width);
+
+      &.floating { left: calc(var(--_doc-width) - 1rem); }
       .sidebar-actions .action-toggle-state .dmp-icon { transform: rotate(180deg); }
     }
   }

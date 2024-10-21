@@ -50,7 +50,6 @@ import {
   CardMutedText,
 } from "@/components/Card/card";
 
-import { useResponsive } from "@/hooks/responsive";
 import {
   LayoutWithSidebar,
   SidebarContainer,
