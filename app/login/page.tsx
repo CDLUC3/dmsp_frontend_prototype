@@ -47,24 +47,29 @@ const LoginPage: React.FC = () => {
             });
         }
 
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        try {
-            const response = await loginRequest(csrfToken);
+        if (csrfToken) {
 
-            if (response.ok) {
-                setIsAuthenticated(true);
-                router.push('/')
-            } else {
-                await handleErrors(response, loginRequest, setErrors, router, '/login');
+            /* eslint-disable @typescript-eslint/no-explicit-any */
+            try {
+                const response = await loginRequest(csrfToken);
+
+                if (response.ok) {
+                    setIsAuthenticated(true);
+                    router.push('/')
+                } else {
+                    await handleErrors(response, loginRequest, setErrors, router, '/login');
+                }
+
+            } catch (err: any) {
+                logECS('error', 'Signin error', {
+                    error: err,
+                    url: { path: '/apollo-signin' }
+                });
+            } finally {
+                setLoading(false);
             }
-
-        } catch (err: any) {
-            logECS('error', 'Signin error', {
-                error: err,
-                url: { path: '/apollo-signin' }
-            });
-        } finally {
-            setLoading(false);
+        } else {
+            setErrors(prev => prev.concat('Something went wrong'))
         }
 
     };

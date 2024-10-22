@@ -1,4 +1,5 @@
 ### Added
+- Added confirm-email server-side component, and email-confirmed and verification-failed client components for email alias verification [#125]
 - Checkbox & Checkbox group component [#75]
 - Radio component [#75]
 - Select component [#75]
