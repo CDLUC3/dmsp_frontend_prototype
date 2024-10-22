@@ -2,19 +2,39 @@
 
 import React from 'react';
 import {
+  Breadcrumb,
+  Breadcrumbs,
   Button,
   FieldError,
   Form,
   Input,
   Label,
+  Link,
   Text,
   TextField
 } from "react-aria-components";
+import PageHeader from "@/components/PageHeader";
 
 const QuestionCreatePage: React.FC = () => {
   return (
     <>
-      <h1>Create a New Question</h1>
+
+
+      <PageHeader
+        title="Create a New Question"
+        description=""
+        showBackButton={true}
+        breadcrumbs={
+          <Breadcrumbs>
+            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
+            <Breadcrumb>Question</Breadcrumb>
+          </Breadcrumbs>
+        }
+        actions={null}
+        className=""
+      />
+
 
       <Form>
         <TextField

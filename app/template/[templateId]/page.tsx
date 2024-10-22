@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import {Button, Link} from 'react-aria-components';
+import {Breadcrumb, Breadcrumbs, Button, Link} from 'react-aria-components';
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
+import PageHeader from "@/components/PageHeader";
 
 interface Question {
   id: string;
@@ -85,18 +86,22 @@ const template: Template = {
 const TemplateEditPage: React.FC = () => {
   return (
     <div>
-      <div className="template-editor-header">
-        {/* Using templateId from the URL to create a back link */}
-        <Link className="back-link-button" href={`/template`}>
-          &larr; Back to template
-        </Link>
 
-        <h1>{template.name}</h1>
-        <p style={{color: 'gray', fontSize: '14px'}}>
-          by {template.author} - Version: {template.version} -
-          Published: {template.publishedDate}
-        </p>
-      </div>
+      <PageHeader
+        title={template.name}
+        description={`by ${template.author} - Version: ${template.version} - Published: ${template.publishedDate}`}
+        showBackButton={true}
+        breadcrumbs={
+          <Breadcrumbs>
+            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
+            <Breadcrumb>{template.name}</Breadcrumb>
+          </Breadcrumbs>
+        }
+
+        className="page-template-overview"
+      />
+
 
       <div className="template-editor-container">
         <div className="main-content">

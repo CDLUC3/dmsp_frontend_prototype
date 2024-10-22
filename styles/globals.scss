@@ -31,6 +31,9 @@ html, body {
   --lh-loose: 1.8;
 
 
+  --fw-bold: 600;
+
+
   --background-color: #f8f8f8;
   --gray-50: #ffffff;
   --gray-100: #d0d0d0;
@@ -168,12 +171,12 @@ html, body {
 
 /* Set up the rest of the theme here */
 :root {
-  --font-family: var(--font-inter), sans-serif;
+  --font-family: var(--font-inter), "Inter", sans-serif;
 
   // Spacing:
-  --brand-space1: 0.5em;
-  --brand-space2: 1em;
-  --brand-space3: 1.5em;
+  --brand-space1: 0.5rem;
+  --brand-space2: 1rem;
+  --brand-space3: 1.5rem;
 
   // General:
   --brand-line-height0: 1.1;
@@ -203,11 +206,11 @@ html, body {
 
 
 html {
-  font-family: var(--font-family);
+  font-family: var(--font-family, "Inter", sans-serif);
 }
 
 body {
-  font-family: var(--font-family);
+  font-family: var(--font-family, "Inter", sans-serif);
   font-size: 1rem;
   color: var(--text-color);
   background-color: var(--background-color);

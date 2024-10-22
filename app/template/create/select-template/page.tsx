@@ -10,13 +10,12 @@ import {
   Label,
   Link,
   SearchField,
-  Text
+  Text,
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import TemplateListItem from "@/components/TemplateListItem";
 
-
-const TemplateListPage: React.FC = () => {
+const TemplateSelectTemplatePage: React.FC = () => {
 
   const templates = [
     {
@@ -58,13 +57,12 @@ const TemplateListPage: React.FC = () => {
 
 
 
-
   return (
     <>
 
       <PageHeader
-        title="Templates"
-        description="Manager or create DMSP templates, once published researchers will be able to select your template."
+        title="Select a template"
+        description=""
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
@@ -73,11 +71,7 @@ const TemplateListPage: React.FC = () => {
           </Breadcrumbs>
         }
         actions={
-          <>
-            <Link href="/template/create"
-                  className={"button-link button--primary"}>Create
-              Template</Link>
-          </>
+          <></>
         }
         className="page-template-list"
       />
@@ -96,8 +90,6 @@ const TemplateListPage: React.FC = () => {
 
 
 
-
-
       <div className="template-list"  role="list">
         {templates.map((template, index) => (
           <TemplateListItem key={index} item={template}/>
@@ -105,10 +97,8 @@ const TemplateListPage: React.FC = () => {
       </div>
 
 
-
-
     </>
   );
 }
 
-export default TemplateListPage;
+export default TemplateSelectTemplatePage;

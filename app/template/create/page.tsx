@@ -2,27 +2,54 @@
 
 import React from 'react';
 import {
+  Breadcrumb,
+  Breadcrumbs,
   Button,
   FieldError,
   Form,
   Input,
   Label,
+  Link,
   Radio,
   RadioGroup,
   Text,
   TextField
 } from "react-aria-components";
+import PageHeader from "@/components/PageHeader";
 
 const TemplateCreatePage: React.FC = () => {
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Form submitted');
+
+    // redirect to the new template page
+     window.location.href = '/template/create/select-template';
+
+  }
+
   return (
     <>
-      <h1>Create a template</h1>
 
-      <p>
 
-      </p>
+      <PageHeader
+        title="Create a template"
+        description="Manager or create DMSP templates, once published researchers will be able to select your template."
+        showBackButton={true}
+        breadcrumbs={
+          <Breadcrumbs>
+            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
+            <Breadcrumb><Link href="/templates">Templates</Link></Breadcrumb>
+            <Breadcrumb>Create a template</Breadcrumb>
+          </Breadcrumbs>
+        }
+        actions={null}
+        className="page-template-list"
+      />
 
-      <Form>
+
+
+      <Form  onSubmit={handleSubmit}>
         <TextField
           name="template_name"
           type="text"
@@ -46,7 +73,8 @@ const TemplateCreatePage: React.FC = () => {
           <Radio value="new">Build new template</Radio>
         </RadioGroup>
 
-        <Button type="submit">Create</Button>
+        <Button type="submit"
+                className="">Create</Button>
 
       </Form>
     </>
