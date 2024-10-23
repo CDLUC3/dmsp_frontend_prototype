@@ -247,10 +247,6 @@ const ProfilePage: React.FC = () => {
 
   };
 
-  const refreshPage = () => {
-
-  }
-
   if (loading) {
     return <div>Loading...</div>;
   }
