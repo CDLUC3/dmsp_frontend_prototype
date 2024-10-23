@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import React, {useEffect, useRef, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import styles from './signup.module.scss';
-import { useCsrf } from '@/context/CsrfContext';
+import {useCsrf} from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
-import { handleErrors } from '@/utils/errorHandler';
-import { useAuthContext } from '@/context/AuthContext';
+import {handleErrors} from '@/utils/errorHandler';
+import {useAuthContext} from '@/context/AuthContext';
 
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -45,25 +45,30 @@ const SignUpPage: React.FC = () => {
             });
         }
 
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        try {
-            const response = await signupRequest(csrfToken);
+        if (csrfToken) {
+            /* eslint-disable @typescript-eslint/no-explicit-any */
+            try {
+                const response = await signupRequest(csrfToken);
 
-            if (response && response.ok) {
-                setIsAuthenticated(true);
-                router.push('/')
-            } else {
-                await handleErrors(response, signupRequest, setErrors, router, '/signup');
+                if (response && response.ok) {
+                    setIsAuthenticated(true);
+                    router.push('/')
+                } else {
+                    await handleErrors(response, signupRequest, setErrors, router, '/signup');
+                }
+
+            } catch (err: any) {
+                logECS('error', 'Signup error', {
+                    error: err,
+                    url: { path: '/apollo-signup' }
+                });
+            } finally {
+                setLoading(false);
             }
-
-        } catch (err: any) {
-            logECS('error', 'Signup error', {
-                error: err,
-                url: { path: '/apollo-signup' }
-            });
-        } finally {
-            setLoading(false);
+        } else {
+            setErrors(prev => prev.concat('Something went wrong'))
         }
+
     };
 
     useEffect(() => {
@@ -119,4 +124,4 @@ const SignUpPage: React.FC = () => {
         </div>
     );
 };
-export default SignUpPage; 
+export default SignUpPage;

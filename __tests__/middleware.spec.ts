@@ -2,10 +2,10 @@
  * @jest-environment node
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { middleware } from '../middleware';
-import { verifyJwtToken } from '../lib/server/auth';
-import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
+import {NextRequest, NextResponse} from 'next/server';
+import {middleware} from '../middleware';
+import {verifyJwtToken} from '../lib/server/auth';
+import {getAuthTokenServer} from '@/utils/getAuthTokenServer';
 
 
 jest.mock('../lib/server/auth', () => ({
@@ -45,6 +45,15 @@ describe('middleware.ts', () => {
     it('should not redirect if user is not logged in and visits /login', async () => {
         (getAuthTokenServer as jest.Mock).mockResolvedValue(undefined);
         const request = new NextRequest(new Request('http://localhost:3000/login'));
+        const response = await middleware(request);
+
+        expect(redirectSpy).not.toHaveBeenCalled();
+        expect(response.status).toEqual(200);
+    });
+
+    it('should not redirect if user visits /email/', async () => {
+        (getAuthTokenServer as jest.Mock).mockResolvedValue(undefined);
+        const request = new NextRequest(new Request('http://localhost:3000/email/confirm-email'));
         const response = await middleware(request);
 
         expect(redirectSpy).not.toHaveBeenCalled();
