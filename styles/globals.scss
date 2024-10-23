@@ -142,6 +142,18 @@ html, body {
   --highlight-pressed: rgb(0 0 0 / 0.15);
   --highlight-overlay: rgb(from #6f46ed r g b / 15%);
 
+  --highlight-background: var(--brand-primary);
+  --highlight-background-pressed: var(--brand-primary);
+  --highlight-background-invalid: var(--brand-error);
+  --highlight-foreground: var(--bg-white);
+  --highlight-foreground-pressed: var(--bg-white);
+  --highlight-foreground-invalid: var(--brand-error);
+
+  --selected-color: var(--brand-primary);
+  --selected-color-pressed: var(--brand-primary);
+  --checkmark-color: var(--bg-white, #fffff) !important;
+  --overlay-background: var(--bg-white);
+
   // Focus
   --focus-ring: #3B82F6;
   --focus-ring-offset: 2px;
@@ -193,7 +205,7 @@ html, body {
 
   // Error
   --brand-error: var(--red-500);
-  --invalid-color : var(--red-500);
+  --invalid-color: var(--red-500);
 
   // Legacy spacing (kept for backwards compatibility)
   --brand-space1: 0.5em;
@@ -248,7 +260,7 @@ html {
 }
 
 body {
-  font-family:  var(--font-family), "Inter", sans-serif;
+  font-family: var(--font-family), "Inter", sans-serif;
   font-size: var(--fs-base);
   color: var(--text-color);
   background-color: var(--background-color);
