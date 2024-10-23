@@ -30,11 +30,11 @@ $spacing-directions: (
 );
 
 $font-sizes: (
-  'small': 0.875rem, // 14px
-  'base': 1rem, // 16px
-  'lg': 1.125rem, // 18px
-  'xl': 1.25rem, // 20px
-  '2xl': 1.5rem, // 24px
+  'small': 0.875rem, // 14px h5
+  'base': 1rem, // 16px h4
+  'lg': 1.125rem, // 18px h3
+  'xl': 1.25rem, // 20px h2
+  '2xl': 1.5rem, // 24px  h1
   '3xl': 1.875rem, // 30px
   '4xl': 2.25rem // 36px
 );
@@ -96,6 +96,14 @@ html, body {
 
 
 :root {
+  --scale-mobile: 0.875; // Reduces font size by 12.5% on mobile
+
+  --font-family: 'Inter', sans-serif;
+  --font-family-monospace: 'Fira Code', monospace;
+  --font-family-heading: 'Inter', sans-serif;
+  --font-family-body: 'Inter', sans-serif;
+  --font-family-code: 'Fira Code', monospace;
+
   // Generate font-size variables from map
   @each $name, $size in $font-sizes {
     --fs-#{$name}: #{$size};
@@ -118,6 +126,11 @@ html, body {
   --lh-tight: 1.1;
   --lh-normal: 1.5;
   --lh-loose: 1.8;
+
+
+  --fw-normal: 400;
+  --fw-bold: 600;
+
 
   // Base colors
   --background-color: #f8f8f8;
@@ -231,11 +244,11 @@ html, body {
 }
 
 html {
-  font-family: var(--font-family);
+  font-family: var(--font-family), "Inter", sans-serif;
 }
 
 body {
-  font-family: var(--font-family);
+  font-family:  var(--font-family), "Inter", sans-serif;
   font-size: var(--fs-base);
   color: var(--text-color);
   background-color: var(--background-color);
