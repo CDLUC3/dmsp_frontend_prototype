@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import Link from 'next/link';
 
-import styles from './templatelistitem.module.scss';
+import styles from './TemplateListItem.module.scss';
 import {Button} from "react-aria-components";
 
 interface TemplateItemProps {
