@@ -45,25 +45,30 @@ const SignUpPage: React.FC = () => {
             });
         }
 
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        try {
-            const response = await signupRequest(csrfToken);
+        if (csrfToken) {
+            /* eslint-disable @typescript-eslint/no-explicit-any */
+            try {
+                const response = await signupRequest(csrfToken);
 
-            if (response && response.ok) {
-                setIsAuthenticated(true);
-                router.push('/')
-            } else {
-                await handleErrors(response, signupRequest, setErrors, router, '/signup');
+                if (response && response.ok) {
+                    setIsAuthenticated(true);
+                    router.push('/')
+                } else {
+                    await handleErrors(response, signupRequest, setErrors, router, '/signup');
+                }
+
+            } catch (err: any) {
+                logECS('error', 'Signup error', {
+                    error: err,
+                    url: { path: '/apollo-signup' }
+                });
+            } finally {
+                setLoading(false);
             }
-
-        } catch (err: any) {
-            logECS('error', 'Signup error', {
-                error: err,
-                url: { path: '/apollo-signup' }
-            });
-        } finally {
-            setLoading(false);
+        } else {
+            setErrors(prev => prev.concat('Something went wrong'))
         }
+
     };
 
     useEffect(() => {
