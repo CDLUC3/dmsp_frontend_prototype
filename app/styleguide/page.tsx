@@ -364,8 +364,11 @@ function Page() {
           </div>
 
           <div id="_brand">
-            <h2>Colours</h2>
-            <p>Main Brand Colours</p>
+            <h2>Color System</h2>
+
+            <h3>Brand Colors</h3>
+            <p>Our primary brand colors represent our identity and should be
+              used consistently across all interfaces.</p>
             <div className="brand-color-list">
               <BrandColor varname="--brand-primary" />
               <BrandColor varname="--brand-secondary" />
@@ -373,41 +376,281 @@ function Page() {
               <BrandColor varname="--brand-error" />
             </div>
 
-            <p>Grayscale pallette</p>
+            <h3>Gray Scale</h3>
+            <p>Our gray scale palette provides a range of tones for text,
+              backgrounds, and UI elements.</p>
             <div className="layout-horizontal">
               <div className="brand-color-list">
-                <BrandColor varname="--gray-50" />
-                <BrandColor varname="--gray-100" />
-                <BrandColor varname="--gray-200" />
-                <BrandColor varname="--gray-300" />
-                <BrandColor varname="--gray-400" />
-                <BrandColor varname="--gray-500" />
-                <BrandColor varname="--gray-600" />
+                <BrandColor varname="--gray-50"
+                  description="Backgrounds, cards" />
+                <BrandColor varname="--gray-100" description="Disabled states" />
+                <BrandColor varname="--gray-200"
+                  description="Borders, dividers" />
+                <BrandColor varname="--gray-300"
+                  description="Secondary borders" />
+                <BrandColor varname="--gray-400"
+                  description="Placeholder text" />
+                <BrandColor varname="--gray-500" description="Secondary text" />
+                <BrandColor varname="--gray-600" description="Primary text" />
               </div>
             </div>
+
+            <h3>Purple Scale</h3>
+            <p>Purple tones are used for interactive elements, focus states, and
+              to draw attention.</p>
+            <div className="layout-horizontal">
+              <div className="brand-color-list">
+                <BrandColor varname="--purple-100"
+                  description="Light backgrounds" />
+                <BrandColor varname="--purple-200" description="Hover states" />
+                <BrandColor varname="--purple-300" description="Active states" />
+                <BrandColor varname="--purple-400" description="Focus rings" />
+                <BrandColor varname="--purple-500"
+                  description="Primary actions" />
+                <BrandColor varname="--purple-600"
+                  description="Pressed states" />
+              </div>
+            </div>
+
+            <h3>Red Scale</h3>
+            <p>Red tones are used for errors, warnings, and destructive
+              actions.</p>
+            <div className="layout-horizontal">
+              <div className="brand-color-list">
+                <BrandColor varname="--red-100"
+                  description="Error backgrounds" />
+                <BrandColor varname="--red-200" description="Error hover" />
+                <BrandColor varname="--red-300" description="Error active" />
+                <BrandColor varname="--red-400" description="Error text" />
+                <BrandColor varname="--red-500" description="Error borders" />
+                <BrandColor varname="--red-600" description="Error pressed" />
+              </div>
+            </div>
+
+            <h3>Slate Scale</h3>
+            <p>Slate colors provide additional neutral tones for sophisticated
+              UI elements.</p>
+            <div className="layout-horizontal">
+              <div className="brand-color-list">
+                <BrandColor varname="--slate-100"
+                  description="Light backgrounds" />
+                <BrandColor varname="--slate-200" description="Borders" />
+                <BrandColor varname="--slate-300" description="Dividers" />
+                <BrandColor varname="--slate-400" description="Icons" />
+                <BrandColor varname="--slate-500" description="Secondary text" />
+                <BrandColor varname="--slate-600" description="Primary text" />
+                <BrandColor varname="--slate-700" description="Headings" />
+                <BrandColor varname="--slate-800"
+                  description="Dark backgrounds" />
+                <BrandColor varname="--slate-900"
+                  description="Highest contrast" />
+              </div>
+            </div>
+
+            <h3>Usage Guidelines</h3>
+            <ul>
+              <li>Use brand colors sparingly to maintain their impact</li>
+              <li>Gray scale should be the foundation of most UI elements</li>
+              <li>Ensure sufficient contrast for accessibility (WCAG 2.1 AA
+                standards)
+              </li>
+              <li>Purple scale is for interactive elements and focus states</li>
+              <li>Red scale should be reserved for errors and destructive
+                actions
+              </li>
+              <li>Slate scale provides sophisticated alternatives to pure gray
+              </li>
+            </ul>
           </div>
 
+
           <div id="_typography">
-            <h2>Font</h2>
+            <h2>Typography System</h2>
+
             <p>
-              TBD (Fonts, Weights, Headings, Paragraphs, Links, Lists,
-              line-spacing rules etc…)
+              Fonts, Weights, Headings, Paragraphs, Links, Lists,
+              line-spacing rules etc…
             </p>
 
-            <h2>Maximum article/paragraph width</h2>
-            <p>According to typographic convensions, readers struggle to read
-              wide paragraphs. This becomes especially troublesome with verbose
-              content and paragraphs with multiple lines.</p>
 
-            <p>For this reason, we recommend any page content that include large
-              paragraphs of text, to have a maximum width of <code>35em</code>.
-            </p>
+            <h3>Font Sizes</h3>
+            <p>Our type scale is based on a 16px base size (1rem) with
+              consistent scaling for readability.</p>
 
-            <h2>Emphasis, Bold and Links</h2>
-            <p>This is a descriptive paragraph with <em>emphasized text</em>,
-              some <strong>bold text</strong>, a <a href="#">anchor</a>,
-              and a <Link>Link to somewhere</Link>
-            </p>
+
+            <div className="type-scale-examples">
+              <div className="type-example">
+                <h1 >Heading 1 - 1.5rem
+                  (24px)</h1>
+              </div>
+
+              <div className="type-example">
+                <h2 >Heading 2 - 1.25rem
+                  (2px)</h2>
+
+              </div>
+
+              <div className="type-example">
+                <h3 >Heading 3 - 1.125rem
+                  (18px)</h3>
+
+              </div>
+
+              <div className="type-example">
+                <h4 >Heading 4 - 1rem
+                  (16px)</h4>
+
+              </div>
+
+              <div className="type-example">
+                <h5 >Heading 5 - 0.875rem
+                  (14px)</h5>
+
+              </div>
+
+            </div>
+
+
+            <div className="type-scale-examples">
+              <div className="type-example">
+                <h1 style={{ fontSize: 'var(--fs-4xl)' }}>4xl - 2.25rem
+                  (36px)</h1>
+                <code>--fs-4xl</code>
+              </div>
+
+              <div className="type-example">
+                <h2 style={{ fontSize: 'var(--fs-3xl)' }}>3xl - 1.875rem
+                  (30px)</h2>
+                <code>--fs-3xl</code>
+              </div>
+
+              <div className="type-example">
+                <h3 style={{ fontSize: 'var(--fs-2xl)' }}>2xl - 1.5rem
+                  (24px)</h3>
+                <code>--fs-2xl</code>
+              </div>
+
+              <div className="type-example">
+                <h4 style={{ fontSize: 'var(--fs-xl)' }}>xl - 1.25rem
+                  (20px)</h4>
+                <code>--fs-xl</code>
+              </div>
+
+              <div className="type-example">
+                <h5 style={{ fontSize: 'var(--fs-lg)' }}>lg - 1.125rem
+                  (18px)</h5>
+                <code>--fs-lg</code>
+              </div>
+
+              <div className="type-example">
+                <h6 style={{ fontSize: 'var(--fs-base)' }}>base - 1rem
+                  (16px)</h6>
+                <code>--fs-base</code>
+              </div>
+
+              <div className="type-example">
+                <p style={{ fontSize: 'var(--fs-small)' }}>Small - 0.875rem
+                  (14px)</p>
+                <code>--fs-small</code>
+              </div>
+            </div>
+
+            <h3>Line Heights</h3>
+            <p>Different line heights are used to improve readability based on
+              the content type and size.</p>
+
+            <div className="line-height-examples">
+              <div className="line-height-example">
+                <p style={{ lineHeight: 'var(--lh-tight)' }}>
+                  Tight (1.1) - Used for headings and short text blocks where
+                  compact spacing is needed.
+                  This is an example of how the text looks with tight line
+                  height.
+                  Notice how the lines are closer together.
+                </p>
+                <code>--lh-tight</code>
+              </div>
+
+              <div className="line-height-example">
+                <p style={{ lineHeight: 'var(--lh-normal)' }}>
+                  Normal (1.5) - Used for regular paragraph text and most
+                  content.
+                  This is an example of how the text looks with normal line
+                  height.
+                  Notice how it is more readable for longer content.
+                </p>
+                <code>--lh-normal</code>
+              </div>
+
+              <div className="line-height-example">
+                <p style={{ lineHeight: 'var(--lh-loose)' }}>
+                  Loose (1.8) - Used for improved readability in larger blocks
+                  of text.
+                  This is an example of how the text looks with loose line
+                  height.
+                  Notice how it is more spacious and easier to read in longer
+                  forms.
+                </p>
+                <code>--lh-loose</code>
+              </div>
+            </div>
+
+            <h3>Text Styles</h3>
+
+            <h4>Links</h4>
+            <div className="text-style-example">
+              <p>
+                Links come in different states:
+                <a href="#" style={{ color: 'var(--link-color)' }}>Regular
+                  Link</a>,
+                <a href="#" style={{ color: 'var(--link-color-secondary)' }}>Secondary
+                  Link</a>,
+                <a href="#" style={{ color: 'var(--link-hover-color)' }}>Hover
+                  State</a>
+              </p>
+              <p>
+                We should try to use Next Link e.g.
+
+
+                <pre><code>
+                  {`<Link href="/about">About</Link>`}
+                </code></pre>
+
+              </p>
+            </div>
+
+            <h4>Lists</h4>
+            <div className="list-examples">
+              <div className="list-example">
+                <h5>Unordered List</h5>
+                <ul>
+                  <li>First item in an unordered list</li>
+                  <li>Second item in an unordered list</li>
+                  <li>Third item with a <a href="#">link example</a></li>
+                  <li>Fourth item in an unordered list</li>
+                </ul>
+              </div>
+
+              <div className="list-example">
+                <h5>Ordered List</h5>
+                <ol>
+                  <li>First item in an ordered list</li>
+                  <li>Second item in an ordered list</li>
+                  <li>Third item with a <a href="#">link example</a></li>
+                  <li>Fourth item in an ordered list</li>
+                </ol>
+              </div>
+            </div>
+
+            <h3>Text Colors</h3>
+            <div className="text-color-examples">
+              <p style={{ color: 'var(--text-color)' }}>Primary Text Color</p>
+              <p style={{ color: 'var(--text-color-base)' }}>Base Text Color</p>
+              <p style={{ color: 'var(--text-color-disabled)' }}>Disabled Text
+                Color</p>
+              <p style={{ color: 'var(--text-color-placeholder)' }}>Placeholder
+                Text Color</p>
+            </div>
           </div>
 
           <div id="_icons">
@@ -439,6 +682,229 @@ function Page() {
                 is <code>0</code>.
               </dd>
             </dl>
+          </div>
+
+          <div id="_layout">
+            <h2>Spacing System</h2>
+
+            <h3>Base Spacing Scale</h3>
+            <p>Our spacing system uses a consistent scale based on 4px
+              increments. This ensures visual rhythm and consistency across the
+              interface.</p>
+
+            <div className="spacing-scale">
+              {/* Spacing Scale Visual Examples */}
+              <div className="spacing-example">
+                <div className="spacing-box" style={{
+                  width: 'var(--space-1)',
+                  height: 'var(--space-1)'
+                }}></div>
+                <div className="spacing-details">
+                  <code>--space-1</code>
+                  <span>0.25rem (4px)</span>
+                  <span>Smallest spacing, used for tight gaps</span>
+                </div>
+              </div>
+
+              <div className="spacing-example">
+                <div className="spacing-box" style={{
+                  width: 'var(--space-2)',
+                  height: 'var(--space-2)'
+                }}></div>
+                <div className="spacing-details">
+                  <code>--space-2</code>
+                  <span>0.5rem (8px)</span>
+                  <span>Icon spacing, tight paddings</span>
+                </div>
+              </div>
+
+              <div className="spacing-example">
+                <div className="spacing-box" style={{
+                  width: 'var(--space-3)',
+                  height: 'var(--space-3)'
+                }}></div>
+                <div className="spacing-details">
+                  <code>--space-3</code>
+                  <span>0.75rem (12px)</span>
+                  <span>Form element spacing</span>
+                </div>
+              </div>
+
+              <div className="spacing-example">
+                <div className="spacing-box" style={{
+                  width: 'var(--space-4)',
+                  height: 'var(--space-4)'
+                }}></div>
+                <div className="spacing-details">
+                  <code>--space-4</code>
+                  <span>1rem (16px)</span>
+                  <span>Base spacing unit</span>
+                </div>
+              </div>
+
+              <div className="spacing-example">
+                <div className="spacing-box" style={{
+                  width: 'var(--space-5)',
+                  height: 'var(--space-5)'
+                }}></div>
+                <div className="spacing-details">
+                  <code>--space-5</code>
+                  <span>1.5rem (24px)</span>
+                  <span>Medium component spacing</span>
+                </div>
+              </div>
+
+              <div className="spacing-example">
+                <div className="spacing-box" style={{
+                  width: 'var(--space-6)',
+                  height: 'var(--space-6)'
+                }}></div>
+                <div className="spacing-details">
+                  <code>--space-6</code>
+                  <span>2rem (32px)</span>
+                  <span>Large component spacing</span>
+                </div>
+              </div>
+
+              <div className="spacing-example">
+                <div className="spacing-box" style={{
+                  width: 'var(--space-8)',
+                  height: 'var(--space-8)'
+                }}></div>
+                <div className="spacing-details">
+                  <code>--space-8</code>
+                  <span>3rem (48px)</span>
+                  <span>Section spacing</span>
+                </div>
+              </div>
+
+              <div className="spacing-example">
+                <div className="spacing-box" style={{
+                  width: 'var(--space-10)',
+                  height: 'var(--space-10)'
+                }}></div>
+                <div className="spacing-details">
+                  <code>--space-10</code>
+                  <span>4rem (64px)</span>
+                  <span>Large section spacing</span>
+                </div>
+              </div>
+
+              <div className="spacing-example">
+                <div className="spacing-box" style={{
+                  width: 'var(--space-12)',
+                  height: 'var(--space-12)'
+                }}></div>
+                <div className="spacing-details">
+                  <code>--space-12</code>
+                  <span>6rem (96px)</span>
+                  <span>Extra large section spacing</span>
+                </div>
+              </div>
+            </div>
+
+
+            <h3>Utility Classes</h3>
+            <p>Our spacing utilities follow a consistent naming convention for
+              margins and paddings. The grey box represents the parent
+              container, and the purple box shows the applied spacing.</p>
+
+            <div className="utility-examples">
+              <h4>Margin Utilities</h4>
+              <div className="utility-section">
+                <div className="demo-container">
+                  <div className="example-box m-4">m-4 (margin: 1rem)</div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box my-4">my-4 (margin-top & bottom:
+                    1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box mx-4">mx-4 (margin-left & right:
+                    1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box mt-4">mt-4 (margin-top: 1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box mb-4">mb-4 (margin-bottom: 1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box ms-4">ms-4 (margin-left: 1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box me-4">me-4 (margin-right: 1rem)
+                  </div>
+                </div>
+              </div>
+
+              <h4>Padding Utilities</h4>
+              <div className="utility-section">
+                <div className="demo-container">
+                  <div className="example-box p-4">p-4 (padding: 1rem)</div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box py-4">py-4 (padding-top & bottom:
+                    1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box px-4">px-4 (padding-left & right:
+                    1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box pt-4">pt-4 (padding-top: 1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box pb-4">pb-4 (padding-bottom:
+                    1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box ps-4">ps-4 (padding-left: 1rem)
+                  </div>
+                </div>
+
+                <div className="demo-container">
+                  <div className="example-box pe-4">pe-4 (padding-right: 1rem)
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <h3>Responsive Utilities</h3>
+            <p>All spacing utilities can be applied at different breakpoints
+              using responsive prefixes.</p>
+
+            <div className="responsive-examples">
+              <code>mt-2 md:mt-4 lg:mt-6</code>
+              <ul>
+                <li>Default: 0.5rem margin-top</li>
+                <li>md (768px): 1rem margin-top</li>
+                <li>lg (1024px): 2rem margin-top</li>
+              </ul>
+            </div>
+
+
           </div>
 
           <div id="_layout">

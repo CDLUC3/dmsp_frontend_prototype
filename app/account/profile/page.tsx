@@ -8,9 +8,16 @@ import {
   Form,
   Input,
   Label,
+  ListBox,
+  ListBoxItem,
+  Popover,
+  Select,
+  SelectValue,
   TextField,
   Text,
 } from "react-aria-components";
+
+import { MySelect, MyItem } from '@/components/MySelect';
 
 import { useUserQuery } from '@/generated/graphql';
 import { AffiliationsDocument } from '@/generated/graphql';
@@ -27,12 +34,22 @@ import styles from './profile.module.scss';
 
 // Mock initial data for emails
 const initialEmails = [
-  { email: 'alias1@test.com', isPrimary: false },
-  { email: 'alias2@test.com', isPrimary: true },
-  { email: 'alias3@test.com', isPrimary: false }
+  { email: 'email1@test.com', isPrimary: false },
+  { email: 'email2@test.com', isPrimary: true },
+  { email: 'email3@test.com', isPrimary: false }
 ];
 
-
+// Mock language options
+const languageOptions = [
+  {
+    id: 1,
+    name: 'English'
+  },
+  {
+    id: 2,
+    name: 'Portuguese'
+  }
+]
 interface ProfileDataInterface {
   firstName: string;
   lastName: string;
@@ -72,7 +89,6 @@ const ProfilePage: React.FC = () => {
     language: '',
   });
 
-  const [submitted, setSubmitted] = React.useState(null);
   //Mock emails
   const [emails, setEmails] = useState(initialEmails);
 
@@ -89,8 +105,8 @@ const ProfilePage: React.FC = () => {
       // Get form data as an object.
       let data = Object.fromEntries(new FormData(e.currentTarget));
 
-      // Submit to your backend API...
-      setSubmitted(data);
+      console.log("Submitted data", data);
+      return data;
     }
   };
 
@@ -184,6 +200,13 @@ const ProfilePage: React.FC = () => {
     })
   }
 
+  const setLanguage = (language: string) => {
+    setFormData({
+      ...formData,
+      language: language
+    })
+  }
+
   useEffect(() => {
     //When data from backend changes, set formData and originalData
     if (data && data.me) {
@@ -261,7 +284,7 @@ const ProfilePage: React.FC = () => {
             <h2>Your Profile</h2>
             <ContentContainer>
               <div className={styles.subSection}>
-                <Form onSubmit={onProfileSubmit}>
+                <Form onSubmit={e => onProfileSubmit(e)}>
                   {errors && errors.length > 0 &&
                     <div className="error">
                       {errors.map((error, index) => (
@@ -350,7 +373,37 @@ const ProfilePage: React.FC = () => {
                   </div>
 
                   <div className={`${styles.oneItemRow} ${styles.formRow}`}>
-                    <TextField
+                    {isEditing ? (
+                      <MySelect
+                        label="Language"
+                        isRequired
+                        placeholder='Select a language'
+                        errorMessage={() => {
+                          if (!formData.language) {
+                            return "Please select a language"
+                          }
+                          return "";
+                        }}
+                        onSelectionChange={e => setLanguage(e)}
+                        selectedKey={formData.language}
+                      >
+                        <MyItem key="english">English</MyItem>
+                        <MyItem key="portuguese">Portuguese</MyItem>
+                      </MySelect>
+                    ) : (
+                      <>
+                        <TextField
+                          name="language"
+                          type="text"
+                        >
+                          <Label>Language</Label>
+                          <p>{formData.language}</p>
+                          <FieldError />
+                        </TextField>
+                      </>
+                    )}
+
+                    {/* <TextField
                       name="language"
                       type="text"
                       className={!!fieldErrors['language'] ? styles.fieldError : ''}
@@ -372,17 +425,12 @@ const ProfilePage: React.FC = () => {
                       )}
 
                       <FieldError />
-                    </TextField>
+                    </TextField> */}
                   </div>
                   {isEditing ? (
                     <>
                       <Button className="secondary" onPress={cancelEdit}>Cancel</Button>
                       <Button type="submit" className={styles.btn}>Update</Button>
-                      {submitted && (
-                        <div>
-                          You submitted: <code>{JSON.stringify(submitted)}</code>
-                        </div>
-                      )}
                     </>
                   ) : (
                     <Button type="submit" onPress={handleEdit} className={styles.btn}>Edit</Button>
