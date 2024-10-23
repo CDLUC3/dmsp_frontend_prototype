@@ -1,8 +1,8 @@
 @import '@/styles/responsive';
 
 
-.textField {
-  min-height: 87px;
+.formRow {
+  min-height: 85px;
 }
 
 .twoItemRow {
@@ -20,28 +20,26 @@
     max-width: 100%;
   }
 }
+
 .section {
-  margin: 40px 0;
+  margin: var(--space-6) 0;
 }
 
 .subSection {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-4);
 }
 
 .addContainer {
   align-items: center;
   display: flex;
   gap: 8px;
-  margin-top: 20px;
+  margin-top: var(--space-4);
   max-width: 100%;
 
   button {
     border-radius: 6px;
-    margin-bottom: 26px;
-    padding:12px;
-  }
-  .textField{
-    width: 100%;
+    margin-bottom: var(--space-4);
+    padding: var(--space-3);
   }
 }
 
@@ -54,7 +52,7 @@
   padding-left: 0;
 
   li {
-    padding-bottom: 12px;
+    padding-bottom: var(--space-3);
   }
 }
 
@@ -69,7 +67,7 @@
 
 .rightSidebar {
   flex-basis: 300px; /*Fixed width for sidebar*/
-  padding-left: 40px;
+  padding-left: var(--space-6);
 }
 
 .fieldError {
@@ -85,9 +83,9 @@
 
 
 .btn {
-  margin-top: 20px;
+  margin-top: var(--space-4);
 }
 
 .secondary {
-  padding-right: 20px;
+  padding-right: var(--space-4);
 }

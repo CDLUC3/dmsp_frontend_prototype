@@ -8,16 +8,13 @@ import {
   Form,
   Input,
   Label,
-  ListBox,
   ListBoxItem,
-  Popover,
-  Select,
-  SelectValue,
   TextField,
   Text,
 } from "react-aria-components";
 
-import { MySelect, MyItem } from '@/components/MySelect';
+import { useRouter } from 'next/navigation';
+import { MySelect } from '@/components/MySelect';
 
 import { useUserQuery } from '@/generated/graphql';
 import { AffiliationsDocument } from '@/generated/graphql';
@@ -40,16 +37,11 @@ const initialEmails = [
 ];
 
 // Mock language options
-const languageOptions = [
-  {
-    id: 1,
-    name: 'English'
-  },
-  {
-    id: 2,
-    name: 'Portuguese'
-  }
-]
+const languages = [
+  { key: "english", name: "English" },
+  { key: "portuguese", name: "Portuguese" }
+];
+
 interface ProfileDataInterface {
   firstName: string;
   lastName: string;
@@ -67,6 +59,7 @@ interface FormErrors {
 }
 
 const ProfilePage: React.FC = () => {
+  const router = useRouter();
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -147,6 +140,7 @@ const ProfilePage: React.FC = () => {
     });
   }
 
+  // Check whether form is valid before submitting
   const isFormValid = (): boolean => {
     // Initialize a flag for form validity
     let isValid = true;
@@ -200,13 +194,6 @@ const ProfilePage: React.FC = () => {
     })
   }
 
-  const setLanguage = (language: string) => {
-    setFormData({
-      ...formData,
-      language: language
-    })
-  }
-
   useEffect(() => {
     //When data from backend changes, set formData and originalData
     if (data && data.me) {
@@ -229,6 +216,10 @@ const ProfilePage: React.FC = () => {
     }
   }, [data])
 
+  useEffect(() => {
+    console.log(formData);
+  }, [formData])
+
   // Handle errors from graphql request
   useEffect(() => {
     if (error) {
@@ -237,7 +228,8 @@ const ProfilePage: React.FC = () => {
           error.graphQLErrors,
           error.networkError,
           setErrors,
-          refetch
+          refetch,
+          router
         );
       };
 
@@ -284,7 +276,7 @@ const ProfilePage: React.FC = () => {
             <h2>Your Profile</h2>
             <ContentContainer>
               <div className={styles.subSection}>
-                <Form onSubmit={e => onProfileSubmit(e)}>
+                <Form onSubmit={onProfileSubmit}>
                   {errors && errors.length > 0 &&
                     <div className="error">
                       {errors.map((error, index) => (
@@ -292,7 +284,7 @@ const ProfilePage: React.FC = () => {
                       ))}
                     </div>
                   }
-                  <div className={styles.twoItemRow}>
+                  <div className={`${styles.twoItemRow} ${styles.formRow}`}>
                     <TextField
                       name="firstName"
                       type="text"
@@ -377,18 +369,14 @@ const ProfilePage: React.FC = () => {
                       <MySelect
                         label="Language"
                         isRequired
+                        name="institution"
+                        items={languages}
                         placeholder='Select a language'
-                        errorMessage={() => {
-                          if (!formData.language) {
-                            return "Please select a language"
-                          }
-                          return "";
-                        }}
-                        onSelectionChange={e => setLanguage(e)}
+                        errorMessage="A selection is required"
+                        onSelectionChange={selected => setFormData({ ...formData, language: selected as string })}
                         selectedKey={formData.language}
                       >
-                        <MyItem key="english">English</MyItem>
-                        <MyItem key="portuguese">Portuguese</MyItem>
+                        {item => <ListBoxItem>{item.name}</ListBoxItem>}
                       </MySelect>
                     ) : (
                       <>
@@ -402,30 +390,6 @@ const ProfilePage: React.FC = () => {
                         </TextField>
                       </>
                     )}
-
-                    {/* <TextField
-                      name="language"
-                      type="text"
-                      className={!!fieldErrors['language'] ? styles.fieldError : ''}
-                      isInvalid={!!fieldErrors['language']}
-                    >
-                      <Label>Language</Label>
-                      {isEditing ? (
-                        <>
-                          <Input
-                            name="language"
-                            placeholder={formData.language}
-                            onChange={handleInputChange}
-                            value={formData.language}
-                          />
-                          <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{fieldErrors['language']}</FieldError>
-                        </>
-                      ) : (
-                        <p>{formData.language}</p>
-                      )}
-
-                      <FieldError />
-                    </TextField> */}
                   </div>
                   {isEditing ? (
                     <>

@@ -16,13 +16,12 @@ export function MySelect<T extends object>(
   { label, description, errorMessage, children, items, ...props }:
     MySelectProps<T>
 ) {
-  const [open, setOpen] = useState(false);
   return (
-    <Select {...props}>
+    <Select {...props} data-invalid={errorMessage} className={`${styles.mySelect} react-aria-Select`}>
       {(state) => (
         <>
           <Label>{label}</Label>
-          <Button>
+          <Button className='react-aria-Button'>
             <SelectValue />
             <span
               aria-hidden="true"
@@ -38,11 +37,9 @@ export function MySelect<T extends object>(
             </span>
           </Button>
           {description && <Text slot="description">{description}</Text>}
-          <FieldError>{errorMessage}</FieldError>
+          <FieldError className={styles['react-aria-FieldError']} />
           <Popover>
-            <ListBox items={items}>
-              {children}
-            </ListBox>
+            <ListBox items={items}>{children}</ListBox>
           </Popover>
         </>
       )}
@@ -54,8 +51,6 @@ export function MyItem(props: ListBoxItemProps) {
   return (
     <ListBoxItem
       {...props}
-      className={({ isFocused, isSelected }) =>
-        `my-item ${isFocused ? 'focused' : ''} ${isSelected ? 'selected' : ''}`}
     />
   );
 }

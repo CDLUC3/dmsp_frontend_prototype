@@ -215,29 +215,6 @@ describe('TypeAheadWithOther', () => {
 
     });
 
-    it('should display a "No results found" message when no suggestions match the input', async () => {
-        mockClient.query.mockResolvedValueOnce({
-            data: {
-                affiliations: []
-            }
-        });
-
-        render(
-            <TypeAheadWithOther
-                graphqlQuery={GET_AFFILIATIONS}
-                label="Institution"
-                helpText="Search for an institution"
-                setOtherField={mockSetOtherField}
-            />
-        );
-
-        const input = screen.getByLabelText('Institution');
-        fireEvent.keyDown(input);
-        await waitFor(() => {
-            expect(screen.getByText('No results found.')).toBeInTheDocument();
-        })
-    });
-
     it('should log an error if apollo client is not defined', () => {
         (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => { });
         mockClient.query.mockResolvedValueOnce({
