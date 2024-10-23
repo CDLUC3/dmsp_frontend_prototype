@@ -39,6 +39,10 @@ describe('TypeAheadWithOther', () => {
                 label="Institution"
                 helpText="Search for an institution"
                 setOtherField={mockSetOtherField}
+                fieldName="test"
+                required={false}
+                error=""
+                updateFormData={() => true}
             />
         );
 
@@ -54,6 +58,10 @@ describe('TypeAheadWithOther', () => {
                 label="Institution"
                 helpText="Search for an institution"
                 setOtherField={mockSetOtherField}
+                fieldName="test"
+                required={false}
+                error=""
+                updateFormData={() => true}
             />
         );
         jest.useRealTimers();
@@ -78,6 +86,10 @@ describe('TypeAheadWithOther', () => {
                 label="Institution"
                 helpText="Search for an institution"
                 setOtherField={mockSetOtherField}
+                fieldName="test"
+                required={false}
+                error=""
+                updateFormData={() => true}
             />
         );
 
@@ -116,6 +128,10 @@ describe('TypeAheadWithOther', () => {
                 label="Institution"
                 helpText="Search for an institution"
                 setOtherField={mockSetOtherField}
+                fieldName="test"
+                required={false}
+                error=""
+                updateFormData={() => true}
             />);
 
         act(() => { //make sure all updates related to React are completed
@@ -144,6 +160,10 @@ describe('TypeAheadWithOther', () => {
                 label="Institution"
                 helpText="Search for an institution"
                 setOtherField={mockSetOtherField}
+                fieldName="test"
+                required={false}
+                error=""
+                updateFormData={() => true}
             />
         );
 
@@ -186,6 +206,10 @@ describe('TypeAheadWithOther', () => {
                 label="Institution"
                 helpText="Search for an institution"
                 setOtherField={mockSetOtherField}
+                fieldName="test"
+                required={false}
+                error=""
+                updateFormData={() => true}
             />
         );
 
@@ -231,6 +255,10 @@ describe('TypeAheadWithOther', () => {
                 label="Institution"
                 helpText="Search for an institution"
                 setOtherField={mockSetOtherField}
+                fieldName="test"
+                required={false}
+                error=""
+                updateFormData={() => true}
             />
         );
         expect(logECS).toHaveBeenCalledWith('error', 'Apollo client creation failed', {
