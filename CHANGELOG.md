@@ -1,4 +1,9 @@
 ### Added
+- Added spacing guidelines to the styleguide
+- Cleaned up the styleguide and added additional text to explain the spacing guidelines
+- Created SCSS helpers/mixins to generate alot of our colours and spacing
+
+### Added
 - Added confirm-email server-side component, and email-confirmed and verification-failed client components for email alias verification [#125]
 - Checkbox & Checkbox group component [#75]
 - Radio component [#75]
