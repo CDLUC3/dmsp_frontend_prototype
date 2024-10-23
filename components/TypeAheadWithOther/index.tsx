@@ -2,7 +2,12 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { DocumentNode } from '@apollo/client';
-import { Input, Label, TextField, } from "react-aria-components";
+import {
+    Input,
+    Label,
+    TextField,
+    FieldError,
+} from "react-aria-components";
 import { createApolloClient } from '@/lib/graphql/client/apollo-client';
 
 import Spinner from '@/components/Spinner';
@@ -20,6 +25,9 @@ type TypeAheadInputProps = {
     helpText?: string;
     setOtherField: Function;
     fieldName: string;
+    required: boolean;
+    error: string;
+    updateFormData: Function; //Function to update the typeahead field value in the parent form data
 }
 
 type SuggestionInterface = {
@@ -33,9 +41,13 @@ const TypeAheadWithOther = ({
     placeholder,
     helpText,
     setOtherField,
-    fieldName
+    fieldName,
+    required,
+    error,
+    updateFormData
 }: TypeAheadInputProps) => {
     const [inputValue, setInputValue] = useState('');
+    const [errorMessage, setErrorMessage] = useState<string>('');
     const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
     const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
     const [selected, setSelected] = useState("");
@@ -55,7 +67,30 @@ const TypeAheadWithOther = ({
         });
         return null;
     }
-    const handleInputClick = () => {
+    const validateField = (value: string) => {
+        if (!/^[A-Za-z.\?_\(\)\s-]+$/.test(value)) {
+            setErrorMessage('Please enter a valid institution(only letters allowed).');
+            return false;
+        }
+        setErrorMessage('');
+        return true;
+    };
+
+    const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setInputValue(value);
+
+        if (value) {
+            validateField(value);
+            await updateFormData(value);
+        } else {
+            setErrorMessage('');
+            await updateFormData('');
+        }
+    }
+
+
+    const handleInputClick = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         setOpen(true);
         setOtherField(false);
     }
@@ -161,13 +196,15 @@ const TypeAheadWithOther = ({
     }
 
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(inputValue);
-        }, 700);
+        if (!errorMessage) {
+            const handler = setTimeout(() => {
+                setDebouncedValue(inputValue);
+            }, 700);
+            return () => {
+                clearTimeout(handler);
+            };
+        }
 
-        return () => {
-            clearTimeout(handler);
-        };
     }, [inputValue]);
 
     useEffect(() => {
@@ -230,47 +267,99 @@ const TypeAheadWithOther = ({
     return (
         <>
             <div className={`${styles.autocompleteContainer} ${styles.expanded}`} aria-expanded={open} role="combobox">
-                <TextField>
-                    <Label>{label}</Label>
-                    <Input
-                        name={fieldName}
+
+                {required ? (
+                    <TextField
+                        name="lastName"
                         type="text"
-                        value={inputValue}
-                        role="textbox"
-                        aria-controls="results"
-                        aria-activedescendant={activeDescendentId}
-                        className={classNames('react-aria-Input', styles.searchInput)}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onClick={handleInputClick}
-                        onKeyDown={handleKeyboardEvents}
-                        placeholder={placeholder ? placeholder : 'Type to search...'}
-                        ref={inputRef}
-                        autoComplete="off"
-                    />
-
-                    <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
-                        isActive={showSuggestionSpinner} />
-
-                    {/*Visually hidden element for screen readers */}
-                    <div
-                        aria-live="polite"
-                        className="hidden-accessibly">
-                        {showSuggestionSpinner ? "Loading..." : ""}
-                    </div>
-
-                    <div
-                        className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
-                        onClick={e => e.preventDefault()}
-                        tabIndex={-1}
-                        aria-hidden="true"
+                        className={(!!errorMessage || !!error) ? styles.fieldError : ''}
+                        isInvalid={!!errorMessage}
                     >
-                        <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
-                            <title>Open drop down</title>
-                            <path d="M10 0L5 5 0 0z"></path>
-                        </svg>
-                    </div>
-                    <p className={styles.helpText}>{helpText}</p>
-                </TextField>
+                        <Label>{label}</Label>
+                        <Input
+                            name={fieldName}
+                            type="text"
+                            value={inputValue}
+                            role="textbox"
+                            aria-controls="results"
+                            aria-activedescendant={activeDescendentId}
+                            className={classNames('react-aria-Input', styles.searchInput)}
+                            onChange={handleUpdate}
+                            onClick={handleInputClick}
+                            onKeyDown={handleKeyboardEvents}
+                            placeholder={placeholder ? placeholder : 'Type to search...'}
+                            ref={inputRef}
+                            autoComplete="off"
+                        />
+                        {/*<FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>*/}
+                        {error ? (<div className={styles.errorMessage}>{error}</div>) : <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>}
+
+                        <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
+                            isActive={showSuggestionSpinner} />
+
+                        {/*Visually hidden element for screen readers */}
+                        <div
+                            aria-live="polite"
+                            className="hidden-accessibly">
+                            {showSuggestionSpinner ? "Loading..." : ""}
+                        </div>
+
+                        <div
+                            className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
+                            onClick={e => e.preventDefault()}
+                            tabIndex={-1}
+                            aria-hidden="true"
+                        >
+                            <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
+                                <title>Open drop down</title>
+                                <path d="M10 0L5 5 0 0z"></path>
+                            </svg>
+                        </div>
+                        <p className={styles.helpText}>{helpText}</p>
+                    </TextField>
+                ) : (
+                    <TextField>
+                        <Label>{label}</Label>
+                        <Input
+                            name={fieldName}
+                            type="text"
+                            value={inputValue}
+                            role="textbox"
+                            aria-controls="results"
+                            aria-activedescendant={activeDescendentId}
+                            className={classNames('react-aria-Input', styles.searchInput)}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onClick={handleInputClick}
+                            onKeyDown={handleKeyboardEvents}
+                            placeholder={placeholder ? placeholder : 'Type to search...'}
+                            ref={inputRef}
+                            autoComplete="off"
+                        />
+
+                        <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
+                            isActive={showSuggestionSpinner} />
+
+                        {/*Visually hidden element for screen readers */}
+                        <div
+                            aria-live="polite"
+                            className="hidden-accessibly">
+                            {showSuggestionSpinner ? "Loading..." : ""}
+                        </div>
+
+                        <div
+                            className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
+                            onClick={e => e.preventDefault()}
+                            tabIndex={-1}
+                            aria-hidden="true"
+                        >
+                            <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
+                                <title>Open drop down</title>
+                                <path d="M10 0L5 5 0 0z"></path>
+                            </svg>
+                        </div>
+                        <p className={styles.helpText}>{helpText}</p>
+                    </TextField>
+                )}
 
                 <ul
                     className={`${styles.autocompleteResults} ${open ? styles.visible : ''}`}
@@ -280,18 +369,6 @@ const TypeAheadWithOther = ({
                     onKeyDown={handleKeyboardEvents}
                     tabIndex={-1}
                 >
-                    {suggestions.length === 0 && (
-
-                        <li
-                            className={styles.autocompleteItem}
-                            role="option"
-                            aria-selected="false"
-                            tabIndex={-1}
-                        >
-                            No results found.
-                        </li>
-
-                    )}
                     {suggestions && suggestions.length > 0 && (
                         <>
                             <li

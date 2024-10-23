@@ -1,6 +1,10 @@
 @import '@/styles/responsive';
 
 
+.textField {
+  min-height: 87px;
+}
+
 .twoItemRow {
   display: flex;
   gap: 20px;
@@ -16,15 +20,19 @@
     max-width: 100%;
   }
 }
-
 .section {
   margin: 40px 0;
 }
 
+.subSection {
+  margin-bottom: 20px;
+}
+
 .addContainer {
-  display: flex;
   align-items: center;
+  display: flex;
   gap: 8px;
+  margin-top: 20px;
   max-width: 100%;
 
   button {
@@ -50,12 +58,12 @@
   }
 }
 
-.mainContent {
+.main {
   display: flex;
   flex-wrap: wrap;
 }
 
-.leftContent {
+.mainContent {
   flex: 1;
 }
 
@@ -64,3 +72,22 @@
   padding-left: 40px;
 }
 
+.fieldError {
+  input {
+    border: 1px solid red;
+  }
+}
+
+.errorMessage{
+  font-size: var(--fs-xsmall);
+  color: red;
+}
+
+
+.btn {
+  margin-top: 20px;
+}
+
+.secondary {
+  padding-right: 20px;
+}

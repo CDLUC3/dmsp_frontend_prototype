@@ -1,0 +1,14 @@
+[
+  {
+    "email": "user@test.com",
+    "isPrimary": false
+  },
+  {
+    "email": "test@test.com",
+    "isPrimary": false
+  },
+  {
+    "email": "jshin@test.com",
+    "isPrimary": true
+  }
+]

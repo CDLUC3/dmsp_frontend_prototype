@@ -47,10 +47,16 @@
     margin-top: 5px;
   }
 
+  .autocompleteContainer {
+    position: relative;
+    min-height: 85px;
+    //width: fit-content;
+  }
+
   .autocompleteDropdownArrow {
     position: absolute;
     right: 0;
-    top: 42%;
+    top: 30%;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -65,12 +71,6 @@
     &.expanded {
         transform: rotate(-180deg);
       }
-  }
-
-
-  .autocompleteContainer {
-    position: relative;
-    //width: fit-content;
   }
 
   .autocompleteItem {
@@ -119,4 +119,15 @@
     padding-right: 25px;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.errorMessage{
+  font-size: var(--fs-xsmall);
+  color: red;
+}
+
+.fieldError {
+  input {
+    border: 1px solid red;
+  }
 }
