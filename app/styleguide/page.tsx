@@ -903,7 +903,7 @@ function Page() {
               using responsive prefixes.</p>
 
             <div className="responsive-examples">
-              <code>mt-2 md:mt-4 lg:mt-6</code>
+              <code>mt-2 mt-md-4 mt-lg-6</code>
               <ul>
                 <li>Default: 0.5rem margin-top</li>
                 <li>md (768px): 1rem margin-top</li>
