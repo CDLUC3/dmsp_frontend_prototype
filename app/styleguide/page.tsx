@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Cell,
@@ -54,6 +54,7 @@ import {
   LayoutWithSidebar,
   SidebarContainer,
   ContentContainer,
+  ToolbarContainer,
 } from '@/components/Container';
 
 import { BrandColor, Example, handleDelete } from "./sg-components";
@@ -335,10 +336,23 @@ function Page() {
 
   const [editorContent, setEditorContent] = useState(richtextDefault);
 
+  const [sidebarDirection, setSidebarDirection] = useState('right');
+  const toggleSidebarDirection = () => {
+    if (sidebarDirection == 'right') setSidebarDirection('left');
+    else setSidebarDirection('right');
+  }
+
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  }
+
   return (
     <>
-      <LayoutWithSidebar id="sgLayout" sidebarPosition="right">
-        <SidebarContainer>
+      <LayoutWithSidebar id="sgLayout" sidebarPosition="left">
+        <SidebarContainer isOpen={true}>
+          <h3>Contents</h3>
+
           <a href="#_intro">Introduction</a>
           <a href="#_brand">Branding & Colours</a>
           <a href="#_typography">Typography</a>
@@ -1060,8 +1074,60 @@ function Page() {
               </li>
             </ul>
 
-            <h2>Layout</h2>
-            <p>TBD ...</p>
+            <h2>Layout Container (Base)</h2>
+
+            <h2>Content Container (Base)</h2>
+
+            <h2>Toolbar Container (Base)</h2>
+
+            <h2>Sidebar Container (Composite)</h2>
+            <p>Container with a sidebar.</p>
+            <ToolbarContainer>
+              <Button onPress={toggleSidebarDirection}>Toggle Direction</Button>
+              <Button onPress={toggleSidebar}>Toggle Sidebar</Button>
+            </ToolbarContainer>
+            <LayoutWithSidebar sidebarPosition={sidebarDirection} className="sg-sidebar">
+              <SidebarContainer isOpen={sidebarOpen}>
+                <p>This is the sidebar for the slider component</p>
+              </SidebarContainer>
+
+              <ContentContainer>
+                <h3>Layout With Sidebar</h3>
+                <p>This is the primary content for the slider component</p>
+
+                <div><pre><code>
+                  {`<LayoutWithSidebar direction="right">
+  <SidebarContainer> ... </SidebarContainer>
+  <ContentContainer> ... </ContentContainer>
+</LayoutWithSidebar>
+`}
+                </code></pre></div>
+              </ContentContainer>
+            </LayoutWithSidebar>
+
+            <p>Container with a toolbar and sidebar.</p>
+            <LayoutWithSidebar direction="right" className="sg-sidebar">
+              <ToolbarContainer>
+                <p>This is a toolbar</p>
+              </ToolbarContainer>
+
+              <SidebarContainer>
+                <p>This is the sidebar for the slider component</p>
+              </SidebarContainer>
+
+              <ContentContainer>
+                <h3>Layout With Sidebar</h3>
+                <p>This is the primary content for the slider component</p>
+                <div><pre><code>
+                  {`<LayoutWithSidebar direction="right">
+  <ToolbarContainer> ... </ToolbarContainer>
+  <SidebarContainer> ... </SidebarContainer>
+  <ContentContainer> ... </ContentContainer>
+</LayoutWithSidebar>
+`}
+                </code></pre></div>
+              </ContentContainer>
+            </LayoutWithSidebar>
           </div>
 
           <div id="_theme">
@@ -1702,34 +1768,5 @@ function Page() {
     </>
   )
 }
-
-//           <div id="_containers">
-//             <h2>Sidebar Container</h2>
-//             <p>Container with a sidebar.</p>
-//             <div className="sg-sidebar">
-//               <SidebarContainer>
-//                 <div className="sidebar-content">
-//                   <p>This is the primary content for the slider component</p>
-//                 </div>
-//
-//                 <aside>
-//                   <p>This is the sidebar for the slider component</p>
-//                 </aside>
-//               </SidebarContainer>
-//             </div>
-//
-//             <h2>Sidebar collapsed</h2>
-//             <div className="sg-sidebar-collapsed">
-//               <SidebarContainer>
-//                 <div className="sidebar-content">
-//                   <p>This is the primary content for the slider component</p>
-//                 </div>
-//
-//                 <aside>
-//                   <p>This is the sidebar for the slider component</p>
-//                 </aside>
-//               </SidebarContainer>
-//             </div>
-//           </div>
 
 export default Page;
