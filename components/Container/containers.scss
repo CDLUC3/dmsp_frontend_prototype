@@ -1,109 +1,121 @@
 @import '@/styles/responsive';
 
-
-.layout-container {
-  overflow-x: hidden;
-
-  @include device(xs) {
-    padding: var(--brand-space1) var(--brand-space2);
-  }
-  @include device(md) {
-    padding: var(--brand-space2) var(--brand-space3);
-  }
+@mixin layoutContainer {
+  overflow: auto;
+  padding: 0;
 }
 
-.layout-content-container {
+@mixin contentContainer {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
   padding: var(--layout-content-padding, var(--brand-space2));
+  > :first-child { margin-top: 0; }
+}
+
+.layout-container { @include layoutContainer; }
+.layout-content-container { @include contentContainer; }
+
+.layout-toolbar-container {
+  position: relative;
+  width: 100%;
+  padding: var(--layout-toolbar-padding, var(--brand-space2));
+  display: flex;
+  flex-direction: row;
+  gap: var(--layout-gap, 1em);
+  align-items: stretch;
+
+  .react-aria-Button { margin: 0; }
 }
 
 .layout-with-sidebar {
-  --_sidebar-width: var(--sidebar-width, 30%);
-  --_sidebar-border: 1px solid var(--sidebar-border-color, var(--slate-400));
+  // Developer NOTE: This is a utility variable. The javascript will set the
+  // value for this var to a _pixel_ value. This gives us the exact width of the
+  // container so that we can create precise animations.
+  --_sidebar-width: 100%;
 
-  display: flex;
-  flex-direction: row;
-  overflow-y: hidden;
+  width: 100%;
+  display: grid;
+  gap: var(--layout-gap, var(--brand-space2));
+  // grid-template-rows: auto 1fr;
 
+  .layout-content-container { grid-area: content; }
   .layout-sidebar-container {
-    position: relative;
-    flex-grow: 1;
-    transition: 0.3s ease-in-out;
+    @include contentContainer;
 
-    padding: var(--layout-content-padding, 1rem);
+    grid-area: sidebar;
+    transition: 0.3s ease-in-out;
     background-color: var(--layout-sidebar-background, var(--slate-100));
     color: var(--layout-sidebar-fg, var(--slate-800));
-
-    &.floating {
-      box-sizing: border-box;
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      z-index: 100;
-    }
-
-    .sidebar-actions {
-      position: absolute;
-      display: flex;
-      flex-direction: column;
-
-      .action-toggle-state {
-        background-color: var(--sidebar-toggle-background, var(--slate-100));
-        color: var(--sidebar-toggle-color, var(--slate-800));
-        border: var(--_sidebar-border);
-        font-size: 0.5rem;
-        padding: 8px;
-        margin: 0;
-
-        .dmp-icon {
-          width: 17px;
-          height: 17px;
-        }
-      }
-    }
-
-    &.floating {
-      width: var(--_doc-width);
-      .sidebar-actions {
-        height: 100%;
-        justify-content: center;
-      }
-    }
   }
 
-  &.direction-left .layout-content-container { order: 2; }
-  &.direction-left .layout-sidebar-container {
-    border-right: var(--_sidebar-border);
-    order: 1;
+  &.direction-left {
+    grid-template-areas:
+      "sidebar"
+      "content";
 
-    .sidebar-actions { right: calc((1rem + 4px) * -1); }
-
-    &.state-open {
-      right: 0;
-      .sidebar-actions .action-toggle-state .dmp-icon { transform: rotate(180deg); }
+    &.with-toolbar {
+      grid-template-areas:
+        "toolbar"
+        "sidebar"
+        "content";
     }
-    &.state-closed { right: var(--_sidebar-width); }
+
+    @include device(md) {
+      grid-template-columns: 1fr 3fr;
+      grid-template-areas:
+        "sidebar content";
+
+      &.with-toolbar {
+        grid-template-areas:
+          "toolbar toolbar"
+          "sidebar content";
+
+        .layout-toolbar-container {
+          grid-column-start: 1;
+          grid-column-end: 3;
+        }
+      }
+
+      .layout-sidebar-container {
+        &.state-open { right: 0; }
+        &.state-closed { right: var(--_sidebar-width); }
+      }
+    }
   }
 
   &.direction-right {
-    padding-right: 2.2rem;
-  }
-  &.direction-right .layout-content-container { order: 1; }
-  &.direction-right .layout-sidebar-container {
-    border-left: var(--_sidebar-border);
-    order: 2;
+    grid-template-areas:
+      "content"
+      "sidebar";
 
-    .sidebar-actions { left: calc((1rem + 4px) * -1); }
-
-    &.state-open {
-      left: 0;
-      &.floating { left: 1.2rem; }
+    &.with-toolbar {
+      grid-template-areas:
+        "toolbar"
+        "content"
+        "sidebar";
     }
 
-    &.state-closed {
-      left: var(--_sidebar-width);
+    @include device(md) {
+      grid-template-columns: 2fr 1fr;
+      grid-template-areas:
+        "content sidebar";
 
-      &.floating { left: calc(var(--_doc-width) - 1rem); }
-      .sidebar-actions .action-toggle-state .dmp-icon { transform: rotate(180deg); }
+      &.with-toolbar {
+        grid-template-areas:
+          "toolbar toolbar"
+          "content sidebar";
+
+        .layout-toolbar-container {
+          grid-column-start: 1;
+          grid-column-end: 3;
+        }
+      }
+
+      .layout-sidebar-container {
+        &.state-open { left: 0; }
+        &.state-closed { left: calc(var(--_sidebar-width) + 0.5rem); }
+      }
     }
   }
 }
