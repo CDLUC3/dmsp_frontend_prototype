@@ -56,7 +56,9 @@ export const useResponsive = (): DeviceProps => {
     window.addEventListener('resize', updateDevice);
 
     // Clean up the event listener on component unmount
-    return () => window.removeEventListener('resize', updateDevice);
+    return () => {
+      window.removeEventListener('resize', updateDevice);
+    }
   }, []);
 
   return {
