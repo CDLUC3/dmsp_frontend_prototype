@@ -1,8 +1,10 @@
 
-export default async function Home() {
+import { getTranslations } from 'next-intl/server';
 
+export default async function Home() {
+  const t = await getTranslations('homePage');
 
   return (
-    <h1>Home Page</h1>
+    <h1>{t('title')}</h1>
   )
 }
