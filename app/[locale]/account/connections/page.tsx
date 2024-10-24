@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import sanitizeHtml from 'sanitize-html';
 import ConnectionSection from '@/components/ConnectionSection';
 import ContentContainer from '@/components/ContentContainer';
@@ -10,7 +11,7 @@ const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
 const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
 
 const ConnectionsPage: React.FC = () => {
-
+  const t = useTranslations('Connections');
   // Sandbox Uri
   //const orcidUri = `https://sandbox.orcid.org/oauth/authorize?client_id=${orcidClientId}&response_type=code&scope=/read-limited&redirect_uri=${redirectURI}`;
 
@@ -21,7 +22,7 @@ const ConnectionsPage: React.FC = () => {
 
   return (
     <PageWrapper title={'Connections'}>
-      <h1>Connections</h1>
+      <h1>{t('title')}</h1>
       <ContentContainer>
         <ConnectionSection
           type='orcid'
