@@ -1,10 +1,10 @@
-import React, { ReactNode } from 'react';
+import React, {ReactNode} from 'react';
 
 interface ExampleProps {
   children: ReactNode;
 }
 
-export function Example({ children }: ExampleProps) {
+export function Example({children}: ExampleProps) {
   return (
     <div className="sg-example">
       {children}
@@ -13,16 +13,17 @@ export function Example({ children }: ExampleProps) {
 }
 
 interface BrandColorProps {
-  varname: string;
+  varname: string,
+  description?: string
 }
 
-export function BrandColor({ varname }: BrandColorProps) {
+export function BrandColor({varname, description}: BrandColorProps) {
   const styleprops: React.CSSProperties & { [key: string]: string } = {
     '--_color': `var(${varname})`,
   };
 
   return (
-    <div className="brand-color" style={styleprops}>
+    <div className="brand-color" style={styleprops} title={description}>
       <code>{varname}</code>
     </div>
   );

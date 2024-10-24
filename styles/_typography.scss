@@ -1,50 +1,71 @@
 h1,
+.h1,
 h2,
+.h2,
 h3,
-h4 {
+h4,
+h5 {
   font-family: var(--font-family, sans-serif);
-  font-weight: 400;
+  font-weight: var(--fw-bold, 600);
 }
 
-h1 {
-  @include device(md) {
-    font-size: 2rem;
-  }
+// Base heading styles with mobile-first approach
+h1,
+.h1 {
+  font-size: calc(var(--fs-2xl) * var(--scale-mobile));
   color: var(--heading-color);
-  font-size: 1.5rem; //24px
-}
 
-
-h2, h3, h4 {
-  color: var(--heading-color);
-}
-
-h2 {
   @include device(md) {
-    font-size: 1.75rem;
+    font-size: var(--fs-2xl);
   }
-  font-size: 1.25rem;//20px
+}
+
+h2,
+.h2 {
+  font-size: calc(var(--fs-xl) * var(--scale-mobile));
+  color: var(--heading-color);
+
+  @include device(md) {
+    font-size: var(--fs-2xl);
+  }
 }
 
 h3 {
-  @include device(md) {
-    font-size: 1.5rem;
-  }
-  font-size: 1.125rem;//18px
+  font-size: calc(var(--fs-lg) * var(--scale-mobile));
+  color: var(--heading-color);
   padding: 5px 10px 5px 3px;
+
+  @include device(md) {
+    font-size: var(--fs-xl);
+  }
 }
 
 h4 {
+  font-size: calc(var(--fs-base) * var(--scale-mobile));
+  color: var(--heading-color);
+
   @include device(md) {
-    font-size: 1.25rem;
+    font-size: var(--fs-lg);
   }
-  font-size: 1rem;//16px
+}
+
+h5 {
+  font-size: calc(var(--fs-small) * var(--scale-mobile));
+  color: var(--heading-color);
+
+  @include device(md) {
+    font-size: var(--fs-base);
+  }
 }
 
 p, dd {
   font-family: var(--font-family);
-  font-size: 1em;
-  line-height: var(--brand-line-height1);
+  font-size: calc(var(--fs-base) * var(--scale-mobile));
+  line-height: var(--lh-normal);
+
+  @include device(md) {
+    font-size: var(--fs-base);
+  }
 }
 
 a,
@@ -59,13 +80,8 @@ a:hover {
 }
 
 code {
-  font-family:
-    source-code-pro,
-    Menlo,
-    Monaco,
-    Consolas,
-    'Courier New',
-    monospace;
+  font-family: var(--font-family-code, source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace);
   color: var(--brand-tertiary);
   font-weight: bold;
+  font-size: inherit; // Inherits the font size from its parent
 }
