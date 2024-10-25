@@ -1,8 +1,11 @@
 @import '@/styles/responsive';
 
 @mixin layoutContainer {
+  position: relative;
+  width: 100%;
   overflow: auto;
-  padding: 0;
+  padding: var(--layout-container-padding, 0);
+  background: var(--layout-container-background, transparent);
 }
 
 @mixin contentContainer {
@@ -17,18 +20,21 @@
 .layout-content-container { @include contentContainer; }
 
 .layout-toolbar-container {
-  position: relative;
-  width: 100%;
-  padding: var(--layout-toolbar-padding, var(--brand-space2));
+  @include layoutContainer;
+
+  --layout-container-padding: var(--brand-space1);
+
   display: flex;
   flex-direction: row;
   gap: var(--layout-gap, 1em);
-  align-items: stretch;
+  align-items: center;
 
-  .react-aria-Button { margin: 0; }
+  > * { margin: 0; }
 }
 
 .layout-with-sidebar {
+  @include layoutContainer;
+
   // Developer NOTE: This is a utility variable. The javascript will set the
   // value for this var to a _pixel_ value. This gives us the exact width of the
   // container so that we can create precise animations.
@@ -37,9 +43,12 @@
   width: 100%;
   display: grid;
   gap: var(--layout-gap, var(--brand-space2));
-  // grid-template-rows: auto 1fr;
 
-  .layout-content-container { grid-area: content; }
+  .layout-content-container {
+    @include contentContainer;
+    grid-area: content;
+  }
+
   .layout-sidebar-container {
     @include contentContainer;
 

@@ -26,21 +26,21 @@ type Direction = 'left' | 'right';
  * layout containers.
  */
 interface LayoutContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Called when the layout state changes
-   */
-  onChange?: Function;
 }
 
 export const LayoutContainer: React.FC<LayoutContainerProps> = ({
   id,
   className,
+  style,
   children,
-  onChange,
 }) => {
   return (
     <>
-      <div id={id} className={`layout-container ${className}`}>
+      <div
+        id={id}
+        className={`layout-container ${className}`}
+        style={style}
+      >
         {children}
       </div>
     </>
@@ -59,10 +59,15 @@ export const ContentContainer: React.FC<ContentContainerProps> = ({
   children,
   id = '',
   className = '',
+  style,
 }) => {
   return (
     <>
-      <div id={id} className={`layout-content-container ${className}`}>
+      <div
+        id={id}
+        className={`layout-content-container ${className}`}
+        style={style}
+      >
         {children}
       </div>
     </>
@@ -75,12 +80,17 @@ export const ContentContainer: React.FC<ContentContainerProps> = ({
  */
 export const ToolbarContainer: React.FC<LayoutContainerProps> = ({
   children,
+  style,
   id = '',
   className = '',
 }) => {
   return (
     <>
-      <div id={id} className={`layout-toolbar-container ${className}`}>
+      <div
+        id={id}
+        className={`layout-toolbar-container ${className}`}
+        style={style}
+      >
         {children}
       </div>
     </>
