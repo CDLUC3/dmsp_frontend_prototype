@@ -51,10 +51,11 @@ import {
 } from "@/components/Card/card";
 
 import {
-  LayoutWithSidebar,
-  SidebarContainer,
+  LayoutContainer,
   ContentContainer,
   ToolbarContainer,
+  LayoutWithSidebar,
+  SidebarContainer,
 } from '@/components/Container';
 
 import {
@@ -1078,21 +1079,88 @@ function Page() {
               </li>
             </ul>
 
-            <h2>Layout Container (Base)</h2>
+            <h2><code>Layout Container</code> (Base)</h2>
+            <p>The stanard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
+            some common container within the layout container.</p>
+            <LayoutContainer style={{'--layout-container-background': 'var(--purple-100)'}}>
+              <ContentContainer>
+                <div><pre><code>
+                  {`<LayoutContainer style={{'--layout-container-background': 'var(--purple-100)'}}>
+  <ContentContainer> ... </ContentContainer>
+</LayoutContainer>
+`}
+                </code></pre></div>
+              </ContentContainer>
+            </LayoutContainer>
 
-            <h2>Content Container (Base)</h2>
+            <h3>CSS Variables</h3>
+            <dl>
+              <dt><code>--layout-container-padding</code></dt>
+              <dd>
+                Set the container padding, defaults to: <code>0</code>
+              </dd>
 
-            <h2>Toolbar Container (Base)</h2>
+              <dt><code>--layout-container-background</code></dt>
+              <dd>
+                Set the container background, defaults to: <code>transparent</code>
+              </dd>
+            </dl>
+
+            <h2><code>Content Container</code> (Base)</h2>
+            <ContentContainer style={{'border': '1px solid var(--purple-600)'}}>
+              <p>This conteint is wrapped in the following container.</p>
+              <p><strong>Note</strong> that the style property is not required
+                to use the container. It's only here to show that you can use it
+                this way, and to show the outline here in the styleguide.</p>
+              <div><pre><code>{`<ContentContainer style={{'border': '1px solid var(--purple-600)'}}>
+...
+</ContentContainer>`}
+              </code></pre></div>
+            </ContentContainer>
+
+            <h3>CSS Variables</h3>
+            <dl>
+              <dt><code>--layout-content-padding</code></dt>
+              <dd>
+                Set the content container padding, defaults to: <code>var(--brand-space2)</code>
+              </dd>
+
+              <dt><code>--layout-container-background</code></dt>
+              <dd>
+                Set the container background, defaults to: <code>transparent</code>
+              </dd>
+            </dl>
+
+            <h2><code>ToolbarContainer</code> (LayoutContainer)</h2>
+            <p><code>LayoutContainer > ToolbarContainer</code></p>
+            <ToolbarContainer style={{'--layout-container-background': 'var(--purple-100)'}}>
+              <p>Some toolbar text, maybe a Title</p>
+              <Button>Button</Button>
+            </ToolbarContainer>
+
+            <h3>CSS Variables</h3>
+            <p>Since this inherrits from <code>LayoutContainer</code> those CSS
+              variables also works. In addition to those, the following is also available:</p>
+            <dl>
+              <dt><code>--layout-gap</code></dt>
+              <dd>
+                This container uses flexbox, and this variable sets
+                the <code>gap</code> css property. Defaults to <code>1em</code>
+              </dd>
+            </dl>
 
             <h2>Sidebar Container (Composite)</h2>
-            <p>Container with a sidebar.</p>
+            <p>This is a composite layout component than contains a sidebar
+              alongside a content container.</p>
+            <p><code>LayoutContainer > LayoutWithSidebar</code></p>
+            <p><code>ContentContainer > SidebarContainer</code></p>
             <ToolbarContainer>
               <Button onPress={toggleSidebarDirection}>Toggle Direction</Button>
               <Button onPress={toggleSidebar}>Toggle Sidebar</Button>
             </ToolbarContainer>
             <LayoutWithSidebar sidebarPosition={sidebarDirection} className="sg-sidebar">
               <SidebarContainer isOpen={sidebarOpen}>
-                <p>This is the sidebar for the slider component</p>
+                <p>This is the sidebar for the component</p>
               </SidebarContainer>
 
               <ContentContainer>
@@ -1109,10 +1177,16 @@ function Page() {
               </ContentContainer>
             </LayoutWithSidebar>
 
-            <p>Container with a toolbar and sidebar.</p>
+            <p><code>LayoutWithSidebar</code> can have a
+              <code>ToolbarContainer</code> in addition to the sidebar.</p>
+            <p>Note how in the previous example, the toolbar that demonstrates
+              the sidebar position and state, is <em>outside</em>
+              the <code>LayoutWithSidebar</code>, where in the example below, it's
+              part of it.</p>
+
             <LayoutWithSidebar direction="right" className="sg-sidebar">
               <ToolbarContainer>
-                <p>This is a toolbar</p>
+                <p>This is a toolbar inside <code>LayoutWithSidebar</code></p>
               </ToolbarContainer>
 
               <SidebarContainer>
@@ -1132,6 +1206,21 @@ function Page() {
                 </code></pre></div>
               </ContentContainer>
             </LayoutWithSidebar>
+
+            <h3>CSS Variables</h3>
+            <p>Since this layout inherrits from <code>LayoutContainer</code>
+              those CSS variables also works. In addition to those, the
+              following is also available:</p>
+
+            <dl>
+              <dt><code>--layout-gap</code></dt>
+              <dd>
+                This container uses <code>display: grid</code>, and this
+                variable sets the <code>gap</code> css property. Defaults
+                to <code>var(--brand-space2)</code>
+              </dd>
+            </dl>
+
           </div>
 
           <div id="_theme">
