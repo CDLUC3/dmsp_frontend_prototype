@@ -21,6 +21,11 @@
 - Added spacing guidelines to the styleguide
 - Cleaned up the styleguide and added additional text to explain the spacing guidelines
 - Created SCSS helpers/mixins to generate alot of our font sizes,colours and spacing
+- Added `LayoutContainer`, `ContentContainer` and their related styles. [#154]
+- Added a responsive size hook for react that will return the window size on
+  resize. [#154, #110]
+- Added a `LayoutWithSidebar` container, along with a related
+  `SidebarContainer`, and documented their use on the styleguide. [#154, #110]
 
 ### Fixed
 - Removed use of NEXT_PUBLIC_GRAPHQL_ENDPOINT env variable, since it was a duplicate of NEXT_PUBLIC_SERVER_ENDPOINT [#171]
