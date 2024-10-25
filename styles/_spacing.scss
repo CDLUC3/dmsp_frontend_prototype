@@ -1,0 +1,38 @@
+// These are the spacing utilities that are generated from the spacing map.
+
+// Spacing generation
+@mixin generate-spacing-utilities($breakpoint-prefix: '') {
+  @each $space-key, $space-value in $spacing {
+    @each $prop-key, $prop-value in $spacing-properties {
+      @each $direction-key, $direction-value in $spacing-directions {
+        $class-name: #{$prop-key}#{$direction-key}#{$breakpoint-prefix}-#{$space-key};
+
+        @if $direction-value == '' {
+          .#{$class-name} {
+            #{$prop-value}: var(--space-#{$space-key});
+          }
+        } @else if type-of($direction-value) == 'list' {
+          .#{$class-name} {
+            @each $dir in $direction-value {
+              #{$prop-value}#{$dir}: var(--space-#{$space-key});
+            }
+          }
+        } @else {
+          .#{$class-name} {
+            #{$prop-value}#{$direction-value}: var(--space-#{$space-key});
+          }
+        }
+      }
+    }
+  }
+}
+
+// Generate base utilities
+@include generate-spacing-utilities;
+
+// Generate responsive utilities
+@each $breakpoint-name, $breakpoint-value in $breakpoints {
+  @media (min-width: $breakpoint-value) {
+    @include generate-spacing-utilities('-#{$breakpoint-name}');
+  }
+}
