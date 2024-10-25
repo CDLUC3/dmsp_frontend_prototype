@@ -638,12 +638,8 @@ function Page() {
               <div>
                 We should try to use Next Link e.g.
 
-
-                <pre><code>
-                  {`<Link href="/about">About</Link>`}
-                </code></pre>
-
-              </div>
+                <code> {`<Link href="/about">About</Link>`} </code>
+              </p>
             </div>
 
             <h4>Lists</h4>
@@ -1021,11 +1017,11 @@ function Page() {
                   <pre>
                     <code>
                       {`<SomeElement
-                    prop1="A"
-                    prop2="B"
-                    prop3="C"
-                    prop4="D"
-                  \\>`}
+  prop1="A"
+  prop2="B"
+  prop3="C"
+  prop4="D"
+\\>`}
                     </code>
                   </pre>
                 </div>
@@ -1038,16 +1034,15 @@ function Page() {
 
                 <div><pre><code>
                   {`import {
-                              Button,
-                              Label,
-                              TextField,
-                              Input,
-                              FieldError,
-                              Form,
-                            } from "react-area-components";
-                            `}
-                </code></pre>
-                </div>
+  Button,
+  Label,
+  TextField,
+  Input,
+  FieldError,
+  Form,
+} from "react-area-components";
+`}
+                </code></pre></div>
               </li>
 
               <li>
@@ -1060,28 +1055,27 @@ function Page() {
 
                 <div><pre><code>
                   {`.grid-view {
-                    --_gap: var(--grid-list-grid-gap, 1rem);
+    --_gap: var(--grid-list-grid-gap, 1rem);
 
-                    display: grid;
+    display: grid;
 
-                    padding: var(--_gap);
-                    grid-gap: var(--_gap);
-                    grid-template-columns: repeat(4, 1fr);
-                    grid-template-rows: auto;
-                  }
-                `}
-                </code></pre>
-                </div>
+    padding: var(--_gap);
+    grid-gap: var(--_gap);
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+  }
+`}
+                </code></pre></div>
               </li>
             </ul>
 
             <h2><code>Layout Container</code> (Base)</h2>
             <p>The stanard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
             some common container within the layout container.</p>
-            <LayoutContainer style={{'--layout-container-background': 'var(--purple-100)'}}>
+            <LayoutContainer style={{'--layout-container-background': 'var(--slate-200)'}}>
               <ContentContainer>
                 <div><pre><code>
-                  {`<LayoutContainer style={{'--layout-container-background': 'var(--purple-100)'}}>
+                  {`<LayoutContainer style={{'--layout-container-background': 'var(--slate-100)'}}>
   <ContentContainer> ... </ContentContainer>
 </LayoutContainer>
 `}
@@ -1103,7 +1097,7 @@ function Page() {
             </dl>
 
             <h2><code>Content Container</code> (Base)</h2>
-            <ContentContainer style={{'border': '1px solid var(--purple-600)'}}>
+            <ContentContainer style={{'border': '1px solid var(--slate-600)'}}>
               <p>This conteint is wrapped in the following container.</p>
               <p><strong>Note</strong> that the style property is not required
                 to use the container. It's only here to show that you can use it
@@ -1129,7 +1123,7 @@ function Page() {
 
             <h2><code>ToolbarContainer</code> (LayoutContainer)</h2>
             <p><code>LayoutContainer > ToolbarContainer</code></p>
-            <ToolbarContainer style={{'--layout-container-background': 'var(--purple-100)'}}>
+            <ToolbarContainer style={{'--layout-container-background': 'var(--slate-200)'}}>
               <p>Some toolbar text, maybe a Title</p>
               <Button>Button</Button>
             </ToolbarContainer>
