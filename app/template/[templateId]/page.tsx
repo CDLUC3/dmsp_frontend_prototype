@@ -80,6 +80,81 @@ const template: Template = {
         },
       ],
     },
+    {
+      id: 'sec_789101',
+      name: 'Types of Data Produced',
+      link: '/template/tpl_abcdef123456/section/sec_789101',
+      questions: [
+        {
+          id: 'q_mnopqr',
+          name: 'What types of data, samples, collections, software, materials, etc., will be produced during your project?',
+          link: '/template/tpl_abcdef123456/q/q_mnopqr',
+          order: 1,
+        },
+        {
+          id: 'q_stuvwx',
+          name: 'What type of metadata (information others might need to use your data) will be collected during your project?',
+          link: '/template/tpl_abcdef123456/q/q_stuvwx',
+          order: 2,
+        },
+        {
+          id: 'q_yzabcd',
+          name: 'What will be the approximate number and size of data files that will be produced during your project?',
+          link: '/template/tpl_abcdef123456/q/q_yzabcd',
+          order: 3,
+        },
+      ],
+    },
+    {
+      id: 'sec_789101',
+      name: 'Types of Data Produced',
+      link: '/template/tpl_abcdef123456/section/sec_789101',
+      questions: [
+        {
+          id: 'q_mnopqr',
+          name: 'What types of data, samples, collections, software, materials, etc., will be produced during your project?',
+          link: '/template/tpl_abcdef123456/q/q_mnopqr',
+          order: 1,
+        },
+        {
+          id: 'q_stuvwx',
+          name: 'What type of metadata (information others might need to use your data) will be collected during your project?',
+          link: '/template/tpl_abcdef123456/q/q_stuvwx',
+          order: 2,
+        },
+        {
+          id: 'q_yzabcd',
+          name: 'What will be the approximate number and size of data files that will be produced during your project?',
+          link: '/template/tpl_abcdef123456/q/q_yzabcd',
+          order: 3,
+        },
+      ],
+    },
+    {
+      id: 'sec_789101',
+      name: 'Types of Data Produced',
+      link: '/template/tpl_abcdef123456/section/sec_789101',
+      questions: [
+        {
+          id: 'q_mnopqr',
+          name: 'What types of data, samples, collections, software, materials, etc., will be produced during your project?',
+          link: '/template/tpl_abcdef123456/q/q_mnopqr',
+          order: 1,
+        },
+        {
+          id: 'q_stuvwx',
+          name: 'What type of metadata (information others might need to use your data) will be collected during your project?',
+          link: '/template/tpl_abcdef123456/q/q_stuvwx',
+          order: 2,
+        },
+        {
+          id: 'q_yzabcd',
+          name: 'What will be the approximate number and size of data files that will be produced during your project?',
+          link: '/template/tpl_abcdef123456/q/q_yzabcd',
+          order: 3,
+        },
+      ],
+    },
   ],
 };
 
@@ -166,7 +241,82 @@ const TemplateEditPage: React.FC = () => {
 
 
         </div>
+        <aside className="sidebar">
+          <div className="sidebar-inner">
+            <h2>Template Settings</h2>
+            <div className="sidebar-section">
+              <h5 className="sidebar-section-title">Preview</h5>
+              <p>
+                See how this template will appear to others
+              </p>
+              <Button className="my-3" onPress={() => console.log('Preview')}>Preview
+                template</Button>
+            </div>
 
+            <div className="sidebar-section">
+              <h5 className="sidebar-section-title">Published Status</h5>
+              <div className="status">Draft</div>
+            </div>
+
+            <div className="sidebar-section">
+              <h5 className="sidebar-section-title">Visibility Settings</h5>
+              <div className="status">Not Published</div>
+            </div>
+
+            <div className="sidebar-section">
+              <h5 className="sidebar-section-title">Draft</h5>
+              <Button data-secondary className="my-3 secondary"
+                      onPress={() => console.log('Save draft')}>
+                Save as draft
+              </Button>
+              <div className="">
+                <p>
+                  When you save as draft, only you and others in your
+                  organization
+                  will be able to see this template.
+                </p>
+                <p>
+                  <a href="#" className="learn-more">Learn more</a>
+                </p>
+
+
+              </div>
+            </div>
+
+
+            <div className="sidebar-section">
+              <h5 className="sidebar-section-title">Publishing</h5>
+
+
+              <Button className="my-3" onPress={() => console.log('Publish')}>Publish
+                template</Button>
+              <div className="">
+                <p>
+                  When you save and publish, this version of the template will
+                  become visible. The previous version will be archived.
+                </p>
+
+                <p>
+                  <a href="#" className="learn-more">Learn more</a>
+                </p>
+              </div>
+            </div>
+
+            <div className="sidebar-section">
+              <h5 className="sidebar-section-title">Feedback &
+                Collaboration</h5>
+              <div className="description">
+                <p>
+                  Allow people to access, edit or comment on this plan
+                </p>
+              </div>
+              <Button className="button-link mt-4"
+                      onPress={() => console.log('Manage access')}>
+                Manage Access
+              </Button>
+            </div>
+          </div>
+        </aside>
       </div>
 
 

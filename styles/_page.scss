@@ -169,12 +169,14 @@ footer {
   text-decoration: none;
   cursor: pointer;
   padding: 0;
+
 }
 
 .back-link-button:hover,
 .back-link-button:focus {
-  color: var(--purple-600);
+  color: var(--slate-900);
   text-decoration: underline;
+  background: transparent!important;
 }
 
 

@@ -43,7 +43,7 @@ $font-sizes: (
 $colors: (
   'brand': (
     'primary': rgb(0, 85, 129),
-    'secondary': rgb(14, 130, 86),
+    'secondary': #444444,
     'tertiary': rgb(207, 72, 23)
   ),
   'gray': (
@@ -305,3 +305,19 @@ body {
 @import "elements";
 @import "messages";
 @import "page";
+
+
+.sidebar-section{
+  margin-bottom: var(--space-5);
+}
+.sidebar-section-title{
+  margin-bottom: var(--space-2);
+}
+.sidebar{
+  position: relative;
+}
+.sidebar-inner{
+  position: sticky;
+  top: 0;
+  margin-top: var(--space-5);
+}
