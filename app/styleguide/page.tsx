@@ -473,45 +473,88 @@ function Page() {
             <p>Our type scale is based on a 16px base size (1rem) with
               consistent scaling for readability.</p>
 
+
             <div className="type-scale-examples">
               <div className="type-example">
-                <h1 style={{fontSize: 'var(--fs-4xl)'}}>Heading 1 - 2.25rem
+                <p>Normal paragraph text</p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+
+              </div>
+
+
+              <div className="type-example">
+                <h1>Heading 1 - 1.5rem
+                  (24px)</h1>
+              </div>
+
+              <div className="type-example">
+                <h2>Heading 2 - 1.25rem
+                  (20px)</h2>
+
+              </div>
+
+              <div className="type-example">
+                <h3>Heading 3 - 1.125rem
+                  (18px)</h3>
+
+              </div>
+
+              <div className="type-example">
+                <h4>Heading 4 - 1rem
+                  (16px)</h4>
+
+              </div>
+
+              <div className="type-example">
+                <h5>Heading 5 - 0.875rem
+                  (14px)</h5>
+
+              </div>
+
+            </div>
+
+
+            <div className="type-scale-examples">
+              <div className="type-example">
+                <h1 style={{fontSize: 'var(--fs-4xl)'}}>4xl - 2.25rem
                   (36px)</h1>
                 <code>--fs-4xl</code>
               </div>
 
               <div className="type-example">
-                <h2 style={{fontSize: 'var(--fs-3xl)'}}>Heading 2 - 1.875rem
+                <h2 style={{fontSize: 'var(--fs-3xl)'}}>3xl - 1.875rem
                   (30px)</h2>
                 <code>--fs-3xl</code>
               </div>
 
               <div className="type-example">
-                <h3 style={{fontSize: 'var(--fs-2xl)'}}>Heading 3 - 1.5rem
+                <h3 style={{fontSize: 'var(--fs-2xl)'}}>2xl - 1.5rem
                   (24px)</h3>
                 <code>--fs-2xl</code>
               </div>
 
               <div className="type-example">
-                <h4 style={{fontSize: 'var(--fs-xl)'}}>Heading 4 - 1.25rem
+                <h4 style={{fontSize: 'var(--fs-xl)'}}>xl - 1.25rem
                   (20px)</h4>
                 <code>--fs-xl</code>
               </div>
 
               <div className="type-example">
-                <h5 style={{fontSize: 'var(--fs-lg)'}}>Heading 5 - 1.125rem
+                <h5 style={{fontSize: 'var(--fs-lg)'}}>lg - 1.125rem
                   (18px)</h5>
                 <code>--fs-lg</code>
               </div>
 
               <div className="type-example">
-                <h6 style={{fontSize: 'var(--fs-base)'}}>Heading 6 - 1rem
+                <h6 style={{fontSize: 'var(--fs-base)'}}>base - 1rem
                   (16px)</h6>
                 <code>--fs-base</code>
               </div>
 
               <div className="type-example">
-                <p style={{fontSize: 'var(--fs-small)'}}>Small Text - 0.875rem
+                <p style={{fontSize: 'var(--fs-small)'}}>Small - 0.875rem
                   (14px)</p>
                 <code>--fs-small</code>
               </div>
@@ -860,7 +903,7 @@ function Page() {
               using responsive prefixes.</p>
 
             <div className="responsive-examples">
-              <code>mt-2 md:mt-4 lg:mt-6</code>
+              <code>mt-2 mt-md-4 mt-lg-6</code>
               <ul>
                 <li>Default: 0.5rem margin-top</li>
                 <li>md (768px): 1rem margin-top</li>
@@ -951,14 +994,17 @@ function Page() {
                 find specific
                 properties, and easier to add &amp; remove. Eg.
 
-                <div><pre><code>
+                <div>
+                  <pre>
+                  <code>
                   {`<SomeElement
-  prop1="A"
-  prop2="B"
-  prop3="C"
-  prop4="D"
-\\>`}
-                </code></pre>
+                    prop1="A"
+                    prop2="B"
+                    prop3="C"
+                    prop4="D"
+                  \\>`}
+                </code>
+                </pre>
                 </div>
               </li>
 
@@ -969,14 +1015,14 @@ function Page() {
 
                 <div><pre><code>
                   {`import {
-  Button,
-  Label,
-  TextField,
-  Input,
-  FieldError,
-  Form,
-} from "react-area-components";
-`}
+                              Button,
+                              Label,
+                              TextField,
+                              Input,
+                              FieldError,
+                              Form,
+                            } from "react-area-components";
+                            `}
                 </code></pre>
                 </div>
               </li>
@@ -991,16 +1037,16 @@ function Page() {
 
                 <div><pre><code>
                   {`.grid-view {
-  --_gap: var(--grid-list-grid-gap, 1rem);
+                    --_gap: var(--grid-list-grid-gap, 1rem);
 
-  display: grid;
+                    display: grid;
 
-  padding: var(--_gap);
-  grid-gap: var(--_gap);
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: auto;
-}
-`}
+                    padding: var(--_gap);
+                    grid-gap: var(--_gap);
+                    grid-template-columns: repeat(4, 1fr);
+                    grid-template-rows: auto;
+                  }
+                `}
                 </code></pre>
                 </div>
               </li>

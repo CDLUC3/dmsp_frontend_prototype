@@ -30,11 +30,12 @@ $spacing-directions: (
 );
 
 $font-sizes: (
-  'small': 0.875rem, // 14px
-  'base': 1rem, // 16px
-  'lg': 1.125rem, // 18px
-  'xl': 1.25rem, // 20px
-  '2xl': 1.5rem, // 24px
+  'xsmall': 0.75rem, // 12px micro text
+  'small': 0.875rem, // 14px h5 - "special heading" and small text
+  'base': 1rem, // 16px h4 and p tag
+  'lg': 1.125rem, // 18px h3
+  'xl': 1.25rem, // 20px h2
+  '2xl': 1.5rem, // 24px  h1
   '3xl': 1.875rem, // 30px
   '4xl': 2.25rem // 36px
 );
@@ -96,6 +97,8 @@ html, body {
 
 
 :root {
+  --scale-mobile: 0.875; // Reduces font size by 12.5% on mobile
+
   --font-family: 'Inter', sans-serif;
   --font-family-monospace: 'Fira Code', monospace;
   --font-family-heading: 'Inter', sans-serif;
@@ -126,6 +129,7 @@ html, body {
   --lh-loose: 1.8;
 
 
+  --fw-normal: 400;
   --fw-bold: 600;
 
 
@@ -139,10 +143,23 @@ html, body {
   --highlight-pressed: rgb(0 0 0 / 0.15);
   --highlight-overlay: rgb(from #6f46ed r g b / 15%);
 
+  --highlight-background: var(--brand-primary);
+  --highlight-background-pressed: var(--brand-primary);
+  --highlight-background-invalid: var(--brand-error);
+  --highlight-foreground: var(--bg-white);
+  --highlight-foreground-pressed: var(--bg-white);
+  --highlight-foreground-invalid: var(--brand-error);
+
+  --selected-color: var(--brand-primary);
+  --selected-color-pressed: var(--brand-primary);
+  --checkmark-color: var(--bg-white, #fffff) !important;
+  --overlay-background: var(--bg-white);
+
   // Focus
   --focus-ring: #3B82F6;
   --focus-ring-offset: 2px;
   --focus-ring-color: var(--purple-400);
+
 
   // Card
   --card-background: var(--gray-50);
@@ -159,8 +176,8 @@ html, body {
   --text-color-placeholder: var(--gray-400);
 
   // Links
-  --link-color: var(--purple-500);
-  --link-color-secondary: var(--gray-500);
+  --link-color: var(--brand-primary);
+  --link-color-secondary: var(--brand-secondary);
   --link-color-pressed: var(--purple-600);
   --link-hover-color: var(--brand-tertiary);
 
@@ -190,7 +207,7 @@ html, body {
 
   // Error
   --brand-error: var(--red-500);
-  --invalid-color : var(--red-500);
+  --invalid-color: var(--red-500);
 
   // Legacy spacing (kept for backwards compatibility)
   --brand-space1: 0.5em;
@@ -245,7 +262,7 @@ html {
 }
 
 body {
-  font-family:  var(--font-family), "Inter", sans-serif;
+  font-family: var(--font-family), "Inter", sans-serif;
   font-size: var(--fs-base);
   color: var(--text-color);
   background-color: var(--background-color);

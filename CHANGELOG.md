@@ -1,9 +1,16 @@
 ### Added
 - Added spacing guidelines to the styleguide
 - Cleaned up the styleguide and added additional text to explain the spacing guidelines
-- Created SCSS helpers/mixins to generate alot of our colours and spacing
+- Created SCSS helpers/mixins to generate alot of our font sizes,colours and spacing
 
 ### Added
+=======
+- Made some updates related to authentication [#142]
+- Updated middleware to redirect to /login if both access token and refresh token is missing
+- Updated refreshAuthTokens method to throw errors that will be caught gqlErrorHandler
+- Updated gqlErrorHandler to redirect to /login when refreshAuthTokens returns an error
+- Updated template history page to use handleApolloErrors, and updated handleApolloErrors to have a router param
+- Updated client-graphql-test page to pass router to handleApolloErrors
 - Added confirm-email server-side component, and email-confirmed and verification-failed client components for email alias verification [#125]
 - Checkbox & Checkbox group component [#75]
 - Radio component [#75]

@@ -1,10 +1,11 @@
-import React, { ReactNode } from 'react';
-import { render, screen } from '@testing-library/react';
+import React, {ReactNode} from 'react';
+import {render, screen} from '@testing-library/react';
 import TemplateHistory from '../page';
-import { useTemplateVersionsQuery } from '@/generated/graphql';
-import { MockedProvider } from '@apollo/client/testing';
-import { useParams } from 'next/navigation';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {useTemplateVersionsQuery} from '@/generated/graphql';
+import {MockedProvider} from '@apollo/client/testing';
+import {useParams, useRouter} from 'next/navigation';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {handleApolloErrors} from "@/utils/gqlErrorHandler";
 import mockData from './mockedResponse.json'
 
 expect.extend(toHaveNoViolations);
@@ -15,7 +16,12 @@ jest.mock('@/generated/graphql', () => ({
 
 jest.mock('next/navigation', () => ({
     useParams: jest.fn(),
+    useRouter: jest.fn()
 }))
+
+jest.mock('@/utils/gqlErrorHandler', () => ({
+    handleApolloErrors: jest.fn()
+}));
 
 jest.mock('@/components/BackButton', () => {
     return {
@@ -34,10 +40,15 @@ jest.mock('@/components/PageWrapper', () => {
     }
 });
 
+const mockUseRouter = useRouter as jest.Mock;
+
 describe('TemplateHistory', () => {
     beforeEach(() => {
         const mockTemplateId = 123;
         const mockUseParams = useParams as jest.Mock;
+        mockUseRouter.mockReturnValue({
+            push: jest.fn(),
+        })
 
         // Mock the return value of useParams
         mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
@@ -80,11 +91,37 @@ describe('TemplateHistory', () => {
         expect(screen.getByText('Loading publication history...')).toBeInTheDocument();
     });
 
-    it('should render error state correctly', () => {
-        (useTemplateVersionsQuery as jest.Mock).mockReturnValue({ loading: false, error: new Error('Test Error') });
+    it('should handle graphQL error state correctly', async () => {
+        const router = { push: jest.fn() };
+        (useRouter as jest.Mock).mockReturnValue(router);
+
+        // Mock the Apollo error object
+        const errorObj = {
+            graphQLErrors: [
+                {
+                    message: 'Unauthenticated',
+                    extensions: { code: 'UNAUTHENTICATED' }
+                }
+            ],
+            networkError: null,
+        };
+
+        // Mock handleApolloErrors to simulate calling setErrors
+        (handleApolloErrors as jest.Mock).mockImplementation(
+            async (graphQLErrors, networkError, setErrorsFn) => {
+                setErrorsFn(['There was a problem.']);
+            }
+        );
+
+        // Mock useTemplateVersionsQuery to simulate the error state
+        (useTemplateVersionsQuery as jest.Mock).mockReturnValue({
+            loading: false,
+            error: errorObj,
+            refetch: jest.fn(),
+        });
 
         render(<TemplateHistory />);
-        expect(screen.getByText('There was a problem.')).toBeInTheDocument();
+        expect(await screen.findByText('There was a problem.')).toBeInTheDocument();
     });
 
     it('should render page heading and subheader correctly, which includes the title, by, version and date of latest publication', async () => {

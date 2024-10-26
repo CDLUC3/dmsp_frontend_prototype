@@ -1,62 +1,82 @@
-/**
- * @jest-environment node
- */
-
 import {NextRequest, NextResponse} from 'next/server';
 import {middleware} from '../middleware';
-import {verifyJwtToken} from '../lib/server/auth';
-import {getAuthTokenServer} from '@/utils/getAuthTokenServer';
 
-
-jest.mock('../lib/server/auth', () => ({
-    verifyJwtToken: jest.fn(),
+jest.mock('next/server', () => ({
+    NextResponse: {
+        next: jest.fn(),
+        redirect: jest.fn(),
+    },
 }));
 
-jest.mock('@/utils/getAuthTokenServer', () => ({
-    getAuthTokenServer: jest.fn(),
-}));
-
-jest.mock('@/utils/cookiesUtil', () => ({
-    deleteCookie: jest.fn()
-}))
-
-describe('middleware.ts', () => {
-    let redirectSpy: jest.SpyInstance;
+describe('middleware', () => {
+    let request: NextRequest;
+    let response: NextResponse;
 
     beforeEach(() => {
-        redirectSpy = jest.spyOn(NextResponse, 'redirect');
+        // Reset mocks before each test
         jest.clearAllMocks();
+
+        // Mock request and response objects
+        response = {
+            headers: {
+                set: jest.fn(),
+            },
+        } as unknown as NextResponse;
+
+        request = {
+            cookies: {
+                get: jest.fn(),
+            },
+            nextUrl: {
+                pathname: '',
+                href: 'http://localhost/test',
+            },
+            url: 'http://localhost/test',
+        } as unknown as NextRequest;
+
+        (NextResponse.next as jest.Mock).mockReturnValue(response);
     });
 
-    afterEach(() => {
-        redirectSpy.mockRestore();
-    })
+    it('should return next response when no protected path is matched', async () => {
+        request.nextUrl.pathname = '/public';
 
+        const result = await middleware(request);
 
-    it('should allow access to protected routes if token is valid and include correct header', async () => {
-        (getAuthTokenServer as jest.Mock).mockResolvedValue('valid_token');
-        const request = new NextRequest(new Request('http://localhost:3000/dmps/123'));
-        (verifyJwtToken as jest.Mock).mockImplementation(() => true);
-        const response = await middleware(request);
-        expect(response.status).toEqual(200);
-        expect(response.headers.get('x-url')).toBe('http://localhost:3000/dmps/123');
+        expect(NextResponse.next).toHaveBeenCalled();
+        expect(result).toBe(response);
     });
 
-    it('should not redirect if user is not logged in and visits /login', async () => {
-        (getAuthTokenServer as jest.Mock).mockResolvedValue(undefined);
-        const request = new NextRequest(new Request('http://localhost:3000/login'));
-        const response = await middleware(request);
+    it('should redirect to /login if both tokens are missing and path is protected', async () => {
+        request.nextUrl.pathname = '/dmps/';
+        request.cookies.get = jest.fn().mockReturnValue(undefined); // No tokens
 
-        expect(redirectSpy).not.toHaveBeenCalled();
-        expect(response.status).toEqual(200);
+        const result = await middleware(request);
+
+        expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', request.url));
+        expect(result).toBe(NextResponse.redirect());
     });
 
-    it('should not redirect if user visits /email/', async () => {
-        (getAuthTokenServer as jest.Mock).mockResolvedValue(undefined);
-        const request = new NextRequest(new Request('http://localhost:3000/email/confirm-email'));
-        const response = await middleware(request);
+    it('should set custom header for /dmps path', async () => {
+        request.nextUrl.pathname = '/dmps';
 
-        expect(redirectSpy).not.toHaveBeenCalled();
-        expect(response.status).toEqual(200);
+        const result = await middleware(request);
+
+        expect(NextResponse.next).toHaveBeenCalled();
+        expect(response.headers.set).toHaveBeenCalledWith('x-url', request.nextUrl.href);
+        expect(result).toBe(response);
+    });
+
+    it('should not redirect if at least one token is present on protected path', async () => {
+        request.nextUrl.pathname = '/protected';
+        request.cookies.get = jest.fn().mockImplementation((key) => {
+            if (key === 'dmspt') return 'accessToken'; // Simulate accessToken is present
+            return undefined;
+        });
+
+        const result = await middleware(request);
+
+        expect(NextResponse.next).toHaveBeenCalled();
+        expect(NextResponse.redirect).not.toHaveBeenCalled();
+        expect(result).toBe(response);
     });
 });

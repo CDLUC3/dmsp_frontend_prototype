@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useContributorRolesQuery } from "@/generated/graphql";
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import React, {useEffect, useState} from "react";
+import {useContributorRolesQuery} from "@/generated/graphql";
+import {handleApolloErrors} from "@/utils/gqlErrorHandler";
+import {useRouter} from 'next/navigation';
 
 export default function Page() {
     const [errors, setErrors] = useState<string[]>([]);
     const { data, loading, error, refetch } = useContributorRolesQuery();
+    const router = useRouter();
     let roles;
 
     // UseEffect to handle async error handling
@@ -17,7 +19,8 @@ export default function Page() {
                     error.graphQLErrors,
                     error.networkError,
                     setErrors,
-                    refetch
+                    refetch,
+                    router
                 );
             };
 

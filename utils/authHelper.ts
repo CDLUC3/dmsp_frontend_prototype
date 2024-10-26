@@ -1,9 +1,7 @@
-
 import logECS from '@/utils/clientLogger';
 
 export const refreshAuthTokens = async () => {
   try {
-
     // Get CSRF token first
     const crsfFetchResponse = await fetchCsrfToken();
     if (crsfFetchResponse) {
@@ -24,10 +22,10 @@ export const refreshAuthTokens = async () => {
             if (response.status === 401) {
               window.location.href = '/login';
             }
-            logECS('error', `Error response from refreshing auth tokens`, {
+            logECS('error', `Error in response from refreshing auth tokens - ${response.status}`, {
               source: 'refreshAuthTokens'
             });
-            return {}
+            throw new Error(`Error in response from refreshing auth tokens - ${response.status}`);
           }
 
           if (response) {
@@ -38,19 +36,22 @@ export const refreshAuthTokens = async () => {
           logECS('error', `Error refreshing auth tokens ${err}`, {
             source: 'refreshAuthTokens'
           });
-          return {}
+          throw new Error('Error refreshing auth tokens');
         }
 
       } else {
-        return {}
+        logECS('error', 'Forbidden. No csrf token', {
+          source: 'refreshAuthTokens'
+        });
+        throw new Error('Forbidden. No csrf token');
       }
     }
 
   } catch (err) {
-    logECS('error', `Error refreshing auth tokens: ${err}`, {
+    logECS('error', `Error refreshing auth token: ${err}`, {
       source: 'refreshAuthTokens'
     });
-    return {}
+    throw new Error('Error refreshing auth token');
   }
 };
 

@@ -7,10 +7,7 @@ import {createApolloClient} from '@/lib/graphql/client/apollo-client';
 
 import Spinner from '@/components/Spinner';
 import classNames from 'classnames';
-import styles
-  from '@/components/TypeAheadWithOther/typeaheadWithOther.module.scss';
-
-
+import styles from './typeaheadWithOther.module.scss';
 import logECS from '@/utils/clientLogger';
 
 type TypeAheadInputProps = {
