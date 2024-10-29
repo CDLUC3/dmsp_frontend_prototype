@@ -1191,7 +1191,7 @@ function Page() {
                 <h3>Layout With Sidebar</h3>
                 <p>This is the primary content for the slider component</p>
                 <div><pre><code>
-                  {`<LayoutWithSidebar direction="right">
+                  {`<LayoutWithSidebar sidebarPosition="right">
   <ToolbarContainer> ... </ToolbarContainer>
   <SidebarContainer> ... </SidebarContainer>
   <ContentContainer> ... </ContentContainer>
