@@ -13,6 +13,7 @@
   box-sizing: border-box;
   width: 100%;
   padding: var(--layout-content-padding, var(--brand-space2));
+  background-color: var(--layout-content-background, white);
   > :first-child { margin-top: 0; }
 }
 

@@ -12,7 +12,7 @@ type SizeName =
   'xl' |
   'xxl';
 
-const breakpoints = [
+const breakpoints: [number, SizeName][] = [
   [0, 'xs'],
   [640, 'sm'],
   [768, 'md'],
@@ -23,7 +23,7 @@ const breakpoints = [
 
 export interface DeviceProps {
   viewport: [number, number];
-  deviceSize: string;
+  deviceSize: SizeName | null;
 }
 
 export const getSizeByName = (name: string) => {
@@ -34,17 +34,19 @@ export const getSizeByWidth = (w: number) => {
   return breakpoints.find(rs => rs[0] == w);
 }
 
-export const getDeviceSize = (w: number): string => {
-  let size: string;
+export const getDeviceSize = (w: number): SizeName => {
+  let size: SizeName = "xs";
+
   breakpoints.forEach((br) => {
     if (br[0] < w) size = br[1];
   });
+
   return size;
 }
 
 export const useResponsive = (): DeviceProps => {
-  const [deviceSize, setDeviceSize] = useState(null);
-  const [viewport, setViewport] = useState([0, 0]);
+  const [deviceSize, setDeviceSize] = useState<SizeName | null>(null);
+  const [viewport, setViewport] = useState<[number, number]>([0, 0]);
 
   useEffect(() => {
     function updateDevice() {
@@ -63,6 +65,6 @@ export const useResponsive = (): DeviceProps => {
 
   return {
     viewport: viewport,
-    breakpoint: deviceSize,
+    deviceSize: deviceSize,
   };
 }

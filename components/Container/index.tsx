@@ -1,6 +1,12 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  CSSProperties,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
+
 import {
   Modal,
   ModalOverlay,
@@ -17,8 +23,8 @@ import {
 import './containers.scss';
 
 
-type Direction = 'left' | 'right';
-
+// Extend the CSSProps so that we can actually add css variables to tags.
+type CustomCSSProperties = CSSProperties & Record<string, string>;
 
 /**
  * This is the base layout component. Our custom layout components should
@@ -26,6 +32,7 @@ type Direction = 'left' | 'right';
  * layout containers.
  */
 interface LayoutContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+  style?: CustomCSSProperties,
 }
 
 export const LayoutContainer: React.FC<LayoutContainerProps> = ({
@@ -53,6 +60,7 @@ export const LayoutContainer: React.FC<LayoutContainerProps> = ({
  * inside a LayoutContainer.
  */
 interface ContentContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+  style?: CustomCSSProperties,
 }
 
 export const ContentContainer: React.FC<ContentContainerProps> = ({
@@ -102,7 +110,7 @@ export const ToolbarContainer: React.FC<LayoutContainerProps> = ({
  * Layout with a dynamic sidebar
  */
 interface LayoutWithSidebarProps extends LayoutContainerProps {
-  sidebarPosition: Direction,
+  sidebarPosition: "left" | "right",
 }
 
 export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
@@ -115,22 +123,18 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
    * and the direction where it will slide out of view.
    */
   sidebarPosition = 'right',
-
-  /**
-   * A handler that can notify components higher up the stack that the
-   * container changed state in some way.
-   */
-  onChange,
 }) => {
-  const thisRef = useRef(null);
+  const thisRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (thisRef) {
-      const toolbar = thisRef.current.querySelector('.layout-toolbar-container');
-      if (toolbar) {
-        thisRef.current.classList.add('with-toolbar');
-      } else {
-        thisRef.current.classList.remove('with-toolbar');
+      if (thisRef.current) {
+        const toolbar = thisRef.current.querySelector('.layout-toolbar-container');
+        if (toolbar) {
+          thisRef.current.classList.add('with-toolbar');
+        } else {
+          thisRef.current.classList.remove('with-toolbar');
+        }
       }
     }
   }, []);
@@ -149,7 +153,7 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
 }
 
 interface SidebarContainerProps extends ContentContainerProps {
-  isOpen: Bool;
+  isOpen?: Boolean;
 }
 
 export const SidebarContainer: React.FC<SidebarContainerProps> = ({

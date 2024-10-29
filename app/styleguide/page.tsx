@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Cell,
@@ -337,7 +337,7 @@ function Page() {
 
   const [editorContent, setEditorContent] = useState(richtextDefault);
 
-  const [sidebarDirection, setSidebarDirection] = useState('right');
+  const [sidebarDirection, setSidebarDirection] = useState<"left" | "right">('right');
   const toggleSidebarDirection = () => {
     if (sidebarDirection == 'right') setSidebarDirection('left');
     else setSidebarDirection('right');
@@ -1068,9 +1068,11 @@ function Page() {
                 </code></pre></div>
               </li>
             </ul>
+          </div>
 
+          <div id="_containers">
             <h2><code>Layout Container</code> (Base)</h2>
-            <p>The stanard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
+            <p>The standard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
             some common container within the layout container.</p>
             <LayoutContainer style={{'--layout-container-background': 'var(--slate-200)'}}>
               <ContentContainer>
@@ -1122,7 +1124,7 @@ function Page() {
             </dl>
 
             <h2><code>ToolbarContainer</code> (LayoutContainer)</h2>
-            <p><code>LayoutContainer > ToolbarContainer</code></p>
+            <p><code>LayoutContainer &gt; ToolbarContainer</code></p>
             <ToolbarContainer style={{'--layout-container-background': 'var(--slate-200)'}}>
               <p>Some toolbar text, maybe a Title</p>
               <Button>Button</Button>
@@ -1142,8 +1144,8 @@ function Page() {
             <h2>Sidebar Container (Composite)</h2>
             <p>This is a composite layout component than contains a sidebar
               alongside a content container.</p>
-            <p><code>LayoutContainer > LayoutWithSidebar</code></p>
-            <p><code>ContentContainer > SidebarContainer</code></p>
+            <p><code>LayoutContainer &gt; LayoutWithSidebar</code></p>
+            <p><code>ContentContainer &gt; SidebarContainer</code></p>
             <ToolbarContainer>
               <Button onPress={toggleSidebarDirection}>Toggle Direction</Button>
               <Button onPress={toggleSidebar}>Toggle Sidebar</Button>
@@ -1158,7 +1160,7 @@ function Page() {
                 <p>This is the primary content for the slider component</p>
 
                 <div><pre><code>
-                  {`<LayoutWithSidebar direction="right">
+                  {`<LayoutWithSidebar sidebarPosition="right">
   <SidebarContainer> ... </SidebarContainer>
   <ContentContainer> ... </ContentContainer>
 </LayoutWithSidebar>
@@ -1167,14 +1169,16 @@ function Page() {
               </ContentContainer>
             </LayoutWithSidebar>
 
-            <p><code>LayoutWithSidebar</code> can have a
-              <code>ToolbarContainer</code> in addition to the sidebar.</p>
+            <p>
+              <code>LayoutWithSidebar</code>
+              can have a <code>ToolbarContainer</code> in addition to the sidebar.
+            </p>
             <p>Note how in the previous example, the toolbar that demonstrates
               the sidebar position and state, is <em>outside</em>
               the <code>LayoutWithSidebar</code>, where in the example below, it's
               part of it.</p>
 
-            <LayoutWithSidebar direction="right" className="sg-sidebar">
+            <LayoutWithSidebar sidebarPosition="right" className="sg-sidebar">
               <ToolbarContainer>
                 <p>This is a toolbar inside <code>LayoutWithSidebar</code></p>
               </ToolbarContainer>
@@ -1196,6 +1200,24 @@ function Page() {
                 </code></pre></div>
               </ContentContainer>
             </LayoutWithSidebar>
+
+            <h3>LayoutWithSidebar Properties</h3>
+            <dl>
+              <dt><code>sidebarPosition: (left | right)</code></dt>
+              <dd>
+                Tells the layoutcontainer on what side we want the sidebar to appear.
+                Defaults to <code>left</code>.
+              </dd>
+            </dl>
+
+            <h3>SidebarContainer Properties</h3>
+            <dl>
+              <dt><code>isOpen</code></dt>
+              <dd>
+                This is a property that will toggle the open/close state for
+                the sidebar. Defaults to <code>true</code>.
+              </dd>
+            </dl>
 
             <h3>CSS Variables</h3>
             <p>Since this layout inherrits from <code>LayoutContainer</code>
