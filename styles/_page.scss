@@ -25,7 +25,8 @@ header {
   row-gap: var(--brand-space3);
   background-color: var(--brand-primary);
   color: var(--text-color);
-  font-size: 1.1em;
+  font-size: 1rem;
+  border-bottom: 1px solid #eee;
 
   h1 {
     --heading-color: white;

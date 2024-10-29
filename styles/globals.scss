@@ -92,7 +92,6 @@ $colors: (
 
 html, body {
   margin: 0;
-  overflow: auto;
 }
 
 
@@ -317,7 +316,11 @@ body {
   position: relative;
 }
 .sidebar-inner{
-  position: sticky;
-  top: 0;
   margin-top: var(--space-5);
+  @include device(xxl) {
+    position: sticky;
+    top: 0;
+  }
+
+
 }

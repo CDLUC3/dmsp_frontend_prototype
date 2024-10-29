@@ -5,6 +5,7 @@ import {Breadcrumb, Breadcrumbs, Button, Link} from 'react-aria-components';
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import PageHeader from "@/components/PageHeader";
+import AddQuestionButton from "@/components/AddQuestionButton";
 
 interface Question {
   id: string;
@@ -204,12 +205,12 @@ const TemplateEditPage: React.FC = () => {
 
                   />
                 ))}
+                <AddQuestionButton
+                  href={`/template/${template.id}/q/select?section_id=${section.id}`}
+                />
               </div>
+
             ))}
-            <Button
-              className="add-question-button tertiary mx-auto">
-              + Add question
-            </Button>
 
           </div>
 
@@ -218,24 +219,6 @@ const TemplateEditPage: React.FC = () => {
               className="add-section-button tertiary"
             >
               + Add new section
-            </Button>
-          </div>
-
-
-          <div style={{marginTop: '30px'}}>
-            <Button
-            >
-              Save as draft
-            </Button>
-            <Button
-
-            >
-              Preview template
-            </Button>
-            <Button
-
-            >
-              Save and publish
             </Button>
           </div>
 
@@ -310,10 +293,11 @@ const TemplateEditPage: React.FC = () => {
                   Allow people to access, edit or comment on this plan
                 </p>
               </div>
-              <Button className="button-link mt-4"
-                      onPress={() => console.log('Manage access')}>
+              <Link className="learn-more"
+                    href="/template/tpl_abcdef123456/access">
+
                 Manage Access
-              </Button>
+              </Link>
             </div>
           </div>
         </aside>
