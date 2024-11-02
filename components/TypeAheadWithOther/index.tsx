@@ -27,12 +27,14 @@ type TypeAheadInputProps = {
     fieldName: string;
     required: boolean;
     error: string;
-    updateFormData: Function; //Function to update the typeahead field value in the parent form data
+    updateAffiliationFormData: Function; //Function to update the typeahead field value in the parent form data
+    value: string;
 }
 
 type SuggestionInterface = {
     id: string;
     displayName: string;
+    uri: string;
 }
 
 const TypeAheadWithOther = ({
@@ -44,7 +46,8 @@ const TypeAheadWithOther = ({
     fieldName,
     required,
     error,
-    updateFormData
+    updateAffiliationFormData,
+    value
 }: TypeAheadInputProps) => {
     const [inputValue, setInputValue] = useState('');
     const [errorMessage, setErrorMessage] = useState<string>('');
@@ -59,6 +62,7 @@ const TypeAheadWithOther = ({
     const inputRef = useRef<HTMLInputElement | null>(null);
     const listRef = useRef<HTMLUListElement | null>(null);
     const listItemRefs = useRef<(HTMLLIElement | null)[]>([]);
+
 
     const client = createApolloClient();
     if (!client) {
@@ -78,14 +82,15 @@ const TypeAheadWithOther = ({
 
     const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
+        const dataId = (e.target as HTMLElement).dataset.id;
         setInputValue(value);
 
         if (value) {
             validateField(value);
-            await updateFormData(value);
+            await updateAffiliationFormData(dataId, value);
         } else {
             setErrorMessage('');
-            await updateFormData('');
+            await updateAffiliationFormData({});
         }
     }
 
@@ -95,11 +100,14 @@ const TypeAheadWithOther = ({
         setOtherField(false);
     }
 
-    const handleSelection = (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
+    const handleSelection = async (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
         setOpen(false);
         const item = (e.target as HTMLLIElement | HTMLInputElement).innerText?.toString() ||
             (e.target as HTMLLIElement | HTMLInputElement).value?.toString();
         const activeDescendentId = (e.target as HTMLLIElement | HTMLInputElement).id;
+
+        const dataId = (e.target as HTMLElement).dataset.id;
+        await updateAffiliationFormData(dataId, item);
 
         setSelected(item);
         setInputValue(item);
@@ -194,6 +202,10 @@ const TypeAheadWithOther = ({
                 break;
         }
     }
+
+    useEffect(() => {
+        setInputValue(value);
+    }, [])
 
     useEffect(() => {
         if (!errorMessage) {
@@ -393,7 +405,7 @@ const TypeAheadWithOther = ({
                                             className={styles.autocompleteItem}
                                             id={`autocompleteItem-${index + 1}`}
                                             role='listitem'
-                                            data-id={suggestion.id}
+                                            data-id={suggestion?.uri}
                                             onClick={handleSelection}
                                             tabIndex={-1}
                                             ref={(el) => {

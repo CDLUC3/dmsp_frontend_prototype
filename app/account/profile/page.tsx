@@ -14,10 +14,14 @@ import {
 } from "react-aria-components";
 
 import { useRouter } from 'next/navigation';
+
+import { useUpdateUserProfileMutation } from '@/generated/graphql';
+
 import { MySelect } from '@/components/MySelect';
 
 import { useUserQuery } from '@/generated/graphql';
 import { AffiliationsDocument } from '@/generated/graphql';
+import { useLanguagesQuery } from '@/generated/graphql';
 
 import PageWrapper from '@/components/PageWrapper';
 import ContentContainer from '@/components/ContentContainer';
@@ -36,26 +40,24 @@ const initialEmails = [
   { email: 'email3@test.com', isPrimary: false }
 ];
 
-// Mock language options
-const languages = [
-  { key: "english", name: "English" },
-  { key: "portuguese", name: "Portuguese" }
-];
-
 interface ProfileDataInterface {
   firstName: string;
   lastName: string;
   email: string;
-  institution: string;
+  affiliationName: string;
+  affiliationId: string;
   otherInstitution: string;
-  language: string;
+  languageId: string;
+  languageName: string;
 }
 
 interface FormErrors {
   firstName: string;
   lastName: string;
-  institution: string;
-  language: string;
+  affiliationName: string;
+  affiliationId: string;
+  languageId: string;
+  languageName: string;
 }
 
 const ProfilePage: React.FC = () => {
@@ -67,9 +69,11 @@ const ProfilePage: React.FC = () => {
     firstName: '',
     lastName: '',
     email: '',
-    institution: '',
+    affiliationName: '',
+    affiliationId: '',
     otherInstitution: '',
-    language: ''
+    languageId: '',
+    languageName: ''
   })
   const [isEditing, setIsEditing] = useState(false);
   // Errors returned from request
@@ -78,28 +82,76 @@ const ProfilePage: React.FC = () => {
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({
     firstName: '',
     lastName: '',
-    institution: '',
-    language: '',
+    affiliationName: '',
+    affiliationId: '',
+    languageId: '',
+    languageName: ''
   });
 
   //Mock emails
   const [emails, setEmails] = useState(initialEmails);
 
-  // Make GraphQL request for user's profile data
-  const { data, loading, error, refetch } = useUserQuery();
+  // Fetch user data
+  const { data, loading: queryLoading, error: queryError, refetch } = useUserQuery();
+
+  // Fetch languages
+  const { data: languageData, loading: languageLoading, error: languageError } = useLanguagesQuery();
+
+  const languages = (languageData?.languages || []).filter((language) => language !== null);
+
+  // Initialize mutation
+  const [updateUserProfileMutation, { loading: mutationLoading, error: mutationError }] = useUpdateUserProfileMutation();
+
+  // Update Profile function
+  const updateProfile = async () => {
+    try {
+      const response = await updateUserProfileMutation({
+        variables: {
+          input: {
+            givenName: formData.firstName,
+            surName: formData.lastName,
+            affiliationId: formData.affiliationId,
+            languageId: formData.languageId,
+          }
+        }, // Send the profile data in the mutation variables
+        // Update the cache or refetch
+        update: (cache, { data: mutationData }) => {
+          if (mutationData?.updateUserProfile) {
+            cache.modify({
+              fields: {
+                user(existingUserData = {}) {
+                  // Merge the existing user data with the updated profile data
+                  return { ...existingUserData, ...mutationData.updateUserProfile };
+                },
+              },
+            });
+          }
+        },
+      });
+
+      if (response.data) {
+        setIsEditing(false);
+      }
+      return response.data;
+
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
 
   // Handle submit of Profile form
-  const onProfileSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!isFormValid()) {
       // Do not submit data to backend
     } else {
       // Get form data as an object.
-      let data = Object.fromEntries(new FormData(e.currentTarget));
+      // let data = Object.fromEntries(new FormData(e.currentTarget));
 
-      console.log("Submitted data", data);
-      return data;
+      // return data;
+      const data = await updateProfile();
+      console.log(data);
     }
   };
 
@@ -135,8 +187,10 @@ const ProfilePage: React.FC = () => {
     setFieldErrors({
       firstName: '',
       lastName: '',
-      institution: '',
-      language: '',
+      affiliationId: '',
+      affiliationName: '',
+      languageId: '',
+      languageName: ''
     });
   }
 
@@ -187,23 +241,32 @@ const ProfilePage: React.FC = () => {
     }));
   }
 
-  const updateFormData = async (value: string) => {
+  const updateAffiliationFormData = async (id: string, value: string) => {
     return setFormData({
       ...formData,
-      institution: value
+      affiliationName: value,
+      affiliationId: id
     })
   }
 
   useEffect(() => {
     //When data from backend changes, set formData and originalData
     if (data && data.me) {
+      // Get name of selected language
+      const language = languages.find(lang => lang.id === data?.me?.languageId) || {
+        id: '',
+        name: '',
+        isDefault: false
+      };
       setOriginalData({
         firstName: data.me.givenName ?? '',
         lastName: data.me.surName ?? '',
         email: data.me.email ?? '',
-        institution: data.me.affiliation?.name ?? '',
+        affiliationName: data.me.affiliation?.name ?? '',
+        affiliationId: data.me.affiliation?.uri ?? '',
         otherInstitution: '',
-        language: ''
+        languageId: data.me.languageId,
+        languageName: language.name
       });
 
       setFormData({
@@ -211,7 +274,10 @@ const ProfilePage: React.FC = () => {
         firstName: data.me.givenName ?? '',
         lastName: data.me.surName ?? '',
         email: data.me.email ?? '',
-        institution: data.me.affiliation?.name ?? ''
+        affiliationName: data.me.affiliation?.name ?? '',
+        affiliationId: data.me.affiliation?.uri ?? '',
+        languageId: data.me.languageId,
+        languageName: language.name
       })
     }
   }, [data])
@@ -222,11 +288,11 @@ const ProfilePage: React.FC = () => {
 
   // Handle errors from graphql request
   useEffect(() => {
-    if (error) {
+    if (queryError) {
       const handleErrors = async () => {
         await handleApolloErrors(
-          error.graphQLErrors,
-          error.networkError,
+          queryError.graphQLErrors,
+          queryError.networkError,
           setErrors,
           refetch,
           router
@@ -235,7 +301,7 @@ const ProfilePage: React.FC = () => {
 
       handleErrors();
     }
-  }, [error, refetch]); // Runs when 'error' changes or 'refetch' happens
+  }, [queryError, refetch]); // Runs when 'error' changes or 'refetch' happens
 
   // Update form data
   const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -262,7 +328,7 @@ const ProfilePage: React.FC = () => {
 
   };
 
-  if (loading) {
+  if (queryLoading) {
     return <div>Loading...</div>;
   }
 
@@ -336,12 +402,13 @@ const ProfilePage: React.FC = () => {
                         <TypeAheadWithOther
                           label="Institution"
                           fieldName="institution"
-                          placeholder={formData.institution}
+                          placeholder={formData.affiliationName}
                           graphqlQuery={AffiliationsDocument}
                           setOtherField={setOtherField}
                           required={true}
-                          error={fieldErrors.institution}
-                          updateFormData={updateFormData}
+                          error={fieldErrors.affiliationName}
+                          updateAffiliationFormData={updateAffiliationFormData}
+                          value={formData.affiliationName}
                         />
                         {otherField && (
                           <TextField type="text" name="institution">
@@ -358,7 +425,7 @@ const ProfilePage: React.FC = () => {
                         isRequired
                       >
                         <Label>Institution</Label>
-                        <p>{formData.institution}</p>
+                        <p>{formData.affiliationName}</p>
                         <FieldError />
                       </TextField>
                     )}
@@ -371,12 +438,17 @@ const ProfilePage: React.FC = () => {
                         isRequired
                         name="institution"
                         items={languages}
-                        placeholder='Select a language'
+
                         errorMessage="A selection is required"
-                        onSelectionChange={selected => setFormData({ ...formData, language: selected as string })}
-                        selectedKey={formData.language}
+                        onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
+                        selectedKey={formData.languageId.trim()}
                       >
-                        {item => <ListBoxItem>{item.name}</ListBoxItem>}
+                        {languages && languages.map((language) => {
+                          return (
+                            <ListBoxItem key={language.id}>{language.id}</ListBoxItem>
+                          )
+
+                        })}
                       </MySelect>
                     ) : (
                       <>
@@ -385,7 +457,7 @@ const ProfilePage: React.FC = () => {
                           type="text"
                         >
                           <Label>Language</Label>
-                          <p>{formData.language}</p>
+                          <p>{formData.languageName}</p>
                           <FieldError />
                         </TextField>
                       </>

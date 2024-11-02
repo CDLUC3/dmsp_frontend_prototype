@@ -3,12 +3,16 @@ import type { ListBoxItemProps, SelectProps, ValidationResult } from 'react-aria
 import { Button, FieldError, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, Text } from 'react-aria-components';
 import styles from './myselect.module.scss';
 
-interface MySelectProps<T extends object>
+interface SelectItem {
+  id: string;
+  name: string;
+}
+interface MySelectProps<T extends SelectItem>
   extends Omit<SelectProps<T>, 'children'> {
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
-  items?: Iterable<T>;
+  items?: T[];
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
@@ -16,8 +20,10 @@ export function MySelect<T extends object>(
   { label, description, errorMessage, children, items, ...props }:
     MySelectProps<T>
 ) {
+  console.log("***SELECTED KEY", props.selectedKey);
+  console.log(typeof props.selectedKey);
   return (
-    <Select {...props} data-invalid={errorMessage} className={`${styles.mySelect} react-aria-Select`}>
+    <Select {...props} selectedKey={props.selectedKey} data-invalid={errorMessage} className={`${styles.mySelect} react-aria-Select`}>
       {(state) => (
         <>
           <Label>{label}</Label>
@@ -39,11 +45,15 @@ export function MySelect<T extends object>(
           {description && <Text slot="description">{description}</Text>}
           <FieldError className={styles['react-aria-FieldError']} />
           <Popover>
-            <ListBox items={items}>{children}</ListBox>
+            <ListBox items={items}>
+              {(item) => (
+                <ListBoxItem key={item.id as React.Key}>{item.name}</ListBoxItem>
+              )}
+            </ListBox>
           </Popover>
         </>
       )}
-    </Select>
+    </Select >
   );
 }
 
