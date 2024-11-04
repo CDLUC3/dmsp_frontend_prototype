@@ -15,3 +15,32 @@ mutation UpdateUserProfile($input: updateUserProfileInput!) {
     email
   }
 }
+
+
+mutation AddUserEmail($email: String!, $isPrimary: Boolean!) {
+  addUserEmail(email: $email, isPrimary: $isPrimary) {
+    email
+    errors
+    isPrimary
+    isConfirmed
+    id
+    userId
+  }
+}
+
+mutation RemoveUserEmail($email: String!) {
+  removeUserEmail(email: $email) {
+    errors
+  }
+}
+
+mutation SetPrimaryUserEmail($email: String!) {
+  setPrimaryUserEmail(email: $email) {
+    id
+    errors
+    email
+    isConfirmed
+    isPrimary
+    userId
+  }
+}

@@ -1,12 +1,16 @@
-query User{
+query Me{
   me {
     id
     givenName
     surName
-    active
-    role
     languageId
-    email
+    emails {
+      id
+      email
+      isPrimary
+      isConfirmed
+    }
+    errors
     affiliation {
       id
       name

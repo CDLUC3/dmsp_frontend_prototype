@@ -16,38 +16,41 @@ import {
 import { useRouter } from 'next/navigation';
 
 import { useUpdateUserProfileMutation } from '@/generated/graphql';
-import { useRemoveUserEmailMutation } from '@/generated/graphql';
-import { useAddUserEmailMutation } from '@/generated/graphql';
-import { useSetPrimaryUserEmailMutation } from '@/generated/graphql';
 
 import { MySelect } from '@/components/MySelect';
 
-import { useMeQuery } from '@/generated/graphql';
+import { useUserQuery } from '@/generated/graphql';
 import { AffiliationsDocument } from '@/generated/graphql';
 import { useLanguagesQuery } from '@/generated/graphql';
 
 import PageWrapper from '@/components/PageWrapper';
 import ContentContainer from '@/components/ContentContainer';
 import EmailAddressRow from '@/components/EmailAddressRow';
-import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/TypeAheadWithOther';
 import BackButton from '@/components/BackButton';
 import RightSidebar from '@/components/RightSidebar';
 
 import { handleApolloErrors } from "@/utils/gqlErrorHandler";
-import styles from './profile.module.scss';
+import styles from './test.module.scss';
+
+// Mock initial data for emails
+const initialEmails = [
+  { email: 'email1@test.com', isPrimary: false },
+  { email: 'email2@test.com', isPrimary: true },
+  { email: 'email3@test.com', isPrimary: false }
+];
 
 interface Email {
-  __typename?: "UserEmail";
-  id?: number | null;
+  id?: string;
   email: string;
   isPrimary: boolean;
-  isConfirmed: boolean;
+  isConfirmed?: boolean;
 }
 
 interface ProfileDataInterface {
   firstName: string;
   lastName: string;
+  email: string;
   affiliationName: string;
   affiliationId: string;
   otherInstitution: string;
@@ -72,11 +75,12 @@ const ProfilePage: React.FC = () => {
   const [formData, setFormData] = useState<ProfileDataInterface>({
     firstName: '',
     lastName: '',
+    email: '',
     affiliationName: '',
     affiliationId: '',
     otherInstitution: '',
     languageId: '',
-    languageName: '',
+    languageName: ''
   })
   const [isEditing, setIsEditing] = useState(false);
   // Errors returned from request
@@ -91,20 +95,19 @@ const ProfilePage: React.FC = () => {
     languageName: ''
   });
 
-  const [emailAddresses, setEmailAddresses] = useState<Email[]>([]);
+  //Mock emails
+  const [emails, setEmails] = useState<Email[]>([]);
 
   // Fetch user data
-  const { data, loading: queryLoading, error: queryError, refetch } = useMeQuery();
+  const { data, loading: queryLoading, error: queryError, refetch } = useUserQuery();
 
   // Fetch languages
   const { data: languageData, loading: languageLoading, error: languageError } = useLanguagesQuery();
 
   const languages = (languageData?.languages || []).filter((language) => language !== null);
 
-  const [updateUserProfileMutation, { loading: updateUserProfileLoading, error: updateUserProfileError }] = useUpdateUserProfileMutation();
-  const [removeUserEmailMutation, { loading: deleteEmailLoading, error: deleteEmailError }] = useRemoveUserEmailMutation();
-  const [addUserEmailMutation, { loading: addUserEmailLoading, error: addUserEmailError }] = useAddUserEmailMutation();
-  const [setPrimaryUserEmailMutation, { loading: setPrimaryUserEmailLoading, error: setPrimaryUserEmailError }] = useSetPrimaryUserEmailMutation();
+  // Initialize mutation
+  const [updateUserProfileMutation, { loading: mutationLoading, error: mutationError }] = useUpdateUserProfileMutation();
 
   // Update Profile function
   const updateProfile = async () => {
@@ -116,6 +119,19 @@ const ProfilePage: React.FC = () => {
             surName: formData.lastName,
             affiliationId: formData.affiliationId,
             languageId: formData.languageId,
+          }
+        }, // Send the profile data in the mutation variables
+        // Update the cache or refetch
+        update: (cache, { data: mutationData }) => {
+          if (mutationData?.updateUserProfile) {
+            cache.modify({
+              fields: {
+                user(existingUserData = {}) {
+                  // Merge the existing user data with the updated profile data
+                  return { ...existingUserData, ...mutationData.updateUserProfile };
+                },
+              },
+            });
           }
         },
       });
@@ -145,6 +161,30 @@ const ProfilePage: React.FC = () => {
       console.log(data);
     }
   };
+
+  // Function to update an email's "isPrimary" status
+  const makePrimary = (emailToMakePrimary: string) => {
+    const updatedEmails = emails.map((email) =>
+      email.email === emailToMakePrimary
+        ? { ...email, isPrimary: true }
+        : { ...email, isPrimary: false }
+    );
+    setEmails(updatedEmails); // Update state with new email list
+  };
+
+  // Function to delete an email
+  const deleteEmail = (emailToDelete: string) => {
+    const updatedEmail = emails.filter((email) => email.email !== emailToDelete);
+    setEmails(updatedEmail);
+  };
+
+  const handleAddingAlias = (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const newAlias = e.currentTarget.elements['addAlias'].value;
+    setEmails([...emails, { email: newAlias, isPrimary: false }]);
+    form.reset();
+  }
 
   const cancelEdit = () => {
     if (originalData) {
@@ -225,27 +265,10 @@ const ProfilePage: React.FC = () => {
         name: '',
         isDefault: false
       };
-
-      // Set emails so we can pass to the UpdateEmailAddresses component
-      if (data?.me?.emails) {
-        const validEmails = data.me.emails
-          // Filter out nulls and map to Email type
-          .filter((email): email is NonNullable<typeof email> => email !== null)
-          .map(email => ({
-            id: email.id ?? undefined,
-            email: email.email,
-            isPrimary: email.isPrimary,
-            isConfirmed: email.isConfirmed
-          }));
-
-        setEmailAddresses(validEmails);
-      } else {
-        setEmailAddresses([]); // Reset to empty array if no emails data
-      }
-
       setOriginalData({
         firstName: data.me.givenName ?? '',
         lastName: data.me.surName ?? '',
+        email: data.me.email ?? '',
         affiliationName: data.me.affiliation?.name ?? '',
         affiliationId: data.me.affiliation?.uri ?? '',
         otherInstitution: '',
@@ -257,6 +280,7 @@ const ProfilePage: React.FC = () => {
         ...formData,
         firstName: data.me.givenName ?? '',
         lastName: data.me.surName ?? '',
+        email: data.me.email ?? '',
         affiliationName: data.me.affiliation?.name ?? '',
         affiliationId: data.me.affiliation?.uri ?? '',
         languageId: data.me.languageId,
@@ -286,28 +310,6 @@ const ProfilePage: React.FC = () => {
     }
   }, [queryError, refetch]); // Runs when 'error' changes or 'refetch' happens
 
-  // Handle errors from graphql request
-  useEffect(() => {
-    const handleErrors = async () => {
-      //Remove null and undefined errors
-      const errors = [queryError, languageError, updateUserProfileError, deleteEmailError, addUserEmailError, setPrimaryUserEmailError].filter(Boolean);
-
-      for (const error of errors) {
-        await handleApolloErrors(
-          error?.graphQLErrors,
-          error?.networkError ?? null,
-          setErrors,
-          refetch,
-          router
-        );
-      }
-    };
-
-    if (queryError || languageError || updateUserProfileError || deleteEmailError || addUserEmailError || setPrimaryUserEmailError) {
-      handleErrors();
-    }
-  }, [queryError, languageError, updateUserProfileError, deleteEmailError, addUserEmailError, setPrimaryUserEmailError, refetch]);
-
   // Update form data
   const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -333,77 +335,6 @@ const ProfilePage: React.FC = () => {
 
   };
 
-  // Function to delete an email
-  const deleteEmail = (emailToDelete: string) => {
-    // Save a backup of the current state in case we need to revert
-    const backupEmailList = [...emailAddresses];
-
-    // Optimistically update local state
-    const updatedEmailList = emailAddresses.filter((email) => email.email !== emailToDelete);
-    setEmailAddresses(updatedEmailList)
-    try {
-      const response = removeUserEmailMutation({
-        variables: {
-          email: emailToDelete
-        }
-      })
-    } catch (error) {
-      // If the deletion fails, roll back the optimistic update
-      setEmailAddresses(backupEmailList);
-      console.error("Error updating profile:", error);
-    }
-  };
-
-  // To add new emails with isPrimary set to false
-  const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const form = event.currentTarget;
-    const newAliasValue = (form.elements.namedItem('addAlias') as HTMLInputElement).value;
-
-    // Create a new Email object matching your interface
-    const newAlias: Email = {
-      email: newAliasValue,
-      isPrimary: false,     // Usually false for a new alias
-      isConfirmed: false,   // Usually false for a new alias
-      __typename: "UserEmail",  // Optional
-      id: null              // Optional, can be null
-    };
-
-    try {
-      const response = await addUserEmailMutation({
-        variables: {
-          email: newAliasValue,
-          isPrimary: false
-        }
-      });
-
-      setEmailAddresses((prevEmails) => [...prevEmails, newAlias]);
-      form.reset();
-    } catch (error) {
-      console.error("Failed to add email:", error);
-    }
-  }
-
-  const makePrimaryEmail = async (primaryEmail: string) => {
-    try {
-      const response = await setPrimaryUserEmailMutation({
-        variables: {
-          email: primaryEmail
-        }
-      })
-
-      const emailData = response?.data?.setPrimaryUserEmail?.[0];
-      if (emailData?.errors && emailData.errors.length > 0) {
-        // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-        setErrors(emailData.errors ?? []);
-        return;
-      }
-    } catch (error) {
-      console.error("Failed to make primary email:", error);
-    }
-  }
-
   if (queryLoading) {
     return <div>Loading...</div>;
   }
@@ -427,15 +358,15 @@ const ProfilePage: React.FC = () => {
                     </div>
                   }
                   <div className={`${styles.twoItemRow} ${styles.formRow}`}>
-                    {isEditing ? (
-                      <>
-                        <TextField
-                          name="firstName"
-                          type="text"
-                          className={!!fieldErrors['firstName'] ? styles.fieldError : ''}
-                          isInvalid={!!fieldErrors['firstName']}
-                        >
-                          <Label>First name</Label>
+                    <TextField
+                      name="firstName"
+                      type="text"
+                      className={!!fieldErrors['firstName'] ? styles.fieldError : ''}
+                      isInvalid={!!fieldErrors['firstName']}
+                    >
+                      <Label>First name</Label>
+                      {isEditing ? (
+                        <>
                           <Input
                             name="firstName"
                             placeholder={formData.firstName}
@@ -443,26 +374,21 @@ const ProfilePage: React.FC = () => {
                             value={formData.firstName}
                           />
                           <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{fieldErrors['firstName']}</FieldError>
-                        </TextField>
-
-                      </>
-                    ) : (
-                      <Text slot="firstName" className={styles.readOnlyField}>
-                        <div className={styles.fieldLabel}>First name</div>
+                        </>
+                      ) : (
                         <p>{formData.firstName}</p>
-                      </Text>
-                    )}
+                      )}
+                    </TextField>
 
-
-                    {isEditing ? (
-                      <>
-                        <TextField
-                          name="lastName"
-                          type="text"
-                          className={!!fieldErrors['lastName'] ? styles.fieldError : ''}
-                          isInvalid={!!fieldErrors['lastName']}
-                        >
-                          <Label>Last name</Label>
+                    <TextField
+                      name="lastName"
+                      type="text"
+                      className={!!fieldErrors['lastName'] ? styles.fieldError : ''}
+                      isInvalid={!!fieldErrors['lastName']}
+                    >
+                      <Label>Last name</Label>
+                      {isEditing ? (
+                        <>
                           <Input
                             name="lastName"
                             placeholder={formData.lastName}
@@ -470,15 +396,11 @@ const ProfilePage: React.FC = () => {
                             value={formData.lastName}
                           />
                           <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{fieldErrors['lastName']}</FieldError>
-                        </TextField>
-                      </>
-                    ) : (
-                      <Text slot="lastName" className={styles.readOnlyField}>
-                        <div className={styles.fieldLabel}>Last name</div>
+                        </>
+                      ) : (
                         <p>{formData.lastName}</p>
-                      </Text>
-                    )}
-
+                      )}
+                    </TextField>
                   </div>
 
                   <div className={`${styles.oneItemRow} ${styles.formRow}`}>
@@ -504,10 +426,15 @@ const ProfilePage: React.FC = () => {
                         )}
                       </>
                     ) : (
-                      <Text slot="institution" className={styles.readOnlyField}>
-                        <div className={styles.fieldLabel}>Institution</div>
+                      <TextField
+                        name="institution"
+                        type="text"
+                        isRequired
+                      >
+                        <Label>Institution</Label>
                         <p>{formData.affiliationName}</p>
-                      </Text>
+                        <FieldError />
+                      </TextField>
                     )}
                   </div>
 
@@ -531,10 +458,16 @@ const ProfilePage: React.FC = () => {
                         })}
                       </MySelect>
                     ) : (
-                      <Text slot="language" className={styles.readOnlyField}>
-                        <div className={styles.fieldLabel}>Language</div>
-                        <p>{formData.languageName}</p>
-                      </Text>
+                      <>
+                        <TextField
+                          name="language"
+                          type="text"
+                        >
+                          <Label>Language</Label>
+                          <p>{formData.languageName}</p>
+                          <FieldError />
+                        </TextField>
+                      </>
                     )}
                   </div>
                   {isEditing ? (
@@ -549,11 +482,66 @@ const ProfilePage: React.FC = () => {
               </div>
             </ContentContainer>
           </div>
-          <UpdateEmailAddress
-            emailAddresses={emailAddresses}
-            deleteEmail={deleteEmail}
-            handleAddingAlias={handleAddingAlias}
-            makePrimaryEmail={makePrimaryEmail} />
+          <div className={styles.section}>
+            <h2 className={styles.title}>Email and Authentication</h2>
+            <ContentContainer>
+              <div className={styles.subSection}>
+                <h3>Primary email address</h3>
+                <p>This email will be used for your account login. It can also be used for password resets.</p>
+
+                {/* Render the primary email */}
+                {emails.filter(emailObj => emailObj.isPrimary).map((emailObj) => (
+                  <EmailAddressRow
+                    key={emailObj.email}
+                    email={emailObj.email}
+                    isAlias={false}
+                    additionalClassName="primaryEmail"
+                    tooltip={true}
+                    toolTipMessage="Primary email cannot be deleted."
+                  />
+                ))}
+                <h4>Single sign on activated</h4>
+                <p>This email address is managed by cdl.edu and connected to the institution.</p>
+                <h4>Receives notifications</h4>
+                <p>This email address will be used for DMP notifications. <Link href="">Manage your notifications</Link>.</p>
+              </div>
+              <div className={styles.subSection}>
+                <hr />
+                <h3>Alias email addresses</h3>
+                <p>Alias email addresses may be used to help others find you, for example if they&lsquo;d like to share a DMP with you.</p>
+
+                {emails.filter(emailObj => !emailObj.isPrimary).map((emailObj) => (
+                  <EmailAddressRow
+                    key={emailObj.email}
+                    email={emailObj.email}
+                    isAlias={true}
+                    deleteEmail={deleteEmail}
+                    makePrimary={makePrimary}
+                  />
+                ))}
+                <hr />
+                <Form onSubmit={handleAddingAlias}>
+                  <div className={styles.addContainer}>
+                    <TextField
+                      name="add-alias"
+                      type="email"
+                      isRequired
+                    >
+                      <Label>Add alias email address</Label>
+                      <FieldError>
+                        {({ validationDetails }) => (
+                          validationDetails.valueMissing ? 'Please enter an email address.' : ''
+                        )}
+                      </FieldError>
+                      <Input id="addAlias" name="addAlias" />
+                      <Text slot="description" className={styles.helpText}>You will be sent an email to confirm this addition.</Text>
+                    </TextField>
+                    <Button type="submit">Add</Button>
+                  </div>
+                </Form>
+              </div>
+            </ContentContainer>
+          </div>
         </div>
         <div className={styles.rightSidebar}>
           <RightSidebar>

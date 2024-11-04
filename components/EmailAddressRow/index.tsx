@@ -18,7 +18,7 @@ interface DeleteRowInterface {
   tooltip?: boolean;
   toolTipMessage?: string;
   onDeleteSuccess?: Function;
-  makePrimary?: Function;
+  makePrimaryEmail?: Function;
   deleteEmail?: Function;
 }
 export default function EmailAddressRow({
@@ -27,14 +27,14 @@ export default function EmailAddressRow({
   additionalClassName,
   tooltip,
   toolTipMessage,
-  makePrimary,
+  makePrimaryEmail,
   deleteEmail
 }: DeleteRowInterface) {
 
   const handleMakePrimary = (e: React.MouseEvent<HTMLDivElement>, email: string) => {
     e.preventDefault();
-    if (makePrimary) {
-      makePrimary(email);
+    if (makePrimaryEmail) {
+      makePrimaryEmail(email);
     }
   }
   return (

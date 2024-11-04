@@ -20,8 +20,6 @@ export function MySelect<T extends object>(
   { label, description, errorMessage, children, items, ...props }:
     MySelectProps<T>
 ) {
-  console.log("***SELECTED KEY", props.selectedKey);
-  console.log(typeof props.selectedKey);
   return (
     <Select {...props} selectedKey={props.selectedKey} data-invalid={errorMessage} className={`${styles.mySelect} react-aria-Select`}>
       {(state) => (

@@ -81,6 +81,8 @@ const TypeAheadWithOther = ({
     };
 
     const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        //set previous error to empty string
+        error = '';
         const value = e.target.value;
         const dataId = (e.target as HTMLElement).dataset.id;
         setInputValue(value);

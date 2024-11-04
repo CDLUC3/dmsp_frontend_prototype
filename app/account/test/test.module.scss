@@ -6,11 +6,7 @@
 }
 
 .twoItemRow {
-  @include device(sm) {
-    flex-direction: row;
-  }
   display: flex;
-  flex-direction: column;
   gap: 20px;
 
   > div {
@@ -25,13 +21,6 @@
   }
 }
 
-.readOnlyField {
-  min-width: 200px;
-}
-
-.fieldLabel {
-  font-weight: var(--fw-bold, 600);
-}
 .section {
   margin: var(--space-6) 0;
 }
@@ -63,7 +52,6 @@
   padding-left: 0;
 
   li {
-    font-size: var(--fs-small);
     padding-bottom: var(--space-3);
   }
 }
@@ -75,13 +63,11 @@
 
 .mainContent {
   flex: 1;
-  min-width: 400px;
-  padding-right: 20px;
 }
 
 .rightSidebar {
   flex-basis: 300px; /*Fixed width for sidebar*/
-  padding-top: var(--space-3);
+  padding-left: var(--space-6);
 }
 
 .fieldError {
