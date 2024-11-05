@@ -16,9 +16,6 @@ import {
 import { useRouter } from 'next/navigation';
 
 import { useUpdateUserProfileMutation } from '@/generated/graphql';
-import { useRemoveUserEmailMutation } from '@/generated/graphql';
-import { useAddUserEmailMutation } from '@/generated/graphql';
-import { useSetPrimaryUserEmailMutation } from '@/generated/graphql';
 
 import { MySelect } from '@/components/MySelect';
 
@@ -28,7 +25,6 @@ import { useLanguagesQuery } from '@/generated/graphql';
 
 import PageWrapper from '@/components/PageWrapper';
 import ContentContainer from '@/components/ContentContainer';
-import EmailAddressRow from '@/components/EmailAddressRow';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/TypeAheadWithOther';
 import BackButton from '@/components/BackButton';
@@ -38,7 +34,6 @@ import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import styles from './profile.module.scss';
 
 interface Email {
-  __typename?: "UserEmail";
   id?: number | null;
   email: string;
   isPrimary: boolean;
@@ -102,9 +97,6 @@ const ProfilePage: React.FC = () => {
   const languages = (languageData?.languages || []).filter((language) => language !== null);
 
   const [updateUserProfileMutation, { loading: updateUserProfileLoading, error: updateUserProfileError }] = useUpdateUserProfileMutation();
-  const [removeUserEmailMutation, { loading: deleteEmailLoading, error: deleteEmailError }] = useRemoveUserEmailMutation();
-  const [addUserEmailMutation, { loading: addUserEmailLoading, error: addUserEmailError }] = useAddUserEmailMutation();
-  const [setPrimaryUserEmailMutation, { loading: setPrimaryUserEmailLoading, error: setPrimaryUserEmailError }] = useSetPrimaryUserEmailMutation();
 
   // Update Profile function
   const updateProfile = async () => {
@@ -290,7 +282,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const handleErrors = async () => {
       //Remove null and undefined errors
-      const errors = [queryError, languageError, updateUserProfileError, deleteEmailError, addUserEmailError, setPrimaryUserEmailError].filter(Boolean);
+      const errors = [queryError, languageError, updateUserProfileError].filter(Boolean);
 
       for (const error of errors) {
         await handleApolloErrors(
@@ -303,10 +295,10 @@ const ProfilePage: React.FC = () => {
       }
     };
 
-    if (queryError || languageError || updateUserProfileError || deleteEmailError || addUserEmailError || setPrimaryUserEmailError) {
+    if (queryError || languageError || updateUserProfileError) {
       handleErrors();
     }
-  }, [queryError, languageError, updateUserProfileError, deleteEmailError, addUserEmailError, setPrimaryUserEmailError, refetch]);
+  }, [queryError, languageError, updateUserProfileError, refetch]);
 
   // Update form data
   const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -333,83 +325,12 @@ const ProfilePage: React.FC = () => {
 
   };
 
-  // Function to delete an email
-  const deleteEmail = (emailToDelete: string) => {
-    // Save a backup of the current state in case we need to revert
-    const backupEmailList = [...emailAddresses];
-
-    // Optimistically update local state
-    const updatedEmailList = emailAddresses.filter((email) => email.email !== emailToDelete);
-    setEmailAddresses(updatedEmailList)
-    try {
-      const response = removeUserEmailMutation({
-        variables: {
-          email: emailToDelete
-        }
-      })
-    } catch (error) {
-      // If the deletion fails, roll back the optimistic update
-      setEmailAddresses(backupEmailList);
-      console.error("Error updating profile:", error);
-    }
-  };
-
-  // To add new emails with isPrimary set to false
-  const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const form = event.currentTarget;
-    const newAliasValue = (form.elements.namedItem('addAlias') as HTMLInputElement).value;
-
-    // Create a new Email object matching your interface
-    const newAlias: Email = {
-      email: newAliasValue,
-      isPrimary: false,     // Usually false for a new alias
-      isConfirmed: false,   // Usually false for a new alias
-      __typename: "UserEmail",  // Optional
-      id: null              // Optional, can be null
-    };
-
-    try {
-      const response = await addUserEmailMutation({
-        variables: {
-          email: newAliasValue,
-          isPrimary: false
-        }
-      });
-
-      setEmailAddresses((prevEmails) => [...prevEmails, newAlias]);
-      form.reset();
-    } catch (error) {
-      console.error("Failed to add email:", error);
-    }
-  }
-
-  const makePrimaryEmail = async (primaryEmail: string) => {
-    try {
-      const response = await setPrimaryUserEmailMutation({
-        variables: {
-          email: primaryEmail
-        }
-      })
-
-      const emailData = response?.data?.setPrimaryUserEmail?.[0];
-      if (emailData?.errors && emailData.errors.length > 0) {
-        // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-        setErrors(emailData.errors ?? []);
-        return;
-      }
-    } catch (error) {
-      console.error("Failed to make primary email:", error);
-    }
-  }
-
   if (queryLoading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <PageWrapper title={'Your profile'}>
+    <PageWrapper title={'Update profile'}>
       <BackButton />
       <div className={styles.main}>
         <div className={styles.mainContent}>
@@ -551,9 +472,8 @@ const ProfilePage: React.FC = () => {
           </div>
           <UpdateEmailAddress
             emailAddresses={emailAddresses}
-            deleteEmail={deleteEmail}
-            handleAddingAlias={handleAddingAlias}
-            makePrimaryEmail={makePrimaryEmail} />
+            setEmailAddresses={setEmailAddresses}
+          />
         </div>
         <div className={styles.rightSidebar}>
           <RightSidebar>

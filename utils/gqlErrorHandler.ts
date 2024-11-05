@@ -1,6 +1,7 @@
 'use client'
 
 import { GraphQLFormattedError } from 'graphql';
+import { FetchResult } from '@apollo/client';
 import logECS from "@/utils/clientLogger";
 import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 import { ApolloQueryResult } from '@apollo/client';
@@ -28,11 +29,13 @@ type CustomError = {
   message: string;
   errorCode?: string;
 };
+// Define the refetch or retry function type generically for any GraphQL operation.
+type RefetchOrRetryFunction = () => Promise<FetchResult<any>>;
 
 export async function handleGraphQLErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[],
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  refetch: RefetchFunction<TData, TVariables>,
+  refetchOrRetry: RefetchOrRetryFunction,
   router: CustomRouter
 ): Promise<CustomError[]> {
   const customErrors: CustomError[] = [];
@@ -45,7 +48,7 @@ export async function handleGraphQLErrors<TData, TVariables>(
           try {
             const result = await refreshAuthTokens();
             if (result) {
-              await refetch();
+              await refetchOrRetry();
             } else {
               // If refresh fails, log the error and add to the errorResponses
               logECS('error', 'Token refresh failed with no result', { errorCode: 'UNAUTHENTICATED' });
@@ -98,7 +101,7 @@ export async function handleApolloErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[] | undefined,
   networkError: NetworkError | null,
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  refetch: RefetchFunction<TData, TVariables>,
+  refetchOrRetry: RefetchOrRetryFunction,
   router: CustomRouter
 ): Promise<void> {
   await handleGraphQLErrors(graphQLErrors || [], setErrors, refetch, router);
