@@ -7,9 +7,8 @@ import {
 } from "react-aria-components";
 
 // Graphql mutations
-import { useSetPrimaryUserEmailMutation } from '@/generated/graphql';
-import { useAddUserEmailMutation } from '@/generated/graphql';
-import { useRemoveUserEmailMutation } from '@/generated/graphql';
+import { useSetPrimaryUserEmailMutation, useAddUserEmailMutation, useRemoveUserEmailMutation } from '@/generated/graphql';
+
 // Components
 import ContentContainer from '@/components/ContentContainer';
 import EmailAddressRow from '@/components/EmailAddressRow';
@@ -107,7 +106,6 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
 
       setEmailAddresses((prevEmails: EmailInterface[]) => [...prevEmails, newAlias]);
-
       form.reset();
     } catch (err) {
       await handleApolloErrors(

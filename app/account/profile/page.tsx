@@ -15,10 +15,7 @@ import {
 } from "react-aria-components";
 
 // GraphQL queries and mutations
-import { useMeQuery } from '@/generated/graphql';
-import { useUpdateUserProfileMutation } from '@/generated/graphql';
-import { AffiliationsDocument } from '@/generated/graphql';
-import { useLanguagesQuery } from '@/generated/graphql';
+import { useMeQuery, useUpdateUserProfileMutation, AffiliationsDocument, useLanguagesQuery } from '@/generated/graphql';
 
 // Components
 import PageWrapper from '@/components/PageWrapper';
