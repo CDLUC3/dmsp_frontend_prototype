@@ -43,6 +43,7 @@ describe('TypeAheadWithOther', () => {
                 required={false}
                 error=""
                 updateFormData={() => true}
+                value="text"
             />
         );
 
@@ -62,6 +63,7 @@ describe('TypeAheadWithOther', () => {
                 required={false}
                 error=""
                 updateFormData={() => true}
+                value="input value"
             />
         );
         jest.useRealTimers();
@@ -90,6 +92,7 @@ describe('TypeAheadWithOther', () => {
                 required={false}
                 error=""
                 updateFormData={() => true}
+                value="input value"
             />
         );
 
@@ -132,6 +135,7 @@ describe('TypeAheadWithOther', () => {
                 required={false}
                 error=""
                 updateFormData={() => true}
+                value="input value"
             />);
 
         act(() => { //make sure all updates related to React are completed
@@ -164,6 +168,7 @@ describe('TypeAheadWithOther', () => {
                 required={false}
                 error=""
                 updateFormData={() => true}
+                value="input value"
             />
         );
 
@@ -199,7 +204,6 @@ describe('TypeAheadWithOther', () => {
             }
         });
 
-
         render(
             <TypeAheadWithOther
                 graphqlQuery={GET_AFFILIATIONS}
@@ -210,13 +214,14 @@ describe('TypeAheadWithOther', () => {
                 required={false}
                 error=""
                 updateFormData={() => true}
+                value="input value"
             />
         );
 
         const input = screen.getByLabelText('Institution');
 
         act(() => {
-            fireEvent.change(input, { target: { value: 'Test' } });
+            fireEvent.change(input, { target: { value: 'Test University' } });
             jest.advanceTimersByTime(1000);
         });
 
@@ -259,6 +264,7 @@ describe('TypeAheadWithOther', () => {
                 required={false}
                 error=""
                 updateFormData={() => true}
+                value="input value"
             />
         );
         expect(logECS).toHaveBeenCalledWith('error', 'Apollo client creation failed', {

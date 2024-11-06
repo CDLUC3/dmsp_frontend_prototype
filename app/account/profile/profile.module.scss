@@ -54,10 +54,6 @@
   }
 }
 
-.helpText {
-  font-size: var(--fs-small);
-}
-
 .relatedItems {
   list-style-type: none;
   padding-left: 0;
@@ -84,16 +80,6 @@
   padding-top: var(--space-3);
 }
 
-.fieldError {
-  input {
-    border: 1px solid red;
-  }
-}
-
-.errorMessage{
-  font-size: var(--fs-xsmall);
-  color: red;
-}
 
 
 .btn {

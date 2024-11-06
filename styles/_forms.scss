@@ -1,0 +1,14 @@
+.error-message{
+  font-size: var(--fs-xsmall);
+  color: red;
+}
+
+.field-error {
+  input {
+    border: 1px solid red;
+  }
+}
+
+.help-text {
+  font-size: var(--fs-small);
+}

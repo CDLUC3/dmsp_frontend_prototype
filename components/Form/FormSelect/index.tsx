@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { ListBoxItemProps, SelectProps, ValidationResult } from 'react-aria-components';
 import { Button, FieldError, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, Text } from 'react-aria-components';
-import styles from './myselect.module.scss';
+import styles from './formSelect.module.scss';
 
 interface SelectItem {
   id: string;
@@ -10,14 +10,15 @@ interface SelectItem {
 interface MySelectProps<T extends SelectItem>
   extends Omit<SelectProps<T>, 'children'> {
   label?: string;
-  description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  helpMessage?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   items?: T[];
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
-export function MySelect<T extends object>(
-  { label, description, errorMessage, children, items, ...props }:
+export function FormSelect<T extends object>(
+  { label, errorMessage, helpMessage, onChange, children, items, ...props }:
     MySelectProps<T>
 ) {
   return (
@@ -26,7 +27,7 @@ export function MySelect<T extends object>(
         <>
           <Label>{label}</Label>
           <Button className='react-aria-Button'>
-            <SelectValue />
+            <SelectValue onChange={onChange} />
             <span
               aria-hidden="true"
               style={{
@@ -40,8 +41,14 @@ export function MySelect<T extends object>(
               </svg>
             </span>
           </Button>
-          {description && <Text slot="description">{description}</Text>}
-          <FieldError className={styles['react-aria-FieldError']} />
+
+          <FieldError className='error-message' />
+          {errorMessage && <FieldError className='error-message'>{errorMessage}</FieldError>}
+          {helpMessage && (
+            <Text slot="description" className='help-text'>
+              {helpMessage}
+            </Text>
+          )}
           <Popover>
             <ListBox items={items}>
               {(item) => (

@@ -27,8 +27,8 @@ type TypeAheadInputProps = {
     fieldName: string;
     required: boolean;
     error: string;
-    updateAffiliationFormData: Function; //Function to update the typeahead field value in the parent form data
-    value: string;
+    updateFormData: Function; //Function to update the typeahead field value in the parent form data
+    value?: string;
 }
 
 type SuggestionInterface = {
@@ -46,7 +46,7 @@ const TypeAheadWithOther = ({
     fieldName,
     required,
     error,
-    updateAffiliationFormData,
+    updateFormData,
     value
 }: TypeAheadInputProps) => {
     const [inputValue, setInputValue] = useState('');
@@ -89,10 +89,10 @@ const TypeAheadWithOther = ({
 
         if (value) {
             validateField(value);
-            await updateAffiliationFormData(dataId, value);
+            await updateFormData(dataId, value);
         } else {
             setErrorMessage('');
-            await updateAffiliationFormData({});
+            await updateFormData({});
         }
     }
 
@@ -100,6 +100,8 @@ const TypeAheadWithOther = ({
     const handleInputClick = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         setOpen(true);
         setOtherField(false);
+        setInputValue('');
+        updateFormData({});
     }
 
     const handleSelection = async (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
@@ -109,7 +111,7 @@ const TypeAheadWithOther = ({
         const activeDescendentId = (e.target as HTMLLIElement | HTMLInputElement).id;
 
         const dataId = (e.target as HTMLElement).dataset.id;
-        await updateAffiliationFormData(dataId, item);
+        await updateFormData(dataId, item);
 
         setSelected(item);
         setInputValue(item);

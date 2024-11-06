@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Button,
   FieldError,
@@ -13,51 +14,29 @@ import {
   Text,
 } from "react-aria-components";
 
-import { useRouter } from 'next/navigation';
-
-import { useUpdateUserProfileMutation } from '@/generated/graphql';
-
-import { MySelect } from '@/components/MySelect';
-
+// GraphQL queries and mutations
 import { useMeQuery } from '@/generated/graphql';
+import { useUpdateUserProfileMutation } from '@/generated/graphql';
 import { AffiliationsDocument } from '@/generated/graphql';
 import { useLanguagesQuery } from '@/generated/graphql';
 
+// Components
 import PageWrapper from '@/components/PageWrapper';
 import ContentContainer from '@/components/ContentContainer';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/TypeAheadWithOther';
 import BackButton from '@/components/BackButton';
 import RightSidebar from '@/components/RightSidebar';
+import { FormSelect } from '@/components/Form/FormSelect';
+import FormInput from '@/components/Form/FormInput';
 
+// Interfaces
+import { EmailInterface, LanguageInterface, ProfileDataInterface, FormErrorsInterface } from '@/app/types';
+// Utils and other
 import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import logECS from '@/utils/clientLogger';
+import { debounce } from '@/hooks/debounce';
 import styles from './profile.module.scss';
-
-interface Email {
-  id?: number | null;
-  email: string;
-  isPrimary: boolean;
-  isConfirmed: boolean;
-}
-
-interface ProfileDataInterface {
-  firstName: string;
-  lastName: string;
-  affiliationName: string;
-  affiliationId: string;
-  otherInstitution: string;
-  languageId: string;
-  languageName: string;
-}
-
-interface FormErrors {
-  firstName: string;
-  lastName: string;
-  affiliationName: string;
-  affiliationId: string;
-  languageId: string;
-  languageName: string;
-}
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
@@ -77,48 +56,124 @@ const ProfilePage: React.FC = () => {
   // Errors returned from request
   const [errors, setErrors] = useState<string[]>([]);
   // Client-side validation field errors
-  const [fieldErrors, setFieldErrors] = useState<FormErrors>({
+  const [fieldErrors, setFieldErrors] = useState<FormErrorsInterface>({
     firstName: '',
     lastName: '',
     affiliationName: '',
     affiliationId: '',
     languageId: '',
-    languageName: ''
+    languageName: '',
+    otherInstitution: ''
   });
 
-  const [emailAddresses, setEmailAddresses] = useState<Email[]>([]);
+  const [emailAddresses, setEmailAddresses] = useState<EmailInterface[]>([]);
+  const [languages, setLanguages] = useState<LanguageInterface[]>([]);
 
-  // Fetch user data
+  // Initialize user profile mutation
+  const [updateUserProfileMutation, { loading: updateUserProfileLoading, error: updateUserProfileError }] = useUpdateUserProfileMutation();
+  const { data: languageData, error: languageError, refetch: languageRefetch } = useLanguagesQuery();
   const { data, loading: queryLoading, error: queryError, refetch } = useMeQuery();
 
-  // Fetch languages
-  const { data: languageData, loading: languageLoading, error: languageError } = useLanguagesQuery();
+  const validateField = (name: string, value: string) => {
+    let error = '';
+    switch (name) {
+      case 'firstName':
+      case 'lastName':
+        if (!value || value.length <= 2) {
+          error = `Please enter a valid name.`;
+        }
+        break;
+      case 'affiliationName':
+        if (!value || value.length <= 2) {
+          error = 'Institution name cannot be blank.';
+        }
+        break;
+    }
 
-  const languages = (languageData?.languages || []).filter((language) => language !== null);
+    setFieldErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: error
+    }));
+    return error;
+  }
 
-  const [updateUserProfileMutation, { loading: updateUserProfileLoading, error: updateUserProfileError }] = useUpdateUserProfileMutation();
+  const debouncedValidateField = useCallback(
+    debounce((name: string, value: string) => {
+      validateField(name, value);
+    }, 1000), []);
 
-  // Update Profile function
+  useEffect(() => {
+    const handleLanguageLoad = async () => {
+      try {
+        if (languageError) {
+          await handleApolloErrors(
+            languageError?.graphQLErrors,
+            languageError?.networkError ?? null,
+            setErrors,
+            languageRefetch,
+            router
+          );
+        }
+
+        if (languageData) {
+          const languages = (languageData?.languages || []).filter((language) => language !== null);
+          setLanguages(languages);
+        }
+      } catch (err) {
+        logECS('error', 'loading languages', {
+          error: err,
+          url: { path: '/account/profile' }
+        });
+        setErrors(prevErrors => [...prevErrors, 'Something went wrong. Please try again.']);
+      }
+    };
+
+    handleLanguageLoad();
+  }, [languageData, languageError, languageRefetch]);
+
+  const handleProfileUpdate = async () => {
+    const response = await updateUserProfileMutation({
+      variables: {
+        input: {
+          givenName: formData.firstName,
+          surName: formData.lastName,
+          affiliationId: formData.affiliationId,
+          languageId: formData.languageId,
+        }
+      },
+    });
+    return response.data;
+  }
+  // Update Profile info
   const updateProfile = async () => {
     try {
-      const response = await updateUserProfileMutation({
-        variables: {
-          input: {
-            givenName: formData.firstName,
-            surName: formData.lastName,
-            affiliationId: formData.affiliationId,
-            languageId: formData.languageId,
-          }
-        },
-      });
+      const response = await handleProfileUpdate();
 
-      if (response.data) {
+      if (response) {
         setIsEditing(false);
       }
-      return response.data;
-
-    } catch (error) {
-      console.error("Error updating profile:", error);
+    } catch (err) {
+      await handleApolloErrors(
+        updateUserProfileError?.graphQLErrors,
+        updateUserProfileError?.networkError ?? null,
+        setErrors,
+        //there is no refetch for mutations, so handleApolloErrors will need to call this mutation again when tokens or csrf needs to be refreshed
+        () => updateUserProfileMutation({
+          variables: {
+            input: {
+              givenName: formData.firstName,
+              surName: formData.lastName,
+              affiliationId: formData.affiliationId,
+              languageId: formData.languageId,
+            }
+          },
+        }),
+        router
+      );
+      logECS('error', 'updating profile', {
+        error: err,
+        url: { path: '/account/profile' }
+      });
     }
   };
 
@@ -126,30 +181,34 @@ const ProfilePage: React.FC = () => {
   const onProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!isFormValid()) {
-      // Do not submit data to backend
-    } else {
-      // Get form data as an object.
-      // let data = Object.fromEntries(new FormData(e.currentTarget));
+    // Cancel any pending validation
+    debouncedValidateField.cancel();
 
-      // return data;
-      const data = await updateProfile();
-      console.log(data);
+    if (isFormValid()) {
+      // Update profile
+      await updateProfile();
+      setErrors([]); // Clear errors on successful submit
     }
   };
 
   const cancelEdit = () => {
+    // Revert back to original data
     if (originalData) {
       setFormData(originalData);
     }
+
+    //Hide form
     setIsEditing(false);
+
+    //Remove all field errors
     setFieldErrors({
       firstName: '',
       lastName: '',
       affiliationId: '',
       affiliationName: '',
       languageId: '',
-      languageName: ''
+      languageName: '',
+      otherInstitution: ''
     });
   }
 
@@ -157,6 +216,15 @@ const ProfilePage: React.FC = () => {
   const isFormValid = (): boolean => {
     // Initialize a flag for form validity
     let isValid = true;
+    let errors: FormErrorsInterface = {
+      firstName: '',
+      lastName: '',
+      affiliationId: '',
+      affiliationName: '',
+      languageId: '',
+      languageName: '',
+      otherInstitution: ''
+    };
 
     // Iterate over formData to validate each field
     Object.keys(formData).forEach((key) => {
@@ -164,42 +232,17 @@ const ProfilePage: React.FC = () => {
       const value = formData[name];
 
       // Call validateField to update errors for each field
-      validateField(name, value);
-
-      // If there is any error in fieldErrors, mark form as invalid
-      if (fieldErrors[name as keyof FormErrors]) {
+      const error = validateField(name, value);
+      if (error) {
         isValid = false;
+        errors[name] = error;
       }
     });
+    setFieldErrors(errors);
     return isValid;
   };
 
-  const validateField = (name: string, value: string) => {
-    let error = '';
-    switch (name) {
-      case 'firstName':
-      case 'lastName':
-        if (!/^[A-Za-z]+$/.test(value)) {
-          error = `Please enter a valid ${name} (only letters allowed).`;
-        }
-        break;
-      case 'institution':
-        if (value.length < 2) {
-          error = 'Institution name cannot be blank.';
-        }
-        break;
-      case 'language':
-        if (!/^[A-Za-z\s]+$/.test(value)) {
-          error = 'Please enter a valid language (only letters and spaces allowed).';
-        }
-        break;
-    }
-    setFieldErrors(prevErrors => ({
-      ...prevErrors,
-      [name]: error
-    }));
-  }
-
+  // This function is called by the child component, UpdateEmailAddress when affiliation/institution is changed
   const updateAffiliationFormData = async (id: string, value: string) => {
     return setFormData({
       ...formData,
@@ -219,7 +262,9 @@ const ProfilePage: React.FC = () => {
       };
 
       // Set emails so we can pass to the UpdateEmailAddresses component
+
       if (data?.me?.emails) {
+
         const validEmails = data.me.emails
           // Filter out nulls and map to Email type
           .filter((email): email is NonNullable<typeof email> => email !== null)
@@ -234,6 +279,7 @@ const ProfilePage: React.FC = () => {
       } else {
         setEmailAddresses([]); // Reset to empty array if no emails data
       }
+
 
       setOriginalData({
         firstName: data.me.givenName ?? '',
@@ -257,11 +303,33 @@ const ProfilePage: React.FC = () => {
     }
   }, [data])
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData])
+  // Update form data
+  const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  }
 
-  // Handle errors from graphql request
+  const handleEdit = () => {
+    setIsEditing(!isEditing)
+  }
+
+  // Handle any changes to form field values
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    handleUpdate(e);
+    if (e.target.value) {
+      // Debounce so that validation isn't called on each character entry
+      debouncedValidateField(name, value);
+    } else {
+      // If no value, clear the specific field error
+      setFieldErrors(prevErrors => ({
+        ...prevErrors,
+        [name]: '' // Clear the error for the current field if that field is empty
+      }));
+    }
+  };
+
+  // Handle errors from loading of user data
   useEffect(() => {
     if (queryError) {
       const handleErrors = async () => {
@@ -278,54 +346,10 @@ const ProfilePage: React.FC = () => {
     }
   }, [queryError, refetch]); // Runs when 'error' changes or 'refetch' happens
 
-  // Handle errors from graphql request
-  useEffect(() => {
-    const handleErrors = async () => {
-      //Remove null and undefined errors
-      const errors = [queryError, languageError, updateUserProfileError].filter(Boolean);
 
-      for (const error of errors) {
-        await handleApolloErrors(
-          error?.graphQLErrors,
-          error?.networkError ?? null,
-          setErrors,
-          refetch,
-          router
-        );
-      }
-    };
-
-    if (queryError || languageError || updateUserProfileError) {
-      handleErrors();
-    }
-  }, [queryError, languageError, updateUserProfileError, refetch]);
-
-  // Update form data
-  const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  }
-
-  const handleEdit = () => {
-    setIsEditing(!isEditing)
-  }
-
-  // Handle any changes to form field values
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    handleUpdate(e); // Your existing state update function
-    if (e.target.value) {
-      validateField(name, value);
-    } else {
-      // If no value, clear the specific field's error
-      setFieldErrors(prevErrors => ({
-        ...prevErrors,
-        [name]: '' // Clear the error for the current field if that field is empty
-      }));
-    }
-
-  };
-
-  if (queryLoading) {
+  // Show loading message on first page load when getting user
+  const loading = queryLoading;
+  if (loading) {
     return <div>Loading...</div>;
   }
 
@@ -341,7 +365,7 @@ const ProfilePage: React.FC = () => {
               <div className={styles.subSection}>
                 <Form onSubmit={onProfileSubmit}>
                   {errors && errors.length > 0 &&
-                    <div className="error">
+                    <div className="error" role="alert" aria-live="assertive">
                       {errors.map((error, index) => (
                         <p key={index}>{error}</p>
                       ))}
@@ -349,24 +373,16 @@ const ProfilePage: React.FC = () => {
                   }
                   <div className={`${styles.twoItemRow} ${styles.formRow}`}>
                     {isEditing ? (
-                      <>
-                        <TextField
-                          name="firstName"
-                          type="text"
-                          className={!!fieldErrors['firstName'] ? styles.fieldError : ''}
-                          isInvalid={!!fieldErrors['firstName']}
-                        >
-                          <Label>First name</Label>
-                          <Input
-                            name="firstName"
-                            placeholder={formData.firstName}
-                            onChange={handleInputChange}
-                            value={formData.firstName}
-                          />
-                          <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{fieldErrors['firstName']}</FieldError>
-                        </TextField>
-
-                      </>
+                      <FormInput
+                        name="firstName"
+                        type="text"
+                        label="First name"
+                        placeholder={formData.firstName}
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        isInvalid={!!fieldErrors['firstName']}
+                        errorMessage={fieldErrors['firstName']}
+                      />
                     ) : (
                       <Text slot="firstName" className={styles.readOnlyField}>
                         <div className={styles.fieldLabel}>First name</div>
@@ -374,25 +390,17 @@ const ProfilePage: React.FC = () => {
                       </Text>
                     )}
 
-
                     {isEditing ? (
-                      <>
-                        <TextField
-                          name="lastName"
-                          type="text"
-                          className={!!fieldErrors['lastName'] ? styles.fieldError : ''}
-                          isInvalid={!!fieldErrors['lastName']}
-                        >
-                          <Label>Last name</Label>
-                          <Input
-                            name="lastName"
-                            placeholder={formData.lastName}
-                            onChange={handleInputChange}
-                            value={formData.lastName}
-                          />
-                          <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{fieldErrors['lastName']}</FieldError>
-                        </TextField>
-                      </>
+                      <FormInput
+                        name="lastName"
+                        type="text"
+                        label="Last name"
+                        placeholder={formData.lastName}
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        isInvalid={!!fieldErrors['lastName']}
+                        errorMessage={fieldErrors['lastName']}
+                      />
                     ) : (
                       <Text slot="lastName" className={styles.readOnlyField}>
                         <div className={styles.fieldLabel}>Last name</div>
@@ -408,12 +416,11 @@ const ProfilePage: React.FC = () => {
                         <TypeAheadWithOther
                           label="Institution"
                           fieldName="institution"
-                          placeholder={formData.affiliationName}
                           graphqlQuery={AffiliationsDocument}
                           setOtherField={setOtherField}
                           required={true}
                           error={fieldErrors.affiliationName}
-                          updateAffiliationFormData={updateAffiliationFormData}
+                          updateFormData={updateAffiliationFormData}
                           value={formData.affiliationName}
                         />
                         {otherField && (
@@ -434,13 +441,14 @@ const ProfilePage: React.FC = () => {
 
                   <div className={`${styles.oneItemRow} ${styles.formRow}`}>
                     {isEditing ? (
-                      <MySelect
+                      <FormSelect
                         label="Language"
                         isRequired
                         name="institution"
                         items={languages}
 
                         errorMessage="A selection is required"
+                        helpMessage="This is a test"
                         onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
                         selectedKey={formData.languageId.trim()}
                       >
@@ -450,7 +458,7 @@ const ProfilePage: React.FC = () => {
                           )
 
                         })}
-                      </MySelect>
+                      </FormSelect>
                     ) : (
                       <Text slot="language" className={styles.readOnlyField}>
                         <div className={styles.fieldLabel}>Language</div>
@@ -461,7 +469,7 @@ const ProfilePage: React.FC = () => {
                   {isEditing ? (
                     <>
                       <Button className="secondary" onPress={cancelEdit}>Cancel</Button>
-                      <Button type="submit" className={styles.btn}>Update</Button>
+                      <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? 'Updating' : 'Update'}</Button>
                     </>
                   ) : (
                     <Button type="submit" onPress={handleEdit} className={styles.btn}>Edit</Button>

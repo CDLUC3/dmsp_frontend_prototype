@@ -1,10 +1,9 @@
 'use client'
 
-import { GraphQLFormattedError } from 'graphql';
 import { FetchResult } from '@apollo/client';
+import { GraphQLFormattedError } from 'graphql';
 import logECS from "@/utils/clientLogger";
 import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
-import { ApolloQueryResult } from '@apollo/client';
 
 type ServerError = Error & {
   response: Response;
@@ -23,19 +22,20 @@ type CustomRouter = {
 }
 
 type NetworkError = Error | ServerError | ServerParseError;
-type RefetchFunction<TData, TVariables> = (variables?: Partial<TVariables>) => Promise<ApolloQueryResult<TData>>;
 
 type CustomError = {
   message: string;
   errorCode?: string;
 };
-// Define the refetch or retry function type generically for any GraphQL operation.
-type RefetchOrRetryFunction = () => Promise<FetchResult<any>>;
+
+type RefetchFunction<TData, TVariables> =
+  | ((variables?: TVariables) => Promise<TData>)
+  | ((variables?: TVariables) => Promise<FetchResult<TData>>);
 
 export async function handleGraphQLErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[],
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  refetchOrRetry: RefetchOrRetryFunction,
+  refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
   router: CustomRouter
 ): Promise<CustomError[]> {
   const customErrors: CustomError[] = [];
@@ -48,7 +48,7 @@ export async function handleGraphQLErrors<TData, TVariables>(
           try {
             const result = await refreshAuthTokens();
             if (result) {
-              await refetchOrRetry();
+              await refetch();
             } else {
               // If refresh fails, log the error and add to the errorResponses
               logECS('error', 'Token refresh failed with no result', { errorCode: 'UNAUTHENTICATED' });
@@ -101,7 +101,7 @@ export async function handleApolloErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[] | undefined,
   networkError: NetworkError | null,
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  refetchOrRetry: RefetchOrRetryFunction,
+  refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
   router: CustomRouter
 ): Promise<void> {
   await handleGraphQLErrors(graphQLErrors || [], setErrors, refetch, router);

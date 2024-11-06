@@ -1,4 +1,12 @@
 ### Added
+- Added new User Profile page [#124]
+  - Created a separate UpdateEmailAddress component
+  - Created EmailAddressRow component
+  - Created shared Form components, FormInput and FormSelect
+  - Created temporary RightSidebar component
+  - Updated TypeAheadWithOther component to work with parent components
+  - Added some shared css for shared form components in a new style file called _form.scss
+  - Added corresponding unit tests
 - Made some updates related to authentication [#142]
   - Updated middleware to redirect to /login if both access token and refresh token is missing
   - Updated refreshAuthTokens method to throw errors that will be caught gqlErrorHandler

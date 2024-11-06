@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 
 // TODO: These routes will need to be updated.
-const protectedPaths = ['/dmps/', '/admin/', '/template']
 const excludedPaths = ['/login', '/signup', '/email', '/favicon.ico', '/_next', '/api'];
 
 export async function middleware(request: NextRequest) {

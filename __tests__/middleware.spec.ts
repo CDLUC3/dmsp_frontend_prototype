@@ -25,7 +25,7 @@ describe('middleware', () => {
 
         request = {
             cookies: {
-                get: jest.fn(),
+                get: jest.fn().mockReturnValue('cookie-value'),
             },
             nextUrl: {
                 pathname: '',
@@ -37,8 +37,8 @@ describe('middleware', () => {
         (NextResponse.next as jest.Mock).mockReturnValue(response);
     });
 
-    it('should return next response when no protected path is matched', async () => {
-        request.nextUrl.pathname = '/public';
+    it('should return next response when it is an excluded path', async () => {
+        request.nextUrl.pathname = '/_next';
 
         const result = await middleware(request);
 
