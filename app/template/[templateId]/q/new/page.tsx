@@ -1,7 +1,17 @@
 'use client';
 
 import React from 'react';
-import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
+import {
+    Breadcrumb,
+    Breadcrumbs,
+    Button,
+    FieldError,
+    Input,
+    Label,
+    Link,
+    SearchField,
+    Text
+} from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {Card, CardBody, CardFooter, CardHeading} from "@/components/Card/card";
 
@@ -76,6 +86,17 @@ const QuestionTypeSelectPage: React.FC = () => {
                 actions={null}
                 className=""
             />
+            <div className="Filters">
+                <SearchField>
+                    <Label>Search by keyword</Label>
+                    <Input/>
+                    <Button>Search</Button>
+                    <FieldError/>
+                    <Text slot="description" className="help">
+                        Search by field type or description.
+                    </Text>
+                </SearchField>
+            </div>
             <div>
                 <h2>
                     Standard

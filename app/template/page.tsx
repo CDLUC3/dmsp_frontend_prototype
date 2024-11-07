@@ -98,7 +98,7 @@ const TemplateListPage: React.FC = () => {
 
 
 
-      <div className="template-list"  role="list">
+      <div className="template-list"  aria-label="Template list"  role="list">
         {templates.map((template, index) => (
           <TemplateListItem key={index} item={template}/>
         ))}
