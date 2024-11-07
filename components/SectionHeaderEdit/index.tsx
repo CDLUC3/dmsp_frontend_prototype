@@ -27,10 +27,20 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
       <div className="button-group">
         <a href={editUrl} className="edit-button">Edit section</a>
         <Button className="btn-default order-button" onPress={onMoveUp}
-                aria-label="Move section up">↑
+                aria-label="Move section up">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 15L12 9L6 15" stroke="black" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </Button>
         <Button className="btn-default  order-button" onPress={onMoveDown}
-                aria-label="Move section down">↓
+                aria-label="Move section down">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 9L12 15L18 9" stroke="black" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </Button>
       </div>
     </div>

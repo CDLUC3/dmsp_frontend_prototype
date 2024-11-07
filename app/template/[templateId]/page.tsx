@@ -166,7 +166,7 @@ const TemplateEditPage: React.FC = () => {
 
       <PageHeader
         title={template.name}
-        description={`by ${template.author} - Version: ${template.version} - Published: ${template.publishedDate}`}
+        description={`by ${template.author} - Version: ${template.version} - Published: ${template.publishedDate}`  }
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>

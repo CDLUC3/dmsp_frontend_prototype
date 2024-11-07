@@ -67,4 +67,17 @@
       outline-offset: 0.125rem;
     }
   }
+
+  .order-button{
+    padding: 0;
+    margin: 0;
+    &:focus,
+    &:hover {
+      padding: 0!important;
+      margin: 0!important;
+      color: var(--primary);
+      outline: 1px solid #1a73e8;
+      outline-offset: 0;
+    }
+  }
 }

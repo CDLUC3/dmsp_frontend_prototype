@@ -26,10 +26,12 @@ const TemplateListPage: React.FC = () => {
         <div>
           <p>National Science Foundation (nsf.gov)</p>
           <p>Last updated: 04-01-2024</p>
-          {/* Add more content here */}
         </div>
       ),
-      defaultExpanded: false
+      funder: 'National Science Foundation',
+      lastUpdated: '04-01-2024',
+      publishStatus: 'Published',
+      defaultExpanded: false,
     },
     {
       title: 'NSF Polar Expeditions',
@@ -37,11 +39,14 @@ const TemplateListPage: React.FC = () => {
       content: (
         <div>
           <p>National Science Foundation (nsf.gov)</p>
-          <p>Last updated: 04-01-2024</p>
+          <p>Last updated: 06-15-2024</p>
           <p>Status: Unpublished</p>
         </div>
       ),
-      defaultExpanded: false
+      funder: 'National Science Foundation',
+      lastUpdated: '06-15-2024',
+      publishStatus: 'Unpublished',
+      defaultExpanded: false,
     },
     {
       title: 'NSF: McMurdo Station (Antarctic)',
@@ -52,7 +57,10 @@ const TemplateListPage: React.FC = () => {
           <p>Last updated: 09-21-2024</p>
         </div>
       ),
-      defaultExpanded: false
+      funder: 'National Science Foundation',
+      lastUpdated: '09-21-2024',
+      publishStatus: 'Published',
+      defaultExpanded: false,
     }
   ];
 

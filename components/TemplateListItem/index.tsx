@@ -1,12 +1,11 @@
 import {useState} from 'react';
 import Link from 'next/link';
-import {Button} from "react-aria-components";
+import {Button} from 'react-aria-components';
 
 import styles from './TemplateListItem.module.scss';
 
-
 // Define valid href types for Next.js Link
-type Url = string | URL
+type Url = string | URL;
 type LinkHref = Url | {
   pathname: string;
   query?: Record<string, string | number | string[] | undefined>;
@@ -19,10 +18,13 @@ interface TemplateItemProps {
     content: JSX.Element;
     link?: LinkHref;
     defaultExpanded: boolean;
+    funder: string;
+    lastUpdated: string;
+    publishStatus: string;
   };
 }
 
-function TemplateListItem({item}: TemplateItemProps) {
+function TemplateListItem({ item }: TemplateItemProps) {
   const [expanded, setExpanded] = useState<boolean>(item.defaultExpanded);
 
   const toggleExpand = () => {
@@ -34,19 +36,13 @@ function TemplateListItem({item}: TemplateItemProps) {
   const headingId = `${item.title.toLowerCase().replace(/\s+/g, '-')}-heading`;
 
   return (
-    <div
-      className={styles.templateItem}
-      role="listitem"
-    >
+    <div className={styles.templateItem} role="listitem">
       <div className={styles.TemplateItemInner}>
         <div className={styles.TemplateItemHeading}>
           <h3 id={headingId}>
             {item.link ? (
-              <Link
-                href={item.link}
-                aria-label={`Update ${item.title}`}
-                className={styles.titleLink}
-              >
+              <Link href={item.link} aria-label={`Update ${item.title}`}
+                    className={styles.titleLink}>
                 {item.title}
               </Link>
             ) : (
@@ -54,17 +50,38 @@ function TemplateListItem({item}: TemplateItemProps) {
             )}
           </h3>
           <div className="template-content">
-            {item.content}
+            <div className={styles.statusInfo}>
+              {item.funder && (
+                <>
+                  <span className="sr-only">Funder:</span> {item.funder}
+                </>
+              )}
+              {item.lastUpdated && (
+                <>
+                  {item.funder && <span className={styles.separator}>|</span>}
+                  <span
+                    className="sr-only">Last Updated:</span> {item.lastUpdated}
+                </>
+              )}
+              {item.publishStatus && (
+                <>
+                  {(item.funder || item.lastUpdated) &&
+                    <span className={styles.separator}>|</span>}
+                  <span
+                    className="sr-only">Publish Status:</span> {item.publishStatus}
+                </>
+              )}
+            </div>
+
+
+
           </div>
         </div>
 
         <div className={styles.TemplateItemActions}>
           {item.link && (
-            <Link
-              href={item.link}
-              aria-label={`Update ${item.title}`}
-              className={styles.updateLink}
-            >
+            <Link href={item.link} aria-label={`Update ${item.title}`}
+                  className={styles.updateLink}>
               Update
             </Link>
           )}
@@ -105,6 +122,9 @@ function TemplateListItem({item}: TemplateItemProps) {
           aria-labelledby={headingId}
         >
           <p>Additional information goes here...</p>
+          <p>
+            {item.content}
+          </p>
         </div>
       )}
     </div>
