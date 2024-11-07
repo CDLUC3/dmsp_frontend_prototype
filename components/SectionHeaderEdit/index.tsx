@@ -12,12 +12,50 @@ interface SectionHeaderEditProps {
 }
 
 const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
-                                                           title,
-                                                           sectionNumber,
-                                                           editUrl,
-                                                           onMoveUp,
-                                                           onMoveDown
-                                                         }) => {
+                                                               title,
+                                                               sectionNumber,
+                                                               editUrl,
+                                                               onMoveUp,
+                                                               onMoveDown
+                                                             }) => {
+
+  const UpArrowIcon = () => (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M18 15L12 9L6 15"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+  const DownArrowIcon = () => (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M6 9L12 15L18 9"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
+
   return (
     <div className="section-header">
       <h2 className="section-title">
@@ -28,19 +66,11 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
         <a href={editUrl} className="edit-button">Edit section</a>
         <Button className="btn-default order-button" onPress={onMoveUp}
                 aria-label="Move section up">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-               xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 15L12 9L6 15" stroke="black" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <UpArrowIcon/>
         </Button>
         <Button className="btn-default  order-button" onPress={onMoveDown}
                 aria-label="Move section down">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-               xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 9L12 15L18 9" stroke="black" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <DownArrowIcon/>
         </Button>
       </div>
     </div>
