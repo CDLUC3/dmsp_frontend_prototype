@@ -306,6 +306,7 @@ body {
 @import "page";
 
 
+// this is potentailly temporary when integrating real side bar
 .sidebar-section{
   margin-bottom: var(--space-5);
 }
@@ -321,6 +322,4 @@ body {
     position: sticky;
     top: 0;
   }
-
-
 }

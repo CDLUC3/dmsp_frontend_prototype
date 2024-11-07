@@ -456,7 +456,7 @@
   color: var(--text-color);
   margin: 0 0 1rem;
 
-  li{
+  li {
     font-size: 0.8rem;
   }
 
@@ -495,7 +495,22 @@
 }
 
 
-
-.Filters{
+.Filters {
   margin: 1rem 0;
+}
+
+
+.card-grid-list {
+  margin-top:var(--space-4);
+  margin-bottom: var(--space-8);
+  display: grid;
+  gap: var(--space-5);
+  @include device(md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include device(xl) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
 }
