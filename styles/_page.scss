@@ -166,10 +166,20 @@ footer {
   background: none;
   border: none;
   color: #000;
-  font-size: 1rem;
+  font-size: var(--fs-body);
   text-decoration: none;
   cursor: pointer;
   padding: 0;
+  display: flex;
+  align-items: center;
+  line-height: normal;
+  font-weight: 600;
+
+  span{
+    margin-right: var(--space-2);
+    position: relative;
+    top: 2px;
+  }
 
 }
 
@@ -218,13 +228,4 @@ footer {
 
 .mx-auto{
   margin: 0 auto;
-}
-.section-add-cont {
-  border: 1px dashed #D1D1D1;
-  background: rgba(255, 255, 255, 0.50);
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 1rem 0;
 }
