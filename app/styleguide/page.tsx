@@ -350,7 +350,7 @@ function Page() {
 
   return (
     <>
-      <LayoutWithSidebar id="sgLayout" sidebarPosition="left">
+      <LayoutWithSidebar id="sgLayout">
         <SidebarContainer isOpen={true}>
           <h3>Contents</h3>
 
@@ -1186,7 +1186,7 @@ function Page() {
                 <h3>Layout With Sidebar</h3>
                 <p>This is the primary content for the slider component</p>
                 <div><pre><code>
-                  {`<LayoutWithSidebar sidebarPosition="right">
+                  {`<LayoutWithSidebar>
   <ToolbarContainer> ... </ToolbarContainer>
   <SidebarContainer> ... </SidebarContainer>
   <ContentContainer> ... </ContentContainer>
@@ -1210,20 +1210,11 @@ function Page() {
               </ContentContainer>
 
               <DrawerContainer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)}>
-                <Button autofocus onPress={() => setDrawerOpen(false)}>Close</Button>
+                <Button onPress={() => setDrawerOpen(false)}>Close</Button>
                 <p>This is the Drawer Content</p>
               </DrawerContainer>
 
             </LayoutWithSidebar>
-
-            <h3>LayoutWithSidebar Properties</h3>
-            <dl>
-              <dt><code>sidebarPosition: (left | right)</code></dt>
-              <dd>
-                Tells the layoutcontainer on what side we want the sidebar to appear.
-                Defaults to <code>left</code>.
-              </dd>
-            </dl>
 
             <h3>SidebarContainer Properties</h3>
             <dl>

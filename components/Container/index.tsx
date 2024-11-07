@@ -126,29 +126,30 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
       if (thisRef.current) {
         let direction: DirectionType = null;
 
-        children.forEach((rNode) => {
+        children?.forEach((rNode) => {
+          if (!rNode) return;
+
           // Set up the state with a toolbar if present
-          console.log(`Node Name? ${rNode.type.name}`);
           switch (rNode.type.name) {
-              case "ToobarContainer": {
-                thisRef.current.classList.add('with-toolbar');
-                break;
-              }
+            case "ToobarContainer": {
+              thisRef.current?.classList.add('with-toolbar');
+              break;
+            }
 
-              case "ContentContainer": {
-                if (!direction) direction = "right";
-              }
+            case "ContentContainer": {
+              if (!direction) direction = "right";
+            }
 
-              case "SidebarContainer": {
-                thisRef.current.classList.add('with-sidebar');
-                if (!direction) direction = "left";
-                break;
-              }
+            case "SidebarContainer": {
+              thisRef.current?.classList.add('with-sidebar');
+              if (!direction) direction = "left";
+              break;
+            }
 
-              case "DrawerContainer": {
-                thisRef.current.classList.add('with-drawer');
-                if (!direction) direction = "left";
-              }
+            case "DrawerContainer": {
+              thisRef.current?.classList.add('with-drawer');
+              if (!direction) direction = "left";
+            }
           }
         });
 
@@ -210,9 +211,10 @@ export const DrawerContainer: React.FC<DrawerContainerProps> = ({
   onClose,
 }) => {
 
-  const drawerRef = useRef();
+  const drawerRef = useRef<HTMLDivElement | null>(null);
   const size = useResponsive();
   const [isMobile, setIsMobile] = useState<Boolean>(true);
+  const [prevFocus, setPrevFocus] = useState<Element | null>(null);
 
   useEffect(() => {
     if (size.viewport[0] < getSizeByName('md')[0]) {
@@ -223,16 +225,31 @@ export const DrawerContainer: React.FC<DrawerContainerProps> = ({
   }, [size]);
 
   useEffect(() => {
+    const activeEl = document.activeElement as HTMLElement | null;
+    if (isOpen) {
+      if (drawerRef && drawerRef.current) {
+        setPrevFocus(document.activeElement);
+
+        // Developer NOTE:
+        // We wait wait till the animation is finished before changing focus.
+        // The animation in CSS takes 300 miliseconds to complete, so we buffer
+        // that with an extra 1ms.
+        window.setTimeout(() => {
+          activeEl?.blur();
+          drawerRef.current?.focus();
+        }, 301);
+      }
+    } else {
+      if (prevFocus) {
+        window.setTimeout(() => {
+          activeEl?.blur();
+          (prevFocus as HTMLElement | null)?.focus();
+        }, 301);
+      }
+    }
+
     if (!isOpen && onClose) onClose();
   }, [isOpen]);
-
-  useEffect(() => {
-    if (drawerRef && drawerRef.current) {
-      drawerRef.current.querySelector('.drawer-content').addEventListener('transitioned', () => {
-        console.log('Hey would you look at that?');
-      });
-    }
-  }, []);
 
   return (
     <>

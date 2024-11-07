@@ -12,7 +12,9 @@ type SizeName =
   'xl' |
   'xxl';
 
-const breakpoints: [number, SizeName][] = [
+type BreakPoint = [number, SizeName];
+
+const breakpoints: BreakPoint[] = [
   [0, 'xs'],
   [640, 'sm'],
   [768, 'md'],
@@ -26,12 +28,12 @@ export interface DeviceProps {
   deviceSize: SizeName | null;
 }
 
-export const getSizeByName = (name: string) => {
-  return breakpoints.find(rs => rs[1] == name);
+export const getSizeByName = (name: SizeName): BreakPoint => {
+  return breakpoints.find(rs => rs[1] == name) || breakpoints[0];
 }
 
-export const getSizeByWidth = (w: number) => {
-  return breakpoints.find(rs => rs[0] == w);
+export const getSizeByWidth = (w: number): BreakPoint => {
+  return breakpoints.find(rs => rs[0] == w) || breakpoints[0];
 }
 
 export const getDeviceSize = (w: number): SizeName => {
