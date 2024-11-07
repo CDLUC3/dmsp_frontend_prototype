@@ -37,7 +37,7 @@ export async function handleGraphQLErrors<TData, TVariables>(
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
   refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
   router: CustomRouter
-): Promise<CustomError[]> {
+) {
   const customErrors: CustomError[] = [];
 
   if (graphQLErrors) {
@@ -82,8 +82,6 @@ export async function handleGraphQLErrors<TData, TVariables>(
       }
     }
   }
-
-  return customErrors;
 }
 
 export function handleNetworkError(networkError: NetworkError | null, setErrors: React.Dispatch<React.SetStateAction<string[]>>): CustomError[] {

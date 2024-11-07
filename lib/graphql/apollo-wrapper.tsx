@@ -1,7 +1,7 @@
 "use client"
 
 import { createHttpLink } from "@apollo/client";
-import { errorLink, authLink, retryLink } from "@/lib/graphql/graphqlHelper";
+import { authLink, retryLink } from "@/lib/graphql/graphqlHelper";
 
 //From https://github.com/apollographql/apollo-client-nextjs
 import {
@@ -28,7 +28,6 @@ function makeClient() {
         // use the `InMemoryCache` from "@apollo/experimental-nextjs-app-support"
         cache: new InMemoryCache(),
         link: ApolloLink.from([
-            errorLink,
             authLink,
             retryLink,
             httpLink,

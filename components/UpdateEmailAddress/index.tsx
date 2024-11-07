@@ -5,10 +5,11 @@ import {
   Button,
   Form,
 } from "react-aria-components";
+import { ApolloQueryResult } from "@apollo/client";
 
 // Graphql mutations
 import { useSetPrimaryUserEmailMutation, useAddUserEmailMutation, useRemoveUserEmailMutation } from '@/generated/graphql';
-
+import { MeQuery } from '@/generated/graphql';
 // Components
 import ContentContainer from '@/components/ContentContainer';
 import EmailAddressRow from '@/components/EmailAddressRow';
@@ -23,12 +24,13 @@ import styles from './updateEmailAddress.module.scss';
 export interface UpdateEmailAddressProps {
   emailAddresses: EmailInterface[];
   setEmailAddresses: Dispatch<SetStateAction<EmailInterface[]>>;
+  refetch: () => () => Promise<ApolloQueryResult<MeQuery>>;
 }
-
 
 const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   emailAddresses,
   setEmailAddresses,
+  refetch
 }) => {
   let setToPrimaryEmail = '';
   const router = useRouter();
@@ -56,6 +58,8 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         setErrors(emailData.errors ?? []);
         return;
       }
+      // Refetch updated email list
+      refetch();
     } catch (err) {
       await handleApolloErrors(
         setPrimaryUserEmailError?.graphQLErrors,
@@ -129,29 +133,22 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
   // Function to delete an email
   const deleteEmail = async (emailToDelete: string) => {
-    // Save a backup of the current state in case we need to revert
-    const backupEmailList = [...emailAddresses];
-
-    // Optimistically update local state when user deletes email
-    const updatedEmailList = emailAddresses.filter((email) => email.email !== emailToDelete);
-    setEmailAddresses(updatedEmailList);
     try {
       const response = await removeUserEmailMutation({
         variables: {
           email: emailToDelete
-        }
+        },
       })
 
       const emailData = response?.data?.removeUserEmail;
       if (emailData?.errors && emailData.errors.length > 0) {
-        // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
         setErrors(emailData.errors ?? []);
         return;
       }
 
+      //Refetch updated email list
+      refetch();
     } catch (err) {
-      // If the deletion fails, roll back the optimistic update
-      setEmailAddresses(backupEmailList);
       await handleApolloErrors(
         deleteEmailError?.graphQLErrors,
         deleteEmailError?.networkError ?? null,
@@ -170,6 +167,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
     }
   };
 
+  // If page-level errors, scroll them into view
   useEffect(() => {
     if (errors.length > 0 && errorRef.current) {
       errorRef.current.scrollIntoView({

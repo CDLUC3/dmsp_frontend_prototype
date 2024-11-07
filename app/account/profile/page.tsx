@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ApolloError } from '@apollo/client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -32,7 +33,6 @@ import { EmailInterface, LanguageInterface, ProfileDataInterface, FormErrorsInte
 // Utils and other
 import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import logECS from '@/utils/clientLogger';
-import { debounce } from '@/hooks/debounce';
 import styles from './profile.module.scss';
 
 const ProfilePage: React.FC = () => {
@@ -62,19 +62,26 @@ const ProfilePage: React.FC = () => {
     languageName: '',
     otherInstitution: ''
   });
-
   const [emailAddresses, setEmailAddresses] = useState<EmailInterface[]>([]);
   const [languages, setLanguages] = useState<LanguageInterface[]>([]);
+  const [, forceRender] = useState(false);
 
   // Initialize user profile mutation
   const [updateUserProfileMutation, { loading: updateUserProfileLoading, error: updateUserProfileError }] = useUpdateUserProfileMutation();
+
+  // Run queries
   const { data: languageData, error: languageError, refetch: languageRefetch } = useLanguagesQuery();
   const { data, loading: queryLoading, error: queryError, refetch } = useMeQuery();
 
+  // Client-side validation of fields
   const validateField = (name: string, value: string) => {
     let error = '';
     switch (name) {
       case 'firstName':
+        if (!value || value.length <= 2) {
+          error = `Please enter a valid name.`;
+        }
+        break;
       case 'lastName':
         if (!value || value.length <= 2) {
           error = `Please enter a valid name.`;
@@ -86,7 +93,6 @@ const ProfilePage: React.FC = () => {
         }
         break;
     }
-
     setFieldErrors(prevErrors => ({
       ...prevErrors,
       [name]: error
@@ -94,41 +100,7 @@ const ProfilePage: React.FC = () => {
     return error;
   }
 
-  const debouncedValidateField = useCallback(
-    debounce((name: string, value: string) => {
-      validateField(name, value);
-    }, 1000), []);
-
-  useEffect(() => {
-    const handleLanguageLoad = async () => {
-      try {
-        if (languageError) {
-          await handleApolloErrors(
-            languageError?.graphQLErrors,
-            languageError?.networkError ?? null,
-            setErrors,
-            languageRefetch,
-            router
-          );
-        }
-
-        if (languageData) {
-          const languages = (languageData?.languages || []).filter((language) => language !== null);
-          setLanguages(languages);
-        }
-      } catch (err) {
-        logECS('error', 'loading languages', {
-          error: err,
-          url: { path: '/account/profile' }
-        });
-        setErrors(prevErrors => [...prevErrors, 'Something went wrong. Please try again.']);
-      }
-    };
-
-    handleLanguageLoad();
-  }, [languageData, languageError, languageRefetch]);
-
-  const handleProfileUpdate = async () => {
+  const profileUpdateMutation = async () => {
     const response = await updateUserProfileMutation({
       variables: {
         input: {
@@ -144,42 +116,48 @@ const ProfilePage: React.FC = () => {
   // Update Profile info
   const updateProfile = async () => {
     try {
-      const response = await handleProfileUpdate();
-
+      const response = await profileUpdateMutation();
       if (response) {
         setIsEditing(false);
       }
-    } catch (err) {
-      await handleApolloErrors(
-        updateUserProfileError?.graphQLErrors,
-        updateUserProfileError?.networkError ?? null,
-        setErrors,
-        //there is no refetch for mutations, so handleApolloErrors will need to call this mutation again when tokens or csrf needs to be refreshed
-        () => updateUserProfileMutation({
-          variables: {
-            input: {
-              givenName: formData.firstName,
-              surName: formData.lastName,
-              affiliationId: formData.affiliationId,
-              languageId: formData.languageId,
-            }
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        await handleApolloErrors(
+          error.graphQLErrors,
+          error.networkError,
+          setErrors,
+          () => {
+            return updateUserProfileMutation({
+              variables: {
+                input: {
+                  givenName: formData.firstName,
+                  surName: formData.lastName,
+                  affiliationId: formData.affiliationId,
+                  languageId: formData.languageId,
+                },
+              },
+            });
           },
-        }),
-        router
-      );
-      logECS('error', 'updating profile', {
-        error: err,
-        url: { path: '/account/profile' }
-      });
+          router
+        );
+        setIsEditing(false);
+      } else {
+        // Handle other types of errors
+        setErrors(prevErrors => [...prevErrors, 'Error when updating profile']);
+      }
     }
   };
 
-  // Handle submit of Profile form
-  const onProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //Passed to UpdateEmailAddress which calls it after deleting email
+  const handleRefetch = () => {
+    return refetch();
+  }
+
+  // Handle form submit
+  const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Cancel any pending validation
-    debouncedValidateField.cancel();
+    clearAllFieldErrors();
 
     if (isFormValid()) {
       // Update profile
@@ -187,6 +165,28 @@ const ProfilePage: React.FC = () => {
       setErrors([]); // Clear errors on successful submit
     }
   };
+
+  const clearAllFieldErrors = () => {
+    //Remove all field errors
+    setFieldErrors({
+      firstName: '',
+      lastName: '',
+      affiliationId: '',
+      affiliationName: '',
+      languageId: '',
+      languageName: '',
+      otherInstitution: ''
+    });
+  }
+
+  // Clear any errors for the current active field
+  const clearActiveFieldError = (name: string) => {
+    // Clear error for active field
+    setFieldErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: ''
+    }));
+  }
 
   const cancelEdit = () => {
     // Revert back to original data
@@ -198,15 +198,7 @@ const ProfilePage: React.FC = () => {
     setIsEditing(false);
 
     //Remove all field errors
-    setFieldErrors({
-      firstName: '',
-      lastName: '',
-      affiliationId: '',
-      affiliationName: '',
-      languageId: '',
-      languageName: '',
-      otherInstitution: ''
-    });
+    clearAllFieldErrors();
   }
 
   // Check whether form is valid before submitting
@@ -241,12 +233,48 @@ const ProfilePage: React.FC = () => {
 
   // This function is called by the child component, UpdateEmailAddress when affiliation/institution is changed
   const updateAffiliationFormData = async (id: string, value: string) => {
+    clearActiveFieldError('affiliationName');
     return setFormData({
       ...formData,
       affiliationName: value,
       affiliationId: id
     })
   }
+
+  useEffect(() => {
+    const handleLanguageLoad = async () => {
+      try {
+        if (languageError) {
+          await handleApolloErrors(
+            languageError?.graphQLErrors,
+            languageError?.networkError ?? null,
+            setErrors,
+            languageRefetch,
+            router
+          );
+        }
+
+        if (languageData) {
+          const languages = (languageData?.languages || []).filter((language) => language !== null);
+          setLanguages(languages);
+        }
+      } catch (err) {
+        logECS('error', 'loading languages', {
+          error: err,
+          url: { path: '/account/profile' }
+        });
+        setErrors(prevErrors => [...prevErrors, 'Something went wrong. Please try again.']);
+      }
+    };
+
+    handleLanguageLoad();
+  }, [languageData, languageError, languageRefetch]);
+
+  useEffect(() => {
+    // This effect will run whenever the `refetch` function changes
+    // This will force a re-render of the parent component
+    forceRender((prev) => !prev);
+  }, [refetch]);
 
   useEffect(() => {
     //When data from backend changes, set formData and originalData
@@ -258,10 +286,8 @@ const ProfilePage: React.FC = () => {
         isDefault: false
       };
 
-      // Set emails so we can pass to the UpdateEmailAddresses component
-
+      // Set email list so we can pass to the UpdateEmailAddresses component
       if (data?.me?.emails) {
-
         const validEmails = data.me.emails
           // Filter out nulls and map to Email type
           .filter((email): email is NonNullable<typeof email> => email !== null)
@@ -276,7 +302,6 @@ const ProfilePage: React.FC = () => {
       } else {
         setEmailAddresses([]); // Reset to empty array if no emails data
       }
-
 
       setOriginalData({
         firstName: data.me.givenName ?? '',
@@ -300,9 +325,11 @@ const ProfilePage: React.FC = () => {
     }
   }, [data])
 
+
   // Update form data
-  const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleUpdate = (name: string, value: string) => {
+    clearActiveFieldError(name)
+    setFormData({ ...formData, [name]: value });
   }
 
   const handleEdit = () => {
@@ -312,18 +339,7 @@ const ProfilePage: React.FC = () => {
   // Handle any changes to form field values
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    handleUpdate(e);
-    if (e.target.value) {
-      // Debounce so that validation isn't called on each character entry
-      debouncedValidateField(name, value);
-    } else {
-      // If no value, clear the specific field error
-      setFieldErrors(prevErrors => ({
-        ...prevErrors,
-        [name]: '' // Clear the error for the current field if that field is empty
-      }));
-    }
+    handleUpdate(name, value);
   };
 
   // Handle errors from loading of user data
@@ -343,7 +359,6 @@ const ProfilePage: React.FC = () => {
     }
   }, [queryError, refetch]); // Runs when 'error' changes or 'refetch' happens
 
-
   // Show loading message on first page load when getting user
   const loading = queryLoading;
   if (loading) {
@@ -360,7 +375,7 @@ const ProfilePage: React.FC = () => {
             <h2>Your Profile</h2>
             <ContentContainer>
               <div className={styles.subSection}>
-                <Form onSubmit={onProfileSubmit}>
+                <Form onSubmit={handleProfileSubmit}>
                   {errors && errors.length > 0 &&
                     <div className="error" role="alert" aria-live="assertive">
                       {errors.map((error, index) => (
@@ -443,9 +458,8 @@ const ProfilePage: React.FC = () => {
                         isRequired
                         name="institution"
                         items={languages}
-
                         errorMessage="A selection is required"
-                        helpMessage="This is a test"
+                        helpMessage="Select your preferred language"
                         onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
                         selectedKey={formData.languageId.trim()}
                       >
@@ -478,6 +492,7 @@ const ProfilePage: React.FC = () => {
           <UpdateEmailAddress
             emailAddresses={emailAddresses}
             setEmailAddresses={setEmailAddresses}
+            refetch={handleRefetch}
           />
         </div>
         <div className={styles.rightSidebar}>
