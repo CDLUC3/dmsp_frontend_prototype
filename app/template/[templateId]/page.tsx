@@ -1,7 +1,23 @@
 'use client';
 
 import React from 'react';
-import {Breadcrumb, Breadcrumbs, Button, Link} from 'react-aria-components';
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  Dialog,
+  FieldError,
+  Form,
+  Heading,
+  Label,
+  Link,
+  Modal,
+  Radio,
+  RadioGroup,
+  Text,
+  TextArea,
+  TextField,
+} from 'react-aria-components';
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import PageHeader from "@/components/PageHeader";
@@ -83,7 +99,7 @@ const template: Template = {
       ],
     },
     {
-      id: 'sec_789101',
+      id: 'sec_789102',
       name: 'Types of Data Produced',
       link: '/template/tpl_abcdef123456/section/sec_789101',
       questions: [
@@ -108,7 +124,7 @@ const template: Template = {
       ],
     },
     {
-      id: 'sec_789101',
+      id: 'sec_789103',
       name: 'Types of Data Produced',
       link: '/template/tpl_abcdef123456/section/sec_789101',
       questions: [
@@ -133,7 +149,7 @@ const template: Template = {
       ],
     },
     {
-      id: 'sec_789101',
+      id: 'sec_789104',
       name: 'Types of Data Produced',
       link: '/template/tpl_abcdef123456/section/sec_789101',
       questions: [
@@ -161,6 +177,10 @@ const template: Template = {
 };
 
 const TemplateEditPage: React.FC = () => {
+
+  let [isPublishModalOpen, setPublishModalOpen] = React.useState(false);
+
+
   return (
     <div>
 
@@ -271,8 +291,12 @@ const TemplateEditPage: React.FC = () => {
 
 
             <div className="sidebar-section">
-              <Button className="my-3" onPress={() => console.log('Publish')}>Publish
-                template</Button>
+              <Button
+                className="my-3"
+                onPress={() => setPublishModalOpen(true)}
+              >
+                Publish template
+              </Button>
               <h5 className="sidebar-section-title">History</h5>
               <p>
                 <Link className="learn-more"
@@ -297,13 +321,92 @@ const TemplateEditPage: React.FC = () => {
             plans that use this template will be unaffected. This is not
             reversible.
           </p>
-          <form>
+          <Form>
             <Button className="my-3" data-tertiary
                     onPress={() => console.log('Archive')}>Archive
               Template</Button>
-          </form>
+          </Form>
         </div>
       </div>
+
+
+      <Modal isDismissable
+             isOpen={isPublishModalOpen}
+
+             >
+        <Dialog>
+          <Heading slot="title">Publish</Heading>
+
+          <RadioGroup>
+            <Label>Visibility Settings</Label>
+            <Text slot="description" className="help">
+              You can control who can use this published template.
+            </Text>
+            <Radio value="public">
+              <div>
+                <span>Public</span>
+                <p className="text-gray-600 text-sm">This will be available and discoverable by plan builders.</p>
+              </div>
+            </Radio>
+            <Radio value="organization">
+              <div>
+                <span>Organization only</span>
+                <p className="text-gray-600 text-sm">Only your organization will be able to view and use this template.</p>
+              </div>
+            </Radio>
+          </RadioGroup>
+
+          <p>
+            <strong>
+              Publishing this template
+            </strong>
+          </p>
+
+          <ul>
+            <li>
+              After publication, all new plans will use this version.
+            </li>
+            <li>
+              In-progress or existing plans will not be updated.
+            </li>
+            <li>
+              You have configured Visibility as Public in Template options.
+              All
+              DMP Tool users will be able to see and use this template.
+            </li>
+          </ul>
+          <div className="">
+            <Form>
+              <TextField
+                name="change_log"
+                isRequired
+              >
+                <Label>Change log</Label>
+                <Text slot="description" className="help">
+                  Enter a short description of what has been changed. This will only be visible to
+                  people in your organization.
+                </Text>
+                <TextArea
+                  style={{height: '100px'}}
+                />
+                <FieldError/>
+              </TextField>
+            </Form>
+          </div>
+
+
+          <div className="modal-actions">
+            <div className="">
+              <Button data-secondary onPress={() => setPublishModalOpen(false)}>Close</Button>
+            </div>
+            <div className="">
+              <Button onPress={() => setPublishModalOpen(false)}>Save and Publish</Button>
+            </div>
+          </div>
+
+
+        </Dialog>
+      </Modal>
 
 
     </div>
