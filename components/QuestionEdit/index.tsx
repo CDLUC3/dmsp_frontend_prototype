@@ -16,17 +16,40 @@ const QuestionEdit: React.FC<QuestionEditProps> = ({
 
 
   return (
-    <div className="question-edit" key={id}>
-      <div className="question-edit__content">
-        <p className="question-edit__label">Question</p>
-        <p className="question-edit__name">{name}</p>
+    <div
+      className="question-edit"
+      key={id}
+      role="listitem"
+    >
+      <div
+        className="question-edit__content"
+        aria-labelledby={`question-${id}`}
+      >
+        <p
+          className="question-edit__label"
+          id={`question-label-${id}`}
+        >
+          Question
+        </p>
+        <p
+          className="question-edit__name"
+          id={`question-${id}`}
+        >
+          {name}
+        </p>
       </div>
-      <div className="question-edit__actions">
-        <Link href={link} className="question-edit__link">
+      <div
+        className="question-edit__actions"
+        role="group"
+        aria-label="Question actions"
+      >
+        <Link
+          href={link}
+          className="question-edit__link"
+          aria-label={`Edit question: ${name}`}
+        >
           Edit question
         </Link>
-
-
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
   return (
     <div className="section-header">
       <h2 className="section-title">
-        <span className="section-number">Section {sectionNumber}</span>
+        <span className="section-number">Section {sectionNumber} </span>
         {title}
       </h2>
       <div className="button-group">

@@ -185,7 +185,7 @@ const TemplateEditPage: React.FC = () => {
 
           <div className="">
             {template.sections.map((section, index) => (
-              <div key={section.id} style={{marginBottom: '40px'}}>
+              <div key={section.id} role="list" aria-label="Questions list" style={{marginBottom: '40px'}}>
 
                 <SectionHeaderEdit
                   key={section.id}
@@ -202,8 +202,6 @@ const TemplateEditPage: React.FC = () => {
                     id={question.id}
                     name={question.name}
                     link={question.link}
-
-
                   />
                 ))}
                 <AddQuestionButton
