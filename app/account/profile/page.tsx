@@ -67,7 +67,7 @@ const ProfilePage: React.FC = () => {
   const [, forceRender] = useState(false);
 
   // Initialize user profile mutation
-  const [updateUserProfileMutation, { loading: updateUserProfileLoading, error: updateUserProfileError }] = useUpdateUserProfileMutation();
+  const [updateUserProfileMutation, { loading: updateUserProfileLoading }] = useUpdateUserProfileMutation();
 
   // Run queries
   const { data: languageData, error: languageError, refetch: languageRefetch } = useLanguagesQuery();

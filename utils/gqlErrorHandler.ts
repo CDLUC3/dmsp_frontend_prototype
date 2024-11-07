@@ -23,11 +23,6 @@ type CustomRouter = {
 
 type NetworkError = Error | ServerError | ServerParseError;
 
-type CustomError = {
-  message: string;
-  errorCode?: string;
-};
-
 type RefetchFunction<TData, TVariables> =
   | ((variables?: TVariables) => Promise<TData>)
   | ((variables?: TVariables) => Promise<FetchResult<TData>>);
@@ -38,7 +33,6 @@ export async function handleGraphQLErrors<TData, TVariables>(
   refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
   router: CustomRouter
 ) {
-  const customErrors: CustomError[] = [];
 
   if (graphQLErrors) {
     for (const { message, extensions } of graphQLErrors) {
@@ -84,14 +78,13 @@ export async function handleGraphQLErrors<TData, TVariables>(
   }
 }
 
-export function handleNetworkError(networkError: NetworkError | null, setErrors: React.Dispatch<React.SetStateAction<string[]>>): CustomError[] {
-  const networkErrors: CustomError[] = [];
+export function handleNetworkError(networkError: NetworkError | null, setErrors: React.Dispatch<React.SetStateAction<string[]>>) {
 
   if (networkError) {
     setErrors(prevErrors => [...prevErrors, networkError.message]);
   }
 
-  return networkErrors;
+  return networkError;
 }
 
 
