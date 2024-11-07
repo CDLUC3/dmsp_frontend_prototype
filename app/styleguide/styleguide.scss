@@ -7,6 +7,13 @@
       padding: 0.5em 1em;
     }
   }
+
+  .layout-toolbar-container {
+    --layout-container-background: var(--slate-200);
+    & + .layout-container {
+      margin-top: 0.5em;
+    }
+  }
 }
 
 .sg-example {
@@ -227,27 +234,31 @@ dd {
 
   --drawer-width: 30%;
   --layout-gap: 0.5rem;
+  --layout-content-background: var(--slate-200);
 
   .layout-container {
     height: 100%;
+    border: 1px solid var(--slate-700);
   }
 
   .layout-toolbar-container {
-    background-color: var(--slate-200);
-    color: var(--slate-800);
+    --layout-container-color: var(--slate-800);
+    height: auto;
+    border: 0;
   }
 
   .layout-content-container {
-    background-color: var(--slate-200);
-    color: var(--slate-800);
+    --layout-container-color: var(--slate-800);
   }
 
   .container-content {
-    padding: 1em;
+    --layout-content-padding: 1em;
   }
 
-  .layout-sidebar-container {
-    background-color: var(--slate-700);
-    color: var(--slate-100);
+  .layout-sidebar-container,
+  .layout-drawer-container,
+  .layout-drawer-modal {
+    --layout-content-background: var(--slate-700);
+    --layout-content-color: var(--slate-100);
   }
 }

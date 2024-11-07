@@ -56,6 +56,7 @@ import {
   ToolbarContainer,
   LayoutWithSidebar,
   SidebarContainer,
+  DrawerContainer,
 } from '@/components/Container';
 
 import { BrandColor, Example, handleDelete } from "./sg-components";
@@ -337,15 +338,14 @@ function Page() {
 
   const [editorContent, setEditorContent] = useState(richtextDefault);
 
-  const [sidebarDirection, setSidebarDirection] = useState<"left" | "right">('right');
-  const toggleSidebarDirection = () => {
-    if (sidebarDirection == 'right') setSidebarDirection('left');
-    else setSidebarDirection('right');
-  }
-
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState<Boolean>(true);
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  }
+
+  const [drawerOpen, setDrawerOpen] = useState<Boolean>(false);
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
   }
 
   return (
@@ -1074,10 +1074,10 @@ function Page() {
             <h2><code>Layout Container</code> (Base)</h2>
             <p>The standard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
             some common container within the layout container.</p>
-            <LayoutContainer style={{'--layout-container-background': 'var(--slate-200)'}}>
+            <LayoutContainer>
               <ContentContainer>
                 <div><pre><code>
-                  {`<LayoutContainer style={{'--layout-container-background': 'var(--slate-100)'}}>
+                  {`<LayoutContainer>
   <ContentContainer> ... </ContentContainer>
 </LayoutContainer>
 `}
@@ -1099,12 +1099,12 @@ function Page() {
             </dl>
 
             <h2><code>Content Container</code> (Base)</h2>
-            <ContentContainer style={{'border': '1px solid var(--slate-600)'}}>
+            <ContentContainer>
               <p>This conteint is wrapped in the following container.</p>
               <p><strong>Note</strong> that the style property is not required
                 to use the container. It's only here to show that you can use it
                 this way, and to show the outline here in the styleguide.</p>
-              <div><pre><code>{`<ContentContainer style={{'border': '1px solid var(--purple-600)'}}>
+              <div><pre><code>{`<ContentContainer>
 ...
 </ContentContainer>`}
               </code></pre></div>
@@ -1125,7 +1125,7 @@ function Page() {
 
             <h2><code>ToolbarContainer</code> (LayoutContainer)</h2>
             <p><code>LayoutContainer &gt; ToolbarContainer</code></p>
-            <ToolbarContainer style={{'--layout-container-background': 'var(--slate-200)'}}>
+            <ToolbarContainer>
               <p>Some toolbar text, maybe a Title</p>
               <Button>Button</Button>
             </ToolbarContainer>
@@ -1147,26 +1147,25 @@ function Page() {
             <p><code>LayoutContainer &gt; LayoutWithSidebar</code></p>
             <p><code>ContentContainer &gt; SidebarContainer</code></p>
             <ToolbarContainer>
-              <Button onPress={toggleSidebarDirection}>Toggle Direction</Button>
               <Button onPress={toggleSidebar}>Toggle Sidebar</Button>
             </ToolbarContainer>
-            <LayoutWithSidebar sidebarPosition={sidebarDirection} className="sg-sidebar">
-              <SidebarContainer isOpen={sidebarOpen}>
-                <p>This is the sidebar for the component</p>
-              </SidebarContainer>
-
+            <LayoutWithSidebar className="sg-sidebar">
               <ContentContainer>
                 <h3>Layout With Sidebar</h3>
                 <p>This is the primary content for the slider component</p>
 
                 <div><pre><code>
-                  {`<LayoutWithSidebar sidebarPosition="right">
-  <SidebarContainer> ... </SidebarContainer>
+                  {`<LayoutWithSidebar>
   <ContentContainer> ... </ContentContainer>
+  <SidebarContainer> ... </SidebarContainer>
 </LayoutWithSidebar>
 `}
                 </code></pre></div>
               </ContentContainer>
+
+              <SidebarContainer isOpen={sidebarOpen}>
+                <p>This is the sidebar for the component</p>
+              </SidebarContainer>
             </LayoutWithSidebar>
 
             <p>
@@ -1178,14 +1177,10 @@ function Page() {
               the <code>LayoutWithSidebar</code>, where in the example below, it's
               part of it.</p>
 
-            <LayoutWithSidebar sidebarPosition="right" className="sg-sidebar">
+            <LayoutWithSidebar className="sg-sidebar">
               <ToolbarContainer>
                 <p>This is a toolbar inside <code>LayoutWithSidebar</code></p>
               </ToolbarContainer>
-
-              <SidebarContainer>
-                <p>This is the sidebar for the slider component</p>
-              </SidebarContainer>
 
               <ContentContainer>
                 <h3>Layout With Sidebar</h3>
@@ -1199,6 +1194,26 @@ function Page() {
 `}
                 </code></pre></div>
               </ContentContainer>
+
+              <SidebarContainer>
+                <p>This is the sidebar for the slider component</p>
+              </SidebarContainer>
+            </LayoutWithSidebar>
+
+            <p>Example with a drawer instead of a sidebar</p>
+
+            <ToolbarContainer>
+              <Button onPress={toggleDrawer}>Toggle Drawer</Button>
+            </ToolbarContainer>
+            <LayoutWithSidebar className="sg-sidebar">
+              <ContentContainer>
+              </ContentContainer>
+
+              <DrawerContainer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)}>
+                <Button autofocus onPress={() => setDrawerOpen(false)}>Close</Button>
+                <p>This is the Drawer Content</p>
+              </DrawerContainer>
+
             </LayoutWithSidebar>
 
             <h3>LayoutWithSidebar Properties</h3>

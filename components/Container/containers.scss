@@ -6,19 +6,23 @@
   overflow: auto;
   padding: var(--layout-container-padding, 0);
   background: var(--layout-container-background, transparent);
+  color: var(--layout-container-color, var(--text-color));
 }
 
 @mixin contentContainer {
   position: relative;
-  box-sizing: border-box;
   width: 100%;
   padding: var(--layout-content-padding, var(--brand-space2));
   background-color: var(--layout-content-background, white);
+  color: var(--layout-content-color, var(--text-color));
+
   > :first-child { margin-top: 0; }
 }
 
 .layout-container { @include layoutContainer; }
-.layout-content-container { @include contentContainer; }
+.layout-content-container,
+.layout-sidebar-container,
+.layout-drawer-container { @include contentContainer; }
 
 .layout-toolbar-container {
   @include layoutContainer;
@@ -33,7 +37,49 @@
   > * { margin: 0; }
 }
 
-.layout-with-sidebar {
+.layout-sidebar-container,
+.layout-drawer-container,
+.layout-drawer-modal .drawer-content {
+  // TODO: Force 3d acceleration if available in browser
+  transition: 0.3s ease-in-out;
+}
+
+.layout-drawer-modal {
+  position: fixed;
+  padding: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 1000;
+  background-color: rgb(0 0 0 / 75%);
+
+  transition-behavior: allow-discrete;
+  visibility: hidden;
+  opacity: 0;
+
+  .drawer-content {
+    position: absolute;
+    max-width: 90vw;
+    width: max-content;
+    top: 0;
+    bottom: 0;
+  }
+
+  &.state-closed {
+    transition: visibility 0.1s 0.3s, opacity 0.1s 0.3s;
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  &.state-open {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+.layout-with-panel {
   @include layoutContainer;
 
   // Developer NOTE: This is a utility variable. The javascript will set the
@@ -42,89 +88,71 @@
   --_sidebar-width: 100%;
 
   width: 100%;
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--layout-gap, var(--brand-space2));
+  overflow-x: hidden;
 
-  .layout-content-container {
-    @include contentContainer;
-    grid-area: content;
+  > .layout-content-container {
+    flex-grow: 1;
   }
 
-  .layout-sidebar-container {
-    @include contentContainer;
+  @include device(md) {
+    flex-direction: row;
 
-    grid-area: sidebar;
-    transition: 0.3s ease-in-out;
-    background-color: var(--layout-sidebar-background, var(--slate-100));
-    color: var(--layout-sidebar-fg, var(--slate-800));
+    > {
+      .layout-sidebar-container,
+      .layout-drawer-container {
+        flex-grow: 1;
+        max-width: 30%;
+      }
+
+      .layout-content-container {
+        max-width: calc(70% - var(--layout-gap, var(--brand-space2)));
+        flex-grow: 4;
+      }
+    }
   }
 
   &.direction-left {
-    grid-template-areas:
-      "sidebar"
-      "content";
-
-    &.with-toolbar {
-      grid-template-areas:
-        "toolbar"
-        "sidebar"
-        "content";
-    }
-
-    @include device(md) {
-      grid-template-columns: 1fr 3fr;
-      grid-template-areas:
-        "sidebar content";
-
-      &.with-toolbar {
-        grid-template-areas:
-          "toolbar toolbar"
-          "sidebar content";
-
-        .layout-toolbar-container {
-          grid-column-start: 1;
-          grid-column-end: 3;
-        }
-      }
-
-      .layout-sidebar-container {
+    > {
+      .layout-drawer-container {
         &.state-open { right: 0; }
         &.state-closed { right: var(--_sidebar-width); }
+      }
+
+      .layout-drawer-modal {
+        &.state-open .drawer-content { left: 0; }
+        &.state-closed .drawer-content { left: calc(var(--_sidebar-width) * -1); }
+      }
+
+      @include device(md) {
+        .layout-sidebar-container {
+          &.state-open { right: 0; }
+          &.state-closed { right: var(--_sidebar-width); }
+        }
       }
     }
   }
 
   &.direction-right {
-    grid-template-areas:
-      "content"
-      "sidebar";
-
-    &.with-toolbar {
-      grid-template-areas:
-        "toolbar"
-        "content"
-        "sidebar";
-    }
-
-    @include device(md) {
-      grid-template-columns: 2fr 1fr;
-      grid-template-areas:
-        "content sidebar";
-
-      &.with-toolbar {
-        grid-template-areas:
-          "toolbar toolbar"
-          "content sidebar";
-
-        .layout-toolbar-container {
-          grid-column-start: 1;
-          grid-column-end: 3;
-        }
+    > {
+      .layout-drawer-container {
+        &.state-open { right: 0; }
+        &.state-closed { right: calc(var(--_sidebar-width) * -1); }
       }
 
-      .layout-sidebar-container {
-        &.state-open { left: 0; }
-        &.state-closed { left: calc(var(--_sidebar-width) + 0.5rem); }
+      .layout-drawer-modal {
+        &.state-open .drawer-content { right: 0; }
+        &.state-closed .drawer-content { right: calc(var(--_sidebar-width) * -1); }
+      }
+
+      @include device(md) {
+        .layout-sidebar-container {
+          &.state-open { left: 0; }
+          &.state-closed { left: var(--_sidebar-width); }
+        }
       }
     }
   }

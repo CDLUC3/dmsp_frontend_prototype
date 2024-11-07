@@ -8,9 +8,6 @@ import React, {
 } from 'react';
 
 import {
-  Modal,
-  ModalOverlay,
-  DialogTrigger,
   Button,
 } from 'react-aria-components';
 
@@ -22,6 +19,11 @@ import {
 
 import './containers.scss';
 
+
+type DirectionType =
+  | null
+  | "left"
+  | "right";
 
 // Extend the CSSProps so that we can actually add css variables to tags.
 type CustomCSSProperties = CSSProperties & Record<string, string>;
@@ -96,7 +98,7 @@ export const ToolbarContainer: React.FC<LayoutContainerProps> = ({
     <>
       <div
         id={id}
-        className={`layout-toolbar-container ${className}`}
+        className={`layout-container layout-toolbar-container ${className}`}
         style={style}
       >
         {children}
@@ -110,31 +112,47 @@ export const ToolbarContainer: React.FC<LayoutContainerProps> = ({
  * Layout with a dynamic sidebar
  */
 interface LayoutWithSidebarProps extends LayoutContainerProps {
-  sidebarPosition: "left" | "right",
 }
 
 export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
   children,
   id,
   className = "",
-
-  /**
-   * This is the direction on screen where the sidebar is located,
-   * and the direction where it will slide out of view.
-   */
-  sidebarPosition = 'right',
 }) => {
   const thisRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (thisRef) {
       if (thisRef.current) {
-        const toolbar = thisRef.current.querySelector('.layout-toolbar-container');
-        if (toolbar) {
-          thisRef.current.classList.add('with-toolbar');
-        } else {
-          thisRef.current.classList.remove('with-toolbar');
-        }
+        let direction: DirectionType = null;
+
+        children.forEach((rNode) => {
+          // Set up the state with a toolbar if present
+          console.log(`Node Name? ${rNode.type.name}`);
+          switch (rNode.type.name) {
+              case "ToobarContainer": {
+                thisRef.current.classList.add('with-toolbar');
+                break;
+              }
+
+              case "ContentContainer": {
+                if (!direction) direction = "right";
+              }
+
+              case "SidebarContainer": {
+                thisRef.current.classList.add('with-sidebar');
+                if (!direction) direction = "left";
+                break;
+              }
+
+              case "DrawerContainer": {
+                thisRef.current.classList.add('with-drawer');
+                if (!direction) direction = "left";
+              }
+          }
+        });
+
+        thisRef.current.classList.add(`direction-${direction}`);
       }
     }
   }, []);
@@ -144,7 +162,7 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
       <div
         ref={thisRef}
         id={id}
-        className={`layout-container layout-with-sidebar direction-${sidebarPosition} ${className}`}
+        className={`layout-container layout-with-panel ${className}`}
       >
         {children}
       </div>
@@ -174,6 +192,70 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
       >
         {children}
       </div>
+    </>
+  );
+}
+
+// Drawer Layout Container
+interface DrawerContainerProps extends ContentContainerProps {
+  isOpen?: Boolean;
+  onClose?: () => void;
+}
+
+export const DrawerContainer: React.FC<DrawerContainerProps> = ({
+  children,
+  id = '',
+  className = '',
+  isOpen = false,
+  onClose,
+}) => {
+
+  const drawerRef = useRef();
+  const size = useResponsive();
+  const [isMobile, setIsMobile] = useState<Boolean>(true);
+
+  useEffect(() => {
+    if (size.viewport[0] < getSizeByName('md')[0]) {
+      setIsMobile(true);
+    } else {
+      setIsMobile(false);
+    }
+  }, [size]);
+
+  useEffect(() => {
+    if (!isOpen && onClose) onClose();
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (drawerRef && drawerRef.current) {
+      drawerRef.current.querySelector('.drawer-content').addEventListener('transitioned', () => {
+        console.log('Hey would you look at that?');
+      });
+    }
+  }, []);
+
+  return (
+    <>
+      {isMobile && (
+        <div
+          id={id}
+          ref={drawerRef}
+          className={`layout-drawer-modal ${className} ${isOpen ? "state-open" : "state-closed"}`}
+        >
+          <ContentContainer className="drawer-content">
+            {children}
+          </ContentContainer>
+        </div>
+      )}
+
+      {!isMobile && (
+        <div
+          id={id}
+          className={`layout-drawer-container ${className} ${isOpen ? "state-open" : "state-closed"}`}
+        >
+          {children}
+        </div>
+      )}
     </>
   );
 }
