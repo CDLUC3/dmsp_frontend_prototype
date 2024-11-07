@@ -1100,7 +1100,7 @@ function Page() {
 
             <h2><code>Content Container</code> (Base)</h2>
             <ContentContainer>
-              <p>This conteint is wrapped in the following container.</p>
+              <p>This content is wrapped in the following container.</p>
               <p><strong>Note</strong> that the style property is not required
                 to use the container. It's only here to show that you can use it
                 this way, and to show the outline here in the styleguide.</p>
@@ -1131,7 +1131,7 @@ function Page() {
             </ToolbarContainer>
 
             <h3>CSS Variables</h3>
-            <p>Since this inherrits from <code>LayoutContainer</code> those CSS
+            <p>Since this inherits from <code>LayoutContainer</code> those CSS
               variables also works. In addition to those, the following is also available:</p>
             <dl>
               <dt><code>--layout-gap</code></dt>
@@ -1142,7 +1142,7 @@ function Page() {
             </dl>
 
             <h2>Sidebar Container (Composite)</h2>
-            <p>This is a composite layout component than contains a sidebar
+            <p>This is a composite layout component that contains a sidebar
               alongside a content container.</p>
             <p><code>LayoutContainer &gt; LayoutWithSidebar</code></p>
             <p><code>ContentContainer &gt; SidebarContainer</code></p>
@@ -1169,11 +1169,11 @@ function Page() {
             </LayoutWithSidebar>
 
             <p>
-              <code>LayoutWithSidebar</code>
+              <code>LayoutWithSidebar</code> &nbsp;
               can have a <code>ToolbarContainer</code> in addition to the sidebar.
             </p>
             <p>Note how in the previous example, the toolbar that demonstrates
-              the sidebar position and state, is <em>outside</em>
+              the sidebar position and state, is <em>outside</em> &nbsp;
               the <code>LayoutWithSidebar</code>, where in the example below, it's
               part of it.</p>
 
@@ -1226,7 +1226,7 @@ function Page() {
             </dl>
 
             <h3>CSS Variables</h3>
-            <p>Since this layout inherrits from <code>LayoutContainer</code>
+            <p>Since this layout inherits from <code>LayoutContainer</code>
               those CSS variables also works. In addition to those, the
               following is also available:</p>
 

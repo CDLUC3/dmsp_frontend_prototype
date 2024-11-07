@@ -251,6 +251,20 @@ export const DrawerContainer: React.FC<DrawerContainerProps> = ({
     if (!isOpen && onClose) onClose();
   }, [isOpen]);
 
+  useEffect(() => {
+    const keyDownHandler = (ev) => {
+      if (ev.key == 'Escape' && isOpen) {
+        if (isOpen && onClose) onClose();
+      }
+    }
+
+    document.addEventListener('keydown', keyDownHandler);
+
+    return () => {
+      document.removeEventListener('keydown', keyDownHandler);
+    }
+  }, [isOpen]);
+
   return (
     <>
       {isMobile && (
