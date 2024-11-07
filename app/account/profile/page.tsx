@@ -327,7 +327,8 @@ const ProfilePage: React.FC = () => {
 
 
   // Update form data
-  const handleUpdate = (name: string, value: string) => {
+  const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     clearActiveFieldError(name)
     setFormData({ ...formData, [name]: value });
   }
@@ -338,8 +339,7 @@ const ProfilePage: React.FC = () => {
 
   // Handle any changes to form field values
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    handleUpdate(name, value);
+    handleUpdate(e);
   };
 
   // Handle errors from loading of user data
@@ -383,7 +383,7 @@ const ProfilePage: React.FC = () => {
                       ))}
                     </div>
                   }
-                  <div className={`${styles.twoItemRow} ${styles.formRow}`}>
+                  <div className="form-row two-item-row">
                     {isEditing ? (
                       <FormInput
                         name="firstName"
@@ -422,7 +422,7 @@ const ProfilePage: React.FC = () => {
 
                   </div>
 
-                  <div className={`${styles.oneItemRow} ${styles.formRow}`}>
+                  <div className="form-row one-item-row">
                     {isEditing ? (
                       <>
                         <TypeAheadWithOther
@@ -432,6 +432,7 @@ const ProfilePage: React.FC = () => {
                           setOtherField={setOtherField}
                           required={true}
                           error={fieldErrors.affiliationName}
+                          helpText="Testing"
                           updateFormData={updateAffiliationFormData}
                           value={formData.affiliationName}
                         />
@@ -451,7 +452,7 @@ const ProfilePage: React.FC = () => {
                     )}
                   </div>
 
-                  <div className={`${styles.oneItemRow} ${styles.formRow}`}>
+                  <div className="form-row one-item-row">
                     {isEditing ? (
                       <FormSelect
                         label="Language"

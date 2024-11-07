@@ -70,6 +70,7 @@ import ButtonWithImage from '@/components/ButtonWithImage';
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
+  const [affiliationError, setAffiliationError] = useState('');
 
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
@@ -607,7 +608,7 @@ function Page() {
                 <a href="#" style={{ color: 'var(--link-hover-color)' }}>Hover
                   State</a>
               </p>
-              <p>
+              <div>
                 We should try to use Next Link e.g.
 
 
@@ -615,7 +616,7 @@ function Page() {
                   {`<Link href="/about">About</Link>`}
                 </code></pre>
 
-              </p>
+              </div>
             </div>
 
             <h4>Lists</h4>
@@ -1387,10 +1388,6 @@ function Page() {
               link="/edit"
             />
 
-
-
-
-
             <h2>Typeahead</h2>
             <p>
               Typeahead, also known as an autosuggest, shows matches to a user
@@ -1415,18 +1412,20 @@ function Page() {
 
             <Example>
               <TypeAheadWithOther
-                label="Example input"
-                fieldName="test"
+                label="Institution"
+                fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
-                helpText="Help text describing what types of data the user can search for"
                 setOtherField={setOtherField}
+                required={true}
+                helpText="Search for your institution"
+                updateFormData={() => console.log('updating form')}
+                value="UCOP"
               />
               {otherField && (
-                <TextField>
-                  <Label>Other</Label>
-                  <Input
-                    placeholder="other"
-                  />
+                <TextField type="text" name="institution">
+                  <Label>Other institution</Label>
+                  <Input placeholder="Enter custom institution name" onChange={e => handleUpdate(e)} />
+                  <FieldError />
                 </TextField>
               )}
             </Example>

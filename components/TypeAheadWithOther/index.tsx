@@ -5,6 +5,7 @@ import { DocumentNode } from '@apollo/client';
 import {
     Input,
     Label,
+    Text,
     TextField,
     FieldError,
 } from "react-aria-components";
@@ -26,7 +27,7 @@ type TypeAheadInputProps = {
     setOtherField: Function;
     fieldName: string;
     required: boolean;
-    error: string;
+    error?: string;
     updateFormData: Function; //Function to update the typeahead field value in the parent form data
     value?: string;
 }
@@ -49,7 +50,7 @@ const TypeAheadWithOther = ({
     updateFormData,
     value
 }: TypeAheadInputProps) => {
-    const [inputValue, setInputValue] = useState('');
+    const [inputValue, setInputValue] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
     const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
@@ -208,7 +209,9 @@ const TypeAheadWithOther = ({
     }
 
     useEffect(() => {
-        setInputValue(value);
+        if (value) {
+            setInputValue(value);
+        }
     }, [])
 
     useEffect(() => {
@@ -309,7 +312,11 @@ const TypeAheadWithOther = ({
                         />
                         {/*<FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>*/}
                         {error ? (<div className={styles.errorMessage}>{error}</div>) : <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>}
-
+                        {helpText && (
+                            <Text slot="description" className='help-text'>
+                                {helpText}
+                            </Text>
+                        )}
                         <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
                             isActive={showSuggestionSpinner} />
 
@@ -331,7 +338,6 @@ const TypeAheadWithOther = ({
                                 <path d="M10 0L5 5 0 0z"></path>
                             </svg>
                         </div>
-                        <p className={styles.helpText}>{helpText}</p>
                     </TextField>
                 ) : (
                     <TextField>
