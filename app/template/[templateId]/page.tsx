@@ -166,7 +166,7 @@ const TemplateEditPage: React.FC = () => {
 
       <PageHeader
         title={template.name}
-        description={`by ${template.author} - Version: ${template.version} - Published: ${template.publishedDate}`  }
+        description={`by ${template.author} - Version: ${template.version} - Published: ${template.publishedDate}`}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
@@ -185,7 +185,8 @@ const TemplateEditPage: React.FC = () => {
 
           <div className="">
             {template.sections.map((section, index) => (
-              <div key={section.id} role="list" aria-label="Questions list" style={{marginBottom: '40px'}}>
+              <div key={section.id} role="list" aria-label="Questions list"
+                   style={{marginBottom: '40px'}}>
 
                 <SectionHeaderEdit
                   key={section.id}
@@ -219,64 +220,38 @@ const TemplateEditPage: React.FC = () => {
         </div>
         <aside className="sidebar">
           <div className="sidebar-inner">
-            <h2>Template Settings</h2>
+            <h2>Status</h2>
             <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Preview</h5>
-              <p>
-                See how this template will appear to others
-              </p>
-              <Button className="my-3" onPress={() => console.log('Preview')}>Preview
-                template</Button>
-            </div>
 
-            <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Published Status</h5>
-              <div className="status">Draft</div>
-            </div>
-
-            <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Visibility Settings</h5>
-              <div className="status">Not Published</div>
-            </div>
-
-            <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Draft</h5>
               <Button data-secondary className="my-3 secondary"
                       onPress={() => console.log('Save draft')}>
                 Save as draft
               </Button>
-              <div className="">
-                <p>
-                  When you save as draft, only you and others in your
-                  organization
-                  will be able to see this template.
-                </p>
-                <p>
-                  <a href="#" className="learn-more">Learn more</a>
-                </p>
 
+              <Button data-tertiary className="my-3"
+                      onPress={() => console.log('Preview')}>Preview
+                template</Button>
 
-              </div>
             </div>
-
 
             <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Publishing</h5>
-
-
-              <Button className="my-3" onPress={() => console.log('Publish')}>Publish
-                template</Button>
-              <div className="">
+              <h5 className="sidebar-section-title">Published Status</h5>
+              <div className="status">
                 <p>
-                  When you save and publish, this version of the template will
-                  become visible. The previous version will be archived.
-                </p>
-
-                <p>
-                  <a href="#" className="learn-more">Learn more</a>
+                  Draft <Link href='#'>Edit</Link>
                 </p>
               </div>
             </div>
+
+            <div className="sidebar-section">
+              <h5 className="sidebar-section-title">Visibility Settings</h5>
+              <div className="status">
+                <p>
+                  Not Published <Link href='#'>Edit</Link>
+                </p>
+              </div>
+            </div>
+
 
             <div className="sidebar-section">
               <h5 className="sidebar-section-title">Feedback &
@@ -285,15 +260,49 @@ const TemplateEditPage: React.FC = () => {
                 <p>
                   Allow people to access, edit or comment on this plan
                 </p>
+                <p>
+                  <Link className="learn-more"
+                        href="/template/tpl_abcdef123456/access">
+                    Manage Access
+                  </Link>
+                </p>
               </div>
-              <Link className="learn-more"
-                    href="/template/tpl_abcdef123456/access">
-
-                Manage Access
-              </Link>
             </div>
+
+
+            <div className="sidebar-section">
+              <Button className="my-3" onPress={() => console.log('Publish')}>Publish
+                template</Button>
+              <h5 className="sidebar-section-title">History</h5>
+              <p>
+                <Link className="learn-more"
+                      href="/template/tpl_abcdef123456/history">
+                  Template history
+                </Link>
+              </p>
+            </div>
+
+
           </div>
         </aside>
+      </div>
+      <div className="template-archive-container">
+        <div className="main-content">
+          <h2>
+            Archive Template
+          </h2>
+          <p>
+            This template will no longer be visible to plan creators.
+            Pre-existing
+            plans that use this template will be unaffected. This is not
+            reversible.
+          </p>
+          <form>
+            <Button className="my-3" data-tertiary
+                    onPress={() => console.log('Archive')}>Archive
+              Template</Button>
+          </form>
+        </div>
       </div>
 
 
