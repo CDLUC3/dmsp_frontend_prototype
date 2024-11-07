@@ -41,13 +41,17 @@ function TemplateListItem({item}: TemplateItemProps) {
       <div className={styles.TemplateItemInner}>
         <div className={styles.TemplateItemHeading}>
           <h3 id={headingId}>
+            {item.link ? (
               <Link
                 href={item.link}
                 aria-label={`Update ${item.title}`}
-                className={styles.updateLink}
+                className={styles.titleLink}
               >
                 {item.title}
               </Link>
+            ) : (
+              item.title
+            )}
           </h3>
           <div className="template-content">
             {item.content}

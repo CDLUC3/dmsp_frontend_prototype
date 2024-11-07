@@ -35,7 +35,12 @@
 
   }
 }
-
+.titleLink {
+  color: var(--slate-900) !important;
+  &:hover {
+    text-decoration: underline;
+  }
+}
 
 .updateLink {
   color: var(--slate-900) !important;
