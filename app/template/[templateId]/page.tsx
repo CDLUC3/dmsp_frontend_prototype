@@ -6,6 +6,7 @@ import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
+import AddSectionButton from "@/components/AddSectionButton";
 
 interface Question {
   id: string;
@@ -206,7 +207,7 @@ const TemplateEditPage: React.FC = () => {
                   />
                 ))}
                 <AddQuestionButton
-                  href={`/template/${template.id}/q/select?section_id=${section.id}`}
+                  href={`/template/${template.id}/q/new?section_id=${section.id}`}
                 />
               </div>
 
@@ -214,13 +215,7 @@ const TemplateEditPage: React.FC = () => {
 
           </div>
 
-          <div className="section-add-cont">
-            <Button
-              className="add-section-button tertiary"
-            >
-              + Add new section
-            </Button>
-          </div>
+          <AddSectionButton href={`/template/${template.id}/section/new`}/>
 
 
         </div>
