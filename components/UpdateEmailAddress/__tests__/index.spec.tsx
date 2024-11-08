@@ -1,10 +1,10 @@
 import React from 'react';
+import { ApolloError } from '@apollo/client';
 import { render, screen, act, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import UpdateEmailAddress from '..';
-import EmailAddressRow from '@/components/EmailAddressRow';
 import { useSetPrimaryUserEmailMutation, useAddUserEmailMutation, useRemoveUserEmailMutation } from '@/generated/graphql';
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import { handleApolloErrors } from '@/utils/gqlErrorHandler';
 
 expect.extend(toHaveNoViolations);
 
@@ -28,12 +28,6 @@ jest.mock('@/generated/graphql', () => ({
 jest.mock('@/utils/gqlErrorHandler', () => ({
   handleApolloErrors: jest.fn()
 }))
-
-// Mock EmailAddressRow component
-jest.mock('@/components/EmailAddressRow', () => ({
-  __esModule: true,
-  default: () => <div data-testid="email-address-row">Mocked EmailAddressRow Component</div>,
-}));
 
 const mockUserData = {
   me: {
@@ -78,6 +72,9 @@ const mockEmailData = {
   "userId": 5,
 }
 
+const mockRefetch = () => {
+  return console.log("Called refetch");
+}
 // Helper function to cast to jest.Mock for TypeScript
 const mockHook = (hook) => hook as jest.Mock;
 
@@ -96,6 +93,7 @@ describe('UpdateEmailAddressPage', () => {
     render(<UpdateEmailAddress
       emailAddresses={mockEmailAddresses}
       setEmailAddresses={jest.fn()}
+      refetch={jest.fn()}
     />);
 
     await waitFor(() => {
@@ -114,22 +112,23 @@ describe('UpdateEmailAddressPage', () => {
     });
   });
 
-  it('should Mocked EmailAddressRow Component to be in document twice', async () => {
+  it('should dislay email addresses', async () => {
     render(<UpdateEmailAddress
       emailAddresses={mockEmailAddresses}
       setEmailAddresses={jest.fn()}
+      refetch={jest.fn()}
     />);
 
-    // Checking how many times EmailAddressRow is called should get us the number of emails displayed on page
-    const emailAddresses = screen.queryAllByText('Mocked EmailAddressRow Component');
-    expect(emailAddresses).toHaveLength(2);
+    expect(screen.getByText(/test@test.com/i)).toBeInTheDocument();
+    expect(screen.getByText(/me@test.com/i)).toBeInTheDocument();
   });
 
-  it.only('should call setEmailAddresses when adding a new email alias', async () => {
+  it('should call setEmailAddresses when adding a new email alias', async () => {
     const mockSetEmailAddresses = jest.fn();
     render(<UpdateEmailAddress
       emailAddresses={mockEmailAddresses}
       setEmailAddresses={mockSetEmailAddresses}
+      refetch={jest.fn()}
     />);
 
     //Enter a value into the add alias input field
@@ -137,7 +136,12 @@ describe('UpdateEmailAddressPage', () => {
     fireEvent.change(addAliasInput, { target: { value: 'msmith@test.com' } });
 
     // Locate the Add button and click it
-    const addButton = screen.getByRole('button', { name: /add/i });
+    // Select the wrapping div with class "addContainer" and assert it's not null
+    const addContainer = document.querySelector('.addContainer') as HTMLElement;
+    expect(addContainer).not.toBeNull(); // Ensure addContainer is found
+
+    // Now we can safely use addContainer with `within`
+    const addButton = within(addContainer!).getByRole('button', { name: 'Add' });
 
     await act(async () => {
       fireEvent.click(addButton);
@@ -146,10 +150,12 @@ describe('UpdateEmailAddressPage', () => {
     expect(mockSetEmailAddresses).toHaveBeenCalledTimes(1);
   });
 
+
   it('should pass axe accessibility test', async () => {
     const { container } = render(<UpdateEmailAddress
       emailAddresses={mockEmailAddresses}
       setEmailAddresses={jest.fn()}
+      refetch={jest.fn()}
     />);
     await act(async () => {
       const results = await axe(container);

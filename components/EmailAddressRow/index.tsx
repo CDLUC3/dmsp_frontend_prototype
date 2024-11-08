@@ -53,6 +53,7 @@ export default function EmailAddressRow({
       {tooltip ? (
         <TooltipTrigger delay={0}>
           <Button className={`${styles.tooltipButton} react-aria-Button`}>
+            <span className="hidden-accessibly">{toolTipMessage}</span>
             <DmpIcon icon="trashcan" classes={styles.trashcanIcon + ' ' + (additionalClassName ? styles[additionalClassName] : '')} />
           </Button>
           <Tooltip placement="bottom right">{toolTipMessage}</Tooltip>
