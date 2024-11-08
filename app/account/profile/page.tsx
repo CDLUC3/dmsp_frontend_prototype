@@ -397,7 +397,7 @@ const ProfilePage: React.FC = () => {
                       />
                     ) : (
                       <Text slot="firstName" className={styles.readOnlyField}>
-                        <div className={styles.fieldLabel}>First name</div>
+                        <div className="field-label">First name</div>
                         <p>{formData.firstName}</p>
                       </Text>
                     )}
@@ -415,7 +415,7 @@ const ProfilePage: React.FC = () => {
                       />
                     ) : (
                       <Text slot="lastName" className={styles.readOnlyField}>
-                        <div className={styles.fieldLabel}>Last name</div>
+                        <div className="field-label">Last name</div>
                         <p>{formData.lastName}</p>
                       </Text>
                     )}
@@ -448,7 +448,7 @@ const ProfilePage: React.FC = () => {
                       </>
                     ) : (
                       <Text slot="institution" className={styles.readOnlyField}>
-                        <div className={styles.fieldLabel}>Institution</div>
+                        <div className="field-label">Institution</div>
                         <p>{formData.affiliationName}</p>
                       </Text>
                     )}
@@ -475,7 +475,7 @@ const ProfilePage: React.FC = () => {
                       </FormSelect>
                     ) : (
                       <Text slot="language" className={styles.readOnlyField}>
-                        <div className={styles.fieldLabel}>Language</div>
+                        <div className="field-label">Language</div>
                         <p>{formData.languageName}</p>
                       </Text>
                     )}

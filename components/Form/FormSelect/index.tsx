@@ -42,7 +42,6 @@ export function FormSelect<T extends object>(
             </span>
           </Button>
 
-          <FieldError className='error-message' />
           {errorMessage && <FieldError className='error-message'>{errorMessage}</FieldError>}
           {helpMessage && (
             <Text slot="description" className='help-text'>

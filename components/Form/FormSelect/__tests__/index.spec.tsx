@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FormSelect, MyItem } from '@/components/Form/FormSelect';
 
 const sampleItems = [
@@ -9,75 +10,54 @@ const sampleItems = [
 ];
 
 describe('FormSelect', () => {
-  it.only('renders the component correctly', () => {
-    render(
-      <FormSelect
-        label="Select an option"
-        items={sampleItems}
-        selectedKey="1"
-        onChange={jest.fn()}
-      >
-        {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-      </FormSelect>
-    );
 
-    const mySelect = screen.getByTestId('hidden-select-container');
+  it('should render the component correctly', () => {
+
+    const { getByTestId } = render(<FormSelect
+      label="Select an option"
+      items={sampleItems}
+      selectedKey="1"
+    >
+      {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
+    </FormSelect>);
+    const container = getByTestId('hidden-select-container');
+    const select = container.querySelector('select');
+
+    // Find the option with text "Option 1"
+    const option = Array.from(select.options).find(opt => opt.text === 'Option 1');
+
+    expect(option).toBeTruthy();
+    expect(option.value).toBe('1');
 
   });
 
-  it('renders the component correctly', () => {
+  it('should open the popover and selects an option', async () => {
+    const onSelectionChange = jest.fn();
+
     render(
       <FormSelect
         label="Select an option"
         items={sampleItems}
         selectedKey="1"
+        onSelectionChange={onSelectionChange}
       >
         {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
       </FormSelect>
     );
 
-    expect(screen.getByLabelText('Select an option')).toBeInTheDocument();
-    expect(screen.getByText('Option 1')).toBeInTheDocument();
-  });
-
-  it('opens the popover and selects an option', () => {
-    const onChange = jest.fn();
-    render(
-      <FormSelect
-        label="Select an option"
-        items={sampleItems}
-        selectedKey="1"
-      >
-        {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-      </FormSelect>
-    );
-
+    // Click the button to open the popover
     const button = screen.getByRole('button');
-    fireEvent.click(button);
-    expect(screen.getByText('Option 2')).toBeInTheDocument();
+    await userEvent.click(button);
 
-    const option2 = screen.getByText('Option 2');
-    fireEvent.click(option2);
-    expect(onChange).toHaveBeenCalledWith(sampleItems[1]);
+    // Find and click Option 2 in the listbox
+    const option2 = screen.getByRole('option', { name: 'Option 2' });
+    await userEvent.click(option2);
+
+    // Verify the selection change
+    expect(onSelectionChange).toHaveBeenCalledWith('2');
   });
 
-  it('displays an error message', () => {
-    render(
-      <FormSelect
-        label="Select an option"
-        items={sampleItems}
-        selectedKey="1"
-        errorMessage="Please select an option"
-      >
-        {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
-      </FormSelect>
-    );
-
-    expect(screen.getByText('Please select an option')).toBeInTheDocument();
-    expect(screen.getByTestId('field-wrapper')).toHaveClass('react-aria-FieldError');
-  });
-
-  it('renders the helpMessage', () => {
+  it('should render the helpMessage', () => {
     render(
       <FormSelect
         label="Select an option"

@@ -1,37 +1,10 @@
 @import '@/styles/responsive';
 
 
-.formRow {
-  min-height: 85px;
-}
-
-.twoItemRow {
-  @include device(sm) {
-    flex-direction: row;
-  }
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-
-  > div {
-    flex: 1; /* Make both fields take equal width */
-  }
-}
-
-.oneItemRow {
-  max-width: 100%;
-  input {
-    max-width: 100%;
-  }
-}
-
 .readOnlyField {
   min-width: 200px;
 }
 
-.fieldLabel {
-  font-weight: var(--fw-bold, 600);
-}
 .section {
   margin: var(--space-6) 0;
 }

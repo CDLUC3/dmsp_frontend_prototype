@@ -21,7 +21,7 @@ describe('FormInput', () => {
     expect(screen.getByPlaceholderText('Enter your name')).toHaveValue('John Doe');
   });
 
-  it('handles invalid state correctly', () => {
+  it('should handle invalid state correctly', () => {
     render(
       <FormInput
         name="email"
@@ -38,7 +38,7 @@ describe('FormInput', () => {
   });
 
 
-  it('calls the onChange handler when the input value changes', () => {
+  it('should call the onChange handler when the input value changes', () => {
     const onChange = jest.fn();
     render(
       <FormInput
@@ -54,7 +54,7 @@ describe('FormInput', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
   });
 
-  it('renders the help message if provided', () => {
+  it('should render the help message if provided', () => {
     render(
       <FormInput
         name="phone"
