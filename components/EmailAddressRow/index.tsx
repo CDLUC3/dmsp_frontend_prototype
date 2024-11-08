@@ -59,7 +59,7 @@ export default function EmailAddressRow({
           <Tooltip placement="bottom right">{toolTipMessage}</Tooltip>
         </TooltipTrigger>
       ) : (
-        <div onClick={() => deleteEmail && deleteEmail(email)} data-testId='delete-email'>
+        <div onClick={() => deleteEmail && deleteEmail(email)} className="delete-email">
           <DmpIcon icon="trashcan" classes={styles.trashcanIcon + ' ' + (additionalClassName ? styles[additionalClassName] : '')} />
         </div>
       )}

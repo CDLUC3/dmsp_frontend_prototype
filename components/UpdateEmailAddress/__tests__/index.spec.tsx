@@ -72,9 +72,6 @@ const mockEmailData = {
   "userId": 5,
 }
 
-const mockRefetch = () => {
-  return console.log("Called refetch");
-}
 // Helper function to cast to jest.Mock for TypeScript
 const mockHook = (hook) => hook as jest.Mock;
 
@@ -184,9 +181,7 @@ describe('UpdateEmailAddressPage', () => {
     );
 
     // Find and click the delete button for test@test.com
-    const deleteTrigger = screen.getByTestId('delete-email');
-
-    screen.debug();
+    const deleteTrigger = document.querySelector('.delete-email') as HTMLElement;
     await act(async () => {
       fireEvent.click(deleteTrigger);
     });
@@ -237,9 +232,8 @@ describe('UpdateEmailAddressPage', () => {
     );
 
     // Find and click the delete button for test@test.com
-    const deleteTrigger = screen.getByTestId('delete-email');
+    const deleteTrigger = document.querySelector('.delete-email') as HTMLElement;
 
-    screen.debug();
     await act(async () => {
       fireEvent.click(deleteTrigger);
     });
@@ -285,9 +279,8 @@ describe('UpdateEmailAddressPage', () => {
     );
 
     // Find and click the delete button for test@test.com
-    const deleteTrigger = screen.getByTestId('delete-email');
+    const deleteTrigger = document.querySelector('.delete-email') as HTMLElement;
 
-    screen.debug();
     await act(async () => {
       fireEvent.click(deleteTrigger);
     });
