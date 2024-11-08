@@ -13,8 +13,8 @@ export function Example({ children }: ExampleProps) {
 }
 
 interface BrandColorProps {
-  varname: string;
-  description?: string;
+  varname: string,
+  description?: string
 }
 
 export function BrandColor({ varname, description }: BrandColorProps) {

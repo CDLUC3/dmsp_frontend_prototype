@@ -30,9 +30,9 @@ $spacing-directions: (
 );
 
 $font-sizes: (
-  'xsmall': 0.75rem, // 12px
-  'small': 0.875rem, // 14px h5
-  'base': 1rem, // 16px h4
+  'xsmall': 0.75rem, // 12px micro text
+  'small': 0.875rem, // 14px h5 - "special heading" and small text
+  'base': 1rem, // 16px h4 and p tag
   'lg': 1.125rem, // 18px h3
   'xl': 1.25rem, // 20px h2
   '2xl': 1.5rem, // 24px  h1
@@ -159,6 +159,7 @@ html, body {
   --focus-ring: #3B82F6;
   --focus-ring-offset: 2px;
   --focus-ring-color: var(--purple-400);
+
 
   // Card
   --card-background: var(--gray-50);

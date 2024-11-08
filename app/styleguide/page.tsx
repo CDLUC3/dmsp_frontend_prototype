@@ -50,11 +50,7 @@ import {
   CardMutedText,
 } from "@/components/Card/card";
 
-import {
-  Example,
-  BrandColor,
-  handleDelete,
-} from "./sg-components";
+import { BrandColor, Example, handleDelete, } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
@@ -360,6 +356,7 @@ function Page() {
           <div id="_intro">
             <h2>Introduction</h2>
             <p>TBD... (Why, Living Styleguide?, Updates, How-to-use)</p>
+
           </div>
 
           <div id="_brand">
@@ -479,30 +476,39 @@ function Page() {
 
             <div className="type-scale-examples">
               <div className="type-example">
-                <h1 >Heading 1 - 1.5rem
+                <p>Normal paragraph text</p>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </p>
+
+              </div>
+
+
+              <div className="type-example">
+                <h1>Heading 1 - 1.5rem
                   (24px)</h1>
               </div>
 
               <div className="type-example">
-                <h2 >Heading 2 - 1.25rem
-                  (2px)</h2>
+                <h2>Heading 2 - 1.25rem
+                  (20px)</h2>
 
               </div>
 
               <div className="type-example">
-                <h3 >Heading 3 - 1.125rem
+                <h3>Heading 3 - 1.125rem
                   (18px)</h3>
 
               </div>
 
               <div className="type-example">
-                <h4 >Heading 4 - 1rem
+                <h4>Heading 4 - 1rem
                   (16px)</h4>
 
               </div>
 
               <div className="type-example">
-                <h5 >Heading 5 - 0.875rem
+                <h5>Heading 5 - 0.875rem
                   (14px)</h5>
 
               </div>
@@ -607,7 +613,7 @@ function Page() {
                 <a href="#" style={{ color: 'var(--link-hover-color)' }}>Hover
                   State</a>
               </p>
-              <div>
+              <p>
                 We should try to use Next Link e.g.
 
 
@@ -615,7 +621,7 @@ function Page() {
                   {`<Link href="/about">About</Link>`}
                 </code></pre>
 
-              </div>
+              </p>
             </div>
 
             <h4>Lists</h4>
@@ -652,6 +658,7 @@ function Page() {
             </div>
           </div>
 
+
           <div id="_icons">
             <h2>Icons</h2>
             <Example>
@@ -682,6 +689,7 @@ function Page() {
               </dd>
             </dl>
           </div>
+
 
           <div id="_layout">
             <h2>Spacing System</h2>
@@ -895,7 +903,7 @@ function Page() {
               using responsive prefixes.</p>
 
             <div className="responsive-examples">
-              <code>mt-2 md:mt-4 lg:mt-6</code>
+              <code>mt-2 mt-md-4 mt-lg-6</code>
               <ul>
                 <li>Default: 0.5rem margin-top</li>
                 <li>md (768px): 1rem margin-top</li>
@@ -905,6 +913,7 @@ function Page() {
 
 
           </div>
+
 
           <div id="_layout">
             <h2>Component Spacing</h2>
@@ -985,14 +994,17 @@ function Page() {
                 find specific
                 properties, and easier to add &amp; remove. Eg.
 
-                <div><pre><code>
-                  {`<SomeElement
-  prop1="A"
-  prop2="B"
-  prop3="C"
-  prop4="D"
-\\>`}
-                </code></pre>
+                <div>
+                  <pre>
+                    <code>
+                      {`<SomeElement
+                    prop1="A"
+                    prop2="B"
+                    prop3="C"
+                    prop4="D"
+                  \\>`}
+                    </code>
+                  </pre>
                 </div>
               </li>
 
@@ -1003,14 +1015,14 @@ function Page() {
 
                 <div><pre><code>
                   {`import {
-  Button,
-  Label,
-  TextField,
-  Input,
-  FieldError,
-  Form,
-} from "react-area-components";
-`}
+                              Button,
+                              Label,
+                              TextField,
+                              Input,
+                              FieldError,
+                              Form,
+                            } from "react-area-components";
+                            `}
                 </code></pre>
                 </div>
               </li>
@@ -1025,16 +1037,16 @@ function Page() {
 
                 <div><pre><code>
                   {`.grid-view {
-  --_gap: var(--grid-list-grid-gap, 1rem);
+                    --_gap: var(--grid-list-grid-gap, 1rem);
 
-  display: grid;
+                    display: grid;
 
-  padding: var(--_gap);
-  grid-gap: var(--_gap);
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: auto;
-}
-`}
+                    padding: var(--_gap);
+                    grid-gap: var(--_gap);
+                    grid-template-columns: repeat(4, 1fr);
+                    grid-template-rows: auto;
+                  }
+                `}
                 </code></pre>
                 </div>
               </li>
@@ -1188,7 +1200,9 @@ function Page() {
                 <Button className="secondary">Secondary</Button>
                 <Button className="tertiary">Tertiary</Button>
                 <Button isDisabled>Disabled</Button>
-                <ButtonWithImage url="http://localhost:3000" imageUrl="/images/orcid.svg" buttonText="Connect institutional credentials" />
+                <ButtonWithImage url="http://localhost:3000"
+                  imageUrl="/images/orcid.svg"
+                  buttonText="Connect institutional credentials" />
               </div>
             </Example>
 
@@ -1386,6 +1400,7 @@ function Page() {
               name="This is a question"
               link="/edit"
             />
+
 
             <h2>Typeahead</h2>
             <p>
@@ -1636,8 +1651,10 @@ function Page() {
 
           <div id="_tooltipWithDialog">
             <h2>Tooltip with dialog</h2>
-            <p>This tooltip displays a message when a user hovers over the icon that is passed to TooltipWithDialog.</p>
-            <p>Users can also pass in the tooltip message, as well as the modal that they want displayed when the user clicks the icon.</p>
+            <p>This tooltip displays a message when a user hovers over the icon
+              that is passed to TooltipWithDialog.</p>
+            <p>Users can also pass in the tooltip message, as well as the modal
+              that they want displayed when the user clicks the icon.</p>
             <Example>
               <TooltipWithDialog
                 text='You have an existing connection to ORCID.'
