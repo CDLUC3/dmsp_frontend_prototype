@@ -22,7 +22,7 @@ import { useMeQuery, useUpdateUserProfileMutation, AffiliationsDocument, useLang
 import PageWrapper from '@/components/PageWrapper';
 import ContentContainer from '@/components/ContentContainer';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
-import TypeAheadWithOther from '@/components/TypeAheadWithOther';
+import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 import BackButton from '@/components/BackButton';
 import RightSidebar from '@/components/RightSidebar';
 import { FormSelect } from '@/components/Form/FormSelect';
@@ -432,16 +432,18 @@ const ProfilePage: React.FC = () => {
                           setOtherField={setOtherField}
                           required={true}
                           error={fieldErrors.affiliationName}
-                          helpText="Testing"
+                          helpText="Search for your institution"
                           updateFormData={updateAffiliationFormData}
                           value={formData.affiliationName}
                         />
                         {otherField && (
-                          <TextField type="text" name="institution">
-                            <Label>Other institution</Label>
-                            <Input placeholder="Enter custom institution name" onChange={e => handleUpdate(e)} />
-                            <FieldError />
-                          </TextField>
+                          <div className="form-row one-item-row">
+                            <TextField type="text" name="institution">
+                              <Label>Other institution</Label>
+                              <Input placeholder="Enter custom institution name" onChange={e => handleUpdate(e)} />
+                              <FieldError />
+                            </TextField>
+                          </div>
                         )}
                       </>
                     ) : (

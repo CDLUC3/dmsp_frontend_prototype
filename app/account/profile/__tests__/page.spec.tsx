@@ -35,7 +35,7 @@ jest.mock('@/components/UpdateEmailAddress', () => ({
 }));
 
 // Mock TypeAheadWithOther component
-jest.mock('@/components/TypeAheadWithOther', () => ({
+jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
   default: () => <div data-testid="type-ahead">Mocked TypeAheadWithOther Component</div>,
 }));

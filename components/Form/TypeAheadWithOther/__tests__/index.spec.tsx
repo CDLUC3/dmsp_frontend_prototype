@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
-import TypeAheadWithOther from '..';
+import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 import { GET_AFFILIATIONS } from '@/lib/graphql/queries/affiliations';
 import logECS from '@/utils/clientLogger';

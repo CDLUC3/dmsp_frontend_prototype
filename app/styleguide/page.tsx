@@ -57,7 +57,7 @@ import {
 } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
-import TypeAheadWithOther from '@/components/TypeAheadWithOther';
+import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 import { AffiliationsDocument } from '@/generated/graphql';
 
 import "./styleguide.scss";
@@ -70,7 +70,6 @@ import ButtonWithImage from '@/components/ButtonWithImage';
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
-  const [affiliationError, setAffiliationError] = useState('');
 
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
