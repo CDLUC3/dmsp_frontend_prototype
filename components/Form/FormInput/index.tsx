@@ -10,7 +10,7 @@ import styles from './formInput.module.scss';
 
 interface InputProps {
   name: string;
-  type: string;
+  type?: string;
   label: string;
   placeholder?: string;
   value?: string;
@@ -33,11 +33,12 @@ const FormInput: React.FC<InputProps> = ({
   errorMessage = '',
   helpMessage = ''
 }) => {
+
   return (
     <>
       <TextField
         name={name}
-        type="text"
+        type={type}
         className={`${className} ${isInvalid ? 'field-error' : ''}`}
         isInvalid={isInvalid}
         data-testid="field-wrapper"
@@ -50,7 +51,9 @@ const FormInput: React.FC<InputProps> = ({
           onChange={onChange}
           value={value}
         />
-        {errorMessage && <FieldError className='error-message'>{errorMessage}</FieldError>}
+
+        {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
+
         {helpMessage && (
           <Text slot="description" className='help-text'>
             {helpMessage}

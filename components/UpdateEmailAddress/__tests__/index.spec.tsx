@@ -195,7 +195,15 @@ describe('UpdateEmailAddressPage', () => {
 
     // Verify the error message is displayed
     await waitFor(() => {
-      expect(screen.getByText('Error when setting primary email')).toBeInTheDocument();
+      // Use container.querySelector to find the div with class "error"
+      const errorDiv = document.querySelector('.error-message') as HTMLElement;
+
+      // Check that the errorDiv exists
+      expect(errorDiv).toBeInTheDocument();
+
+      // Use `within` to search only within `errorDiv`
+      const { getByText } = within(errorDiv);
+      expect(getByText('Error when deleting email')).toBeInTheDocument();
     });
 
     // Verify scrollIntoView was called with correct parameters
@@ -254,7 +262,15 @@ describe('UpdateEmailAddressPage', () => {
 
     // Verify the error message is displayed
     await waitFor(() => {
-      expect(screen.getByText('Error when setting primary email')).toBeInTheDocument();
+      // Use container.querySelector to find the div with class "error"
+      const errorDiv = document.querySelector('.error-message') as HTMLElement;
+
+      // Check that the errorDiv exists
+      expect(errorDiv).toBeInTheDocument();
+
+      // Use `within` to search only within `errorDiv`
+      const { getByText } = within(errorDiv);
+      expect(getByText('Error when adding new email')).toBeInTheDocument();
     });
 
     // Verify scrollIntoView was called with correct parameters
@@ -308,9 +324,16 @@ describe('UpdateEmailAddressPage', () => {
 
     // Verify the error message is displayed
     await waitFor(() => {
-      expect(screen.getByText('Error when setting primary email')).toBeInTheDocument();
-    });
+      // Use container.querySelector to find the div with class "error"
+      const errorDiv = document.querySelector('.error-message') as HTMLElement;
 
+      // Check that the errorDiv exists
+      expect(errorDiv).toBeInTheDocument();
+
+      // Use `within` to search only within `errorDiv`
+      const { getByText } = within(errorDiv);
+      expect(getByText('Error when setting primary email')).toBeInTheDocument();
+    });
     // Verify scrollIntoView was called with correct parameters
     expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',

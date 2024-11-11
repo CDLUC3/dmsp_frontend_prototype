@@ -37,9 +37,12 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   const [addUserEmailMutation, { error: addUserEmailError }] = useAddUserEmailMutation();
   const [removeUserEmailMutation, { error: deleteEmailError }] = useRemoveUserEmailMutation();
 
+  const clearErrors = () => {
+    setErrors([]);
+  }
   // Set given email as isPrimary
   const makePrimaryEmail = async (primaryEmail: string) => {
-    setErrors([]);
+    clearErrors();
     try {
       const response = await setPrimaryUserEmailMutation({
         variables: {
@@ -83,17 +86,8 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
   // Adding new email alias
   const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
-    setErrors([]);
+    clearErrors();
     event.preventDefault();
-    const form = event.currentTarget;
-    // Create a new Email object
-    const newAlias: EmailInterface = {
-      email: addAliasValue,
-      isPrimary: false,
-      isConfirmed: false,
-      id: null
-    };
-
     try {
       const response = await addUserEmailMutation({
         variables: {
@@ -113,7 +107,8 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         setErrors(emailData.errors ?? []);
         return;
       }
-      form.reset();
+      // Clear the add alias input field
+      setAddAliasValue('');
     } catch (err) {
       if (err instanceof ApolloError) {
         await addUserEmailMutation({
@@ -127,22 +122,22 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
             },
           ],
         });
+        // Clear the add alias input field
+        setAddAliasValue('');
       } else {
         // Display other errors
-        setErrors(prevErrors => [...prevErrors, 'Error when setting primary email']);
+        setErrors(prevErrors => [...prevErrors, 'Error when adding new email']);
         logECS('error', 'handleAddingAlias', {
           error: err,
           url: { path: '/account/profile' }
         });
       }
     }
-    // Clear the add alias input field
-    form.reset();
   }
 
   // Delete provided email
   const deleteEmail = async (emailToDelete: string) => {
-    setErrors([]);
+    clearErrors();
     try {
       const response = await removeUserEmailMutation({
         variables: {
@@ -174,7 +169,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         })
       } else {
         // Display other errors
-        setErrors(prevErrors => [...prevErrors, 'Error when setting primary email']);
+        setErrors(prevErrors => [...prevErrors, 'Error when deleting email']);
         logECS('error', 'deleteEmail', {
           error: err,
           url: { path: '/account/profile' }
@@ -183,6 +178,13 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
     };
   }
 
+
+  const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Clear errors
+    clearErrors();
+    setAddAliasValue(value);
+  }
   // If page-level errors, scroll them into view
   useEffect(() => {
     if (errors.length > 0 && errorRef.current) {
@@ -249,11 +251,14 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
             <div className={styles.addContainer}>
               <FormInput
                 name="addAlias"
-                type="email"
+                type="text"
                 label="Add alias email address"
                 className={`${styles.addAliasTextField} react - aria - TextField`}
+                isInvalid={errors.length > 0}
+                errorMessage={errors[0]}
                 helpMessage="You will be sent an email to confirm this addition."
-                onChange={e => setAddAliasValue(e.target.value)}
+                onChange={handleAliasChange}
+                value={addAliasValue}
               />
               <Button type="submit">Add</Button>
             </div>
@@ -265,5 +270,6 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 }
 
 export default UpdateEmailAddress;
+
 
 
