@@ -3,7 +3,6 @@ import { render, screen, act, fireEvent, waitFor, within } from '@testing-librar
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProfilePage from '../page';
 import { useMeQuery, useUpdateUserProfileMutation, useLanguagesQuery } from '@/generated/graphql';
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 
 expect.extend(toHaveNoViolations);
 
@@ -23,10 +22,6 @@ jest.mock('@/generated/graphql', () => ({
   useUpdateUserProfileMutation: jest.fn(),
   useLanguagesQuery: jest.fn(),
 }));
-
-jest.mock('@/utils/gqlErrorHandler', () => ({
-  handleApolloErrors: jest.fn()
-}))
 
 // Mock UpdateEmailAddress component
 jest.mock('@/components/UpdateEmailAddress', () => ({
@@ -55,7 +50,8 @@ const mockLanguagesData = {
 };
 
 // Helper function to cast to jest.Mock for TypeScript
-const mockHook = (hook) => hook as jest.Mock;
+/* eslint-disable @typescript-eslint/no-explicit-any*/
+const mockHook = (hook: any) => hook as jest.Mock;
 
 const setupMocks = () => {
   mockHook(useMeQuery).mockReturnValue({ data: mockUserData, loading: false, error: undefined });
@@ -160,18 +156,6 @@ describe('ProfilePage', () => {
     const hiddenContainer = screen.getByTestId('hidden-select-container');
     const select = within(hiddenContainer).getByDisplayValue('English');
     expect(select).toBeInTheDocument();
-  })
-
-  it('should call handleApolloErrors mock when language query returns an error', async () => {
-    mockHook(useLanguagesQuery).mockReturnValue({ data: mockLanguagesData, loading: false, error: { graphQlErrors: ['There was an error'], networkError: null } });
-    render(<ProfilePage />);
-    expect(handleApolloErrors).toHaveBeenCalled();
-  })
-
-  it('should call handleApolloErrors mock when meQuery returns an error', async () => {
-    mockHook(useMeQuery).mockReturnValue({ data: mockUserData, loading: false, error: { graphQlErrors: ['There was an error'], networkError: null } });
-    render(<ProfilePage />);
-    expect(handleApolloErrors).toHaveBeenCalled();
   })
 
   it('should display Loading message when meQuery returns queryLoading', async () => {

@@ -1,15 +1,14 @@
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   Button,
   Form,
 } from "react-aria-components";
-import { ApolloQueryResult, ApolloError } from "@apollo/client";
+import { ApolloError } from "@apollo/client";
 
 // Graphql mutations
 import { useSetPrimaryUserEmailMutation, useAddUserEmailMutation, useRemoveUserEmailMutation } from '@/generated/graphql';
-import { MeQuery } from '@/generated/graphql';
+import { MeDocument } from '@/generated/graphql';
 // Components
 import ContentContainer from '@/components/ContentContainer';
 import EmailAddressRow from '@/components/EmailAddressRow';
@@ -17,22 +16,18 @@ import FormInput from '../Form/FormInput';
 //Interfaces
 import { EmailInterface } from '@/app/types';
 // Utils and other
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import logECS from '@/utils/clientLogger';
 import styles from './updateEmailAddress.module.scss';
 
+const GET_USER = MeDocument;
+
 export interface UpdateEmailAddressProps {
   emailAddresses: EmailInterface[];
-  setEmailAddresses: Dispatch<SetStateAction<EmailInterface[]>>;
-  refetch: () => () => Promise<ApolloQueryResult<MeQuery>>;
 }
 
 const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   emailAddresses,
-  setEmailAddresses,
-  refetch
 }) => {
-  const router = useRouter();
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [addAliasValue, setAddAliasValue] = useState<string>('');
@@ -49,7 +44,12 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       const response = await setPrimaryUserEmailMutation({
         variables: {
           email: primaryEmail
-        }
+        },
+        refetchQueries: [
+          {
+            query: GET_USER,
+          },
+        ],
       })
 
       const emailData = response?.data?.setPrimaryUserEmail?.[0];
@@ -60,19 +60,16 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       }
     } catch (err) {
       if (err instanceof ApolloError) {
-        await handleApolloErrors(
-          err?.graphQLErrors,
-          err?.networkError ?? null,
-          setErrors,
-          () => {
-            return setPrimaryUserEmailMutation({
-              variables: {
-                email: primaryEmail
-              },
-            });
+        await setPrimaryUserEmailMutation({
+          variables: {
+            email: primaryEmail
           },
-          router
-        );
+          refetchQueries: [
+            {
+              query: GET_USER,
+            },
+          ],
+        });
       } else {
         // Display other errors
         setErrors(prevErrors => [...prevErrors, 'Error when setting primary email']);
@@ -86,15 +83,28 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
   // Adding new email alias
   const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
+    setErrors([]);
     event.preventDefault();
     const form = event.currentTarget;
+    // Create a new Email object
+    const newAlias: EmailInterface = {
+      email: addAliasValue,
+      isPrimary: false,
+      isConfirmed: false,
+      id: null
+    };
 
     try {
       const response = await addUserEmailMutation({
         variables: {
           email: addAliasValue,
           isPrimary: false
-        }
+        },
+        refetchQueries: [
+          {
+            query: GET_USER,
+          },
+        ],
       });
 
       const emailData = response?.data?.addUserEmail;
@@ -103,35 +113,20 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         setErrors(emailData.errors ?? []);
         return;
       }
-
-      // Create a new Email object
-      const newAlias: EmailInterface = {
-        email: addAliasValue,
-        isPrimary: false,
-        isConfirmed: false,
-        id: null
-      };
-
-      setEmailAddresses((prevEmails: EmailInterface[]) => [...prevEmails, newAlias]);
       form.reset();
     } catch (err) {
       if (err instanceof ApolloError) {
-        await handleApolloErrors(
-          err?.graphQLErrors,
-          err?.networkError ?? null,
-          setErrors,
-          () => addUserEmailMutation({
-            variables: {
-              email: addAliasValue,
-              isPrimary: false
-            }
-          }),
-          router
-        );
-        //Refetch updated email list so that page is re-rendered with new email list
-        refetch();
-        // Clear form field
-        form.reset();
+        await addUserEmailMutation({
+          variables: {
+            email: addAliasValue,
+            isPrimary: false
+          },
+          refetchQueries: [
+            {
+              query: GET_USER,
+            },
+          ],
+        });
       } else {
         // Display other errors
         setErrors(prevErrors => [...prevErrors, 'Error when setting primary email']);
@@ -141,15 +136,23 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         });
       }
     }
+    // Clear the add alias input field
+    form.reset();
   }
 
   // Delete provided email
   const deleteEmail = async (emailToDelete: string) => {
+    setErrors([]);
     try {
       const response = await removeUserEmailMutation({
         variables: {
           email: emailToDelete
         },
+        refetchQueries: [
+          {
+            query: GET_USER,
+          },
+        ],
       })
 
       const emailData = response?.data?.removeUserEmail;
@@ -157,24 +160,18 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         setErrors(emailData.errors ?? []);
         return;
       }
-
-      //Refetch updated email list so that page is re-rendered with new email list
-      refetch();
     } catch (err) {
       if (err instanceof ApolloError) {
-        await handleApolloErrors(
-          err?.graphQLErrors,
-          err?.networkError ?? null,
-          setErrors,
-          () => removeUserEmailMutation({
-            variables: {
-              email: emailToDelete
-            }
-          }),
-          router
-        );
-        //Refetch updated email list so that page is re-rendered with new email list
-        refetch();
+        await removeUserEmailMutation({
+          variables: {
+            email: emailToDelete
+          },
+          refetchQueries: [
+            {
+              query: GET_USER,
+            },
+          ],
+        })
       } else {
         // Display other errors
         setErrors(prevErrors => [...prevErrors, 'Error when setting primary email']);
@@ -254,7 +251,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
                 name="addAlias"
                 type="email"
                 label="Add alias email address"
-                className={`${styles.addAliasTextField} react-aria-TextField`}
+                className={`${styles.addAliasTextField} react - aria - TextField`}
                 helpMessage="You will be sent an email to confirm this addition."
                 onChange={e => setAddAliasValue(e.target.value)}
               />
@@ -268,3 +265,5 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 }
 
 export default UpdateEmailAddress;
+
+

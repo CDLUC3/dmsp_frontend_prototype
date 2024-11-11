@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   Button,
   FieldError,
@@ -31,12 +30,10 @@ import FormInput from '@/components/Form/FormInput';
 // Interfaces
 import { EmailInterface, LanguageInterface, ProfileDataInterface, FormErrorsInterface } from '@/app/types';
 // Utils and other
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import logECS from '@/utils/clientLogger';
 import styles from './profile.module.scss';
 
 const ProfilePage: React.FC = () => {
-  const router = useRouter();
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -64,13 +61,12 @@ const ProfilePage: React.FC = () => {
   });
   const [emailAddresses, setEmailAddresses] = useState<EmailInterface[]>([]);
   const [languages, setLanguages] = useState<LanguageInterface[]>([]);
-  const [, forceRender] = useState(false);
 
   // Initialize user profile mutation
   const [updateUserProfileMutation, { loading: updateUserProfileLoading }] = useUpdateUserProfileMutation();
 
   // Run queries
-  const { data: languageData, error: languageError, refetch: languageRefetch } = useLanguagesQuery();
+  const { data: languageData } = useLanguagesQuery();
   const { data, loading: queryLoading, error: queryError, refetch } = useMeQuery();
 
   // Client-side validation of fields
@@ -122,24 +118,7 @@ const ProfilePage: React.FC = () => {
       }
     } catch (error) {
       if (error instanceof ApolloError) {
-        await handleApolloErrors(
-          error.graphQLErrors,
-          error.networkError,
-          setErrors,
-          () => {
-            return updateUserProfileMutation({
-              variables: {
-                input: {
-                  givenName: formData.firstName,
-                  surName: formData.lastName,
-                  affiliationId: formData.affiliationId,
-                  languageId: formData.languageId,
-                },
-              },
-            });
-          },
-          router
-        );
+        //
         setIsEditing(false);
       } else {
         // Handle other types of errors
@@ -147,11 +126,6 @@ const ProfilePage: React.FC = () => {
       }
     }
   };
-
-  //Passed to UpdateEmailAddress which calls it after deleting email
-  const handleRefetch = () => {
-    return refetch();
-  }
 
   // Handle form submit
   const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -244,16 +218,6 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const handleLanguageLoad = async () => {
       try {
-        if (languageError) {
-          await handleApolloErrors(
-            languageError?.graphQLErrors,
-            languageError?.networkError ?? null,
-            setErrors,
-            languageRefetch,
-            router
-          );
-        }
-
         if (languageData) {
           const languages = (languageData?.languages || []).filter((language) => language !== null);
           setLanguages(languages);
@@ -268,13 +232,7 @@ const ProfilePage: React.FC = () => {
     };
 
     handleLanguageLoad();
-  }, [languageData, languageError, languageRefetch]);
-
-  useEffect(() => {
-    // This effect will run whenever the `refetch` function changes
-    // This will force a re-render of the parent component
-    forceRender((prev) => !prev);
-  }, [refetch]);
+  }, [languageData]);
 
   useEffect(() => {
     //When data from backend changes, set formData and originalData
@@ -345,19 +303,9 @@ const ProfilePage: React.FC = () => {
   // Handle errors from loading of user data
   useEffect(() => {
     if (queryError) {
-      const handleErrors = async () => {
-        await handleApolloErrors(
-          queryError.graphQLErrors,
-          queryError.networkError,
-          setErrors,
-          refetch,
-          router
-        );
-      };
-
-      handleErrors();
+      refetch();
     }
-  }, [queryError, refetch]); // Runs when 'error' changes or 'refetch' happens
+  }, [queryError]); // Runs when 'error' changes or 'refetch' happens
 
   // Show loading message on first page load when getting user
   const loading = queryLoading;
@@ -494,8 +442,6 @@ const ProfilePage: React.FC = () => {
           </div>
           <UpdateEmailAddress
             emailAddresses={emailAddresses}
-            setEmailAddresses={setEmailAddresses}
-            refetch={handleRefetch}
           />
         </div>
         <div className={styles.rightSidebar}>
@@ -514,3 +460,5 @@ const ProfilePage: React.FC = () => {
 }
 
 export default ProfilePage;
+
+

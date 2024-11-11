@@ -1,14 +1,13 @@
 import React from 'react';
-import { ApolloError } from '@apollo/client';
 import { render, screen, act, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import UpdateEmailAddress from '..';
 import { useSetPrimaryUserEmailMutation, useAddUserEmailMutation, useRemoveUserEmailMutation } from '@/generated/graphql';
-import { handleApolloErrors } from '@/utils/gqlErrorHandler';
 import logECS from '@/utils/clientLogger';
-
+import { MeDocument } from '@/generated/graphql';
 expect.extend(toHaveNoViolations);
 
+const GET_USER = MeDocument;
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
 }));
@@ -73,7 +72,7 @@ const mockEmailData = {
 }
 
 // Helper function to cast to jest.Mock for TypeScript
-const mockHook = (hook) => hook as jest.Mock;
+const mockHook = (hook: any) => hook as jest.Mock;
 
 const setupMocks = () => {
   mockHook(useSetPrimaryUserEmailMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
@@ -93,8 +92,6 @@ describe('UpdateEmailAddressPage', () => {
   it('should render UpdateEmailAddress page with expected headings', async () => {
     render(<UpdateEmailAddress
       emailAddresses={mockEmailAddresses}
-      setEmailAddresses={jest.fn()}
-      refetch={jest.fn()}
     />);
 
     await waitFor(() => {
@@ -116,39 +113,10 @@ describe('UpdateEmailAddressPage', () => {
   it('should display email addresses', async () => {
     render(<UpdateEmailAddress
       emailAddresses={mockEmailAddresses}
-      setEmailAddresses={jest.fn()}
-      refetch={jest.fn()}
     />);
 
     expect(screen.getByText(/test@test.com/i)).toBeInTheDocument();
     expect(screen.getByText(/me@test.com/i)).toBeInTheDocument();
-  });
-
-  it('should call setEmailAddresses when adding a new email alias', async () => {
-    const mockSetEmailAddresses = jest.fn();
-    render(<UpdateEmailAddress
-      emailAddresses={mockEmailAddresses}
-      setEmailAddresses={mockSetEmailAddresses}
-      refetch={jest.fn()}
-    />);
-
-    //Enter a value into the add alias input field
-    const addAliasInput = screen.getByLabelText(/add alias email address/i);
-    fireEvent.change(addAliasInput, { target: { value: 'msmith@test.com' } });
-
-    // Locate the Add button and click it
-    // Select the wrapping div with class "addContainer" and assert it's not null
-    const addContainer = document.querySelector('.addContainer') as HTMLElement;
-    expect(addContainer).not.toBeNull(); // Ensure addContainer is found
-
-    // Now we can safely use addContainer with `within`
-    const addButton = within(addContainer!).getByRole('button', { name: 'Add' });
-
-    await act(async () => {
-      fireEvent.click(addButton);
-    })
-
-    expect(mockSetEmailAddresses).toHaveBeenCalledTimes(1);
   });
 
   it('should call removeUserEmailMutation when deleting an email', async () => {
@@ -175,8 +143,6 @@ describe('UpdateEmailAddressPage', () => {
     render(
       <UpdateEmailAddress
         emailAddresses={mockEmailAddresses}
-        setEmailAddresses={jest.fn()}
-        refetch={mockRefetch}
       />
     );
 
@@ -190,67 +156,13 @@ describe('UpdateEmailAddressPage', () => {
     expect(mockRemoveEmailMutation).toHaveBeenCalledWith({
       variables: {
         email: 'test@test.com'
-      }
+      },
+      refetchQueries: [
+        {
+          query: GET_USER,
+        },
+      ],
     });
-
-    // Verify refetch was called after successful deletion
-    await waitFor(() => {
-      expect(mockRefetch).toHaveBeenCalled();
-    });
-  });
-
-  it('should call handleApolloErrors when deleting an email', async () => {
-    // Create a mock Apollo Error
-    const mockGraphQLErrors = [{ message: 'GraphQL Error', path: ['removeUserEmail'] }];
-    const mockNetworkError = new Error('Network error');
-    const mockApolloError = new ApolloError({
-      graphQLErrors: mockGraphQLErrors,
-      networkError: mockNetworkError,
-    });
-
-    // Mock the mutation to throw an error
-    const mockRemoveEmailMutation = jest.fn().mockRejectedValue(mockApolloError);
-    (useRemoveUserEmailMutation as jest.Mock).mockReturnValue([
-      mockRemoveEmailMutation,
-      { loading: false }
-    ]);
-
-    // Mock the router
-    const mockRouter = { push: jest.fn() };
-    (require('next/navigation').useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    // Mock the refetch function
-    const mockRefetch = jest.fn();
-
-    // Render the component
-    render(
-      <UpdateEmailAddress
-        emailAddresses={mockEmailAddresses}
-        setEmailAddresses={jest.fn()}
-        refetch={mockRefetch}
-      />
-    );
-
-    // Find and click the delete button for test@test.com
-    const deleteTrigger = document.querySelector('.delete-email') as HTMLElement;
-
-    await act(async () => {
-      fireEvent.click(deleteTrigger);
-    });
-
-    // Verify handleApolloErrors was called with the correct parameters
-    await waitFor(() => {
-      expect(handleApolloErrors).toHaveBeenCalledWith(
-        mockGraphQLErrors,
-        mockNetworkError,
-        expect.any(Function), // setErrors function
-        expect.any(Function), // retry function
-        mockRouter
-      );
-    });
-
-    // Verify refetch was called after error handling
-    expect(mockRefetch).toHaveBeenCalled();
   });
 
   it('should handle general error when deleting an email', async () => {
@@ -267,14 +179,10 @@ describe('UpdateEmailAddressPage', () => {
     // Mock setErrors function to verify it's called
     const mockSetEmailAddresses = jest.fn();
 
-    const scrollIntoViewSpy = jest.spyOn(window.HTMLElement.prototype, 'scrollIntoView');
-
     // Render the component
     render(
       <UpdateEmailAddress
         emailAddresses={mockEmailAddresses}
-        setEmailAddresses={mockSetEmailAddresses}
-        refetch={jest.fn()}
       />
     );
 
@@ -307,63 +215,6 @@ describe('UpdateEmailAddressPage', () => {
     );
   });
 
-  it('should call Apollo Error when adding alias', async () => {
-    // Create a mock Apollo Error
-    const mockGraphQLErrors = [{ message: 'GraphQL Error', path: ['setPrimaryUserEmail'] }];
-    const mockNetworkError = new Error('Network error');
-    const mockApolloError = new ApolloError({
-      graphQLErrors: mockGraphQLErrors,
-      networkError: mockNetworkError,
-    });
-
-    // Mock the mutation to throw the error
-    const mockAddUserEmailMutation = jest.fn().mockRejectedValue(mockApolloError);
-    (useAddUserEmailMutation as jest.Mock).mockReturnValue([
-      mockAddUserEmailMutation,
-      { loading: false }
-    ]);
-
-    // Mock the router
-    const mockRouter = { push: jest.fn() };
-    (require('next/navigation').useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    // Render the component
-    render(
-      <UpdateEmailAddress
-        emailAddresses={mockEmailAddresses}
-        setEmailAddresses={jest.fn()}
-        refetch={jest.fn()}
-      />
-    );
-
-    //Enter a value into the add alias input field
-    const addAliasInput = screen.getByLabelText(/add alias email address/i);
-    fireEvent.change(addAliasInput, { target: { value: 'msmith@test.com' } });
-
-    // Locate the Add button and click it
-    // Select the wrapping div with class "addContainer" and assert it's not null
-    const addContainer = document.querySelector('.addContainer') as HTMLElement;
-    expect(addContainer).not.toBeNull(); // Ensure addContainer is found
-
-    // Now we can safely use addContainer with `within`
-    const addButton = within(addContainer!).getByRole('button', { name: 'Add' });
-
-    await act(async () => {
-      fireEvent.click(addButton);
-    })
-
-    // Verify handleApolloErrors was called with the correct parameters
-    await waitFor(() => {
-      expect(handleApolloErrors).toHaveBeenCalledWith(
-        mockGraphQLErrors,
-        mockNetworkError,
-        expect.any(Function), // setErrors function
-        expect.any(Function), // retry function
-        mockRouter
-      );
-    });
-  });
-
   it('should handle general error when adding alias', async () => {
     // Create a general error (not Apollo Error)
     const generalError = new Error('General error occurred');
@@ -378,14 +229,10 @@ describe('UpdateEmailAddressPage', () => {
     // Mock setErrors function to verify it's called
     const mockSetEmailAddresses = jest.fn();
 
-    const scrollIntoViewSpy = jest.spyOn(window.HTMLElement.prototype, 'scrollIntoView');
-
     // Render the component
     render(
       <UpdateEmailAddress
         emailAddresses={mockEmailAddresses}
-        setEmailAddresses={mockSetEmailAddresses}
-        refetch={jest.fn()}
       />
     );
 
@@ -427,57 +274,6 @@ describe('UpdateEmailAddressPage', () => {
     );
   });
 
-  it('should handle Apollo Error when setting primary email', async () => {
-    // Create a mock Apollo Error
-    const mockGraphQLErrors = [{ message: 'GraphQL Error', path: ['setPrimaryUserEmail'] }];
-    const mockNetworkError = new Error('Network error');
-    const mockApolloError = new ApolloError({
-      graphQLErrors: mockGraphQLErrors,
-      networkError: mockNetworkError,
-    });
-
-    // Mock the mutation to throw the error
-    const mockSetPrimaryMutation = jest.fn().mockRejectedValue(mockApolloError);
-    (useSetPrimaryUserEmailMutation as jest.Mock).mockReturnValue([
-      mockSetPrimaryMutation,
-      { loading: false }
-    ]);
-
-    // Mock the router
-    const mockRouter = { push: jest.fn() };
-    (require('next/navigation').useRouter as jest.Mock).mockReturnValue(mockRouter);
-
-    // Render the component
-    render(
-      <UpdateEmailAddress
-        emailAddresses={mockEmailAddresses}
-        setEmailAddresses={jest.fn()}
-        refetch={jest.fn()}
-      />
-    );
-
-    // Find the "Make primary email address" button
-    const makePrimaryButton = screen.getByRole('button', {
-      name: /make primary email address/i
-    });
-
-    // Trigger the make primary action
-    await act(async () => {
-      fireEvent.click(makePrimaryButton);
-    });
-
-
-    // Verify handleApolloErrors was called with the correct parameters
-    await waitFor(() => {
-      expect(handleApolloErrors).toHaveBeenCalledWith(
-        mockGraphQLErrors,
-        mockNetworkError,
-        expect.any(Function), // setErrors function
-        expect.any(Function), // retry function
-        mockRouter
-      );
-    });
-  });
 
   it('should handle general error when setting primary email', async () => {
     // Create a general error (not Apollo Error)
@@ -493,14 +289,10 @@ describe('UpdateEmailAddressPage', () => {
     // Mock setErrors function to verify it's called
     const mockSetEmailAddresses = jest.fn();
 
-    const scrollIntoViewSpy = jest.spyOn(window.HTMLElement.prototype, 'scrollIntoView');
-
     // Render the component
     render(
       <UpdateEmailAddress
         emailAddresses={mockEmailAddresses}
-        setEmailAddresses={mockSetEmailAddresses}
-        refetch={jest.fn()}
       />
     );
 
@@ -539,8 +331,6 @@ describe('UpdateEmailAddressPage', () => {
   it('should pass axe accessibility test', async () => {
     const { container } = render(<UpdateEmailAddress
       emailAddresses={mockEmailAddresses}
-      setEmailAddresses={jest.fn()}
-      refetch={jest.fn()}
     />);
     await act(async () => {
       const results = await axe(container);
