@@ -269,8 +269,8 @@ calling 'refetch()' for the user query, but that didn't work. */
                 label="Add alias email address"
                 className={`${styles.addAliasTextField} react - aria - TextField`}
                 isInvalid={errors.length > 0}
-                errorMessage={errors[0]}
-                helpMessage="You will be sent an email to confirm this addition."
+                errorMessage="Please enter a valid email address"
+                helpMessage="You will be sent an email to confirm this addition"
                 onChange={handleAliasChange}
                 value={addAliasValue}
               />

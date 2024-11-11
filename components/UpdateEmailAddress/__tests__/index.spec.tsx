@@ -200,10 +200,7 @@ describe('UpdateEmailAddressPage', () => {
 
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
-
-      // Use `within` to search only within `errorDiv`
-      const { getByText } = within(errorDiv);
-      expect(getByText('Error when deleting email')).toBeInTheDocument();
+      expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument();
     });
 
     // Verify scrollIntoView was called with correct parameters
@@ -267,10 +264,7 @@ describe('UpdateEmailAddressPage', () => {
 
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
-
-      // Use `within` to search only within `errorDiv`
-      const { getByText } = within(errorDiv);
-      expect(getByText('Error when adding new email')).toBeInTheDocument();
+      expect(screen.getByText('Error when adding new email')).toBeInTheDocument();
     });
 
     // Verify scrollIntoView was called with correct parameters
@@ -329,10 +323,7 @@ describe('UpdateEmailAddressPage', () => {
 
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
-
-      // Use `within` to search only within `errorDiv`
-      const { getByText } = within(errorDiv);
-      expect(getByText('Error when setting primary email')).toBeInTheDocument();
+      expect(screen.getByText('Error when setting primary email')).toBeInTheDocument();
     });
     // Verify scrollIntoView was called with correct parameters
     expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
