@@ -7,8 +7,13 @@ import {
 import { ApolloError } from "@apollo/client";
 
 // Graphql mutations
-import { useSetPrimaryUserEmailMutation, useAddUserEmailMutation, useRemoveUserEmailMutation } from '@/generated/graphql';
-import { MeDocument } from '@/generated/graphql';
+import {
+  useSetPrimaryUserEmailMutation,
+  useAddUserEmailMutation,
+  useRemoveUserEmailMutation,
+  MeDocument
+} from '@/generated/graphql';
+
 // Components
 import ContentContainer from '@/components/ContentContainer';
 import EmailAddressRow from '@/components/EmailAddressRow';
@@ -40,6 +45,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   const clearErrors = () => {
     setErrors([]);
   }
+
   // Set given email as isPrimary
   const makePrimaryEmail = async (primaryEmail: string) => {
     try {
@@ -62,6 +68,9 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       }
       clearErrors();
     } catch (err) {
+      /* We need to call this mutation again when there is an error and
+      refetch the user query in order for the page to reload with updated info. I tried just
+      calling 'refetch()' for the user query, but that didn't work. */
       if (err instanceof ApolloError) {
         await setPrimaryUserEmailMutation({
           variables: {
@@ -111,6 +120,9 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       setAddAliasValue('');
     } catch (err) {
       if (err instanceof ApolloError) {
+        /* We need to call this mutation again when there is an error and
+refetch the user query in order for the page to reload with updated info. I tried just
+calling 'refetch()' for the user query, but that didn't work. */
         await addUserEmailMutation({
           variables: {
             email: addAliasValue,
@@ -157,6 +169,9 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       clearErrors();
     } catch (err) {
       if (err instanceof ApolloError) {
+        /* We need to call this mutation again when there is an error and
+refetch the user query in order for the page to reload with updated info. I tried just
+calling 'refetch()' for the user query, but that didn't work. */
         await removeUserEmailMutation({
           variables: {
             email: emailToDelete
@@ -177,7 +192,6 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       }
     };
   }
-
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

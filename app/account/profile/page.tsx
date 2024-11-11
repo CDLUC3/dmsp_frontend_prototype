@@ -15,7 +15,12 @@ import {
 } from "react-aria-components";
 
 // GraphQL queries and mutations
-import { useMeQuery, useUpdateUserProfileMutation, AffiliationsDocument, useLanguagesQuery } from '@/generated/graphql';
+import {
+  useMeQuery,
+  useUpdateUserProfileMutation,
+  AffiliationsDocument,
+  useLanguagesQuery
+} from '@/generated/graphql';
 
 // Components
 import PageWrapper from '@/components/PageWrapper';
@@ -28,7 +33,13 @@ import { FormSelect } from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
 
 // Interfaces
-import { EmailInterface, LanguageInterface, ProfileDataInterface, FormErrorsInterface } from '@/app/types';
+import {
+  EmailInterface,
+  LanguageInterface,
+  ProfileDataInterface,
+  FormErrorsInterface
+} from '@/app/types';
+
 // Utils and other
 import logECS from '@/utils/clientLogger';
 import styles from './profile.module.scss';
@@ -109,6 +120,7 @@ const ProfilePage: React.FC = () => {
     });
     return response.data;
   }
+
   // Update Profile info
   const updateProfile = async () => {
     try {
@@ -205,7 +217,8 @@ const ProfilePage: React.FC = () => {
     return isValid;
   };
 
-  // This function is called by the child component, UpdateEmailAddress when affiliation/institution is changed
+  /* This function is called by the child component, UpdateEmailAddress 
+  when affiliation/institution is changed */
   const updateAffiliationFormData = async (id: string, value: string) => {
     clearActiveFieldError('affiliationName');
     return setFormData({
@@ -258,7 +271,7 @@ const ProfilePage: React.FC = () => {
 
         setEmailAddresses(validEmails);
       } else {
-        setEmailAddresses([]); // Reset to empty array if no emails data
+        setEmailAddresses([]); // Reset to empty array if no email data
       }
 
       setOriginalData({
@@ -305,7 +318,7 @@ const ProfilePage: React.FC = () => {
     if (queryError) {
       refetch();
     }
-  }, [queryError]); // Runs when 'error' changes or 'refetch' happens
+  }, [queryError]);
 
   // Show loading message on first page load when getting user
   const loading = queryLoading;
