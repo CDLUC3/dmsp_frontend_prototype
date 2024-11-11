@@ -42,7 +42,6 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   }
   // Set given email as isPrimary
   const makePrimaryEmail = async (primaryEmail: string) => {
-    clearErrors();
     try {
       const response = await setPrimaryUserEmailMutation({
         variables: {
@@ -61,6 +60,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         setErrors(emailData.errors ?? []);
         return;
       }
+      clearErrors();
     } catch (err) {
       if (err instanceof ApolloError) {
         await setPrimaryUserEmailMutation({
@@ -86,7 +86,6 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
   // Adding new email alias
   const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
-    clearErrors();
     event.preventDefault();
     try {
       const response = await addUserEmailMutation({
@@ -107,6 +106,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         setErrors(emailData.errors ?? []);
         return;
       }
+      clearErrors();
       // Clear the add alias input field
       setAddAliasValue('');
     } catch (err) {
@@ -137,7 +137,6 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
   // Delete provided email
   const deleteEmail = async (emailToDelete: string) => {
-    clearErrors();
     try {
       const response = await removeUserEmailMutation({
         variables: {
@@ -155,6 +154,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         setErrors(emailData.errors ?? []);
         return;
       }
+      clearErrors();
     } catch (err) {
       if (err instanceof ApolloError) {
         await removeUserEmailMutation({
