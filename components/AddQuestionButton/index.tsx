@@ -19,7 +19,7 @@ const AddQuestionButton: React.FC<AddQuestionButtonProps> = ({
   };
 
   return (
-    <div className={`${styles.container} ${className}`.trim()}>
+    <div className={`${styles.container} ${className}`.trim()} role="listitem">
       <a
         href={href}
         className={styles.link}
