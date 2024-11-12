@@ -9,7 +9,7 @@
   @include device(lg) {
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: flex-start;
   }
 
   .pageheader-title {
