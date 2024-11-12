@@ -1381,7 +1381,6 @@ function Page() {
 
 
             <SectionHeaderEdit
-              key="22424"
               sectionNumber={2}
               title="Test"
               editUrl="/edit"
@@ -1442,7 +1441,7 @@ function Page() {
           </div>
 
           <div id="_table">
-            <h2>Table</h2>
+            <h2 className="table-title">Table</h2>
             <p>
               A table displays data in rows and columns and enables a user to
               navigate its contents via directional navigation keys, and
@@ -1457,7 +1456,7 @@ function Page() {
             </p>
 
             <Example>
-              <Table>
+              <Table aria-labelledby="table-title">
                 <TableHeader>
                   <Column isRowHeader={true}>One</Column>
                   <Column isRowHeader={true}>Two</Column>

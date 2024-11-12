@@ -10,12 +10,13 @@ async function verifyEmail(userId: string, token: string) {
   return response.ok;
 }
 
-export default async function ConfirmEmailPage({
-  params,
-}: {
+interface PageProps {
   params: { userId: string; token: string };
-}) {
+}
+
+const ConfirmEmailPage = async ({ params }: PageProps) => {
   const { userId, token } = params;
+
   const isVerified = await verifyEmail(userId, token);
 
   if (isVerified) {
@@ -23,4 +24,8 @@ export default async function ConfirmEmailPage({
   } else {
     redirect('/verification-failed');
   }
-}
+
+  return null;
+};
+
+export default ConfirmEmailPage;

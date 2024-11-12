@@ -1,7 +1,7 @@
 import React from 'react';
 
 import './SectionHeaderEdit.scss';
-import {Button} from "react-aria-components";
+import { Button } from "react-aria-components";
 
 interface SectionHeaderEditProps {
   title: string;
@@ -12,12 +12,12 @@ interface SectionHeaderEditProps {
 }
 
 const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
-                                                           title,
-                                                           sectionNumber,
-                                                           editUrl,
-                                                           onMoveUp,
-                                                           onMoveDown
-                                                         }) => {
+  title,
+  sectionNumber,
+  editUrl,
+  onMoveUp,
+  onMoveDown
+}) => {
   return (
     <div className="section-header">
       <h2 className="section-title">
@@ -27,10 +27,10 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
       <div className="button-group">
         <a href={editUrl} className="edit-button">Edit section</a>
         <Button className="btn-default order-button" onPress={onMoveUp}
-                aria-label="Move section up">↑
+          aria-label="Move section up">↑
         </Button>
         <Button className="btn-default  order-button" onPress={onMoveDown}
-                aria-label="Move section down">↓
+          aria-label="Move section down">↓
         </Button>
       </div>
     </div>
