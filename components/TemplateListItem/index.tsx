@@ -15,12 +15,12 @@ type LinkHref = Url | {
 interface TemplateItemProps {
   item: {
     title: string;
-    content: JSX.Element;
+    content?: JSX.Element;
     link?: LinkHref;
     defaultExpanded: boolean;
-    funder: string;
-    lastUpdated: string;
-    publishStatus: string;
+    funder?: string;
+    lastUpdated?: string;
+    publishStatus?: string;
   };
 }
 

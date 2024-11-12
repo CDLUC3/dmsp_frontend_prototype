@@ -92,7 +92,7 @@ const TemplateSelectTemplatePage: React.FC = () => {
 
       <div className="template-list"  role="list">
         {templates.map((template, index) => (
-          <TemplateListItem key={index} item={template}/>
+          <TemplateListItem key={index} item={template}></TemplateListItem>
         ))}
       </div>
 
