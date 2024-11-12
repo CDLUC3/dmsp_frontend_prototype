@@ -1,4 +1,5 @@
 ### Added
+- Updated app to use NextJS 15 [#153]
 - Added spacing guidelines to the styleguide
 - Cleaned up the styleguide and added additional text to explain the spacing guidelines
 - Created SCSS helpers/mixins to generate alot of our font sizes,colours and spacing
