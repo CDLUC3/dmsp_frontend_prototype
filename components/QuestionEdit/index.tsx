@@ -1,6 +1,6 @@
 import React from 'react';
-import Link from 'next/link'; // Assuming you're using Next.js for routing
-import './QuestionEdit.scss';
+import Link from 'next/link';
+import styles from './QuestionEdit.module.scss';
 import {Button} from "react-aria-components";
 
 interface QuestionEditProps {
@@ -52,47 +52,24 @@ const QuestionEdit: React.FC<QuestionEditProps> = ({
   );
 
   return (
-    <div
-      className="question-edit"
-      key={id}
-      role="listitem"
-    >
-      <div
-        className="question-edit__content"
-        aria-labelledby={`question-${id}`}
-      >
-        <p
-          className="question-edit__label"
-          id={`question-label-${id}`}
-        >
+    <div className={styles.questionEdit} key={id} role="listitem">
+      <div className={styles.questionEdit__content} aria-labelledby={`question-${id}`}>
+        <p className={styles.questionEdit__label} id={`question-label-${id}`}>
           Question
         </p>
-        <p
-          className="question-edit__name"
-          id={`question-${id}`}
-        >
+        <p className={styles.questionEdit__name} id={`question-${id}`}>
           {name}
         </p>
       </div>
-      <div
-        className="question-edit__actions"
-        role="group"
-        aria-label="Question actions"
-      >
-        <Link
-          href={link}
-          className="question-edit__link"
-          aria-label={`Edit question: ${name}`}
-        >
+      <div className={styles.questionEdit__actions} role="group" aria-label="Question actions">
+        <Link href={link} className={styles.questionEdit__link} aria-label={`Edit question: ${name}`}>
           Edit question
         </Link>
-        <Button className="btn-default order-button"
-                aria-label="Move question up">
-          <UpArrowIcon/>
+        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label="Move question up">
+          <UpArrowIcon />
         </Button>
-        <Button className="btn-default  order-button"
-                aria-label="Move question down">
-          <DownArrowIcon/>
+        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label="Move question down">
+          <DownArrowIcon />
         </Button>
       </div>
     </div>
