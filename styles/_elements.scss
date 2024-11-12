@@ -414,7 +414,10 @@
   color: var(--text-color);
   border: 1px solid var(--gray-400);
   outline: none;
+  width: 95%;
   max-width: 600px;
+  max-height: 80vh;
+
 
   &[data-entering] {
     animation: modal-zoom 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -423,7 +426,8 @@
   .react-aria-TextField {
     margin-bottom: 8px;
   }
-  .modal-actions{
+
+  .modal-actions {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
@@ -507,7 +511,7 @@
 
 
 .card-grid-list {
-  margin-top:var(--space-4);
+  margin-top: var(--space-4);
   margin-bottom: var(--space-8);
   display: grid;
   gap: var(--space-5);
