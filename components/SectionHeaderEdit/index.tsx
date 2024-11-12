@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './SectionHeaderEdit.scss';
+import styles from './SectionHeaderEdit.module.scss';
 import {Button} from "react-aria-components";
 
 interface SectionHeaderEditProps {
@@ -57,23 +57,26 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
 
 
   return (
-    <div className="section-header">
-      <h2 className="section-title">
-        <span className="section-number">Section {sectionNumber} </span>
+    <div className={styles.sectionHeader} role="listitem">
+      <h2 className={styles.sectionTitle}>
+        <span className={styles.sectionNumber}>Section {sectionNumber} </span>
         {title}
       </h2>
-      <div className="button-group">
-        <a href={editUrl} className="edit-button">Edit section</a>
-        <Button className="btn-default order-button" onPress={onMoveUp}
+      <div className={styles.buttonGroup}>
+        <a href={editUrl} className={styles.editButton}>Edit section</a>
+        <Button className={`${styles.btnDefault} ${styles.orderButton}`}
+                onPress={onMoveUp}
                 aria-label="Move section up">
           <UpArrowIcon/>
         </Button>
-        <Button className="btn-default  order-button" onPress={onMoveDown}
+        <Button className={`${styles.btnDefault} ${styles.orderButton}`}
+                onPress={onMoveDown}
                 aria-label="Move section down">
           <DownArrowIcon/>
         </Button>
       </div>
     </div>
+
   );
 };
 
