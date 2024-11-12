@@ -10,11 +10,25 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
 }));
 
-// Mock the PageHeader component
+interface PageHeaderProps {
+  title: string;
+  description: string;
+  actions: React.ReactNode;
+  breadcrumbs: React.ReactNode;
+}
+
+interface TemplateListItemProps {
+  item: {
+    title: string;
+    content: React.ReactNode;
+  };
+}
+
+
 jest.mock('@/components/PageHeader', () => {
   return {
     __esModule: true,
-    default: ({ title, description, actions, breadcrumbs }: any) => (
+    default: ({ title, description, actions, breadcrumbs }: PageHeaderProps) => (
       <div data-testid="mock-page-header">
         <h1>{title}</h1>
         <p>{description}</p>
@@ -25,11 +39,10 @@ jest.mock('@/components/PageHeader', () => {
   };
 });
 
-// Mock the TemplateListItem component
 jest.mock('@/components/TemplateListItem', () => {
   return {
     __esModule: true,
-    default: ({ item }: any) => (
+    default: ({ item }: TemplateListItemProps) => (
       <div data-testid="template-list-item">
         <h2>{item.title}</h2>
         <div>{item.content}</div>
@@ -37,6 +50,7 @@ jest.mock('@/components/TemplateListItem', () => {
     ),
   };
 });
+
 
 describe('TemplateListPage', () => {
   beforeEach(() => {
