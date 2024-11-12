@@ -54,7 +54,7 @@ import {
   LayoutContainer,
   ContentContainer,
   ToolbarContainer,
-  LayoutWithSidebar,
+  LayoutWithPanel,
   SidebarContainer,
   DrawerContainer,
 } from '@/components/Container';
@@ -350,7 +350,7 @@ function Page() {
 
   return (
     <>
-      <LayoutWithSidebar id="sgLayout">
+      <LayoutWithPanel id="sgLayout">
         <SidebarContainer isOpen={true}>
           <h3>Contents</h3>
 
@@ -1071,7 +1071,7 @@ function Page() {
           </div>
 
           <div id="_containers">
-            <h2><code>Layout Container</code> (Base)</h2>
+            <h2><code>Layout Container</code></h2>
             <p>The standard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
             some common container within the layout container.</p>
             <LayoutContainer>
@@ -1098,7 +1098,7 @@ function Page() {
               </dd>
             </dl>
 
-            <h2><code>Content Container</code> (Base)</h2>
+            <h2><code>Content Container</code></h2>
             <ContentContainer>
               <p>This content is wrapped in the following container.</p>
               <p><strong>Note</strong> that the style property is not required
@@ -1123,7 +1123,7 @@ function Page() {
               </dd>
             </dl>
 
-            <h2><code>ToolbarContainer</code> (LayoutContainer)</h2>
+            <h2><code>ToolbarContainer</code></h2>
             <p><code>LayoutContainer &gt; ToolbarContainer</code></p>
             <ToolbarContainer>
               <p>Some toolbar text, maybe a Title</p>
@@ -1141,87 +1141,100 @@ function Page() {
               </dd>
             </dl>
 
-            <h2>Sidebar Container (Composite)</h2>
+            <h2>Layout With Panel (Sidebar)</h2>
             <p>This is a composite layout component that contains a sidebar
               alongside a content container.</p>
-            <p><code>LayoutContainer &gt; LayoutWithSidebar</code></p>
-            <p><code>ContentContainer &gt; SidebarContainer</code></p>
+            <p><code>LayoutContainer &gt; LayoutWithPanel</code></p>
+            <p><code>ContentContainer &gt; SidebarPanel</code></p>
             <ToolbarContainer>
               <Button onPress={toggleSidebar}>Toggle Sidebar</Button>
             </ToolbarContainer>
-            <LayoutWithSidebar className="sg-sidebar">
+            <LayoutWithPanel className="sg-sidebar">
               <ContentContainer>
                 <h3>Layout With Sidebar</h3>
                 <p>This is the primary content for the slider component</p>
 
                 <div><pre><code>
-                  {`<LayoutWithSidebar>
+                  {`<LayoutWithPanel>
   <ContentContainer> ... </ContentContainer>
-  <SidebarContainer> ... </SidebarContainer>
-</LayoutWithSidebar>
+  <SidebarPanel> ... </SidebarPanel>
+</LayoutWithPanel>
 `}
                 </code></pre></div>
               </ContentContainer>
 
-              <SidebarContainer isOpen={sidebarOpen}>
+              <SidebarPanel isOpen={sidebarOpen}>
                 <p>This is the sidebar for the component</p>
-              </SidebarContainer>
-            </LayoutWithSidebar>
+              </SidebarPanel>
+            </LayoutWithPanel>
 
             <p>
-              <code>LayoutWithSidebar</code> &nbsp;
+              <code>LayoutWithPanel</code> &nbsp;
               can have a <code>ToolbarContainer</code> in addition to the sidebar.
+              and content.
             </p>
-            <p>Note how in the previous example, the toolbar that demonstrates
-              the sidebar position and state, is <em>outside</em> &nbsp;
-              the <code>LayoutWithSidebar</code>, where in the example below, it's
-              part of it.</p>
 
-            <LayoutWithSidebar className="sg-sidebar">
+            <LayoutWithPanel className="sg-sidebar">
               <ToolbarContainer>
-                <p>This is a toolbar inside <code>LayoutWithSidebar</code></p>
+                <p>This is a toolbar inside <code>LayoutWithPanel</code></p>
               </ToolbarContainer>
 
               <ContentContainer>
                 <h3>Layout With Sidebar</h3>
                 <p>This is the primary content for the slider component</p>
                 <div><pre><code>
-                  {`<LayoutWithSidebar>
+                  {`<LayoutWithPanel>
   <ToolbarContainer> ... </ToolbarContainer>
-  <SidebarContainer> ... </SidebarContainer>
+  <SidebarPanel> ... </SidebarPanel>
   <ContentContainer> ... </ContentContainer>
-</LayoutWithSidebar>
+</LayoutWithPanel>
 `}
                 </code></pre></div>
               </ContentContainer>
 
-              <SidebarContainer>
+              <SidebarPanel>
                 <p>This is the sidebar for the slider component</p>
-              </SidebarContainer>
-            </LayoutWithSidebar>
+              </SidebarPanel>
+            </LayoutWithPanel>
 
-            <p>Example with a drawer instead of a sidebar</p>
+            <p>Example with a <code>DrawerPanel</code> instead of a sidebar</p>
 
             <ToolbarContainer>
               <Button onPress={toggleDrawer}>Toggle Drawer</Button>
             </ToolbarContainer>
-            <LayoutWithSidebar className="sg-sidebar">
+            <LayoutWithPanel className="sg-sidebar">
               <ContentContainer>
               </ContentContainer>
 
-              <DrawerContainer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)}>
-                <Button onPress={() => setDrawerOpen(false)}>Close</Button>
+              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false)}>
+                <Button onPress={() => setDrawe<rOpen(false)}>Close</Button>
                 <p>This is the Drawer Content</p>
-              </DrawerContainer>
+              </DrawerPanel>
+            </LayoutWithPanel>
 
-            </LayoutWithSidebar>
-
-            <h3>SidebarContainer Properties</h3>
+            <h3>SidebarPanel Properties</h3>
             <dl>
               <dt><code>isOpen</code></dt>
               <dd>
                 This is a property that will toggle the open/close state for
                 the sidebar. Defaults to <code>true</code>.
+              </dd>
+            </dl>
+
+            <h3>DrawerPanel Properties</h3>
+            <dl>
+              <dt><code>isOpen</code></dt>
+              <dd>
+                This is a property that will toggle the open/close state for
+                the sidebar. Defaults to <code>true</code>.
+              </dd>
+            </dl>
+
+            <h3>DrawerPanel events</h3>
+            <dl>
+              <dt><code>onClose</code></dt>
+              <dd>
+                If it exists, this handler is called as soon as the drawer is closed.
               </dd>
             </dl>
 
@@ -1238,7 +1251,6 @@ function Page() {
                 to <code>var(--brand-space2)</code>
               </dd>
             </dl>
-
           </div>
 
           <div id="_theme">
@@ -1875,7 +1887,7 @@ function Page() {
             <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
         </ContentContainer>
-      </LayoutWithSidebar>
+      </LayoutWithPanel>
     </>
   )
 }

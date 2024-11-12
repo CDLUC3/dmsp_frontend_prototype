@@ -34,13 +34,11 @@ type CustomCSSProperties = CSSProperties & Record<string, string>;
  * layout containers.
  */
 interface LayoutContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  style?: CustomCSSProperties,
 }
 
 export const LayoutContainer: React.FC<LayoutContainerProps> = ({
   id,
   className,
-  style,
   children,
 }) => {
   return (
@@ -48,7 +46,7 @@ export const LayoutContainer: React.FC<LayoutContainerProps> = ({
       <div
         id={id}
         className={`layout-container ${className}`}
-        style={style}
+        data-testid="layout-container"
       >
         {children}
       </div>
@@ -62,21 +60,19 @@ export const LayoutContainer: React.FC<LayoutContainerProps> = ({
  * inside a LayoutContainer.
  */
 interface ContentContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  style?: CustomCSSProperties,
 }
 
 export const ContentContainer: React.FC<ContentContainerProps> = ({
   children,
   id = '',
   className = '',
-  style,
 }) => {
   return (
     <>
       <div
         id={id}
         className={`layout-content-container ${className}`}
-        style={style}
+        data-testid="content-container"
       >
         {children}
       </div>
@@ -90,7 +86,6 @@ export const ContentContainer: React.FC<ContentContainerProps> = ({
  */
 export const ToolbarContainer: React.FC<LayoutContainerProps> = ({
   children,
-  style,
   id = '',
   className = '',
 }) => {
@@ -99,7 +94,7 @@ export const ToolbarContainer: React.FC<LayoutContainerProps> = ({
       <div
         id={id}
         className={`layout-container layout-toolbar-container ${className}`}
-        style={style}
+        data-testid="toolbar-container"
       >
         {children}
       </div>
@@ -111,10 +106,10 @@ export const ToolbarContainer: React.FC<LayoutContainerProps> = ({
 /**
  * Layout with a dynamic sidebar
  */
-interface LayoutWithSidebarProps extends LayoutContainerProps {
+interface LayoutWithPanelProps extends LayoutContainerProps {
 }
 
-export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
+export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
   children,
   id,
   className = "",
@@ -126,12 +121,9 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
       if (thisRef.current) {
         let direction: DirectionType = null;
 
-        children?.forEach((rNode) => {
-          if (!rNode) return;
-
-          // Set up the state with a toolbar if present
-          switch (rNode.type.name) {
-            case "ToobarContainer": {
+        function _updateClassList(name: string) {
+          switch (name) {
+            case "ToolbarContainer": {
               thisRef.current?.classList.add('with-toolbar');
               break;
             }
@@ -140,20 +132,31 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
               if (!direction) direction = "right";
             }
 
-            case "SidebarContainer": {
+            case "SidebarPanel": {
               thisRef.current?.classList.add('with-sidebar');
               if (!direction) direction = "left";
               break;
             }
 
-            case "DrawerContainer": {
+            case "DrawerPanel": {
               thisRef.current?.classList.add('with-drawer');
               if (!direction) direction = "left";
             }
           }
-        });
+        }
 
-        thisRef.current.classList.add(`direction-${direction}`);
+        if (Array.isArray(children)) {
+          children?.forEach((rNode) => {
+            if (!rNode) return;
+            if (!React.isValidElement(rNode)) return;
+            _updateClassList(rNode.type.name);
+          });
+        } else if (React.isValidElement(children)) {
+          const rNode = children as React.FunctionComponent;
+          _updateClassList(rNode.type.name);
+        }
+
+        if (direction) thisRef.current.classList.add(`direction-${direction}`);
       }
     }
   }, []);
@@ -164,6 +167,7 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
         ref={thisRef}
         id={id}
         className={`layout-container layout-with-panel ${className}`}
+        data-testid="layout-with-panel"
       >
         {children}
       </div>
@@ -171,11 +175,11 @@ export const LayoutWithSidebar: React.FC<LayoutWithSidebarProps> = ({
   )
 }
 
-interface SidebarContainerProps extends ContentContainerProps {
+interface SidebarPanelProps extends ContentContainerProps {
   isOpen?: Boolean;
 }
 
-export const SidebarContainer: React.FC<SidebarContainerProps> = ({
+export const SidebarPanel: React.FC<SidebarPanelProps> = ({
   children,
   id = '',
   className = '',
@@ -189,7 +193,8 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
     <>
       <div
         id={id}
-        className={`layout-sidebar-container ${className} ${isOpen ? "state-open" : "state-closed"}`}
+        className={`layout-sidebar-panel ${className} ${isOpen ? "state-open" : "state-closed"}`}
+        data-testid="sidebar-panel"
       >
         {children}
       </div>
@@ -198,12 +203,12 @@ export const SidebarContainer: React.FC<SidebarContainerProps> = ({
 }
 
 // Drawer Layout Container
-interface DrawerContainerProps extends ContentContainerProps {
+interface DrawerPanelProps extends ContentContainerProps {
   isOpen?: Boolean;
   onClose?: () => void;
 }
 
-export const DrawerContainer: React.FC<DrawerContainerProps> = ({
+export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   children,
   id = '',
   className = '',
@@ -272,6 +277,7 @@ export const DrawerContainer: React.FC<DrawerContainerProps> = ({
           id={id}
           ref={drawerRef}
           className={`layout-drawer-modal ${className} ${isOpen ? "state-open" : "state-closed"}`}
+          data-testid="drawer-panel"
         >
           <ContentContainer className="drawer-content">
             {children}
@@ -282,7 +288,8 @@ export const DrawerContainer: React.FC<DrawerContainerProps> = ({
       {!isMobile && (
         <div
           id={id}
-          className={`layout-drawer-container ${className} ${isOpen ? "state-open" : "state-closed"}`}
+          className={`layout-drawer-panel ${className} ${isOpen ? "state-open" : "state-closed"}`}
+          data-testid="drawer-panel"
         >
           {children}
         </div>
