@@ -23,14 +23,14 @@
   @include device(lg) {
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: flex-start;
   }
 }
 
 .TemplateItemActions {
   display: flex;
   gap: 1rem;
-  align-items: start;
+  align-items: flex-start;
   @include device(lg) {
 
   }
