@@ -16,7 +16,7 @@ h1,
   color: var(--heading-color);
 
   @include device(md) {
-    font-size: var(--fs-2xl);
+    font-size: var(--fs-3xl);
   }
 }
 
