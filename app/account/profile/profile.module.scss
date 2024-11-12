@@ -53,12 +53,10 @@
   padding-top: var(--space-3);
 }
 
-
-
-.btn {
-  margin-top: var(--space-4);
+.btnContainer {
+  display: flex;
 }
 
-.secondary {
-  padding-right: var(--space-4);
+.btn {
+  margin-left: auto;
 }

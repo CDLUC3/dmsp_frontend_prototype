@@ -442,12 +442,14 @@ const ProfilePage: React.FC = () => {
                     )}
                   </div>
                   {isEditing ? (
-                    <>
+                    <div className={styles.btnContainer}>
                       <Button className="secondary" onPress={cancelEdit}>Cancel</Button>
                       <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? 'Updating' : 'Update'}</Button>
-                    </>
+                    </div>
                   ) : (
-                    <Button type="submit" onPress={handleEdit} className={styles.btn}>Edit</Button>
+                    <div className={styles.btnContainer}>
+                      <Button type="submit" onPress={handleEdit} className={styles.btn}>Edit</Button>
+                    </div>
                   )}
                 </Form>
               </div>
