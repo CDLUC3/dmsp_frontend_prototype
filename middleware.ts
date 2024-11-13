@@ -1,4 +1,4 @@
-import { NextResponse, NextRequest } from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 
 // TODO: These routes will need to be updated.
 const protectedPaths = ['/dmps/', '/admin/', '/template']

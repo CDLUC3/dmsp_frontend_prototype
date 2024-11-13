@@ -1,4 +1,4 @@
-.question-edit {
+.questionEdit {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -21,7 +21,7 @@
 
   &__name {
     font-size: 1.125rem;
-    font-family: var(--font-sans);
+    font-family: var(--font-family);
     color: var(--black);
     margin: 0;
   }
@@ -37,7 +37,6 @@
     color: var(--gray-600);
     font-size: 0.875rem;
     margin-right: 0.9375rem;
-    display: inline-block;
     text-decoration: underline;
 
     &:visited {
@@ -46,25 +45,23 @@
 
     &:hover {
       color: var(--slate-800);
-      text-decoration: underline;
     }
   }
 
-  &__reorder-btn {
+  .orderButton {
+    padding: 0;
     background: none;
-    border: none;
+    color: var(--gray-600);
+    margin: 0;
     cursor: pointer;
     font-size: 1.125rem;
-    color: var(--gray-600);
-    padding: 0.3125rem;
 
+    &:focus,
     &:hover {
-      color: #333;
-    }
-
-    &:focus {
-      outline: 0.125rem solid #1a73e8;
-      outline-offset: 0.125rem;
+      background: none;
+      color: var(--primary);
+      outline: 1px solid #1a73e8;
+      outline-offset: 0;
     }
   }
 }

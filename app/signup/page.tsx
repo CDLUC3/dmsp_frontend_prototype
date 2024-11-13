@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import React, {useEffect, useRef, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import styles from './signup.module.scss';
-import { useCsrf } from '@/context/CsrfContext';
+import {useCsrf} from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
-import { handleErrors } from '@/utils/errorHandler';
-import { useAuthContext } from '@/context/AuthContext';
+import {handleErrors} from '@/utils/errorHandler';
+import {useAuthContext} from '@/context/AuthContext';
 
 const SignUpPage: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -124,4 +124,4 @@ const SignUpPage: React.FC = () => {
         </div>
     );
 };
-export default SignUpPage; 
+export default SignUpPage;

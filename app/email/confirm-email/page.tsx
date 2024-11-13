@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import {redirect} from 'next/navigation';
 
 async function verifyEmail(userId: string, token: string) {
   // Verify the email address

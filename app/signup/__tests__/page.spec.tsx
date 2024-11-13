@@ -1,7 +1,10 @@
 import React from 'react';
-import { renderWithAuth, screen, fireEvent, waitFor } from '@/utils/test-utils'; //wrapping test with AuthProvider
+import {fireEvent, renderWithAuth, screen, waitFor} from '@/utils/test-utils'; //wrapping test with AuthProvider
 import SignUpPage from '../page';
 import logECS from '@/utils/clientLogger';
+//Need to import this useRouter after the jest.mock is in place
+import {useRouter} from 'next/navigation';
+import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
 
 jest.mock('next/navigation', () => ({
     useRouter: jest.fn()
@@ -29,11 +32,8 @@ jest.mock('@/utils/authHelper', () => ({
 const mockScrollIntoView = jest.fn();
 const mockFocus = jest.fn();
 
-//Need to import this useRouter after the jest.mock is in place
-import { useRouter } from 'next/navigation';
 const mockUseRouter = useRouter as jest.Mock;
 
-import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 const mockRefreshAuthTokens = refreshAuthTokens as jest.Mock;
 
@@ -317,7 +317,7 @@ describe('SignUpPage', () => {
         //Simulate form submission
         fireEvent.click(submitButton);
 
-        // Check that error logged 
+        // Check that error logged
         await waitFor(() => {
             expect(logECS).toHaveBeenCalledWith(
                 'error',

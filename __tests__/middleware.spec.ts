@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { middleware } from '../middleware';
+import {NextRequest, NextResponse} from 'next/server';
+import {middleware} from '../middleware';
 
 jest.mock('next/server', () => ({
     NextResponse: {

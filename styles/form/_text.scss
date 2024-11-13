@@ -147,3 +147,41 @@ select {
 
 
 
+.react-aria-SearchField {
+  display: grid;
+  grid-template-areas: "label label"
+                       "input button"
+                       "help  help";
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  width: fit-content;
+  max-width: 500px;
+
+
+  .react-aria-Input {
+    grid-area: input;
+    @include input-base;
+
+  }
+
+  .react-aria-Button {
+    grid-area: button;
+    width: fit-content;
+    margin-left: 10px;
+    margin-top: 0;
+  }
+  .help{
+    margin-top: 0.5rem;
+  }
+  .react-aria-Label {
+    grid-area: label;
+    display: block;
+    color: var(--slate-900);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+
+}
+
+

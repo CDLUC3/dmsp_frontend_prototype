@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useContributorRolesQuery } from "@/generated/graphql";
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
-import { useRouter } from 'next/navigation';
+import React, {useEffect, useState} from "react";
+import {useContributorRolesQuery} from "@/generated/graphql";
+import {handleApolloErrors} from "@/utils/gqlErrorHandler";
+import {useRouter} from 'next/navigation';
 
 export default function Page() {
     const [errors, setErrors] = useState<string[]>([]);

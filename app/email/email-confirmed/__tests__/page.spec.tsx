@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { useRouter } from 'next/navigation';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {fireEvent, render, screen} from '@testing-library/react';
+import {useRouter} from 'next/navigation';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import EmailConfirmed from '../page';
 
 expect.extend(toHaveNoViolations);

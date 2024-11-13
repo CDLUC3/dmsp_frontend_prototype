@@ -2,11 +2,14 @@
 
 import React from 'react';
 import {
+  Breadcrumb,
+  Breadcrumbs,
   Button,
   FieldError,
   Form,
   Input,
   Label,
+  Link,
   Tab,
   TabList,
   TabPanel,
@@ -14,13 +17,31 @@ import {
   Text,
   TextField
 } from "react-aria-components";
+import PageHeader from "@/components/PageHeader";
 
 const SectionEditPage: React.FC = () => {
   // For a real application, you'd fetch the existing section data using the sec_hash
 
   return (
     <>
-      <h1>Edit Section</h1>
+
+
+      <PageHeader
+        title={`Edit Section`}
+        description=""
+        showBackButton={true}
+        breadcrumbs={
+          <Breadcrumbs>
+            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href={`/template/#`}>Template</Link></Breadcrumb>
+            <Breadcrumb>Edit Section</Breadcrumb>
+          </Breadcrumbs>
+        }
+        actions={null}
+        className=""
+      />
 
       <div className="template-editor-container">
         <div className="main-content">

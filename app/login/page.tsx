@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from "react";
-import { useRouter } from 'next/navigation';
+import React, {useEffect, useRef, useState} from "react";
+import {useRouter} from 'next/navigation';
 import styles from './login.module.scss'
 import logECS from '@/utils/clientLogger';
-import { useCsrf } from '@/context/CsrfContext';
-import { handleErrors } from '@/utils/errorHandler';
-import { useAuthContext } from '@/context/AuthContext';
+import {useCsrf} from '@/context/CsrfContext';
+import {handleErrors} from '@/utils/errorHandler';
+import {useAuthContext} from '@/context/AuthContext';
 
 type User = {
     email: string;

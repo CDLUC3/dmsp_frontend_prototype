@@ -1,10 +1,8 @@
 'use client'
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  Button
-} from 'react-aria-components';
+import {useRouter} from 'next/navigation';
+import {Button} from 'react-aria-components';
 import PageWrapper from '@/components/PageWrapper';
 import ContentContainer from '@/components/ContentContainer';
 

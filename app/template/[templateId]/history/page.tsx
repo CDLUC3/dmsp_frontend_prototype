@@ -1,20 +1,20 @@
 'use client'
 
-import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useTemplateVersionsQuery } from '@/generated/graphql';
+import React, {useEffect, useState} from "react";
+import {useParams, useRouter} from "next/navigation";
+import {useTemplateVersionsQuery} from '@/generated/graphql';
 import {
-    Table,
-    TableHeader,
-    TableBody,
-    Column,
-    Row,
-    Cell,
+  Cell,
+  Column,
+  Row,
+  Table,
+  TableBody,
+  TableHeader,
 } from "react-aria-components";
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import {handleApolloErrors} from "@/utils/gqlErrorHandler";
 import PageWrapper from "@/components/PageWrapper";
 import BackButton from "@/components/BackButton";
-import { formatWithTimeAndDate, formatShortMonthDayYear } from "@/utils/dateUtils"
+import {formatShortMonthDayYear, formatWithTimeAndDate} from "@/utils/dateUtils"
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {

@@ -1,9 +1,9 @@
 'use client'
 
-import { GraphQLFormattedError } from 'graphql';
+import {GraphQLFormattedError} from 'graphql';
 import logECS from "@/utils/clientLogger";
-import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
-import { ApolloQueryResult } from '@apollo/client';
+import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
+import {ApolloQueryResult} from '@apollo/client';
 
 type ServerError = Error & {
   response: Response;

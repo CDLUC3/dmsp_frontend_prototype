@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import type {Metadata} from "next";
+import {Inter, Poppins} from "next/font/google";
 import '@fortawesome/fontawesome-svg-core/styles.css'
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SubHeader from "@/components/SubHeader";
-import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
-import { AuthProvider } from "@/context/AuthContext";
-import { CsrfProvider } from "@/context/CsrfContext";
+import {ApolloWrapper} from "@/lib/graphql/apollo-wrapper";
+import {AuthProvider} from "@/context/AuthContext";
+import {CsrfProvider} from "@/context/CsrfContext";
 import "@/styles/globals.scss";
+
 
 const inter_init = Inter({
   subsets: ["latin"],
