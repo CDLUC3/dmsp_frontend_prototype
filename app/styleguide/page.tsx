@@ -1207,7 +1207,7 @@ function Page() {
                 TODO: Write about this layout here
               </ContentContainer>
 
-              <DrawerPanel isOpen={drawerOpen}>
+              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false) }>
                 <p>This is the Drawer Content</p>
               </DrawerPanel>
             </LayoutWithPanel>
