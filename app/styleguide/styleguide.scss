@@ -1,7 +1,7 @@
 @import '@/styles/responsive';
 
 #sgLayout {
-  .layout-sidebar-container {
+  .layout-sidebar-panel {
     a {
       display: block;
       padding: 0.5em 1em;
@@ -255,8 +255,8 @@ dd {
     --layout-content-padding: 1em;
   }
 
-  .layout-sidebar-container,
-  .layout-drawer-container,
+  .layout-sidebar-panel,
+  .layout-drawer-panel,
   .layout-drawer-modal {
     --layout-content-background: var(--slate-700);
     --layout-content-color: var(--slate-100);

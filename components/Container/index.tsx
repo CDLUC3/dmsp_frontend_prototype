@@ -130,6 +130,7 @@ export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
 
             case "ContentContainer": {
               if (!direction) direction = "right";
+              break;
             }
 
             case "SidebarPanel": {
@@ -141,6 +142,7 @@ export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
             case "DrawerPanel": {
               thisRef.current?.classList.add('with-drawer');
               if (!direction) direction = "left";
+              break;
             }
           }
         }
@@ -220,18 +222,19 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   const size = useResponsive();
   const [isMobile, setIsMobile] = useState<Boolean>(true);
   const [prevFocus, setPrevFocus] = useState<Element | null>(null);
+  const [stateOpen, setStateOpen] = useState<Boolean>(isOpen);
 
   useEffect(() => {
-    if (size.viewport[0] < getSizeByName('md')[0]) {
-      setIsMobile(true);
-    } else {
-      setIsMobile(false);
-    }
+    setIsMobile(size.viewport[0] < getSizeByName('md')[0]);
   }, [size]);
 
   useEffect(() => {
+    setStateOpen(isOpen);
+  }, [isOpen]);
+
+  useEffect(() => {
     const activeEl = document.activeElement as HTMLElement | null;
-    if (isOpen) {
+    if (stateOpen) {
       if (drawerRef && drawerRef.current) {
         setPrevFocus(document.activeElement);
 
@@ -253,13 +256,13 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
       }
     }
 
-    if (!isOpen && onClose) onClose();
-  }, [isOpen]);
+    if (!stateOpen && onClose) onClose();
+  }, [stateOpen]);
 
   useEffect(() => {
     const keyDownHandler = (ev) => {
-      if (ev.key == 'Escape' && isOpen) {
-        if (isOpen && onClose) onClose();
+      if (ev.key == 'Escape' && stateOpen) {
+        if (stateOpen && onClose) onClose();
       }
     }
 
@@ -268,7 +271,11 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
     return () => {
       document.removeEventListener('keydown', keyDownHandler);
     }
-  }, [isOpen]);
+  }, [stateOpen]);
+
+  function handleClose() {
+    if (stateOpen) setStateOpen(false);
+  }
 
   return (
     <>
@@ -276,10 +283,18 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
         <div
           id={id}
           ref={drawerRef}
-          className={`layout-drawer-modal ${className} ${isOpen ? "state-open" : "state-closed"}`}
+          className={`layout-drawer-modal ${className} ${stateOpen ? "state-open" : "state-closed"}`}
           data-testid="drawer-panel"
         >
           <ContentContainer className="drawer-content">
+            <Button
+              className="close-action"
+              onPress={handleClose}
+              data-testid="close-action"
+            >
+              <DmpIcon icon="cancel" />
+            </Button>
+
             {children}
           </ContentContainer>
         </div>
@@ -288,9 +303,17 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
       {!isMobile && (
         <div
           id={id}
-          className={`layout-drawer-panel ${className} ${isOpen ? "state-open" : "state-closed"}`}
+          className={`layout-drawer-panel ${className} ${stateOpen ? "state-open" : "state-closed"}`}
           data-testid="drawer-panel"
         >
+          <Button
+            className="close-action"
+            onPress={handleClose}
+            data-testid="close-action"
+          >
+            <DmpIcon icon="cancel" />
+          </Button>
+
           {children}
         </div>
       )}

@@ -55,8 +55,8 @@ import {
   ContentContainer,
   ToolbarContainer,
   LayoutWithPanel,
-  SidebarContainer,
-  DrawerContainer,
+  SidebarPanel,
+  DrawerPanel,
 } from '@/components/Container';
 
 import { BrandColor, Example, handleDelete } from "./sg-components";
@@ -351,7 +351,7 @@ function Page() {
   return (
     <>
       <LayoutWithPanel id="sgLayout">
-        <SidebarContainer isOpen={true}>
+        <SidebarPanel isOpen={true}>
           <h3>Contents</h3>
 
           <a href="#_intro">Introduction</a>
@@ -370,7 +370,7 @@ function Page() {
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
-        </SidebarContainer>
+        </SidebarPanel>
 
         <ContentContainer id="sgContent">
           <h1>Living Styleguide</h1>
@@ -1204,10 +1204,10 @@ function Page() {
             </ToolbarContainer>
             <LayoutWithPanel className="sg-sidebar">
               <ContentContainer>
+                TODO: Write about this layout here
               </ContentContainer>
 
-              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false)}>
-                <Button onPress={() => setDrawe<rOpen(false)}>Close</Button>
+              <DrawerPanel isOpen={drawerOpen}>
                 <p>This is the Drawer Content</p>
               </DrawerPanel>
             </LayoutWithPanel>

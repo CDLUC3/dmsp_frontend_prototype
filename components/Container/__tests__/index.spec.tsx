@@ -5,6 +5,7 @@ import {
   render,
   screen,
   act,
+  fireEvent,
 } from '@testing-library/react';
 
 import {
@@ -165,7 +166,7 @@ describe('DrawerPanel', () => {
     expect(sidebar).toHaveAttribute('id', 'customID');
   });
 
-  it('can toggel open and closed state', () => {
+  it('can toggle open and closed state', () => {
     const { rerender } = render(<DrawerPanel isOpen={true}></DrawerPanel>);
 
     const drawer = screen.getByTestId('drawer-panel');
@@ -179,25 +180,22 @@ describe('DrawerPanel', () => {
     expect(drawer).not.toHaveClass('state-open');
   });
 
-  // TODO: Test the onClose event handler
-  it('onClose is fired when drawer closes', () => {
-    const handleClose = () => {};
+  it('should have an actionable close button', () => {
+    const handleClose = jest.fn();
 
     render(
-      <Button></Button>
-      <DrawerPanel isOpen={isOpen} onClose={handleClose}></DrawerPanel>
+      <DrawerPanel isOpen={true} onClose={handleClose}></DrawerPanel>
     );
-    const sidebar = screen.getByTestId('drawer-panel');
 
-    expect(sidebar).toHaveAttribute('id', 'customID');
+    const drawer = screen.getByTestId('drawer-panel');
+    const closeBtn = screen.getByTestId('close-action');
+
+    expect(drawer).toHaveClass('state-open');
+
+    fireEvent.click(closeBtn);
+    expect(drawer).toHaveClass('state-closed');
+    expect(handleClose).toHaveBeenCalled();
   });
-
-  // TODO: Test that the drawer panel receive focus when opened, and prev focus
-  // is restored when the drawer closes.
-
-  // TODO: Test the escape key closes the drawer
-
-  // TODO: How are we going to deal with the responsive states?
 });
 
 
@@ -256,6 +254,7 @@ describe('LayoutWithPanel', () => {
     const sidebar = screen.getByTestId('sidebar-panel');
 
     expect(layout).toHaveClass('with-sidebar');
+    expect(layout).not.toHaveClass('with-drawer');
     expect(layout).toHaveClass('direction-right');
     expect(layout).not.toHaveClass('direction-left');
   });
@@ -272,6 +271,7 @@ describe('LayoutWithPanel', () => {
     const sidebar = screen.getByTestId('sidebar-panel');
 
     expect(layout).toHaveClass('with-sidebar');
+    expect(layout).not.toHaveClass('with-drawer');
     expect(layout).toHaveClass('direction-left');
     expect(layout).not.toHaveClass('direction-right');
   });
@@ -288,6 +288,7 @@ describe('LayoutWithPanel', () => {
     const sidebar = screen.getByTestId('drawer-panel');
 
     expect(layout).toHaveClass('with-drawer');
+    expect(layout).not.toHaveClass('with-sidebar');
     expect(layout).toHaveClass('direction-right');
     expect(layout).not.toHaveClass('direction-left');
   });
@@ -304,6 +305,7 @@ describe('LayoutWithPanel', () => {
     const sidebar = screen.getByTestId('drawer-panel');
 
     expect(layout).toHaveClass('with-drawer');
+    expect(layout).not.toHaveClass('with-sidebar');
     expect(layout).toHaveClass('direction-left');
     expect(layout).not.toHaveClass('direction-right');
   });
