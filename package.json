@@ -12,7 +12,9 @@
     "test": "jest --coverage",
     "jest": "jest",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "crowdin:upload": "crowdin upload sources",
+    "crowdin:download": "crowdin download"
   },
   "dependencies": {
     "@apollo/client": "^3.10.8",
