@@ -15,7 +15,7 @@ import {
   LayoutWithPanel,
   SidebarPanel,
   DrawerPanel,
-} from '..';
+} from '@/components/Container';
 
 
 describe('LayoutContainer', () => {

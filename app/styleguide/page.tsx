@@ -338,12 +338,12 @@ function Page() {
 
   const [editorContent, setEditorContent] = useState(richtextDefault);
 
-  const [sidebarOpen, setSidebarOpen] = useState<Boolean>(true);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   }
 
-  const [drawerOpen, setDrawerOpen] = useState<Boolean>(false);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   }
