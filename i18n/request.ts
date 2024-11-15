@@ -10,11 +10,17 @@ export default getRequestConfig(async ({ requestLocale }) => {
   if (!locale || !routing.locales.includes(locale as any)) {
     locale = routing.defaultLocale;
   }
+  // Load multiple translation files
+  const mainMessages = (await import(`@/messages/${locale}/en-US.json`)).default;
+  const errorMessages = (await import(`@/messages/${locale}/errors.json`)).default;
 
-  console.log("LOCALE", locale);
-  console.log("***LOCALE URL", `@/messages/${locale}/${locale}.json`);
+  // Merge all message objects
+  const messages = {
+    ...mainMessages,
+    errors: errorMessages,
+  };
   return {
     locale,
-    messages: (await import(`@/messages/${locale}/${locale}.json`)).default
+    messages
   };
 });

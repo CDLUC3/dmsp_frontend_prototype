@@ -1,7 +1,7 @@
-project_id: "737201"
+project_id: "737541"
 api_token: "bd1476bda4de1f83fad22800a29c4fea1e563f3434f4bd632234d39fa3d971e5fa7d87406db81ad6"
 preserve_hierarchy: true
 
 files:
-  - source: /messages/en-US/en-US.json
-    translation: /messages/%two_letters_code%/%two_letters_code%.json
+  - source: /messages/en-US/**/*.json
+    translation: /messages/%two_letters_code%/**/%original_file_name%

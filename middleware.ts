@@ -5,7 +5,7 @@ import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 
-const locales = ['en-US', 'pt-BR'];
+const locales = ['en-US', 'pt-BR', 'es'];
 const defaultLocale = 'en-US';
 
 interface JWTAccessToken extends JwtPayload {
