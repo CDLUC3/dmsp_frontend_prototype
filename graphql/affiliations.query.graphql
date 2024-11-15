@@ -1,6 +1,7 @@
 query Affiliations($name: String!){
   affiliations(name: $name) {
     id
-    name
+    displayName
+    uri
   }
 }

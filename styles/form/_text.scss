@@ -1,0 +1,187 @@
+
+.react-aria-FieldError {
+  font-size: 1rem;
+  color: var(--invalid-color);
+  margin: 5px 0;
+  display: inline-block;
+}
+
+// Mixins
+@mixin input-base {
+  font-family: var(--font-family);
+  color: var(--slate-900);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--field-background);
+  padding: 8px 12px;
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: all 0.2s ease-in-out;
+  display: block;
+  width: 100%;
+  max-width: 600px;
+
+  &::placeholder {
+    color: var(--slate-500);
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--slate-400);
+    background-color: var(--slate-100);
+  }
+
+  &:focus:not(:disabled) {
+    outline: none;
+    border-color: var(--focus-ring);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &:disabled {
+    background-color: var(--slate-200);
+    color: var(--slate-600);
+    cursor: not-allowed;
+  }
+}
+
+// Styles for text inputs, number inputs, email inputs, etc.
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"] {
+  @include input-base;
+}
+
+// Styles for text areas
+textarea {
+  @include input-base;
+  resize: vertical;
+  min-height: 100px;
+}
+
+// Styles for select dropdowns
+select {
+  @include input-base;
+
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.5l-5-5h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+
+  &::-ms-expand {
+    display: none;
+  }
+}
+
+
+
+
+.react-aria-TextField {
+  margin-bottom: 2rem;
+}
+
+
+
+
+
+
+.react-aria-NumberField {
+  margin-bottom: 8px;
+  color: var(--text-color);
+
+  .react-aria-Group {
+    display: flex;
+    width: fit-content;
+    border-radius: 4px;
+
+    &[data-focus-within] {
+      outline: 1px solid var(--focus-ring-color);
+
+      .react-aria-Input,
+      .react-aria-Button {
+        border-color: var(--focus-ring-color);
+      }
+    }
+  }
+
+  .react-aria-Button {
+    font-size: 1.4rem;
+    width: 2.3rem;
+    padding: 0;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    &[slot=decrement] {
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+    }
+
+    &[slot=increment] {
+      border-start-start-radius: 0;
+      border-end-start-radius: 0;
+    }
+  }
+
+  .react-aria-Input {
+    @include input-base;
+    background: var(--field-background);
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    color: var(--field-text-color);
+    margin: 0 -1px;
+    z-index: 1;
+    font-size: 1rem;
+    padding: 0.429rem 0.571rem;
+    outline: none;
+    max-width: 6rem;
+    flex: 1;
+  }
+}
+
+
+
+
+.react-aria-SearchField {
+  display: grid;
+  grid-template-areas: "label label"
+                       "input button"
+                       "help  help";
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  width: fit-content;
+  max-width: 500px;
+
+
+  .react-aria-Input {
+    grid-area: input;
+    @include input-base;
+
+  }
+
+  .react-aria-Button {
+    grid-area: button;
+    width: fit-content;
+    margin-left: 10px;
+    margin-top: 0;
+  }
+  .help{
+    margin-top: 0.5rem;
+  }
+  .react-aria-Label {
+    grid-area: label;
+    display: block;
+    color: var(--slate-900);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+
+}
+
+

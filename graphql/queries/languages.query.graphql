@@ -1,0 +1,7 @@
+query Languages {
+  languages {
+    id
+    isDefault
+    name
+  }
+}

@@ -1,0 +1,22 @@
+@import '@/styles/responsive.scss';
+
+.imageButton {
+  @include device(md) {
+  }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f5f9;
+}
+
+.imageButton:hover {
+  background-color: var(--gray-600);
+  color: var(--gray-50);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  fill: currentColor; /* This will make the SVG inherit the text color */
+}

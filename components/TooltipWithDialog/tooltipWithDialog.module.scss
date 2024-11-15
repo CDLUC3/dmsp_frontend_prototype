@@ -1,0 +1,40 @@
+.tooltipButton {
+  background: none;
+  border: none;
+  color: rgb(0, 85, 129);
+  display: flex;
+  align-items: center;
+  margin: 15px 0;
+  padding: 0;
+
+  &:hover {
+    text-decoration:underline;
+  }
+  span {
+    padding-right: 5px;
+  }
+}
+
+.tooltip {
+  background-color: var(--gray-600);
+  color: var(--gray-50);
+  font-size: 0.75rem;
+  padding: 5px;
+  position: relative;
+
+  .tooltipArrow {
+    background-color: inherit; // Match background color of tooltip
+    position: absolute;
+
+    &::before {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: inherit;
+      transform: rotate(45deg);
+      bottom: -5px;
+      left: 0;
+    }
+}
+}

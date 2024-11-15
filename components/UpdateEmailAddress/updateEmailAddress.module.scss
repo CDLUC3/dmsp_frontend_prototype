@@ -1,0 +1,17 @@
+.addContainer {
+  align-items: flex-start;
+  display: flex;
+  gap: 8px;
+  margin-top: var(--space-4);
+  max-width: 100%;
+
+  button {
+    border-radius: 6px;
+    margin-top: 25px;
+  }
+
+  .addAliasTextField {
+    flex: 1;
+    margin-bottom: 0;
+  }
+}

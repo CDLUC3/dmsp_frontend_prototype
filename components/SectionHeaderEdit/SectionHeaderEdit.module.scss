@@ -1,0 +1,70 @@
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  padding: 0.625rem 0;
+  border-bottom: 0.0625rem solid #e0e0e0;
+}
+
+.sectionTitle {
+  flex-grow: 1;
+  margin: 0;
+  font-weight: 600;
+}
+
+.sectionNumber {
+  display: block;
+  font-size: 1rem;
+  color: var(--gray-500);
+  font-weight: normal;
+  font-family: var(--font-family);
+  margin-bottom: 0.3125rem;
+}
+
+.buttonGroup {
+  display: flex;
+  align-items: center;
+}
+
+.editButton, .orderButton, .expandButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3125rem 0.625rem;
+  margin-left: 0.625rem;
+  font-size: 0.875rem;
+}
+
+.editButton {
+  color: var(--gray-600);
+  text-decoration: underline;
+  &:visited,
+  &:active {
+    color: var(--gray-600);
+  }
+  &:focus {
+    color: var(--slate-900);
+  }
+  &:hover {
+    color: var(--slate-800);
+  }
+}
+
+.orderButton {
+  font-size: 0.875rem;
+  padding: 0;
+  margin: 0;
+  color: var(--gray-600);
+  &:focus,
+  &:hover {
+    background: transparent!important;
+    color: #333;
+    outline: 1px solid #1a73e8;
+    outline-offset: 0;
+    padding: 0!important;
+    margin: 0!important;
+  }
+}
+
+.expandButton {
+  transform: rotate(180deg);
+}

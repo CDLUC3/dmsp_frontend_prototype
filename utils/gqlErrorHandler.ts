@@ -1,9 +1,9 @@
 'use client'
 
+import { FetchResult } from '@apollo/client';
 import { GraphQLFormattedError } from 'graphql';
 import logECS from "@/utils/clientLogger";
 import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
-import { ApolloQueryResult } from '@apollo/client';
 
 type ServerError = Error & {
   response: Response;
@@ -17,20 +17,22 @@ type ServerParseError = Error & {
   bodyText: string;
 }
 
-type NetworkError = Error | ServerError | ServerParseError;
-type RefetchFunction<TData, TVariables> = (variables?: Partial<TVariables>) => Promise<ApolloQueryResult<TData>>;
+type CustomRouter = {
+  push: (url: string) => void;
+}
 
-type CustomError = {
-  message: string;
-  errorCode?: string;
-};
+type NetworkError = Error | ServerError | ServerParseError;
+
+type RefetchFunction<TData, TVariables> =
+  | ((variables?: TVariables) => Promise<TData>)
+  | ((variables?: TVariables) => Promise<FetchResult<TData>>);
 
 export async function handleGraphQLErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[],
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  refetch: RefetchFunction<TData, TVariables>
-): Promise<CustomError[]> {
-  const customErrors: CustomError[] = [];
+  refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
+  router: CustomRouter
+) {
 
   if (graphQLErrors) {
     for (const { message, extensions } of graphQLErrors) {
@@ -44,12 +46,12 @@ export async function handleGraphQLErrors<TData, TVariables>(
             } else {
               // If refresh fails, log the error and add to the errorResponses
               logECS('error', 'Token refresh failed with no result', { errorCode: 'UNAUTHENTICATED' });
-              setErrors(prevErrors => [...prevErrors, message]);
+              router.push('/login');
             }
           } catch (error) {
             // If refresh throws an error, handle it
             logECS('error', 'Token refresh failed', { error });
-            setErrors(prevErrors => [...prevErrors, message]);
+            router.push('/login');
           }
           break;
 
@@ -59,11 +61,11 @@ export async function handleGraphQLErrors<TData, TVariables>(
             const response = await fetchCsrfToken();
             if (!response) {
               logECS('error', 'Forbidden - Error fetching CSRF token', { source: 'apollo-client' });
-              setErrors(prevErrors => [...prevErrors, message]);
+              router.push('/login');
             }
           } catch (error) {
             logECS('error', 'Fetching csrf token failed', { error });
-            setErrors(prevErrors => [...prevErrors, message]);
+            router.push('/login')
           }
           break;
 
@@ -74,18 +76,15 @@ export async function handleGraphQLErrors<TData, TVariables>(
       }
     }
   }
-
-  return customErrors;
 }
 
-export function handleNetworkError(networkError: NetworkError | null, setErrors: React.Dispatch<React.SetStateAction<string[]>>): CustomError[] {
-  const networkErrors: CustomError[] = [];
+export function handleNetworkError(networkError: NetworkError | null, setErrors: React.Dispatch<React.SetStateAction<string[]>>) {
 
   if (networkError) {
     setErrors(prevErrors => [...prevErrors, networkError.message]);
   }
 
-  return networkErrors;
+  return networkError;
 }
 
 
@@ -93,8 +92,9 @@ export async function handleApolloErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[] | undefined,
   networkError: NetworkError | null,
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  refetch: RefetchFunction<TData, TVariables>
+  refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
+  router: CustomRouter
 ): Promise<void> {
-  await handleGraphQLErrors(graphQLErrors || [], setErrors, refetch);
+  await handleGraphQLErrors(graphQLErrors || [], setErrors, refetch, router);
   handleNetworkError(networkError, setErrors);
 }

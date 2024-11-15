@@ -1,0 +1,12 @@
+{
+  "updateUserProfile": {
+    "id": 5,
+    "givenName": "Juliet",
+    "surName": "Shin",
+    "affiliation": {
+      "id": 72,
+      "name": "University of Washington",
+      "searchName": "University of Washington | washington.edu | UW "
+    }
+  }
+}

@@ -1,0 +1,21 @@
+query Me{
+  me {
+    id
+    givenName
+    surName
+    languageId
+    emails {
+      id
+      email
+      isPrimary
+      isConfirmed
+    }
+    errors
+    affiliation {
+      id
+      name
+      searchName
+      uri
+    }
+  }
+}

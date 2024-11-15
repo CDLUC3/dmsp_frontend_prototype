@@ -1,36 +1,52 @@
 'use client'
 
-import React from "react";
-import { useParams } from "next/navigation";
-import { useTemplateVersionsQuery } from '@/generated/graphql';
+import React, {useEffect, useState} from "react";
+import {useParams, useRouter} from "next/navigation";
+import {useTemplateVersionsQuery} from '@/generated/graphql';
 import {
-    Table,
-    TableHeader,
-    TableBody,
-    Column,
-    Row,
-    Cell,
+  Cell,
+  Column,
+  Row,
+  Table,
+  TableBody,
+  TableHeader,
 } from "react-aria-components";
+import {handleApolloErrors} from "@/utils/gqlErrorHandler";
 import PageWrapper from "@/components/PageWrapper";
 import BackButton from "@/components/BackButton";
-import { formatWithTimeAndDate, formatShortMonthDayYear } from "@/utils/dateUtils"
+import {formatShortMonthDayYear, formatWithTimeAndDate} from "@/utils/dateUtils"
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {
+    const [errors, setErrors] = useState<string[]>([]);
     const params = useParams();
     const templateId = Number(params.templateId);
+    const router = useRouter();
 
-    const { data = {}, loading, error } = useTemplateVersionsQuery(
+    const { data = {}, loading, error, refetch } = useTemplateVersionsQuery(
         { variables: { templateId } }
     );
+
+    // UseEffect to handle async error handling
+    useEffect(() => {
+        if (error) {
+            const handleErrors = async () => {
+                await handleApolloErrors(
+                    error.graphQLErrors,
+                    error.networkError,
+                    setErrors,
+                    refetch,
+                    router
+                );
+            };
+
+            handleErrors();
+        }
+    }, [error, refetch]); // Runs when 'error' changes
 
     // Handle loading state
     if (loading) {
         return <p>Loading publication history...</p>;
-    }
-
-    if (error) {
-        return <p>There was a problem.</p>
     }
 
     const templateVersions = data?.templateVersions || [];
@@ -43,21 +59,28 @@ const TemplateHistory = () => {
         return versionB - versionA;
     });
 
+
     const lastPublication = sortedTemplates.length > 0 ? sortedTemplates[0] : null;
-    const lastPublicationDate = lastPublication?.created
-        ? formatShortMonthDayYear(new Date(lastPublication.created))
-        : '';
+    const lastPublicationDate = lastPublication?.created ? formatShortMonthDayYear(lastPublication.created) : '';
 
     return (
-        <PageWrapper title={"Template History"}>
+        <PageWrapper title={'Template History'}>
             <BackButton />
+            {errors && (
+                <div>
+                    {errors && errors.map((err, index) => (
+                        <p key={index}>{err}</p>
+                    ))}
+                </div>
+            )}
+
             {loading && <p>Template history is loading...</p>}
             <div>
                 {lastPublication && (
                     <>
                         <h1 className="with-subheader">{lastPublication?.name || 'Unknown'}</h1>
                         <div className="subheader">
-                            <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.name}`}</div>
+                            <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.displayName}`}</div>
                             <div>
                                 <span data-testid="latest-version" className={styles.historyVersion}>Version {lastPublication?.version.slice(1)}</span>
                                 <span data-testid="publication-date">Published: {lastPublicationDate}</span>
@@ -78,9 +101,8 @@ const TemplateHistory = () => {
                         {
                             sortedTemplates.length > 0
                                 ? sortedTemplates.map((item, index) => {
-                                    const publishDate = item?.created
-                                        ? formatWithTimeAndDate(new Date(item.created))
-                                        : '';
+
+                                    const publishDate = item?.created ? formatWithTimeAndDate(item?.created) : '';
                                     const versionedBy = item?.versionedBy;
 
                                     return (

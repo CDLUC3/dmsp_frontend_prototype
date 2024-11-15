@@ -16,14 +16,15 @@ import logECS from '@/utils/clientLogger';
 type TypeAheadInputProps = {
     graphqlQuery: DocumentNode;
     label: string;
+    fieldName: string;
     helpText?: string
 }
 
 type SuggestionInterface = {
     id: string;
-    name: string;
+    displayName: string;
 }
-const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) => {
+const TypeAheadInput = ({ graphqlQuery, label, fieldName, helpText }: TypeAheadInputProps) => {
     const [inputValue, setInputValue] = useState('');
     const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
     const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
@@ -116,7 +117,7 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
             case "Tab":
                 setCurrentListItemFocused(-1);
                 // If the entered value is not in the response, then don't let user tab
-                const hasSelectedValue = suggestions ? suggestions.some(item => item.name === selected) : false;
+                const hasSelectedValue = suggestions ? suggestions.some(item => item.displayName === selected) : false;
 
                 if (!hasSelectedValue) {
                     e.preventDefault();
@@ -211,7 +212,7 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
                 <TextField>
                     <Label>{label}</Label>
                     <Input
-                        name="institutions"
+                        name={fieldName}
                         type="text"
                         role="textbox"
                         value={inputValue}
@@ -279,7 +280,7 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
                             ref={(el) => {
                                 listItemRefs.current[index] = el;
                             }}
-                        >{suggestion.name}</li>
+                        >{suggestion.displayName}</li>
                     ))}
                 </ul>
             </div >

@@ -1,54 +1,92 @@
 import { onError } from "@apollo/client/link/error";
+import { Observable } from "@apollo/client";
 import logECS from "@/utils/clientLogger";
 import { RetryLink } from "@apollo/client/link/retry";
 import { createAuthLink } from "@/utils/authLink";
+import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 
 interface CustomError extends Error {
   customInfo?: { errorMessage: string }
 }
 
 export const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
-  if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, extensions }) => {
-      //Check for specific error codes
-      switch (extensions?.code) {
-        case 'UNAUTHENTICATED':
-          logECS('error', `[GraphQL Error]:  - ${message}`, {
-            errorCode: 'UNAUTHENTICATED'
-          });
-          break;
+  return new Observable((observer) => {
+    const handleGraphQLErrors = async () => {
+      if (graphQLErrors) {
+        for (const { message, extensions } of graphQLErrors) {
+          switch (extensions?.code) {
+            case 'UNAUTHENTICATED':
+              try {
+                const result = await refreshAuthTokens();
+                if (result) {
+                  forward(operation).subscribe({
+                    next: observer.next.bind(observer),
+                    error: observer.error.bind(observer),
+                    complete: observer.complete.bind(observer)
+                  });
+                  return;
+                } else {
+                  logECS('error', 'Token refresh failed with no result', { errorCode: 'UNAUTHENTICATED' });
+                  window.location.href = '/login';
+                }
+              } catch (error) {
+                logECS('error', 'Token refresh failed', { error });
+                window.location.href = '/login';
+              }
+              break;
 
-        case 'FORBIDDEN':
-          logECS('error', `[GraphQL Error]: FORBIDDEN - ${message}`, {
-            errorCode: 'FORBIDDEN'
-          });
-          break;
-        case 'INTERNAL_SERVER_ERROR':
-          logECS('error', `[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`, {
-            errorCode: 'INTERNAL_SERVER_ERROR'
-          });
-          window.location.href = '/500-error';
-          break;
-        default:
-          logECS('error', `[GraphQL Error]: ${message}`, {
-            errorCode: 'GRAPHQL'
-          });
-          break;
+            case 'FORBIDDEN':
+              try {
+                const response = await fetchCsrfToken();
+                if (response) {
+                  forward(operation).subscribe({
+                    next: observer.next.bind(observer),
+                    error: observer.error.bind(observer),
+                    complete: observer.complete.bind(observer)
+                  });
+                  return;
+                } else {
+                  logECS('error', 'Token refresh failed with no result', { errorCode: 'FORBIDDEN' });
+                  window.location.href = '/login';
+                }
+              } catch (error) {
+                logECS('error', 'Fetching csrf token failed', { error });
+                window.location.href = '/login';
+              }
+              break;
+
+            case 'INTERNAL_SERVER_ERROR':
+              logECS('error', `[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`, {
+                errorCode: 'INTERNAL_SERVER_ERROR'
+              });
+              window.location.href = '/500-error';
+              break;
+
+            default:
+              logECS('error', `[GraphQL Error]: ${message}`, {
+                errorCode: 'GRAPHQL'
+              });
+              break;
+          }
+        }
       }
-    })
-  }
+    };
 
-  if (networkError) {
-    logECS('error', `[GraphQL Error Network Error]: ${networkError.message}`, {
-      errorCode: 'NETWORK_ERROR'
+    handleGraphQLErrors();
+
+    if (networkError) {
+      logECS('error', `[GraphQL Network Error]: ${networkError.message}`, { errorCode: 'NETWORK_ERROR' });
+      const customNetworkError = networkError as CustomError;
+      customNetworkError.customInfo = { errorMessage: 'There was a problem' };
+      operation.setContext({ networkError: customNetworkError });
+    }
+
+    forward(operation).subscribe({
+      next: observer.next.bind(observer),
+      error: observer.error.bind(observer),
+      complete: observer.complete.bind(observer)
     });
-    const customNetworkError = networkError as CustomError;
-
-    customNetworkError.customInfo = { errorMessage: 'There was a problem ' };
-    operation.setContext({ networkError: customNetworkError });
-  }
-
-  return forward(operation); // Forward the operation by default
+  });
 });
 
 export const authLink = createAuthLink();

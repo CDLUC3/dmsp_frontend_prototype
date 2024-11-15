@@ -1,0 +1,44 @@
+.error-message{
+  font-size: var(--fs-xsmall);
+  color: red;
+}
+
+.field-error {
+  input {
+    border: 1px solid red;
+  }
+}
+
+.help-text {
+  display: block;
+  font-size: var(--fs-small);
+}
+
+.form-row {
+  margin: 20px 0;
+  min-height: 85px;
+}
+
+.two-item-row {
+  @include device(sm) {
+    flex-direction: row;
+  }
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  > div {
+    flex: 1; /* Make both fields take equal width */
+  }
+}
+
+.one-item-row {
+  max-width: 100%;
+  input {
+    max-width: 100%;
+  }
+}
+
+.field-label {
+  font-weight: var(--fw-bold, 600);
+}

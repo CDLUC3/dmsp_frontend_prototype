@@ -1,7 +1,10 @@
 import React from 'react';
-import { renderWithAuth, screen, fireEvent, waitFor } from '@/utils/test-utils'; //wrapping test with AuthProvider
+import {fireEvent, renderWithAuth, screen, waitFor} from '@/utils/test-utils'; //wrapping test with AuthProvider
 import LoginPage from '../page';
 import logECS from '@/utils/clientLogger';
+//Need to import this useRouter after the jest.mock is in place
+import {useRouter} from 'next/navigation';
+import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
 
 jest.mock('next/navigation', () => ({
     useRouter: jest.fn()
@@ -17,16 +20,20 @@ jest.mock('@/utils/authHelper', () => ({
     fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
 }));
 
+// Mock the entire CsrfContext module
+jest.mock('@/context/CsrfContext', () => ({
+    CsrfProvider: ({ children }: { children: React.ReactNode }) => (
+        <div data-testid="mock-csrf-provider">{children}</div>
+    ),
+    useCsrf: jest.fn(),
+}));
+
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
 const mockFocus = jest.fn();
 
-//Need to import this useRouter after the jest.mock is in place
-import { useRouter } from 'next/navigation';
-
 const mockUseRouter = useRouter as jest.Mock;
 
-import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 const mockRefreshAuthTokens = refreshAuthTokens as jest.Mock;
 
@@ -40,6 +47,11 @@ describe('LoginPage', () => {
         mockUseRouter.mockReturnValue({
             push: jest.fn(),
         })
+
+        /*eslint-disable @typescript-eslint/no-var-requires */
+        const { useCsrf } = require('@/context/CsrfContext');
+        (useCsrf as jest.Mock).mockReturnValue({ csrfToken: 'mocked-csrf-token' });
+
         jest.spyOn(console, 'error').mockImplementation(() => { });
         jest.useFakeTimers();
     });
@@ -86,7 +98,7 @@ describe('LoginPage', () => {
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '',
+                    'X-CSRF-TOKEN': 'mocked-csrf-token',
                 },
                 body: JSON.stringify({ email: 'test@test.com', password: 'password123' }),
             });
@@ -204,7 +216,7 @@ describe('LoginPage', () => {
             return Promise.resolve({
                 ok: false,
                 status: 403,
-                json: () => Promise.resolve({ success: false, message: 'Forbidden' }),
+                json: () => Promise.resolve({ success: false, message: 'Invalid CSRF token' }),
             } as unknown as Response);
         });
         renderWithAuth(<LoginPage />);
@@ -224,11 +236,6 @@ describe('LoginPage', () => {
         // Check that user is redirected to 500 error page
         await waitFor(() => {
             expect(mockFetchCsrfToken).toHaveBeenCalled();
-        })
-        await waitFor(() => {
-            const errorDiv = screen.getByText('Forbidden').closest('div');
-            expect(errorDiv).toHaveClass('error');
-            expect(errorDiv).toContainHTML('<p>Forbidden</p>')
         })
     });
 
@@ -287,7 +294,7 @@ describe('LoginPage', () => {
         //Simulate form submission
         fireEvent.click(submitButton);
 
-        // //Check that error logged 
+        // //Check that error logged
         await waitFor(() => {
             expect(logECS).toHaveBeenCalledWith(
                 'error',

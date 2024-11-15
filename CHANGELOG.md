@@ -1,4 +1,48 @@
 ### Added
+- Added new components [#111]
+  - Clickable interface for Template List
+  - Clickable interface for Template Edit
+  - Clickable interface for Template Section Edit/New
+  - Clickable interface for Template Question Edit/New
+  - Clickable interface that starts "Publish Template" flow
+  - Added component for TemplateListItem
+  - Added component for Section Header Edit
+  - Added component for Question Card Edit
+  - Added component for "Add question" button
+  - Added component for "Add section" button
+- Added new User Profile page [#124]
+  - Created a separate UpdateEmailAddress component
+  - Created EmailAddressRow component
+  - Created shared Form components, FormInput and FormSelect
+  - Created temporary RightSidebar component
+  - Updated TypeAheadWithOther component to work with parent components
+  - Added some shared css for shared form components in a new style file called _form.scss
+  - Added corresponding unit tests
+- Added spacing guidelines to the styleguide
+- Cleaned up the styleguide and added additional text to explain the spacing guidelines
+- Created SCSS helpers/mixins to generate alot of our font sizes,colours and spacing
+
+### Added
+=======
+- Made some updates related to authentication [#142]
+- Updated middleware to redirect to /login if both access token and refresh token is missing
+- Updated refreshAuthTokens method to throw errors that will be caught gqlErrorHandler
+- Updated gqlErrorHandler to redirect to /login when refreshAuthTokens returns an error
+- Updated template history page to use handleApolloErrors, and updated handleApolloErrors to have a router param
+- Updated client-graphql-test page to pass router to handleApolloErrors
+- Added confirm-email server-side component, and email-confirmed and verification-failed client components for email alias verification [#125]
+- Checkbox & Checkbox group component [#75]
+- Radio component [#75]
+- Select component [#75]
+- Basic Cards [#75]
+- Section header component [#75]
+- Question card component [#75]
+- Tabs component [#75]
+- Template Overview - blocked out page for component builder assistance [#75]
+- Template Edit Section  - blocked out page for component builder assistance [#75]
+- Template Edit Question - blocked out page for component builder assistance [#75]
+- Set up a directory for the account pages, and added the Connections page [#128]
+- Added new shared LeftSidebar, TooltipWithDialog, and ButtonWithImage components. Updated styleguide with the new TooltipWithDialog and ButtonWithImage components. [#128]
 - Fixed type bugs in the template history page which was breaking the build.
 - Added csrf token to header for /login and /signup page and error handling to refresh csrf and auth tokens [#116]
 - Added cypress for functional tests. Added a functional test to check for HTTP-only auth cookies [#116]
@@ -12,6 +56,9 @@
 - Added the initial version of our custom ReMirror text editor [#74].
 
 ### Updates
+- Button styles [#75]
+- Text input styles [#75]
+- Made updates to change 'name' to 'displayName' for affiliations, in response to backend changes [#137]
 - Updated endpoints for 'signin' and 'signup' to be 'apollo-signin' and 'apollo-signup' [#99]
 
 ### Fixed

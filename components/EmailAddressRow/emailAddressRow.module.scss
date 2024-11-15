@@ -1,0 +1,39 @@
+.emailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  margin: 0 var(--fs-xl);
+
+  .tooltipButton {
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.emailContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.emailAddress {
+  margin-bottom: 0;
+  font-weight: 700;
+}
+
+.emailLink {
+  cursor:pointer;
+  font-size: var(--fs-small);
+  text-decoration: underline;
+}
+
+.primaryEmail svg {
+  cursor:auto;
+  fill: var(--gray-300);
+}
+
+.trashcanIcon {
+  cursor: pointer;
+}

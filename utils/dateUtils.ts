@@ -1,32 +1,28 @@
-export const formatWithTimeAndDate = (isoString: Date) => {
-    if (isoString) {
+export const formatWithTimeAndDate = (timestamp: string): string => {
+    if (timestamp) {
         // Parse the ISO date string into a Date object
-        const date = new Date(isoString);
+        const date = new Date(parseInt(timestamp));
 
         // Define arrays for month names
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         // Extract date components
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
         const day = date.getDate();
         const month = date.getMonth(); // Month is 0-based
         const year = date.getFullYear();
 
-        // Format hours and minutes
-        const formattedHours = hours.toString().padStart(2, '0'); // Add leading zero if needed
-        const formattedMinutes = minutes.toString().padStart(2, '0'); // Add leading zero if needed
-
         // Format the final string
-        return `${formattedHours}:${formattedMinutes} on ${months[month]} ${day}, ${year}`;
+        return `${hours}:${minutes} on ${months[month]} ${day}, ${year}`;
     } else {
         return 'No date';
     }
 }
 
-export const formatShortMonthDayYear = (isoString: Date) => {
-    if (isoString) {
-        const date = new Date(isoString);
+export const formatShortMonthDayYear = (timestamp: string): string => {
+    if (timestamp) {
+        const date = new Date(parseInt(timestamp));
         const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
         return date.toLocaleDateString('en-US', options);
     } else {

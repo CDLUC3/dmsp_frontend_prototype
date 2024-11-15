@@ -1,0 +1,44 @@
+.section-card {
+  border: var(--card-border, none);
+  border-radius: var(--card-border-radius, 0.3125rem);
+  box-shadow: var(--card-shadow, 0px 4px 6px 0px rgba(0, 0, 0, 0.09));
+  padding: var(--card-padding, 1rem);
+  background-color: var(--card-background, #fff);
+  margin-bottom: 1rem;
+}
+
+.section-card-eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #718096;
+  margin-bottom: 0.25rem;
+}
+
+.section-card-heading {
+  font-size: 1.25rem !important;
+  font-weight: 600;
+  margin-bottom: 0.5rem !important;
+}
+
+.section-card-body {
+  margin-bottom: 1rem;
+}
+
+.section-card-text-muted {
+  font-size: 0.875rem;
+  color: var(--slate-400, #94A3B8);
+  margin-bottom: 0.75rem;
+}
+
+.section-card-footer {
+  margin-top: auto;
+}
+
+.section-card-link {
+  color: #4299e1;
+  text-decoration: none;
+}
+
+.section-card-link:hover {
+  text-decoration: underline;
+}
