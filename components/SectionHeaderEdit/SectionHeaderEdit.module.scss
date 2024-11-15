@@ -1,32 +1,31 @@
-.section-header {
+.sectionHeader {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   padding: 0.625rem 0;
   border-bottom: 0.0625rem solid #e0e0e0;
 }
 
-.section-title {
+.sectionTitle {
   flex-grow: 1;
   margin: 0;
-  font-size: 1.675rem;
   font-weight: 600;
 }
 
-.section-number {
+.sectionNumber {
   display: block;
   font-size: 1rem;
-  color: #666;
+  color: var(--gray-500);
   font-weight: normal;
   font-family: var(--font-family);
   margin-bottom: 0.3125rem;
 }
 
-.button-group {
+.buttonGroup {
   display: flex;
   align-items: center;
 }
 
-.edit-button, .order-button, .expand-button {
+.editButton, .orderButton, .expandButton {
   background: none;
   border: none;
   cursor: pointer;
@@ -35,11 +34,11 @@
   font-size: 0.875rem;
 }
 
-.edit-button {
+.editButton {
   color: var(--gray-600);
   text-decoration: underline;
   &:visited,
-  &:active{
+  &:active {
     color: var(--gray-600);
   }
   &:focus {
@@ -50,17 +49,22 @@
   }
 }
 
-.order-button {
+.orderButton {
   font-size: 0.875rem;
+  padding: 0;
+  margin: 0;
+  color: var(--gray-600);
   &:focus,
   &:hover {
-    font-size: 0.875rem;
     background: transparent!important;
     color: #333;
-    padding: 0.3125rem 0.625rem!important;
+    outline: 1px solid #1a73e8;
+    outline-offset: 0;
+    padding: 0!important;
+    margin: 0!important;
   }
 }
 
-.expand-button {
+.expandButton {
   transform: rotate(180deg);
 }

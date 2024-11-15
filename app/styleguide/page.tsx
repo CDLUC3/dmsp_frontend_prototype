@@ -613,7 +613,7 @@ function Page() {
                 <a href="#" style={{ color: 'var(--link-hover-color)' }}>Hover
                   State</a>
               </p>
-              <p>
+              <div>
                 We should try to use Next Link e.g.
 
 
@@ -621,7 +621,7 @@ function Page() {
                   {`<Link href="/about">About</Link>`}
                 </code></pre>
 
-              </p>
+              </div>
             </div>
 
             <h4>Lists</h4>
@@ -1438,7 +1438,7 @@ function Page() {
               {otherField && (
                 <TextField type="text" name="institution">
                   <Label>Other institution</Label>
-                  <Input placeholder="Enter custom institution name" onChange={e => handleUpdate(e)} />
+                  <Input placeholder="Enter custom institution name" />
                   <FieldError />
                 </TextField>
               )}
@@ -1461,7 +1461,7 @@ function Page() {
             </p>
 
             <Example>
-              <Table>
+              <Table aria-label='example-table'>
                 <TableHeader>
                   <Column isRowHeader={true}>One</Column>
                   <Column isRowHeader={true}>Two</Column>

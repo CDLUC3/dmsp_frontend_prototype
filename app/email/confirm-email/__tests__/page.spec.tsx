@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-import { redirect } from 'next/navigation';
+import {redirect} from 'next/navigation';
 import ConfirmEmailPage from '../page';
 
 // Mock the redirect function from next/navigation

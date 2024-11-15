@@ -86,17 +86,17 @@ const ProfilePage: React.FC = () => {
     switch (name) {
       case 'firstName':
         if (!value || value.length <= 2) {
-          error = `Please enter a valid name.`;
+          error = 'Name must be at least 2 characters';
         }
         break;
       case 'lastName':
         if (!value || value.length <= 2) {
-          error = `Please enter a valid name.`;
+          error = 'Name must be at least 2 characters';
         }
         break;
       case 'affiliationName':
         if (!value || value.length <= 2) {
-          error = 'Institution name cannot be blank.';
+          error = 'Institution name cannot be blank and must be at least 2 characters long';
         }
         break;
     }

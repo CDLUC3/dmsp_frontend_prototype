@@ -17,7 +17,7 @@ interface MySelectProps<T extends SelectItem>
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
-export function FormSelect<T extends object>(
+export function FormSelect<T extends SelectItem>(
   { label, errorMessage, helpMessage, onChange, children, items, ...props }:
     MySelectProps<T>
 ) {

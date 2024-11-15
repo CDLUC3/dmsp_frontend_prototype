@@ -1,5 +1,16 @@
 ### Added
- Added new User Profile page [#124]
+- Added new components [#111]
+  - Clickable interface for Template List
+  - Clickable interface for Template Edit
+  - Clickable interface for Template Section Edit/New
+  - Clickable interface for Template Question Edit/New
+  - Clickable interface that starts "Publish Template" flow
+  - Added component for TemplateListItem
+  - Added component for Section Header Edit
+  - Added component for Question Card Edit
+  - Added component for "Add question" button
+  - Added component for "Add section" button
+- Added new User Profile page [#124]
   - Created a separate UpdateEmailAddress component
   - Created EmailAddressRow component
   - Created shared Form components, FormInput and FormSelect

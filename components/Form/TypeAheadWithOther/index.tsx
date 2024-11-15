@@ -10,7 +10,6 @@ import {
     FieldError,
 } from "react-aria-components";
 import { createApolloClient } from '@/lib/graphql/client/apollo-client';
-
 import Spinner from '@/components/Spinner';
 import classNames from 'classnames';
 import styles from './typeaheadWithOther.module.scss';

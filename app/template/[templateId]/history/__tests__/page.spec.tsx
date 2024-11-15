@@ -1,11 +1,11 @@
-import React, { ReactNode } from 'react';
-import { render, screen } from '@testing-library/react';
+import React, {ReactNode} from 'react';
+import {render, screen} from '@testing-library/react';
 import TemplateHistory from '../page';
-import { useTemplateVersionsQuery } from '@/generated/graphql';
-import { MockedProvider } from '@apollo/client/testing';
-import { useParams, useRouter } from 'next/navigation';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import {useTemplateVersionsQuery} from '@/generated/graphql';
+import {MockedProvider} from '@apollo/client/testing';
+import {useParams, useRouter} from 'next/navigation';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {handleApolloErrors} from "@/utils/gqlErrorHandler";
 import mockData from './mockedResponse.json'
 
 expect.extend(toHaveNoViolations);

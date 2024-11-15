@@ -1,4 +1,3 @@
-
 /*
  * Styles related to the overall structure of the browser page.
  * These are the core sections that make up the structure of the
@@ -25,7 +24,8 @@ header {
   row-gap: var(--brand-space3);
   background-color: var(--brand-primary);
   color: var(--text-color);
-  font-size: 1.1em;
+  font-size: 1rem;
+  border-bottom: 1px solid #eee;
 
   h1 {
     --heading-color: white;
@@ -98,16 +98,20 @@ header .dropdown-content a {
   text-decoration: none;
   display: block;
 }
+
 header .dropdown-content a:hover {
   background-color: white;
 }
+
 header .dropdown:hover .dropdown-content {
   display: block;
 }
+
 header .dropdown:hover .dropbtn {
   background-color: white;
   color: var(--brand-primary);
 }
+
 header span.arrow {
   border: solid white;
   border-width: 0 3px 3px 0;
@@ -115,10 +119,12 @@ header span.arrow {
   padding: 3px;
   margin-left: 4px;
 }
+
 header span.up {
   transform: rotate(-135deg);
   -webkit-transform: rotate(-135deg);
 }
+
 header span.down {
   transform: rotate(45deg);
   -webkit-transform: rotate(45deg);
@@ -128,6 +134,7 @@ header span.down {
 table {
   border-spacing: 0;
   margin-top: 25px;
+
   th {
     padding-bottom: 15px;
     text-align: left;
@@ -165,17 +172,30 @@ footer {
   background: none;
   border: none;
   color: #000;
-  font-size: 1rem;
+  font-size: var(--fs-body);
   text-decoration: none;
   cursor: pointer;
   padding: 0;
+  display: flex;
+  align-items: center;
+  line-height: normal;
+  font-weight: 600;
+
+  span {
+    margin-right: var(--space-2);
+    position: relative;
+    top: 2px;
+  }
+
 }
 
 .back-link-button:hover,
 .back-link-button:focus {
-  color: var(--purple-600);
+  color: var(--slate-900);
   text-decoration: underline;
+  background: transparent !important;
 }
+
 
 
 
@@ -194,7 +214,9 @@ footer {
       width: 66%;
     }
   }
-  .sidebar{
+
+
+  .sidebar {
 
     margin-top: 2rem;
     @include device(lg) {
@@ -203,7 +225,7 @@ footer {
       width: 35%;
     }
 
-    @include device( xl) {
+    @include device(xl) {
       margin-left: 3%;
       width: 30%;
     }
@@ -212,16 +234,16 @@ footer {
 
 }
 
+.template-archive-container {
+  margin-top: var(--space-10);
+  @include device(lg) {
+    max-width: 60%;
+  }
 
-.mx-auto{
-  margin: 0 auto;
+  @include device(xl) {
+    max-width: 66%;
+  }
 }
-.section-add-cont {
-  border: 1px dashed #D1D1D1;
-  background: rgba(255, 255, 255, 0.50);
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 1rem 0;
+.mx-auto {
+  margin: 0 auto;
 }

@@ -1,4 +1,3 @@
-
 import logECS from '@/utils/clientLogger';
 
 export const refreshAuthTokens = async () => {

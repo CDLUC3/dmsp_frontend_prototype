@@ -115,7 +115,7 @@ describe('ProfilePage', () => {
     fireEvent.click(submitButton);
 
     // Check if error message is present when fields empty
-    const errorMessage = await screen.findByText(/please enter a valid name./i);
+    const errorMessage = await screen.findByText(/name must be at least 2 characters/i);
     expect(errorMessage).toBeInTheDocument();
   })
 

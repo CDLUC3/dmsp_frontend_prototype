@@ -87,13 +87,23 @@
 // Styles for both react-aria buttons and default HTML buttons
 .react-aria-Button,
 button,
+a.button-link,
+.button-link,
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
   @include button-base;
 }
 
+a.button-link {
+  text-decoration: none;
+  &:hover:not(:disabled) {
+    text-decoration: none;
+  }
+}
+
 // Primary button styles
+
 .react-aria-Button.primary,
 .react-aria-Button--primary,
 button.primary,
@@ -125,3 +135,4 @@ input[type="reset"].tertiary,
 input[type="submit"].tertiary {
   @include button-tertiary;
 }
+
