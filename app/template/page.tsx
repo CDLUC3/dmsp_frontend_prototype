@@ -83,7 +83,7 @@ const TemplateListPage: React.FC = () => {
         actions={
           <>
             <Link href="/template/create"
-                  className={"button-link button--primary"}>Create
+              className={"button-link button--primary"}>Create
               Template</Link>
           </>
         }
@@ -106,9 +106,9 @@ const TemplateListPage: React.FC = () => {
 
 
 
-      <div className="template-list"  aria-label="Template list"  role="list">
+      <div className="template-list" aria-label="Template list" role="list">
         {templates.map((template, index) => (
-          <TemplateListItem key={index} item={template}/>
+          <TemplateListItem key={index} item={template} />
         ))}
       </div>
 

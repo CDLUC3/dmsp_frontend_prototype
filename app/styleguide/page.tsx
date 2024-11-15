@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Cell,
@@ -38,8 +38,8 @@ import {
 } from "react-aria-components";
 
 
-import {DmpEditor} from "@/components/Editor";
-import {DmpIcon} from "@/components/Icons";
+import { DmpEditor } from "@/components/Editor";
+import { DmpIcon } from "@/components/Icons";
 
 import {
   Card,
@@ -50,18 +50,18 @@ import {
   CardMutedText,
 } from "@/components/Card/card";
 
-import {BrandColor, Example, handleDelete,} from "./sg-components";
+import { BrandColor, Example, handleDelete, } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
-import TypeAheadWithOther from '@/components/TypeAheadWithOther';
-import {AffiliationsDocument} from '@/generated/graphql';
+import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+import { AffiliationsDocument } from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
-import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
+import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
 
 function Page() {
@@ -366,10 +366,10 @@ function Page() {
             <p>Our primary brand colors represent our identity and should be
               used consistently across all interfaces.</p>
             <div className="brand-color-list">
-              <BrandColor varname="--brand-primary"/>
-              <BrandColor varname="--brand-secondary"/>
-              <BrandColor varname="--brand-tertiary"/>
-              <BrandColor varname="--brand-error"/>
+              <BrandColor varname="--brand-primary" />
+              <BrandColor varname="--brand-secondary" />
+              <BrandColor varname="--brand-tertiary" />
+              <BrandColor varname="--brand-error" />
             </div>
 
             <h3>Gray Scale</h3>
@@ -378,16 +378,16 @@ function Page() {
             <div className="layout-horizontal">
               <div className="brand-color-list">
                 <BrandColor varname="--gray-50"
-                            description="Backgrounds, cards"/>
-                <BrandColor varname="--gray-100" description="Disabled states"/>
+                  description="Backgrounds, cards" />
+                <BrandColor varname="--gray-100" description="Disabled states" />
                 <BrandColor varname="--gray-200"
-                            description="Borders, dividers"/>
+                  description="Borders, dividers" />
                 <BrandColor varname="--gray-300"
-                            description="Secondary borders"/>
+                  description="Secondary borders" />
                 <BrandColor varname="--gray-400"
-                            description="Placeholder text"/>
-                <BrandColor varname="--gray-500" description="Secondary text"/>
-                <BrandColor varname="--gray-600" description="Primary text"/>
+                  description="Placeholder text" />
+                <BrandColor varname="--gray-500" description="Secondary text" />
+                <BrandColor varname="--gray-600" description="Primary text" />
               </div>
             </div>
 
@@ -397,14 +397,14 @@ function Page() {
             <div className="layout-horizontal">
               <div className="brand-color-list">
                 <BrandColor varname="--purple-100"
-                            description="Light backgrounds"/>
-                <BrandColor varname="--purple-200" description="Hover states"/>
-                <BrandColor varname="--purple-300" description="Active states"/>
-                <BrandColor varname="--purple-400" description="Focus rings"/>
+                  description="Light backgrounds" />
+                <BrandColor varname="--purple-200" description="Hover states" />
+                <BrandColor varname="--purple-300" description="Active states" />
+                <BrandColor varname="--purple-400" description="Focus rings" />
                 <BrandColor varname="--purple-500"
-                            description="Primary actions"/>
+                  description="Primary actions" />
                 <BrandColor varname="--purple-600"
-                            description="Pressed states"/>
+                  description="Pressed states" />
               </div>
             </div>
 
@@ -414,12 +414,12 @@ function Page() {
             <div className="layout-horizontal">
               <div className="brand-color-list">
                 <BrandColor varname="--red-100"
-                            description="Error backgrounds"/>
-                <BrandColor varname="--red-200" description="Error hover"/>
-                <BrandColor varname="--red-300" description="Error active"/>
-                <BrandColor varname="--red-400" description="Error text"/>
-                <BrandColor varname="--red-500" description="Error borders"/>
-                <BrandColor varname="--red-600" description="Error pressed"/>
+                  description="Error backgrounds" />
+                <BrandColor varname="--red-200" description="Error hover" />
+                <BrandColor varname="--red-300" description="Error active" />
+                <BrandColor varname="--red-400" description="Error text" />
+                <BrandColor varname="--red-500" description="Error borders" />
+                <BrandColor varname="--red-600" description="Error pressed" />
               </div>
             </div>
 
@@ -429,17 +429,17 @@ function Page() {
             <div className="layout-horizontal">
               <div className="brand-color-list">
                 <BrandColor varname="--slate-100"
-                            description="Light backgrounds"/>
-                <BrandColor varname="--slate-200" description="Borders"/>
-                <BrandColor varname="--slate-300" description="Dividers"/>
-                <BrandColor varname="--slate-400" description="Icons"/>
-                <BrandColor varname="--slate-500" description="Secondary text"/>
-                <BrandColor varname="--slate-600" description="Primary text"/>
-                <BrandColor varname="--slate-700" description="Headings"/>
+                  description="Light backgrounds" />
+                <BrandColor varname="--slate-200" description="Borders" />
+                <BrandColor varname="--slate-300" description="Dividers" />
+                <BrandColor varname="--slate-400" description="Icons" />
+                <BrandColor varname="--slate-500" description="Secondary text" />
+                <BrandColor varname="--slate-600" description="Primary text" />
+                <BrandColor varname="--slate-700" description="Headings" />
                 <BrandColor varname="--slate-800"
-                            description="Dark backgrounds"/>
+                  description="Dark backgrounds" />
                 <BrandColor varname="--slate-900"
-                            description="Highest contrast"/>
+                  description="Highest contrast" />
               </div>
             </div>
 
@@ -518,43 +518,43 @@ function Page() {
 
             <div className="type-scale-examples">
               <div className="type-example">
-                <h1 style={{fontSize: 'var(--fs-4xl)'}}>4xl - 2.25rem
+                <h1 style={{ fontSize: 'var(--fs-4xl)' }}>4xl - 2.25rem
                   (36px)</h1>
                 <code>--fs-4xl</code>
               </div>
 
               <div className="type-example">
-                <h2 style={{fontSize: 'var(--fs-3xl)'}}>3xl - 1.875rem
+                <h2 style={{ fontSize: 'var(--fs-3xl)' }}>3xl - 1.875rem
                   (30px)</h2>
                 <code>--fs-3xl</code>
               </div>
 
               <div className="type-example">
-                <h3 style={{fontSize: 'var(--fs-2xl)'}}>2xl - 1.5rem
+                <h3 style={{ fontSize: 'var(--fs-2xl)' }}>2xl - 1.5rem
                   (24px)</h3>
                 <code>--fs-2xl</code>
               </div>
 
               <div className="type-example">
-                <h4 style={{fontSize: 'var(--fs-xl)'}}>xl - 1.25rem
+                <h4 style={{ fontSize: 'var(--fs-xl)' }}>xl - 1.25rem
                   (20px)</h4>
                 <code>--fs-xl</code>
               </div>
 
               <div className="type-example">
-                <h5 style={{fontSize: 'var(--fs-lg)'}}>lg - 1.125rem
+                <h5 style={{ fontSize: 'var(--fs-lg)' }}>lg - 1.125rem
                   (18px)</h5>
                 <code>--fs-lg</code>
               </div>
 
               <div className="type-example">
-                <h6 style={{fontSize: 'var(--fs-base)'}}>base - 1rem
+                <h6 style={{ fontSize: 'var(--fs-base)' }}>base - 1rem
                   (16px)</h6>
                 <code>--fs-base</code>
               </div>
 
               <div className="type-example">
-                <p style={{fontSize: 'var(--fs-small)'}}>Small - 0.875rem
+                <p style={{ fontSize: 'var(--fs-small)' }}>Small - 0.875rem
                   (14px)</p>
                 <code>--fs-small</code>
               </div>
@@ -566,7 +566,7 @@ function Page() {
 
             <div className="line-height-examples">
               <div className="line-height-example">
-                <p style={{lineHeight: 'var(--lh-tight)'}}>
+                <p style={{ lineHeight: 'var(--lh-tight)' }}>
                   Tight (1.1) - Used for headings and short text blocks where
                   compact spacing is needed.
                   This is an example of how the text looks with tight line
@@ -577,7 +577,7 @@ function Page() {
               </div>
 
               <div className="line-height-example">
-                <p style={{lineHeight: 'var(--lh-normal)'}}>
+                <p style={{ lineHeight: 'var(--lh-normal)' }}>
                   Normal (1.5) - Used for regular paragraph text and most
                   content.
                   This is an example of how the text looks with normal line
@@ -588,7 +588,7 @@ function Page() {
               </div>
 
               <div className="line-height-example">
-                <p style={{lineHeight: 'var(--lh-loose)'}}>
+                <p style={{ lineHeight: 'var(--lh-loose)' }}>
                   Loose (1.8) - Used for improved readability in larger blocks
                   of text.
                   This is an example of how the text looks with loose line
@@ -606,14 +606,14 @@ function Page() {
             <div className="text-style-example">
               <p>
                 Links come in different states:
-                <a href="#" style={{color: 'var(--link-color)'}}>Regular
+                <a href="#" style={{ color: 'var(--link-color)' }}>Regular
                   Link</a>,
-                <a href="#" style={{color: 'var(--link-color-secondary)'}}>Secondary
+                <a href="#" style={{ color: 'var(--link-color-secondary)' }}>Secondary
                   Link</a>,
-                <a href="#" style={{color: 'var(--link-hover-color)'}}>Hover
+                <a href="#" style={{ color: 'var(--link-hover-color)' }}>Hover
                   State</a>
               </p>
-              <p>
+              <div>
                 We should try to use Next Link e.g.
 
 
@@ -621,7 +621,7 @@ function Page() {
                   {`<Link href="/about">About</Link>`}
                 </code></pre>
 
-              </p>
+              </div>
             </div>
 
             <h4>Lists</h4>
@@ -649,11 +649,11 @@ function Page() {
 
             <h3>Text Colors</h3>
             <div className="text-color-examples">
-              <p style={{color: 'var(--text-color)'}}>Primary Text Color</p>
-              <p style={{color: 'var(--text-color-base)'}}>Base Text Color</p>
-              <p style={{color: 'var(--text-color-disabled)'}}>Disabled Text
+              <p style={{ color: 'var(--text-color)' }}>Primary Text Color</p>
+              <p style={{ color: 'var(--text-color-base)' }}>Base Text Color</p>
+              <p style={{ color: 'var(--text-color-disabled)' }}>Disabled Text
                 Color</p>
-              <p style={{color: 'var(--text-color-placeholder)'}}>Placeholder
+              <p style={{ color: 'var(--text-color-placeholder)' }}>Placeholder
                 Text Color</p>
             </div>
           </div>
@@ -663,11 +663,11 @@ function Page() {
             <h2>Icons</h2>
             <Example>
               <div className="sg-icons">
-                <DmpIcon icon="home"/>
-                <DmpIcon icon="search"/>
-                <DmpIcon icon="settings"/>
-                <DmpIcon icon="favorite"/>
-                <DmpIcon icon="bold"/>
+                <DmpIcon icon="home" />
+                <DmpIcon icon="search" />
+                <DmpIcon icon="settings" />
+                <DmpIcon icon="favorite" />
+                <DmpIcon icon="bold" />
               </div>
             </Example>
 
@@ -972,20 +972,20 @@ function Page() {
             <h2>Naming Conventions</h2>
             <ul className="sg-spaced">
               <li>
-                Use <code>TitleCase</code> for componen tags, ie.<br/>
+                Use <code>TitleCase</code> for componen tags, ie.<br />
                 <code>{"<SomeElement />"}</code>
               </li>
               <li>
-                Use <code>camelCase</code> for element ID&lsquo;s, ie.<br/>
+                Use <code>camelCase</code> for element ID&lsquo;s, ie.<br />
                 <code>{'<SomeElement id="myElement"/>'}</code>
               </li>
               <li>
                 Use <code>kebab-case</code> for css classnames (Using titlecase
-                for every word beween hiphens is okay), ie.<br/>
+                for every word beween hiphens is okay), ie.<br />
                 <code>{'<SomeElement className="some-class-Name"/>'}</code>
               </li>
               <li>
-                Use <code>snake_case</code> for field names, ie.<br/>
+                Use <code>snake_case</code> for field names, ie.<br />
                 <code>{'<SomeElement name="field_name" />'}</code>
               </li>
               <li>
@@ -996,15 +996,15 @@ function Page() {
 
                 <div>
                   <pre>
-                  <code>
-                  {`<SomeElement
+                    <code>
+                      {`<SomeElement
                     prop1="A"
                     prop2="B"
                     prop3="C"
                     prop4="D"
                   \\>`}
-                </code>
-                </pre>
+                    </code>
+                  </pre>
                 </div>
               </li>
 
@@ -1076,7 +1076,7 @@ function Page() {
 
               <dt><code>--text-color</code></dt>
               <dd>
-                This sets the main text color for the element.<br/>
+                This sets the main text color for the element.<br />
                 Related hooks include:
                 <ul>
                   <li><code>--text-color-hover</code></li>
@@ -1087,7 +1087,7 @@ function Page() {
 
               <dt><code>--link-color</code></dt>
               <dd>
-                This is the main color for links and anchors.<br/>
+                This is the main color for links and anchors.<br />
                 Related hooks include:
                 <ul>
                   <li><code>--link-color-secondary</code></li>
@@ -1097,7 +1097,7 @@ function Page() {
 
               <dt><code>--border-color</code></dt>
               <dd>
-                The border colour to use for the component. <br/>
+                The border colour to use for the component. <br />
                 Related hooks include:
                 <ul>
                   <li><code>--border-color-hover</code></li>
@@ -1140,8 +1140,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/TextField.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/TextField.html">component
+                docs here.</a>
             </p>
 
 
@@ -1151,7 +1151,7 @@ function Page() {
                 <Text slot="description" className="help">
                   Descriptive text related to the field
                 </Text>
-                <Input/>
+                <Input />
               </TextField>
             </Example>
 
@@ -1161,7 +1161,7 @@ function Page() {
             </h3>
 
             <h3>SubHeader</h3>
-            <SubHeader/>
+            <SubHeader />
             <TextField
               name="example_email"
               type="email"
@@ -1171,8 +1171,8 @@ function Page() {
               <Text slot="description" className="help">
                 Your email address
               </Text>
-              <Input/>
-              <FieldError/>
+              <Input />
+              <FieldError />
             </TextField>
 
 
@@ -1189,8 +1189,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Button.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Button.html">component
+                docs here.</a>
             </p>
 
             <Example>
@@ -1201,8 +1201,8 @@ function Page() {
                 <Button className="tertiary">Tertiary</Button>
                 <Button isDisabled>Disabled</Button>
                 <ButtonWithImage url="http://localhost:3000"
-                                 imageUrl="/images/orcid.svg"
-                                 buttonText="Connect institutional credentials"/>
+                  imageUrl="/images/orcid.svg"
+                  buttonText="Connect institutional credentials" />
               </div>
             </Example>
 
@@ -1216,8 +1216,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Form.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Form.html">component
+                docs here.</a>
             </p>
 
             <Example>
@@ -1230,8 +1230,8 @@ function Page() {
                   <Label>Email</Label>
                   <Text slot="description" className="help">Descriptive text
                     related to the field</Text>
-                  <Input/>
-                  <FieldError/>
+                  <Input />
+                  <FieldError />
                 </TextField>
 
 
@@ -1246,7 +1246,7 @@ function Page() {
                   <Checkbox value="soccer">
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4"/>
+                        <polyline points="1 9 7 14 15 4" />
                       </svg>
                     </div>
                     Test
@@ -1254,7 +1254,7 @@ function Page() {
                   <Checkbox value="test">
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4"/>
+                        <polyline points="1 9 7 14 15 4" />
                       </svg>
                     </div>
                     Test
@@ -1269,7 +1269,7 @@ function Page() {
                 <Checkbox>
                   <div className="checkbox">
                     <svg viewBox="0 0 18 18" aria-hidden="true">
-                      <polyline points="1 9 7 14 15 4"/>
+                      <polyline points="1 9 7 14 15 4" />
                     </svg>
                   </div>
                   Unsubscribe
@@ -1296,7 +1296,7 @@ function Page() {
                   <Text slot="description" className="help">This is help
                     text</Text>
                   <Button>
-                    <SelectValue/>
+                    <SelectValue />
                     <span aria-hidden="true">▼</span>
                   </Button>
                   <Popover>
@@ -1309,7 +1309,7 @@ function Page() {
                       <ListBoxItem>Snake</ListBoxItem>
                     </ListBox>
                   </Popover>
-                  <FieldError/>
+                  <FieldError />
                 </Select>
 
                 <h3>
@@ -1411,6 +1411,7 @@ function Page() {
             <Example>
               <TypeAheadInput
                 label="Example input"
+                fieldName="test"
                 graphqlQuery={AffiliationsDocument}
                 helpText="Help text describing what types of data the user can search for"
               />
@@ -1425,17 +1426,20 @@ function Page() {
 
             <Example>
               <TypeAheadWithOther
-                label="Example input"
+                label="Institution"
+                fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
-                helpText="Help text describing what types of data the user can search for"
                 setOtherField={setOtherField}
+                required={true}
+                helpText="Search for your institution"
+                updateFormData={() => console.log('updating form')}
+                value="UCOP"
               />
               {otherField && (
-                <TextField>
-                  <Label>Other</Label>
-                  <Input
-                    placeholder="other"
-                  />
+                <TextField type="text" name="institution">
+                  <Label>Other institution</Label>
+                  <Input placeholder="Enter custom institution name" />
+                  <FieldError />
                 </TextField>
               )}
             </Example>
@@ -1452,12 +1456,12 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Table.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Table.html">component
+                docs here.</a>
             </p>
 
             <Example>
-              <Table>
+              <Table aria-label='example-table'>
                 <TableHeader>
                   <Column isRowHeader={true}>One</Column>
                   <Column isRowHeader={true}>Two</Column>
@@ -1503,8 +1507,8 @@ function Page() {
                       Enter the question that you want to include in this
                       section.
                     </Text>
-                    <Input/>
-                    <FieldError/>
+                    <Input />
+                    <FieldError />
                   </TextField>
 
                   <TextField
@@ -1516,8 +1520,8 @@ function Page() {
                       Optionally, provide help text or additional context for
                       this question.
                     </Text>
-                    <Input/>
-                    <FieldError/>
+                    <Input />
+                    <FieldError />
                   </TextField>
 
                   <Button type="submit">Create Question</Button>
@@ -1555,8 +1559,8 @@ function Page() {
                       Optionally, provide help text or additional context for
                       this question.
                     </Text>
-                    <Input/>
-                    <FieldError/>
+                    <Input />
+                    <FieldError />
                   </TextField>
 
                   <Button type="submit">Create Question</Button>
@@ -1573,12 +1577,12 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Switch.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Switch.html">component
+                docs here.</a>
             </p>
             <Example>
               <Switch defaultSelected>
-                <div className="indicator"/>
+                <div className="indicator" />
                 Toggle
               </Switch>
             </Example>
@@ -1587,8 +1591,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Popover.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Popover.html">component
+                docs here.</a>
             </p>
             <Example>
               <DialogTrigger>
@@ -1596,21 +1600,21 @@ function Page() {
                 <Popover>
                   <OverlayArrow>
                     <svg width={12} height={12} viewBox="0 0 12 12">
-                      <path d="M0 0 L6 6 L12 0"/>
+                      <path d="M0 0 L6 6 L12 0" />
                     </svg>
                   </OverlayArrow>
                   <Dialog>
                     <div className="flex-col">
                       <Switch defaultSelected>
-                        <div className="indicator"/>
+                        <div className="indicator" />
                         Wi-Fi
                       </Switch>
                       <Switch defaultSelected>
-                        <div className="indicator"/>
+                        <div className="indicator" />
                         Bluetooth
                       </Switch>
                       <Switch>
-                        <div className="indicator"/>
+                        <div className="indicator" />
                         Mute
                       </Switch>
                     </div>
@@ -1623,8 +1627,8 @@ function Page() {
             <p>
               This is a <em>core component</em>, see
               the <a
-              href="https://react-spectrum.adobe.com/react-aria/Menu.html">component
-              docs here.</a>
+                href="https://react-spectrum.adobe.com/react-aria/Menu.html">component
+                docs here.</a>
             </p>
             <Example>
               <MenuTrigger>
@@ -1655,7 +1659,7 @@ function Page() {
               <TooltipWithDialog
                 text='You have an existing connection to ORCID.'
                 tooltipText="Disconnect your account from ORCID. You can reconnect at any time."
-                icon={<DmpIcon icon="cancel"/>}
+                icon={<DmpIcon icon="cancel" />}
                 onPressAction={handleDelete}
               >
                 <ModalOverlayComponent
@@ -1683,8 +1687,8 @@ function Page() {
               {`<DmpEditor content={editorContent} setContent={setEditorContent} \\>`}
             </code></pre>
             </div>
-            <hr/>
-            <DmpEditor content={editorContent} setContent={setEditorContent}/>
+            <hr />
+            <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
         </div>
       </div>

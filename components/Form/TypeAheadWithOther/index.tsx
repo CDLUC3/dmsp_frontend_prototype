@@ -1,34 +1,55 @@
 'use client'
 
-import React, {useEffect, useRef, useState} from 'react';
-import {DocumentNode} from '@apollo/client';
-import {Input, Label, TextField,} from "react-aria-components";
-import {createApolloClient} from '@/lib/graphql/client/apollo-client';
-
+import React, { useEffect, useRef, useState } from 'react';
+import { DocumentNode } from '@apollo/client';
+import {
+    Input,
+    Label,
+    Text,
+    TextField,
+    FieldError,
+} from "react-aria-components";
+import { createApolloClient } from '@/lib/graphql/client/apollo-client';
 import Spinner from '@/components/Spinner';
 import classNames from 'classnames';
 import styles from './typeaheadWithOther.module.scss';
+
+
 import logECS from '@/utils/clientLogger';
 
 type TypeAheadInputProps = {
     graphqlQuery: DocumentNode;
     label: string;
+    placeholder?: string;
     helpText?: string;
     setOtherField: Function;
+    fieldName: string;
+    required: boolean;
+    error?: string;
+    updateFormData: Function; //Function to update the typeahead field value in the parent form data
+    value?: string;
 }
 
 type SuggestionInterface = {
     id: string;
     displayName: string;
+    uri: string;
 }
 
 const TypeAheadWithOther = ({
     graphqlQuery,
     label,
+    placeholder,
     helpText,
-    setOtherField
+    setOtherField,
+    fieldName,
+    required,
+    error,
+    updateFormData,
+    value
 }: TypeAheadInputProps) => {
-    const [inputValue, setInputValue] = useState('');
+    const [inputValue, setInputValue] = useState<string>('');
+    const [errorMessage, setErrorMessage] = useState<string>('');
     const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
     const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
     const [selected, setSelected] = useState("");
@@ -41,6 +62,7 @@ const TypeAheadWithOther = ({
     const listRef = useRef<HTMLUListElement | null>(null);
     const listItemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
+
     const client = createApolloClient();
     if (!client) {
         logECS('error', 'Apollo client creation failed', {
@@ -48,16 +70,47 @@ const TypeAheadWithOther = ({
         });
         return null;
     }
-    const handleInputClick = () => {
-        setOpen(true);
-        setOtherField(false);
+    const validateField = (value: string) => {
+        if (!/^[A-Za-z.\?_\(\)\s-]+$/.test(value)) {
+            setErrorMessage('Please enter a valid institution(only letters allowed).');
+            return false;
+        }
+        setErrorMessage('');
+        return true;
+    };
+
+    const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        //set previous error to empty string
+        error = '';
+        const value = e.target.value;
+        const dataId = (e.target as HTMLElement).dataset.id;
+        setInputValue(value);
+
+        if (value) {
+            validateField(value);
+            await updateFormData(dataId, value);
+        } else {
+            setErrorMessage('');
+            await updateFormData({});
+        }
     }
 
-    const handleSelection = (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
+
+    const handleInputClick = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+        setOpen(true);
+        setOtherField(false);
+        setInputValue('');
+        updateFormData({});
+    }
+
+    const handleSelection = async (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
         setOpen(false);
         const item = (e.target as HTMLLIElement | HTMLInputElement).innerText?.toString() ||
             (e.target as HTMLLIElement | HTMLInputElement).value?.toString();
         const activeDescendentId = (e.target as HTMLLIElement | HTMLInputElement).id;
+
+        const dataId = (e.target as HTMLElement).dataset.id;
+        await updateFormData(dataId, item);
 
         setSelected(item);
         setInputValue(item);
@@ -154,13 +207,21 @@ const TypeAheadWithOther = ({
     }
 
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(inputValue);
-        }, 700);
+        if (value) {
+            setInputValue(value);
+        }
+    }, [])
 
-        return () => {
-            clearTimeout(handler);
-        };
+    useEffect(() => {
+        if (!errorMessage) {
+            const handler = setTimeout(() => {
+                setDebouncedValue(inputValue);
+            }, 700);
+            return () => {
+                clearTimeout(handler);
+            };
+        }
+
     }, [inputValue]);
 
     useEffect(() => {
@@ -223,47 +284,102 @@ const TypeAheadWithOther = ({
     return (
         <>
             <div className={`${styles.autocompleteContainer} ${styles.expanded}`} aria-expanded={open} role="combobox">
-                <TextField>
-                    <Label>{label}</Label>
-                    <Input
-                        name="institutions"
+
+                {required ? (
+                    <TextField
+                        name="lastName"
                         type="text"
-                        value={inputValue}
-                        role="textbox"
-                        aria-controls="results"
-                        aria-activedescendant={activeDescendentId}
-                        className={classNames('react-aria-Input', styles.searchInput)}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onClick={handleInputClick}
-                        onKeyDown={handleKeyboardEvents}
-                        placeholder="Type to search..."
-                        ref={inputRef}
-                        autoComplete="off"
-                    />
-
-                    <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
-                        isActive={showSuggestionSpinner} />
-
-                    {/*Visually hidden element for screen readers */}
-                    <div
-                        aria-live="polite"
-                        className="hidden-accessibly">
-                        {showSuggestionSpinner ? "Loading..." : ""}
-                    </div>
-
-                    <div
-                        className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
-                        onClick={e => e.preventDefault()}
-                        tabIndex={-1}
-                        aria-hidden="true"
+                        className={(!!errorMessage || !!error) ? styles.fieldError : ''}
+                        isInvalid={!!errorMessage}
                     >
-                        <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
-                            <title>Open drop down</title>
-                            <path d="M10 0L5 5 0 0z"></path>
-                        </svg>
-                    </div>
-                    <p className={styles.helpText}>{helpText}</p>
-                </TextField>
+                        <Label>{label}</Label>
+                        <Input
+                            name={fieldName}
+                            type="text"
+                            value={inputValue}
+                            role="textbox"
+                            aria-controls="results"
+                            aria-activedescendant={activeDescendentId}
+                            className={classNames('react-aria-Input', styles.searchInput)}
+                            onChange={handleUpdate}
+                            onClick={handleInputClick}
+                            onKeyDown={handleKeyboardEvents}
+                            placeholder={placeholder ? placeholder : 'Type to search...'}
+                            ref={inputRef}
+                            autoComplete="off"
+                        />
+                        {/*<FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>*/}
+                        {error ? (<div className={styles.errorMessage}>{error}</div>) : <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>}
+                        {helpText && (
+                            <Text slot="description" className='help-text'>
+                                {helpText}
+                            </Text>
+                        )}
+                        <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
+                            isActive={showSuggestionSpinner} />
+
+                        {/*Visually hidden element for screen readers */}
+                        <div
+                            aria-live="polite"
+                            className="hidden-accessibly">
+                            {showSuggestionSpinner ? "Loading..." : ""}
+                        </div>
+
+                        <div
+                            className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
+                            onClick={e => e.preventDefault()}
+                            tabIndex={-1}
+                            aria-hidden="true"
+                        >
+                            <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
+                                <title>Open drop down</title>
+                                <path d="M10 0L5 5 0 0z"></path>
+                            </svg>
+                        </div>
+                    </TextField>
+                ) : (
+                    <TextField>
+                        <Label>{label}</Label>
+                        <Input
+                            name={fieldName}
+                            type="text"
+                            value={inputValue}
+                            role="textbox"
+                            aria-controls="results"
+                            aria-activedescendant={activeDescendentId}
+                            className={classNames('react-aria-Input', styles.searchInput)}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onClick={handleInputClick}
+                            onKeyDown={handleKeyboardEvents}
+                            placeholder={placeholder ? placeholder : 'Type to search...'}
+                            ref={inputRef}
+                            autoComplete="off"
+                        />
+
+                        <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
+                            isActive={showSuggestionSpinner} />
+
+                        {/*Visually hidden element for screen readers */}
+                        <div
+                            aria-live="polite"
+                            className="hidden-accessibly">
+                            {showSuggestionSpinner ? "Loading..." : ""}
+                        </div>
+
+                        <div
+                            className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
+                            onClick={e => e.preventDefault()}
+                            tabIndex={-1}
+                            aria-hidden="true"
+                        >
+                            <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
+                                <title>Open drop down</title>
+                                <path d="M10 0L5 5 0 0z"></path>
+                            </svg>
+                        </div>
+                        <p className={styles.helpText}>{helpText}</p>
+                    </TextField>
+                )}
 
                 <ul
                     className={`${styles.autocompleteResults} ${open ? styles.visible : ''}`}
@@ -273,18 +389,6 @@ const TypeAheadWithOther = ({
                     onKeyDown={handleKeyboardEvents}
                     tabIndex={-1}
                 >
-                    {suggestions.length === 0 && (
-
-                        <li
-                            className={styles.autocompleteItem}
-                            role="option"
-                            aria-selected="false"
-                            tabIndex={-1}
-                        >
-                            No results found.
-                        </li>
-
-                    )}
                     {suggestions && suggestions.length > 0 && (
                         <>
                             <li
@@ -309,7 +413,7 @@ const TypeAheadWithOther = ({
                                             className={styles.autocompleteItem}
                                             id={`autocompleteItem-${index + 1}`}
                                             role='listitem'
-                                            data-id={suggestion.id}
+                                            data-id={suggestion?.uri}
                                             onClick={handleSelection}
                                             tabIndex={-1}
                                             ref={(el) => {

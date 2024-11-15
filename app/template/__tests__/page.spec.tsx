@@ -1,8 +1,8 @@
 import React from 'react';
-import {render, screen} from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import TemplateListPage from '../page';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useRouter} from 'next/navigation';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useRouter } from 'next/navigation';
 
 expect.extend(toHaveNoViolations);
 
@@ -43,7 +43,7 @@ jest.mock('@/components/TemplateListItem', () => {
   return {
     __esModule: true,
     default: ({ item }: TemplateListItemProps) => (
-      <div data-testid="template-list-item">
+      <div data-testid="template-list-item" role="listitem">
         <h2>{item.title}</h2>
         <div>{item.content}</div>
       </div>
@@ -63,7 +63,11 @@ describe('TemplateListPage', () => {
   it('should render the page header with correct title and description', () => {
     render(<TemplateListPage />);
 
-    expect(screen.getByText('Templates')).toBeInTheDocument();
+    // Act: Query the h1 element
+    const heading = screen.getByRole('heading', { level: 1 });
+
+    // Assert: Check that its text content is correct
+    expect(heading).toHaveTextContent('Templates');
     expect(screen.getByText('Manager or create DMSP templates, once published researchers will be able to select your template.')).toBeInTheDocument();
   });
 
@@ -80,7 +84,7 @@ describe('TemplateListPage', () => {
 
     expect(screen.getByLabelText('Search by keyword')).toBeInTheDocument();
     expect(screen.getByText('Search by research organization, field station or lab, template description, etc.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Clear search' })).toBeInTheDocument();
   });
 
   it('should render the template list with correct number of items', () => {
@@ -101,7 +105,7 @@ describe('TemplateListPage', () => {
   it('should render the template list with correct ARIA role', () => {
     render(<TemplateListPage />);
 
-    const list = screen.getByRole('list');
+    const list = screen.getByRole('list', { name: 'Template list' });
     expect(list).toHaveClass('template-list');
   });
 
