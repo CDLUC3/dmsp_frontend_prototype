@@ -6,5 +6,8 @@
   },
   "Connections": {
     "title": "Hello World!"
+  },
+  "About": {
+    "title": "Welcome to the DMP Tool"
   }
 }
