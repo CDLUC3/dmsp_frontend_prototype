@@ -177,7 +177,7 @@ header {
   ::before,
   ::after {
     box-sizing: border-box;
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-sans-serif), sans-serif;
     font-weight: 400;
     font-size: 1rem;
   }
@@ -330,7 +330,7 @@ code {
   }
 
   .dmpui-frontend {
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-sans-serif), sans-serif;
     font-weight: 400;
     font-size: 1rem;
   }
@@ -353,7 +353,7 @@ code {
   .dmpui-frontend h4,
   .dmpui-frontend h5,
   .dmpui-frontend h6 {
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-sans-serif), sans-serif;
     font-weight: 700;
     color: var(--dmpui-brand-blue-900);
     margin-top: 0;
