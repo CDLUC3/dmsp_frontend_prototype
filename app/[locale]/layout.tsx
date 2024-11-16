@@ -62,10 +62,10 @@ export default async function LocaleLayout({
       </head>
       <body className={[poppins_init.className, inter_init.className].join(' ')}>
         <a href="#mainContent" className="skip-nav">Skip to main content</a>
+        <NextIntlClientProvider messages={messages}>
+          <AuthProvider>
+            <CsrfProvider>
 
-        <AuthProvider>
-          <CsrfProvider>
-            <NextIntlClientProvider messages={messages}>
               <Header />
               <SubHeader />
 
@@ -78,10 +78,10 @@ export default async function LocaleLayout({
               </div>
 
               <Footer />
-            </NextIntlClientProvider>
-          </CsrfProvider>
-        </AuthProvider>
 
+            </CsrfProvider>
+          </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

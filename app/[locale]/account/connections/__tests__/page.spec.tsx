@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, act, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/utils/test-utils';
+import { render, screen, act, waitFor } from '@/utils/test-utils'; //wrapping test with AuthProvider
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
@@ -18,11 +19,14 @@ describe('Connections page', () => {
   it('should render connections page', async () => {
 
     await act(async () => {
-      render(<ConnectionsPage />);
+      renderWithProviders(
+        <ConnectionsPage />
+
+      );
     });
 
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveTextContent('Connections')
+    expect(heading).toHaveTextContent('Hello World!')
 
     const heading4Elements = screen.getAllByRole('heading', { level: 2 });
     expect(heading4Elements.length).toBe(3);
@@ -34,7 +38,11 @@ describe('Connections page', () => {
   it('should pass axe accessibility test', async () => {
     let container: HTMLElement;
     await act(async () => {
-      const renderResult = render(<ConnectionsPage />);
+      const renderResult = renderWithProviders(
+
+        <ConnectionsPage />
+
+      );
       container = renderResult.container;
     });
 

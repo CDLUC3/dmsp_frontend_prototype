@@ -1,5 +1,8 @@
-import {NextRequest, NextResponse} from 'next/server';
-import {middleware} from '../middleware';
+import { NextRequest, NextResponse } from 'next/server';
+import { middleware } from '../middleware';
+import { verifyJwtToken } from '@/lib/server/auth';
+import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
+
 
 jest.mock('next/server', () => ({
     NextResponse: {
@@ -7,6 +10,21 @@ jest.mock('next/server', () => ({
         redirect: jest.fn(),
     },
 }));
+
+jest.mock('next-intl/middleware', () => ({
+    __esModule: true,
+    default: jest.fn(() => jest.fn()), // Mocks `createMiddleware` returning a handler
+}));
+
+jest.mock('@/lib/server/auth', () => ({
+    verifyJwtToken: jest.fn(),
+}));
+jest.mock('@/utils/getAuthTokenServer', () => ({
+    getAuthTokenServer: jest.fn(),
+}));
+
+(verifyJwtToken as jest.Mock).mockResolvedValue({ languageId: 'en-US' });
+(getAuthTokenServer as jest.Mock).mockResolvedValue('mock-token');
 
 describe('middleware', () => {
     let request: NextRequest;
@@ -25,7 +43,7 @@ describe('middleware', () => {
 
         request = {
             cookies: {
-                get: jest.fn(),
+                get: jest.fn().mockReturnValue('cookie-value'),
             },
             nextUrl: {
                 pathname: '',
@@ -37,8 +55,19 @@ describe('middleware', () => {
         (NextResponse.next as jest.Mock).mockReturnValue(response);
     });
 
-    it('should return next response when no protected path is matched', async () => {
-        request.nextUrl.pathname = '/public';
+    it('should handle locale resolution correctly', async () => {
+        request.nextUrl.pathname = '/';
+        (getAuthTokenServer as jest.Mock).mockResolvedValue('mock-token');
+        (verifyJwtToken as jest.Mock).mockResolvedValue({ languageId: 'pt-BR' });
+
+        const result = await middleware(request);
+
+        const expectedUrl = new URL("http://localhost/pt-BR/");
+        expect(NextResponse.redirect).toHaveBeenCalledWith(expectedUrl);
+    });
+
+    it('should return next response when it is an excluded path', async () => {
+        request.nextUrl.pathname = '/_next';
 
         const result = await middleware(request);
 
@@ -57,7 +86,7 @@ describe('middleware', () => {
     });
 
     it('should set custom header for /dmps path', async () => {
-        request.nextUrl.pathname = '/dmps';
+        request.nextUrl.pathname = '/en-US/dmps';
 
         const result = await middleware(request);
 
@@ -67,7 +96,7 @@ describe('middleware', () => {
     });
 
     it('should not redirect if at least one token is present on protected path', async () => {
-        request.nextUrl.pathname = '/protected';
+        request.nextUrl.pathname = '/en-US/protected';
         request.cookies.get = jest.fn().mockImplementation((key) => {
             if (key === 'dmspt') return 'accessToken'; // Simulate accessToken is present
             return undefined;

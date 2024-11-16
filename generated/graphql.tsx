@@ -1449,12 +1449,46 @@ export type AffiliationsQueryVariables = Exact<{
 }>;
 
 
-export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string } | null> | null };
+export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null };
 
 export type ContributorRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ContributorRolesQuery = { __typename?: 'Query', contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, url: any } | null> | null };
+
+export type UpdateUserProfileMutationVariables = Exact<{
+  input: UpdateUserProfileInput;
+}>;
+
+
+export type UpdateUserProfileMutation = { __typename?: 'Mutation', updateUserProfile?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, errors?: Array<string> | null, languageId: string, email: any, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
+
+export type AddUserEmailMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+  isPrimary: Scalars['Boolean']['input'];
+}>;
+
+
+export type AddUserEmailMutation = { __typename?: 'Mutation', addUserEmail?: { __typename?: 'UserEmail', email: string, errors?: Array<string> | null, isPrimary: boolean, isConfirmed: boolean, id?: number | null, userId: number } | null };
+
+export type RemoveUserEmailMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type RemoveUserEmailMutation = { __typename?: 'Mutation', removeUserEmail?: { __typename?: 'UserEmail', errors?: Array<string> | null } | null };
+
+export type SetPrimaryUserEmailMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type SetPrimaryUserEmailMutation = { __typename?: 'Mutation', setPrimaryUserEmail?: Array<{ __typename?: 'UserEmail', id?: number | null, errors?: Array<string> | null, email: string, isConfirmed: boolean, isPrimary: boolean, userId: number } | null> | null };
+
+export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
 
 export type TemplateVersionsQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -1463,12 +1497,18 @@ export type TemplateVersionsQueryVariables = Exact<{
 
 export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: Array<{ __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, comment?: string | null, id?: number | null, versionedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, modified?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null } | null> | null };
 
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, errors?: Array<string> | null, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
+
 
 export const AffiliationsDocument = gql`
     query Affiliations($name: String!) {
   affiliations(name: $name) {
     id
     displayName
+    uri
   }
 }
     `;
@@ -1546,6 +1586,201 @@ export type ContributorRolesQueryHookResult = ReturnType<typeof useContributorRo
 export type ContributorRolesLazyQueryHookResult = ReturnType<typeof useContributorRolesLazyQuery>;
 export type ContributorRolesSuspenseQueryHookResult = ReturnType<typeof useContributorRolesSuspenseQuery>;
 export type ContributorRolesQueryResult = Apollo.QueryResult<ContributorRolesQuery, ContributorRolesQueryVariables>;
+export const UpdateUserProfileDocument = gql`
+    mutation UpdateUserProfile($input: updateUserProfileInput!) {
+  updateUserProfile(input: $input) {
+    id
+    givenName
+    surName
+    errors
+    affiliation {
+      id
+      name
+      searchName
+      uri
+    }
+    languageId
+    email
+  }
+}
+    `;
+export type UpdateUserProfileMutationFn = Apollo.MutationFunction<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
+
+/**
+ * __useUpdateUserProfileMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserProfileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserProfileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserProfileMutation, { data, loading, error }] = useUpdateUserProfileMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateUserProfileMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>(UpdateUserProfileDocument, options);
+      }
+export type UpdateUserProfileMutationHookResult = ReturnType<typeof useUpdateUserProfileMutation>;
+export type UpdateUserProfileMutationResult = Apollo.MutationResult<UpdateUserProfileMutation>;
+export type UpdateUserProfileMutationOptions = Apollo.BaseMutationOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
+export const AddUserEmailDocument = gql`
+    mutation AddUserEmail($email: String!, $isPrimary: Boolean!) {
+  addUserEmail(email: $email, isPrimary: $isPrimary) {
+    email
+    errors
+    isPrimary
+    isConfirmed
+    id
+    userId
+  }
+}
+    `;
+export type AddUserEmailMutationFn = Apollo.MutationFunction<AddUserEmailMutation, AddUserEmailMutationVariables>;
+
+/**
+ * __useAddUserEmailMutation__
+ *
+ * To run a mutation, you first call `useAddUserEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddUserEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addUserEmailMutation, { data, loading, error }] = useAddUserEmailMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *      isPrimary: // value for 'isPrimary'
+ *   },
+ * });
+ */
+export function useAddUserEmailMutation(baseOptions?: Apollo.MutationHookOptions<AddUserEmailMutation, AddUserEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddUserEmailMutation, AddUserEmailMutationVariables>(AddUserEmailDocument, options);
+      }
+export type AddUserEmailMutationHookResult = ReturnType<typeof useAddUserEmailMutation>;
+export type AddUserEmailMutationResult = Apollo.MutationResult<AddUserEmailMutation>;
+export type AddUserEmailMutationOptions = Apollo.BaseMutationOptions<AddUserEmailMutation, AddUserEmailMutationVariables>;
+export const RemoveUserEmailDocument = gql`
+    mutation RemoveUserEmail($email: String!) {
+  removeUserEmail(email: $email) {
+    errors
+  }
+}
+    `;
+export type RemoveUserEmailMutationFn = Apollo.MutationFunction<RemoveUserEmailMutation, RemoveUserEmailMutationVariables>;
+
+/**
+ * __useRemoveUserEmailMutation__
+ *
+ * To run a mutation, you first call `useRemoveUserEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveUserEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeUserEmailMutation, { data, loading, error }] = useRemoveUserEmailMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useRemoveUserEmailMutation(baseOptions?: Apollo.MutationHookOptions<RemoveUserEmailMutation, RemoveUserEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveUserEmailMutation, RemoveUserEmailMutationVariables>(RemoveUserEmailDocument, options);
+      }
+export type RemoveUserEmailMutationHookResult = ReturnType<typeof useRemoveUserEmailMutation>;
+export type RemoveUserEmailMutationResult = Apollo.MutationResult<RemoveUserEmailMutation>;
+export type RemoveUserEmailMutationOptions = Apollo.BaseMutationOptions<RemoveUserEmailMutation, RemoveUserEmailMutationVariables>;
+export const SetPrimaryUserEmailDocument = gql`
+    mutation SetPrimaryUserEmail($email: String!) {
+  setPrimaryUserEmail(email: $email) {
+    id
+    errors
+    email
+    isConfirmed
+    isPrimary
+    userId
+  }
+}
+    `;
+export type SetPrimaryUserEmailMutationFn = Apollo.MutationFunction<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>;
+
+/**
+ * __useSetPrimaryUserEmailMutation__
+ *
+ * To run a mutation, you first call `useSetPrimaryUserEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetPrimaryUserEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setPrimaryUserEmailMutation, { data, loading, error }] = useSetPrimaryUserEmailMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useSetPrimaryUserEmailMutation(baseOptions?: Apollo.MutationHookOptions<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>(SetPrimaryUserEmailDocument, options);
+      }
+export type SetPrimaryUserEmailMutationHookResult = ReturnType<typeof useSetPrimaryUserEmailMutation>;
+export type SetPrimaryUserEmailMutationResult = Apollo.MutationResult<SetPrimaryUserEmailMutation>;
+export type SetPrimaryUserEmailMutationOptions = Apollo.BaseMutationOptions<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>;
+export const LanguagesDocument = gql`
+    query Languages {
+  languages {
+    id
+    isDefault
+    name
+  }
+}
+    `;
+
+/**
+ * __useLanguagesQuery__
+ *
+ * To run a query within a React component, call `useLanguagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLanguagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLanguagesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLanguagesQuery(baseOptions?: Apollo.QueryHookOptions<LanguagesQuery, LanguagesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LanguagesQuery, LanguagesQueryVariables>(LanguagesDocument, options);
+      }
+export function useLanguagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LanguagesQuery, LanguagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LanguagesQuery, LanguagesQueryVariables>(LanguagesDocument, options);
+        }
+export function useLanguagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LanguagesQuery, LanguagesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LanguagesQuery, LanguagesQueryVariables>(LanguagesDocument, options);
+        }
+export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
+export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
+export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
+export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
 export const TemplateVersionsDocument = gql`
     query TemplateVersions($templateId: Int!) {
   templateVersions(templateId: $templateId) {
@@ -1598,3 +1833,58 @@ export type TemplateVersionsQueryHookResult = ReturnType<typeof useTemplateVersi
 export type TemplateVersionsLazyQueryHookResult = ReturnType<typeof useTemplateVersionsLazyQuery>;
 export type TemplateVersionsSuspenseQueryHookResult = ReturnType<typeof useTemplateVersionsSuspenseQuery>;
 export type TemplateVersionsQueryResult = Apollo.QueryResult<TemplateVersionsQuery, TemplateVersionsQueryVariables>;
+export const MeDocument = gql`
+    query Me {
+  me {
+    id
+    givenName
+    surName
+    languageId
+    emails {
+      id
+      email
+      isPrimary
+      isConfirmed
+    }
+    errors
+    affiliation {
+      id
+      name
+      searchName
+      uri
+    }
+  }
+}
+    `;
+
+/**
+ * __useMeQuery__
+ *
+ * To run a query within a React component, call `useMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+      }
+export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+        }
+export function useMeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MeQuery, MeQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+        }
+export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
+export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
+export type MeSuspenseQueryHookResult = ReturnType<typeof useMeSuspenseQuery>;
+export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;

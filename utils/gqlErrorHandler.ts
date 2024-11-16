@@ -1,9 +1,9 @@
 'use client'
 
-import {GraphQLFormattedError} from 'graphql';
+import { FetchResult } from '@apollo/client';
+import { GraphQLFormattedError } from 'graphql';
 import logECS from "@/utils/clientLogger";
-import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
-import {ApolloQueryResult} from '@apollo/client';
+import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 
 type ServerError = Error & {
   response: Response;
@@ -22,20 +22,17 @@ type CustomRouter = {
 }
 
 type NetworkError = Error | ServerError | ServerParseError;
-type RefetchFunction<TData, TVariables> = (variables?: Partial<TVariables>) => Promise<ApolloQueryResult<TData>>;
 
-type CustomError = {
-  message: string;
-  errorCode?: string;
-};
+type RefetchFunction<TData, TVariables> =
+  | ((variables?: TVariables) => Promise<TData>)
+  | ((variables?: TVariables) => Promise<FetchResult<TData>>);
 
 export async function handleGraphQLErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[],
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  refetch: RefetchFunction<TData, TVariables>,
+  refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
   router: CustomRouter
-): Promise<CustomError[]> {
-  const customErrors: CustomError[] = [];
+) {
 
   if (graphQLErrors) {
     for (const { message, extensions } of graphQLErrors) {
@@ -79,18 +76,15 @@ export async function handleGraphQLErrors<TData, TVariables>(
       }
     }
   }
-
-  return customErrors;
 }
 
-export function handleNetworkError(networkError: NetworkError | null, setErrors: React.Dispatch<React.SetStateAction<string[]>>): CustomError[] {
-  const networkErrors: CustomError[] = [];
+export function handleNetworkError(networkError: NetworkError | null, setErrors: React.Dispatch<React.SetStateAction<string[]>>) {
 
   if (networkError) {
     setErrors(prevErrors => [...prevErrors, networkError.message]);
   }
 
-  return networkErrors;
+  return networkError;
 }
 
 
@@ -98,7 +92,7 @@ export async function handleApolloErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[] | undefined,
   networkError: NetworkError | null,
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
-  refetch: RefetchFunction<TData, TVariables>,
+  refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
   router: CustomRouter
 ): Promise<void> {
   await handleGraphQLErrors(graphQLErrors || [], setErrors, refetch, router);

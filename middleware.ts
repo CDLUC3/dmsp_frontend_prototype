@@ -20,20 +20,23 @@ interface JWTAccessToken extends JwtPayload {
 }
 
 // TODO: These routes will need to be updated.
-const protectedPaths = ['/dmps/', '/admin/', '/template']
+const excludedPaths = ['/login', '/signup', '/email', '/favicon.ico', '/_next', '/api'];
 
 const handleI18nRouting = createMiddleware(routing);
 
 async function getLocaleFromJWT(): Promise<string | null> {
   try {
     const token = await getAuthTokenServer();
+    console.log("***TOKEN", token)
     if (!token) {
       return null;
     }
     const user = await verifyJwtToken(token);
+    console.log("***USER", user);
     const { languageId } = user as JWTAccessToken;
 
     if (languageId && locales.includes(languageId)) {
+      console.log("***RETURNED LANGUAGEID", languageId);
       return languageId;
     }
     return null;
@@ -71,14 +74,21 @@ async function getLocale(request: NextRequest) {
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
+  const { pathname } = request.nextUrl;
+  // Check if the path is in the excludedPaths array
+  if (excludedPaths.some(path => pathname.startsWith(path))) {
+    // If it is, return the response without checking for tokens
+    return response;
+  }
+
   const accessToken = request.cookies.get('dmspt');
   const refreshToken = request.cookies.get('dmspr');
-  const { pathname } = request.nextUrl;
 
   /* TODO: might want to add a 'redirect' query param to url to redirect user after
    login to the original page they were trying to get to.*/
-  if (protectedPaths.some(path => pathname.startsWith(path))) {
-    // If both access and refresh tokens are missing, redirect to /login
+
+  // Check for tokens for paths that are not excluded from authentication
+  if (!excludedPaths.some(path => pathname.startsWith(path))) {
     if (!accessToken && !refreshToken) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
@@ -88,10 +98,13 @@ export async function middleware(request: NextRequest) {
     (locale) => !pathname.startsWith(`/${locale}`) && pathname !== `/${locale}`
   );
 
+  console.log("***PATHNAME IS MISSING LOCALE", pathnameIsMissingLocale);
   if (pathnameIsMissingLocale) {
     const locale = await getLocale(request);
     const newUrl = new URL(`/${locale}${pathname}`, request.url);
-    newUrl.search = request.nextUrl.search;
+    if (request.nextUrl.search) {
+      newUrl.search = request.nextUrl.search; // Only assign if it's valid
+    }
     return NextResponse.redirect(newUrl);
   }
 
@@ -99,7 +112,7 @@ export async function middleware(request: NextRequest) {
   if (i18nResponse) return i18nResponse;
 
   // Add url info to custom header. Need this for just the /dmps landing page
-  if (request.nextUrl.pathname.startsWith('/dmps')) {
+  if (request.nextUrl.pathname.startsWith('/en-US/dmps')) {
     response.headers.set('x-url', request.nextUrl.href);
   }
 

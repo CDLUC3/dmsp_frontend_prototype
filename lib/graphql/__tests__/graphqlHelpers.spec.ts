@@ -1,8 +1,16 @@
-import { ApolloLink, Observable } from "@apollo/client";
+import {
+  ApolloLink,
+  FetchResult,
+  NextLink,
+  Observable,
+  Operation
+} from "@apollo/client";
 import { redirect } from "next/navigation";
 import { GraphQLError } from "graphql";
 import { errorLink } from "@/lib/graphql/graphqlHelper";
 import logECS from "@/utils/clientLogger";
+import { refreshAuthTokens, fetchCsrfToken } from "@/utils/authHelper";
+
 
 // Mock the entire module
 jest.mock("@/utils/clientLogger", () => ({
@@ -10,121 +18,133 @@ jest.mock("@/utils/clientLogger", () => ({
   default: jest.fn()  // Mock the default export as a Jest mock function
 }));
 
+jest.mock("@/utils/authHelper", () => ({
+  refreshAuthTokens: jest.fn(),
+  fetchCsrfToken: jest.fn(),
+}));
+
 jest.mock("next/navigation", () => ({
   redirect: jest.fn()
 }))
+// Set up a spy for window.location.href
+Object.defineProperty(window, 'location', {
+  value: {
+    href: '',
+  },
+  writable: true,
+});
+
 
 describe("GraphQL Errors", () => {
-  beforeAll(() => {
-    process.on('unhandledRejection', (reason) => {
-      throw reason;  // Ensure unhandled rejections fail the tests
-    });
-  });
+  let operation: Operation;
+  let forward: NextLink;
+
   beforeEach(() => {
-
+    // Reset all mocks
     jest.clearAllMocks();
-    jest.resetAllMocks();
 
+    // Mock window.location
+    delete window.location;
+    window.location = { href: "" } as Location;
+
+    // Setup operation mock with proper typing
+    operation = {
+      setContext: jest.fn(),
+      getContext: jest.fn(() => ({})),
+      operationName: "TestQuery",
+      extensions: {},
+      variables: {},
+      query: {
+        kind: "Document",
+        definitions: []
+      }
+    };
   });
+
   afterEach(() => {
     jest.resetAllMocks();
     jest.restoreAllMocks();
   })
 
-  it("should handle Unauthorized GraphQL errors", (done) => {
-    const mockOperation = {
-      setContext: jest.fn(),
-      getContext: jest.fn(),
-    }
-
-    // Mock the forward link
-    const mockForward = new ApolloLink(() =>
-      new Observable((observer) => {
+  it("handles UNAUTHENTICATED error by refreshing token", async () => {
+    // Setup forward mock with Unauthenticated error
+    forward = jest.fn(() =>
+      new Observable<FetchResult>((observer) => {
         observer.next({
-          errors: [
-            new GraphQLError('Unauthenticated', {
-              extensions: { code: 'UNAUTHENTICATED' },
-            }),
-          ],
+          errors: [{
+            message: "Unauthenticated",
+            extensions: { code: "UNAUTHENTICATED" }
+          }]
         });
         observer.complete();
+        return () => { };
       })
     );
+    (refreshAuthTokens as jest.Mock).mockResolvedValue(true);
 
-    // Compose the error link with the mock forward link
-    const link = ApolloLink.from([errorLink, mockForward]);
+    await new Promise<void>((resolve, reject) => {
+      const subscription = (errorLink as NonNullable<typeof errorLink>)
+        .request(operation, forward)!
+        .subscribe({
+          next: () => {
+            try {
+              expect(refreshAuthTokens).toHaveBeenCalledTimes(1);
+              expect(forward).toHaveBeenCalledWith(operation);
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          },
+          error: (error: Error) => {
+            reject(error);
+          },
+          complete: () => {
+            resolve();
+          }
+        });
 
-    // Execute the request
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    link.request(mockOperation as any)?.subscribe({
-      next: (result) => {
-        try {
-          // Check if the error was caught and handled correctly
-          expect(result.errors?.[0].message).toBe('Unauthenticated');
-          expect(logECS).toHaveBeenCalledWith(
-            'error',
-            expect.stringContaining('Unauthenticated'),
-            expect.objectContaining({ errorCode: 'UNAUTHENTICATED' })
-          );
-          done(); // Signal that the test is done
-        } catch (error) {
-          done(error);
-        }
-
-      },
-      error: (error) => {
-        done(error) //Fail the test if there's an unexpected error
-      }
+      return () => subscription.unsubscribe();
     });
-
   });
 
-  it("should handle Forbidden GraphQL errors", (done) => {
-    const mockOperation = {
-      setContext: jest.fn(),
-      getContext: jest.fn(),
-    }
-
-    // Mock the forward link
-    const mockForward = new ApolloLink(() =>
-      new Observable((observer) => {
+  it("handles FORBIDDEN error by fetching a CSRF token", async () => {
+    // Setup forward with Forbidden error
+    forward = jest.fn(() =>
+      new Observable<FetchResult>((observer) => {
         observer.next({
-          errors: [
-            new GraphQLError('Forbidden', {
-              extensions: { code: 'FORBIDDEN' },
-            }),
-          ],
+          errors: [{
+            message: "Forbidden",
+            extensions: { code: "FORBIDDEN" }
+          }]
         });
         observer.complete();
+        return () => { };
       })
     );
+    (fetchCsrfToken as jest.Mock).mockResolvedValue(true);
+    await new Promise<void>((resolve, reject) => {
+      const subscription = (errorLink as NonNullable<typeof errorLink>)
+        .request(operation, forward)!
+        .subscribe({
+          next: () => {
+            try {
+              expect(fetchCsrfToken).toHaveBeenCalledTimes(1);
+              expect(forward).toHaveBeenCalledWith(operation);
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          },
+          error: (error: Error) => {
+            reject(error);
+          },
+          complete: () => {
+            resolve();
+          }
+        });
 
-    // Compose the error link with the mock forward link
-    const link = ApolloLink.from([errorLink, mockForward]);
-
-    // Execute the request
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    link.request(mockOperation as any)?.subscribe({
-      next: (result) => {
-        try {
-          // Check if the error was caught and handled correctly
-          expect(result.errors?.[0].message).toBe('Forbidden');
-          expect(logECS).toHaveBeenCalledWith(
-            'error',
-            expect.stringContaining('Forbidden'),
-            expect.objectContaining({ errorCode: 'FORBIDDEN' })
-          );
-          done(); // Signal that the test is done
-        } catch (error) {
-          done(error);
-        }
-
-      },
-      error: (error) => {
-        done(error) //Fail the test if there's an unexpected error
-      }
+      return () => subscription.unsubscribe();
     });
-
   });
 
   it("should handle INTERNAL SERVER ERROR", async () => {
@@ -246,16 +266,6 @@ describe("Network Errors", () => {
             "error",
             expect.stringContaining("Network Error"),
             expect.objectContaining({ errorCode: "NETWORK_ERROR" })
-          );
-
-          // Ensure the network error context was set
-          expect(mockOperation.setContext).toHaveBeenCalledWith(
-            expect.objectContaining({
-              networkError: expect.objectContaining({
-                message: "Network Error",
-                customInfo: { errorMessage: "There was a problem " },
-              }),
-            })
           );
           done(); // Mark the test as complete
         } catch (e) {

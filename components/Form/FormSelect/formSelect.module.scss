@@ -1,0 +1,36 @@
+.expanded {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.dropdownArrow {
+  position: absolute;
+  right: 0;
+  top: 30%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  height: 30px;
+  transition: transform 0.2s linear;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center; // Vertically centers the SVG
+  justify-content: center; // Horizontally centers the SVG if needed
+
+
+  &.expanded {
+      transform: rotate(-180deg);
+    }
+}
+
+.mySelect button[class*="react-aria-Button"] {
+  max-width: 100%;
+}
+
+.mySelect[data-invalid] button[class*="react-aria-Button"] {
+  border: 1px solid red;
+}
+
+.react-aria-FieldError {
+  color: red;
+}

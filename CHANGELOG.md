@@ -1,16 +1,23 @@
 ### Added
-- Clickable interface for Template List
-- Clickable interface for Template Edit
-- Clickable interface for Template Section Edit/New
-- Clickable interface for Template Question Edit/New
-- Clickable interface that starts "Publish Template" flow
-- Added component for TemplateListItem
-- Added component for Section Header Edit
-- Added component for Question Card Edit
-- Added component for "Add question" button
-- Added component for "Add section" button
-
-### Added
+- Added new components [#111]
+  - Clickable interface for Template List
+  - Clickable interface for Template Edit
+  - Clickable interface for Template Section Edit/New
+  - Clickable interface for Template Question Edit/New
+  - Clickable interface that starts "Publish Template" flow
+  - Added component for TemplateListItem
+  - Added component for Section Header Edit
+  - Added component for Question Card Edit
+  - Added component for "Add question" button
+  - Added component for "Add section" button
+- Added new User Profile page [#124]
+  - Created a separate UpdateEmailAddress component
+  - Created EmailAddressRow component
+  - Created shared Form components, FormInput and FormSelect
+  - Created temporary RightSidebar component
+  - Updated TypeAheadWithOther component to work with parent components
+  - Added some shared css for shared form components in a new style file called _form.scss
+  - Added corresponding unit tests
 - Added spacing guidelines to the styleguide
 - Cleaned up the styleguide and added additional text to explain the spacing guidelines
 - Created SCSS helpers/mixins to generate alot of our font sizes,colours and spacing

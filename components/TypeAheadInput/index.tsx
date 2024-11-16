@@ -16,6 +16,7 @@ import logECS from '@/utils/clientLogger';
 type TypeAheadInputProps = {
     graphqlQuery: DocumentNode;
     label: string;
+    fieldName: string;
     helpText?: string
 }
 
@@ -23,7 +24,7 @@ type SuggestionInterface = {
     id: string;
     displayName: string;
 }
-const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) => {
+const TypeAheadInput = ({ graphqlQuery, label, fieldName, helpText }: TypeAheadInputProps) => {
     const [inputValue, setInputValue] = useState('');
     const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
     const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
@@ -211,7 +212,7 @@ const TypeAheadInput = ({ graphqlQuery, label, helpText }: TypeAheadInputProps) 
                 <TextField>
                     <Label>{label}</Label>
                     <Input
-                        name="institutions"
+                        name={fieldName}
                         type="text"
                         role="textbox"
                         value={inputValue}
