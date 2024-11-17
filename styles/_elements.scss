@@ -76,13 +76,15 @@
 }
 
 // Forms
-
+/*
+// REMOVED THIS AS WAS CONFLICTING - Unclear where it is used
 .react-aria-Button {
   @include device(sm) {
-    margin-top: var(--fs-4xl);
+    //margin-top: var(--fs-4xl);
   }
-  margin-top: var(--fs-xl);
+  //margin-top: var(--fs-xl);
 }
+*/
 
 // Popover
 .react-aria-Popover {
