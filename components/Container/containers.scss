@@ -89,9 +89,6 @@
 .layout-with-panel {
   @include layoutContainer;
 
-  // Developer NOTE: This is a utility variable. The javascript will set the
-  // value for this var to a _pixel_ value. This gives us the exact width of the
-  // container so that we can create precise animations.
   --_sidebar-width: 100%;
 
   width: 100%;
