@@ -165,10 +165,6 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
         }, 301);
       }
     } else {
-      // Developer NOTE:
-      // We wait wait till the animation is finished before changing focus.
-      // The animation in CSS takes 300 miliseconds to complete, so we buffer
-      // that with an extra 1ms.
       if (onClose) onClose();
     }
   }, [stateOpen]);
