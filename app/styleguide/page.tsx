@@ -1102,7 +1102,7 @@ function Page() {
             <ContentContainer>
               <p>This content is wrapped in the following container.</p>
               <p><strong>Note</strong> that the style property is not required
-                to use the container. It's only here to show that you can use it
+                to use the container. It&apos;s only here to show that you can use it
                 this way, and to show the outline here in the styleguide.</p>
               <div><pre><code>{`<ContentContainer>
 ...

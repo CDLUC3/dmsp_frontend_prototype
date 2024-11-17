@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 // NOTE: Responsive means more than just device size; So this file can be used
 // to include other hooks related to responsive design, like checking for
@@ -66,7 +66,7 @@ export const useResponsive = (): DeviceProps => {
   }, []);
 
   return {
-    viewport: viewport,
-    deviceSize: deviceSize,
+    viewport,
+    deviceSize,
   };
 }

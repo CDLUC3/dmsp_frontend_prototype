@@ -44,6 +44,13 @@
   transition: 0.3s ease-in-out;
 }
 
+.layout-drawer-panel.state-closed {
+  * {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
 .layout-drawer-modal {
   position: fixed;
   padding: 0;

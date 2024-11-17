@@ -143,7 +143,6 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   const drawerRef = useRef<HTMLDivElement | null>(null);
   const size = useResponsive();
   const [isMobile, setIsMobile] = useState<boolean>(true);
-  const [prevFocus, setPrevFocus] = useState<Element | null>(null);
   const [stateOpen, setStateOpen] = useState<boolean>(isOpen);
 
   useEffect(() => {
@@ -155,28 +154,21 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    const activeEl = document.activeElement as HTMLElement | null;
     if (stateOpen) {
       if (drawerRef && drawerRef.current) {
-        setPrevFocus(document.activeElement);
-
         // Developer NOTE:
         // We wait wait till the animation is finished before changing focus.
         // The animation in CSS takes 300 miliseconds to complete, so we buffer
         // that with an extra 1ms.
         window.setTimeout(() => {
-          activeEl?.blur();
           drawerRef.current?.focus();
         }, 301);
       }
     } else {
-      if (prevFocus) {
-        window.setTimeout(() => {
-          activeEl?.blur();
-          (prevFocus as HTMLElement | null)?.focus();
-        }, 301);
-      }
-
+      // Developer NOTE:
+      // We wait wait till the animation is finished before changing focus.
+      // The animation in CSS takes 300 miliseconds to complete, so we buffer
+      // that with an extra 1ms.
       if (onClose) onClose();
     }
   }, [stateOpen]);
@@ -206,6 +198,8 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
           id={id}
           ref={drawerRef}
           className={`layout-drawer-modal ${className} ${stateOpen ? "state-open" : "state-closed"}`}
+          tabIndex={stateOpen ? 0 : -1}
+          aria-hidden={!stateOpen}
           data-testid="drawer-panel"
         >
           <ContentContainer className="drawer-content">
@@ -225,7 +219,10 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
       {!isMobile && (
         <div
           id={id}
+          ref={drawerRef}
           className={`layout-drawer-panel ${className} ${stateOpen ? "state-open" : "state-closed"}`}
+          tabIndex={stateOpen ? 0 : -1}
+          aria-hidden={!stateOpen}
           data-testid="drawer-panel"
         >
           <Button
