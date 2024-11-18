@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderWithProviders } from '@/utils/test-utils';
-import { render, screen, act, waitFor } from '@/utils/test-utils'; //wrapping test with AuthProvider
+import { screen, act, waitFor } from '@/utils/test-utils'; //wrapping test with AuthProvider
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
@@ -26,7 +26,7 @@ describe('Connections page', () => {
     });
 
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveTextContent('Hello World!')
+    expect(heading).toHaveTextContent('My Connections')
 
     const heading4Elements = screen.getAllByRole('heading', { level: 2 });
     expect(heading4Elements.length).toBe(3);

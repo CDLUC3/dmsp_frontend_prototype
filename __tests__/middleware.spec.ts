@@ -60,7 +60,7 @@ describe('middleware', () => {
         (getAuthTokenServer as jest.Mock).mockResolvedValue('mock-token');
         (verifyJwtToken as jest.Mock).mockResolvedValue({ languageId: 'pt-BR' });
 
-        const result = await middleware(request);
+        await middleware(request);
 
         const expectedUrl = new URL("http://localhost/pt-BR/");
         expect(NextResponse.redirect).toHaveBeenCalledWith(expectedUrl);

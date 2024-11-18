@@ -1,13 +1,16 @@
 {
   "HomePage": {
-    "title": "Hello world EN-US!",
-    "about": "Got to the about page",
+    "title": "Welcome",
+    "linkText": "Got to the Connections page",
     "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
   },
   "Connections": {
-    "title": "Hello World!"
+    "title": "My Connections"
   },
   "About": {
     "title": "Welcome to the DMP Tool"
+  },
+  "Test": {
+    "info": "You can try again later."
   }
 }

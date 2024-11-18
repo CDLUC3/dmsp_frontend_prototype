@@ -9,7 +9,7 @@ export default function HomePage() {
   return (
     <div>
       <h1>{t('title')}</h1>
-      <Link href="/about">{t('about')}</Link>
+      <Link href="/account/connections">{t('linkText')}</Link>
     </div>
   );
 }

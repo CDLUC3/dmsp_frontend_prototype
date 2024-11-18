@@ -5,6 +5,14 @@ import { CsrfProvider } from '@/context/CsrfContext';
 import { NextIntlClientProvider } from 'next-intl';
 import defaultMessages from '@/messages/en-US/en-US.json'; // Example messages file
 
+interface MessageGroup {
+    [key: string]: string; // Keys within each group map to strings (e.g., "title", "about").
+}
+
+interface Messages {
+    [key: string]: MessageGroup; // Top-level keys map to MessageGroup objects (e.g., "HomePage", "Connections").
+}
+
 const AllTheProviders = ({
     children,
     locale = 'en',
@@ -12,7 +20,7 @@ const AllTheProviders = ({
 }: {
     children: React.ReactNode;
     locale?: string;
-    messages?: Record<string, string>;
+    messages?: Messages;
 }) => {
     return (
         <AuthProvider>

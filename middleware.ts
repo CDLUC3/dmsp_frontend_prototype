@@ -20,23 +20,20 @@ interface JWTAccessToken extends JwtPayload {
 }
 
 // TODO: These routes will need to be updated.
-const excludedPaths = ['/login', '/signup', '/email', '/favicon.ico', '/_next', '/api'];
+const excludedPaths = ['/email', '/favicon.ico', '/_next', '/api'];
 
 const handleI18nRouting = createMiddleware(routing);
 
 async function getLocaleFromJWT(): Promise<string | null> {
   try {
     const token = await getAuthTokenServer();
-    console.log("***TOKEN", token)
     if (!token) {
       return null;
     }
     const user = await verifyJwtToken(token);
-    console.log("***USER", user);
     const { languageId } = user as JWTAccessToken;
 
     if (languageId && locales.includes(languageId)) {
-      console.log("***RETURNED LANGUAGEID", languageId);
       return languageId;
     }
     return null;
@@ -98,7 +95,6 @@ export async function middleware(request: NextRequest) {
     (locale) => !pathname.startsWith(`/${locale}`) && pathname !== `/${locale}`
   );
 
-  console.log("***PATHNAME IS MISSING LOCALE", pathnameIsMissingLocale);
   if (pathnameIsMissingLocale) {
     const locale = await getLocale(request);
     const newUrl = new URL(`/${locale}${pathname}`, request.url);
