@@ -22,6 +22,8 @@
 - Cleaned up the styleguide and added additional text to explain the spacing guidelines
 - Created SCSS helpers/mixins to generate alot of our font sizes,colours and spacing
 
+### Fixed
+- Removed use of NEXT_PUBLIC_GRAPHQL_ENDPOINT env variable, since it was a duplicate of NEXT_PUBLIC_SERVER_ENDPOINT [#171]
 ### Added
 =======
 - Made some updates related to authentication [#142]
