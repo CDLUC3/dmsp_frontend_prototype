@@ -1,13 +1,12 @@
-h1,
-.h1,
-h2,
-.h2,
-h3,
-h4,
-h5 {
-  font-family: var(--font-family, sans-serif);
-
+h1, .h1,
+h2, .h2,
+h3, .h3,
+h4, .h4,
+h5, .h5,
+h6, .h6 {
+  font-family: var(--font-family-body), sans-serif;
   font-weight: var(--fw-bold, 600);
+  text-rendering: optimizeLegibility;
 }
 
 // Base heading styles with mobile-first approach
@@ -31,7 +30,7 @@ h2,
   }
 }
 
-h3 {
+h3,.h3 {
   font-size: calc(var(--fs-lg) * var(--scale-mobile));
   color: var(--heading-color);
   padding: 5px 10px 5px 3px;
@@ -41,7 +40,7 @@ h3 {
   }
 }
 
-h4 {
+h4,.h4 {
   font-size: calc(var(--fs-base) * var(--scale-mobile));
   color: var(--heading-color);
 
@@ -50,7 +49,7 @@ h4 {
   }
 }
 
-h5 {
+h5,.h5 {
   font-size: calc(var(--fs-small) * var(--scale-mobile));
   color: var(--heading-color);
 
@@ -59,8 +58,8 @@ h5 {
   }
 }
 
-p, dd {
-  font-family: var(--font-family), "Poppins", sans-serif;
+p, dd, li {
+  font-family: var(--font-family-body), sans-serif;
   font-size: calc(var(--fs-base) * var(--scale-mobile));
   line-height: var(--lh-normal);
 
@@ -78,6 +77,15 @@ a:visited {
 
 a:hover {
   text-decoration: underline;
+}
+
+
+strong, b {
+  font-weight: var(--fw-bold, 600);
+}
+
+em, i {
+  font-style: italic;
 }
 
 code {

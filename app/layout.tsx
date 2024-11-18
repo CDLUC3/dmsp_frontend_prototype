@@ -29,11 +29,11 @@ export default function RootLayout({children,}: Readonly<{
     <head>
       <link
         rel="preload"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional"
         as="style"
       />
       <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional"
         rel="stylesheet"
       />
     </head>
