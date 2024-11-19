@@ -1,4 +1,15 @@
 ### Added
+- New translation updates [#160]
+  - Installed next-intl, and created a /messages directory for content, and /i18n directory for next-intl request and routing
+  - Moved pages under dynamic folder [locale]
+  - Updated middleware to add correct locale based on path, token, browser preference, or default to english
+  - Added provider NextIntlClientProvider to layout.tsx
+  - Added a test page, locale-test, where you can see demos of translations
+  - Added NextIntlClientProvider to the @/utils/test-utils
+  - Added a script to auto-generate the crowdin.yml file and populate with env variables for token and project id
+  - Updated next.config.mjs to use next-intl plugin
+  - Installed rimraf to delete files from scripts
+  - Added sanitization of localization content
 - Added new components [#111]
   - Clickable interface for Template List
   - Clickable interface for Template Edit
