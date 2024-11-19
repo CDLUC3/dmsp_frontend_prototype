@@ -1,11 +1,14 @@
 {
   "HomePage": {
-    "title": "Welcome",
-    "linkText": "Got to the Connections page",
+    "title": "Home Page",
+    "linkText": "Go to the Connections page",
     "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
   },
   "Connections": {
-    "title": "My Connections"
+    "title": "My Connections",
+    "content": "Hello {name}!",
+    "itemCount": "{count, plural, one {You have {count} item} other {You have {count} items}}",
+    "welcome": "Welcome to our {link}website!"
   },
   "About": {
     "title": "Welcome to the DMP Tool"

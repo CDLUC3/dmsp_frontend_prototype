@@ -13,7 +13,7 @@
     "jest": "jest",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "crowdin:upload": "crowdin upload sources",
+    "crowdin:upload": "crowdin upload sources --auto-update",
     "crowdin:download": "crowdin download"
   },
   "dependencies": {

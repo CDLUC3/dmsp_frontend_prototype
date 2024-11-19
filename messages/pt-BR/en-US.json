@@ -1,10 +1,16 @@
 {
   "HomePage": {
-    "title": "Olá mundo EN-US!",
-    "about": "Acessei a página sobre",
+    "title": "Página inicial",
+    "linkText": "Ir para a página de conexões",
     "content": "É um fato estabelecido há muito tempo que um leitor se distrairá com o conteúdo legível de uma página ao observar sua disposição."
   },
   "Connections": {
-    "title": "Olá mundo!"
+    "title": "Minhas conexões"
+  },
+  "About": {
+    "title": "Bem-vindo à Ferramenta DMP"
+  },
+  "Test": {
+    "info": "Você pode tentar novamente mais tarde."
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import sanitizeHtml from 'sanitize-html';
 import ConnectionSection from '@/components/ConnectionSection';
@@ -19,10 +20,22 @@ const ConnectionsPage: React.FC = () => {
   const orcidUri = `https://orcid.org/oauth/authorize?client_id=${ORCID_CLIENT_ID}&response_type=code&scope=/authenticate&redirect_uri=${REDIRECT_URI}`;
 
   const orcidContentString = sanitizeHtml('ORCID provides a persistent identifier - an ORCID iD - that distinguishes you from other users. Learn more at <a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">ORCID.org</a>.');
-
+  const name = 'Juliet'
   return (
     <PageWrapper title={'Connections'}>
       <h1>{t('title')}</h1>
+
+      <h2>{t('content', { name })}</h2>
+      <p>{t('itemCount', { count: 1 })}</p>
+      <p>
+        {t.rich('welcome', {
+          link: (chunks) => (
+            <Link key="website-link" href="https://example.com">
+              {chunks}
+            </Link>
+          )
+        })}
+      </p>
       <ContentContainer>
         <ConnectionSection
           type='orcid'

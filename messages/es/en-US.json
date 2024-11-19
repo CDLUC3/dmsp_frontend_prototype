@@ -1,10 +1,16 @@
 {
   "HomePage": {
-    "title": "¡Hola mundo ES-US!",
-    "about": "Got to the about page",
+    "title": "Página de inicio",
+    "linkText": "Ir a la página de Conexiones",
     "content": "Es un hecho establecido desde hace mucho tiempo que un lector se distraerá con el contenido legible de una página cuando mire su diseño."
   },
   "Connections": {
-    "title": "¡Hola Mundo!"
+    "title": "My Connections"
+  },
+  "About": {
+    "title": "Bienvenido a la herramienta DMP"
+  },
+  "Test": {
+    "info": "You can try again later."
   }
 }
