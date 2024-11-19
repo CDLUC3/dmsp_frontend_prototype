@@ -1,4 +1,9 @@
 ### Added
+- Created create/select-template page and test
+- Created new components
+  - Created Template Select List Item 
+
+### Added
 - Added new components [#111]
   - Clickable interface for Template List
   - Clickable interface for Template Edit
