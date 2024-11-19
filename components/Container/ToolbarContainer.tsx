@@ -2,6 +2,8 @@
 
 import React from 'react';
 
+import { LayoutContainerProps } from '@/components/Container/LayoutContainer';
+
 
 /**
  * A toolbar that will reside inside a layout container.
