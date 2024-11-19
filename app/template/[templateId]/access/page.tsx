@@ -57,12 +57,17 @@ const TemplateAccessPage: React.FC = () => {
     // Implementation for removing access
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Handle invitation logic
+  };
+
 
   return (
     <div>
       <PageHeader
-        title={template.name}
-        description={`by ${template.author} - Version: ${template.version} - Published: ${template.publishedDate}`}
+        title={"Manage Access"}
+        description=""
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
@@ -76,52 +81,44 @@ const TemplateAccessPage: React.FC = () => {
 
       <div className="template-editor-container">
         <div className="main-content">
-          <h2>
-            Feedback and Access
-          </h2>
-          {/* Intro text */}
-          <div>
-            <p>This template is accessible to everyone at NSF with full view and
-              edit permissions. It can also be shared with people outside your
-              organization.</p>
-          </div>
 
-          {/* Organization section */}
-          <div>
-            <div className={`${styles.headerWithIcon} mt-0`}>
-              <span aria-hidden={true} role="presentation"
-                    className="material-symbols-outlined">domain</span>
-              <h3>Within Organization</h3>
+          <p>
+            This template is accessible to everyone at NSF with full view and
+            edit permissions. It can also be shared with people outside your
+            organization.
+          </p>
+          <section aria-labelledby="org-access-heading">
+            <div className={`${styles.AccessSectionHeader} mt-0`}>
+              <h3 id="org-access-heading">Within Organization</h3>
             </div>
             <div>
               <p>Everyone at NSF can view and edit</p>
               <p>4 administrators can manage access</p>
             </div>
-          </div>
+          </section>
 
-          {/* External access section */}
-          <div>
-            <div className={styles.headerWithIcon}>
-              <span aria-hidden={true} role="presentation"
-                    className="material-symbols-outlined">person_add</span>
-              <h3>External People</h3>
+          <section aria-labelledby="external-access-heading">
+            <div className={styles.AccessSectionHeader}>
+              <h3 id="external-access-heading">External People</h3>
             </div>
             <div>
               <p>Share this template with people outside NSF</p>
               <div className={styles.externalPeopleList}>
-                {/* TODO: Extract to component when plan builder pages are created for easy re-use */}
                 {externalPeople.length > 0 ? (
-                  <ul className={styles.peopleList}>
+                  <ul className={styles.peopleList} role="list">
                     {externalPeople.map((person) => (
                       <li key={person.id} className={styles.personItem}>
                         <div className={styles.personInfo}>
                           <div
                             className={styles.personName}>{person.fullName}</div>
-                          <div
-                            className={styles.personEmail}>{person.email}</div>
+                          <div className={styles.personEmail}
+                               aria-label={`Email: ${person.email}`}>
+                            {person.email}
+                          </div>
                         </div>
                         <Button
                           onPress={() => handleRevokeAccess(person.id)}
+                          aria-label={`Remove access for ${person.fullName}`}
                         >
                           Remove
                         </Button>
@@ -129,18 +126,19 @@ const TemplateAccessPage: React.FC = () => {
                     ))}
                   </ul>
                 ) : (
-                  <div className={styles.emptyState}>
+                  <div className={styles.emptyState} role="status">
                     No external people have been added yet
                   </div>
                 )}
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* New Share Form */}
-          <div className={styles.shareForm}>
-            <Form>
-              <h3>Share with someone outside your organization</h3>
+          <section aria-labelledby="share-form-heading"
+                   className={styles.shareForm}>
+            <Form onSubmit={handleSubmit}>
+              <h3 id="share-form-heading">Share with someone outside your
+                organization</h3>
               <p>
                 Enter their email address. If they do not already have a
                 DMP Tool account they will be prompted to create one.
@@ -150,13 +148,22 @@ const TemplateAccessPage: React.FC = () => {
                 <Label>Email</Label>
                 <Input
                   type="email"
+                  value={""}
+
+                  required
+                  aria-required="true"
+                  aria-describedby="email-hint"
                 />
               </TextField>
-              <Button type="submit" className="react-aria-Button mt-0">
+              <Button
+                type="submit"
+                className="react-aria-Button mt-0"
+              >
                 Invite
               </Button>
             </Form>
-          </div>
+          </section>
+
 
         </div>
       </div>
