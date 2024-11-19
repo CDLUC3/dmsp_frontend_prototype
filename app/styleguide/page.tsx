@@ -639,7 +639,7 @@ function Page() {
                 We should try to use Next Link e.g.
 
                 <code> {`<Link href="/about">About</Link>`} </code>
-              </p>
+              </div>
             </div>
 
             <h4>Lists</h4>

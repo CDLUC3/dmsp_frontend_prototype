@@ -16,7 +16,10 @@ import {
 } from '@/hooks/responsive';
 
 import { LayoutContainerProps } from '@/components/Container/LayoutContainer';
-import { ContentContainer } from '@/components/Container/ContentContainer';
+import {
+  ContentContainerProps,
+  ContentContainer,
+} from '@/components/Container/ContentContainer';
 
 
 type DirectionType =
@@ -43,7 +46,7 @@ export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
       if (thisRef.current) {
         let direction: DirectionType = null;
 
-        function _updateClassList(name: string) {
+        const _updateClassList = (name: string) => {
           switch (name) {
             case "ToolbarContainer": {
               thisRef.current?.classList.add('with-toolbar');
@@ -170,7 +173,7 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   }, [stateOpen]);
 
   useEffect(() => {
-    const keyDownHandler = (ev) => {
+    const keyDownHandler = (ev: KeyboardEvent) => {
       if (ev.key == 'Escape' && stateOpen) {
         if (stateOpen && onClose) onClose();
       }

@@ -8,7 +8,7 @@ import React from 'react';
  * inherrit from this one. So that we have some common functionality for all
  * layout containers.
  */
-interface LayoutContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface LayoutContainerProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const LayoutContainer: React.FC<LayoutContainerProps> = ({
