@@ -5,7 +5,12 @@
     "content": "Es un hecho establecido desde hace mucho tiempo que un lector se distraerá con el contenido legible de una página cuando mire su diseño."
   },
   "Connections": {
-    "title": "My Connections"
+    "title": "Mis conexiones",
+    "content": "¡Hola {name}!",
+    "itemCount": "¡{count, plural, one {¡Tienes {count} ¡ítem} other {¡Tienes {count} ¡Elementos}}",
+    "message": "Por favor, consulte <guidelines>las pautas</guidelines>.",
+    "markup": "Esto es <important>importante</important>",
+    "raw": "&lt;script&gt;alert('¡Hacked!');&lt;/script&gt;"
   },
   "About": {
     "title": "Bienvenido a la herramienta DMP"

@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import sanitizeHtml from 'sanitize-html';
 import ConnectionSection from '@/components/ConnectionSection';
@@ -23,19 +22,22 @@ const ConnectionsPage: React.FC = () => {
   const name = 'Juliet'
   return (
     <PageWrapper title={'Connections'}>
+      {/*-Testing translation capabilities*/}
       <h1>{t('title')}</h1>
 
-      <h2>{t('content', { name })}</h2>
+      <p>{t('content', { name })}</p>
       <p>{t('itemCount', { count: 1 })}</p>
       <p>
-        {t.rich('welcome', {
-          link: (chunks) => (
-            <Link key="website-link" href="https://example.com">
-              {chunks}
-            </Link>
-          )
+        {t.rich('message', {
+          guidelines: (chunks) => <a href="/guidelines">{chunks}</a>
         })}
       </p>
+      {t.rich('markup', {
+        important: (chunks) => <b>${chunks}</b>
+      })}
+      <div dangerouslySetInnerHTML={{ __html: t.raw('raw') }} />
+
+      {/*End of Testing translation capabilities */}
       <ContentContainer>
         <ConnectionSection
           type='orcid'

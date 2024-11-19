@@ -5,7 +5,12 @@
     "content": "É um fato estabelecido há muito tempo que um leitor se distrairá com o conteúdo legível de uma página ao observar sua disposição."
   },
   "Connections": {
-    "title": "Minhas conexões"
+    "title": "Minhas conexões",
+    "content": "Olá, {name}!",
+    "itemCount": "{count, plural, one {Você tem {count} Item} other {Você tem {count} itens}}",
+    "message": "Consulte as <guidelines>diretrizes</guidelines>.",
+    "markup": "Este é <important>importante</important>",
+    "raw": "&lt;script&gt;alert('Hacked!');&lt;/script&gt;"
   },
   "About": {
     "title": "Bem-vindo à Ferramenta DMP"

@@ -8,7 +8,9 @@
     "title": "My Connections",
     "content": "Hello {name}!",
     "itemCount": "{count, plural, one {You have {count} item} other {You have {count} items}}",
-    "welcome": "Welcome to our {link}website!"
+    "message": "Please refer to <guidelines>the guidelines</guidelines>.",
+    "markup": "This is <important>important</important>",
+    "raw": "&lt;script&gt;alert('Hacked!');&lt;/script&gt;"
   },
   "About": {
     "title": "Welcome to the DMP Tool"
