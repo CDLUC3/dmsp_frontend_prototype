@@ -1,4 +1,7 @@
 ### Added
+- Template Builder: Access Page
+
+### Added
 - Added new components [#111]
   - Clickable interface for Template List
   - Clickable interface for Template Edit
