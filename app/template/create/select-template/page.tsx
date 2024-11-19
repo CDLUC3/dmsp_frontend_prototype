@@ -13,55 +13,72 @@ import {
   Text,
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
-import TemplateListItem from "@/components/TemplateListItem";
+import TemplateSelectListItem from "@/components/TemplateSelectListItem";
 
 const TemplateSelectTemplatePage: React.FC = () => {
 
-  const templates = [
+  // NSF Templates
+  const nsfTemplates = [
     {
+      funder: 'National Science Foundation (nsf.gov)',
       title: 'Arctic Data Center: NSF Polar Programs',
-      link: '/template/tpl_2525235',
-      content: (
-        <div>
-          <p>National Science Foundation (nsf.gov)</p>
-          <p>Last updated: 04-01-2024</p>
-          {/* Add more content here */}
-        </div>
-      ),
-      defaultExpanded: false
+      description: 'Template for NSF Polar Programs data management plans.',
+      lastRevisedBy: 'Sue Jones',
+      lastUpdated: '04-01-2024',
+      hasAdditionalGuidance: true
     },
     {
+      funder: 'National Science Foundation (nsf.gov)',
       title: 'NSF Polar Expeditions',
-      link: '/template/tpl_Ad525',
-      content: (
-        <div>
-          <p>National Science Foundation (nsf.gov)</p>
-          <p>Last updated: 04-01-2024</p>
-          <p>Status: Unpublished</p>
-        </div>
-      ),
-      defaultExpanded: false
+      description: 'Specialized template for NSF polar expedition data management.',
+      lastRevisedBy: 'Sue Jones',
+      lastUpdated: '04-01-2024',
+      hasAdditionalGuidance: false,
+      publishStatus: 'Unpublished'
     },
     {
+      funder: 'National Science Foundation (nsf.gov)',
       title: 'NSF: McMurdo Station (Antarctic)',
-      link: '/template/tpl_Ad525',
-      content: (
-        <div>
-          <p>National Science Foundation (nsf.gov)</p>
-          <p>Last updated: 09-21-2024</p>
-        </div>
-      ),
-      defaultExpanded: false
+      description: 'Template specifically designed for McMurdo Station research projects.',
+      lastRevisedBy: 'Sue Jones',
+      lastUpdated: '09-21-2024',
+      hasAdditionalGuidance: false
     }
   ];
 
-
+// Public DMP Templates
+  const publicTemplates = [
+    {
+      funder: 'DMP Tool',
+      title: 'General Research DMP',
+      description: 'A general-purpose data management plan template suitable for various research projects.',
+      lastRevisedBy: 'John Smith',
+      lastUpdated: '03-15-2024',
+      hasAdditionalGuidance: false
+    },
+    {
+      funder: 'DMP Tool',
+      title: 'Humanities Research DMP',
+      description: 'Template designed for humanities research data management.',
+      lastRevisedBy: 'Mary Johnson',
+      lastUpdated: '03-28-2024',
+      hasAdditionalGuidance: false
+    },
+    {
+      funder: 'DMP Tool',
+      title: 'Social Sciences DMP',
+      description: 'Specialized template for social sciences research data management.',
+      lastRevisedBy: 'David Wilson',
+      lastUpdated: '04-01-2024',
+      hasAdditionalGuidance: false
+    }
+  ];
 
   return (
     <>
 
       <PageHeader
-        title="Select a template"
+        title="Select an existing template"
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -76,26 +93,44 @@ const TemplateSelectTemplatePage: React.FC = () => {
         className="page-template-list"
       />
 
-      <div className="Filters">
-        <SearchField>
+      <div className="Filters" role="search">
+        <SearchField aria-label="Template search">
           <Label>Search by keyword</Label>
-          <Input />
+          <Input aria-describedby="search-help"/>
           <Button>Search</Button>
-          <FieldError />
-          <Text slot="description" className="help">
-            Search by research organization, field station or lab, template description, etc.
+          <FieldError/>
+          <Text slot="description" className="help" id="search-help">
+            Search by research organization, field station or lab, template
+            description, etc.
           </Text>
         </SearchField>
       </div>
 
+      <section className="mb-8" aria-labelledby="previously-created">
+        <h2 id="previously-created">
+          Use one of your previously created templates
+        </h2>
+        <div className="template-list" role="list" aria-label="Your templates">
+          {nsfTemplates.map((template, index) => (
+            <TemplateSelectListItem key={index}
+                                    item={template}></TemplateSelectListItem>
+          ))}
+        </div>
+      </section>
 
-
-      <div className="template-list"  role="list">
-        {templates.map((template, index) => (
-          <TemplateListItem key={index} item={template}></TemplateListItem>
-        ))}
-      </div>
-
+      <section className="mb-8" aria-labelledby="public-templates">
+        <h2 id="public-templates">
+          Use one of the public templates
+        </h2>
+        <div className="template-list"
+             role="list"
+             aria-label="Public templates">
+          {publicTemplates.map((template, index) => (
+            <TemplateSelectListItem key={index}
+                                    item={template}></TemplateSelectListItem>
+          ))}
+        </div>
+      </section>
 
     </>
   );
