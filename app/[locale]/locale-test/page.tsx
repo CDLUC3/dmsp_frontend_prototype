@@ -23,6 +23,7 @@ const LocaleTestPage: React.FC = () => {
         important: (chunks) => <b>${chunks}</b>
       })}
       <div dangerouslySetInnerHTML={{ __html: t.raw('raw') }} />
+      <p>{t('general')}</p>
     </PageWrapper>
   )
 }

@@ -14,7 +14,6 @@ if (!projectId || !apiToken) {
 
 // Read the template
 const templatePath = path.resolve(__dirname, '../crowdin.template.yml');
-console.log("***TEMPLATE PATH", templatePath);
 const outputPath = path.resolve(__dirname, '../crowdin.yml');
 const template = fs.readFileSync(templatePath, 'utf8');
 

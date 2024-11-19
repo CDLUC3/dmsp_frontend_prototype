@@ -10,7 +10,8 @@
     "itemCount": "¡{count, plural, one {¡Tienes {count} ¡ítem} other {¡Tienes {count} ¡Elementos}}",
     "message": "Por favor, consulte <guidelines>las pautas</guidelines>.",
     "markup": "Esto es <important>importante</important>",
-    "raw": "&lt;script&gt;alert('¡Hacked!');&lt;/script&gt;"
+    "raw": "&lt;script&gt;alert('¡Hacked!');&lt;/script&gt;",
+    "general": "Lorem ipsum"
   },
   "About": {
     "title": "Bienvenido a la herramienta DMP"
