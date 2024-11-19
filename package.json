@@ -13,6 +13,7 @@
     "jest": "jest",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
+    "generateCrowdinConfig": "node scripts/generateCrowdinConfig.js",
     "crowdin:upload": "crowdin upload sources --auto-update",
     "crowdin:download": "crowdin download",
     "sanitize-translations": "node scripts/sanitizeTranslations.js",

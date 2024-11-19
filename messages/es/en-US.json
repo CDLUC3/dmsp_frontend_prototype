@@ -4,9 +4,9 @@
     "linkText": "Ir a la página de Conexiones",
     "content": "Es un hecho establecido desde hace mucho tiempo que un lector se distraerá con el contenido legible de una página cuando mire su diseño."
   },
-  "Connections": {
-    "title": "Mis conexiones",
-    "content": "¡Hola {name}!",
+  "LocaleTest": {
+    "title": "Localization Test",
+    "content": "Hello {name}!",
     "itemCount": "¡{count, plural, one {¡Tienes {count} ¡ítem} other {¡Tienes {count} ¡Elementos}}",
     "message": "Por favor, consulte <guidelines>las pautas</guidelines>.",
     "markup": "Esto es <important>importante</important>",
@@ -16,6 +16,6 @@
     "title": "Bienvenido a la herramienta DMP"
   },
   "Test": {
-    "info": "You can try again later."
+    "info": "Puedes intentarlo de nuevo más tarde."
   }
 }

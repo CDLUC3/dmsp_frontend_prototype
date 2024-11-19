@@ -4,8 +4,8 @@
     "linkText": "Ir para a página de conexões",
     "content": "É um fato estabelecido há muito tempo que um leitor se distrairá com o conteúdo legível de uma página ao observar sua disposição."
   },
-  "Connections": {
-    "title": "Minhas conexões",
+  "LocaleTest": {
+    "title": "Teste de localização",
     "content": "Olá, {name}!",
     "itemCount": "{count, plural, one {Você tem {count} Item} other {Você tem {count} itens}}",
     "message": "Consulte as <guidelines>diretrizes</guidelines>.",
