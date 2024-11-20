@@ -6,10 +6,9 @@
   - Added provider NextIntlClientProvider to layout.tsx
   - Added a test page, locale-test, where you can see demos of translations
   - Added NextIntlClientProvider to the @/utils/test-utils
-  - Added a script to auto-generate the crowdin.yml file and populate with env variables for token and project id
+  - Added load-env.js script to grab env variables from .env.local
+  - Added sanitizeTranslations.js script to sanitize translations when they are downloaded
   - Updated next.config.mjs to use next-intl plugin
-  - Installed rimraf to delete files from scripts
-  - Added sanitization of localization content
 - Added new components [#111]
   - Clickable interface for Template List
   - Clickable interface for Template Edit
