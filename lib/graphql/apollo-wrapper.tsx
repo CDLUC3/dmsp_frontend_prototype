@@ -19,7 +19,7 @@ import {
 
 function makeClient() {
     const httpLink = createHttpLink({
-        uri: `${process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT}/graphql`
+        uri: `${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/graphql`
     });
 
 
