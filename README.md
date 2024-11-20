@@ -114,7 +114,7 @@ For more documentation on Crowdin, go to:
 
 
 ### Environment Variables
-For the development environment, the environment variables are stored at `.env`. This is set as the default env file in jest.setup.ts.
+For the development environment, the environment variables are stored at `.env.local`. This is set as the default env file in jest.setup.ts.
 These variables must be set in order for the app to work.
 
 * `NEXT_PUBLIC_BASE_URL` - Base url for this app (e.g., "http://localhost:3000")

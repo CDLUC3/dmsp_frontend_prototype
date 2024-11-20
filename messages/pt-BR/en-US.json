@@ -10,7 +10,7 @@
     "itemCount": "{count, plural, one {Você tem {count} Item} other {Você tem {count} itens}}",
     "message": "Consulte as <guidelines>diretrizes</guidelines>.",
     "markup": "Este é <important>importante</important>",
-    "raw": "&lt; script&gt; alert('Hacked!');&lt;/script&gt;",
+    "raw": "&lt;script&gt;alert('Hacked!')&lt;/script&gt;",
     "general": "Este é um novo conteúdo"
   },
   "About": {

@@ -14,8 +14,8 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "sanitize-translations": "node scripts/sanitizeTranslations.js",
-    "crowdin:upload": "crowdin upload sources --auto-update",
-    "crowdin:download": "crowdin download && npm run sanitize-translations"
+    "crowdin:upload": "node scripts/load-env.js && crowdin upload sources --auto-update",
+    "crowdin:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations"
   },
   "dependencies": {
     "@apollo/client": "^3.10.8",
