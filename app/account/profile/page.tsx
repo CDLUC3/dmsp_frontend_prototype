@@ -79,7 +79,6 @@ const ProfilePage: React.FC = () => {
   // Client-side validation of fields
   const validateField = (name: string, value: string) => {
     let error = '';
-    let otherError = '';
     switch (name) {
       case 'firstName':
         if (!value || value.length <= 2) {
@@ -97,6 +96,7 @@ const ProfilePage: React.FC = () => {
         }
         break;
       case 'otherAffiliationName':
+        // We only want to validate this field if the user specifically selected this 'Other' option
         if (formData['affiliationName'] === 'Other(organization not listed)') {
           if (!value || value.length <= 2) {
             error = 'Institution name cannot be blank and must be at least 2 characters long';
@@ -109,7 +109,7 @@ const ProfilePage: React.FC = () => {
       ...prevErrors,
       [name]: error
     }));
-    return error || otherError;
+    return error;
   }
 
   const profileUpdateMutation = async () => {
@@ -333,7 +333,6 @@ const ProfilePage: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  console.log("***FIELD ERRORS", fieldErrors);
   return (
     <PageWrapper title={'Update profile'}>
       <BackButton />
