@@ -10,8 +10,8 @@
     "itemCount": "{count, plural, one {You have {count} item} other {You have {count} items}}",
     "message": "Please refer to <guidelines>the guidelines</guidelines>.",
     "markup": "This is <important>important</important>",
-    "raw": "&lt;script&gt;alert('Hacked!');&lt;/script&gt;",
-    "general": "Lorem ipsum"
+    "raw": "&lt;script&gt;alert('Hacked!')&lt;/script&gt;",
+    "general": "This is new content"
   },
   "About": {
     "title": "Welcome to the DMP Tool"
