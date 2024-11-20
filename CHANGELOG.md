@@ -10,6 +10,7 @@
   - Updated next.config.mjs to use next-intl plugin
   - Installed rimraf to delete files from scripts
   - Added sanitization of localization content
+  - Decided to use ".env" variable instead of ".env.local" since that wasn't working with crowdin.yml
 - Added new components [#111]
   - Clickable interface for Template List
   - Clickable interface for Template Edit
