@@ -13,10 +13,9 @@
     "jest": "jest",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "generateCrowdinConfig": "node scripts/generateCrowdinConfig.js",
     "sanitize-translations": "node scripts/sanitizeTranslations.js",
-    "crowdin:upload": "npm run generateCrowdinConfig && crowdin upload sources --auto-update && rimraf crowdin.yml",
-    "crowdin:download": "npm run generateCrowdinConfig && crowdin download && npm run sanitize-translations && rimraf crowdin.yml"
+    "crowdin:upload": "crowdin upload sources --auto-update",
+    "crowdin:download": "crowdin download && npm run sanitize-translations"
   },
   "dependencies": {
     "@apollo/client": "^3.10.8",
