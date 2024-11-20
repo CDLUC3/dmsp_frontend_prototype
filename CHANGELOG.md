@@ -1,4 +1,5 @@
 ### Added
+- Added ability to add 'Other' affiliation in the User Profile page [#170]
 - Added new components [#111]
   - Clickable interface for Template List
   - Clickable interface for Template Edit

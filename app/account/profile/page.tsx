@@ -5,12 +5,8 @@ import { ApolloError } from '@apollo/client';
 import Link from 'next/link';
 import {
   Button,
-  FieldError,
   Form,
-  Input,
-  Label,
   ListBoxItem,
-  TextField,
   Text,
 } from "react-aria-components";
 
@@ -53,7 +49,7 @@ const ProfilePage: React.FC = () => {
     lastName: '',
     affiliationName: '',
     affiliationId: '',
-    otherInstitution: '',
+    otherAffiliationName: '',
     languageId: '',
     languageName: '',
   })
@@ -68,7 +64,7 @@ const ProfilePage: React.FC = () => {
     affiliationId: '',
     languageId: '',
     languageName: '',
-    otherInstitution: ''
+    otherAffiliationName: ''
   });
   const [emailAddresses, setEmailAddresses] = useState<EmailInterface[]>([]);
   const [languages, setLanguages] = useState<LanguageInterface[]>([]);
@@ -83,6 +79,7 @@ const ProfilePage: React.FC = () => {
   // Client-side validation of fields
   const validateField = (name: string, value: string) => {
     let error = '';
+    let otherError = '';
     switch (name) {
       case 'firstName':
         if (!value || value.length <= 2) {
@@ -99,12 +96,20 @@ const ProfilePage: React.FC = () => {
           error = 'Institution name cannot be blank and must be at least 2 characters long';
         }
         break;
+      case 'otherAffiliationName':
+        if (formData['affiliationName'] === 'Other(organization not listed)') {
+          if (!value || value.length <= 2) {
+            error = 'Institution name cannot be blank and must be at least 2 characters long';
+          }
+          break;
+        }
     }
+
     setFieldErrors(prevErrors => ({
       ...prevErrors,
       [name]: error
     }));
-    return error;
+    return error || otherError;
   }
 
   const profileUpdateMutation = async () => {
@@ -114,6 +119,7 @@ const ProfilePage: React.FC = () => {
           givenName: formData.firstName,
           surName: formData.lastName,
           affiliationId: formData.affiliationId,
+          otherAffiliationName: formData.otherAffiliationName,
           languageId: formData.languageId,
         }
       },
@@ -161,7 +167,7 @@ const ProfilePage: React.FC = () => {
       affiliationName: '',
       languageId: '',
       languageName: '',
-      otherInstitution: ''
+      otherAffiliationName: ''
     });
   }
 
@@ -198,7 +204,7 @@ const ProfilePage: React.FC = () => {
       affiliationName: '',
       languageId: '',
       languageName: '',
-      otherInstitution: ''
+      otherAffiliationName: ''
     };
 
     // Iterate over formData to validate each field
@@ -213,6 +219,7 @@ const ProfilePage: React.FC = () => {
         errors[name] = error;
       }
     });
+
     setFieldErrors(errors);
     return isValid;
   };
@@ -279,7 +286,7 @@ const ProfilePage: React.FC = () => {
         lastName: data.me.surName ?? '',
         affiliationName: data.me.affiliation?.name ?? '',
         affiliationId: data.me.affiliation?.uri ?? '',
-        otherInstitution: '',
+        otherAffiliationName: '',
         languageId: data.me.languageId,
         languageName: language.name
       });
@@ -290,17 +297,17 @@ const ProfilePage: React.FC = () => {
         lastName: data.me.surName ?? '',
         affiliationName: data.me.affiliation?.name ?? '',
         affiliationId: data.me.affiliation?.uri ?? '',
+        otherAffiliationName: '',
         languageId: data.me.languageId,
         languageName: language.name
       })
     }
   }, [data])
 
-
   // Update form data
   const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    clearActiveFieldError(name)
+    clearActiveFieldError(name);
     setFormData({ ...formData, [name]: value });
   }
 
@@ -326,6 +333,7 @@ const ProfilePage: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  console.log("***FIELD ERRORS", fieldErrors);
   return (
     <PageWrapper title={'Update profile'}>
       <BackButton />
@@ -399,11 +407,17 @@ const ProfilePage: React.FC = () => {
                         />
                         {otherField && (
                           <div className="form-row one-item-row">
-                            <TextField type="text" name="institution">
-                              <Label>Other institution</Label>
-                              <Input placeholder="Enter custom institution name" onChange={e => handleUpdate(e)} />
-                              <FieldError />
-                            </TextField>
+                            <FormInput
+                              name="otherAffiliationName"
+                              type="text"
+                              label="Other institution"
+                              placeholder={formData.otherAffiliationName}
+                              value={formData.otherAffiliationName}
+                              onChange={handleInputChange}
+                              isInvalid={!!fieldErrors['otherAffiliationName']}
+                              errorMessage={fieldErrors['otherAffiliationName']}
+                            />
+
                           </div>
                         )}
                       </>
