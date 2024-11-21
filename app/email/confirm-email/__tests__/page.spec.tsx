@@ -1,31 +1,35 @@
-/**
- * @jest-environment node
- */
-
-import {redirect} from 'next/navigation';
-import ConfirmEmailPage from '../page';
+import { redirect } from 'next/navigation';
 
 // Mock the redirect function from next/navigation
 jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
 }));
 
-// Mock the fetch global
-global.fetch = jest.fn();
 
 describe('ConfirmEmailPage', () => {
   const mockParams = {
     params: { userId: '123', token: 'abc' },
   };
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  beforeEach(() => {
+    global.fetch = jest.fn();
+
+    // Explicitly mock process.env
+    process.env.NEXT_PUBLIC_SERVER_ENDPOINT = 'http://test-endpoint.com';
   });
 
+  afterEach(() => {
+    jest.resetAllMocks();
+  })
+
   it('should redirect to /email-confirmed when email verification is successful', async () => {
+    // Import the component dynamically to ensure fresh mocks
+    const { default: ConfirmEmailPage } = await import('../page');
+
     // Mock fetch to return a successful response
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
+      json: async () => ({})
     });
 
     // Call the server-side function
@@ -36,8 +40,11 @@ describe('ConfirmEmailPage', () => {
   });
 
   it('should redirect to /verification-failed when email verification fails', async () => {
-    // Mock fetch to return a failed response
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    // Import the component dynamically to ensure fresh mocks
+    const { default: ConfirmEmailPage } = await import('../page');
+
+    // Mock fetch to return a successful response
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
     });
 
