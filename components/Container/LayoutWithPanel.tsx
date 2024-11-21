@@ -76,11 +76,20 @@ export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
           children?.forEach((rNode) => {
             if (!rNode) return;
             if (!React.isValidElement(rNode)) return;
-            _updateClassList(rNode.type.name);
+
+            if (typeof rNode.type === 'function') {
+              _updateClassList(rNode.type.name);
+            } else if (typeof rNode.type === 'string') {
+              _updateClassList(rNode.type);
+            }
           });
         } else if (React.isValidElement(children)) {
-          const rNode = children as React.FunctionComponent;
-          _updateClassList(rNode.type.name);
+          const rNode = children;
+          if (typeof rNode.type === 'function') {
+            _updateClassList(rNode.type.name);
+          } else if (typeof rNode.type === 'string') {
+            _updateClassList(rNode.type);
+          }
         }
 
         if (direction) thisRef.current.classList.add(`direction-${direction}`);
