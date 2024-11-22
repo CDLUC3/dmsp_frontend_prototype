@@ -87,21 +87,23 @@ const TemplateAccessPage: React.FC = () => {
             edit permissions. It can also be shared with people outside your
             organization.
           </p>
-          <section aria-labelledby="org-access-heading">
-            <div className={`${styles.AccessSectionHeader} mt-0`}>
+          <section className="sectionContainer"
+                   aria-labelledby="org-access-heading">
+            <div className={`sectionHeader  mt-0`}>
               <h3 id="org-access-heading">Within Organization</h3>
             </div>
-            <div>
+            <div className="sectionContent">
               <p>Everyone at NSF can view and edit</p>
               <p>4 administrators can manage access</p>
             </div>
           </section>
 
-          <section aria-labelledby="external-access-heading">
-            <div className={styles.AccessSectionHeader}>
+          <section className="sectionContainer"
+                   aria-labelledby="external-access-heading">
+            <div className="sectionHeader">
               <h3 id="external-access-heading">External People</h3>
             </div>
-            <div>
+            <div className="sectionContent">
               <p>Share this template with people outside NSF</p>
               <div className={styles.externalPeopleList}>
                 {externalPeople.length > 0 ? (
@@ -136,32 +138,33 @@ const TemplateAccessPage: React.FC = () => {
 
           <section aria-labelledby="share-form-heading"
                    className={styles.shareForm}>
-            <Form onSubmit={handleSubmit}>
-              <h3 id="share-form-heading">Share with someone outside your
-                organization</h3>
-              <p>
-                Enter their email address. If they do not already have a
-                DMP Tool account they will be prompted to create one.
-              </p>
+            <div className="sectionContent">
+              <Form onSubmit={handleSubmit}>
+                <h3 id="share-form-heading" className="mb-4">Share with someone
+                  outside your
+                  organization</h3>
+                <p>
+                  Enter their email address. If they do not already have a
+                  DMP Tool account they will be prompted to create one.
+                </p>
 
-              <TextField>
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={""}
-
-                  required
-                  aria-required="true"
-                  aria-describedby="email-hint"
-                />
-              </TextField>
-              <Button
-                type="submit"
-                className="react-aria-Button mt-0"
-              >
-                Invite
-              </Button>
-            </Form>
+                <TextField>
+                  <Label>Email</Label>
+                  <Input
+                    type="email"
+                    value={""}
+                    required
+                    aria-required="true"
+                  />
+                </TextField>
+                <Button
+                  type="submit"
+                  className="react-aria-Button mt-0"
+                >
+                  Invite
+                </Button>
+              </Form>
+            </div>
           </section>
 
 

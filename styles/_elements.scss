@@ -524,5 +524,21 @@
   @include device(xl) {
     grid-template-columns: repeat(3, 1fr);
   }
-
 }
+
+
+
+// This is used to contain the content of a section
+.sectionContainer{
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-6);
+
+  .sectionHeader {
+    h3 {
+      margin: 0 0 var(--space-4);
+    }
+  }
+  // leaving blank for now as class exists and should be seen as required for future use
+  .sectionContent {}
+}
+
