@@ -3,6 +3,11 @@
 - Refactored font family usage for consistency.
 
 ### Added
+- Created create/select-template page and test [#167]
+  - Created new components for this page
+  - Created Template Select List Item 
+
+### Added
 - Added new components [#111]
   - Clickable interface for Template List
   - Clickable interface for Template Edit
