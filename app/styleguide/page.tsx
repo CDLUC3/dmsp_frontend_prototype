@@ -50,7 +50,16 @@ import {
   CardMutedText,
 } from "@/components/Card/card";
 
-import { BrandColor, Example, handleDelete, } from "./sg-components";
+import {
+  LayoutContainer,
+  ContentContainer,
+  ToolbarContainer,
+  LayoutWithPanel,
+  SidebarPanel,
+  DrawerPanel,
+} from '@/components/Container';
+
+import { BrandColor, Example, handleDelete } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
@@ -329,17 +338,28 @@ function Page() {
 
   const [editorContent, setEditorContent] = useState(richtextDefault);
 
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  }
+
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  }
+
   return (
     <>
-      <h1>Living Styleguide</h1>
+      <LayoutWithPanel id="sgLayout">
+        <SidebarPanel isOpen={true}>
+          <h3>Contents</h3>
 
-      <div id="sgLayout">
-        <div id="sgNav">
           <a href="#_intro">Introduction</a>
           <a href="#_brand">Branding & Colours</a>
           <a href="#_typography">Typography</a>
           <a href="#_icons">Icons</a>
           <a href="#_layout">Layout</a>
+          <a href="#_containers">Containers</a>
           <a href="#_forms">Forms</a>
           <a href="#_fields_text">Text Fields</a>
           <a href="#_fields_textarea">Textarea Fields</a>
@@ -350,9 +370,11 @@ function Page() {
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
-        </div>
+        </SidebarPanel>
 
-        <div id="sgContent">
+        <ContentContainer id="sgContent">
+          <h1>Living Styleguide</h1>
+
           <div id="_intro">
             <h2>Introduction</h2>
             <p>TBD... (Why, Living Styleguide?, Updates, How-to-use)</p>
@@ -616,11 +638,7 @@ function Page() {
               <div>
                 We should try to use Next Link e.g.
 
-
-                <pre><code>
-                  {`<Link href="/about">About</Link>`}
-                </code></pre>
-
+                <code> {`<Link href="/about">About</Link>`} </code>
               </div>
             </div>
 
@@ -667,7 +685,8 @@ function Page() {
                 <DmpIcon icon="search" />
                 <DmpIcon icon="settings" />
                 <DmpIcon icon="favorite" />
-                <DmpIcon icon="bold" />
+                <DmpIcon icon="format_bold" />
+                <DmpIcon icon="double_arrow" />
               </div>
             </Example>
 
@@ -998,11 +1017,11 @@ function Page() {
                   <pre>
                     <code>
                       {`<SomeElement
-                    prop1="A"
-                    prop2="B"
-                    prop3="C"
-                    prop4="D"
-                  \\>`}
+  prop1="A"
+  prop2="B"
+  prop3="C"
+  prop4="D"
+\\>`}
                     </code>
                   </pre>
                 </div>
@@ -1015,16 +1034,15 @@ function Page() {
 
                 <div><pre><code>
                   {`import {
-                              Button,
-                              Label,
-                              TextField,
-                              Input,
-                              FieldError,
-                              Form,
-                            } from "react-area-components";
-                            `}
-                </code></pre>
-                </div>
+  Button,
+  Label,
+  TextField,
+  Input,
+  FieldError,
+  Form,
+} from "react-area-components";
+`}
+                </code></pre></div>
               </li>
 
               <li>
@@ -1037,24 +1055,202 @@ function Page() {
 
                 <div><pre><code>
                   {`.grid-view {
-                    --_gap: var(--grid-list-grid-gap, 1rem);
+    --_gap: var(--grid-list-grid-gap, 1rem);
 
-                    display: grid;
+    display: grid;
 
-                    padding: var(--_gap);
-                    grid-gap: var(--_gap);
-                    grid-template-columns: repeat(4, 1fr);
-                    grid-template-rows: auto;
-                  }
-                `}
-                </code></pre>
-                </div>
+    padding: var(--_gap);
+    grid-gap: var(--_gap);
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+  }
+`}
+                </code></pre></div>
               </li>
             </ul>
+          </div>
 
-            <h2>Layout</h2>
-            <p>TBD ...</p>
+          <div id="_containers">
+            <h2><code>Layout Container</code></h2>
+            <p>The standard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
+            some common container within the layout container.</p>
+            <LayoutContainer>
+              <ContentContainer>
+                <div><pre><code>
+                  {`<LayoutContainer>
+  <ContentContainer> ... </ContentContainer>
+</LayoutContainer>
+`}
+                </code></pre></div>
+              </ContentContainer>
+            </LayoutContainer>
 
+            <h3>CSS Variables</h3>
+            <dl>
+              <dt><code>--layout-container-padding</code></dt>
+              <dd>
+                Set the container padding, defaults to: <code>0</code>
+              </dd>
+
+              <dt><code>--layout-container-background</code></dt>
+              <dd>
+                Set the container background, defaults to: <code>transparent</code>
+              </dd>
+            </dl>
+
+            <h2><code>Content Container</code></h2>
+            <ContentContainer>
+              <p>This content is wrapped in the following container.</p>
+              <p><strong>Note</strong> that the style property is not required
+                to use the container. It&apos;s only here to show that you can use it
+                this way, and to show the outline here in the styleguide.</p>
+              <div><pre><code>{`<ContentContainer>
+...
+</ContentContainer>`}
+              </code></pre></div>
+            </ContentContainer>
+
+            <h3>CSS Variables</h3>
+            <dl>
+              <dt><code>--layout-content-padding</code></dt>
+              <dd>
+                Set the content container padding, defaults to: <code>var(--brand-space2)</code>
+              </dd>
+
+              <dt><code>--layout-container-background</code></dt>
+              <dd>
+                Set the container background, defaults to: <code>transparent</code>
+              </dd>
+            </dl>
+
+            <h2><code>ToolbarContainer</code></h2>
+            <p><code>LayoutContainer &gt; ToolbarContainer</code></p>
+            <ToolbarContainer>
+              <p>Some toolbar text, maybe a Title</p>
+              <Button>Button</Button>
+            </ToolbarContainer>
+
+            <h3>CSS Variables</h3>
+            <p>Since this inherits from <code>LayoutContainer</code> those CSS
+              variables also works. In addition to those, the following is also available:</p>
+            <dl>
+              <dt><code>--layout-gap</code></dt>
+              <dd>
+                This container uses flexbox, and this variable sets
+                the <code>gap</code> css property. Defaults to <code>1em</code>
+              </dd>
+            </dl>
+
+            <h2>Layout With Panel (Sidebar)</h2>
+            <p>This is a composite layout component that contains a sidebar
+              alongside a content container.</p>
+            <p><code>LayoutContainer &gt; LayoutWithPanel</code></p>
+            <p><code>ContentContainer &gt; SidebarPanel</code></p>
+            <ToolbarContainer>
+              <Button onPress={toggleSidebar}>Toggle Sidebar</Button>
+            </ToolbarContainer>
+            <LayoutWithPanel className="sg-sidebar">
+              <ContentContainer>
+                <h3>Layout With Sidebar</h3>
+                <p>This is the primary content for the slider component</p>
+
+                <div><pre><code>
+                  {`<LayoutWithPanel>
+  <ContentContainer> ... </ContentContainer>
+  <SidebarPanel> ... </SidebarPanel>
+</LayoutWithPanel>
+`}
+                </code></pre></div>
+              </ContentContainer>
+
+              <SidebarPanel isOpen={sidebarOpen}>
+                <p>This is the sidebar for the component</p>
+              </SidebarPanel>
+            </LayoutWithPanel>
+
+            <p>
+              <code>LayoutWithPanel</code> &nbsp;
+              can have a <code>ToolbarContainer</code> in addition to the sidebar.
+              and content.
+            </p>
+
+            <LayoutWithPanel className="sg-sidebar">
+              <ToolbarContainer>
+                <p>This is a toolbar inside <code>LayoutWithPanel</code></p>
+              </ToolbarContainer>
+
+              <ContentContainer>
+                <h3>Layout With Sidebar</h3>
+                <p>This is the primary content for the slider component</p>
+                <div><pre><code>
+                  {`<LayoutWithPanel>
+  <ToolbarContainer> ... </ToolbarContainer>
+  <SidebarPanel> ... </SidebarPanel>
+  <ContentContainer> ... </ContentContainer>
+</LayoutWithPanel>
+`}
+                </code></pre></div>
+              </ContentContainer>
+
+              <SidebarPanel>
+                <p>This is the sidebar for the slider component</p>
+              </SidebarPanel>
+            </LayoutWithPanel>
+
+            <p>Example with a <code>DrawerPanel</code> instead of a sidebar</p>
+
+            <ToolbarContainer>
+              <Button onPress={toggleDrawer}>Toggle Drawer</Button>
+            </ToolbarContainer>
+            <LayoutWithPanel className="sg-sidebar">
+              <ContentContainer>
+                TODO: Write about this layout here
+              </ContentContainer>
+
+              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false) }>
+                <p>This is the Drawer Content</p>
+              </DrawerPanel>
+            </LayoutWithPanel>
+
+            <h3>SidebarPanel Properties</h3>
+            <dl>
+              <dt><code>isOpen</code></dt>
+              <dd>
+                This is a property that will toggle the open/close state for
+                the sidebar. Defaults to <code>true</code>.
+              </dd>
+            </dl>
+
+            <h3>DrawerPanel Properties</h3>
+            <dl>
+              <dt><code>isOpen</code></dt>
+              <dd>
+                This is a property that will toggle the open/close state for
+                the sidebar. Defaults to <code>true</code>.
+              </dd>
+            </dl>
+
+            <h3>DrawerPanel events</h3>
+            <dl>
+              <dt><code>onClose</code></dt>
+              <dd>
+                If it exists, this handler is called as soon as the drawer is closed.
+              </dd>
+            </dl>
+
+            <h3>CSS Variables</h3>
+            <p>Since this layout inherits from <code>LayoutContainer</code>
+              those CSS variables also works. In addition to those, the
+              following is also available:</p>
+
+            <dl>
+              <dt><code>--layout-gap</code></dt>
+              <dd>
+                This container uses <code>display: grid</code>, and this
+                variable sets the <code>gap</code> css property. Defaults
+                to <code>var(--brand-space2)</code>
+              </dd>
+            </dl>
           </div>
 
           <div id="_theme">
@@ -1690,9 +1886,8 @@ function Page() {
             <hr />
             <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
-        </div>
-      </div>
-
+        </ContentContainer>
+      </LayoutWithPanel>
     </>
   )
 }
