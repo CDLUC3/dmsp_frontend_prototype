@@ -15,11 +15,14 @@
     "cypress:run": "cypress run",
     "sanitize-translations": "node scripts/sanitizeTranslations.js",
     "crowdin:upload": "node scripts/load-env.js && crowdin upload sources --auto-update",
-    "crowdin:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations"
+    "crowdin:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations",
+    "crowdin-test": "node ./scripts/crowdin-test.js",
+    "crowdin-upload-test": "node ./scripts/crowdin-test2.js"
   },
   "dependencies": {
     "@apollo/client": "^3.10.8",
     "@apollo/experimental-nextjs-app-support": "^0.11.2",
+    "@crowdin/crowdin-api-client": "^1.39.1",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
