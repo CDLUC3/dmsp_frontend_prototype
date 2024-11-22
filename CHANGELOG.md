@@ -1,5 +1,5 @@
 ### Added
-- Created create/select-template page and test
+- Created create/select-template page and test [#167]
 - Created new components
   - Created Template Select List Item 
 
