@@ -1,0 +1,82 @@
+@import '@/styles/responsive.scss';
+
+
+.templateItem {
+  padding: 1.25rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--card-border-radius);
+  background: var(--bg-white);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+}
+
+
+.TemplateItemInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: flex-start;
+
+  @include device(sm) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+
+.TemplateItemContent {
+  flex: 1;
+}
+
+.funder {
+  color: var(--slate-500);
+  font-size: var(--fs-small);
+  margin-bottom: var(--space-2);
+}
+
+.TemplateItemHeading {
+  padding: 0;
+  margin: 0 0 0.2rem;
+
+}
+
+.description {
+  margin-bottom: 1rem;
+}
+
+.metadata {
+  color: var(--slate-500);
+  font-size: var(--fs-small);
+
+  span {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .separator:before {
+    content: "";
+  }
+
+
+  @include device(sm) {
+    span {
+      display: inline-block;
+      margin-bottom: 0rem;
+    }
+
+    .separator:before {
+      content: "•";
+      margin: 0 0.5rem;
+    }
+  }
+}
+
+.guidance {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  color: var(--slate-900);
+}
+
+

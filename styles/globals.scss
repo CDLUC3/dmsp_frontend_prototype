@@ -97,11 +97,10 @@ html, body {
 
 :root {
   --scale-mobile: 0.875; // Reduces font size by 12.5% on mobile
-
-  --font-family: 'Inter', sans-serif;
+  --font-family: var(--font-sans-serif, sans-serif);
   --font-family-monospace: 'Fira Code', monospace;
-  --font-family-heading: 'Inter', sans-serif;
-  --font-family-body: 'Inter', sans-serif;
+  --font-family-heading: var(--font-sans-serif), sans-serif;
+  --font-family-body: var(--font-sans-serif), sans-serif;
   --font-family-code: 'Fira Code', monospace;
 
   // Generate font-size variables from map
@@ -181,7 +180,7 @@ html, body {
   --link-hover-color: var(--brand-tertiary);
 
   // Borders
-  --border-color: var(--gray-300);
+  --border-color: var(--gray-200);
   --border-color-hover: var(--gray-400);
   --border-color-pressed: var(--gray-400);
   --border-color-disabled: var(--gray-100);
@@ -255,13 +254,17 @@ html, body {
     --invalid-color-pressed: LinkText;
   }
 }
+* {
+  font-family: inherit; // This is make sure buttons, standard elements all inherit the font-family from the body
+}
 
 html {
-  font-family: var(--font-family), "Inter", sans-serif;
+  font-family: var(--font-family), "Poppins", sans-serif;
+
 }
 
 body {
-  font-family: var(--font-family), "Inter", sans-serif;
+  font-family: var(--font-family), "Poppins", sans-serif;
   font-size: var(--fs-base);
   color: var(--text-color);
   background-color: var(--background-color);
@@ -308,16 +311,19 @@ body {
 
 
 // this is potentailly temporary when integrating real side bar
-.sidebar-section{
+.sidebar-section {
   margin-bottom: var(--space-5);
 }
-.sidebar-section-title{
+
+.sidebar-section-title {
   margin-bottom: var(--space-2);
 }
-.sidebar{
+
+.sidebar {
   position: relative;
 }
-.sidebar-inner{
+
+.sidebar-inner {
   margin-top: var(--space-5);
   @include device(xxl) {
     position: sticky;
