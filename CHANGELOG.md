@@ -1,6 +1,7 @@
 ### Added
 - Template Builder: Access Page [#166]
 - Created css for sectionContainer, sectionHeader, sectionContent for generic sections
+- Updated mobile breadcrumbs css
 
 ### Added
 - Added new components [#111]
