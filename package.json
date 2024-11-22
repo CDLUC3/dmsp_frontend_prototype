@@ -14,10 +14,11 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "sanitize-translations": "node scripts/sanitizeTranslations.js",
-    "crowdin:upload": "node scripts/load-env.js && crowdin upload sources --auto-update",
-    "crowdin:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations",
+    "crowdinClient:upload": "node scripts/load-env.js && crowdin upload sources --auto-update",
+    "crowdinClient:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations",
     "crowdin-test": "node ./scripts/crowdin-test.js",
-    "crowdin-upload-test": "node ./scripts/crowdin-test2.js"
+    "crowdinAPI-createDirectory": "node ./scripts/crowdin-api-createDirectory.js",
+    "crowdinAPI-upload": "node ./scripts/crowdin-api-upload.js"
   },
   "dependencies": {
     "@apollo/client": "^3.10.8",

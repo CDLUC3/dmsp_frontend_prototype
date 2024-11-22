@@ -6,11 +6,6 @@ require('dotenv').config({ path: '.env.local' });
 const CROWDIN_API_TOKEN = process.env.CROWDIN_PERSONAL_TOKEN;
 const CROWDIN_PROJECT_ID = process.env.CROWDIN_PROJECT_ID;
 
-// Initialize Crowdin API client
-const credentials = {
-  token: CROWDIN_API_TOKEN
-}
-
 // initialization of crowdin client
 const {
   projectsGroupsApi,
@@ -21,15 +16,33 @@ const {
   token: CROWDIN_API_TOKEN
 })
 
+const directoryCache = {}; // Cache for storing directory paths and IDs
+
+
 // Helper function to create directory in Crowdin
 const createCrowdinDirectory = async (directoryName, parentId = null) => {
   try {
+    const fullPath = parentId ? `${parentId}/${directoryName}` : directoryName;
+
+    /* If directory already exists, we don't want to try and create that same directory. 
+    Check cache for existing directory*/
+    if (directoryCache[fullPath]) {
+      return directoryCache[fullPath];
+    }
+
+    // Create the file directory
     const response = await sourceFilesApi.createDirectory(CROWDIN_PROJECT_ID, {
       name: directoryName,
-      ...(parentId && { directoryId: parentId })
+      ...(parentId && { directoryId: parentId }),
     });
-    console.log(`Created directory: ${directoryName}`);
-    return response.data.id;
+
+    const directoryId = response.data.id;
+    console.log(`Created directory: ${directoryName} with ID: ${directoryId}`);
+
+    // Cache the directory ID
+    directoryCache[fullPath] = directoryId;
+
+    return directoryId;
   } catch (error) {
     if (error.message.includes('Directory already exists')) {
       // If directory exists, fetch and return its ID
@@ -41,8 +54,6 @@ const createCrowdinDirectory = async (directoryName, parentId = null) => {
   }
 };
 
-
-// Modified upload function to handle directories
 const uploadFileToCrowdin = async (filePath, relativePath) => {
   try {
     const fileData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -54,17 +65,19 @@ const uploadFileToCrowdin = async (filePath, relativePath) => {
     if (dirPath !== '.') {
       const directories = dirPath.split(path.sep);
       for (const dir of directories) {
+        // returns an id number
         currentDirId = await createCrowdinDirectory(dir, currentDirId);
       }
     }
 
-    // Upload file to storage
+    /* Upload file to storage. Files need to be added to storage before they
+    can be created*/
     const storageResponse = await uploadStorageApi.addStorage(fileName, fileData);
     const storageId = storageResponse.data.id;
     console.log(`Uploaded ${fileName} to storage with ID: ${storageId}`);
 
     // Add file to the Crowdin project
-    await sourceFilesApi.createFile(CROWDIN_PROJECT_ID, {
+    await sourceFilesApi.createFile(Number(CROWDIN_PROJECT_ID), {
       name: fileName,
       storageId,
       directoryId: currentDirId,
@@ -73,6 +86,7 @@ const uploadFileToCrowdin = async (filePath, relativePath) => {
 
     console.log(`File ${fileName} added to Crowdin in directory ${dirPath}`);
   } catch (error) {
+    console.log("Error", error);
     console.error(`Error uploading ${relativePath}:`, error.message);
   }
 };
@@ -80,7 +94,7 @@ const uploadFileToCrowdin = async (filePath, relativePath) => {
 const downloadFileFromCrowdin = async (fileId, outputDir) => {
   try {
     // Step 1: Export the file
-    const exportResponse = await crowdin.translationsApi.buildProjectFileTranslation(
+    const exportResponse = await translationsApi.buildProjectFileTranslation(
       CROWDIN_PROJECT_ID,
       fileId,
       { targetLanguageId: 'en' } // Adjust target language as needed
@@ -103,7 +117,7 @@ const downloadFileFromCrowdin = async (fileId, outputDir) => {
 };
 
 const processMessagesDirectory = async (baseDirectory) => {
-  const processDirectory = async (currentPath, relativePath = '') => {
+  const processDirectory = async (currentPath, relativePath = 'messages') => {
     const items = fs.readdirSync(currentPath);
 
     for (const item of items) {
