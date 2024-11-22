@@ -1,3 +1,7 @@
+### Updated
+=======
+- Refactored font family usage for consistency.
+
 ### Added
 - Added new components [#111]
   - Clickable interface for Template List
