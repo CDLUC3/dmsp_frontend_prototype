@@ -73,7 +73,9 @@ const TemplateAccessPage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
-            <Breadcrumb>{template.name}</Breadcrumb>
+            <Breadcrumb><Link
+              href={`/template/${template.id}`}>{template.name}</Link></Breadcrumb>
+            <Breadcrumb>Manage access</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-template-overview"
