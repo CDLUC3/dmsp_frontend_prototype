@@ -1,5 +1,6 @@
 ### Added
-- Template Builder: Access Page
+- Template Builder: Access Page [#166]
+- Created css for sectionContainer, sectionHeader, sectionContent for generic sections
 
 ### Added
 - Added new components [#111]
