@@ -8,6 +8,11 @@
   - Created Template Select List Item 
 
 ### Added
+- Template Builder: Access Page [#166]
+- Created css for sectionContainer, sectionHeader, sectionContent for generic sections
+- Updated mobile breadcrumbs css
+
+### Added
 - Added new components [#111]
   - Clickable interface for Template List
   - Clickable interface for Template Edit

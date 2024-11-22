@@ -76,13 +76,15 @@
 }
 
 // Forms
-
+/*
+// REMOVED THIS AS WAS CONFLICTING - Unclear where it is used
 .react-aria-Button {
   @include device(sm) {
-    margin-top: var(--fs-4xl);
+    //margin-top: var(--fs-4xl);
   }
-  margin-top: var(--fs-xl);
+  //margin-top: var(--fs-xl);
 }
+*/
 
 // Popover
 .react-aria-Popover {
@@ -455,55 +457,87 @@
   }
 }
 
-
-// breadcrumbs
 .react-aria-Breadcrumbs {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   list-style: none;
   padding: 0;
   font-size: 0.8rem;
   color: var(--text-color);
   margin: 0 0 1rem;
+  overflow: hidden;
+
+  @media (max-width: 675px) {
+    /* Hide all breadcrumbs by default */
+    li {
+      display: none !important; /* Ensure no conflicts with other styles */
+    }
+
+    /* Show the first breadcrumb (Home) if there are exactly 3 breadcrumbs */
+    li:first-child:nth-last-child(3) {
+      display: inline-flex !important;
+    }
+
+    /* Show the second-to-last breadcrumb (Dashboard) if there are exactly 3 breadcrumbs */
+    li:nth-last-child(2):not([data-current="true"]):nth-last-child(3) {
+      display: inline-flex !important;
+    }
+
+    /* Show the third-to-last breadcrumb (second-to-last visible) if it’s not current */
+    li:nth-last-child(3):not([data-current="true"]) {
+      display: inline-flex !important;
+    }
+
+    /* Show the second-to-last breadcrumb if it’s not current */
+    li:nth-last-child(2):not([data-current="true"]) {
+      display: inline-flex !important;
+    }
+
+    /* Show the last breadcrumb if it’s not current */
+    li:nth-last-child(1):not([data-current="true"]) {
+      display: inline-flex !important;
+    }
+  }
 
   li {
     font-size: 0.8rem;
+    white-space: nowrap;
+    margin-right: 0.5rem;
+    padding-right: 0.5rem;
+    position: relative;
+
+    &[data-current] {
+      color: var(--text-color);
+      font-weight: bold;
+    }
   }
 
-
-  .react-aria-Breadcrumb:not(:last-child)::after {
+  li:not(:last-child)::after {
     content: '›';
-    content: '›' / '';
-    alt: ' ';
-    padding: 0 5px;
+    padding: 0;
+    position: absolute;
+    right: -2px;
+    white-space: nowrap;
   }
 
   .react-aria-Link {
     font-size: 0.8rem;
     color: var(--link-color-secondary);
     outline: none;
-    position: relative;
     text-decoration: none;
     cursor: pointer;
+
+    @media (max-width: 675px) {
+      max-width: 180px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
 
     &[data-hovered] {
       text-decoration: underline;
     }
-
-    &[data-current] {
-      color: var(--text-color);
-    }
-
-    &[data-focus-visible]:after {
-      content: '';
-      position: absolute;
-      inset: -2px -4px;
-      border-radius: 6px;
-      border: 2px solid var(--focus-ring-color);
-    }
   }
 }
-
 
 .Filters {
   margin: 1rem 0;
@@ -522,5 +556,22 @@
   @include device(xl) {
     grid-template-columns: repeat(3, 1fr);
   }
-
 }
+
+
+// This is used to contain the content of a section
+.sectionContainer {
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-6);
+
+  .sectionHeader {
+    h3 {
+      margin: 0 0 var(--space-4);
+    }
+  }
+
+  // leaving blank for now as class exists and should be seen as required for future use
+  .sectionContent {
+  }
+}
+
