@@ -18,7 +18,8 @@
     "crowdinClient:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations",
     "crowdin-test": "node ./scripts/crowdin-test.js",
     "crowdinAPI-createDirectory": "node ./scripts/crowdin-api-createDirectory.js",
-    "crowdinAPI-upload": "node ./scripts/crowdin-api-upload.js"
+    "crowdinAPI-upload": "node ./scripts/crowdin-api-upload.js",
+    "crowdinAPI-download": "node ./scripts/crowdin-api-download.js"
   },
   "dependencies": {
     "@apollo/client": "^3.10.8",
@@ -36,6 +37,7 @@
     "@remirror/react": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
+    "adm-zip": "^0.5.16",
     "axios": "^1.7.7",
     "classnames": "^2.5.1",
     "elastic-apm-node": "^4.8.0",
