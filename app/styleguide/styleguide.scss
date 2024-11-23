@@ -1,29 +1,18 @@
+@import '@/styles/responsive';
 
 #sgLayout {
-  display: flex;
-  flex-direction: row;
-}
-
-
-#sgNav, #sgContent {
-  padding: 0.5rem 1rem;
-}
-
-#sgNav {
-  display: flex;
-  flex-direction: column;
-  border-right: 2px solid #e3e3e3;
-
-  a {
-    display: block;
-    padding: 0.5em 1em;
+  .layout-sidebar-panel {
+    a {
+      display: block;
+      padding: 0.5em 1em;
+    }
   }
-}
 
-#sgContent {
-  & > div {
-    margin-bottom: 3em;
-    max-width: 35em;
+  .layout-toolbar-container {
+    --layout-container-background: var(--slate-200);
+    & + .layout-container {
+      margin-top: 0.5em;
+    }
   }
 }
 
@@ -235,4 +224,41 @@ dd {
   justify-content: center;
   font-family: monospace;
   width: fit-content;
+}
+
+.sg-sidebar {
+  border: 1px solid gray;
+  margin-bottom: 1rem;
+  width: 100%;
+  height: 350px;
+
+  --drawer-width: 30%;
+  --layout-gap: 0.5rem;
+  --layout-content-background: var(--slate-200);
+
+  .layout-container {
+    height: 100%;
+    border: 1px solid var(--slate-700);
+  }
+
+  .layout-toolbar-container {
+    --layout-container-color: var(--slate-800);
+    height: auto;
+    border: 0;
+  }
+
+  .layout-content-container {
+    --layout-container-color: var(--slate-800);
+  }
+
+  .container-content {
+    --layout-content-padding: 1em;
+  }
+
+  .layout-sidebar-panel,
+  .layout-drawer-panel,
+  .layout-drawer-modal {
+    --layout-content-background: var(--slate-700);
+    --layout-content-color: var(--slate-100);
+  }
 }

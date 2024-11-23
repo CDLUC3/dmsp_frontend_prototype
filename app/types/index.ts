@@ -16,7 +16,7 @@ export interface ProfileDataInterface {
   lastName: string;
   affiliationName: string;
   affiliationId: string;
-  otherInstitution: string;
+  otherAffiliationName: string;
   languageId: string;
   languageName: string;
 }
@@ -28,5 +28,5 @@ export interface FormErrorsInterface {
   affiliationId: string;
   languageId: string;
   languageName: string;
-  otherInstitution: string;
+  otherAffiliationName: string;
 }

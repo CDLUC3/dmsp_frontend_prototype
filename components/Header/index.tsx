@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, MouseEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthContext } from '@/context/AuthContext';
-import { useCsrf } from '@/context/CsrfContext';
+import {MouseEvent, useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {useAuthContext} from '@/context/AuthContext';
+import {useCsrf} from '@/context/CsrfContext';
 import Link from 'next/link';
-import { faUser, faGlobe } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {faGlobe, faUser} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import './header.scss'
+
 function Header() {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const { isAuthenticated, setIsAuthenticated } = useAuthContext();

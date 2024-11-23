@@ -50,7 +50,7 @@ const QuestionEditPage: React.FC = () => {
             <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
             <Breadcrumb><Link
-              href={`/template/${question.templateId}`}>Template</Link></Breadcrumb>
+              href={`/template/${question.templateId}`}>Template name here</Link></Breadcrumb>
             <Breadcrumb>Edit question</Breadcrumb>
           </Breadcrumbs>
         }
