@@ -94,25 +94,25 @@ const ProjectOverviewPage: React.FC = () => {
             section_title: "Roles and Responsibilities",
             link: "/plan/123/section/1",
             id: "sect_1",
-            progress: 100
+            progress: 1
           },
           {
             section_title: "Types of Data",
             link: "/plan/123/section/2",
             id: "sect_2",
-            progress: 100
+            progress: 1
           },
           {
             section_title: "Data and Metadata formats",
             link: "/plan/123/section/3",
             id: "sect_3",
-            progress: 66
+            progress: 2
           },
           {
             section_title: "Policies for Access and Sharing",
             link: "/plan/123/section/4",
             id: "sect_4",
-            progress: 100
+            progress: 1
           },
           {
             section_title: "Policies for reuse and re-distribution",
@@ -124,7 +124,7 @@ const ProjectOverviewPage: React.FC = () => {
             section_title: "Plans for archiving and preservation",
             link: "/plan/123/section/6",
             id: "sect_6",
-            progress: 100
+            progress: 0
           }
         ],
         doi: "10.12345/example.123",
@@ -137,7 +137,7 @@ const ProjectOverviewPage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title={project.title}
+        title="Project and Plans"
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -153,78 +153,99 @@ const ProjectOverviewPage: React.FC = () => {
       <div className="template-editor-container">
         <div className="main-content">
           <div className="project-overview">
-            <div className="project-header">
-              <h2>{project.title}</h2>
+            <div className="project-overview-item project-header">
+              <h2>Project</h2>
+              <p className="project-overview-item-heading">
+                <strong>
+                  {project.title}
+                </strong>
+              </p>
               <p>
                 {new Date(project.start_date).toLocaleDateString()} to{' '}
                 {new Date(project.end_date).toLocaleDateString()}
               </p>
-              <p>
-                <Link href="/projects/123/edit">Edit project</Link>
+
+              <Link href="/projects/123/edit"
+                    aria-label={`Edit project details`}>Edit project</Link>
+            </div>
+
+            <div className="project-overview-item project-funders">
+              <h2>Funders</h2>
+              <p className="project-overview-item-heading">
+                <strong>
+                  {project.funders.length} Funder(s)
+                </strong>
               </p>
+              <p>
+                {project.funders.map((funder, index) => (
+                  <span key={funder.id}>
+                  {funder.name} ({funder.grantid})
+                </span>
+                ))}
+              </p>
+              <Link href="/projects/123/edit">Edit Funder details</Link>
             </div>
 
-            <div className="project-funders">
-              <h2>Funders ({project.funders.length})</h2>
-              {project.funders.map((funder, index) => (
-                <div key={funder.id}>
-                  <p>{funder.name} ({funder.grantid})</p>
-                </div>
-              ))}
-              <Link href="/projects/123/edit">Edit Funders</Link>
-            </div>
-
-            <div className="project-members">
-              <h2>Project Members ({project.project_members.length})</h2>
-              {project.project_members.map((member, index) => (
-                <div key={index}>
-                  <p>{member.fullname} ({member.role})</p>
-                </div>
-              ))}
+            <div className="project-overview-item project-members">
+              <h2>Project Members</h2>
+              <p className="project-overview-item-heading">
+                <strong>
+                  {project.project_members.length} team members
+                </strong>
+              </p>
+              <p>
+                {project.project_members.map((member, index) => (
+                  <span key={index}>
+                    {member.fullname} ({member.role}){'; '}
+                  </span>
+                ))}
+              </p>
               <Link href="/projects/123/edit">Edit project members</Link>
             </div>
 
-            <div className="research-outputs">
-              <h2>Research Outputs ({project.research_outputs.length})</h2>
-              {project.research_outputs.map((output, index) => (
-                <div key={index}>
-                  <p>{output.title}</p>
-                </div>
-              ))}
+            <div className="project-overview-item research-outputs">
+              <h2>Research Outputs</h2>
+              <p className="project-overview-item-heading">
+                <strong>
+                  {project.research_outputs.length} Outputs
+                </strong>
+              </p>
+
               <Link href="/projects/123/edit">Edit Research outputs</Link>
             </div>
-
-            <div className="plans">
-              {project.plans.map((plan) => (
-                <div key={plan.id} className="plan-item">
-                  <Card>
-                    <h2>{plan.template_name}</h2>
-                    <p>Funder: {plan.funder_name}</p>
-
-                    <div className="plan-sections">
-                      <ul>
-                        {plan.sections.map((section) => (
-                          <li key={section.id} className="section">
-                            <Link href={section.link}>
-                              <h3>{section.section_title}</h3>
-                              <p>{section.progress}% complete</p>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="plan-footer">
-                      <p>DOI: {plan.doi}</p>
-                      <p>Last
-                        updated: {new Date(plan.last_updated).toLocaleDateString()}</p>
-                      <p>Created: {new Date(plan.created_date).toLocaleDateString()}</p>
-                    </div>
-                  </Card>
-                </div>
-              ))}
-            </div>
           </div>
+
+          <div className="plans">
+            {project.plans.map((plan) => (
+
+              <Card className="plan-item" key={plan.id}>
+                <h2>{plan.template_name}</h2>
+                <p>Funder: {plan.funder_name}</p>
+
+                <div className="plan-sections mb-4">
+                  <ul className="plan-sections-list">
+                    {plan.sections.map((section) => (
+                      <li key={section.id} className="plan-sections-list-item">
+                        <Link href={section.link}>
+                          {section.section_title}
+                        </Link>
+                        <span className="plan-sections-list-item-progress">{section.progress} of 3</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="plan-footer">
+                  <p>DOI: {plan.doi}</p>
+                  <p>Last
+                    updated: {new Date(plan.last_updated).toLocaleDateString()}</p>
+                  <p>Created: {new Date(plan.created_date).toLocaleDateString()}</p>
+                </div>
+              </Card>
+
+            ))}
+          </div>
+
         </div>
       </div>
     </>

@@ -575,3 +575,65 @@
   }
 }
 
+// project overview
+.project-overview {
+  .project-overview-item {
+    margin-top: var(--space-0);
+    margin-bottom: var(--space-6);
+    font-size: var(--fs-small);
+
+    h2 {
+      font-size: var(--fs-base);
+      color: var(--blue-600);
+      font-weight: 300;
+
+      padding: var(--space-0);
+      margin: var(--space-0);
+      margin-bottom: var(--space-1);
+    }
+
+    p {
+      font-size: var(--fs-small);
+      padding: var(--space-0);
+      margin: var(--space-0);
+    }
+
+    .project-overview-item-heading {
+      font-size: var(--fs-lg);
+    }
+
+    .react-aria-Link {
+      font-size: var(--fs-small);
+      color: var(--slate-800);
+      margin-top: var(--space-1);
+      display: inline-block;
+    }
+  }
+}
+
+
+.plans {
+  .plan-item {
+
+  }
+  .plan-sections-list{
+    padding: 0;
+    margin: var(space-4) 0;
+    list-style: none;
+  }
+  .plan-sections-list-item{
+    font-size: var(--fs-small);
+    color: var(--body-color);
+    margin: var(--space-2) 0;
+    a{
+      font-size: var(--fs-base);
+      color: var(--body-color);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .plan-sections-list-item-progress{
+      margin-left: var(--space-3);
+    }
+  }
+}
