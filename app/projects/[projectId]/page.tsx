@@ -216,12 +216,28 @@ const ProjectOverviewPage: React.FC = () => {
           </div>
 
           <div className="plans">
+            <div className="plans-header plans-header-with-actions">
+              <div className="">
+                <h2>Plan(s)</h2>
+              </div>
+              <div className="">
+                <Link href="/plans/new"
+                      className="react-aria-Button react-aria-Button--secondary">
+                  Upload plan
+                </Link>
+                <Link href="/plans/new"
+                      className="react-aria-Button react-aria-Button--primary">
+                  Create new plan
+                </Link>
+              </div>
+            </div>
             {project.plans.map((plan) => (
-
               <Card className="plan-item" key={plan.id}>
-                <h2>{plan.template_name}</h2>
-                <p>Funder: {plan.funder_name}</p>
-
+                <p>
+                  Template: Arctic Data Center: NSF Polar Programs
+                </p>
+                <p className="mb-1">Funder: {plan.funder_name}</p>
+                <h2 className="mt-0">{plan.template_name}</h2>
                 <div className="plan-sections mb-4">
                   <ul className="plan-sections-list">
                     {plan.sections.map((section) => (
@@ -229,20 +245,30 @@ const ProjectOverviewPage: React.FC = () => {
                         <Link href={section.link}>
                           {section.section_title}
                         </Link>
-                        <span className="plan-sections-list-item-progress">{section.progress} of 3</span>
+                        <span
+                          className="plan-sections-list-item-progress">{section.progress} of 3</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-
+                <div className="plan-meta">
+                  <p>
+                    DOI: {plan.doi} <br/>
+                    Last updated: {new Date(plan.last_updated).toLocaleDateString()}<br/>
+                  </p>
+                </div>
                 <div className="plan-footer">
-                  <p>DOI: {plan.doi}</p>
-                  <p>Last
-                    updated: {new Date(plan.last_updated).toLocaleDateString()}</p>
-                  <p>Created: {new Date(plan.created_date).toLocaleDateString()}</p>
+                  <div className="plan-links">
+                    <Link href="/plans/123">Download</Link>
+                  </div>
+                  <div className="plan-action">
+                    <Link href="/plans/123/edit"
+                          className="react-aria-Button react-aria-Button--primary">
+                      Update plan
+                    </Link>
+                  </div>
                 </div>
               </Card>
-
             ))}
           </div>
 

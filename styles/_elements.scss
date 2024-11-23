@@ -613,6 +613,12 @@
 
 
 .plans {
+  .plans-header-with-actions{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-1);
+  }
   .plan-item {
 
   }
@@ -635,5 +641,19 @@
     .plan-sections-list-item-progress{
       margin-left: var(--space-3);
     }
+  }
+  .plan-meta{
+    margin-top: var(--space-6);
+    p{
+      font-size: var(--fs-small);
+      color: var(--body-color);
+      margin: var(--space-2) 0;
+    }
+  }
+  .plan-footer{
+    margin-top: var(--space-4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 }
