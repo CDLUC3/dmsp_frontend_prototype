@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires*/
 const crowdin = require('@crowdin/crowdin-api-client');
 const fs = require('fs');
 const path = require('path');
@@ -8,10 +9,8 @@ const CROWDIN_PROJECT_ID = process.env.CROWDIN_PROJECT_ID;
 
 // initialization of crowdin client
 const {
-  projectsGroupsApi,
   uploadStorageApi,
   sourceFilesApi,
-  translationsApi
 } = new crowdin.default({
   token: CROWDIN_API_TOKEN
 })
@@ -88,31 +87,6 @@ const uploadFileToCrowdin = async (filePath, relativePath) => {
   } catch (error) {
     console.log("Error", error);
     console.error(`Error uploading ${relativePath}:`, error.message);
-  }
-};
-
-const downloadFileFromCrowdin = async (fileId, outputDir) => {
-  try {
-    // Step 1: Export the file
-    const exportResponse = await translationsApi.buildProjectFileTranslation(
-      CROWDIN_PROJECT_ID,
-      fileId,
-      { targetLanguageId: 'en' } // Adjust target language as needed
-    );
-
-    const downloadUrl = exportResponse.data.url;
-
-    // Step 2: Download the file
-    const response = await fetch(downloadUrl);
-    const fileData = await response.buffer();
-
-    // Step 3: Save the file locally
-    const outputPath = path.join(outputDir, `${fileId}.json`);
-    fs.writeFileSync(outputPath, fileData);
-
-    console.log(`File downloaded to ${outputPath}`);
-  } catch (error) {
-    console.error(`Error downloading file ${fileId}:`, error.message);
   }
 };
 

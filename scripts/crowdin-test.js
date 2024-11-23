@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires*/
 const crowdin = require('@crowdin/crowdin-api-client');
 require('dotenv').config({ path: '.env.local' });
 

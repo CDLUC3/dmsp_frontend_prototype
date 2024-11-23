@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires*/
 const crowdin = require('@crowdin/crowdin-api-client');
 const axios = require('axios');
 const AdmZip = require('adm-zip');
@@ -30,6 +31,16 @@ async function downloadTranslations(projectId) {
 }
 
 async function saveTranslationsToDirectory(downloadUrl, targetDirectory) {
+  console.log('Preparing to save translations...');
+  const targetLocaleDir = path.join(targetDirectory, 'pt-BR');
+
+  // Step 1: Clean up the target directory
+  if (fs.existsSync(targetLocaleDir)) {
+    console.log('Cleaning up existing translations in pt-BR...', targetLocaleDir);
+    // Remove all files under "messages/pt-BR" first, so that any old, unused translated files are removed
+    await fs.promises.rm(targetLocaleDir, { recursive: true, force: true });
+  }
+
   console.log('Downloading translation file...');
   const response = await axios({
     url: downloadUrl,

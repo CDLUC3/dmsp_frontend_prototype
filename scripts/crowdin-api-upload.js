@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires*/
 const crowdin = require('@crowdin/crowdin-api-client');
 const fs = require('fs');
 const path = require('path');
@@ -93,7 +94,7 @@ async function createFile(projectId, fileContent, relativePath) {
 
 /* If the file already exists in Crowdin, then update it, otherwise, for new files, 
 call createFile*/
-async function updateOrCreateFile(projectId, relativePath, fileContent, fullPath) {
+async function updateOrCreateFile(projectId, relativePath, fileContent) {
   const fileId = await getFileIdByPath(CROWDIN_PROJECT_ID, `/${relativePath}`);
   if (fileId) {
     console.log(`Updating file: ${relativePath}`);
@@ -130,7 +131,7 @@ const processMessagesDirectory = async (baseDirectory) => {
         // Upload JSON file with its relative path
         const fileData = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
 
-        await updateOrCreateFile(CROWDIN_PROJECT_ID, itemRelativePath, fileData, '/messages/en-US');
+        await updateOrCreateFile(CROWDIN_PROJECT_ID, itemRelativePath, fileData);
         try {
           // Get all local files
           const localFilePaths = getLocalFiles('./messages/en-US');
