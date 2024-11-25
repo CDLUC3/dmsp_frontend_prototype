@@ -1,8 +1,19 @@
-import {render, screen} from '@testing-library/react';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { ReactNode } from 'react';
+import { render } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import VerificationFailed from '../page';
 
 expect.extend(toHaveNoViolations);
+
+jest.mock('@/components/PageHeader', () => {
+  const mockPageHeader = jest.fn(({ children }: { children: ReactNode, title: string }) => (
+    <div data-testid="mock-page-wrapper">{children}</div>
+  ));
+  return {
+    __esModule: true,
+    default: mockPageHeader
+  }
+});
 
 describe('VerificationFailed', () => {
 
@@ -13,13 +24,15 @@ describe('VerificationFailed', () => {
     jest.resetAllMocks();
   });
 
-  it('should render the component with heading and paragraph', () => {
-    render(<VerificationFailed />);
+  it('should render the component with PageHeader', async () => {
+    const titleProp = 'Verification failed';
+    const pageHeader = await import('@/components/PageHeader');
+    const mockPageHeader = pageHeader.default;
+    const { getByTestId } = render(<VerificationFailed />);
 
-    // Check if the title and text are rendered
-    expect(screen.getByRole('heading', { name: /verification failed/i })).toBeInTheDocument();
-    expect(screen.getByText(/you.*email verification failed\./i)).toBeInTheDocument();
-  });
+    expect(getByTestId('mock-page-wrapper')).toBeInTheDocument();
+    expect(mockPageHeader).toHaveBeenCalledWith(expect.objectContaining({ title: titleProp, }), {})
+  })
 
   it('should pass axe accessibility test', async () => {
     let container: HTMLElement;

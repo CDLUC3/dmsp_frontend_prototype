@@ -1,20 +1,19 @@
 'use client'
 
-import React, {useEffect, useState} from "react";
-import {useParams, useRouter} from "next/navigation";
-import {useTemplateVersionsQuery} from '@/generated/graphql';
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useTemplateVersionsQuery } from '@/generated/graphql';
 import {
-  Cell,
-  Column,
-  Row,
-  Table,
-  TableBody,
-  TableHeader,
+    Cell,
+    Column,
+    Row,
+    Table,
+    TableBody,
+    TableHeader,
 } from "react-aria-components";
-import {handleApolloErrors} from "@/utils/gqlErrorHandler";
-import PageWrapper from "@/components/PageWrapper";
-import BackButton from "@/components/BackButton";
-import {formatShortMonthDayYear, formatWithTimeAndDate} from "@/utils/dateUtils"
+import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import PageHeader from "@/components/PageHeader";
+import { formatShortMonthDayYear, formatWithTimeAndDate } from "@/utils/dateUtils"
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {
@@ -64,21 +63,23 @@ const TemplateHistory = () => {
     const lastPublicationDate = lastPublication?.created ? formatShortMonthDayYear(lastPublication.created) : '';
 
     return (
-        <PageWrapper title={'Template History'}>
-            <BackButton />
-            {errors && (
-                <div>
-                    {errors && errors.map((err, index) => (
-                        <p key={index}>{err}</p>
-                    ))}
-                </div>
-            )}
+        <>
+            <PageHeader title="Template History" />
+            {
+                errors && (
+                    <div>
+                        {errors && errors.map((err, index) => (
+                            <p key={index}>{err}</p>
+                        ))}
+                    </div>
+                )
+            }
 
             {loading && <p>Template history is loading...</p>}
             <div>
                 {lastPublication && (
                     <>
-                        <h1 className="with-subheader">{lastPublication?.name || 'Unknown'}</h1>
+                        <h2 className="with-subheader">{lastPublication?.name || 'Unknown'}</h2>
                         <div className="subheader">
                             <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.displayName}`}</div>
                             <div>
@@ -89,7 +90,7 @@ const TemplateHistory = () => {
                     </>
                 )}
 
-                <h2 id="templateHistoryHeading">History</h2>
+                <h3 id="templateHistoryHeading">History</h3>
                 <Table aria-labelledby="templateHistoryHeading" className="react-aria-Table">
                     <TableHeader className="react-aria-TableHeader">
 
@@ -129,7 +130,7 @@ const TemplateHistory = () => {
                     </TableBody>
                 </Table>
             </div>
-        </PageWrapper>
+        </>
     )
 }
 

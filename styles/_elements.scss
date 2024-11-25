@@ -570,8 +570,12 @@
     }
   }
 
-  // leaving blank for now as class exists and should be seen as required for future use
   .sectionContent {
+    padding: var(--space-4) var(--space-6);
+    margin-bottom: var(--space-4);
+    border-radius: var(--card-border-radius);
+    background: var(--bg-white);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
   }
 }
-

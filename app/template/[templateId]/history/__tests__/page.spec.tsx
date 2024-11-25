@@ -30,13 +30,13 @@ jest.mock('@/components/BackButton', () => {
     };
 });
 
-jest.mock('@/components/PageWrapper', () => {
-    const mockPageWrapper = jest.fn(({ children }: { children: ReactNode, title: string }) => (
+jest.mock('@/components/PageHeader', () => {
+    const mockPageHeader = jest.fn(({ children }: { children: ReactNode, title: string }) => (
         <div data-testid="mock-page-wrapper">{children}</div>
     ));
     return {
         __esModule: true,
-        default: mockPageWrapper
+        default: mockPageHeader
     }
 });
 
@@ -54,17 +54,17 @@ describe('TemplateHistory', () => {
         mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
     });
 
-    it('should render the component with PageWrapper', async () => {
+    it('should render the component with PageHeader', async () => {
         const titleProp = 'Template History';
-        const pageWrapper = await import('@/components/PageWrapper');
-        const mockPageWrapper = pageWrapper.default;
+        const pageWrapper = await import('@/components/PageHeader');
+        const mockPageHeader = pageWrapper.default;
 
         (useTemplateVersionsQuery as jest.Mock).mockReturnValue(mockData);
 
         const { getByTestId } = render(<TemplateHistory />);
 
         expect(getByTestId('mock-page-wrapper')).toBeInTheDocument();
-        expect(mockPageWrapper).toHaveBeenCalledWith(expect.objectContaining({ title: titleProp, }), {})
+        expect(mockPageHeader).toHaveBeenCalledWith(expect.objectContaining({ title: titleProp, }), {})
     })
 
     it('should use the templateId from the param in the call to useTemplateVersionsQuery', () => {
@@ -131,8 +131,8 @@ describe('TemplateHistory', () => {
         });
 
         const { getByTestId } = render(<TemplateHistory />);
-        const h1Element = await screen.findByRole('heading', { level: 1 });
-        expect(h1Element).toHaveTextContent('NIH-GDS: Genomic Data Sharing');
+        const h2Element = await screen.findByRole('heading', { level: 2 });
+        expect(h2Element).toHaveTextContent('NIH-GDS: Genomic Data Sharing');
         expect(getByTestId('author')).toHaveTextContent('by National Institutes of Health')
         expect(getByTestId('latest-version')).toHaveTextContent('3.1')
         expect(getByTestId('publication-date')).toHaveTextContent('Published: Jun 25, 2014')
@@ -145,10 +145,6 @@ describe('TemplateHistory', () => {
         });
 
         render(<TemplateHistory />);
-
-        // Check h2 header above table
-        const h2Element = await screen.findByRole('heading', { level: 2 });
-        expect(h2Element).toHaveTextContent('History');
 
         // Check table column headers
         const headers = screen.getAllByRole('columnheader');

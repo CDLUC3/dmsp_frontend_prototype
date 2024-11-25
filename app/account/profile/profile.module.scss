@@ -2,11 +2,11 @@
 
 
 .readOnlyField {
-  min-width: 200px;
+  min-width: 50%;
 }
 
 .section {
-  margin: var(--space-6) 0;
+  background-color: var(--gray-50);
 }
 
 .subSection {
@@ -45,12 +45,13 @@
 .mainContent {
   flex: 1;
   min-width: 400px;
-  padding-right: 20px;
+  padding: 0 var(--space-3);
 }
 
 .rightSidebar {
   flex-basis: 300px; /*Fixed width for sidebar*/
   padding-top: var(--space-3);
+  background-color: transparent;
 }
 
 .btnContainer {
@@ -59,4 +60,15 @@
 
 .btn {
   margin-left: auto;
+}
+
+//override the white background set in layout containers
+.layoutContentContainer,
+.layoutSidebarPanel {
+  background-color: transparent;
+}
+
+// Remove padding on this, so that the content containers left align with page title
+.layoutContentContainer {
+  padding: 0;
 }

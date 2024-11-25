@@ -1,18 +1,15 @@
 ### Updated
 =======
+- Updated account/profile, email/email-confirmed, email/verification-failed, and account/connections to use new, shared layout containers [#185]
 - Refactored font family usage for consistency.
 
 ### Added
 - Created create/select-template page and test [#167]
   - Created new components for this page
   - Created Template Select List Item 
-
-### Added
 - Template Builder: Access Page [#166]
 - Created css for sectionContainer, sectionHeader, sectionContent for generic sections
 - Updated mobile breadcrumbs css
-
-### Added
 - Added ability to add 'Other' affiliation in the User Profile page [#170]
 - Added new components [#111]
   - Clickable interface for Template List
