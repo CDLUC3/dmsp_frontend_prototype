@@ -3,16 +3,24 @@
 - Refactored font family usage for consistency.
 
 ### Added
-- Created create/select-template page and test [#167]
-  - Created new components for this page
-  - Created Template Select List Item 
-
-### Added
+- New translation updates [#160]
+  - Installed next-intl, and created a /messages directory for content, and /i18n directory for next-intl request and routing
+  - Moved pages under dynamic folder [locale]
+  - Updated middleware to add correct locale based on path, token, browser preference, or default to english
+  - Added provider NextIntlClientProvider to layout.tsx
+  - Added a test page, locale-test, where you can see demos of translations
+  - Added NextIntlClientProvider to the @/utils/test-utils
+  - Updated next.config.mjs to use next-intl plugin
 - Template Builder: Access Page [#166]
 - Created css for sectionContainer, sectionHeader, sectionContent for generic sections
 - Updated mobile breadcrumbs css
-
-### Added
+- Added ability to add 'Other' affiliation in the User Profile page [#170]
+- Created create/select-template page and test [#167]
+  - Created new components for this page
+  - Created Template Select List Item 
+- Template Builder: Access Page [#166]
+- Created css for sectionContainer, sectionHeader, sectionContent for generic sections
+- Updated mobile breadcrumbs css
 - Added ability to add 'Other' affiliation in the User Profile page [#170]
 - Added new components [#111]
   - Clickable interface for Template List

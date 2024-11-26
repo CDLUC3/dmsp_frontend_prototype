@@ -14,33 +14,40 @@ $color-grey: #F2F2F2;
 $color-green: #006C6C;
 $color-red: #D3273E;
 
-:root {
+
+.headerStyle {
   --dmpui-frontend-font-size-base: 16px;
-  --dmpui-brand-white: #fff;
-  --dmpui-brand-focus-color: #fd0;
-  --dmpui-brand-focus-text-color: #04032d;
-  --dmpui-brand-gray-100: #f2f2f2;
-  --dmpui-brand-blue-100: #f0fbff;
-  --dmpui-brand-blue-200: #eff6ff;
-  --dmpui-brand-blue-300: #effbfe;
-  --dmpui-brand-blue-400: #54d8ff;
-  --dmpui-brand-blue-500: #004eaa;
-  --dmpui-brand-blue-800: #0c0b57;
-  --dmpui-brand-blue-900: #05042e;
-  --dmpui-brand-blue-950: #04032d;
-  --dmpui-gutter-x: 1.5rem;
-  --btn-primary-fg-color: white;
-  --btn-border-radius: 20px;
-  --form-field-border-color: #e1e1e1;
-  --form-field-fg-color: #333;
-  --form-field-bg-color: white;
-}
+--dmpui-brand-white: #fff;
+--dmpui-brand-focus-color: #fd0;
+--dmpui-brand-focus-text-color: #04032d;
+--dmpui-brand-gray-100: #f2f2f2;
+--dmpui-brand-blue-100: #f0fbff;
+--dmpui-brand-blue-200: #eff6ff;
+--dmpui-brand-blue-300: #effbfe;
+--dmpui-brand-blue-400: #54d8ff;
+--dmpui-brand-blue-500: #004eaa;
+--dmpui-brand-blue-800: #0c0b57;
+--dmpui-brand-blue-900: #05042e;
+--dmpui-brand-blue-950: #04032d;
+--dmpui-gutter-x: 1.5rem;
+--btn-primary-fg-color: white;
+--btn-border-radius: 20px;
+--form-field-border-color: #e1e1e1;
+--form-field-fg-color: #333;
+--form-field-bg-color: white;
 
-header {
   background-color: #fff !important;
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+    font-family: var(--font-family-body), sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+  }
 }
 
-p {
+.paragraph {
   margin: 0 0 10px;
 }
 
@@ -167,23 +174,6 @@ button.mobile-icon {
   #mobile-menu-close {
     padding: 0.5rem 1rem;
   }
-}
-
-
-header {
-  *,
-  ::before,
-  ::after {
-    box-sizing: border-box;
-    font-family: var(--font-family-body), sans-serif;
-    font-weight: 400;
-    font-size: 1rem;
-  }
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-  monospace;
 }
 
 .hidden-accessibly {
@@ -566,107 +556,6 @@ button.with-mark.dropdown-toggle:hover,
   display: none;
 }
 
-/*SubHeader*/
-/* Subheader Org Branding */
-.c-subheader {
-  display: grid;
-  gap: $space-base;
-  margin-bottom: 25px;
-}
-
-@media (min-width: 1000px) {
-  .c-subheader {
-    gap: $space-lg;
-    grid-template-columns: auto 1fr auto;
-    margin-block-start: $space-lg;
-
-    .c-headermenugroup {
-      grid-column: 3;
-    }
-
-    .c-links-org {
-      grid-column: 2;
-      grid-row: 1;
-    }
-  }
-}
-
-.c-logo-org {
-  img {
-    display: block;
-    inline-size: clamp(8rem, 26vw, 12rem);
-    block-size: auto;
-    background-color: var(--dmpui-brand-white);
-  }
-
-  // If <img> isn't present, then use text label:
-
-  p {
-    margin: 0;
-    font-size: 1.1rem;
-  }
-}
-
-img.org-logo {
-  inline-size: clamp(6rem, 26vw, 10rem);
-}
-
-.c-links-org {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: $space-sm;
-}
-
-.c-links-org__ucop,
-.c-links-org__uc3-helpdesk {
-  display: flex;
-  align-items: center;
-  gap: $space-sm;
-}
-
-.c-links-org li {
-  max-width: 300px;
-}
-
-/*Tooltip*/
-a.has-new-window-popup-info,
-button.has-new-window-popup-info {
-  position: relative;
-  // z-index: 24;
-}
-
-a.has-new-window-popup-info > span.new-window-popup-info,
-button.has-new-window-popup-info > span.new-window-popup-info {
-  position: absolute;
-  left: -9000px;
-  width: 0;
-  overflow: hidden;
-}
-
-a.has-new-window-popup-info:hover, a.has-new-window-popup-info:focus, a.has-new-window-popup-info:active,
-button.has-new-window-popup-info:hover,
-button.has-new-window-popup-info:focus,
-button.has-new-window-popup-info:active {
-  z-index: 25;
-}
-
-a.has-new-window-popup-info:hover > span.new-window-popup-info, a.has-new-window-popup-info:focus > span.new-window-popup-info, a.has-new-window-popup-info:active > span.new-window-popup-info,
-button.has-new-window-popup-info:hover > span.new-window-popup-info,
-button.has-new-window-popup-info:focus > span.new-window-popup-info,
-button.has-new-window-popup-info:active > span.new-window-popup-info {
-  display: block;
-  position: absolute;
-  top: 2em;
-  left: -1em;
-  width: 12em;
-  border-radius: 5px;
-  border: 1px solid #0cf;
-  background-color: #cff;
-  color: #000;
-  text-align: center;
-}
-
 /* mobile styles */
 @media (max-width: 1000px) {
   .dmpui-desktop,
@@ -710,7 +599,6 @@ button.has-new-window-popup-info:active > span.new-window-popup-info {
     grid-template-columns: repeat(1, 1fr);
   }
 }
-
 
 
 

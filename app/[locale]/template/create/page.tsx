@@ -24,7 +24,7 @@ const TemplateCreatePage: React.FC = () => {
     console.log('Form submitted');
 
     // redirect to the new template page
-     window.location.href = '/template/create/select-template';
+    window.location.href = '/template/create/select-template';
 
   }
 
@@ -49,7 +49,7 @@ const TemplateCreatePage: React.FC = () => {
 
 
 
-      <Form  onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <TextField
           name="template_name"
           type="text"
@@ -59,8 +59,8 @@ const TemplateCreatePage: React.FC = () => {
           <Text slot="description" className="help">
             Don’t worry, you can change this later.
           </Text>
-          <Input/>
-          <FieldError/>
+          <Input />
+          <FieldError />
         </TextField>
 
         <RadioGroup>
@@ -74,7 +74,7 @@ const TemplateCreatePage: React.FC = () => {
         </RadioGroup>
 
         <Button type="submit"
-                className="">Create</Button>
+          className="">Create</Button>
 
       </Form>
     </>
