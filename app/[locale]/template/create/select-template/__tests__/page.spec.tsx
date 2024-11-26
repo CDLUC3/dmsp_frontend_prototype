@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {render, screen} from '@testing-library/react';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import TemplateSelectTemplatePage from '../page';
 
 expect.extend(toHaveNoViolations);

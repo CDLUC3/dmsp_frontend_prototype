@@ -11,6 +11,10 @@
   - Added a test page, locale-test, where you can see demos of translations
   - Added NextIntlClientProvider to the @/utils/test-utils
   - Updated next.config.mjs to use next-intl plugin
+- Template Builder: Access Page [#166]
+- Created css for sectionContainer, sectionHeader, sectionContent for generic sections
+- Updated mobile breadcrumbs css
+- Added ability to add 'Other' affiliation in the User Profile page [#170]
 - Created create/select-template page and test [#167]
   - Created new components for this page
   - Created Template Select List Item 
