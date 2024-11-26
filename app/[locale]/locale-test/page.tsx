@@ -2,13 +2,14 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import PageWrapper from '@/components/PageWrapper';
+import PageHeader from '@/components/PageHeader';
 
 const LocaleTestPage: React.FC = () => {
   const t = useTranslations('LocaleTest');
   const name = 'Juliet'
   return (
-    <PageWrapper title={'Localization Test'}>
+    <>
+      <PageHeader title="Localization Test" />
       {/*-Testing translation capabilities*/}
       <h1>{t('title')}</h1>
 
@@ -24,7 +25,7 @@ const LocaleTestPage: React.FC = () => {
       })}
       <div dangerouslySetInnerHTML={{ __html: t.raw('raw') }} />
       <p>{t('general')}</p>
-    </PageWrapper>
+    </>
   )
 }
 
