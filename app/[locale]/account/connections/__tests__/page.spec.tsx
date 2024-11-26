@@ -39,10 +39,12 @@ describe('Connections page', () => {
   it('should render connections page', async () => {
 
     await act(async () => {
-      render(<ConnectionsPage />);
+      render(
+        <ConnectionsPage />
+
+      );
     });
 
-    screen.debug();
     const heading4Elements = screen.getAllByRole('heading', { level: 2 });
     expect(heading4Elements.length).toBe(3);
 
@@ -53,7 +55,11 @@ describe('Connections page', () => {
   it('should pass axe accessibility test', async () => {
     let container: HTMLElement;
     await act(async () => {
-      const renderResult = render(<ConnectionsPage />);
+      const renderResult = render(
+
+        <ConnectionsPage />
+
+      );
       container = renderResult.container;
     });
 

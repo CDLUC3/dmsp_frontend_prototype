@@ -113,7 +113,6 @@ describe('ProfilePage', () => {
     expect(lastNameInput).toBeInTheDocument();
 
     // Enter an invalid value for first name field
-    // Wrap state-changing interactions in act()
     await act(async () => {
       fireEvent.change(firstNameInput, { target: { value: '' } });
     });

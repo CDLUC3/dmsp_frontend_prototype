@@ -8,7 +8,6 @@ import {
   LayoutWithPanel,
   ContentContainer,
 } from '@/components/Container';
-import styles from './accountConnections.module.scss';
 
 const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
 const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
@@ -27,7 +26,7 @@ const ConnectionsPage: React.FC = () => {
     <>
       <PageHeader title={'Connections'} />
       <LayoutWithPanel>
-        <ContentContainer className={styles.layoutContentContainer}>
+        <ContentContainer>
           <div className="sectionContainer">
             <div className="sectionContent">
               <ConnectionSection

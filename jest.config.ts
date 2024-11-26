@@ -32,6 +32,9 @@ const config: Config = {
     },
     coverageDirectory: "coverage",
     coverageProvider: 'v8',
+    transformIgnorePatterns: [
+        'node_modules/(?!(next-intl|other-esm-package)/)',
+    ],
 }
 
 
