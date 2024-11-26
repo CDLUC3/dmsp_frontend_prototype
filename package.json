@@ -12,10 +12,7 @@
     "test": "jest --coverage",
     "jest": "jest",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
-    "sanitize-translations": "node scripts/sanitizeTranslations.js",
-    "crowdin:upload": "node scripts/load-env.js && crowdin upload sources --auto-update",
-    "crowdin:download": "node scripts/load-env.js && crowdin download && npm run sanitize-translations"
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@apollo/client": "^3.10.8",
