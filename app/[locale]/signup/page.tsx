@@ -6,186 +6,240 @@ import {
   Button,
   Form,
   TextField,
+  Link,
+  Text,
   Label,
   Input,
   FieldError,
   Checkbox,
 } from "react-aria-components";
+
 import styles from './signup.module.scss';
+import './signup.scss';
+
 import {useCsrf} from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
 import {handleErrors} from '@/utils/errorHandler';
 import {useAuthContext} from '@/context/AuthContext';
 
+import {
+  LayoutContainer,
+  ContentContainer,
+} from '@/components/Container';
+
+
 const SignUpPage: React.FC = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [termsAccepted, setTermsAccepted] = useState<bool>(false);
-    const [errors, setErrors] = useState<string[]>([]);
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
-    const errorRef = useRef<HTMLDivElement>(null);
-    const { csrfToken } = useCsrf();
-    const { setIsAuthenticated } = useAuthContext();
+  const [errors, setErrors] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-    const handleSignUp = async (ev: React.FormEvent) => {
-      ev.preventDefault();
+  return (
+    <LayoutContainer id="signupPage">
+      <ContentContainer data-step="email">
+        <h3>Register</h3>
 
-      setLoading(true);
-      setErrors([]);
+        <TextField
+          name="email"
+          type="email"
+          aria-label="Email address"
+          isRequired
+        >
+          <Label>Email address</Label>
+          <Input />
+          <Text slot="description" className="help">
+            To enable Single Sign On (SSO), use your institutional
+            address. You will be redirected to your institution's single
+            sign on platform
+          </Text>
+          <FieldError />
+        </TextField>
 
-      let data = {
-        first_name: ev.target.first_name.value,
-        last_name: ev.target.last_name.value,
-        email: ev.target.email.value,
-        password: ev.target.password.value,
-        "acceptedTerms": termsAccepted,
-      };
+        <Button
+          type="submit"
+          isDisabled={loading}
+        >
+          {loading ? '...' : 'Continue'}
+        </Button>
 
-      console.log(data);
+        <div className="form-links">
+          <Link href="/login/">Alread have a DMP Account?</Link>
+          <Link href="#">Get help</Link>
+        </div>
+      </ContentContainer>
+    </LayoutContainer>
+  );
+}
 
-       const signupRequest = async (token: string | null) => {
-         return await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`, {
-           method: 'POST',
-           credentials: 'include',
-           headers: {
-             'Content-Type': 'application/json',
-             'X-CSRF-TOKEN': token || '',
-           },
-           body: JSON.stringify(data),
-         });
-       }
+// const SignUpPage: React.FC = () => {
+    // const [email, setEmail] = useState("");
+    // const [password, setPassword] = useState("");
+    // const [termsAccepted, setTermsAccepted] = useState<bool>(false);
+    // const [errors, setErrors] = useState<string[]>([]);
+    // const [loading, setLoading] = useState(false);
+    // const router = useRouter();
+    // const errorRef = useRef<HTMLDivElement>(null);
+    // const { csrfToken } = useCsrf();
+    // const { setIsAuthenticated } = useAuthContext();
 
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      try {
-        const response = await signupRequest(csrfToken);
+    // const handleSignUp = async (ev: React.FormEvent) => {
+    //   ev.preventDefault();
 
-        if (response && response.ok) {
-          setIsAuthenticated(true);
-          router.push('/')
-        } else {
-          await handleErrors(response, signupRequest, setErrors, router, '/signup');
-        }
+    //   setLoading(true);
+    //   setErrors([]);
 
-        // if (csrfToken) {
-        //     /* eslint-disable @typescript-eslint/no-explicit-any */
-        //     try {
-        //         const response = await signupRequest(csrfToken);
+    //   let data = {
+    //     first_name: ev.target.first_name.value,
+    //     last_name: ev.target.last_name.value,
+    //     email: ev.target.email.value,
+    //     password: ev.target.password.value,
+    //     "acceptedTerms": termsAccepted,
+    //   };
 
-        //         if (response && response.ok) {
-        //             setIsAuthenticated(true);
-        //             router.push('/')
-        //         } else {
-        //             await handleErrors(response, signupRequest, setErrors, router, '/signup');
-        //         }
+    //   console.log(data);
 
-        //     } catch (err: any) {
-        //         logECS('error', 'Signup error', {
-        //             error: err,
-        //             url: { path: '/apollo-signup' }
-        //         });
-        //     } finally {
-        //         setLoading(false);
-        //     }
-        // } else {
-        //     setErrors(prev => prev.concat('Something went wrong'))
-        // }
+    //    const signupRequest = async (token: string | null) => {
+    //      return await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`, {
+    //        method: 'POST',
+    //        credentials: 'include',
+    //        headers: {
+    //          'Content-Type': 'application/json',
+    //          'X-CSRF-TOKEN': token || '',
+    //        },
+    //        body: JSON.stringify(data),
+    //      });
+    //    }
 
-      } catch (err: any) {
-        logECS('error', 'Signup error', {
-          error: err,
-          url: { path: '/apollo-signup' }
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+    //   /* eslint-disable @typescript-eslint/no-explicit-any */
+    //   try {
+    //     const response = await signupRequest(csrfToken);
 
-    useEffect(() => {
-      if (errors) {
-        if (errorRef.current) {
-          errorRef.current.scrollIntoView({ behavior: 'smooth' });
-          errorRef.current.focus();
-        }
-      }
-    }, [errors]);
+    //     if (response && response.ok) {
+    //       setIsAuthenticated(true);
+    //       router.push('/')
+    //     } else {
+    //       await handleErrors(response, signupRequest, setErrors, router, '/signup');
+    //     }
 
-    return (
-      <div className={styles.signupWrapper} ref={errorRef}>
-        <Form className={styles.signupForm} onSubmit={handleSignUp}>
-          {errors && errors.length > 0 &&
-            <div className="error">
-                {errors.map((error, index) => (
-                    <p key={index}>{error}</p>
-                ))}
-            </div>
-          }
-          <h3 className={styles.heading3}>Create an account</h3>
+    //     // if (csrfToken) {
+    //     //     /* eslint-disable @typescript-eslint/no-explicit-any */
+    //     //     try {
+    //     //         const response = await signupRequest(csrfToken);
 
-          <TextField
-            name="first_name"
-            type="input"
-            aria-label="First Name"
-            isRequired
-          >
-            <Label>First Name</Label>
-            <FieldError />
-            <Input />
-          </TextField>
+    //     //         if (response && response.ok) {
+    //     //             setIsAuthenticated(true);
+    //     //             router.push('/')
+    //     //         } else {
+    //     //             await handleErrors(response, signupRequest, setErrors, router, '/signup');
+    //     //         }
 
-          <TextField
-            name="last_name"
-            type="input"
-            aria-label="Last Name"
-            isRequired
-          >
-            <Label>Last Name</Label>
-            <FieldError />
-            <Input />
-          </TextField>
+    //     //     } catch (err: any) {
+    //     //         logECS('error', 'Signup error', {
+    //     //             error: err,
+    //     //             url: { path: '/apollo-signup' }
+    //     //         });
+    //     //     } finally {
+    //     //         setLoading(false);
+    //     //     }
+    //     // } else {
+    //     //     setErrors(prev => prev.concat('Something went wrong'))
+    //     // }
 
-          Institution, Cannot find institution checkbox
+    //   } catch (err: any) {
+    //     logECS('error', 'Signup error', {
+    //       error: err,
+    //       url: { path: '/apollo-signup' }
+    //     });
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
 
-          <TextField
-            name="email"
-            type="email"
-            aria-label="Email address"
-            isRequired
-          >
-            <Label>Email address</Label>
-            <FieldError />
-            <Input />
-          </TextField>
+    // useEffect(() => {
+    //   if (errors) {
+    //     if (errorRef.current) {
+    //       errorRef.current.scrollIntoView({ behavior: 'smooth' });
+    //       errorRef.current.focus();
+    //     }
+    //   }
+    // }, [errors]);
 
-          <TextField
-            name="password"
-            type="password"
-            aria-label="Password"
-            isRequired
-          >
-            <Label>Password</Label>
-            <FieldError />
-            <Input />
-          </TextField>
+    // return (
+    //   <LayoutContainer id="signupPage">
+    //     <ContentContainer ref={errorRef}>
+    //       <Form className={styles.signupForm} onSubmit={handleSignUp}>
+    //         {errors && errors.length > 0 &&
+    //           <div className="error">
+    //               {errors.map((error, index) => (
+    //                   <p key={index}>{error}</p>
+    //               ))}
+    //           </div>
+    //         }
+    //         <h3 className={styles.heading3}>Create an account</h3>
 
-          <Checkbox isSelectec={termsAccepted} onChange={setTermsAccepted}>
-            <div className="checkbox">
-              <svg viewBox="0 0 18 18" aria-hidden="true">
-                <polyline points="1 9 7 14 15 4" />
-              </svg>
-            </div>
-            Accept terms?
-          </Checkbox>
+    //         <TextField
+    //           name="first_name"
+    //           type="text"
+    //           aria-label="First Name"
+    //           isRequired
+    //         >
+    //           <Label>First Name</Label>
+    //           <FieldError />
+    //           <Input />
+    //         </TextField>
 
-          <Button
-            type="submit"
-            isDisabled={(loading || !termsAccepted)}
-          >
-            {loading ? 'Signing up ...' : 'Sign Up'}
-          </Button>
-        </Form>
-      </div>
-    );
-};
+    //         <TextField
+    //           name="last_name"
+    //           type="text"
+    //           aria-label="Last Name"
+    //           isRequired
+    //         >
+    //           <Label>Last Name</Label>
+    //           <FieldError />
+    //           <Input />
+    //         </TextField>
+
+    //         Institution, Cannot find institution checkbox
+
+    //         <TextField
+    //           name="email"
+    //           type="email"
+    //           aria-label="Email address"
+    //           isRequired
+    //         >
+    //           <Label>Email address</Label>
+    //           <FieldError />
+    //           <Input />
+    //         </TextField>
+
+    //         <TextField
+    //           name="password"
+    //           type="password"
+    //           aria-label="Password"
+    //           isRequired
+    //         >
+    //           <Label>Password</Label>
+    //           <FieldError />
+    //           <Input />
+    //         </TextField>
+
+    //         <Checkbox isSelectec={termsAccepted} onChange={setTermsAccepted}>
+    //           <div className="checkbox">
+    //             <svg viewBox="0 0 18 18" aria-hidden="true">
+    //               <polyline points="1 9 7 14 15 4" />
+    //             </svg>
+    //           </div>
+    //           Accept terms?
+    //         </Checkbox>
+
+    //         <Button
+    //           type="submit"
+    //           isDisabled={(loading || !termsAccepted)}
+    //         >
+    //           {loading ? 'Signing up ...' : 'Sign Up'}
+    //         </Button>
+    //       </Form>
+    //     </ContentContainer>
+    //   </LayoutContainer>
+    // );
+// };
 
 export default SignUpPage;
