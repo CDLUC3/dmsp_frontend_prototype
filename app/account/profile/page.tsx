@@ -24,14 +24,12 @@ import {
 import PageHeader from '@/components/PageHeader';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import BackButton from '@/components/BackButton';
 import { FormSelect } from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
 import {
   LayoutWithPanel,
   ContentContainer,
   SidebarPanel,
-  ToolbarContainer
 } from '@/components/Container';
 
 // Interfaces
@@ -352,11 +350,7 @@ const ProfilePage: React.FC = () => {
         }
         className="page-template-list"
       />
-      <ToolbarContainer>
-        <BackButton />
-      </ToolbarContainer>
       <div className={styles.main}>
-
         <div className={styles.mainContent}>
           <div>
             <h2>Your Profile</h2>
