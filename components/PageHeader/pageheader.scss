@@ -1,7 +1,8 @@
 @import '@/styles/responsive.scss';
 
 .template-editor-header {
-  margin-left: var(--space-3);
+  // This is to match the left padding for content container
+  padding-left: var(--brand-space2);
 }
 
 .pageheader-container {
