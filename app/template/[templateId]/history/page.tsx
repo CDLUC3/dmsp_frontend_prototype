@@ -14,6 +14,11 @@ import {
 import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import PageHeader from "@/components/PageHeader";
 import { formatShortMonthDayYear, formatWithTimeAndDate } from "@/utils/dateUtils"
+import {
+    LayoutWithPanel,
+    ContentContainer,
+} from '@/components/Container';
+
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {
@@ -77,58 +82,62 @@ const TemplateHistory = () => {
 
             {loading && <p>Template history is loading...</p>}
             <div>
-                {lastPublication && (
-                    <>
-                        <h2 className="with-subheader">{lastPublication?.name || 'Unknown'}</h2>
-                        <div className="subheader">
-                            <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.displayName}`}</div>
-                            <div>
-                                <span data-testid="latest-version" className={styles.historyVersion}>Version {lastPublication?.version.slice(1)}</span>
-                                <span data-testid="publication-date">Published: {lastPublicationDate}</span>
-                            </div>
-                        </div>
-                    </>
-                )}
+                <LayoutWithPanel>
+                    <ContentContainer>
+                        {lastPublication && (
+                            <>
+                                <h2 className="with-subheader">{lastPublication?.name || 'Unknown'}</h2>
+                                <div className="subheader">
+                                    <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.displayName}`}</div>
+                                    <div>
+                                        <span data-testid="latest-version" className={styles.historyVersion}>Version {lastPublication?.version.slice(1)}</span>
+                                        <span data-testid="publication-date">Published: {lastPublicationDate}</span>
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
-                <h3 id="templateHistoryHeading">History</h3>
-                <Table aria-labelledby="templateHistoryHeading" className="react-aria-Table">
-                    <TableHeader className="react-aria-TableHeader">
+                        <h3 id="templateHistoryHeading">History</h3>
+                        <Table aria-labelledby="templateHistoryHeading" className="react-aria-Table">
+                            <TableHeader className="react-aria-TableHeader">
 
-                        <Column isRowHeader={true} className="react-aria-Column">Action</Column>
-                        <Column isRowHeader={true} className="react-aria-Column">User</Column>
-                        <Column isRowHeader={true} className="react-aria-Column">Time and Date</Column>
-                    </TableHeader>
-                    <TableBody>
-                        {
-                            sortedTemplates.length > 0
-                                ? sortedTemplates.map((item, index) => {
+                                <Column isRowHeader={true} className="react-aria-Column">Action</Column>
+                                <Column isRowHeader={true} className="react-aria-Column">User</Column>
+                                <Column isRowHeader={true} className="react-aria-Column">Time and Date</Column>
+                            </TableHeader>
+                            <TableBody>
+                                {
+                                    sortedTemplates.length > 0
+                                        ? sortedTemplates.map((item, index) => {
 
-                                    const publishDate = item?.created ? formatWithTimeAndDate(item?.created) : '';
-                                    const versionedBy = item?.versionedBy;
+                                            const publishDate = item?.created ? formatWithTimeAndDate(item?.created) : '';
+                                            const versionedBy = item?.versionedBy;
 
-                                    return (
-                                        <Row key={`${item?.id}-${index}`} className="react-aria-Row">
-                                            <Cell className="react-aria-Cell">
-                                                <div>Published {item?.version}</div>
-                                                <div>
-                                                    <small className={styles.changeLog}>
-                                                        Change log:<br />{item?.comment}
-                                                    </small>
-                                                </div>
-                                            </Cell>
-                                            <Cell className="react-aria-Cell">
-                                                {versionedBy
-                                                    ? `${versionedBy.givenName || ''} ${versionedBy.surName || ''}`
-                                                    : 'Unknown'}</Cell>
-                                            <Cell>{publishDate}</Cell>
-                                        </Row>
-                                    );
-                                })
-                                : <Row><Cell>No template history available.</Cell></Row>
-                        }
+                                            return (
+                                                <Row key={`${item?.id}-${index}`} className="react-aria-Row">
+                                                    <Cell className="react-aria-Cell">
+                                                        <div>Published {item?.version}</div>
+                                                        <div>
+                                                            <small className={styles.changeLog}>
+                                                                Change log:<br />{item?.comment}
+                                                            </small>
+                                                        </div>
+                                                    </Cell>
+                                                    <Cell className="react-aria-Cell">
+                                                        {versionedBy
+                                                            ? `${versionedBy.givenName || ''} ${versionedBy.surName || ''}`
+                                                            : 'Unknown'}</Cell>
+                                                    <Cell>{publishDate}</Cell>
+                                                </Row>
+                                            );
+                                        })
+                                        : <Row><Cell>No template history available.</Cell></Row>
+                                }
 
-                    </TableBody>
-                </Table>
+                            </TableBody>
+                        </Table>
+                    </ContentContainer>
+                </LayoutWithPanel>
             </div>
         </>
     )

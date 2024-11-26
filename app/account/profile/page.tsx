@@ -353,9 +353,9 @@ const ProfilePage: React.FC = () => {
       <div className={styles.main}>
         <div className={styles.mainContent}>
           <div>
-            <h2>Your Profile</h2>
             <LayoutWithPanel>
               <ContentContainer className={styles.layoutContentContainer}>
+                <h2>Your Profile</h2>
                 <div className="sectionContainer">
                   <div className={`sectionContent ${styles.section}`}>
                     <Form onSubmit={handleProfileSubmit}>

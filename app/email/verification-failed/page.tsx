@@ -6,16 +6,15 @@ import {
   LayoutWithPanel,
   ContentContainer,
 } from '@/components/Container';
-import styles from './verificationFailed.module.scss';
 
 const VerificationFailed: React.FC = () => {
   return (
     <>
       <PageHeader title="Verification failed" />
       <LayoutWithPanel>
-        <ContentContainer className={styles.layoutContentContainer}>
+        <ContentContainer>
           <div className="sectionContainer">
-            <div className={`sectionContent ${styles.section}`}>
+            <div className="sectionContent">
               <div className="container">
                 <p>You&lsquo;re email verification failed.</p>
               </div>

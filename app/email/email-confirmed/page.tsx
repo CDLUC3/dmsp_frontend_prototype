@@ -8,7 +8,6 @@ import {
   LayoutWithPanel,
   ContentContainer,
 } from '@/components/Container';
-import styles from './email-confirmed.module.scss';
 
 const EmailConfirmed: React.FC = () => {
   const router = useRouter();
@@ -20,9 +19,9 @@ const EmailConfirmed: React.FC = () => {
     <>
       <PageHeader title="Email confirmed" />
       <LayoutWithPanel>
-        <ContentContainer className={styles.layoutContentContainer}>
+        <ContentContainer>
           <div className="sectionContainer">
-            <div className={`sectionContent ${styles.section}`}>
+            <div className="sectionContent">
               <div className="container">
                 <p>Thanks for confirming your alias email. Click below to log in and access your plans. Remember you still need to use your primary email to log in.</p>
                 <Button data-primary onPress={handleGoToLogin}>Log in</Button>
