@@ -9,10 +9,7 @@ const LocaleTestPage: React.FC = () => {
   const name = 'Juliet'
   return (
     <>
-      <PageHeader title="Localization Test" />
-      {/*-Testing translation capabilities*/}
-      <h1>{t('title')}</h1>
-
+      <PageHeader title={t('title')} />
       <p>{t('content', { name })}</p>
       <p>{t('itemCount', { count: 1 })}</p>
       <p>
