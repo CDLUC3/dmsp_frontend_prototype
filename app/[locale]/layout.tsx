@@ -1,27 +1,27 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
-import '@fortawesome/fontawesome-svg-core/styles.css'
+
+// Components
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SubHeader from "@/components/SubHeader";
+
 import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
 import { AuthProvider } from "@/context/AuthContext";
 import { CsrfProvider } from "@/context/CsrfContext";
+
+//Styles
+import '@fortawesome/fontawesome-svg-core/styles.css'
 import "@/styles/globals.scss";
 
-const inter_init = Inter({
-  subsets: ["latin"],
-  variable: '--font-inter',
-});
-
-const poppins_init = Poppins({
+const font_sans_serif = Poppins({
   subsets: ["latin"],
   weight: ['400', '600'],
-  variable: '--font-poppins',
+  variable: '--font-sans-serif',
 });
 
 export const metadata: Metadata = {
@@ -48,19 +48,19 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={font_sans_serif.variable}>
       <head>
         <link
           rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional"
           as="style"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional"
           rel="stylesheet"
         />
       </head>
-      <body className={[poppins_init.className, inter_init.className].join(' ')}>
+      <body className={font_sans_serif.className}>
         <a href="#mainContent" className="skip-nav">Skip to main content</a>
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>

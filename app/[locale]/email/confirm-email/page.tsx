@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic'
+
 async function verifyEmail(userId: string, token: string) {
   // Verify the email address
   const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/verify-email`, {

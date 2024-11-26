@@ -1,3 +1,24 @@
+:root {
+  --dmpui-frontend-font-size-base: 16px;
+  --dmpui-brand-white: #fff;
+  --dmpui-brand-focus-color: #fd0;
+  --dmpui-brand-focus-text-color: #04032d;
+  --dmpui-brand-gray-100: #f2f2f2;
+  --dmpui-brand-blue-100: #f0fbff;
+  --dmpui-brand-blue-200: #eff6ff;
+  --dmpui-brand-blue-300: #effbfe;
+  --dmpui-brand-blue-400: #54d8ff;
+  --dmpui-brand-blue-500: #004eaa;
+  --dmpui-brand-blue-800: #0c0b57;
+  --dmpui-brand-blue-900: #05042e;
+  --dmpui-brand-blue-950: #04032d;
+  --dmpui-gutter-x: 1.5rem;
+  --btn-primary-fg-color: white;
+  --btn-border-radius: 20px;
+  --form-field-border-color: #e1e1e1;
+  --form-field-fg-color: #333;
+  --form-field-bg-color: white;
+}
 .footer-links {
     background-color: var(--dmpui-brand-blue-950);
     padding-bottom: 1rem;
@@ -120,4 +141,99 @@
       }
 }
 
+.mobile-menu .dmpui-frontend-btn, .mobile-menu .btn,
+.mobile-menu .c-search-clear,
+.mobile-menu .js-facet-clear {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+
+.dmpui-frontend-container, #maincontent > div.static-page,
+#maincontent > div.row,
+#maincontent > ul.nav-tabs,
+#maincontent > div.tab-content,
+#maincontent > div.c-faceting,
+#notification-area,
+#App > div > div,
+.c-subheader {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding-right: calc(var(--dmpui-gutter-x) * 0.5);
+  padding-left: calc(var(--dmpui-gutter-x) * 0.5);
+}
+
+.dmpui-frontend-container-full {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.dmpui-frontend .dmpui-frontend-btn, .btn,
+.c-search-clear,
+.js-facet-clear {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  border-radius: 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.dmpui-frontend-btn-primary, .btn-primary {
+  background-color: var(--dmpui-brand-blue-900);
+  color: #fff;
+  border: 2px solid var(--dmpui-brand-blue-900);
+}
+
+.dmpui-frontend-btn-primary:hover, .btn-primary:hover {
+  background-color: var(--dmpui-brand-blue-500);
+  color: #fff;
+  border: 2px solid var(--dmpui-brand-blue-500);
+}
+
+.dmpui-frontend-btn-primary.with-mark, .with-mark.btn-primary {
+  background-image: url("/images/white-arrow.svg");
+  background-size: 30px;
+  background-repeat: no-repeat;
+  background-position: 90% center;
+  padding-right: 5rem;
+}
+
+.dmpui-frontend-btn-secondary.with-mark, .with-mark.btn-default, button.with-mark.dropdown-toggle,
+.with-mark.c-search-clear,
+.with-mark.js-facet-clear {
+  background-image: url("/images/blue-arrow.svg");
+  background-size: 30px;
+  background-repeat: no-repeat;
+  background-position: 90% center;
+  padding-right: 5rem;
+}
+
+.dmpui-frontend-btn-primary.with-mark:hover, .with-mark.btn-primary:hover,
+.dmpui-frontend-btn-secondary.with-mark:hover,
+.with-mark.btn-default:hover,
+button.with-mark.dropdown-toggle:hover,
+.with-mark.c-search-clear:hover,
+.with-mark.js-facet-clear:hover {
+  background-position: 95% center;
+}
+
+.dmpui-frontend-btn-secondary, .btn-default, button.dropdown-toggle,
+.c-search-clear,
+.js-facet-clear {
+  background-color: #fff;
+  color: var(--dmpui-brand-blue-900);
+  border: 2px solid var(--dmpui-brand-blue-900);
+}
+
+.dmpui-frontend-btn-secondary:hover, .btn-default:hover, button.dropdown-toggle:hover,
+.c-search-clear:hover,
+.js-facet-clear:hover {
+  background-color: var(--dmpui-brand-blue-400);
+  border: 2px solid var(--dmpui-brand-blue-400);
+}
 

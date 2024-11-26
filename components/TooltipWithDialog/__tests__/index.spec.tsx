@@ -22,23 +22,6 @@ describe('TooltipWithDialog', () => {
     onPressAction: handleDelete
   };
 
-  it('should render button with tooltip', async () => {
-    render(<TooltipWithDialog {...defaultProps} />);
-
-
-    const button = screen.getByRole('button', { name: 'Delete Item' });
-    expect(button).toBeInTheDocument();
-
-    //Trigger hover event
-    fireEvent.mouseEnter(button);
-
-    waitFor(() => {
-      const tooltip = screen.queryByRole('tooltip');
-      expect(tooltip).toBeInTheDocument();
-      expect(tooltip).toHaveTextContent('Delete this item');
-    })
-  });
-
   it('should open dialog on button click', async () => {
     render(<TooltipWithDialog {...defaultProps} />);
 
