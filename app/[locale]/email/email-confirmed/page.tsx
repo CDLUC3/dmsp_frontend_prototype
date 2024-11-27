@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from 'react-aria-components';
 import PageHeader from '@/components/PageHeader';
 import {
-  LayoutWithPanel,
+  LayoutContainer,
   ContentContainer,
 } from '@/components/Container';
 
@@ -18,7 +18,7 @@ const EmailConfirmed: React.FC = () => {
   return (
     <>
       <PageHeader title="Email confirmed" />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <div className="sectionContainer">
             <div className="sectionContent">
@@ -29,7 +29,7 @@ const EmailConfirmed: React.FC = () => {
             </div>
           </div>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   )
 }

@@ -5,7 +5,7 @@ import sanitizeHtml from 'sanitize-html';
 import ConnectionSection from '@/components/ConnectionSection';
 import PageHeader from '@/components/PageHeader';
 import {
-  LayoutWithPanel,
+  LayoutContainer,
   ContentContainer,
 } from '@/components/Container';
 
@@ -25,7 +25,7 @@ const ConnectionsPage: React.FC = () => {
   return (
     <>
       <PageHeader title="Connections" />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <div className="sectionContainer">
             <div className="sectionContent">
@@ -55,7 +55,7 @@ const ConnectionsPage: React.FC = () => {
             </div>
           </div>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   )
 }

@@ -3,7 +3,7 @@
 import React from 'react';
 import PageHeader from '@/components/PageHeader';
 import {
-  LayoutWithPanel,
+  LayoutContainer,
   ContentContainer,
 } from '@/components/Container';
 
@@ -11,7 +11,7 @@ const VerificationFailed: React.FC = () => {
   return (
     <>
       <PageHeader title="Verification failed" />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <div className="sectionContainer">
             <div className="sectionContent">
@@ -21,7 +21,7 @@ const VerificationFailed: React.FC = () => {
             </div>
           </div>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   )
 }

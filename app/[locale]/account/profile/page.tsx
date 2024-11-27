@@ -352,157 +352,154 @@ const ProfilePage: React.FC = () => {
       />
       <div className={styles.main}>
         <div className={styles.mainContent}>
-          <div>
-            <LayoutWithPanel>
-              <ContentContainer className={styles.layoutContentContainer}>
-                <h2>Your Profile</h2>
-                <div className="sectionContainer">
-                  <div className={`sectionContent ${styles.section}`}>
-                    <Form onSubmit={handleProfileSubmit}>
-                      {errors && errors.length > 0 &&
-                        <div className="error" role="alert" aria-live="assertive">
-                          {errors.map((error, index) => (
-                            <p key={index}>{error}</p>
-                          ))}
-                        </div>
-                      }
-                      <div className="form-row two-item-row">
-                        {isEditing ? (
-                          <FormInput
-                            name="firstName"
-                            type="text"
-                            label="First name"
-                            placeholder={formData.firstName}
-                            value={formData.firstName}
-                            onChange={handleInputChange}
-                            isInvalid={!!fieldErrors['firstName']}
-                            errorMessage={fieldErrors['firstName']}
-                          />
-                        ) : (
-                          <Text slot="firstName" className={styles.readOnlyField}>
-                            <div className="field-label">First name</div>
-                            <p>{formData.firstName}</p>
-                          </Text>
-                        )}
-
-                        {isEditing ? (
-                          <FormInput
-                            name="lastName"
-                            type="text"
-                            label="Last name"
-                            placeholder={formData.lastName}
-                            value={formData.lastName}
-                            onChange={handleInputChange}
-                            isInvalid={!!fieldErrors['lastName']}
-                            errorMessage={fieldErrors['lastName']}
-                          />
-                        ) : (
-                          <Text slot="lastName" className={styles.readOnlyField}>
-                            <div className="field-label">Last name</div>
-                            <p>{formData.lastName}</p>
-                          </Text>
-                        )}
-
+          <LayoutWithPanel>
+            <ContentContainer className={styles.layoutContentContainer}>
+              <h2>Your Profile</h2>
+              <div className="sectionContainer">
+                <div className={`sectionContent ${styles.section}`}>
+                  <Form onSubmit={handleProfileSubmit}>
+                    {errors && errors.length > 0 &&
+                      <div className="error" role="alert" aria-live="assertive">
+                        {errors.map((error, index) => (
+                          <p key={index}>{error}</p>
+                        ))}
                       </div>
-
-                      <div className="form-row one-item-row">
-                        {isEditing ? (
-                          <>
-                            <TypeAheadWithOther
-                              label="Institution"
-                              fieldName="institution"
-                              graphqlQuery={AffiliationsDocument}
-                              setOtherField={setOtherField}
-                              required={true}
-                              error={fieldErrors.affiliationName}
-                              helpText="Search for your institution"
-                              updateFormData={updateAffiliationFormData}
-                              value={formData.affiliationName}
-                            />
-                            {otherField && (
-                              <div className="form-row one-item-row">
-                                <FormInput
-                                  name="otherAffiliationName"
-                                  type="text"
-                                  label="Other institution"
-                                  placeholder={formData.otherAffiliationName}
-                                  value={formData.otherAffiliationName}
-                                  onChange={handleInputChange}
-                                  isInvalid={!!fieldErrors['otherAffiliationName']}
-                                  errorMessage={fieldErrors['otherAffiliationName']}
-                                />
-
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <Text slot="institution" className={styles.readOnlyField}>
-                            <div className="field-label">Institution</div>
-                            <p>{formData.affiliationName}</p>
-                          </Text>
-                        )}
-                      </div>
-
-                      <div className="form-row one-item-row">
-                        {isEditing ? (
-                          <FormSelect
-                            label="Language"
-                            isRequired
-                            name="institution"
-                            items={languages}
-                            errorMessage="A selection is required"
-                            helpMessage="Select your preferred language"
-                            onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
-                            selectedKey={formData.languageId.trim()}
-                          >
-                            {languages && languages.map((language) => {
-                              return (
-                                <ListBoxItem key={language.id}>{language.id}</ListBoxItem>
-                              )
-
-                            })}
-                          </FormSelect>
-                        ) : (
-                          <Text slot="language" className={styles.readOnlyField}>
-                            <div className="field-label">Language</div>
-                            <p>{formData.languageName}</p>
-                          </Text>
-                        )}
-                      </div>
+                    }
+                    <div className="form-row two-item-row">
                       {isEditing ? (
-                        <div className={styles.btnContainer}>
-                          <Button className="secondary" onPress={cancelEdit}>Cancel</Button>
-                          <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? 'Updating' : 'Update'}</Button>
-                        </div>
+                        <FormInput
+                          name="firstName"
+                          type="text"
+                          label="First name"
+                          placeholder={formData.firstName}
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          isInvalid={!!fieldErrors['firstName']}
+                          errorMessage={fieldErrors['firstName']}
+                        />
                       ) : (
-                        <div className={styles.btnContainer}>
-                          <Button type="submit" onPress={handleEdit} className={styles.btn}>Edit</Button>
-                        </div>
+                        <Text slot="firstName" className={styles.readOnlyField}>
+                          <div className="field-label">First name</div>
+                          <p>{formData.firstName}</p>
+                        </Text>
                       )}
-                    </Form>
-                  </div>
+
+                      {isEditing ? (
+                        <FormInput
+                          name="lastName"
+                          type="text"
+                          label="Last name"
+                          placeholder={formData.lastName}
+                          value={formData.lastName}
+                          onChange={handleInputChange}
+                          isInvalid={!!fieldErrors['lastName']}
+                          errorMessage={fieldErrors['lastName']}
+                        />
+                      ) : (
+                        <Text slot="lastName" className={styles.readOnlyField}>
+                          <div className="field-label">Last name</div>
+                          <p>{formData.lastName}</p>
+                        </Text>
+                      )}
+
+                    </div>
+
+                    <div className="form-row one-item-row">
+                      {isEditing ? (
+                        <>
+                          <TypeAheadWithOther
+                            label="Institution"
+                            fieldName="institution"
+                            graphqlQuery={AffiliationsDocument}
+                            setOtherField={setOtherField}
+                            required={true}
+                            error={fieldErrors.affiliationName}
+                            helpText="Search for your institution"
+                            updateFormData={updateAffiliationFormData}
+                            value={formData.affiliationName}
+                          />
+                          {otherField && (
+                            <div className="form-row one-item-row">
+                              <FormInput
+                                name="otherAffiliationName"
+                                type="text"
+                                label="Other institution"
+                                placeholder={formData.otherAffiliationName}
+                                value={formData.otherAffiliationName}
+                                onChange={handleInputChange}
+                                isInvalid={!!fieldErrors['otherAffiliationName']}
+                                errorMessage={fieldErrors['otherAffiliationName']}
+                              />
+
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <Text slot="institution" className={styles.readOnlyField}>
+                          <div className="field-label">Institution</div>
+                          <p>{formData.affiliationName}</p>
+                        </Text>
+                      )}
+                    </div>
+
+                    <div className="form-row one-item-row">
+                      {isEditing ? (
+                        <FormSelect
+                          label="Language"
+                          isRequired
+                          name="institution"
+                          items={languages}
+                          errorMessage="A selection is required"
+                          helpMessage="Select your preferred language"
+                          onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
+                          selectedKey={formData.languageId.trim()}
+                        >
+                          {languages && languages.map((language) => {
+                            return (
+                              <ListBoxItem key={language.id}>{language.id}</ListBoxItem>
+                            )
+
+                          })}
+                        </FormSelect>
+                      ) : (
+                        <Text slot="language" className={styles.readOnlyField}>
+                          <div className="field-label">Language</div>
+                          <p>{formData.languageName}</p>
+                        </Text>
+                      )}
+                    </div>
+                    {isEditing ? (
+                      <div className={styles.btnContainer}>
+                        <Button className="secondary" onPress={cancelEdit}>Cancel</Button>
+                        <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? 'Updating' : 'Update'}</Button>
+                      </div>
+                    ) : (
+                      <div className={styles.btnContainer}>
+                        <Button type="submit" onPress={handleEdit} className={styles.btn}>Edit</Button>
+                      </div>
+                    )}
+                  </Form>
                 </div>
+              </div>
 
-                <UpdateEmailAddress
-                  emailAddresses={emailAddresses}
-                />
-              </ContentContainer>
-              <SidebarPanel className={styles.layoutSidebarPanel}>
-
-
-                <h2>Related actions</h2>
-                <ul className={styles.relatedItems}>
-                  <li><Link href="/account/update-password">Update password</Link></li>
-                  <li><Link href="/account/connections">Update connections</Link></li>
-                  <li><Link href="/account/notifications">Manage notifications</Link></li>
-                </ul>
+              <UpdateEmailAddress
+                emailAddresses={emailAddresses}
+              />
+            </ContentContainer>
+            <SidebarPanel className={styles.layoutSidebarPanel}>
 
 
-              </SidebarPanel>
-            </LayoutWithPanel>
-          </div>
+              <h2>Related actions</h2>
+              <ul className={styles.relatedItems}>
+                <li><Link href="/account/update-password">Update password</Link></li>
+                <li><Link href="/account/connections">Update connections</Link></li>
+                <li><Link href="/account/notifications">Manage notifications</Link></li>
+              </ul>
+
+
+            </SidebarPanel>
+          </LayoutWithPanel>
         </div>
-
       </div >
     </>
   )
