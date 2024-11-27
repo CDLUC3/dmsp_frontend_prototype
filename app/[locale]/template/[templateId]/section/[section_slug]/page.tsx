@@ -27,7 +27,7 @@ const SectionEditPage: React.FC = () => {
 
 
       <PageHeader
-        title={`Edit Section`}
+        title="Edit Section"
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -63,8 +63,8 @@ const SectionEditPage: React.FC = () => {
                   <Text slot="description" className="help">
                     Don’t worry, you can change this later.
                   </Text>
-                  <Input/>
-                  <FieldError/>
+                  <Input />
+                  <FieldError />
                 </TextField>
 
                 <TextField
@@ -75,8 +75,8 @@ const SectionEditPage: React.FC = () => {
                   <Text slot="description" className="help">
                     Optionally, provide a description for this section.
                   </Text>
-                  <Input/>
-                  <FieldError/>
+                  <Input />
+                  <FieldError />
                 </TextField>
 
                 <Button type="submit">Create Section</Button>

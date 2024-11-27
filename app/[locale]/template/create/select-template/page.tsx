@@ -46,7 +46,7 @@ const TemplateSelectTemplatePage: React.FC = () => {
     }
   ];
 
-// Public DMP Templates
+  // Public DMP Templates
   const publicTemplates = [
     {
       funder: 'DMP Tool',
@@ -96,9 +96,9 @@ const TemplateSelectTemplatePage: React.FC = () => {
       <div className="Filters" role="search">
         <SearchField aria-label="Template search">
           <Label>Search by keyword</Label>
-          <Input aria-describedby="search-help"/>
+          <Input aria-describedby="search-help" />
           <Button>Search</Button>
-          <FieldError/>
+          <FieldError />
           <Text slot="description" className="help" id="search-help">
             Search by research organization, field station or lab, template
             description, etc.
@@ -113,7 +113,7 @@ const TemplateSelectTemplatePage: React.FC = () => {
         <div className="template-list" role="list" aria-label="Your templates">
           {nsfTemplates.map((template, index) => (
             <TemplateSelectListItem key={index}
-                                    item={template}></TemplateSelectListItem>
+              item={template}></TemplateSelectListItem>
           ))}
         </div>
       </section>
@@ -123,11 +123,11 @@ const TemplateSelectTemplatePage: React.FC = () => {
           Use one of the public templates
         </h2>
         <div className="template-list"
-             role="list"
-             aria-label="Public templates">
+          role="list"
+          aria-label="Public templates">
           {publicTemplates.map((template, index) => (
             <TemplateSelectListItem key={index}
-                                    item={template}></TemplateSelectListItem>
+              item={template}></TemplateSelectListItem>
           ))}
         </div>
       </section>

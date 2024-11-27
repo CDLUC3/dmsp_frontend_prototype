@@ -24,7 +24,7 @@ const ConnectionsPage: React.FC = () => {
 
   return (
     <>
-      <PageHeader title={'Connections'} />
+      <PageHeader title="Connections" />
       <LayoutWithPanel>
         <ContentContainer>
           <div className="sectionContainer">
