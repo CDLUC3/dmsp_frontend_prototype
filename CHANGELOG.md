@@ -52,6 +52,7 @@
 
 
 ### Fixed
+- Removed old `app/layout.tsx` page. It was causing errors, since we have one located at `app/[locale]/layout.tsx` now.
 - Fixed a failing unit test and build for `confirm-email` component when backend server was not running [#180]
 - Removed use of NEXT_PUBLIC_GRAPHQL_ENDPOINT env variable, since it was a duplicate of NEXT_PUBLIC_SERVER_ENDPOINT [#171]
 
