@@ -20,7 +20,7 @@ interface JWTAccessToken extends JwtPayload {
 }
 
 // TODO: These routes will need to be updated.
-const excludedPaths = ['/email', '/favicon.ico', '/_next', '/api'];
+const excludedPaths = ['/email', '/favicon.ico', '/_next', '/api', '/login', '/signup'];
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -72,20 +72,16 @@ async function getLocale(request: NextRequest) {
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const { pathname } = request.nextUrl;
-  // Check if the path is in the excludedPaths array
-  if (excludedPaths.some(path => pathname.startsWith(path))) {
-    // If it is, return the response without checking for tokens
-    return response;
-  }
-
   const accessToken = request.cookies.get('dmspt');
   const refreshToken = request.cookies.get('dmspr');
 
   /* TODO: might want to add a 'redirect' query param to url to redirect user after
    login to the original page they were trying to get to.*/
 
-  // Check for tokens for paths that are not excluded from authentication
-  if (!excludedPaths.some(path => pathname.startsWith(path))) {
+  /* Check for tokens for paths that are not excluded from authentication
+  and are not signup or login */
+  const isExcludedPath = excludedPaths.some(path => pathname.includes(path));
+  if (!isExcludedPath) {
     if (!accessToken && !refreshToken) {
       return NextResponse.redirect(new URL('/login', request.url));
     }

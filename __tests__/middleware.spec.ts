@@ -66,15 +66,6 @@ describe('middleware', () => {
         expect(NextResponse.redirect).toHaveBeenCalledWith(expectedUrl);
     });
 
-    it('should return next response when it is an excluded path', async () => {
-        request.nextUrl.pathname = '/_next';
-
-        const result = await middleware(request);
-
-        expect(NextResponse.next).toHaveBeenCalled();
-        expect(result).toBe(response);
-    });
-
     it('should redirect to /login if both tokens are missing and path is protected', async () => {
         request.nextUrl.pathname = '/dmps/';
         request.cookies.get = jest.fn().mockReturnValue(undefined); // No tokens
