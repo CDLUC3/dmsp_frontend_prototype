@@ -1,5 +1,5 @@
 
-import './footer.scss';
+import styles from './footer.module.scss';
 
 function Footer() {
     const year = new Date().getFullYear();
@@ -8,20 +8,20 @@ function Footer() {
 
     return (
         <>
-            <footer>
-                <div className="footer-links">
-                    <div className="dmpui-frontend-container dmpui-frontend">
-                        <div className="footer-links-grid">
-                            <div className="footer-links-logo">
+            <footer className={styles.footerWrapper}>
+                <div className={styles['footer-links']}>
+                    <div className={`${styles['dmpui-frontend-container']} ${styles['dmpui-frontend']}`}>
+                        <div className={styles['footer-links-grid']}>
+                            <div className={styles['footer-links-logo']}>
                                 <img src='/images/DMP-logo-white.svg' alt="DMP Tool" />
                                 <p>
-                                    <a href="#" className="dmpui-frontend-btn dmpui-frontend-btn-secondary with-mark">
+                                    <a href="#" className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']} ${styles['with-mark']}`}>
                                         Get Started
                                     </a>
                                 </p>
                             </div>
 
-                            <div className="footer-links-quicklinks">
+                            <div className={styles['footer-links-quicklinks']}>
                                 <h4>Quick links</h4>
                                 <ul>
                                     <li><a href="">Funder Requirements</a></li>
@@ -33,7 +33,7 @@ function Footer() {
                                 </ul>
                             </div>
 
-                            <div className="footer-links-external">
+                            <div className={styles['footer-links-external']}>
                                 <h4>External links</h4>
                                 <ul>
                                     <li><a href="https://github.com/cdluc3/dmptool/wiki" target="_blank">GitHub</a></li>
@@ -45,13 +45,13 @@ function Footer() {
                     </div>
                 </div>
 
-                <div className="footer-disclaimers">
-                    <div className="dmpui-frontend-container dmpui-frontend ">
-                        <div className="footer-disclaimers-grid">
-                            <div className="footer-disclaimers-logo">
+                <div className={styles['footer-disclaimers']}>
+                    <div className={`${styles['dmpui-frontend-container']} ${styles['dmpui-frontend']}`}>
+                        <div className={styles['footer-disclaimers-grid']}>
+                            <div className={styles['footer-disclaimers-logo']}>
                                 <img src="/images/logo-cdl.png" alt="CDL" />
                             </div>
-                            <div className="footer-disclaimers-text">
+                            <div className={styles['footer-disclaimers-text']}>
                                 <p>DMP Tool is a service of the California Digital Library, a division of the University of California Office of the President.
                                     <br />
                                     Copyright &copy; {new Date().getFullYear()} The Regents of the University of California

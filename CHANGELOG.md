@@ -1,5 +1,6 @@
 ### Updated
 =======
+- Updated account/profile, email/email-confirmed, email/verification-failed, and account/connections to use new, shared layout containers [#185]
 - Refactored font family usage for consistency.
 
 ### Added

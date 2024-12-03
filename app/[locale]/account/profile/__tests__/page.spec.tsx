@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, act, fireEvent, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProfilePage from '../page';
 import { useMeQuery, useUpdateUserProfileMutation, useLanguagesQuery } from '@/generated/graphql';
@@ -70,8 +70,9 @@ describe('ProfilePage', () => {
   it('should render profile page with user data', async () => {
     render(<ProfilePage />);
 
-    await waitFor(() => {
-      expect(screen.getByText('Update profile')).toBeInTheDocument();
+    await act(async () => {
+      const element = screen.getByText('Update profile', { selector: '.pageheader-title' });
+      expect(element).toBeInTheDocument();
     });
 
     // Check that user data is rendered
@@ -97,9 +98,12 @@ describe('ProfilePage', () => {
     // Confirm that "FormInput" fields are initially hidden
     expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
 
-    // Locate the Edit button and click it
-    const editButton = screen.getByRole('button', { name: /edit/i });
-    fireEvent.click(editButton);
+    // Wrap state-changing interactions in act()
+    await act(async () => {
+      // Locate the Edit button and click it
+      const editButton = screen.getByRole('button', { name: /edit/i });
+      fireEvent.click(editButton);
+    });
 
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
@@ -109,7 +113,9 @@ describe('ProfilePage', () => {
     expect(lastNameInput).toBeInTheDocument();
 
     // Enter an invalid value for first name field
-    fireEvent.change(firstNameInput, { target: { value: '' } });
+    await act(async () => {
+      fireEvent.change(firstNameInput, { target: { value: '' } });
+    });
 
     const submitButton = screen.getByRole('button', { name: /update/i });
     fireEvent.click(submitButton);
@@ -127,7 +133,10 @@ describe('ProfilePage', () => {
 
     // Locate the Edit button and click it
     const editButton = screen.getByRole('button', { name: /edit/i });
-    fireEvent.click(editButton);
+
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
 
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
@@ -137,7 +146,9 @@ describe('ProfilePage', () => {
     expect(lastNameInput).toBeInTheDocument();
 
     // Enter an invalid value for first name field
-    fireEvent.change(firstNameInput, { target: { value: 'Mary' } });
+    await act(async () => {
+      fireEvent.change(firstNameInput, { target: { value: 'Mary' } });
+    });
 
     const cancelButton = screen.getByRole('button', { name: /cancel/i });
     fireEvent.click(cancelButton);
@@ -149,9 +160,11 @@ describe('ProfilePage', () => {
   it('should load languages', async () => {
     render(<ProfilePage />);
 
-    // Locate the Edit button and click it
-    const editButton = screen.getByRole('button', { name: /edit/i });
-    fireEvent.click(editButton);
+    await act(async () => {
+      // Locate the Edit button and click it
+      const editButton = screen.getByRole('button', { name: /edit/i });
+      fireEvent.click(editButton);
+    });
 
     const hiddenContainer = screen.getByTestId('hidden-select-container');
     const select = within(hiddenContainer).getByDisplayValue('English');
