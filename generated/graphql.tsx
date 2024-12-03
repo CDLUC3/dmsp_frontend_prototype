@@ -1446,18 +1446,6 @@ export type UpdateUserProfileInput = {
   surName: Scalars['String']['input'];
 };
 
-export type AffiliationsQueryVariables = Exact<{
-  name: Scalars['String']['input'];
-}>;
-
-
-export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null };
-
-export type ContributorRolesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ContributorRolesQuery = { __typename?: 'Query', contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, url: any } | null> | null };
-
 export type UpdateUserProfileMutationVariables = Exact<{
   input: UpdateUserProfileInput;
 }>;
@@ -1487,6 +1475,18 @@ export type SetPrimaryUserEmailMutationVariables = Exact<{
 
 export type SetPrimaryUserEmailMutation = { __typename?: 'Mutation', setPrimaryUserEmail?: Array<{ __typename?: 'UserEmail', id?: number | null, errors?: Array<string> | null, email: string, isConfirmed: boolean, isPrimary: boolean, userId: number } | null> | null };
 
+export type AffiliationsQueryVariables = Exact<{
+  name: Scalars['String']['input'];
+}>;
+
+
+export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null };
+
+export type ContributorRolesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ContributorRolesQuery = { __typename?: 'Query', contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, url: any } | null> | null };
+
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1497,7 +1497,12 @@ export type TemplateVersionsQueryVariables = Exact<{
 }>;
 
 
-export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: Array<{ __typename?: 'VersionedTemplate', name: string, version: string, created?: string | null, comment?: string | null, id?: number | null, versionedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, modified?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null } | null> | null };
+export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: Array<{ __typename?: 'VersionedTemplate', name: string, version: string, versionType?: TemplateVersionType | null, created?: string | null, comment?: string | null, id?: number | null, modified?: string | null, versionedBy?: { __typename?: 'User', givenName?: string | null, surName?: string | null, modified?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null } | null> | null };
+
+export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TemplatesQuery = { __typename?: 'Query', templates?: Array<{ __typename?: 'Template', name: string, description?: string | null, modified?: string | null, id?: number | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1505,89 +1510,6 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, errors?: Array<string> | null, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
-export const AffiliationsDocument = gql`
-    query Affiliations($name: String!) {
-  affiliations(name: $name) {
-    id
-    displayName
-    uri
-  }
-}
-    `;
-
-/**
- * __useAffiliationsQuery__
- *
- * To run a query within a React component, call `useAffiliationsQuery` and pass it any options that fit your needs.
- * When your component renders, `useAffiliationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAffiliationsQuery({
- *   variables: {
- *      name: // value for 'name'
- *   },
- * });
- */
-export function useAffiliationsQuery(baseOptions: Apollo.QueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables> & ({ variables: AffiliationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
-      }
-export function useAffiliationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
-        }
-export function useAffiliationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
-        }
-export type AffiliationsQueryHookResult = ReturnType<typeof useAffiliationsQuery>;
-export type AffiliationsLazyQueryHookResult = ReturnType<typeof useAffiliationsLazyQuery>;
-export type AffiliationsSuspenseQueryHookResult = ReturnType<typeof useAffiliationsSuspenseQuery>;
-export type AffiliationsQueryResult = Apollo.QueryResult<AffiliationsQuery, AffiliationsQueryVariables>;
-export const ContributorRolesDocument = gql`
-    query ContributorRoles {
-  contributorRoles {
-    id
-    label
-    url
-  }
-}
-    `;
-
-/**
- * __useContributorRolesQuery__
- *
- * To run a query within a React component, call `useContributorRolesQuery` and pass it any options that fit your needs.
- * When your component renders, `useContributorRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useContributorRolesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useContributorRolesQuery(baseOptions?: Apollo.QueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
-      }
-export function useContributorRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
-        }
-export function useContributorRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
-        }
-export type ContributorRolesQueryHookResult = ReturnType<typeof useContributorRolesQuery>;
-export type ContributorRolesLazyQueryHookResult = ReturnType<typeof useContributorRolesLazyQuery>;
-export type ContributorRolesSuspenseQueryHookResult = ReturnType<typeof useContributorRolesSuspenseQuery>;
-export type ContributorRolesQueryResult = Apollo.QueryResult<ContributorRolesQuery, ContributorRolesQueryVariables>;
 export const UpdateUserProfileDocument = gql`
     mutation UpdateUserProfile($input: updateUserProfileInput!) {
   updateUserProfile(input: $input) {
@@ -1742,6 +1664,89 @@ export function useSetPrimaryUserEmailMutation(baseOptions?: Apollo.MutationHook
 export type SetPrimaryUserEmailMutationHookResult = ReturnType<typeof useSetPrimaryUserEmailMutation>;
 export type SetPrimaryUserEmailMutationResult = Apollo.MutationResult<SetPrimaryUserEmailMutation>;
 export type SetPrimaryUserEmailMutationOptions = Apollo.BaseMutationOptions<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>;
+export const AffiliationsDocument = gql`
+    query Affiliations($name: String!) {
+  affiliations(name: $name) {
+    id
+    displayName
+    uri
+  }
+}
+    `;
+
+/**
+ * __useAffiliationsQuery__
+ *
+ * To run a query within a React component, call `useAffiliationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAffiliationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAffiliationsQuery({
+ *   variables: {
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useAffiliationsQuery(baseOptions: Apollo.QueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables> & ({ variables: AffiliationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
+      }
+export function useAffiliationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
+        }
+export function useAffiliationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
+        }
+export type AffiliationsQueryHookResult = ReturnType<typeof useAffiliationsQuery>;
+export type AffiliationsLazyQueryHookResult = ReturnType<typeof useAffiliationsLazyQuery>;
+export type AffiliationsSuspenseQueryHookResult = ReturnType<typeof useAffiliationsSuspenseQuery>;
+export type AffiliationsQueryResult = Apollo.QueryResult<AffiliationsQuery, AffiliationsQueryVariables>;
+export const ContributorRolesDocument = gql`
+    query ContributorRoles {
+  contributorRoles {
+    id
+    label
+    url
+  }
+}
+    `;
+
+/**
+ * __useContributorRolesQuery__
+ *
+ * To run a query within a React component, call `useContributorRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContributorRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useContributorRolesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useContributorRolesQuery(baseOptions?: Apollo.QueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
+      }
+export function useContributorRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
+        }
+export function useContributorRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
+        }
+export type ContributorRolesQueryHookResult = ReturnType<typeof useContributorRolesQuery>;
+export type ContributorRolesLazyQueryHookResult = ReturnType<typeof useContributorRolesLazyQuery>;
+export type ContributorRolesSuspenseQueryHookResult = ReturnType<typeof useContributorRolesSuspenseQuery>;
+export type ContributorRolesQueryResult = Apollo.QueryResult<ContributorRolesQuery, ContributorRolesQueryVariables>;
 export const LanguagesDocument = gql`
     query Languages {
   languages {
@@ -1788,9 +1793,11 @@ export const TemplateVersionsDocument = gql`
   templateVersions(templateId: $templateId) {
     name
     version
+    versionType
     created
     comment
     id
+    modified
     versionedBy {
       givenName
       surName
@@ -1835,6 +1842,53 @@ export type TemplateVersionsQueryHookResult = ReturnType<typeof useTemplateVersi
 export type TemplateVersionsLazyQueryHookResult = ReturnType<typeof useTemplateVersionsLazyQuery>;
 export type TemplateVersionsSuspenseQueryHookResult = ReturnType<typeof useTemplateVersionsSuspenseQuery>;
 export type TemplateVersionsQueryResult = Apollo.QueryResult<TemplateVersionsQuery, TemplateVersionsQueryVariables>;
+export const TemplatesDocument = gql`
+    query Templates {
+  templates {
+    name
+    description
+    modified
+    id
+    owner {
+      name
+      displayName
+      searchName
+    }
+  }
+}
+    `;
+
+/**
+ * __useTemplatesQuery__
+ *
+ * To run a query within a React component, call `useTemplatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTemplatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTemplatesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTemplatesQuery(baseOptions?: Apollo.QueryHookOptions<TemplatesQuery, TemplatesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TemplatesQuery, TemplatesQueryVariables>(TemplatesDocument, options);
+      }
+export function useTemplatesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TemplatesQuery, TemplatesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TemplatesQuery, TemplatesQueryVariables>(TemplatesDocument, options);
+        }
+export function useTemplatesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TemplatesQuery, TemplatesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TemplatesQuery, TemplatesQueryVariables>(TemplatesDocument, options);
+        }
+export type TemplatesQueryHookResult = ReturnType<typeof useTemplatesQuery>;
+export type TemplatesLazyQueryHookResult = ReturnType<typeof useTemplatesLazyQuery>;
+export type TemplatesSuspenseQueryHookResult = ReturnType<typeof useTemplatesSuspenseQuery>;
+export type TemplatesQueryResult = Apollo.QueryResult<TemplatesQuery, TemplatesQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {
