@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import Link from 'next/link';
 import {
+  Breadcrumb,
+  Breadcrumbs,
   Button,
   Form,
   ListBoxItem,
@@ -19,14 +21,16 @@ import {
 } from '@/generated/graphql';
 
 // Components
-import PageWrapper from '@/components/PageWrapper';
-import ContentContainer from '@/components/ContentContainer';
+import PageHeader from '@/components/PageHeader';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import BackButton from '@/components/BackButton';
-import RightSidebar from '@/components/RightSidebar';
 import { FormSelect } from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
+import {
+  LayoutWithPanel,
+  ContentContainer,
+  SidebarPanel,
+} from '@/components/Container';
 
 // Interfaces
 import {
@@ -334,158 +338,171 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <PageWrapper title={'Update profile'}>
-      <BackButton />
+    <>
+      <PageHeader
+        title="Update profile"
+        showBackButton={true}
+        breadcrumbs={
+          <Breadcrumbs>
+            <Breadcrumb><Link href="/">Account</Link></Breadcrumb>
+            <Breadcrumb><Link href="/account/profile">Update Profile</Link></Breadcrumb>
+          </Breadcrumbs>
+        }
+        className="page-template-list"
+      />
       <div className={styles.main}>
         <div className={styles.mainContent}>
-          <h1 className={styles.title}>Update profile</h1>
-          <div className={styles.section}>
-            <h2>Your Profile</h2>
-            <ContentContainer>
-              <div className={styles.subSection}>
-                <Form onSubmit={handleProfileSubmit}>
-                  {errors && errors.length > 0 &&
-                    <div className="error" role="alert" aria-live="assertive">
-                      {errors.map((error, index) => (
-                        <p key={index}>{error}</p>
-                      ))}
-                    </div>
-                  }
-                  <div className="form-row two-item-row">
-                    {isEditing ? (
-                      <FormInput
-                        name="firstName"
-                        type="text"
-                        label="First name"
-                        placeholder={formData.firstName}
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        isInvalid={!!fieldErrors['firstName']}
-                        errorMessage={fieldErrors['firstName']}
-                      />
-                    ) : (
-                      <Text slot="firstName" className={styles.readOnlyField}>
-                        <div className="field-label">First name</div>
-                        <p>{formData.firstName}</p>
-                      </Text>
-                    )}
-
-                    {isEditing ? (
-                      <FormInput
-                        name="lastName"
-                        type="text"
-                        label="Last name"
-                        placeholder={formData.lastName}
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        isInvalid={!!fieldErrors['lastName']}
-                        errorMessage={fieldErrors['lastName']}
-                      />
-                    ) : (
-                      <Text slot="lastName" className={styles.readOnlyField}>
-                        <div className="field-label">Last name</div>
-                        <p>{formData.lastName}</p>
-                      </Text>
-                    )}
-
-                  </div>
-
-                  <div className="form-row one-item-row">
-                    {isEditing ? (
-                      <>
-                        <TypeAheadWithOther
-                          label="Institution"
-                          fieldName="institution"
-                          graphqlQuery={AffiliationsDocument}
-                          setOtherField={setOtherField}
-                          required={true}
-                          error={fieldErrors.affiliationName}
-                          helpText="Search for your institution"
-                          updateFormData={updateAffiliationFormData}
-                          value={formData.affiliationName}
+          <LayoutWithPanel>
+            <ContentContainer className={styles.layoutContentContainer}>
+              <h2>Your Profile</h2>
+              <div className="sectionContainer">
+                <div className={`sectionContent ${styles.section}`}>
+                  <Form onSubmit={handleProfileSubmit}>
+                    {errors && errors.length > 0 &&
+                      <div className="error" role="alert" aria-live="assertive">
+                        {errors.map((error, index) => (
+                          <p key={index}>{error}</p>
+                        ))}
+                      </div>
+                    }
+                    <div className="form-row two-item-row">
+                      {isEditing ? (
+                        <FormInput
+                          name="firstName"
+                          type="text"
+                          label="First name"
+                          placeholder={formData.firstName}
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          isInvalid={!!fieldErrors['firstName']}
+                          errorMessage={fieldErrors['firstName']}
                         />
-                        {otherField && (
-                          <div className="form-row one-item-row">
-                            <FormInput
-                              name="otherAffiliationName"
-                              type="text"
-                              label="Other institution"
-                              placeholder={formData.otherAffiliationName}
-                              value={formData.otherAffiliationName}
-                              onChange={handleInputChange}
-                              isInvalid={!!fieldErrors['otherAffiliationName']}
-                              errorMessage={fieldErrors['otherAffiliationName']}
-                            />
+                      ) : (
+                        <Text slot="firstName" className={styles.readOnlyField}>
+                          <div className="field-label">First name</div>
+                          <p>{formData.firstName}</p>
+                        </Text>
+                      )}
 
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <Text slot="institution" className={styles.readOnlyField}>
-                        <div className="field-label">Institution</div>
-                        <p>{formData.affiliationName}</p>
-                      </Text>
-                    )}
-                  </div>
+                      {isEditing ? (
+                        <FormInput
+                          name="lastName"
+                          type="text"
+                          label="Last name"
+                          placeholder={formData.lastName}
+                          value={formData.lastName}
+                          onChange={handleInputChange}
+                          isInvalid={!!fieldErrors['lastName']}
+                          errorMessage={fieldErrors['lastName']}
+                        />
+                      ) : (
+                        <Text slot="lastName" className={styles.readOnlyField}>
+                          <div className="field-label">Last name</div>
+                          <p>{formData.lastName}</p>
+                        </Text>
+                      )}
 
-                  <div className="form-row one-item-row">
+                    </div>
+
+                    <div className="form-row one-item-row">
+                      {isEditing ? (
+                        <>
+                          <TypeAheadWithOther
+                            label="Institution"
+                            fieldName="institution"
+                            graphqlQuery={AffiliationsDocument}
+                            setOtherField={setOtherField}
+                            required={true}
+                            error={fieldErrors.affiliationName}
+                            helpText="Search for your institution"
+                            updateFormData={updateAffiliationFormData}
+                            value={formData.affiliationName}
+                          />
+                          {otherField && (
+                            <div className="form-row one-item-row">
+                              <FormInput
+                                name="otherAffiliationName"
+                                type="text"
+                                label="Other institution"
+                                placeholder={formData.otherAffiliationName}
+                                value={formData.otherAffiliationName}
+                                onChange={handleInputChange}
+                                isInvalid={!!fieldErrors['otherAffiliationName']}
+                                errorMessage={fieldErrors['otherAffiliationName']}
+                              />
+
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <Text slot="institution" className={styles.readOnlyField}>
+                          <div className="field-label">Institution</div>
+                          <p>{formData.affiliationName}</p>
+                        </Text>
+                      )}
+                    </div>
+
+                    <div className="form-row one-item-row">
+                      {isEditing ? (
+                        <FormSelect
+                          label="Language"
+                          isRequired
+                          name="institution"
+                          items={languages}
+                          errorMessage="A selection is required"
+                          helpMessage="Select your preferred language"
+                          onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
+                          selectedKey={formData.languageId.trim()}
+                        >
+                          {languages && languages.map((language) => {
+                            return (
+                              <ListBoxItem key={language.id}>{language.id}</ListBoxItem>
+                            )
+
+                          })}
+                        </FormSelect>
+                      ) : (
+                        <Text slot="language" className={styles.readOnlyField}>
+                          <div className="field-label">Language</div>
+                          <p>{formData.languageName}</p>
+                        </Text>
+                      )}
+                    </div>
                     {isEditing ? (
-                      <FormSelect
-                        label="Language"
-                        isRequired
-                        name="institution"
-                        items={languages}
-                        errorMessage="A selection is required"
-                        helpMessage="Select your preferred language"
-                        onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
-                        selectedKey={formData.languageId.trim()}
-                      >
-                        {languages && languages.map((language) => {
-                          return (
-                            <ListBoxItem key={language.id}>{language.id}</ListBoxItem>
-                          )
-
-                        })}
-                      </FormSelect>
+                      <div className={styles.btnContainer}>
+                        <Button className="secondary" onPress={cancelEdit}>Cancel</Button>
+                        <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? 'Updating' : 'Update'}</Button>
+                      </div>
                     ) : (
-                      <Text slot="language" className={styles.readOnlyField}>
-                        <div className="field-label">Language</div>
-                        <p>{formData.languageName}</p>
-                      </Text>
+                      <div className={styles.btnContainer}>
+                        <Button type="submit" onPress={handleEdit} className={styles.btn}>Edit</Button>
+                      </div>
                     )}
-                  </div>
-                  {isEditing ? (
-                    <div className={styles.btnContainer}>
-                      <Button className="secondary" onPress={cancelEdit}>Cancel</Button>
-                      <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? 'Updating' : 'Update'}</Button>
-                    </div>
-                  ) : (
-                    <div className={styles.btnContainer}>
-                      <Button type="submit" onPress={handleEdit} className={styles.btn}>Edit</Button>
-                    </div>
-                  )}
-                </Form>
+                  </Form>
+                </div>
               </div>
+
+              <UpdateEmailAddress
+                emailAddresses={emailAddresses}
+              />
             </ContentContainer>
-          </div>
-          <UpdateEmailAddress
-            emailAddresses={emailAddresses}
-          />
-        </div>
-        <div className={styles.rightSidebar}>
-          <RightSidebar>
-            <h2>Related actions</h2>
-            <ul className={styles.relatedItems}>
-              <li><Link href="/account/update-password">Update password</Link></li>
-              <li><Link href="/account/connections">Update connections</Link></li>
-              <li><Link href="/account/notifications">Manage notifications</Link></li>
-            </ul>
-          </RightSidebar>
+            <SidebarPanel className={styles.layoutSidebarPanel}>
+
+
+              <h2>Related actions</h2>
+              <ul className={styles.relatedItems}>
+                <li><Link href="/account/update-password">Update password</Link></li>
+                <li><Link href="/account/connections">Update connections</Link></li>
+                <li><Link href="/account/notifications">Manage notifications</Link></li>
+              </ul>
+
+
+            </SidebarPanel>
+          </LayoutWithPanel>
         </div>
       </div >
-    </PageWrapper >
+    </>
   )
 }
 
 export default ProfilePage;
-

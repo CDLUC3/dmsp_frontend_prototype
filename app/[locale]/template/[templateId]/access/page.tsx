@@ -66,7 +66,7 @@ const TemplateAccessPage: React.FC = () => {
   return (
     <div>
       <PageHeader
-        title={"Manage Access"}
+        title="Manage Access"
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -90,7 +90,7 @@ const TemplateAccessPage: React.FC = () => {
             organization.
           </p>
           <section className="sectionContainer"
-                   aria-labelledby="org-access-heading">
+            aria-labelledby="org-access-heading">
             <div className={`sectionHeader  mt-0`}>
               <h3 id="org-access-heading">Within Organization</h3>
             </div>
@@ -101,7 +101,7 @@ const TemplateAccessPage: React.FC = () => {
           </section>
 
           <section className="sectionContainer"
-                   aria-labelledby="external-access-heading">
+            aria-labelledby="external-access-heading">
             <div className="sectionHeader">
               <h3 id="external-access-heading">External People</h3>
             </div>
@@ -116,7 +116,7 @@ const TemplateAccessPage: React.FC = () => {
                           <div
                             className={styles.personName}>{person.fullName}</div>
                           <div className={styles.personEmail}
-                               aria-label={`Email: ${person.email}`}>
+                            aria-label={`Email: ${person.email}`}>
                             {person.email}
                           </div>
                         </div>
@@ -139,7 +139,7 @@ const TemplateAccessPage: React.FC = () => {
           </section>
 
           <section aria-labelledby="share-form-heading"
-                   className={styles.shareForm}>
+            className={styles.shareForm}>
             <div className="sectionContent">
               <Form onSubmit={handleSubmit}>
                 <h3 id="share-form-heading" className="mb-4">Share with someone

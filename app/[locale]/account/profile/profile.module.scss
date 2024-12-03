@@ -2,11 +2,7 @@
 
 
 .readOnlyField {
-  min-width: 200px;
-}
-
-.section {
-  margin: var(--space-6) 0;
+  min-width: 50%;
 }
 
 .subSection {
@@ -45,12 +41,6 @@
 .mainContent {
   flex: 1;
   min-width: 400px;
-  padding-right: 20px;
-}
-
-.rightSidebar {
-  flex-basis: 300px; /*Fixed width for sidebar*/
-  padding-top: var(--space-3);
 }
 
 .btnContainer {

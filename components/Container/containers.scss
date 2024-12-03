@@ -13,7 +13,7 @@
   position: relative;
   width: 100%;
   padding: var(--layout-content-padding, var(--brand-space2));
-  background-color: var(--layout-content-background, white);
+  background-color: var(--layout-content-background);
   color: var(--layout-content-color, var(--text-color));
 
   > :first-child { margin-top: 0; }
