@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createApolloClient } from '@/lib/graphql/client/apollo-client';
+import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,8 +13,8 @@ import {
   Link,
   SearchField,
   Text
-} from "react-aria-components";
-import { useFormatter } from 'next-intl';
+} from 'react-aria-components';
+import { useFormatter, useTranslations } from 'next-intl';
 
 //GraphQL
 import {
@@ -25,43 +26,81 @@ import {
 } from '@/generated/graphql';
 
 // Components
-import PageHeader from "@/components/PageHeader";
-import TemplateListItem from "@/components/TemplateListItem";
+import PageHeader from '@/components/PageHeader';
+import TemplateListItem from '@/components/TemplateListItem';
+import {
+  LayoutContainer,
+  ContentContainer,
+} from '@/components/Container';
 
 import {
   TemplateItemProps,
   TemplateInterface,
-
 } from '@/app/types';
-
+import styles from './template.module.scss';
 
 const TemplateListPage: React.FC = () => {
   const formatter = useFormatter();
   const client = createApolloClient();
   const [errors, setErrors] = useState<string[]>([]);
   const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
-  const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[]>([]);
+  const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  // For translations
+  const t = useTranslations('OrganizationTemplates');
 
-  const { data = {}, loading, error, refetch } = useTemplatesQuery();
+  // Make graphql request for templates under the user's affiliation
+  const { data = {}, loading, error: queryError, refetch } = useTemplatesQuery({
+    /* Force Apollo to notify React of changes. This was needed for when refetch is
+    called and a re-render of data is necessary*/
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  });
 
-  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  //Update searchTerm state whenever entry in the search field changes
+  const handleSearchInput = (value: string) => {
     setSearchTerm(value);
   }
 
-  const handleFiltering = () => {
-    const filteredList = templates.filter(item => item.title.includes(searchTerm));
-    setFilteredTemplates(filteredList);
+  // Filter results when a user enters a search term and clicks "Search" button
+  const handleFiltering = (term: string) => {
+    setErrors([]);
+    const filteredList = templates.filter(item => item.title.includes(term));
+    if (filteredList.length >= 1) {
+      setSearchTerm(term);
+      setFilteredTemplates(filteredList);
+    } else {
+      //If there are no matching results, then display an error
+      const errorMessage = t('noItemsFoundError', { term })
+      setErrors(prev => [...prev, errorMessage]);
+    }
   }
 
-  const fetchLatestVersion = async (templateId: number) => {
+  const fetchTemplateVersions = async (templateId: number) => {
     try {
       const { data } = await client.query<TemplateVersionsQuery, TemplateVersionsQueryVariables>({
         query: TemplateVersionsDocument,
         variables: { templateId },
       });
+      return data;
+    } catch (err) {
+      if (err instanceof ApolloError) {
+        const { data } = await client.query<TemplateVersionsQuery, TemplateVersionsQueryVariables>({
+          query: TemplateVersionsDocument,
+          variables: { templateId },
+        });
+        return data;
+      } else {
+        console.error('Error fetching template versions:', err);
+      }
+    }
+  }
 
+  // Get all template versions in order to get latest one with its versionType
+  const fetchLatestVersion = async (templateId: number) => {
+    try {
+      const data = await fetchTemplateVersions(templateId);
       // Get record with latest modification, and return its versionType
       if (!data?.templateVersions || data?.templateVersions.length === 0) return null;
       const latestVersion = data.templateVersions.reduce<VersionedTemplate | null>(
@@ -89,6 +128,7 @@ const TemplateListPage: React.FC = () => {
     }
   };
 
+  // Format date using next-intl date formatter
   const formatDate = (date: string) => {
     const formattedDate = formatter.dateTime(new Date(Number(date)), {
       year: 'numeric',
@@ -100,19 +140,19 @@ const TemplateListPage: React.FC = () => {
   }
 
   useEffect(() => {
-    // Automatically refetch if there's an error
-    if (error) {
-      console.error('Error fetching templates:', error.message);
+    if (queryError) {
+      // Trigger a refetch to retry
       refetch();
+      setErrors(prev => [...prev, queryError.message])
     }
-  }, [error, refetch]);
+  }, [queryError]);
 
 
   useEffect(() => {
     if (data && data?.templates) {
       const fetchAllTemplates = async (templates: (TemplateInterface | null)[]) => {
         const transformedTemplates = await Promise.all(
-          templates.map(async (template: any) => {
+          templates.map(async (template: TemplateInterface | null) => {
             const latestVersion = await fetchLatestVersion(Number(template?.id));
             return {
               title: template?.name || "",
@@ -120,12 +160,12 @@ const TemplateListPage: React.FC = () => {
               content: template?.description || template?.modified ? (
                 <div>
                   <p>{template?.description}</p>
-                  <p>Last updated: {latestVersion?.modified ? formatDate(latestVersion?.modified) : null}</p>
+                  <p>Last updated: {(latestVersion?.modified) ? formatDate(latestVersion?.modified) : null}</p>
                 </div>
               ) : null, // Set to null if no description or last modified data
               funder: template?.owner?.name || template?.name,
               lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
-              publishStatus: latestVersion?.versionType ? latestVersion?.versionType : 'DRAFT',
+              publishStatus: (latestVersion?.versionType) ? latestVersion?.versionType : 'DRAFT',
               defaultExpanded: false
             }
           }));
@@ -136,62 +176,101 @@ const TemplateListPage: React.FC = () => {
     }
   }, [data]);
 
+  useEffect(() => {
+    // Need this to set list of templates back to original, full list after filtering
+    if (searchTerm === '') {
+      setFilteredTemplates(null);
+    }
+  }, [searchTerm])
+
+  // If page-level errors, scroll them into view
+  useEffect(() => {
+    if (errors.length > 0 && errorRef.current) {
+      errorRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }, [errors]);
+
   return (
     <>
       <PageHeader
-        title="Organization Templates"
-        description="Manager or create DMSP templates, once published researchers will be able to select your template."
+        title={t('title')}
+        description={t('description')}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">Organization Templates</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{t('breadcrumbHome')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">{t('title')}</Link></Breadcrumb>
           </Breadcrumbs>
         }
         actions={
           <>
             <Link href="/template/create"
-              className={"button-link button--primary"}>Create
-              Template</Link>
+              className={"button-link button--primary"}>{t('actionCreate')}</Link>
           </>
         }
         className="page-template-list"
       />
-
-      <div className="Filters">
-        <SearchField>
-          <Label>Search by keyword</Label>
-          <Input onChange={e => handleSearchInput(e)} />
-          <Button onPress={handleFiltering}>Search</Button>
-          <FieldError />
-          <Text slot="description" className="help">
-            Search by research organization, field station or lab, template description, etc.
-          </Text>
-        </SearchField>
-      </div>
-
-      {filteredTemplates.length > 0 ? (
-        <div className="template-list" aria-label="Template list" role="list">
-          {
-            filteredTemplates.map((template, index) => (
-              <TemplateListItem
-                key={index}
-                item={template} />
-            ))
-          }
+      {errors && errors.length > 0 &&
+        <div className="error" ref={errorRef}>
+          {errors.map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
         </div>
-      ) : (
-        <div className="template-list" aria-label="Template list" role="list">
-          {
-            templates.map((template, index) => (
-              <TemplateListItem
-                key={index}
-                item={template} />
-            ))
-          }
-        </div>
-      )}
+      }
 
+      {loading && <p>{t('loading')}</p>}
+      <LayoutContainer>
+        <ContentContainer>
+          <div className="Filters">
+            <SearchField
+              className={`${styles.searchField} react-aria-SearchField`}
+              onClear={() => { setFilteredTemplates(null) }}
+            >
+              <Label>{t('searchLabel')}</Label>
+              <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
+              <Button
+                onPress={() => {
+                  // Call your filtering function without changing the input value
+                  handleFiltering(searchTerm);
+                }}
+              >
+                {t('actionSearch')}
+              </Button>
+              <FieldError />
+              <Text slot="description" className="help">
+                {t('searchHelpText')}
+              </Text>
+            </SearchField>
+
+          </div >
+
+          {filteredTemplates && filteredTemplates.length > 0 ? (
+            <div className="template-list" aria-label="Template list" role="list">
+              {
+                filteredTemplates.map((template, index) => (
+                  <TemplateListItem
+                    key={index}
+                    item={template} />
+                ))
+              }
+            </div>
+          ) : (
+            <div className="template-list" aria-label="Template list" role="list">
+              {
+                templates.map((template, index) => (
+                  <TemplateListItem
+                    key={index}
+                    item={template} />
+                ))
+              }
+            </div>
+          )
+          }
+        </ContentContainer>
+      </LayoutContainer>
     </>
   );
 }

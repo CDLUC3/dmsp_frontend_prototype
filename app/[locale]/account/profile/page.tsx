@@ -487,16 +487,12 @@ const ProfilePage: React.FC = () => {
               />
             </ContentContainer>
             <SidebarPanel className={styles.layoutSidebarPanel}>
-
-
               <h2>Related actions</h2>
               <ul className={styles.relatedItems}>
                 <li><Link href="/account/update-password">Update password</Link></li>
                 <li><Link href="/account/connections">Update connections</Link></li>
                 <li><Link href="/account/notifications">Manage notifications</Link></li>
               </ul>
-
-
             </SidebarPanel>
           </LayoutWithPanel>
         </div>
