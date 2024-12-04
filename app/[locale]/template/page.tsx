@@ -141,7 +141,7 @@ const TemplateListPage: React.FC = () => {
 
   useEffect(() => {
     if (queryError) {
-      // Trigger a refetch to retry
+      // Trigger a refetch on error so page re-renders for apollo errors
       refetch();
       setErrors(prev => [...prev, queryError.message])
     }
@@ -149,6 +149,7 @@ const TemplateListPage: React.FC = () => {
 
 
   useEffect(() => {
+    // Transform templates into format expected by TemplateListItem component
     if (data && data?.templates) {
       const fetchAllTemplates = async (templates: (TemplateInterface | null)[]) => {
         const transformedTemplates = await Promise.all(

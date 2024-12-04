@@ -8,6 +8,7 @@ import {
 
 expect.extend(toHaveNoViolations);
 
+// Mock useFormatter and useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useFormatter: jest.fn(() => ({
     dateTime: jest.fn(() => '01-01-2023'),
@@ -15,7 +16,7 @@ jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`
 }));
 
-// Mock the GraphQL hooks
+// Mock the GraphQL hook for getting templates
 jest.mock('@/generated/graphql', () => ({
   useTemplatesQuery: jest.fn(),
 }));
@@ -27,6 +28,7 @@ jest.mock('@/lib/graphql/client/apollo-client', () => ({
   })),
 }));
 
+// Mock TemplateListItem component
 jest.mock('@/components/TemplateListItem', () => {
   return {
     __esModule: true,
@@ -39,6 +41,7 @@ jest.mock('@/components/TemplateListItem', () => {
   };
 });
 
+// Will pass this mock data back when query is made for templates
 const mockTemplateData = {
   templates: [{
     name: 'UCOP',
@@ -54,10 +57,11 @@ const mockTemplateData = {
 const mockHook = (hook: any) => hook as jest.Mock;
 
 const setupMocks = () => {
+  // Return mocked data when graphql query is called for templates
   mockHook(useTemplatesQuery).mockReturnValue({ data: mockTemplateData, loading: false, error: undefined });
 };
 
-// mock the query response from client.query()
+// mock the query response from client.query() for versionedTemplates
 jest.mock('@/lib/graphql/client/apollo-client', () => ({
   createApolloClient: jest.fn(() => ({
     query: jest.fn().mockResolvedValueOnce({
@@ -119,10 +123,8 @@ describe('TemplateListPage', () => {
       );
     });
 
-    // Act: Query the h1 element
     const heading = screen.getByRole('heading', { level: 1 });
 
-    // Assert: Check that its text content is correct
     expect(heading).toHaveTextContent('title');
     expect(screen.getByText('description')).toBeInTheDocument();
   });
@@ -146,7 +148,7 @@ describe('TemplateListPage', () => {
       );
     });
 
-    //search for the translation key
+    // Searching for translation keys since cannot run next-intl for unit tests
     expect(screen.getByLabelText('searchLabel')).toBeInTheDocument();
     expect(screen.getByText('searchHelpText')).toBeInTheDocument();
   });
@@ -191,6 +193,7 @@ describe('TemplateListPage', () => {
       );
     });
 
+    // Searching for translation keys since cannot run next-intl for unit tests
     const homeLink = screen.getByRole('link', { name: 'breadcrumbHome' });
     const templatesLink = screen.getByRole('link', { name: 'title' });
 
@@ -214,6 +217,7 @@ describe('TemplateListPage', () => {
       );
     });
 
+    // Searching for translation key since cannot run next-intl for unit tests
     const searchInput = screen.getByLabelText(/searchLabel/i);
     expect(searchInput).toBeInTheDocument();
 
@@ -232,6 +236,7 @@ describe('TemplateListPage', () => {
       );
     });
 
+    // Searching for translation key since cannot run next-intl for unit tests
     const searchInput = screen.getByLabelText(/searchLabel/i);
     expect(searchInput).toBeInTheDocument();
 
