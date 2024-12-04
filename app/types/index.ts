@@ -36,6 +36,7 @@ export interface TemplateInterface {
   description?: string | null;
   modified?: string | null;
   id?: number | null;
+  isDirty?: boolean;
   owner?: { // Make `owner` optional and nullable
     displayName?: string;
     name?: string;

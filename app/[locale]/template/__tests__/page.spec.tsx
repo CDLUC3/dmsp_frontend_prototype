@@ -61,24 +61,6 @@ const setupMocks = () => {
   mockHook(useTemplatesQuery).mockReturnValue({ data: mockTemplateData, loading: false, error: undefined });
 };
 
-// mock the query response from client.query() for versionedTemplates
-jest.mock('@/lib/graphql/client/apollo-client', () => ({
-  createApolloClient: jest.fn(() => ({
-    query: jest.fn().mockResolvedValueOnce({
-      data: {
-        templateVersions: [
-          {
-            name: 'UCOP',
-            versionType: 'PUBLISHED',
-            id: 1,
-            modified: '1672531200000',
-          },
-        ],
-      },
-    }),
-  })),
-}));
-
 interface PageHeaderProps {
   title: string;
   description: string;
