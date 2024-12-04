@@ -2,11 +2,13 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from 'next/navigation';
-import styles from './login.module.scss'
+import { Button } from "react-aria-components";
 import logECS from '@/utils/clientLogger';
-import { useCsrf } from '@/context/CsrfContext';
 import { handleErrors } from '@/utils/errorHandler';
+import { useCsrf } from '@/context/CsrfContext';
 import { useAuthContext } from '@/context/AuthContext';
+import FormInput from '@/components/Form/FormInput';
+import styles from './login.module.scss'
 
 type User = {
     email: string;
@@ -95,26 +97,22 @@ const LoginPage: React.FC = () => {
                     </div>
                 }
                 <h3 className={styles.heading3}>Sign in</h3>
-                <label htmlFor="email">Email</label>
-                <input
-                    type="email"
-                    id="email"
+                <FormInput
                     name="email"
+                    type="email"
+                    label="Email"
                     value={user.email}
                     onChange={handleInputChange}
-                    required
                 />
 
-                <label htmlFor="password">Password</label>
-                <input
-                    type="password"
-                    id="password"
+                <FormInput
                     name="password"
+                    type="password"
+                    label="Password"
                     value={user.password}
                     onChange={handleInputChange}
-                    required
                 />
-                <button type="submit" id="login-button" disabled={loading}>Login</button>
+                <Button type="submit" isDisabled={loading}>Login</Button>
             </form>
         </div>
     );

@@ -344,7 +344,7 @@ const ProfilePage: React.FC = () => {
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Account</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
             <Breadcrumb><Link href="/account/profile">Update Profile</Link></Breadcrumb>
           </Breadcrumbs>
         }
