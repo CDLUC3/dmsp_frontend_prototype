@@ -54,7 +54,6 @@ const TemplateListPage: React.FC = () => {
   const { data = {}, loading, error: queryError, refetch } = useTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
-    fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
 
