@@ -15,6 +15,10 @@ import {
   Text,
   TextField
 } from "react-aria-components";
+import {
+  LayoutContainer,
+  ContentContainer,
+} from '@/components/Container';
 import PageHeader from "@/components/PageHeader";
 
 const TemplateCreatePage: React.FC = () => {
@@ -30,8 +34,6 @@ const TemplateCreatePage: React.FC = () => {
 
   return (
     <>
-
-
       <PageHeader
         title="Create a template"
         description="Manager or create DMSP templates, once published researchers will be able to select your template."
@@ -46,37 +48,38 @@ const TemplateCreatePage: React.FC = () => {
         actions={null}
         className="page-template-list"
       />
+      <LayoutContainer>
+        <ContentContainer>
+          <Form onSubmit={handleSubmit}>
+            <TextField
+              name="template_name"
+              type="text"
+              isRequired
+            >
+              <Label>Template name</Label>
+              <Text slot="description" className="help">
+                Don’t worry, you can change this later.
+              </Text>
+              <Input />
+              <FieldError />
+            </TextField>
 
+            <RadioGroup>
+              <Label>Template type</Label>
+              <Text slot="description" className="help">
+                Choose the type of template you want to create.
+              </Text>
+              <Radio value="previous">Start with one of your previous templates.</Radio>
+              <Radio value="dmp">Start with a DMP best practice template.</Radio>
+              <Radio value="new">Build new template</Radio>
+            </RadioGroup>
 
+            <Button type="submit"
+              className="">Create</Button>
 
-      <Form onSubmit={handleSubmit}>
-        <TextField
-          name="template_name"
-          type="text"
-          isRequired
-        >
-          <Label>Template name</Label>
-          <Text slot="description" className="help">
-            Don’t worry, you can change this later.
-          </Text>
-          <Input />
-          <FieldError />
-        </TextField>
-
-        <RadioGroup>
-          <Label>Template type</Label>
-          <Text slot="description" className="help">
-            Choose the type of template you want to create.
-          </Text>
-          <Radio value="previous">Start with one of your previous templates.</Radio>
-          <Radio value="dmp">Start with a DMP best practice template.</Radio>
-          <Radio value="new">Build new template</Radio>
-        </RadioGroup>
-
-        <Button type="submit"
-          className="">Create</Button>
-
-      </Form>
+          </Form>
+        </ContentContainer>
+      </LayoutContainer>
     </>
   );
 }

@@ -13,10 +13,13 @@ import {
     Text
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
-import {Card, CardBody, CardFooter, CardHeading} from "@/components/Card/card";
+import { Card, CardBody, CardFooter, CardHeading } from "@/components/Card/card";
+import {
+    LayoutContainer,
+    ContentContainer,
+} from '@/components/Container';
 
 const QuestionTypeSelectPage: React.FC = () => {
-
     const templates = [
         {
             title: 'Long text question',
@@ -86,64 +89,68 @@ const QuestionTypeSelectPage: React.FC = () => {
                 actions={null}
                 className=""
             />
-            <div className="Filters">
-                <SearchField>
-                    <Label>Search by keyword</Label>
-                    <Input/>
-                    <Button>Search</Button>
-                    <FieldError/>
-                    <Text slot="description" className="help">
-                        Search by field type or description.
-                    </Text>
-                </SearchField>
-            </div>
-            <div>
-                <h2>
-                    Standard
-                </h2>
-                <div className="card-grid-list">
-                    {templates.map((template, index) => (
-                        <Card key={index}>
-                            <CardHeading>{template.title}</CardHeading>
-                            <CardBody>
-                                <p>{template.text}</p>
-                            </CardBody>
-                            <CardFooter>
-                                <Link
-                                    href={template.link}
-                                    className="button-link secondary"
-                                    data-type={template.type}
-                                >
-                                    Select
-                                </Link>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
+            <LayoutContainer>
+                <ContentContainer>
+                    <div className="Filters">
+                        <SearchField>
+                            <Label>Search by keyword</Label>
+                            <Input />
+                            <Button>Search</Button>
+                            <FieldError />
+                            <Text slot="description" className="help">
+                                Search by field type or description.
+                            </Text>
+                        </SearchField>
+                    </div>
+                    <div>
+                        <h2>
+                            Standard
+                        </h2>
+                        <div className="card-grid-list">
+                            {templates.map((template, index) => (
+                                <Card key={index}>
+                                    <CardHeading>{template.title}</CardHeading>
+                                    <CardBody>
+                                        <p>{template.text}</p>
+                                    </CardBody>
+                                    <CardFooter>
+                                        <Link
+                                            href={template.link}
+                                            className="button-link secondary"
+                                            data-type={template.type}
+                                        >
+                                            Select
+                                        </Link>
+                                    </CardFooter>
+                                </Card>
+                            ))}
+                        </div>
 
-                <h2>
-                    Other types of questions
-                </h2>
-                <div className="card-grid-list">
-                    {templates_others.map((template, index) => (
-                        <Card key={index}>
-                            <CardHeading>{template.title}</CardHeading>
-                            <CardBody>
-                                <p>{template.text}</p>
-                            </CardBody>
-                            <CardFooter>
-                                <Link
-                                    href={template.link}
-                                    className="button-link secondary"
-                                    data-type={template.type}
-                                >
-                                    Select
-                                </Link>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
-            </div>
+                        <h2>
+                            Other types of questions
+                        </h2>
+                        <div className="card-grid-list">
+                            {templates_others.map((template, index) => (
+                                <Card key={index}>
+                                    <CardHeading>{template.title}</CardHeading>
+                                    <CardBody>
+                                        <p>{template.text}</p>
+                                    </CardBody>
+                                    <CardFooter>
+                                        <Link
+                                            href={template.link}
+                                            className="button-link secondary"
+                                            data-type={template.type}
+                                        >
+                                            Select
+                                        </Link>
+                                    </CardFooter>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                </ContentContainer>
+            </LayoutContainer>
         </>
     );
 }

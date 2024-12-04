@@ -14,6 +14,10 @@ import {
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import TemplateSelectListItem from "@/components/TemplateSelectListItem";
+import {
+  LayoutContainer,
+  ContentContainer,
+} from '@/components/Container';
 
 const TemplateSelectTemplatePage: React.FC = () => {
 
@@ -76,7 +80,6 @@ const TemplateSelectTemplatePage: React.FC = () => {
 
   return (
     <>
-
       <PageHeader
         title="Select an existing template"
         description=""
@@ -92,46 +95,48 @@ const TemplateSelectTemplatePage: React.FC = () => {
         }
         className="page-template-list"
       />
+      <LayoutContainer>
+        <ContentContainer>
+          <div className="Filters" role="search">
+            <SearchField aria-label="Template search">
+              <Label>Search by keyword</Label>
+              <Input aria-describedby="search-help" />
+              <Button>Search</Button>
+              <FieldError />
+              <Text slot="description" className="help" id="search-help">
+                Search by research organization, field station or lab, template
+                description, etc.
+              </Text>
+            </SearchField>
+          </div>
 
-      <div className="Filters" role="search">
-        <SearchField aria-label="Template search">
-          <Label>Search by keyword</Label>
-          <Input aria-describedby="search-help" />
-          <Button>Search</Button>
-          <FieldError />
-          <Text slot="description" className="help" id="search-help">
-            Search by research organization, field station or lab, template
-            description, etc.
-          </Text>
-        </SearchField>
-      </div>
+          <section className="mb-8" aria-labelledby="previously-created">
+            <h2 id="previously-created">
+              Use one of your previously created templates
+            </h2>
+            <div className="template-list" role="list" aria-label="Your templates">
+              {nsfTemplates.map((template, index) => (
+                <TemplateSelectListItem key={index}
+                  item={template}></TemplateSelectListItem>
+              ))}
+            </div>
+          </section>
 
-      <section className="mb-8" aria-labelledby="previously-created">
-        <h2 id="previously-created">
-          Use one of your previously created templates
-        </h2>
-        <div className="template-list" role="list" aria-label="Your templates">
-          {nsfTemplates.map((template, index) => (
-            <TemplateSelectListItem key={index}
-              item={template}></TemplateSelectListItem>
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-8" aria-labelledby="public-templates">
-        <h2 id="public-templates">
-          Use one of the public templates
-        </h2>
-        <div className="template-list"
-          role="list"
-          aria-label="Public templates">
-          {publicTemplates.map((template, index) => (
-            <TemplateSelectListItem key={index}
-              item={template}></TemplateSelectListItem>
-          ))}
-        </div>
-      </section>
-
+          <section className="mb-8" aria-labelledby="public-templates">
+            <h2 id="public-templates">
+              Use one of the public templates
+            </h2>
+            <div className="template-list"
+              role="list"
+              aria-label="Public templates">
+              {publicTemplates.map((template, index) => (
+                <TemplateSelectListItem key={index}
+                  item={template}></TemplateSelectListItem>
+              ))}
+            </div>
+          </section>
+        </ContentContainer>
+      </LayoutContainer>
     </>
   );
 }

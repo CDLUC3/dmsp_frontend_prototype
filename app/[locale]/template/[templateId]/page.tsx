@@ -23,6 +23,11 @@ import QuestionEdit from "@/components/QuestionEdit";
 import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
+import {
+  LayoutContainer,
+  ContentContainer,
+} from '@/components/Container';
+import styles from './templateId.module.scss';
 
 interface Question {
   id: string;
@@ -183,7 +188,6 @@ const TemplateEditPage: React.FC = () => {
 
   return (
     <div>
-
       <PageHeader
         title={template.name}
         description={`by ${template.author} - Version: ${template.version} - Published: ${template.publishedDate}`}
@@ -198,217 +202,217 @@ const TemplateEditPage: React.FC = () => {
 
         className="page-template-overview"
       />
+      <LayoutContainer>
+        <ContentContainer>
+          <div className="template-editor-container">
+            <div className="main-content">
 
+              <div className="">
+                {template.sections.map((section, index) => (
+                  <div key={section.id} role="list" aria-label="Questions list"
+                    style={{ marginBottom: '40px' }}>
 
-      <div className="template-editor-container">
-        <div className="main-content">
+                    <SectionHeaderEdit
+                      key={section.id}
+                      sectionNumber={index + 1}
+                      title={section.name}
+                      editUrl={section.link}
+                      onMoveUp={() => null}
+                      onMoveDown={() => null}
+                    />
 
-          <div className="">
-            {template.sections.map((section, index) => (
-              <div key={section.id} role="list" aria-label="Questions list"
-                style={{ marginBottom: '40px' }}>
+                    {section.questions.map((question) => (
+                      <QuestionEdit
+                        key={question.id}
+                        id={question.id}
+                        name={question.name}
+                        link={question.link}
+                      />
+                    ))}
+                    <AddQuestionButton
+                      href={`/template/${template.id}/q/new?section_id=${section.id}`}
+                    />
+                  </div>
 
-                <SectionHeaderEdit
-                  key={section.id}
-                  sectionNumber={index + 1}
-                  title={section.name}
-                  editUrl={section.link}
-                  onMoveUp={() => null}
-                  onMoveDown={() => null}
-                />
-
-                {section.questions.map((question) => (
-                  <QuestionEdit
-                    key={question.id}
-                    id={question.id}
-                    name={question.name}
-                    link={question.link}
-                  />
                 ))}
-                <AddQuestionButton
-                  href={`/template/${template.id}/q/new?section_id=${section.id}`}
-                />
+
               </div>
 
-            ))}
+              <AddSectionButton href={`/template/${template.id}/section/new`} />
 
+
+            </div>
+            <aside className="sidebar">
+              <div className="sidebar-inner">
+                <h2>Status</h2>
+                <div className="sidebar-section">
+
+                  <Button data-secondary className="my-3 secondary"
+                    onPress={() => console.log('Save draft')}>
+                    Save as draft
+                  </Button>
+
+                  <Button data-tertiary className="my-3"
+                    onPress={() => console.log('Preview')}>Preview
+                    template</Button>
+
+                </div>
+
+                <div className="sidebar-section">
+                  <h5 className="sidebar-section-title">Published Status</h5>
+                  <div className="status">
+                    <p>
+                      Draft <Link href='#'>Edit</Link>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="sidebar-section">
+                  <h5 className="sidebar-section-title">Visibility Settings</h5>
+                  <div className="status">
+                    <p>
+                      Not Published <Link href='#'>Edit</Link>
+                    </p>
+                  </div>
+                </div>
+
+
+                <div className="sidebar-section">
+                  <h5 className="sidebar-section-title">Feedback &
+                    Collaboration</h5>
+                  <div className="description">
+                    <p>
+                      Allow people to access, edit or comment on this plan
+                    </p>
+                    <p>
+                      <Link className="learn-more"
+                        href="/template/tpl_abcdef123456/access">
+                        Manage Access
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+
+
+                <div className="sidebar-section">
+                  <Button
+                    className="my-3"
+                    onPress={() => setPublishModalOpen(true)}
+                  >
+                    Publish template
+                  </Button>
+                  <h5 className="sidebar-section-title">History</h5>
+                  <p>
+                    <Link className="learn-more"
+                      href="/template/tpl_abcdef123456/history">
+                      Template history
+                    </Link>
+                  </p>
+                </div>
+
+
+              </div>
+            </aside>
           </div>
-
-          <AddSectionButton href={`/template/${template.id}/section/new`} />
-
-
-        </div>
-        <aside className="sidebar">
-          <div className="sidebar-inner">
-            <h2>Status</h2>
-            <div className="sidebar-section">
-
-              <Button data-secondary className="my-3 secondary"
-                onPress={() => console.log('Save draft')}>
-                Save as draft
-              </Button>
-
-              <Button data-tertiary className="my-3"
-                onPress={() => console.log('Preview')}>Preview
-                template</Button>
-
-            </div>
-
-            <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Published Status</h5>
-              <div className="status">
-                <p>
-                  Draft <Link href='#'>Edit</Link>
-                </p>
-              </div>
-            </div>
-
-            <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Visibility Settings</h5>
-              <div className="status">
-                <p>
-                  Not Published <Link href='#'>Edit</Link>
-                </p>
-              </div>
-            </div>
-
-
-            <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Feedback &
-                Collaboration</h5>
-              <div className="description">
-                <p>
-                  Allow people to access, edit or comment on this plan
-                </p>
-                <p>
-                  <Link className="learn-more"
-                    href="/template/tpl_abcdef123456/access">
-                    Manage Access
-                  </Link>
-                </p>
-              </div>
-            </div>
-
-
-            <div className="sidebar-section">
-              <Button
-                className="my-3"
-                onPress={() => setPublishModalOpen(true)}
-              >
-                Publish template
-              </Button>
-              <h5 className="sidebar-section-title">History</h5>
+          <div className="template-archive-container">
+            <div className="main-content">
+              <h2>
+                Archive Template
+              </h2>
               <p>
-                <Link className="learn-more"
-                  href="/template/tpl_abcdef123456/history">
-                  Template history
-                </Link>
+                This template will no longer be visible to plan creators.
+                Pre-existing
+                plans that use this template will be unaffected. This is not
+                reversible.
               </p>
+              <Form>
+                <Button className="my-3" data-tertiary
+                  onPress={() => console.log('Archive')}>Archive
+                  Template</Button>
+              </Form>
             </div>
-
-
           </div>
-        </aside>
-      </div>
-      <div className="template-archive-container">
-        <div className="main-content">
-          <h2>
-            Archive Template
-          </h2>
-          <p>
-            This template will no longer be visible to plan creators.
-            Pre-existing
-            plans that use this template will be unaffected. This is not
-            reversible.
-          </p>
-          <Form>
-            <Button className="my-3" data-tertiary
-              onPress={() => console.log('Archive')}>Archive
-              Template</Button>
-          </Form>
-        </div>
-      </div>
 
 
-      <Modal isDismissable
-        isOpen={isPublishModalOpen}
+          <Modal isDismissable
+            isOpen={isPublishModalOpen}
 
-      >
-        <Dialog>
-          <Heading slot="title">Publish</Heading>
+          >
+            <Dialog>
+              <Heading slot="title">Publish</Heading>
 
-          <RadioGroup>
-            <Label>Visibility Settings</Label>
-            <Text slot="description" className="help">
-              You can control who can use this published template.
-            </Text>
-            <Radio value="public">
-              <div>
-                <span>Public</span>
-                <p className="text-gray-600 text-sm">This will be available and discoverable by plan builders.</p>
-              </div>
-            </Radio>
-            <Radio value="organization">
-              <div>
-                <span>Organization only</span>
-                <p className="text-gray-600 text-sm">Only your organization will be able to view and use this template.</p>
-              </div>
-            </Radio>
-          </RadioGroup>
-
-          <p>
-            <strong>
-              Publishing this template
-            </strong>
-          </p>
-
-          <ul>
-            <li>
-              After publication, all new plans will use this version.
-            </li>
-            <li>
-              In-progress or existing plans will not be updated.
-            </li>
-            <li>
-              You have configured Visibility as Public in Template options.
-              All
-              DMP Tool users will be able to see and use this template.
-            </li>
-          </ul>
-          <div className="">
-            <Form>
-              <TextField
-                name="change_log"
-                isRequired
-              >
-                <Label>Change log</Label>
+              <RadioGroup>
+                <Label>Visibility Settings</Label>
                 <Text slot="description" className="help">
-                  Enter a short description of what has been changed. This will only be visible to
-                  people in your organization.
+                  You can control who can use this published template.
                 </Text>
-                <TextArea
-                  style={{ height: '100px' }}
-                />
-                <FieldError />
-              </TextField>
-            </Form>
-          </div>
+                <Radio value="public" className={`${styles.radioBtn} react-aria-Radio`}>
+                  <div>
+                    <span>Public</span>
+                    <p className="text-gray-600 text-sm">This will be available and discoverable by plan builders.</p>
+                  </div>
+                </Radio>
+                <Radio value="organization" className={`${styles.radioBtn} react-aria-Radio`}>
+                  <div>
+                    <span>Organization only</span>
+                    <p className="text-gray-600 text-sm">Only your organization will be able to view and use this template.</p>
+                  </div>
+                </Radio>
+              </RadioGroup>
+
+              <p>
+                <strong>
+                  Publishing this template
+                </strong>
+              </p>
+
+              <ul>
+                <li>
+                  After publication, all new plans will use this version.
+                </li>
+                <li>
+                  In-progress or existing plans will not be updated.
+                </li>
+                <li>
+                  You have configured Visibility as Public in Template options.
+                  All
+                  DMP Tool users will be able to see and use this template.
+                </li>
+              </ul>
+              <div className="">
+                <Form>
+                  <TextField
+                    name="change_log"
+                    isRequired
+                  >
+                    <Label>Change log</Label>
+                    <Text slot="description" className="help">
+                      Enter a short description of what has been changed. This will only be visible to
+                      people in your organization.
+                    </Text>
+                    <TextArea
+                      style={{ height: '100px' }}
+                    />
+                    <FieldError />
+                  </TextField>
+                </Form>
+              </div>
 
 
-          <div className="modal-actions">
-            <div className="">
-              <Button data-secondary onPress={() => setPublishModalOpen(false)}>Close</Button>
-            </div>
-            <div className="">
-              <Button onPress={() => setPublishModalOpen(false)}>Save and Publish</Button>
-            </div>
-          </div>
+              <div className="modal-actions">
+                <div className="">
+                  <Button data-secondary onPress={() => setPublishModalOpen(false)}>Close</Button>
+                </div>
+                <div className="">
+                  <Button onPress={() => setPublishModalOpen(false)}>Save and Publish</Button>
+                </div>
+              </div>
 
 
-        </Dialog>
-      </Modal>
-
-
+            </Dialog>
+          </Modal>
+        </ContentContainer>
+      </LayoutContainer>
     </div>
   );
 }

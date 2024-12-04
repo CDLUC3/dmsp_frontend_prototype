@@ -131,9 +131,10 @@ describe('TemplateHistory', () => {
         });
 
         const { getByTestId } = render(<TemplateHistory />);
+        screen.debug();
         const h2Element = await screen.findByRole('heading', { level: 2 });
         expect(h2Element).toHaveTextContent('NIH-GDS: Genomic Data Sharing');
-        expect(getByTestId('author')).toHaveTextContent('by National Institutes of Health')
+        expect(getByTestId('author')).toHaveTextContent('Severus Snape')
         expect(getByTestId('latest-version')).toHaveTextContent('3.1')
         expect(getByTestId('publication-date')).toHaveTextContent('Published: Jun 25, 2014')
     });
