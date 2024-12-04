@@ -12,11 +12,13 @@ export default getRequestConfig(async ({ requestLocale }) => {
   }
   // Load multiple translation files
   const mainMessages = (await import(`@/messages/${locale}/en-US.json`)).default;
+  const templateMessages = (await import(`@/messages/${locale}/templates.json`)).default;
   const errorMessages = (await import(`@/messages/${locale}/errors.json`)).default;
 
   // Merge all message objects
   const messages = {
     ...mainMessages,
+    ...templateMessages,
     errors: errorMessages,
   };
   return {

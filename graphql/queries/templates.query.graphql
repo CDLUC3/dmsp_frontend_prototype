@@ -1,0 +1,14 @@
+query Templates {
+  templates {
+    name
+    description
+    modified
+    id
+    isDirty
+    owner {
+      name
+      displayName
+      searchName
+    }
+  }
+}

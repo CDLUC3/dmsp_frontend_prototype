@@ -1,0 +1,14 @@
+{
+  "OrganizationTemplates": {
+    "title": "Organization Templates",
+    "description": "Manage or create DMSP templates, once published researchers will be able to select your template.",
+    "breadcrumbHome": "Home",
+    "loading": "Organization Templates loading...",
+    "searchLabel": "Search by keyword",
+    "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
+    "noItemsFoundError": "No results found for {term}!",
+    "somethingWentWrong": "Something went wrong while retrieving templates",
+    "actionCreate": "Create Template",
+    "actionSearch": "Search"
+  }
+}
