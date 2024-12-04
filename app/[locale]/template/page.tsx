@@ -141,11 +141,15 @@ const TemplateListPage: React.FC = () => {
 
   useEffect(() => {
     if (queryError) {
-      // Trigger a refetch on error so page re-renders for apollo errors
-      refetch();
-      setErrors(prev => [...prev, queryError.message])
+      if (queryError instanceof ApolloError) {
+        // Trigger a refetch on error so page re-renders for apollo errors
+        refetch();
+      } else {
+        // Safely access queryError.message
+        setErrors(prev => [...prev, t('somethingWentWrong')]);
+      }
     }
-  }, [queryError]);
+  }, [queryError, refetch]);
 
 
   useEffect(() => {

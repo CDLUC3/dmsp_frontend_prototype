@@ -226,7 +226,7 @@ describe('TemplateListPage', () => {
       fireEvent.change(searchInput, { target: { value: 'testing' } });
     });
 
-    expect(screen.getByText('There was an error.')).toBeInTheDocument();
+    expect(screen.getByText('somethingWentWrong')).toBeInTheDocument();
   });
 
   it('should show filtered list when user clicks Search button', async () => {
