@@ -55,5 +55,40 @@
   "SubHeader": {
     "ucopHomepage": "Página inicial da UCOP",
     "uc3Helpdesk": "Central de atendimento UC3"
+  },
+  "UserProfile": {
+    "breadcrumbHome": "Lar",
+    "headingUpdateProfile": "Atualizar perfil",
+    "yourProfile": "Seu perfil",
+    "emailAndAuth": "E-mail e autenticação",
+    "firstName": "Primeiro nome",
+    "lastName": "Sobrenome",
+    "institution": "Instituição",
+    "language": "Linguagem",
+    "headingPrimaryEmail": "Endereço de e-mail principal",
+    "headingSSO": "Login único ativado",
+    "headingNotifications": "Recebe notificações",
+    "headingAliasEmailAddr": "Endereços de e-mail alternativos",
+    "headingAddAliasEmail": "Adicionar endereço de e-mail alternativo",
+    "headingRelatedActions": "Ações relacionadas",
+    "primaryEmailDesc": "Este e-mail será usado para login na sua conta. Também pode ser usado para redefinições de senha.",
+    "SSODesc": "Este endereço de e-mail é gerenciado por cdl.edu e vinculado à instituição.",
+    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. <manage>Gerencie suas notificações</manage>.",
+    "aliasEmailDesc": "Endereços de e-mail alternativos podem ser usados ​​para ajudar outras pessoas a encontrar você, por exemplo, se quiserem compartilhar um DMP com você.",
+    "linkMakePrimary": "Crie o endereço de e-mail principal",
+    "helpTextForAddAlias": "Você receberá um e-mail para confirmar esta adição",
+    "helpTextSelectYourLanguage": "Selecione seu idioma preferido",
+    "helpTextSearchForInstitution": "Procure sua instituição",
+    "btnCancel": "Cancelar",
+    "btnEdit": "Editar",
+    "btnUpdating": "Atualizando",
+    "btnUpdate": "Atualizar",
+    "btnAdd": "Adicionar",
+    "linkUpdatePassword": "Atualizar senha",
+    "linkUpdateConnections": "Atualizar conexões",
+    "linkManageNotifications": "Gerenciar notificações"
+  },
+  "Back": {
+    "btnBack": "Voltar"
   }
 }

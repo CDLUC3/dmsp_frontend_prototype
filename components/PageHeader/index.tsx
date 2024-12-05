@@ -30,7 +30,6 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   useEffect(() => {
     document.title = `${title} | DMPTool`;
-    window.scrollTo(0, 0);
   }, [title]);
 
   return (

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -42,9 +43,11 @@ import {
 
 // Utils and other
 import logECS from '@/utils/clientLogger';
+import { refreshAuthTokens } from "@/utils/authHelper";
 import styles from './profile.module.scss';
 
 const ProfilePage: React.FC = () => {
+  const t = useTranslations('UserProfile');
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -137,6 +140,9 @@ const ProfilePage: React.FC = () => {
       const response = await profileUpdateMutation();
       if (response) {
         setIsEditing(false);
+        //refresh the token
+        await refreshAuthTokens();
+        refetch();
       }
     } catch (error) {
       if (error instanceof ApolloError) {
@@ -340,12 +346,12 @@ const ProfilePage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title="Update profile"
+        title={t('headingUpdateProfile')}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/account/profile">Update Profile</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{t('breadcrumbHome')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/account/profile">{t('headingUpdateProfile')}</Link></Breadcrumb>
           </Breadcrumbs>
         }
         className="page-template-list"
@@ -354,7 +360,7 @@ const ProfilePage: React.FC = () => {
         <div className={styles.mainContent}>
           <LayoutWithPanel>
             <ContentContainer className={styles.layoutContentContainer}>
-              <h2>Your Profile</h2>
+              <h2>{t('yourProfile')}</h2>
               <div className="sectionContainer">
                 <div className={`sectionContent ${styles.section}`}>
                   <Form onSubmit={handleProfileSubmit}>
@@ -379,7 +385,7 @@ const ProfilePage: React.FC = () => {
                         />
                       ) : (
                         <Text slot="firstName" className={styles.readOnlyField}>
-                          <div className="field-label">First name</div>
+                          <div className="field-label">{t('firstName')}</div>
                           <p>{formData.firstName}</p>
                         </Text>
                       )}
@@ -397,7 +403,7 @@ const ProfilePage: React.FC = () => {
                         />
                       ) : (
                         <Text slot="lastName" className={styles.readOnlyField}>
-                          <div className="field-label">Last name</div>
+                          <div className="field-label">{t('lastName')}</div>
                           <p>{formData.lastName}</p>
                         </Text>
                       )}
@@ -414,7 +420,7 @@ const ProfilePage: React.FC = () => {
                             setOtherField={setOtherField}
                             required={true}
                             error={fieldErrors.affiliationName}
-                            helpText="Search for your institution"
+                            helpText={t('helpTextSearchForInstitution')}
                             updateFormData={updateAffiliationFormData}
                             value={formData.affiliationName}
                           />
@@ -436,7 +442,7 @@ const ProfilePage: React.FC = () => {
                         </>
                       ) : (
                         <Text slot="institution" className={styles.readOnlyField}>
-                          <div className="field-label">Institution</div>
+                          <div className="field-label">{t('institution')}</div>
                           <p>{formData.affiliationName}</p>
                         </Text>
                       )}
@@ -450,7 +456,7 @@ const ProfilePage: React.FC = () => {
                           name="institution"
                           items={languages}
                           errorMessage="A selection is required"
-                          helpMessage="Select your preferred language"
+                          helpMessage={t('helpTextSelectYourLanguage')}
                           onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
                           selectedKey={formData.languageId.trim()}
                         >
@@ -463,19 +469,19 @@ const ProfilePage: React.FC = () => {
                         </FormSelect>
                       ) : (
                         <Text slot="language" className={styles.readOnlyField}>
-                          <div className="field-label">Language</div>
+                          <div className="field-label">{t('language')}</div>
                           <p>{formData.languageName}</p>
                         </Text>
                       )}
                     </div>
                     {isEditing ? (
                       <div className={styles.btnContainer}>
-                        <Button className="secondary" onPress={cancelEdit}>Cancel</Button>
-                        <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? 'Updating' : 'Update'}</Button>
+                        <Button className="secondary" onPress={cancelEdit}>{t('btnCancel')}</Button>
+                        <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? t('btnUpdating') : t('btnUpdate')}</Button>
                       </div>
                     ) : (
                       <div className={styles.btnContainer}>
-                        <Button type="submit" onPress={handleEdit} className={styles.btn}>Edit</Button>
+                        <Button type="submit" onPress={handleEdit} className={styles.btn}>{t('btnEdit')}</Button>
                       </div>
                     )}
                   </Form>
@@ -487,11 +493,11 @@ const ProfilePage: React.FC = () => {
               />
             </ContentContainer>
             <SidebarPanel className={styles.layoutSidebarPanel}>
-              <h2>Related actions</h2>
+              <h2>{t('headingRelatedActions')}</h2>
               <ul className={styles.relatedItems}>
-                <li><Link href="/account/update-password">Update password</Link></li>
-                <li><Link href="/account/connections">Update connections</Link></li>
-                <li><Link href="/account/notifications">Manage notifications</Link></li>
+                <li><Link href="/account/update-password">{t('linkUpdatePassword')}</Link></li>
+                <li><Link href="/account/connections">{t('linkUpdateConnections')}</Link></li>
+                <li><Link href="/account/notifications">{t('linkManageNotifications')}</Link></li>
               </ul>
             </SidebarPanel>
           </LayoutWithPanel>
