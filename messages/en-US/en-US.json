@@ -18,5 +18,42 @@
   },
   "Test": {
     "info": "You can try again later."
+  },
+  "Header": {
+    "menuDashboard": "Dashboard",
+    "menuUpload": "Upload Plan",
+    "menuCreatePlan": "Create Plan",
+    "menuPublicPlans": "Public Plans",
+    "menuFunderRequirements": "Funder Requirements",
+    "menuAbout": "About",
+    "menuAdmin": "Admin",
+    "subMenuLearnMore": "Learn more",
+    "subMenuMembership": "Institutional membership",
+    "subMenuFAQs": "FAQs",
+    "subMenuEditorial": "Editorial board",
+    "subMenuLogos": "DMP tool logos",
+    "subMenuOrganisations": "Organisations",
+    "subMenuOrgDetails": "Organisation details",
+    "subMenuUsers": "Users",
+    "subMenuPlans": "Plans",
+    "subMenuUsage": "Usage",
+    "subMenuTemplates": "Templates",
+    "subMenuGuidance": "Guidance",
+    "subMenuThemes": "Themes",
+    "subMenuApiClients": "API Clients",
+    "subMenuApiLogs": "API Logs",
+    "subMenuNotifications": "Notifications",
+    "subMenuEditProfile": "Edit profile",
+    "subMenu3rdParty": "3rd party apps",
+    "subMenuDevTools": "Developer tools",
+    "subMenuEnglish": "English (US)",
+    "subMenuPortuguese": "Portuguese (Brasil)",
+    "btnLogout": "Logout",
+    "btnSignup": "Sign up",
+    "btnLogin": "Login"
+  },
+  "SubHeader": {
+    "ucopHomepage": "UCOP homepage",
+    "uc3Helpdesk": "UC3 Helpdesk"
   }
 }

@@ -2,6 +2,7 @@
 
 import { MouseEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
 import { useCsrf } from '@/context/CsrfContext';
 import Link from 'next/link';
@@ -14,6 +15,8 @@ function Header() {
     const { isAuthenticated, setIsAuthenticated } = useAuthContext();
     const router = useRouter();
     const { csrfToken } = useCsrf();
+
+    const t = useTranslations('Header');
 
     useEffect(() => {
         //this is just to trigger a refresh on authentication change
@@ -65,71 +68,70 @@ function Header() {
                 <div className={styles['dmpui-desktop']}>
                     <ul>
                         {/*If user is signed in */}
-                        <li><a href="">Dashboard</a></li>
-                        <li><a role="menuitem" href="">Upload Plan</a></li>
-                        <li><a href="">Create Plan</a></li>
+                        <li><a href="">{t('menuDashboard')}</a></li>
+                        <li><a role="menuitem" href="">{t('menuUpload')}</a></li>
+                        <li><a href="">{t('menuCreatePlan')}</a></li>
                         {/*end user is signed in */}
 
 
-                        <li><a href="">Public Plans</a></li>
-                        <li><a href="">Funder Requirements</a></li>
+                        <li><a href="">{t('menuPublicPlans')}</a></li>
+                        <li><a href="">{t('menuFunderRequirements')}</a></li>
 
                         <li>
                             <div className={styles['dmpui-dropdown']}>
-                                <span><a href="#">About</a></span>
+                                <span><a href="#">{t('menuAbout')}</a></span>
                                 <div className={styles['dmpui-dropdown-content']}>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Learn more</a></p>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Institutional membership</a></p>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">FAQs</a></p>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Editorial Board</a></p>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">DMP Tool Logos</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuLearnMore')}</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuMembership')}</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuFAQs')}</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuEditorial')}</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuLogos')}</a></p>
                                 </div>
                             </div>
                         </li>
                         {/*If user is signed in and is org admin */}
                         <li>
                             <div className={styles['dmpui-dropdown']}>
-                                <span><a href="#">Admin</a></span>
+                                <span><a href="#">{t('menuAdmin')}</a></span>
                                 <div className={styles['dmpui-dropdown-content']}>
                                     {/*If user is super admin */}
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Organisations</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuOrganisations')}</a></p>
                                     {/*If user can modify org details */}
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Organisation details</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuOrgDetails')}</a></p>
                                     {/*end user can modify org details */}
 
                                     {/*if user can grant permissions */}
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Users</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuUsers')}</a></p>
                                     {/*end user can grant permissions */}
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Plans</a></p>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Usage</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuPlans')}</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuUsage')}</a></p>
                                     {/*if current user can modify templates */}
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Templates</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuTemplates')}</a></p>
                                     {/*end current user can modify templates */}
                                     {/*if user can modify guidance */}
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Guidance</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuGuidance')}</a></p>
                                     {/*end user can modify guidance */}
 
                                     {/*if current user is super admin */}
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Themes</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuThemes')}</a></p>
                                     {/*end current user is super admin */}
 
                                     {/*if current user is super admin */}
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Api Clients</a></p>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Api Logs</a></p>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Notifications</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuApiClients')}</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuApiLogs')}</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuNotifications')}</a></p>
                                     {/*end current user is super admin */}
                                 </div>
                             </div>
                         </li>
-
                         {/*if user is signed in */}
                         <li>
                             <div className={styles['dmpui-dropdown']}>
                                 <FontAwesomeIcon icon={faUser} fixedWidth />
                                 <div className={styles['dmpui-dropdown-content']}>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Edit profile</a></p>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">3rd party apps</a></p>
-                                    <p className={styles.paragraph}><a href="" role="menuitem">Developer tools</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuEditProfile')}</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenu3rdParty')}</a></p>
+                                    <p className={styles.paragraph}><a href="" role="menuitem">{t('subMenuDevTools')}</a></p>
                                 </div>
                             </div>
                         </li>
@@ -140,14 +142,14 @@ function Header() {
                                 <a href="#"><FontAwesomeIcon icon={faGlobe} aria-label="Language" /></a>
                                 <div className={styles['dmpui-dropdown-content']}>
                                     {/*Need list of languages from backend */}
-                                    <p className={styles.paragraph}><a role="menuitem" rel="nofollow" data-method="patch" href="/locale/en-US">English (US)</a></p>
-                                    <p className={styles.paragraph}><a role="menuitem" rel="nofollow" data-method="patch" href="/locale/pt-BR">Português (Brasil)</a></p>
+                                    <p className={styles.paragraph}><a role="menuitem" rel="nofollow" data-method="patch" href="/locale/en-US">{t('subMenuEnglish')}</a></p>
+                                    <p className={styles.paragraph}><a role="menuitem" rel="nofollow" data-method="patch" href="/locale/pt-BR">{t('subMenuPortuguese')}</a></p>
                                 </div>
                             </div>
                         </li>
 
                         {isAuthenticated ? (
-                            <li><Link href="/" className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']}`} rel="nofollow" data-method="delete" onClick={handleLogout}>Logout</Link></li>
+                            <li><Link href="/" className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']}`} rel="nofollow" data-method="delete" onClick={handleLogout}>{t('btnLogout')}</Link></li>
                         ) : (
                             <>
                                 <li><Link href="/login" className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']}`}>Login</Link></li>

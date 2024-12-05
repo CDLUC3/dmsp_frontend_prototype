@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import {
     LayoutContainer,
     ContentContainer
@@ -5,6 +6,7 @@ import {
 import styles from './subHeader.module.scss';
 
 function SubHeader() {
+    const t = useTranslations('SubHeader');
     return (
         <LayoutContainer>
             <ContentContainer>
@@ -18,14 +20,14 @@ function SubHeader() {
                         <li>
                             <a href="http://www.ucop.edu/" className="c-links-org__ucop" target="_blank">
 
-                                UCOP homepage
+                                {t('ucopHomepage')}
                             </a>
                         </li>
 
                         <li>
                             <a href="mailto:dmptool@ucop.edu" className="c-links-org__uc3-helpdesk">
 
-                                UC3 Helpdesk
+                                {t('uc3Helpdesk')}
                             </a>
                         </li>
                     </ul>

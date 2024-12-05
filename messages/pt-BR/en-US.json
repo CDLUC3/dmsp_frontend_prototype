@@ -18,5 +18,42 @@
   },
   "Test": {
     "info": "Você pode tentar novamente mais tarde."
+  },
+  "Header": {
+    "menuDashboard": "Painel",
+    "menuUpload": "Carregar plano",
+    "menuCreatePlan": "Criar plano",
+    "menuPublicPlans": "Planos Públicos",
+    "menuFunderRequirements": "Requisitos do financiador",
+    "menuAbout": "Sobre",
+    "menuAdmin": "Administrador",
+    "subMenuLearnMore": "Saber mais",
+    "subMenuMembership": "Associação institucional",
+    "subMenuFAQs": "Perguntas frequentes",
+    "subMenuEditorial": "Conselho Editorial",
+    "subMenuLogos": "Logotipos de ferramentas DMP",
+    "subMenuOrganisations": "Organizações",
+    "subMenuOrgDetails": "Detalhes da organização",
+    "subMenuUsers": "Usuárias",
+    "subMenuPlans": "Planas",
+    "subMenuUsage": "Uso",
+    "subMenuTemplates": "Modelos",
+    "subMenuGuidance": "Orientação",
+    "subMenuThemes": "Temas",
+    "subMenuApiClients": "Clientes API",
+    "subMenuApiLogs": "Registros de API",
+    "subMenuNotifications": "Notificações",
+    "subMenuEditProfile": "Editar perfil",
+    "subMenu3rdParty": "Aplicativos de terceiros",
+    "subMenuDevTools": "Ferramentas de desenvolvedor",
+    "subMenuEnglish": "Inglês (EUA)",
+    "subMenuPortuguese": "Português (Brasil)",
+    "btnLogout": "Sair",
+    "btnSignup": "Inscrever-se",
+    "btnLogin": "Conecte-se"
+  },
+  "SubHeader": {
+    "ucopHomepage": "Página inicial da UCOP",
+    "uc3Helpdesk": "Central de atendimento UC3"
   }
 }
