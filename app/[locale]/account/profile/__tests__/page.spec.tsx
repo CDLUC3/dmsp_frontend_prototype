@@ -2,8 +2,6 @@ import React from 'react';
 import { render, screen, act, fireEvent, within } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProfilePage from '../page';
-import { usePathname } from '@/i18n/routing';
-import { useLocale } from 'next-intl';
 import { useMeQuery, useUpdateUserProfileMutation, useLanguagesQuery } from '@/generated/graphql';
 
 expect.extend(toHaveNoViolations);
