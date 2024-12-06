@@ -4,6 +4,8 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import UpdateEmailAddress from '..';
 import { useSetPrimaryUserEmailMutation, useAddUserEmailMutation, useRemoveUserEmailMutation } from '@/generated/graphql';
 import logECS from '@/utils/clientLogger';
+import { NextIntlClientProvider } from 'next-intl';
+import messages from '@/messages/en-US/en-US.json';
 import { MeDocument } from '@/generated/graphql';
 expect.extend(toHaveNoViolations);
 
@@ -90,30 +92,42 @@ describe('UpdateEmailAddressPage', () => {
   });
 
   it('should render UpdateEmailAddress page with expected headings', async () => {
-    render(<UpdateEmailAddress
-      emailAddresses={mockEmailAddresses}
-    />);
+    render(
+      <NextIntlClientProvider
+        locale="en"
+      >
+        <UpdateEmailAddress
+          emailAddresses={mockEmailAddresses}
+        />
+      </NextIntlClientProvider>
+    );
 
     await waitFor(() => {
-      expect(screen.getByText('Email and Authentication')).toBeInTheDocument();
-      const headingElement1 = screen.getByRole('heading', { name: 'Primary email address' });
-      const headingElement2 = screen.getByRole('heading', { name: 'Alias email addresses' });
-      const headingElement3 = screen.getByRole('heading', { name: 'Single sign on activated' })
-      const headingElement4 = screen.getByRole('heading', { name: 'Receives notifications' });
+      expect(screen.getByText('UserProfile.emailAndAuth')).toBeInTheDocument();
+      const headingElement1 = screen.getByRole('heading', { name: 'UserProfile.headingPrimaryEmail' });
+      const headingElement2 = screen.getByRole('heading', { name: 'UserProfile.headingAliasEmailAddr' });
+      const headingElement3 = screen.getByRole('heading', { name: 'UserProfile.headingSSO' })
+      const headingElement4 = screen.getByRole('heading', { name: 'UserProfile.headingNotifications' });
       expect(headingElement1).toBeInTheDocument();
       expect(headingElement2).toBeInTheDocument();
       expect(headingElement3).toBeInTheDocument();
       expect(headingElement4).toBeInTheDocument();
-      expect(screen.getByText(/This email will be used for your account login. It can also be used for password resets./i)).toBeInTheDocument();
-      expect(screen.getByText(/This email address will be used for DMP notifications./i)).toBeInTheDocument();
-      expect(screen.getByText(/Alias email addresses may be used to help others find you, for example if they‘d like to share a DMP with you./i)).toBeInTheDocument();
+      expect(screen.getByText(/UserProfile.primaryEmailDesc/i)).toBeInTheDocument();
+      expect(screen.getByText(/UserProfile.notificationsDesc/i)).toBeInTheDocument();
+      expect(screen.getByText(/UserProfile.aliasEmailDesc/i)).toBeInTheDocument();
     });
   });
 
   it('should display email addresses', async () => {
-    render(<UpdateEmailAddress
-      emailAddresses={mockEmailAddresses}
-    />);
+    render(
+      <NextIntlClientProvider
+        locale="en"
+      >
+        <UpdateEmailAddress
+          emailAddresses={mockEmailAddresses}
+        />
+      </NextIntlClientProvider>
+    );
 
     expect(screen.getByText(/test@test.com/i)).toBeInTheDocument();
     expect(screen.getByText(/me@test.com/i)).toBeInTheDocument();
@@ -141,9 +155,13 @@ describe('UpdateEmailAddressPage', () => {
 
     // Render the component
     render(
-      <UpdateEmailAddress
-        emailAddresses={mockEmailAddresses}
-      />
+      <NextIntlClientProvider
+        locale="en"
+      >
+        <UpdateEmailAddress
+          emailAddresses={mockEmailAddresses}
+        />
+      </NextIntlClientProvider>
     );
 
     // Find and click the delete button for test@test.com
@@ -181,9 +199,13 @@ describe('UpdateEmailAddressPage', () => {
 
     // Render the component
     render(
-      <UpdateEmailAddress
-        emailAddresses={mockEmailAddresses}
-      />
+      <NextIntlClientProvider
+        locale="en"
+      >
+        <UpdateEmailAddress
+          emailAddresses={mockEmailAddresses}
+        />
+      </NextIntlClientProvider>
     );
 
     // Find and click the delete button for test@test.com
@@ -236,13 +258,17 @@ describe('UpdateEmailAddressPage', () => {
 
     // Render the component
     render(
-      <UpdateEmailAddress
-        emailAddresses={mockEmailAddresses}
-      />
+      <NextIntlClientProvider
+        locale="en"
+      >
+        <UpdateEmailAddress
+          emailAddresses={mockEmailAddresses}
+        />
+      </NextIntlClientProvider>
     );
 
     //Enter a value into the add alias input field
-    const addAliasInput = screen.getByLabelText(/add alias email address/i);
+    const addAliasInput = screen.getByLabelText(/headingAddAliasEmail/i);
     fireEvent.change(addAliasInput, { target: { value: 'msmith@test.com' } });
 
     // Locate the Add button and click it
@@ -251,7 +277,7 @@ describe('UpdateEmailAddressPage', () => {
     expect(addContainer).not.toBeNull(); // Ensure addContainer is found
 
     // Now we can safely use addContainer with `within`
-    const addButton = within(addContainer!).getByRole('button', { name: 'Add' });
+    const addButton = within(addContainer!).getByRole('button', { name: 'UserProfile.btnAdd' });
 
     await act(async () => {
       fireEvent.click(addButton);
@@ -301,14 +327,18 @@ describe('UpdateEmailAddressPage', () => {
 
     // Render the component
     render(
-      <UpdateEmailAddress
-        emailAddresses={mockEmailAddresses}
-      />
+      <NextIntlClientProvider
+        locale="en"
+      >
+        <UpdateEmailAddress
+          emailAddresses={mockEmailAddresses}
+        />
+      </NextIntlClientProvider>
     );
 
     // Find the "Make primary email address" button
     const makePrimaryButton = screen.getByRole('button', {
-      name: /make primary email address/i
+      name: /UserProfile.linkMakePrimary/i
     });
 
     // Trigger the make primary action
@@ -343,9 +373,15 @@ describe('UpdateEmailAddressPage', () => {
   });
 
   it('should pass axe accessibility test', async () => {
-    const { container } = render(<UpdateEmailAddress
-      emailAddresses={mockEmailAddresses}
-    />);
+    const { container } = render(
+      <NextIntlClientProvider
+        locale="en"
+      >
+        <UpdateEmailAddress
+          emailAddresses={mockEmailAddresses}
+        />
+      </NextIntlClientProvider>
+    );
     await act(async () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();
