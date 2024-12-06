@@ -48,6 +48,10 @@ $color-red: #D3273E;
 }
 
 .paragraph {
+  color: var(--dmpui-brand-blue-900);
+  cursor: pointer;
+  display:block;
+  font-weight: 700;
   margin: 0 0 10px;
 }
 

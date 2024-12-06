@@ -3,6 +3,8 @@
 import { MouseEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { usePathname } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
 import { useCsrf } from '@/context/CsrfContext';
 import Link from 'next/link';
@@ -15,8 +17,18 @@ function Header() {
     const { isAuthenticated, setIsAuthenticated } = useAuthContext();
     const router = useRouter();
     const { csrfToken } = useCsrf();
+    const pathname = usePathname();
+    const currentLocale = useLocale();
+    const locales = ['en-US', 'pt-BR'];
 
     const t = useTranslations('Header');
+
+    const switchLanguage = (newLocale: string) => {
+        if (newLocale !== currentLocale) {
+            const newPath = `/${newLocale}${pathname}`;
+            router.push(newPath);
+        }
+    };
 
     useEffect(() => {
         //this is just to trigger a refresh on authentication change
@@ -141,9 +153,21 @@ function Header() {
                             <div className={styles['dmpui-dropdown']}>
                                 <a href="#"><FontAwesomeIcon icon={faGlobe} aria-label="Language" /></a>
                                 <div className={styles['dmpui-dropdown-content']}>
-                                    {/*Need list of languages from backend */}
-                                    <p className={styles.paragraph}><a role="menuitem" rel="nofollow" data-method="patch" href="/locale/en-US">{t('subMenuEnglish')}</a></p>
-                                    <p className={styles.paragraph}><a role="menuitem" rel="nofollow" data-method="patch" href="/locale/pt-BR">{t('subMenuPortuguese')}</a></p>
+
+                                    {locales.map((locale) => (
+                                        <>
+                                            <button
+                                                key={locale}
+                                                className={styles.paragraph}
+                                                onClick={() => switchLanguage(locale)}
+                                                role="menuitem" // Ensures proper ARIA semantics
+                                                aria-label={`Switch to ${locale} language`} // Screen reader-friendly label
+                                                style={{ background: 'none', border: 'none', padding: 0, textAlign: 'left' }} // Mimics the appearance of a <p>
+                                            >
+                                                {locale}
+                                            </button>                                        </>
+                                    ))}
+
                                 </div>
                             </div>
                         </li>
