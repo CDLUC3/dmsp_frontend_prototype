@@ -2,6 +2,8 @@ import React from 'react';
 import { render, screen, act, fireEvent, within } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProfilePage from '../page';
+import { usePathname } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import { useMeQuery, useUpdateUserProfileMutation, useLanguagesQuery } from '@/generated/graphql';
 
 expect.extend(toHaveNoViolations);
@@ -14,15 +16,6 @@ jest.mock('@/utils/clientLogger', () => ({
   __esModule: true,
   default: jest.fn()
 }))
-
-// Mock useFormatter and useTranslations from next-intl
-jest.mock('next-intl', () => ({
-  useFormatter: jest.fn(() => ({
-    dateTime: jest.fn(() => '01-01-2023'),
-  })),
-  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`
-}));
-
 
 // Mock the GraphQL hooks
 jest.mock('@/generated/graphql', () => ({
@@ -41,6 +34,19 @@ jest.mock('@/components/UpdateEmailAddress', () => ({
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
   default: () => <div data-testid="type-ahead">Mocked TypeAheadWithOther Component</div>,
+}));
+
+jest.mock('@/i18n/routing', () => ({
+  usePathname: jest.fn(() => '/about'),
+}));
+
+// Mock useFormatter and useTranslations from next-intl
+jest.mock('next-intl', () => ({
+  useFormatter: jest.fn(() => ({
+    dateTime: jest.fn(() => '01-01-2023'),
+  })),
+  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
+  useLocale: jest.fn(() => 'en-US'), // Return a default locale
 }));
 
 const mockUserData = {

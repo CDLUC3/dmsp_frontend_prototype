@@ -10,6 +10,7 @@ import { useCsrf } from '@/context/CsrfContext';
 import Link from 'next/link';
 import { faGlobe, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { switchLanguage } from '@/utils/switchLanguage';
 import styles from './header.module.scss';
 
 function Header() {
@@ -19,16 +20,18 @@ function Header() {
     const { csrfToken } = useCsrf();
     const pathname = usePathname();
     const currentLocale = useLocale();
-    const locales = ['en-US', 'pt-BR'];
-
     const t = useTranslations('Header');
 
-    const switchLanguage = (newLocale: string) => {
-        if (newLocale !== currentLocale) {
-            const newPath = `/${newLocale}${pathname}`;
-            router.push(newPath);
+    const locales = [
+        {
+            id: 'en-US',
+            name: t('subMenuEnglish')
+        },
+        {
+            id: 'pt-BR',
+            name: t('subMenuPortuguese')
         }
-    };
+    ];
 
     useEffect(() => {
         //this is just to trigger a refresh on authentication change
@@ -155,17 +158,16 @@ function Header() {
                                 <div className={styles['dmpui-dropdown-content']}>
 
                                     {locales.map((locale) => (
-                                        <>
-                                            <button
-                                                key={locale}
-                                                className={styles.paragraph}
-                                                onClick={() => switchLanguage(locale)}
-                                                role="menuitem" // Ensures proper ARIA semantics
-                                                aria-label={`Switch to ${locale} language`} // Screen reader-friendly label
-                                                style={{ background: 'none', border: 'none', padding: 0, textAlign: 'left' }} // Mimics the appearance of a <p>
-                                            >
-                                                {locale}
-                                            </button>                                        </>
+                                        <button
+                                            key={locale.id}
+                                            className={styles.paragraph}
+                                            onClick={() => switchLanguage(locale.id, currentLocale, pathname, router)}
+                                            role="menuitem" // Ensures proper ARIA semantics
+                                            aria-label={`Switch to ${locale} language`} // Screen reader-friendly label
+                                            style={{ background: 'none', border: 'none', padding: 0, textAlign: 'left' }} // Mimics the appearance of a <p>
+                                        >
+                                            {locale.name}
+                                        </button>
                                     ))}
 
                                 </div>

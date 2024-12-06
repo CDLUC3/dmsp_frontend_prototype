@@ -2,8 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { ApolloError } from '@apollo/client';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { usePathname } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -43,11 +46,15 @@ import {
 
 // Utils and other
 import logECS from '@/utils/clientLogger';
+import { switchLanguage } from '@/utils/switchLanguage';
 import { refreshAuthTokens } from "@/utils/authHelper";
 import styles from './profile.module.scss';
 
 const ProfilePage: React.FC = () => {
   const t = useTranslations('UserProfile');
+  const pathname = usePathname();
+  const currentLocale = useLocale();
+  const router = useRouter();
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -75,6 +82,13 @@ const ProfilePage: React.FC = () => {
   });
   const [emailAddresses, setEmailAddresses] = useState<EmailInterface[]>([]);
   const [languages, setLanguages] = useState<LanguageInterface[]>([]);
+
+  // const switchLanguage = (newLocale: string) => {
+  //   if (newLocale !== currentLocale) {
+  //     const newPath = `/${newLocale}${pathname}`;
+  //     router.push(newPath);
+  //   }
+  // };
 
   // Initialize user profile mutation
   const [updateUserProfileMutation, { loading: updateUserProfileLoading }] = useUpdateUserProfileMutation();
@@ -140,9 +154,10 @@ const ProfilePage: React.FC = () => {
       const response = await profileUpdateMutation();
       if (response) {
         setIsEditing(false);
-        //refresh the token
+        // Refresh token to include preferred language in token
         await refreshAuthTokens();
-        refetch();
+        // Update pathname to match the selected language so user can see page in selected language
+        switchLanguage(formData.languageId, currentLocale, pathname, router);
       }
     } catch (error) {
       if (error instanceof ApolloError) {
@@ -265,54 +280,55 @@ const ProfilePage: React.FC = () => {
   }, [languageData]);
 
   useEffect(() => {
-    //When data from backend changes, set formData and originalData
-    if (data && data.me) {
-      // Get name of selected language
-      const language = languages.find(lang => lang.id === data?.me?.languageId) || {
-        id: '',
-        name: '',
-        isDefault: false
-      };
+    const updateFormData = async () => {
+      if (data && data.me && languageData) {
+        // Get local languages that are not null (for Type guard)
+        const loadedLanguages = (languageData.languages || []).filter((language) => language !== null);
 
-      // Set email list so we can pass to the UpdateEmailAddresses component
-      if (data?.me?.emails) {
-        const validEmails = data.me.emails
-          // Filter out nulls and map to Email type
-          .filter((email): email is NonNullable<typeof email> => email !== null)
-          .map(email => ({
-            id: email.id ?? undefined,
-            email: email.email,
-            isPrimary: email.isPrimary,
-            isConfirmed: email.isConfirmed
-          }));
+        // Find the selected language or fallback
+        const selectedLanguage = loadedLanguages.find((lang) => lang.id === data?.me?.languageId) || {
+          id: '',
+          name: '',
+          isDefault: false,
+        };
 
-        setEmailAddresses(validEmails);
-      } else {
-        setEmailAddresses([]); // Reset to empty array if no email data
+        // Set user email list from data
+        if (data.me.emails) {
+          const validEmails = data.me.emails
+            .filter((email): email is NonNullable<typeof email> => email !== null)
+            .map((email) => ({
+              id: email.id ?? undefined,
+              email: email.email,
+              isPrimary: email.isPrimary,
+              isConfirmed: email.isConfirmed,
+            }));
+          setEmailAddresses(validEmails);
+        } else {
+          setEmailAddresses([]);
+        }
+
+        // Update originalData and formData
+        const newOriginalData = {
+          firstName: data.me.givenName ?? '',
+          lastName: data.me.surName ?? '',
+          affiliationName: data.me.affiliation?.name ?? '',
+          affiliationId: data.me.affiliation?.uri ?? '',
+          otherAffiliationName: '',
+          languageId: data.me.languageId,
+          languageName: selectedLanguage.name,
+        };
+
+        setOriginalData(newOriginalData);
+
+        setFormData((prev) => ({
+          ...prev,
+          ...newOriginalData,
+        }));
       }
+    };
 
-      setOriginalData({
-        firstName: data.me.givenName ?? '',
-        lastName: data.me.surName ?? '',
-        affiliationName: data.me.affiliation?.name ?? '',
-        affiliationId: data.me.affiliation?.uri ?? '',
-        otherAffiliationName: '',
-        languageId: data.me.languageId,
-        languageName: language.name
-      });
-
-      setFormData({
-        ...formData,
-        firstName: data.me.givenName ?? '',
-        lastName: data.me.surName ?? '',
-        affiliationName: data.me.affiliation?.name ?? '',
-        affiliationId: data.me.affiliation?.uri ?? '',
-        otherAffiliationName: '',
-        languageId: data.me.languageId,
-        languageName: language.name
-      })
-    }
-  }, [data])
+    updateFormData();
+  }, [data, languageData]);
 
   // Update form data
   const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
