@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Button } from 'react-aria-components';
 
@@ -26,7 +27,7 @@ interface TemplateItemProps {
 
 function TemplateListItem({ item }: TemplateItemProps) {
   const [expanded, setExpanded] = useState<boolean>(item.defaultExpanded);
-
+  const t = useTranslations('OrganizationTemplates');
   const toggleExpand = () => {
     setExpanded((prevExpanded) => !prevExpanded);
   };
@@ -41,7 +42,7 @@ function TemplateListItem({ item }: TemplateItemProps) {
         <div className={styles.TemplateItemHeading}>
           <h3 id={headingId}>
             {item.link ? (
-              <Link href={item.link} aria-label={`Update ${item.title}`}
+              <Link href={item.link} aria-label={`${t('linkUpdate')} ${item.title}`}
                 className={styles.titleLink}>
                 {item.title}
               </Link>
@@ -80,21 +81,21 @@ function TemplateListItem({ item }: TemplateItemProps) {
 
         <div className={styles.TemplateItemActions}>
           {item.link && (
-            <Link href={item.link} aria-label={`Update ${item.title}`}
+            <Link href={item.link} aria-label={`${t('linkUpdate')} ${item.title}`}
               className={styles.updateLink}>
-              Update
+              {t('linkUpdate')}
             </Link>
           )}
 
           <Button
             aria-expanded={expanded}
             aria-controls={expandedContentId}
-            aria-label={`${expanded ? 'Collapse' : 'Expand'} details for ${item.title}`}
+            aria-label={`${expanded ? t('linkCollapse') : t('linkExpand')} details for ${item.title}`}
             onPress={toggleExpand}
             className={styles.expandButton}
           >
-            <span>{expanded ? 'Collapse' : 'Expand'}</span>
-            <span className="sr-only">details</span>
+            <span>{expanded ? t('linkCollapse') : t('linkExpand')}</span>
+            <span className="sr-only">{t('details')}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -120,7 +121,7 @@ function TemplateListItem({ item }: TemplateItemProps) {
           role="region"
           aria-labelledby={headingId}
         >
-          <p>Additional information goes here...</p>
+          <p>{t('additionalInfo')}</p>
           <p>
             {item.content}
           </p>

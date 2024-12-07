@@ -68,20 +68,15 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
             <CsrfProvider>
-
-              <Header />
-              <SubHeader />
-
-              <div id="App">
-                <ApolloWrapper>
-
+              <ApolloWrapper>
+                <Header />
+                <SubHeader />
+                <div id="App">
                   {children}
+                </div>
 
-                </ApolloWrapper>
-              </div>
-
-              <Footer />
-
+                <Footer />
+              </ApolloWrapper>
             </CsrfProvider>
           </AuthProvider>
         </NextIntlClientProvider>

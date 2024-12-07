@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React from 'react';
 import classNames from 'classnames';
+import { useTranslations } from 'next-intl';
 import { DmpIcon } from '@/components/Icons';
 import {
   Button,
@@ -31,6 +31,8 @@ export default function EmailAddressRow({
   deleteEmail
 }: DeleteRowInterface) {
 
+  const t = useTranslations('UserProfile');
+
   const handleMakePrimary = (e: React.MouseEvent<HTMLDivElement>, email: string) => {
     e.preventDefault();
     if (makePrimaryEmail) {
@@ -46,7 +48,7 @@ export default function EmailAddressRow({
       <div className={styles.emailContent}>
         <p className={styles.emailAddress}>{email}</p>
         {isAlias && (
-          <div role="button" onClick={e => handleMakePrimary(e, email)} className={styles.emailLink}>Make primary email address</div>
+          <div role="button" onClick={e => handleMakePrimary(e, email)} className={styles.emailLink}>{t('linkMakePrimary')}</div>
         )}
       </div>
 

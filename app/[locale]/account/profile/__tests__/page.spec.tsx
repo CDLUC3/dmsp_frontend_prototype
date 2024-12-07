@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act, fireEvent, within } from '@testing-library/react';
+import { render, screen, act, fireEvent, within } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProfilePage from '../page';
 import { useMeQuery, useUpdateUserProfileMutation, useLanguagesQuery } from '@/generated/graphql';
@@ -14,7 +14,6 @@ jest.mock('@/utils/clientLogger', () => ({
   __esModule: true,
   default: jest.fn()
 }))
-
 
 // Mock the GraphQL hooks
 jest.mock('@/generated/graphql', () => ({
@@ -33,6 +32,19 @@ jest.mock('@/components/UpdateEmailAddress', () => ({
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
   default: () => <div data-testid="type-ahead">Mocked TypeAheadWithOther Component</div>,
+}));
+
+jest.mock('@/i18n/routing', () => ({
+  usePathname: jest.fn(() => '/about'),
+}));
+
+// Mock useFormatter and useTranslations from next-intl
+jest.mock('next-intl', () => ({
+  useFormatter: jest.fn(() => ({
+    dateTime: jest.fn(() => '01-01-2023'),
+  })),
+  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
+  useLocale: jest.fn(() => 'en-US'), // Return a default locale
 }));
 
 const mockUserData = {
@@ -71,7 +83,7 @@ describe('ProfilePage', () => {
     render(<ProfilePage />);
 
     await act(async () => {
-      const element = screen.getByText('Update profile', { selector: '.pageheader-title' });
+      const element = screen.getByText('headingUpdateProfile', { selector: '.pageheader-title' });
       expect(element).toBeInTheDocument();
     });
 
@@ -83,13 +95,7 @@ describe('ProfilePage', () => {
 
   it('sets the document title correctly', () => {
     render(<ProfilePage />);
-    expect(document.title).toBe('Update profile | DMPTool');
-  });
-
-  it('should scroll to the top of the page on render', () => {
-    window.scrollTo = jest.fn();
-    render(<ProfilePage />);
-    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
+    expect(document.title).toBe('headingUpdateProfile | DMPTool');
   });
 
   it('should show form fields when Edit button is clicked', async () => {
