@@ -621,8 +621,24 @@
   .plans-header-with-actions {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-1);
+    align-items: flex-start;
+    margin-bottom: var(--space-2);
+    flex-direction: column;
+    gap: var(--space-2);
+    @include device(sm) {
+      flex-direction: row;
+      align-items: center;
+      margin-bottom: var(--space-2);
+    }
+    .actions{
+      @include device(sm) {
+        flex-direction: row;
+        align-items: center;
+      }
+      a{
+        margin-bottom: var(--space-1);
+      }
+    }
   }
 
   .plan-item {
@@ -648,7 +664,11 @@
     }
 
     .plan-sections-list-item-progress {
-      margin-left: var(--space-3);
+      display: block;
+      @include device(sm) {
+        display: inline-block;
+        margin-left: var(--space-3);
+      }
     }
   }
 
@@ -669,17 +689,21 @@
       flex-direction: row;
       gap: var(--space-4);
     }
-    .plan-link{
+
+    .plan-link {
       font-size: var(--fs-small);
       color: var(--body-color);
-      .link-text{
+
+      .link-text {
         text-decoration: underline;
         text-underline-offset: 2px;
+
         &:hover {
           color: var(--text-black);
         }
       }
-      &:hover{
+
+      &:hover {
         text-decoration: none;
       }
     }

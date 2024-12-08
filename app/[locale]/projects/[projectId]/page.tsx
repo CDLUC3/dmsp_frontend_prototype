@@ -4,6 +4,7 @@ import React from 'react';
 import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {Card} from '@/components/Card/card';
+import {useTranslations} from 'next-intl';
 
 interface Funder {
   name: string;
@@ -42,6 +43,9 @@ interface Plan {
 }
 
 const ProjectOverviewPage: React.FC = () => {
+  const t = useTranslations('ProjectOverview');
+
+
   const project = {
     title: "Coastal Ocean Processes of North Greenland",
     start_date: "2023-07-18",
@@ -56,9 +60,9 @@ const ProjectOverviewPage: React.FC = () => {
     ],
     project_members: [
       {
-        fullname: "Frederick Coon",
+        fullname: "Frederick Ice",
         role: "PI",
-        email: "fcoon@example.com"
+        email: "fred.ice@example.com"
       },
       {
         fullname: "Jennifer Frost",
@@ -137,13 +141,14 @@ const ProjectOverviewPage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title="Project and Plans"
-        description=""
+        title={t('pageTitle')}
+        description={t('pageDescription')}
         showBackButton={true}
         breadcrumbs={
-          <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+          <Breadcrumbs aria-label={t('navigation')}>
+            <Breadcrumb><Link href="/">{t('home')}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href="/projects">{t('projects')}</Link></Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
@@ -153,131 +158,172 @@ const ProjectOverviewPage: React.FC = () => {
       <div className="template-editor-container">
         <div className="main-content">
           <div className="project-overview">
-            <div className="project-overview-item project-header">
-              <h2>Project</h2>
+            <section className="project-overview-item project-header"
+                     aria-labelledby="project-title">
+              <h2 id="project-title">{t('project')}</h2>
               <p className="project-overview-item-heading">
                 <strong>
-                  {project.title}
+                  {project.title}`
                 </strong>
               </p>
               <p>
-                {new Date(project.start_date).toLocaleDateString()} to{' '}
-                {new Date(project.end_date).toLocaleDateString()}
+                {t('dateRange', {
+                  startDate: (project.start_date),
+                  endDate: (project.end_date)
+                })}
               </p>
+              <Link href="/projects/123/edit" aria-label={t('editProject')}>
+                {t('edit')}
+              </Link>
+            </section>
 
-              <Link href="/projects/123/edit"
-                    aria-label={`Edit project details`}>Edit project</Link>
-            </div>
 
-            <div className="project-overview-item project-funders">
-              <h2>Funders</h2>
+            <section className="project-overview-item project-funders"
+                     aria-labelledby="funders-title">
+              <h2 id="funders-title">{t('funders')}</h2>
               <p className="project-overview-item-heading">
                 <strong>
-                  {project.funders.length} Funder(s)
+                  {t('funderCount', {count: project.funders.length})}
                 </strong>
               </p>
               <p>
                 {project.funders.map((funder, index) => (
                   <span key={funder.id}>
-                  {funder.name} ({funder.grantid})
-                </span>
+                      {t('funderInfo', {
+                        name: funder.name,
+                        id: funder.grantid
+                      })}
+                    </span>
                 ))}
               </p>
-              <Link href="/projects/123/edit">Edit Funder details</Link>
-            </div>
+              <Link href="/projects/123/edit" aria-label={t('editFunders')}>
+                {t('editFunderDetails')}
+              </Link>
+            </section>
 
-            <div className="project-overview-item project-members">
-              <h2>Project Members</h2>
+            <section className="project-overview-item project-members"
+                     aria-labelledby="members-title">
+              <h2 id="members-title">{t('projectMembers')}</h2>
               <p className="project-overview-item-heading">
                 <strong>
-                  {project.project_members.length} team members
+                  {t('memberCount', {count: project.project_members.length})}
                 </strong>
               </p>
               <p>
                 {project.project_members.map((member, index) => (
                   <span key={index}>
-                    {member.fullname} ({member.role}){'; '}
+                    {t('memberInfo', {
+                      name: member.fullname,
+                      role: member.role
+                    })}
+                                {index < project.project_members.length - 1 ? '; ' : ''}
                   </span>
                 ))}
               </p>
-              <Link href="/projects/123/edit">Edit project members</Link>
-            </div>
+              <Link href="/projects/123/edit" aria-label={t('editMembers')}>
+                {t('editProjectMembers')}
+              </Link>
+            </section>
 
-            <div className="project-overview-item research-outputs">
-              <h2>Research Outputs</h2>
+            <section className="project-overview-item research-outputs"
+                     aria-labelledby="outputs-title">
+              <h2 id="outputs-title">{t('researchOutputs')}</h2>
               <p className="project-overview-item-heading">
                 <strong>
-                  {project.research_outputs.length} Outputs
+                  {t('outputCount', {count: project.research_outputs.length})}
                 </strong>
               </p>
+              <Link href="/projects/123/edit" aria-label={t('editOutputs')}>
+                {t('editResearchOutputs')}
+              </Link>
+            </section>
 
-              <Link href="/projects/123/edit">Edit Research outputs</Link>
-            </div>
           </div>
 
-          <div className="plans">
+          <section className="plans" aria-labelledby="plans-title">
             <div className="plans-header plans-header-with-actions">
               <div className="">
-                <h2>Plan(s)</h2>
+                <h2 id="plans-title">{t('plans')}</h2>
               </div>
-              <div className="">
-                <Link href="/plans/new"
-                      className="react-aria-Button react-aria-Button--secondary">
-                  Upload plan
+              <div className="actions" role="group"
+                   aria-label={t('planActions')}>
+                <Link
+                  href="/plans/new"
+                  className="react-aria-Button react-aria-Button--secondary"
+                  aria-label={t('uploadPlan')}
+                >
+                  {t('upload')}
                 </Link>
-                <Link href="/plans/new"
-                      className="react-aria-Button react-aria-Button--primary">
-                  Create new plan
+                <Link
+                  href="/plans/new"
+                  className="react-aria-Button react-aria-Button--primary"
+                  aria-label={t('createNewPlan')}
+                >
+                  {t('createNew')}
                 </Link>
               </div>
             </div>
             {project.plans.map((plan) => (
               <Card className="plan-item" key={plan.id}>
-                <p className="mb-1">Funder: {plan.funder_name}</p>
-                <h2 className="mt-0">{plan.template_name}</h2>
+                <p className="mb-1">{t('funder')}: {plan.funder_name}</p>
+                <h3 className="mt-0">{plan.template_name}</h3>
                 <div className="plan-sections mb-4">
-                  <ul className="plan-sections-list">
+                  <ul className="plan-sections-list"
+                      aria-label={t('planSections')}>
                     {plan.sections.map((section) => (
                       <li key={section.id} className="plan-sections-list-item">
                         <Link href={section.link}>
                           {section.section_title}
                         </Link>
-                        <span
-                          className="plan-sections-list-item-progress">{section.progress} of 3</span>
+                        <span className="plan-sections-list-item-progress">
+                          {t('progress', {
+                            current: section.progress,
+                            total: 3
+                          })}
+                        </span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="plan-meta">
                   <p>
-                    DOI: {plan.doi} <br/>
-                    Last
-                    updated: {new Date(plan.last_updated).toLocaleDateString()}<br/>
-                      Template: Arctic Data Center: NSF Polar Programs
+                    {t('doi')}: {plan.doi} <br/>
+                    {t('lastUpdated')}: {plan.last_updated}<br/>
+                    {t('template')}: Arctic Data Center: NSF Polar Programs
                   </p>
                 </div>
                 <div className="plan-footer">
                   <div className="plan-links">
-                    <Link href="/plans/123" className="plan-link download-link">
-                      <span className="link-text">Download</span>
-                      <span className="link-icon">↓</span>
+                    <Link
+                      href="/plans/123"
+                      className="plan-link download-link"
+                      aria-label={t('downloadPlan')}
+                    >
+                      <span className="link-text">{t('download')}</span>
+                      <span className="link-icon" aria-hidden="true">↓</span>
                     </Link>
-                    <Link href="/share" className="plan-link share-link">
-                      <span className="link-text">Share with others</span>
-                      <span className="link-icon">👤</span>
+                    <Link
+                      href="/share"
+                      className="plan-link share-link"
+                      aria-label={t('sharePlan')}
+                    >
+                      <span className="link-text">{t('share')}</span>
+                      <span className="link-icon" aria-hidden="true">👤</span>
                     </Link>
                   </div>
                   <div className="plan-action">
-                    <Link href="/plans/123/edit"
-                          className="react-aria-Button react-aria-Button--primary">
-                      Update plan
+                    <Link
+                      href="/plans/123/edit"
+                      className="react-aria-Button react-aria-Button--primary"
+                      aria-label={t('updatePlan')}
+                    >
+                      {t('update')}
                     </Link>
                   </div>
                 </div>
               </Card>
             ))}
-          </div>
-
+          </section>
         </div>
       </div>
     </>
