@@ -233,9 +233,6 @@ const ProjectOverviewPage: React.FC = () => {
             </div>
             {project.plans.map((plan) => (
               <Card className="plan-item" key={plan.id}>
-                <p>
-                  Template: Arctic Data Center: NSF Polar Programs
-                </p>
                 <p className="mb-1">Funder: {plan.funder_name}</p>
                 <h2 className="mt-0">{plan.template_name}</h2>
                 <div className="plan-sections mb-4">
@@ -254,12 +251,21 @@ const ProjectOverviewPage: React.FC = () => {
                 <div className="plan-meta">
                   <p>
                     DOI: {plan.doi} <br/>
-                    Last updated: {new Date(plan.last_updated).toLocaleDateString()}<br/>
+                    Last
+                    updated: {new Date(plan.last_updated).toLocaleDateString()}<br/>
+                      Template: Arctic Data Center: NSF Polar Programs
                   </p>
                 </div>
                 <div className="plan-footer">
                   <div className="plan-links">
-                    <Link href="/plans/123">Download</Link>
+                    <Link href="/plans/123" className="plan-link download-link">
+                      <span className="link-text">Download</span>
+                      <span className="link-icon">↓</span>
+                    </Link>
+                    <Link href="/share" className="plan-link share-link">
+                      <span className="link-text">Share with others</span>
+                      <span className="link-icon">👤</span>
+                    </Link>
                   </div>
                   <div className="plan-action">
                     <Link href="/plans/123/edit"
