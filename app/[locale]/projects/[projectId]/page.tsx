@@ -4,7 +4,7 @@ import React from 'react';
 import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {Card} from '@/components/Card/card';
-import {useTranslations} from 'next-intl';
+import {useTranslations} from "next-intl";
 
 interface Funder {
   name: string;
@@ -163,7 +163,7 @@ const ProjectOverviewPage: React.FC = () => {
               <h2 id="project-title">{t('project')}</h2>
               <p className="project-overview-item-heading">
                 <strong>
-                  {project.title}`
+                  {project.title}
                 </strong>
               </p>
               <p>
