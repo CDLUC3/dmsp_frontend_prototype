@@ -1,18 +1,27 @@
 ### Updated
 =======
+- Updated account/profile, email/email-confirmed, email/verification-failed, and account/connections to use new, shared layout containers [#185]
 - Refactored font family usage for consistency.
 
 ### Added
-- Created create/select-template page and test [#167]
-  - Created new components for this page
-  - Created Template Select List Item 
-
-### Added
+- New translation updates [#160]
+  - Installed next-intl, and created a /messages directory for content, and /i18n directory for next-intl request and routing
+  - Moved pages under dynamic folder [locale]
+  - Updated middleware to add correct locale based on path, token, browser preference, or default to english
+  - Added provider NextIntlClientProvider to layout.tsx
+  - Added a test page, locale-test, where you can see demos of translations
+  - Added NextIntlClientProvider to the @/utils/test-utils
+  - Updated next.config.mjs to use next-intl plugin
 - Template Builder: Access Page [#166]
 - Created css for sectionContainer, sectionHeader, sectionContent for generic sections
 - Updated mobile breadcrumbs css
-
-### Added
+- Added ability to add 'Other' affiliation in the User Profile page [#170]
+- Created create/select-template page and test [#167]
+  - Created new components for this page
+  - Created Template Select List Item 
+- Template Builder: Access Page [#166]
+- Created css for sectionContainer, sectionHeader, sectionContent for generic sections
+- Updated mobile breadcrumbs css
 - Added ability to add 'Other' affiliation in the User Profile page [#170]
 - Added new components [#111]
   - Clickable interface for Template List
@@ -44,6 +53,8 @@
 
 
 ### Fixed
+- Fixed `login` 404 error issue and looping issue in middleware [#194]
+- Removed old `app/layout.tsx` page. It was causing errors, since we have one located at `app/[locale]/layout.tsx` now.
 - Fixed a failing unit test and build for `confirm-email` component when backend server was not running [#180]
 - Removed use of NEXT_PUBLIC_GRAPHQL_ENDPOINT env variable, since it was a duplicate of NEXT_PUBLIC_SERVER_ENDPOINT [#171]
 

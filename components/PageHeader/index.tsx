@@ -1,6 +1,6 @@
 'use client';
 
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useEffect} from 'react';
 import BackButton from "@/components/BackButton";
 import './pageheader.scss';
 
@@ -20,13 +20,19 @@ interface PageHeaderProps {
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
-                                                 title,
-                                                 description,
-                                                 showBackButton = true,
-                                                 breadcrumbs,
-                                                 actions,
-                                                 className = ''
-                                               }: PageHeaderProps) => {
+  title,
+  description,
+  showBackButton = true,
+  breadcrumbs,
+  actions,
+  className = ''
+}: PageHeaderProps) => {
+
+  useEffect(() => {
+    document.title = `${title} | DMPTool`;
+    window.scrollTo(0, 0);
+  }, [title]);
+
   return (
     <div className={`template-editor-header ${className}`.trim()}>
       {/* Breadcrumbs slot */}
