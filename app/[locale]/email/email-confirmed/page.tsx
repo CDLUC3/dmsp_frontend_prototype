@@ -1,13 +1,10 @@
 'use client'
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from 'react-aria-components';
+import {useRouter} from 'next/navigation';
+import {Button} from 'react-aria-components';
 import PageHeader from '@/components/PageHeader';
-import {
-  LayoutContainer,
-  ContentContainer,
-} from '@/components/Container';
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 
 const EmailConfirmed: React.FC = () => {
   const router = useRouter();

@@ -194,6 +194,7 @@ footer {
 
 
 .template-editor-container {
+  padding: 0 var(--brand-space2);
   @include device(lg) {
     display: flex;
     justify-content: space-between;

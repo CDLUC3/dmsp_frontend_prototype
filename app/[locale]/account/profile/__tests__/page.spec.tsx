@@ -1,8 +1,12 @@
 import React from 'react';
-import { render, screen, act, fireEvent, within } from '@testing-library/react';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {act, fireEvent, render, screen, within} from '@testing-library/react';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import ProfilePage from '../page';
-import { useMeQuery, useUpdateUserProfileMutation, useLanguagesQuery } from '@/generated/graphql';
+import {
+  useLanguagesQuery,
+  useMeQuery,
+  useUpdateUserProfileMutation
+} from '@/generated/graphql';
 
 expect.extend(toHaveNoViolations);
 

@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { JwtPayload } from 'jsonwebtoken';
-import { verifyJwtToken } from './lib/server/auth';
-import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
+import {NextRequest, NextResponse} from 'next/server';
+import {JwtPayload} from 'jsonwebtoken';
+import {verifyJwtToken} from './lib/server/auth';
+import {getAuthTokenServer} from '@/utils/getAuthTokenServer';
 import createMiddleware from 'next-intl/middleware';
-import { routing } from './i18n/routing';
+import {routing} from './i18n/routing';
 
 const locales = ['en-US', 'pt-BR'];
 const defaultLocale = 'en-US';

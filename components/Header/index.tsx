@@ -1,12 +1,12 @@
 'use client';
 
-import { MouseEvent, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthContext } from '@/context/AuthContext';
-import { useCsrf } from '@/context/CsrfContext';
+import {MouseEvent, useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {useAuthContext} from '@/context/AuthContext';
+import {useCsrf} from '@/context/CsrfContext';
 import Link from 'next/link';
-import { faGlobe, faUser } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {faGlobe, faUser} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import styles from './header.module.scss';
 
 function Header() {

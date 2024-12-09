@@ -1,8 +1,8 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import {render, screen} from '@testing-library/react';
 import TemplateListPage from '../page';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useRouter } from 'next/navigation';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useRouter} from 'next/navigation';
 
 expect.extend(toHaveNoViolations);
 

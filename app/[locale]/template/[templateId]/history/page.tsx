@@ -1,23 +1,20 @@
 'use client'
 
-import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useTemplateVersionsQuery } from '@/generated/graphql';
+import React, {useEffect, useState} from "react";
+import {useParams, useRouter} from "next/navigation";
+import {useTemplateVersionsQuery} from '@/generated/graphql';
 import {
-    Cell,
-    Column,
-    Row,
-    Table,
-    TableBody,
-    TableHeader,
+  Cell,
+  Column,
+  Row,
+  Table,
+  TableBody,
+  TableHeader,
 } from "react-aria-components";
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import {handleApolloErrors} from "@/utils/gqlErrorHandler";
 import PageHeader from "@/components/PageHeader";
-import { formatShortMonthDayYear, formatWithTimeAndDate } from "@/utils/dateUtils"
-import {
-    LayoutContainer,
-    ContentContainer,
-} from '@/components/Container';
+import {formatShortMonthDayYear, formatWithTimeAndDate} from "@/utils/dateUtils"
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 
 import styles from './history.module.scss';
 

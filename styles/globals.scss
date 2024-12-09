@@ -46,6 +46,16 @@ $colors: (
     'secondary': #444444,
     'tertiary': rgb(207, 72, 23)
   ),
+  'blue': (
+    50: #f2fbff,
+    100: #e4f7ff,
+    200: #b9e9ff,
+    300: #8ddaff,
+    400: #77d8ff,
+    500: #004EAA, // mid
+    600: #254eab, // dark blue
+    700: #254d9f,
+  ),
   'gray': (
     50: #ffffff,
     100: #d0d0d0,
@@ -135,6 +145,7 @@ html, body {
   --background-color: #f8f8f8;
   --bg-white: var(--gray-50);
   --bg-black: #000000;
+  --text-black: #000000;
 
   // Interactive states
   --highlight-hover: rgb(0 0 0 / 0.07);

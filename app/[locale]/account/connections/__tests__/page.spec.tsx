@@ -1,10 +1,9 @@
-import React, { ReactNode } from 'react';
-import { render, screen, act, waitFor } from '@testing-library/react';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import React, {ReactNode} from 'react';
+import {act, render, screen, waitFor} from '@testing-library/react';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import ConnectionsPage from '../page';
 
 expect.extend(toHaveNoViolations);
-
-import ConnectionsPage from '../page';
 
 jest.mock('@/components/PageHeader', () => {
   const mockPageHeader = jest.fn(({ children }: { children: ReactNode, title: string }) => (
