@@ -156,7 +156,7 @@ const ProfilePage: React.FC = () => {
         // Refresh token to include preferred language in token
         await refreshAuthTokens();
         // Update pathname to match the selected language so user can see page in selected language
-        switchLanguage(formData.languageId, currentLocale, pathname, router);
+        switchLanguage(formData.languageId);
       }
     } catch (error) {
       if (error instanceof ApolloError) {

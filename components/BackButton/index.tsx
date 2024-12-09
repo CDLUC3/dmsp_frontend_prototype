@@ -1,13 +1,24 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
+import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
 
 export default function BackButton() {
   const router = useRouter();
+  const currentLocale = useLocale();
   const t = useTranslations('Back');
+
+  const goBackWithLocale = () => {
+    // We have to manually set the back url because router.back() would send user
+    // back to their previous locale if they changed language
+    const referrer = document.referrer || '/'; // Get the previous URL or fallback
+    const updatedUrl = referrer.replace(/\/[a-z]{2}-[A-Z]{2}\//, `/${currentLocale}/`);
+    router.replace(updatedUrl);
+  };
+
   return (
-    <button className="back-link-button" onClick={() => router.back()}>
+    <button className="back-link-button" onClick={goBackWithLocale}>
       <span>
         <svg
           width="24"

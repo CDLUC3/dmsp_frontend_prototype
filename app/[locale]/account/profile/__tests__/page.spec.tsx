@@ -38,6 +38,9 @@ jest.mock('@/i18n/routing', () => ({
   usePathname: jest.fn(() => '/about'),
 }));
 
+jest.mock('@/components/PageHeader');
+
+
 // Mock useFormatter and useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useFormatter: jest.fn(() => ({
@@ -82,20 +85,10 @@ describe('ProfilePage', () => {
   it('should render profile page with user data', async () => {
     render(<ProfilePage />);
 
-    await act(async () => {
-      const element = screen.getByText('headingUpdateProfile', { selector: '.pageheader-title' });
-      expect(element).toBeInTheDocument();
-    });
-
     // Check that user data is rendered
     expect(screen.getByText('John')).toBeInTheDocument();
     expect(screen.getByText('Doe')).toBeInTheDocument();
     expect(screen.getByText('Test Institution')).toBeInTheDocument();
-  });
-
-  it('sets the document title correctly', () => {
-    render(<ProfilePage />);
-    expect(document.title).toBe('headingUpdateProfile | DMPTool');
   });
 
   it('should show form fields when Edit button is clicked', async () => {

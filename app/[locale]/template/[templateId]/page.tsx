@@ -18,12 +18,15 @@ import {
   TextArea,
   TextField,
 } from 'react-aria-components';
+
+// Components
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 
+import styles from './templateId.module.scss';
 interface Question {
   id: string;
   name: string;
@@ -206,7 +209,7 @@ const TemplateEditPage: React.FC = () => {
           <div className="">
             {template.sections.map((section, index) => (
               <div key={section.id} role="list" aria-label="Questions list"
-                   style={{marginBottom: '40px'}}>
+                style={{ marginBottom: '40px' }}>
 
                 <SectionHeaderEdit
                   key={section.id}
@@ -234,7 +237,7 @@ const TemplateEditPage: React.FC = () => {
 
           </div>
 
-          <AddSectionButton href={`/template/${template.id}/section/new`}/>
+          <AddSectionButton href={`/template/${template.id}/section/new`} />
 
 
         </div>
@@ -244,12 +247,12 @@ const TemplateEditPage: React.FC = () => {
             <div className="sidebar-section">
 
               <Button data-secondary className="my-3 secondary"
-                      onPress={() => console.log('Save draft')}>
+                onPress={() => console.log('Save draft')}>
                 Save as draft
               </Button>
 
               <Button data-tertiary className="my-3"
-                      onPress={() => console.log('Preview')}>Preview
+                onPress={() => console.log('Preview')}>Preview
                 template</Button>
 
             </div>
@@ -282,7 +285,7 @@ const TemplateEditPage: React.FC = () => {
                 </p>
                 <p>
                   <Link className="learn-more"
-                        href="/template/tpl_abcdef123456/access">
+                    href="/template/tpl_abcdef123456/access">
                     Manage Access
                   </Link>
                 </p>
@@ -300,7 +303,7 @@ const TemplateEditPage: React.FC = () => {
               <h5 className="sidebar-section-title">History</h5>
               <p>
                 <Link className="learn-more"
-                      href="/template/tpl_abcdef123456/history">
+                  href="/template/tpl_abcdef123456/history">
                   Template history
                 </Link>
               </p>
@@ -323,7 +326,7 @@ const TemplateEditPage: React.FC = () => {
           </p>
           <Form>
             <Button className="my-3" data-tertiary
-                    onPress={() => console.log('Archive')}>Archive
+              onPress={() => console.log('Archive')}>Archive
               Template</Button>
           </Form>
         </div>
@@ -331,9 +334,9 @@ const TemplateEditPage: React.FC = () => {
 
 
       <Modal isDismissable
-             isOpen={isPublishModalOpen}
+        isOpen={isPublishModalOpen}
 
-             >
+      >
         <Dialog>
           <Heading slot="title">Publish</Heading>
 
@@ -342,13 +345,13 @@ const TemplateEditPage: React.FC = () => {
             <Text slot="description" className="help">
               You can control who can use this published template.
             </Text>
-            <Radio value="public">
+            <Radio value="public" className={`${styles.radioBtn} react-aria-Radio`}>
               <div>
                 <span>Public</span>
                 <p className="text-gray-600 text-sm">This will be available and discoverable by plan builders.</p>
               </div>
             </Radio>
-            <Radio value="organization">
+            <Radio value="organization" className={`${styles.radioBtn} react-aria-Radio`}>
               <div>
                 <span>Organization only</span>
                 <p className="text-gray-600 text-sm">Only your organization will be able to view and use this template.</p>
@@ -387,9 +390,9 @@ const TemplateEditPage: React.FC = () => {
                   people in your organization.
                 </Text>
                 <TextArea
-                  style={{height: '100px'}}
+                  style={{ height: '100px' }}
                 />
-                <FieldError/>
+                <FieldError />
               </TextField>
             </Form>
           </div>
