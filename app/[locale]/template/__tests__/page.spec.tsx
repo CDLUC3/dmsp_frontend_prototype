@@ -1,14 +1,65 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act, fireEvent } from '@/utils/test-utils';
 import TemplateListPage from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { useRouter } from 'next/navigation';
+import {
+  useTemplatesQuery,
+} from '@/generated/graphql';
 
 expect.extend(toHaveNoViolations);
 
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn()
+// Mock useFormatter and useTranslations from next-intl
+jest.mock('next-intl', () => ({
+  useFormatter: jest.fn(() => ({
+    dateTime: jest.fn(() => '01-01-2023'),
+  })),
+  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`
 }));
+
+// Mock the GraphQL hook for getting templates
+jest.mock('@/generated/graphql', () => ({
+  useTemplatesQuery: jest.fn(),
+}));
+
+// Mock createApolloClient
+jest.mock('@/lib/graphql/client/apollo-client', () => ({
+  createApolloClient: jest.fn(() => ({
+    query: jest.fn(),
+  })),
+}));
+
+// Mock TemplateListItem component
+jest.mock('@/components/TemplateListItem', () => {
+  return {
+    __esModule: true,
+    default: ({ item }: TemplateListItemProps) => (
+      <div data-testid="template-list-item" role="listitem">
+        <h2>{item.title}</h2>
+        <div>{item.content}</div>
+      </div>
+    ),
+  };
+});
+
+// Will pass this mock data back when query is made for templates
+const mockTemplateData = {
+  templates: [{
+    name: 'UCOP',
+    description: 'University of California Office of the President',
+    modified: '2024-11-20 00:00:00',
+    id: 1,
+    owner: null
+  }]
+}
+
+// Helper function to cast to jest.Mock for TypeScript
+/* eslint-disable @typescript-eslint/no-explicit-any*/
+const mockHook = (hook: any) => hook as jest.Mock;
+
+const setupMocks = () => {
+  // Return mocked data when graphql query is called for templates
+  mockHook(useTemplatesQuery).mockReturnValue({ data: mockTemplateData, loading: false, error: undefined });
+};
 
 interface PageHeaderProps {
   title: string;
@@ -16,14 +67,12 @@ interface PageHeaderProps {
   actions: React.ReactNode;
   breadcrumbs: React.ReactNode;
 }
-
 interface TemplateListItemProps {
   item: {
     title: string;
     content: React.ReactNode;
   };
 }
-
 
 jest.mock('@/components/PageHeader', () => {
   return {
@@ -39,91 +88,186 @@ jest.mock('@/components/PageHeader', () => {
   };
 });
 
-jest.mock('@/components/TemplateListItem', () => {
-  return {
-    __esModule: true,
-    default: ({ item }: TemplateListItemProps) => (
-      <div data-testid="template-list-item" role="listitem">
-        <h2>{item.title}</h2>
-        <div>{item.content}</div>
-      </div>
-    ),
-  };
-});
-
 
 describe('TemplateListPage', () => {
   beforeEach(() => {
-    const mockUseRouter = useRouter as jest.Mock;
-    mockUseRouter.mockReturnValue({
-      push: jest.fn(),
-    });
+    setupMocks();
+    // Create a mock scrollIntoView function 
+    const mockScrollIntoView = jest.fn();
+    // Add it to the Element prototype
+    Element.prototype.scrollIntoView = mockScrollIntoView;
   });
 
-  it('should render the page header with correct title and description', () => {
-    render(<TemplateListPage />);
+  it('should render the page header with correct title and description', async () => {
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
 
-    // Act: Query the h1 element
     const heading = screen.getByRole('heading', { level: 1 });
 
-    // Assert: Check that its text content is correct
-    expect(heading).toHaveTextContent('Templates');
-    expect(screen.getByText('Manager or create DMSP templates, once published researchers will be able to select your template.')).toBeInTheDocument();
+    expect(heading).toHaveTextContent('title');
+    expect(screen.getByText('description')).toBeInTheDocument();
   });
 
-  it('should render the create template link in header actions', () => {
-    render(<TemplateListPage />);
+  it('should render the create template link in header actions', async () => {
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
 
-    const createLink = screen.getByText('Create Template');
+    const createLink = screen.getByText('actionCreate');
     expect(createLink).toBeInTheDocument();
     expect(createLink).toHaveAttribute('href', '/template/create');
   });
 
-  it('should render the search field with correct label and help text', () => {
-    render(<TemplateListPage />);
+  it('should render the search field with correct label and help text', async () => {
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
 
-    expect(screen.getByLabelText('Search by keyword')).toBeInTheDocument();
-    expect(screen.getByText('Search by research organization, field station or lab, template description, etc.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Clear search' })).toBeInTheDocument();
+    // Searching for translation keys since cannot run next-intl for unit tests
+    expect(screen.getByLabelText('searchLabel')).toBeInTheDocument();
+    expect(screen.getByText('searchHelpText')).toBeInTheDocument();
   });
 
-  it('should render the template list with correct number of items', () => {
-    render(<TemplateListPage />);
+  it('should render the template list with correct number of items', async () => {
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
 
     const templateItems = screen.getAllByTestId('template-list-item');
-    expect(templateItems).toHaveLength(3);
+    expect(templateItems).toHaveLength(1);
   });
 
-  it('should render template items with correct titles', () => {
-    render(<TemplateListPage />);
+  it('should render template items with correct titles', async () => {
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
 
-    expect(screen.getByText('Arctic Data Center: NSF Polar Programs')).toBeInTheDocument();
-    expect(screen.getByText('NSF Polar Expeditions')).toBeInTheDocument();
-    expect(screen.getByText('NSF: McMurdo Station (Antarctic)')).toBeInTheDocument();
+    expect(screen.getByText('UCOP')).toBeInTheDocument();
+    expect(screen.getByText('University of California Office of the President')).toBeInTheDocument();
   });
 
-  it('should render the template list with correct ARIA role', () => {
-    render(<TemplateListPage />);
+  it('should render the template list with correct ARIA role', async () => {
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
 
     const list = screen.getByRole('list', { name: 'Template list' });
     expect(list).toHaveClass('template-list');
   });
 
-  it('should render breadcrumbs with correct links', () => {
-    render(<TemplateListPage />);
+  it('should render breadcrumbs with correct links', async () => {
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
 
-    const homeLink = screen.getByRole('link', { name: 'Home' });
-    const templatesLink = screen.getByRole('link', { name: 'Templates' });
+    // Searching for translation keys since cannot run next-intl for unit tests
+    const homeLink = screen.getByRole('link', { name: 'breadcrumbHome' });
+    const templatesLink = screen.getByRole('link', { name: 'title' });
 
     expect(homeLink).toHaveAttribute('href', '/');
     expect(templatesLink).toHaveAttribute('href', '/template');
   });
 
+  it('should render errors', async () => {
+    // Clear previous mock and set up new mock specifically for this test
+    mockHook(useTemplatesQuery).mockClear();
+    mockHook(useTemplatesQuery).mockReturnValue({
+      data: undefined,
+      loading: false,
+      error: { message: 'There was an error.' },
+      refetch: jest.fn()
+    });
+
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
+
+    // Searching for translation key since cannot run next-intl for unit tests
+    const searchInput = screen.getByLabelText(/searchLabel/i);
+    expect(searchInput).toBeInTheDocument();
+
+    // enter findable search term
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'testing' } });
+    });
+
+    expect(screen.getByText('somethingWentWrong')).toBeInTheDocument();
+  });
+
+  it('should show filtered list when user clicks Search button', async () => {
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
+
+    // Searching for translation key since cannot run next-intl for unit tests
+    const searchInput = screen.getByLabelText(/searchLabel/i);
+    expect(searchInput).toBeInTheDocument();
+
+    // enter findable search term
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'UCOP' } });
+    });
+
+
+    const searchButton = screen.getByLabelText('Clear search');
+    fireEvent.click(searchButton);
+
+    // Check that we can find list item for UCOP
+    expect(screen.getByText('UCOP')).toBeInTheDocument();
+  })
+
+  it('should show error message when we cannot find item that matches search term', async () => {
+    await act(async () => {
+      render(
+        <TemplateListPage />
+      );
+    });
+
+    const searchInput = screen.getByLabelText(/searchLabel/i);
+    expect(searchInput).toBeInTheDocument();
+
+    // enter search term that cannot be found
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'test' } });
+    });
+
+
+    const searchButton = screen.getByRole('button', { name: /search/i });
+    fireEvent.click(searchButton);
+
+    // Check that we can find list item for UCOP
+    const errorElement = screen.getByText('noItemsFoundError');
+    expect(errorElement).toBeInTheDocument();
+  })
+
   it('should pass axe accessibility test', async () => {
     const { container } = render(
       <TemplateListPage />
     );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+
+    await act(async () => {
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
   });
 });

@@ -1,0 +1,14 @@
+{
+  "OrganizationTemplates": {
+    "title": "Modelos de organização",
+    "description": "Gerencie ou crie modelos DMSP, uma vez publicados os pesquisadores poderão selecionar seu modelo.",
+    "breadcrumbHome": "Lar",
+    "loading": "Modelos de organização carregando...",
+    "searchLabel": "Pesquisar por palavra-chave",
+    "searchHelpText": "Pesquise por organização de pesquisa, estação de campo ou laboratório, descrição do modelo, etc.",
+    "noItemsFoundError": "Nenhum resultado encontrado para {term}!",
+    "somethingWentWrong": "Something went wrong while retrieving templates",
+    "actionSearch": "Procurar",
+    "actionCreate": "Criar modelo"
+  }
+}
