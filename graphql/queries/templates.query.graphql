@@ -4,7 +4,6 @@ query Templates {
     description
     modified
     id
-    isDirty
     owner {
       name
       displayName

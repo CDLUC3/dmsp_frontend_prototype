@@ -18,12 +18,15 @@ import {
   TextArea,
   TextField,
 } from 'react-aria-components';
+
+// Components
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 
+import styles from './templateId.module.scss';
 interface Question {
   id: string;
   name: string;
@@ -342,13 +345,13 @@ const TemplateEditPage: React.FC = () => {
             <Text slot="description" className="help">
               You can control who can use this published template.
             </Text>
-            <Radio value="public">
+            <Radio value="public" className={`${styles.radioBtn} react-aria-Radio`}>
               <div>
                 <span>Public</span>
                 <p className="text-gray-600 text-sm">This will be available and discoverable by plan builders.</p>
               </div>
             </Radio>
-            <Radio value="organization">
+            <Radio value="organization" className={`${styles.radioBtn} react-aria-Radio`}>
               <div>
                 <span>Organization only</span>
                 <p className="text-gray-600 text-sm">Only your organization will be able to view and use this template.</p>

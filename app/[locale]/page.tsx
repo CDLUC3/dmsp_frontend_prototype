@@ -1,8 +1,17 @@
 
+import {
+  LayoutContainer,
+  ContentContainer
+} from '@/components/Container';
+
 export default async function Home() {
 
 
   return (
-    <h1>Home Page</h1>
+    <LayoutContainer>
+      <ContentContainer>
+        <h1>Home Page</h1>
+      </ContentContainer>
+    </LayoutContainer>
   )
 }
