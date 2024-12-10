@@ -22,6 +22,7 @@ function LanguageSelector({ locales }: LanguageSelectorProps) {
   const currentLocale = useLocale();
   const router = useRouter();
 
+  // This is triggered every time the "newLocale" state changes
   useSwitchLanguage(newLocale, currentLocale, pathname, router);
 
   const updateLanguages = async (locale: string) => {
@@ -33,11 +34,10 @@ function LanguageSelector({ locales }: LanguageSelectorProps) {
       {locales.map((locale) => (
         <button
           key={locale.id}
-          className={styles.paragraph}
+          className={`${styles.paragraph} ${styles.btnLanguageSelector}}`}
           onClick={() => updateLanguages(locale.id)}
-          role="menuitem" // Ensures proper ARIA semantics
-          aria-label={`Switch to ${locale} language`} // Screen reader-friendly label
-          style={{ background: 'none', border: 'none', padding: 0, textAlign: 'left' }} // Mimics the appearance of a <p>
+          role="menuitem"
+          aria-label={`Switch to ${locale} language`}
         >
           {locale.name}
         </button>
