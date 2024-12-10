@@ -2,30 +2,13 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Button } from 'react-aria-components';
-
+import {
+  TemplateItemProps
+} from '@/app/types';
 import styles from './TemplateListItem.module.scss';
 
-// Define valid href types for Next.js Link
-type Url = string | URL;
-type LinkHref = Url | {
-  pathname: string;
-  query?: Record<string, string | number | string[] | undefined>;
-  hash?: string;
-};
 
-interface TemplateItemProps {
-  item: {
-    title: string;
-    content?: JSX.Element;
-    link?: LinkHref;
-    defaultExpanded: boolean;
-    funder?: string;
-    lastUpdated?: string;
-    publishStatus?: string;
-  };
-}
-
-function TemplateListItem({ item }: TemplateItemProps) {
+function TemplateListItem({ item }: { item: TemplateItemProps }) {
   const [expanded, setExpanded] = useState<boolean>(item.defaultExpanded);
   const t = useTranslations('OrganizationTemplates');
   const toggleExpand = () => {

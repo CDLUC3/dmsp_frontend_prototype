@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { createApolloClient } from '@/lib/graphql/client/apollo-client';
 import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
@@ -19,10 +18,6 @@ import { useFormatter, useTranslations } from 'next-intl';
 //GraphQL
 import {
   useTemplatesQuery,
-  VersionedTemplate,
-  TemplateVersionsDocument,
-  TemplateVersionsQuery,
-  TemplateVersionsQueryVariables
 } from '@/generated/graphql';
 
 // Components
@@ -41,7 +36,6 @@ import styles from './template.module.scss';
 
 const TemplateListPage: React.FC = () => {
   const formatter = useFormatter();
-  const client = createApolloClient();
   const [errors, setErrors] = useState<string[]>([]);
   const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
@@ -76,57 +70,6 @@ const TemplateListPage: React.FC = () => {
     }
   }
 
-  const fetchTemplateVersions = async (templateId: number) => {
-    try {
-      const { data } = await client.query<TemplateVersionsQuery, TemplateVersionsQueryVariables>({
-        query: TemplateVersionsDocument,
-        variables: { templateId },
-      });
-      return data;
-    } catch (err) {
-      if (err instanceof ApolloError) {
-        const { data } = await client.query<TemplateVersionsQuery, TemplateVersionsQueryVariables>({
-          query: TemplateVersionsDocument,
-          variables: { templateId },
-        });
-        return data;
-      } else {
-        console.error('Error fetching template versions:', err);
-      }
-    }
-  }
-
-  // Get all template versions in order to get latest one with its versionType
-  const fetchLatestVersion = async (templateId: number) => {
-    try {
-      const data = await fetchTemplateVersions(templateId);
-      // Get record with latest modification, and return its versionType
-      if (!data?.templateVersions || data?.templateVersions.length === 0) return null;
-      const latestVersion = data.templateVersions.reduce<VersionedTemplate | null>(
-        (latest, current) => {
-          // If current is null, return latest
-          if (!current) return latest;
-
-          // If latest is null, return current
-          if (!latest) return current as VersionedTemplate;
-
-          const latestModified = latest.modified ? new Date(Number(latest.modified)).getTime() : 0;
-          const currentModified = current.modified ? new Date(Number(current.modified)).getTime() : 0;
-
-          return currentModified > latestModified
-            ? current as VersionedTemplate
-            : latest;
-        },
-        null // initial value as null
-      );
-
-      return latestVersion;
-    } catch (error) {
-      console.error('Error fetching template versions:', error);
-      return null;
-    }
-  };
-
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
     const formattedDate = formatter.dateTime(new Date(Number(date)), {
@@ -157,19 +100,18 @@ const TemplateListPage: React.FC = () => {
       const fetchAllTemplates = async (templates: (TemplateInterface | null)[]) => {
         const transformedTemplates = await Promise.all(
           templates.map(async (template: TemplateInterface | null) => {
-            const latestVersion = await fetchLatestVersion(Number(template?.id));
             return {
               title: template?.name || "",
               link: `/template/${template?.id}`,
               content: template?.description || template?.modified ? (
                 <div>
                   <p>{template?.description}</p>
-                  <p>Last updated: {(latestVersion?.modified) ? formatDate(latestVersion?.modified) : null}</p>
+                  <p>Last updated: {(template?.modified) ? formatDate(template?.modified) : null}</p>
                 </div>
               ) : null, // Set to null if no description or last modified data
               funder: template?.owner?.name || template?.name,
               lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
-              publishStatus: (latestVersion?.versionType) ? latestVersion?.versionType : 'DRAFT',
+              publishStatus: (template?.isDirty) ? 'Published' : 'Unpublished',
               defaultExpanded: false
             }
           }));
