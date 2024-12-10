@@ -1,6 +1,6 @@
 {
   "500": {
-    "title": "",
-    "message": ""
+    "title": "500 - Erro interno do servidor",
+    "message": "Algo deu errado do nosso lado. Por favor, tente novamente mais tarde."
   }
 }
