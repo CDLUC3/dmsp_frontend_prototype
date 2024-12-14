@@ -14,232 +14,320 @@ import {
   Checkbox,
 } from "react-aria-components";
 
-import styles from './signup.module.scss';
 import './signup.scss';
 
+import { AffiliationsDocument } from '@/generated/graphql';
 import {useCsrf} from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
 import {handleErrors} from '@/utils/errorHandler';
 import {useAuthContext} from '@/context/AuthContext';
+import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 
 import {
   LayoutContainer,
   ContentContainer,
+  ToolbarContainer,
 } from '@/components/Container';
 
 
+type SignupStepState =
+  | "email"
+  | "sso"
+  | "profile";
+
+
+type signupDataMap = {
+  email: string;
+  givenName: string;
+  surName: string;
+  affiliationId: string;
+  otherAffiliationName: string;
+  password: string;
+  acceptedTerms: bool,
+};
+
 const SignUpPage: React.FC = () => {
+  const formRef = useRef();
+  const router = useRouter();
+  const { csrfToken } = useCsrf();
+  const { setIsAuthenticated } = useAuthContext();
+
+  const [step, setStep] = useState<SignupStepState>("email");
+  const [isWorking, setIsWorking] = useState<bool>(false);
+  const [invalid, setInvalid] = useState<bool>(false);
   const [errors, setErrors] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+
+  const [email, setEmail] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [institution, setInstitution] = useState<string>("");
+  const [otherField, setOtherField] = useState<bool>(false);
+  const [otherAffiliation, setOtherAffiliation] = useState<string>("");
+  const [termsAccepted, setTermsAccepted] = useState<bool>(false);
+
+
+  function handleInvalid(ev) {
+    ev.preventDefault();
+    setInvalid(true);
+  }
+
+  const handleSignUp = async () => {
+    setIsWorking(true);
+    setErrors([]);
+
+    let data = {
+      givenName: firstName,
+      surName: lastName,
+      email: email,
+      password: password,
+      affiliationId: institution,
+      otherAffiliationName: otherAffiliation,
+      acceptedTerms: termsAccepted,
+    };
+
+    const signupRequest = async (token: string | null) => {
+      return await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': token || '',
+        },
+        body: JSON.stringify(data),
+      });
+    }
+
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    try {
+      const response = await signupRequest(csrfToken);
+
+      if (response && response.ok) {
+        setIsAuthenticated(true);
+        router.push('/')
+      } else {
+        await handleErrors(response, signupRequest, setErrors, router, '/signup');
+      }
+    } catch (err: any) {
+      logECS('error', 'Signup error', {
+        error: err,
+        url: { path: '/apollo-signup' }
+      });
+    } finally {
+      setIsWorking(false);
+    }
+  };
+
+  function handleSubmit(ev) {
+    if (!ev.nativeEvent || invalid) return;
+    ev.nativeEvent.preventDefault();
+
+    switch (step) {
+      case "email":
+        // TODO:: How do we detect SSO? For the time being we just go
+        // straight to profile
+        setStep("profile");
+        break;
+
+      case "profile":
+        setIsWorking(true);
+        if (termsAccepted) {
+          handleSignUp();
+        }
+        break;
+    }
+  }
+
+  function reFocusForm() {
+    document.getElementById("App").scrollIntoView({ behavior: 'smooth' });
+    if (formRef.current) {
+      // Focus the first input in the form, since we cannot use focus() on
+      // a form itself.
+      formRef.current.querySelector('input').focus();
+    }
+  }
+
+  function updateAffiliations(dataId, value) {
+    if (dataId) {
+      setInstitution(dataId);
+    }
+  }
+
+  useEffect(() => {
+    reFocusForm();
+  }, [step]);
+
+  useEffect(() => {
+    if (invalid || errors) {
+      reFocusForm();
+    }
+  }, [invalid, errors]);
 
   return (
     <LayoutContainer id="signupPage">
-      <ContentContainer data-step="email">
-        <h3>Register</h3>
+      <ContentContainer>
+        {(step === "email") ? (
+          <h3>Register</h3>
+        ) : (
+          <h3>Create a DMP Tool Account</h3>
+        )}
 
-        <TextField
-          name="email"
-          type="email"
-          aria-label="Email address"
-          isRequired
+        <Form
+          id="signupForm"
+          onSubmit={handleSubmit}
+          onInvalid={handleInvalid}
+          data-step={step}
+          ref={formRef}
         >
-          <Label>Email address</Label>
-          <Input />
-          <Text slot="description" className="help">
-            To enable Single Sign On (SSO), use your institutional
-            address. You will be redirected to your institution's single
-            sign on platform
-          </Text>
-          <FieldError />
-        </TextField>
+          {errors && errors.length > 0 &&
+            <div className="error">
+              {errors.map((error, index) => (
+                <p key={index}>{error}</p>
+              ))}
+            </div>
+          }
 
-        <Button
-          type="submit"
-          isDisabled={loading}
-        >
-          {loading ? '...' : 'Continue'}
-        </Button>
+          {(step === "email") && (
+            <TextField
+              name="email"
+              type="email"
+              aria-label="Email address"
+              value={email}
+              onChange={setEmail}
+              isRequired
+            >
+              <Label>Email address</Label>
+              <Input />
+              <Text slot="description" className="help">
+                To enable Single Sign On (SSO), use your institutional
+                address. You will be redirected to your institution's single
+                sign on platform
+              </Text>
+              <FieldError />
+            </TextField>
+          )}
 
-        <div className="form-links">
-          <Link href="/login/">Alread have a DMP Account?</Link>
-          <Link href="#">Get help</Link>
-        </div>
+          {(step === "profile") && (
+            <>
+              <div className="two-item-row">
+                <TextField
+                  name="first_name"
+                  type="text"
+                  aria-label="First Name"
+                  isRequired
+                  onChange={setFirstName}
+                >
+                  <Label>First Name</Label>
+                  <Input />
+                  <FieldError />
+                </TextField>
+
+                <TextField
+                  name="last_name"
+                  type="text"
+                  aria-label="Last Name"
+                  isRequired
+                  onChange={setLastName}
+                >
+                  <Label>Last Name</Label>
+                  <Input />
+                  <FieldError />
+                </TextField>
+              </div>
+
+              <TypeAheadWithOther
+                className="typeahead-with-other"
+                label="Institution"
+                fieldName="institution"
+                graphqlQuery={AffiliationsDocument}
+                setOtherField={setOtherField}
+                required={true}
+                helpText="Search for your institution"
+                updateFormData={updateAffiliations}
+              />
+
+              {otherField && (
+                <TextField
+                  name="otherAffiliation"
+                  id="fieldInstitution"
+                  onChange={setOtherAffiliation}
+                >
+                  <Label>Other institution</Label>
+                  <Input placeholder="Enter custom institution name" />
+                  <FieldError />
+                </TextField>
+              )}
+
+              <TextField
+                name="email"
+                type="email"
+                aria-label="Email address"
+                onChange={setEmail}
+                value={email}
+                isRequired
+              >
+                <Label>Email address</Label>
+                <Input />
+                <FieldError />
+              </TextField>
+
+              <TextField
+                name="password"
+                type="password"
+                aria-label="Password"
+                isRequired
+                onChange={setPassword}
+              >
+                <Label>Password</Label>
+                <Input />
+                <FieldError />
+              </TextField>
+
+              <Checkbox
+                isSelectec={termsAccepted}
+                onChange={setTermsAccepted}>
+                <div className="checkbox">
+                  <svg viewBox="0 0 18 18" aria-hidden="true">
+                    <polyline points="1 9 7 14 15 4" />
+                  </svg>
+                </div>
+                Accept terms?
+              </Checkbox>
+            </>
+          )}
+
+          <ToolbarContainer className="form-actions">
+            {(step === "email") && (
+              <Button
+                type="submit"
+                isDisabled={isWorking}
+                onPress={handleSubmit}
+              >
+                {isWorking ? '...' : 'Continue'}
+              </Button>
+            )}
+
+            {(step === "profile") && (
+              <Button
+                type="submit"
+                isDisabled={(isWorking || !termsAccepted)}
+                onPress={handleSubmit}
+              >
+                {isWorking ? 'Signing up ...' : 'Sign Up'}
+              </Button>
+            )}
+          </ToolbarContainer>
+
+          {(step === "email") && (
+            <div className="form-links">
+              <Link href="/login/">Alread have a DMP Account?</Link>
+              <Link href="#">Get help</Link>
+            </div>
+          )}
+        </Form>
       </ContentContainer>
     </LayoutContainer>
   );
 }
-
-// const SignUpPage: React.FC = () => {
-    // const [email, setEmail] = useState("");
-    // const [password, setPassword] = useState("");
-    // const [termsAccepted, setTermsAccepted] = useState<bool>(false);
-    // const [errors, setErrors] = useState<string[]>([]);
-    // const [loading, setLoading] = useState(false);
-    // const router = useRouter();
-    // const errorRef = useRef<HTMLDivElement>(null);
-    // const { csrfToken } = useCsrf();
-    // const { setIsAuthenticated } = useAuthContext();
-
-    // const handleSignUp = async (ev: React.FormEvent) => {
-    //   ev.preventDefault();
-
-    //   setLoading(true);
-    //   setErrors([]);
-
-    //   let data = {
-    //     first_name: ev.target.first_name.value,
-    //     last_name: ev.target.last_name.value,
-    //     email: ev.target.email.value,
-    //     password: ev.target.password.value,
-    //     "acceptedTerms": termsAccepted,
-    //   };
-
-    //   console.log(data);
-
-    //    const signupRequest = async (token: string | null) => {
-    //      return await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`, {
-    //        method: 'POST',
-    //        credentials: 'include',
-    //        headers: {
-    //          'Content-Type': 'application/json',
-    //          'X-CSRF-TOKEN': token || '',
-    //        },
-    //        body: JSON.stringify(data),
-    //      });
-    //    }
-
-    //   /* eslint-disable @typescript-eslint/no-explicit-any */
-    //   try {
-    //     const response = await signupRequest(csrfToken);
-
-    //     if (response && response.ok) {
-    //       setIsAuthenticated(true);
-    //       router.push('/')
-    //     } else {
-    //       await handleErrors(response, signupRequest, setErrors, router, '/signup');
-    //     }
-
-    //     // if (csrfToken) {
-    //     //     /* eslint-disable @typescript-eslint/no-explicit-any */
-    //     //     try {
-    //     //         const response = await signupRequest(csrfToken);
-
-    //     //         if (response && response.ok) {
-    //     //             setIsAuthenticated(true);
-    //     //             router.push('/')
-    //     //         } else {
-    //     //             await handleErrors(response, signupRequest, setErrors, router, '/signup');
-    //     //         }
-
-    //     //     } catch (err: any) {
-    //     //         logECS('error', 'Signup error', {
-    //     //             error: err,
-    //     //             url: { path: '/apollo-signup' }
-    //     //         });
-    //     //     } finally {
-    //     //         setLoading(false);
-    //     //     }
-    //     // } else {
-    //     //     setErrors(prev => prev.concat('Something went wrong'))
-    //     // }
-
-    //   } catch (err: any) {
-    //     logECS('error', 'Signup error', {
-    //       error: err,
-    //       url: { path: '/apollo-signup' }
-    //     });
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-
-    // useEffect(() => {
-    //   if (errors) {
-    //     if (errorRef.current) {
-    //       errorRef.current.scrollIntoView({ behavior: 'smooth' });
-    //       errorRef.current.focus();
-    //     }
-    //   }
-    // }, [errors]);
-
-    // return (
-    //   <LayoutContainer id="signupPage">
-    //     <ContentContainer ref={errorRef}>
-    //       <Form className={styles.signupForm} onSubmit={handleSignUp}>
-    //         {errors && errors.length > 0 &&
-    //           <div className="error">
-    //               {errors.map((error, index) => (
-    //                   <p key={index}>{error}</p>
-    //               ))}
-    //           </div>
-    //         }
-    //         <h3 className={styles.heading3}>Create an account</h3>
-
-    //         <TextField
-    //           name="first_name"
-    //           type="text"
-    //           aria-label="First Name"
-    //           isRequired
-    //         >
-    //           <Label>First Name</Label>
-    //           <FieldError />
-    //           <Input />
-    //         </TextField>
-
-    //         <TextField
-    //           name="last_name"
-    //           type="text"
-    //           aria-label="Last Name"
-    //           isRequired
-    //         >
-    //           <Label>Last Name</Label>
-    //           <FieldError />
-    //           <Input />
-    //         </TextField>
-
-    //         Institution, Cannot find institution checkbox
-
-    //         <TextField
-    //           name="email"
-    //           type="email"
-    //           aria-label="Email address"
-    //           isRequired
-    //         >
-    //           <Label>Email address</Label>
-    //           <FieldError />
-    //           <Input />
-    //         </TextField>
-
-    //         <TextField
-    //           name="password"
-    //           type="password"
-    //           aria-label="Password"
-    //           isRequired
-    //         >
-    //           <Label>Password</Label>
-    //           <FieldError />
-    //           <Input />
-    //         </TextField>
-
-    //         <Checkbox isSelectec={termsAccepted} onChange={setTermsAccepted}>
-    //           <div className="checkbox">
-    //             <svg viewBox="0 0 18 18" aria-hidden="true">
-    //               <polyline points="1 9 7 14 15 4" />
-    //             </svg>
-    //           </div>
-    //           Accept terms?
-    //         </Checkbox>
-
-    //         <Button
-    //           type="submit"
-    //           isDisabled={(loading || !termsAccepted)}
-    //         >
-    //           {loading ? 'Signing up ...' : 'Sign Up'}
-    //         </Button>
-    //       </Form>
-    //     </ContentContainer>
-    //   </LayoutContainer>
-    // );
-// };
 
 export default SignUpPage;
