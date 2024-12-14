@@ -38,6 +38,7 @@ type User = {
 
 // Placeholder Login page until we get new design
 const LoginPage: React.FC = () => {
+  const formRef = useRef();
   const [step, setStep] = useState<LoginSteps>("email");
   const [invalid, setInvalid] = useState<bool>(false);
 
@@ -76,28 +77,24 @@ const LoginPage: React.FC = () => {
       });
     }
 
-    if (csrfToken) {
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      try {
-        const response = await loginRequest(csrfToken);
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    try {
+      const response = await loginRequest(csrfToken);
 
-        if (response.ok) {
-          setIsAuthenticated(true);
-          router.push('/')
-        } else {
-          await handleErrors(response, loginRequest, setErrors, router, '/login');
-        }
-
-      } catch (err: any) {
-        logECS('error', 'Signin error', {
-          error: err,
-          url: { path: '/apollo-signin' }
-        });
-      } finally {
-        setLoading(false);
+      if (response.ok) {
+        setIsAuthenticated(true);
+        router.push('/')
+      } else {
+        await handleErrors(response, loginRequest, setErrors, router, '/login');
       }
-    } else {
-      setErrors(prev => prev.concat('Something went wrong'))
+
+    } catch (err: any) {
+      logECS('error', 'Signin error', {
+        error: err,
+        url: { path: '/apollo-signin' }
+      });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -110,7 +107,7 @@ const LoginPage: React.FC = () => {
     ev.preventDefault();
 
     switch (step) {
-        case "email":
+      case "email":
         // TODO: Detect SSO email and redirect to that page. For now just
         // go to normal login step.
         setStep("password");
@@ -122,6 +119,13 @@ const LoginPage: React.FC = () => {
     }
   }
 
+  function reFocusForm() {
+    if (formRef.current) {
+      // Focus the first input in the form.
+      formRef.current.querySelector('input').focus();
+    }
+  }
+
   useEffect(() => {
     if (errors) {
       if (errorRef.current) {
@@ -129,7 +133,16 @@ const LoginPage: React.FC = () => {
         errorRef.current.focus();
       }
     }
+    reFocusForm();
   }, [errors])
+
+  useEffect(() => {
+    if (step === "password") {
+      if (formRef.current) {
+        formRef.current.querySelector('#password').focus();
+      }
+    }
+  }, [step]);
 
   return (
     <LayoutContainer id="loginPage">
@@ -140,6 +153,7 @@ const LoginPage: React.FC = () => {
           id="loginForm"
           onSubmit={handleSubmit}
           onInvalid={handleInvalid}
+          ref={formRef}
           data-step={step}
         >
           {errors && errors.length > 0 &&

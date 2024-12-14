@@ -14,7 +14,6 @@ import {
   Checkbox,
 } from "react-aria-components";
 
-// import styles from './signup.module.scss';
 import './signup.scss';
 
 import { AffiliationsDocument } from '@/generated/graphql';
@@ -39,58 +38,53 @@ type SignupStepState =
 
 type signupDataMap = {
   email: string;
-  first_name: string;
-  last_name: string;
-  institution: string;
+  givenName: string;
+  surName: string;
+  affiliationId: string;
+  otherAffiliationName: string;
   password: string;
+  acceptedTerms: bool,
 };
 
 const SignUpPage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<SignupStepState>("email");
-  const [isWorking, setIsWorking] = useState<bool>(false);
-
-  // A general flag to set the invalid state for the entire form
-  const [invalid, setInvalid] = useState<bool>(false);
-
-  // Maps errors from the server to the form or fields within
-  const [errors, setErrors] = useState<string[]>([]);
-
-  // TODO: Type-safety
-  const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [password, setPassword] = useState("");
-  const [institution, setInstitution] = useState("");
-  const [otherField, setOtherField] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState<bool>(false);
-
+  const formRef = useRef();
   const router = useRouter();
   const { csrfToken } = useCsrf();
   const { setIsAuthenticated } = useAuthContext();
+
+  const [step, setStep] = useState<SignupStepState>("email");
+  const [isWorking, setIsWorking] = useState<bool>(false);
+  const [invalid, setInvalid] = useState<bool>(false);
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const [email, setEmail] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [institution, setInstitution] = useState<string>("");
+  const [otherField, setOtherField] = useState<bool>(false);
+  const [otherAffiliation, setOtherAffiliation] = useState<string>("");
+  const [termsAccepted, setTermsAccepted] = useState<bool>(false);
+
 
   function handleInvalid(ev) {
     ev.preventDefault();
     setInvalid(true);
   }
 
-
-  const handleSignUp = async (ev: React.FormEvent) => {
-    ev.preventDefault();
-
-    setLoading(true);
+  const handleSignUp = async () => {
+    setIsWorking(true);
     setErrors([]);
 
     let data = {
-      first_name: firstName,
-      last_name: lastName,
+      givenName: firstName,
+      surName: lastName,
       email: email,
       password: password,
-      institution: institution,
-      "acceptedTerms": termsAccepted,
+      affiliationId: institution,
+      otherAffiliationName: otherAffiliation,
+      acceptedTerms: termsAccepted,
     };
-
-    console.log(data);
 
     const signupRequest = async (token: string | null) => {
       return await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`, {
@@ -114,45 +108,20 @@ const SignUpPage: React.FC = () => {
       } else {
         await handleErrors(response, signupRequest, setErrors, router, '/signup');
       }
-
-      if (csrfToken) {
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        try {
-          const response = await signupRequest(csrfToken);
-
-          if (response && response.ok) {
-            setIsAuthenticated(true);
-            router.push('/')
-          } else {
-            await handleErrors(response, signupRequest, setErrors, router, '/signup');
-          }
-        } catch (err: any) {
-          logECS('error', 'Signup error', {
-            error: err,
-            url: { path: '/apollo-signup' }
-          });
-        } finally {
-          setLoading(false);
-        }
-      } else {
-          setErrors(prev => prev.concat('Something went wrong'))
-      }
-
     } catch (err: any) {
       logECS('error', 'Signup error', {
         error: err,
         url: { path: '/apollo-signup' }
       });
     } finally {
-      setLoading(false);
+      setIsWorking(false);
     }
   };
 
   function handleSubmit(ev) {
-    console.log(ev);
     if (!ev.nativeEvent || invalid) return;
-
     ev.nativeEvent.preventDefault();
+
     switch (step) {
       case "email":
         // TODO:: How do we detect SSO? For the time being we just go
@@ -161,37 +130,38 @@ const SignUpPage: React.FC = () => {
         break;
 
       case "profile":
-        if (termsAccepted) setStep("final");
-
-        console.log(ev.target);
-        console.log(`Step? ${step}`);
-
         setIsWorking(true);
-
-        console.log(`First name: ${firstName}`);
-        console.log(`Last name: ${lastName}`);
-        console.log(`Email: ${email}`);
-        console.log(`Institution: ${institution}`);
-        console.log(`Other: ${otherField}`);
-
         if (termsAccepted) {
-          console.log("POST!!!");
-          handleSignUp(ev);
+          handleSignUp();
         }
-
         break;
     }
   }
 
+  function reFocusForm() {
+    document.getElementById("App").scrollIntoView({ behavior: 'smooth' });
+    if (formRef.current) {
+      // Focus the first input in the form, since we cannot use focus() on
+      // a form itself.
+      formRef.current.querySelector('input').focus();
+    }
+  }
+
+  function updateAffiliations(dataId, value) {
+    if (dataId) {
+      setInstitution(dataId);
+    }
+  }
 
   useEffect(() => {
-    if (invalid) {
-      // if (errorRef.current) {
-      //   errorRef.current.scrollIntoView({ behavior: 'smooth' });
-      //   errorRef.current.focus();
-      // }
+    reFocusForm();
+  }, [step]);
+
+  useEffect(() => {
+    if (invalid || errors) {
+      reFocusForm();
     }
-  }, [invalid]);
+  }, [invalid, errors]);
 
   return (
     <LayoutContainer id="signupPage">
@@ -207,6 +177,7 @@ const SignUpPage: React.FC = () => {
           onSubmit={handleSubmit}
           onInvalid={handleInvalid}
           data-step={step}
+          ref={formRef}
         >
           {errors && errors.length > 0 &&
             <div className="error">
@@ -272,13 +243,14 @@ const SignUpPage: React.FC = () => {
                 setOtherField={setOtherField}
                 required={true}
                 helpText="Search for your institution"
-                updateFormData={() => console.log('updating form')}
+                updateFormData={updateAffiliations}
               />
 
               {otherField && (
                 <TextField
-                  name="institution"
+                  name="otherAffiliation"
                   id="fieldInstitution"
+                  onChange={setOtherAffiliation}
                 >
                   <Label>Other institution</Label>
                   <Input placeholder="Enter custom institution name" />
@@ -328,20 +300,20 @@ const SignUpPage: React.FC = () => {
             {(step === "email") && (
               <Button
                 type="submit"
-                isDisabled={loading}
+                isDisabled={isWorking}
                 onPress={handleSubmit}
               >
-                {loading ? '...' : 'Continue'}
+                {isWorking ? '...' : 'Continue'}
               </Button>
             )}
 
             {(step === "profile") && (
               <Button
                 type="submit"
-                isDisabled={(loading || !termsAccepted)}
+                isDisabled={(isWorking || !termsAccepted)}
                 onPress={handleSubmit}
               >
-                {loading ? 'Signing up ...' : 'Sign Up'}
+                {isWorking ? 'Signing up ...' : 'Sign Up'}
               </Button>
             )}
           </ToolbarContainer>
@@ -357,106 +329,5 @@ const SignUpPage: React.FC = () => {
     </LayoutContainer>
   );
 }
-
-// const SignUpPage: React.FC = () => {
-    // const [email, setEmail] = useState("");
-    // const [password, setPassword] = useState("");
-    // const [termsAccepted, setTermsAccepted] = useState<bool>(false);
-    // const [errors, setErrors] = useState<string[]>([]);
-    // const [loading, setLoading] = useState(false);
-    // const router = useRouter();
-    // const errorRef = useRef<HTMLDivElement>(null);
-    // const { csrfToken } = useCsrf();
-    // const { setIsAuthenticated } = useAuthContext();
-
-
-    // useEffect(() => {
-    //   if (errors) {
-    //     if (errorRef.current) {
-    //       errorRef.current.scrollIntoView({ behavior: 'smooth' });
-    //       errorRef.current.focus();
-    //     }
-    //   }
-    // }, [errors]);
-
-    // return (
-    //   <LayoutContainer id="signupPage">
-    //     <ContentContainer ref={errorRef}>
-    //       <Form className={styles.signupForm} onSubmit={handleSignUp}>
-    //         {errors && errors.length > 0 &&
-    //           <div className="error">
-    //               {errors.map((error, index) => (
-    //                   <p key={index}>{error}</p>
-    //               ))}
-    //           </div>
-    //         }
-    //         <h3 className={styles.heading3}>Create an account</h3>
-
-    //         <TextField
-    //           name="first_name"
-    //           type="text"
-    //           aria-label="First Name"
-    //           isRequired
-    //         >
-    //           <Label>First Name</Label>
-    //           <FieldError />
-    //           <Input />
-    //         </TextField>
-
-    //         <TextField
-    //           name="last_name"
-    //           type="text"
-    //           aria-label="Last Name"
-    //           isRequired
-    //         >
-    //           <Label>Last Name</Label>
-    //           <FieldError />
-    //           <Input />
-    //         </TextField>
-
-    //         Institution, Cannot find institution checkbox
-
-    //         <TextField
-    //           name="email"
-    //           type="email"
-    //           aria-label="Email address"
-    //           isRequired
-    //         >
-    //           <Label>Email address</Label>
-    //           <FieldError />
-    //           <Input />
-    //         </TextField>
-
-    //         <TextField
-    //           name="password"
-    //           type="password"
-    //           aria-label="Password"
-    //           isRequired
-    //         >
-    //           <Label>Password</Label>
-    //           <FieldError />
-    //           <Input />
-    //         </TextField>
-
-    //         <Checkbox isSelectec={termsAccepted} onChange={setTermsAccepted}>
-    //           <div className="checkbox">
-    //             <svg viewBox="0 0 18 18" aria-hidden="true">
-    //               <polyline points="1 9 7 14 15 4" />
-    //             </svg>
-    //           </div>
-    //           Accept terms?
-    //         </Checkbox>
-
-    //         <Button
-    //           type="submit"
-    //           isDisabled={(loading || !termsAccepted)}
-    //         >
-    //           {loading ? 'Signing up ...' : 'Sign Up'}
-    //         </Button>
-    //       </Form>
-    //     </ContentContainer>
-    //   </LayoutContainer>
-    // );
-// };
 
 export default SignUpPage;
