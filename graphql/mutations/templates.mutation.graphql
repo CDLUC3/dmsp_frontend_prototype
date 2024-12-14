@@ -1,0 +1,10 @@
+mutation ArchiveTemplate($templateId: Int!) {
+  archiveTemplate(templateId: $templateId)
+}
+
+mutation CreateTemplateVersion($templateId: Int!, $comment: String, $versionType: TemplateVersionType, $visibility: TemplateVisibility!) {
+  createTemplateVersion(templateId: $templateId, comment: $comment, versionType: $versionType, visibility: $visibility) {
+    errors
+    name
+  }
+}

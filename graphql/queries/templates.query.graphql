@@ -12,3 +12,30 @@ query Templates {
     }
   }
 }
+
+query Template($templateId: Int!) {
+  template(templateId: $templateId) {
+    name
+    description
+    errors
+    latestPublishVersion
+    latestPublishDate
+    created
+    sections {
+      id
+      displayOrder
+      name
+      questions {
+        errors
+        displayOrder
+        guidanceText
+        id
+        questionText
+      }
+    },
+    owner {
+      displayName
+      id
+    }
+  }
+}

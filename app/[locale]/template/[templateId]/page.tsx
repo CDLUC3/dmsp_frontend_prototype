@@ -1,6 +1,9 @@
+// template/[templateId]/section/page.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,272 +21,292 @@ import {
   TextArea,
   TextField,
 } from 'react-aria-components';
+
+import {
+  TemplateVersionType,
+  TemplateVisibility,
+  useCreateTemplateVersionMutation,
+  useTemplateQuery
+} from '@/generated/graphql';
+
+// Components
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 
-interface Question {
-  id: string;
-  name: string;
-  link: string; // Direct link to the question edit page
-  order: number;
+import { useFormatDate } from '@/hooks/useFormatDate';
+import logECS from '@/utils/clientLogger';
+import styles from './templateEditPage.module.scss';
+
+interface QuestionsInterface {
+  errors?: string[] | null;
+  displayOrder?: number | null;
+  guidanceText?: string | null;
+  id?: number | null;
+  questionText: string;
 }
 
-interface Section {
-  id: string;
+interface SectionInterface {
+  id?: number | null;
   name: string;
-  link: string; // Direct link to the section edit page
-  questions: Question[];
+  displayOrder?: number | null;
+  questions?: QuestionsInterface[] | null;
 }
 
-interface Template {
-  id: string;
-  name: string;
-  author: string;
-  version: string;
-  publishedDate: string;
-  sections: Section[];
+interface OwnerInterface {
+  displayName: string;
+  id: number;
 }
 
-const template: Template = {
-  id: 'tpl_abcdef123456',
-  name: 'Arctic Data Center: NSF Polar Programs',
-  author: 'National Science Foundation (nsf.gov)',
-  version: '6.2',
-  publishedDate: 'Jan 1, 2024',
-  sections: [
-    {
-      id: 'sec_123456',
-      name: 'Roles and Responsibilities',
-      link: '/template/tpl_abcdef123456/section/sec_123456', // Pre-generated link for this section
-      questions: [
-        {
-          id: 'q_abcdef',
-          name: 'What parties and individuals will be involved with data management in this project?',
-          link: '/template/tpl_abcdef123456/q/q_abcdef', // Pre-generated link for this question
-          order: 1,
-        },
-        {
-          id: 'q_ghijkl',
-          name: 'Who will be responsible for data oversight?',
-          link: '/template/tpl_abcdef123456/q/q_ghijkl',
-          order: 2,
-        },
-      ],
-    },
-    {
-      id: 'sec_789101',
-      name: 'Types of Data Produced',
-      link: '/template/tpl_abcdef123456/section/sec_789101',
-      questions: [
-        {
-          id: 'q_mnopqr',
-          name: 'What types of data, samples, collections, software, materials, etc., will be produced during your project?',
-          link: '/template/tpl_abcdef123456/q/q_mnopqr',
-          order: 1,
-        },
-        {
-          id: 'q_stuvwx',
-          name: 'What type of metadata (information others might need to use your data) will be collected during your project?',
-          link: '/template/tpl_abcdef123456/q/q_stuvwx',
-          order: 2,
-        },
-        {
-          id: 'q_yzabcd',
-          name: 'What will be the approximate number and size of data files that will be produced during your project?',
-          link: '/template/tpl_abcdef123456/q/q_yzabcd',
-          order: 3,
-        },
-      ],
-    },
-    {
-      id: 'sec_789102',
-      name: 'Types of Data Produced',
-      link: '/template/tpl_abcdef123456/section/sec_789101',
-      questions: [
-        {
-          id: 'q_mnopqr',
-          name: 'What types of data, samples, collections, software, materials, etc., will be produced during your project?',
-          link: '/template/tpl_abcdef123456/q/q_mnopqr',
-          order: 1,
-        },
-        {
-          id: 'q_stuvwx',
-          name: 'What type of metadata (information others might need to use your data) will be collected during your project?',
-          link: '/template/tpl_abcdef123456/q/q_stuvwx',
-          order: 2,
-        },
-        {
-          id: 'q_yzabcd',
-          name: 'What will be the approximate number and size of data files that will be produced during your project?',
-          link: '/template/tpl_abcdef123456/q/q_yzabcd',
-          order: 3,
-        },
-      ],
-    },
-    {
-      id: 'sec_789103',
-      name: 'Types of Data Produced',
-      link: '/template/tpl_abcdef123456/section/sec_789101',
-      questions: [
-        {
-          id: 'q_mnopqr',
-          name: 'What types of data, samples, collections, software, materials, etc., will be produced during your project?',
-          link: '/template/tpl_abcdef123456/q/q_mnopqr',
-          order: 1,
-        },
-        {
-          id: 'q_stuvwx',
-          name: 'What type of metadata (information others might need to use your data) will be collected during your project?',
-          link: '/template/tpl_abcdef123456/q/q_stuvwx',
-          order: 2,
-        },
-        {
-          id: 'q_yzabcd',
-          name: 'What will be the approximate number and size of data files that will be produced during your project?',
-          link: '/template/tpl_abcdef123456/q/q_yzabcd',
-          order: 3,
-        },
-      ],
-    },
-    {
-      id: 'sec_789104',
-      name: 'Types of Data Produced',
-      link: '/template/tpl_abcdef123456/section/sec_789101',
-      questions: [
-        {
-          id: 'q_mnopqr',
-          name: 'What types of data, samples, collections, software, materials, etc., will be produced during your project?',
-          link: '/template/tpl_abcdef123456/q/q_mnopqr',
-          order: 1,
-        },
-        {
-          id: 'q_stuvwx',
-          name: 'What type of metadata (information others might need to use your data) will be collected during your project?',
-          link: '/template/tpl_abcdef123456/q/q_stuvwx',
-          order: 2,
-        },
-        {
-          id: 'q_yzabcd',
-          name: 'What will be the approximate number and size of data files that will be produced during your project?',
-          link: '/template/tpl_abcdef123456/q/q_yzabcd',
-          order: 3,
-        },
-      ],
-    },
-  ],
-};
+interface TemplateEditPageInterface {
+  name: string;
+  description?: string | null;
+  errors?: string[] | null;
+  latestPublishVersion?: string | null;
+  latestPublishDate?: string | null;
+  created?: string | null;
+  sections?: SectionInterface[] | null;
+  owner: OwnerInterface
+}
+
 
 const TemplateEditPage: React.FC = () => {
+  let [isPublishModalOpen, setPublishModalOpen] = useState(false);
+  const [template, setTemplate] = useState<TemplateEditPageInterface>({
+    name: '',
+    description: null,
+    errors: null,
+    latestPublishVersion: null,
+    latestPublishDate: null,
+    created: null,
+    sections: [],
+    owner: { displayName: '', id: 0 },
+  });
 
-  let [isPublishModalOpen, setPublishModalOpen] = React.useState(false);
+  // Errors returned from request
+  const [errors, setErrors] = useState<string[]>([]);
+  const [queryErrors, setQueryErrors] = useState<string[]>([]);
+  const formatDate = useFormatDate();
 
+  // localization keys
+  const BreadCrumbs = useTranslations('Breadcrumbs');
+  const EditTemplate = useTranslations('EditTemplates');
+  const PublishTemplate = useTranslations('PublishTemplate');
+  const Messaging = useTranslations('Messaging');
+
+  // Get templateId param
+  const params = useParams();
+  const { templateId } = params; // From route /template/:templateId
+  //For scrolling to error in modal window
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  // Initialize publish mutation
+  const [createTemplateVersionMutation, { error: createTemplateVersionError }] = useCreateTemplateVersionMutation();
+
+  // Run template query to get all templates under the given templateId
+  const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
+    {
+      variables: { templateId: Number(templateId) },
+      notifyOnNetworkStatusChange: true
+    }
+  );
+
+  console.log("***DATA", data);
+  // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
+  const saveTemplate = async (versionType: TemplateVersionType, comment: string | undefined, visibility: TemplateVisibility) => {
+    try {
+      const response = await createTemplateVersionMutation({
+        variables: {
+          templateId: Number(templateId),
+          comment: (comment && comment.length > 0) ? comment : null,
+          versionType: versionType,
+          visibility: visibility
+        },
+      })
+      if (response) {
+        setPublishModalOpen(false);
+      }
+    } catch (err) {
+      setErrors(prevErrors => [...prevErrors, 'Error when saving template']);
+      logECS('error', 'saveTemplate', {
+        error: err,
+        url: { path: '/template/[templateId]' }
+      });
+    };
+  }
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    const visibility = formData.get('visibility') as TemplateVisibility; // Extract the selected radio button value
+    const changeLog = formData.get('change_log')?.toString(); // Extract the textarea value
+
+    await saveTemplate(TemplateVersionType.Published, changeLog, visibility)
+  };
+
+  useEffect(() => {
+    // When data from backend changes, set template data in state
+    if (data && data.template) {
+      setTemplate({
+        name: data.template.name ?? '',
+        description: data.template.description ?? null,
+        errors: data.template.errors ?? null,
+        latestPublishVersion: data.template.latestPublishVersion ?? null,
+        latestPublishDate: formatDate(data.template.latestPublishDate) ?? null,
+        created: data.template.created ?? null,
+        sections: data.template.sections?.map((section: any) => ({
+          id: section.id ?? null,
+          name: section.name ?? '',
+          displayOrder: section.displayOrder ?? null,
+          questions: section.questions?.map((question: any) => ({
+            errors: question.errors ?? null,
+            displayOrder: question.displayOrder ?? null,
+            guidanceText: question.guidanceText ?? null,
+            id: question.id ?? null,
+            questionText: question.questionText ?? null,
+          })) ?? null,
+        })) ?? null,
+        owner: {
+          displayName: data.template.owner?.displayName ?? '',
+          id: data.template.owner?.id ?? 0,
+        },
+      });
+    }
+  }, [data]);
+
+  // Need to refetch on errors to re-render page
+  useEffect(() => {
+    if (templateQueryErrors) {
+      refetch();
+    }
+  }, [templateQueryErrors]);
+
+  // If errors when submitting publish form, scroll them into view
+  useEffect(() => {
+    if (errors.length > 0 && errorRef.current) {
+      errorRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }, [errors]);
+
+
+  // Show loading message
+  if (loading) {
+    return <div>{Messaging('loading')}...</div>;
+  }
 
   return (
     <div>
 
       <PageHeader
-        title={template.name}
-        description={`by ${template.author} - Version: ${template.version} - Published: ${template.publishedDate}`}
+        title={template?.name ? template?.name : 'Template'}
+        description={`by ${template?.name} - Version: ${template?.latestPublishVersion} - Published: ${template?.latestPublishDate}`}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
-            <Breadcrumb>{template.name}</Breadcrumb>
+            <Breadcrumb><Link href="/">{BreadCrumbs('home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">{BreadCrumbs('templates')}</Link></Breadcrumb>
+            <Breadcrumb>{template?.name}</Breadcrumb>
           </Breadcrumbs>
         }
 
         className="page-template-overview"
       />
 
+      <h2>{EditTemplate('title')}</h2>
 
       <div className="template-editor-container">
         <div className="main-content">
 
-          <div className="">
-            {template.sections.map((section, index) => (
-              <div key={section.id} role="list" aria-label="Questions list"
-                style={{ marginBottom: '40px' }}>
+          {(template?.sections && template?.sections.length > 0) && (
+            <div className="">
+              {template.sections.map((section, index) => (
+                <div key={section.id} role="list" aria-label="Questions list"
+                  style={{ marginBottom: '40px' }}>
 
-                <SectionHeaderEdit
-                  key={section.id}
-                  sectionNumber={index + 1}
-                  title={section.name}
-                  editUrl={section.link}
-                  onMoveUp={() => null}
-                  onMoveDown={() => null}
-                />
-
-                {section.questions.map((question) => (
-                  <QuestionEdit
-                    key={question.id}
-                    id={question.id}
-                    name={question.name}
-                    link={question.link}
+                  <SectionHeaderEdit
+                    key={section.id}
+                    sectionNumber={index + 1}
+                    title={section.name}
+                    editUrl={`/template/${templateId}/section/${section.id}`}
+                    onMoveUp={() => null}
+                    onMoveDown={() => null}
                   />
-                ))}
-                <AddQuestionButton
-                  href={`/template/${template.id}/q/new?section_id=${section.id}`}
-                />
-              </div>
 
-            ))}
+                  {(section?.questions && section?.questions.length > 0) && (
+                    section.questions.map((question) => (
+                      <QuestionEdit
+                        key={question.id}
+                        id={question.id ? question.id.toString() : ''}
+                        text={question?.questionText ? question.questionText : ''}
+                        link={`/template/${templateId}/q/${question.id}`}
+                      />
+                    ))
+                  )}
+                  <AddQuestionButton
+                    href={`/template/${templateId}/q/new?section_id=${section.id}`}
+                  />
+                </div>
 
-          </div>
+              ))}
 
-          <AddSectionButton href={`/template/${template.id}/section/new`} />
+            </div>
+          )}
+
+          <AddSectionButton href={`/template/${templateId}/section/new`} />
 
 
         </div>
         <aside className="sidebar">
           <div className="sidebar-inner">
-            <h2>Status</h2>
+            <h2>{EditTemplate('titleStatus')}</h2>
             <div className="sidebar-section">
 
               <Button data-secondary className="my-3 secondary"
-                onPress={() => console.log('Save draft')}>
-                Save as draft
+                onPress={() => saveTemplate(TemplateVersionType.Draft, '', TemplateVisibility.Private)}>
+                {EditTemplate('button.saveAsDraft')}
               </Button>
 
               <Button data-tertiary className="my-3"
-                onPress={() => console.log('Preview')}>Preview
-                template</Button>
+                onPress={() => console.log('Preview')}>{EditTemplate('button.previewTemplate')}</Button>
 
             </div>
 
             <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Published Status</h5>
+              <h5 className="sidebar-section-title">{EditTemplate('button.publishTemplate')}</h5>
               <div className="status">
                 <p>
-                  Draft <Link href='#'>Edit</Link>
+                  {EditTemplate('draft')} <Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('linkEdit')}</Link>
                 </p>
               </div>
             </div>
 
             <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Visibility Settings</h5>
+              <h5 className="sidebar-section-title">{EditTemplate('heading.visibilitySettings')}</h5>
               <div className="status">
                 <p>
-                  Not Published <Link href='#'>Edit</Link>
+                  {EditTemplate('notPublished')}{' '}<Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('linkEdit')}</Link>
                 </p>
               </div>
             </div>
 
 
             <div className="sidebar-section">
-              <h5 className="sidebar-section-title">Feedback &
-                Collaboration</h5>
+              <h5 className="sidebar-section-title">{EditTemplate('heading.feedbackAndCollaboration')}</h5>
               <div className="description">
                 <p>
-                  Allow people to access, edit or comment on this plan
+                  {EditTemplate('allowAccess')}
                 </p>
                 <p>
                   <Link className="learn-more"
-                    href="/template/tpl_abcdef123456/access">
-                    Manage Access
+                    href={`/template/${templateId}/access`}>
+                    {EditTemplate('linkManageAccess')}
                   </Link>
                 </p>
               </div>
@@ -295,13 +318,13 @@ const TemplateEditPage: React.FC = () => {
                 className="my-3"
                 onPress={() => setPublishModalOpen(true)}
               >
-                Publish template
+                {EditTemplate('button.publishTemplate')}
               </Button>
-              <h5 className="sidebar-section-title">History</h5>
+              <h5 className="sidebar-section-title">{EditTemplate('heading.history')}</h5>
               <p>
                 <Link className="learn-more"
-                  href="/template/tpl_abcdef123456/history">
-                  Template history
+                  href={`/template/${templateId}/history`}>
+                  {EditTemplate('linkTemplateHistory')}
                 </Link>
               </p>
             </div>
@@ -313,18 +336,14 @@ const TemplateEditPage: React.FC = () => {
       <div className="template-archive-container">
         <div className="main-content">
           <h2>
-            Archive Template
+            {EditTemplate('heading.archiveTemplate')}
           </h2>
           <p>
-            This template will no longer be visible to plan creators.
-            Pre-existing
-            plans that use this template will be unaffected. This is not
-            reversible.
+            {EditTemplate('description.archiveTemplate')}
           </p>
           <Form>
             <Button className="my-3" data-tertiary
-              onPress={() => console.log('Archive')}>Archive
-              Template</Button>
+              onPress={() => console.log('Archive')}>{EditTemplate('button.archiveTemplate')}</Button>
           </Form>
         </div>
       </div>
@@ -335,82 +354,91 @@ const TemplateEditPage: React.FC = () => {
 
       >
         <Dialog>
-          <Heading slot="title">Publish</Heading>
+          <div ref={errorRef}>
+            <Form onSubmit={e => handleSubmit(e)} >
 
-          <RadioGroup>
-            <Label>Visibility Settings</Label>
-            <Text slot="description" className="help">
-              You can control who can use this published template.
-            </Text>
-            <Radio value="public">
-              <div>
-                <span>Public</span>
-                <p className="text-gray-600 text-sm">This will be available and discoverable by plan builders.</p>
-              </div>
-            </Radio>
-            <Radio value="organization">
-              <div>
-                <span>Organization only</span>
-                <p className="text-gray-600 text-sm">Only your organization will be able to view and use this template.</p>
-              </div>
-            </Radio>
-          </RadioGroup>
+              {errors && errors.length > 0 &&
+                <div className="error" role="alert" aria-live="assertive">
+                  {errors.map((error, index) => (
+                    <p key={index}>{error}</p>
+                  ))}
+                </div>
+              }
+              <Heading slot="title">{PublishTemplate('heading.publish')}</Heading>
 
-          <p>
-            <strong>
-              Publishing this template
-            </strong>
-          </p>
-
-          <ul>
-            <li>
-              After publication, all new plans will use this version.
-            </li>
-            <li>
-              In-progress or existing plans will not be updated.
-            </li>
-            <li>
-              You have configured Visibility as Public in Template options.
-              All
-              DMP Tool users will be able to see and use this template.
-            </li>
-          </ul>
-          <div className="">
-            <Form>
-              <TextField
-                name="change_log"
-                isRequired
-              >
-                <Label>Change log</Label>
+              <RadioGroup name="visibility">
+                <Label>{PublishTemplate('heading.visibilitySettings')}</Label>
                 <Text slot="description" className="help">
-                  Enter a short description of what has been changed. This will only be visible to
-                  people in your organization.
+                  {PublishTemplate('descPublishedTemplate')}
                 </Text>
-                <TextArea
-                  style={{ height: '100px' }}
-                />
-                <FieldError />
-              </TextField>
+                <Radio value="public" className={`${styles.radioBtn} react-aria-Radio`}>
+                  <div>
+                    <span>{PublishTemplate('radioBtn.public')}</span>
+                    <p className="text-gray-600 text-sm">{PublishTemplate('radioBtn.publicHelpText')}.</p>
+                  </div>
+                </Radio>
+                <Radio value="PRIVATE" className={`${styles.radioBtn} react-aria-Radio`}>
+                  <div>
+                    <span>{PublishTemplate('radioBtn.organizationOnly')}</span>
+                    <p className="text-gray-600 text-sm">{PublishTemplate('radioBtn.orgOnlyHelpText')}</p>
+                  </div>
+                </Radio>
+              </RadioGroup>
+
+              <p>
+                <strong>
+                  {PublishTemplate('heading.publishingThisTemplate')}
+                </strong>
+              </p>
+
+              <ul>
+                <li>
+                  {PublishTemplate('bullet.publishingTemplate')}
+                </li>
+                <li>
+                  {PublishTemplate('bullet.publishingTemplate2')}
+                </li>
+                <li>
+                  {PublishTemplate('bullet.publishingTemplate3')}
+                </li>
+              </ul>
+              <div className="">
+
+                <TextField
+                  name="change_log"
+                  isRequired
+                >
+                  <Label>{PublishTemplate('heading.changeLog')}</Label>
+                  <Text slot="description" className="help">
+                    {PublishTemplate('descChangeLog')}
+                  </Text>
+                  <TextArea
+                    style={{ height: '100px' }}
+                  />
+                  <FieldError />
+                </TextField>
+
+              </div>
+
+
+              <div className="modal-actions">
+                <div className="">
+                  <Button data-secondary onPress={() => setPublishModalOpen(false)}>{PublishTemplate('button.close')}</Button>
+                </div>
+                <div className="">
+                  <Button type="submit">{PublishTemplate('button.saveAndPublish')}</Button>
+                </div>
+              </div>
+
             </Form>
           </div>
-
-
-          <div className="modal-actions">
-            <div className="">
-              <Button data-secondary onPress={() => setPublishModalOpen(false)}>Close</Button>
-            </div>
-            <div className="">
-              <Button onPress={() => setPublishModalOpen(false)}>Save and Publish</Button>
-            </div>
-          </div>
-
-
         </Dialog>
       </Modal>
 
 
-    </div>
+    </div >
   );
 }
 
 export default TemplateEditPage;
+
