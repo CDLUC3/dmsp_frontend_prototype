@@ -17,15 +17,19 @@
     "additionalInfo": "Informações adicionais vão aqui..."
   },
   "EditTemplates": {
+    "title": "Editar modelo",
     "titleStatus": "Status",
     "draft": "Rascunho",
-    "linkEdit": "Alterar",
-    "linkManageAccess": "Gerenciar Acesso",
-    "linkTemplateHistory": "Histórico do modelo",
     "notPublished": "Não publicado",
     "allowAccess": "Permitir que as pessoas acessem, editem ou comentem este plano",
     "description": {
       "archiveTemplate": "Este modelo não será mais visível para os criadores de planos. Os planos pré-existentes que usam este modelo não serão afetados. Isto não é reversível."
+    },
+    "links": {
+      "addSection": "Adicionar seção",
+      "edit": "Alterar",
+      "manageAccess": "Gerenciar Acesso",
+      "templateHistory": "Histórico do modelo"
     },
     "button": {
       "archiveTemplate": "Arquivar Template",
@@ -43,6 +47,7 @@
   },
   "PublishTemplate": {
     "heading": {
+      "publish": "Publicar",
       "visibilitySettings": "Configurações de visibilidade",
       "publishingThisTemplate": "Publicando este modelo",
       "changeLog": "Log de alterações"
@@ -68,5 +73,31 @@
   "Breadcrumbs": {
     "home": "Home",
     "templates": "Modelos"
+  },
+  "EditQuestion": {
+    "label": {
+      "question": "Pergunta"
+    },
+    "links": {
+      "editQuestion": "Editar pergunta",
+      "addQuestion": "Adicionar pergunta"
+    },
+    "buttons": {
+      "moveUp": "Mover pergunta para cima",
+      "moveDown": "Mover pergunta para baixo"
+    }
+  },
+  "Sections": {
+    "labels": {
+      "section": "Seção"
+    },
+    "links": {
+      "editSection": "Editar seção",
+      "addSection": "Adicionar seção"
+    },
+    "buttons": {
+      "moveUp": "Mover seção para cima",
+      "moveDown": "Mover seção para baixo"
+    }
   }
 }

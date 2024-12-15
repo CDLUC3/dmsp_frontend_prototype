@@ -20,13 +20,16 @@
     "title": "Edit template",
     "titleStatus": "Status",
     "draft": "Draft",
-    "linkEdit": "Edit",
-    "linkManageAccess": "Manage Access",
-    "linkTemplateHistory": "Template history",
     "notPublished": "Not Published",
     "allowAccess": "Allow people to access, edit or comment on this plan",
     "description": {
       "archiveTemplate": "This template will no longer be visible to plan creators. Pre-existing plans that use this template will be unaffected. This is not reversible."
+    },
+    "links": {
+      "addSection": "Add section",
+      "edit": "Edit",
+      "manageAccess": "Manage Access",
+      "templateHistory": "Template history"
     },
     "button": {
       "archiveTemplate": "Archive Template",
@@ -70,5 +73,31 @@
   "Breadcrumbs": {
     "home": "Home",
     "templates": "Templates"
+  },
+  "EditQuestion": {
+    "label": {
+      "question": "Question"
+    },
+    "links": {
+      "editQuestion": "Edit question",
+      "addQuestion": "Add question"
+    },
+    "buttons": {
+      "moveUp": "Move question up",
+      "moveDown": "Move question down"
+    }
+  },
+  "Sections": {
+    "labels": {
+      "section": "Section"
+    },
+    "links": {
+      "editSection": "Edit section",
+      "addSection": "Add section"
+    },
+    "buttons": {
+      "moveUp": "Move section up",
+      "moveDown": "Move section down"
+    }
   }
 }

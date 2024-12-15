@@ -59,7 +59,6 @@ interface OwnerInterface {
   displayName: string;
   id: number;
 }
-
 interface TemplateEditPageInterface {
   name: string;
   description?: string | null;
@@ -87,7 +86,6 @@ const TemplateEditPage: React.FC = () => {
 
   // Errors returned from request
   const [errors, setErrors] = useState<string[]>([]);
-  const [queryErrors, setQueryErrors] = useState<string[]>([]);
   const formatDate = useFormatDate();
 
   // localization keys
@@ -102,7 +100,7 @@ const TemplateEditPage: React.FC = () => {
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
   // Initialize publish mutation
-  const [createTemplateVersionMutation, { error: createTemplateVersionError }] = useCreateTemplateVersionMutation();
+  const [createTemplateVersionMutation] = useCreateTemplateVersionMutation();
 
   // Run template query to get all templates under the given templateId
   const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
@@ -112,7 +110,6 @@ const TemplateEditPage: React.FC = () => {
     }
   );
 
-  console.log("***DATA", data);
   // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
   const saveTemplate = async (versionType: TemplateVersionType, comment: string | undefined, visibility: TemplateVisibility) => {
     try {
@@ -158,10 +155,12 @@ const TemplateEditPage: React.FC = () => {
         latestPublishVersion: data.template.latestPublishVersion ?? null,
         latestPublishDate: formatDate(data.template.latestPublishDate) ?? null,
         created: data.template.created ?? null,
+        /*eslint-disable @typescript-eslint/no-explicit-any*/
         sections: data.template.sections?.map((section: any) => ({
           id: section.id ?? null,
           name: section.name ?? '',
           displayOrder: section.displayOrder ?? null,
+          /*eslint-disable @typescript-eslint/no-explicit-any*/
           questions: section.questions?.map((question: any) => ({
             errors: question.errors ?? null,
             displayOrder: question.displayOrder ?? null,
@@ -207,7 +206,7 @@ const TemplateEditPage: React.FC = () => {
       <PageHeader
         title={template?.name ? template?.name : 'Template'}
         description={`by ${template?.name} - Version: ${template?.latestPublishVersion} - Published: ${template?.latestPublishDate}`}
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{BreadCrumbs('home')}</Link></Breadcrumb>
@@ -282,7 +281,7 @@ const TemplateEditPage: React.FC = () => {
               <h5 className="sidebar-section-title">{EditTemplate('button.publishTemplate')}</h5>
               <div className="status">
                 <p>
-                  {EditTemplate('draft')} <Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('linkEdit')}</Link>
+                  {EditTemplate('draft')} <Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
                 </p>
               </div>
             </div>
@@ -291,7 +290,7 @@ const TemplateEditPage: React.FC = () => {
               <h5 className="sidebar-section-title">{EditTemplate('heading.visibilitySettings')}</h5>
               <div className="status">
                 <p>
-                  {EditTemplate('notPublished')}{' '}<Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('linkEdit')}</Link>
+                  {EditTemplate('notPublished')}{' '}<Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
                 </p>
               </div>
             </div>
@@ -306,7 +305,7 @@ const TemplateEditPage: React.FC = () => {
                 <p>
                   <Link className="learn-more"
                     href={`/template/${templateId}/access`}>
-                    {EditTemplate('linkManageAccess')}
+                    {EditTemplate('links.manageAccess')}
                   </Link>
                 </p>
               </div>
@@ -324,7 +323,7 @@ const TemplateEditPage: React.FC = () => {
               <p>
                 <Link className="learn-more"
                   href={`/template/${templateId}/history`}>
-                  {EditTemplate('linkTemplateHistory')}
+                  {EditTemplate('links.templateHistory')}
                 </Link>
               </p>
             </div>

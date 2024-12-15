@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import sanitizeHtml from 'sanitize-html';
 import styles from './QuestionEdit.module.scss';
 import { Button } from "react-aria-components";
@@ -17,6 +18,7 @@ const QuestionEdit: React.FC<QuestionEditProps> = ({
 }) => {
 
   const questionText = sanitizeHtml(text);
+  const EditQuestion = useTranslations('EditQuestion');
   const UpArrowIcon = () => (
     <svg
       width="24"
@@ -57,7 +59,7 @@ const QuestionEdit: React.FC<QuestionEditProps> = ({
     <div className={styles.questionEdit} key={id} role="listitem">
       <div className={styles.questionEdit__content} aria-labelledby={`question-${id}`}>
         <p className={styles.questionEdit__label} id={`question-label-${id}`}>
-          Question
+          {EditQuestion('label.question')}
         </p>
         <div className={styles.questionEdit__name} id={`question-${id}`}
           dangerouslySetInnerHTML={{ __html: questionText }}
@@ -66,12 +68,12 @@ const QuestionEdit: React.FC<QuestionEditProps> = ({
       </div>
       <div className={styles.questionEdit__actions} role="group" aria-label="Question actions">
         <Link href={link} className={styles.questionEdit__link} aria-label={`Edit question: ${name}`}>
-          Edit question
+          {EditQuestion('links.editQuestion')}
         </Link>
-        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label="Move question up">
+        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label={EditQuestion('buttons.moveUp')}>
           <UpArrowIcon />
         </Button>
-        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label="Move question down">
+        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label={EditQuestion('buttons.moveDown')}>
           <DownArrowIcon />
         </Button>
       </div>

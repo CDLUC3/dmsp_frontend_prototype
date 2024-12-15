@@ -1,7 +1,6 @@
 import React from "react";
 import { render, screen, act } from '@/utils/test-utils';
 import {
-  TemplateVersionType,
   useCreateTemplateVersionMutation,
   useTemplateQuery
 } from '@/generated/graphql';
@@ -60,6 +59,7 @@ const mockTemplateData = {
   ]
 };
 
+/*eslint-disable @typescript-eslint/no-explicit-any*/
 // Helper function to cast to jest.Mock for TypeScript
 const mockHook = (hook: any) => hook as jest.Mock;
 
