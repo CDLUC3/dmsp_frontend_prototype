@@ -121,6 +121,7 @@ const TemplateEditPage: React.FC = () => {
           visibility: visibility
         },
       })
+      console.log("***RESPONSE", response);
       if (response) {
         setPublishModalOpen(false);
       }
@@ -350,11 +351,11 @@ const TemplateEditPage: React.FC = () => {
 
       <Modal isDismissable
         isOpen={isPublishModalOpen}
-
+        data-testid="modal"
       >
         <Dialog>
           <div ref={errorRef}>
-            <Form onSubmit={e => handleSubmit(e)} >
+            <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
 
               {errors && errors.length > 0 &&
                 <div className="error" role="alert" aria-live="assertive">
@@ -412,6 +413,7 @@ const TemplateEditPage: React.FC = () => {
                     {PublishTemplate('descChangeLog')}
                   </Text>
                   <TextArea
+                    data-testid="changeLog"
                     style={{ height: '100px' }}
                   />
                   <FieldError />
