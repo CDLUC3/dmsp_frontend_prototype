@@ -27,8 +27,8 @@
 
     p {
       display: -webkit-box;
-      -webkit-line-clamp: 2; /*limit # of lines displayed to 2*/
-      line-clamp: 2;
+      -webkit-line-clamp: 3; /*limit # of lines displayed to 3*/
+      line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis; /*show ellipsis at truncation*/

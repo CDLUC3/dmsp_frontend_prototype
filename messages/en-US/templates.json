@@ -43,6 +43,10 @@
       "feedbackAndCollaboration": "Feedback & Collaboration",
       "history": "History",
       "archiveTemplate": "Archive Template"
+    },
+    "errors": {
+      "archiveTemplateError": "Error when archiving template",
+      "saveTemplateError": "Error when saving template"
     }
   },
   "PublishTemplate": {

@@ -2,7 +2,8 @@ import React from "react";
 import { render, screen, act, fireEvent, waitFor } from '@/utils/test-utils';
 import {
   useCreateTemplateVersionMutation,
-  useTemplateQuery
+  useTemplateQuery,
+  useArchiveTemplateMutation
 } from '@/generated/graphql';
 
 import { useParams } from 'next/navigation';
@@ -11,6 +12,7 @@ import TemplateEditPage from '../page';
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
   useTemplateQuery: jest.fn(),
+  useArchiveTemplateMutation: jest.fn(),
   useCreateTemplateVersionMutation: jest.fn(),
   TemplateVersionType: { Draft: 'DRAFT', Published: 'PUBLISHED' }
 }));
@@ -71,6 +73,11 @@ describe("TemplateEditPage", () => {
 
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+
+    (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
   });
 
   it("should render loading state", async () => {
@@ -82,7 +89,7 @@ describe("TemplateEditPage", () => {
     });
 
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
@@ -188,7 +195,67 @@ describe("TemplateEditPage", () => {
 
     // Wait for the error to be added to the page
     await waitFor(() => {
-      expect(screen.getByText('Error when saving template')).toBeInTheDocument();
+      expect(screen.getByText('errors.saveTemplateError')).toBeInTheDocument();
+    });
+  })
+
+  it('should call useArchiveTemplateMutation when user clicks on the Archive Template button', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateEditPage />
+      );
+    });
+
+    // Locate the Archive Template button
+    const archiveTemplateBtn = screen.getByTestId('archive-template');
+    //Click the button
+    fireEvent.click(archiveTemplateBtn);
+
+    // Wait for the mutation to be called
+    await waitFor(() => {
+      expect(useArchiveTemplateMutation).toHaveBeenCalled();
+    });
+  })
+
+  it('should display correct error when archving template fails', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateEditPage />
+      );
+    });
+
+    // Locate the Archive Template button
+    const archiveTemplateBtn = screen.getByTestId('archive-template');
+    //Click the button
+    fireEvent.click(archiveTemplateBtn);
+
+    // Wait until error is displayed
+    await waitFor(() => {
+      expect(screen.getByText('errors.archiveTemplateError')).toBeInTheDocument();
     });
   })
 });

@@ -26,7 +26,8 @@ import {
   TemplateVersionType,
   TemplateVisibility,
   useCreateTemplateVersionMutation,
-  useTemplateQuery
+  useTemplateQuery,
+  useArchiveTemplateMutation
 } from '@/generated/graphql';
 
 // Components
@@ -86,6 +87,7 @@ const TemplateEditPage: React.FC = () => {
 
   // Errors returned from request
   const [errors, setErrors] = useState<string[]>([]);
+  const [pageErrors, setPageErrors] = useState<string[]>([]);
   const formatDate = useFormatDate();
 
   // localization keys
@@ -99,8 +101,13 @@ const TemplateEditPage: React.FC = () => {
   const { templateId } = params; // From route /template/:templateId
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  //For scrolling up to page level error
+  const pageErrorRef = useRef<HTMLDivElement | null>(null);
+
   // Initialize publish mutation
   const [createTemplateVersionMutation] = useCreateTemplateVersionMutation();
+  const [archiveTemplateMutation] = useArchiveTemplateMutation();
 
   // Run template query to get all templates under the given templateId
   const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
@@ -109,6 +116,24 @@ const TemplateEditPage: React.FC = () => {
       notifyOnNetworkStatusChange: true
     }
   );
+
+
+  // Archive current template
+  const handleArchiveTemplate = async () => {
+    try {
+      await archiveTemplateMutation({
+        variables: {
+          templateId: Number(templateId),
+        },
+      })
+    } catch (err) {
+      setPageErrors(prevErrors => [...prevErrors, EditTemplate('errors.archiveTemplateError')]);
+      logECS('error', 'handleArchiveTemplate', {
+        error: err,
+        url: { path: '/template/[templateId]' }
+      });
+    };
+  }
 
   // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
   const saveTemplate = async (versionType: TemplateVersionType, comment: string | undefined, visibility: TemplateVisibility) => {
@@ -121,12 +146,12 @@ const TemplateEditPage: React.FC = () => {
           visibility: visibility
         },
       })
-      console.log("***RESPONSE", response);
+
       if (response) {
         setPublishModalOpen(false);
       }
     } catch (err) {
-      setErrors(prevErrors => [...prevErrors, 'Error when saving template']);
+      setErrors(prevErrors => [...prevErrors, EditTemplate('errors.saveTemplateError')]);
       logECS('error', 'saveTemplate', {
         error: err,
         url: { path: '/template/[templateId]' }
@@ -140,7 +165,8 @@ const TemplateEditPage: React.FC = () => {
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
 
-    const visibility = formData.get('visibility') as TemplateVisibility; // Extract the selected radio button value
+    // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
+    const visibility = formData.get('visibility')?.toString().toUpperCase() as TemplateVisibility;
     const changeLog = formData.get('change_log')?.toString(); // Extract the textarea value
 
     await saveTemplate(TemplateVersionType.Published, changeLog, visibility)
@@ -195,11 +221,22 @@ const TemplateEditPage: React.FC = () => {
     }
   }, [errors]);
 
+  // If page-level errors that we need to scroll to
+  useEffect(() => {
+    if (pageErrors.length > 0 && pageErrorRef.current) {
+      pageErrorRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }, [pageErrors]);
 
   // Show loading message
   if (loading) {
     return <div>{Messaging('loading')}...</div>;
   }
+
+  console.log("***PAGE ERRORS", pageErrors)
 
   return (
     <div>
@@ -219,6 +256,12 @@ const TemplateEditPage: React.FC = () => {
         className="page-template-overview"
       />
 
+      {pageErrors && pageErrors.length > 0 &&
+        <div className="error" role="alert" aria-live="assertive" ref={pageErrorRef}>
+          {pageErrors.map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
+        </div>}
       <h2>{EditTemplate('title')}</h2>
 
       <div className="template-editor-container">
@@ -342,8 +385,12 @@ const TemplateEditPage: React.FC = () => {
             {EditTemplate('description.archiveTemplate')}
           </p>
           <Form>
-            <Button className="my-3" data-tertiary
-              onPress={() => console.log('Archive')}>{EditTemplate('button.archiveTemplate')}</Button>
+            <Button
+              className="my-3"
+              data-tertiary
+              data-testid="archive-template"
+              onPress={handleArchiveTemplate}>{EditTemplate('button.archiveTemplate')}
+            </Button>
           </Form>
         </div>
       </div>
@@ -377,7 +424,7 @@ const TemplateEditPage: React.FC = () => {
                     <p className="text-gray-600 text-sm">{PublishTemplate('radioBtn.publicHelpText')}.</p>
                   </div>
                 </Radio>
-                <Radio value="PRIVATE" className={`${styles.radioBtn} react-aria-Radio`}>
+                <Radio value="private" className={`${styles.radioBtn} react-aria-Radio`}>
                   <div>
                     <span>{PublishTemplate('radioBtn.organizationOnly')}</span>
                     <p className="text-gray-600 text-sm">{PublishTemplate('radioBtn.orgOnlyHelpText')}</p>
