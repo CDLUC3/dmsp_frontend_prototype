@@ -27,7 +27,9 @@ import {
   TemplateVisibility,
   useCreateTemplateVersionMutation,
   useTemplateQuery,
-  useArchiveTemplateMutation
+  useArchiveTemplateMutation,
+  Section,
+  Question
 } from '@/generated/graphql';
 
 // Components
@@ -46,7 +48,7 @@ interface QuestionsInterface {
   displayOrder?: number | null;
   guidanceText?: string | null;
   id?: number | null;
-  questionText: string;
+  questionText: string | null | undefined;
 }
 
 interface SectionInterface {
@@ -182,20 +184,22 @@ const TemplateEditPage: React.FC = () => {
         latestPublishVersion: data.template.latestPublishVersion ?? null,
         latestPublishDate: formatDate(data.template.latestPublishDate) ?? null,
         created: data.template.created ?? null,
-        /*eslint-disable @typescript-eslint/no-explicit-any*/
-        sections: data.template.sections?.map((section: any) => ({
-          id: section.id ?? null,
-          name: section.name ?? '',
-          displayOrder: section.displayOrder ?? null,
-          /*eslint-disable @typescript-eslint/no-explicit-any*/
-          questions: section.questions?.map((question: any) => ({
-            errors: question.errors ?? null,
-            displayOrder: question.displayOrder ?? null,
-            guidanceText: question.guidanceText ?? null,
-            id: question.id ?? null,
-            questionText: question.questionText ?? null,
-          })) ?? null,
-        })) ?? null,
+        sections: data.template.sections
+          ?.filter((section): section is Section => section !== null) // Filter out null
+          .map((section) => ({
+            id: section.id,
+            name: section.name ?? '',
+            displayOrder: section.displayOrder,
+            questions: section.questions
+              ?.filter((question): question is Question => question !== null) //Filter out null
+              ?.map((question) => ({
+                errors: question.errors,
+                displayOrder: question.displayOrder,
+                guidanceText: question.guidanceText,
+                id: question.id,
+                questionText: question.questionText,
+              })),
+          })),
         owner: {
           displayName: data.template.owner?.displayName ?? '',
           id: data.template.owner?.id ?? 0,
