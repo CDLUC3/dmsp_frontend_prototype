@@ -240,8 +240,6 @@ const TemplateEditPage: React.FC = () => {
     return <div>{Messaging('loading')}...</div>;
   }
 
-  console.log("***PAGE ERRORS", pageErrors)
-
   return (
     <div>
 
