@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from 'next-intl';
 import { useTemplateVersionsQuery } from '@/generated/graphql';
 import {
     Cell,
@@ -11,13 +12,17 @@ import {
     TableBody,
     TableHeader,
 } from "react-aria-components";
-import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+
+// Components
 import PageHeader from "@/components/PageHeader";
-import { formatShortMonthDayYear, formatWithTimeAndDate } from "@/utils/dateUtils"
 import {
     LayoutContainer,
     ContentContainer,
 } from '@/components/Container';
+
+
+import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import { formatShortMonthDayYear, formatWithTimeAndDate } from "@/utils/dateUtils"
 
 import styles from './history.module.scss';
 
@@ -30,6 +35,8 @@ const TemplateHistory = () => {
     const { data = {}, loading, error, refetch } = useTemplateVersionsQuery(
         { variables: { templateId } }
     );
+
+    const t = useTranslations('TemplateHistory');
 
     // UseEffect to handle async error handling
     useEffect(() => {
@@ -50,7 +57,7 @@ const TemplateHistory = () => {
 
     // Handle loading state
     if (loading) {
-        return <p>Loading publication history...</p>;
+        return <p>{t('loading')}</p>;
     }
 
     const templateVersions = data?.templateVersions || [];
@@ -69,7 +76,7 @@ const TemplateHistory = () => {
 
     return (
         <>
-            <PageHeader title="Template History" />
+            <PageHeader title={t('title')} />
             {
                 errors && (
                     <div>
@@ -80,29 +87,29 @@ const TemplateHistory = () => {
                 )
             }
 
-            {loading && <p>Template history is loading...</p>}
+            {loading && <p>{t('loading')}</p>}
             <LayoutContainer>
                 <ContentContainer>
                     {lastPublication && (
                         <>
                             <h2 className="with-subheader">{lastPublication?.name || 'Unknown'}</h2>
                             <div className="subheader">
-                                <div data-testid="author">{`by ${lastPublication?.versionedBy?.affiliation?.displayName}`}</div>
+                                <div data-testid="author">{`${t('by')} ${lastPublication?.versionedBy?.affiliation?.displayName}`}</div>
                                 <div>
-                                    <span data-testid="latest-version" className={styles.historyVersion}>Version {lastPublication?.version.slice(1)}</span>
-                                    <span data-testid="publication-date">Published: {lastPublicationDate}</span>
+                                    <span data-testid="latest-version" className={styles.historyVersion}>{t('version')} {lastPublication?.version.slice(1)}</span>
+                                    <span data-testid="publication-date">{t('published')}: {lastPublicationDate}</span>
                                 </div>
                             </div>
                         </>
                     )}
 
-                    <h3 id="templateHistoryHeading">History</h3>
+                    <h3 id="templateHistoryHeading">{t('subHeading')}</h3>
                     <Table aria-labelledby="templateHistoryHeading" className="react-aria-Table">
                         <TableHeader className="react-aria-TableHeader">
 
-                            <Column isRowHeader={true} className="react-aria-Column">Action</Column>
-                            <Column isRowHeader={true} className="react-aria-Column">User</Column>
-                            <Column isRowHeader={true} className="react-aria-Column">Time and Date</Column>
+                            <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnAction')}</Column>
+                            <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnUser')}</Column>
+                            <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnDate')}</Column>
                         </TableHeader>
                         <TableBody>
                             {
@@ -115,10 +122,10 @@ const TemplateHistory = () => {
                                         return (
                                             <Row key={`${item?.id}-${index}`} className="react-aria-Row">
                                                 <Cell className="react-aria-Cell">
-                                                    <div>Published {item?.version}</div>
+                                                    <div>{t('published')} {item?.version}</div>
                                                     <div>
                                                         <small className={styles.changeLog}>
-                                                            Change log:<br />{item?.comment}
+                                                            {t('changeLog')}:<br />{item?.comment}
                                                         </small>
                                                     </div>
                                                 </Cell>
@@ -130,7 +137,7 @@ const TemplateHistory = () => {
                                             </Row>
                                         );
                                     })
-                                    : <Row><Cell>No template history available.</Cell></Row>
+                                    : <Row><Cell>{t('notFoundMessage')}</Cell></Row>
                             }
 
                         </TableBody>

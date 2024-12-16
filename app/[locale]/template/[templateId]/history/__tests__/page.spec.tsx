@@ -23,6 +23,14 @@ jest.mock('@/utils/gqlErrorHandler', () => ({
     handleApolloErrors: jest.fn()
 }));
 
+// Mock useFormatter and useTranslations from next-intl
+jest.mock('next-intl', () => ({
+    useFormatter: jest.fn(() => ({
+        dateTime: jest.fn(() => '01-01-2023'),
+    })),
+    useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`
+}));
+
 jest.mock('@/components/BackButton', () => {
     return {
         __esModule: true,
@@ -55,7 +63,7 @@ describe('TemplateHistory', () => {
     });
 
     it('should render the component with PageHeader', async () => {
-        const titleProp = 'Template History';
+        const titleProp = 'title';
         const pageWrapper = await import('@/components/PageHeader');
         const mockPageHeader = pageWrapper.default;
 
@@ -88,7 +96,8 @@ describe('TemplateHistory', () => {
         (useTemplateVersionsQuery as jest.Mock).mockReturnValue({ loading: true });
 
         render(<TemplateHistory />);
-        expect(screen.getByText('Loading publication history...')).toBeInTheDocument();
+        screen.debug();
+        expect(screen.getByText('loading')).toBeInTheDocument();
     });
 
     it('should handle graphQL error state correctly', async () => {
@@ -135,7 +144,7 @@ describe('TemplateHistory', () => {
         expect(h2Element).toHaveTextContent('NIH-GDS: Genomic Data Sharing');
         expect(getByTestId('author')).toHaveTextContent('by National Institutes of Health')
         expect(getByTestId('latest-version')).toHaveTextContent('3.1')
-        expect(getByTestId('publication-date')).toHaveTextContent('Published: Jun 25, 2014')
+        expect(getByTestId('publication-date')).toHaveTextContent('published: Jun 25, 2014')
     });
 
     it('should render correct headers for table', async () => {
@@ -150,7 +159,7 @@ describe('TemplateHistory', () => {
         const headers = screen.getAllByRole('columnheader');
         expect(headers[0]).toHaveTextContent('Action');
         expect(headers[1]).toHaveTextContent('User');
-        expect(headers[2]).toHaveTextContent('Time and Date');
+        expect(headers[2]).toHaveTextContent('tableColumnDate');
     })
 
     it('should render correct content in table', async () => {
@@ -169,7 +178,7 @@ describe('TemplateHistory', () => {
 
         const row1Cells = targetRow1.querySelectorAll('td');
         screen.debug();
-        expect(row1Cells[0].textContent).toBe('Published v3Change log:This is the initial version of our template!');
+        expect(row1Cells[0].textContent).toBe('published v3changeLog:This is the initial version of our template!');
         expect(row1Cells[1].textContent).toBe('Severus Snape');
         //expect(row1Cells[2].textContent).toBe('16:29 on Jun 25, 2014');
     })
@@ -181,7 +190,7 @@ describe('TemplateHistory', () => {
         });
 
         render(<TemplateHistory />);
-        expect(screen.getByText('No template history available.')).toBeInTheDocument();
+        expect(screen.getByText('notFoundMessage')).toBeInTheDocument();
     });
 
     it('should pass axe accessibility test', async () => {

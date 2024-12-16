@@ -9,6 +9,11 @@
     "noItemsFoundError": "No results found for {term}!",
     "somethingWentWrong": "Something went wrong while retrieving templates",
     "actionCreate": "Create Template",
-    "actionSearch": "Search"
+    "actionSearch": "Search",
+    "linkUpdate": "Update",
+    "linkExpand": "Expand",
+    "linkCollapse": "Collapse",
+    "details": "details",
+    "additionalInfo": "Additional information goes here..."
   }
 }
