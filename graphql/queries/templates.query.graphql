@@ -24,12 +24,16 @@ query Template($templateId: Int!) {
       id
       displayOrder
       name
+      introduction
+      isDirty
       questions {
         errors
         displayOrder
         guidanceText
         id
         questionText
+        sectionId
+        templateId
       }
     },
     owner {

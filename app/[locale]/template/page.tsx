@@ -32,7 +32,6 @@ import {
   TemplateItemProps,
   TemplateInterface,
 } from '@/app/types';
-import styles from './template.module.scss';
 
 const TemplateListPage: React.FC = () => {
   const formatter = useFormatter();
@@ -174,7 +173,6 @@ const TemplateListPage: React.FC = () => {
         <ContentContainer>
           <div className="Filters">
             <SearchField
-              className={`${styles.searchField} react-aria-SearchField`}
               onClear={() => { setFilteredTemplates(null) }}
             >
               <Label>{t('searchLabel')}</Label>
