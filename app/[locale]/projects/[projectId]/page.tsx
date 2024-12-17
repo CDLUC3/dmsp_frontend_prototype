@@ -6,41 +6,6 @@ import PageHeader from "@/components/PageHeader";
 import {Card} from '@/components/Card/card';
 import {useTranslations} from "next-intl";
 
-interface Funder {
-  name: string;
-  shortname: string;
-  id: string;
-  grantid: string;
-}
-
-interface ProjectMember {
-  fullname: string;
-  role: string;
-  email: string;
-}
-
-interface ResearchOutput {
-  title: string;
-}
-
-interface PlanSection {
-  section_title: string;
-  link: string;
-  id: string;
-  progress: number;
-}
-
-interface Plan {
-  id: string;
-  template_name: string;
-  funder_id: string;
-  funder_name: string;
-  template_id: string;
-  sections: PlanSection[];
-  doi: string;
-  last_updated: string;
-  created_date: string;
-}
 
 const ProjectOverviewPage: React.FC = () => {
   const t = useTranslations('ProjectOverview');
@@ -188,7 +153,7 @@ const ProjectOverviewPage: React.FC = () => {
               </p>
               <p>
                 {project.funders.map((funder, index) => (
-                  <span key={funder.id}>
+                  <span key={funder.id} data-index={index}>
                       {t('funderInfo', {
                         name: funder.name,
                         id: funder.grantid
