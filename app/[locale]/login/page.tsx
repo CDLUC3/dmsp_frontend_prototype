@@ -75,7 +75,7 @@ const LoginPage: React.FC = () => {
     };
 
     useEffect(() => {
-        if (errors) {
+        if (errors.length > 0) {
             if (errorRef.current) {
                 errorRef.current.scrollIntoView({ behavior: 'smooth' });
                 errorRef.current.focus();
