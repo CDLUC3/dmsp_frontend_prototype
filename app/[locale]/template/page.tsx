@@ -59,7 +59,9 @@ const TemplateListPage: React.FC = () => {
   // Filter results when a user enters a search term and clicks "Search" button
   const handleFiltering = (term: string) => {
     setErrors([]);
-    const filteredList = templates.filter(item => item.title.includes(term));
+    const filteredList = templates.filter(item =>
+      item.title.toLowerCase().includes(term.toLowerCase())
+    );
     if (filteredList.length >= 1) {
       setSearchTerm(term);
       setFilteredTemplates(filteredList);
