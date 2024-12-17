@@ -278,7 +278,7 @@ const ProjectOverviewPage: React.FC = () => {
                   </div>
                   <div className="plan-action">
                     <Link
-                      href="/plans/123/edit"
+                      href="/projects/proj_2425/dmp/xxx"
                       className="react-aria-Button react-aria-Button--primary"
                       aria-label={t('updatePlan')}
                     >
@@ -296,3 +296,4 @@ const ProjectOverviewPage: React.FC = () => {
 }
 
 export default ProjectOverviewPage;
+

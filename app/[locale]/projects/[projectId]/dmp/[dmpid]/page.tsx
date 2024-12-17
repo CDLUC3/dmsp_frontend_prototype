@@ -117,8 +117,10 @@ const PlanOverviewPage: React.FC = () => {
         breadcrumbs={
           <Breadcrumbs aria-label={t('navigation')}>
             <Breadcrumb><Link href="/">{t('home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{t('projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects/proj_2425/">Project name</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href="/projects">{t('projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects/proj_2425/">Project
+              name</Link></Breadcrumb>
             <Breadcrumb>{plan.title}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -201,7 +203,7 @@ const PlanOverviewPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div>
+          <div >
             <h2>Status</h2>
             <div>
               <h3>Last Updated</h3>
@@ -219,15 +221,24 @@ const PlanOverviewPage: React.FC = () => {
               <h3>Download</h3>
               <p><Link href="#">Download this plan as a PDF ↓</Link></p>
 
-              <p>When you save as draft, only you and people with shared access will be able to see this plan. <Link href="#">Learn more</Link></p>
+              <p>When you save as draft, only you and people with shared access
+                will be able to see this plan. <Link href="#">Learn more</Link>
+              </p>
 
-              <button className="react-aria-Button react-aria-Button--primary">Mark as complete</button>
+              <button
+                className="react-aria-Button react-aria-Button--primary">Mark as
+                complete
+              </button>
 
               <h2>Feedback & Collaboration</h2>
               <p>Allow people to access, edit or comment on this plan</p>
-              <Link href="#">Manage Access</Link>
-
-              <button className="react-aria-Button react-aria-Button--secondary">Request feedback</button>
+              <p>
+                <Link href="#">Manage Access</Link>
+              </p>
+              <button
+                className="react-aria-Button react-aria-Button--secondary">Request
+                feedback
+              </button>
             </div>
           </div>
         </SidebarPanel>
