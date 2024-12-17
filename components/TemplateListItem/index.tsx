@@ -105,9 +105,9 @@ function TemplateListItem({ item }: { item: TemplateItemProps }) {
           aria-labelledby={headingId}
         >
           <p>{t('additionalInfo')}</p>
-          <p>
+          <div>
             {item.content}
-          </p>
+          </div>
         </div>
       )}
     </div>

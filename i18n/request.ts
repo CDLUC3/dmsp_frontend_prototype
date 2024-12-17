@@ -14,11 +14,13 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const mainMessages = (await import(`@/messages/${locale}/en-US.json`)).default;
   const templateMessages = (await import(`@/messages/${locale}/templates.json`)).default;
   const errorMessages = (await import(`@/messages/${locale}/errors.json`)).default;
+  const messaging = (await import(`@/messages/${locale}/messaging.json`)).default;
 
   // Merge all message objects
   const messages = {
     ...mainMessages,
     ...templateMessages,
+    ...messaging,
     errors: errorMessages,
   };
   return {

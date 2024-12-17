@@ -15,5 +15,93 @@
     "linkCollapse": "Collapse",
     "details": "details",
     "additionalInfo": "Additional information goes here..."
+  },
+  "EditTemplates": {
+    "title": "Edit template",
+    "titleStatus": "Status",
+    "draft": "Draft",
+    "notPublished": "Not Published",
+    "allowAccess": "Allow people to access, edit or comment on this plan",
+    "description": {
+      "archiveTemplate": "This template will no longer be visible to plan creators. Pre-existing plans that use this template will be unaffected. This is not reversible."
+    },
+    "links": {
+      "addSection": "Add section",
+      "edit": "Edit",
+      "manageAccess": "Manage Access",
+      "templateHistory": "Template history"
+    },
+    "button": {
+      "archiveTemplate": "Archive Template",
+      "saveAsDraft": "Save as draft",
+      "previewTemplate": "Preview template",
+      "publishTemplate": "Publish template"
+    },
+    "heading": {
+      "publishedStatus": "Published Status",
+      "visibilitySettings": "Visibility Settings",
+      "feedbackAndCollaboration": "Feedback & Collaboration",
+      "history": "History",
+      "archiveTemplate": "Archive Template"
+    },
+    "errors": {
+      "archiveTemplateError": "Error when archiving template",
+      "saveTemplateError": "Error when saving template"
+    }
+  },
+  "PublishTemplate": {
+    "heading": {
+      "publish": "Publish",
+      "visibilitySettings": "Visibility Settings",
+      "publishingThisTemplate": "Publishing this template",
+      "changeLog": "Change log"
+    },
+    "radioBtn": {
+      "public": "Public",
+      "organizationOnly": "Organization only",
+      "publicHelpText": "This will be available and discoverable by plan builders.",
+      "orgOnlyHelpText": "Only your organization will be able to view and use this template."
+    },
+    "descPublishedTemplate": "You can control who can use this published template.",
+    "bullet": {
+      "publishingTemplate": "After publication, all new plans will use this version.",
+      "publishingTemplate2": "In-progress or existing plans will not be updated.",
+      "publishingTemplate3": "You have configured Visibility as Public in Template options. All DMP Tool users will be able to see and use this template."
+    },
+    "descChangeLog": "Enter a short description of what has been changed. This will only be visible to people in your organization.",
+    "button": {
+      "close": "Close",
+      "saveAndPublish": "Save and Publish"
+    }
+  },
+  "Breadcrumbs": {
+    "home": "Home",
+    "templates": "Templates"
+  },
+  "EditQuestion": {
+    "label": {
+      "question": "Question"
+    },
+    "links": {
+      "editQuestion": "Edit question",
+      "addQuestion": "Add question"
+    },
+    "buttons": {
+      "moveUp": "Move question up",
+      "moveDown": "Move question down"
+    }
+  },
+  "Sections": {
+    "labels": {
+      "section": "Section"
+    },
+    "links": {
+      "editSection": "Edit section",
+      "addSection": "Add section"
+    },
+    "buttons": {
+      "moveUp": "Move section up",
+      "moveDown": "Move section down"
+    }
   }
 }
