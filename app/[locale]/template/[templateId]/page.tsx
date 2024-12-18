@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -153,12 +154,17 @@ const TemplateEditPage: React.FC = () => {
         setPublishModalOpen(false);
       }
     } catch (err) {
-      setErrors(prevErrors => [...prevErrors, EditTemplate('errors.saveTemplateError')]);
-      logECS('error', 'saveTemplate', {
-        error: err,
-        url: { path: '/template/[templateId]' }
-      });
-    };
+      if (err instanceof ApolloError) {
+        //close modal
+        setPublishModalOpen(false);
+      } else {
+        setErrors(prevErrors => [...prevErrors, EditTemplate('errors.saveTemplateError')]);
+        logECS('error', 'saveTemplate', {
+          error: err,
+          url: { path: '/template/[templateId]' }
+        });
+      };
+    }
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {

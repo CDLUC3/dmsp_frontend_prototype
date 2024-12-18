@@ -105,5 +105,21 @@
   },
   "Back": {
     "btnBack": "Back"
+  },
+  "Global": {
+    "breadcrumbs": {
+      "home": "Home",
+      "templates": "Templates",
+      "section": "Section"
+    },
+    "buttons": {
+      "search": "Search",
+      "select": "Select"
+    },
+    "messaging": {
+      "loading": "Loading",
+      "noItemsFound": "No items found",
+      "somethingWentWrong": "Something went wrong. Please try again."
+    }
   }
 }
