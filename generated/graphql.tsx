@@ -950,6 +950,7 @@ export type RelatedIdentifier = {
 /** A Section that contains a list of questions in a template */
 export type Section = {
   __typename?: 'Section';
+  bestPractice?: Maybe<Scalars['Boolean']['output']>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
@@ -1148,6 +1149,7 @@ export type UpdateQuestionInput = {
 
 /** Input for updating a section */
 export type UpdateSectionInput = {
+  bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
   /** The order in which the section will be displayed in the template */
   displayOrder?: InputMaybe<Scalars['Int']['input']>;
   /** The guidance to help user with section */
@@ -1529,7 +1531,7 @@ export type TemplateQueryVariables = Exact<{
 }>;
 
 
-export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', name: string, description?: string | null, errors?: Array<string> | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, sections?: Array<{ __typename?: 'Section', id?: number | null, displayOrder?: number | null, name: string, introduction?: string | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
+export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', name: string, description?: string | null, errors?: Array<string> | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2000,9 +2002,9 @@ export const TemplateDocument = gql`
     created
     sections {
       id
-      displayOrder
       name
-      introduction
+      bestPractice
+      displayOrder
       isDirty
       questions {
         errors

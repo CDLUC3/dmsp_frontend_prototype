@@ -22,9 +22,9 @@ query Template($templateId: Int!) {
     created
     sections {
       id
-      displayOrder
       name
-      introduction
+      bestPractice
+      displayOrder
       isDirty
       questions {
         errors

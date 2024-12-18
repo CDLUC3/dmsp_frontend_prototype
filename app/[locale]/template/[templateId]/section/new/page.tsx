@@ -16,19 +16,32 @@ import { ApolloError } from "@apollo/client";
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 
+import logECS from '@/utils/clientLogger';
 import {
   useTemplateQuery,
   Section,
   Question
 } from '@/generated/graphql';
-import logECS from '@/utils/clientLogger';
+
+// Components
+import {
+  LayoutContainer,
+  ContentContainer,
+} from '@/components/Container';
 import PageHeader from "@/components/PageHeader";
-import { Card, CardBody, CardFooter, CardHeading } from "@/components/Card/card";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeading
+} from "@/components/Card/card";
+
 
 interface SectionInterface {
   id?: number | null;
   name: string;
   displayOrder?: number | null;
+  bestPractice?: boolean | null;
   questions?: Question[] | undefined | null;
 }
 
@@ -50,24 +63,6 @@ const SectionTypeSelectPage: React.FC = () => {
   const AddNewSection = useTranslations('SectionTypeSelectPage');
   const Global = useTranslations('Global');
 
-
-  const templates_others = [
-    {
-      title: 'Ethics and Privacy Considerations',
-      link: '/template/353535/section/s_mnopqr',
-      text: '<p>This section includes:</p><p>5 pre-built questions</p>',
-    },
-    {
-      title: 'Budget and Resources',
-      link: '/template/353535/section/s_mnopqr',
-      text: '<p>This section includes:</p><p>3 pre-built questions</p>',
-    },
-    {
-      title: 'Roles and Responsibilities',
-      link: '/template/353535/section/s_mnopqr',
-      text: '<p>This section includes:</p><p>4 pre-built questions</p>',
-    }
-  ];
 
   // Run template query to get all templates under the given templateId
   const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
@@ -98,18 +93,19 @@ const SectionTypeSelectPage: React.FC = () => {
 
   // Filter results when a user enters a search term and clicks "Search" button
   const handleFiltering = (term: string) => {
+    setSearchTerm(term);
     setErrors([]);
+    // Filter org sections
     const filteredList = sections.filter(item =>
       item?.name.toLowerCase().includes(term.toLowerCase())
     );
-    if (filteredList.length >= 1) {
-      setSearchTerm(term);
-      setFilteredSections(filteredList);
-    } else {
-      //If there are no matching results, then display an error
-      const errorMessage = "No items found"
+
+    if (filteredList.length === 0) {
+      const errorMessage = Global('messaging.noItemsFound');
       setErrors(prev => [...prev, errorMessage]);
     }
+
+    setFilteredSections(filteredList);
   }
 
   useEffect(() => {
@@ -117,14 +113,15 @@ const SectionTypeSelectPage: React.FC = () => {
     if (data && data.template) {
       if (data.template?.sections) {
         const sectionsArray = data.template.sections ?? [];
-        const sortedSections = sortSectionsByDisplayOrder(sectionsArray);
-        sortedSections?.map(section => {
-          const questionsCount = section?.questions ? section?.questions?.length : 0;
+
+        const sortedOrgSections = sortSectionsByDisplayOrder(sectionsArray);
+        sortedOrgSections?.map(section => {
           const sectionObj = {
             id: section?.id ?? null,
             name: section?.name ?? '',
             displayOrder: section?.displayOrder,
-            questionsCount: questionsCount
+            bestPractice: section?.bestPractice,
+            questions: section?.questions
           }
 
           setSections(prev => prev.concat(sectionObj));
@@ -141,7 +138,7 @@ const SectionTypeSelectPage: React.FC = () => {
         refetch();
       } else {
         // Display other errors
-        setErrors(prevErrors => [...prevErrors, templateQueryErrors]);
+        setErrors(prevErrors => [...prevErrors, Global('messaging.somethingWentWrong')]);
         logECS('error', 'templateQueryErrors', {
           error: templateQueryErrors,
           url: { path: '/template/[templateId]/section/new' }
@@ -190,114 +187,157 @@ const SectionTypeSelectPage: React.FC = () => {
         className=""
       />
 
-      <div className="Filters" ref={errorRef}>
-        {errors && errors.length > 0 &&
-          <div className="error" role="alert" aria-live="assertive">
-            {errors.map((error, index) => (
-              <p key={index}>{error}</p>
-            ))}
+      <LayoutContainer>
+        <ContentContainer>
+          <div className="Filters" ref={errorRef}>
+            {errors && errors.length > 0 &&
+              <div className="error" role="alert" aria-live="assertive">
+                {errors.map((error, index) => (
+                  <p key={index}>{error}</p>
+                ))}
+              </div>
+            }
+            <SearchField
+              onClear={() => { setFilteredSections(null) }}
+            >
+              <Label>{AddNewSection('search.label')}</Label>
+              <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
+              <Button
+                onPress={() => {
+                  // Call your filtering function without changing the input value
+                  handleFiltering(searchTerm);
+                }}
+              >
+                {Global('buttons.search')}
+              </Button>
+              <FieldError />
+              <Text slot="description" className="help">
+                {AddNewSection('search.helpText')}
+              </Text>
+            </SearchField>
           </div>
-        }
-        <SearchField
-          onClear={() => { setFilteredSections(null) }}
-        >
-          <Label>{AddNewSection('search.label')}</Label>
-          <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
-          <Button
-            onPress={() => {
-              // Call your filtering function without changing the input value
-              handleFiltering(searchTerm);
-            }}
-          >
-            {Global('buttons.search')}
-          </Button>
-          <FieldError />
-          <Text slot="description" className="help">
-            {AddNewSection('search.helpText')}
-          </Text>
-        </SearchField>
-      </div>
 
-      <div>
-        <h2>
-          {AddNewSection('headings.previouslyCreatedSections')}
-        </h2>
+          <div>
+            <h2>
+              {AddNewSection('headings.previouslyCreatedSections')}
+            </h2>
 
-        <div className="card-grid-list" aria-label="Section list" role="list">
-          {filteredSections && filteredSections.length > 0 ? (
-            <>
-              {
-                filteredSections.map((section, index) => (
-                  <Card key={index}>
-                    <CardHeading>{section.name}</CardHeading>
-                    <CardBody>
-                      {AddNewSection.rich("questionsCount", {
-                        count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
-                        p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                      })}
-                    </CardBody>
-                    <CardFooter>
-                      <Link href={`/template/${templateId}/section/${section.id}`}
-                        className="button-link secondary">{Global('buttons.select')}</Link>
-                    </CardFooter>
-                  </Card>
-                ))
+            {/*Organization Sections */}
+            <div className="card-grid-list" aria-label="Section list" role="list">
+              {filteredSections && filteredSections.length > 0 ? (
+                <>
+                  {
+                    filteredSections
+                      .filter(section => section?.bestPractice === false)
+                      .map((section, index) => (
+                        <Card key={index}>
+                          <CardHeading>{section.name}</CardHeading>
+                          <CardBody>
+                            {AddNewSection.rich("questionsCount", {
+                              count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
+                              p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
+                            })}
+                          </CardBody>
+                          <CardFooter>
+                            <Link href={`/template/${templateId}/section/${section.id}`}
+                              className="button-link secondary">{Global('buttons.select')}</Link>
+                          </CardFooter>
+                        </Card>
+                      ))
+                  }
+                </>
+              ) : (
+                <>
+                  {
+                    sections
+                      .filter(section => section?.bestPractice === false)
+                      .map((section, index) => (
+                        <Card key={index}>
+                          <CardHeading>{section.name}</CardHeading>
+                          <CardBody>
+                            {AddNewSection.rich("questionsCount", {
+                              count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
+                              p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
+                            })}
+                          </CardBody>
+                          <CardFooter>
+                            <Link href={`/template/${templateId}/section/${section.id}`}
+                              className="button-link secondary">Select</Link>
+                          </CardFooter>
+                        </Card>
+                      ))
+                  }
+                </>
+              )
               }
-            </>
-          ) : (
-            <>
-              {
-                sections.map((section, index) => (
-                  <Card key={index}>
-                    <CardHeading>{section.name}</CardHeading>
-                    <CardBody>
-                      {AddNewSection.rich("questionsCount", {
-                        count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
-                        p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                      })}
-                    </CardBody>
-                    <CardFooter>
-                      <Link href={`/template/${templateId}/section/${section.id}`}
-                        className="button-link secondary">Select</Link>
-                    </CardFooter>
-                  </Card>
-                ))
+            </div>
+
+            <h2>
+              {AddNewSection('headings.bestPracticeSections')}
+            </h2>
+
+            {/*Best Practice sections */}
+            <div className="card-grid-list">
+              {filteredSections && filteredSections.length > 0 ? (
+                <>
+                  {
+                    filteredSections
+                      .filter(section => section?.bestPractice === true)
+                      .map((section, index) => (
+                        <Card key={index}>
+                          <CardHeading>{section.name}</CardHeading>
+                          <CardBody>
+                            {AddNewSection.rich("questionsCount", {
+                              count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
+                              p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
+                            })}
+                          </CardBody>
+                          <CardFooter>
+                            <Link href={`/template/${templateId}/section/${section.id}`}
+                              className="button-link secondary">{Global('buttons.select')}</Link>
+                          </CardFooter>
+                        </Card>
+                      ))
+                  }
+                </>
+              ) : (
+                <>
+                  {
+                    sections
+                      .filter(section => section?.bestPractice === true)
+                      .map((section, index) => (
+                        <Card key={index}>
+                          <CardHeading>{section.name}</CardHeading>
+                          <CardBody>
+                            {AddNewSection.rich("questionsCount", {
+                              count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
+                              p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
+                            })}
+                          </CardBody>
+                          <CardFooter>
+                            <Link href={`/template/${templateId}/section/${section.id}`}
+                              className="button-link secondary">Select</Link>
+                          </CardFooter>
+                        </Card>
+                      ))
+                  }
+                </>
+              )
               }
-            </>
-          )
-          }
-        </div>
-
-        <h2>
-          {AddNewSection('headings.bestPracticeSections')}
-        </h2>
-        <div className="card-grid-list">
-
-          {templates_others.map((template, index) => (
-            <Card key={index}>
-              <CardHeading>{template.title}</CardHeading>
-              <CardBody>
-                <div dangerouslySetInnerHTML={{ __html: template.text }} />
-
-              </CardBody>
-              <CardFooter>
-                <Link href={`/template/${templateId}/q/q_mnopqr`}
-                  className="button-link secondary">Select</Link>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+            </div>
 
 
-        <h2>
-          {AddNewSection('headings.buildNewSection')}
-        </h2>
-        <p>
-          {AddNewSection('newSectionDescription')}
-        </p>
-        <Link href={`/template/${templateId}/section/new`}
-          className="button-link secondary">{AddNewSection('buttons.createNew')}</Link>
-      </div>
+            <h2>
+              {AddNewSection('headings.buildNewSection')}
+            </h2>
+            <p>
+              {AddNewSection('newSectionDescription')}
+            </p>
+            <Link href={`/template/${templateId}/section/new`}
+              className="button-link secondary">{AddNewSection('buttons.createNew')}</Link>
+          </div>
+        </ContentContainer>
+      </LayoutContainer>
     </>
   );
 }

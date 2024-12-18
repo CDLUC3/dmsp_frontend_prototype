@@ -117,7 +117,9 @@
       "select": "Select"
     },
     "messaging": {
-      "loading": "Loading"
+      "loading": "Loading",
+      "noItemsFound": "No items found",
+      "somethingWentWrong": "Something went wrong. Please try again."
     }
   }
 }

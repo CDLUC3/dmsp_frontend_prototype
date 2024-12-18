@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, act } from '@/utils/test-utils';
+import { render, screen, act, fireEvent, waitFor } from '@/utils/test-utils';
 import {
   useTemplateQuery,
 } from '@/generated/graphql';
@@ -23,11 +23,8 @@ const mockScrollIntoView = jest.fn();
 type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
 
 
-// Mock useFormatter and useTranslations from next-intl
+// Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
-  useFormatter: jest.fn(() => ({
-    dateTime: jest.fn(() => '01-01-2023'),
-  })),
   useTranslations: jest.fn(() => {
     const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
 
@@ -65,6 +62,7 @@ const mockTemplateData = {
     {
       "id": 67,
       "displayOrder": 1,
+      "bestPractice": false,
       "name": "Data description",
       "questions": [
         {
@@ -73,6 +71,21 @@ const mockTemplateData = {
           "guidanceText": "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
           "id": 67,
           "questionText": "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "displayOrder": 1,
+      "bestPractice": true,
+      "name": "Roles and Responsibilities",
+      "questions": [
+        {
+          "errors": null,
+          "displayOrder": 1,
+          "guidanceText": "<p>Test</p>",
+          "id": 68,
+          "questionText": "<p>Roles and Responsibilities within a data management plan covers how the responsibilities for the management of your data will be delegated and potentially transferred over the long term.</p>"
         }
       ]
     },
@@ -91,7 +104,6 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it("should render loading state", async () => {
-    // Mock graphql requests
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: null,
       loading: true,
@@ -108,7 +120,6 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it("should render data returned from template query correctly", async () => {
-    // Mock the hook for data state
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
@@ -128,7 +139,7 @@ describe("SectionTypeSelectPage", () => {
     const searchButton = screen.getByRole('button', { name: 'Clear search' });
     const selectLink = screen.getAllByRole('link', { name: 'Select' });
     const createNew = screen.getByRole('link', { name: 'buttons.createNew' });
-    const cardText = screen.getAllByText('This section includes:');
+    const questionsCount = screen.getAllByText('questionsCount');
     expect(heading).toHaveTextContent('headings.addNewSection');
     expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.templates')).toBeInTheDocument();
@@ -139,13 +150,89 @@ describe("SectionTypeSelectPage", () => {
     expect(screen.getByText('search.helpText')).toBeInTheDocument();
     expect(headingPreviouslyCreated).toBeInTheDocument();
     expect(screen.getByText('Data description')).toBeInTheDocument();
-    expect(screen.getByText('questionsCount')).toBeInTheDocument();
-    expect(selectLink).toHaveLength(4);
+    expect(questionsCount).toHaveLength(2);
+    expect(selectLink).toHaveLength(2);
     expect(headingBestPractice).toBeInTheDocument();
-    expect(screen.getByText('Ethics and Privacy Considerations')).toBeInTheDocument();
-    expect(cardText).toHaveLength(3);
-    expect(screen.getByText('5 pre-built questions')).toBeInTheDocument();
+    expect(screen.getByText('Roles and Responsibilities')).toBeInTheDocument();
     expect(headingsBuildNewSection).toBeInTheDocument();
     expect(createNew).toBeInTheDocument();
   });
+
+  it('should show filtered list when user clicks Search button', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+
+    await act(async () => {
+      render(
+        <SectionTypeSelectPage />
+      );
+    });
+
+    // Searching for translation key since cannot run next-intl for unit tests
+    const searchInput = screen.getByLabelText(/search.label/i);
+    expect(searchInput).toBeInTheDocument();
+
+    // enter findable search term
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'Data' } });
+    });
+
+
+    const searchButton = screen.getByLabelText('Clear search');
+    fireEvent.click(searchButton);
+
+    // Check that we can find section name that matches the search item
+    expect(screen.getByText('Data description')).toBeInTheDocument();
+  })
+
+  it('should show error message when we cannot find item that matches search term', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+
+    await act(async () => {
+      render(
+        <SectionTypeSelectPage />
+      );
+    });
+
+    const searchInput = screen.getByLabelText(/search.label/i);
+    expect(searchInput).toBeInTheDocument();
+
+    // enter search term that cannot be found
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: 'test' } });
+    });
+
+    // Click the 'Search' button
+    const searchButton = screen.getByRole('button', { name: 'Clear search' });
+    fireEvent.click(searchButton);
+
+    // Check that we message user about 'No items found'
+    const errorElement = screen.getByText('messaging.noItemsFound');
+    expect(errorElement).toBeInTheDocument();
+  })
+
+  it('should show error message when query fails with a network error', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: undefined,
+      loading: false,
+      error: { message: 'There was an error.' },
+      refetch: jest.fn()
+    });
+    await act(async () => {
+      render(
+        <SectionTypeSelectPage />
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('messaging.somethingWentWrong')).toBeInTheDocument();
+    });
+  })
 });

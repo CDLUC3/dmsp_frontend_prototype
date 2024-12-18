@@ -109,12 +109,17 @@
   "Global": {
     "breadcrumbs": {
       "home": "Home",
-      "templates": "Templates",
-      "section": "Section"
+      "templates": "Modelos",
+      "section": "Seção"
     },
     "buttons": {
-      "search": "Search",
+      "search": "Buscar",
       "select": "Select"
+    },
+    "messaging": {
+      "loading": "Baixar",
+      "noItemsFound": "Nenhum item encontrado",
+      "somethingWentWrong": "Algo deu errado. Por favor, tente novamente."
     }
   }
 }
