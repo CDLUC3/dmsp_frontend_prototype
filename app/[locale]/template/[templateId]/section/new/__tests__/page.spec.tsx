@@ -3,10 +3,11 @@ import { render, screen, act, fireEvent, waitFor } from '@/utils/test-utils';
 import {
   useTemplateQuery,
 } from '@/generated/graphql';
-
+import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams } from 'next/navigation';
 import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import SectionTypeSelectPage from '../page';
+expect.extend(toHaveNoViolations);
 
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
@@ -235,4 +236,21 @@ describe("SectionTypeSelectPage", () => {
       expect(screen.getByText('messaging.somethingWentWrong')).toBeInTheDocument();
     });
   })
+
+  it('should pass axe accessibility test', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+    const { container } = render(
+      <SectionTypeSelectPage />
+    );
+
+    await act(async () => {
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+  });
 });

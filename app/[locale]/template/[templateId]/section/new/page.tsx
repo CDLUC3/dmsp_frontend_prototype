@@ -223,7 +223,7 @@ const SectionTypeSelectPage: React.FC = () => {
             </h2>
 
             {/*Organization Sections */}
-            <div className="card-grid-list" aria-label="Section list" role="list">
+            <div className="card-grid-list">
               {filteredSections && filteredSections.length > 0 ? (
                 <>
                   {
