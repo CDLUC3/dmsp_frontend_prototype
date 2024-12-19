@@ -1,0 +1,32 @@
+.checkboxGroup {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem; /* Add spacing between checkboxes */
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  .icon {
+    svg {
+      width: 24px;
+      height:24px;
+      fill: var(--brand-primary);
+    }
+  }
+
+  .popoverBtn {
+      background:none;
+
+      &:hover {
+        background: none;
+      }
+  }
+}
+
+.checkboxWrapper {
+  display: flex;
+  align-items: center;
+}
+
+

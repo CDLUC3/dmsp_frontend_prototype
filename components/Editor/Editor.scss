@@ -18,3 +18,34 @@
     border: 2px solid var(--gray-100);
   }
 }
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 16px;
+  height: 100px;
+  margin-bottom: 2rem;
+}
+
+.skeleton-toolbar {
+  display: flex;
+  gap: 8px;
+}
+
+.skeleton-button {
+  width: 32px;
+  height: 32px;
+  background: #ddd;
+  border-radius: 4px;
+}
+
+.skeleton-editor {
+  flex-grow: 1;
+  background: #eaeaea;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

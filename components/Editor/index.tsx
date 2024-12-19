@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
+import { EditorSkeleton } from './EditorSkeleton';
 
 import {
   EditorComponent,
@@ -190,21 +191,27 @@ const EditorToolbar = () => {
 interface DmpEditorProps {
   content: string;
   setContent: (newContent: string) => void;
+  id?: string;
+  error?: string;
 }
 
-export function DmpEditor({ content, setContent }: DmpEditorProps) {
+
+const extensions = () => [
+  new BoldExtension({}),
+  new ItalicExtension(),
+  new UnderlineExtension({}),
+  new LinkExtension({ autoLink: true }),
+  new BulletListExtension({}),
+  new OrderedListExtension(),
+  new TableExtension({}),
+  new AnnotationExtension({}),
+];
+
+
+export function DmpEditor({ content, setContent, id, error }: DmpEditorProps) {
   const [isMounted, setIsMounted] = useState(false);
   const { manager, state, setState } = useRemirror({
-    extensions: () => [
-      new BoldExtension({}),
-      new ItalicExtension(),
-      new UnderlineExtension({}),
-      new LinkExtension({ autoLink: true }),
-      new BulletListExtension({}),
-      new OrderedListExtension(),
-      new TableExtension({}),
-      new AnnotationExtension({}),
-    ],
+    extensions,
 
     content,
 
@@ -224,17 +231,18 @@ export function DmpEditor({ content, setContent }: DmpEditorProps) {
   }, [])
 
   const handleChange = (newState: EditorState) => {
-    const html = prosemirrorNodeToHtml(newState.doc);
+    const html = prosemirrorNodeToHtml(newState.doc).replaceAll('<p></p>', '');
+
     setContent(html);
     setState(newState);
   }
 
   if (!isMounted) {
-    return null; // or a loading indicator
+    return <EditorSkeleton />; // Show the skeleton loader
   }
 
   return (
-    <div className="dmp-editor">
+    <div className="dmp-editor" id={id} aria-labelledby={id} role="textbox">
       <Remirror
         manager={manager}
         state={state}
@@ -243,6 +251,7 @@ export function DmpEditor({ content, setContent }: DmpEditorProps) {
       >
         <EditorToolbar />
         <EditorComponent />
+        <div className="error-message">{error}</div>
       </Remirror>
     </div>
   )

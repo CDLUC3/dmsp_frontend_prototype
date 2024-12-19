@@ -12,8 +12,19 @@ import {
   SearchField,
   Text
 } from "react-aria-components";
+
+// Components
+import {
+  LayoutContainer,
+  ContentContainer,
+} from '@/components/Container';
 import PageHeader from "@/components/PageHeader";
-import {Card, CardBody, CardFooter, CardHeading} from "@/components/Card/card";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeading
+} from "@/components/Card/card";
 
 const SectionTypeSelectPage: React.FC = () => {
 
@@ -79,79 +90,83 @@ const SectionTypeSelectPage: React.FC = () => {
         className=""
       />
 
-      <div className="Filters">
-        <SearchField>
-          <Label>Search by keyword</Label>
-          <Input/>
-          <Button>Search</Button>
-          <FieldError/>
-          <Text slot="description" className="help">
-            Search by section name, description, etc.
-          </Text>
-        </SearchField>
-      </div>
+      <LayoutContainer>
+        <ContentContainer>
+          <div className="Filters">
+            <SearchField>
+              <Label>Search by keyword</Label>
+              <Input />
+              <Button>Search</Button>
+              <FieldError />
+              <Text slot="description" className="help">
+                Search by section name, description, etc.
+              </Text>
+            </SearchField>
+          </div>
 
-      <div>
-        <h2>
-          Use one of your previously created sections
-        </h2>
-        <div className="card-grid-list">
+          <div>
+            <h2>
+              Use one of your previously created sections
+            </h2>
+            <div className="card-grid-list">
 
-          {templates.map((template, index) => (
+              {templates.map((template, index) => (
 
 
-            <Card key={index}>
-              <CardHeading>{template.title}</CardHeading>
-              <CardBody>
-                <div dangerouslySetInnerHTML={{__html: template.text}}/>
-              </CardBody>
-              <CardFooter>
-                <Link href={`/template/353535/section/s_mnopqr`}
+                <Card key={index}>
+                  <CardHeading>{template.title}</CardHeading>
+                  <CardBody>
+                    <div dangerouslySetInnerHTML={{ __html: template.text }} />
+                  </CardBody>
+                  <CardFooter>
+                    <Link href={`/template/353535/section/s_mnopqr`}
                       className="button-link secondary">Select</Link>
-              </CardFooter>
-            </Card>
+                  </CardFooter>
+                </Card>
 
 
-          ))}
+              ))}
 
-        </div>
+            </div>
 
-        <h2>
-          Use a best practice section created by DMP Tool
-        </h2>
-        <div className="card-grid-list">
+            <h2>
+              Use a best practice section created by DMP Tool
+            </h2>
+            <div className="card-grid-list">
 
-          {templates_others.map((template, index) => (
+              {templates_others.map((template, index) => (
 
 
-            <Card key={index}>
-              <CardHeading>{template.title}</CardHeading>
-              <CardBody>
-                <div dangerouslySetInnerHTML={{__html: template.text}}/>
+                <Card key={index}>
+                  <CardHeading>{template.title}</CardHeading>
+                  <CardBody>
+                    <div dangerouslySetInnerHTML={{ __html: template.text }} />
 
-              </CardBody>
-              <CardFooter>
-                <Link href={`/template/353535/q/q_mnopqr`}
+                  </CardBody>
+                  <CardFooter>
+                    <Link href={`/template/353535/q/q_mnopqr`}
                       className="button-link secondary">Select</Link>
-              </CardFooter>
-            </Card>
+                  </CardFooter>
+                </Card>
 
 
-          ))}
-        </div>
+              ))}
+            </div>
 
 
-        <h2>
-          Build a new section
-        </h2>
-        <p>
-          Build a new section from scratch. You can add questions, instructions,
-          and other content to your section, we highly recommend using the best
-          practice sections
-        </p>
-        <Link href="/template/353535/section/new"
+            <h2>
+              Build a new section
+            </h2>
+            <p>
+              Build a new section from scratch. You can add questions, instructions,
+              and other content to your section, we highly recommend using the best
+              practice sections
+            </p>
+            <Link href="/template/353535/section/new"
               className="button-link secondary">Create new section</Link>
-      </div>
+          </div>
+        </ContentContainer>
+      </LayoutContainer>
     </>
   );
 }

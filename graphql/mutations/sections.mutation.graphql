@@ -1,0 +1,19 @@
+mutation AddSection($input: AddSectionInput!) {
+  addSection(input: $input) {
+    id
+    tags {
+      name
+    }
+    guidance
+    errors
+    displayOrder
+    introduction
+    isDirty
+    name
+    questions {
+      id
+      errors
+    }
+    requirements
+  }
+}
