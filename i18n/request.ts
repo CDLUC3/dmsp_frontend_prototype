@@ -11,8 +11,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
     locale = routing.defaultLocale;
   }
   // Load multiple translation files
-  const mainMessages = (await import(`@/messages/${locale}/en-US.json`)).default;
-  const templateMessages = (await import(`@/messages/${locale}/templates.json`)).default;
+  const mainMessages = (await import(`@/messages/${locale}/global.json`)).default;
+  const templateMessages = (await import(`@/messages/${locale}/templateBuilder.json`)).default;
   const errorMessages = (await import(`@/messages/${locale}/errors.json`)).default;
   const messaging = (await import(`@/messages/${locale}/messaging.json`)).default;
 

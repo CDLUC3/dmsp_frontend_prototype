@@ -103,5 +103,23 @@
       "moveUp": "Move section up",
       "moveDown": "Move section down"
     }
+  },
+  "SectionTypeSelectPage": {
+    "headings": {
+      "addNewSection": "Add new section",
+      "previouslyCreatedSections": "Use one of your previously created sections",
+      "bestPracticeSections": "Use a best practice section created by DMP Tool",
+      "buildNewSection": "Build a new section"
+    },
+    "buttons": {
+      "createNew": "Create new section"
+    },
+    "search": {
+      "label": "Search by keyword",
+      "helpText": "Search by section name, description, etc."
+    },
+    "intro": "You have three options. You can use a section you created previously, use a DMP Tool best practice section or build a new section. All sections are customizable once selected.",
+    "newSectionDescription": "Build a new section from scratch. You can add questions, instructions, and other content to your section, we highly recommend using the best practice sections.",
+    "questionsCount": "<p>This section includes:</p><p>{count} pre-built questions</p>"
   }
 }

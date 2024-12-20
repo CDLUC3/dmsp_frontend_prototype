@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
-import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import {
   Breadcrumb,
@@ -21,7 +20,6 @@ import {
   OverlayArrow,
   Popover,
   Dialog,
-  Switch
 } from "react-aria-components";
 // GraphQL queries and mutations
 import {
@@ -100,7 +98,7 @@ const CreateSectionPage: React.FC = () => {
   const [tags, setTags] = useState<TagsInterface[]>([]);
 
   // Initialize user addSection mutation
-  const [addSectionMutation, { error: addSectionError, loading }] = useAddSectionMutation();
+  const [addSectionMutation] = useAddSectionMutation();
 
   // Query for all tags
   const { data: tagsData } = useTagsQuery();
@@ -174,7 +172,7 @@ const CreateSectionPage: React.FC = () => {
   // Make GraphQL mutation request to create section
   const createSection = async () => {
     try {
-      const response = await addSectionMutation({
+      await addSectionMutation({
         variables: {
           input: {
             templateId: Number(templateId),
@@ -189,10 +187,10 @@ const CreateSectionPage: React.FC = () => {
       })
     } catch (error) {
       if (error instanceof ApolloError) {
-        console.log("***ERROR", error.message);
+        setErrors(prevErrors => [...prevErrors, error.message]);
       } else {
         // Other errors will be displayed on page
-        setErrors(prevErrors => [...prevErrors, 'Error when updating profile']);
+        setErrors(prevErrors => [...prevErrors, 'Error when creating section']);
       }
     }
   };
@@ -232,7 +230,7 @@ const CreateSectionPage: React.FC = () => {
       setErrors([]); // Clear errors on successful submit
       scrollToTop(topRef);
     } else {
-      const errorMessages = Object.entries(fieldErrors).map(([_, value]) => value);
+      const errorMessages = Object.entries(fieldErrors).map(([, value]) => value);
       setErrors(prev => [...prev, ...errorMessages]);
     }
   };
@@ -240,6 +238,7 @@ const CreateSectionPage: React.FC = () => {
   useEffect(() => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
+      /*eslint-disable @typescript-eslint/no-unused-vars*/
       const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
       setTags(cleanedData);
     }
@@ -299,36 +298,36 @@ const CreateSectionPage: React.FC = () => {
                 </TabList>
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
-                    <Label htmlFor="sectionName">Section name</Label>
+                    <Label id="sectionName">Section name</Label>
                     <DmpEditor
                       content={sectionNameContent}
                       setContent={setSectionNameContent}
-                      id='sectionName'
                       error={fieldErrors['sectionName']}
+                      id="sectionName"
                     />
 
-                    <Label htmlFor="sectionIntroduction">Section introduction</Label>
+                    <Label id="sectionIntroduction">Section introduction</Label>
                     <DmpEditor
                       content={sectionIntroductionContent}
                       setContent={setSectionIntroductionContent}
-                      id='sectionIntroduction'
                       error={fieldErrors['sectionIntroduction']}
+                      id="sectionIntroduction"
                     />
 
-                    <Label htmlFor="sectionRequirements">Section requirements</Label>
+                    <Label id="sectionRequirements">Section requirements</Label>
                     <DmpEditor
                       content={sectionRequirementsContent}
                       setContent={setSectionRequirementsContent}
-                      id='sectionRequirements'
                       error={fieldErrors['sectionRequirements']}
+                      id="sectionRequirements"
                     />
 
-                    <Label htmlFor="sectionGuidance">Section guidance</Label>
+                    <Label id="sectionGuidance">Section guidance</Label>
                     <DmpEditor
                       content={sectionGuidanceContent}
                       setContent={setSectionGuidanceContent}
-                      id='sectionGuidance'
                       error={fieldErrors['sectionGuidance']}
+                      id="sectionGuidance"
                     />
 
                     <CheckboxGroup name="sectionTags">
@@ -349,11 +348,11 @@ const CreateSectionPage: React.FC = () => {
                                   <polyline points="1 9 7 14 15 4" />
                                 </svg>
                               </div>
-                              <span className="checkbox-label">
+                              <span className="checkbox-label" data-testid='checkboxLabel'>
                                 <div className={styles.checkboxWrapper}>
                                   <div>{tag.name}</div>
                                   <DialogTrigger>
-                                    <Button className={styles.popoverBtn}><div className={styles.icon}><DmpIcon icon="info" /></div></Button>
+                                    <Button className={styles.popoverBtn} aria-label="Click for more info"><div className={styles.icon}><DmpIcon icon="info" /></div></Button>
                                     <Popover>
                                       <OverlayArrow>
                                         <svg width={12} height={12} viewBox="0 0 12 12">

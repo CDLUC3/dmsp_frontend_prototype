@@ -4,9 +4,6 @@
     "description": "Gerenciar ou criar modelos DMSP, uma vez que pesquisadores publicados poderão selecionar seu modelo.",
     "breadcrumbHome": "Home",
     "loading": "Modelos de organização...",
-    "description": "Gerenciar ou criar modelos DMSP, uma vez que pesquisadores publicados poderão selecionar seu modelo.",
-    "breadcrumbHome": "Home",
-    "loading": "Modelos de organização...",
     "searchLabel": "Pesquisar por palavra-chave",
     "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
     "noItemsFoundError": "Nenhum resultado encontrado para {term}.",
@@ -48,7 +45,7 @@
       "archiveTemplate": "Arquivar Template"
     },
     "errors": {
-      "archiveTemplateError": "Erro ao arquivar modelo",
+      "archiveTemplateError": "Erro ao arquivar template",
       "saveTemplateError": "Erro ao salvar modelo"
     }
   },
@@ -103,8 +100,26 @@
       "addSection": "Adicionar seção"
     },
     "buttons": {
-      "moveUp": "Mover seção para cima",
-      "moveDown": "Mover seção para baixo"
+      "moveUp": "Mover a seção para cima",
+      "moveDown": "Mover a seção para baixo"
     }
+  },
+  "SectionTypeSelectPage": {
+    "headings": {
+      "addNewSection": "Adicionar nova seção",
+      "previouslyCreatedSections": "Use uma de suas seções criadas anteriormente",
+      "bestPracticeSections": "Use uma seção de boas práticas criada pela Ferramenta DMP",
+      "buildNewSection": "Construir uma nova seção"
+    },
+    "buttons": {
+      "createNew": "Criar seção"
+    },
+    "search": {
+      "label": "Pesquisar por palavra-chave",
+      "helpText": "Pesquisar por nome da seção, descrição, etc."
+    },
+    "intro": "Você tem três opções. Você pode usar uma seção que você criou anteriormente, usar uma seção de melhor prática da Ferramenta de DMP ou construir uma nova seção. Todas as seções são personalizáveis uma vez selecionado.",
+    "newSectionDescription": "Crie uma nova seção do zero. Você pode adicionar perguntas, instruções e outros conteúdos à sua seção, recomendamos o uso das seções de melhor prática.",
+    "questionsCount": "<p>Esta seção inclui:</p><p>{count} questões pré-criadas</p>"
   }
 }

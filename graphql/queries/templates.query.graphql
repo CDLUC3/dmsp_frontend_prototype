@@ -22,14 +22,18 @@ query Template($templateId: Int!) {
     created
     sections {
       id
-      displayOrder
       name
+      bestPractice
+      displayOrder
+      isDirty
       questions {
         errors
         displayOrder
         guidanceText
         id
         questionText
+        sectionId
+        templateId
       }
     },
     owner {

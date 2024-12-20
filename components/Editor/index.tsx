@@ -208,7 +208,7 @@ const extensions = () => [
 ];
 
 
-export function DmpEditor({ content, setContent, id, error }: DmpEditorProps) {
+export function DmpEditor({ content, setContent, error, id }: DmpEditorProps) {
   const [isMounted, setIsMounted] = useState(false);
   const { manager, state, setState } = useRemirror({
     extensions,
@@ -242,12 +242,15 @@ export function DmpEditor({ content, setContent, id, error }: DmpEditorProps) {
   }
 
   return (
-    <div className="dmp-editor" id={id} aria-labelledby={id} role="textbox">
+    <div className="dmp-editor">
       <Remirror
         manager={manager}
         state={state}
         initialContent={state}
         onChange={({ state }) => handleChange(state)}
+        attributes={{
+          'aria-label': id ?? 'Editor input area',
+        }}
       >
         <EditorToolbar />
         <EditorComponent />
