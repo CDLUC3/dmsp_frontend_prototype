@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -87,12 +88,17 @@ const CreateSectionPage: React.FC = () => {
 
   // Save errors in state to display on page
   const [errors, setErrors] = useState<string[]>([]);
+  const [successMessage, setSuccessMessage] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<FormInterface>({
     sectionName: '',
     sectionIntroduction: '',
     sectionRequirements: '',
     sectionGuidance: '',
   });
+
+  // localization keys
+  const Global = useTranslations('Global');
+  const CreateSectionPage = useTranslations('CreateSectionPage');
 
   //Store selection of tags in state
   const [tags, setTags] = useState<TagsInterface[]>([]);
@@ -109,7 +115,7 @@ const CreateSectionPage: React.FC = () => {
     switch (name) {
       case 'sectionName':
         if (!value || value.length <= 2) {
-          error = 'Name must be at least 2 characters';
+          error = CreateSectionPage('messages.fieldLengthValidation')
         }
         break;
     }
@@ -118,6 +124,10 @@ const CreateSectionPage: React.FC = () => {
       ...prevErrors,
       [name]: error
     }));
+    if (error.length > 1) {
+      setErrors(prev => [...prev, error]);
+    }
+
     return error;
   }
 
@@ -144,8 +154,6 @@ const CreateSectionPage: React.FC = () => {
         errors[name] = error;
       }
     });
-
-    setFieldErrors(errors);
     return isValid;
   };
 
@@ -189,13 +197,12 @@ const CreateSectionPage: React.FC = () => {
       if (error instanceof ApolloError) {
         setErrors(prevErrors => [...prevErrors, error.message]);
       } else {
-        // Other errors will be displayed on page
-        setErrors(prevErrors => [...prevErrors, 'Error when creating section']);
+        setErrors(prevErrors => [...prevErrors, CreateSectionPage('messages.errorCreatingSection')]);
       }
     }
   };
 
-  // Handle changes to tag selection
+  // Handle changes to tag checkbox selection
   const handleCheckboxChange = (tag: TagsInterface) => {
     setSelectedTags((prevTags) => {
       // Check if the tag is already selected
@@ -214,6 +221,8 @@ const CreateSectionPage: React.FC = () => {
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    setSuccessMessage('');
     setFormData({
       sectionName: sectionNameContent,
       sectionIntroduction: '',
@@ -228,10 +237,10 @@ const CreateSectionPage: React.FC = () => {
       // Create new section
       await createSection();
       setErrors([]); // Clear errors on successful submit
+      // For now, scroll to top of page to provide some feedback that form was successfully submitted
+      // TODO: add flash/toast message to signal to user that form was successfully submitted
+      setSuccessMessage(CreateSectionPage('messages.success'))
       scrollToTop(topRef);
-    } else {
-      const errorMessages = Object.entries(fieldErrors).map(([, value]) => value);
-      setErrors(prev => [...prev, ...errorMessages]);
     }
   };
 
@@ -261,19 +270,20 @@ const CreateSectionPage: React.FC = () => {
     });
   }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
+
   return (
     <>
       <PageHeader
-        title="Create Section"
+        title={CreateSectionPage('title')}
         description=""
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
             <Breadcrumb><Link
-              href={`/template/#`}>Template</Link></Breadcrumb>
-            <Breadcrumb>Edit Section</Breadcrumb>
+              href={`/template/#`}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.editSection')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
@@ -284,21 +294,29 @@ const CreateSectionPage: React.FC = () => {
         <ContentContainer>
           <div className="template-editor-container" ref={topRef}>
             <div className="main-content">
+
               {errors && errors.length > 0 &&
-                <div className="error" role="alert" aria-live="assertive" ref={errorRef}>
+                <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
                   {errors.map((error, index) => (
                     <p key={index}>{error}</p>
                   ))}
-                </div>}
+                </div>
+              }
+
+              {successMessage && (
+                <div className="messages success" role="alert" aria-live="assertive">
+                  <p>{successMessage}</p>
+                </div>
+              )}
               <Tabs>
                 <TabList aria-label="Question editing">
-                  <Tab id="edit">Edit Question</Tab>
-                  <Tab id="options">Options</Tab>
-                  <Tab id="logic">Logic</Tab>
+                  <Tab id="edit">{CreateSectionPage('tabs.editSection')}</Tab>
+                  <Tab id="options">{CreateSectionPage('tabs.options')}</Tab>
+                  <Tab id="logic">{CreateSectionPage('tabs.logic')}</Tab>
                 </TabList>
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
-                    <Label id="sectionName">Section name</Label>
+                    <Label id="sectionName">{CreateSectionPage('labels.sectionName')}</Label>
                     <DmpEditor
                       content={sectionNameContent}
                       setContent={setSectionNameContent}
@@ -306,7 +324,7 @@ const CreateSectionPage: React.FC = () => {
                       id="sectionName"
                     />
 
-                    <Label id="sectionIntroduction">Section introduction</Label>
+                    <Label id="sectionIntroduction">{CreateSectionPage('labels.sectionIntroduction')}</Label>
                     <DmpEditor
                       content={sectionIntroductionContent}
                       setContent={setSectionIntroductionContent}
@@ -314,7 +332,7 @@ const CreateSectionPage: React.FC = () => {
                       id="sectionIntroduction"
                     />
 
-                    <Label id="sectionRequirements">Section requirements</Label>
+                    <Label id="sectionRequirements">{CreateSectionPage('labels.sectionRequirements')}</Label>
                     <DmpEditor
                       content={sectionRequirementsContent}
                       setContent={setSectionRequirementsContent}
@@ -322,7 +340,7 @@ const CreateSectionPage: React.FC = () => {
                       id="sectionRequirements"
                     />
 
-                    <Label id="sectionGuidance">Section guidance</Label>
+                    <Label id="sectionGuidance">{CreateSectionPage('labels.sectionGuidance')}</Label>
                     <DmpEditor
                       content={sectionGuidanceContent}
                       setContent={setSectionGuidanceContent}
@@ -331,8 +349,8 @@ const CreateSectionPage: React.FC = () => {
                     />
 
                     <CheckboxGroup name="sectionTags">
-                      <Label>Section Best Practices to include</Label>
-                      <span className="help">Select one or more tags to associate global best practice guidance written by DMP Tool.</span>
+                      <Label>{CreateSectionPage('labels.bestPracticeTags')}</Label>
+                      <span className="help">{CreateSectionPage('helpText.bestPracticeTagsDesc')}</span>
                       <div className={styles.checkboxGroup}>
                         {tags && tags.map(tag => {
                           const id = (tag.id)?.toString();
@@ -373,15 +391,15 @@ const CreateSectionPage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button type="submit">Create Section</Button>
+                    <Button type="submit">{CreateSectionPage('button.createSection')}</Button>
 
                   </Form>
                 </TabPanel>
                 <TabPanel id="options">
-                  <h2>Options</h2>
+                  <h2>{CreateSectionPage('tabs.options')}</h2>
                 </TabPanel>
                 <TabPanel id="logic">
-                  <h2>Logic</h2>
+                  <h2>{CreateSectionPage('tabs.logic')}</h2>
                 </TabPanel>
               </Tabs>
             </div>

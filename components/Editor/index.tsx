@@ -47,8 +47,6 @@ import {
   Popover,
 } from 'react-aria-components';
 
-import { useDebouncedCallback } from 'use-debounce';
-
 
 // NOTE: Disabling this for now due to typescript warnings. We will need this
 // when we start work on inline annotations and comments, so leaving it
@@ -234,6 +232,7 @@ export const DmpEditor = memo(({ content, setContent, error, id }: DmpEditorProp
   }, [])
 
   const handleChange = ((newState: EditorState) => {
+    //prosemirror was adding an empty <p></p> when no data was passed, so we need to remove it here
     const html = prosemirrorNodeToHtml(newState.doc).replaceAll('<p></p>', '');
     setContent(html);
     setState(newState);
@@ -241,7 +240,8 @@ export const DmpEditor = memo(({ content, setContent, error, id }: DmpEditorProp
 
 
   if (!isMounted) {
-    return <EditorSkeleton />; // Show the skeleton loader
+    // Show the skeleton loader because loading of RTE can be slow and cause shifting on page without it
+    return <EditorSkeleton />;
   }
 
   return (

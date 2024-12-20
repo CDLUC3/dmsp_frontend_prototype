@@ -1,6 +1,7 @@
 
 .dmpEditor {
   position: relative;
+  margin-bottom: 2rem;
 
   .dmpEditorToolbar {
     padding: 0.5em 0.5em;
@@ -17,7 +18,6 @@
     overflow-y: auto;
     border-radius: 0 0 5px 5px;
     border: 2px solid var(--gray-100);
-    margin-bottom: 2rem;
   }
 }
 

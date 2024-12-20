@@ -137,12 +137,12 @@ describe("CreateSectionPage", () => {
     });
 
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveTextContent('Create Section');
-    const editQuestionTab = screen.getByRole('tab', { name: 'Edit Question' });
+    expect(heading).toHaveTextContent('title');
+    const editQuestionTab = screen.getByRole('tab', { name: 'tabs.editSection' });
     expect(editQuestionTab).toBeInTheDocument();
-    const editOptionsTab = screen.getByRole('tab', { name: 'Options' });
+    const editOptionsTab = screen.getByRole('tab', { name: 'tabs.options' });
     expect(editOptionsTab).toBeInTheDocument();
-    const editLogicTab = screen.getByRole('tab', { name: 'Logic' });
+    const editLogicTab = screen.getByRole('tab', { name: 'tabs.logic' });
     expect(editLogicTab).toBeInTheDocument();
     const sectionNameEditor = screen.getByRole('textbox', { name: /sectionName/i });
     expect(sectionNameEditor).toBeInTheDocument();
@@ -152,7 +152,7 @@ describe("CreateSectionPage", () => {
     expect(sectionRequirementsEditor).toBeInTheDocument();
     const sectionGuidanceEditor = screen.getByRole('textbox', { name: /sectionGuidance/i });
     expect(sectionGuidanceEditor).toBeInTheDocument();
-    const tagsHeader = screen.getByText('Section Best Practices to include');
+    const tagsHeader = screen.getByText('labels.bestPracticeTags');
     expect(tagsHeader).toBeInTheDocument();
     const checkboxLabels = screen.getAllByTestId('checkboxLabel');
     expect(checkboxLabels).toHaveLength(11);
@@ -170,17 +170,17 @@ describe("CreateSectionPage", () => {
       );
     });
 
-    const searchButton = screen.getByRole('button', { name: /create section/i });
+    const searchButton = screen.getByRole('button', { name: /button.createSection/i });
     fireEvent.click(searchButton);
 
-    const errorElement = screen.getByText('Name must be at least 2 characters');
-    expect(errorElement).toBeInTheDocument();
+    const errorMessage = screen.getByRole('alert');
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent('messages.fieldLengthValidation');
   })
 
   it('should pass axe accessibility test', async () => {
     (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
     ]);
 
     const { container } = render(
