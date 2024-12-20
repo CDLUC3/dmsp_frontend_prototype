@@ -193,11 +193,12 @@ interface DmpEditorProps {
   setContent: (newContent: string) => void;
   id?: string;
   error?: string;
+  labelId?: string;
 }
 
 const MemoizedEditorToolbar = memo(EditorToolbar);
 
-export const DmpEditor = memo(({ content, setContent, error, id }: DmpEditorProps) => {
+export const DmpEditor = memo(({ content, setContent, error, id, labelId }: DmpEditorProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const extensions = useMemo(() => () => [
     new BoldExtension({}),
@@ -253,7 +254,9 @@ export const DmpEditor = memo(({ content, setContent, error, id }: DmpEditorProp
         onChange={({ state }) => handleChange(state)}
         attributes={{
           'aria-label': id ?? 'Editor input area',
-          'class': styles.editorProsemirror
+          'aria-labelledby': labelId ?? '',
+          'class': styles.editorProsemirror,
+          'id': id ?? ''
         }}
       >
         <MemoizedEditorToolbar />

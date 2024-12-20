@@ -316,36 +316,40 @@ const CreateSectionPage: React.FC = () => {
                 </TabList>
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
-                    <Label id="sectionName">{CreateSectionPage('labels.sectionName')}</Label>
+                    <Label htmlFor="sectionName" id="sectionNameLabel">{CreateSectionPage('labels.sectionName')}</Label>
                     <DmpEditor
                       content={sectionNameContent}
                       setContent={setSectionNameContent}
                       error={fieldErrors['sectionName']}
                       id="sectionName"
+                      labelId="sectionNameLabel"
                     />
 
-                    <Label id="sectionIntroduction">{CreateSectionPage('labels.sectionIntroduction')}</Label>
+                    <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{CreateSectionPage('labels.sectionIntroduction')}</Label>
                     <DmpEditor
                       content={sectionIntroductionContent}
                       setContent={setSectionIntroductionContent}
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
+                      labelId="sectionIntroductionLabel"
                     />
 
-                    <Label id="sectionRequirements">{CreateSectionPage('labels.sectionRequirements')}</Label>
+                    <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{CreateSectionPage('labels.sectionRequirements')}</Label>
                     <DmpEditor
                       content={sectionRequirementsContent}
                       setContent={setSectionRequirementsContent}
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
+                      labelId="sectionRequirementsLabel"
                     />
 
-                    <Label id="sectionGuidance">{CreateSectionPage('labels.sectionGuidance')}</Label>
+                    <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{CreateSectionPage('labels.sectionGuidance')}</Label>
                     <DmpEditor
                       content={sectionGuidanceContent}
                       setContent={setSectionGuidanceContent}
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
+                      labelId="sectionGuidanceLabel"
                     />
 
                     <CheckboxGroup name="sectionTags">
