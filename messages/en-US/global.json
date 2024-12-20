@@ -110,7 +110,9 @@
     "breadcrumbs": {
       "home": "Home",
       "templates": "Templates",
-      "section": "Section"
+      "template": "Template",
+      "section": "Section",
+      "editSection": "Edit Section"
     },
     "buttons": {
       "search": "Search",

@@ -687,6 +687,7 @@ function Page() {
                 <DmpIcon icon="favorite" />
                 <DmpIcon icon="format_bold" />
                 <DmpIcon icon="double_arrow" />
+                <DmpIcon icon="info" />
               </div>
             </Example>
 
@@ -1073,7 +1074,7 @@ function Page() {
           <div id="_containers">
             <h2><code>Layout Container</code></h2>
             <p>The standard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
-            some common container within the layout container.</p>
+              some common container within the layout container.</p>
             <LayoutContainer>
               <ContentContainer>
                 <div><pre><code>
@@ -1207,7 +1208,7 @@ function Page() {
                 TODO: Write about this layout here
               </ContentContainer>
 
-              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false) }>
+              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false)}>
                 <p>This is the Drawer Content</p>
               </DrawerPanel>
             </LayoutWithPanel>
@@ -1593,7 +1594,7 @@ function Page() {
             <QuestionEdit
               key={2552}
               id="24"
-              name="This is a question"
+              text="This is a question"
               link="/edit"
             />
 

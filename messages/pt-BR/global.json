@@ -110,7 +110,9 @@
     "breadcrumbs": {
       "home": "Home",
       "templates": "Modelos",
-      "section": "Seção"
+      "template": "Template",
+      "section": "Seção",
+      "editSection": "Edit Section"
     },
     "buttons": {
       "search": "Buscar",
@@ -119,7 +121,7 @@
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
-      "somethingWentWrong": "Algo deu errado. Por favor, tente novamente."
+      "somethingWentWrong": "Something went wrong. Please try again."
     }
   }
 }
