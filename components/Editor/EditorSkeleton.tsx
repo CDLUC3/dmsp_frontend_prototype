@@ -1,16 +1,15 @@
-// EditorSkeleton.tsx
 import React from 'react';
-import './Editor.scss';
+import styles from './editor.module.scss';
 
 export const EditorSkeleton: React.FC = () => {
   return (
-    <div className="skeleton">
-      <div className="skeleton-toolbar">
-        <div className="skeleton-button"></div>
-        <div className="skeleton-button"></div>
-        <div className="skeleton-button"></div>
+    <div className={styles.skeleton}>
+      <div className={styles.skeletonToolbar}>
+        <div className={styles.skeletonButton}></div>
+        <div className={styles.skeletonButton}></div>
+        <div className={styles.skeletonButton}></div>
       </div>
-      <div className="skeleton-editor"></div>
+      <div className={styles.skeletonEditor}></div>
     </div>
   );
 };

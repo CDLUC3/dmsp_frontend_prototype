@@ -46,7 +46,8 @@
     "react": "^18",
     "react-aria-components": "^1.2.1",
     "react-dom": "^18",
-    "remirror": "^3.0.1"
+    "remirror": "^3.0.1",
+    "use-debounce": "^10.0.4"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.6",

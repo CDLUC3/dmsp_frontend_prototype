@@ -1,21 +1,23 @@
 
-.dmp-editor {
+.dmpEditor {
   position: relative;
 
-  .react-aria-Toolbar {
+  .dmpEditorToolbar {
     padding: 0.5em 0.5em;
     background-color: white;
     border-radius:5px 5px 0 0;
     border: 2px solid var(--gray-100);
   }
 
-  .remirror-editor.ProseMirror {
+  .Prosemirror,
+  .editorProsemirror {
     padding: 0.5em 1.5em 0.5em 1em;
     background-color: white;
     max-height: 400px;
     overflow-y: auto;
     border-radius: 0 0 5px 5px;
     border: 2px solid var(--gray-100);
+    margin-bottom: 2rem;
   }
 }
 
@@ -27,23 +29,23 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 16px;
-  height: 100px;
+  min-height: 122px;
   margin-bottom: 2rem;
 }
 
-.skeleton-toolbar {
+.skeletonToolbar {
   display: flex;
   gap: 8px;
 }
 
-.skeleton-button {
+.skeletonButton {
   width: 32px;
   height: 32px;
   background: #ddd;
   border-radius: 4px;
 }
 
-.skeleton-editor {
+.skeletonEditor {
   flex-grow: 1;
   background: #eaeaea;
   border: 1px solid #ccc;

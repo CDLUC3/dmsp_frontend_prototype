@@ -348,7 +348,7 @@ const CreateSectionPage: React.FC = () => {
                                   <polyline points="1 9 7 14 15 4" />
                                 </svg>
                               </div>
-                              <span className="checkbox-label" data-testid='checkboxLabel'>
+                              <span className={`${styles.checkboxLabel} checkbox-label`} data-testid='checkboxLabel'>
                                 <div className={styles.checkboxWrapper}>
                                   <div>{tag.name}</div>
                                   <DialogTrigger>
