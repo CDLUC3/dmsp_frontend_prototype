@@ -76,11 +76,11 @@ const SignUpPage: React.FC = () => {
     setIsWorking(true);
     setErrors([]);
 
-    let data = {
+    const data: signupDataMap = {
       givenName: firstName,
       surName: lastName,
-      email: email,
-      password: password,
+      email,
+      password,
       affiliationId: institution,
       otherAffiliationName: otherAffiliation,
       acceptedTerms: termsAccepted,
@@ -150,6 +150,8 @@ const SignUpPage: React.FC = () => {
   function updateAffiliations(dataId, value) {
     if (dataId) {
       setInstitution(dataId);
+    } else if (value.toLowerCase() === "other") {
+      setInstitution("");
     }
   }
 
@@ -199,9 +201,9 @@ const SignUpPage: React.FC = () => {
               <Label>Email address</Label>
               <Input />
               <Text slot="description" className="help">
-                To enable Single Sign On (SSO), use your institutional
-                address. You will be redirected to your institution's single
-                sign on platform
+                To enable Single Sign On (SSO), use your institutional address.
+                You will be redirected to your institution&lsquo;s single sign
+                on platform
               </Text>
               <FieldError />
             </TextField>
@@ -240,6 +242,7 @@ const SignUpPage: React.FC = () => {
                 label="Institution"
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
+                resultsKey="affiliations"
                 setOtherField={setOtherField}
                 required={true}
                 helpText="Search for your institution"
