@@ -10,8 +10,9 @@
 }
 
 .toast {
-  color: #fff;
-  background: #6a5acd;
+  color: var(--text-color);
+  font-weight: 600;
+  background: #dcfbe5;
   border-radius: 8px;
   align-items: center;
   gap: 16px;
@@ -23,13 +24,14 @@
 .toast button {
   -webkit-appearance: none;
   appearance: none;
-  color: #fff;
+  color: var(--text-color);
   background: 0 0;
-  border: 1px solid #fff;
+  border: 1px solid var(--text-color);
   border-radius: 50%;
   width: 32px;
   height: 32px;
   padding: 0;
   font-size: 16px;
+  font-weight: 600;
   display:block;
 }
