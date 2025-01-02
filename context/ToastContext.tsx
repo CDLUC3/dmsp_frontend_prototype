@@ -13,7 +13,9 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 export const ToastProviderWrapper: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const state = useToastState({ maxVisibleToasts: 5 });
+  const state = useToastState({
+    maxVisibleToasts: 2
+  });
 
   return (
     <ToastContext.Provider value={{ state }}>
