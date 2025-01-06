@@ -39,7 +39,6 @@ import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
 
-import styles from './sectionCreate.module.scss';
 interface FormInterface {
   sectionName: string;
   sectionIntroduction: string;
@@ -390,7 +389,7 @@ const CreateSectionPage: React.FC = () => {
                     <CheckboxGroup name="sectionTags">
                       <Label>{CreateSectionPage('labels.bestPracticeTags')}</Label>
                       <span className="help">{CreateSectionPage('helpText.bestPracticeTagsDesc')}</span>
-                      <div className={styles.checkboxGroup}>
+                      <div className="checkbox-group">
                         {tags && tags.map(tag => {
                           const id = (tag.id)?.toString();
                           return (
@@ -405,11 +404,11 @@ const CreateSectionPage: React.FC = () => {
                                   <polyline points="1 9 7 14 15 4" />
                                 </svg>
                               </div>
-                              <span className={`${styles.checkboxLabel} checkbox-label`} data-testid='checkboxLabel'>
-                                <div className={styles.checkboxWrapper}>
+                              <span className="checkbox-label" data-testid='checkboxLabel'>
+                                <div className="checkbox-wrapper">
                                   <div>{tag.name}</div>
                                   <DialogTrigger>
-                                    <Button className={styles.popoverBtn} aria-label="Click for more info"><div className={styles.icon}><DmpIcon icon="info" /></div></Button>
+                                    <Button className="popover-btn" aria-label="Click for more info"><div className="icon"><DmpIcon icon="info" /></div></Button>
                                     <Popover>
                                       <OverlayArrow>
                                         <svg width={12} height={12} viewBox="0 0 12 12">
