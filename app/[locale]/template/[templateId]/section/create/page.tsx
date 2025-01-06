@@ -26,6 +26,8 @@ import {
 import {
   useAddSectionMutation,
   useTagsQuery,
+  useSectionsDisplayOrderQuery,
+  SectionsDisplayOrderDocument
 } from '@/generated/graphql';
 
 //Components
@@ -85,7 +87,7 @@ const CreateSectionPage: React.FC = () => {
 
   // Keep track of which checkboxes have been selected
   const [selectedTags, setSelectedTags] = useState<TagsInterface[]>([]);
-
+  const [maxDisplayOrderNum, setMaxDisplayOrderNum] = useState<number>(0);
   // Save errors in state to display on page
   const [errors, setErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -108,6 +110,18 @@ const CreateSectionPage: React.FC = () => {
 
   // Query for all tags
   const { data: tagsData } = useTagsQuery();
+
+  // Query for all section displayOrder
+  const { data: sectionDisplayOrders } = useSectionsDisplayOrderQuery({
+    variables: {
+      templateId: Number(templateId)
+    }
+  })
+
+  // Get the current max display order number + 1
+  const getNewDisplayOrder = () => {
+    return maxDisplayOrderNum + 1;
+  }
 
   // Client-side validation of fields
   const validateField = (name: string, value: string | string[] | undefined) => {
@@ -180,6 +194,7 @@ const CreateSectionPage: React.FC = () => {
   // Make GraphQL mutation request to create section
   const createSection = async () => {
     try {
+      const newDisplayOrder = getNewDisplayOrder();
       await addSectionMutation({
         variables: {
           input: {
@@ -188,10 +203,16 @@ const CreateSectionPage: React.FC = () => {
             introduction: sectionIntroductionContent,
             requirements: sectionRequirementsContent,
             guidance: sectionGuidanceContent,
-            displayOrder: 1,
+            displayOrder: newDisplayOrder,
             tags: selectedTags
           }
-        }
+        },
+        refetchQueries: [{ //Need to update the sectionDisplayOrders with latest from db
+          query: SectionsDisplayOrderDocument,
+          variables: {
+            templateId: Number(templateId)
+          }
+        }]
       })
     } catch (error) {
       if (error instanceof ApolloError) {
@@ -252,6 +273,20 @@ const CreateSectionPage: React.FC = () => {
       setTags(cleanedData);
     }
   }, [tagsData])
+
+  useEffect(() => {
+    if (sectionDisplayOrders?.sections && sectionDisplayOrders.sections.length > 0) {
+      const sections = sectionDisplayOrders?.sections;
+
+      // Find the maximum displayOrder
+      const maxDisplayOrder = sections.reduce(
+        (max, section) => (section?.displayOrder ?? -Infinity) > max ? section?.displayOrder ?? max : max,
+        0
+      );
+
+      setMaxDisplayOrderNum(maxDisplayOrder);
+    }
+  }, [sectionDisplayOrders])
 
   // If errors when submitting publish form, scroll them into view
   useEffect(() => {

@@ -3,6 +3,7 @@ import { render, screen, act, fireEvent } from '@/utils/test-utils';
 import {
   useAddSectionMutation,
   useTagsQuery,
+  useSectionsDisplayOrderQuery,
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -14,7 +15,9 @@ expect.extend(toHaveNoViolations);
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
   useAddSectionMutation: jest.fn(),
-  useTagsQuery: jest.fn()
+  useTagsQuery: jest.fn(),
+  useSectionsDisplayOrderQuery: jest.fn(),
+  SectionsDisplayOrderDocument: jest.fn()
 }));
 
 jest.mock('next/navigation', () => ({
@@ -47,7 +50,16 @@ jest.mock('next-intl', () => ({
   }),
 }));
 
-
+const mockSectionsData = {
+  "sections": [
+    {
+      displayOrder: 1
+    },
+    {
+      displayOrder: 2
+    }
+  ]
+}
 const mockTagsData = {
   "tags": [
     {
@@ -122,6 +134,11 @@ describe("CreateSectionPage", () => {
       loading: true,
       error: null,
     });
+
+    (useSectionsDisplayOrderQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce(mockSectionsData), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
   });
 
   it("should render correct fields", async () => {

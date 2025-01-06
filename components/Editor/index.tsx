@@ -232,12 +232,19 @@ export const DmpEditor = memo(({ content, setContent, error, id, labelId }: DmpE
     setIsMounted(true)
   }, [])
 
-  const handleChange = ((newState: EditorState) => {
-    //prosemirror was adding an empty <p></p> when no data was passed, so we need to remove it here
-    const html = prosemirrorNodeToHtml(newState.doc).replaceAll('<p></p>', '');
-    setContent(html);
+  const handleChange = (newState: EditorState) => {
+    // Convert the document to HTML only once
+    let htmlContent = prosemirrorNodeToHtml(newState.doc);
+
+    // Check if htmlContent only contains <p></p> (one or more instances)
+    if (/^(<p><\/p>)+$/.test(htmlContent)) {
+      htmlContent = '';
+    }
+
+    // Update state and content
+    setContent(htmlContent);
     setState(newState);
-  });
+  };
 
 
   if (!isMounted) {
