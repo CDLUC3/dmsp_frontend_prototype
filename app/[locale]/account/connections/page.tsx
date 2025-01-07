@@ -4,10 +4,7 @@ import React from 'react';
 import sanitizeHtml from 'sanitize-html';
 import ConnectionSection from '@/components/ConnectionSection';
 import PageHeader from '@/components/PageHeader';
-import {
-  LayoutContainer,
-  ContentContainer,
-} from '@/components/Container';
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 
 const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
 const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;

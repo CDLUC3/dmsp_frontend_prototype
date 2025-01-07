@@ -1,12 +1,11 @@
 import React from "react";
-import { render, screen, act, fireEvent, waitFor } from '@/utils/test-utils';
-import {
-  useTemplateQuery,
-} from '@/generated/graphql';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams } from 'next/navigation';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
+import {useTemplateQuery,} from '@/generated/graphql';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useParams} from 'next/navigation';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import SectionTypeSelectPage from '../page';
+
 expect.extend(toHaveNoViolations);
 
 // Mock the useTemplateQuery hook

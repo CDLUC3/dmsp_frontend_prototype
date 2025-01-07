@@ -1,7 +1,7 @@
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import {useTranslations} from 'next-intl';
 import styles from './AddSectionButton.module.scss';
-import { Button } from "react-aria-components";
+import {Button} from "react-aria-components";
 
 interface AddSectionButtonProps {
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;

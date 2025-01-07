@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,29 +12,17 @@ import {
   SearchField,
   Text
 } from "react-aria-components";
-import { ApolloError } from "@apollo/client";
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import {ApolloError} from "@apollo/client";
+import {useTranslations} from 'next-intl';
+import {useParams} from 'next/navigation';
 
 import logECS from '@/utils/clientLogger';
-import {
-  useTemplateQuery,
-  Section,
-  Question
-} from '@/generated/graphql';
+import {Question, Section, useTemplateQuery} from '@/generated/graphql';
 
 // Components
-import {
-  LayoutContainer,
-  ContentContainer,
-} from '@/components/Container';
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 import PageHeader from "@/components/PageHeader";
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeading
-} from "@/components/Card/card";
+import {Card, CardBody, CardFooter, CardHeading} from "@/components/Card/card";
 
 
 interface SectionInterface {

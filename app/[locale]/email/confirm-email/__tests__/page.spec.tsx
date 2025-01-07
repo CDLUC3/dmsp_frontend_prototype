@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import {redirect} from 'next/navigation';
 
 // Mock the redirect function from next/navigation
 jest.mock('next/navigation', () => ({

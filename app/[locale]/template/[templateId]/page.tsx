@@ -1,10 +1,10 @@
 // template/[templateId]/section/page.tsx
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
-import { ApolloError } from "@apollo/client";
+import React, {useEffect, useRef, useState} from 'react';
+import {useTranslations} from 'next-intl';
+import {useParams} from 'next/navigation';
+import {ApolloError} from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -24,13 +24,13 @@ import {
 } from 'react-aria-components';
 
 import {
+  Question,
+  Section,
   TemplateVersionType,
   TemplateVisibility,
-  useCreateTemplateVersionMutation,
-  useTemplateQuery,
   useArchiveTemplateMutation,
-  Section,
-  Question
+  useCreateTemplateVersionMutation,
+  useTemplateQuery
 } from '@/generated/graphql';
 
 // Components
@@ -40,7 +40,7 @@ import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 
-import { useFormatDate } from '@/hooks/useFormatDate';
+import {useFormatDate} from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
 import styles from './templateEditPage.module.scss';
 

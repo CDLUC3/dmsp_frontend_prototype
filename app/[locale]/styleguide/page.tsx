@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Button,
   Cell,
@@ -38,8 +38,8 @@ import {
 } from "react-aria-components";
 
 
-import { DmpEditor } from "@/components/Editor";
-import { DmpIcon } from "@/components/Icons";
+import {DmpEditor} from "@/components/Editor";
+import {DmpIcon} from "@/components/Icons";
 
 import {
   Card,
@@ -51,26 +51,26 @@ import {
 } from "@/components/Card/card";
 
 import {
-  LayoutContainer,
   ContentContainer,
-  ToolbarContainer,
+  DrawerPanel,
+  LayoutContainer,
   LayoutWithPanel,
   SidebarPanel,
-  DrawerPanel,
+  ToolbarContainer,
 } from '@/components/Container';
 
-import { BrandColor, Example, handleDelete } from "./sg-components";
+import {BrandColor, Example, handleDelete} from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import { AffiliationsDocument } from '@/generated/graphql';
+import {AffiliationsDocument} from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
-import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
+import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
 
 function Page() {
