@@ -24,21 +24,3 @@ query Section($sectionId: Int!) {
     }
   }
 }
-
-mutation Mutation($input: UpdateSectionInput!) {
-  updateSection(input: $input) {
-    errors
-    guidance
-    introduction
-    id
-    name
-    requirements
-    displayOrder
-    tags {
-      id
-      description
-      name
-    }
-    bestPractice
-  }
-}

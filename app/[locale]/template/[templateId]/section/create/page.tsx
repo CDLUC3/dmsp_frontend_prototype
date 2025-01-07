@@ -38,24 +38,7 @@ import {
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
-
-interface FormInterface {
-  sectionName: string;
-  sectionIntroduction: string;
-  sectionRequirements: string;
-  sectionGuidance: string;
-  sectionTags?: TagsInterface[];
-}
-
-interface FormErrorsInterface {
-  sectionName: string;
-}
-
-interface TagsInterface {
-  id?: number | null;
-  name: string;
-  description?: string | null;
-}
+import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
 
 const CreateSectionPage: React.FC = () => {
 
@@ -76,7 +59,7 @@ const CreateSectionPage: React.FC = () => {
   const [sectionGuidanceContent, setSectionGuidanceContent] = useState('');
 
   //Keep form field values in state
-  const [formData, setFormData] = useState<FormInterface>({
+  const [formData, setFormData] = useState<SectionFormInterface>({
     sectionName: '',
     sectionIntroduction: '',
     sectionRequirements: '',
@@ -90,7 +73,7 @@ const CreateSectionPage: React.FC = () => {
   // Save errors in state to display on page
   const [errors, setErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string>('');
-  const [fieldErrors, setFieldErrors] = useState<FormInterface>({
+  const [fieldErrors, setFieldErrors] = useState<SectionFormInterface>({
     sectionName: '',
     sectionIntroduction: '',
     sectionRequirements: '',
@@ -149,7 +132,7 @@ const CreateSectionPage: React.FC = () => {
   const isFormValid = (): boolean => {
     // Initialize a flag for form validity
     let isValid = true;
-    let errors: FormInterface = {
+    let errors: SectionFormInterface = {
       sectionName: '',
       sectionIntroduction: '',
       sectionRequirements: '',
@@ -158,7 +141,7 @@ const CreateSectionPage: React.FC = () => {
 
     // Iterate over formData to validate each field
     Object.keys(formData).forEach((key) => {
-      const name = key as keyof FormErrorsInterface;
+      const name = key as keyof SectionFormErrorsInterface;
       const value = formData[name];
 
       // Call validateField to update errors for each field

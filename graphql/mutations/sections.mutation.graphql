@@ -17,3 +17,21 @@ mutation AddSection($input: AddSectionInput!) {
     requirements
   }
 }
+
+mutation UpdateSection($input: UpdateSectionInput!) {
+  updateSection(input: $input) {
+    id
+    name
+    introduction
+    requirements
+    guidance
+    displayOrder
+    errors
+    bestPractice
+    tags {
+      id
+      description
+      name
+    }
+  }
+}
