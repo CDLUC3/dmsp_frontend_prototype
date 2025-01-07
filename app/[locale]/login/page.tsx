@@ -71,7 +71,7 @@ const LoginPage: React.FC = () => {
           'X-CSRF-TOKEN': token || '',
         },
         body: JSON.stringify({
-          "username": email,
+          "email": email,
           "password": password,
         }),
       });
