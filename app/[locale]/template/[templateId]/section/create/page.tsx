@@ -39,23 +39,7 @@ import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
 
-interface FormInterface {
-  sectionName: string;
-  sectionIntroduction: string;
-  sectionRequirements: string;
-  sectionGuidance: string;
-  sectionTags?: TagsInterface[];
-}
-
-interface FormErrorsInterface {
-  sectionName: string;
-}
-
-interface TagsInterface {
-  id?: number | null;
-  name: string;
-  description?: string | null;
-}
+import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
 
 const CreateSectionPage: React.FC = () => {
 
@@ -70,13 +54,14 @@ const CreateSectionPage: React.FC = () => {
   const topRef = useRef<HTMLDivElement | null>(null);
 
   //Set initial Rich Text Editor field values
-  const [sectionNameContent, setSectionNameContent] = useState('');
-  const [sectionIntroductionContent, setSectionIntroductionContent] = useState('');
-  const [sectionRequirementsContent, setSectionRequirementsContent] = useState('');
-  const [sectionGuidanceContent, setSectionGuidanceContent] = useState('');
-
+  const [sectionContents, setSectionContents] = useState({
+    sectionName: '',
+    sectionIntroduction: '',
+    sectionRequirements: '',
+    sectionGuidance: '',
+  })
   //Keep form field values in state
-  const [formData, setFormData] = useState<FormInterface>({
+  const [formData, setFormData] = useState<SectionFormInterface>({
     sectionName: '',
     sectionIntroduction: '',
     sectionRequirements: '',
@@ -90,7 +75,7 @@ const CreateSectionPage: React.FC = () => {
   // Save errors in state to display on page
   const [errors, setErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string>('');
-  const [fieldErrors, setFieldErrors] = useState<FormInterface>({
+  const [fieldErrors, setFieldErrors] = useState<SectionFormInterface>({
     sectionName: '',
     sectionIntroduction: '',
     sectionRequirements: '',
@@ -117,57 +102,58 @@ const CreateSectionPage: React.FC = () => {
     }
   })
 
+  const updateSectionContent = (key: string, value: string) => {
+    setSectionContents((prevContents) => ({
+      ...prevContents,
+      [key]: value,
+    }));
+  };
+
   // Get the current max display order number + 1
   const getNewDisplayOrder = () => {
     return maxDisplayOrderNum + 1;
   }
 
   // Client-side validation of fields
-  const validateField = (name: string, value: string | string[] | undefined) => {
-    let error = '';
+  const validateField = (name: string, value: string | string[] | undefined): string => {
     switch (name) {
       case 'sectionName':
         if (!value || value.length <= 2) {
-          error = CreateSectionPage('messages.fieldLengthValidation')
+          return CreateSectionPage('messages.fieldLengthValidation');
         }
         break;
     }
-
-    setFieldErrors(prevErrors => ({
-      ...prevErrors,
-      [name]: error
-    }));
-    if (error.length > 1) {
-      setErrors(prev => [...prev, error]);
-    }
-
-    return error;
-  }
+    return '';
+  };
 
   // Check whether form is valid before submitting
   const isFormValid = (): boolean => {
-    // Initialize a flag for form validity
-    let isValid = true;
-    let errors: FormInterface = {
+    const errors: SectionFormErrorsInterface = {
       sectionName: '',
       sectionIntroduction: '',
       sectionRequirements: '',
-      sectionGuidance: '',
+      sectionGuidance: ''
     };
 
-    // Iterate over formData to validate each field
-    Object.keys(formData).forEach((key) => {
-      const name = key as keyof FormErrorsInterface;
-      const value = formData[name];
+    let hasError = false;
 
-      // Call validateField to update errors for each field
+    // Validate all fields and collect errors
+    Object.keys(sectionContents).forEach((key) => {
+      const name = key as keyof SectionFormErrorsInterface;
+      const value = sectionContents[name];
       const error = validateField(name, value);
+
       if (error) {
-        isValid = false;
+        hasError = true;
         errors[name] = error;
       }
     });
-    return isValid;
+
+    // Update state with all errors
+    setFieldErrors(errors);
+    setErrors(Object.values(errors).filter((e) => e)); // Store only non-empty error messages
+
+    return !hasError;
   };
 
   const clearAllFieldErrors = () => {
@@ -198,10 +184,10 @@ const CreateSectionPage: React.FC = () => {
         variables: {
           input: {
             templateId: Number(templateId),
-            name: sectionNameContent,
-            introduction: sectionIntroductionContent,
-            requirements: sectionRequirementsContent,
-            guidance: sectionGuidanceContent,
+            name: sectionContents.sectionName,
+            introduction: sectionContents.sectionIntroduction,
+            requirements: sectionContents.sectionRequirements,
+            guidance: sectionContents.sectionGuidance,
             displayOrder: newDisplayOrder,
             tags: selectedTags
           }
@@ -224,18 +210,10 @@ const CreateSectionPage: React.FC = () => {
 
   // Handle changes to tag checkbox selection
   const handleCheckboxChange = (tag: TagsInterface) => {
-    setSelectedTags((prevTags) => {
-      // Check if the tag is already selected
-      const isAlreadySelected = prevTags.some((selectedTag) => selectedTag.id === tag.id);
-
-      if (isAlreadySelected) {
-        // If already selected, remove it
-        return prevTags.filter((selectedTag) => selectedTag.id !== tag.id);
-      } else {
-        // If not selected, add it
-        return [...prevTags, tag];
-      }
-    });
+    setSelectedTags(prevTags => prevTags.some(selectedTag => selectedTag.id === tag.id)
+      ? prevTags.filter(selectedTag => selectedTag.id !== tag.id)
+      : [...prevTags, tag]
+    );
   };
 
   // Handle form submit
@@ -243,13 +221,6 @@ const CreateSectionPage: React.FC = () => {
     event.preventDefault();
 
     setSuccessMessage('');
-    setFormData({
-      sectionName: sectionNameContent,
-      sectionIntroduction: '',
-      sectionRequirements: '',
-      sectionGuidance: '',
-      sectionTags: selectedTags
-    })
 
     clearAllFieldErrors();
 
@@ -297,12 +268,12 @@ const CreateSectionPage: React.FC = () => {
   useEffect(() => {
     setFormData({
       ...formData,
-      sectionName: sectionNameContent,
-      sectionIntroduction: sectionIntroductionContent,
-      sectionRequirements: sectionRequirementsContent,
-      sectionGuidance: sectionGuidanceContent
+      sectionName: sectionContents.sectionName,
+      sectionIntroduction: sectionContents.sectionIntroduction,
+      sectionRequirements: sectionContents.sectionRequirements,
+      sectionGuidance: sectionContents.sectionGuidance
     });
-  }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
+  }, [sectionContents])
 
 
   return (
@@ -352,8 +323,8 @@ const CreateSectionPage: React.FC = () => {
                   <Form onSubmit={handleFormSubmit}>
                     <Label htmlFor="sectionName" id="sectionNameLabel">{CreateSectionPage('labels.sectionName')}</Label>
                     <DmpEditor
-                      content={sectionNameContent}
-                      setContent={setSectionNameContent}
+                      content={sectionContents.sectionName}
+                      setContent={(value) => updateSectionContent('sectionName', value)}
                       error={fieldErrors['sectionName']}
                       id="sectionName"
                       labelId="sectionNameLabel"
@@ -361,8 +332,8 @@ const CreateSectionPage: React.FC = () => {
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{CreateSectionPage('labels.sectionIntroduction')}</Label>
                     <DmpEditor
-                      content={sectionIntroductionContent}
-                      setContent={setSectionIntroductionContent}
+                      content={sectionContents.sectionIntroduction}
+                      setContent={(value) => updateSectionContent('sectionIntroduction', value)}
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
                       labelId="sectionIntroductionLabel"
@@ -370,8 +341,8 @@ const CreateSectionPage: React.FC = () => {
 
                     <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{CreateSectionPage('labels.sectionRequirements')}</Label>
                     <DmpEditor
-                      content={sectionRequirementsContent}
-                      setContent={setSectionRequirementsContent}
+                      content={sectionContents.sectionRequirements}
+                      setContent={(value) => updateSectionContent('sectionRequirements', value)}
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
                       labelId="sectionRequirementsLabel"
@@ -379,8 +350,8 @@ const CreateSectionPage: React.FC = () => {
 
                     <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{CreateSectionPage('labels.sectionGuidance')}</Label>
                     <DmpEditor
-                      content={sectionGuidanceContent}
-                      setContent={setSectionGuidanceContent}
+                      content={sectionContents.sectionGuidance}
+                      setContent={(value) => updateSectionContent('sectionGuidance', value)}
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
                       labelId="sectionGuidanceLabel"
