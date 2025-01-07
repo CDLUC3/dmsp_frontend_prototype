@@ -14,7 +14,7 @@ const EmailConfirmed: React.FC = () => {
   };
   return (
     <>
-      <PageHeader title="Email confirmed" />
+      <PageHeader title="Email confirmed" showBackButton={false} />
       <LayoutContainer>
         <ContentContainer>
           <div className="sectionContainer">

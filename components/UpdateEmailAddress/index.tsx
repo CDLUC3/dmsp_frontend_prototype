@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
+import {useTranslations} from 'next-intl';
 import {Button, Form,} from "react-aria-components";
 import {ApolloError} from "@apollo/client";
 
@@ -29,6 +30,7 @@ export interface UpdateEmailAddressProps {
 const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   emailAddresses,
 }) => {
+  const t = useTranslations('UserProfile');
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [addAliasValue, setAddAliasValue] = useState<string>('');
@@ -213,7 +215,7 @@ calling 'refetch()' for the user query, but that didn't work. */
 
   return (
     <div ref={errorRef}>
-      <h2 className={styles.title}>Email and Authentication</h2>
+      <h2 className={styles.title}>{t('emailAndAuth')}</h2>
       <div className="sectionContainer">
         <div className="sectionContent">
           <div className={styles.subSection}>
@@ -224,8 +226,8 @@ calling 'refetch()' for the user query, but that didn't work. */
                 ))}
               </div>
             }
-            <h3>Primary email address</h3>
-            <p>This email will be used for your account login. It can also be used for password resets.</p>
+            <h3>{t('headingPrimaryEmail')}</h3>
+            <p>{t('primaryEmailDesc')}</p>
 
             {/* Render the primary email */}
             {emailAddresses.filter(emailObj => emailObj.isPrimary).map((emailObj) => (
@@ -238,15 +240,17 @@ calling 'refetch()' for the user query, but that didn't work. */
                 toolTipMessage="Primary email cannot be deleted."
               />
             ))}
-            <h4>Single sign on activated</h4>
-            <p>This email address is managed by cdl.edu and connected to the institution.</p>
-            <h4>Receives notifications</h4>
-            <p>This email address will be used for DMP notifications. <Link href="">Manage your notifications</Link>.</p>
+            <h4>{t('headingSSO')}</h4>
+            <p>{t('SSODesc')}</p>
+            <h4>{t('headingNotifications')}</h4>
+            <p>        {t.rich('notificationsDesc', {
+              manage: (chunks) => <Link href="">{chunks}</Link>
+            })}</p>
           </div>
           <div className={styles.subSection}>
             <hr />
-            <h3>Alias email addresses</h3>
-            <p>Alias email addresses may be used to help others find you, for example if they&lsquo;d like to share a DMP with you.</p>
+            <h3>{t('headingAliasEmailAddr')}</h3>
+            <p>{t('aliasEmailDesc')}</p>
 
             {emailAddresses.filter(emailObj => !emailObj.isPrimary).map((emailObj) => (
               <EmailAddressRow
@@ -263,15 +267,15 @@ calling 'refetch()' for the user query, but that didn't work. */
                 <FormInput
                   name="addAlias"
                   type="text"
-                  label="Add alias email address"
+                  label={t('headingAddAliasEmail')}
                   className={`${styles.addAliasTextField} react - aria - TextField`}
                   isInvalid={errors.length > 0}
                   errorMessage="Please enter a valid email address"
-                  helpMessage="You will be sent an email to confirm this addition"
+                  helpMessage={t('helpTextForAddAlias')}
                   onChange={handleAliasChange}
                   value={addAliasValue}
                 />
-                <Button type="submit">Add</Button>
+                <Button type="submit">{t('btnAdd')}</Button>
               </div>
             </Form>
           </div>

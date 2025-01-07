@@ -1,0 +1,125 @@
+{
+  "OrganizationTemplates": {
+    "title": "Modelos de organização",
+    "description": "Gerenciar ou criar modelos DMSP, uma vez que pesquisadores publicados poderão selecionar seu modelo.",
+    "breadcrumbHome": "Home",
+    "loading": "Modelos de organização...",
+    "searchLabel": "Pesquisar por palavra-chave",
+    "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
+    "noItemsFoundError": "Nenhum resultado encontrado para {term}.",
+    "somethingWentWrong": "Algo deu errado ao recuperar modelos",
+    "actionCreate": "Criar Modelo",
+    "actionSearch": "Buscar",
+    "linkUpdate": "Atualização",
+    "linkExpand": "Expandir",
+    "linkCollapse": "Retrair",
+    "details": "Detalhes",
+    "additionalInfo": "Informações adicionais vão aqui..."
+  },
+  "EditTemplates": {
+    "title": "Editar modelo",
+    "titleStatus": "Status",
+    "draft": "Rascunho",
+    "notPublished": "Não publicado",
+    "allowAccess": "Permitir que as pessoas acessem, editem ou comentem este plano",
+    "description": {
+      "archiveTemplate": "Este modelo não será mais visível para os criadores de planos. Os planos pré-existentes que usam este modelo não serão afetados. Isto não é reversível."
+    },
+    "links": {
+      "addSection": "Adicionar seção",
+      "edit": "Alterar",
+      "manageAccess": "Gerenciar Acesso",
+      "templateHistory": "Histórico do modelo"
+    },
+    "button": {
+      "archiveTemplate": "Arquivar Template",
+      "saveAsDraft": "Salvar como rascunho",
+      "previewTemplate": "Pré-visualizar template",
+      "publishTemplate": "Publicar template"
+    },
+    "heading": {
+      "publishedStatus": "Status da publicação",
+      "visibilitySettings": "Configurações de visibilidade",
+      "feedbackAndCollaboration": "Feedback e colaboração",
+      "history": "História",
+      "archiveTemplate": "Arquivar Template"
+    },
+    "errors": {
+      "archiveTemplateError": "Erro ao arquivar template",
+      "saveTemplateError": "Erro ao salvar modelo"
+    }
+  },
+  "PublishTemplate": {
+    "heading": {
+      "publish": "Publicar",
+      "visibilitySettings": "Configurações de visibilidade",
+      "publishingThisTemplate": "Publicando este modelo",
+      "changeLog": "Log de alterações"
+    },
+    "radioBtn": {
+      "public": "Público",
+      "organizationOnly": "Apenas organização",
+      "publicHelpText": "Isto estará disponível e disponível pelos construtores do plano.",
+      "orgOnlyHelpText": "Somente sua organização poderá ver e usar esse modelo."
+    },
+    "descPublishedTemplate": "Você pode controlar quem pode usar este modelo publicado.",
+    "bullet": {
+      "publishingTemplate": "Após a publicação, todos os novos planos usarão esta versão.",
+      "publishingTemplate2": "Os planos existentes ou em andamento não serão atualizados.",
+      "publishingTemplate3": "Você configurou a visibilidade como pública nas opções do modelo. Todos os usuários das Ferramentas DMP serão capazes de ver e usar este modelo."
+    },
+    "descChangeLog": "Insira uma breve descrição do que foi alterado. Isto só será visível para pessoas de sua organização.",
+    "button": {
+      "close": "Fechar",
+      "saveAndPublish": "Salvar e Publicar"
+    }
+  },
+  "Breadcrumbs": {
+    "home": "Home",
+    "templates": "Modelos"
+  },
+  "EditQuestion": {
+    "label": {
+      "question": "Pergunta"
+    },
+    "links": {
+      "editQuestion": "Editar pergunta",
+      "addQuestion": "Adicionar pergunta"
+    },
+    "buttons": {
+      "moveUp": "Mover pergunta para cima",
+      "moveDown": "Mover pergunta para baixo"
+    }
+  },
+  "Sections": {
+    "labels": {
+      "section": "Seção"
+    },
+    "links": {
+      "editSection": "Editar seção",
+      "addSection": "Adicionar seção"
+    },
+    "buttons": {
+      "moveUp": "Mover a seção para cima",
+      "moveDown": "Mover a seção para baixo"
+    }
+  },
+  "SectionTypeSelectPage": {
+    "headings": {
+      "addNewSection": "Adicionar nova seção",
+      "previouslyCreatedSections": "Use uma de suas seções criadas anteriormente",
+      "bestPracticeSections": "Use uma seção de boas práticas criada pela Ferramenta DMP",
+      "buildNewSection": "Construir uma nova seção"
+    },
+    "buttons": {
+      "createNew": "Criar seção"
+    },
+    "search": {
+      "label": "Pesquisar por palavra-chave",
+      "helpText": "Pesquisar por nome da seção, descrição, etc."
+    },
+    "intro": "Você tem três opções. Você pode usar uma seção que você criou anteriormente, usar uma seção de melhor prática da Ferramenta de DMP ou construir uma nova seção. Todas as seções são personalizáveis uma vez selecionado.",
+    "newSectionDescription": "Crie uma nova seção do zero. Você pode adicionar perguntas, instruções e outros conteúdos à sua seção, recomendamos o uso das seções de melhor prática.",
+    "questionsCount": "<p>Esta seção inclui:</p><p>{count} questões pré-criadas</p>"
+  }
+}

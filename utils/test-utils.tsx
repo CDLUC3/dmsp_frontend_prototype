@@ -3,10 +3,10 @@ import {render, RenderOptions} from '@testing-library/react';
 import {AuthProvider} from '../context/AuthContext';
 import {CsrfProvider} from '@/context/CsrfContext';
 import {NextIntlClientProvider} from 'next-intl';
-import defaultMessages from '@/messages/en-US/en-US.json'; // Example messages file
+import defaultMessages from '@/messages/en-US/global.json'; // Example messages file
 
 interface MessageGroup {
-    [key: string]: string; // Keys within each group map to strings (e.g., "title", "about").
+    [key: string]: string | MessageGroup; // Keys within each group map to strings (e.g., "title", "about").
 }
 
 interface Messages {

@@ -1,5 +1,5 @@
 import React from 'react';
-
+import {useTranslations} from 'next-intl';
 import styles from './SectionHeaderEdit.module.scss';
 import {Button} from "react-aria-components";
 
@@ -12,13 +12,14 @@ interface SectionHeaderEditProps {
 }
 
 const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
-                                                               title,
-                                                               sectionNumber,
-                                                               editUrl,
-                                                               onMoveUp,
-                                                               onMoveDown
-                                                             }) => {
+  title,
+  sectionNumber,
+  editUrl,
+  onMoveUp,
+  onMoveDown
+}) => {
 
+  const Sections = useTranslations('Sections');
   const UpArrowIcon = () => (
     <svg
       width="24"
@@ -59,20 +60,20 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
   return (
     <div className={styles.sectionHeader} role="listitem">
       <h2 className={styles.sectionTitle}>
-        <span className={styles.sectionNumber}>Section {sectionNumber} </span>
+        <span className={styles.sectionNumber}>{Sections('labels.section')} {sectionNumber} </span>
         {title}
       </h2>
       <div className={styles.buttonGroup}>
-        <a href={editUrl} className={styles.editButton}>Edit section</a>
+        <a href={editUrl} className={styles.editButton}>{Sections('links.editSection')}</a>
         <Button className={`${styles.btnDefault} ${styles.orderButton}`}
-                onPress={onMoveUp}
-                aria-label="Move section up">
-          <UpArrowIcon/>
+          onPress={onMoveUp}
+          aria-label={Sections('buttons.moveUp')}>
+          <UpArrowIcon />
         </Button>
         <Button className={`${styles.btnDefault} ${styles.orderButton}`}
-                onPress={onMoveDown}
-                aria-label="Move section down">
-          <DownArrowIcon/>
+          onPress={onMoveDown}
+          aria-label={Sections('buttons.moveDown')}>
+          <DownArrowIcon />
         </Button>
       </div>
     </div>

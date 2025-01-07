@@ -1,0 +1,125 @@
+{
+  "HomePage": {
+    "title": "Home Page",
+    "linkText": "Go to the Connections page",
+    "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
+  },
+  "LocaleTest": {
+    "title": "Localization Test",
+    "content": "Hello {name}!",
+    "itemCount": "{count, plural, one {You have {count} item} other {You have {count} items}}",
+    "message": "Please refer to <guidelines>the guidelines</guidelines>.",
+    "markup": "This is <important>important</important>",
+    "raw": "&lt;script&gt;alert('Hacked!')&lt;/script&gt;",
+    "general": "This is new content"
+  },
+  "About": {
+    "title": "Welcome to the DMP Tool"
+  },
+  "Test": {
+    "info": "You can try again later."
+  },
+  "Header": {
+    "menuDashboard": "Dashboard",
+    "menuUpload": "Upload Plan",
+    "menuCreatePlan": "Create Plan",
+    "menuPublicPlans": "Public Plans",
+    "menuFunderRequirements": "Funder Requirements",
+    "menuAbout": "About",
+    "menuAdmin": "Admin",
+    "menuLanguage": "Language",
+    "menuUser": "User",
+    "subMenuLearnMore": "Learn more",
+    "subMenuMembership": "Institutional membership",
+    "subMenuFAQs": "FAQs",
+    "subMenuEditorial": "Editorial board",
+    "subMenuLogos": "DMP tool logos",
+    "subMenuOrganisations": "Organisations",
+    "subMenuOrgDetails": "Organisation details",
+    "subMenuUsers": "Users",
+    "subMenuPlans": "Plans",
+    "subMenuUsage": "Usage",
+    "subMenuTemplates": "Templates",
+    "subMenuGuidance": "Guidance",
+    "subMenuThemes": "Themes",
+    "subMenuApiClients": "API Clients",
+    "subMenuApiLogs": "API Logs",
+    "subMenuNotifications": "Notifications",
+    "subMenuEditProfile": "Edit profile",
+    "subMenu3rdParty": "3rd party apps",
+    "subMenuDevTools": "Developer tools",
+    "subMenuEnglish": "English (US)",
+    "subMenuPortuguese": "Português (Brasil)",
+    "btnLogout": "Logout",
+    "btnSignup": "Sign up",
+    "btnLogin": "Login"
+  },
+  "SubHeader": {
+    "ucopHomepage": "UCOP homepage",
+    "uc3Helpdesk": "UC3 Helpdesk"
+  },
+  "UserProfile": {
+    "breadcrumbHome": "Home",
+    "headingUpdateProfile": "Update Profile",
+    "yourProfile": "Your Profile",
+    "emailAndAuth": "Email and Authentication",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "institution": "Institution",
+    "language": "Language",
+    "headingPrimaryEmail": "Primary email address",
+    "headingSSO": "Single sign on activated",
+    "headingNotifications": "Receives notifications",
+    "headingAliasEmailAddr": "Alias email addresses",
+    "headingAddAliasEmail": "Add alias email address",
+    "headingRelatedActions": "Related actions",
+    "primaryEmailDesc": "This email will be used for your account login. It can also be used for password resets.",
+    "SSODesc": "This email address is managed by cdl.edu and connected to the institution.",
+    "notificationsDesc": "This email address will be used for DMP notifications. &lt;manage&gt;Manage your notifications&lt;/manage&gt;.",
+    "aliasEmailDesc": "Alias email addresses may be used to help others find you, for example if they‘d like to share a DMP with you.",
+    "linkMakePrimary": "Make primary email address",
+    "helpTextForAddAlias": "You will be sent an email to confirm this addition",
+    "helpTextSelectYourLanguage": "Select your preferred language",
+    "helpTextSearchForInstitution": "Search for your institution",
+    "btnCancel": "Cancel",
+    "btnEdit": "Edit",
+    "btnUpdating": "Updating",
+    "btnUpdate": "Update",
+    "btnAdd": "Add",
+    "linkUpdatePassword": "Update password",
+    "linkUpdateConnections": "Update connections",
+    "linkManageNotifications": "Manage notifications"
+  },
+  "TemplateHistory": {
+    "title": "Template history",
+    "subHeading": "History",
+    "tableColumnAction": "Action",
+    "tableColumnUser": "User",
+    "tableColumnDate": "Time and Date",
+    "loading": "Loading publication history...",
+    "published": "Published",
+    "version": "Version",
+    "changeLog": "Change log",
+    "notFoundMessage": "No template history available.",
+    "by": "by"
+  },
+  "Back": {
+    "btnBack": "Back"
+  },
+  "Global": {
+    "breadcrumbs": {
+      "home": "Home",
+      "templates": "Templates",
+      "section": "Section"
+    },
+    "buttons": {
+      "search": "Search",
+      "select": "Select"
+    },
+    "messaging": {
+      "loading": "Loading",
+      "noItemsFound": "No items found",
+      "somethingWentWrong": "Something went wrong. Please try again."
+    }
+  }
+}
