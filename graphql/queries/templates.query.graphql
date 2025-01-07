@@ -1,0 +1,44 @@
+query Templates {
+  templates {
+    name
+    description
+    modified
+    id
+    owner {
+      name
+      displayName
+      searchName
+    }
+  }
+}
+
+query Template($templateId: Int!) {
+  template(templateId: $templateId) {
+    name
+    description
+    errors
+    latestPublishVersion
+    latestPublishDate
+    created
+    sections {
+      id
+      name
+      bestPractice
+      displayOrder
+      isDirty
+      questions {
+        errors
+        displayOrder
+        guidanceText
+        id
+        questionText
+        sectionId
+        templateId
+      }
+    },
+    owner {
+      displayName
+      id
+    }
+  }
+}

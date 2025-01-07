@@ -1,0 +1,125 @@
+{
+  "HomePage": {
+    "title": "Página inicial",
+    "linkText": "Ir para a página de conexões",
+    "content": "É um fato estabelecido há muito tempo que um leitor se distrairá com o conteúdo legível de uma página ao observar sua disposição."
+  },
+  "LocaleTest": {
+    "title": "Teste de localização",
+    "content": "Olá, {name}!",
+    "itemCount": "{count, plural, one {Você tem {count} Item} other {Você tem {count} itens}}",
+    "message": "Consulte as <guidelines>diretrizes</guidelines>.",
+    "markup": "Este é <important>importante</important>",
+    "raw": "&lt; script&gt; alert('Hacked!');&lt;/script&gt;",
+    "general": "Este é um novo conteúdo"
+  },
+  "About": {
+    "title": "Bem-vindo à Ferramenta DMP"
+  },
+  "Test": {
+    "info": "Você pode tentar novamente mais tarde."
+  },
+  "Header": {
+    "menuDashboard": "Painel de controle",
+    "menuUpload": "Carregar plano",
+    "menuCreatePlan": "Criar plano",
+    "menuPublicPlans": "Planos públicos",
+    "menuFunderRequirements": "Requisitos de Barbatana",
+    "menuAbout": "Sobre",
+    "menuAdmin": "Administrador",
+    "menuLanguage": "Idioma",
+    "menuUser": "Usuário",
+    "subMenuLearnMore": "Saiba mais",
+    "subMenuMembership": "Associação Institucional",
+    "subMenuFAQs": "Perguntas frequentes",
+    "subMenuEditorial": "Painel editorial",
+    "subMenuLogos": "Logos da ferramenta DMP",
+    "subMenuOrganisations": "Organizações",
+    "subMenuOrgDetails": "Detalhes da Organização",
+    "subMenuUsers": "Usuários",
+    "subMenuPlans": "Planos",
+    "subMenuUsage": "Uso",
+    "subMenuTemplates": "Modelos",
+    "subMenuGuidance": "Orientação",
+    "subMenuThemes": "Temas",
+    "subMenuApiClients": "Clientes API",
+    "subMenuApiLogs": "Registros de API",
+    "subMenuNotifications": "Notificações",
+    "subMenuEditProfile": "Editar perfil",
+    "subMenu3rdParty": "Apps de terceiros",
+    "subMenuDevTools": "Ferramentas para desenvolvedor",
+    "subMenuEnglish": "English (US)",
+    "subMenuPortuguese": "Português (Brasil)",
+    "btnLogout": "Sair",
+    "btnSignup": "Cadastre-se",
+    "btnLogin": "Entrar"
+  },
+  "SubHeader": {
+    "ucopHomepage": "Página inicial do UCOP",
+    "uc3Helpdesk": "UC3 Helpdesk"
+  },
+  "UserProfile": {
+    "breadcrumbHome": "Home",
+    "headingUpdateProfile": "Atualizar Perfil",
+    "yourProfile": "Seu Perfil",
+    "emailAndAuth": "E-mail e autenticação",
+    "firstName": "Primeiro nome",
+    "lastName": "Sobrenome",
+    "institution": "Instituição",
+    "language": "Idioma",
+    "headingPrimaryEmail": "Endereço de e-mail principal",
+    "headingSSO": "Logon único ativado",
+    "headingNotifications": "Receber notificações",
+    "headingAliasEmailAddr": "Endereço de e-mail pseudônimo",
+    "headingAddAliasEmail": "Adicionar apelido endereço de e-mail",
+    "headingRelatedActions": "Ações relacionadas",
+    "primaryEmailDesc": "Este e-mail será usado para seu login de conta. Ele também pode ser usado para redefinições de senha.",
+    "SSODesc": "Este endereço de e-mail é gerenciado por cdl.edu e conectado à instituição.",
+    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. &lt;manage&gt;Gerencie suas notificações&lt;/manage&gt;.",
+    "aliasEmailDesc": "Os endereços de e-mail do pseudônimo podem ser usados para ajudar outros a encontrar você, por exemplo, se eles quiserem compartilhar um DMP com você.",
+    "linkMakePrimary": "Endereço de e-mail principal",
+    "helpTextForAddAlias": "Você receberá um e-mail para confirmar esta adição",
+    "helpTextSelectYourLanguage": "Selecione seu idioma preferido",
+    "helpTextSearchForInstitution": "Procurar sua instituição",
+    "btnCancel": "Cancelar",
+    "btnEdit": "Alterar",
+    "btnUpdating": "Atualizando",
+    "btnUpdate": "Atualização",
+    "btnAdd": "Adicionar",
+    "linkUpdatePassword": "Atualizar senha",
+    "linkUpdateConnections": "Update connections",
+    "linkManageNotifications": "Atualizar conexão?"
+  },
+  "TemplateHistory": {
+    "title": "Primary Light",
+    "subHeading": "História",
+    "tableColumnAction": "Ação",
+    "tableColumnUser": "Usuário",
+    "tableColumnDate": "Hora e Data",
+    "loading": "Carregando histórico de publicação...",
+    "published": "Publicada",
+    "version": "Versão",
+    "changeLog": "Log de alterações",
+    "notFoundMessage": "Nenhum histórico de templates disponível.",
+    "by": "por"
+  },
+  "Back": {
+    "btnBack": "Voltar"
+  },
+  "Global": {
+    "breadcrumbs": {
+      "home": "Home",
+      "templates": "Modelos",
+      "section": "Seção"
+    },
+    "buttons": {
+      "search": "Buscar",
+      "select": "Select"
+    },
+    "messaging": {
+      "loading": "Baixar",
+      "noItemsFound": "Nenhum item encontrado",
+      "somethingWentWrong": "Algo deu errado. Por favor, tente novamente."
+    }
+  }
+}

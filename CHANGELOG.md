@@ -5,6 +5,9 @@
 
 ### Updated
 =======
+- Updated app/template/[templateId]/section/new page to hook it up to backend data, handle errors, and add translations [#189]
+- Updated app/template/[templateId] page to hook it up to the backend and handle errors and translations[#206]
+- Updated app/[locale]/template page to hook it up to backend and handle errors and translations[#82]
 - Updated account/profile, email/email-confirmed, email/verification-failed, and account/connections to use new, shared layout containers [#185]
 - Refactored font family usage for consistency.
 
