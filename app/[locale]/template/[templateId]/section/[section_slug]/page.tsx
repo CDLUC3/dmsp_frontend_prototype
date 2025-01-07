@@ -25,7 +25,6 @@ import {
 // GraphQL queries and mutations
 import {
   useTagsQuery,
-  useSectionQuery,
   useUpdateSectionMutation,
   UpdateSectionDocument
 } from '@/generated/graphql';
@@ -40,6 +39,7 @@ import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
 
 import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
+import { useSectionData } from "@/hooks/sectionData";
 
 const SectionUpdatePage: React.FC = () => {
 
@@ -54,27 +54,15 @@ const SectionUpdatePage: React.FC = () => {
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
 
-  //Set initial Rich Text Editor field values
-  const [sectionContents, setSectionContents] = useState({
-    sectionName: '',
-    sectionIntroduction: '',
-    sectionRequirements: '',
-    sectionGuidance: '',
-  })
-  const [displayOrder, setDisplayOrder] = useState<number | null>();
-  const [bestPractice, setBestPractice] = useState<boolean | undefined>();
+  const {
+    sectionData,
+    selectedTags,
+    checkboxTags,
+    loading,
+    setSectionData,
+    setSelectedTags,
+  } = useSectionData(Number(sectionId));
 
-  //Keep form field values in state
-  const [formData, setFormData] = useState<SectionFormInterface>({
-    sectionName: '',
-    sectionIntroduction: '',
-    sectionRequirements: '',
-    sectionGuidance: '',
-    sectionTags: []
-  })
-
-  // Keep track of which checkboxes have been selected
-  const [selectedTags, setSelectedTags] = useState<TagsInterface[]>([]);
 
   // Save errors in state to display on page
   const [errors, setErrors] = useState<string[]>([]);
@@ -93,7 +81,7 @@ const SectionUpdatePage: React.FC = () => {
 
   //Store selection of tags in state
   const [tags, setTags] = useState<TagsInterface[]>([]);
-  const [checkboxTags, setCheckboxTags] = useState<string[]>([]);
+
 
   // Initialize user addSection mutation
   const [updateSectionMutation] = useUpdateSectionMutation();
@@ -101,16 +89,9 @@ const SectionUpdatePage: React.FC = () => {
   // Query for all tags
   const { data: tagsData } = useTagsQuery();
 
-  // Query for the specified section
-  const { data, loading } = useSectionQuery({
-    variables: {
-      sectionId: Number(sectionId)
-    }
-  })
 
-
-  const updateSectionContent = (key, value) => {
-    setSectionContents((prevContents) => ({
+  const updateSectionContent = (key: string, value: string) => {
+    setSectionData((prevContents) => ({
       ...prevContents,
       [key]: value,
     }));
@@ -140,9 +121,9 @@ const SectionUpdatePage: React.FC = () => {
     let hasError = false;
 
     // Validate all fields and collect errors
-    Object.keys(sectionContents).forEach((key) => {
+    Object.keys(sectionData).forEach((key) => {
       const name = key as keyof SectionFormErrorsInterface;
-      const value = sectionContents[name];
+      const value = sectionData[name];
       const error = validateField(name, value);
 
       if (error) {
@@ -165,7 +146,6 @@ const SectionUpdatePage: React.FC = () => {
       sectionIntroduction: '',
       sectionRequirements: '',
       sectionGuidance: '',
-      sectionTags: []
     });
   }
 
@@ -185,12 +165,12 @@ const SectionUpdatePage: React.FC = () => {
         variables: {
           input: {
             sectionId: Number(sectionId),
-            name: sectionContents.sectionName,
-            introduction: sectionContents.sectionIntroduction,
-            requirements: sectionContents.sectionRequirements,
-            guidance: sectionContents.sectionGuidance,
-            displayOrder: displayOrder,
-            bestPractice: bestPractice ?? false,
+            name: sectionData.sectionName,
+            introduction: sectionData.sectionIntroduction,
+            requirements: sectionData.sectionRequirements,
+            guidance: sectionData.sectionGuidance,
+            displayOrder: sectionData.displayOrder,
+            bestPractice: sectionData.bestPractice ?? false, // have to write it this way, otherwise the 'false' will remove this prop from input
             tags: selectedTags
           }
         },
@@ -253,43 +233,11 @@ const SectionUpdatePage: React.FC = () => {
     }
   }, [errors]);
 
-  useEffect(() => {
-    if (data?.section) {
-      const section = data.section;
-      setSectionContents({
-        sectionName: section.name,
-        sectionIntroduction: section?.introduction ? section.introduction : '',
-        sectionRequirements: section?.requirements ? section.requirements : '',
-        sectionGuidance: section?.guidance ? section.guidance : ''
-      })
-      setFormData({
-        ...formData,
-        sectionName: section.name,
-        sectionIntroduction: section?.introduction ? section.introduction : '',
-        sectionRequirements: section?.requirements ? section.requirements : '',
-        sectionGuidance: section?.guidance ? section.guidance : ''
-      });
-
-      if (data.section?.tags) {
-        const cleanedTags = data.section?.tags.filter(tag => tag !== null && tag !== undefined);
-        const cleanedData = cleanedTags.map(({ __typename, ...fields }) => fields);
-        setSelectedTags((prevTags) => {
-          return [...prevTags, ...cleanedData];
-        });
-        const selectedTagNames = cleanedData.map(tag => {
-          return tag.name;
-        });
-        setCheckboxTags(selectedTagNames);
-        setDisplayOrder(section?.displayOrder ? section.displayOrder : null);
-        setBestPractice(section?.bestPractice ? Boolean(section.bestPractice) : undefined);
-      }
-    }
-  }, [data])
-
   // We need this so that the page waits to render until data is available
   if (loading) {
     return <div>Loading...</div>;
   }
+
 
   return (
     <>
@@ -338,7 +286,7 @@ const SectionUpdatePage: React.FC = () => {
                   <Form onSubmit={handleFormSubmit}>
                     <Label htmlFor="sectionName" id="sectionNameLabel">{Section('labels.sectionName')}</Label>
                     <DmpEditor
-                      content={sectionContents.sectionName}
+                      content={sectionData.sectionName}
                       setContent={(value) => updateSectionContent('sectionName', value)}
                       error={fieldErrors['sectionName']}
                       id="sectionName"
@@ -347,7 +295,7 @@ const SectionUpdatePage: React.FC = () => {
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
                     <DmpEditor
-                      content={sectionContents.sectionIntroduction}
+                      content={sectionData.sectionIntroduction}
                       setContent={(value) => updateSectionContent('sectionIntroduction', value)}
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
@@ -356,7 +304,7 @@ const SectionUpdatePage: React.FC = () => {
 
                     <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
                     <DmpEditor
-                      content={sectionContents.sectionRequirements}
+                      content={sectionData.sectionRequirements}
                       setContent={(value) => updateSectionContent('sectionRequirements', value)}
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
@@ -365,7 +313,7 @@ const SectionUpdatePage: React.FC = () => {
 
                     <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
                     <DmpEditor
-                      content={sectionContents.sectionGuidance}
+                      content={sectionData.sectionGuidance}
                       setContent={(value) => updateSectionContent('sectionGuidance', value)}
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
