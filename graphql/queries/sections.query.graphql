@@ -3,3 +3,42 @@ query SectionsDisplayOrder($templateId: Int!) {
     displayOrder
   }
 }
+
+query Section($sectionId: Int!) {
+  section(sectionId: $sectionId) {
+    id
+    introduction
+    name
+    requirements
+    guidance
+    displayOrder
+    bestPractice
+    tags {
+      id
+      description
+      name
+    }
+    errors
+    template {
+      id
+    }
+  }
+}
+
+mutation Mutation($input: UpdateSectionInput!) {
+  updateSection(input: $input) {
+    errors
+    guidance
+    introduction
+    id
+    name
+    requirements
+    displayOrder
+    tags {
+      id
+      description
+      name
+    }
+    bestPractice
+  }
+}

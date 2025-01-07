@@ -122,8 +122,7 @@
     "newSectionDescription": "Build a new section from scratch. You can add questions, instructions, and other content to your section, we highly recommend using the best practice sections.",
     "questionsCount": "<p>This section includes:</p><p>{count} pre-built questions</p>"
   },
-  "CreateSectionPage": {
-    "title": "Create Section",
+  "Section": {
     "tabs": {
       "editSection": "Edit Section",
       "options": "Options",
@@ -138,7 +137,10 @@
     },
     "helpText": {
       "bestPracticeTagsDesc": "Select one or more tags to associate global best practice guidance written by DMP Tool."
-    },
+    }
+  },
+  "CreateSectionPage": {
+    "title": "Create Section",
     "button": {
       "createSection": "Create Section"
     },
@@ -146,6 +148,17 @@
       "fieldLengthValidation": "Name must be at least 2 characters.",
       "errorCreatingSection": "Error when creating section.",
       "success": "Section created successfully."
+    }
+  },
+  "SectionUpdatePage": {
+    "title": "Update Section",
+    "button": {
+      "updateSection": "Update Section"
+    },
+    "messages": {
+      "fieldLengthValidation": "Name must be at least 2 characters.",
+      "errorCreatingSection": "Error when updating section.",
+      "success": "Section updated successfully."
     }
   }
 }

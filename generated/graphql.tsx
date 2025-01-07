@@ -2148,6 +2148,20 @@ export type SectionsDisplayOrderQueryVariables = Exact<{
 
 export type SectionsDisplayOrderQuery = { __typename?: 'Query', sections?: Array<{ __typename?: 'Section', displayOrder?: number | null } | null> | null };
 
+export type SectionQueryVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+}>;
+
+
+export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, errors?: Array<string> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, template?: { __typename?: 'Template', id?: number | null } | null } | null };
+
+export type MutationMutationVariables = Exact<{
+  input: UpdateSectionInput;
+}>;
+
+
+export type MutationMutation = { __typename?: 'Mutation', updateSection: { __typename?: 'Section', errors?: Array<string> | null, guidance?: string | null, introduction?: string | null, id?: number | null, name: string, requirements?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null } };
+
 export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -2616,6 +2630,106 @@ export type SectionsDisplayOrderQueryHookResult = ReturnType<typeof useSectionsD
 export type SectionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useSectionsDisplayOrderLazyQuery>;
 export type SectionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useSectionsDisplayOrderSuspenseQuery>;
 export type SectionsDisplayOrderQueryResult = Apollo.QueryResult<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>;
+export const SectionDocument = gql`
+    query Section($sectionId: Int!) {
+  section(sectionId: $sectionId) {
+    id
+    introduction
+    name
+    requirements
+    guidance
+    displayOrder
+    bestPractice
+    tags {
+      id
+      description
+      name
+    }
+    errors
+    template {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useSectionQuery__
+ *
+ * To run a query within a React component, call `useSectionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSectionQuery({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *   },
+ * });
+ */
+export function useSectionQuery(baseOptions: Apollo.QueryHookOptions<SectionQuery, SectionQueryVariables> & ({ variables: SectionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SectionQuery, SectionQueryVariables>(SectionDocument, options);
+      }
+export function useSectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SectionQuery, SectionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SectionQuery, SectionQueryVariables>(SectionDocument, options);
+        }
+export function useSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SectionQuery, SectionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SectionQuery, SectionQueryVariables>(SectionDocument, options);
+        }
+export type SectionQueryHookResult = ReturnType<typeof useSectionQuery>;
+export type SectionLazyQueryHookResult = ReturnType<typeof useSectionLazyQuery>;
+export type SectionSuspenseQueryHookResult = ReturnType<typeof useSectionSuspenseQuery>;
+export type SectionQueryResult = Apollo.QueryResult<SectionQuery, SectionQueryVariables>;
+export const MutationDocument = gql`
+    mutation Mutation($input: UpdateSectionInput!) {
+  updateSection(input: $input) {
+    errors
+    guidance
+    introduction
+    id
+    name
+    requirements
+    displayOrder
+    tags {
+      id
+      description
+      name
+    }
+    bestPractice
+  }
+}
+    `;
+export type MutationMutationFn = Apollo.MutationFunction<MutationMutation, MutationMutationVariables>;
+
+/**
+ * __useMutationMutation__
+ *
+ * To run a mutation, you first call `useMutationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMutationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [mutationMutation, { data, loading, error }] = useMutationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useMutationMutation(baseOptions?: Apollo.MutationHookOptions<MutationMutation, MutationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<MutationMutation, MutationMutationVariables>(MutationDocument, options);
+      }
+export type MutationMutationHookResult = ReturnType<typeof useMutationMutation>;
+export type MutationMutationResult = Apollo.MutationResult<MutationMutation>;
+export type MutationMutationOptions = Apollo.BaseMutationOptions<MutationMutation, MutationMutationVariables>;
 export const TagsDocument = gql`
     query Tags {
   tags {
