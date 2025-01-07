@@ -1640,6 +1640,7 @@ function Page() {
                 label="Institution"
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
+                resultsKey="affiliations"
                 setOtherField={setOtherField}
                 required={true}
                 helpText="Search for your institution"
