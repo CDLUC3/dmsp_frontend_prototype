@@ -1,45 +1,54 @@
 {
   "PlanOverview": {
-    "pageTitle": "Plan",
-    "pageDescription": "Overview of plan details",
-    "navigation": "Breadcrumb navigation",
-    "home": "Home",
-    "projects": "Projects",
-    "plans": "Plans",
-    "plan": "Plan",
-    "edit": "Edit",
-    "editPlan": "Edit plan details",
-    "funders": "Funders",
-    "funderCount": "{count} Funder(s)",
-    "funderInfo": "{name} ({id})",
-    "editFunders": "Edit funder details",
-    "editFunderDetails": "Edit Funder details",
-    "planMembers": "Plan Members",
-    "memberCount": "{count} team members",
-    "memberInfo": "{name} ({role})",
-    "editMembers": "Edit plan members",
-    "editPlanMembers": "Edit plan members",
-    "researchOutputs": "Research Outputs",
-    "outputCount": "{count} Outputs",
-    "editOutputs": "Edit research outputs",
-    "editResearchOutputs": "Edit Research outputs",
-    "planActions": "Plan actions",
-    "upload": "Upload plan",
-    "uploadPlan": "Upload a new plan",
-    "createNew": "Create new plan",
-    "createNewPlan": "Create a new plan",
-    "funder": "Funder",
-    "planSections": "Plan sections",
-    "progress": "{current} of {total}",
-    "doi": "DOI",
-    "lastUpdated": "Last updated",
-    "template": "Template",
-    "download": "Download",
-    "downloadPlan": "Download plan",
-    "share": "Share with others",
-    "sharePlan": "Share plan with others",
-    "update": "Update plan",
-    "updatePlan": "Update this plan",
-    "dateRange": "{startDate} to {endDate}"
+    "navigation": {
+      "home": "Home",
+      "projects": "Projects",
+      "navigation": "Breadcrumb navigation"
+    },
+    "page": {
+      "pageDescription": "Overview of plan details"
+    },
+    "funder": {
+      "title": "Funder for this plan",
+      "edit": "Adjust for this plan"
+    },
+    "members": {
+      "title": "Plan Members for this plan",
+      "count": "{count} team members",
+      "info": "{name} ({role})",
+      "edit": "Adjust for this plan"
+    },
+    "outputs": {
+      "title": "Research Outputs for this plan",
+      "count": "{count} Outputs",
+      "edit": "Adjust for this plan"
+    },
+    "sections": {
+      "progress": "{current} of {total}",
+      "questionsAnswered": "question(s) answered",
+      "update": "Update",
+      "updateSection": "Update {title}"
+    },
+    "status": {
+      "title": "Status",
+      "lastUpdated": "Last Updated",
+      "publishedStatus": "Published Status",
+      "doi": "DOI",
+      "notPublished": "Not Published",
+      "visibilitySettings": "Visibility Settings",
+      "download": {
+        "title": "Download",
+        "downloadPDF": "Download this plan as a PDF ↓",
+        "draftInfo": "When you save as draft, only you and people with shared access will be able to see this plan.",
+        "learnMore": "Learn more",
+        "markComplete": "Mark as complete"
+      },
+      "feedback": {
+        "title": "Feedback & Collaboration",
+        "description": "Allow people to access, edit or comment on this plan",
+        "manageAccess": "Manage Access",
+        "requestFeedback": "Request feedback"
+      }
+    }
   }
 }
