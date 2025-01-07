@@ -77,4 +77,52 @@
   label{
     font-weight: 400;
   }
+
+  .checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem; /* Add spacing between checkboxes */
+    margin-bottom: 2rem;
+    font-size: var(--fs-base);
+  
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  
+    .checkbox-label {
+      font-size: var(--fs-base);
+    }
+    .icon {
+      svg {
+        width: 16px;
+        height:16px;
+        fill: var(--brand-primary);
+      }
+    }
+  
+    .popover-btn {
+        display: inline-block;
+  
+        background:none;
+        padding: 0 0 0 0.03rem;
+  
+        &:hover {
+          background: none;
+        }
+    }
+  
+    label {
+      margin-bottom: 0;
+    }
+  
+    .checkbox-wrapper {
+      display: inline;
+    }
+    
+    .checkbox-wrapper > div:first-child {
+      display: inline;
+    }
+    
+  }
 }
+
