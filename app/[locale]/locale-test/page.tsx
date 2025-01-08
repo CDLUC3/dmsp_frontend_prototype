@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { useTranslations } from 'next-intl';
+import {useTranslations} from 'next-intl';
 import PageHeader from '@/components/PageHeader';
 
 const LocaleTestPage: React.FC = () => {

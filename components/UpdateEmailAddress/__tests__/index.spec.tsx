@@ -1,12 +1,23 @@
 import React from 'react';
-import { render, screen, act, fireEvent, waitFor, within } from '@testing-library/react';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within
+} from '@testing-library/react';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import UpdateEmailAddress from '..';
-import { useSetPrimaryUserEmailMutation, useAddUserEmailMutation, useRemoveUserEmailMutation } from '@/generated/graphql';
+import {
+  MeDocument,
+  useAddUserEmailMutation,
+  useRemoveUserEmailMutation,
+  useSetPrimaryUserEmailMutation
+} from '@/generated/graphql';
 import logECS from '@/utils/clientLogger';
-import { NextIntlClientProvider } from 'next-intl';
-import messages from '@/messages/en-US/en-US.json';
-import { MeDocument } from '@/generated/graphql';
+import {NextIntlClientProvider} from 'next-intl';
+
 expect.extend(toHaveNoViolations);
 
 const GET_USER = MeDocument;

@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import {useTranslations} from 'next-intl';
 import sanitizeHtml from 'sanitize-html';
 import styles from './QuestionEdit.module.scss';
-import { Button } from "react-aria-components";
+import {Button} from "react-aria-components";
 
 interface QuestionEditProps {
   id: string;

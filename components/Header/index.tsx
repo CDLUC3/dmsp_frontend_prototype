@@ -1,19 +1,15 @@
 'use client';
 
-import { MouseEvent, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Link } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
-import { useLocale } from 'next-intl';
+import {MouseEvent, useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {Link, usePathname} from '@/i18n/routing';
+import {useLocale, useTranslations} from 'next-intl';
+import {useAuthContext} from '@/context/AuthContext';
+import {useCsrf} from '@/context/CsrfContext';
 
-import { usePathname } from '@/i18n/routing';
-import { useAuthContext } from '@/context/AuthContext';
-import { useCsrf } from '@/context/CsrfContext';
-
-import { faGlobe, faUser } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {faGlobe, faUser} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import styles from './header.module.scss';
-import { useSwitchLanguage } from '@/hooks/switchLanguage';
 import LanguageSelector from '../LanguageSelector';
 
 function Header() {

@@ -1,3 +1,8 @@
+### Added
+- Project overview page [#175]
+  - Moved pages under [locale] folder
+  - dummy portuguese brazilian translation
+
 ### Updated
 =======
 - Updated app/template/[templateId]/section/new page to hook it up to backend data, handle errors, and add translations [#189]
