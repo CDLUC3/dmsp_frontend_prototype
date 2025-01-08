@@ -30,17 +30,9 @@ type LoginSteps =
   | "password";
 
 
-type User = {
-  email: string;
-  password: string;
-};
-
-
-// Placeholder Login page until we get new design
 const LoginPage: React.FC = () => {
-  const formRef = useRef();
+  const formRef = useRef<HTMLFormElement | null>(null);
   const [step, setStep] = useState<LoginSteps>("email");
-  const [invalid, setInvalid] = useState<bool>(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,12 +43,6 @@ const LoginPage: React.FC = () => {
   const { csrfToken } = useCsrf();
   const router = useRouter();
   const { setIsAuthenticated } = useAuthContext();
-
-
-  const handleInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    setUser({ ...user, [ev.target.name]: ev.target.value });
-  };
-
 
   const handleLogin = async () => {
     setLoading(true);
@@ -71,8 +57,8 @@ const LoginPage: React.FC = () => {
           'X-CSRF-TOKEN': token || '',
         },
         body: JSON.stringify({
-          "email": email,
-          "password": password,
+          email,
+          password,
         }),
       });
     }
@@ -98,11 +84,6 @@ const LoginPage: React.FC = () => {
     }
   }
 
-  function handleInvalid(ev: React.FormEvent<HTMLFormElement>) {
-    ev.preventDefault();
-    setInvalid(true);
-  }
-
   async function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
     ev.preventDefault();
 
@@ -122,7 +103,9 @@ const LoginPage: React.FC = () => {
   function reFocusForm() {
     if (formRef.current) {
       // Focus the first input in the form.
-      formRef.current.querySelector('input').focus();
+      const formEl = formRef.current as HTMLElement;
+      const inputEl = formEl.querySelector('input') as HTMLElement;
+      if (inputEl) inputEl.focus();
     }
   }
 
@@ -139,7 +122,9 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     if (step === "password") {
       if (formRef.current) {
-        formRef.current.querySelector('#password').focus();
+        const formEl = formRef.current as HTMLElement;
+        const inputEl = formEl.querySelector('#password') as HTMLElement;
+        if (inputEl) inputEl.focus();
       }
     }
   }, [step]);
@@ -152,7 +137,6 @@ const LoginPage: React.FC = () => {
         <Form
           id="loginForm"
           onSubmit={handleSubmit}
-          onInvalid={handleInvalid}
           ref={formRef}
           data-step={step}
         >
@@ -178,7 +162,7 @@ const LoginPage: React.FC = () => {
               {(step === "email") && (
                 <Text slot="description" className="help">
                   To enable Single Sign On (SSO), use your institutional
-                  address. You will be redirected to your institution's single
+                  address. You will be redirected to your institution&apos;s single
                   sign on platform.
                 </Text>
               )}

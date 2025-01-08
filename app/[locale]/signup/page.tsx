@@ -43,18 +43,19 @@ type signupDataMap = {
   affiliationId: string;
   otherAffiliationName: string;
   password: string;
-  acceptedTerms: bool,
+  acceptedTerms: boolean,
 };
 
 const SignUpPage: React.FC = () => {
-  const formRef = useRef();
+  const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
   const { csrfToken } = useCsrf();
   const { setIsAuthenticated } = useAuthContext();
 
   const [step, setStep] = useState<SignupStepState>("email");
-  const [isWorking, setIsWorking] = useState<bool>(false);
-  const [invalid, setInvalid] = useState<bool>(false);
+  const [isWorking, setIsWorking] = useState<boolean>(false);
+  const [invalid, setInvalid] = useState<boolean>(false);
+
   const [errors, setErrors] = useState<string[]>([]);
 
   const [email, setEmail] = useState<string>("");
@@ -62,12 +63,12 @@ const SignUpPage: React.FC = () => {
   const [lastName, setLastName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [institution, setInstitution] = useState<string>("");
-  const [otherField, setOtherField] = useState<bool>(false);
+  const [otherField, setOtherField] = useState<boolean>(false);
   const [otherAffiliation, setOtherAffiliation] = useState<string>("");
-  const [termsAccepted, setTermsAccepted] = useState<bool>(false);
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
 
 
-  function handleInvalid(ev) {
+  function handleInvalid(ev: React.FormEvent) {
     ev.preventDefault();
     setInvalid(true);
   }
@@ -118,7 +119,7 @@ const SignUpPage: React.FC = () => {
     }
   };
 
-  function handleSubmit(ev) {
+  function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
     if (!ev.nativeEvent || invalid) return;
     ev.nativeEvent.preventDefault();
 
@@ -139,15 +140,18 @@ const SignUpPage: React.FC = () => {
   }
 
   function reFocusForm() {
-    document.getElementById("App").scrollIntoView({ behavior: 'smooth' });
+    const appElement = document.getElementById("App") as HTMLElement;
+    if (appElement) appElement.scrollIntoView({ behavior: 'smooth' });
     if (formRef.current) {
       // Focus the first input in the form, since we cannot use focus() on
       // a form itself.
-      formRef.current.querySelector('input').focus();
+      const formEl = formRef.current as HTMLElement;
+      const inputEl = formEl.querySelector('input') as HTMLElement;
+      if (inputEl) inputEl.focus();
     }
   }
 
-  function updateAffiliations(dataId, value) {
+  function updateAffiliations(dataId: string, value: string) {
     if (dataId) {
       setInstitution(dataId);
     } else if (value.toLowerCase() === "other") {
@@ -176,6 +180,7 @@ const SignUpPage: React.FC = () => {
 
         <Form
           id="signupForm"
+          role="form"
           onSubmit={handleSubmit}
           onInvalid={handleInvalid}
           data-step={step}
@@ -248,7 +253,6 @@ const SignUpPage: React.FC = () => {
                 helpText="Search for your institution"
                 updateFormData={updateAffiliations}
               />
-
               {otherField && (
                 <TextField
                   name="otherAffiliation"
@@ -287,7 +291,7 @@ const SignUpPage: React.FC = () => {
               </TextField>
 
               <Checkbox
-                isSelectec={termsAccepted}
+                isSelected={termsAccepted}
                 onChange={setTermsAccepted}>
                 <div className="checkbox">
                   <svg viewBox="0 0 18 18" aria-hidden="true">
@@ -304,7 +308,6 @@ const SignUpPage: React.FC = () => {
               <Button
                 type="submit"
                 isDisabled={isWorking}
-                onPress={handleSubmit}
               >
                 {isWorking ? '...' : 'Continue'}
               </Button>
@@ -314,7 +317,6 @@ const SignUpPage: React.FC = () => {
               <Button
                 type="submit"
                 isDisabled={(isWorking || !termsAccepted)}
-                onPress={handleSubmit}
               >
                 {isWorking ? 'Signing up ...' : 'Sign Up'}
               </Button>

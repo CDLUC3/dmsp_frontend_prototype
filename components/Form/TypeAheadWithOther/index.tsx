@@ -19,6 +19,7 @@ import logECS from '@/utils/clientLogger';
 
 type TypeAheadInputProps = {
     graphqlQuery: DocumentNode;
+    resultsKey: string;
     label: string;
     placeholder?: string;
     helpText?: string;
@@ -29,8 +30,7 @@ type TypeAheadInputProps = {
     updateFormData: Function; //Function to update the typeahead field value in the parent form data
     value?: string;
     className?: string;
-    otherText: string;
-    resultsKey: string;
+    otherText?: string;
 }
 
 type SuggestionInterface = {
