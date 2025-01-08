@@ -26,7 +26,7 @@ const ToastTestPage: React.FC = () => {
       <LayoutContainer>
         <ContentContainer>
           <div>
-            <Button onPress={() => toastState.add('Toast is done!', { timeout: 5000 })}>Show toast</Button>
+            <Button onPress={() => toastState.add('Testing types!', { type: 'info' })}>Show toast</Button>
             <Button onPress={handleRedirectWithToast}>Show toast and redirect</Button>
 
           </div>

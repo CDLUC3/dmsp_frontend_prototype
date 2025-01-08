@@ -5,7 +5,6 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ToastProviderWrapper } from '@/context/ToastContext';
-import ToastRegion from '@/components/ToastRegion';
 
 // Components
 import Header from "@/components/Header";
@@ -74,7 +73,6 @@ export default async function LocaleLayout({
                 <Header />
                 <SubHeader />
                 <ToastProviderWrapper>
-                  <ToastRegion />
                   <div id="App">
                     {children}
                   </div>

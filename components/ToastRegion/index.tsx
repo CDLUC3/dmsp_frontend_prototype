@@ -11,7 +11,7 @@ interface ToastRegionProps<T> extends AriaToastRegionProps { }
 function ToastRegion<T extends React.ReactNode>(props: ToastRegionProps<T>) {
   let ref = React.useRef(null);
   const state = useToast(); // Use the context to get the state
-  let { regionProps } = useToastRegion(props, state, ref);
+  let { regionProps } = useToastRegion({}, state, ref);
 
   return (
     <div {...regionProps} ref={ref} className="toast-region">
