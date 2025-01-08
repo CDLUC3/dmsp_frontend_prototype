@@ -9,7 +9,7 @@ import {
   Button,
 } from "react-aria-components";
 
-import './toast.css';
+import './toast.scss';
 
 interface ToastProps<T> extends AriaToastProps<T> {
   state: ToastState<T>;

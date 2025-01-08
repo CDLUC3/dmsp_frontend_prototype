@@ -1,6 +1,13 @@
+@import '@/styles/responsive.scss';
+
+/*mobile first*/
 .toast-region {
+  @include device(sm) {
+    top: var(--space-12);
+    left: 50%;
+  }
   position: fixed;
-  top: 20px; 
+  bottom: var(--space-8);
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
