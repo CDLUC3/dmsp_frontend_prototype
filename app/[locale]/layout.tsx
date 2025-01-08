@@ -6,7 +6,6 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ToastProviderWrapper } from '@/context/ToastContext';
 import ToastRegion from '@/components/ToastRegion';
-import { ToastContainer } from 'react-toastify';
 
 // Components
 import Header from "@/components/Header";
@@ -72,17 +71,14 @@ export default async function LocaleLayout({
           <AuthProvider>
             <CsrfProvider>
               <ApolloWrapper>
-
                 <Header />
                 <SubHeader />
-                <ToastContainer />
                 <ToastProviderWrapper>
                   <ToastRegion />
                   <div id="App">
                     {children}
                   </div>
                 </ToastProviderWrapper>
-
                 <Footer />
               </ApolloWrapper>
             </CsrfProvider>
