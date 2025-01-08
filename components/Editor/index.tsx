@@ -198,7 +198,7 @@ interface DmpEditorProps {
 
 const MemoizedEditorToolbar = memo(EditorToolbar);
 
-export const DmpEditor = memo(({ content = "<p>Backup</p>", setContent, error, id, labelId }: DmpEditorProps) => {
+export const DmpEditor = memo(({ content, setContent, error, id, labelId }: DmpEditorProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const extensions = useMemo(() => () => [
     new BoldExtension({}),
