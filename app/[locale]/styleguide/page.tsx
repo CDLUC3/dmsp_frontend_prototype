@@ -72,9 +72,12 @@ import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
 import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
+import { useToast } from '@/context/ToastContext';
+
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
+  const toastState = useToast(); // Access the toast state from context
 
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
@@ -370,6 +373,7 @@ function Page() {
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
+          <a href="#_toast">Toast Messages</a>
         </SidebarPanel>
 
         <ContentContainer id="sgContent">
@@ -1073,7 +1077,7 @@ function Page() {
           <div id="_containers">
             <h2><code>Layout Container</code></h2>
             <p>The standard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
-            some common container within the layout container.</p>
+              some common container within the layout container.</p>
             <LayoutContainer>
               <ContentContainer>
                 <div><pre><code>
@@ -1207,7 +1211,7 @@ function Page() {
                 TODO: Write about this layout here
               </ContentContainer>
 
-              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false) }>
+              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false)}>
                 <p>This is the Drawer Content</p>
               </DrawerPanel>
             </LayoutWithPanel>
@@ -1593,8 +1597,9 @@ function Page() {
             <QuestionEdit
               key={2552}
               id="24"
-              name="This is a question"
+              text="This is a question"
               link="/edit"
+              name="question"
             />
 
 
@@ -1885,6 +1890,20 @@ function Page() {
             </div>
             <hr />
             <DmpEditor content={editorContent} setContent={setEditorContent} />
+          </div>
+
+          <div id="_toast">
+            <h2>Toast Messages</h2>
+            <h3>With Timeout of 5 seconds</h3>
+            <div>
+              <Button onPress={() => toastState.add('Toast is done!', { timeout: 5000 })}>Show toast with timeout</Button>
+            </div>
+            <h3>Without Timeout - user must close</h3>
+            <div>
+              <Button onPress={() => toastState.add('Toast is done!')}>Show toast</Button>
+            </div>
+            <h3>useToast Resource</h3>
+            <div>https://react-spectrum.adobe.com/react-aria/useToast.html</div>
           </div>
         </ContentContainer>
       </LayoutWithPanel>
