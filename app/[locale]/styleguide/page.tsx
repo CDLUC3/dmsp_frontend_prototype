@@ -1904,13 +1904,18 @@ function Page() {
           <div id="_toast">
             <h2>Toast Messages</h2>
             <p>
-              Toast messages are used to provide brief, non-intrusive feedback to users about an action they've taken within an applications.
+              Toast messages are used to provide brief, non-intrusive feedback to users about an action they&apos;ve taken within an application.
               For instance, if they successfully change their password, we want to give them some feedback to reassure them that the change went through successfully.
             </p>
             <p>
-              To implement toast messages in our app, we are using useToast React Aria Component. Documentation about this can be found here: https://react-spectrum.adobe.com/react-aria/useToast.html.
-              We chose to implement this option because it helps make toast messages accessible by rendering a landmark region, which keyboard users can easily jump to, to restore focus to where it was before
-              navigating to the toast, and use of ARIA roles and attributes.
+              To implement toast messages in our app, we are using <strong>useToast React Aria Component</strong>. Documentation about this can be found here: <a href="https://react-spectrum.adobe.com/react-aria/useToast.html">https://react-spectrum.adobe.com/react-aria/useToast.html</a>.
+              We chose to implement this option because it helps make toast messages accessible by:
+              <ul>
+                <li>rendering a <em>landmark region</em>, which keyboard users can easily jump to</li>
+                <li>to restore focus to where it was before
+                  navigating to the toast</li>
+                <li>and use of ARIA roles and attributes</li>
+              </ul>
             </p>
 
             <h3>Toast Types</h3>
@@ -1922,7 +1927,7 @@ function Page() {
             </div>
 
             <h3>Toast Options</h3>
-            <p>There is the option to set a timeout for the toast message. If you don't specify a type, then the default is info</p>
+            <p>There is the option to set a timeout for the toast message. If you don&apos;t specify a type, then the default is info</p>
             <div>
               <Button onPress={() => toastState.add('Toast is done!', { timeout: 5000 })}>Show toast with timeout</Button>
             </div>
