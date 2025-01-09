@@ -1,14 +1,14 @@
 'use client';
 
 import React, { createContext, useContext } from 'react';
-import { useToastState, ToastState } from '@react-stately/toast';
+import { useToastState, ToastState, ToastOptions as LibraryToastOptions } from '@react-stately/toast';
 import ToastRegion from '@/components/ToastRegion';
 
 interface ToastContextValue {
   /*eslint-disable @typescript-eslint/no-explicit-any*/
   state: ToastState<any>;
 }
-interface ToastOptions {
+interface ToastOptions extends LibraryToastOptions {
   type?: 'info' | 'warn' | 'error' | 'success'; // The type of the toast (used for styling or categorization).
   timeout?: number; // The duration (in milliseconds) before the toast is automatically dismissed.
   priority?: number; // The priority level of the toast (used for ordering toasts if applicable).
@@ -40,12 +40,12 @@ export const useToast = () => {
   return {
     ...context.state,
     add: (content: string, options?: ToastOptions) => {
-      context.state.add(content, {
-        key: `toast-${Date.now()}`,
+      const libraryOptions = {
         type: options?.type,
         timeout: options?.timeout,
-        priority: options?.priority,
-      });
+        priority: options?.priority
+      };
+      return context.state.add(content, libraryOptions);
     },
   };
 };
