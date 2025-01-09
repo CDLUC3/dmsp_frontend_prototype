@@ -1919,10 +1919,10 @@ function Page() {
             </p>
 
             <h3>Toast Types</h3>
-            <p>There are three different types of toasts: info, warn, and error.</p>
+            <p>There are three different types of toasts: info, success, and error.</p>
             <div>
               <Button onPress={() => toastState.add('Testing types!', { type: 'info' })}>Show info toast</Button>
-              <Button onPress={() => toastState.add('Testing types!', { type: 'success' })}>Show warn toast</Button>
+              <Button onPress={() => toastState.add('Testing types!', { type: 'success' })}>Show success toast</Button>
               <Button onPress={() => toastState.add('Testing types!', { type: 'error' })}>Show error toast</Button>
             </div>
 
