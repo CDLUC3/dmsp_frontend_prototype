@@ -1927,7 +1927,7 @@ function Page() {
             </div>
 
             <h3>Toast Options</h3>
-            <p>There is the option to set a timeout for the toast message. If you don&apos;t specify a type, then the default is info</p>
+            <p>There is the option to set a timeout for the toast message. Also, if you don&apos;t specify a type, then the default color will be for type info</p>
             <div>
               <Button onPress={() => toastState.add('Toast is done!', { timeout: 5000 })}>Show toast with timeout</Button>
             </div>
