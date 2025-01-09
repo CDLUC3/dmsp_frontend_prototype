@@ -1910,13 +1910,13 @@ function Page() {
             <p>
               To implement toast messages in our app, we are using <strong>useToast React Aria Component</strong>. Documentation about this can be found here: <a href="https://react-spectrum.adobe.com/react-aria/useToast.html">https://react-spectrum.adobe.com/react-aria/useToast.html</a>.
               We chose to implement this option because it helps make toast messages accessible by:
-              <ul>
-                <li>rendering a <em>landmark region</em>, which keyboard users can easily jump to</li>
-                <li>to restore focus to where it was before
-                  navigating to the toast</li>
-                <li>and use of ARIA roles and attributes</li>
-              </ul>
             </p>
+            <ul>
+              <li>rendering a <em>landmark region</em>, which keyboard users can easily jump to</li>
+              <li>to restore focus to where it was before
+                navigating to the toast</li>
+              <li>and use of ARIA roles and attributes</li>
+            </ul>
 
             <h3>Toast Types</h3>
             <p>There are three different types of toasts: info, success, and error.</p>
