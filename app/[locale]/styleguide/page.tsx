@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Cell,
@@ -38,8 +38,8 @@ import {
 } from "react-aria-components";
 
 
-import {DmpEditor} from "@/components/Editor";
-import {DmpIcon} from "@/components/Icons";
+import { DmpEditor } from "@/components/Editor";
+import { DmpIcon } from "@/components/Icons";
 
 import {
   Card,
@@ -59,18 +59,18 @@ import {
   ToolbarContainer,
 } from '@/components/Container';
 
-import {BrandColor, Example, handleDelete} from "./sg-components";
+import { BrandColor, Example, handleDelete } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import {AffiliationsDocument} from '@/generated/graphql';
+import { AffiliationsDocument } from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
-import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
+import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
 import { useToast } from '@/context/ToastContext';
 
@@ -468,6 +468,15 @@ function Page() {
                   description="Highest contrast" />
               </div>
             </div>
+
+            <h3>Messaging colors</h3>
+            <p>Our messages are broken down into the types: info, success and error</p>
+            <div className="brand-color-list">
+              <BrandColor varname="--messaging-info" />
+              <BrandColor varname="--messaging-success" />
+              <BrandColor varname="--messaging-error" />
+            </div>
+
 
             <h3>Usage Guidelines</h3>
             <ul>
@@ -1894,16 +1903,33 @@ function Page() {
 
           <div id="_toast">
             <h2>Toast Messages</h2>
-            <h3>With Timeout of 5 seconds</h3>
+            <p>
+              Toast messages are used to provide brief, non-intrusive feedback to users about an action they've taken within an applications.
+              For instance, if they successfully change their password, we want to give them some feedback to reassure them that the change went through successfully.
+            </p>
+            <p>
+              To implement toast messages in our app, we are using useToast React Aria Component. Documentation about this can be found here: https://react-spectrum.adobe.com/react-aria/useToast.html.
+              We chose to implement this option because it helps make toast messages accessible by rendering a landmark region, which keyboard users can easily jump to, to restore focus to where it was before
+              navigating to the toast, and use of ARIA roles and attributes.
+            </p>
+
+            <h3>Toast Types</h3>
+            <p>There are three different types of toasts: info, warn, and error.</p>
+            <div>
+              <Button onPress={() => toastState.add('Testing types!', { type: 'info' })}>Show info toast</Button>
+              <Button onPress={() => toastState.add('Testing types!', { type: 'success' })}>Show warn toast</Button>
+              <Button onPress={() => toastState.add('Testing types!', { type: 'error' })}>Show error toast</Button>
+            </div>
+
+            <h3>Toast Options</h3>
+            <p>There is the option to set a timeout for the toast message. If you don't specify a type, then the default is info</p>
             <div>
               <Button onPress={() => toastState.add('Toast is done!', { timeout: 5000 })}>Show toast with timeout</Button>
             </div>
-            <h3>Without Timeout - user must close</h3>
+            <p>There is also the option to set a priority. The highest priority will sit at the top. Currently, the toast messages are configured to show a max of three messages at a time.</p>
             <div>
-              <Button onPress={() => toastState.add('Toast is done!')}>Show toast</Button>
+              <Button onPress={() => toastState.add('Highest priority!', { priority: 1 })}>Show toast with timeout</Button>
             </div>
-            <h3>useToast Resource</h3>
-            <div>https://react-spectrum.adobe.com/react-aria/useToast.html</div>
           </div>
         </ContentContainer>
       </LayoutWithPanel>

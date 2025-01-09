@@ -27,6 +27,8 @@ const ToastTestPage: React.FC = () => {
         <ContentContainer>
           <div>
             <Button onPress={() => toastState.add('Testing types!', { type: 'info' })}>Show toast</Button>
+            <Button onPress={() => toastState.add('Testing types!', { type: 'warn' })}>Show toast</Button>
+            <Button onPress={() => toastState.add('Testing types!', { type: 'error' })}>Show toast</Button>
             <Button onPress={handleRedirectWithToast}>Show toast and redirect</Button>
 
           </div>

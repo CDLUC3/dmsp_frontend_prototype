@@ -13,3 +13,15 @@
     padding-right: 15px;
     font-size: 0.8rem;
 }
+
+.toast.toast-info {
+    background-color: var(--messaging-info);
+}
+
+.toast.toast-success {
+    background-color: var(--messaging-success);
+}
+
+.toast.toast-error {
+    background-color: var(--messaging-error);
+}

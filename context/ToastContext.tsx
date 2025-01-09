@@ -21,7 +21,7 @@ export const ToastProviderWrapper: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const state = useToastState({
-    maxVisibleToasts: 2
+    maxVisibleToasts: 3
   });
 
   return (
