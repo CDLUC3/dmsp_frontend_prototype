@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useMemo } from 'react';
+import { EditorSkeleton } from './EditorSkeleton';
 
 import {
   EditorComponent,
@@ -31,7 +32,7 @@ import {
 } from 'remirror/extensions';
 
 import 'remirror/styles/all.css';
-import './Editor.scss';
+import styles from './editor.module.scss';
 
 import { DmpIcon } from '@/components/Icons';
 import {
@@ -108,7 +109,7 @@ const EditorToolbar = () => {
   const active = useActive();
 
   return (
-    <Toolbar aria-label="Editor Tools">
+    <Toolbar aria-label="Editor Tools" className={`${styles.dmpEditorToolbar} react-aria-Toolbar`}>
       <Group aria-label="Style">
         <ToggleButton
           aria-label="Bold"
@@ -190,21 +191,29 @@ const EditorToolbar = () => {
 interface DmpEditorProps {
   content: string;
   setContent: (newContent: string) => void;
+  id?: string;
+  error?: string;
+  labelId?: string;
 }
 
-export function DmpEditor({ content, setContent }: DmpEditorProps) {
+const MemoizedEditorToolbar = memo(EditorToolbar);
+
+export const DmpEditor = memo(({ content, setContent, error, id, labelId }: DmpEditorProps) => {
   const [isMounted, setIsMounted] = useState(false);
+  const extensions = useMemo(() => () => [
+    new BoldExtension({}),
+    new ItalicExtension(),
+    new UnderlineExtension({}),
+    new LinkExtension({ autoLink: true }),
+    new BulletListExtension({}),
+    new OrderedListExtension(),
+    new TableExtension({}),
+    new AnnotationExtension({}),
+  ], []);
+
+
   const { manager, state, setState } = useRemirror({
-    extensions: () => [
-      new BoldExtension({}),
-      new ItalicExtension(),
-      new UnderlineExtension({}),
-      new LinkExtension({ autoLink: true }),
-      new BulletListExtension({}),
-      new OrderedListExtension(),
-      new TableExtension({}),
-      new AnnotationExtension({}),
-    ],
+    extensions,
 
     content,
 
@@ -224,26 +233,43 @@ export function DmpEditor({ content, setContent }: DmpEditorProps) {
   }, [])
 
   const handleChange = (newState: EditorState) => {
-    const html = prosemirrorNodeToHtml(newState.doc);
-    setContent(html);
+    // Convert the document to HTML only once
+    let htmlContent = prosemirrorNodeToHtml(newState.doc);
+
+    // Check if htmlContent only contains <p></p> (one or more instances)
+    if (/^(<p><\/p>)+$/.test(htmlContent)) {
+      htmlContent = '';
+    }
+
+    // Update state and content
+    setContent(htmlContent);
     setState(newState);
-  }
+  };
+
 
   if (!isMounted) {
-    return null; // or a loading indicator
+    // Show the skeleton loader because loading of RTE can be slow and cause shifting on page without it
+    return <EditorSkeleton />;
   }
 
   return (
-    <div className="dmp-editor">
+    <div className={styles.dmpEditor}>
       <Remirror
         manager={manager}
         state={state}
         initialContent={state}
         onChange={({ state }) => handleChange(state)}
+        attributes={{
+          'aria-label': id ?? 'Editor input area',
+          'aria-labelledby': labelId ?? '',
+          'class': styles.editorProsemirror,
+          'id': id ?? ''
+        }}
       >
-        <EditorToolbar />
+        <MemoizedEditorToolbar />
         <EditorComponent />
+        <div className="error-message">{error}</div>
       </Remirror>
     </div>
   )
-}
+})

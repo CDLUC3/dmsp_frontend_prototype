@@ -121,5 +121,31 @@
     "intro": "Você tem três opções. Você pode usar uma seção que você criou anteriormente, usar uma seção de melhor prática da Ferramenta de DMP ou construir uma nova seção. Todas as seções são personalizáveis uma vez selecionado.",
     "newSectionDescription": "Crie uma nova seção do zero. Você pode adicionar perguntas, instruções e outros conteúdos à sua seção, recomendamos o uso das seções de melhor prática.",
     "questionsCount": "<p>Esta seção inclui:</p><p>{count} questões pré-criadas</p>"
+  },
+  "CreateSectionPage": {
+    "title": "Criar seção",
+    "tabs": {
+      "editSection": "Editar seção",
+      "options": "Opções",
+      "logic": "Lógica"
+    },
+    "labels": {
+      "sectionName": "Nome da seção",
+      "sectionIntroduction": "Introdução à seção",
+      "sectionRequirements": "Requisitos da seção",
+      "sectionGuidance": "Orientação em Seção",
+      "bestPracticeTags": "Seção das melhores práticas para incluir"
+    },
+    "helpText": {
+      "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
+    },
+    "button": {
+      "createSection": "Criar seção"
+    },
+    "messages": {
+      "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
+      "errorCreatingSection": "Erro ao criar a seção.",
+      "success": "Seção criada com sucesso."
+    }
   }
 }
