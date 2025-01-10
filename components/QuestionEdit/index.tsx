@@ -9,12 +9,14 @@ interface QuestionEditProps {
   id: string;
   text: string;
   link: string;
+  name?: string;
 }
 
 const QuestionEdit: React.FC<QuestionEditProps> = ({
   id,
   text,
-  link
+  link,
+  name
 }) => {
 
   const questionText = sanitizeHtml(text);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Cell,
@@ -38,8 +38,8 @@ import {
 } from "react-aria-components";
 
 
-import {DmpEditor} from "@/components/Editor";
-import {DmpIcon} from "@/components/Icons";
+import { DmpEditor } from "@/components/Editor";
+import { DmpIcon } from "@/components/Icons";
 
 import {
   Card,
@@ -59,22 +59,25 @@ import {
   ToolbarContainer,
 } from '@/components/Container';
 
-import {BrandColor, Example, handleDelete} from "./sg-components";
+import { BrandColor, Example, handleDelete } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import {AffiliationsDocument} from '@/generated/graphql';
+import { AffiliationsDocument } from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEdit from "@/components/QuestionEdit";
 import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
-import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
+import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
+import { useToast } from '@/context/ToastContext';
+
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
+  const toastState = useToast(); // Access the toast state from context
 
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
@@ -370,6 +373,7 @@ function Page() {
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
+          <a href="#_toast">Toast Messages</a>
         </SidebarPanel>
 
         <ContentContainer id="sgContent">
@@ -464,6 +468,15 @@ function Page() {
                   description="Highest contrast" />
               </div>
             </div>
+
+            <h3>Messaging colors</h3>
+            <p>Our messages are broken down into the types: info, success and error</p>
+            <div className="brand-color-list">
+              <BrandColor varname="--messaging-info" />
+              <BrandColor varname="--messaging-success" />
+              <BrandColor varname="--messaging-error" />
+            </div>
+
 
             <h3>Usage Guidelines</h3>
             <ul>
@@ -1596,6 +1609,7 @@ function Page() {
               id="24"
               text="This is a question"
               link="/edit"
+              name="question"
             />
 
 
@@ -1886,6 +1900,42 @@ function Page() {
             </div>
             <hr />
             <DmpEditor content={editorContent} setContent={setEditorContent} />
+          </div>
+
+          <div id="_toast">
+            <h2>Toast Messages</h2>
+            <p>
+              Toast messages are used to provide brief, non-intrusive feedback to users about an action they&apos;ve taken within an application.
+              For instance, if they successfully change their password, we want to give them some feedback to reassure them that the change went through successfully.
+            </p>
+            <p>
+              To implement toast messages in our app, we are using <strong>useToast React Aria Component</strong>. Documentation about this can be found here: <a href="https://react-spectrum.adobe.com/react-aria/useToast.html">https://react-spectrum.adobe.com/react-aria/useToast.html</a>.
+              We chose to implement this option because it helps make toast messages accessible by:
+            </p>
+            <ul>
+              <li>rendering a <em>landmark region</em>, which keyboard users can easily jump to</li>
+              <li>to restore focus to where it was before
+                navigating to the toast</li>
+              <li>and use of ARIA roles and attributes</li>
+            </ul>
+
+            <h3>Toast Types</h3>
+            <p>There are three different types of toasts: info, success, and error.</p>
+            <div>
+              <Button onPress={() => toastState.add('Testing types!', { type: 'info' })}>Show info toast</Button>
+              <Button onPress={() => toastState.add('Testing types!', { type: 'success' })}>Show success toast</Button>
+              <Button onPress={() => toastState.add('Testing types!', { type: 'error' })}>Show error toast</Button>
+            </div>
+
+            <h3>Toast Options</h3>
+            <p>There is the option to set a timeout for the toast message. Also, if you don&apos;t specify a type, then the default color will be for type info</p>
+            <div>
+              <Button onPress={() => toastState.add('Toast is done!', { timeout: 5000 })}>Show toast with timeout</Button>
+            </div>
+            <p>There is also the option to set a priority. The highest priority will sit at the top. Currently, the toast messages are configured to show a max of three messages at a time.</p>
+            <div>
+              <Button onPress={() => toastState.add('Highest priority!', { priority: 1 })}>Show toast with timeout</Button>
+            </div>
           </div>
         </ContentContainer>
       </LayoutWithPanel>

@@ -1,7 +1,3 @@
-### Added
-- Project overview page [#175]
-  - Moved pages under [locale] folder
-  - dummy portuguese brazilian translation
 
 ### Updated
 =======
@@ -14,6 +10,10 @@
 - Refactored font family usage for consistency.
 
 ### Added
+- Added Toast Message capabilities using **React Aria Component's use Toast**. [#211]
+- Project overview page [#175]
+  - Moved pages under [locale] folder
+  - dummy portuguese brazilian translation
 - New translation updates [#160]
   - Installed next-intl, and created a /messages directory for content, and /i18n directory for next-intl request and routing
   - Moved pages under dynamic folder [locale]
