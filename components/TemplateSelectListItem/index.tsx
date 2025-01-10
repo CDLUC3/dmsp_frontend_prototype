@@ -1,19 +1,19 @@
-import {Button} from 'react-aria-components';
+import { Button } from 'react-aria-components';
 import styles from './TemplateSelectListItem.module.scss';
 
 interface TemplateItemProps {
   item: {
-    funder: string;
+    funder?: string | undefined;
     title: string;
     description?: string;
-    lastRevisedBy: string;
-    lastUpdated: string;
+    lastRevisedBy?: number;
+    lastUpdated?: string | null;
     hasAdditionalGuidance?: boolean;
-    onSelect?: () => void;
-  };
+  },
+  onSelect?: () => void;
 }
 
-function TemplateSelectListItem({ item }: TemplateItemProps) {
+function TemplateSelectListItem({ item, onSelect }: TemplateItemProps) {
   return (
     <div className={styles.templateItem} role="listitem">
       <div className={styles.TemplateItemInner}>
@@ -30,8 +30,8 @@ function TemplateSelectListItem({ item }: TemplateItemProps) {
           {item.hasAdditionalGuidance && (
             <div className={styles.guidance}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <circle cx="10" cy="10" r="7.5" stroke="currentColor"/>
-                <path d="M6.5 10L9 12.5L13.5 8" stroke="currentColor" strokeLinecap="round"/>
+                <circle cx="10" cy="10" r="7.5" stroke="currentColor" />
+                <path d="M6.5 10L9 12.5L13.5 8" stroke="currentColor" strokeLinecap="round" />
               </svg>
               Your research organization has additional guidance
             </div>
@@ -39,7 +39,7 @@ function TemplateSelectListItem({ item }: TemplateItemProps) {
         </div>
 
         <Button
-          onPress={item.onSelect}
+          onPress={onSelect}
           aria-label={`Select ${item.title}`}
         >
           Select

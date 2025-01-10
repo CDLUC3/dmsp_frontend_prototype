@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,71 +13,161 @@ import {
   Link,
   Radio,
   RadioGroup,
+  SearchField,
   Text,
   TextField
 } from "react-aria-components";
+
+// Components
 import PageHeader from "@/components/PageHeader";
+import TemplateSelectTemplatePage from '@/components/SelectExistingTemplate';
+import {
+  ContentContainer,
+  LayoutContainer,
+} from '@/components/Container';
+import FormInput from '@/components/Form/FormInput';
+import TemplateSelectListItem from "@/components/TemplateSelectListItem";
+
+// NSF Templates
+const nsfTemplates = [
+  {
+    funder: 'National Science Foundation (nsf.gov)',
+    title: 'Arctic Data Center: NSF Polar Programs',
+    description: 'Template for NSF Polar Programs data management plans.',
+    lastRevisedBy: 'Sue Jones',
+    lastUpdated: '04-01-2024',
+    hasAdditionalGuidance: true
+  },
+  {
+    funder: 'National Science Foundation (nsf.gov)',
+    title: 'NSF Polar Expeditions',
+    description: 'Specialized template for NSF polar expedition data management.',
+    lastRevisedBy: 'Sue Jones',
+    lastUpdated: '04-01-2024',
+    hasAdditionalGuidance: false,
+    publishStatus: 'Unpublished'
+  },
+  {
+    funder: 'National Science Foundation (nsf.gov)',
+    title: 'NSF: McMurdo Station (Antarctic)',
+    description: 'Template specifically designed for McMurdo Station research projects.',
+    lastRevisedBy: 'Sue Jones',
+    lastUpdated: '09-21-2024',
+    hasAdditionalGuidance: false
+  }
+];
+
+// Public DMP Templates
+const publicTemplates = [
+  {
+    funder: 'DMP Tool',
+    title: 'General Research DMP',
+    description: 'A general-purpose data management plan template suitable for various research projects.',
+    lastRevisedBy: 'John Smith',
+    lastUpdated: '03-15-2024',
+    hasAdditionalGuidance: false
+  },
+  {
+    funder: 'DMP Tool',
+    title: 'Humanities Research DMP',
+    description: 'Template designed for humanities research data management.',
+    lastRevisedBy: 'Mary Johnson',
+    lastUpdated: '03-28-2024',
+    hasAdditionalGuidance: false
+  },
+  {
+    funder: 'DMP Tool',
+    title: 'Social Sciences DMP',
+    description: 'Specialized template for social sciences research data management.',
+    lastRevisedBy: 'David Wilson',
+    lastUpdated: '04-01-2024',
+    hasAdditionalGuidance: false
+  }
+];
 
 const TemplateCreatePage: React.FC = () => {
+  const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [templateName, setTemplateName] = useState('');
+  const [errors, setErrors] = useState<string[]>([])
+  const searchParams = useSearchParams();
+  const stepParam = searchParams.get('step');
+  const stepQueryValue = stepParam ? parseInt(stepParam, 10) : 1;
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted');
 
-    // redirect to the new template page
-    window.location.href = '/template/create/select-template';
-
+    // redirect to select an existing template page
+    if (templateName.length > 2) {
+      router.push('/template/create?step=2')
+    } else {
+      setErrors(prev => [...prev, 'Please enter a valid value for template name.']);
+    }
   }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setErrors([]);
+    setTemplateName(e.target.value);
+  }
+
+  useEffect(() => {
+    // If a step was specified in a query param, then set that step
+    if (stepQueryValue) {
+      setStep(stepQueryValue);
+    }
+  }, [stepQueryValue])
 
   return (
     <>
+      {errors && errors.length > 0 &&
+        <div className="error" role="alert" aria-live="assertive">
+          {errors.map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
+        </div>
+      }
+      {step === 1 && (
+        <>
+          <PageHeader
+            title="Create a template"
+            showBackButton={false}
+            breadcrumbs={
+              <Breadcrumbs>
+                <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
+                <Breadcrumb><Link href="/template">Template</Link></Breadcrumb>
+                <Breadcrumb>Create a template</Breadcrumb>
+              </Breadcrumbs>
+            }
+            actions={null}
+            className="page-template-list"
+          />
 
+          <LayoutContainer>
+            <ContentContainer>
+              <Form onSubmit={handleNext}>
+                <FormInput
+                  name="template_name"
+                  type="text"
+                  label="Name of your template"
+                  placeholder=""
+                  value={templateName}
+                  onChange={handleInputChange}
+                  helpMessage="Don't worry, you can change this later."
+                />
 
-      <PageHeader
-        title="Create a template"
-        description="Manager or create DMSP templates, once published researchers will be able to select your template."
-        showBackButton={true}
-        breadcrumbs={
-          <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/templates">Templates</Link></Breadcrumb>
-            <Breadcrumb>Create a template</Breadcrumb>
-          </Breadcrumbs>
-        }
-        actions={null}
-        className="page-template-list"
-      />
+                <Button type="submit"
+                  className="">Next</Button>
 
+              </Form>
+            </ContentContainer>
+          </LayoutContainer>
+        </>
+      )}
+      {step == 2 && (
+        <TemplateSelectTemplatePage />
+      )}
 
-
-      <Form onSubmit={handleSubmit}>
-        <TextField
-          name="template_name"
-          type="text"
-          isRequired
-        >
-          <Label>Template name</Label>
-          <Text slot="description" className="help">
-            Don’t worry, you can change this later.
-          </Text>
-          <Input />
-          <FieldError />
-        </TextField>
-
-        <RadioGroup>
-          <Label>Template type</Label>
-          <Text slot="description" className="help">
-            Choose the type of template you want to create.
-          </Text>
-          <Radio value="previous">Start with one of your previous templates.</Radio>
-          <Radio value="dmp">Start with a DMP best practice template.</Radio>
-          <Radio value="new">Build new template</Radio>
-        </RadioGroup>
-
-        <Button type="submit"
-          className="">Create</Button>
-
-      </Form>
     </>
   );
 }

@@ -39,7 +39,7 @@ const FormInput: React.FC<InputProps> = ({
       <TextField
         name={name}
         type={type}
-        className={`${className} ${isInvalid ? 'field-error' : ''}`}
+        className={`${className} react-aria-TextField ${isInvalid ? 'field-error' : ''}`}
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >
