@@ -1,6 +1,8 @@
 
 ### Updated
 =======
+- Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]
+- Updated DMPEditor to use a skeleton while the text editors are loading, since it can be slow [#187]
 - Updated app/template/[templateId]/section/new page to hook it up to backend data, handle errors, and add translations [#189]
 - Updated app/template/[templateId] page to hook it up to the backend and handle errors and translations[#206]
 - Updated app/[locale]/template page to hook it up to backend and handle errors and translations[#82]

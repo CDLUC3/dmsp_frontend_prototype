@@ -700,6 +700,7 @@ function Page() {
                 <DmpIcon icon="favorite" />
                 <DmpIcon icon="format_bold" />
                 <DmpIcon icon="double_arrow" />
+                <DmpIcon icon="info" />
               </div>
             </Example>
 
