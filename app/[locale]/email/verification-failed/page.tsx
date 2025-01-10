@@ -2,10 +2,7 @@
 
 import React from 'react';
 import PageHeader from '@/components/PageHeader';
-import {
-  LayoutContainer,
-  ContentContainer,
-} from '@/components/Container';
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 
 const VerificationFailed: React.FC = () => {
   return (

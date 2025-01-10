@@ -1,20 +1,22 @@
 import React from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import {useTranslations} from 'next-intl';
 import sanitizeHtml from 'sanitize-html';
 import styles from './QuestionEdit.module.scss';
-import { Button } from "react-aria-components";
+import {Button} from "react-aria-components";
 
 interface QuestionEditProps {
   id: string;
   text: string;
   link: string;
+  name?: string;
 }
 
 const QuestionEdit: React.FC<QuestionEditProps> = ({
   id,
   text,
-  link
+  link,
+  name
 }) => {
 
   const questionText = sanitizeHtml(text);

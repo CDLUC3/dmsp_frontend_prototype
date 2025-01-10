@@ -1,7 +1,12 @@
 'use client'
 
-import { ApolloClient, InMemoryCache, from, createHttpLink } from "@apollo/client";
-import { errorLink, authLink, retryLink } from "@/lib/graphql/graphqlHelper";
+import {
+  ApolloClient,
+  createHttpLink,
+  from,
+  InMemoryCache
+} from "@apollo/client";
+import {authLink, errorLink, retryLink} from "@/lib/graphql/graphqlHelper";
 
 export const createApolloClient = () => {
     const httpLink = createHttpLink({

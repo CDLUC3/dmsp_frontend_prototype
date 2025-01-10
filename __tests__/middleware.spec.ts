@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { middleware } from '../middleware';
-import { verifyJwtToken } from '@/lib/server/auth';
-import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
+import {NextRequest, NextResponse} from 'next/server';
+import {middleware} from '../middleware';
+import {verifyJwtToken} from '@/lib/server/auth';
+import {getAuthTokenServer} from '@/utils/getAuthTokenServer';
 
 
 jest.mock('next/server', () => ({
