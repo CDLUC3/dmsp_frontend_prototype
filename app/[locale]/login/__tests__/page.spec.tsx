@@ -1,10 +1,15 @@
 import React from 'react';
-import { fireEvent, renderWithProviders, screen, waitFor } from '@/utils/test-utils'; //wrapping test with AuthProvider
+import {
+  fireEvent,
+  renderWithProviders,
+  screen,
+  waitFor
+} from '@/utils/test-utils'; //wrapping test with AuthProvider
 import LoginPage from '../page';
 import logECS from '@/utils/clientLogger';
 //Need to import this useRouter after the jest.mock is in place
-import { useRouter } from 'next/navigation';
-import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
+import {useRouter} from 'next/navigation';
+import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
 
 jest.mock('next/navigation', () => ({
     useRouter: jest.fn()

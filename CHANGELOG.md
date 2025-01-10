@@ -1,3 +1,8 @@
+### Added
+- Project overview page [#175]
+  - Moved pages under [locale] folder
+  - dummy portuguese brazilian translation
+
 ### Updated
 =======
 - Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]

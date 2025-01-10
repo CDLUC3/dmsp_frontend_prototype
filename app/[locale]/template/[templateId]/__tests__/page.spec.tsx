@@ -1,12 +1,12 @@
 import React from "react";
-import { render, screen, act, fireEvent, waitFor } from '@/utils/test-utils';
+import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
 import {
+  useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
-  useTemplateQuery,
-  useArchiveTemplateMutation
+  useTemplateQuery
 } from '@/generated/graphql';
 
-import { useParams } from 'next/navigation';
+import {useParams} from 'next/navigation';
 import TemplateEditPage from '../page';
 
 // Mock the useTemplateQuery hook

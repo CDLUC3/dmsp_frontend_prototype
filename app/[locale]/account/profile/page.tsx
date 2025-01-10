@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useRouter } from 'next/navigation';
+import React, {useEffect, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useRouter} from 'next/navigation';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { usePathname } from '@/i18n/routing';
-import { useLocale } from 'next-intl';
+import {useLocale, useTranslations} from 'next-intl';
+import {usePathname} from '@/i18n/routing';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,35 +17,35 @@ import {
 
 // GraphQL queries and mutations
 import {
-  useMeQuery,
-  useUpdateUserProfileMutation,
   AffiliationsDocument,
-  useLanguagesQuery
+  useLanguagesQuery,
+  useMeQuery,
+  useUpdateUserProfileMutation
 } from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import { FormSelect } from '@/components/Form/FormSelect';
+import {FormSelect} from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
 import {
-  LayoutWithPanel,
   ContentContainer,
+  LayoutWithPanel,
   SidebarPanel,
 } from '@/components/Container';
 
 // Interfaces
 import {
   EmailInterface,
+  FormErrorsInterface,
   LanguageInterface,
-  ProfileDataInterface,
-  FormErrorsInterface
+  ProfileDataInterface
 } from '@/app/types';
 
 // Utils and other
 import logECS from '@/utils/clientLogger';
-import { refreshAuthTokens } from "@/utils/authHelper";
+import {refreshAuthTokens} from "@/utils/authHelper";
 import styles from './profile.module.scss';
 
 const ProfilePage: React.FC = () => {
@@ -248,7 +247,7 @@ const ProfilePage: React.FC = () => {
     return isValid;
   };
 
-  /* This function is called by the child component, UpdateEmailAddress 
+  /* This function is called by the child component, UpdateEmailAddress
   when affiliation/institution is changed */
   const updateAffiliationFormData = async (id: string, value: string) => {
     clearActiveFieldError('affiliationName');

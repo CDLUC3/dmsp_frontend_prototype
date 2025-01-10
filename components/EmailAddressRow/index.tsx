@@ -2,13 +2,9 @@
 
 import React from 'react';
 import classNames from 'classnames';
-import { useTranslations } from 'next-intl';
-import { DmpIcon } from '@/components/Icons';
-import {
-  Button,
-  Tooltip,
-  TooltipTrigger
-} from 'react-aria-components';
+import {useTranslations} from 'next-intl';
+import {DmpIcon} from '@/components/Icons';
+import {Button, Tooltip, TooltipTrigger} from 'react-aria-components';
 import styles from './emailAddressRow.module.scss';
 
 interface DeleteRowInterface {
