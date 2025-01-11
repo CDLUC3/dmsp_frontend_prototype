@@ -1,6 +1,7 @@
 
 ### Updated
 =======
+- Updated app/template/[templateId]/section/[section_slug] to hook it into backend data [#217]
 - Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]
 - Updated DMPEditor to use a skeleton while the text editors are loading, since it can be slow [#187]
 - Updated app/template/[templateId]/section/new page to hook it up to backend data, handle errors, and add translations [#189]

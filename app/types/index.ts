@@ -83,6 +83,8 @@ export interface SectionFormInterface {
   sectionIntroduction: string;
   sectionRequirements: string;
   sectionGuidance: string;
+  displayOrder?: number;
+  bestPractice?: boolean;
   sectionTags?: TagsInterface[];
 }
 

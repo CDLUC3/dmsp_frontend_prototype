@@ -211,7 +211,6 @@ export const DmpEditor = memo(({ content, setContent, error, id, labelId }: DmpE
     new AnnotationExtension({}),
   ], []);
 
-
   const { manager, state, setState } = useRemirror({
     extensions,
 
