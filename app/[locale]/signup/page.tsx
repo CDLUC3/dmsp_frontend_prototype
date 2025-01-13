@@ -88,11 +88,6 @@ const SignUpPage: React.FC = () => {
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
 
 
-  function handleInvalid(ev: React.FormEvent) {
-    ev.preventDefault();
-    setInvalid(true);
-  }
-
   async function handleSignUp() {
     setIsWorking(true);
     setErrors([]);
