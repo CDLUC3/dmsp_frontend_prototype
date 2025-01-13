@@ -46,6 +46,16 @@ type signupDataMap = {
   acceptedTerms: boolean,
 };
 
+type fieldErrorsMap = {
+  email: string;
+  givenName: string;
+  surName: string;
+  affiliationId: string;
+  otherAffiliationName: string;
+  password: string;
+  confirmPassword: string;
+}
+
 const SignUpPage: React.FC = () => {
   const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
@@ -57,11 +67,21 @@ const SignUpPage: React.FC = () => {
   const [invalid, setInvalid] = useState<boolean>(false);
 
   const [errors, setErrors] = useState<string[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<fieldErrorsMap>({
+    email: "",
+    givenName: "",
+    surName: "",
+    affiliationId: "",
+    otherAffiliationName: "",
+    password: "",
+    confirmPassword: "",
+  });
 
   const [email, setEmail] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [institution, setInstitution] = useState<string>("");
   const [otherField, setOtherField] = useState<boolean>(false);
   const [otherAffiliation, setOtherAffiliation] = useState<string>("");
@@ -73,7 +93,7 @@ const SignUpPage: React.FC = () => {
     setInvalid(true);
   }
 
-  const handleSignUp = async () => {
+  async function handleSignUp() {
     setIsWorking(true);
     setErrors([]);
 
@@ -120,9 +140,10 @@ const SignUpPage: React.FC = () => {
   };
 
   function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
-    if (!ev.nativeEvent || invalid) return;
+    if (!ev.nativeEvent || invalid || hasErrors()) return;
     ev.nativeEvent.preventDefault();
 
+    setIsWorking(true);
     switch (step) {
       case "email":
         // TODO:: How do we detect SSO? For the time being we just go
@@ -131,12 +152,23 @@ const SignUpPage: React.FC = () => {
         break;
 
       case "profile":
-        setIsWorking(true);
-        if (termsAccepted) {
+        if (password !== confirmPassword) {
+          setFieldErrors({
+            ...fieldErrors,
+            confirmPassword: "Passwords don't match",
+          });
+          setErrors(["Please fix the errors below"]);
+          setInvalid(true);
+        } else if (termsAccepted) {
           handleSignUp();
         }
         break;
     }
+    setIsWorking(false);
+  }
+
+  function hasErrors() {
+    return Object.values(fieldErrors).some(v => v.trim() !== "");
   }
 
   function reFocusForm() {
@@ -182,7 +214,7 @@ const SignUpPage: React.FC = () => {
           id="signupForm"
           role="form"
           onSubmit={handleSubmit}
-          onInvalid={handleInvalid}
+          validationErrors={fieldErrors}
           data-step={step}
           ref={formRef}
         >
@@ -286,7 +318,19 @@ const SignUpPage: React.FC = () => {
                 onChange={setPassword}
               >
                 <Label>Password</Label>
-                <Input />
+                <Input data-testid="pass" />
+                <FieldError />
+              </TextField>
+
+              <TextField
+                name="confirmPassword"
+                type="password"
+                aria-label="Confirm Password"
+                isRequired
+                onChange={setConfirmPassword}
+              >
+                <Label>Confirm Password</Label>
+                <Input data-testid="confirmpass" />
                 <FieldError />
               </TextField>
 
@@ -308,6 +352,7 @@ const SignUpPage: React.FC = () => {
               <Button
                 type="submit"
                 isDisabled={isWorking}
+                data-testid="continue"
               >
                 {isWorking ? '...' : 'Continue'}
               </Button>
@@ -317,6 +362,7 @@ const SignUpPage: React.FC = () => {
               <Button
                 type="submit"
                 isDisabled={(isWorking || !termsAccepted)}
+                data-testid="signup"
               >
                 {isWorking ? 'Signing up ...' : 'Sign Up'}
               </Button>

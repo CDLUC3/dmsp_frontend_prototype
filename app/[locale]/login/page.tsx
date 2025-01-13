@@ -158,7 +158,7 @@ const LoginPage: React.FC = () => {
               isRequired
             >
               <Label>Email address</Label>
-              <Input />
+              <Input data-testid="emailInput" />
               {(step === "email") && (
                 <Text slot="description" className="help">
                   To enable Single Sign On (SSO), use your institutional
@@ -173,14 +173,14 @@ const LoginPage: React.FC = () => {
           {(step === "password") && (
             <TextField
               id="password"
-              name="email"
+              name="password"
               type="password"
               aria-label="Password"
               onChange={setPassword}
               isRequired
             >
               <Label>Password</Label>
-              <Input />
+              <Input data-testid="passInput" />
               <FieldError />
               <Text slot="description" className="help">
                 <Link>Forgot Password?</Link>
@@ -193,6 +193,7 @@ const LoginPage: React.FC = () => {
               <Button
                 type="submit"
                 isDisabled={loading}
+                data-testid="actionContinue"
               >
                 {loading ? '...' : 'Continue'}
               </Button>
@@ -202,8 +203,9 @@ const LoginPage: React.FC = () => {
               <Button
                 type="submit"
                 isDisabled={loading}
+                data-testid="actionSubmit"
               >
-                {loading ? '...' : 'Continue'}
+                {loading ? '...' : 'Submit'}
               </Button>
             )}
           </ToolbarContainer>
