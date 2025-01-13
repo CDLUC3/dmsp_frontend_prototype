@@ -1,6 +1,7 @@
 
 ### Updated
 =======
+- Updated versions of NextJS to 14.2.22 and pino-pretty to 13.0.0 in an effort to update vulnerable packages [#226]
 - Updated app/template/[templateId]/section/[section_slug] to hook it into backend data [#217]
 - Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]
 - Updated DMPEditor to use a skeleton while the text editors are loading, since it can be slow [#187]
