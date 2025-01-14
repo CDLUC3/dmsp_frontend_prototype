@@ -32,19 +32,19 @@ const PlanOverviewSectionPage: React.FC = () => {
     {
       id: "q1",
       title: "What types of data, samples, collections, software, materials, etc. will be produced during your project?",
-      link: "/plan/123/section/3/question/1",
+      link: "/en-US/projects/proj_2425/dmp/xxx/q/2544",
       isAnswered: true
     },
     {
       id: "q2",
       title: "What type of metadata (information others might need to use your data) will be collected during...",
-      link: "/plan/123/section/3/question/2",
+      link: "/en-US/projects/proj_2425/dmp/xxx/q/2545",
       isAnswered: false
     },
     {
       id: "q3",
       title: "Will all data collected be converted to open source formats?",
-      link: "/plan/123/section/3/question/3",
+      link: "/en-US/projects/proj_2425/dmp/xxx/q/2546",
       isAnswered: false
     }
   ];
@@ -57,10 +57,11 @@ const PlanOverviewSectionPage: React.FC = () => {
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs aria-label={t('navigation.navigation')}>
-            <Breadcrumb><Link href="/">{t('navigation.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{t('navigation.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects/proj_2425/">Project name</Link></Breadcrumb>
-            <Breadcrumb>{plan.title}</Breadcrumb>
+            <Breadcrumb><Link href="/en-US">{t('navigation.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/en-US/projects">{t('navigation.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/en-US/projects/proj_2425/">Project name</Link></Breadcrumb>
+            <Breadcrumb><Link href="/en-US/projects/proj_2425/dmp/xxx/">{plan.title}</Link></Breadcrumb>
+            <Breadcrumb>Data and Metadata Formats</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}

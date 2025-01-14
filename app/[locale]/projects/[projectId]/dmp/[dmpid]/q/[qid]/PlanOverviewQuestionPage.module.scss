@@ -1,143 +1,68 @@
-.planOverview {
-  display: grid;
-  gap: var(--space-2);
-  margin-bottom: var(--space-8);
-}
-
-.planOverviewItem {
-  border-radius: 0;
-  padding: var(--space-2) var(--space-4);
-  background-color: var(--color-background-subtle);
-  border-bottom: 1px solid var(--gray-100);
-
-  /* Use grid for layout */
-  display: grid;
-  grid-template-columns: 1fr auto; /* Content takes available space, button takes needed space */
-  gap: var(--space-2);
-  align-items: flex-end;
-
-  /* Make the content area span full width on mobile */
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
-
-  h2 {
-    margin: 0;
-    padding: 0;
-  }
-
-  a {
-    font-weight: bold;
-    font-size: var(--fs-base);
-  }
-}
-
-.planOverviewItemContent {
-  /* Content container */
+.bestPracticesLinks {
   display: flex;
   flex-direction: column;
-  gap: var(--space-0);
+  gap: var(--space-3);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    color: var(--blue-600);
+    text-decoration: none;
+    font-size: var(--fs-base);
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    svg {
+      margin-left: var(--space-1);
+      width: var(--space-4);
+      height: var(--space-4);
+      flex-shrink: 0;
+    }
+  }
 }
 
-.planOverviewItemHeading {
-  margin: 0;
-  font-size: var(--fs-base);
-  font-weight: 400;
+.lastSaved {
+  display: flex;
+  justify-content: right;
+  color: var(--slate-800);
+  margin-top: 10px;
 }
 
-.planOverviewItemTitle {
-  font-size: var(--fs-h4);
-  margin: 0 0 var(--space-2) 0;
-}
-
-
-.planSectionsList {
-  background: white;
-  border-radius: var(--border-radius-lg);
-  margin-bottom: var(--space-4);
-  box-shadow: var(--card-shadow);
-  padding: var(--card-padding);
-
-
-}
-
-.planSectionsHeader {
+.actions {
   display: flex;
   justify-content: space-between;
-  align-items: center;
 
-}
-
-.planSectionsTitle {
-
-  h3{
-    margin: 0;
-    padding: 0;
-    margin-bottom: var(--space-2);
-  }
-  p{
-    margin: 0;
-    padding: 0;
+  .actionItem {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+    .react-aria-Button{
+      justify-items: flex-end;
+      margin-bottom: var(--space-2);
+    }
   }
 }
 
-.progressIndicator {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--gray-500);
-  font-size: var(--fs-sm);
-  font-weight: 400;
-}
-
-.progressIcon {
-  color: var(--success-600);
-  flex-shrink: 0;
-}
-
-
-
-.planSectionsList + .planSectionsList {
-  margin-top: var(--space-4);
-}
-
-
-.statusPanel {
+/* Best Practices Sidebar Styles */
+.bestPracticesPanel {
   background-color: var(--color-background-subtle);
-  border-radius: var(--card-border-radius);
-  margin-bottom: var(--space-4);
-  overflow: hidden;
-}
-
-.statusPanelHeader {
-  background-color: var(--slate-900);
+  border-radius: var(--border-radius-lg);
   padding: var(--space-4);
-
-  h2 {
-    color: white;
-    margin: 0;
-    padding: 0;
-  }
-}
-
-.statusPanelContent {
-  padding: var(--space-4);
-  background-color: var(--gray-75);
 
   h3 {
-    font-size: var(--fs-h5);
-    margin: 0 0 var(--space-1) 0;
-    padding: 0;
+    font-size: var(--fs-base);
+    font-weight: 500;
+    margin: 0;
+    margin-bottom: var(--space-2);
   }
 
   p {
-    padding: 0;
-    margin-top: 0;
-    font-size: var(--fs-base);
-    margin-bottom: var(--space-2);
-
-    a {
-      font-size: var(--fs-base);
-    }
+    font-size: var(--fs-sm);
+    color: var(--gray-600);
+    margin: 0;
+    margin-bottom: var(--space-4);
   }
 }

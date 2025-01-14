@@ -38,7 +38,7 @@
       "visibilitySettings": "Visibility Settings",
       "download": {
         "title": "Download",
-        "downloadPDF": "Download this plan as a PDF ↓",
+        "downloadPDF": "Download this plan",
         "draftInfo": "When you save as draft, only you and people with shared access will be able to see this plan.",
         "learnMore": "Learn more",
         "markComplete": "Mark as complete"

@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
+import React, {useState} from 'react';
+import {Breadcrumb, Breadcrumbs, Form, Link} from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import styles from './PlanOverviewQuestionPage.module.scss';
 import {useTranslations} from "next-intl";
@@ -10,116 +10,67 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import {DmpEditor} from "@/components/Editor";
+import {Card,} from "@/components/Card/card";
 
-interface PlanSection {
-  section_title: string;
+interface Question {
+  id: string;
+  title: string;
   link: string;
-  id: string;
-  progress: number;
-}
-
-interface PlanMember {
-  fullname: string;
-  role: string;
-  email: string;
-}
-
-interface Plan {
-  id: string;
-  template_name: string;
-  funder_id: string;
-  funder_name: string;
-  template_id: string;
-  sections: PlanSection[];
-  doi: string;
-  last_updated: string;
-  created_date: string;
-  published_status: string;
-  visibility: string;
-  members: PlanMember[];
-  research_output_count: number;
+  isAnswered: boolean;
 }
 
 const PlanOverviewQuestionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
+  const html = String.raw;
+  const richtextDefault = html`test`;
+  const [editorContent, setEditorContent] = useState(richtextDefault);
 
   const plan = {
     id: "plan_123",
     template_name: "NSF Polar Programs",
     title: "NSF Polar Programs",
-    funder_id: "nsf_1",
-    funder_name: "National Science Foundation",
-    template_id: "temp_456",
-    published_status: "Draft",
-    visibility: "Not Published",
-    members: [
-      {
-        fullname: "Frederick Ice",
-        role: "PI",
-        email: "fred.ice@example.com"
-      },
-      {
-        fullname: "Jennifer Frost",
-        role: "Contributor",
-        email: "jfrost@example.com"
-      }
-    ],
-    research_output_count: 3,
-    sections: [
-      {
-        section_title: "Roles and Responsibilities",
-        link: "/plan/123/section/1",
-        id: "sect_1",
-        progress: 1
-      },
-      {
-        section_title: "Types of Data",
-        link: "/plan/123/section/2",
-        id: "sect_2",
-        progress: 1
-      },
-      {
-        section_title: "Data and Metadata formats",
-        link: "/plan/123/section/3",
-        id: "sect_3",
-        progress: 2
-      },
-      {
-        section_title: "Policies for Access and Sharing",
-        link: "/plan/123/section/4",
-        id: "sect_4",
-        progress: 1
-      },
-      {
-        section_title: "Policies for reuse and re-distribution",
-        link: "/plan/123/section/5",
-        id: "sect_5",
-        progress: 0
-      },
-      {
-        section_title: "Plans for archiving and preservation",
-        link: "/plan/123/section/6",
-        id: "sect_6",
-        progress: 0
-      }
-    ],
-    doi: "10.12345/example.123",
-    last_updated: "2024-04-01",
-    created_date: "2023-07-18"
+    funder_name: "National Science Foundation"
   };
+
+  const questions: Question[] = [
+    {
+      id: "q1",
+      title: "What types of data, samples, collections, software, materials, etc. will be produced during your project?",
+      link: "/en-US/projects/proj_2425/dmp/xxx/q/2544",
+      isAnswered: true
+    },
+    {
+      id: "q2",
+      title: "What type of metadata (information others might need to use your data) will be collected during...",
+      link: "/en-US/projects/proj_2425/dmp/xxx/q/2545",
+      isAnswered: false
+    },
+    {
+      id: "q3",
+      title: "Will all data collected be converted to open source formats?",
+      link: "/en-US/projects/proj_2425/dmp/xxx/q/2546",
+      isAnswered: false
+    }
+  ];
 
   return (
     <>
       <PageHeader
-        title={plan.title}
-        description={t('page.pageDescription')}
+        title="What types of data, samples, collections, software, materials, etc. will be produced during your project?"
+        description=""
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs aria-label={t('navigation.navigation')}>
-            <Breadcrumb><Link href="/">{t('navigation.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{t('navigation.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects/proj_2425/">Project name</Link></Breadcrumb>
-            <Breadcrumb>{plan.title}</Breadcrumb>
+            <Breadcrumb><Link
+              href="/en-US">{t('navigation.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href="/en-US/projects">{t('navigation.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/en-US/projects/proj_2425/">Project
+              name</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href="/en-US/projects/proj_2425/dmp/xxx/">{plan.title}</Link></Breadcrumb>
+            <Breadcrumb>Data and Metadata Formats</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
@@ -128,153 +79,152 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
       <LayoutWithPanel>
         <ContentContainer>
-          <div className={"container"}>
-            <div className={styles.planOverview}>
-              <section className={styles.planOverviewItem} aria-labelledby="funder-title">
-                <div className={styles.planOverviewItemContent}>
-                  <h2 id="funder-title" className={styles.planOverviewItemTitle}>
-                    {t('funder.title')}
-                  </h2>
-                  <p className={styles.planOverviewItemHeading}>
-                    {plan.funder_name}
-                  </p>
-                </div>
-                <Link href="/plans/123/edit" aria-label={t('funder.edit')}>
-                  {t('funder.edit')}
-                </Link>
-              </section>
+          <div className="container">
+            <section>
+              <h4>Requirements by {plan.funder_name}</h4>
+              <p>
+                The Arctic Data Center requires when submitting to the Center,
+                include methods to create these types of data.
+              </p>
+              <p>
+                If using proprietary formats like Excel or MATLAB, plan to
+                convert them to open-source formats before submission. If
+                conversion isn't possible, explain why
+              </p>
 
-              <section className={styles.planOverviewItem} aria-labelledby="members-title">
-                <div className={styles.planOverviewItemContent}>
-                  <h2 id="members-title" className={styles.planOverviewItemTitle}>
-                    {t('members.title')}
-                  </h2>
-                  <p className={styles.planOverviewItemHeading}>
-                    {plan.members.map((member, index) => (
-                      <span key={index}>
-                                                {t('members.info', {
-                                                  name: member.fullname,
-                                                  role: member.role
-                                                })}
-                        {index < plan.members.length - 1 ? '; ' : ''}
-                                            </span>
-                    ))}
-                  </p>
-                </div>
-                <Link href="/plans/123/edit" aria-label={t('members.edit')}>
-                  {t('members.edit')}
-                </Link>
-              </section>
+              <h4>Requirements by University of California</h4>
+              <p>
+                The management of data and metadata is essential for supporting
+                research integrity, reproducibility and collaboration. This
+                section seeks to document the types and formats of data and
+                metadata that will be generated in your project. Properly
+                formatted and well-documented data enhance the visibility of
+                your research, promote collaboration among users and ensure
+                compliance with institutional policies and guidelines.
+              </p>
+            </section>
 
-              <section className={styles.planOverviewItem} aria-labelledby="outputs-title">
-                <div className={styles.planOverviewItemContent}>
-                  <h2 id="outputs-title" className={styles.planOverviewItemTitle}>
-                    {t('outputs.title')}
-                  </h2>
-                  <p className={styles.planOverviewItemHeading}>
-                    {t('outputs.count', {count: plan.research_output_count})}
-                  </p>
+            <Card>
+              <Form>
+                <span>Question</span>
+                <h2>
+                  What types of data, samples, collections, software, materials, etc. will be produced during your project?
+                </h2>
+
+                <DmpEditor content={"test test"} setContent={setEditorContent} />
+
+                <div className="lastSaved mt-5 ">
+                  Last saved X minutes ago
                 </div>
-                <Link href="/plans/123/edit" aria-label={t('outputs.edit')}>
-                  {t('outputs.edit')}
-                </Link>
-              </section>
+              </Form>
+            </Card>
+
+
+
+            <section>
+              <h4>Guidance by {plan.funder_name}</h4>
+              <p>
+                In your Data Management Plan (DMP), detail the types of data and
+                materials expected to be produced in your project. This includes
+                specifying raw and processed data, biological samples, chemical
+                compounds, survey data and software. Highlight the formats (for
+                example CSV, JSON, executable files) and the scale of data
+                production (for example terabytes of data, hundreds of samples).
+              </p>
+              <p>
+                Additionally, mention any unique elements like multimedia files
+                or large-scale images and address specific storage needs or
+                management challenges. Providing this comprehensive overview
+                helps stakeholders understand the scope of your project's data
+                requirements and ensures alignment with data management and
+                sharing policies.
+              </p>
+              <p>
+                NSF Helpdesk (open in new window) NSF.gov (open in new window)
+                funding.nsf.gov (open in new window)
+              </p>
+
+              <h4>Guidance by University of California</h4>
+              <p>
+                This is the most detailed section of the data management plan.
+                Describe the categories of data being collected and how they tie
+                into the data associated with the methods used to collect that
+                data.
+              </p>
+              <p>
+                Expect this section to be the most detailed section, taking up a
+                large portion of your data management plan document.
+              </p>
+            </section>
+
+            <div className={styles.actions} >
+              <div className={styles.actionItem}>
+                <button
+                  className="react-aria-Button react-aria-Button--primary">
+                  Back to Section
+                </button>
+              </div>
+              <div className={styles.actionItem}>
+                <button
+                  className="react-aria-Button react-aria-Button--primary">
+                  Save
+                </button>
+                <p className={styles.lastSaved}>
+                  Last saved: X mins ago
+                </p>
+
+              </div>
             </div>
-
-
-            {plan.sections.map((section) => (
-              <section
-                key={section.id}
-                className={styles.planSectionsList}
-                aria-labelledby={`section-title-${section.id}`}
-              >
-                <div className={styles.planSectionsHeader}>
-                  <div className={styles.planSectionsTitle}>
-                    <h3 id={`section-title-${section.id}`}>
-                      {section.section_title}
-                    </h3>
-                    <p aria-label={`${section.progress} out of 3 questions answered for ${section.section_title}`}>
-                                            <span className={styles.progressIndicator}>
-                                                <svg
-                                                  className={styles.progressIcon}
-                                                  width="18"
-                                                  height="18"
-                                                  xmlns="http://www.w3.org/2000/svg"
-                                                  viewBox="0 -960 960 960"
-                                                  fill="currentColor"
-                                                  aria-hidden="true"
-                                                >
-                                                    <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z"/>
-                                                </svg>
-                                              {t('sections.progress', {
-                                                current: section.progress,
-                                                total: 3
-                                              })} {t('sections.questionsAnswered')}
-                                            </span>
-                    </p>
-                  </div>
-                  <Link
-                    href={section.link}
-                    aria-label={t('sections.updateSection', {
-                      title: section.section_title
-                    })}
-                    className={"react-aria-Button react-aria-Button--secondary"}
-                  >
-                    {t('sections.update')}
-                  </Link>
-                </div>
-              </section>
-            ))}
 
 
           </div>
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={styles.statusPanel}>
-            <div className={styles.statusPanelHeader}>
-              <h2>{t('status.title')}</h2>
-            </div>
-            <div className={styles.statusPanelContent}>
-              <div className="mb-5">
-                <h3>{t('status.lastUpdated')}</h3>
-                <p>{plan.last_updated}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.publishedStatus')}</h3>
-                <p>{plan.published_status}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.doi')}</h3>
-                <p>{plan.doi || t('status.notPublished')}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.visibilitySettings')}</h3>
-                <p>{plan.visibility}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.download.title')}</h3>
-                <p>
-                  <Link href="#">{t('status.download.downloadPDF')}</Link>
-                </p>
-                <p>
-                  {t('status.download.draftInfo')} <Link
-                  href="#">{t('status.download.learnMore')}</Link>
-                </p>
-                <button className="react-aria-Button react-aria-Button--primary">
-                  {t('status.download.markComplete')}
-                </button>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.feedback.title')}</h3>
-                <p>{t('status.feedback.description')}</p>
-                <p>
-                  <Link href="#">{t('status.feedback.manageAccess')}</Link>
-                </p>
-                <button className="react-aria-Button react-aria-Button--secondary">
-                  {t('status.feedback.requestFeedback')}
-                </button>
-              </div>
+          <div className={styles.bestPracticesPanel}>
+            <h3>Best practice by DMP Tool</h3>
+            <p>Most relevant best practice guide</p>
+
+            <div className={styles.bestPracticesLinks}>
+              <Link href="/best-practices/sharing">
+                Data sharing
+                <svg width="20" height="20" viewBox="0 0 20 20"
+                     fill="currentColor">
+                  <path fillRule="evenodd"
+                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                        clipRule="evenodd"/>
+                </svg>
+              </Link>
+
+              <Link href="/best-practices/preservation">
+                Data preservation
+                <svg width="20" height="20" viewBox="0 0 20 20"
+                     fill="currentColor">
+                  <path fillRule="evenodd"
+                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                        clipRule="evenodd"/>
+                </svg>
+              </Link>
+
+              <Link href="/best-practices/protection">
+                Data protection
+                <svg width="20" height="20" viewBox="0 0 20 20"
+                     fill="currentColor">
+                  <path fillRule="evenodd"
+                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                        clipRule="evenodd"/>
+                </svg>
+              </Link>
+
+              <Link href="/best-practices/all">
+                All topics
+                <svg width="20" height="20" viewBox="0 0 20 20"
+                     fill="currentColor">
+                  <path fillRule="evenodd"
+                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                        clipRule="evenodd"/>
+                </svg>
+              </Link>
             </div>
           </div>
         </SidebarPanel>
