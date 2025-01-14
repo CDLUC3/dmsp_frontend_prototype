@@ -1,4 +1,11 @@
 ### Added
+- Projects dashboard [#175]
+- Project Overview [#175]
+- Plan Overview [#178]
+- Plan Section and boilerplate tests [#178]
+- Plan Question and boilerplate tests [#178]
+
+### Added
 - Project overview page [#175]
   - Moved pages under [locale] folder
   - dummy portuguese brazilian translation
