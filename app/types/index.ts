@@ -43,6 +43,7 @@ export interface TemplateInterface {
     name?: string;
     searchName?: string;
   } | null;
+  visibility?: string;
 }
 
 // Define valid href types for Next.js Link
@@ -56,6 +57,7 @@ type LinkHref = Url | {
 export interface TemplateItemProps {
   title: string;
   content?: JSX.Element | null;
+  description?: string;
   link?: LinkHref;
   defaultExpanded: boolean;
   funder?: string;

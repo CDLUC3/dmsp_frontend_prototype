@@ -17,6 +17,10 @@ import {
 //Components
 import PageHeader from "@/components/PageHeader";
 import TemplateSelectListItem from "@/components/TemplateSelectListItem";
+import {
+  ContentContainer,
+  LayoutContainer,
+} from '@/components/Container';
 
 //GraphQL
 import { useTemplatesQuery, } from '@/generated/graphql';
@@ -25,7 +29,9 @@ import { TemplateInterface, TemplateItemProps, } from '@/app/types';
 
 const TemplateSelectTemplatePage: React.FC = () => {
   const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
+  const [publicTemplatesList, setPublicTemplatesList] = useState<(TemplateItemProps)[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
+  const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<(TemplateItemProps)[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
   const formatter = useFormatter();
@@ -65,32 +71,32 @@ const TemplateSelectTemplatePage: React.FC = () => {
   ];
 
   // Public DMP Templates
-  const publicTemplates = [
-    {
-      funder: 'DMP Tool',
-      title: 'General Research DMP',
-      description: 'A general-purpose data management plan template suitable for various research projects.',
-      lastRevisedBy: 'John Smith',
-      lastUpdated: '03-15-2024',
-      hasAdditionalGuidance: false
-    },
-    {
-      funder: 'DMP Tool',
-      title: 'Humanities Research DMP',
-      description: 'Template designed for humanities research data management.',
-      lastRevisedBy: 'Mary Johnson',
-      lastUpdated: '03-28-2024',
-      hasAdditionalGuidance: false
-    },
-    {
-      funder: 'DMP Tool',
-      title: 'Social Sciences DMP',
-      description: 'Specialized template for social sciences research data management.',
-      lastRevisedBy: 'David Wilson',
-      lastUpdated: '04-01-2024',
-      hasAdditionalGuidance: false
-    }
-  ];
+  // const publicTemplates = [
+  //   {
+  //     funder: 'DMP Tool',
+  //     title: 'General Research DMP',
+  //     description: 'A general-purpose data management plan template suitable for various research projects.',
+  //     lastRevisedBy: 'John Smith',
+  //     lastUpdated: '03-15-2024',
+  //     hasAdditionalGuidance: false
+  //   },
+  //   {
+  //     funder: 'DMP Tool',
+  //     title: 'Humanities Research DMP',
+  //     description: 'Template designed for humanities research data management.',
+  //     lastRevisedBy: 'Mary Johnson',
+  //     lastUpdated: '03-28-2024',
+  //     hasAdditionalGuidance: false
+  //   },
+  //   {
+  //     funder: 'DMP Tool',
+  //     title: 'Social Sciences DMP',
+  //     description: 'Specialized template for social sciences research data management.',
+  //     lastRevisedBy: 'David Wilson',
+  //     lastUpdated: '04-01-2024',
+  //     hasAdditionalGuidance: false
+  //   }
+  // ];
 
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
@@ -100,12 +106,21 @@ const TemplateSelectTemplatePage: React.FC = () => {
   // Filter results when a user enters a search term and clicks "Search" button
   const handleFiltering = (term: string) => {
     setErrors([]);
+    // Search title, funder and description fields for terms
     const filteredList = templates.filter(item =>
-      item.title.toLowerCase().includes(term.toLowerCase())
+      [item.title, item.funder, item.description]
+        .some(field => field?.toLowerCase().includes(term.toLowerCase()))
     );
-    if (filteredList.length >= 1) {
+
+    const filteredPublicTemplatesList = publicTemplatesList.filter(item =>
+      [item.title, item.funder, item.description]
+        .some(field => field?.toLowerCase().includes(term.toLowerCase()))
+    );
+
+    if (filteredList.length >= 1 || filteredPublicTemplatesList.length >= 1) {
       setSearchTerm(term);
-      setFilteredTemplates(filteredList);
+      setFilteredTemplates(filteredList.length > 0 ? filteredList : null);
+      setFilteredPublicTemplates(filteredPublicTemplatesList.length > 0 ? filteredPublicTemplates : null);
     } else {
       //If there are no matching results, then display an error
       const errorMessage = "No items found"
@@ -150,29 +165,43 @@ const TemplateSelectTemplatePage: React.FC = () => {
               lastRevisedBy: template?.modifiedById ? template.modifiedById : null,
               publishStatus: (template?.isDirty) ? 'Published' : 'Unpublished',
               hasAdditionalGuidance: false,
-              defaultExpanded: false
+              defaultExpanded: false,
+              visibility: template?.visibility
             }
           }));
 
         setTemplates(transformedTemplates);
+        const publicTemplates = transformedTemplates.filter(template => {
+          return template.visibility !== 'PRIVATE'
+        });
+        setPublicTemplatesList(publicTemplates);
       }
       fetchAllTemplates(data?.templates);
     }
   }, [data]);
 
-  console.log("***TEMPLATES", templates)
+  useEffect(() => {
+    // Need this to set list of templates back to original, full list after filtering
+    if (searchTerm === '') {
+      setFilteredTemplates(null);
+      setFilteredPublicTemplates(null);
+    }
+  }, [searchTerm])
 
+  console.log("FILTERED PUBLIC TEMPLATES", filteredPublicTemplates);
   return (
     <>
 
       <PageHeader
         title="Select an existing template"
         description=""
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">Template</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template/create?step=1">Create a template</Link></Breadcrumb>
+            <Breadcrumb>Select an existing template</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
@@ -181,84 +210,115 @@ const TemplateSelectTemplatePage: React.FC = () => {
         className="page-template-list"
       />
 
-      <div className="Filters" role="search">
-        <SearchField aria-label="Template search">
-          <Label>Search by keyword</Label>
-          <Input
-            aria-describedby="search-help"
-            value={searchTerm}
-            onChange={e => handleSearchInput(e.target.value)} />
-          <Button
-            onPress={() => {
-              // Call your filtering function without changing the input value
-              handleFiltering(searchTerm);
-            }}
-          >
-            Search
-          </Button>
-          <FieldError />
-          <Text slot="description" className="help" id="search-help">
-            Search by research organization, field station or lab, template
-            description, etc.
-          </Text>
-        </SearchField>
-      </div>
+      <LayoutContainer>
+        <ContentContainer>
+          <>
+            <div className="Filters" role="search">
+              <SearchField aria-label="Template search">
+                <Label>Search by keyword</Label>
+                <Input
+                  aria-describedby="search-help"
+                  value={searchTerm}
+                  onChange={e => handleSearchInput(e.target.value)} />
+                <Button
+                  onPress={() => {
+                    // Call your filtering function without changing the input value
+                    handleFiltering(searchTerm);
+                  }}
+                >
+                  Search
+                </Button>
+                <FieldError />
+                <Text slot="description" className="help" id="search-help">
+                  Search by research organization, field station or lab, template
+                  description, etc.
+                </Text>
+              </SearchField>
+            </div>
 
-      <section className="mb-8" aria-labelledby="previously-created">
-        <h2 id="previously-created">
-          Use one of your previously created templates
-        </h2>
-        <div className="template-list" role="list" aria-label="Your templates">
-          {filteredTemplates && filteredTemplates.length > 0 ? (
-            <div className="template-list" aria-label="Template list" role="list">
-              {
-                filteredTemplates.map((template, index) => (
-                  <TemplateSelectListItem
-                    key={index}
-                    item={template}
-                    onSelect={handleSelect}
-                  />
-                ))
-              }
-            </div>
-          ) : (
-            <div className="template-list" aria-label="Template list" role="list">
-              {
-                templates.map((template, index) => (
-                  <TemplateSelectListItem
-                    key={index}
-                    item={template}
-                    onSelect={handleSelect}
-                  />
-                ))
-              }
-            </div>
-          )
-          }
-          {/* {templates.map((template, index) => (
+            <section className="mb-8" aria-labelledby="previously-created">
+              <h2 id="previously-created">
+                Use one of your previously created templates
+              </h2>
+              <div className="template-list" role="list" aria-label="Your templates">
+                {filteredTemplates && filteredTemplates.length > 0 ? (
+                  <div className="template-list" aria-label="Template list" role="list">
+                    {
+                      filteredTemplates.map((template, index) => (
+                        <TemplateSelectListItem
+                          key={index}
+                          item={template}
+                          onSelect={handleSelect}
+                        />
+                      ))
+                    }
+                  </div>
+                ) : (
+                  <div className="template-list" aria-label="Template list" role="list">
+                    {
+                      templates.map((template, index) => (
+                        <TemplateSelectListItem
+                          key={index}
+                          item={template}
+                          onSelect={handleSelect}
+                        />
+                      ))
+                    }
+                  </div>
+                )
+                }
+                {/* {templates.map((template, index) => (
             <TemplateSelectListItem
               key={index}
               item={template}
               onSelect={handleSelect}
             />
           ))} */}
-        </div>
-      </section>
+              </div>
+            </section>
 
-      {/* <section className="mb-8" aria-labelledby="public-templates">
-        <h2 id="public-templates">
-          Use one of the public templates
-        </h2>
-        <div className="template-list"
-          role="list"
-          aria-label="Public templates">
-          {publicTemplates.map((template, index) => (
-            <TemplateSelectListItem key={index}
-              item={template}></TemplateSelectListItem>
-          ))}
-        </div>
-      </section> */}
+            {(publicTemplatesList && publicTemplatesList.length > 0) && (
+              <section className="mb-8" aria-labelledby="public-templates">
+                <h2 id="public-templates">
+                  Use one of the public templates
+                </h2>
+                <div className="template-list"
+                  role="list"
+                  aria-label="Public templates">
+                  {filteredPublicTemplates && filteredPublicTemplates.length > 0 ? (
+                    <div className="template-list" aria-label="Template list" role="list">
+                      {
+                        filteredPublicTemplates.map((template, index) => (
+                          <TemplateSelectListItem
+                            key={index}
+                            item={template}
+                            onSelect={handleSelect}
+                          />
+                        ))
+                      }
+                    </div>
+                  ) : (
+                    <div className="template-list" aria-label="Template list" role="list">
+                      {
+                        publicTemplatesList.map((template, index) => (
+                          <TemplateSelectListItem
+                            key={index}
+                            item={template}
+                            onSelect={handleSelect}
+                          />
+                        ))
+                      }
+                    </div>
+                  )
+                  }
 
+                </div>
+              </section>
+            )}
+
+          </>
+        </ContentContainer>
+      </LayoutContainer>
     </>
   );
 }

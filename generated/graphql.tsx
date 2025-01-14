@@ -2144,7 +2144,7 @@ export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: A
 export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', templates?: Array<{ __typename?: 'Template', name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, id?: number | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
+export type TemplatesQuery = { __typename?: 'Query', templates?: Array<{ __typename?: 'Template', name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, id?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -2593,6 +2593,7 @@ export const TemplatesDocument = gql`
       displayName
       searchName
     }
+    visibility
   }
 }
     `;

@@ -25,7 +25,8 @@ query Templates {
       name
       displayName
       searchName
-    }
+    },
+    visibility
   }
 }
 
