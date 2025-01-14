@@ -52,6 +52,21 @@ global.fetch = global.fetch || require('node-fetch');
 
 
 describe('LoginPage', () => {
+  const doSteps = async () => {
+    // Step 1
+    fireEvent.change(screen.getByTestId("emailInput"), {
+      target: { value: "test@test.com" }
+    });
+
+    fireEvent.click(screen.getByTestId("actionContinue"));
+    expect(screen.getByTestId("passInput")).toBeInTheDocument();
+
+    // Step 2
+    fireEvent.change(screen.getByTestId("passInput"), {
+      target: { value: "Secret -- 123" },
+    });
+  }
+
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     HTMLElement.prototype.focus = mockFocus;
@@ -110,21 +125,7 @@ describe('LoginPage', () => {
 
     renderWithProviders(<LoginPage />);
 
-    // Complete the first step
-    fireEvent.change(screen.getByTestId("emailInput"), {
-      target: { value: "test@test.com" }
-    });
-    fireEvent.click(screen.getByTestId("actionContinue"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("passInput")).toBeInTheDocument();
-      expect(screen.getByTestId("actionSubmit")).toBeInTheDocument();
-    });
-
-    // Complete the second step
-    fireEvent.change(screen.getByTestId("passInput"), {
-      target: { value: "Secret -- 123" }
-    });
+    doSteps();
     fireEvent.click(screen.getByTestId("actionSubmit"));
 
     await waitFor(() => {
@@ -149,246 +150,190 @@ describe('LoginPage', () => {
     });
   });
 
-//     it('should render login form, save token in cookie, and redirect to home page', async () => {
-//         jest.spyOn(global, 'fetch').mockImplementation((url) => {
-//             if (url === 'http://localhost:4000/apollo-signin') {
-//                 return Promise.resolve({
-//                     ok: true,
-//                     status: 200,
-//                     json: () => Promise.resolve({ message: 'mock message' })
-//                 } as unknown as Response);
-//             }
-//
-//             return Promise.reject(new Error('Unknown URL'));
-//         });
-//
-//         renderWithProviders(<LoginPage />);
-//
-//         //Find input fields and button in screen
-//         const emailInput = screen.getByLabelText(/email/i);
-//         const passwordInput = screen.getByLabelText(/password/i);
-//         const submitButton = screen.getByRole('button', { name: /login/i });
-//
-//         //Simulate user input
-//         fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
-//         fireEvent.change(passwordInput, { target: { value: 'password123' } });
-//
-//         //Simulate form submission
-//         fireEvent.click(submitButton);
-//
-//         await waitFor(() => {
-//             //Assert that the fetch calls were made with the correct arguments
-//             expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/apollo-signin', {
-//                 method: 'POST',
-//                 credentials: 'include',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                     'X-CSRF-TOKEN': 'mocked-csrf-token',
-//                 },
-//                 body: JSON.stringify({ email: 'test@test.com', password: 'password123' }),
-//             });
-//         })
-//         // Check that user is redirected to home page
-//         await waitFor(() => {
-//             expect(mockUseRouter().push).toHaveBeenCalledWith('/');
-//         })
-//     });
-//
-//     it('should initially disable submit button after submitting form until response is returned ', async () => {
-//         jest.spyOn(global, 'fetch').mockImplementation((url) => {
-//             if (url === 'http://localhost:4000/apollo-signin') {
-//                 return Promise.resolve({
-//                     ok: true,
-//                     status: 200,
-//                 } as unknown as Response);
-//             }
-//
-//             return Promise.reject(new Error('Unknown URL'));
-//         });
-//
-//         renderWithProviders(<LoginPage />);
-//
-//         //Find input fields and button in screen
-//         const emailInput = screen.getByLabelText(/email/i);
-//         const passwordInput = screen.getByLabelText(/password/i);
-//         const submitButton = screen.getByRole('button', { name: /login/i });
-//
-//         //Simulate user input
-//         fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
-//         fireEvent.change(passwordInput, { target: { value: 'password123' } });
-//
-//         //Simulate form submission
-//         fireEvent.click(submitButton);
-//
-//         expect(submitButton).toBeDisabled();
-//
-//         await waitFor(() => {
-//             expect(submitButton).not.toBeDisabled();
-//             expect(submitButton).toHaveTextContent('Login');
-//         });
-//     });
-//
-//     it('should redirect back to home page after successfully calling refreshAuthTokens for a 401 error', async () => {
-//         jest.spyOn(global, 'fetch').mockImplementation(() => {
-//             return Promise.resolve({
-//                 ok: false,
-//                 status: 401,
-//                 json: () => Promise.resolve({ success: false, message: 'Invalid credentials' }),
-//             } as unknown as Response);
-//         });
-//         renderWithProviders(<LoginPage />);
-//
-//         //Find input fields and button in screen
-//         const emailInput = screen.getByLabelText(/email/i);
-//         const passwordInput = screen.getByLabelText(/password/i);
-//         const submitButton = screen.getByRole('button', { name: /login/i });
-//
-//         //Simulate user input
-//         fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
-//         fireEvent.change(passwordInput, { target: { value: 'password123' } });
-//
-//         //Simulate form submission
-//         fireEvent.click(submitButton);
-//
-//         // Check that user is redirected to 500 error page
-//         await waitFor(() => {
-//             expect(mockRefreshAuthTokens).toHaveBeenCalled();
-//         })
-//
-//         // Check that user is redirected to home page
-//         await waitFor(() => {
-//             expect(mockUseRouter().push).toHaveBeenCalledWith('/');
-//         })
-//     });
-//
-//     it('should redirect to /login on a 401 error when there is no response', async () => {
-//         /* eslint-disable @typescript-eslint/no-var-requires */
-//         const { refreshAuthTokens } = require('@/utils/authHelper');
-//
-//         // Override refreshAuthTokens for this test case only
-//         refreshAuthTokens.mockImplementationOnce(async () => Promise.resolve(undefined));
-//
-//         jest.spyOn(global, 'fetch').mockImplementation(() => {
-//             return Promise.resolve({
-//                 ok: false,
-//                 status: 401,
-//                 json: () => Promise.resolve({ success: false, message: 'Invalid credentials' }),
-//             } as unknown as Response);
-//         });
-//         renderWithProviders(<LoginPage />);
-//
-//         //Find input fields and button in screen
-//         const emailInput = screen.getByLabelText(/email/i);
-//         const passwordInput = screen.getByLabelText(/password/i);
-//         const submitButton = screen.getByRole('button', { name: /login/i });
-//
-//         //Simulate user input
-//         fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
-//         fireEvent.change(passwordInput, { target: { value: 'password123' } });
-//
-//         //Simulate form submission
-//         fireEvent.click(submitButton);
-//
-//         // Check that user is redirected to login page
-//         await waitFor(() => {
-//             expect(mockUseRouter().push).toHaveBeenCalledWith('/login');
-//         })
-//
-//     });
-//
-//     it('should handle 403 error by calling fetchCsrfToken and displaying error on page', async () => {
-//         jest.spyOn(global, 'fetch').mockImplementation(() => {
-//             return Promise.resolve({
-//                 ok: false,
-//                 status: 403,
-//                 json: () => Promise.resolve({ success: false, message: 'Invalid CSRF token' }),
-//             } as unknown as Response);
-//         });
-//         renderWithProviders(<LoginPage />);
-//
-//         //Find input fields and button in screen
-//         const emailInput = screen.getByLabelText(/email/i);
-//         const passwordInput = screen.getByLabelText(/password/i);
-//         const submitButton = screen.getByRole('button', { name: /login/i });
-//
-//         //Simulate user input
-//         fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
-//         fireEvent.change(passwordInput, { target: { value: 'password123' } });
-//
-//         //Simulate form submission
-//         fireEvent.click(submitButton);
-//
-//         // Check that user is redirected to 500 error page
-//         await waitFor(() => {
-//             expect(mockFetchCsrfToken).toHaveBeenCalled();
-//         })
-//     });
-//
-//     it('should handle 500 error', async () => {
-//         jest.spyOn(global, 'fetch').mockImplementation(() => {
-//             return Promise.resolve({
-//                 ok: false,
-//                 status: 500,
-//                 json: () => Promise.resolve({ success: false, message: 'Internal server error' }),
-//             } as unknown as Response);
-//         });
-//         renderWithProviders(<LoginPage />);
-//
-//         //Find input fields and button in screen
-//         const emailInput = screen.getByLabelText(/email/i);
-//         const passwordInput = screen.getByLabelText(/password/i);
-//         const submitButton = screen.getByRole('button', { name: /login/i });
-//
-//         //Simulate user input
-//         fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
-//         fireEvent.change(passwordInput, { target: { value: 'password123' } });
-//
-//         //Simulate form submission
-//         fireEvent.click(submitButton);
-//
-//         // Check that user is redirected to 500 error page
-//         await waitFor(() => {
-//             expect(mockUseRouter().push).toHaveBeenCalledWith('/500-error')
-//         })
-//     });
-//
-//     it('should handle fetch error', async () => {
-//         jest.spyOn(global, 'fetch').mockImplementation(url => {
-//             if (url === 'http://localhost:4000/login') {
-//                 return Promise.resolve({
-//                     ok: false,
-//                     status: 500,
-//                     statusText: 'Internal Server Error',
-//                     json: () => Promise.resolve({}),
-//                 } as unknown as Response);
-//             }
-//             return Promise.reject(new Error('Unknown URL'));
-//         });
-//
-//         renderWithProviders(<LoginPage />);
-//
-//         //Find input fields and button in screen
-//         const emailInput = screen.getByLabelText(/email/i);
-//         const passwordInput = screen.getByLabelText(/password/i);
-//         const submitButton = screen.getByRole('button', { name: /login/i });
-//
-//         //Simulate user inputs
-//         fireEvent.change(emailInput, { target: { value: 'test@test.com' } });
-//         fireEvent.change(passwordInput, { target: { value: 'password123' } });
-//
-//         //Simulate form submission
-//         fireEvent.click(submitButton);
-//
-//         // //Check that error logged
-//         await waitFor(() => {
-//             expect(logECS).toHaveBeenCalledWith(
-//                 'error',
-//                 'Signin error',
-//                 expect.objectContaining({
-//                     error: expect.anything(),
-//                     url: { path: '/apollo-signin' },
-//                 })
-//             )
-//         })
-//     })
+  it('should render login form, save token in cookie, and redirect to home page', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation((url) => {
+      if (url === 'http://localhost:4000/apollo-signin') {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ message: 'mock message' })
+        } as unknown as Response);
+      }
+      return Promise.reject(new Error('Unknown URL'));
+    });
+
+    renderWithProviders(<LoginPage />);
+
+    doSteps();
+    fireEvent.click(screen.getByTestId("actionSubmit"));
+
+    await waitFor(() => {
+      //Assert that the fetch calls were made with the correct arguments
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/apollo-signin', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': 'mocked-csrf-token',
+        },
+        body: JSON.stringify({
+          email: 'test@test.com',
+          password: 'Secret -- 123',
+        }),
+      });
+    })
+
+    // Check that user is redirected to home page
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/');
+    })
+  });
+
+  it('should initially disable submit button after submitting form until response is returned ', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation((url) => {
+      if (url === 'http://localhost:4000/apollo-signin') {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+        } as unknown as Response);
+      }
+
+      return Promise.reject(new Error('Unknown URL'));
+    });
+
+    renderWithProviders(<LoginPage />);
+
+    doSteps();
+    const submitBtn = screen.getByTestId("actionSubmit");
+    fireEvent.click(submitBtn);
+    expect(submitBtn).toBeDisabled();
+    expect(submitBtn).toHaveTextContent('...');
+
+    await waitFor(() => {
+      expect(submitBtn).not.toBeDisabled();
+      expect(submitBtn).toHaveTextContent('Submit');
+    });
+  });
+
+  it('should redirect back to home page after successfully calling refreshAuthTokens for a 401 error', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        status: 401,
+        json: () => Promise.resolve({ success: false, message: 'Invalid credentials' }),
+      } as unknown as Response);
+    });
+
+    renderWithProviders(<LoginPage />);
+
+    doSteps();
+    fireEvent.click(screen.getByTestId("actionSubmit"));
+
+    // Check that user is redirected to 500 error page
+    await waitFor(() => {
+      expect(mockRefreshAuthTokens).toHaveBeenCalled();
+    })
+
+    // Check that user is redirected to home page
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/');
+    })
+  });
+
+  it('should redirect to /login on a 401 error when there is no response', async () => {
+    /* eslint-disable @typescript-eslint/no-var-requires */
+    const { refreshAuthTokens } = require('@/utils/authHelper');
+
+    // Override refreshAuthTokens for this test case only
+    refreshAuthTokens.mockImplementationOnce(async () => Promise.resolve(undefined));
+
+    jest.spyOn(global, 'fetch').mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        status: 401,
+        json: () => Promise.resolve({ success: false, message: 'Invalid credentials' }),
+      } as unknown as Response);
+    });
+
+    renderWithProviders(<LoginPage />);
+
+    doSteps();
+    fireEvent.click(screen.getByTestId("actionSubmit"));
+
+    // Check that user is redirected to login page
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/login');
+    })
+  });
+
+  it('should handle 403 error by calling fetchCsrfToken and displaying error on page', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        status: 403,
+        json: () => Promise.resolve({ success: false, message: 'Invalid CSRF token' }),
+      } as unknown as Response);
+    });
+
+    renderWithProviders(<LoginPage />);
+
+    doSteps();
+    fireEvent.click(screen.getByTestId("actionSubmit"));
+
+    // Check that user is redirected to 500 error page
+    await waitFor(() => {
+      expect(mockFetchCsrfToken).toHaveBeenCalled();
+    })
+  });
+
+  it('should handle 500 error', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        status: 500,
+        json: () => Promise.resolve({ success: false, message: 'Internal server error' }),
+      } as unknown as Response);
+    });
+
+    renderWithProviders(<LoginPage />);
+
+    doSteps();
+    fireEvent.click(screen.getByTestId("actionSubmit"));
+
+    // Check that user is redirected to 500 error page
+    await waitFor(() => {
+        expect(mockUseRouter().push).toHaveBeenCalledWith('/500-error')
+    })
+  });
+
+  it('should handle fetch error', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(url => {
+      if (url === 'http://localhost:4000/login') {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+          statusText: 'Internal Server Error',
+          json: () => Promise.resolve({}),
+        } as unknown as Response);
+      }
+      return Promise.reject(new Error('Unknown URL'));
+    });
+
+    renderWithProviders(<LoginPage />);
+
+    doSteps();
+    fireEvent.click(screen.getByTestId("actionSubmit"));
+
+    // //Check that error logged
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'Signin error',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/apollo-signin' },
+        })
+      )
+    })
+  })
 })
