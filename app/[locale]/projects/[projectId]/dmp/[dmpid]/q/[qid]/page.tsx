@@ -80,7 +80,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       <LayoutWithPanel>
         <ContentContainer>
           <div className="container">
-            <section>
+            <section aria-label={"Requirements"}>
               <h4>Requirements by {plan.funder_name}</h4>
               <p>
                 The Arctic Data Center requires when submitting to the Center,
@@ -107,21 +107,25 @@ const PlanOverviewQuestionPage: React.FC = () => {
             <Card>
               <Form>
                 <span>Question</span>
-                <h2>
-                  What types of data, samples, collections, software, materials, etc. will be produced during your project?
+                <h2 id="question-title">
+                  What types of data, samples, collections, software, materials,
+                  etc. will be produced during your project?
                 </h2>
 
-                <DmpEditor content={"test test"} setContent={setEditorContent} />
+                <DmpEditor aria-labelledby="question-title"
+                           content={"test test"}
+                           setContent={setEditorContent}/>
 
-                <div className="lastSaved mt-5 ">
+                <div className="lastSaved mt-5"
+                     aria-live="polite"
+                     role="status">
                   Last saved X minutes ago
                 </div>
               </Form>
             </Card>
 
 
-
-            <section>
+            <section aria-label={"Guidance"}>
               <h4>Guidance by {plan.funder_name}</h4>
               <p>
                 In your Data Management Plan (DMP), detail the types of data and
@@ -135,7 +139,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 Additionally, mention any unique elements like multimedia files
                 or large-scale images and address specific storage needs or
                 management challenges. Providing this comprehensive overview
-                helps stakeholders understand the scope of your project&#39;s data
+                helps stakeholders understand the scope of your project&#39;s
+                data
                 requirements and ensures alignment with data management and
                 sharing policies.
               </p>
@@ -157,19 +162,27 @@ const PlanOverviewQuestionPage: React.FC = () => {
               </p>
             </section>
 
-            <div className={styles.actions} >
+            <div className={styles.actions}>
               <div className={styles.actionItem}>
                 <button
-                  className="react-aria-Button react-aria-Button--primary">
+                  className="react-aria-Button react-aria-Button--primary"
+                  aria-label="Return to section overview"
+                >
                   Back to Section
                 </button>
               </div>
               <div className={styles.actionItem}>
                 <button
-                  className="react-aria-Button react-aria-Button--primary">
+                  className="react-aria-Button react-aria-Button--primary"
+                  aria-label="Save answer"
+                >
                   Save
                 </button>
-                <p className={styles.lastSaved}>
+                <p
+                  className={styles.lastSaved}
+                  aria-live="polite"
+                  role="status"
+                >
                   Last saved: X mins ago
                 </p>
 
@@ -181,11 +194,15 @@ const PlanOverviewQuestionPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={styles.bestPracticesPanel}>
-            <h3>Best practice by DMP Tool</h3>
+          <div
+            className={styles.bestPracticesPanel}
+            aria-labelledby="best-practices-title"
+          >
+            <h3 id="best-practices-title">Best practice by DMP Tool</h3>
             <p>Most relevant best practice guide</p>
 
-            <div className={styles.bestPracticesLinks}>
+            <div role="navigation" aria-label="Best practices navigation"
+                 className={styles.bestPracticesLinks}>
               <Link href="/best-practices/sharing">
                 Data sharing
                 <svg width="20" height="20" viewBox="0 0 20 20"

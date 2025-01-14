@@ -57,10 +57,14 @@ const PlanOverviewSectionPage: React.FC = () => {
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs aria-label={t('navigation.navigation')}>
-            <Breadcrumb><Link href="/en-US">{t('navigation.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/en-US/projects">{t('navigation.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/en-US/projects/proj_2425/">Project name</Link></Breadcrumb>
-            <Breadcrumb><Link href="/en-US/projects/proj_2425/dmp/xxx/">{plan.title}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href="/en-US">{t('navigation.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href="/en-US/projects">{t('navigation.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/en-US/projects/proj_2425/">Project
+              name</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href="/en-US/projects/proj_2425/dmp/xxx/">{plan.title}</Link></Breadcrumb>
             <Breadcrumb>Data and Metadata Formats</Breadcrumb>
           </Breadcrumbs>
         }
@@ -71,7 +75,7 @@ const PlanOverviewSectionPage: React.FC = () => {
       <LayoutWithPanel>
         <ContentContainer>
           <div className="container">
-            <section>
+            <section aria-label={"Requirements"}>
               <h4>Requirements by {plan.funder_name}</h4>
               <p>
                 The Arctic Data Center requires when submitting to the Center,
@@ -106,9 +110,11 @@ const PlanOverviewSectionPage: React.FC = () => {
                     <h3 id={`question-title-${question.id}`}>
                       {question.title}
                     </h3>
-                    <p
-                      aria-label={question.isAnswered ? "Question has been answered" : "Question has not been answered"}>
-                        <span className={styles.progressIndicator}>
+                    <p aria-live="polite">
+                      <span
+                        className={styles.progressIndicator}
+                        aria-label={`Question status: ${question.isAnswered ? 'Completed' : 'Not started'}`}
+                      >
                           <svg
                             className={`${styles.progressIcon} ${!question.isAnswered ? styles.progressIconInactive : ''}`}
                             width="18"
@@ -121,9 +127,9 @@ const PlanOverviewSectionPage: React.FC = () => {
                             <path
                               d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z"/>
                           </svg>
-                          {question.isAnswered ? 'Answered' : 'Not answered'}
+                        {question.isAnswered ? 'Answered' : 'Not answered'}
                         </span>
-                  </p>
+                    </p>
                   </div>
                   <Link
                     href={question.link}
@@ -139,37 +145,56 @@ const PlanOverviewSectionPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={styles.bestPracticesPanel}>
-            <h3>Best practice by DMP Tool</h3>
+          <div
+            className={styles.bestPracticesPanel}
+            aria-labelledby="best-practices-title"
+          >
+            <h3 id="best-practices-title">Best practice by DMP Tool</h3>
             <p>Most relevant best practice guide</p>
 
-            <div className={styles.bestPracticesLinks}>
+            <div role="navigation" aria-label="Best practices navigation"
+                 className={styles.bestPracticesLinks}>
               <Link href="/best-practices/sharing">
                 Data sharing
                 <svg width="20" height="20" viewBox="0 0 20 20"
+                     aria-hidden="true"
                      fill="currentColor">
-                <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                  <path fillRule="evenodd"
+                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                        clipRule="evenodd"/>
                 </svg>
               </Link>
 
               <Link href="/best-practices/preservation">
                 Data preservation
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                <svg width="20" height="20" viewBox="0 0 20 20"
+                     aria-hidden="true"
+                     fill="currentColor">
+                  <path fillRule="evenodd"
+                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                        clipRule="evenodd"/>
                 </svg>
               </Link>
 
               <Link href="/best-practices/protection">
                 Data protection
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                <svg width="20" height="20" viewBox="0 0 20 20"
+                     aria-hidden="true"
+                     fill="currentColor">
+                  <path fillRule="evenodd"
+                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                        clipRule="evenodd"/>
                 </svg>
               </Link>
 
               <Link href="/best-practices/all">
                 All topics
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clipRule="evenodd" />
+                <svg width="20" height="20" viewBox="0 0 20 20"
+                     aria-hidden="true"
+                     fill="currentColor">
+                  <path fillRule="evenodd"
+                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                        clipRule="evenodd"/>
                 </svg>
               </Link>
             </div>
