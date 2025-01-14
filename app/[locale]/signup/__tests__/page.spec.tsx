@@ -158,6 +158,22 @@ describe('SignUpPage', () => {
     expect(signupBtn).not.toBeDisabled();
   });
 
+  it("shows errors if two passwords don't match", async () => {
+    renderWithProviders(<SignUpPage />);
+
+    doSteps();
+    fireEvent.change(screen.getByTestId("confirmpass"), {
+      target: { value: "incorrect" },
+    });
+
+    fireEvent.click(screen.getByTestId("signup"));
+
+    await waitFor(() => {
+      const errorDiv = screen.getByText("Passwords don't match").closest('span');
+      expect(errorDiv).toHaveClass('react-aria-FieldError');
+    });
+  });
+
   it("makes the backend call on final signin", async () => {
     jest.spyOn(global, 'fetch').mockImplementation((url) => {
       if (url === 'http://localhost:4000/apollo-signup') {
