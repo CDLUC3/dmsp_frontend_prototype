@@ -101,10 +101,6 @@ const TypeAheadWithOther = ({
         }
     }
 
-    const handleInputFocus = (e) => {
-      console.log("INPUT Field Focussed!");
-    }
-
     const handleInputClick = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         setOpen(true);
         setOtherField(false);
@@ -304,7 +300,6 @@ const TypeAheadWithOther = ({
                     className={classNames('react-aria-Input', styles.searchInput)}
                     onChange={handleUpdate}
                     onClick={handleInputClick}
-                    onFocus={handleInputFocus}
                     onKeyDown={handleKeyboardEvents}
                     placeholder={placeholder ? placeholder : 'Type to search...'}
                     ref={inputRef}
