@@ -89,7 +89,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
               <p>
                 If using proprietary formats like Excel or MATLAB, plan to
                 convert them to open-source formats before submission. If
-                conversion isn't possible, explain why
+                conversion isn&#39;t possible, explain why
               </p>
 
               <h4>Requirements by University of California</h4>
@@ -135,7 +135,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 Additionally, mention any unique elements like multimedia files
                 or large-scale images and address specific storage needs or
                 management challenges. Providing this comprehensive overview
-                helps stakeholders understand the scope of your project's data
+                helps stakeholders understand the scope of your project&#39;s data
                 requirements and ensures alignment with data management and
                 sharing policies.
               </p>

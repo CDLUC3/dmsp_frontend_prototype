@@ -80,7 +80,7 @@ const PlanOverviewSectionPage: React.FC = () => {
               <p>
                 If using proprietary formats like Excel or MATLAB, plan to
                 convert them to open-source formats before submission. If
-                conversion isn't possible, explain why
+                conversion isn&apos;t possible, explain why
               </p>
 
               <h4>Requirements by University of California</h4>
