@@ -129,6 +129,7 @@ const SignUpPage: React.FC = () => {
         error: err,
         url: { path: '/apollo-signup' }
       });
+      setErrors(['An unexpected error occurred. Please try again.']);
     } finally {
       setIsWorking(false);
     }
@@ -287,7 +288,10 @@ const SignUpPage: React.FC = () => {
                   onChange={setOtherAffiliation}
                 >
                   <Label>Other institution</Label>
-                  <Input placeholder="Enter custom institution name" />
+                  <Input
+                    data-testid="otherAffiliation"
+                    placeholder="Enter custom institution name"
+                  />
                   <FieldError />
                 </TextField>
               )}
