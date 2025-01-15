@@ -11,6 +11,7 @@
 - Refactored font family usage for consistency.
 
 ### Added
+- Added Toast messages to the Section create and edit pages
 - Added Toast Message capabilities using **React Aria Component's use Toast**. [#211]
 - Project overview page [#175]
   - Moved pages under [locale] folder
