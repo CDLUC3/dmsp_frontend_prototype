@@ -1,6 +1,7 @@
 
 ### Updated
 =======
+- Updated some pages with toast messages, and updated toast files [#231]
 - Updated app/template/[templateId]/section/[section_slug] to hook it into backend data [#217]
 - Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]
 - Updated DMPEditor to use a skeleton while the text editors are loading, since it can be slow [#187]
@@ -11,7 +12,6 @@
 - Refactored font family usage for consistency.
 
 ### Added
-- Added Toast messages to the Section create and edit pages
 - Added Toast Message capabilities using **React Aria Component's use Toast**. [#211]
 - Project overview page [#175]
   - Moved pages under [locale] folder
