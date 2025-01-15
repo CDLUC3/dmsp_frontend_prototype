@@ -2,6 +2,8 @@
 ### Updated
 =======
 - Updated some pages with toast messages, and updated toast files [#231]
+- Added Portuguese translations for newly added translation keys [#231]
+- Updated version of `next` to `14.2.22` [#231]
 - Updated app/template/[templateId]/section/[section_slug] to hook it into backend data [#217]
 - Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]
 - Updated DMPEditor to use a skeleton while the text editors are loading, since it can be slow [#187]

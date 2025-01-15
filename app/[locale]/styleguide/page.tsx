@@ -1906,7 +1906,7 @@ function Page() {
             <h2>Toast Messages</h2>
             <p>
               Toast messages are used to provide brief, non-intrusive feedback to users about an action they&apos;ve taken within an application.
-              For instance, if they successfully change their password, we want to give them some feedback to reassure them that the change went through successfully.
+              For instance, if they successfully submit a form, we want to give them some feedback to reassure them that the change went through successfully.
             </p>
             <p>
               To implement toast messages in our app, we are using <strong>useToast React Aria Component</strong>. Documentation about this can be found here: <a href="https://react-spectrum.adobe.com/react-aria/useToast.html">https://react-spectrum.adobe.com/react-aria/useToast.html</a>.
