@@ -199,9 +199,9 @@ const SectionUpdatePage: React.FC = () => {
   };
 
   // Show Success Message
-  const showSuccessToast = async () => {
+  const showSuccessToast = () => {
     const successMessage = SectionUpdatePage('messages.success');
-    toastState.add(successMessage, { type: 'success', timeout: 3000 });
+    toastState.add(successMessage, { type: 'success' });
   }
 
   // Handle form submit
@@ -211,11 +211,9 @@ const SectionUpdatePage: React.FC = () => {
     clearAllFieldErrors();
 
     if (isFormValid()) {
-      await Promise.all([
-        // Create new section
-        await updateSection(),
-        await showSuccessToast()
-      ])
+      // Create new section
+      await updateSection();
+      showSuccessToast()
       setErrorMessages([]); // Clear errors on successful submit
     }
   };

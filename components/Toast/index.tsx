@@ -30,11 +30,11 @@ const Toast: React.FC<ToastProps> = ({ toast, state }) => {
     ref
   );
 
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.focus();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (ref.current) {
+  //     ref.current.focus();
+  //   }
+  // }, []);
 
   return (
     <div

@@ -225,6 +225,12 @@ const CreateSectionPage: React.FC = () => {
     });
   };
 
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = CreateSectionPage('messages.success');
+    toastState.add(successMessage, { type: 'success' });
+  }
+
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -235,8 +241,7 @@ const CreateSectionPage: React.FC = () => {
       // Create new section
       await createSection();
       setErrors([]); // Clear errors on successful submit
-      const successMessage = CreateSectionPage('messages.success');
-      toastState.add(successMessage, { type: 'success', timeout: 3000 });
+      showSuccessToast();
     }
   };
 

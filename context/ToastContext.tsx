@@ -42,7 +42,7 @@ export const useToast = () => {
     add: (content: string, options?: ToastOptions) => {
       const libraryOptions = {
         type: options?.type,
-        timeout: options?.timeout || 1000,
+        timeout: options?.timeout || 5000,
         priority: options?.priority
       };
       return context.state.add(content, libraryOptions);

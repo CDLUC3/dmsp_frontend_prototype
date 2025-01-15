@@ -1935,13 +1935,13 @@ function Page() {
 
 
             <h3>Toast Options</h3>
-            <p>There is the option to set a timeout for the toast message. Also, if you don&apos;t specify a type, then the default color will be for type info</p>
+            <p>There is the option to set a timeout for the toast message. The default timeout is currently set to 5 seconds. </p>
             <div>
-              <Button onPress={() => toastState.add('Toast is done!', { timeout: 5000 })}>Show toast with timeout</Button>
+              <Button onPress={() => toastState.add('Toast is done!', { timeout: 1000 })}>Show toast with timeout of 1 second</Button>
             </div>
             <p>There is also the option to set a priority. The highest priority will sit at the top. Currently, the toast messages are configured to show a max of three messages at a time.</p>
             <div>
-              <Button onPress={() => toastState.add('Highest priority!', { priority: 1 })}>Show toast with timeout</Button>
+              <Button onPress={() => toastState.add('Highest priority!', { priority: 1 })}>Show toast with High Priority</Button>
             </div>
           </div>
         </ContentContainer>
