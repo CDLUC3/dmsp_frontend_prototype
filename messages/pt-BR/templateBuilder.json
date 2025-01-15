@@ -157,7 +157,7 @@
     },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
-      "errorCreatingSection": "Erro ao criar a seção.",
+      "errorUpdatingSection": "Error when updating section.",
       "success": "Seção criada com sucesso."
     }
   }

@@ -1921,11 +1921,18 @@ function Page() {
 
             <h3>Toast Types</h3>
             <p>There are three different types of toasts: info, success, and error.</p>
-            <div>
-              <Button onPress={() => toastState.add('Testing types!', { type: 'info' })}>Show info toast</Button>
-              <Button onPress={() => toastState.add('Testing types!', { type: 'success' })}>Show success toast</Button>
-              <Button onPress={() => toastState.add('Testing types!', { type: 'error' })}>Show error toast</Button>
-            </div>
+            <ul style={{ listStyleType: 'none' }}>
+              <li style={{ marginTop: '15px' }}>
+                <Button onPress={() => toastState.add('Testing types!', { type: 'info', key: 'info' })}>Show info toast</Button>
+              </li>
+              <li style={{ marginTop: '15px' }}>
+                <Button onPress={() => toastState.add('Testing types!', { type: 'success', key: 'success' })}>Show success toast</Button>
+              </li>
+              <li style={{ marginTop: '15px' }}>
+                <Button onPress={() => toastState.add('Testing types!', { type: 'error', key: 'error' })}>Show error toast</Button>
+              </li>
+            </ul>
+
 
             <h3>Toast Options</h3>
             <p>There is the option to set a timeout for the toast message. Also, if you don&apos;t specify a type, then the default color will be for type info</p>
@@ -1938,7 +1945,7 @@ function Page() {
             </div>
           </div>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutWithPanel >
     </>
   )
 }
