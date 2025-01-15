@@ -172,7 +172,7 @@ const ProfilePage: React.FC = () => {
 
   // Show Success Message
   const showSuccessToast = () => {
-    const successMessage = t('messages.success');
+    const successMessage = t('messages.profileUpdateSuccess');
     toastState.add(successMessage, { type: 'success', timeout: 3000 });
   }
 
