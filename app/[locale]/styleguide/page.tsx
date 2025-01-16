@@ -353,7 +353,7 @@ function Page() {
   }
 
   const showToastAndRedirect = () => {
-    toastState.add('Message after redirect', { type: 'info' });
+    toastState.add('You have successfully logged in.', { type: 'success' });
     router.push('/');
   }
 
@@ -1929,13 +1929,13 @@ function Page() {
             <p>There are three different types of toasts: info, success, and error.</p>
             <ul style={{ listStyleType: 'none' }}>
               <li style={{ marginTop: '15px' }}>
-                <Button onPress={() => toastState.add('Testing types!', { type: 'info', key: 'info' })}>Show info toast</Button>
+                <Button onPress={() => toastState.add('This is an INFO message', { type: 'info', key: 'info', timeout: 5000 })}>Show info toast</Button>
               </li>
               <li style={{ marginTop: '15px' }}>
-                <Button onPress={() => toastState.add('Testing types!', { type: 'success', key: 'success' })}>Show success toast</Button>
+                <Button onPress={() => toastState.add('This is a SUCCESS message', { type: 'success', key: 'success', timeout: 5000 })}>Show success toast</Button>
               </li>
               <li style={{ marginTop: '15px' }}>
-                <Button onPress={() => toastState.add('Testing types!', { type: 'error', key: 'error' })}>Show error toast</Button>
+                <Button onPress={() => toastState.add('This is an ERROR message', { type: 'error', key: 'error', timeout: 5000 })}>Show error toast</Button>
               </li>
             </ul>
 
