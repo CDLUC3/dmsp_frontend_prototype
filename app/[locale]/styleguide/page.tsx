@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Button,
   Cell,
@@ -78,7 +79,7 @@ import { useToast } from '@/context/ToastContext';
 function Page() {
   const [otherField, setOtherField] = useState(false);
   const toastState = useToast(); // Access the toast state from context
-
+  const router = useRouter();
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
   const richtextDefault = html`
@@ -349,6 +350,11 @@ function Page() {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
+  }
+
+  const showToastAndRedirect = () => {
+    toastState.add('Message after redirect', { type: 'info' });
+    router.push('/');
   }
 
   return (
@@ -1942,6 +1948,10 @@ function Page() {
             <p>There is also the option to set a priority. The highest priority will sit at the top. Currently, the toast messages are configured to show a max of three messages at a time.</p>
             <div>
               <Button onPress={() => toastState.add('Highest priority!', { priority: 1 })}>Show toast with High Priority</Button>
+            </div>
+            <p>Toast messages even stay around after a page redirect.</p>
+            <div>
+              <Button onPress={showToastAndRedirect}>Show toast with redirect</Button>
             </div>
           </div>
         </ContentContainer>
