@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import {
   Breadcrumb,
@@ -23,80 +23,94 @@ import {
 } from '@/components/Container';
 
 //GraphQL
-import { useTemplatesQuery, } from '@/generated/graphql';
+import { useTemplatesQuery, usePublicTemplatesQuery } from '@/generated/graphql';
 
 import { TemplateInterface, TemplateItemProps, } from '@/app/types';
+import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
+import { useFormatDate } from '@/hooks/useFormatDate';
+import styles from './selectExistingTemplate.module.scss';
+
 
 const TemplateSelectTemplatePage: React.FC = () => {
+  const nextSectionRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
   const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
   const [publicTemplatesList, setPublicTemplatesList] = useState<(TemplateItemProps)[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
   const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<(TemplateItemProps)[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
+  const [visibleCount, setVisibleCount] = useState({
+    publicTemplatesList: 3,
+    templates: 3,
+    filteredTemplates: 3,
+    filteredPublicTemplates: 3,
+  });
   const formatter = useFormatter();
   // Make graphql request for templates under the user's affiliation
-  const { data = {}, loading, error: queryError, refetch } = useTemplatesQuery({
+  const { data = {}, loading, error: queryError } = useTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
-  // NSF Templates
-  const nsfTemplates = [
-    {
-      funder: 'National Science Foundation (nsf.gov)',
-      title: 'Arctic Data Center: NSF Polar Programs',
-      description: 'Template for NSF Polar Programs data management plans.',
-      lastRevisedBy: 'Sue Jones',
-      lastUpdated: '04-01-2024',
-      hasAdditionalGuidance: true
-    },
-    {
-      funder: 'National Science Foundation (nsf.gov)',
-      title: 'NSF Polar Expeditions',
-      description: 'Specialized template for NSF polar expedition data management.',
-      lastRevisedBy: 'Sue Jones',
-      lastUpdated: '04-01-2024',
-      hasAdditionalGuidance: false,
-      publishStatus: 'Unpublished'
-    },
-    {
-      funder: 'National Science Foundation (nsf.gov)',
-      title: 'NSF: McMurdo Station (Antarctic)',
-      description: 'Template specifically designed for McMurdo Station research projects.',
-      lastRevisedBy: 'Sue Jones',
-      lastUpdated: '09-21-2024',
-      hasAdditionalGuidance: false
-    }
-  ];
 
-  // Public DMP Templates
-  // const publicTemplates = [
-  //   {
-  //     funder: 'DMP Tool',
-  //     title: 'General Research DMP',
-  //     description: 'A general-purpose data management plan template suitable for various research projects.',
-  //     lastRevisedBy: 'John Smith',
-  //     lastUpdated: '03-15-2024',
-  //     hasAdditionalGuidance: false
-  //   },
-  //   {
-  //     funder: 'DMP Tool',
-  //     title: 'Humanities Research DMP',
-  //     description: 'Template designed for humanities research data management.',
-  //     lastRevisedBy: 'Mary Johnson',
-  //     lastUpdated: '03-28-2024',
-  //     hasAdditionalGuidance: false
-  //   },
-  //   {
-  //     funder: 'DMP Tool',
-  //     title: 'Social Sciences DMP',
-  //     description: 'Specialized template for social sciences research data management.',
-  //     lastRevisedBy: 'David Wilson',
-  //     lastUpdated: '04-01-2024',
-  //     hasAdditionalGuidance: false
-  //   }
-  // ];
+  const { data: publicTemplatesData, loading: publicTemplatesLoading, error: publicTemplatesError, refetch: refetchPublicTemplates } = usePublicTemplatesQuery({
+    /* Force Apollo to notify React of changes. This was needed for when refetch is
+    called and a re-render of data is necessary*/
+    notifyOnNetworkStatusChange: true,
+  });
+
+
+  const formatDate = useFormatDate();
+
+  type VisibleCountKeys = keyof typeof visibleCount;
+  interface TemplateListProps {
+    templates: TemplateItemProps[]; // An array of templates
+    visibleCountKey: VisibleCountKeys; // Key used to access visible count
+  }
+
+  const TemplateList: React.FC<TemplateListProps> = ({ templates, visibleCountKey }) => (
+    <>
+      {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (
+        <div className={styles.searchMatchText}>{`${templates.length} results match your search`} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
+      )
+      }
+      {templates.slice(0, visibleCount[visibleCountKey]).map((template, index) => {
+        const isFirstInNextSection = index === visibleCount[visibleCountKey] - 3;
+        return (
+          <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
+            <TemplateSelectListItem
+              item={template}
+              templateId={template.id || null}
+            />
+          </div>
+        );
+      })}
+      <div className={styles.loadBtnContainer}>
+        {templates.length - visibleCount[visibleCountKey] > 0 && (
+          <>
+            <Button onPress={() => handleLoadMore(visibleCountKey)}>
+              {(templates.length - visibleCount[visibleCountKey] > 2)
+                ? 'Load 3 more'
+                : `Load ${templates.length - visibleCount[visibleCountKey]} more`}
+            </Button>
+            <div className={styles.remainingText}>{`Showing ${visibleCount[visibleCountKey]} of ${templates.length}`}</div>
+            {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (
+              <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link>
+            )
+            }
+          </>
+        )}
+      </div>
+    </>
+  );
+
+  const scrollToTop = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth' });
+      topRef.current.focus();
+    }
+  }
 
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
@@ -107,41 +121,37 @@ const TemplateSelectTemplatePage: React.FC = () => {
   const handleFiltering = (term: string) => {
     setErrors([]);
     // Search title, funder and description fields for terms
-    const filteredList = templates.filter(item =>
-      [item.title, item.funder, item.description]
-        .some(field => field?.toLowerCase().includes(term.toLowerCase()))
-    );
+    const filteredList = filterTemplates(templates, term);
+    const filteredPublicTemplatesList = filterTemplates(publicTemplatesList, term);
 
-    const filteredPublicTemplatesList = publicTemplatesList.filter(item =>
-      [item.title, item.funder, item.description]
-        .some(field => field?.toLowerCase().includes(term.toLowerCase()))
-    );
-
-    if (filteredList.length >= 1 || filteredPublicTemplatesList.length >= 1) {
+    if (filteredList.length || filteredPublicTemplatesList.length) {
       setSearchTerm(term);
       setFilteredTemplates(filteredList.length > 0 ? filteredList : null);
-      setFilteredPublicTemplates(filteredPublicTemplatesList.length > 0 ? filteredPublicTemplates : null);
+      setFilteredPublicTemplates(filteredPublicTemplatesList.length > 0 ? filteredPublicTemplatesList : null);
     } else {
       //If there are no matching results, then display an error
-      const errorMessage = "No items found"
-      setErrors(prev => [...prev, errorMessage]);
+      setErrors(prev => [...prev, 'No items found']);
     }
   }
 
+  const handleLoadMore = (listKey: VisibleCountKeys) => {
+    setVisibleCount((prevCounts) => ({
+      ...prevCounts,
+      [listKey]: prevCounts[listKey] + 3, // Increase the visible count for the specific list
+    }));
 
-  // Format date using next-intl date formatter
-  const formatDate = (date: string) => {
-    const formattedDate = formatter.dateTime(new Date(Number(date)), {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-    // Replace slashes with hyphens
-    return formattedDate.replace(/\//g, '-');
-  }
+    setTimeout(() => {
+      if (nextSectionRef.current) {
+        nextSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
+  };
 
-  const handleSelect = () => {
-    console.log("Selected")
+  const resetSearch = () => {
+    setSearchTerm('');
+    setFilteredTemplates(null);
+    setFilteredPublicTemplates(null);
+    scrollToTop();
   }
 
   useEffect(() => {
@@ -151,6 +161,7 @@ const TemplateSelectTemplatePage: React.FC = () => {
         const transformedTemplates = await Promise.all(
           templates.map(async (template: TemplateInterface | null) => {
             return {
+              id: template?.id,
               title: template?.name || "",
               description: template?.description || "",
               link: `/template/${template?.id}`,
@@ -183,12 +194,19 @@ const TemplateSelectTemplatePage: React.FC = () => {
   useEffect(() => {
     // Need this to set list of templates back to original, full list after filtering
     if (searchTerm === '') {
-      setFilteredTemplates(null);
-      setFilteredPublicTemplates(null);
+      resetSearch();
     }
   }, [searchTerm])
 
-  console.log("FILTERED PUBLIC TEMPLATES", filteredPublicTemplates);
+
+  if (loading || publicTemplatesLoading) {
+    return <div>Loading...</div>;
+  }
+  if (queryError || publicTemplatesError) {
+    return <div>Error loading templates. Please try again later.</div>;
+  }
+
+  console.log("Filtered Public Templates", filteredPublicTemplates)
   return (
     <>
 
@@ -213,7 +231,7 @@ const TemplateSelectTemplatePage: React.FC = () => {
       <LayoutContainer>
         <ContentContainer>
           <>
-            <div className="Filters" role="search">
+            <div className="Filters" role="search" ref={topRef}>
               <SearchField aria-label="Template search">
                 <Label>Search by keyword</Label>
                 <Input
@@ -241,39 +259,20 @@ const TemplateSelectTemplatePage: React.FC = () => {
                 Use one of your previously created templates
               </h2>
               <div className="template-list" role="list" aria-label="Your templates">
-                {filteredTemplates && filteredTemplates.length > 0 ? (
-                  <div className="template-list" aria-label="Template list" role="list">
+                {(filteredTemplates && filteredTemplates.length > 0) ? (
+                  <>
                     {
-                      filteredTemplates.map((template, index) => (
-                        <TemplateSelectListItem
-                          key={index}
-                          item={template}
-                          onSelect={handleSelect}
-                        />
-                      ))
+                      TemplateList({ templates: filteredTemplates, visibleCountKey: 'filteredTemplates' })
                     }
-                  </div>
-                ) : (
-                  <div className="template-list" aria-label="Template list" role="list">
+
+                  </>) : (
+                  <>
                     {
-                      templates.map((template, index) => (
-                        <TemplateSelectListItem
-                          key={index}
-                          item={template}
-                          onSelect={handleSelect}
-                        />
-                      ))
+                      TemplateList({ templates: templates, visibleCountKey: 'templates' })
                     }
-                  </div>
+                  </>
                 )
                 }
-                {/* {templates.map((template, index) => (
-            <TemplateSelectListItem
-              key={index}
-              item={template}
-              onSelect={handleSelect}
-            />
-          ))} */}
               </div>
             </section>
 
@@ -282,33 +281,19 @@ const TemplateSelectTemplatePage: React.FC = () => {
                 <h2 id="public-templates">
                   Use one of the public templates
                 </h2>
-                <div className="template-list"
-                  role="list"
-                  aria-label="Public templates">
+                <div className="template-list" role="list" aria-label="Public templates">
                   {filteredPublicTemplates && filteredPublicTemplates.length > 0 ? (
-                    <div className="template-list" aria-label="Template list" role="list">
+                    <>
                       {
-                        filteredPublicTemplates.map((template, index) => (
-                          <TemplateSelectListItem
-                            key={index}
-                            item={template}
-                            onSelect={handleSelect}
-                          />
-                        ))
+                        TemplateList({ templates: filteredPublicTemplates, visibleCountKey: 'filteredPublicTemplates' })
                       }
-                    </div>
+                    </>
                   ) : (
-                    <div className="template-list" aria-label="Template list" role="list">
+                    <>
                       {
-                        publicTemplatesList.map((template, index) => (
-                          <TemplateSelectListItem
-                            key={index}
-                            item={template}
-                            onSelect={handleSelect}
-                          />
-                        ))
+                        TemplateList({ templates: publicTemplatesList, visibleCountKey: 'publicTemplatesList' })
                       }
-                    </div>
+                    </>
                   )
                   }
 
@@ -318,7 +303,7 @@ const TemplateSelectTemplatePage: React.FC = () => {
 
           </>
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 }

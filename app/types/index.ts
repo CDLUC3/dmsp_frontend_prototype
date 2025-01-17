@@ -55,6 +55,7 @@ type LinkHref = Url | {
 };
 
 export interface TemplateItemProps {
+  id?: number | null;
   title: string;
   content?: JSX.Element | null;
   description?: string;

@@ -1,5 +1,6 @@
 query Templates {
   templates {
+    id
     name
     description
     modified
@@ -58,5 +59,38 @@ query Template($templateId: Int!) {
       displayName
       id
     }
+  }
+}
+
+query PublicTemplates {
+publicTemplates {
+    id
+    name
+    description
+    modified
+    modifiedById
+    id
+    sections {
+      id
+      name
+      bestPractice
+      displayOrder
+      isDirty
+      questions {
+        errors
+        displayOrder
+        guidanceText
+        id
+        questionText
+        sectionId
+        templateId
+      }
+    },
+    owner {
+      name
+      displayName
+      searchName
+    },
+    visibility
   }
 }

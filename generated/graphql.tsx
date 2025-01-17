@@ -1235,6 +1235,8 @@ export type Query = {
   projectContributors?: Maybe<Array<Maybe<ProjectContributor>>>;
   /** Get all of the Users that a Funders to the research project */
   projectFunders?: Maybe<Array<Maybe<ProjectFunder>>>;
+  /** Get all public templates */
+  publicTemplates?: Maybe<Array<Maybe<Template>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedConditionsForQuestion?: Maybe<Array<Maybe<VersionedQuestionCondition>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
@@ -2144,7 +2146,7 @@ export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: A
 export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', templates?: Array<{ __typename?: 'Template', name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, id?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
+export type TemplatesQuery = { __typename?: 'Query', templates?: Array<{ __typename?: 'Template', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -2152,6 +2154,11 @@ export type TemplateQueryVariables = Exact<{
 
 
 export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', name: string, description?: string | null, errors?: Array<string> | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
+
+export type PublicTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PublicTemplatesQuery = { __typename?: 'Query', publicTemplates?: Array<{ __typename?: 'Template', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2567,6 +2574,7 @@ export type TemplateVersionsQueryResult = Apollo.QueryResult<TemplateVersionsQue
 export const TemplatesDocument = gql`
     query Templates {
   templates {
+    id
     name
     description
     modified
@@ -2694,6 +2702,72 @@ export type TemplateQueryHookResult = ReturnType<typeof useTemplateQuery>;
 export type TemplateLazyQueryHookResult = ReturnType<typeof useTemplateLazyQuery>;
 export type TemplateSuspenseQueryHookResult = ReturnType<typeof useTemplateSuspenseQuery>;
 export type TemplateQueryResult = Apollo.QueryResult<TemplateQuery, TemplateQueryVariables>;
+export const PublicTemplatesDocument = gql`
+    query PublicTemplates {
+  publicTemplates {
+    id
+    name
+    description
+    modified
+    modifiedById
+    id
+    sections {
+      id
+      name
+      bestPractice
+      displayOrder
+      isDirty
+      questions {
+        errors
+        displayOrder
+        guidanceText
+        id
+        questionText
+        sectionId
+        templateId
+      }
+    }
+    owner {
+      name
+      displayName
+      searchName
+    }
+    visibility
+  }
+}
+    `;
+
+/**
+ * __usePublicTemplatesQuery__
+ *
+ * To run a query within a React component, call `usePublicTemplatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublicTemplatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublicTemplatesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePublicTemplatesQuery(baseOptions?: Apollo.QueryHookOptions<PublicTemplatesQuery, PublicTemplatesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PublicTemplatesQuery, PublicTemplatesQueryVariables>(PublicTemplatesDocument, options);
+      }
+export function usePublicTemplatesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublicTemplatesQuery, PublicTemplatesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PublicTemplatesQuery, PublicTemplatesQueryVariables>(PublicTemplatesDocument, options);
+        }
+export function usePublicTemplatesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublicTemplatesQuery, PublicTemplatesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PublicTemplatesQuery, PublicTemplatesQueryVariables>(PublicTemplatesDocument, options);
+        }
+export type PublicTemplatesQueryHookResult = ReturnType<typeof usePublicTemplatesQuery>;
+export type PublicTemplatesLazyQueryHookResult = ReturnType<typeof usePublicTemplatesLazyQuery>;
+export type PublicTemplatesSuspenseQueryHookResult = ReturnType<typeof usePublicTemplatesSuspenseQuery>;
+export type PublicTemplatesQueryResult = Apollo.QueryResult<PublicTemplatesQuery, PublicTemplatesQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {

@@ -1,7 +1,9 @@
+import { useRouter } from 'next/navigation';
 import { Button } from 'react-aria-components';
 import styles from './TemplateSelectListItem.module.scss';
 
-interface TemplateItemProps {
+interface TemplateSelectListItemProps {
+  templateId: number | null;
   item: {
     funder?: string | undefined;
     title: string;
@@ -10,10 +12,13 @@ interface TemplateItemProps {
     lastUpdated?: string | null;
     hasAdditionalGuidance?: boolean;
   },
-  onSelect?: () => void;
 }
 
-function TemplateSelectListItem({ item, onSelect }: TemplateItemProps) {
+function TemplateSelectListItem({ item, templateId }: TemplateSelectListItemProps) {
+  const router = useRouter();
+  const handleClick = (templateId: string) => {
+    router.push(`/template/${templateId}`)
+  }
   return (
     <div className={styles.templateItem} role="listitem">
       <div className={styles.TemplateItemInner}>
@@ -39,7 +44,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateItemProps) {
         </div>
 
         <Button
-          onPress={onSelect}
+          onPress={() => handleClick(templateId ? templateId.toString() : '')}
           aria-label={`Select ${item.title}`}
         >
           Select
