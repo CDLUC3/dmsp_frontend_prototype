@@ -6,16 +6,8 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  FieldError,
   Form,
-  Input,
-  Label,
   Link,
-  Radio,
-  RadioGroup,
-  SearchField,
-  Text,
-  TextField
 } from "react-aria-components";
 
 // Components
@@ -26,68 +18,10 @@ import {
   LayoutContainer,
 } from '@/components/Container';
 import FormInput from '@/components/Form/FormInput';
-import TemplateSelectListItem from "@/components/TemplateSelectListItem";
-
-// NSF Templates
-const nsfTemplates = [
-  {
-    funder: 'National Science Foundation (nsf.gov)',
-    title: 'Arctic Data Center: NSF Polar Programs',
-    description: 'Template for NSF Polar Programs data management plans.',
-    lastRevisedBy: 'Sue Jones',
-    lastUpdated: '04-01-2024',
-    hasAdditionalGuidance: true
-  },
-  {
-    funder: 'National Science Foundation (nsf.gov)',
-    title: 'NSF Polar Expeditions',
-    description: 'Specialized template for NSF polar expedition data management.',
-    lastRevisedBy: 'Sue Jones',
-    lastUpdated: '04-01-2024',
-    hasAdditionalGuidance: false,
-    publishStatus: 'Unpublished'
-  },
-  {
-    funder: 'National Science Foundation (nsf.gov)',
-    title: 'NSF: McMurdo Station (Antarctic)',
-    description: 'Template specifically designed for McMurdo Station research projects.',
-    lastRevisedBy: 'Sue Jones',
-    lastUpdated: '09-21-2024',
-    hasAdditionalGuidance: false
-  }
-];
-
-// Public DMP Templates
-const publicTemplates = [
-  {
-    funder: 'DMP Tool',
-    title: 'General Research DMP',
-    description: 'A general-purpose data management plan template suitable for various research projects.',
-    lastRevisedBy: 'John Smith',
-    lastUpdated: '03-15-2024',
-    hasAdditionalGuidance: false
-  },
-  {
-    funder: 'DMP Tool',
-    title: 'Humanities Research DMP',
-    description: 'Template designed for humanities research data management.',
-    lastRevisedBy: 'Mary Johnson',
-    lastUpdated: '03-28-2024',
-    hasAdditionalGuidance: false
-  },
-  {
-    funder: 'DMP Tool',
-    title: 'Social Sciences DMP',
-    description: 'Specialized template for social sciences research data management.',
-    lastRevisedBy: 'David Wilson',
-    lastUpdated: '04-01-2024',
-    hasAdditionalGuidance: false
-  }
-];
 
 const TemplateCreatePage: React.FC = () => {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<number | null>(null);
   const [templateName, setTemplateName] = useState('');
   const [errors, setErrors] = useState<string[]>([])
   const searchParams = useSearchParams();
@@ -117,6 +51,11 @@ const TemplateCreatePage: React.FC = () => {
       setStep(stepQueryValue);
     }
   }, [stepQueryValue])
+
+  // Show a loading state until the `step` is initialized
+  if (step === null) {
+    return <div>...Loading</div>
+  }
 
   return (
     <>
@@ -165,7 +104,9 @@ const TemplateCreatePage: React.FC = () => {
         </>
       )}
       {step == 2 && (
-        <TemplateSelectTemplatePage />
+        <TemplateSelectTemplatePage
+          templateName={templateName}
+        />
       )}
 
     </>

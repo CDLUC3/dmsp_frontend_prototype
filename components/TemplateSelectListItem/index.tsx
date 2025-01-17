@@ -4,6 +4,7 @@ import styles from './TemplateSelectListItem.module.scss';
 
 interface TemplateSelectListItemProps {
   templateId: number | null;
+  templateName: string;
   item: {
     funder?: string | undefined;
     title: string;
@@ -14,9 +15,11 @@ interface TemplateSelectListItemProps {
   },
 }
 
-function TemplateSelectListItem({ item, templateId }: TemplateSelectListItemProps) {
+function TemplateSelectListItem({ item, templateId, templateName }: TemplateSelectListItemProps) {
   const router = useRouter();
   const handleClick = (templateId: string) => {
+
+
     router.push(`/template/${templateId}`)
   }
   return (
@@ -46,6 +49,7 @@ function TemplateSelectListItem({ item, templateId }: TemplateSelectListItemProp
         <Button
           onPress={() => handleClick(templateId ? templateId.toString() : '')}
           aria-label={`Select ${item.title}`}
+          data-template-id={templateId}
         >
           Select
         </Button>

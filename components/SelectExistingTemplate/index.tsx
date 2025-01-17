@@ -31,7 +31,7 @@ import { useFormatDate } from '@/hooks/useFormatDate';
 import styles from './selectExistingTemplate.module.scss';
 
 
-const TemplateSelectTemplatePage: React.FC = () => {
+const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) => {
   const nextSectionRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
@@ -63,6 +63,35 @@ const TemplateSelectTemplatePage: React.FC = () => {
 
   const formatDate = useFormatDate();
 
+  const transformTemplates = async (templates: (TemplateInterface | null)[]) => {
+    const transformedTemplates = await Promise.all(
+      templates.map(async (template: TemplateInterface | null) => ({
+        id: template?.id,
+        title: template?.name || "",
+        description: template?.description || "",
+        link: `/template/${template?.id}`,
+        content: template?.description || template?.modified ? (
+          <div>
+            <p>{template?.description}</p>
+            <p>
+              Last updated: {template?.modified ? formatDate(template?.modified) : null}
+            </p>
+          </div>
+        ) : null, // Set to null if no description or last modified data
+        funder: template?.owner?.name || template?.name,
+        lastUpdated: template?.modified ? formatDate(template?.modified) : null,
+        lastRevisedBy: template?.modifiedById || null,
+        publishStatus: template?.isDirty ? "Published" : "Unpublished",
+        hasAdditionalGuidance: false,
+        defaultExpanded: false,
+        visibility: template?.visibility,
+      }))
+    );
+
+
+    return transformedTemplates;
+  };
+
   type VisibleCountKeys = keyof typeof visibleCount;
   interface TemplateListProps {
     templates: TemplateItemProps[]; // An array of templates
@@ -82,6 +111,7 @@ const TemplateSelectTemplatePage: React.FC = () => {
             <TemplateSelectListItem
               item={template}
               templateId={template.id || null}
+              templateName={templateName}
             />
           </div>
         );
@@ -95,12 +125,12 @@ const TemplateSelectTemplatePage: React.FC = () => {
                 : `Load ${templates.length - visibleCount[visibleCountKey]} more`}
             </Button>
             <div className={styles.remainingText}>{`Showing ${visibleCount[visibleCountKey]} of ${templates.length}`}</div>
-            {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (
-              <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link>
-            )
-            }
           </>
         )}
+        {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (
+          <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link>
+        )
+        }
       </div>
     </>
   );
@@ -156,40 +186,21 @@ const TemplateSelectTemplatePage: React.FC = () => {
 
   useEffect(() => {
     // Transform templates into format expected by TemplateListItem component
-    if (data && data?.templates) {
-      const fetchAllTemplates = async (templates: (TemplateInterface | null)[]) => {
-        const transformedTemplates = await Promise.all(
-          templates.map(async (template: TemplateInterface | null) => {
-            return {
-              id: template?.id,
-              title: template?.name || "",
-              description: template?.description || "",
-              link: `/template/${template?.id}`,
-              content: template?.description || template?.modified ? (
-                <div>
-                  <p>{template?.description}</p>
-                  <p>Last updated: {(template?.modified) ? formatDate(template?.modified) : null}</p>
-                </div>
-              ) : null, // Set to null if no description or last modified data
-              funder: template?.owner?.name || template?.name,
-              lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
-              lastRevisedBy: template?.modifiedById ? template.modifiedById : null,
-              publishStatus: (template?.isDirty) ? 'Published' : 'Unpublished',
-              hasAdditionalGuidance: false,
-              defaultExpanded: false,
-              visibility: template?.visibility
-            }
-          }));
 
+    const processTemplates = async () => {
+      if (data && data?.templates) {
+        const transformedTemplates = await transformTemplates(data.templates);
         setTemplates(transformedTemplates);
-        const publicTemplates = transformedTemplates.filter(template => {
-          return template.visibility !== 'PRIVATE'
-        });
-        setPublicTemplatesList(publicTemplates);
       }
-      fetchAllTemplates(data?.templates);
+      if (publicTemplatesData && publicTemplatesData?.publicTemplates) {
+        const transformedPublicTemplates = await transformTemplates(publicTemplatesData.publicTemplates);
+        setPublicTemplatesList(transformedPublicTemplates);
+      }
     }
-  }, [data]);
+
+    processTemplates();
+
+  }, [data, publicTemplatesData]);
 
   useEffect(() => {
     // Need this to set list of templates back to original, full list after filtering

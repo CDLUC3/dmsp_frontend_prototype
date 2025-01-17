@@ -5,7 +5,6 @@ query Templates {
     description
     modified
     modifiedById
-    id
     sections {
       id
       name

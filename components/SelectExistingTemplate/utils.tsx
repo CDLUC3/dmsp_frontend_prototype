@@ -9,3 +9,4 @@ export const filterTemplates = (
       field?.toLowerCase().includes(term.toLowerCase())
     )
   );
+

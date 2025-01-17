@@ -2579,7 +2579,6 @@ export const TemplatesDocument = gql`
     description
     modified
     modifiedById
-    id
     sections {
       id
       name
