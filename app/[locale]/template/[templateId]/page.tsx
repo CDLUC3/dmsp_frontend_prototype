@@ -112,6 +112,9 @@ const TemplateEditPage: React.FC = () => {
   const [createTemplateVersionMutation] = useCreateTemplateVersionMutation();
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
 
+  if (!templateId) {
+    return <div>No template id specified in url</div>
+  }
   // Run template query to get all templates under the given templateId
   const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
     {
@@ -119,7 +122,6 @@ const TemplateEditPage: React.FC = () => {
       notifyOnNetworkStatusChange: true
     }
   );
-
 
   // Archive current template
   const handleArchiveTemplate = async () => {

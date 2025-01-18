@@ -17,3 +17,44 @@ query TemplateVersions($templateId: Int!) {
     }
   }
 }
+
+query UserAffiliationTemplates {
+  userAffiliationTemplates {
+    id
+    name
+    description
+    modified
+    modifiedById
+    versionType
+    visibility
+    errors
+    template {
+      id
+      owner {
+        id
+        searchName
+        name
+        displayName
+      }
+    }
+  }
+}
+
+query PublicVersionedTemplates {
+  publicVersionedTemplates {
+    id
+    template {
+      id
+    }
+    name
+    description
+    modifiedById
+    owner {
+      name
+      displayName
+      searchName
+    }
+    visibility
+    errors
+  }
+}

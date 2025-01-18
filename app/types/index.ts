@@ -46,6 +46,27 @@ export interface TemplateInterface {
   visibility?: string;
 }
 
+export interface UserAffiliationTemplatesInterface {
+  id?: number | null;
+  name: string;
+  description?: string | null;
+  modified?: string | null;
+  modifiedById?: number | null;
+  versionType?: string | null;
+  visibility: string;
+  errors?: string[] | null;
+  template?: {
+    __typename?: string; // Match GraphQL's optional __typename
+    id?: number | null;
+    owner?: {
+      __typename?: string; // Match GraphQL's optional __typename
+      id?: number | null;
+      displayName?: string; // Make displayName optional
+      name?: string; // Make name optional
+      searchName?: string; // Make searchName optional
+    } | null;
+  } | null; // Allow `template` to be null or undefined
+}
 // Define valid href types for Next.js Link
 type Url = string | URL;
 type LinkHref = Url | {
@@ -56,6 +77,9 @@ type LinkHref = Url | {
 
 export interface TemplateItemProps {
   id?: number | null;
+  template?: {
+    id?: number | null;
+  },
   title: string;
   content?: JSX.Element | null;
   description?: string;
@@ -63,7 +87,7 @@ export interface TemplateItemProps {
   defaultExpanded: boolean;
   funder?: string;
   lastUpdated?: string | null;
-  publishStatus?: string;
+  publishStatus?: string | null;
 }
 
 export interface TemplateVersionInterface {

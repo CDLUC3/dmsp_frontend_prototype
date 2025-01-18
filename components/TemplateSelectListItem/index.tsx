@@ -1,11 +1,17 @@
 import { useRouter } from 'next/navigation';
 import { Button } from 'react-aria-components';
+
+//GraphQL
+import { useAddTemplateMutation } from '@/generated/graphql';
 import styles from './TemplateSelectListItem.module.scss';
 
 interface TemplateSelectListItemProps {
-  templateId: number | null;
-  templateName: string;
+  onSelect: (templateId: number | null, versionedTemplateId: number) => Promise<void>;
   item: {
+    id?: number | null;
+    template?: {
+      id?: number | null;
+    },
     funder?: string | undefined;
     title: string;
     description?: string;
@@ -15,13 +21,8 @@ interface TemplateSelectListItemProps {
   },
 }
 
-function TemplateSelectListItem({ item, templateId, templateName }: TemplateSelectListItemProps) {
-  const router = useRouter();
-  const handleClick = (templateId: string) => {
+function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps) {
 
-
-    router.push(`/template/${templateId}`)
-  }
   return (
     <div className={styles.templateItem} role="listitem">
       <div className={styles.TemplateItemInner}>
@@ -47,9 +48,15 @@ function TemplateSelectListItem({ item, templateId, templateName }: TemplateSele
         </div>
 
         <Button
-          onPress={() => handleClick(templateId ? templateId.toString() : '')}
+          onPress={async () => {
+            if (typeof item?.id === 'number' && typeof item?.template?.id === 'number') {
+              await onSelect(item?.template?.id, item.id);
+            } else {
+              console.error("item.id is not a valid number");
+            }
+          }}
           aria-label={`Select ${item.title}`}
-          data-template-id={templateId}
+          data-versioned-template-id={item?.id}
         >
           Select
         </Button>

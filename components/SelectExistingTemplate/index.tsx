@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { ApolloError } from "@apollo/client";
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -23,9 +26,15 @@ import {
 } from '@/components/Container';
 
 //GraphQL
-import { useTemplatesQuery, usePublicTemplatesQuery } from '@/generated/graphql';
+import {
+  useAddTemplateMutation,
+  usePublicVersionedTemplatesQuery,
+  useUserAffiliationTemplatesQuery
+} from '@/generated/graphql';
 
-import { TemplateInterface, TemplateItemProps, } from '@/app/types';
+// Other
+import logECS from '@/utils/clientLogger';
+import { UserAffiliationTemplatesInterface, TemplateItemProps } from '@/app/types';
 import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import styles from './selectExistingTemplate.module.scss';
@@ -34,6 +43,10 @@ import styles from './selectExistingTemplate.module.scss';
 const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) => {
   const nextSectionRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
+  const formatDate = useFormatDate();
+  const router = useRouter();
+
+  // State
   const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
   const [publicTemplatesList, setPublicTemplatesList] = useState<(TemplateItemProps)[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
@@ -46,30 +59,64 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     filteredTemplates: 3,
     filteredPublicTemplates: 3,
   });
-  const formatter = useFormatter();
+
   // Make graphql request for templates under the user's affiliation
-  const { data = {}, loading, error: queryError } = useTemplatesQuery({
+  const { data = {}, loading, error: queryError } = useUserAffiliationTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
 
-  const { data: publicTemplatesData, loading: publicTemplatesLoading, error: publicTemplatesError, refetch: refetchPublicTemplates } = usePublicTemplatesQuery({
+  const { data: publicTemplatesData, loading: publicTemplatesLoading, error: publicTemplatesError, refetch: refetchPublicTemplates } = usePublicVersionedTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
 
+  const [addTemplateMutation, { error: addTemplateError }] = useAddTemplateMutation();
 
-  const formatDate = useFormatDate();
+  const onSelect = async (templateId: number | null, versionedTemplateId: number) => {
+    //Add the new template
+    try {
+      await addTemplateMutation({
+        variables: {
+          name: templateName,
+          copyFromTemplateId: versionedTemplateId
+        },
+      });
+    } catch (err) {
+      if (err instanceof ApolloError) {
+        /* We need to call this mutation again when there is an error and
+refetch the user query in order for the page to reload with updated info. I tried just
+calling 'refetch()' for the user query, but that didn't work. */
+        await addTemplateMutation({
+          variables: {
+            name: templateName,
+            copyFromTemplateId: versionedTemplateId
+          }
+        });
+      } else {
+        logECS('error', 'handleClick', {
+          error: err,
+          url: { path: '/template/create' }
+        });
+      }
+    }
+    if (templateId) {
+      router.push(`/template/${templateId}`)
+    }
+  }
 
-  const transformTemplates = async (templates: (TemplateInterface | null)[]) => {
+  const transformTemplates = async (templates: (UserAffiliationTemplatesInterface | null)[]) => {
     const transformedTemplates = await Promise.all(
-      templates.map(async (template: TemplateInterface | null) => ({
+      templates.map(async (template: UserAffiliationTemplatesInterface | null) => ({
         id: template?.id,
+        template: {
+          id: template?.template?.id ? template?.template.id : null
+        },
         title: template?.name || "",
         description: template?.description || "",
-        link: `/template/${template?.id}`,
+        link: `/template/${template?.template?.id ? template?.template.id : ''}`,
         content: template?.description || template?.modified ? (
           <div>
             <p>{template?.description}</p>
@@ -78,16 +125,15 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
             </p>
           </div>
         ) : null, // Set to null if no description or last modified data
-        funder: template?.owner?.name || template?.name,
+        funder: template?.template?.owner?.name || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedById || null,
-        publishStatus: template?.isDirty ? "Published" : "Unpublished",
+        publishStatus: template?.versionType,
         hasAdditionalGuidance: false,
         defaultExpanded: false,
         visibility: template?.visibility,
       }))
     );
-
 
     return transformedTemplates;
   };
@@ -110,8 +156,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
           <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
             <TemplateSelectListItem
               item={template}
-              templateId={template.id || null}
-              templateName={templateName}
+              onSelect={onSelect}
             />
           </div>
         );
@@ -186,14 +231,13 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
 
   useEffect(() => {
     // Transform templates into format expected by TemplateListItem component
-
     const processTemplates = async () => {
-      if (data && data?.templates) {
-        const transformedTemplates = await transformTemplates(data.templates);
+      if (data && data?.userAffiliationTemplates) {
+        const transformedTemplates = await transformTemplates(data.userAffiliationTemplates);
         setTemplates(transformedTemplates);
       }
-      if (publicTemplatesData && publicTemplatesData?.publicTemplates) {
-        const transformedPublicTemplates = await transformTemplates(publicTemplatesData.publicTemplates);
+      if (publicTemplatesData && publicTemplatesData?.publicVersionedTemplates) {
+        const transformedPublicTemplates = await transformTemplates(publicTemplatesData.publicVersionedTemplates);
         setPublicTemplatesList(transformedPublicTemplates);
       }
     }
