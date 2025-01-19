@@ -13,6 +13,7 @@ interface InputProps {
   type?: string;
   label: string;
   placeholder?: string;
+  ariaDescribedBy?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
@@ -26,6 +27,7 @@ const FormInput: React.FC<InputProps> = ({
   type,
   label,
   placeholder,
+  ariaDescribedBy,
   value,
   onChange,
   className = '',
@@ -50,6 +52,7 @@ const FormInput: React.FC<InputProps> = ({
           placeholder={placeholder}
           onChange={onChange}
           value={value}
+          aria-describedby={ariaDescribedBy}
         />
 
         {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}

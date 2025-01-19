@@ -9,6 +9,7 @@ import {
   Form,
   Link,
 } from "react-aria-components";
+import sanitizeHtml from 'sanitize-html';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -34,7 +35,8 @@ const TemplateCreatePage: React.FC = () => {
     () =>
       debounce((value: string) => {
         setErrors({});
-        setTemplateName(value);
+        const sanitizedTemplateName = sanitizeHtml(value);
+        setTemplateName(sanitizedTemplateName);
       }, 30),
     []
   );

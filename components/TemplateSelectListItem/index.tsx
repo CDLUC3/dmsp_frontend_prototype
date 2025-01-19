@@ -2,7 +2,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from 'react-aria-components';
 
 //GraphQL
-import { useAddTemplateMutation } from '@/generated/graphql';
 import styles from './TemplateSelectListItem.module.scss';
 
 interface TemplateSelectListItemProps {

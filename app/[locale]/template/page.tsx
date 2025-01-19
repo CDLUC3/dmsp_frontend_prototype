@@ -32,6 +32,7 @@ const TemplateListPage: React.FC = () => {
   const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const errorRef = useRef<HTMLDivElement | null>(null);
+
   // For translations
   const t = useTranslations('OrganizationTemplates');
 

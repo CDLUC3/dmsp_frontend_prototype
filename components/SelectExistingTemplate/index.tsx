@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ApolloError } from "@apollo/client";
 
@@ -45,6 +45,9 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const topRef = useRef<HTMLDivElement>(null);
   const formatDate = useFormatDate();
   const router = useRouter();
+  if (!templateName) {
+    router.push('/template/create?step1');
+  }
 
   // State
   const [templates, setTemplates] = useState<TemplateItemProps[]>([]);
@@ -74,7 +77,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
-  console.log("public templates", publicTemplatesData, publicTemplatesLoading);
 
   const [addTemplateMutation] = useAddTemplateMutation();
 
