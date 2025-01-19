@@ -6,7 +6,7 @@ import { useAddTemplateMutation } from '@/generated/graphql';
 import styles from './TemplateSelectListItem.module.scss';
 
 interface TemplateSelectListItemProps {
-  onSelect: (templateId: number | null, versionedTemplateId: number) => Promise<void>;
+  onSelect: (versionedTemplateId: number) => Promise<void>;
   item: {
     id?: number | null;
     template?: {
@@ -50,7 +50,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
         <Button
           onPress={async () => {
             if (typeof item?.id === 'number' && typeof item?.template?.id === 'number') {
-              await onSelect(item?.template?.id, item.id);
+              await onSelect(item.id);
             } else {
               console.error("item.id is not a valid number");
             }

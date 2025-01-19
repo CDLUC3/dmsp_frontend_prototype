@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import TemplateSelectTemplatePage from '../index';
 import {
@@ -8,13 +8,18 @@ import {
   useUserAffiliationTemplatesQuery
 } from '@/generated/graphql';
 import { useRouter } from 'next/navigation';
-
+import logECS from '@/utils/clientLogger';
 
 expect.extend(toHaveNoViolations);
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
 }));
+
+jest.mock('@/utils/clientLogger', () => ({
+  __esModule: true,
+  default: jest.fn()
+}))
 
 jest.mock('@/components/PageHeader', () => ({
   __esModule: true,
@@ -33,79 +38,122 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
+// Mock the debounce function
+jest.mock('@/hooks/useFormatDate', () => ({
+  useFormatDate: (fn: () => string) => fn,
+}));
 
-const mockPublicTemplates = [
-  {
-    description: "",
-    errors: null,
-    id: 1,
-    modifiedById: 1,
-    name: "Public template 1",
-    owner: null,
-    template: {
+
+const mockPublicTemplates = {
+  publicVersionedTemplates: [
+    {
+      description: "",
+      errors: null,
       id: 1,
-      __typename: "Template",
+      modifiedById: 1,
+      name: "Public template 1",
+      owner: null,
+      template: {
+        id: 1,
+        __typename: "Template",
+      },
+      visibility: "PUBLIC"
     },
-    visibility: "PUBLIC"
-  },
-  {
-    description: "",
-    errors: null,
-    id: 2,
-    modifiedById: 2,
-    name: "Public template 2",
-    owner: null,
-    template: {
+    {
+      description: "",
+      errors: null,
       id: 2,
-      __typename: "Template",
-    },
-    visibility: "PUBLIC"
-  }
-]
+      modifiedById: 2,
+      name: "Public template 2",
+      owner: null,
+      template: {
+        id: 2,
+        __typename: "Template",
+      },
+      visibility: "PUBLIC"
+    }
+  ]
+}
 
-const mockTemplates = [
-  {
-    description: "",
-    errors: null,
-    id: 3,
-    modifiedById: 3,
-    name: "Public template 3",
-    owner: {
-      name: 'Institution',
-      displayName: 'National Institution',
-      searchName: 'NI'
-    },
-    template: {
+const mockTemplates = {
+  userAffiliationTemplates: [
+    {
+      description: "",
+      errors: null,
       id: 3,
-      __typename: "Template",
+      modifiedById: 3,
+      name: "Public template 3",
+      owner: {
+        name: 'Institution',
+        displayName: 'National Institution',
+        searchName: 'NI'
+      },
+      template: {
+        id: 3,
+        __typename: "Template",
+      },
+      visibility: "PUBLIC"
     },
-    visibility: "PUBLIC"
-  },
-  {
-    description: "",
-    errors: null,
-    id: 4,
-    modifiedById: 4,
-    name: "Public template 4",
-    owner: {
-      name: 'Institution',
-      displayName: 'National Institution',
-      searchName: 'NI'
-    },
-    template: {
+    {
+      description: "",
+      errors: null,
       id: 4,
-      __typename: "Template",
+      modifiedById: 4,
+      name: "Public template 4",
+      owner: {
+        name: 'Institution',
+        displayName: 'National Institution',
+        searchName: 'NI'
+      },
+      template: {
+        id: 4,
+        __typename: "Template",
+      },
+      visibility: "PUBLIC"
     },
-    visibility: "PUBLIC"
-  }
-]
+    {
+      description: "",
+      errors: null,
+      id: 5,
+      modifiedById: 5,
+      name: "Odd template 5",
+      owner: {
+        name: 'Institution',
+        displayName: 'National Institution',
+        searchName: 'NI'
+      },
+      template: {
+        id: 5,
+        __typename: "Template",
+      },
+      visibility: "PUBLIC"
+    },
+    {
+      description: "",
+      errors: null,
+      id: 6,
+      modifiedById: 6,
+      name: "Public template 6",
+      owner: {
+        name: 'Institution',
+        displayName: 'National Institution',
+        searchName: 'NI'
+      },
+      template: {
+        id: 6,
+        __typename: "Template",
+      },
+      visibility: "PUBLIC"
+    }
+  ]
+}
 // Helper function to cast to jest.Mock for TypeScript
 const mockHook = (hook: any) => hook as jest.Mock;
 
 const setupMocks = () => {
   mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
-  mockHook(usePublicVersionedTemplatesQuery).mockReturnValue([() => mockPublicTemplates, { loading: false, error: undefined }]);
-  mockHook(useUserAffiliationTemplatesQuery).mockReturnValue([() => mockTemplates, { loading: false, error: undefined }]);
+  mockHook(usePublicVersionedTemplatesQuery).mockReturnValue({ data: mockPublicTemplates, loading: false, error: undefined });
+  mockHook(useUserAffiliationTemplatesQuery).mockReturnValue({ data: mockTemplates, loading: false, error: undefined });
 };
 
 
@@ -116,29 +164,121 @@ describe('TemplateSelectTemplatePage', () => {
     pushMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
     window.scrollTo = jest.fn();
+    HTMLElement.prototype.scrollIntoView = jest.fn();
   });
 
-  it('renders the main content sections', () => {
-    render(<TemplateSelectTemplatePage templateName="test" />);
-
-    expect(screen.getByRole('search')).toBeInTheDocument();
-    expect(screen.getByLabelText('Template search')).toBeInTheDocument();
-
-    expect(screen.getByRole('list', { name: 'Your templates' })).toBeInTheDocument();
-    expect(screen.getByRole('list', { name: 'Public templates' })).toBeInTheDocument();
+  it('should render the main content sections', async () => {
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+    const input = screen.getByLabelText('Search by keyword');
+    expect(input).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /public template 1/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /public template 2/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /public template 3/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /public template 4/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /odd template 5/i })).toBeInTheDocument();
   });
 
-  it('renders NSF templates', () => {
-    render(<TemplateSelectTemplatePage templateName="test" />);
-    expect(screen.getByText('Arctic Data Center: NSF Polar Programs')).toBeInTheDocument();
-    expect(screen.getByText('NSF Polar Expeditions')).toBeInTheDocument();
+  it('should render text loading if templates are still loading', async () => {
+    (usePublicVersionedTemplatesQuery as jest.Mock).mockReturnValue({
+      data: null,
+      loading: true,
+      error: null,
+    });
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+    const loading = screen.getByText(/loading.../i);
+    expect(loading).toBeInTheDocument();
   });
 
-  it('renders public templates', () => {
-    render(<TemplateSelectTemplatePage templateName="test" />);
-    expect(screen.getByText('General Research DMP')).toBeInTheDocument();
-    expect(screen.getByText('Humanities Research DMP')).toBeInTheDocument();
+  it('should render a button that says \'Load 1 more\' and when clicked, should display \'public template 6\'', async () => {
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+    const loadMoreButton = screen.getByRole('button', { name: /load 1 more/i });
+    expect(loadMoreButton).toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(loadMoreButton);
+    });
+    expect(screen.getByRole('heading', { name: /public template 6/i })).toBeInTheDocument();
   });
+
+  it('should match only one item when a user enters text \'ODD\'', async () => {
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+    //Search input field
+    const input = screen.getByLabelText('Search by keyword');
+    const searchButton = screen.getByRole('button', { name: /search/i });
+
+    expect(searchButton).toBeInTheDocument();
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'ODD' } });
+      fireEvent.click(searchButton);
+    });
+
+    expect(screen.getByRole('heading', { name: /odd template 5/i })).toBeInTheDocument();
+    expect(screen.getByText(/1 results match your search/i)).toBeInTheDocument();
+    const linkElement = screen.getAllByRole('link', { name: /clear filter/i });
+    expect(linkElement).toHaveLength(2);
+  });
+
+  it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+    //Search input field
+    const selectButton = screen.getAllByRole('button', { name: /select/i });
+
+    await act(async () => {
+      fireEvent.click(selectButton[0]);
+    });
+
+    // Wait for the mutation to be called
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
+
+  it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+    //Search input field
+    const selectButton = screen.getAllByRole('button', { name: /select/i });
+
+    await act(async () => {
+      fireEvent.click(selectButton[0]);
+    });
+
+    expect(logECS).toHaveBeenCalledWith(
+      'error',
+      'handleClick',
+      expect.objectContaining({
+        error: expect.anything(),
+        url: { path: '/template/create' },
+      })
+    )
+  });
+
 
   it('should pass accessibility tests', async () => {
     const { container } = render(<TemplateSelectTemplatePage templateName="test" />);

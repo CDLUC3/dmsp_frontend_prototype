@@ -67,18 +67,18 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     notifyOnNetworkStatusChange: true,
   });
 
-  console.log("***TEMPLATES", data?.userAffiliationTemplates);
+
   // Make graphql request for all public versionedTemplates
   const { data: publicTemplatesData, loading: publicTemplatesLoading, error: publicTemplatesError, refetch: refetchPublicTemplates } = usePublicVersionedTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
+  console.log("public templates", publicTemplatesData, publicTemplatesLoading);
 
-  console.log("***PUBLIC TEMPLATES", publicTemplatesData?.publicVersionedTemplates);
-  const [addTemplateMutation, { error: addTemplateError }] = useAddTemplateMutation();
+  const [addTemplateMutation] = useAddTemplateMutation();
 
-  const onSelect = async (templateId: number | null, versionedTemplateId: number) => {
+  const onSelect = async (versionedTemplateId: number) => {
     let newTemplateId;
     //Add the new template
     try {
@@ -141,7 +141,6 @@ calling 'refetch()' for the user query, but that didn't work. */
         visibility: template?.visibility,
       }))
     );
-
     return transformedTemplates;
   };
 
