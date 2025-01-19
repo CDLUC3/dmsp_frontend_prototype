@@ -1,18 +1,18 @@
-import type {Metadata} from "next";
-import {Poppins} from "next/font/google";
-import {NextIntlClientProvider} from 'next-intl';
-import {getMessages} from 'next-intl/server';
-import {notFound} from 'next/navigation';
-import {routing} from '@/i18n/routing';
+import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { routing } from '@/i18n/routing';
 
 // Components
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SubHeader from "@/components/SubHeader";
 
-import {ApolloWrapper} from "@/lib/graphql/apollo-wrapper";
-import {AuthProvider} from "@/context/AuthContext";
-import {CsrfProvider} from "@/context/CsrfContext";
+import { ApolloWrapper } from "@/lib/graphql/apollo-wrapper";
+import { AuthProvider } from "@/context/AuthContext";
+import { CsrfProvider } from "@/context/CsrfContext";
 
 //Styles
 import '@fortawesome/fontawesome-svg-core/styles.css'

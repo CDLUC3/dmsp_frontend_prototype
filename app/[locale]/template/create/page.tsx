@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -19,15 +19,29 @@ import {
 } from '@/components/Container';
 import FormInput from '@/components/Form/FormInput';
 
+import { debounce } from '@/hooks/debounce';
+import { useQueryStep } from '@/app/[locale]/template/create/useQueryStep';
+
 const TemplateCreatePage: React.FC = () => {
   const router = useRouter();
   const [step, setStep] = useState<number | null>(null);
   const [templateName, setTemplateName] = useState('');
-  const [errors, setErrors] = useState<string[]>([])
-  const searchParams = useSearchParams();
-  const stepParam = searchParams.get('step');
-  const stepQueryValue = stepParam ? parseInt(stepParam, 10) : 1;
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const stepQueryValue = useQueryStep();
 
+  // Debounced input handler
+  const debouncedInputHandler = useMemo(
+    () =>
+      debounce((value: string) => {
+        setErrors({});
+        setTemplateName(value);
+      }, 30),
+    []
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedInputHandler(e.target.value);
+  }
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,36 +50,24 @@ const TemplateCreatePage: React.FC = () => {
     if (templateName.length > 2) {
       router.push('/template/create?step=2')
     } else {
-      setErrors(prev => [...prev, 'Please enter a valid value for template name.']);
+      setErrors({ templateName: 'Please enter a valid value for template name.' });
     }
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setErrors([]);
-    setTemplateName(e.target.value);
   }
 
   useEffect(() => {
     // If a step was specified in a query param, then set that step
-    if (stepQueryValue) {
+    if (step !== stepQueryValue) {
       setStep(stepQueryValue);
     }
   }, [stepQueryValue])
 
-  // Show a loading state until the `step` is initialized
+  // TODO: Need to implement a shared loading component
   if (step === null) {
     return <div>...Loading</div>
   }
 
   return (
     <>
-      {errors && errors.length > 0 &&
-        <div className="error" role="alert" aria-live="assertive">
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      }
       {step === 1 && (
         <>
           <PageHeader
@@ -86,17 +88,20 @@ const TemplateCreatePage: React.FC = () => {
             <ContentContainer>
               <Form onSubmit={handleNext}>
                 <FormInput
-                  name="template_name"
+                  name="templateName"
                   type="text"
                   label="Name of your template"
                   placeholder=""
                   value={templateName}
                   onChange={handleInputChange}
                   helpMessage="Don't worry, you can change this later."
+                  errorMessage={errors.templateName ? errors.templateName : ''}
+                  isInvalid={!!errors.templateName}
                 />
 
-                <Button type="submit"
-                  className="">Next</Button>
+                <Button type="submit">
+                  Next
+                </Button>
 
               </Form>
             </ContentContainer>

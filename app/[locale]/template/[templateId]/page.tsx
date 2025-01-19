@@ -30,7 +30,7 @@ import {
   TemplateVisibility,
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
-  useTemplateQuery
+  useTemplateQuery,
 } from '@/generated/graphql';
 
 // Components
@@ -112,16 +112,11 @@ const TemplateEditPage: React.FC = () => {
   const [createTemplateVersionMutation] = useCreateTemplateVersionMutation();
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
 
-  if (!templateId) {
-    return <div>No template id specified in url</div>
-  }
   // Run template query to get all templates under the given templateId
-  const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
-    {
-      variables: { templateId: Number(templateId) },
-      notifyOnNetworkStatusChange: true
-    }
-  );
+  const { data, loading } = useTemplateQuery({
+    variables: { templateId: templateId ? Number(templateId) : 0 },
+    notifyOnNetworkStatusChange: true,
+  });
 
   // Archive current template
   const handleArchiveTemplate = async () => {
@@ -215,13 +210,6 @@ const TemplateEditPage: React.FC = () => {
       });
     }
   }, [data]);
-
-  // Need to refetch on errors to re-render page
-  useEffect(() => {
-    if (templateQueryErrors) {
-      refetch();
-    }
-  }, [templateQueryErrors]);
 
   // If errors when submitting publish form, scroll them into view
   useEffect(() => {

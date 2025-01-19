@@ -47,10 +47,10 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const router = useRouter();
 
   // State
-  const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
-  const [publicTemplatesList, setPublicTemplatesList] = useState<(TemplateItemProps)[]>([]);
-  const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
-  const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<(TemplateItemProps)[] | null>([]);
+  const [templates, setTemplates] = useState<TemplateItemProps[]>([]);
+  const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
+  const [filteredTemplates, setFilteredTemplates] = useState<TemplateItemProps[] | null>([]);
+  const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<TemplateItemProps[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
   const [visibleCount, setVisibleCount] = useState({
@@ -60,30 +60,37 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     filteredPublicTemplates: 3,
   });
 
-  // Make graphql request for templates under the user's affiliation
+  // Make graphql request for versionedTemplates under the user's affiliation
   const { data = {}, loading, error: queryError } = useUserAffiliationTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
 
+  console.log("***TEMPLATES", data?.userAffiliationTemplates);
+  // Make graphql request for all public versionedTemplates
   const { data: publicTemplatesData, loading: publicTemplatesLoading, error: publicTemplatesError, refetch: refetchPublicTemplates } = usePublicVersionedTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
 
+  console.log("***PUBLIC TEMPLATES", publicTemplatesData?.publicVersionedTemplates);
   const [addTemplateMutation, { error: addTemplateError }] = useAddTemplateMutation();
 
   const onSelect = async (templateId: number | null, versionedTemplateId: number) => {
+    let newTemplateId;
     //Add the new template
     try {
-      await addTemplateMutation({
+      const response = await addTemplateMutation({
         variables: {
           name: templateName,
           copyFromTemplateId: versionedTemplateId
         },
       });
+      if (response?.data) {
+        newTemplateId = response?.data?.addTemplate?.id;
+      }
     } catch (err) {
       if (err instanceof ApolloError) {
         /* We need to call this mutation again when there is an error and
@@ -102,8 +109,8 @@ calling 'refetch()' for the user query, but that didn't work. */
         });
       }
     }
-    if (templateId) {
-      router.push(`/template/${templateId}`)
+    if (newTemplateId) {
+      router.push(`/template/${newTemplateId}`)
     }
   }
 
@@ -261,7 +268,6 @@ calling 'refetch()' for the user query, but that didn't work. */
     return <div>Error loading templates. Please try again later.</div>;
   }
 
-  console.log("Filtered Public Templates", filteredPublicTemplates)
   return (
     <>
 
