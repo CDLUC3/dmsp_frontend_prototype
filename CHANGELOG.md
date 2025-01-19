@@ -1,10 +1,9 @@
-### Added
-- Project overview page [#175]
-  - Moved pages under [locale] folder
-  - dummy portuguese brazilian translation
 
 ### Updated
 =======
+- Updated app/template/[templateId]/section/[section_slug] to hook it into backend data [#217]
+- Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]
+- Updated DMPEditor to use a skeleton while the text editors are loading, since it can be slow [#187]
 - Updated app/template/[templateId]/section/new page to hook it up to backend data, handle errors, and add translations [#189]
 - Updated app/template/[templateId] page to hook it up to the backend and handle errors and translations[#206]
 - Updated app/[locale]/template page to hook it up to backend and handle errors and translations[#82]
@@ -12,6 +11,10 @@
 - Refactored font family usage for consistency.
 
 ### Added
+- Added Toast Message capabilities using **React Aria Component's use Toast**. [#211]
+- Project overview page [#175]
+  - Moved pages under [locale] folder
+  - dummy portuguese brazilian translation
 - New translation updates [#160]
   - Installed next-intl, and created a /messages directory for content, and /i18n directory for next-intl request and routing
   - Moved pages under dynamic folder [locale]

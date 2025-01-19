@@ -24,9 +24,10 @@ import {
 } from "react-aria-components";
 // GraphQL queries and mutations
 import {
+  useAddSectionMutation,
   useTagsQuery,
-  useUpdateSectionMutation,
-  UpdateSectionDocument
+  useSectionsDisplayOrderQuery,
+  SectionsDisplayOrderDocument
 } from '@/generated/graphql';
 
 //Components
@@ -37,16 +38,13 @@ import {
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
-
 import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
-import { useSectionData } from "@/hooks/sectionData";
 
-const SectionUpdatePage: React.FC = () => {
+const CreateSectionPage: React.FC = () => {
 
   // Get templateId param
   const params = useParams();
   const { templateId } = params; // From route /template/:templateId/section/create
-  const { section_slug: sectionId } = params;
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -54,16 +52,24 @@ const SectionUpdatePage: React.FC = () => {
   //For scrolling to top of page
   const topRef = useRef<HTMLDivElement | null>(null);
 
-  const {
-    sectionData,
-    selectedTags,
-    checkboxTags,
-    loading,
-    setSectionData,
-    setSelectedTags,
-  } = useSectionData(Number(sectionId));
+  //Set initial Rich Text Editor field values
+  const [sectionNameContent, setSectionNameContent] = useState('');
+  const [sectionIntroductionContent, setSectionIntroductionContent] = useState('');
+  const [sectionRequirementsContent, setSectionRequirementsContent] = useState('');
+  const [sectionGuidanceContent, setSectionGuidanceContent] = useState('');
 
+  //Keep form field values in state
+  const [formData, setFormData] = useState<SectionFormInterface>({
+    sectionName: '',
+    sectionIntroduction: '',
+    sectionRequirements: '',
+    sectionGuidance: '',
+    sectionTags: []
+  })
 
+  // Keep track of which checkboxes have been selected
+  const [selectedTags, setSelectedTags] = useState<TagsInterface[]>([]);
+  const [maxDisplayOrderNum, setMaxDisplayOrderNum] = useState<number>(0);
   // Save errors in state to display on page
   const [errors, setErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -76,67 +82,76 @@ const SectionUpdatePage: React.FC = () => {
 
   // localization keys
   const Global = useTranslations('Global');
-  const SectionUpdatePage = useTranslations('SectionUpdatePage');
+  const CreateSectionPage = useTranslations('CreateSectionPage');
   const Section = useTranslations('Section');
 
   //Store selection of tags in state
   const [tags, setTags] = useState<TagsInterface[]>([]);
 
-
   // Initialize user addSection mutation
-  const [updateSectionMutation] = useUpdateSectionMutation();
+  const [addSectionMutation] = useAddSectionMutation();
 
   // Query for all tags
   const { data: tagsData } = useTagsQuery();
 
+  // Query for all section displayOrder
+  const { data: sectionDisplayOrders } = useSectionsDisplayOrderQuery({
+    variables: {
+      templateId: Number(templateId)
+    }
+  })
 
-  const updateSectionContent = (key: string, value: string) => {
-    setSectionData((prevContents) => ({
-      ...prevContents,
-      [key]: value,
-    }));
-  };
+  // Get the current max display order number + 1
+  const getNewDisplayOrder = () => {
+    return maxDisplayOrderNum + 1;
+  }
 
   // Client-side validation of fields
-  const validateField = (name: string, value: string | string[] | undefined): string => {
+  const validateField = (name: string, value: string | string[] | undefined) => {
+    let error = '';
     switch (name) {
       case 'sectionName':
         if (!value || value.length <= 2) {
-          return SectionUpdatePage('messages.fieldLengthValidation');
+          error = CreateSectionPage('messages.fieldLengthValidation')
         }
         break;
     }
-    return '';
-  };
+
+    setFieldErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: error
+    }));
+    if (error.length > 1) {
+      setErrors(prev => [...prev, error]);
+    }
+
+    return error;
+  }
 
   // Check whether form is valid before submitting
   const isFormValid = (): boolean => {
-    const errors: SectionFormErrorsInterface = {
+    // Initialize a flag for form validity
+    let isValid = true;
+    let errors: SectionFormInterface = {
       sectionName: '',
       sectionIntroduction: '',
       sectionRequirements: '',
-      sectionGuidance: ''
+      sectionGuidance: '',
     };
 
-    let hasError = false;
-
-    // Validate all fields and collect errors
-    Object.keys(sectionData).forEach((key) => {
+    // Iterate over formData to validate each field
+    Object.keys(formData).forEach((key) => {
       const name = key as keyof SectionFormErrorsInterface;
-      const value = sectionData[name];
-      const error = validateField(name, value);
+      const value = formData[name];
 
+      // Call validateField to update errors for each field
+      const error = validateField(name, value);
       if (error) {
-        hasError = true;
+        isValid = false;
         errors[name] = error;
       }
     });
-
-    // Update state with all errors
-    setFieldErrors(errors);
-    setErrors(Object.values(errors).filter((e) => e)); // Store only non-empty error messages
-
-    return !hasError;
+    return isValid;
   };
 
   const clearAllFieldErrors = () => {
@@ -146,6 +161,7 @@ const SectionUpdatePage: React.FC = () => {
       sectionIntroduction: '',
       sectionRequirements: '',
       sectionGuidance: '',
+      sectionTags: []
     });
   }
 
@@ -158,26 +174,26 @@ const SectionUpdatePage: React.FC = () => {
     }
   }
 
-  // Make GraphQL mutation request to update section
-  const updateSection = async () => {
+  // Make GraphQL mutation request to create section
+  const createSection = async () => {
     try {
-      await updateSectionMutation({
+      const newDisplayOrder = getNewDisplayOrder();
+      await addSectionMutation({
         variables: {
           input: {
-            sectionId: Number(sectionId),
-            name: sectionData.sectionName,
-            introduction: sectionData.sectionIntroduction,
-            requirements: sectionData.sectionRequirements,
-            guidance: sectionData.sectionGuidance,
-            displayOrder: sectionData.displayOrder,
-            bestPractice: sectionData.bestPractice ?? false, // have to write it this way, otherwise the 'false' will remove this prop from input
+            templateId: Number(templateId),
+            name: sectionNameContent,
+            introduction: sectionIntroductionContent,
+            requirements: sectionRequirementsContent,
+            guidance: sectionGuidanceContent,
+            displayOrder: newDisplayOrder,
             tags: selectedTags
           }
         },
-        refetchQueries: [{ //Needed to update the sectionDisplayOrders after updating db
-          query: UpdateSectionDocument,
+        refetchQueries: [{ //Need to update the sectionDisplayOrders with latest from db
+          query: SectionsDisplayOrderDocument,
           variables: {
-            templateId: templateId
+            templateId: Number(templateId)
           }
         }]
       })
@@ -185,17 +201,25 @@ const SectionUpdatePage: React.FC = () => {
       if (error instanceof ApolloError) {
         setErrors(prevErrors => [...prevErrors, error.message]);
       } else {
-        setErrors(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorCreatingSection')]);
+        setErrors(prevErrors => [...prevErrors, CreateSectionPage('messages.errorCreatingSection')]);
       }
     }
   };
 
   // Handle changes to tag checkbox selection
   const handleCheckboxChange = (tag: TagsInterface) => {
-    setSelectedTags(prevTags => prevTags.some(selectedTag => selectedTag.id === tag.id)
-      ? prevTags.filter(selectedTag => selectedTag.id !== tag.id)
-      : [...prevTags, tag]
-    );
+    setSelectedTags((prevTags) => {
+      // Check if the tag is already selected
+      const isAlreadySelected = prevTags.some((selectedTag) => selectedTag.id === tag.id);
+
+      if (isAlreadySelected) {
+        // If already selected, remove it
+        return prevTags.filter((selectedTag) => selectedTag.id !== tag.id);
+      } else {
+        // If not selected, add it
+        return [...prevTags, tag];
+      }
+    });
   };
 
   // Handle form submit
@@ -208,11 +232,11 @@ const SectionUpdatePage: React.FC = () => {
 
     if (isFormValid()) {
       // Create new section
-      await updateSection();
+      await createSection();
       setErrors([]); // Clear errors on successful submit
       // For now, scroll to top of page to provide some feedback that form was successfully submitted
       // TODO: add flash/toast message to signal to user that form was successfully submitted
-      setSuccessMessage(SectionUpdatePage('messages.success'))
+      setSuccessMessage(CreateSectionPage('messages.success'))
       scrollToTop(topRef);
     }
   };
@@ -226,6 +250,20 @@ const SectionUpdatePage: React.FC = () => {
     }
   }, [tagsData])
 
+  useEffect(() => {
+    if (sectionDisplayOrders?.sections && sectionDisplayOrders.sections.length > 0) {
+      const sections = sectionDisplayOrders?.sections;
+
+      // Find the maximum displayOrder
+      const maxDisplayOrder = sections.reduce(
+        (max, section) => (section?.displayOrder ?? -Infinity) > max ? section?.displayOrder ?? max : max,
+        0
+      );
+
+      setMaxDisplayOrderNum(maxDisplayOrder);
+    }
+  }, [sectionDisplayOrders])
+
   // If errors when submitting publish form, scroll them into view
   useEffect(() => {
     if (errors.length > 0) {
@@ -233,16 +271,21 @@ const SectionUpdatePage: React.FC = () => {
     }
   }, [errors]);
 
-  // We need this so that the page waits to render until data is available
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    setFormData({
+      ...formData,
+      sectionName: sectionNameContent,
+      sectionIntroduction: sectionIntroductionContent,
+      sectionRequirements: sectionRequirementsContent,
+      sectionGuidance: sectionGuidanceContent
+    });
+  }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
 
   return (
     <>
       <PageHeader
-        title={SectionUpdatePage('title')}
+        title={CreateSectionPage('title')}
         description=""
         showBackButton={false}
         breadcrumbs={
@@ -286,8 +329,8 @@ const SectionUpdatePage: React.FC = () => {
                   <Form onSubmit={handleFormSubmit}>
                     <Label htmlFor="sectionName" id="sectionNameLabel">{Section('labels.sectionName')}</Label>
                     <DmpEditor
-                      content={sectionData.sectionName}
-                      setContent={(value) => updateSectionContent('sectionName', value)}
+                      content={sectionNameContent}
+                      setContent={setSectionNameContent}
                       error={fieldErrors['sectionName']}
                       id="sectionName"
                       labelId="sectionNameLabel"
@@ -295,8 +338,8 @@ const SectionUpdatePage: React.FC = () => {
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
                     <DmpEditor
-                      content={sectionData.sectionIntroduction}
-                      setContent={(value) => updateSectionContent('sectionIntroduction', value)}
+                      content={sectionIntroductionContent}
+                      setContent={setSectionIntroductionContent}
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
                       labelId="sectionIntroductionLabel"
@@ -304,8 +347,8 @@ const SectionUpdatePage: React.FC = () => {
 
                     <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
                     <DmpEditor
-                      content={sectionData.sectionRequirements}
-                      setContent={(value) => updateSectionContent('sectionRequirements', value)}
+                      content={sectionRequirementsContent}
+                      setContent={setSectionRequirementsContent}
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
                       labelId="sectionRequirementsLabel"
@@ -313,17 +356,14 @@ const SectionUpdatePage: React.FC = () => {
 
                     <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
                     <DmpEditor
-                      content={sectionData.sectionGuidance}
-                      setContent={(value) => updateSectionContent('sectionGuidance', value)}
+                      content={sectionGuidanceContent}
+                      setContent={setSectionGuidanceContent}
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
                       labelId="sectionGuidanceLabel"
                     />
 
-                    <CheckboxGroup
-                      name="sectionTags"
-                      defaultValue={checkboxTags}
-                    >
+                    <CheckboxGroup name="sectionTags">
                       <Label>{Section('labels.bestPracticeTags')}</Label>
                       <span className="help">{Section('helpText.bestPracticeTagsDesc')}</span>
                       <div className="checkbox-group">
@@ -366,7 +406,7 @@ const SectionUpdatePage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button type="submit">{SectionUpdatePage('button.updateSection')}</Button>
+                    <Button type="submit">{CreateSectionPage('button.createSection')}</Button>
 
                   </Form>
                 </TabPanel>
@@ -385,4 +425,4 @@ const SectionUpdatePage: React.FC = () => {
   );
 }
 
-export default SectionUpdatePage;
+export default CreateSectionPage;

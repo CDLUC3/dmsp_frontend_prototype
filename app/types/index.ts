@@ -105,3 +105,26 @@ export interface TemplateVersionInterface {
     modified?: string | null;
   } | null;
 };
+
+export interface SectionFormInterface {
+  sectionName: string;
+  sectionIntroduction: string;
+  sectionRequirements: string;
+  sectionGuidance: string;
+  displayOrder?: number;
+  bestPractice?: boolean;
+  sectionTags?: TagsInterface[];
+}
+
+export interface SectionFormErrorsInterface {
+  sectionName: string;
+  sectionIntroduction: string;
+  sectionRequirements: string;
+  sectionGuidance: string;
+}
+
+export interface TagsInterface {
+  id?: number | null;
+  name: string;
+  description?: string | null;
+}
