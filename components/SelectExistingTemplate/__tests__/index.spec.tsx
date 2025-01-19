@@ -16,6 +16,12 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
 }));
 
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    add: jest.fn(),
+  })),
+}));
+
 jest.mock('@/utils/clientLogger', () => ({
   __esModule: true,
   default: jest.fn()
@@ -282,7 +288,10 @@ describe('TemplateSelectTemplatePage', () => {
 
   it('should pass accessibility tests', async () => {
     const { container } = render(<TemplateSelectTemplatePage templateName="test" />);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+
+    await act(async () => {
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
   });
 });

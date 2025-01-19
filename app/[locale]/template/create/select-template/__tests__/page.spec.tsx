@@ -1,9 +1,15 @@
 import React from 'react';
-import {render, screen} from '@testing-library/react';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { render, screen } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import TemplateSelectTemplatePage from '../page';
 
 expect.extend(toHaveNoViolations);
+
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    add: jest.fn(),
+  })),
+}));
 
 jest.mock('@/components/PageHeader', () => ({
   __esModule: true,
@@ -38,7 +44,4 @@ describe('TemplateSelectTemplatePage', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-
-  it.todo('should handle template search');
-  it.todo('should handle template selection');
 });

@@ -1,8 +1,8 @@
-import { useRouter } from 'next/navigation';
 import { Button } from 'react-aria-components';
 
 //GraphQL
 import styles from './TemplateSelectListItem.module.scss';
+import { useToast } from '@/context/ToastContext';
 
 interface TemplateSelectListItemProps {
   onSelect: (versionedTemplateId: number) => Promise<void>;
@@ -21,7 +21,7 @@ interface TemplateSelectListItemProps {
 }
 
 function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps) {
-
+  const toastState = useToast();
   return (
     <div className={styles.templateItem} role="listitem">
       <div className={styles.TemplateItemInner}>
@@ -51,7 +51,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
             if (typeof item?.id === 'number' && typeof item?.template?.id === 'number') {
               await onSelect(item.id);
             } else {
-              console.error("item.id is not a valid number");
+              toastState.add('Invalid template', { type: 'error' })
             }
           }}
           aria-label={`Select ${item.title}`}
