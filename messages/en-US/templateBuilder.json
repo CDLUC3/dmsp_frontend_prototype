@@ -183,7 +183,8 @@
     },
     "messages": {
       "noItemsFound": "No items found",
-      "missingTemplateName": "Missing template name"
+      "missingTemplateName": "Missing template name",
+      "loadingError": "Error loading templates. Please try again later."
     }
   },
   "TemplateSelectListItem": {

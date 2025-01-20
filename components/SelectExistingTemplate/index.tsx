@@ -230,6 +230,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }, [searchTerm])
 
   useEffect(() => {
+    // If somehow the templateName is missing from the page, we redirect back to step 1
     if (!templateName) {
       toastState.add(SelectTemplate('messages.missingTemplateName'), { type: 'error' })
       router.push('/template/create?step1');
@@ -237,10 +238,10 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }, [templateName])
 
   if (loading || publicTemplatesLoading) {
-    return <div>Loading...</div>;
+    return <div>{Global('messaging.loading')}...</div>;
   }
   if (queryError || publicTemplatesError) {
-    return <div>Error loading templates. Please try again later.</div>;
+    return <div>{SelectTemplate('messages.loadingError')}</div>;
   }
 
   return (

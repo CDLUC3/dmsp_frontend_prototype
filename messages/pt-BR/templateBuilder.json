@@ -183,7 +183,8 @@
     },
     "messages": {
       "noItemsFound": "Nenhum item encontrado",
-      "missingTemplateName": "Faltando nome de modelo"
+      "missingTemplateName": "Faltando nome de modelo",
+      "loadingError": "Erro ao carregar modelos. Tente novamente mais tarde."
     }
   },
   "TemplateSelectListItem": {
