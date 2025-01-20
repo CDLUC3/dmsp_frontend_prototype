@@ -110,18 +110,29 @@
     "breadcrumbs": {
       "home": "Home",
       "templates": "Modelos",
-      "template": "Template",
+      "template": "Modelo",
+      "createTemplate": "Criar um modelo",
+      "selectExistingTemplate": "Selecionar um modelo existente",
       "section": "Seção",
-      "editSection": "Edit Section"
+      "editSection": "Editar seção"
     },
+    "lastRevisedBy": "Última revisão por",
+    "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
-      "select": "Select"
+      "select": "Select",
+      "next": "Seguinte"
+    },
+    "labels": {
+      "searchByKeyword": ""
+    },
+    "helpText": {
+      "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
     },
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
-      "somethingWentWrong": "Something went wrong. Please try again."
+      "somethingWentWrong": "Ocorreu um erro. Tente novamente."
     }
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import TemplateSelectListItem from '../index';
 
 expect.extend(toHaveNoViolations);
@@ -9,6 +10,29 @@ jest.mock('@/context/ToastContext', () => ({
   useToast: jest.fn(() => ({
     add: jest.fn(),
   })),
+}));
+
+type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
+
+// Mock useTranslations from next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn(() => {
+    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+
+    /*eslint-disable @typescript-eslint/no-explicit-any */
+    mockUseTranslations.rich = (
+      key: string,
+      values?: Record<string, any>
+    ) => {
+      // Handle rich text formatting
+      if (values?.p) {
+        return values.p(key); // Simulate rendering the `p` tag function
+      }
+      return key;
+    };
+
+    return mockUseTranslations;
+  }),
 }));
 
 jest.mock('@/components/PageHeader', () => ({
@@ -53,9 +77,9 @@ describe('TemplateSelectListItem', () => {
     expect(role).toBeInTheDocument();
     expect(description).toBeInTheDocument();
     expect(selectButton).toBeInTheDocument();
-    expect(screen.getByText('Last revised by: 10')).toBeInTheDocument();
-    expect(screen.getByText('Last updated: 10-25-2025')).toBeInTheDocument();
-    expect(screen.getByText('Your research organization has additional guidance')).toBeInTheDocument();
+    expect(screen.getByText('lastRevisedBy: 10')).toBeInTheDocument();
+    expect(screen.getByText('lastUpdated: 10-25-2025')).toBeInTheDocument();
+    expect(screen.getByText('messages.additionalGuidance')).toBeInTheDocument();
   });
 
   it('should call onSelect method when user clicks the onSelect button', async () => {

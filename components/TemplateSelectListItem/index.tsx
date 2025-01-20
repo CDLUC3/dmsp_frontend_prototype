@@ -1,6 +1,6 @@
 import { Button } from 'react-aria-components';
+import { useTranslations } from 'next-intl';
 
-//GraphQL
 import styles from './TemplateSelectListItem.module.scss';
 import { useToast } from '@/context/ToastContext';
 
@@ -22,6 +22,11 @@ interface TemplateSelectListItemProps {
 
 function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps) {
   const toastState = useToast();
+
+  //Localization keys
+  const SelectListItem = useTranslations('TemplateSelectListItem');
+  const Global = useTranslations('Global');
+
   return (
     <div className={styles.templateItem} role="listitem">
       <div className={styles.TemplateItemInner}>
@@ -31,8 +36,8 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
           {item.description && <p className={styles.description}>{item.description}</p>}
 
           <div className={styles.metadata}>
-            <span>Last revised by: {item.lastRevisedBy}</span>
-            <span className={styles.separator}>Last updated: {item.lastUpdated}</span>
+            <span>{Global('lastRevisedBy')}: {item.lastRevisedBy}</span>
+            <span className={styles.separator}>{Global('lastUpdated')}: {item.lastUpdated}</span>
           </div>
 
           {item.hasAdditionalGuidance && (
@@ -41,7 +46,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
                 <circle cx="10" cy="10" r="7.5" stroke="currentColor" />
                 <path d="M6.5 10L9 12.5L13.5 8" stroke="currentColor" strokeLinecap="round" />
               </svg>
-              Your research organization has additional guidance
+              {SelectListItem('messages.additionalGuidance')}
             </div>
           )}
         </div>
@@ -57,7 +62,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
           aria-label={`Select ${item.title}`}
           data-versioned-template-id={item?.id}
         >
-          Select
+          {Global('buttons.select')}
         </Button>
       </div>
     </div>

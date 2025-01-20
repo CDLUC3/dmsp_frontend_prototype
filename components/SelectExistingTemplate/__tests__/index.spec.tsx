@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import TemplateSelectTemplatePage from '../index';
 import {
   useAddTemplateMutation,
@@ -20,6 +21,29 @@ jest.mock('@/context/ToastContext', () => ({
   useToast: jest.fn(() => ({
     add: jest.fn(),
   })),
+}));
+
+type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
+
+// Mock useTranslations from next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn(() => {
+    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+
+    /*eslint-disable @typescript-eslint/no-explicit-any */
+    mockUseTranslations.rich = (
+      key: string,
+      values?: Record<string, any>
+    ) => {
+      // Handle rich text formatting
+      if (values?.p) {
+        return values.p(key); // Simulate rendering the `p` tag function
+      }
+      return key;
+    };
+
+    return mockUseTranslations;
+  }),
 }));
 
 jest.mock('@/utils/clientLogger', () => ({
@@ -179,7 +203,7 @@ describe('TemplateSelectTemplatePage', () => {
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
-    const input = screen.getByLabelText('Search by keyword');
+    const input = screen.getByLabelText('labels.searchByKeyword');
     expect(input).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /public template 1/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /public template 2/i })).toBeInTheDocument();
@@ -209,7 +233,7 @@ describe('TemplateSelectTemplatePage', () => {
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
-    const loadMoreButton = screen.getByRole('button', { name: /load 1 more/i });
+    const loadMoreButton = screen.getByRole('button', { name: /buttons.loadMore/i });
     expect(loadMoreButton).toBeInTheDocument();
     await act(async () => {
       fireEvent.click(loadMoreButton);
@@ -224,7 +248,7 @@ describe('TemplateSelectTemplatePage', () => {
       );
     });
     //Search input field
-    const input = screen.getByLabelText('Search by keyword');
+    const input = screen.getByLabelText('labels.searchByKeyword');
     const searchButton = screen.getByRole('button', { name: /search/i });
 
     expect(searchButton).toBeInTheDocument();
@@ -234,9 +258,9 @@ describe('TemplateSelectTemplatePage', () => {
     });
 
     expect(screen.getByRole('heading', { name: /odd template 5/i })).toBeInTheDocument();
-    expect(screen.getByText(/1 results match your search/i)).toBeInTheDocument();
+    expect(screen.getByText(/resultsText/i)).toBeInTheDocument();
     const linkElement = screen.getAllByRole('link', { name: /clear filter/i });
-    expect(linkElement).toHaveLength(2);
+    expect(linkElement).toHaveLength(1);
   });
 
   it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
@@ -269,8 +293,9 @@ describe('TemplateSelectTemplatePage', () => {
       );
     });
     //Search input field
-    const selectButton = screen.getAllByRole('button', { name: /select/i });
+    const selectButton = screen.getAllByRole('button', { name: /Select Public template 2/i });
 
+    screen.debug();
     await act(async () => {
       fireEvent.click(selectButton[0]);
     });

@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ApolloError } from "@apollo/client";
 
 import {
   Breadcrumb,
@@ -24,6 +23,7 @@ import {
   ContentContainer,
   LayoutContainer,
 } from '@/components/Container';
+import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
 
 //GraphQL
 import {
@@ -35,8 +35,8 @@ import {
 // Other
 import logECS from '@/utils/clientLogger';
 import { UserAffiliationTemplatesInterface, TemplateItemProps } from '@/app/types';
-import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
 import { useFormatDate } from '@/hooks/useFormatDate';
+import { useToast } from '@/context/ToastContext';
 import styles from './selectExistingTemplate.module.scss';
 
 
@@ -45,9 +45,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const topRef = useRef<HTMLDivElement>(null);
   const formatDate = useFormatDate();
   const router = useRouter();
-  if (!templateName) {
-    router.push('/template/create?step1');
-  }
+  const toastState = useToast();
 
   // State
   const [templates, setTemplates] = useState<TemplateItemProps[]>([]);
@@ -63,6 +61,10 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     filteredPublicTemplates: 3,
   });
 
+  //Localization keys
+  const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
+  const Global = useTranslations('Global');
+
   // Make graphql request for versionedTemplates under the user's affiliation
   const { data = {}, loading, error: queryError } = useUserAffiliationTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
@@ -72,13 +74,20 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
 
 
   // Make graphql request for all public versionedTemplates
-  const { data: publicTemplatesData, loading: publicTemplatesLoading, error: publicTemplatesError, refetch: refetchPublicTemplates } = usePublicVersionedTemplatesQuery({
+  const { data: publicTemplatesData, loading: publicTemplatesLoading, error: publicTemplatesError } = usePublicVersionedTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
 
-  const [addTemplateMutation] = useAddTemplateMutation();
+  // GraphQL mutation for adding the new template
+  const [addTemplateMutation] = useAddTemplateMutation({
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const clearErrors = () => {
+    setErrors([]);
+  }
 
   const onSelect = async (versionedTemplateId: number) => {
     let newTemplateId;
@@ -91,26 +100,23 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         },
       });
       if (response?.data) {
+        const responseData = response?.data?.addTemplate;
+        if (responseData && responseData.errors && responseData.errors.length > 0) {
+          // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
+          setErrors(responseData.errors ?? []);
+        }
+        clearErrors();
+
         newTemplateId = response?.data?.addTemplate?.id;
       }
     } catch (err) {
-      if (err instanceof ApolloError) {
-        /* We need to call this mutation again when there is an error and
-refetch the user query in order for the page to reload with updated info. I tried just
-calling 'refetch()' for the user query, but that didn't work. */
-        await addTemplateMutation({
-          variables: {
-            name: templateName,
-            copyFromTemplateId: versionedTemplateId
-          }
-        });
-      } else {
-        logECS('error', 'handleClick', {
-          error: err,
-          url: { path: '/template/create' }
-        });
-      }
+      logECS('error', 'handleClick', {
+        error: err,
+        url: { path: '/template/create' }
+      });
     }
+
+    // Redirect to the newly created template
     if (newTemplateId) {
       router.push(`/template/${newTemplateId}`)
     }
@@ -130,7 +136,7 @@ calling 'refetch()' for the user query, but that didn't work. */
           <div>
             <p>{template?.description}</p>
             <p>
-              Last updated: {template?.modified ? formatDate(template?.modified) : null}
+              {Global('lastUpdated')}: {template?.modified ? formatDate(template?.modified) : null}
             </p>
           </div>
         ) : null, // Set to null if no description or last modified data
@@ -155,7 +161,17 @@ calling 'refetch()' for the user query, but that didn't work. */
   const TemplateList: React.FC<TemplateListProps> = ({ templates, visibleCountKey }) => (
     <>
       {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (
-        <div className={styles.searchMatchText}>{`${templates.length} results match your search`} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
+        <>
+          {(() => {
+            const numOfResults = templates.length;
+            return (
+              <>
+                <div>{numOfResults}</div>
+                <div className={styles.searchMatchText}> {SelectTemplate('resultsText', { name: numOfResults })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
+              </>
+            );
+          })()}
+        </>
       )
       }
       {templates.slice(0, visibleCount[visibleCountKey]).map((template, index) => {
@@ -172,16 +188,27 @@ calling 'refetch()' for the user query, but that didn't work. */
       <div className={styles.loadBtnContainer}>
         {templates.length - visibleCount[visibleCountKey] > 0 && (
           <>
-            <Button onPress={() => handleLoadMore(visibleCountKey)}>
-              {(templates.length - visibleCount[visibleCountKey] > 2)
-                ? 'Load 3 more'
-                : `Load ${templates.length - visibleCount[visibleCountKey]} more`}
-            </Button>
-            <div className={styles.remainingText}>{`Showing ${visibleCount[visibleCountKey]} of ${templates.length}`}</div>
+            {(() => {
+              const loadMoreNumber = templates.length - visibleCount[visibleCountKey]; // Calculate loadMoreNumber
+              const currentlyDisplayed = visibleCount[visibleCountKey];
+              const totalAvailable = templates.length;
+              return (
+                <>
+                  <Button onPress={() => handleLoadMore(visibleCountKey)}>
+                    {loadMoreNumber > 2
+                      ? SelectTemplate('buttons.load3More')
+                      : SelectTemplate('buttons.loadMore', { name: loadMoreNumber })}
+                  </Button>
+                  <div className={styles.remainingText}>
+                    {SelectTemplate('numDisplaying', { num: currentlyDisplayed, total: totalAvailable })}
+                  </div>
+                </>
+              );
+            })()}
           </>
         )}
         {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (
-          <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link>
+          <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>{SelectTemplate('clearFilter')}</Link>
         )
         }
       </div>
@@ -213,7 +240,7 @@ calling 'refetch()' for the user query, but that didn't work. */
       setFilteredPublicTemplates(filteredPublicTemplatesList.length > 0 ? filteredPublicTemplatesList : null);
     } else {
       //If there are no matching results, then display an error
-      setErrors(prev => [...prev, 'No items found']);
+      setErrors(prev => [...prev, SelectTemplate('messages.noItemsFound')]);
     }
   }
 
@@ -261,6 +288,12 @@ calling 'refetch()' for the user query, but that didn't work. */
     }
   }, [searchTerm])
 
+  useEffect(() => {
+    if (!templateName) {
+      toastState.add(SelectTemplate('messages.missingTemplateName'), { type: 'error' })
+      router.push('/template/create?step1');
+    }
+  }, [templateName])
 
   if (loading || publicTemplatesLoading) {
     return <div>Loading...</div>;
@@ -271,17 +304,16 @@ calling 'refetch()' for the user query, but that didn't work. */
 
   return (
     <>
-
       <PageHeader
-        title="Select an existing template"
+        title={SelectTemplate('title')}
         description=""
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">Template</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template/create?step=1">Create a template</Link></Breadcrumb>
-            <Breadcrumb>Select an existing template</Breadcrumb>
+            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template/create?step=1">{Global('breadcrumbs.createTemplate')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.selectExistingTemplate')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
@@ -293,9 +325,16 @@ calling 'refetch()' for the user query, but that didn't work. */
       <LayoutContainer>
         <ContentContainer>
           <>
+            {errors && errors.length > 0 &&
+              <div className="error">
+                {errors.map((error, index) => (
+                  <p key={index}>{error}</p>
+                ))}
+              </div>
+            }
             <div className="Filters" role="search" ref={topRef}>
               <SearchField aria-label="Template search">
-                <Label>Search by keyword</Label>
+                <Label>{Global('labels.searchByKeyword')}</Label>
                 <Input
                   aria-describedby="search-help"
                   value={searchTerm}
@@ -306,19 +345,18 @@ calling 'refetch()' for the user query, but that didn't work. */
                     handleFiltering(searchTerm);
                   }}
                 >
-                  Search
+                  {Global('buttons.search')}
                 </Button>
                 <FieldError />
                 <Text slot="description" className="help" id="search-help">
-                  Search by research organization, field station or lab, template
-                  description, etc.
+                  {Global('helpText.searchHelpText')}
                 </Text>
               </SearchField>
             </div>
 
             <section className="mb-8" aria-labelledby="previously-created">
               <h2 id="previously-created">
-                Use one of your previously created templates
+                {SelectTemplate('headings.previouslyCreatedTemplates')}
               </h2>
               <div className="template-list" role="list" aria-label="Your templates">
                 {(filteredTemplates && filteredTemplates.length > 0) ? (
@@ -341,7 +379,7 @@ calling 'refetch()' for the user query, but that didn't work. */
             {(publicTemplatesList && publicTemplatesList.length > 0) && (
               <section className="mb-8" aria-labelledby="public-templates">
                 <h2 id="public-templates">
-                  Use one of the public templates
+                  {SelectTemplate('headings.publicTemplates')}
                 </h2>
                 <div className="template-list" role="list" aria-label="Public templates">
                   {filteredPublicTemplates && filteredPublicTemplates.length > 0 ? (

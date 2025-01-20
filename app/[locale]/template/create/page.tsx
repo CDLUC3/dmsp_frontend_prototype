@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import {
   Breadcrumb,
@@ -30,6 +31,10 @@ const TemplateCreatePage: React.FC = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const stepQueryValue = useQueryStep();
 
+  //Localization keys
+  const TemplateCreate = useTranslations('TemplateCreatePage');
+  const Global = useTranslations('Global');
+
   // Debounced input handler
   const debouncedInputHandler = useMemo(
     () =>
@@ -52,7 +57,7 @@ const TemplateCreatePage: React.FC = () => {
     if (templateName.length > 2) {
       router.push('/template/create?step=2')
     } else {
-      setErrors({ templateName: 'Please enter a valid value for template name.' });
+      setErrors({ templateName: TemplateCreate('messages.templateNameError') });
     }
   }
 
@@ -65,7 +70,7 @@ const TemplateCreatePage: React.FC = () => {
 
   // TODO: Need to implement a shared loading component
   if (step === null) {
-    return <div>...Loading</div>
+    return <div>...{Global('messaging.loading')}</div>
   }
 
   return (
@@ -73,13 +78,13 @@ const TemplateCreatePage: React.FC = () => {
       {step === 1 && (
         <>
           <PageHeader
-            title="Create a template"
+            title={Global('breadcrumbs.createTemplate')}
             showBackButton={false}
             breadcrumbs={
               <Breadcrumbs>
-                <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-                <Breadcrumb><Link href="/template">Template</Link></Breadcrumb>
-                <Breadcrumb>Create a template</Breadcrumb>
+                <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+                <Breadcrumb><Link href="/template">{Global('breadcrumbs.template')}</Link></Breadcrumb>
+                <Breadcrumb>{Global('breadcrumbs.createTemplate')}</Breadcrumb>
               </Breadcrumbs>
             }
             actions={null}
@@ -92,17 +97,17 @@ const TemplateCreatePage: React.FC = () => {
                 <FormInput
                   name="templateName"
                   type="text"
-                  label="Name of your template"
+                  label={TemplateCreate('nameOfYourTemplate')}
                   placeholder=""
                   value={templateName}
                   onChange={handleInputChange}
-                  helpMessage="Don't worry, you can change this later."
+                  helpMessage={TemplateCreate('helpText')}
                   errorMessage={errors.templateName ? errors.templateName : ''}
                   isInvalid={!!errors.templateName}
                 />
 
                 <Button type="submit">
-                  Next
+                  {Global('buttons.next')}
                 </Button>
 
               </Form>

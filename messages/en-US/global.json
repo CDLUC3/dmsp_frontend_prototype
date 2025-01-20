@@ -111,12 +111,23 @@
       "home": "Home",
       "templates": "Templates",
       "template": "Template",
+      "createTemplate": "Create a template",
+      "selectExistingTemplate": "Select an existing template",
       "section": "Section",
       "editSection": "Edit Section"
     },
+    "lastRevisedBy": "Last revised by",
+    "lastUpdated": "Last updated",
     "buttons": {
       "search": "Search",
-      "select": "Select"
+      "select": "Select",
+      "next": "Next"
+    },
+    "labels": {
+      "searchByKeyword": "Search by keyword"
+    },
+    "helpText": {
+      "searchHelpText": "Search by research organization, field station or lab, template description, etc."
     },
     "messaging": {
       "loading": "Loading",
