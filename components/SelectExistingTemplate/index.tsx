@@ -18,12 +18,12 @@ import {
 
 //Components
 import PageHeader from "@/components/PageHeader";
-import TemplateSelectListItem from "@/components/TemplateSelectListItem";
 import {
   ContentContainer,
   LayoutContainer,
 } from '@/components/Container';
 import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
+import TemplateList from '@/components/TemplateList';
 
 //GraphQL
 import {
@@ -37,7 +37,6 @@ import logECS from '@/utils/clientLogger';
 import { UserAffiliationTemplatesInterface, TemplateItemProps } from '@/app/types';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { useToast } from '@/context/ToastContext';
-import styles from './selectExistingTemplate.module.scss';
 
 
 const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) => {
@@ -53,6 +52,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const [filteredTemplates, setFilteredTemplates] = useState<TemplateItemProps[] | null>([]);
   const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<TemplateItemProps[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [visibleCount, setVisibleCount] = useState({
     publicTemplatesList: 3,
@@ -153,67 +153,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   };
 
   type VisibleCountKeys = keyof typeof visibleCount;
-  interface TemplateListProps {
-    templates: TemplateItemProps[]; // An array of templates
-    visibleCountKey: VisibleCountKeys; // Key used to access visible count
-  }
-
-  const TemplateList: React.FC<TemplateListProps> = ({ templates, visibleCountKey }) => (
-    <>
-      {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (
-        <>
-          {(() => {
-            const numOfResults = templates.length;
-            return (
-              <>
-                <div>{numOfResults}</div>
-                <div className={styles.searchMatchText}> {SelectTemplate('resultsText', { name: numOfResults })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
-              </>
-            );
-          })()}
-        </>
-      )
-      }
-      {templates.slice(0, visibleCount[visibleCountKey]).map((template, index) => {
-        const isFirstInNextSection = index === visibleCount[visibleCountKey] - 3;
-        return (
-          <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
-            <TemplateSelectListItem
-              item={template}
-              onSelect={onSelect}
-            />
-          </div>
-        );
-      })}
-      <div className={styles.loadBtnContainer}>
-        {templates.length - visibleCount[visibleCountKey] > 0 && (
-          <>
-            {(() => {
-              const loadMoreNumber = templates.length - visibleCount[visibleCountKey]; // Calculate loadMoreNumber
-              const currentlyDisplayed = visibleCount[visibleCountKey];
-              const totalAvailable = templates.length;
-              return (
-                <>
-                  <Button onPress={() => handleLoadMore(visibleCountKey)}>
-                    {loadMoreNumber > 2
-                      ? SelectTemplate('buttons.load3More')
-                      : SelectTemplate('buttons.loadMore', { name: loadMoreNumber })}
-                  </Button>
-                  <div className={styles.remainingText}>
-                    {SelectTemplate('numDisplaying', { num: currentlyDisplayed, total: totalAvailable })}
-                  </div>
-                </>
-              );
-            })()}
-          </>
-        )}
-        {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (
-          <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>{SelectTemplate('clearFilter')}</Link>
-        )
-        }
-      </div>
-    </>
-  );
 
   const scrollToTop = () => {
     if (topRef.current) {
@@ -230,6 +169,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   // Filter results when a user enters a search term and clicks "Search" button
   const handleFiltering = (term: string) => {
     setErrors([]);
+    setSearchButtonClicked(true);
     // Search title, funder and description fields for terms
     const filteredList = filterTemplates(templates, term);
     const filteredPublicTemplatesList = filterTemplates(publicTemplatesList, term);
@@ -285,6 +225,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     // Need this to set list of templates back to original, full list after filtering
     if (searchTerm === '') {
       resetSearch();
+      setSearchButtonClicked(false);
     }
   }, [searchTerm])
 
@@ -362,13 +303,36 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
                 {(filteredTemplates && filteredTemplates.length > 0) ? (
                   <>
                     {
-                      TemplateList({ templates: filteredTemplates, visibleCountKey: 'filteredTemplates' })
+                      <TemplateList
+                        templates={filteredTemplates}
+                        visibleCountKey='filteredTemplates'
+                        onSelect={onSelect}
+                        visibleCount={visibleCount}
+                        handleLoadMore={handleLoadMore}
+                        resetSearch={resetSearch}
+                      />
                     }
 
                   </>) : (
                   <>
-                    {
-                      TemplateList({ templates: templates, visibleCountKey: 'templates' })
+                    {/**If the user is searching, and there were no results from the search
+                   * then display the message 'no results found
+                   */}
+                    {(searchTerm.length > 0 && searchButtonClicked) ? (
+                      <>
+                        {SelectTemplate('messages.noItemsFound')}
+                      </>
+                    ) : (
+                      <TemplateList
+                        templates={templates}
+                        visibleCountKey='templates'
+                        onSelect={onSelect}
+                        visibleCount={visibleCount}
+                        handleLoadMore={handleLoadMore}
+                        resetSearch={resetSearch}
+                      />
+                    )
+
                     }
                   </>
                 )
@@ -385,13 +349,35 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
                   {filteredPublicTemplates && filteredPublicTemplates.length > 0 ? (
                     <>
                       {
-                        TemplateList({ templates: filteredPublicTemplates, visibleCountKey: 'filteredPublicTemplates' })
+                        <TemplateList
+                          templates={filteredPublicTemplates}
+                          visibleCountKey='filteredPublicTemplates'
+                          onSelect={onSelect}
+                          visibleCount={visibleCount}
+                          handleLoadMore={handleLoadMore}
+                          resetSearch={resetSearch}
+                        />
                       }
                     </>
                   ) : (
                     <>
-                      {
-                        TemplateList({ templates: publicTemplatesList, visibleCountKey: 'publicTemplatesList' })
+                      {/**If the user is searching, and there were no results from the search
+                   * then display the message 'no results found
+                   */}
+                      {(searchTerm.length > 0 && searchButtonClicked) ? (
+                        <>
+                          {SelectTemplate('messages.noItemsFound')}
+                        </>
+                      ) : (
+                        <TemplateList
+                          templates={publicTemplatesList}
+                          visibleCountKey='publicTemplatesList'
+                          onSelect={onSelect}
+                          visibleCount={visibleCount}
+                          handleLoadMore={handleLoadMore}
+                          resetSearch={resetSearch}
+                        />
+                      )
                       }
                     </>
                   )
