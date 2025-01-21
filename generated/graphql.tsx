@@ -1235,8 +1235,6 @@ export type Query = {
   projectContributors?: Maybe<Array<Maybe<ProjectContributor>>>;
   /** Get all of the Users that a Funders to the research project */
   projectFunders?: Maybe<Array<Maybe<ProjectFunder>>>;
-  /** Get all public versioned templates, regardless of affiliation */
-  publicVersionedTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedConditionsForQuestion?: Maybe<Array<Maybe<VersionedQuestionCondition>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
@@ -1390,7 +1388,7 @@ export type QueryPublishedSectionsArgs = {
 
 
 export type QueryPublishedTemplatesArgs = {
-  term: Scalars['String']['input'];
+  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2191,10 +2189,10 @@ export type UserAffiliationTemplatesQueryVariables = Exact<{ [key: string]: neve
 
 export type UserAffiliationTemplatesQuery = { __typename?: 'Query', userAffiliationTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, versionType?: TemplateVersionType | null, visibility: TemplateVisibility, errors?: Array<string> | null, template?: { __typename?: 'Template', id?: number | null, owner?: { __typename?: 'Affiliation', id?: number | null, searchName: string, name: string, displayName: string } | null } | null } | null> | null };
 
-export type PublicVersionedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+export type PublishedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublicVersionedTemplatesQuery = { __typename?: 'Query', publicVersionedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, errors?: Array<string> | null, template?: { __typename?: 'Template', id?: number | null } | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
+export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, errors?: Array<string> | null, template?: { __typename?: 'Template', id?: number | null } | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
 
 export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2939,9 +2937,9 @@ export type UserAffiliationTemplatesQueryHookResult = ReturnType<typeof useUserA
 export type UserAffiliationTemplatesLazyQueryHookResult = ReturnType<typeof useUserAffiliationTemplatesLazyQuery>;
 export type UserAffiliationTemplatesSuspenseQueryHookResult = ReturnType<typeof useUserAffiliationTemplatesSuspenseQuery>;
 export type UserAffiliationTemplatesQueryResult = Apollo.QueryResult<UserAffiliationTemplatesQuery, UserAffiliationTemplatesQueryVariables>;
-export const PublicVersionedTemplatesDocument = gql`
-    query PublicVersionedTemplates {
-  publicVersionedTemplates {
+export const PublishedTemplatesDocument = gql`
+    query PublishedTemplates {
+  publishedTemplates {
     id
     template {
       id
@@ -2961,36 +2959,36 @@ export const PublicVersionedTemplatesDocument = gql`
     `;
 
 /**
- * __usePublicVersionedTemplatesQuery__
+ * __usePublishedTemplatesQuery__
  *
- * To run a query within a React component, call `usePublicVersionedTemplatesQuery` and pass it any options that fit your needs.
- * When your component renders, `usePublicVersionedTemplatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `usePublishedTemplatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublishedTemplatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = usePublicVersionedTemplatesQuery({
+ * const { data, loading, error } = usePublishedTemplatesQuery({
  *   variables: {
  *   },
  * });
  */
-export function usePublicVersionedTemplatesQuery(baseOptions?: Apollo.QueryHookOptions<PublicVersionedTemplatesQuery, PublicVersionedTemplatesQueryVariables>) {
+export function usePublishedTemplatesQuery(baseOptions?: Apollo.QueryHookOptions<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PublicVersionedTemplatesQuery, PublicVersionedTemplatesQueryVariables>(PublicVersionedTemplatesDocument, options);
+        return Apollo.useQuery<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>(PublishedTemplatesDocument, options);
       }
-export function usePublicVersionedTemplatesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublicVersionedTemplatesQuery, PublicVersionedTemplatesQueryVariables>) {
+export function usePublishedTemplatesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PublicVersionedTemplatesQuery, PublicVersionedTemplatesQueryVariables>(PublicVersionedTemplatesDocument, options);
+          return Apollo.useLazyQuery<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>(PublishedTemplatesDocument, options);
         }
-export function usePublicVersionedTemplatesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublicVersionedTemplatesQuery, PublicVersionedTemplatesQueryVariables>) {
+export function usePublishedTemplatesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PublicVersionedTemplatesQuery, PublicVersionedTemplatesQueryVariables>(PublicVersionedTemplatesDocument, options);
+          return Apollo.useSuspenseQuery<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>(PublishedTemplatesDocument, options);
         }
-export type PublicVersionedTemplatesQueryHookResult = ReturnType<typeof usePublicVersionedTemplatesQuery>;
-export type PublicVersionedTemplatesLazyQueryHookResult = ReturnType<typeof usePublicVersionedTemplatesLazyQuery>;
-export type PublicVersionedTemplatesSuspenseQueryHookResult = ReturnType<typeof usePublicVersionedTemplatesSuspenseQuery>;
-export type PublicVersionedTemplatesQueryResult = Apollo.QueryResult<PublicVersionedTemplatesQuery, PublicVersionedTemplatesQueryVariables>;
+export type PublishedTemplatesQueryHookResult = ReturnType<typeof usePublishedTemplatesQuery>;
+export type PublishedTemplatesLazyQueryHookResult = ReturnType<typeof usePublishedTemplatesLazyQuery>;
+export type PublishedTemplatesSuspenseQueryHookResult = ReturnType<typeof usePublishedTemplatesSuspenseQuery>;
+export type PublishedTemplatesQueryResult = Apollo.QueryResult<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>;
 export const TemplatesDocument = gql`
     query Templates {
   templates {

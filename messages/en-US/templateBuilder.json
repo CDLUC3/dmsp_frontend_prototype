@@ -183,7 +183,7 @@
     },
     "messages": {
       "noItemsFound": "No items found",
-      "missingTemplateName": "Missing template name",
+      "missingTemplateName": "Template name cannot be blank.",
       "loadingError": "Error loading templates. Please try again later."
     }
   },

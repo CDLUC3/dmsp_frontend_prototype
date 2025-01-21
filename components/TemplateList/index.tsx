@@ -40,11 +40,23 @@ const TemplateList: React.FC<TemplateListProps> = ({
   handleLoadMore,
   resetSearch
 }) => {
-  const nextSectionRef = useRef(null);
+  const nextSectionRef = useRef<HTMLDivElement>(null);
   //Localization keys
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
-  const Global = useTranslations('Global');
 
+
+  const handleLoadMorePress = (listKey: VisibleCountKeys) => {
+
+    // load more
+    handleLoadMore(listKey);
+
+    //scroll to next section
+    setTimeout(() => {
+      if (nextSectionRef.current) {
+        nextSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
+  }
   return (
     <>
       {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (
@@ -80,7 +92,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
               const totalAvailable = templates.length;
               return (
                 <>
-                  <Button onPress={() => handleLoadMore(visibleCountKey)}>
+                  <Button onPress={() => handleLoadMorePress(visibleCountKey)}>
                     {loadMoreNumber > 2
                       ? SelectTemplate('buttons.load3More')
                       : SelectTemplate('buttons.loadMore', { name: loadMoreNumber })}

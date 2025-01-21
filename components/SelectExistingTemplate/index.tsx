@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { ApolloError } from "@apollo/client";
 
 import {
   Breadcrumb,
@@ -28,7 +29,7 @@ import TemplateList from '@/components/TemplateList';
 //GraphQL
 import {
   useAddTemplateMutation,
-  usePublicVersionedTemplatesQuery,
+  usePublishedTemplatesQuery,
   useUserAffiliationTemplatesQuery
 } from '@/generated/graphql';
 
@@ -74,7 +75,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
 
 
   // Make graphql request for all public versionedTemplates
-  const { data: publicTemplatesData, loading: publicTemplatesLoading, error: publicTemplatesError } = usePublicVersionedTemplatesQuery({
+  const { data: publishedTemplatesData, loading: publishedTemplatesLoading, error: publishedTemplatesError } = usePublishedTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
@@ -211,15 +212,16 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         const transformedTemplates = await transformTemplates(data.userAffiliationTemplates);
         setTemplates(transformedTemplates);
       }
-      if (publicTemplatesData && publicTemplatesData?.publicVersionedTemplates) {
-        const transformedPublicTemplates = await transformTemplates(publicTemplatesData.publicVersionedTemplates);
+      if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
+        const publicTemplates = await transformTemplates(publishedTemplatesData.publishedTemplates);
+        const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'PUBLIC');
         setPublicTemplatesList(transformedPublicTemplates);
       }
     }
 
     processTemplates();
 
-  }, [data, publicTemplatesData]);
+  }, [data, publishedTemplatesData]);
 
   useEffect(() => {
     // Need this to set list of templates back to original, full list after filtering
@@ -230,17 +232,17 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }, [searchTerm])
 
   useEffect(() => {
-    // If somehow the templateName is missing from the page, we redirect back to step 1
+    // If the template name entered on step 1 is missing from the page, we redirect back to step 1 with a toast message
     if (!templateName) {
       toastState.add(SelectTemplate('messages.missingTemplateName'), { type: 'error' })
       router.push('/template/create?step1');
     }
   }, [templateName])
 
-  if (loading || publicTemplatesLoading) {
+  if (loading || publishedTemplatesLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
-  if (queryError || publicTemplatesError) {
+  if (queryError || publishedTemplatesError) {
     return <div>{SelectTemplate('messages.loadingError')}</div>;
   }
 

@@ -40,8 +40,8 @@ query UserAffiliationTemplates {
   }
 }
 
-query PublicVersionedTemplates {
-  publicVersionedTemplates {
+query PublishedTemplates {
+  publishedTemplates {
     id
     template {
       id

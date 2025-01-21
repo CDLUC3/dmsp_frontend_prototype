@@ -5,7 +5,7 @@ import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import TemplateSelectTemplatePage from '../index';
 import {
   useAddTemplateMutation,
-  usePublicVersionedTemplatesQuery,
+  usePublishedTemplatesQuery,
   useUserAffiliationTemplatesQuery
 } from '@/generated/graphql';
 import { useRouter } from 'next/navigation';
@@ -59,7 +59,7 @@ jest.mock('@/components/PageHeader', () => ({
 // Mock the GraphQL hooks
 jest.mock('@/generated/graphql', () => ({
   useAddTemplateMutation: jest.fn(),
-  usePublicVersionedTemplatesQuery: jest.fn(),
+  usePublishedTemplatesQuery: jest.fn(),
   useUserAffiliationTemplatesQuery: jest.fn()
 }));
 
@@ -75,7 +75,7 @@ jest.mock('@/hooks/useFormatDate', () => ({
 
 
 const mockPublicTemplates = {
-  publicVersionedTemplates: [
+  publishedTemplates: [
     {
       description: "",
       errors: null,
@@ -182,7 +182,7 @@ const mockHook = (hook: any) => hook as jest.Mock;
 
 const setupMocks = () => {
   mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
-  mockHook(usePublicVersionedTemplatesQuery).mockReturnValue({ data: mockPublicTemplates, loading: false, error: undefined });
+  mockHook(usePublishedTemplatesQuery).mockReturnValue({ data: mockPublicTemplates, loading: false, error: undefined });
   mockHook(useUserAffiliationTemplatesQuery).mockReturnValue({ data: mockTemplates, loading: false, error: undefined });
 };
 
@@ -213,7 +213,7 @@ describe('TemplateSelectTemplatePage', () => {
   });
 
   it('should render text loading if templates are still loading', async () => {
-    (usePublicVersionedTemplatesQuery as jest.Mock).mockReturnValue({
+    (usePublishedTemplatesQuery as jest.Mock).mockReturnValue({
       data: null,
       loading: true,
       error: null,
