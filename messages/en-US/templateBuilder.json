@@ -169,7 +169,7 @@
     }
   },
   "TemplateSelectTemplatePage": {
-    "title": "Select an existing template",
+    "title": "Start with a copy of an existing template",
     "resultsText": "{name} results match your search",
     "numDisplaying": "Showing {num} of {total}",
     "clearFilter": "clear filter",
