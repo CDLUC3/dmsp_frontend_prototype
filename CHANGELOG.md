@@ -1,6 +1,15 @@
 
 ### Updated
 =======
+- Updated `/template/create/page.tsx`[#186]
+- Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
+- Updated existing Templates graphql query with more fields [#186]
+- Updated shared `FormInput` component to pass ‘ariaDescribedBy’ [#186]
+- Updated `TemplateSelectListItem` [#186]
+- Updated `/graphql/apollo-wrapper.tsx` since `@apollo/experimental-nextjs-app-support/ssr` was deprecated [#186]
+- Updated `/graphql/graphqlHelper.ts` with a call to `client.resetStore’` This should refetch user’s data when refreshAuthTokens() is called [#186]
+- Updated `refreshAuthTokens` function with ability to pass in cookies [#186]
+- Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
 - Updated app/template/[templateId]/section/[section_slug] to hook it into backend data [#217]
 - Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]
 - Updated DMPEditor to use a skeleton while the text editors are loading, since it can be slow [#187]
@@ -11,6 +20,9 @@
 - Refactored font family usage for consistency.
 
 ### Added
+- Added `UserAffiliationTemplates` and `PublishedTemplates` graphql queries and `addTemplateMutation` graphql mutation [#186]
+- Created the `SelectExistingTemplate` component which displays the publishedTemplates and allows user to filter view [#186]
+- Created `TemplateList` component used by `SelectExistingTemplate`[#186]
 - Added Toast Message capabilities using **React Aria Component's use Toast**. [#211]
 - Project overview page [#175]
   - Moved pages under [locale] folder
