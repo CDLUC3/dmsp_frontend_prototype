@@ -1,9 +1,11 @@
-import {NextRequest, NextResponse} from 'next/server';
-import {JwtPayload} from 'jsonwebtoken';
-import {verifyJwtToken} from './lib/server/auth';
-import {getAuthTokenServer} from '@/utils/getAuthTokenServer';
+import { NextRequest, NextResponse } from 'next/server';
+import { JwtPayload } from 'jsonwebtoken';
+import { verifyJwtToken } from './lib/server/auth';
+import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 import createMiddleware from 'next-intl/middleware';
-import {routing} from './i18n/routing';
+import { refreshAuthTokens } from "@/utils/authHelper";
+import { routing } from './i18n/routing';
+import logger from '@/utils/logger';
 
 const locales = ['en-US', 'pt-BR'];
 const defaultLocale = 'en-US';
@@ -72,18 +74,36 @@ async function getLocale(request: NextRequest) {
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get('dmspt');
-  const refreshToken = request.cookies.get('dmspr');
 
   /* TODO: might want to add a 'redirect' query param to url to redirect user after
    login to the original page they were trying to get to.*/
 
-  /* Check for tokens for paths that are not excluded from authentication
-  and are not signup or login */
-  const isExcludedPath = excludedPaths.some(path => pathname.includes(path));
-  if (!isExcludedPath) {
-    if (!accessToken && !refreshToken) {
-      return NextResponse.redirect(new URL('/login', request.url));
+
+  // Exclude paths from authentication checks
+  const isExcludedPath = excludedPaths.some((path) => pathname.includes(path));
+
+  if (isExcludedPath) return response;
+
+  const cookies = request.headers.get('cookie') || '';
+  const accessToken = request.cookies.get('dmspt');
+  const refreshToken = request.cookies.get('dmspr');
+
+  // Redirect to login if no tokens are found
+  if (!accessToken && !refreshToken) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  //Refresh tokens if necessary
+  if (!accessToken && refreshToken) {
+    const locale = await getLocale(request);
+    try {
+      const response = await refreshAuthTokens(cookies);
+      if (response?.shouldRedirect) {
+        return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+      }
+    } catch (error) {
+      logger.error('Error refreshing auth tokens in middleware', { error: error })
+      return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
     }
   }
 
@@ -116,3 +136,4 @@ export const config = {
   // Don't run middleware for api endpoints, static files, anything in our pubic folder or _next files
   matcher: ['/((?!api|_next|static|.*\\..*).*)',]
 };
+
