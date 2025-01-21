@@ -125,7 +125,7 @@ const TemplateEditPage: React.FC = () => {
   // Show Success Message
   const showSuccessToast = () => {
     const successMessage = Messaging('successfullyUpdated');
-    toastState.add(successMessage, { type: 'success', timeout: 3000 });
+    toastState.add(successMessage, { type: 'success' });
   }
 
   // Archive current template
