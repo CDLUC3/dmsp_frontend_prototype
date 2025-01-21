@@ -1,10 +1,10 @@
 // template/[templateId]/section/page.tsx
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {useTranslations} from 'next-intl';
-import {useParams} from 'next/navigation';
-import {ApolloError} from "@apollo/client";
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
+import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -40,8 +40,9 @@ import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 
-import {useFormatDate} from '@/hooks/useFormatDate';
+import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
+import { useToast } from '@/context/ToastContext';
 import styles from './templateEditPage.module.scss';
 
 interface QuestionsInterface {
@@ -77,6 +78,7 @@ interface TemplateEditPageInterface {
 
 const TemplateEditPage: React.FC = () => {
   let [isPublishModalOpen, setPublishModalOpen] = useState(false);
+  const toastState = useToast(); // Access the toast state from context
   const [template, setTemplate] = useState<TemplateEditPageInterface>({
     name: '',
     description: null,
@@ -120,6 +122,11 @@ const TemplateEditPage: React.FC = () => {
     }
   );
 
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = Messaging('successfullyUpdated');
+    toastState.add(successMessage, { type: 'success' });
+  }
 
   // Archive current template
   const handleArchiveTemplate = async () => {
@@ -152,6 +159,7 @@ const TemplateEditPage: React.FC = () => {
 
       if (response) {
         setPublishModalOpen(false);
+        showSuccessToast();
       }
     } catch (err) {
       if (err instanceof ApolloError) {
@@ -177,7 +185,7 @@ const TemplateEditPage: React.FC = () => {
     const visibility = formData.get('visibility')?.toString().toUpperCase() as TemplateVisibility;
     const changeLog = formData.get('change_log')?.toString(); // Extract the textarea value
 
-    await saveTemplate(TemplateVersionType.Published, changeLog, visibility)
+    await saveTemplate(TemplateVersionType.Published, changeLog, visibility);
   };
 
   useEffect(() => {

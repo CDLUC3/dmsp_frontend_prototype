@@ -40,7 +40,7 @@
     "jose": "^5.6.2",
     "jsonwebtoken": "^9.0.2",
     "loglevel": "^1.9.1",
-    "next": "^14.2.12",
+    "next": "^14.2.22",
     "next-intl": "^3.23.5",
     "pino": "^7.0.0",
     "pino-pretty": "^11.0.0",

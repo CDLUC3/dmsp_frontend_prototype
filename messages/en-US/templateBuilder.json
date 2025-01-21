@@ -157,7 +157,7 @@
     },
     "messages": {
       "fieldLengthValidation": "Name must be at least 2 characters.",
-      "errorCreatingSection": "Error when updating section.",
+      "errorUpdatingSection": "Error when updating section.",
       "success": "Section updated successfully."
     }
   }

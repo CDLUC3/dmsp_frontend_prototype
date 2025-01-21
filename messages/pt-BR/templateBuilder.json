@@ -122,8 +122,7 @@
     "newSectionDescription": "Crie uma nova seção do zero. Você pode adicionar perguntas, instruções e outros conteúdos à sua seção, recomendamos o uso das seções de melhor prática.",
     "questionsCount": "<p>Esta seção inclui:</p><p>{count} questões pré-criadas</p>"
   },
-  "CreateSectionPage": {
-    "title": "Criar seção",
+  "Section": {
     "tabs": {
       "editSection": "Editar seção",
       "options": "Opções",
@@ -138,13 +137,27 @@
     },
     "helpText": {
       "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
-    },
+    }
+  },
+  "CreateSectionPage": {
+    "title": "Criar seção",
     "button": {
       "createSection": "Criar seção"
     },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
       "errorCreatingSection": "Erro ao criar a seção.",
+      "success": "Seção criada com sucesso."
+    }
+  },
+  "SectionUpdatePage": {
+    "title": "Seção de atualização",
+    "button": {
+      "updateSection": "Seção de atualização"
+    },
+    "messages": {
+      "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
+      "errorUpdatingSection": "Error when updating section.",
       "success": "Seção criada com sucesso."
     }
   }

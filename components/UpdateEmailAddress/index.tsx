@@ -1,8 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import {useTranslations} from 'next-intl';
-import {Button, Form,} from "react-aria-components";
-import {ApolloError} from "@apollo/client";
+import { useTranslations } from 'next-intl';
+import { Button, Form, } from "react-aria-components";
+import { ApolloError } from "@apollo/client";
 
 // Graphql mutations
 import {
@@ -16,10 +16,11 @@ import {
 import EmailAddressRow from '@/components/EmailAddressRow';
 import FormInput from '../Form/FormInput';
 //Interfaces
-import {EmailInterface} from '@/app/types';
+import { EmailInterface } from '@/app/types';
 // Utils and other
 import logECS from '@/utils/clientLogger';
 import styles from './updateEmailAddress.module.scss';
+import { useToast } from '@/context/ToastContext';
 
 const GET_USER = MeDocument;
 
@@ -31,6 +32,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   emailAddresses,
 }) => {
   const t = useTranslations('UserProfile');
+  const toastState = useToast(); // Access the toast state from context
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [addAliasValue, setAddAliasValue] = useState<string>('');
@@ -91,6 +93,12 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
     }
   }
 
+
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = t('messages.emailAddressUpdateSuccess');
+    toastState.add(successMessage, { type: 'success', priority: 1, timeout: 10000 });
+  }
   // Adding new email alias
   const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -116,6 +124,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       clearErrors();
       // Clear the add alias input field
       setAddAliasValue('');
+      showSuccessToast();
     } catch (err) {
       if (err instanceof ApolloError) {
         /* We need to call this mutation again when there is an error and

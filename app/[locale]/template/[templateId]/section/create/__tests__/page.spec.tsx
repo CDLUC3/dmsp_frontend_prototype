@@ -24,6 +24,12 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
 }))
 
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    add: jest.fn(),
+  })),
+}));
+
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
 

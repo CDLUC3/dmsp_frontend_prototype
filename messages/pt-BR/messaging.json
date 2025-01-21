@@ -1,5 +1,6 @@
 {
   "Messaging": {
-    "loading": "Baixar"
+    "loading": "Baixar",
+    "successfullyUpdated": "Atualizado com sucesso."
   }
 }

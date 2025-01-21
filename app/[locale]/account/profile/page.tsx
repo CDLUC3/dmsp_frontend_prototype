@@ -1,11 +1,11 @@
 'use client'
 
-import React, {useEffect, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useRouter} from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {useLocale, useTranslations} from 'next-intl';
-import {usePathname} from '@/i18n/routing';
+import { useLocale, useTranslations } from 'next-intl';
+import { usePathname } from '@/i18n/routing';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -27,7 +27,7 @@ import {
 import PageHeader from '@/components/PageHeader';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import {FormSelect} from '@/components/Form/FormSelect';
+import { FormSelect } from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
 import {
   ContentContainer,
@@ -45,11 +45,13 @@ import {
 
 // Utils and other
 import logECS from '@/utils/clientLogger';
-import {refreshAuthTokens} from "@/utils/authHelper";
+import { refreshAuthTokens } from "@/utils/authHelper";
+import { useToast } from '@/context/ToastContext';
 import styles from './profile.module.scss';
 
 const ProfilePage: React.FC = () => {
   const t = useTranslations('UserProfile');
+  const toastState = useToast(); // Access the toast state from context
   const pathname = usePathname();
   const currentLocale = useLocale();
   const router = useRouter();
@@ -168,6 +170,12 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = t('messages.profileUpdateSuccess');
+    toastState.add(successMessage, { type: 'success', timeout: 3000 });
+  }
+
   // Handle form submit
   const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -178,6 +186,7 @@ const ProfilePage: React.FC = () => {
       // Update profile
       await updateProfile();
       setErrors([]); // Clear errors on successful submit
+      showSuccessToast()
     }
   };
 
