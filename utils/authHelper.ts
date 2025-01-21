@@ -19,8 +19,6 @@ export const refreshAuthTokens = async (cookies?: string) => {
             headers['Cookie'] = cookies;
           }
 
-          console.log("***HEADERS", headers);
-
           //Refresh auth tokens
           const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-refresh`, {
             method: 'POST',
