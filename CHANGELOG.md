@@ -1,6 +1,7 @@
 
 ### Updated
 =======
+- Update main branch with latest development branch
 - Updated some pages with toast messages, and updated toast files [#231]
 - Added Portuguese translations for newly added translation keys [#231]
 - Updated version of `next` to `14.2.22` [#231]
