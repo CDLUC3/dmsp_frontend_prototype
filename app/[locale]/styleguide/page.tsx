@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Button,
   Cell,
@@ -78,7 +79,7 @@ import { useToast } from '@/context/ToastContext';
 function Page() {
   const [otherField, setOtherField] = useState(false);
   const toastState = useToast(); // Access the toast state from context
-
+  const router = useRouter();
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
   const richtextDefault = html`
@@ -349,6 +350,11 @@ function Page() {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
+  }
+
+  const showToastAndRedirect = () => {
+    toastState.add('You have successfully logged in.', { type: 'success' });
+    router.push('/');
   }
 
   return (
@@ -1906,7 +1912,7 @@ function Page() {
             <h2>Toast Messages</h2>
             <p>
               Toast messages are used to provide brief, non-intrusive feedback to users about an action they&apos;ve taken within an application.
-              For instance, if they successfully change their password, we want to give them some feedback to reassure them that the change went through successfully.
+              For instance, if they successfully submit a form, we want to give them some feedback to reassure them that the change went through successfully.
             </p>
             <p>
               To implement toast messages in our app, we are using <strong>useToast React Aria Component</strong>. Documentation about this can be found here: <a href="https://react-spectrum.adobe.com/react-aria/useToast.html">https://react-spectrum.adobe.com/react-aria/useToast.html</a>.
@@ -1921,24 +1927,35 @@ function Page() {
 
             <h3>Toast Types</h3>
             <p>There are three different types of toasts: info, success, and error.</p>
-            <div>
-              <Button onPress={() => toastState.add('Testing types!', { type: 'info' })}>Show info toast</Button>
-              <Button onPress={() => toastState.add('Testing types!', { type: 'success' })}>Show success toast</Button>
-              <Button onPress={() => toastState.add('Testing types!', { type: 'error' })}>Show error toast</Button>
-            </div>
+            <ul style={{ listStyleType: 'none' }}>
+              <li style={{ marginTop: '15px' }}>
+                <Button onPress={() => toastState.add('This is an INFO message', { type: 'info', key: 'info', timeout: 5000 })}>Show info toast</Button>
+              </li>
+              <li style={{ marginTop: '15px' }}>
+                <Button onPress={() => toastState.add('This is a SUCCESS message', { type: 'success', key: 'success', timeout: 5000 })}>Show success toast</Button>
+              </li>
+              <li style={{ marginTop: '15px' }}>
+                <Button onPress={() => toastState.add('This is an ERROR message', { type: 'error', key: 'error', timeout: 5000 })}>Show error toast</Button>
+              </li>
+            </ul>
+
 
             <h3>Toast Options</h3>
-            <p>There is the option to set a timeout for the toast message. Also, if you don&apos;t specify a type, then the default color will be for type info</p>
+            <p>There is the option to set a timeout for the toast message. The default timeout is currently set to 5 seconds. </p>
             <div>
-              <Button onPress={() => toastState.add('Toast is done!', { timeout: 5000 })}>Show toast with timeout</Button>
+              <Button onPress={() => toastState.add('Toast is done!', { timeout: 1000 })}>Show toast with timeout of 1 second</Button>
             </div>
             <p>There is also the option to set a priority. The highest priority will sit at the top. Currently, the toast messages are configured to show a max of three messages at a time.</p>
             <div>
-              <Button onPress={() => toastState.add('Highest priority!', { priority: 1 })}>Show toast with timeout</Button>
+              <Button onPress={() => toastState.add('Highest priority!', { priority: 1 })}>Show toast with High Priority</Button>
+            </div>
+            <p>Toast messages even stay around after a page redirect.</p>
+            <div>
+              <Button onPress={showToastAndRedirect}>Show toast with redirect</Button>
             </div>
           </div>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutWithPanel >
     </>
   )
 }

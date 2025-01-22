@@ -26,7 +26,6 @@ import {
 import {
   useTagsQuery,
   useUpdateSectionMutation,
-  UpdateSectionDocument
 } from '@/generated/graphql';
 
 //Components
@@ -40,12 +39,14 @@ import { DmpEditor } from "@/components/Editor";
 
 import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
 import { useSectionData } from "@/hooks/sectionData";
+import logECS from '@/utils/clientLogger';
+import { useToast } from '@/context/ToastContext';
 
 const SectionUpdatePage: React.FC = () => {
+  const toastState = useToast(); // Access the toast state from context
 
   // Get templateId param
   const params = useParams();
-  const { templateId } = params; // From route /template/:templateId/section/create
   const { section_slug: sectionId } = params;
 
   //For scrolling to error in page
@@ -65,8 +66,7 @@ const SectionUpdatePage: React.FC = () => {
 
 
   // Save errors in state to display on page
-  const [errors, setErrors] = useState<string[]>([]);
-  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<SectionFormInterface>({
     sectionName: '',
     sectionIntroduction: '',
@@ -134,7 +134,9 @@ const SectionUpdatePage: React.FC = () => {
 
     // Update state with all errors
     setFieldErrors(errors);
-    setErrors(Object.values(errors).filter((e) => e)); // Store only non-empty error messages
+    if (errors) {
+      setErrorMessages(Object.values(errors).filter((e) => e)); // Store only non-empty error messages
+    }
 
     return !hasError;
   };
@@ -173,19 +175,17 @@ const SectionUpdatePage: React.FC = () => {
             bestPractice: sectionData.bestPractice ?? false, // have to write it this way, otherwise the 'false' will remove this prop from input
             tags: selectedTags
           }
-        },
-        refetchQueries: [{ //Needed to update the sectionDisplayOrders after updating db
-          query: UpdateSectionDocument,
-          variables: {
-            templateId: templateId
-          }
-        }]
+        }
       })
     } catch (error) {
+      logECS('error', 'updateSection', {
+        error: error,
+        url: { path: '/template/\[templateId\]/section/\[sectionid\]' }
+      });
       if (error instanceof ApolloError) {
-        setErrors(prevErrors => [...prevErrors, error.message]);
+        setErrorMessages(prevErrors => [...prevErrors, error.message]);
       } else {
-        setErrors(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorCreatingSection')]);
+        setErrorMessages(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorUpdatingSection')]);
       }
     }
   };
@@ -198,22 +198,23 @@ const SectionUpdatePage: React.FC = () => {
     );
   };
 
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = SectionUpdatePage('messages.success');
+    toastState.add(successMessage, { type: 'success' });
+  }
+
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    setSuccessMessage('');
 
     clearAllFieldErrors();
 
     if (isFormValid()) {
       // Create new section
       await updateSection();
-      setErrors([]); // Clear errors on successful submit
-      // For now, scroll to top of page to provide some feedback that form was successfully submitted
-      // TODO: add flash/toast message to signal to user that form was successfully submitted
-      setSuccessMessage(SectionUpdatePage('messages.success'))
-      scrollToTop(topRef);
+      showSuccessToast()
+      setErrorMessages([]); // Clear errors on successful submit
     }
   };
 
@@ -228,16 +229,15 @@ const SectionUpdatePage: React.FC = () => {
 
   // If errors when submitting publish form, scroll them into view
   useEffect(() => {
-    if (errors.length > 0) {
+    if (errorMessages.length > 0) {
       scrollToTop(errorRef);
     }
-  }, [errors]);
+  }, [errorMessages]);
 
   // We need this so that the page waits to render until data is available
   if (loading) {
     return <div>Loading...</div>;
   }
-
 
   return (
     <>
@@ -263,19 +263,14 @@ const SectionUpdatePage: React.FC = () => {
           <div className="template-editor-container" ref={topRef}>
             <div className="main-content">
 
-              {errors && errors.length > 0 &&
+              {errorMessages && errorMessages.length > 0 &&
                 <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-                  {errors.map((error, index) => (
+                  {errorMessages.map((error, index) => (
                     <p key={index}>{error}</p>
                   ))}
                 </div>
               }
 
-              {successMessage && (
-                <div className="messages success" role="alert" aria-live="assertive">
-                  <p>{successMessage}</p>
-                </div>
-              )}
               <Tabs>
                 <TabList aria-label="Question editing">
                   <Tab id="edit">{Section('tabs.editSection')}</Tab>

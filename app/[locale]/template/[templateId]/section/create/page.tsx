@@ -40,7 +40,11 @@ import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
 import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
 
+import { useToast } from '@/context/ToastContext';
+
 const CreateSectionPage: React.FC = () => {
+
+  const toastState = useToast(); // Access the toast state from context
 
   // Get templateId param
   const params = useParams();
@@ -72,7 +76,6 @@ const CreateSectionPage: React.FC = () => {
   const [maxDisplayOrderNum, setMaxDisplayOrderNum] = useState<number>(0);
   // Save errors in state to display on page
   const [errors, setErrors] = useState<string[]>([]);
-  const [successMessage, setSuccessMessage] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<SectionFormInterface>({
     sectionName: '',
     sectionIntroduction: '',
@@ -222,11 +225,15 @@ const CreateSectionPage: React.FC = () => {
     });
   };
 
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = CreateSectionPage('messages.success');
+    toastState.add(successMessage, { type: 'success' });
+  }
+
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    setSuccessMessage('');
 
     clearAllFieldErrors();
 
@@ -234,10 +241,7 @@ const CreateSectionPage: React.FC = () => {
       // Create new section
       await createSection();
       setErrors([]); // Clear errors on successful submit
-      // For now, scroll to top of page to provide some feedback that form was successfully submitted
-      // TODO: add flash/toast message to signal to user that form was successfully submitted
-      setSuccessMessage(CreateSectionPage('messages.success'))
-      scrollToTop(topRef);
+      showSuccessToast();
     }
   };
 
@@ -314,11 +318,6 @@ const CreateSectionPage: React.FC = () => {
                 </div>
               }
 
-              {successMessage && (
-                <div className="messages success" role="alert" aria-live="assertive">
-                  <p>{successMessage}</p>
-                </div>
-              )}
               <Tabs>
                 <TabList aria-label="Question editing">
                   <Tab id="edit">{Section('tabs.editSection')}</Tab>

@@ -88,7 +88,11 @@
     "btnAdd": "Adicionar",
     "linkUpdatePassword": "Atualizar senha",
     "linkUpdateConnections": "Update connections",
-    "linkManageNotifications": "Atualizar conexão?"
+    "linkManageNotifications": "Atualizar conexão?",
+    "messages": {
+      "profileUpdateSuccess": "Formulário de perfil atualizado com sucesso.",
+      "emailAddressUpdateSuccess": "O e-mail foi adicionado com sucesso ao seu perfil."
+    }
   },
   "TemplateHistory": {
     "title": "Primary Light",

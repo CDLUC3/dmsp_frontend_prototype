@@ -42,6 +42,7 @@ import AddSectionButton from "@/components/AddSectionButton";
 
 import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
+import { useToast } from '@/context/ToastContext';
 import styles from './templateEditPage.module.scss';
 
 interface QuestionsInterface {
@@ -77,6 +78,7 @@ interface TemplateEditPageInterface {
 
 const TemplateEditPage: React.FC = () => {
   let [isPublishModalOpen, setPublishModalOpen] = useState(false);
+  const toastState = useToast(); // Access the toast state from context
   const [template, setTemplate] = useState<TemplateEditPageInterface>({
     name: '',
     description: null,
@@ -98,6 +100,7 @@ const TemplateEditPage: React.FC = () => {
   const EditTemplate = useTranslations('EditTemplates');
   const PublishTemplate = useTranslations('PublishTemplate');
   const Messaging = useTranslations('Messaging');
+  const Global = useTranslations('Global');
 
   // Get templateId param
   const params = useParams();
@@ -113,10 +116,18 @@ const TemplateEditPage: React.FC = () => {
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
 
   // Run template query to get all templates under the given templateId
-  const { data, loading } = useTemplateQuery({
-    variables: { templateId: templateId ? Number(templateId) : 0 },
-    notifyOnNetworkStatusChange: true,
-  });
+  const { data, loading, error: templateQueryErrors } = useTemplateQuery(
+    {
+      variables: { templateId: Number(templateId) },
+      notifyOnNetworkStatusChange: true
+    }
+  );
+
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = Messaging('successfullyUpdated');
+    toastState.add(successMessage, { type: 'success' });
+  }
 
   // Archive current template
   const handleArchiveTemplate = async () => {
@@ -149,6 +160,7 @@ const TemplateEditPage: React.FC = () => {
 
       if (response) {
         setPublishModalOpen(false);
+        showSuccessToast();
       }
     } catch (err) {
       if (err instanceof ApolloError) {
@@ -174,7 +186,7 @@ const TemplateEditPage: React.FC = () => {
     const visibility = formData.get('visibility')?.toString().toUpperCase() as TemplateVisibility;
     const changeLog = formData.get('change_log')?.toString(); // Extract the textarea value
 
-    await saveTemplate(TemplateVersionType.Published, changeLog, visibility)
+    await saveTemplate(TemplateVersionType.Published, changeLog, visibility);
   };
 
   useEffect(() => {
@@ -231,9 +243,11 @@ const TemplateEditPage: React.FC = () => {
     }
   }, [pageErrors]);
 
-  // Show loading message
   if (loading) {
-    return <div>{Messaging('loading')}...</div>;
+    return <div>{Global('messaging.loading')}...</div>;
+  }
+  if (templateQueryErrors) {
+    return <div>{EditTemplate('errors.getTemplatesError')}</div>;
   }
 
   return (

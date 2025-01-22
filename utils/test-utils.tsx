@@ -2,8 +2,8 @@ import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { AuthProvider } from '../context/AuthContext';
 import { CsrfProvider } from '@/context/CsrfContext';
-import { NextIntlClientProvider } from 'next-intl';
 import { ToastProviderWrapper } from '@/context/ToastContext';
+import { NextIntlClientProvider } from 'next-intl';
 import defaultMessages from '@/messages/en-US/global.json'; // Example messages file
 
 interface MessageGroup {
@@ -29,7 +29,7 @@ const AllTheProviders = ({
                 <NextIntlClientProvider locale={locale} messages={messages}>
                     <ToastProviderWrapper>
                         {children}
-                    </ToastProviderWrapper>.
+                    </ToastProviderWrapper>
                 </NextIntlClientProvider>
             </CsrfProvider>
         </AuthProvider>

@@ -88,7 +88,11 @@
     "btnAdd": "Add",
     "linkUpdatePassword": "Update password",
     "linkUpdateConnections": "Update connections",
-    "linkManageNotifications": "Manage notifications"
+    "linkManageNotifications": "Manage notifications",
+    "messages": {
+      "profileUpdateSuccess": "The profile form was successfully updated.",
+      "emailAddressUpdateSuccess": "The email was successfully added to your profile."
+    }
   },
   "TemplateHistory": {
     "title": "Template history",

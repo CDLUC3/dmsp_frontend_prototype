@@ -123,20 +123,25 @@
     "questionsCount": "<p>Esta seção inclui:</p><p>{count} questões pré-criadas</p>"
   },
   "Section": {
-    "tabs": {
-      "editSection": "Editar seção",
-      "options": "Opções",
-      "logic": "Lógica"
+    "Section": {
+      "tabs": {
+        "editSection": "Editar seção",
+        "options": "Opções",
+        "logic": "Lógica"
+      },
+      "labels": {
+        "sectionName": "Nome da seção",
+        "sectionIntroduction": "Introdução à seção",
+        "sectionRequirements": "Requisitos da seção",
+        "sectionGuidance": "Orientação em Seção",
+        "bestPracticeTags": "Seção das melhores práticas para incluir"
+      },
+      "helpText": {
+        "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
+      }
     },
-    "labels": {
-      "sectionName": "Nome da seção",
-      "sectionIntroduction": "Introdução à seção",
-      "sectionRequirements": "Requisitos da seção",
-      "sectionGuidance": "Orientação em Seção",
-      "bestPracticeTags": "Seção das melhores práticas para incluir"
-    },
-    "helpText": {
-      "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
+    "CreateSectionPage": {
+      "title": "Criar seção"
     }
   },
   "CreateSectionPage": {

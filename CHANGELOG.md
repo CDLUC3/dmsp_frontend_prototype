@@ -1,3 +1,23 @@
+## v0.0.1
+
+### Updated
+- Updated `/template/create/page.tsx`[#186]
+- Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
+- Updated existing Templates graphql query with more fields [#186]
+- Updated shared `FormInput` component to pass ‘ariaDescribedBy’ [#186]
+- Updated `TemplateSelectListItem` [#186]
+- Updated `/graphql/apollo-wrapper.tsx` since `@apollo/experimental-nextjs-app-support/ssr` was deprecated [#186]
+- Updated `/graphql/graphqlHelper.ts` with a call to `client.resetStore’` This should refetch user’s data when refreshAuthTokens() is called [#186]
+- Updated `refreshAuthTokens` function with ability to pass in cookies [#186]
+- Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
+
+### Added
+
+
+### Fixed
+
+
+====================================================================================================
 
 ### Updated
 =======
@@ -10,6 +30,9 @@
 - Updated `/graphql/graphqlHelper.ts` with a call to `client.resetStore’` This should refetch user’s data when refreshAuthTokens() is called [#186]
 - Updated `refreshAuthTokens` function with ability to pass in cookies [#186]
 - Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
+- Updated some pages with toast messages, and updated toast files [#231]
+- Added Portuguese translations for newly added translation keys [#231]
+- Updated version of `next` to `14.2.22` [#231]
 - Updated app/template/[templateId]/section/[section_slug] to hook it into backend data [#217]
 - Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]
 - Updated DMPEditor to use a skeleton while the text editors are loading, since it can be slow [#187]
