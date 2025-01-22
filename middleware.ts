@@ -5,7 +5,7 @@ import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 import createMiddleware from 'next-intl/middleware';
 import { refreshAuthTokens } from "@/utils/authHelper";
 import { routing } from './i18n/routing';
-import logger from '@/utils/logger';
+import logECS from '@/utils/clientLogger';
 
 const locales = ['en-US', 'pt-BR'];
 const defaultLocale = 'en-US';
@@ -82,27 +82,30 @@ export async function middleware(request: NextRequest) {
   // Exclude paths from authentication checks
   const isExcludedPath = excludedPaths.some((path) => pathname.includes(path));
 
-  if (isExcludedPath) return response;
-
   const cookies = request.headers.get('cookie') || '';
   const accessToken = request.cookies.get('dmspt');
   const refreshToken = request.cookies.get('dmspr');
+  const locale = await getLocale(request);
 
   // Redirect to login if no tokens are found
-  if (!accessToken && !refreshToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  if (!isExcludedPath) {
+    if (!accessToken && !refreshToken) {
+      return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+    }
   }
 
   //Refresh tokens if necessary
   if (!accessToken && refreshToken) {
-    const locale = await getLocale(request);
     try {
       const response = await refreshAuthTokens(cookies);
       if (response?.shouldRedirect) {
         return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
       }
     } catch (error) {
-      logger.error('Error refreshing auth tokens in middleware', { error: error })
+      logECS('error', 'refreshing', {
+        error: error,
+        url: { path: 'middleware' }
+      });
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
     }
   }

@@ -3,13 +3,18 @@ import { middleware } from '../middleware';
 import { verifyJwtToken } from '@/lib/server/auth';
 import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 
-
 jest.mock('next/server', () => ({
     NextResponse: {
         next: jest.fn(),
         redirect: jest.fn(),
     },
 }));
+
+jest.mock('@/utils/clientLogger', () => ({
+    __esModule: true,
+    default: jest.fn()
+}))
+
 
 jest.mock('next-intl/middleware', () => ({
     __esModule: true,

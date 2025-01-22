@@ -18,8 +18,8 @@ query TemplateVersions($templateId: Int!) {
   }
 }
 
-query UserAffiliationTemplates {
-  userAffiliationTemplates {
+query MyVersionedTemplates {
+  myVersionedTemplates {
     id
     name
     description

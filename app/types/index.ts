@@ -46,7 +46,7 @@ export interface TemplateInterface {
   visibility?: string;
 }
 
-export interface UserAffiliationTemplatesInterface {
+export interface MyVersionedTemplatesInterface {
   id?: number | null;
   name: string;
   description?: string | null;

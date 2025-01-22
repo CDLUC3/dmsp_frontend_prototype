@@ -6,7 +6,7 @@ import TemplateSelectTemplatePage from '../index';
 import {
   useAddTemplateMutation,
   usePublishedTemplatesQuery,
-  useUserAffiliationTemplatesQuery
+  useMyVersionedTemplatesQuery
 } from '@/generated/graphql';
 import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
@@ -60,7 +60,7 @@ jest.mock('@/components/PageHeader', () => ({
 jest.mock('@/generated/graphql', () => ({
   useAddTemplateMutation: jest.fn(),
   usePublishedTemplatesQuery: jest.fn(),
-  useUserAffiliationTemplatesQuery: jest.fn()
+  useMyVersionedTemplatesQuery: jest.fn()
 }));
 
 // Mock the Next.js router
@@ -106,7 +106,7 @@ const mockPublicTemplates = {
 }
 
 const mockTemplates = {
-  userAffiliationTemplates: [
+  myVersionedTemplates: [
     {
       description: "",
       errors: null,
@@ -183,7 +183,7 @@ const mockHook = (hook: any) => hook as jest.Mock;
 const setupMocks = () => {
   mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
   mockHook(usePublishedTemplatesQuery).mockReturnValue({ data: mockPublicTemplates, loading: false, error: undefined });
-  mockHook(useUserAffiliationTemplatesQuery).mockReturnValue({ data: mockTemplates, loading: false, error: undefined });
+  mockHook(useMyVersionedTemplatesQuery).mockReturnValue({ data: mockTemplates, loading: false, error: undefined });
 };
 
 

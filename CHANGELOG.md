@@ -20,7 +20,7 @@
 - Refactored font family usage for consistency.
 
 ### Added
-- Added `UserAffiliationTemplates` and `PublishedTemplates` graphql queries and `addTemplateMutation` graphql mutation [#186]
+- Added `MyVersionedTemplates` and `PublishedTemplates` graphql queries and `addTemplateMutation` graphql mutation [#186]
 - Created the `SelectExistingTemplate` component which displays the publishedTemplates and allows user to filter view [#186]
 - Created `TemplateList` component used by `SelectExistingTemplate`[#186]
 - Added Toast Message capabilities using **React Aria Component's use Toast**. [#211]

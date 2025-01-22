@@ -30,12 +30,12 @@ import TemplateList from '@/components/TemplateList';
 import {
   useAddTemplateMutation,
   usePublishedTemplatesQuery,
-  useUserAffiliationTemplatesQuery
+  useMyVersionedTemplatesQuery
 } from '@/generated/graphql';
 
 // Other
 import logECS from '@/utils/clientLogger';
-import { UserAffiliationTemplatesInterface, TemplateItemProps } from '@/app/types';
+import { MyVersionedTemplatesInterface, TemplateItemProps } from '@/app/types';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { useToast } from '@/context/ToastContext';
 
@@ -67,7 +67,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   const Global = useTranslations('Global');
 
   // Make graphql request for versionedTemplates under the user's affiliation
-  const { data = {}, loading, error: queryError } = useUserAffiliationTemplatesQuery({
+  const { data = {}, loading, error: queryError } = useMyVersionedTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
@@ -123,9 +123,9 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }
   }
 
-  const transformTemplates = async (templates: (UserAffiliationTemplatesInterface | null)[]) => {
+  const transformTemplates = async (templates: (MyVersionedTemplatesInterface | null)[]) => {
     const transformedTemplates = await Promise.all(
-      templates.map(async (template: UserAffiliationTemplatesInterface | null) => ({
+      templates.map(async (template: MyVersionedTemplatesInterface | null) => ({
         id: template?.id,
         template: {
           id: template?.template?.id ? template?.template.id : null
@@ -208,8 +208,8 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   useEffect(() => {
     // Transform templates into format expected by TemplateListItem component
     const processTemplates = async () => {
-      if (data && data?.userAffiliationTemplates) {
-        const transformedTemplates = await transformTemplates(data.userAffiliationTemplates);
+      if (data && data?.myVersionedTemplates) {
+        const transformedTemplates = await transformTemplates(data.myVersionedTemplates);
         setTemplates(transformedTemplates);
       }
       if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
