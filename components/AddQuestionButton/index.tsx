@@ -1,4 +1,5 @@
 import React from 'react';
+import {useTranslations} from 'next-intl';
 import styles from './AddQuestionButton.module.scss';
 
 interface AddQuestionButtonProps {
@@ -8,10 +9,11 @@ interface AddQuestionButtonProps {
 }
 
 const AddQuestionButton: React.FC<AddQuestionButtonProps> = ({
-                                                               onClick,
-                                                               href = '#',
-                                                               className = '',
-                                                             }) => {
+  onClick,
+  href = '#',
+  className = '',
+}) => {
+  const EditQuestion = useTranslations('EditQuestion');
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (onClick) {
       onClick(event);
@@ -38,7 +40,7 @@ const AddQuestionButton: React.FC<AddQuestionButtonProps> = ({
           <line x1="12" y1="5" x2="12" y2="19" />
           <line x1="5" y1="12" x2="19" y2="12" />
         </svg>
-        <span>Add question</span>
+        <span>{EditQuestion('links.addQuestion')}</span>
       </a>
     </div>
   );

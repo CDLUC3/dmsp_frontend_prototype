@@ -76,13 +76,15 @@
 }
 
 // Forms
-
+/*
+// REMOVED THIS AS WAS CONFLICTING - Unclear where it is used
 .react-aria-Button {
   @include device(sm) {
-    margin-top: var(--fs-4xl);
+    //margin-top: var(--fs-4xl);
   }
-  margin-top: var(--fs-xl);
+  //margin-top: var(--fs-xl);
 }
+*/
 
 // Popover
 .react-aria-Popover {
@@ -455,55 +457,87 @@
   }
 }
 
-
-// breadcrumbs
 .react-aria-Breadcrumbs {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   list-style: none;
   padding: 0;
   font-size: 0.8rem;
   color: var(--text-color);
   margin: 0 0 1rem;
+  overflow: hidden;
+
+  @media (max-width: 675px) {
+    /* Hide all breadcrumbs by default */
+    li {
+      display: none !important; /* Ensure no conflicts with other styles */
+    }
+
+    /* Show the first breadcrumb (Home) if there are exactly 3 breadcrumbs */
+    li:first-child:nth-last-child(3) {
+      display: inline-flex !important;
+    }
+
+    /* Show the second-to-last breadcrumb (Dashboard) if there are exactly 3 breadcrumbs */
+    li:nth-last-child(2):not([data-current="true"]):nth-last-child(3) {
+      display: inline-flex !important;
+    }
+
+    /* Show the third-to-last breadcrumb (second-to-last visible) if it’s not current */
+    li:nth-last-child(3):not([data-current="true"]) {
+      display: inline-flex !important;
+    }
+
+    /* Show the second-to-last breadcrumb if it’s not current */
+    li:nth-last-child(2):not([data-current="true"]) {
+      display: inline-flex !important;
+    }
+
+    /* Show the last breadcrumb if it’s not current */
+    li:nth-last-child(1):not([data-current="true"]) {
+      display: inline-flex !important;
+    }
+  }
 
   li {
     font-size: 0.8rem;
+    white-space: nowrap;
+    margin-right: 0.5rem;
+    padding-right: 0.5rem;
+    position: relative;
+
+    &[data-current] {
+      color: var(--text-color);
+      font-weight: bold;
+    }
   }
 
-
-  .react-aria-Breadcrumb:not(:last-child)::after {
+  li:not(:last-child)::after {
     content: '›';
-    content: '›' / '';
-    alt: ' ';
-    padding: 0 5px;
+    padding: 0;
+    position: absolute;
+    right: -2px;
+    white-space: nowrap;
   }
 
   .react-aria-Link {
     font-size: 0.8rem;
     color: var(--link-color-secondary);
     outline: none;
-    position: relative;
     text-decoration: none;
     cursor: pointer;
+
+    @media (max-width: 675px) {
+      max-width: 180px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
 
     &[data-hovered] {
       text-decoration: underline;
     }
-
-    &[data-current] {
-      color: var(--text-color);
-    }
-
-    &[data-focus-visible]:after {
-      content: '';
-      position: absolute;
-      inset: -2px -4px;
-      border-radius: 6px;
-      border: 2px solid var(--focus-ring-color);
-    }
   }
 }
-
 
 .Filters {
   margin: 1rem 0;
@@ -522,5 +556,169 @@
   @include device(xl) {
     grid-template-columns: repeat(3, 1fr);
   }
+}
 
+
+// This is used to contain the content of a section
+.sectionContainer {
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-6);
+
+  .sectionHeader {
+    h3 {
+      margin: 0 0 var(--space-4);
+    }
+  }
+
+  .sectionContent {
+    padding: var(--space-4) var(--space-6);
+    margin-bottom: var(--space-4);
+    border-radius: var(--card-border-radius);
+    background: var(--bg-white);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+  }
+}
+
+// project overview
+.project-overview {
+  .project-overview-item {
+    margin-top: var(--space-0);
+    margin-bottom: var(--space-6);
+    font-size: var(--fs-small);
+
+    h2 {
+      font-size: var(--fs-base);
+      color: var(--blue-600);
+      font-weight: 300;
+
+      padding: var(--space-0);
+      margin: var(--space-0);
+      margin-bottom: var(--space-1);
+    }
+
+    p {
+      font-size: var(--fs-small);
+      padding: var(--space-0);
+      margin: var(--space-0);
+    }
+
+    .project-overview-item-heading {
+      font-size: var(--fs-lg);
+    }
+
+    .react-aria-Link {
+      font-size: var(--fs-small);
+      color: var(--slate-800);
+      margin-top: var(--space-1);
+      display: inline-block;
+    }
+  }
+}
+
+
+.plans {
+  .plans-header-with-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-2);
+    flex-direction: column;
+    gap: var(--space-2);
+    @include device(sm) {
+      flex-direction: row;
+      align-items: center;
+      margin-bottom: var(--space-2);
+    }
+    .actions{
+      @include device(sm) {
+        flex-direction: row;
+        align-items: center;
+      }
+      a{
+        margin-bottom: var(--space-1);
+      }
+    }
+  }
+
+  .plan-item {
+
+  }
+
+  .plan-sections-list {
+    padding: 0;
+    margin: var(space-4) 0;
+    list-style: none;
+  }
+
+  .plan-sections-list-item {
+    font-size: var(--fs-small);
+    color: var(--body-color);
+    margin: var(--space-2) 0;
+
+    a {
+      font-size: var(--fs-base);
+      color: var(--text-black);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .plan-sections-list-item-progress {
+      display: block;
+      @include device(sm) {
+        display: inline-block;
+        margin-left: var(--space-3);
+      }
+    }
+  }
+
+  .plan-meta {
+    margin-top: var(--space-6);
+
+    p {
+      font-size: var(--fs-small);
+      color: var(--body-color);
+      margin: var(--space-2) 0;
+    }
+  }
+
+  .plan-links {
+    display: flex;
+    flex-direction: column;
+    @include device(md) {
+      flex-direction: row;
+      gap: var(--space-4);
+    }
+
+    .plan-link {
+      font-size: var(--fs-small);
+      color: var(--body-color);
+
+      .link-text {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover {
+          color: var(--text-black);
+        }
+      }
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+
+  .plan-footer {
+    margin-top: var(--space-4);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    flex-direction: column;
+    @include device(md) {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
 }

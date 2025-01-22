@@ -1,21 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import {
-  Button,
-  Form,
-} from "react-aria-components";
+import { useTranslations } from 'next-intl';
+import { Button, Form, } from "react-aria-components";
 import { ApolloError } from "@apollo/client";
 
 // Graphql mutations
 import {
-  useSetPrimaryUserEmailMutation,
+  MeDocument,
   useAddUserEmailMutation,
   useRemoveUserEmailMutation,
-  MeDocument
+  useSetPrimaryUserEmailMutation
 } from '@/generated/graphql';
 
 // Components
-import ContentContainer from '@/components/ContentContainer';
 import EmailAddressRow from '@/components/EmailAddressRow';
 import FormInput from '../Form/FormInput';
 //Interfaces
@@ -23,6 +20,7 @@ import { EmailInterface } from '@/app/types';
 // Utils and other
 import logECS from '@/utils/clientLogger';
 import styles from './updateEmailAddress.module.scss';
+import { useToast } from '@/context/ToastContext';
 
 const GET_USER = MeDocument;
 
@@ -33,6 +31,8 @@ export interface UpdateEmailAddressProps {
 const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   emailAddresses,
 }) => {
+  const t = useTranslations('UserProfile');
+  const toastState = useToast(); // Access the toast state from context
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [addAliasValue, setAddAliasValue] = useState<string>('');
@@ -93,6 +93,12 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
     }
   }
 
+
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = t('messages.emailAddressUpdateSuccess');
+    toastState.add(successMessage, { type: 'success', priority: 1, timeout: 10000 });
+  }
   // Adding new email alias
   const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -118,6 +124,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       clearErrors();
       // Clear the add alias input field
       setAddAliasValue('');
+      showSuccessToast();
     } catch (err) {
       if (err instanceof ApolloError) {
         /* We need to call this mutation again when there is an error and
@@ -209,81 +216,82 @@ calling 'refetch()' for the user query, but that didn't work. */
     }
   }, [errors]);
 
-  /*Reset errors when email addresses change so that 
+  /*Reset errors when email addresses change so that
   errors don't continue to display on page*/
   useEffect(() => {
     setErrors([]);
   }, [emailAddresses])
 
   return (
-    <div className={styles.section} ref={errorRef}>
-      <h2 className={styles.title}>Email and Authentication</h2>
-      <ContentContainer>
-        <div className={styles.subSection}>
-          {errors && errors.length > 0 &&
-            <div className="error">
-              {errors.map((error, index) => (
-                <p key={index}>{error}</p>
-              ))}
-            </div>
-          }
-          <h3>Primary email address</h3>
-          <p>This email will be used for your account login. It can also be used for password resets.</p>
+    <div ref={errorRef}>
+      <h2 className={styles.title}>{t('emailAndAuth')}</h2>
+      <div className="sectionContainer">
+        <div className="sectionContent">
+          <div className={styles.subSection}>
+            {errors && errors.length > 0 &&
+              <div className="error">
+                {errors.map((error, index) => (
+                  <p key={index}>{error}</p>
+                ))}
+              </div>
+            }
+            <h3>{t('headingPrimaryEmail')}</h3>
+            <p>{t('primaryEmailDesc')}</p>
 
-          {/* Render the primary email */}
-          {emailAddresses.filter(emailObj => emailObj.isPrimary).map((emailObj) => (
-            <EmailAddressRow
-              key={emailObj.email}
-              email={emailObj.email}
-              isAlias={false}
-              additionalClassName="primaryEmail"
-              tooltip={true}
-              toolTipMessage="Primary email cannot be deleted."
-            />
-          ))}
-          <h4>Single sign on activated</h4>
-          <p>This email address is managed by cdl.edu and connected to the institution.</p>
-          <h4>Receives notifications</h4>
-          <p>This email address will be used for DMP notifications. <Link href="">Manage your notifications</Link>.</p>
-        </div>
-        <div className={styles.subSection}>
-          <hr />
-          <h3>Alias email addresses</h3>
-          <p>Alias email addresses may be used to help others find you, for example if they&lsquo;d like to share a DMP with you.</p>
-
-          {emailAddresses.filter(emailObj => !emailObj.isPrimary).map((emailObj) => (
-            <EmailAddressRow
-              key={emailObj.email}
-              email={emailObj.email}
-              isAlias={true}
-              deleteEmail={deleteEmail}
-              makePrimaryEmail={makePrimaryEmail}
-            />
-          ))}
-          <hr />
-          <Form onSubmit={e => handleAddingAlias(e)}>
-            <div className={styles.addContainer}>
-              <FormInput
-                name="addAlias"
-                type="text"
-                label="Add alias email address"
-                className={`${styles.addAliasTextField} react - aria - TextField`}
-                isInvalid={errors.length > 0}
-                errorMessage="Please enter a valid email address"
-                helpMessage="You will be sent an email to confirm this addition"
-                onChange={handleAliasChange}
-                value={addAliasValue}
+            {/* Render the primary email */}
+            {emailAddresses.filter(emailObj => emailObj.isPrimary).map((emailObj) => (
+              <EmailAddressRow
+                key={emailObj.email}
+                email={emailObj.email}
+                isAlias={false}
+                additionalClassName="primaryEmail"
+                tooltip={true}
+                toolTipMessage="Primary email cannot be deleted."
               />
-              <Button type="submit">Add</Button>
-            </div>
-          </Form>
+            ))}
+            <h4>{t('headingSSO')}</h4>
+            <p>{t('SSODesc')}</p>
+            <h4>{t('headingNotifications')}</h4>
+            <p>        {t.rich('notificationsDesc', {
+              manage: (chunks) => <Link href="">{chunks}</Link>
+            })}</p>
+          </div>
+          <div className={styles.subSection}>
+            <hr />
+            <h3>{t('headingAliasEmailAddr')}</h3>
+            <p>{t('aliasEmailDesc')}</p>
+
+            {emailAddresses.filter(emailObj => !emailObj.isPrimary).map((emailObj) => (
+              <EmailAddressRow
+                key={emailObj.email}
+                email={emailObj.email}
+                isAlias={true}
+                deleteEmail={deleteEmail}
+                makePrimaryEmail={makePrimaryEmail}
+              />
+            ))}
+            <hr />
+            <Form onSubmit={e => handleAddingAlias(e)}>
+              <div className={styles.addContainer}>
+                <FormInput
+                  name="addAlias"
+                  type="text"
+                  label={t('headingAddAliasEmail')}
+                  className={`${styles.addAliasTextField} react - aria - TextField`}
+                  isInvalid={errors.length > 0}
+                  errorMessage="Please enter a valid email address"
+                  helpMessage={t('helpTextForAddAlias')}
+                  onChange={handleAliasChange}
+                  value={addAliasValue}
+                />
+                <Button type="submit">{t('btnAdd')}</Button>
+              </div>
+            </Form>
+          </div>
         </div>
-      </ContentContainer>
+      </div>
     </div>
   )
 }
 
 export default UpdateEmailAddress;
-
-
-

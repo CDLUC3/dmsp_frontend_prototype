@@ -16,7 +16,7 @@ export interface ProfileDataInterface {
   lastName: string;
   affiliationName: string;
   affiliationId: string;
-  otherInstitution: string;
+  otherAffiliationName: string;
   languageId: string;
   languageName: string;
 }
@@ -28,5 +28,75 @@ export interface FormErrorsInterface {
   affiliationId: string;
   languageId: string;
   languageName: string;
-  otherInstitution: string;
+  otherAffiliationName: string;
+}
+
+export interface TemplateInterface {
+  name: string;
+  description?: string | null;
+  modified?: string | null;
+  id?: number | null;
+  isDirty?: boolean;
+  owner?: { // Make `owner` optional and nullable
+    displayName?: string;
+    name?: string;
+    searchName?: string;
+  } | null;
+}
+
+// Define valid href types for Next.js Link
+type Url = string | URL;
+type LinkHref = Url | {
+  pathname: string;
+  query?: Record<string, string | number | string[] | undefined>;
+  hash?: string;
+};
+
+export interface TemplateItemProps {
+  title: string;
+  content?: JSX.Element | null;
+  link?: LinkHref;
+  defaultExpanded: boolean;
+  funder?: string;
+  lastUpdated?: string | null;
+  publishStatus?: string;
+}
+
+export interface TemplateVersionInterface {
+  name: string;
+  version: string;
+  versionType?: 'DRAFT' | 'PUBLISHED';
+  created?: string | null;
+  comment?: string | null;
+  id?: number | null;
+  modified?: string | null;
+  versionedBy?: {
+    givenName?: string | null;
+    surName?: string | null;
+    affiliation?: { displayName: string } | null;
+    modified?: string | null;
+  } | null;
+};
+
+export interface SectionFormInterface {
+  sectionName: string;
+  sectionIntroduction: string;
+  sectionRequirements: string;
+  sectionGuidance: string;
+  displayOrder?: number;
+  bestPractice?: boolean;
+  sectionTags?: TagsInterface[];
+}
+
+export interface SectionFormErrorsInterface {
+  sectionName: string;
+  sectionIntroduction: string;
+  sectionRequirements: string;
+  sectionGuidance: string;
+}
+
+export interface TagsInterface {
+  id?: number | null;
+  name: string;
+  description?: string | null;
 }

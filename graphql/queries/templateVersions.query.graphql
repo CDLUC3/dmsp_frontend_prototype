@@ -1,0 +1,19 @@
+query TemplateVersions($templateId: Int!) {
+  templateVersions(templateId: $templateId) {
+    name
+    version
+    versionType
+    created
+    comment
+    id
+    modified
+    versionedBy {
+      givenName
+      surName
+      affiliation {
+        displayName
+      }
+      modified
+    }
+  }
+}

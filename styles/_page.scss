@@ -78,13 +78,7 @@ header {
 
 // ** Main Section ** //
 main {
-  @include device(xs) {
-    padding: var(--brand-space1) var(--brand-space2);
-  }
-  @include device(md) {
-    padding: var(--brand-space2) var(--brand-space3);
-  }
-  margin-bottom: 25px;
+  padding-bottom: 25px;
 }
 
 
@@ -200,6 +194,7 @@ footer {
 
 
 .template-editor-container {
+  padding: 0 var(--brand-space2);
   @include device(lg) {
     display: flex;
     justify-content: space-between;

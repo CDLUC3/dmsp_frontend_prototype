@@ -1,5 +1,10 @@
 @import '@/styles/responsive.scss';
 
+.template-editor-header {
+  // This is to match the left padding for content container
+  padding: 0 var(--brand-space2);
+}
+
 .pageheader-container {
 
   padding: 0;

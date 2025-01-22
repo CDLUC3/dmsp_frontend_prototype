@@ -46,6 +46,16 @@ $colors: (
     'secondary': #444444,
     'tertiary': rgb(207, 72, 23)
   ),
+  'blue': (
+    50: #f2fbff,
+    100: #e4f7ff,
+    200: #b9e9ff,
+    300: #8ddaff,
+    400: #77d8ff,
+    500: #004EAA, // mid
+    600: #254eab, // dark blue
+    700: #254d9f,
+  ),
   'gray': (
     50: #ffffff,
     100: #d0d0d0,
@@ -81,7 +91,12 @@ $colors: (
     700: #334155,
     800: #1E293B,
     900: #0F172A
-  )
+  ),
+  'messaging': (
+    'info': #e1e4ff,
+    'success':#dcfbe5,
+    'error': #fce2e4,
+  ),
 );
 
 *,
@@ -97,11 +112,10 @@ html, body {
 
 :root {
   --scale-mobile: 0.875; // Reduces font size by 12.5% on mobile
-
-  --font-family: 'Inter', sans-serif;
+  --font-family: var(--font-sans-serif, sans-serif);
   --font-family-monospace: 'Fira Code', monospace;
-  --font-family-heading: 'Inter', sans-serif;
-  --font-family-body: 'Inter', sans-serif;
+  --font-family-heading: var(--font-sans-serif), sans-serif;
+  --font-family-body: var(--font-sans-serif), sans-serif;
   --font-family-code: 'Fira Code', monospace;
 
   // Generate font-size variables from map
@@ -136,6 +150,7 @@ html, body {
   --background-color: #f8f8f8;
   --bg-white: var(--gray-50);
   --bg-black: #000000;
+  --text-black: #000000;
 
   // Interactive states
   --highlight-hover: rgb(0 0 0 / 0.07);
@@ -181,7 +196,7 @@ html, body {
   --link-hover-color: var(--brand-tertiary);
 
   // Borders
-  --border-color: var(--gray-300);
+  --border-color: var(--gray-200);
   --border-color-hover: var(--gray-400);
   --border-color-pressed: var(--gray-400);
   --border-color-disabled: var(--gray-100);
@@ -255,26 +270,22 @@ html, body {
     --invalid-color-pressed: LinkText;
   }
 }
+* {
+  font-family: inherit; // This is make sure buttons, standard elements all inherit the font-family from the body
+}
 
 html {
-  font-family: var(--font-family), "Inter", sans-serif;
+  font-family: var(--font-family), "Poppins", sans-serif;
+
 }
 
 body {
-  font-family: var(--font-family), "Inter", sans-serif;
+  font-family: var(--font-family), "Poppins", sans-serif;
   font-size: var(--fs-base);
   color: var(--text-color);
   background-color: var(--background-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-.error {
-  background: rgba(238, 100, 100, 0.405);
-  color: var(--text-color);
-  padding-left: 15px;
-  padding-right: 15px;
-  font-size: 0.8rem;
 }
 
 .skip-nav {
@@ -308,16 +319,19 @@ body {
 
 
 // this is potentailly temporary when integrating real side bar
-.sidebar-section{
+.sidebar-section {
   margin-bottom: var(--space-5);
 }
-.sidebar-section-title{
+
+.sidebar-section-title {
   margin-bottom: var(--space-2);
 }
-.sidebar{
+
+.sidebar {
   position: relative;
 }
-.sidebar-inner{
+
+.sidebar-inner {
   margin-top: var(--space-5);
   @include device(xxl) {
     position: sticky;

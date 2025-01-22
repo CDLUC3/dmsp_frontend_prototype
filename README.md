@@ -12,6 +12,7 @@
     - [Running the App](#running-the-app)
     - [Building for Production](#building-for-production)
     - [Docker Setup](#docker-setup)
+- [Localization](#localization)
 - [Environment variables](#environment-variables)
 - [Project Structure](#project-structure)
 - [Authentication](#authentication)
@@ -63,6 +64,54 @@ npm install
 ```bash
 npm install
 ```
+
+### Localization
+The app is using `next-intl` for internationalization (i18n) with prefix-based routing (i.e., a dynamic [locale] segment will be included in the path, like `/en-US/account/connectsion`). We will be using the four-letter locales, meaning a combination of the two-letter language code and the two-letter country code(i.e., `en_US`).
+
+The `i18n/request.js` loads translation files, and `i18n/routing.js` tells `next-intl` which locales shall be supported.
+
+All content to be translated will be located under the `messages` directory, with content being separated out under locales, `messages/en-US/errors.json` and files being organized by components, `messages/en-US/home.json`.
+
+The `NextIntlClientProvider` is wrapped around the children in layout.tsx
+```
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
+```
+
+This allows components to reference the content from a page, like:
+```
+import {useTranslations} from 'next-intl';
+import {Link} from '@/i18n/routing';
+ 
+export default function HomePage() {
+  const t = useTranslations('HomePage');
+  return (
+    <div>
+      <h1>{t('title')}</h1>
+      <Link href="/about">{t('about')}</Link>
+    </div>
+  );
+}
+```
+
+For more documentation on what is available in `next-intl`, go to: https://next-intl-docs.vercel.app/docs/getting-started
+
+#### Crowdin - Localization Management Platform
+We have a free, open-source license with Crowdin: http://crowdin.com.
+
+In the app, we are using the Crowdin Cli to upload content, and download translated files from the site.
+
+You can log into the site with the `dmsp-translate` account, and navigate to `https://crowdin.com/project/dmptool` to see the source files and translations.
+
+In order to upload new changes to the content, run the following scripts from package.json:
+- `crowdin:upload` - to upload content changes in english
+- `crowdin:download` - to download any new translations
+
+For more documentation on Crowdin, go to:
+- https://crowdin.com/
+- https://crowdin.github.io/crowdin-cli/
+
 
 ### Environment Variables
 For the development environment, the environment variables are stored at `.env.local`. This is set as the default env file in jest.setup.ts.
