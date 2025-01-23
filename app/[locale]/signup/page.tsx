@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from "next-intl";
 import {
   Button,
   Form,
@@ -57,6 +58,8 @@ type fieldErrorsMap = {
 }
 
 const SignUpPage: React.FC = () => {
+  const t = useTranslations('SignupPage');
+
   const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
   const { csrfToken } = useCsrf();
@@ -151,9 +154,9 @@ const SignUpPage: React.FC = () => {
         if (password !== confirmPassword) {
           setFieldErrors({
             ...fieldErrors,
-            confirmPassword: "Passwords don't match",
+            confirmPassword: t('passMissMatch'),
           });
-          setErrors(["Please fix the errors below"]);
+          setErrors([t('fixBelow')]);
           setInvalid(true);
         } else if (termsAccepted) {
           handleSignUp();
@@ -201,9 +204,9 @@ const SignUpPage: React.FC = () => {
     <LayoutContainer id="signupPage">
       <ContentContainer>
         {(step === "email") ? (
-          <h3>Register</h3>
+          <h3>{t('register')}</h3>
         ) : (
-          <h3>Create a DMP Tool Account</h3>
+          <h3>{t('createAccount')}</h3>
         )}
 
         <Form
@@ -226,18 +229,14 @@ const SignUpPage: React.FC = () => {
             <TextField
               name="email"
               type="email"
-              aria-label="Email address"
+              aria-label={t('emailAddress')}
               value={email}
               onChange={setEmail}
               isRequired
             >
-              <Label>Email address</Label>
+              <Label>{t('emailAddress')}</Label>
               <Input />
-              <Text slot="description" className="help">
-                To enable Single Sign On (SSO), use your institutional address.
-                You will be redirected to your institution&lsquo;s single sign
-                on platform
-              </Text>
+              <Text slot="description" className="help"> {t('emailHelp')} </Text>
               <FieldError />
             </TextField>
           )}
@@ -248,11 +247,11 @@ const SignUpPage: React.FC = () => {
                 <TextField
                   name="first_name"
                   type="text"
-                  aria-label="First Name"
+                  aria-label={t('firstName')}
                   isRequired
                   onChange={setFirstName}
                 >
-                  <Label>First Name</Label>
+                  <Label>{t('firstName')}</Label>
                   <Input />
                   <FieldError />
                 </TextField>
@@ -260,11 +259,11 @@ const SignUpPage: React.FC = () => {
                 <TextField
                   name="last_name"
                   type="text"
-                  aria-label="Last Name"
+                  aria-label={t('lastName')}
                   isRequired
                   onChange={setLastName}
                 >
-                  <Label>Last Name</Label>
+                  <Label>{t('lastName')}</Label>
                   <Input />
                   <FieldError />
                 </TextField>
@@ -272,13 +271,13 @@ const SignUpPage: React.FC = () => {
 
               <TypeAheadWithOther
                 className="typeahead-with-other"
-                label="Institution"
+                label={t('institution')}
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
                 resultsKey="affiliations"
                 setOtherField={setOtherField}
                 required={true}
-                helpText="Search for your institution"
+                helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}
               />
               {otherField && (
@@ -287,10 +286,10 @@ const SignUpPage: React.FC = () => {
                   id="fieldInstitution"
                   onChange={setOtherAffiliation}
                 >
-                  <Label>Other institution</Label>
+                  <Label>{t('institutionOther')}</Label>
                   <Input
                     data-testid="otherAffiliation"
-                    placeholder="Enter custom institution name"
+                    placeholder={t('institutionOtherPlaceholder')}
                   />
                   <FieldError />
                 </TextField>
@@ -299,12 +298,12 @@ const SignUpPage: React.FC = () => {
               <TextField
                 name="email"
                 type="email"
-                aria-label="Email address"
+                aria-label={t('emailAddress')}
                 onChange={setEmail}
                 value={email}
                 isRequired
               >
-                <Label>Email address</Label>
+                <Label>{t('emailAddress')}</Label>
                 <Input />
                 <FieldError />
               </TextField>
@@ -312,11 +311,11 @@ const SignUpPage: React.FC = () => {
               <TextField
                 name="password"
                 type="password"
-                aria-label="Password"
+                aria-label={t('password')}
                 isRequired
                 onChange={setPassword}
               >
-                <Label>Password</Label>
+                <Label>{t('password')}</Label>
                 <Input data-testid="pass" />
                 <FieldError />
               </TextField>
@@ -324,11 +323,11 @@ const SignUpPage: React.FC = () => {
               <TextField
                 name="confirmPassword"
                 type="password"
-                aria-label="Confirm Password"
+                aria-label={t('passwordConfirm')}
                 isRequired
                 onChange={setConfirmPassword}
               >
-                <Label>Confirm Password</Label>
+                <Label>{t('passwordConfirm')}</Label>
                 <Input data-testid="confirmpass" />
                 <FieldError />
               </TextField>
@@ -341,7 +340,7 @@ const SignUpPage: React.FC = () => {
                     <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
-                Accept terms?
+                {t('acceptTerms')}
               </Checkbox>
             </>
           )}
@@ -353,7 +352,7 @@ const SignUpPage: React.FC = () => {
                 isDisabled={isWorking}
                 data-testid="continue"
               >
-                {isWorking ? '...' : 'Continue'}
+                {isWorking ? '...' : t('submitContinue')}
               </Button>
             )}
 
@@ -363,15 +362,15 @@ const SignUpPage: React.FC = () => {
                 isDisabled={(isWorking || !termsAccepted)}
                 data-testid="signup"
               >
-                {isWorking ? 'Signing up ...' : 'Sign Up'}
+                {isWorking ? t('signingUp') + ' ...' : t('submitSignup')}
               </Button>
             )}
           </ToolbarContainer>
 
           {(step === "email") && (
             <div className="form-links">
-              <Link href="/login/">Alread have a DMP Account?</Link>
-              <Link href="#">Get help</Link>
+              <Link href="/login/">{t('loginLink')}</Link>
+              <Link href="#">{t('helpLink')}</Link>
             </div>
           )}
         </Form>

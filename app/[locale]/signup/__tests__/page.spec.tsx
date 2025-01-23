@@ -54,7 +54,7 @@ global.fetch = global.fetch || require('node-fetch');
 describe('SignUpPage', () => {
   const doSteps = async () => {
     // Step 1
-    fireEvent.change(screen.getByLabelText(/email address/i), {
+    fireEvent.change(screen.getByLabelText("SignupPage.emailAddress"), {
       target: { value: "test@example.com" },
     });
     fireEvent.click(screen.getByTestId("continue"));
@@ -62,13 +62,13 @@ describe('SignUpPage', () => {
     expect(screen.getByTestId("signup")).toBeInTheDocument();
 
     // Step 2
-    fireEvent.change(screen.getByLabelText(/first name/i), {
+    fireEvent.change(screen.getByLabelText("SignupPage.firstName"), {
       target: { value: "John" },
     });
-    fireEvent.change(screen.getByLabelText(/last name/i), {
+    fireEvent.change(screen.getByLabelText("SignupPage.lastName"), {
       target: { value: "Doe" },
     });
-    fireEvent.change(screen.getByLabelText(/institution/i), {
+    fireEvent.change(screen.getByLabelText("SignupPage.institution"), {
       target: { value: "Other" },
     });
 
@@ -80,7 +80,7 @@ describe('SignUpPage', () => {
       target: { value: "Secret -- 123" },
     });
 
-    const termsCheckbox = screen.getByLabelText(/accept terms/i);
+    const termsCheckbox = screen.getByLabelText("SignupPage.acceptTerms");
     fireEvent.click(termsCheckbox);
     expect(termsCheckbox).toBeChecked();
   }
@@ -111,23 +111,23 @@ describe('SignUpPage', () => {
 
   it("renders the email step initially", () => {
     renderWithProviders(<SignUpPage />);
-    expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("SignupPage.emailAddress")).toBeInTheDocument();
     expect(screen.getByTestId("continue")).toBeInTheDocument();
   });
 
   it("transitions to the profile step on valid email submission", async () => {
     renderWithProviders(<SignUpPage />);
 
-    fireEvent.change(screen.getByLabelText(/email address/i), {
+    fireEvent.change(screen.getByLabelText("SignupPage.emailAddress"), {
       target: { value: "test@example.com" }
     });
     fireEvent.click(screen.getByTestId("continue"));
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/institution/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/accept terms/i)).toBeInTheDocument();
+      expect(screen.getByLabelText("SignupPage.firstName")).toBeInTheDocument();
+      expect(screen.getByLabelText("SignupPage.lastName")).toBeInTheDocument();
+      expect(screen.getByLabelText("SignupPage.institution")).toBeInTheDocument();
+      expect(screen.getByLabelText("SignupPage.acceptTerms")).toBeInTheDocument();
       expect(screen.getByTestId("pass")).toBeInTheDocument();
       expect(screen.getByTestId("confirmpass")).toBeInTheDocument();
     });
@@ -137,17 +137,17 @@ describe('SignUpPage', () => {
     renderWithProviders(<SignUpPage />);
 
     // Step 1 Fields
-    fireEvent.change(screen.getByLabelText(/email address/i), {
+    fireEvent.change(screen.getByLabelText("SignupPage.emailAddress"), {
       target: { value: "test@example.com" },
     });
     fireEvent.click(screen.getByTestId("continue"));
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/accept terms/i)).toBeInTheDocument();
+      expect(screen.getByLabelText("SignupPage.acceptTerms")).toBeInTheDocument();
       expect(screen.getByTestId("signup")).toBeInTheDocument();
     });
 
-    const termsCheckbox = screen.getByLabelText(/accept terms/i);
+    const termsCheckbox = screen.getByLabelText("SignupPage.acceptTerms");
     const signupBtn = screen.getByTestId("signup");
 
     expect(termsCheckbox).not.toBeChecked();
@@ -169,7 +169,7 @@ describe('SignUpPage', () => {
     fireEvent.click(screen.getByTestId("signup"));
 
     await waitFor(() => {
-      const errorDiv = screen.getByText("Passwords don't match").closest('span');
+      const errorDiv = screen.getByText("SignupPage.passMissMatch").closest('span');
       expect(errorDiv).toHaveClass('react-aria-FieldError');
     });
   });
@@ -218,7 +218,7 @@ describe('SignUpPage', () => {
     renderWithProviders(<SignUpPage />);
 
     doSteps();
-    fireEvent.click(screen.getByText(/sign up/i));
+    fireEvent.click(screen.getByText("SignupPage.submitSignup"));
 
     // Check that user is redirected to 500 error page
     await waitFor(() => {

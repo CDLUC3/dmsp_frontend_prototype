@@ -1,0 +1,23 @@
+{
+  "SignupPage": {
+    "register": "Register",
+    "createAccount": "Create a DMP Tool Account",
+    "emailAddress": "Email address",
+    "emailHelp": "To enable Single Sign On (SSO), use your institutional address. You will be redirected to your institution&lsquo;s single sign on platform",
+    "password": "Password",
+    "passwordConfirm": "Confirm Password",
+    "passMissMatch": "Passwords don't match",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "institution": "Institution",
+    "institutionHelp": "Search for your institution",
+    "institutionOther": "Other institution",
+    "institutionOtherPlaceholder": "Enter custom institution name",
+    "acceptTerms": "Accept terms?",
+    "submitContinue": "Continue",
+    "submitSignup": "Sign Up",
+    "signingUp": "Signing up",
+    "loginLink": "Alread have a DMP Account?",
+    "helpLink": "Get help"
+  }
+}

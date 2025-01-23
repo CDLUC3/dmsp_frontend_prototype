@@ -121,7 +121,8 @@
     "messaging": {
       "loading": "Loading",
       "noItemsFound": "No items found",
-      "somethingWentWrong": "Something went wrong. Please try again."
+      "somethingWentWrong": "Something went wrong. Please try again.",
+      "fixBelow": "Please fix the errors below"
     }
   }
 }

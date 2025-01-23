@@ -211,7 +211,7 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(submitBtn).not.toBeDisabled();
-      expect(submitBtn).toHaveTextContent('Submit');
+      expect(submitBtn).toHaveTextContent('Login');
     });
   });
 
@@ -328,7 +328,7 @@ describe('LoginPage', () => {
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'Signin error',
+        'Login error',
         expect.objectContaining({
           error: expect.anything(),
           url: { path: '/apollo-signin' },

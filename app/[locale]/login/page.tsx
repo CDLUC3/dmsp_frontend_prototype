@@ -6,6 +6,7 @@ import logECS from '@/utils/clientLogger';
 import { useCsrf } from '@/context/CsrfContext';
 import { handleErrors } from '@/utils/errorHandler';
 import { useAuthContext } from '@/context/AuthContext';
+import { useTranslations } from "next-intl";
 import './login.scss';
 import {
   Button,
@@ -31,6 +32,8 @@ type LoginSteps =
 
 
 const LoginPage: React.FC = () => {
+  const t = useTranslations('LoginPage');
+
   const formRef = useRef<HTMLFormElement | null>(null);
   const [step, setStep] = useState<LoginSteps>("email");
 
@@ -75,7 +78,7 @@ const LoginPage: React.FC = () => {
       }
 
     } catch (err: any) {
-      logECS('error', 'Signin error', {
+      logECS('error', 'Login error', {
         error: err,
         url: { path: '/apollo-signin' }
       });
@@ -132,7 +135,7 @@ const LoginPage: React.FC = () => {
   return (
     <LayoutContainer id="loginPage">
       <ContentContainer>
-        <h3>Sign In</h3>
+        <h3>{t('pageTitle')}</h3>
 
         <Form
           id="loginForm"
@@ -152,18 +155,16 @@ const LoginPage: React.FC = () => {
             <TextField
               name="email"
               type="email"
-              aria-label="Email address"
+              aria-label={t('emailAddress')}
               onChange={setEmail}
               value={email}
               isRequired
             >
-              <Label>Email address</Label>
+              <Label>{t('emailAddress')}</Label>
               <Input data-testid="emailInput" />
               {(step === "email") && (
                 <Text slot="description" className="help">
-                  To enable Single Sign On (SSO), use your institutional
-                  address. You will be redirected to your institution&apos;s single
-                  sign on platform.
+                  {t('singleSignOn')}
                 </Text>
               )}
               <FieldError />
@@ -175,15 +176,15 @@ const LoginPage: React.FC = () => {
               id="password"
               name="password"
               type="password"
-              aria-label="Password"
+              aria-label={t('password')}
               onChange={setPassword}
               isRequired
             >
-              <Label>Password</Label>
+              <Label>{t('password')}</Label>
               <Input data-testid="passInput" />
               <FieldError />
               <Text slot="description" className="help">
-                <Link>Forgot Password?</Link>
+                <Link>{t('forgotPassword')}</Link>
               </Text>
             </TextField>
           )}
@@ -195,7 +196,7 @@ const LoginPage: React.FC = () => {
                 isDisabled={loading}
                 data-testid="actionContinue"
               >
-                {loading ? '...' : 'Continue'}
+                {loading ? '...' : t('continue')}
               </Button>
             )}
 
@@ -205,16 +206,16 @@ const LoginPage: React.FC = () => {
                 isDisabled={loading}
                 data-testid="actionSubmit"
               >
-                {loading ? '...' : 'Submit'}
+                {loading ? '...' : t('login')}
               </Button>
             )}
           </ToolbarContainer>
 
           <div className="form-links">
             {(step === "email") && (
-              <Link href="/signup/">Create a free DMP Tool account instead</Link>
+              <Link href="/signup/">{t('signupText')}</Link>
             )}
-            <Link href="#">Get help</Link>
+            <Link href="#">{t('getHelpText')}</Link>
           </div>
         </Form>
       </ContentContainer>
