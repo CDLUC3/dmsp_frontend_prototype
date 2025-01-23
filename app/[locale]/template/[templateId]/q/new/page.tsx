@@ -30,6 +30,8 @@ import {
     LayoutContainer,
 } from '@/components/Container';
 
+import QuestionEdit from '@/components/QuestionEdit';
+
 //GraphQL
 import {
     useQuestionTypesQuery,
@@ -40,8 +42,8 @@ import {
 //Other
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
+import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
 import styles from './newQuestion.module.scss';
-
 
 interface QuestionTypesInterface {
     id: number;
@@ -57,14 +59,20 @@ const QuestionTypeSelectPage: React.FC = () => {
     const router = useRouter();
     const topRef = useRef<HTMLDivElement>(null);
     const toastState = useToast();
-    const sectionId = searchParams.get("section_id");
+    const sectionId = searchParams.get("section_id"); // from query param
     const { templateId } = params; // From route /template/:templateId
+
+    // State management
+    const [step, setStep] = useState<number | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [filteredQuestionTypes, setFilteredQuestionTypes] = useState<QuestionTypesInterface[] | null>([]);
     const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
     const [maxDisplayOrderNum, setMaxDisplayOrderNum] = useState<number>(0);
     const [searchButtonClicked, setSearchButtonClicked] = useState(false);
+    const [questionTypeId, setQuestionTypeId] = useState<number | null>(null);
     const [errors, setErrors] = useState<string[]>([]);
+
+    const stepQueryValue = useQueryStep();
 
     //Localization keys
     const Global = useTranslations('Global');
@@ -215,80 +223,70 @@ const QuestionTypeSelectPage: React.FC = () => {
         }
     }, [searchTerm])
 
+    useEffect(() => {
+        // If a step was specified in a query param, then set that step
+        if (step !== stepQueryValue) {
+            setStep(stepQueryValue);
+        }
+    }, [stepQueryValue])
+
     return (
         <>
-            <PageHeader
-                title="What type of question would you like to add?"
-                description="As you create your template, you can choose different types of questions to add to it, depending on the type of information you require from the plan creator. "
-                showBackButton={false}
-                breadcrumbs={
-                    <Breadcrumbs>
-                        <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-                        <Breadcrumb><Link href={`/template/${templateId}`}>Edit Template</Link></Breadcrumb>
-                        <Breadcrumb>Question</Breadcrumb>
-                    </Breadcrumbs>
-                }
-                actions={null}
-                className=""
-            />
+            {step === 1 && (
+                <>
+                    <PageHeader
+                        title="What type of question would you like to add?"
+                        description="As you create your template, you can choose different types of questions to add to it, depending on the type of information you require from the plan creator. "
+                        showBackButton={false}
+                        breadcrumbs={
+                            <Breadcrumbs>
+                                <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
+                                <Breadcrumb><Link href={`/template/${templateId}`}>Edit Template</Link></Breadcrumb>
+                                <Breadcrumb>Question</Breadcrumb>
+                            </Breadcrumbs>
+                        }
+                        actions={null}
+                        className=""
+                    />
 
-            <LayoutContainer>
-                <ContentContainer>
-                    <div className="Filters" ref={topRef}>
-                        <SearchField>
-                            <Label>Search by keyword</Label>
-                            <Input
-                                aria-describedby="search-help"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)} />
-                            <Button
-                                onPress={() => {
-                                    // Call your filtering function without changing the input value
-                                    handleFiltering(searchTerm);
-                                }}
-                            >
-                                {Global('buttons.search')}
-                            </Button>
-                            <FieldError />
-                            <Text slot="description" className="help">
-                                Search by field type or description.
-                            </Text>
-                        </SearchField>
-                    </div>
-                    <div>
-                        <div className="card-grid-list">
-                            {filteredQuestionTypes && filteredQuestionTypes.length > 0 ? (
-                                <>
-                                    {filteredQuestionTypes.map((questionType, index) => (
-                                        <Card key={index}>
-                                            <CardHeading>{questionType.name}</CardHeading>
-                                            <CardBody>
-                                                <p>{questionType.usageDescription}</p>
-                                            </CardBody>
-                                            <CardFooter>
-                                                <Button
-                                                    className="button-link secondary"
-                                                    data-type={questionType.id}
-                                                    onPress={e => onSelect(questionType.id)}
-                                                >
-                                                    Select
-                                                </Button>
-                                            </CardFooter>
-                                        </Card>
+                    <LayoutContainer>
+                        <ContentContainer>
+                            {errors && errors.length > 0 &&
+                                <div className="error">
+                                    {errors.map((error, index) => (
+                                        <p key={index}>{error}</p>
                                     ))}
-                                </>
-                            ) : (
-                                <>
-                                    {/**If the user is searching, and there were no results from the search
-                                 * then display the message 'no results found
-                                 */}
-                                    {(searchTerm.length > 0 && searchButtonClicked) ? (
+                                </div>
+                            }
+                            <div className="Filters" ref={topRef}>
+                                <SearchField>
+                                    <Label>Search by keyword</Label>
+                                    <Input
+                                        aria-describedby="search-help"
+                                        value={searchTerm}
+                                        onChange={e => setSearchTerm(e.target.value)} />
+                                    <Button
+                                        onPress={() => {
+                                            // Call your filtering function without changing the input value
+                                            handleFiltering(searchTerm);
+                                        }}
+                                    >
+                                        {Global('buttons.search')}
+                                    </Button>
+                                    <FieldError />
+                                    <Text slot="description" className="help">
+                                        Search by field type or description.
+                                    </Text>
+                                </SearchField>
+                            </div>
+                            <div>
+                                {(searchTerm.length > 0 && searchButtonClicked) && (
+                                    <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
+                                )}
+                                <div className="card-grid-list">
+                                    {filteredQuestionTypes && filteredQuestionTypes.length > 0 ? (
                                         <>
-                                            {Global('messaging.noItemsFound')}
-                                        </>
-                                    ) : (
-                                        <>
-                                            {questionTypes.map((questionType, index) => (
+                                            {filteredQuestionTypes.map((questionType, index) => (
                                                 <Card key={index}>
                                                     <CardHeading>{questionType.name}</CardHeading>
                                                     <CardBody>
@@ -306,22 +304,56 @@ const QuestionTypeSelectPage: React.FC = () => {
                                                 </Card>
                                             ))}
                                         </>
+                                    ) : (
+                                        <>
+                                            {/**If the user is searching, and there were no results from the search
+                                 * then display the message 'no results found
+                                 */}
+                                            {(searchTerm.length > 0 && searchButtonClicked) ? (
+                                                <>
+                                                    {Global('messaging.noItemsFound')}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {questionTypes.map((questionType, index) => (
+                                                        <Card key={index}>
+                                                            <CardHeading>{questionType.name}</CardHeading>
+                                                            <CardBody>
+                                                                <p>{questionType.usageDescription}</p>
+                                                            </CardBody>
+                                                            <CardFooter>
+                                                                <Button
+                                                                    className="button-link secondary"
+                                                                    data-type={questionType.id}
+                                                                    onPress={e => onSelect(questionType.id)}
+                                                                >
+                                                                    Select
+                                                                </Button>
+                                                            </CardFooter>
+                                                        </Card>
+                                                    ))}
+                                                </>
+                                            )
+                                            }
+                                        </>
                                     )
+
                                     }
-                                </>
-                            )
-
-                            }
-                        </div>
-                        {(searchTerm.length > 0 && searchButtonClicked) && (
-                            <div className={styles.clearFilter}>
-                                <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link>
+                                </div>
+                                {(searchTerm.length > 0 && searchButtonClicked) && (
+                                    <div className={styles.clearFilter}>
+                                        <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
 
-                </ContentContainer>
-            </LayoutContainer>
+                        </ContentContainer>
+                    </LayoutContainer>
+                </>
+            )}
+            {step === 2 && (
+                <QuestionEdit questionTypeId={questionTypeId} />
+            )}
         </>
     );
 }

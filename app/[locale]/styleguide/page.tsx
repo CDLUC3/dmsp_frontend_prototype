@@ -68,7 +68,7 @@ import { AffiliationsDocument } from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
-import QuestionEdit from "@/components/QuestionEdit";
+import QuestionEditCard from "@/components/QuestionEditCard";
 import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
 import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
@@ -1610,7 +1610,7 @@ function Page() {
               Question Card
             </h2>
 
-            <QuestionEdit
+            <QuestionEditCard
               key={2552}
               id="24"
               text="This is a question"
