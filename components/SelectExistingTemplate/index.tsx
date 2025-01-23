@@ -33,6 +33,8 @@ import {
   useMyVersionedTemplatesQuery
 } from '@/generated/graphql';
 
+// Hooks
+import { useScrollToTop } from '@/hooks/scrollToTop';
 // Other
 import logECS from '@/utils/clientLogger';
 import { MyVersionedTemplatesInterface, TemplateItemProps } from '@/app/types';
@@ -40,12 +42,14 @@ import { useFormatDate } from '@/hooks/useFormatDate';
 import { useToast } from '@/context/ToastContext';
 
 
+// Step 2 of the Create Template start pages
 const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) => {
   const nextSectionRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const formatDate = useFormatDate();
   const router = useRouter();
   const toastState = useToast();
+  const { scrollToTop } = useScrollToTop();
 
   // State
   const [templates, setTemplates] = useState<TemplateItemProps[]>([]);
@@ -90,6 +94,8 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     setErrors([]);
   }
 
+  /*When user selects a pre-existing template, we will create the new template using a copy
+  of the pre-existing template*/
   const onSelect = async (versionedTemplateId: number) => {
     let newTemplateId;
     //Add the new template
@@ -102,12 +108,14 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       });
       if (response?.data) {
         const responseData = response?.data?.addTemplate;
+        //Set errors using the errors prop returned from the request
         if (responseData && responseData.errors && responseData.errors.length > 0) {
           // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
           setErrors(responseData.errors ?? []);
         }
         clearErrors();
 
+        // Get templateId of new template so we know where to redirect
         newTemplateId = response?.data?.addTemplate?.id;
       }
     } catch (err) {
@@ -123,6 +131,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }
   }
 
+  // Transform data into more easier to use properties
   const transformTemplates = async (templates: (MyVersionedTemplatesInterface | null)[]) => {
     const transformedTemplates = await Promise.all(
       templates.map(async (template: MyVersionedTemplatesInterface | null) => ({
@@ -155,13 +164,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
 
   type VisibleCountKeys = keyof typeof visibleCount;
 
-  const scrollToTop = () => {
-    if (topRef.current) {
-      topRef.current.scrollIntoView({ behavior: 'smooth' });
-      topRef.current.focus();
-    }
-  }
-
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
     setSearchTerm(value);
@@ -185,6 +187,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }
   }
 
+  // When user clicks the 'Load more' button, display 3 more by default
   const handleLoadMore = (listKey: VisibleCountKeys) => {
     setVisibleCount((prevCounts) => ({
       ...prevCounts,
@@ -198,11 +201,12 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }, 0);
   };
 
+  // zero out search and filters
   const resetSearch = () => {
     setSearchTerm('');
     setFilteredTemplates(null);
     setFilteredPublicTemplates(null);
-    scrollToTop();
+    scrollToTop(topRef);
   }
 
   useEffect(() => {

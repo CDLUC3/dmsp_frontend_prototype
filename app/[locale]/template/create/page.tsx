@@ -53,7 +53,8 @@ const TemplateCreatePage: React.FC = () => {
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // redirect to select an existing template page
+    // If user enters a valid template name, we want to redirect them to
+    // Step 2 of the create template pages, which is the 'Start with a copy of an existing template' page
     if (templateName.length > 2) {
       router.push('/template/create?step=2')
     } else {
@@ -62,7 +63,7 @@ const TemplateCreatePage: React.FC = () => {
   }
 
   useEffect(() => {
-    // If a step was specified in a query param, then set that step
+    // If a step was specified in a query param, then set that step (step 1 or 2)
     if (step !== stepQueryValue) {
       setStep(stepQueryValue);
     }
