@@ -1,6 +1,5 @@
+import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
-import {gql} from '@apollo/client';
-
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -24,6 +23,29 @@ export type Scalars = {
   URL: { input: any; output: any; }
 };
 
+/** The status of the funding */
+export enum AccessLevel {
+  /** Access requests must be reviewed and then permitted */
+  Controlled = 'CONTROLLED',
+  /** Any other type of access level */
+  Other = 'OTHER',
+  /** Access to the output will be public/open */
+  Unrestricted = 'UNRESTRICTED'
+}
+
+export type AddMetadataStandardInput = {
+  /** A description of the metadata standard */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Keywords to assist in finding the metadata standard */
+  keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The name of the metadata standard */
+  name: Scalars['String']['input'];
+  /** Research domains associated with the metadata standard */
+  researchDomainIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The taxonomy URL (do not make this up! should resolve to an HTML/JSON representation of the object) */
+  uri?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type AddProjectContributorInput = {
   /** The contributor's affiliation URI */
   affiliationId?: InputMaybe<Scalars['String']['input']>;
@@ -36,7 +58,7 @@ export type AddProjectContributorInput = {
   /** The research project */
   projectId: Scalars['Int']['input'];
   /** The roles the contributor has on the research project */
-  roles?: InputMaybe<Array<Scalars['String']['input']>>;
+  roles?: InputMaybe<Array<Scalars['Int']['input']>>;
   /** The contributor's last/sur name */
   surname?: InputMaybe<Scalars['String']['input']>;
 };
@@ -54,6 +76,31 @@ export type AddProjectFunderInput = {
   projectId: Scalars['Int']['input'];
   /** The status of the funding resquest */
   status?: InputMaybe<ProjectFunderStatus>;
+};
+
+export type AddProjectOutputInput = {
+  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
+  anticipatedReleaseDate?: InputMaybe<Scalars['String']['input']>;
+  /** A description of the output */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The initial access level that will be allowed for the output */
+  initialAccessLevel?: InputMaybe<Scalars['String']['input']>;
+  /** The initial license that will apply to the output */
+  initialLicenseId?: InputMaybe<Scalars['Int']['input']>;
+  /** Whether or not the output may contain personally identifying information (PII) */
+  mayContainPII?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Whether or not the output may contain sensitive data */
+  mayContainSensitiveInformation?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The metadata standards that will be used to describe the output */
+  metadataStandardIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The type of output */
+  outputTypeId: Scalars['Int']['input'];
+  /** The id of the project you are adding the output to */
+  projectId: Scalars['Int']['input'];
+  /** The repositories the output will be deposited in */
+  respositoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The title/name of the output */
+  title: Scalars['String']['input'];
 };
 
 /** Input for adding a new QuestionCondition */
@@ -91,6 +138,23 @@ export type AddQuestionInput = {
   sectionId: Scalars['Int']['input'];
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['input'];
+};
+
+export type AddRepositoryInput = {
+  /** A description of the repository */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Keywords to assist in finding the repository */
+  keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The name of the repository */
+  name: Scalars['String']['input'];
+  /** The Categories/Types of the repository */
+  repositoryTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Research domains associated with the repository */
+  researchDomainIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The taxonomy URL (do not make this up! should resolve to an HTML/JSON representation of the object) */
+  uri?: InputMaybe<Scalars['String']['input']>;
+  /** The website URL */
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Input for adding a new section */
@@ -367,7 +431,7 @@ export type ContributorRole = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The URL for the contributor role */
+  /** The taxonomy URL for the contributor role */
   url: Scalars['URL']['output'];
 };
 
@@ -398,7 +462,7 @@ export type EditProjectContributorInput = {
   /** The project contributor */
   projectContributorId: Scalars['Int']['input'];
   /** The roles the contributor has on the research project */
-  roles?: InputMaybe<Array<Scalars['String']['input']>>;
+  roles?: InputMaybe<Array<Scalars['Int']['input']>>;
   /** The contributor's last/sur name */
   surname?: InputMaybe<Scalars['String']['input']>;
 };
@@ -433,6 +497,56 @@ export type Language = {
   name: Scalars['String']['output'];
 };
 
+/** A license associated with a research output (e.g. CC0, MIT, etc.) */
+export type License = {
+  __typename?: 'License';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the license */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the license */
+  name: Scalars['String']['output'];
+  /** The taxonomy URL of the license */
+  uri: Scalars['String']['output'];
+};
+
+/** A metadata standard used when describing a research output */
+export type MetadataStandard = {
+  __typename?: 'MetadataStandard';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the metadata standard */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Keywords to assist in finding the metadata standard */
+  keywords?: Maybe<Array<Scalars['String']['output']>>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the metadata standard */
+  name: Scalars['String']['output'];
+  /** Research domains associated with the metadata standard */
+  researchDomains?: Maybe<Array<ResearchDomain>>;
+  /** The taxonomy URL of the metadata standard */
+  uri: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -444,6 +558,10 @@ export type Mutation = {
   addContributorRole?: Maybe<ContributorRoleMutationResponse>;
   /** Add a comment to an answer within a round of feedback */
   addFeedbackComment?: Maybe<PlanFeedbackComment>;
+  /** Add a new License (don't make the URI up! should resolve to an taxonomy HTML/JSON representation of the object) */
+  addLicense?: Maybe<License>;
+  /** Add a new MetadataStandard */
+  addMetadataStandard?: Maybe<MetadataStandard>;
   /** Create a plan */
   addPlan?: Maybe<Plan>;
   /** Answer a question */
@@ -452,14 +570,20 @@ export type Mutation = {
   addPlanCollaborator?: Maybe<PlanCollaborator>;
   /** Add a Contributor to a Plan */
   addPlanContributor?: Maybe<PlanContributor>;
+  /** Create a project */
+  addProject?: Maybe<Project>;
   /** Add a contributor to a research project */
   addProjectContributor?: Maybe<ProjectContributor>;
   /** Add a Funder to a research project */
   addProjectFunder?: Maybe<ProjectFunder>;
+  /** Add an output to a research project */
+  addProjectOutput?: Maybe<ProjectOutput>;
   /** Create a new Question */
   addQuestion: Question;
   /** Create a new QuestionCondition associated with a question */
   addQuestionCondition: QuestionCondition;
+  /** Add a new Repository */
+  addRepository?: Maybe<Repository>;
   /** Create a new Section. Leave the 'copyFromVersionedSectionId' blank to create a new section from scratch */
   addSection: Section;
   /** Add a new tag to available list of tags */
@@ -470,6 +594,8 @@ export type Mutation = {
   addTemplateCollaborator?: Maybe<TemplateCollaborator>;
   /** Add an email address for the current user */
   addUserEmail?: Maybe<UserEmail>;
+  /** Download the plan */
+  archiveProject?: Maybe<Project>;
   /** Archive a Template (unpublishes any associated PublishedTemplate */
   archiveTemplate?: Maybe<Scalars['Boolean']['output']>;
   /** Mark the feedback round as complete */
@@ -490,6 +616,12 @@ export type Mutation = {
   markPlanComplete?: Maybe<Plan>;
   /** Change the plan's status to DRAFT (cannot be done once the plan is PUBLISHED) */
   markPlanDraft?: Maybe<Plan>;
+  /** Merge two licenses */
+  mergeLicenses?: Maybe<License>;
+  /** Merge two metadata standards */
+  mergeMetadataStandards?: Maybe<MetadataStandard>;
+  /** Merge two repositories */
+  mergeRepositories?: Maybe<Repository>;
   /** Merge the 2 user accounts (Admin only) */
   mergeUsers?: Maybe<User>;
   /** Publish a plan (changes status to PUBLISHED) */
@@ -499,21 +631,31 @@ export type Mutation = {
   /** Delete the contributor role */
   removeContributorRole?: Maybe<ContributorRoleMutationResponse>;
   /** Remove a comment to an answer within a round of feedback */
-  removeFeedbackComment?: Maybe<Scalars['Boolean']['output']>;
+  removeFeedbackComment?: Maybe<PlanFeedbackComment>;
+  /** Delete a License */
+  removeLicense?: Maybe<License>;
+  /** Delete a MetadataStandard */
+  removeMetadataStandard?: Maybe<MetadataStandard>;
   /** Remove a PlanCollaborator from a Plan */
   removePlanCollaborator?: Maybe<Scalars['Boolean']['output']>;
   /** Remove a PlanContributor from a Plan */
-  removePlanContributor?: Maybe<Scalars['Boolean']['output']>;
+  removePlanContributor?: Maybe<PlanContributor>;
   /** Remove a research project contributor */
-  removeProjectContributor?: Maybe<Scalars['Boolean']['output']>;
+  removeProjectContributor?: Maybe<ProjectContributor>;
   /** Remove a research project Funder */
-  removeProjectFunder?: Maybe<Scalars['Boolean']['output']>;
+  removeProjectFunder?: Maybe<ProjectFunder>;
   /** Remove a PlanFunder from a Plan */
-  removeProjectFunderFromPlan?: Maybe<Scalars['Boolean']['output']>;
+  removeProjectFunderFromPlan?: Maybe<ProjectFunder>;
+  /** Remove a research project output */
+  removeProjectOutput?: Maybe<ProjectOutput>;
+  /** Remove an Output from a Plan */
+  removeProjectOutputFromPlan?: Maybe<ProjectOutput>;
   /** Delete a Question */
   removeQuestion?: Maybe<Question>;
   /** Remove a QuestionCondition using a specific QuestionCondition id */
   removeQuestionCondition?: Maybe<QuestionCondition>;
+  /** Delete a Repository */
+  removeRepository?: Maybe<Repository>;
   /** Delete a section */
   removeSection: Section;
   /** Delete a tag */
@@ -528,6 +670,8 @@ export type Mutation = {
   requestFeedback?: Maybe<PlanFeedback>;
   /** Add a Funder to a Plan */
   selectProjectFunderForPlan?: Maybe<ProjectFunder>;
+  /** Add an Output to a Plan */
+  selectProjectOutputForPlan?: Maybe<ProjectOutput>;
   /** Designate the email as the current user's primary email address */
   setPrimaryUserEmail?: Maybe<Array<Maybe<UserEmail>>>;
   /** Set the user's ORCID */
@@ -536,18 +680,28 @@ export type Mutation = {
   updateAffiliation?: Maybe<Affiliation>;
   /** Update the contributor role */
   updateContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  /** Update a License record */
+  updateLicense?: Maybe<License>;
+  /** Update a MetadataStandard record */
+  updateMetadataStandard?: Maybe<MetadataStandard>;
   /** Change the current user's password */
   updatePassword?: Maybe<User>;
   /** Chnage a collaborator's accessLevel on a Plan */
   updatePlanCollaborator?: Maybe<PlanCollaborator>;
   /** Chnage a Contributor's accessLevel on a Plan */
   updatePlanContributor?: Maybe<PlanContributor>;
+  /** Edit a project */
+  updateProject?: Maybe<Project>;
+  /** Update an output on the research project */
+  updateProjectOutput?: Maybe<ProjectOutput>;
   /** Update a Question */
   updateQuestion: Question;
   /** Update a QuestionCondition for a specific QuestionCondition id */
   updateQuestionCondition?: Maybe<QuestionCondition>;
   /** Separate Question update specifically for options */
   updateQuestionOptions?: Maybe<Question>;
+  /** Update a Repository record */
+  updateRepository?: Maybe<Repository>;
   /** Update a Section */
   updateSection: Section;
   /** Update a tag */
@@ -588,6 +742,18 @@ export type MutationAddFeedbackCommentArgs = {
 };
 
 
+export type MutationAddLicenseArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  uri?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationAddMetadataStandardArgs = {
+  input?: InputMaybe<AddMetadataStandardInput>;
+};
+
+
 export type MutationAddPlanArgs = {
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -615,6 +781,12 @@ export type MutationAddPlanContributorArgs = {
 };
 
 
+export type MutationAddProjectArgs = {
+  isTestProject?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
 export type MutationAddProjectContributorArgs = {
   input: AddProjectContributorInput;
 };
@@ -625,6 +797,11 @@ export type MutationAddProjectFunderArgs = {
 };
 
 
+export type MutationAddProjectOutputArgs = {
+  input: AddProjectOutputInput;
+};
+
+
 export type MutationAddQuestionArgs = {
   input: AddQuestionInput;
 };
@@ -632,6 +809,11 @@ export type MutationAddQuestionArgs = {
 
 export type MutationAddQuestionConditionArgs = {
   input: AddQuestionConditionInput;
+};
+
+
+export type MutationAddRepositoryArgs = {
+  input?: InputMaybe<AddRepositoryInput>;
 };
 
 
@@ -661,6 +843,11 @@ export type MutationAddTemplateCollaboratorArgs = {
 export type MutationAddUserEmailArgs = {
   email: Scalars['String']['input'];
   isPrimary: Scalars['Boolean']['input'];
+};
+
+
+export type MutationArchiveProjectArgs = {
+  projectId: Scalars['Int']['input'];
 };
 
 
@@ -720,6 +907,24 @@ export type MutationMarkPlanDraftArgs = {
 };
 
 
+export type MutationMergeLicensesArgs = {
+  licenseToKeepId: Scalars['Int']['input'];
+  licenseToRemoveId: Scalars['Int']['input'];
+};
+
+
+export type MutationMergeMetadataStandardsArgs = {
+  metadataStandardToKeepId: Scalars['Int']['input'];
+  metadataStandardToRemoveId: Scalars['Int']['input'];
+};
+
+
+export type MutationMergeRepositoriesArgs = {
+  repositoryToKeepId: Scalars['Int']['input'];
+  repositoryToRemoveId: Scalars['Int']['input'];
+};
+
+
 export type MutationMergeUsersArgs = {
   userIdToBeMerged: Scalars['Int']['input'];
   userIdToKeep: Scalars['Int']['input'];
@@ -744,6 +949,16 @@ export type MutationRemoveContributorRoleArgs = {
 
 export type MutationRemoveFeedbackCommentArgs = {
   PlanFeedbackCommentId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveLicenseArgs = {
+  licenseId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveMetadataStandardArgs = {
+  metadataStandardId: Scalars['Int']['input'];
 };
 
 
@@ -773,6 +988,17 @@ export type MutationRemoveProjectFunderFromPlanArgs = {
 };
 
 
+export type MutationRemoveProjectOutputArgs = {
+  projectOutputId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveProjectOutputFromPlanArgs = {
+  planId: Scalars['Int']['input'];
+  projectOutputId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveQuestionArgs = {
   questionId: Scalars['Int']['input'];
 };
@@ -780,6 +1006,11 @@ export type MutationRemoveQuestionArgs = {
 
 export type MutationRemoveQuestionConditionArgs = {
   questionConditionId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveRepositoryArgs = {
+  repositoryId: Scalars['Int']['input'];
 };
 
 
@@ -815,6 +1046,12 @@ export type MutationSelectProjectFunderForPlanArgs = {
 };
 
 
+export type MutationSelectProjectOutputForPlanArgs = {
+  planId: Scalars['Int']['input'];
+  projectOutputId: Scalars['Int']['input'];
+};
+
+
 export type MutationSetPrimaryUserEmailArgs = {
   email: Scalars['String']['input'];
 };
@@ -839,6 +1076,18 @@ export type MutationUpdateContributorRoleArgs = {
 };
 
 
+export type MutationUpdateLicenseArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  licenseId: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateMetadataStandardArgs = {
+  input?: InputMaybe<UpdateMetadataStandardInput>;
+};
+
+
 export type MutationUpdatePasswordArgs = {
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
@@ -857,6 +1106,16 @@ export type MutationUpdatePlanContributorArgs = {
 };
 
 
+export type MutationUpdateProjectArgs = {
+  input?: InputMaybe<UpdateProjectInput>;
+};
+
+
+export type MutationUpdateProjectOutputArgs = {
+  input: UpdateProjectOutputInput;
+};
+
+
 export type MutationUpdateQuestionArgs = {
   input: UpdateQuestionInput;
 };
@@ -870,6 +1129,11 @@ export type MutationUpdateQuestionConditionArgs = {
 export type MutationUpdateQuestionOptionsArgs = {
   questionId: Scalars['Int']['input'];
   required?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type MutationUpdateRepositoryArgs = {
+  input?: InputMaybe<UpdateRepositoryInput>;
 };
 
 
@@ -907,6 +1171,29 @@ export type MutationUploadPlanArgs = {
   fileContent?: InputMaybe<Scalars['String']['input']>;
   fileName?: InputMaybe<Scalars['String']['input']>;
   projectId: Scalars['Int']['input'];
+};
+
+/** An output collected/produced during or as a result of a research project */
+export type OutputType = {
+  __typename?: 'OutputType';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the type of output to be collected/generated during the project */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the output type */
+  name: Scalars['String']['output'];
+  /** The taxonomy URL of the output type */
+  uri: Scalars['String']['output'];
 };
 
 /** A Data Managament Plan (DMP) */
@@ -1090,7 +1377,7 @@ export enum PlanVisibility {
 export type Project = {
   __typename?: 'Project';
   /** The research project abstract */
-  abstract?: Maybe<Scalars['String']['output']>;
+  abstractText?: Maybe<Scalars['String']['output']>;
   /** People who are contributing to the research project (not just the DMP) */
   contributors?: Maybe<Array<ProjectContributor>>;
   /** The timestamp when the Object was created */
@@ -1189,6 +1476,45 @@ export enum ProjectFunderStatus {
   Planned = 'PLANNED'
 }
 
+/** Something produced/collected as part of (or as a result of) a research project */
+export type ProjectOutput = {
+  __typename?: 'ProjectOutput';
+  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
+  anticipatedReleaseDate?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the output */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The initial access level that will be allowed for the output */
+  initialAccessLevel: AccessLevel;
+  /** The initial license that will apply to the output */
+  initialLicense?: Maybe<License>;
+  /** Whether or not the output may contain personally identifying information (PII) */
+  mayContainPII?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not the output may contain sensitive data */
+  mayContainSensitiveInformation?: Maybe<Scalars['Boolean']['output']>;
+  /** The metadata standards that will be used to describe the output */
+  metadataStandards?: Maybe<Array<MetadataStandard>>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The type of output */
+  outputType: OutputType;
+  /** The project associated with the output */
+  project: Project;
+  /** The repositories the output will be deposited in */
+  respositories?: Maybe<Array<Repository>>;
+  /** The title/name of the output */
+  title: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -1202,6 +1528,8 @@ export type Query = {
   affiliations?: Maybe<Array<Maybe<AffiliationSearch>>>;
   /** Archive a plan */
   archivePlan?: Maybe<Plan>;
+  /** Archive a project */
+  archiveProject?: Maybe<Project>;
   /** Get the contributor role by it's id */
   contributorRoleById?: Maybe<ContributorRole>;
   /** Get the contributor role by it's URL */
@@ -1212,8 +1540,16 @@ export type Query = {
   findCollaborator?: Maybe<Array<Maybe<CollaboratorSearchResult>>>;
   /** Get all of the supported Languages */
   languages?: Maybe<Array<Maybe<Language>>>;
+  /** Search for a license */
+  licenses?: Maybe<Array<Maybe<License>>>;
   /** Returns the currently logged in user's information */
   me?: Maybe<User>;
+  /** Search for a metadata standard */
+  metadataStandards?: Maybe<Array<Maybe<MetadataStandard>>>;
+  /** Get the VersionedTemplates that belong to the current user's affiliation (user must be an Admin) */
+  myVersionedTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
+  /** Get all the research output types */
+  outputTypes?: Maybe<Array<Maybe<OutputType>>>;
   /** Get a specific plan */
   plan?: Maybe<Plan>;
   /** Get all of the Users that are collaborators for the Plan */
@@ -1226,16 +1562,24 @@ export type Query = {
   planFeedbackComments?: Maybe<Array<Maybe<PlanFeedbackComment>>>;
   /** Get all of the Users that are Funders for the specific Plan */
   planFunders?: Maybe<Array<Maybe<ProjectFunder>>>;
+  /** The subset of project outputs associated with the sepcified Plan */
+  planOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Get all of the comments associated with the round of admin feedback */
   planQuestionAnswer?: Maybe<Answer>;
   /** Get all rounds of admin feedback for the plan */
   planSectionAnswers?: Maybe<Array<Maybe<Answer>>>;
   /** Get all plans for the research project */
   plans?: Maybe<Array<Maybe<Plan>>>;
+  /** Get a specific project */
+  project?: Maybe<Project>;
   /** Get all of the Users that a contributors to the research project */
   projectContributors?: Maybe<Array<Maybe<ProjectContributor>>>;
   /** Get all of the Users that a Funders to the research project */
   projectFunders?: Maybe<Array<Maybe<ProjectFunder>>>;
+  /** Get all of the outputs for the research project */
+  projectOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
+  /** Get all of the user's projects */
+  projects?: Maybe<Array<Maybe<Project>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedConditionsForQuestion?: Maybe<Array<Maybe<VersionedQuestionCondition>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
@@ -1252,6 +1596,8 @@ export type Query = {
   questionTypes?: Maybe<Array<Maybe<QuestionType>>>;
   /** Get the Questions that belong to the associated sectionId */
   questions?: Maybe<Array<Maybe<Question>>>;
+  /** Search for a repository */
+  repositories?: Maybe<Array<Maybe<Repository>>>;
   /** Get all the QuestionTypes */
   researchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
   /** Get the specified section */
@@ -1299,6 +1645,11 @@ export type QueryArchivePlanArgs = {
 };
 
 
+export type QueryArchiveProjectArgs = {
+  projectId: Scalars['Int']['input'];
+};
+
+
 export type QueryContributorRoleByIdArgs = {
   contributorRoleId: Scalars['Int']['input'];
 };
@@ -1310,6 +1661,17 @@ export type QueryContributorRoleByUrlArgs = {
 
 
 export type QueryFindCollaboratorArgs = {
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryLicensesArgs = {
+  recommended?: InputMaybe<Scalars['Boolean']['input']>;
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMetadataStandardsArgs = {
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1344,6 +1706,11 @@ export type QueryPlanFundersArgs = {
 };
 
 
+export type QueryPlanOutputsArgs = {
+  planId: Scalars['Int']['input'];
+};
+
+
 export type QueryPlanQuestionAnswerArgs = {
   answerId: Scalars['Int']['input'];
   questionId: Scalars['Int']['input'];
@@ -1361,12 +1728,22 @@ export type QueryPlansArgs = {
 };
 
 
+export type QueryProjectArgs = {
+  projectId: Scalars['Int']['input'];
+};
+
+
 export type QueryProjectContributorsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
 
 export type QueryProjectFundersArgs = {
+  projectId: Scalars['Int']['input'];
+};
+
+
+export type QueryProjectOutputsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
@@ -1387,7 +1764,7 @@ export type QueryPublishedSectionsArgs = {
 
 
 export type QueryPublishedTemplatesArgs = {
-  term: Scalars['String']['input'];
+  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1403,6 +1780,11 @@ export type QueryQuestionConditionsArgs = {
 
 export type QueryQuestionsArgs = {
   sectionId: Scalars['Int']['input'];
+};
+
+
+export type QueryRepositoriesArgs = {
+  input?: InputMaybe<RepositorySearchInput>;
 };
 
 
@@ -1561,6 +1943,55 @@ export type QuestionType = {
   usageDescription: Scalars['String']['output'];
 };
 
+/** A repository where research outputs are preserved */
+export type Repository = {
+  __typename?: 'Repository';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the repository */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Keywords to assist in finding the repository */
+  keywords?: Maybe<Array<Scalars['String']['output']>>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the repository */
+  name: Scalars['String']['output'];
+  /** The Categories/Types of the repository */
+  repositoryTypes?: Maybe<Array<RepositoryType>>;
+  /** Research domains associated with the repository */
+  researchDomains?: Maybe<Array<ResearchDomain>>;
+  /** The taxonomy URL of the repository */
+  uri: Scalars['String']['output'];
+  /** The website URL */
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+export type RepositorySearchInput = {
+  /** The repository category/type */
+  repositoryType?: InputMaybe<Scalars['String']['input']>;
+  /** The research domain associated with the repository */
+  researchDomainId?: InputMaybe<Scalars['Int']['input']>;
+  /** The search term */
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum RepositoryType {
+  /** A discipline specific repository (e.g. GeneCards, Arctic Data Centre, etc.) */
+  Disciplinary = 'DISCIPLINARY',
+  /** A generalist repository (e.g. Zenodo, Dryad) */
+  Generalist = 'GENERALIST',
+  /** An institution specific repository (e.g. ASU Library Research Data Repository, etc.) */
+  Institutional = 'INSTITUTIONAL'
+}
+
 /** An aread of research (e.g. Electrical Engineering, Cellular biology, etc.) */
 export type ResearchDomain = {
   __typename?: 'ResearchDomain';
@@ -1580,7 +2011,7 @@ export type ResearchDomain = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The name of the domain */
   name: Scalars['String']['output'];
-  /** The URL of the research domain */
+  /** The taxonomy URL of the research domain */
   uri: Scalars['String']['output'];
 };
 
@@ -1742,6 +2173,59 @@ export enum TemplateVisibility {
   Public = 'PUBLIC'
 }
 
+export type UpdateMetadataStandardInput = {
+  /** A description of the metadata standard */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The id of the MetadataStandard */
+  id: Scalars['Int']['input'];
+  /** Keywords to assist in finding the metadata standard */
+  keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The name of the metadata standard */
+  name: Scalars['String']['input'];
+  /** Research domains associated with the metadata standard */
+  researchDomainIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
+export type UpdateProjectInput = {
+  /** The research project description/abstract */
+  abstract?: InputMaybe<Scalars['String']['input']>;
+  /** The actual or anticipated end date of the project */
+  endDate?: InputMaybe<Scalars['String']['input']>;
+  /** Whether or not the project is a mock/test */
+  isTestProject?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The name of the research project */
+  name: Scalars['String']['input'];
+  /** The project's id */
+  projectId: Scalars['Int']['input'];
+  /** The actual or anticipated start date for the project */
+  startDate?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateProjectOutputInput = {
+  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
+  anticipatedReleaseDate?: InputMaybe<Scalars['String']['input']>;
+  /** A description of the output */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The initial access level that will be allowed for the output */
+  initialAccessLevel?: InputMaybe<Scalars['String']['input']>;
+  /** The initial license that will apply to the output */
+  initialLicenseId?: InputMaybe<Scalars['Int']['input']>;
+  /** Whether or not the output may contain personally identifying information (PII) */
+  mayContainPII?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Whether or not the output may contain sensitive data */
+  mayContainSensitiveInformation?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The metadata standards that will be used to describe the output */
+  metadataStandardIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The type of output */
+  outputTypeId: Scalars['Int']['input'];
+  /** The id of the output */
+  projectOutputId: Scalars['Int']['input'];
+  /** The repositories the output will be deposited in */
+  respositoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The title/name of the output */
+  title: Scalars['String']['input'];
+};
+
 /** Input for updating a new QuestionCondition based on a QuestionCondition id */
 export type UpdateQuestionConditionInput = {
   /** The action to take on a QuestionCondition */
@@ -1771,6 +2255,23 @@ export type UpdateQuestionInput = {
   requirementText?: InputMaybe<Scalars['String']['input']>;
   /** Sample text to possibly provide a starting point or example to answer question */
   sampleText?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateRepositoryInput = {
+  /** A description of the repository */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The Repository id */
+  id: Scalars['Int']['input'];
+  /** Keywords to assist in finding the repository */
+  keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The name of the repository */
+  name: Scalars['String']['input'];
+  /** The Categories/Types of the repository */
+  repositoryTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Research domains associated with the repository */
+  researchDomainIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The website URL */
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Input for updating a section */
@@ -2072,6 +2573,13 @@ export type UpdateUserProfileInput = {
   surName: Scalars['String']['input'];
 };
 
+export type AddQuestionMutationVariables = Exact<{
+  input: AddQuestionInput;
+}>;
+
+
+export type AddQuestionMutation = { __typename?: 'Mutation', addQuestion: { __typename?: 'Question', questionTypeId?: number | null, id?: number | null, errors?: Array<string> | null } };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
@@ -2149,6 +2657,18 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
 
+export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type QuestionTypesQuery = { __typename?: 'Query', questionTypes?: Array<{ __typename?: 'QuestionType', id?: number | null, errors?: Array<string> | null, name: string, usageDescription: string } | null> | null };
+
+export type QuestionsDisplayOrderQueryVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+}>;
+
+
+export type QuestionsDisplayOrderQuery = { __typename?: 'Query', questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, errors?: Array<string> | null } | null> | null };
+
 export type SectionsDisplayOrderQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
 }>;
@@ -2193,6 +2713,41 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, errors?: Array<string> | null, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
+export const AddQuestionDocument = gql`
+    mutation AddQuestion($input: AddQuestionInput!) {
+  addQuestion(input: $input) {
+    questionTypeId
+    id
+    errors
+  }
+}
+    `;
+export type AddQuestionMutationFn = Apollo.MutationFunction<AddQuestionMutation, AddQuestionMutationVariables>;
+
+/**
+ * __useAddQuestionMutation__
+ *
+ * To run a mutation, you first call `useAddQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addQuestionMutation, { data, loading, error }] = useAddQuestionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddQuestionMutation(baseOptions?: Apollo.MutationHookOptions<AddQuestionMutation, AddQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddQuestionMutation, AddQuestionMutationVariables>(AddQuestionDocument, options);
+      }
+export type AddQuestionMutationHookResult = ReturnType<typeof useAddQuestionMutation>;
+export type AddQuestionMutationResult = Apollo.MutationResult<AddQuestionMutation>;
+export type AddQuestionMutationOptions = Apollo.BaseMutationOptions<AddQuestionMutation, AddQuestionMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {
@@ -2636,6 +3191,89 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const QuestionTypesDocument = gql`
+    query QuestionTypes {
+  questionTypes {
+    id
+    errors
+    name
+    usageDescription
+  }
+}
+    `;
+
+/**
+ * __useQuestionTypesQuery__
+ *
+ * To run a query within a React component, call `useQuestionTypesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuestionTypesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuestionTypesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useQuestionTypesQuery(baseOptions?: Apollo.QueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
+      }
+export function useQuestionTypesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
+        }
+export function useQuestionTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
+        }
+export type QuestionTypesQueryHookResult = ReturnType<typeof useQuestionTypesQuery>;
+export type QuestionTypesLazyQueryHookResult = ReturnType<typeof useQuestionTypesLazyQuery>;
+export type QuestionTypesSuspenseQueryHookResult = ReturnType<typeof useQuestionTypesSuspenseQuery>;
+export type QuestionTypesQueryResult = Apollo.QueryResult<QuestionTypesQuery, QuestionTypesQueryVariables>;
+export const QuestionsDisplayOrderDocument = gql`
+    query QuestionsDisplayOrder($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    displayOrder
+    errors
+  }
+}
+    `;
+
+/**
+ * __useQuestionsDisplayOrderQuery__
+ *
+ * To run a query within a React component, call `useQuestionsDisplayOrderQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuestionsDisplayOrderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuestionsDisplayOrderQuery({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *   },
+ * });
+ */
+export function useQuestionsDisplayOrderQuery(baseOptions: Apollo.QueryHookOptions<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables> & ({ variables: QuestionsDisplayOrderQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>(QuestionsDisplayOrderDocument, options);
+      }
+export function useQuestionsDisplayOrderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>(QuestionsDisplayOrderDocument, options);
+        }
+export function useQuestionsDisplayOrderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>(QuestionsDisplayOrderDocument, options);
+        }
+export type QuestionsDisplayOrderQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderQuery>;
+export type QuestionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderLazyQuery>;
+export type QuestionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderSuspenseQuery>;
+export type QuestionsDisplayOrderQueryResult = Apollo.QueryResult<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>;
 export const SectionsDisplayOrderDocument = gql`
     query SectionsDisplayOrder($templateId: Int!) {
   sections(templateId: $templateId) {
