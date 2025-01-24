@@ -116,11 +116,19 @@
       "templates": "Templates",
       "template": "Template",
       "section": "Section",
-      "editSection": "Edit Section"
+      "editSection": "Edit Section",
+      "editTemplate": "Edit Template",
+      "question": "Question"
     },
     "buttons": {
       "search": "Search",
       "select": "Select"
+    },
+    "labels": {
+      "searchByKeyword": "Search by keyword"
+    },
+    "links": {
+      "clearFilter": "clear filter"
     },
     "messaging": {
       "loading": "Loading",

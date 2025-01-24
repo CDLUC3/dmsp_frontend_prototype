@@ -116,16 +116,25 @@
       "templates": "Modelos",
       "template": "Modelo",
       "section": "Seção",
-      "editSection": "Editar seção"
+      "editSection": "Editar seção",
+      "editTemplate": "Editar Modelo",
+      "question": "Pergunta"
     },
     "buttons": {
       "search": "Buscar",
       "select": "Select"
     },
+    "labels": {
+      "searchByKeyword": ""
+    },
+    "links": {
+      "clearFilter": "clear filter"
+    },
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
-      "somethingWentWrong": "Ocorreu um erro. Tente novamente."
+      "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
+      "resultsText": "{name} results match your search"
     }
   }
 }

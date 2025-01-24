@@ -1,7 +1,0 @@
-mutation AddQuestion($input: AddQuestionInput!) {
-  addQuestion(input: $input) {
-    questionTypeId
-    id
-    errors
-  }
-}

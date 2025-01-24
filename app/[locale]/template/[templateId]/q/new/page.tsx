@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ApolloError } from "@apollo/client";
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import {
     Breadcrumb,
     Breadcrumbs,
@@ -19,47 +18,27 @@ import {
 // Components
 import PageHeader from "@/components/PageHeader";
 import {
-    Card,
-    CardBody,
-    CardFooter,
-    CardHeading
-} from "@/components/Card/card";
-
-import {
     ContentContainer,
     LayoutContainer,
 } from '@/components/Container';
-
 import QuestionEdit from '@/components/QuestionEdit';
+import QuestionTypeCard from '@/components/QuestionTypeCard';
 
 //GraphQL
 import {
-    useQuestionTypesQuery,
-    useQuestionsDisplayOrderQuery,
-    useAddQuestionMutation,
+    useQuestionTypesQuery
 } from '@/generated/graphql';
 
 //Other
-import logECS from '@/utils/clientLogger';
-import { useToast } from '@/context/ToastContext';
 import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
+import { QuestionTypesInterface } from '@/app/types';
 import styles from './newQuestion.module.scss';
 
-interface QuestionTypesInterface {
-    id: number;
-    errors: string[];
-    name: string;
-    usageDescription: string;
-}
 
 const QuestionTypeSelectPage: React.FC = () => {
     // Get templateId param
     const params = useParams();
-    const searchParams = useSearchParams();
-    const router = useRouter();
     const topRef = useRef<HTMLDivElement>(null);
-    const toastState = useToast();
-    const sectionId = searchParams.get("section_id"); // from query param
     const { templateId } = params; // From route /template/:templateId
 
     // State management
@@ -67,7 +46,6 @@ const QuestionTypeSelectPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [filteredQuestionTypes, setFilteredQuestionTypes] = useState<QuestionTypesInterface[] | null>([]);
     const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
-    const [maxDisplayOrderNum, setMaxDisplayOrderNum] = useState<number>(0);
     const [searchButtonClicked, setSearchButtonClicked] = useState(false);
     const [questionTypeId, setQuestionTypeId] = useState<number | null>(null);
     const [errors, setErrors] = useState<string[]>([]);
@@ -76,25 +54,18 @@ const QuestionTypeSelectPage: React.FC = () => {
 
     //Localization keys
     const Global = useTranslations('Global');
-
+    const QuestionTypeSelect = useTranslations('QuestionTypeSelectPage');
 
     // Make graphql request for question types
-    const { data, loading, error: queryError } = useQuestionTypesQuery({
-        /* Force Apollo to notify React of changes. This was needed for when refreshTokens needs to be called on a 401 error*/
-        notifyOnNetworkStatusChange: true,
-    });
+    const { data, loading, error: queryError } = useQuestionTypesQuery();
 
-    // GraphQL mutation for adding new question
-    const [addQuestionMutation] = useAddQuestionMutation({
-        notifyOnNetworkStatusChange: true,
-    });
-
-    // Query for all questions for the given section in order to determine the correct displayOrder for the new question
-    const { data: questionsDisplayOrder } = useQuestionsDisplayOrderQuery({
-        variables: {
-            sectionId: Number(sectionId)
+    const handleSelect = (questionTypeId: number) => {
+        // redirect to the Question Edit page
+        if (questionTypeId) {
+            setQuestionTypeId(questionTypeId);
+            setStep(2);
         }
-    })
+    }
 
     const resetSearch = () => {
         setSearchTerm('');
@@ -107,11 +78,6 @@ const QuestionTypeSelectPage: React.FC = () => {
             topRef.current.scrollIntoView({ behavior: 'smooth' });
             topRef.current.focus();
         }
-    }
-
-    // Get the current max display order number + 1
-    const getNewDisplayOrder = () => {
-        return maxDisplayOrderNum + 1;
     }
 
     const filterQuestionTypes = (
@@ -134,86 +100,25 @@ const QuestionTypeSelectPage: React.FC = () => {
 
         if (filteredQuestionTypes.length > 0) {
             setFilteredQuestionTypes(filteredQuestionTypes.length > 0 ? filteredQuestionTypes : null);
-        } else {
-            //If there are no matching results, then display an error
-            setErrors(prev => [...prev, Global('messaging.noItemsFound')]);
-        }
-    }
-
-    const clearErrors = () => {
-        setErrors([]);
-    }
-
-    const onSelect = async (questionTypeId: number) => {
-        let newQuestionId;
-        const newDisplayOrder = getNewDisplayOrder();
-        //Add the new template
-        try {
-            const response = await addQuestionMutation({
-                variables: {
-                    input: {
-                        displayOrder: newDisplayOrder,
-                        questionTypeId: questionTypeId,
-                        sectionId: Number(sectionId),
-                        templateId: Number(templateId),
-                        questionText: ' ',//Needed to add this because questionText is required to add a new question
-                        required: false
-                    }
-                },
-            });
-            if (response?.data) {
-                const responseData = response?.data?.addQuestion;
-                if (responseData && responseData.errors && responseData.errors.length > 0) {
-                    // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-                    setErrors(responseData.errors ?? []);
-                }
-                clearErrors();
-
-                newQuestionId = response?.data?.addQuestion?.id;
-            }
-        } catch (err) {
-            if (err instanceof ApolloError) {
-                if (err.message === 'Forbidden') {
-                    toastState.add('Your session has timed out. Please log in', { type: 'error' })
-                    router.push(`/login`);
-                }
-            } else {
-                logECS('error', 'handleClick', {
-                    error: err,
-                    url: { path: '/template/create' }
-                });
-            }
-
-        }
-
-        // Redirect to the newly created template
-        if (newQuestionId) {
-            router.push(`/template/${templateId}/q/${newQuestionId}`)
         }
     }
 
     useEffect(() => {
         // When data from backend changes, set template data in state
-        if (data && data?.questionTypes) {
+        if (data?.questionTypes) {
+            // filter out any null values
+            const filteredQuestionTypes = data.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
             if (data.questionTypes.length > 0) {
-                setQuestionTypes(data.questionTypes);
+                setQuestionTypes(filteredQuestionTypes);
             }
         }
     }, [data]);
 
     useEffect(() => {
-        if (questionsDisplayOrder?.questions && questionsDisplayOrder.questions.length > 0) {
-            const questions = questionsDisplayOrder.questions;
-
-            // Find the maximum displayOrder
-            const maxDisplayOrder = questions.reduce(
-                (max: number, question) => (question?.displayOrder ?? -Infinity) > max ? question?.displayOrder ?? max : max,
-                0
-            );
-
-            setMaxDisplayOrderNum(maxDisplayOrder);
+        if (queryError) {
+            setErrors(prev => [...prev, queryError.message]);
         }
-    }, [questionsDisplayOrder])
+    }, [queryError])
 
     useEffect(() => {
         // Need this to set list of templates back to original, full list after filtering
@@ -230,19 +135,24 @@ const QuestionTypeSelectPage: React.FC = () => {
         }
     }, [stepQueryValue])
 
+    // TODO: Implement shared loading 
+    if (loading) {
+        return <div>{Global('messaging.loading')}...</div>;
+    }
+
     return (
         <>
             {step === 1 && (
                 <>
                     <PageHeader
-                        title="What type of question would you like to add?"
-                        description="As you create your template, you can choose different types of questions to add to it, depending on the type of information you require from the plan creator. "
+                        title={QuestionTypeSelect('title')}
+                        description={QuestionTypeSelect('description')}
                         showBackButton={false}
                         breadcrumbs={
                             <Breadcrumbs>
-                                <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-                                <Breadcrumb><Link href={`/template/${templateId}`}>Edit Template</Link></Breadcrumb>
-                                <Breadcrumb>Question</Breadcrumb>
+                                <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+                                <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+                                <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
                             </Breadcrumbs>
                         }
                         actions={null}
@@ -260,14 +170,13 @@ const QuestionTypeSelectPage: React.FC = () => {
                             }
                             <div className="Filters" ref={topRef}>
                                 <SearchField>
-                                    <Label>Search by keyword</Label>
+                                    <Label>{Global('labels.searchByKeyword')}</Label>
                                     <Input
                                         aria-describedby="search-help"
                                         value={searchTerm}
                                         onChange={e => setSearchTerm(e.target.value)} />
                                     <Button
                                         onPress={() => {
-                                            // Call your filtering function without changing the input value
                                             handleFiltering(searchTerm);
                                         }}
                                     >
@@ -275,33 +184,24 @@ const QuestionTypeSelectPage: React.FC = () => {
                                     </Button>
                                     <FieldError />
                                     <Text slot="description" className="help">
-                                        Search by field type or description.
+                                        {QuestionTypeSelect('searchHelpText')}
                                     </Text>
                                 </SearchField>
                             </div>
                             <div>
+                                {/*Show # of results with clear filter link*/}
                                 {(searchTerm.length > 0 && searchButtonClicked) && (
-                                    <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
+                                    <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>{QuestionTypeSelect('links.clearFilter')}</Link></div>
                                 )}
                                 <div className="card-grid-list">
                                     {filteredQuestionTypes && filteredQuestionTypes.length > 0 ? (
                                         <>
-                                            {filteredQuestionTypes.map((questionType, index) => (
-                                                <Card key={index}>
-                                                    <CardHeading>{questionType.name}</CardHeading>
-                                                    <CardBody>
-                                                        <p>{questionType.usageDescription}</p>
-                                                    </CardBody>
-                                                    <CardFooter>
-                                                        <Button
-                                                            className="button-link secondary"
-                                                            data-type={questionType.id}
-                                                            onPress={e => onSelect(questionType.id)}
-                                                        >
-                                                            Select
-                                                        </Button>
-                                                    </CardFooter>
-                                                </Card>
+                                            {filteredQuestionTypes.map((questionType) => (
+                                                <QuestionTypeCard
+                                                    key={questionType.id}
+                                                    questionType={questionType}
+                                                    handleSelect={handleSelect}
+                                                />
                                             ))}
                                         </>
                                     ) : (
@@ -315,22 +215,12 @@ const QuestionTypeSelectPage: React.FC = () => {
                                                 </>
                                             ) : (
                                                 <>
-                                                    {questionTypes.map((questionType, index) => (
-                                                        <Card key={index}>
-                                                            <CardHeading>{questionType.name}</CardHeading>
-                                                            <CardBody>
-                                                                <p>{questionType.usageDescription}</p>
-                                                            </CardBody>
-                                                            <CardFooter>
-                                                                <Button
-                                                                    className="button-link secondary"
-                                                                    data-type={questionType.id}
-                                                                    onPress={e => onSelect(questionType.id)}
-                                                                >
-                                                                    Select
-                                                                </Button>
-                                                            </CardFooter>
-                                                        </Card>
+                                                    {questionTypes.map((questionType) => (
+                                                        <QuestionTypeCard
+                                                            key={questionType.id}
+                                                            questionType={questionType}
+                                                            handleSelect={handleSelect}
+                                                        />
                                                     ))}
                                                 </>
                                             )
@@ -340,19 +230,22 @@ const QuestionTypeSelectPage: React.FC = () => {
 
                                     }
                                 </div>
+                                {/*Show # of results with clear filter link*/}
                                 {(searchTerm.length > 0 && searchButtonClicked) && (
                                     <div className={styles.clearFilter}>
                                         <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
                                     </div>
                                 )}
                             </div>
-
                         </ContentContainer>
                     </LayoutContainer>
                 </>
             )}
             {step === 2 && (
-                <QuestionEdit questionTypeId={questionTypeId} />
+                <>
+                    {/*Show Edit Question form*/}
+                    <QuestionEdit questionTypeId={questionTypeId ? questionTypeId : null} />
+                </>
             )}
         </>
     );

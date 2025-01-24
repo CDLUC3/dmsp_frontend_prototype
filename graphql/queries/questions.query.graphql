@@ -1,6 +1,0 @@
-query QuestionsDisplayOrder($sectionId: Int!) {
-  questions(sectionId: $sectionId) {
-    displayOrder
-    errors
-  }
-}
