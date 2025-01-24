@@ -1,6 +1,8 @@
 
 ### Updated
 =======
+- Updated `QuestionTypeSelectPage`- hooked up to real data and updated code [#220]
+- Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
 - Updated some pages with toast messages, and updated toast files [#231]
 - Added Portuguese translations for newly added translation keys [#231]
 - Updated version of `next` to `14.2.22` [#231]
@@ -14,6 +16,7 @@
 - Refactored font family usage for consistency.
 
 ### Added
+- Added new `QuestionEdit` and `QuestionTypeCard` components [#220]
 - Added Toast Message capabilities using **React Aria Component's use Toast**. [#211]
 - Project overview page [#175]
   - Moved pages under [locale] folder
