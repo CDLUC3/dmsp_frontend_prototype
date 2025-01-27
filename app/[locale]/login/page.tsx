@@ -7,7 +7,6 @@ import { useCsrf } from '@/context/CsrfContext';
 import { handleErrors } from '@/utils/errorHandler';
 import { useAuthContext } from '@/context/AuthContext';
 import { useTranslations } from "next-intl";
-import './login.scss';
 import {
   Button,
   Form,
@@ -23,6 +22,7 @@ import {
   ContentContainer,
   ToolbarContainer,
 } from '@/components/Container';
+import styles from './login.module.scss';
 
 
 type LoginSteps =
@@ -133,18 +133,18 @@ const LoginPage: React.FC = () => {
   }, [step]);
 
   return (
-    <LayoutContainer id="loginPage">
-      <ContentContainer>
+    <LayoutContainer className={styles.loginPage}>
+      <ContentContainer className={styles.loginContent}>
         <h3>{t('pageTitle')}</h3>
 
         <Form
-          id="loginForm"
+          className={styles.loginForm}
           onSubmit={handleSubmit}
           ref={formRef}
           data-step={step}
         >
           {errors && errors.length > 0 &&
-            <div className="error">
+            <div className={`error ${styles.error}`}>
               {errors.map((error, index) => (
                 <p key={index}>{error}</p>
               ))}
@@ -163,7 +163,7 @@ const LoginPage: React.FC = () => {
               <Label>{t('emailAddress')}</Label>
               <Input data-testid="emailInput" />
               {(step === "email") && (
-                <Text slot="description" className="help">
+                <Text slot="description" className={styles.help}>
                   {t('singleSignOn')}
                 </Text>
               )}
@@ -183,13 +183,13 @@ const LoginPage: React.FC = () => {
               <Label>{t('password')}</Label>
               <Input data-testid="passInput" />
               <FieldError />
-              <Text slot="description" className="help">
+              <Text slot="description" className={styles.help}>
                 <Link>{t('forgotPassword')}</Link>
               </Text>
             </TextField>
           )}
 
-          <ToolbarContainer className="form-actions">
+          <ToolbarContainer className={styles.formActions}>
             {(step === "email") && (
               <Button
                 type="submit"
@@ -211,7 +211,7 @@ const LoginPage: React.FC = () => {
             )}
           </ToolbarContainer>
 
-          <div className="form-links">
+          <div className={styles.formLinks}>
             {(step === "email") && (
               <Link href="/signup/">{t('signupText')}</Link>
             )}

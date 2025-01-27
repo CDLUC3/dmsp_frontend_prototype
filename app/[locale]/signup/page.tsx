@@ -15,8 +15,6 @@ import {
   Checkbox,
 } from "react-aria-components";
 
-import './signup.scss';
-
 import { AffiliationsDocument } from '@/generated/graphql';
 import {useCsrf} from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
@@ -29,6 +27,7 @@ import {
   ContentContainer,
   ToolbarContainer,
 } from '@/components/Container';
+import styles from './signup.module.scss';
 
 
 type SignupStepState =
@@ -201,8 +200,8 @@ const SignUpPage: React.FC = () => {
   }, [invalid, errors]);
 
   return (
-    <LayoutContainer id="signupPage">
-      <ContentContainer>
+    <LayoutContainer className={styles.signupPage}>
+      <ContentContainer className={styles.signupContent}>
         {(step === "email") ? (
           <h3>{t('register')}</h3>
         ) : (
@@ -210,7 +209,7 @@ const SignUpPage: React.FC = () => {
         )}
 
         <Form
-          id="signupForm"
+          className={styles.signupForm}
           role="form"
           onSubmit={handleSubmit}
           validationErrors={fieldErrors}
@@ -236,7 +235,7 @@ const SignUpPage: React.FC = () => {
             >
               <Label>{t('emailAddress')}</Label>
               <Input />
-              <Text slot="description" className="help"> {t('emailHelp')} </Text>
+              <Text slot="description" className={styles.help}> {t('emailHelp')} </Text>
               <FieldError />
             </TextField>
           )}
@@ -270,7 +269,7 @@ const SignUpPage: React.FC = () => {
               </div>
 
               <TypeAheadWithOther
-                className="typeahead-with-other"
+                className={styles.typeAhead}
                 label={t('institution')}
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
@@ -345,7 +344,7 @@ const SignUpPage: React.FC = () => {
             </>
           )}
 
-          <ToolbarContainer className="form-actions">
+          <ToolbarContainer className={styles.formActions}>
             {(step === "email") && (
               <Button
                 type="submit"
@@ -368,7 +367,7 @@ const SignUpPage: React.FC = () => {
           </ToolbarContainer>
 
           {(step === "email") && (
-            <div className="form-links">
+            <div className={styles.formLinks}>
               <Link href="/login/">{t('loginLink')}</Link>
               <Link href="#">{t('helpLink')}</Link>
             </div>
