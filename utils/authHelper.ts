@@ -2,6 +2,8 @@ import logECS from '@/utils/clientLogger';
 
 
 export class AuthError extends Error {
+  status: number | null;
+
   constructor({
     status,
     message,
