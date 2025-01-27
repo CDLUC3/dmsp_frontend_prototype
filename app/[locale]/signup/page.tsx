@@ -210,7 +210,6 @@ const SignUpPage: React.FC = () => {
 
         <Form
           className={styles.signupForm}
-          role="form"
           onSubmit={handleSubmit}
           validationErrors={fieldErrors}
           data-step={step}
