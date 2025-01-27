@@ -61,10 +61,10 @@ export const handleErrors = async (
           }
         } catch (err) {
           if (err instanceof AuthError) {
-            // TODO: We want to push the errors, but also, we don't want the
-            // router to update if we are already on the login page.
-            // TODO: If NOT on the login page, redirect to it.
-            // router.push('/login');
+            // If NOT on the login or signup pages, redirect login
+            if ((path !== '/login') && (path !== '/signup')) {
+              router.push('/login');
+            }
           }
           const errorMessage = message;
           setErrors(prevErrors => [...prevErrors, errorMessage]);
