@@ -288,6 +288,7 @@ const TypeAheadWithOther = ({
                 type="text"
                 className={(!!errorMessage || !!error) ? styles.fieldError : ''}
                 isInvalid={!!errorMessage}
+                isRequired={required}
             >
                 <Label>{label}</Label>
                 <Input
