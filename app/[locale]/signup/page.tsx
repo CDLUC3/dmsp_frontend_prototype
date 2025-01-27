@@ -58,6 +58,7 @@ type fieldErrorsMap = {
 
 const SignUpPage: React.FC = () => {
   const t = useTranslations('SignupPage');
+  const globalT = useTranslations('Global');
 
   const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
@@ -137,6 +138,37 @@ const SignUpPage: React.FC = () => {
     }
   };
 
+  function isValid(): boolean {
+    let hasErrors = false;
+    let globalErrors = errors || [];
+
+    if (globalErrors.length > 0) hasErrors = true;
+
+    if (password !== confirmPassword) {
+      setFieldErrors({
+        ...fieldErrors,
+        confirmPassword: t('passMissMatch'),
+      });
+      hasErrors = true;
+    }
+
+    if (institution === "" && otherAffiliation === "") {
+      setFieldErrors({
+        ...fieldErrors,
+        affiliationId: t('institutionRequired'),
+      })
+      hasErrors = true;
+    }
+
+    if (hasErrors) {
+      globalErrors.push(globalT('messaging.fixBelow'));
+      setErrors(globalErrors);
+      setInvalid(true);
+    }
+
+    return !hasErrors;
+  }
+
   function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
     if (!ev.nativeEvent || invalid || hasErrors()) return;
     ev.nativeEvent.preventDefault();
@@ -150,14 +182,7 @@ const SignUpPage: React.FC = () => {
         break;
 
       case "profile":
-        if (password !== confirmPassword) {
-          setFieldErrors({
-            ...fieldErrors,
-            confirmPassword: t('passMissMatch'),
-          });
-          setErrors([t('fixBelow')]);
-          setInvalid(true);
-        } else if (termsAccepted) {
+        if (isValid() && termsAccepted) {
           handleSignUp();
         }
         break;
@@ -216,7 +241,7 @@ const SignUpPage: React.FC = () => {
           ref={formRef}
         >
           {errors && errors.length > 0 &&
-            <div className="error">
+            <div className={`error ${styles.error}`}>
               {errors.map((error, index) => (
                 <p key={index}>{error}</p>
               ))}
@@ -274,9 +299,9 @@ const SignUpPage: React.FC = () => {
                 graphqlQuery={AffiliationsDocument}
                 resultsKey="affiliations"
                 setOtherField={setOtherField}
-                required={true}
                 helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}
+                error={fieldErrors.affiliationId}
               />
               {otherField && (
                 <TextField
