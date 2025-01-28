@@ -162,6 +162,11 @@
       "success": "Section updated successfully."
     }
   },
+  "QuestionTypeSelectPage": {
+    "title": "What type of question would you like to add?",
+    "description": "As you create your template, you can choose different types of questions to add to it, depending on the type of information you require from the plan creator.",
+    "searchHelpText": "Search by field type or description."
+  },
   "TemplateCreatePage": {
     "helpText": "Don't worry, you can change this later.",
     "nameOfYourTemplate": "Name of your template",

@@ -23,9 +23,34 @@ export type Scalars = {
   URL: { input: any; output: any; }
 };
 
+/** The status of the funding */
+export enum AccessLevel {
+  /** Access requests must be reviewed and then permitted */
+  Controlled = 'CONTROLLED',
+  /** Any other type of access level */
+  Other = 'OTHER',
+  /** Access to the output will be public/open */
+  Unrestricted = 'UNRESTRICTED'
+}
+
+export type AddMetadataStandardInput = {
+  /** A description of the metadata standard */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Keywords to assist in finding the metadata standard */
+  keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The name of the metadata standard */
+  name: Scalars['String']['input'];
+  /** Research domains associated with the metadata standard */
+  researchDomainIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The taxonomy URL (do not make this up! should resolve to an HTML/JSON representation of the object) */
+  uri?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type AddProjectContributorInput = {
   /** The contributor's affiliation URI */
   affiliationId?: InputMaybe<Scalars['String']['input']>;
+  /** The roles the contributor has on the research project */
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   /** The contributor's email address */
   email?: InputMaybe<Scalars['String']['input']>;
   /** The contributor's first/given name */
@@ -34,15 +59,13 @@ export type AddProjectContributorInput = {
   orcid?: InputMaybe<Scalars['String']['input']>;
   /** The research project */
   projectId: Scalars['Int']['input'];
-  /** The roles the contributor has on the research project */
-  roles?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The contributor's last/sur name */
-  surname?: InputMaybe<Scalars['String']['input']>;
+  surName?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AddProjectFunderInput = {
   /** The funder URI */
-  funder: Scalars['String']['input'];
+  affiliationId: Scalars['String']['input'];
   /** The funder's unique id/url for the call for submissions to apply for a grant */
   funderOpportunityNumber?: InputMaybe<Scalars['String']['input']>;
   /** The funder's unique id/url for the research project (normally assigned after the grant has been awarded) */
@@ -53,6 +76,31 @@ export type AddProjectFunderInput = {
   projectId: Scalars['Int']['input'];
   /** The status of the funding resquest */
   status?: InputMaybe<ProjectFunderStatus>;
+};
+
+export type AddProjectOutputInput = {
+  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
+  anticipatedReleaseDate?: InputMaybe<Scalars['String']['input']>;
+  /** A description of the output */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The initial access level that will be allowed for the output */
+  initialAccessLevel?: InputMaybe<Scalars['String']['input']>;
+  /** The initial license that will apply to the output */
+  initialLicenseId?: InputMaybe<Scalars['Int']['input']>;
+  /** Whether or not the output may contain personally identifying information (PII) */
+  mayContainPII?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Whether or not the output may contain sensitive data */
+  mayContainSensitiveInformation?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The metadata standards that will be used to describe the output */
+  metadataStandardIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The type of output */
+  outputTypeId: Scalars['Int']['input'];
+  /** The id of the project you are adding the output to */
+  projectId: Scalars['Int']['input'];
+  /** The repositories the output will be deposited in */
+  respositoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The title/name of the output */
+  title: Scalars['String']['input'];
 };
 
 /** Input for adding a new QuestionCondition */
@@ -76,6 +124,8 @@ export type AddQuestionInput = {
   guidanceText?: InputMaybe<Scalars['String']['input']>;
   /** Whether or not the Question has had any changes since it was last published */
   isDirty?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Add options for a question type, like radio buttons */
+  questionOptions?: InputMaybe<Array<InputMaybe<QuestionOptionInput>>>;
   /** This will be used as a sort of title for the Question */
   questionText?: InputMaybe<Scalars['String']['input']>;
   /** The type of question, such as text field, select box, radio buttons, etc */
@@ -90,6 +140,34 @@ export type AddQuestionInput = {
   sectionId: Scalars['Int']['input'];
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['input'];
+};
+
+export type AddQuestionOptionInput = {
+  /** Whether the option is the default selected one */
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The option order number */
+  orderNumber: Scalars['Int']['input'];
+  /** The question id that the QuestionOption belongs to */
+  questionId: Scalars['Int']['input'];
+  /** The option text */
+  text: Scalars['String']['input'];
+};
+
+export type AddRepositoryInput = {
+  /** A description of the repository */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** Keywords to assist in finding the repository */
+  keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The name of the repository */
+  name: Scalars['String']['input'];
+  /** The Categories/Types of the repository */
+  repositoryTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Research domains associated with the repository */
+  researchDomainIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The taxonomy URL (do not make this up! should resolve to an HTML/JSON representation of the object) */
+  uri?: InputMaybe<Scalars['String']['input']>;
+  /** The website URL */
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Input for adding a new section */
@@ -366,8 +444,8 @@ export type ContributorRole = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The URL for the contributor role */
-  url: Scalars['URL']['output'];
+  /** The taxonomy URL for the contributor role */
+  uri: Scalars['String']['output'];
 };
 
 export type ContributorRoleMutationResponse = {
@@ -383,36 +461,6 @@ export type ContributorRoleMutationResponse = {
   message: Scalars['String']['output'];
   /** Indicates whether the mutation was successful */
   success: Scalars['Boolean']['output'];
-};
-
-export type EditProjectContributorInput = {
-  /** The contributor's affiliation URI */
-  affiliationId?: InputMaybe<Scalars['String']['input']>;
-  /** The contributor's email address */
-  email?: InputMaybe<Scalars['String']['input']>;
-  /** The contributor's first/given name */
-  givenName?: InputMaybe<Scalars['String']['input']>;
-  /** The contributor's ORCID */
-  orcid?: InputMaybe<Scalars['String']['input']>;
-  /** The project contributor */
-  projectContributorId: Scalars['Int']['input'];
-  /** The roles the contributor has on the research project */
-  roles?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** The contributor's last/sur name */
-  surname?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type EditProjectFunderInput = {
-  /** The funder's unique id/url for the call for submissions to apply for a grant */
-  funderOpportunityNumber?: InputMaybe<Scalars['String']['input']>;
-  /** The funder's unique id/url for the research project (normally assigned after the grant has been awarded) */
-  funderProjectNumber?: InputMaybe<Scalars['String']['input']>;
-  /** The funder's unique id/url for the award/grant (normally assigned after the grant has been awarded) */
-  grantId?: InputMaybe<Scalars['String']['input']>;
-  /** The project funder */
-  projectFunderId: Scalars['Int']['input'];
-  /** The status of the funding resquest */
-  status?: InputMaybe<ProjectFunderStatus>;
 };
 
 /** The types of object a User can be invited to Collaborate on */
@@ -432,6 +480,58 @@ export type Language = {
   name: Scalars['String']['output'];
 };
 
+/** A license associated with a research output (e.g. CC0, MIT, etc.) */
+export type License = {
+  __typename?: 'License';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the license */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the license */
+  name: Scalars['String']['output'];
+  /** Whether or not the license is recommended */
+  recommended: Scalars['Boolean']['output'];
+  /** The taxonomy URL of the license */
+  uri: Scalars['String']['output'];
+};
+
+/** A metadata standard used when describing a research output */
+export type MetadataStandard = {
+  __typename?: 'MetadataStandard';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the metadata standard */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Keywords to assist in finding the metadata standard */
+  keywords?: Maybe<Array<Scalars['String']['output']>>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the metadata standard */
+  name: Scalars['String']['output'];
+  /** Research domains associated with the metadata standard */
+  researchDomains?: Maybe<Array<ResearchDomain>>;
+  /** The taxonomy URL of the metadata standard */
+  uri: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -443,6 +543,10 @@ export type Mutation = {
   addContributorRole?: Maybe<ContributorRoleMutationResponse>;
   /** Add a comment to an answer within a round of feedback */
   addFeedbackComment?: Maybe<PlanFeedbackComment>;
+  /** Add a new License (don't make the URI up! should resolve to an taxonomy HTML/JSON representation of the object) */
+  addLicense?: Maybe<License>;
+  /** Add a new MetadataStandard */
+  addMetadataStandard?: Maybe<MetadataStandard>;
   /** Create a plan */
   addPlan?: Maybe<Plan>;
   /** Answer a question */
@@ -451,14 +555,22 @@ export type Mutation = {
   addPlanCollaborator?: Maybe<PlanCollaborator>;
   /** Add a Contributor to a Plan */
   addPlanContributor?: Maybe<PlanContributor>;
+  /** Create a project */
+  addProject?: Maybe<Project>;
   /** Add a contributor to a research project */
   addProjectContributor?: Maybe<ProjectContributor>;
   /** Add a Funder to a research project */
   addProjectFunder?: Maybe<ProjectFunder>;
+  /** Add an output to a research project */
+  addProjectOutput?: Maybe<ProjectOutput>;
   /** Create a new Question */
   addQuestion: Question;
   /** Create a new QuestionCondition associated with a question */
   addQuestionCondition: QuestionCondition;
+  /** Create a new QuestionOption */
+  addQuestionOption: QuestionOption;
+  /** Add a new Repository */
+  addRepository?: Maybe<Repository>;
   /** Create a new Section. Leave the 'copyFromVersionedSectionId' blank to create a new section from scratch */
   addSection: Section;
   /** Add a new tag to available list of tags */
@@ -469,6 +581,8 @@ export type Mutation = {
   addTemplateCollaborator?: Maybe<TemplateCollaborator>;
   /** Add an email address for the current user */
   addUserEmail?: Maybe<UserEmail>;
+  /** Download the plan */
+  archiveProject?: Maybe<Project>;
   /** Archive a Template (unpublishes any associated PublishedTemplate */
   archiveTemplate?: Maybe<Scalars['Boolean']['output']>;
   /** Mark the feedback round as complete */
@@ -479,16 +593,16 @@ export type Mutation = {
   deactivateUser?: Maybe<User>;
   /** Download the plan */
   downloadPlan?: Maybe<Scalars['String']['output']>;
-  /** Edit an answer */
-  editPlanAnswer?: Maybe<Answer>;
-  /** Update a contributor on the research project */
-  editProjectContributor?: Maybe<ProjectContributor>;
-  /** Update a Funder on the research project */
-  editProjectFunder?: Maybe<ProjectFunder>;
   /** Change the plan's status to COMPLETE (cannot be done once the plan is PUBLISHED) */
   markPlanComplete?: Maybe<Plan>;
   /** Change the plan's status to DRAFT (cannot be done once the plan is PUBLISHED) */
   markPlanDraft?: Maybe<Plan>;
+  /** Merge two licenses */
+  mergeLicenses?: Maybe<License>;
+  /** Merge two metadata standards */
+  mergeMetadataStandards?: Maybe<MetadataStandard>;
+  /** Merge two repositories */
+  mergeRepositories?: Maybe<Repository>;
   /** Merge the 2 user accounts (Admin only) */
   mergeUsers?: Maybe<User>;
   /** Publish a plan (changes status to PUBLISHED) */
@@ -498,21 +612,33 @@ export type Mutation = {
   /** Delete the contributor role */
   removeContributorRole?: Maybe<ContributorRoleMutationResponse>;
   /** Remove a comment to an answer within a round of feedback */
-  removeFeedbackComment?: Maybe<Scalars['Boolean']['output']>;
+  removeFeedbackComment?: Maybe<PlanFeedbackComment>;
+  /** Delete a License */
+  removeLicense?: Maybe<License>;
+  /** Delete a MetadataStandard */
+  removeMetadataStandard?: Maybe<MetadataStandard>;
   /** Remove a PlanCollaborator from a Plan */
   removePlanCollaborator?: Maybe<Scalars['Boolean']['output']>;
   /** Remove a PlanContributor from a Plan */
-  removePlanContributor?: Maybe<Scalars['Boolean']['output']>;
+  removePlanContributor?: Maybe<PlanContributor>;
   /** Remove a research project contributor */
-  removeProjectContributor?: Maybe<Scalars['Boolean']['output']>;
+  removeProjectContributor?: Maybe<ProjectContributor>;
   /** Remove a research project Funder */
-  removeProjectFunder?: Maybe<Scalars['Boolean']['output']>;
+  removeProjectFunder?: Maybe<ProjectFunder>;
   /** Remove a PlanFunder from a Plan */
-  removeProjectFunderFromPlan?: Maybe<Scalars['Boolean']['output']>;
+  removeProjectFunderFromPlan?: Maybe<ProjectFunder>;
+  /** Remove a research project output */
+  removeProjectOutput?: Maybe<ProjectOutput>;
+  /** Remove an Output from a Plan */
+  removeProjectOutputFromPlan?: Maybe<ProjectOutput>;
   /** Delete a Question */
   removeQuestion?: Maybe<Question>;
   /** Remove a QuestionCondition using a specific QuestionCondition id */
   removeQuestionCondition?: Maybe<QuestionCondition>;
+  /** Delete a QuestionOption */
+  removeQuestionOption?: Maybe<QuestionOption>;
+  /** Delete a Repository */
+  removeRepository?: Maybe<Repository>;
   /** Delete a section */
   removeSection: Section;
   /** Delete a tag */
@@ -527,6 +653,8 @@ export type Mutation = {
   requestFeedback?: Maybe<PlanFeedback>;
   /** Add a Funder to a Plan */
   selectProjectFunderForPlan?: Maybe<ProjectFunder>;
+  /** Add an Output to a Plan */
+  selectProjectOutputForPlan?: Maybe<ProjectOutput>;
   /** Designate the email as the current user's primary email address */
   setPrimaryUserEmail?: Maybe<Array<Maybe<UserEmail>>>;
   /** Set the user's ORCID */
@@ -535,18 +663,34 @@ export type Mutation = {
   updateAffiliation?: Maybe<Affiliation>;
   /** Update the contributor role */
   updateContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  /** Update a License record */
+  updateLicense?: Maybe<License>;
+  /** Update a MetadataStandard record */
+  updateMetadataStandard?: Maybe<MetadataStandard>;
   /** Change the current user's password */
   updatePassword?: Maybe<User>;
+  /** Edit an answer */
+  updatePlanAnswer?: Maybe<Answer>;
   /** Chnage a collaborator's accessLevel on a Plan */
   updatePlanCollaborator?: Maybe<PlanCollaborator>;
   /** Chnage a Contributor's accessLevel on a Plan */
   updatePlanContributor?: Maybe<PlanContributor>;
+  /** Edit a project */
+  updateProject?: Maybe<Project>;
+  /** Update a contributor on the research project */
+  updateProjectContributor?: Maybe<ProjectContributor>;
+  /** Update a Funder on the research project */
+  updateProjectFunder?: Maybe<ProjectFunder>;
+  /** Update an output on the research project */
+  updateProjectOutput?: Maybe<ProjectOutput>;
   /** Update a Question */
   updateQuestion: Question;
   /** Update a QuestionCondition for a specific QuestionCondition id */
   updateQuestionCondition?: Maybe<QuestionCondition>;
-  /** Separate Question update specifically for options */
-  updateQuestionOptions?: Maybe<Question>;
+  /** Update a QuestionOption */
+  updateQuestionOption: QuestionOption;
+  /** Update a Repository record */
+  updateRepository?: Maybe<Repository>;
   /** Update a Section */
   updateSection: Section;
   /** Update a tag */
@@ -587,6 +731,19 @@ export type MutationAddFeedbackCommentArgs = {
 };
 
 
+export type MutationAddLicenseArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  recommended?: InputMaybe<Scalars['Boolean']['input']>;
+  uri?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationAddMetadataStandardArgs = {
+  input: AddMetadataStandardInput;
+};
+
+
 export type MutationAddPlanArgs = {
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -614,6 +771,12 @@ export type MutationAddPlanContributorArgs = {
 };
 
 
+export type MutationAddProjectArgs = {
+  isTestProject?: InputMaybe<Scalars['Boolean']['input']>;
+  title: Scalars['String']['input'];
+};
+
+
 export type MutationAddProjectContributorArgs = {
   input: AddProjectContributorInput;
 };
@@ -624,6 +787,11 @@ export type MutationAddProjectFunderArgs = {
 };
 
 
+export type MutationAddProjectOutputArgs = {
+  input: AddProjectOutputInput;
+};
+
+
 export type MutationAddQuestionArgs = {
   input: AddQuestionInput;
 };
@@ -631,6 +799,16 @@ export type MutationAddQuestionArgs = {
 
 export type MutationAddQuestionConditionArgs = {
   input: AddQuestionConditionInput;
+};
+
+
+export type MutationAddQuestionOptionArgs = {
+  input: AddQuestionOptionInput;
+};
+
+
+export type MutationAddRepositoryArgs = {
+  input?: InputMaybe<AddRepositoryInput>;
 };
 
 
@@ -660,6 +838,11 @@ export type MutationAddTemplateCollaboratorArgs = {
 export type MutationAddUserEmailArgs = {
   email: Scalars['String']['input'];
   isPrimary: Scalars['Boolean']['input'];
+};
+
+
+export type MutationArchiveProjectArgs = {
+  projectId: Scalars['Int']['input'];
 };
 
 
@@ -693,22 +876,6 @@ export type MutationDownloadPlanArgs = {
 };
 
 
-export type MutationEditPlanAnswerArgs = {
-  answerId: Scalars['Int']['input'];
-  answerText?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationEditProjectContributorArgs = {
-  input: EditProjectContributorInput;
-};
-
-
-export type MutationEditProjectFunderArgs = {
-  input: EditProjectFunderInput;
-};
-
-
 export type MutationMarkPlanCompleteArgs = {
   planId: Scalars['Int']['input'];
 };
@@ -716,6 +883,24 @@ export type MutationMarkPlanCompleteArgs = {
 
 export type MutationMarkPlanDraftArgs = {
   planId: Scalars['Int']['input'];
+};
+
+
+export type MutationMergeLicensesArgs = {
+  licenseToKeepId: Scalars['Int']['input'];
+  licenseToRemoveId: Scalars['Int']['input'];
+};
+
+
+export type MutationMergeMetadataStandardsArgs = {
+  metadataStandardToKeepId: Scalars['Int']['input'];
+  metadataStandardToRemoveId: Scalars['Int']['input'];
+};
+
+
+export type MutationMergeRepositoriesArgs = {
+  repositoryToKeepId: Scalars['Int']['input'];
+  repositoryToRemoveId: Scalars['Int']['input'];
 };
 
 
@@ -746,6 +931,16 @@ export type MutationRemoveFeedbackCommentArgs = {
 };
 
 
+export type MutationRemoveLicenseArgs = {
+  uri: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveMetadataStandardArgs = {
+  uri: Scalars['String']['input'];
+};
+
+
 export type MutationRemovePlanCollaboratorArgs = {
   planCollaboratorId: Scalars['Int']['input'];
 };
@@ -772,6 +967,17 @@ export type MutationRemoveProjectFunderFromPlanArgs = {
 };
 
 
+export type MutationRemoveProjectOutputArgs = {
+  projectOutputId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveProjectOutputFromPlanArgs = {
+  planId: Scalars['Int']['input'];
+  projectOutputId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveQuestionArgs = {
   questionId: Scalars['Int']['input'];
 };
@@ -779,6 +985,16 @@ export type MutationRemoveQuestionArgs = {
 
 export type MutationRemoveQuestionConditionArgs = {
   questionConditionId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveQuestionOptionArgs = {
+  questionOptionId: Scalars['Int']['input'];
+};
+
+
+export type MutationRemoveRepositoryArgs = {
+  repositoryId: Scalars['Int']['input'];
 };
 
 
@@ -814,6 +1030,12 @@ export type MutationSelectProjectFunderForPlanArgs = {
 };
 
 
+export type MutationSelectProjectOutputForPlanArgs = {
+  planId: Scalars['Int']['input'];
+  projectOutputId: Scalars['Int']['input'];
+};
+
+
 export type MutationSetPrimaryUserEmailArgs = {
   email: Scalars['String']['input'];
 };
@@ -838,9 +1060,28 @@ export type MutationUpdateContributorRoleArgs = {
 };
 
 
+export type MutationUpdateLicenseArgs = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  recommended?: InputMaybe<Scalars['Boolean']['input']>;
+  uri: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateMetadataStandardArgs = {
+  input: UpdateMetadataStandardInput;
+};
+
+
 export type MutationUpdatePasswordArgs = {
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
+};
+
+
+export type MutationUpdatePlanAnswerArgs = {
+  answerId: Scalars['Int']['input'];
+  answerText?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -856,6 +1097,26 @@ export type MutationUpdatePlanContributorArgs = {
 };
 
 
+export type MutationUpdateProjectArgs = {
+  input?: InputMaybe<UpdateProjectInput>;
+};
+
+
+export type MutationUpdateProjectContributorArgs = {
+  input: UpdateProjectContributorInput;
+};
+
+
+export type MutationUpdateProjectFunderArgs = {
+  input: UpdateProjectFunderInput;
+};
+
+
+export type MutationUpdateProjectOutputArgs = {
+  input: UpdateProjectOutputInput;
+};
+
+
 export type MutationUpdateQuestionArgs = {
   input: UpdateQuestionInput;
 };
@@ -866,9 +1127,13 @@ export type MutationUpdateQuestionConditionArgs = {
 };
 
 
-export type MutationUpdateQuestionOptionsArgs = {
-  questionId: Scalars['Int']['input'];
-  required?: InputMaybe<Scalars['Boolean']['input']>;
+export type MutationUpdateQuestionOptionArgs = {
+  input: UpdateQuestionOptionInput;
+};
+
+
+export type MutationUpdateRepositoryArgs = {
+  input?: InputMaybe<UpdateRepositoryInput>;
 };
 
 
@@ -906,6 +1171,29 @@ export type MutationUploadPlanArgs = {
   fileContent?: InputMaybe<Scalars['String']['input']>;
   fileName?: InputMaybe<Scalars['String']['input']>;
   projectId: Scalars['Int']['input'];
+};
+
+/** An output collected/produced during or as a result of a research project */
+export type OutputType = {
+  __typename?: 'OutputType';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the type of output to be collected/generated during the project */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the output type */
+  name: Scalars['String']['output'];
+  /** The taxonomy URL of the output type */
+  uri: Scalars['String']['output'];
 };
 
 /** A Data Managament Plan (DMP) */
@@ -988,6 +1276,8 @@ export type PlanContributor = {
   __typename?: 'PlanContributor';
   /** The contributor's affiliation */
   ProjectContributor?: Maybe<ProjectContributor>;
+  /** The roles the contributor has for this specific plan (can differ from the project) */
+  contributorRoles?: Maybe<Array<ContributorRole>>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
@@ -1001,9 +1291,7 @@ export type PlanContributor = {
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The Plan */
-  plan: Plan;
-  /** The roles the contributor has for this specific plan (can differ from the project) */
-  roles?: Maybe<Array<ContributorRole>>;
+  plan?: Maybe<Plan>;
 };
 
 export enum PlanDownloadFormat {
@@ -1089,7 +1377,7 @@ export enum PlanVisibility {
 export type Project = {
   __typename?: 'Project';
   /** The research project abstract */
-  abstract?: Maybe<Scalars['String']['output']>;
+  abstractText?: Maybe<Scalars['String']['output']>;
   /** People who are contributing to the research project (not just the DMP) */
   contributors?: Maybe<Array<ProjectContributor>>;
   /** The timestamp when the Object was created */
@@ -1110,6 +1398,8 @@ export type Project = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The outputs that will be/were created as a reult of the research project */
+  outputs?: Maybe<Array<ProjectOutput>>;
   /** The type of research being done */
   researchDomain?: Maybe<ResearchDomain>;
   /** The estimated date the research project will begin (use YYYY-MM-DD format) */
@@ -1123,6 +1413,8 @@ export type ProjectContributor = {
   __typename?: 'ProjectContributor';
   /** The contributor's affiliation */
   affiliation?: Maybe<Affiliation>;
+  /** The roles the contributor has on the research project */
+  contributorRoles?: Maybe<Array<ContributorRole>>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
@@ -1142,24 +1434,22 @@ export type ProjectContributor = {
   /** The contributor's ORCID */
   orcid?: Maybe<Scalars['String']['output']>;
   /** The research project */
-  project: Project;
-  /** The roles the contributor has on the research project */
-  roles?: Maybe<Array<ContributorRole>>;
+  project?: Maybe<Project>;
   /** The contributor's last/sur name */
-  surname?: Maybe<Scalars['String']['output']>;
+  surName?: Maybe<Scalars['String']['output']>;
 };
 
 /** A funder affiliation that is supporting a research project */
 export type ProjectFunder = {
   __typename?: 'ProjectFunder';
+  /** The funder */
+  affiliation?: Maybe<Affiliation>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
   errors?: Maybe<Array<Scalars['String']['output']>>;
-  /** The funder */
-  funder: Affiliation;
   /** The funder's unique id/url for the call for submissions to apply for a grant */
   funderOpportunityNumber?: Maybe<Scalars['String']['output']>;
   /** The funder's unique id/url for the research project (normally assigned after the grant has been awarded) */
@@ -1173,7 +1463,7 @@ export type ProjectFunder = {
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The project that is seeking (or has aquired) funding */
-  project: Project;
+  project?: Maybe<Project>;
   /** The status of the funding resquest */
   status?: Maybe<ProjectFunderStatus>;
 };
@@ -1188,6 +1478,45 @@ export enum ProjectFunderStatus {
   Planned = 'PLANNED'
 }
 
+/** Something produced/collected as part of (or as a result of) a research project */
+export type ProjectOutput = {
+  __typename?: 'ProjectOutput';
+  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
+  anticipatedReleaseDate?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the output */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The initial access level that will be allowed for the output */
+  initialAccessLevel: AccessLevel;
+  /** The initial license that will apply to the output */
+  initialLicense?: Maybe<License>;
+  /** Whether or not the output may contain personally identifying information (PII) */
+  mayContainPII?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not the output may contain sensitive data */
+  mayContainSensitiveInformation?: Maybe<Scalars['Boolean']['output']>;
+  /** The metadata standards that will be used to describe the output */
+  metadataStandards?: Maybe<Array<MetadataStandard>>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The type of output */
+  outputType?: Maybe<OutputType>;
+  /** The project associated with the output */
+  project?: Maybe<Project>;
+  /** The repositories the output will be deposited in */
+  repositories?: Maybe<Array<Repository>>;
+  /** The title/name of the output */
+  title: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -1201,6 +1530,8 @@ export type Query = {
   affiliations?: Maybe<Array<Maybe<AffiliationSearch>>>;
   /** Archive a plan */
   archivePlan?: Maybe<Plan>;
+  /** Get all of the research domains related to the specified top level domain (more nuanced ones) */
+  childResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
   /** Get the contributor role by it's id */
   contributorRoleById?: Maybe<ContributorRole>;
   /** Get the contributor role by it's URL */
@@ -1211,10 +1542,24 @@ export type Query = {
   findCollaborator?: Maybe<Array<Maybe<CollaboratorSearchResult>>>;
   /** Get all of the supported Languages */
   languages?: Maybe<Array<Maybe<Language>>>;
+  /** Fetch a specific license */
+  license?: Maybe<License>;
+  /** Search for a license */
+  licenses?: Maybe<Array<Maybe<License>>>;
   /** Returns the currently logged in user's information */
   me?: Maybe<User>;
+  /** Fetch a specific metadata standard */
+  metadataStandard?: Maybe<MetadataStandard>;
+  /** Search for a metadata standard */
+  metadataStandards?: Maybe<Array<Maybe<MetadataStandard>>>;
+  /** Get all of the user's projects */
+  myProjects?: Maybe<Array<Maybe<Project>>>;
+  /** Get the Templates that belong to the current user's affiliation (user must be an Admin) */
+  myTemplates?: Maybe<Array<Maybe<Template>>>;
   /** Get the VersionedTemplates that belong to the current user's affiliation (user must be an Admin) */
   myVersionedTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
+  /** Get all the research output types */
+  outputTypes?: Maybe<Array<Maybe<OutputType>>>;
   /** Get a specific plan */
   plan?: Maybe<Plan>;
   /** Get all of the Users that are collaborators for the Plan */
@@ -1227,16 +1572,28 @@ export type Query = {
   planFeedbackComments?: Maybe<Array<Maybe<PlanFeedbackComment>>>;
   /** Get all of the Users that are Funders for the specific Plan */
   planFunders?: Maybe<Array<Maybe<ProjectFunder>>>;
+  /** The subset of project outputs associated with the sepcified Plan */
+  planOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Get all of the comments associated with the round of admin feedback */
   planQuestionAnswer?: Maybe<Answer>;
   /** Get all rounds of admin feedback for the plan */
   planSectionAnswers?: Maybe<Array<Maybe<Answer>>>;
   /** Get all plans for the research project */
   plans?: Maybe<Array<Maybe<Plan>>>;
+  /** Get a specific project */
+  project?: Maybe<Project>;
+  /** Get a specific contributor on the research project */
+  projectContributor?: Maybe<ProjectContributor>;
   /** Get all of the Users that a contributors to the research project */
   projectContributors?: Maybe<Array<Maybe<ProjectContributor>>>;
+  /** Get a specific ProjectFunder */
+  projectFunder?: Maybe<ProjectFunder>;
   /** Get all of the Users that a Funders to the research project */
   projectFunders?: Maybe<Array<Maybe<ProjectFunder>>>;
+  /** Fetch a single project output */
+  projectOutput?: Maybe<ProjectOutput>;
+  /** Get all of the outputs for the research project */
+  projectOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedConditionsForQuestion?: Maybe<Array<Maybe<VersionedQuestionCondition>>>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
@@ -1249,12 +1606,20 @@ export type Query = {
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
   questionConditions?: Maybe<Array<Maybe<QuestionCondition>>>;
+  /** Get the specific Question Option based on questionOptionId */
+  questionOption?: Maybe<QuestionOption>;
+  /** Get the Question Options that belong to the associated questionId */
+  questionOptions?: Maybe<Array<Maybe<QuestionOption>>>;
   /** Get all the QuestionTypes */
   questionTypes?: Maybe<Array<Maybe<QuestionType>>>;
   /** Get the Questions that belong to the associated sectionId */
   questions?: Maybe<Array<Maybe<Question>>>;
-  /** Get all the QuestionTypes */
-  researchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
+  /** Return the recommended Licenses */
+  recommendedLicenses?: Maybe<Array<Maybe<License>>>;
+  /** Search for a repository */
+  repositories?: Maybe<Array<Maybe<Repository>>>;
+  /** Fetch a specific repository */
+  repository?: Maybe<Repository>;
   /** Get the specified section */
   section?: Maybe<Section>;
   /** Get all of the VersionedSection for the specified Section ID */
@@ -1270,8 +1635,8 @@ export type Query = {
   templateCollaborators?: Maybe<Array<Maybe<TemplateCollaborator>>>;
   /** Get all of the VersionedTemplate for the specified Template (a.k. the Template history) */
   templateVersions?: Maybe<Array<Maybe<VersionedTemplate>>>;
-  /** Get the Templates that belong to the current user's affiliation (user must be an Admin) */
-  templates?: Maybe<Array<Maybe<Template>>>;
+  /** Get all of the top level research domains (the most generic ones) */
+  topLevelResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
   /** Returns the specified user (Admin only) */
   user?: Maybe<User>;
   /** Returns all of the users associated with the current user's affiliation (Admin only) */
@@ -1300,6 +1665,11 @@ export type QueryArchivePlanArgs = {
 };
 
 
+export type QueryChildResearchDomainsArgs = {
+  parentResearchDomainId: Scalars['Int']['input'];
+};
+
+
 export type QueryContributorRoleByIdArgs = {
   contributorRoleId: Scalars['Int']['input'];
 };
@@ -1311,6 +1681,27 @@ export type QueryContributorRoleByUrlArgs = {
 
 
 export type QueryFindCollaboratorArgs = {
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryLicenseArgs = {
+  uri: Scalars['String']['input'];
+};
+
+
+export type QueryLicensesArgs = {
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMetadataStandardArgs = {
+  uri: Scalars['String']['input'];
+};
+
+
+export type QueryMetadataStandardsArgs = {
+  researchDomainId?: InputMaybe<Scalars['Int']['input']>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1345,6 +1736,11 @@ export type QueryPlanFundersArgs = {
 };
 
 
+export type QueryPlanOutputsArgs = {
+  planId: Scalars['Int']['input'];
+};
+
+
 export type QueryPlanQuestionAnswerArgs = {
   answerId: Scalars['Int']['input'];
   questionId: Scalars['Int']['input'];
@@ -1362,12 +1758,37 @@ export type QueryPlansArgs = {
 };
 
 
+export type QueryProjectArgs = {
+  projectId: Scalars['Int']['input'];
+};
+
+
+export type QueryProjectContributorArgs = {
+  projectContributorId: Scalars['Int']['input'];
+};
+
+
 export type QueryProjectContributorsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
 
+export type QueryProjectFunderArgs = {
+  projectFunderId: Scalars['Int']['input'];
+};
+
+
 export type QueryProjectFundersArgs = {
+  projectId: Scalars['Int']['input'];
+};
+
+
+export type QueryProjectOutputArgs = {
+  projectOutputId: Scalars['Int']['input'];
+};
+
+
+export type QueryProjectOutputsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
@@ -1402,8 +1823,33 @@ export type QueryQuestionConditionsArgs = {
 };
 
 
+export type QueryQuestionOptionArgs = {
+  questionOptionId: Scalars['Int']['input'];
+};
+
+
+export type QueryQuestionOptionsArgs = {
+  questionId: Scalars['Int']['input'];
+};
+
+
 export type QueryQuestionsArgs = {
   sectionId: Scalars['Int']['input'];
+};
+
+
+export type QueryRecommendedLicensesArgs = {
+  recommended: Scalars['Boolean']['input'];
+};
+
+
+export type QueryRepositoriesArgs = {
+  input: RepositorySearchInput;
+};
+
+
+export type QueryRepositoryArgs = {
+  uri: Scalars['String']['input'];
 };
 
 
@@ -1469,6 +1915,8 @@ export type Question = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The conditional logic triggered by this question */
   questionConditions?: Maybe<Array<QuestionCondition>>;
+  /** The question options associated with this question */
+  questionOptions?: Maybe<Array<QuestionOption>>;
   /** This will be used as a sort of title for the Question */
   questionText?: Maybe<Scalars['String']['output']>;
   /** The type of question, such as text field, select box, radio buttons, etc */
@@ -1539,6 +1987,41 @@ export enum QuestionConditionCondition {
   Includes = 'INCLUDES'
 }
 
+/** QuestionOption always belongs to a Question */
+export type QuestionOption = {
+  __typename?: 'QuestionOption';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Whether the option is the default selected one */
+  isDefault?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The option order number */
+  orderNumber: Scalars['Int']['output'];
+  /** The question id that the QuestionOption belongs to */
+  questionId: Scalars['Int']['output'];
+  /** The option text */
+  text: Scalars['String']['output'];
+};
+
+/** Input for Question options operations */
+export type QuestionOptionInput = {
+  /** Whether the question option is the default selected one */
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The order of the question option */
+  orderNumber?: InputMaybe<Scalars['Int']['input']>;
+  /** The text for the question option */
+  text?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** The type of Question, such as text field, radio buttons, etc */
 export type QuestionType = {
   __typename?: 'QuestionType';
@@ -1562,9 +2045,60 @@ export type QuestionType = {
   usageDescription: Scalars['String']['output'];
 };
 
+/** A repository where research outputs are preserved */
+export type Repository = {
+  __typename?: 'Repository';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** A description of the repository */
+  description?: Maybe<Scalars['String']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<Array<Scalars['String']['output']>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Keywords to assist in finding the repository */
+  keywords?: Maybe<Array<Scalars['String']['output']>>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the repository */
+  name: Scalars['String']['output'];
+  /** The Categories/Types of the repository */
+  repositoryTypes?: Maybe<Array<RepositoryType>>;
+  /** Research domains associated with the repository */
+  researchDomains?: Maybe<Array<ResearchDomain>>;
+  /** The taxonomy URL of the repository */
+  uri: Scalars['String']['output'];
+  /** The website URL */
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+export type RepositorySearchInput = {
+  /** The repository category/type */
+  repositoryType?: InputMaybe<Scalars['String']['input']>;
+  /** The research domain associated with the repository */
+  researchDomainId?: InputMaybe<Scalars['Int']['input']>;
+  /** The search term */
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum RepositoryType {
+  /** A discipline specific repository (e.g. GeneCards, Arctic Data Centre, etc.) */
+  Disciplinary = 'DISCIPLINARY',
+  /** A generalist repository (e.g. Zenodo, Dryad) */
+  Generalist = 'GENERALIST',
+  /** An institution specific repository (e.g. ASU Library Research Data Repository, etc.) */
+  Institutional = 'INSTITUTIONAL'
+}
+
 /** An aread of research (e.g. Electrical Engineering, Cellular biology, etc.) */
 export type ResearchDomain = {
   __typename?: 'ResearchDomain';
+  /** The child research domains (if applicable) */
+  childResearchDomains?: Maybe<Array<ResearchDomain>>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
@@ -1581,7 +2115,9 @@ export type ResearchDomain = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The name of the domain */
   name: Scalars['String']['output'];
-  /** The URL of the research domain */
+  /** The parent research domain (if applicable). If this is blank then it is a top level domain. */
+  parentResearchDomain?: Maybe<ResearchDomain>;
+  /** The taxonomy URL of the research domain */
   uri: Scalars['String']['output'];
 };
 
@@ -1743,6 +2279,63 @@ export enum TemplateVisibility {
   Public = 'PUBLIC'
 }
 
+export type UpdateMetadataStandardInput = {
+  /** A description of the metadata standard */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The id of the MetadataStandard */
+  id: Scalars['Int']['input'];
+  /** Keywords to assist in finding the metadata standard */
+  keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The name of the metadata standard */
+  name: Scalars['String']['input'];
+  /** Research domains associated with the metadata standard */
+  researchDomainIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The taxonomy URL (do not make this up! should resolve to an HTML/JSON representation of the object) */
+  uri?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateProjectInput = {
+  /** The research project description/abstract */
+  abstractText?: InputMaybe<Scalars['String']['input']>;
+  /** The actual or anticipated end date of the project */
+  endDate?: InputMaybe<Scalars['String']['input']>;
+  /** The project's id */
+  id: Scalars['Int']['input'];
+  /** Whether or not the project is a mock/test */
+  isTestProject?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The id of the research domain */
+  researchDomainId?: InputMaybe<Scalars['Int']['input']>;
+  /** The actual or anticipated start date for the project */
+  startDate?: InputMaybe<Scalars['String']['input']>;
+  /** The title of the research project */
+  title: Scalars['String']['input'];
+};
+
+export type UpdateProjectOutputInput = {
+  /** The date the output is expected to be deposited (YYYY-MM-DD format) */
+  anticipatedReleaseDate?: InputMaybe<Scalars['String']['input']>;
+  /** A description of the output */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The initial access level that will be allowed for the output */
+  initialAccessLevel?: InputMaybe<Scalars['String']['input']>;
+  /** The initial license that will apply to the output */
+  initialLicenseId?: InputMaybe<Scalars['Int']['input']>;
+  /** Whether or not the output may contain personally identifying information (PII) */
+  mayContainPII?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Whether or not the output may contain sensitive data */
+  mayContainSensitiveInformation?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The metadata standards that will be used to describe the output */
+  metadataStandardIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The type of output */
+  outputTypeId: Scalars['Int']['input'];
+  /** The id of the output */
+  projectOutputId: Scalars['Int']['input'];
+  /** The repositories the output will be deposited in */
+  respositoryIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The title/name of the output */
+  title: Scalars['String']['input'];
+};
+
 /** Input for updating a new QuestionCondition based on a QuestionCondition id */
 export type UpdateQuestionConditionInput = {
   /** The action to take on a QuestionCondition */
@@ -1764,6 +2357,8 @@ export type UpdateQuestionInput = {
   guidanceText?: InputMaybe<Scalars['String']['input']>;
   /** The unique identifier for the Question */
   questionId: Scalars['Int']['input'];
+  /** Update options for a question type like radio buttons */
+  questionOptions?: InputMaybe<Array<InputMaybe<UpdateQuestionOptionInput>>>;
   /** This will be used as a sort of title for the Question */
   questionText?: InputMaybe<Scalars['String']['input']>;
   /** To indicate whether the question is required to be completed */
@@ -1772,6 +2367,34 @@ export type UpdateQuestionInput = {
   requirementText?: InputMaybe<Scalars['String']['input']>;
   /** Sample text to possibly provide a starting point or example to answer question */
   sampleText?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateQuestionOptionInput = {
+  /** Whether the option is the default selected one */
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The option order number */
+  orderNumber: Scalars['Int']['input'];
+  /** The id of the QuestionOption */
+  questionOptionId?: InputMaybe<Scalars['Int']['input']>;
+  /** The option text */
+  text: Scalars['String']['input'];
+};
+
+export type UpdateRepositoryInput = {
+  /** A description of the repository */
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The Repository id */
+  id: Scalars['Int']['input'];
+  /** Keywords to assist in finding the repository */
+  keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The name of the repository */
+  name: Scalars['String']['input'];
+  /** The Categories/Types of the repository */
+  repositoryTypes?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** Research domains associated with the repository */
+  researchDomainIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The website URL */
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Input for updating a section */
@@ -2047,6 +2670,36 @@ export type VersionedTemplate = {
   visibility: TemplateVisibility;
 };
 
+export type UpdateProjectContributorInput = {
+  /** The contributor's affiliation URI */
+  affiliationId?: InputMaybe<Scalars['String']['input']>;
+  /** The roles the contributor has on the research project */
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The contributor's email address */
+  email?: InputMaybe<Scalars['String']['input']>;
+  /** The contributor's first/given name */
+  givenName?: InputMaybe<Scalars['String']['input']>;
+  /** The contributor's ORCID */
+  orcid?: InputMaybe<Scalars['String']['input']>;
+  /** The project contributor */
+  projectContributorId: Scalars['Int']['input'];
+  /** The contributor's last/sur name */
+  surName?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateProjectFunderInput = {
+  /** The funder's unique id/url for the call for submissions to apply for a grant */
+  funderOpportunityNumber?: InputMaybe<Scalars['String']['input']>;
+  /** The funder's unique id/url for the research project (normally assigned after the grant has been awarded) */
+  funderProjectNumber?: InputMaybe<Scalars['String']['input']>;
+  /** The funder's unique id/url for the award/grant (normally assigned after the grant has been awarded) */
+  grantId?: InputMaybe<Scalars['String']['input']>;
+  /** The project funder */
+  projectFunderId: Scalars['Int']['input'];
+  /** The status of the funding resquest */
+  status?: InputMaybe<ProjectFunderStatus>;
+};
+
 export type UpdateUserNotificationsInput = {
   /** Whether or not email notifications are on for when a Plan has a new comment */
   notify_on_comment_added: Scalars['Boolean']['input'];
@@ -2151,12 +2804,17 @@ export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ _
 export type ContributorRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ContributorRolesQuery = { __typename?: 'Query', contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, url: any } | null> | null };
+export type ContributorRolesQuery = { __typename?: 'Query', contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, uri: string } | null> | null };
 
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
+
+export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type QuestionTypesQuery = { __typename?: 'Query', questionTypes?: Array<{ __typename?: 'QuestionType', id?: number | null, errors?: Array<string> | null, name: string, usageDescription: string } | null> | null };
 
 export type SectionsDisplayOrderQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -2197,7 +2855,7 @@ export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates
 export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', templates?: Array<{ __typename?: 'Template', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
+export type TemplatesQuery = { __typename?: 'Query', myTemplates?: Array<{ __typename?: 'Template', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -2253,9 +2911,9 @@ export type AddSectionMutationFn = Apollo.MutationFunction<AddSectionMutation, A
  * });
  */
 export function useAddSectionMutation(baseOptions?: Apollo.MutationHookOptions<AddSectionMutation, AddSectionMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<AddSectionMutation, AddSectionMutationVariables>(AddSectionDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddSectionMutation, AddSectionMutationVariables>(AddSectionDocument, options);
+      }
 export type AddSectionMutationHookResult = ReturnType<typeof useAddSectionMutation>;
 export type AddSectionMutationResult = Apollo.MutationResult<AddSectionMutation>;
 export type AddSectionMutationOptions = Apollo.BaseMutationOptions<AddSectionMutation, AddSectionMutationVariables>;
@@ -2298,9 +2956,9 @@ export type UpdateSectionMutationFn = Apollo.MutationFunction<UpdateSectionMutat
  * });
  */
 export function useUpdateSectionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSectionMutation, UpdateSectionMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<UpdateSectionMutation, UpdateSectionMutationVariables>(UpdateSectionDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateSectionMutation, UpdateSectionMutationVariables>(UpdateSectionDocument, options);
+      }
 export type UpdateSectionMutationHookResult = ReturnType<typeof useUpdateSectionMutation>;
 export type UpdateSectionMutationResult = Apollo.MutationResult<UpdateSectionMutation>;
 export type UpdateSectionMutationOptions = Apollo.BaseMutationOptions<UpdateSectionMutation, UpdateSectionMutationVariables>;
@@ -2329,9 +2987,9 @@ export type ArchiveTemplateMutationFn = Apollo.MutationFunction<ArchiveTemplateM
  * });
  */
 export function useArchiveTemplateMutation(baseOptions?: Apollo.MutationHookOptions<ArchiveTemplateMutation, ArchiveTemplateMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<ArchiveTemplateMutation, ArchiveTemplateMutationVariables>(ArchiveTemplateDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ArchiveTemplateMutation, ArchiveTemplateMutationVariables>(ArchiveTemplateDocument, options);
+      }
 export type ArchiveTemplateMutationHookResult = ReturnType<typeof useArchiveTemplateMutation>;
 export type ArchiveTemplateMutationResult = Apollo.MutationResult<ArchiveTemplateMutation>;
 export type ArchiveTemplateMutationOptions = Apollo.BaseMutationOptions<ArchiveTemplateMutation, ArchiveTemplateMutationVariables>;
@@ -2371,9 +3029,9 @@ export type CreateTemplateVersionMutationFn = Apollo.MutationFunction<CreateTemp
  * });
  */
 export function useCreateTemplateVersionMutation(baseOptions?: Apollo.MutationHookOptions<CreateTemplateVersionMutation, CreateTemplateVersionMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<CreateTemplateVersionMutation, CreateTemplateVersionMutationVariables>(CreateTemplateVersionDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateTemplateVersionMutation, CreateTemplateVersionMutationVariables>(CreateTemplateVersionDocument, options);
+      }
 export type CreateTemplateVersionMutationHookResult = ReturnType<typeof useCreateTemplateVersionMutation>;
 export type CreateTemplateVersionMutationResult = Apollo.MutationResult<CreateTemplateVersionMutation>;
 export type CreateTemplateVersionMutationOptions = Apollo.BaseMutationOptions<CreateTemplateVersionMutation, CreateTemplateVersionMutationVariables>;
@@ -2408,9 +3066,9 @@ export type AddTemplateMutationFn = Apollo.MutationFunction<AddTemplateMutation,
  * });
  */
 export function useAddTemplateMutation(baseOptions?: Apollo.MutationHookOptions<AddTemplateMutation, AddTemplateMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<AddTemplateMutation, AddTemplateMutationVariables>(AddTemplateDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddTemplateMutation, AddTemplateMutationVariables>(AddTemplateDocument, options);
+      }
 export type AddTemplateMutationHookResult = ReturnType<typeof useAddTemplateMutation>;
 export type AddTemplateMutationResult = Apollo.MutationResult<AddTemplateMutation>;
 export type AddTemplateMutationOptions = Apollo.BaseMutationOptions<AddTemplateMutation, AddTemplateMutationVariables>;
@@ -2452,9 +3110,9 @@ export type UpdateUserProfileMutationFn = Apollo.MutationFunction<UpdateUserProf
  * });
  */
 export function useUpdateUserProfileMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>(UpdateUserProfileDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>(UpdateUserProfileDocument, options);
+      }
 export type UpdateUserProfileMutationHookResult = ReturnType<typeof useUpdateUserProfileMutation>;
 export type UpdateUserProfileMutationResult = Apollo.MutationResult<UpdateUserProfileMutation>;
 export type UpdateUserProfileMutationOptions = Apollo.BaseMutationOptions<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>;
@@ -2491,9 +3149,9 @@ export type AddUserEmailMutationFn = Apollo.MutationFunction<AddUserEmailMutatio
  * });
  */
 export function useAddUserEmailMutation(baseOptions?: Apollo.MutationHookOptions<AddUserEmailMutation, AddUserEmailMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<AddUserEmailMutation, AddUserEmailMutationVariables>(AddUserEmailDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddUserEmailMutation, AddUserEmailMutationVariables>(AddUserEmailDocument, options);
+      }
 export type AddUserEmailMutationHookResult = ReturnType<typeof useAddUserEmailMutation>;
 export type AddUserEmailMutationResult = Apollo.MutationResult<AddUserEmailMutation>;
 export type AddUserEmailMutationOptions = Apollo.BaseMutationOptions<AddUserEmailMutation, AddUserEmailMutationVariables>;
@@ -2524,9 +3182,9 @@ export type RemoveUserEmailMutationFn = Apollo.MutationFunction<RemoveUserEmailM
  * });
  */
 export function useRemoveUserEmailMutation(baseOptions?: Apollo.MutationHookOptions<RemoveUserEmailMutation, RemoveUserEmailMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<RemoveUserEmailMutation, RemoveUserEmailMutationVariables>(RemoveUserEmailDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveUserEmailMutation, RemoveUserEmailMutationVariables>(RemoveUserEmailDocument, options);
+      }
 export type RemoveUserEmailMutationHookResult = ReturnType<typeof useRemoveUserEmailMutation>;
 export type RemoveUserEmailMutationResult = Apollo.MutationResult<RemoveUserEmailMutation>;
 export type RemoveUserEmailMutationOptions = Apollo.BaseMutationOptions<RemoveUserEmailMutation, RemoveUserEmailMutationVariables>;
@@ -2562,9 +3220,9 @@ export type SetPrimaryUserEmailMutationFn = Apollo.MutationFunction<SetPrimaryUs
  * });
  */
 export function useSetPrimaryUserEmailMutation(baseOptions?: Apollo.MutationHookOptions<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>(SetPrimaryUserEmailDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>(SetPrimaryUserEmailDocument, options);
+      }
 export type SetPrimaryUserEmailMutationHookResult = ReturnType<typeof useSetPrimaryUserEmailMutation>;
 export type SetPrimaryUserEmailMutationResult = Apollo.MutationResult<SetPrimaryUserEmailMutation>;
 export type SetPrimaryUserEmailMutationOptions = Apollo.BaseMutationOptions<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>;
@@ -2594,18 +3252,18 @@ export const AffiliationsDocument = gql`
  *   },
  * });
  */
-export function useAffiliationsQuery(baseOptions: Apollo.QueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables> & ({ variables: AffiliationsQueryVariables; skip?: boolean; } | { skip: boolean; })) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
-}
+export function useAffiliationsQuery(baseOptions: Apollo.QueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables> & ({ variables: AffiliationsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
+      }
 export function useAffiliationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
+        }
 export function useAffiliationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AffiliationsQuery, AffiliationsQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AffiliationsQuery, AffiliationsQueryVariables>(AffiliationsDocument, options);
+        }
 export type AffiliationsQueryHookResult = ReturnType<typeof useAffiliationsQuery>;
 export type AffiliationsLazyQueryHookResult = ReturnType<typeof useAffiliationsLazyQuery>;
 export type AffiliationsSuspenseQueryHookResult = ReturnType<typeof useAffiliationsSuspenseQuery>;
@@ -2615,7 +3273,7 @@ export const ContributorRolesDocument = gql`
   contributorRoles {
     id
     label
-    url
+    uri
   }
 }
     `;
@@ -2636,17 +3294,17 @@ export const ContributorRolesDocument = gql`
  * });
  */
 export function useContributorRolesQuery(baseOptions?: Apollo.QueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
+      }
 export function useContributorRolesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
+        }
 export function useContributorRolesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ContributorRolesQuery, ContributorRolesQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ContributorRolesQuery, ContributorRolesQueryVariables>(ContributorRolesDocument, options);
+        }
 export type ContributorRolesQueryHookResult = ReturnType<typeof useContributorRolesQuery>;
 export type ContributorRolesLazyQueryHookResult = ReturnType<typeof useContributorRolesLazyQuery>;
 export type ContributorRolesSuspenseQueryHookResult = ReturnType<typeof useContributorRolesSuspenseQuery>;
@@ -2677,21 +3335,63 @@ export const LanguagesDocument = gql`
  * });
  */
 export function useLanguagesQuery(baseOptions?: Apollo.QueryHookOptions<LanguagesQuery, LanguagesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<LanguagesQuery, LanguagesQueryVariables>(LanguagesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LanguagesQuery, LanguagesQueryVariables>(LanguagesDocument, options);
+      }
 export function useLanguagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LanguagesQuery, LanguagesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<LanguagesQuery, LanguagesQueryVariables>(LanguagesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LanguagesQuery, LanguagesQueryVariables>(LanguagesDocument, options);
+        }
 export function useLanguagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LanguagesQuery, LanguagesQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<LanguagesQuery, LanguagesQueryVariables>(LanguagesDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<LanguagesQuery, LanguagesQueryVariables>(LanguagesDocument, options);
+        }
 export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const QuestionTypesDocument = gql`
+    query QuestionTypes {
+  questionTypes {
+    id
+    errors
+    name
+    usageDescription
+  }
+}
+    `;
+
+/**
+ * __useQuestionTypesQuery__
+ *
+ * To run a query within a React component, call `useQuestionTypesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuestionTypesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuestionTypesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useQuestionTypesQuery(baseOptions?: Apollo.QueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
+      }
+export function useQuestionTypesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
+        }
+export function useQuestionTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
+        }
+export type QuestionTypesQueryHookResult = ReturnType<typeof useQuestionTypesQuery>;
+export type QuestionTypesLazyQueryHookResult = ReturnType<typeof useQuestionTypesLazyQuery>;
+export type QuestionTypesSuspenseQueryHookResult = ReturnType<typeof useQuestionTypesSuspenseQuery>;
+export type QuestionTypesQueryResult = Apollo.QueryResult<QuestionTypesQuery, QuestionTypesQueryVariables>;
 export const SectionsDisplayOrderDocument = gql`
     query SectionsDisplayOrder($templateId: Int!) {
   sections(templateId: $templateId) {
@@ -2716,18 +3416,18 @@ export const SectionsDisplayOrderDocument = gql`
  *   },
  * });
  */
-export function useSectionsDisplayOrderQuery(baseOptions: Apollo.QueryHookOptions<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables> & ({ variables: SectionsDisplayOrderQueryVariables; skip?: boolean; } | { skip: boolean; })) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>(SectionsDisplayOrderDocument, options);
-}
+export function useSectionsDisplayOrderQuery(baseOptions: Apollo.QueryHookOptions<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables> & ({ variables: SectionsDisplayOrderQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>(SectionsDisplayOrderDocument, options);
+      }
 export function useSectionsDisplayOrderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>(SectionsDisplayOrderDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>(SectionsDisplayOrderDocument, options);
+        }
 export function useSectionsDisplayOrderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>(SectionsDisplayOrderDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>(SectionsDisplayOrderDocument, options);
+        }
 export type SectionsDisplayOrderQueryHookResult = ReturnType<typeof useSectionsDisplayOrderQuery>;
 export type SectionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useSectionsDisplayOrderLazyQuery>;
 export type SectionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useSectionsDisplayOrderSuspenseQuery>;
@@ -2771,18 +3471,18 @@ export const SectionDocument = gql`
  *   },
  * });
  */
-export function useSectionQuery(baseOptions: Apollo.QueryHookOptions<SectionQuery, SectionQueryVariables> & ({ variables: SectionQueryVariables; skip?: boolean; } | { skip: boolean; })) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<SectionQuery, SectionQueryVariables>(SectionDocument, options);
-}
+export function useSectionQuery(baseOptions: Apollo.QueryHookOptions<SectionQuery, SectionQueryVariables> & ({ variables: SectionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SectionQuery, SectionQueryVariables>(SectionDocument, options);
+      }
 export function useSectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SectionQuery, SectionQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<SectionQuery, SectionQueryVariables>(SectionDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SectionQuery, SectionQueryVariables>(SectionDocument, options);
+        }
 export function useSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SectionQuery, SectionQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<SectionQuery, SectionQueryVariables>(SectionDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SectionQuery, SectionQueryVariables>(SectionDocument, options);
+        }
 export type SectionQueryHookResult = ReturnType<typeof useSectionQuery>;
 export type SectionLazyQueryHookResult = ReturnType<typeof useSectionLazyQuery>;
 export type SectionSuspenseQueryHookResult = ReturnType<typeof useSectionSuspenseQuery>;
@@ -2813,17 +3513,17 @@ export const TagsDocument = gql`
  * });
  */
 export function useTagsQuery(baseOptions?: Apollo.QueryHookOptions<TagsQuery, TagsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TagsQuery, TagsQueryVariables>(TagsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TagsQuery, TagsQueryVariables>(TagsDocument, options);
+      }
 export function useTagsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TagsQuery, TagsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TagsQuery, TagsQueryVariables>(TagsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TagsQuery, TagsQueryVariables>(TagsDocument, options);
+        }
 export function useTagsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TagsQuery, TagsQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<TagsQuery, TagsQueryVariables>(TagsDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TagsQuery, TagsQueryVariables>(TagsDocument, options);
+        }
 export type TagsQueryHookResult = ReturnType<typeof useTagsQuery>;
 export type TagsLazyQueryHookResult = ReturnType<typeof useTagsLazyQuery>;
 export type TagsSuspenseQueryHookResult = ReturnType<typeof useTagsSuspenseQuery>;
@@ -2866,18 +3566,18 @@ export const TemplateVersionsDocument = gql`
  *   },
  * });
  */
-export function useTemplateVersionsQuery(baseOptions: Apollo.QueryHookOptions<TemplateVersionsQuery, TemplateVersionsQueryVariables> & ({ variables: TemplateVersionsQueryVariables; skip?: boolean; } | { skip: boolean; })) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
-}
+export function useTemplateVersionsQuery(baseOptions: Apollo.QueryHookOptions<TemplateVersionsQuery, TemplateVersionsQueryVariables> & ({ variables: TemplateVersionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
+      }
 export function useTemplateVersionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TemplateVersionsQuery, TemplateVersionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
+        }
 export function useTemplateVersionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TemplateVersionsQuery, TemplateVersionsQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TemplateVersionsQuery, TemplateVersionsQueryVariables>(TemplateVersionsDocument, options);
+        }
 export type TemplateVersionsQueryHookResult = ReturnType<typeof useTemplateVersionsQuery>;
 export type TemplateVersionsLazyQueryHookResult = ReturnType<typeof useTemplateVersionsLazyQuery>;
 export type TemplateVersionsSuspenseQueryHookResult = ReturnType<typeof useTemplateVersionsSuspenseQuery>;
@@ -2922,17 +3622,17 @@ export const MyVersionedTemplatesDocument = gql`
  * });
  */
 export function useMyVersionedTemplatesQuery(baseOptions?: Apollo.QueryHookOptions<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>(MyVersionedTemplatesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>(MyVersionedTemplatesDocument, options);
+      }
 export function useMyVersionedTemplatesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>(MyVersionedTemplatesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>(MyVersionedTemplatesDocument, options);
+        }
 export function useMyVersionedTemplatesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>(MyVersionedTemplatesDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>(MyVersionedTemplatesDocument, options);
+        }
 export type MyVersionedTemplatesQueryHookResult = ReturnType<typeof useMyVersionedTemplatesQuery>;
 export type MyVersionedTemplatesLazyQueryHookResult = ReturnType<typeof useMyVersionedTemplatesLazyQuery>;
 export type MyVersionedTemplatesSuspenseQueryHookResult = ReturnType<typeof useMyVersionedTemplatesSuspenseQuery>;
@@ -2974,24 +3674,24 @@ export const PublishedTemplatesDocument = gql`
  * });
  */
 export function usePublishedTemplatesQuery(baseOptions?: Apollo.QueryHookOptions<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>(PublishedTemplatesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>(PublishedTemplatesDocument, options);
+      }
 export function usePublishedTemplatesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>(PublishedTemplatesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>(PublishedTemplatesDocument, options);
+        }
 export function usePublishedTemplatesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>(PublishedTemplatesDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>(PublishedTemplatesDocument, options);
+        }
 export type PublishedTemplatesQueryHookResult = ReturnType<typeof usePublishedTemplatesQuery>;
 export type PublishedTemplatesLazyQueryHookResult = ReturnType<typeof usePublishedTemplatesLazyQuery>;
 export type PublishedTemplatesSuspenseQueryHookResult = ReturnType<typeof usePublishedTemplatesSuspenseQuery>;
 export type PublishedTemplatesQueryResult = Apollo.QueryResult<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>;
 export const TemplatesDocument = gql`
     query Templates {
-  templates {
+  myTemplates {
     id
     name
     description
@@ -3039,17 +3739,17 @@ export const TemplatesDocument = gql`
  * });
  */
 export function useTemplatesQuery(baseOptions?: Apollo.QueryHookOptions<TemplatesQuery, TemplatesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TemplatesQuery, TemplatesQueryVariables>(TemplatesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TemplatesQuery, TemplatesQueryVariables>(TemplatesDocument, options);
+      }
 export function useTemplatesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TemplatesQuery, TemplatesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TemplatesQuery, TemplatesQueryVariables>(TemplatesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TemplatesQuery, TemplatesQueryVariables>(TemplatesDocument, options);
+        }
 export function useTemplatesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TemplatesQuery, TemplatesQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<TemplatesQuery, TemplatesQueryVariables>(TemplatesDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TemplatesQuery, TemplatesQueryVariables>(TemplatesDocument, options);
+        }
 export type TemplatesQueryHookResult = ReturnType<typeof useTemplatesQuery>;
 export type TemplatesLazyQueryHookResult = ReturnType<typeof useTemplatesLazyQuery>;
 export type TemplatesSuspenseQueryHookResult = ReturnType<typeof useTemplatesSuspenseQuery>;
@@ -3103,18 +3803,18 @@ export const TemplateDocument = gql`
  *   },
  * });
  */
-export function useTemplateQuery(baseOptions: Apollo.QueryHookOptions<TemplateQuery, TemplateQueryVariables> & ({ variables: TemplateQueryVariables; skip?: boolean; } | { skip: boolean; })) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TemplateQuery, TemplateQueryVariables>(TemplateDocument, options);
-}
+export function useTemplateQuery(baseOptions: Apollo.QueryHookOptions<TemplateQuery, TemplateQueryVariables> & ({ variables: TemplateQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TemplateQuery, TemplateQueryVariables>(TemplateDocument, options);
+      }
 export function useTemplateLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TemplateQuery, TemplateQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TemplateQuery, TemplateQueryVariables>(TemplateDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TemplateQuery, TemplateQueryVariables>(TemplateDocument, options);
+        }
 export function useTemplateSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TemplateQuery, TemplateQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<TemplateQuery, TemplateQueryVariables>(TemplateDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TemplateQuery, TemplateQueryVariables>(TemplateDocument, options);
+        }
 export type TemplateQueryHookResult = ReturnType<typeof useTemplateQuery>;
 export type TemplateLazyQueryHookResult = ReturnType<typeof useTemplateLazyQuery>;
 export type TemplateSuspenseQueryHookResult = ReturnType<typeof useTemplateSuspenseQuery>;
@@ -3159,17 +3859,17 @@ export const MeDocument = gql`
  * });
  */
 export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+      }
 export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+        }
 export function useMeSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MeQuery, MeQueryVariables>) {
-  const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-  return Apollo.useSuspenseQuery<MeQuery, MeQueryVariables>(MeDocument, options);
-}
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+        }
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeSuspenseQueryHookResult = ReturnType<typeof useMeSuspenseQuery>;

@@ -166,6 +166,11 @@
       "success": "Seção criada com sucesso."
     }
   },
+  "QuestionTypeSelectPage": {
+    "title": "Que tipo de pergunta você gostaria de adicionar?",
+    "description": "À medida que você cria o seu modelo, você pode escolher diferentes tipos de perguntas para adicioná-la, dependendo do tipo de informação requerida pelo criador do plano.",
+    "searchHelpText": "Pesquisar por tipo de campo ou descrição."
+  },
   "TemplateCreatePage": {
     "helpText": "Não se preocupe, você pode mudar isso depois.",
     "nameOfYourTemplate": "Nome do seu modelo",

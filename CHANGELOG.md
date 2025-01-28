@@ -10,8 +10,11 @@
 - Updated `/graphql/graphqlHelper.ts` with a call to `client.resetStore’` This should refetch user’s data when refreshAuthTokens() is called [#186]
 - Updated `refreshAuthTokens` function with ability to pass in cookies [#186]
 - Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
+- Updated `QuestionTypeSelectPage`- hooked up to real data and updated code [#220]
+- Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
 
 ### Added
+- Added new `QuestionEdit` and `QuestionTypeCard` components [#220]
 
 
 ### Fixed

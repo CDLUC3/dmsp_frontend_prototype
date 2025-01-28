@@ -128,3 +128,10 @@ export interface TagsInterface {
   name: string;
   description?: string | null;
 }
+
+export interface QuestionTypesInterface {
+  id: number;
+  errors: string[];
+  name: string;
+  usageDescription: string;
+}

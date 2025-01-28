@@ -90,7 +90,7 @@ const TemplateListPage: React.FC = () => {
 
   useEffect(() => {
     // Transform templates into format expected by TemplateListItem component
-    if (data && data?.templates) {
+    if (data && data?.myTemplates) {
       const fetchAllTemplates = async (templates: (TemplateInterface | null)[]) => {
         const transformedTemplates = await Promise.all(
           templates.map(async (template: TemplateInterface | null) => {
@@ -112,7 +112,7 @@ const TemplateListPage: React.FC = () => {
 
         setTemplates(transformedTemplates);
       }
-      fetchAllTemplates(data?.templates);
+      fetchAllTemplates(data?.myTemplates);
     }
   }, [data]);
 

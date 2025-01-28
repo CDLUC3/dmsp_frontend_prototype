@@ -118,7 +118,9 @@
       "createTemplate": "Criar um modelo",
       "selectExistingTemplate": "Selecionar um modelo existente",
       "section": "Seção",
-      "editSection": "Editar seção"
+      "editSection": "Editar seção",
+      "editTemplate": "Editar Modelo",
+      "question": "Pergunta"
     },
     "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
@@ -133,10 +135,17 @@
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
     },
+    "labels": {
+      "searchByKeyword": ""
+    },
+    "links": {
+      "clearFilter": "clear filter"
+    },
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
-      "somethingWentWrong": "Ocorreu um erro. Tente novamente."
+      "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
+      "resultsText": "{name} results match your search"
     }
   }
 }

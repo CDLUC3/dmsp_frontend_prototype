@@ -35,7 +35,7 @@ import {
 
 // Components
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
-import QuestionEdit from "@/components/QuestionEdit";
+import QuestionEditCard from "@/components/QuestionEditCard";
 import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
@@ -296,7 +296,7 @@ const TemplateEditPage: React.FC = () => {
 
                   {(section?.questions && section?.questions.length > 0) && (
                     section.questions.map((question) => (
-                      <QuestionEdit
+                      <QuestionEditCard
                         key={question.id}
                         id={question.id ? question.id.toString() : ''}
                         text={question?.questionText ? question.questionText : ''}
