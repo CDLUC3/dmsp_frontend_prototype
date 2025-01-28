@@ -1,0 +1,8 @@
+query QuestionTypes {
+  questionTypes {
+    id
+    errors
+    name
+    usageDescription
+  }
+}

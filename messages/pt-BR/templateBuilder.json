@@ -157,8 +157,13 @@
     },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
-      "errorUpdatingSection": "Error when updating section.",
+      "errorUpdatingSection": "Erro ao criar a seção.",
       "success": "Seção criada com sucesso."
     }
+  },
+  "QuestionTypeSelectPage": {
+    "title": "Que tipo de pergunta você gostaria de adicionar?",
+    "description": "À medida que você cria o seu modelo, você pode escolher diferentes tipos de perguntas para adicioná-la, dependendo do tipo de informação requerida pelo criador do plano.",
+    "searchHelpText": "Pesquisar por tipo de campo ou descrição."
   }
 }
