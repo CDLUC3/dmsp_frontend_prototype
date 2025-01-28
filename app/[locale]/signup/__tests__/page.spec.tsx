@@ -251,7 +251,10 @@ describe('SignUpPage', () => {
       return Promise.resolve({
         ok: false,
         status: 400,
-        json: () => Promise.resolve({ success: false, message: 'Invalid email address| Password is required' }),
+        json: () => Promise.resolve({
+          success: false,
+          message: 'Invalid email address| Password is required',
+        }),
       } as unknown as Response);
     });
 
@@ -260,9 +263,9 @@ describe('SignUpPage', () => {
     doSteps();
     fireEvent.click(screen.getByTestId("signup"));
 
-    // //Check that error is rendered
+    //Check that error is rendered
     await waitFor(() => {
-      const errorElement = screen.getByText(/Invalid email address/i);
+      const errorElement = screen.getByText(/invalid email address/i);
       expect(errorElement).toBeInTheDocument();
     })
   });

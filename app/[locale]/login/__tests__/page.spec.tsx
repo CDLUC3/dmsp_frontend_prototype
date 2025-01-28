@@ -1,10 +1,13 @@
 import React from 'react';
 import {
+  act,
   fireEvent,
+  render,
   renderWithProviders,
   screen,
   waitFor
-} from '@/utils/test-utils'; //wrapping test with AuthProvider
+} from '@/utils/test-utils';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import logECS from '@/utils/clientLogger';
 
 import LoginPage from '../page';
@@ -30,13 +33,35 @@ jest.mock('@/utils/authHelper', () => ({
   fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
 }));
 
-// Mock the entire CsrfContext module
+
+// jest.mock('@/context/AuthContext', () => ({
+//   useAuthContext: jest.fn(() => ({
+//     setIsAuthenticated: jest.fn(),
+//   })),
+// }));
+
+
 jest.mock('@/context/CsrfContext', () => ({
   CsrfProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-csrf-provider">{children}</div>
   ),
   useCsrf: jest.fn(),
 }));
+
+
+// jest.mock('next-intl', () => ({
+//   // useFormatter: jest.fn(() => ({
+//   //   dateTime: jest.fn(() => '01-01-2023'),
+//   // })),
+//   useTranslations: jest.fn(() => (key) => {
+//     const translations = {
+//       "LoginPage.pageTitle": "Login",
+//     };
+//     return translations[key] || key;
+//   }),
+//   useLocale: jest.fn(() => 'en-US'),
+// }));
+
 
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
@@ -336,4 +361,18 @@ describe('LoginPage', () => {
       )
     })
   })
+
+  // it('should pass axe accessibility test', async () => {
+  //   const { container } = renderWithProviders(<LoginPage />);
+  //   // const { container } = render(<LoginPage />)
+
+  //   await waitFor(() => {
+  //     expect(screen.getByTestId("emailInput")).toBeInTheDocument();
+  //   });
+
+  //   await act(async () => {
+  //     const results = await axe(container);
+  //     expect(results).toHaveNoViolations();
+  //   })
+  // })
 })
