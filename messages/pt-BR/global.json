@@ -115,14 +115,25 @@
       "home": "Home",
       "templates": "Modelos",
       "template": "Modelo",
+      "createTemplate": "Criar um modelo",
+      "selectExistingTemplate": "Selecionar um modelo existente",
       "section": "Seção",
       "editSection": "Editar seção",
       "editTemplate": "Editar Modelo",
       "question": "Pergunta"
     },
+    "lastRevisedBy": "Última revisão por",
+    "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
-      "select": "Select"
+      "select": "Select",
+      "next": "Seguinte"
+    },
+    "labels": {
+      "searchByKeyword": ""
+    },
+    "helpText": {
+      "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
     },
     "labels": {
       "searchByKeyword": ""

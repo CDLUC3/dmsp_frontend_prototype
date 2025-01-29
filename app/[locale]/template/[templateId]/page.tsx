@@ -30,7 +30,7 @@ import {
   TemplateVisibility,
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
-  useTemplateQuery
+  useTemplateQuery,
 } from '@/generated/graphql';
 
 // Components
@@ -100,6 +100,7 @@ const TemplateEditPage: React.FC = () => {
   const EditTemplate = useTranslations('EditTemplates');
   const PublishTemplate = useTranslations('PublishTemplate');
   const Messaging = useTranslations('Messaging');
+  const Global = useTranslations('Global');
 
   // Get templateId param
   const params = useParams();
@@ -115,7 +116,7 @@ const TemplateEditPage: React.FC = () => {
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
 
   // Run template query to get all templates under the given templateId
-  const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
+  const { data, loading, error: templateQueryErrors } = useTemplateQuery(
     {
       variables: { templateId: Number(templateId) },
       notifyOnNetworkStatusChange: true
@@ -222,13 +223,6 @@ const TemplateEditPage: React.FC = () => {
     }
   }, [data]);
 
-  // Need to refetch on errors to re-render page
-  useEffect(() => {
-    if (templateQueryErrors) {
-      refetch();
-    }
-  }, [templateQueryErrors]);
-
   // If errors when submitting publish form, scroll them into view
   useEffect(() => {
     if (errors.length > 0 && errorRef.current) {
@@ -249,9 +243,11 @@ const TemplateEditPage: React.FC = () => {
     }
   }, [pageErrors]);
 
-  // Show loading message
   if (loading) {
-    return <div>{Messaging('loading')}...</div>;
+    return <div>{Global('messaging.loading')}...</div>;
+  }
+  if (templateQueryErrors) {
+    return <div>{EditTemplate('errors.getTemplatesError')}</div>;
   }
 
   return (

@@ -1,6 +1,6 @@
 import logECS from '@/utils/clientLogger';
 
-export const refreshAuthTokens = async () => {
+export const refreshAuthTokens = async (cookies?: string) => {
   try {
     // Get CSRF token first
     const crsfFetchResponse = await fetchCsrfToken();
@@ -8,19 +8,28 @@ export const refreshAuthTokens = async () => {
       const csrfToken = crsfFetchResponse.headers.get('X-CSRF-TOKEN');
       if (csrfToken) {
         try {
+          // Refresh auth tokens
+          const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+          };
+
+          // Conditionally add the Cookie header if cookies are provided
+          if (cookies) {
+            headers['Cookie'] = cookies;
+          }
+
           //Refresh auth tokens
           const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-refresh`, {
             method: 'POST',
             credentials: 'include',// This is needed or else the frontend can't access the csrf token in the header
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': csrfToken || '',
-            },
+            headers
           });
 
           if (!response.ok) {
             if (response.status === 401) {
-              window.location.href = '/login';
+              // Handle unauthorized access for server
+              return { shouldRedirect: true, redirectTo: '/login' };
             }
             logECS('error', `Error in response from refreshing auth tokens - ${response.status}`, {
               source: 'refreshAuthTokens'
@@ -69,3 +78,4 @@ export const fetchCsrfToken = async () => {
     return null;
   }
 };
+

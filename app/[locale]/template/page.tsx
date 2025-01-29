@@ -1,7 +1,7 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from "@apollo/client";
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -13,17 +13,17 @@ import {
   SearchField,
   Text
 } from 'react-aria-components';
-import {useFormatter, useTranslations} from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 
 //GraphQL
-import {useTemplatesQuery,} from '@/generated/graphql';
+import { useTemplatesQuery, } from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
 import TemplateListItem from '@/components/TemplateListItem';
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
 
-import {TemplateInterface, TemplateItemProps,} from '@/app/types';
+import { TemplateInterface, TemplateItemProps, } from '@/app/types';
 
 const TemplateListPage: React.FC = () => {
   const formatter = useFormatter();
@@ -32,6 +32,7 @@ const TemplateListPage: React.FC = () => {
   const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const errorRef = useRef<HTMLDivElement | null>(null);
+
   // For translations
   const t = useTranslations('OrganizationTemplates');
 
@@ -89,7 +90,7 @@ const TemplateListPage: React.FC = () => {
 
   useEffect(() => {
     // Transform templates into format expected by TemplateListItem component
-    if (data && data?.templates) {
+    if (data && data?.myTemplates) {
       const fetchAllTemplates = async (templates: (TemplateInterface | null)[]) => {
         const transformedTemplates = await Promise.all(
           templates.map(async (template: TemplateInterface | null) => {
@@ -111,7 +112,7 @@ const TemplateListPage: React.FC = () => {
 
         setTemplates(transformedTemplates);
       }
-      fetchAllTemplates(data?.templates);
+      fetchAllTemplates(data?.myTemplates);
     }
   }, [data]);
 

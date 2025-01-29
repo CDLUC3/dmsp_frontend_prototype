@@ -2,6 +2,6 @@ query ContributorRoles{
     contributorRoles {
         id
         label
-        url
+        uri
     }
 }

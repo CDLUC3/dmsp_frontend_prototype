@@ -1,82 +1,127 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  FieldError,
   Form,
-  Input,
-  Label,
   Link,
-  Radio,
-  RadioGroup,
-  Text,
-  TextField
 } from "react-aria-components";
+import sanitizeHtml from 'sanitize-html';
+
+// Components
 import PageHeader from "@/components/PageHeader";
+import TemplateSelectTemplatePage from '@/components/SelectExistingTemplate';
+import {
+  ContentContainer,
+  LayoutContainer,
+} from '@/components/Container';
+import FormInput from '@/components/Form/FormInput';
+
+import { debounce } from '@/hooks/debounce';
+import { useQueryStep } from '@/app/[locale]/template/create/useQueryStep';
 
 const TemplateCreatePage: React.FC = () => {
+  const router = useRouter();
+  const [step, setStep] = useState<number | null>(null);
+  const [templateName, setTemplateName] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const stepQueryValue = useQueryStep();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  //Localization keys
+  const TemplateCreate = useTranslations('TemplateCreatePage');
+  const Global = useTranslations('Global');
+
+  // Debounced input handler
+  const debouncedInputHandler = useMemo(
+    () =>
+      debounce((value: string) => {
+        setErrors({});
+        const sanitizedTemplateName = sanitizeHtml(value);
+        setTemplateName(sanitizedTemplateName);
+      }, 30),
+    []
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedInputHandler(e.target.value);
+  }
+
+  const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted');
 
-    // redirect to the new template page
-    window.location.href = '/template/create/select-template';
+    // If user enters a valid template name, we want to redirect them to
+    // Step 2 of the create template pages, which is the 'Start with a copy of an existing template' page
+    if (templateName.length > 2) {
+      router.push('/template/create?step=2')
+    } else {
+      setErrors({ templateName: TemplateCreate('messages.templateNameError') });
+    }
+  }
 
+  useEffect(() => {
+    // If a step was specified in a query param, then set that step (step 1 or 2)
+    if (step !== stepQueryValue) {
+      setStep(stepQueryValue);
+    }
+  }, [stepQueryValue])
+
+  // TODO: Need to implement a shared loading component
+  if (step === null) {
+    return <div>...{Global('messaging.loading')}</div>
   }
 
   return (
     <>
+      {step === 1 && (
+        <>
+          <PageHeader
+            title={Global('breadcrumbs.createTemplate')}
+            showBackButton={false}
+            breadcrumbs={
+              <Breadcrumbs>
+                <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+                <Breadcrumb><Link href="/template">{Global('breadcrumbs.template')}</Link></Breadcrumb>
+                <Breadcrumb>{Global('breadcrumbs.createTemplate')}</Breadcrumb>
+              </Breadcrumbs>
+            }
+            actions={null}
+            className="page-template-list"
+          />
 
+          <LayoutContainer>
+            <ContentContainer>
+              <Form onSubmit={handleNext}>
+                <FormInput
+                  name="templateName"
+                  type="text"
+                  label={TemplateCreate('nameOfYourTemplate')}
+                  placeholder=""
+                  value={templateName}
+                  onChange={handleInputChange}
+                  helpMessage={TemplateCreate('helpText')}
+                  errorMessage={errors.templateName ? errors.templateName : ''}
+                  isInvalid={!!errors.templateName}
+                />
 
-      <PageHeader
-        title="Create a template"
-        description="Manager or create DMSP templates, once published researchers will be able to select your template."
-        showBackButton={true}
-        breadcrumbs={
-          <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/templates">Templates</Link></Breadcrumb>
-            <Breadcrumb>Create a template</Breadcrumb>
-          </Breadcrumbs>
-        }
-        actions={null}
-        className="page-template-list"
-      />
+                <Button type="submit">
+                  {Global('buttons.next')}
+                </Button>
 
+              </Form>
+            </ContentContainer>
+          </LayoutContainer>
+        </>
+      )}
+      {step == 2 && (
+        <TemplateSelectTemplatePage
+          templateName={templateName}
+        />
+      )}
 
-
-      <Form onSubmit={handleSubmit}>
-        <TextField
-          name="template_name"
-          type="text"
-          isRequired
-        >
-          <Label>Template name</Label>
-          <Text slot="description" className="help">
-            Don’t worry, you can change this later.
-          </Text>
-          <Input />
-          <FieldError />
-        </TextField>
-
-        <RadioGroup>
-          <Label>Template type</Label>
-          <Text slot="description" className="help">
-            Choose the type of template you want to create.
-          </Text>
-          <Radio value="previous">Start with one of your previous templates.</Radio>
-          <Radio value="dmp">Start with a DMP best practice template.</Radio>
-          <Radio value="new">Build new template</Radio>
-        </RadioGroup>
-
-        <Button type="submit"
-          className="">Create</Button>
-
-      </Form>
     </>
   );
 }

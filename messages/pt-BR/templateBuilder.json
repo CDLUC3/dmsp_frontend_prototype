@@ -123,20 +123,25 @@
     "questionsCount": "<p>Esta seção inclui:</p><p>{count} questões pré-criadas</p>"
   },
   "Section": {
-    "tabs": {
-      "editSection": "Editar seção",
-      "options": "Opções",
-      "logic": "Lógica"
+    "Section": {
+      "tabs": {
+        "editSection": "Editar seção",
+        "options": "Opções",
+        "logic": "Lógica"
+      },
+      "labels": {
+        "sectionName": "Nome da seção",
+        "sectionIntroduction": "Introdução à seção",
+        "sectionRequirements": "Requisitos da seção",
+        "sectionGuidance": "Orientação em Seção",
+        "bestPracticeTags": "Seção das melhores práticas para incluir"
+      },
+      "helpText": {
+        "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
+      }
     },
-    "labels": {
-      "sectionName": "Nome da seção",
-      "sectionIntroduction": "Introdução à seção",
-      "sectionRequirements": "Requisitos da seção",
-      "sectionGuidance": "Orientação em Seção",
-      "bestPracticeTags": "Seção das melhores práticas para incluir"
-    },
-    "helpText": {
-      "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
+    "CreateSectionPage": {
+      "title": "Criar seção"
     }
   },
   "CreateSectionPage": {
@@ -157,7 +162,7 @@
     },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
-      "errorUpdatingSection": "Erro ao criar a seção.",
+      "errorCreatingSection": "Erro ao criar a seção.",
       "success": "Seção criada com sucesso."
     }
   },
@@ -165,5 +170,36 @@
     "title": "Que tipo de pergunta você gostaria de adicionar?",
     "description": "À medida que você cria o seu modelo, você pode escolher diferentes tipos de perguntas para adicioná-la, dependendo do tipo de informação requerida pelo criador do plano.",
     "searchHelpText": "Pesquisar por tipo de campo ou descrição."
+  },
+  "TemplateCreatePage": {
+    "helpText": "Não se preocupe, você pode mudar isso depois.",
+    "nameOfYourTemplate": "Nome do seu modelo",
+    "messages": {
+      "templateNameError": "Por favor, insira um valor válido para o nome do tema."
+    }
+  },
+  "TemplateSelectTemplatePage": {
+    "title": "Selecionar um modelo existente",
+    "resultsText": "Os resultados {name} correspondem à sua pesquisa",
+    "numDisplaying": "Mostrando {num} de {total}",
+    "clearFilter": "filtros transparentes",
+    "buttons": {
+      "load3More": "Carregue mais 3",
+      "loadMore": "Carregue mais {name}"
+    },
+    "headings": {
+      "previouslyCreatedTemplates": "Use uma de suas seções criadas anteriormente",
+      "publicTemplates": "Use um dos modelos públicos"
+    },
+    "messages": {
+      "noItemsFound": "Nenhum item encontrado",
+      "missingTemplateName": "Faltando nome de modelo",
+      "loadingError": "Erro ao carregar modelos. Tente novamente mais tarde."
+    }
+  },
+  "TemplateSelectListItem": {
+    "messages": {
+      "additionalGuidance": "Sua organização de pesquisa tem orientação adicional"
+    }
   }
 }

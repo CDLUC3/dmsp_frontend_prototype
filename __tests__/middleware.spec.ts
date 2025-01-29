@@ -1,8 +1,7 @@
-import {NextRequest, NextResponse} from 'next/server';
-import {middleware} from '../middleware';
-import {verifyJwtToken} from '@/lib/server/auth';
-import {getAuthTokenServer} from '@/utils/getAuthTokenServer';
-
+import { NextRequest, NextResponse } from 'next/server';
+import { middleware } from '../middleware';
+import { verifyJwtToken } from '@/lib/server/auth';
+import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 
 jest.mock('next/server', () => ({
     NextResponse: {
@@ -10,6 +9,12 @@ jest.mock('next/server', () => ({
         redirect: jest.fn(),
     },
 }));
+
+jest.mock('@/utils/clientLogger', () => ({
+    __esModule: true,
+    default: jest.fn()
+}))
+
 
 jest.mock('next-intl/middleware', () => ({
     __esModule: true,
@@ -45,6 +50,9 @@ describe('middleware', () => {
             cookies: {
                 get: jest.fn().mockReturnValue('cookie-value'),
             },
+            headers: {
+                get: jest.fn().mockReturnValue('dmspr=refreshTokenValue')
+            },
             nextUrl: {
                 pathname: '',
                 href: 'http://localhost/test',
@@ -73,7 +81,7 @@ describe('middleware', () => {
         const result = await middleware(request);
 
         expect(NextResponse.redirect).toHaveBeenCalledWith(new URL('/login', request.url));
-        expect(result).toBe(NextResponse.redirect());
+        expect(result).toBe(NextResponse.redirect(new URL('/login', request.url)));
     });
 
     it('should set custom header for /dmps path', async () => {
