@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
     Breadcrumb,
     Breadcrumbs,
@@ -38,8 +38,11 @@ import styles from './newQuestion.module.scss';
 const QuestionTypeSelectPage: React.FC = () => {
     // Get templateId param
     const params = useParams();
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const topRef = useRef<HTMLDivElement>(null);
     const { templateId } = params; // From route /template/:templateId
+    const sectionId = searchParams.get('section_id');
 
     // State management
     const [step, setStep] = useState<number | null>(null);
@@ -47,6 +50,7 @@ const QuestionTypeSelectPage: React.FC = () => {
     const [filteredQuestionTypes, setFilteredQuestionTypes] = useState<QuestionTypesInterface[] | null>([]);
     const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
     const [searchButtonClicked, setSearchButtonClicked] = useState(false);
+    const [selectedQuestionType, setSelectedQuestionType] = useState<{ questionTypeId: number, questionTypeName: string }>();
     const [questionTypeId, setQuestionTypeId] = useState<number | null>(null);
     const [errors, setErrors] = useState<string[]>([]);
 
@@ -59,11 +63,12 @@ const QuestionTypeSelectPage: React.FC = () => {
     // Make graphql request for question types
     const { data, loading, error: queryError } = useQuestionTypesQuery();
 
-    const handleSelect = (questionTypeId: number) => {
+    const handleSelect = (questionTypeId: number, questionTypeName: string) => {
         // redirect to the Question Edit page
         if (questionTypeId) {
-            setQuestionTypeId(questionTypeId);
+            setSelectedQuestionType({ questionTypeId: questionTypeId, questionTypeName: questionTypeName })
             setStep(2);
+            router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=2`)
         }
     }
 
@@ -244,7 +249,11 @@ const QuestionTypeSelectPage: React.FC = () => {
             {step === 2 && (
                 <>
                     {/*Show Edit Question form*/}
-                    <QuestionEdit questionTypeId={questionTypeId ? questionTypeId : null} />
+                    <QuestionEdit
+                        questionTypeId={selectedQuestionType?.questionTypeId ?? null}
+                        questionTypeName={selectedQuestionType?.questionTypeName ?? null}
+                        sectionId={sectionId ? sectionId : ''}
+                    />
                 </>
             )}
         </>

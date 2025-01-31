@@ -1,0 +1,71 @@
+.optionsRow {
+  display: flex;
+  flex-direction: row;
+
+  .orderNumber {
+    max-width: 100px;
+  }
+}
+
+.formRow {
+  display: flex;
+  flex-direction: row;
+
+}
+
+.tableContainer {
+  // display: flex;
+  // flex-direction: column;
+  // flex-wrap: wrap; // Allow rows to wrap
+  margin-bottom: 2rem;
+}
+
+.tableHeader {
+  font-weight: 700;
+  font-size:medium;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.cell {
+  padding: 10px;
+  flex: 1;
+}
+
+.cellData {
+  border: 1px solid #ccc;
+}
+
+.text {
+  min-width: 200px;
+}
+
+.orderNumber {
+  max-width: 30px;
+}
+
+.deleteButton,
+.react-aria-Button {
+
+}
+
+.dmpIcon {
+  fill: black;
+}
+
+.dmpIcon:hover {
+  fill: red;
+}
+
+.remove {
+  display:flex;
+  align-items: center;
+  padding-top: 0.75rem;
+}
+
+.default {
+  margin-left: 20px;
+}

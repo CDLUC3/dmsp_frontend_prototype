@@ -2726,6 +2726,13 @@ export type UpdateUserProfileInput = {
   surName: Scalars['String']['input'];
 };
 
+export type AddQuestionMutationVariables = Exact<{
+  input: AddQuestionInput;
+}>;
+
+
+export type AddQuestionMutation = { __typename?: 'Mutation', addQuestion: { __typename?: 'Question', errors?: Array<string> | null, id?: number | null, displayOrder?: number | null, questionText?: string | null, questionTypeId?: number | null, required?: boolean | null, requirementText?: string | null, guidanceText?: string | null, questionOptions?: Array<{ __typename?: 'QuestionOption', isDefault?: boolean | null, id?: number | null, questionId: number, orderNumber: number, text: string }> | null } };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
@@ -2870,6 +2877,53 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, errors?: Array<string> | null, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
+export const AddQuestionDocument = gql`
+    mutation AddQuestion($input: AddQuestionInput!) {
+  addQuestion(input: $input) {
+    errors
+    id
+    displayOrder
+    questionText
+    questionTypeId
+    required
+    requirementText
+    guidanceText
+    questionOptions {
+      isDefault
+      id
+      questionId
+      orderNumber
+      text
+    }
+  }
+}
+    `;
+export type AddQuestionMutationFn = Apollo.MutationFunction<AddQuestionMutation, AddQuestionMutationVariables>;
+
+/**
+ * __useAddQuestionMutation__
+ *
+ * To run a mutation, you first call `useAddQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addQuestionMutation, { data, loading, error }] = useAddQuestionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddQuestionMutation(baseOptions?: Apollo.MutationHookOptions<AddQuestionMutation, AddQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddQuestionMutation, AddQuestionMutationVariables>(AddQuestionDocument, options);
+      }
+export type AddQuestionMutationHookResult = ReturnType<typeof useAddQuestionMutation>;
+export type AddQuestionMutationResult = Apollo.MutationResult<AddQuestionMutation>;
+export type AddQuestionMutationOptions = Apollo.BaseMutationOptions<AddQuestionMutation, AddQuestionMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {

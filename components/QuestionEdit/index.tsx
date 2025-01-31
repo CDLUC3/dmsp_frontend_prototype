@@ -1,6 +1,8 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams, useRouter } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,11 +20,21 @@ import {
   TextArea,
   TextField
 } from "react-aria-components";
-import { useParams } from 'next/navigation';
 
+// GraphQL queries and mutations
+import {
+  useAddQuestionMutation
+} from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
+import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent';
+
+//Other
+import { useToast } from '@/context/ToastContext';
+import styles from './questionEdit.module.scss';
+
+
 
 // Sample data stub representing data fetched from a GraphQL server
 const sampleQuestion = {
@@ -35,26 +47,102 @@ const sampleQuestion = {
   sampleText: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
 };
 
-const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }) => {
+const QuestionEditPage = ({
+  questionTypeId,
+  questionTypeName,
+  sectionId }:
+  {
+    questionTypeId?: number | null,
+    questionTypeName: string | null,
+    sectionId: string
+  }) => {
   const params = useParams();
+  const router = useRouter();
+  const toastState = useToast(); // Access the toast state from context
   const { templateId } = params; // From route /template/:templateId
   const { q_slug } = params; //question id
-
+  const step1Url = `/template/${templateId}/q/new?section_id=${sectionId}&step=1`;
   // State for managing form inputs
   const [question, setQuestion] = useState(sampleQuestion);
+  const [rows, setRows] = useState([{ id: 1, order: 1, text: "", isDefault: false }]);
+  const [errors, setErrors] = useState<string[]>([]);
+
+  // Initialize add question mutation
+  const [addQuestionMutation] = useAddQuestionMutation();
+
+  const redirectToQuestionTypes = () => {
+    router.push(step1Url)
+  }
+
   const handleGuidanceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setQuestion({ ...question, guidance: e.currentTarget.value });
   };
 
-  const handleSave = async () => {
+  const transformOptions = () => {
+    // If duplicate order numbers or text, do we want to give the user an error message?
+    const transformedRows = rows.map(option => {
+      return { text: option.text, orderNumber: option.order, isDefault: option.isDefault }
+    })
+
+    return transformedRows;
+  }
+
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
     /*If a 'q_slug' exists in path, we will update that existing question, otherwise
     we will add a new question */
     if (q_slug) {
       // Update mutation for question
     } else {
-      // Add mutation for question
+      const transformedQuestionOptions = transformOptions();
+
+      try {
+        // Add mutation for question
+        const response = await addQuestionMutation({
+          variables: {
+            input: {
+              templateId: Number(templateId),
+              sectionId: Number(sectionId),
+              displayOrder: 1,
+              isDirty: true,
+              questionTypeId: questionTypeId,
+              questionText: question.text,
+              requirementText: question.requirements,
+              guidanceText: question.guidance,
+              sampleText: question.sampleText,
+              required: false,
+              questionOptions: transformedQuestionOptions
+            }
+          },
+        });
+
+        if (response?.data) {
+          toastState.add('Question was successfully added', { type: 'success' });
+        }
+      } catch (error) {
+        if (error instanceof ApolloError) {
+          //
+        } else {
+          // Handle other types of errors
+          setErrors(prevErrors => [...prevErrors, 'Error when updating profile']);
+        }
+      }
+
     }
   }
+
+  useEffect(() => {
+    if (!questionTypeId) {
+      // If questionTypeId is missing, return user to the Question Types selection page
+      toastState.add('Something went wrong. Please try again.', { type: 'error' });
+      router.push(step1Url);
+
+      // If the sectionId is missing, return user back to the Edit Template page
+      router.push(`/template/${templateId}`);
+    }
+  }, [])
+
 
   return (
     <>
@@ -74,11 +162,7 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
       />
 
       <div className="template-editor-container">
-
-
         <div className="main-content">
-
-
           {/* Using templateId from the URL to create a back link */}
 
 
@@ -89,18 +173,26 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
               <Tab id="logic">Logic</Tab>
             </TabList>
             <TabPanel id="edit">
-              <Form>
+              <Form onSubmit={handleSave}>
                 <TextField
                   name="type"
                   type="text"
                   isRequired
-                  value={question.type}
+                  value={questionTypeName ? questionTypeName : ''}
                 >
                   <Label>Type (required)</Label>
                   <Input disabled />
                   <FieldError />
-                  <Button type="button">Change type</Button>
+                  <Button type="button" onPress={redirectToQuestionTypes}>Change type</Button>
                 </TextField>
+
+                {/**Question type fields here */}
+                {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
+                  <>
+                    <p className={styles.optionsDescription}>Please enter answer choices for the {questionTypeName}</p>
+                    <QuestionOptionsComponent rows={rows} setRows={setRows} />
+                  </>
+                )}
 
                 <TextField
                   name="question_text"
@@ -174,7 +266,7 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
                   <FieldError />
                 </TextField>
 
-                <Button type="submit" onPress={handleSave}>Save</Button>
+                <Button type="submit">Save</Button>
 
               </Form>
             </TabPanel>

@@ -1,0 +1,19 @@
+mutation AddQuestion($input: AddQuestionInput!) {
+  addQuestion(input: $input) {
+    errors
+    id
+    displayOrder
+    questionText
+    questionTypeId
+    required
+    requirementText
+    guidanceText
+    questionOptions {
+      isDefault
+      id
+      questionId
+      orderNumber
+      text
+    }
+  }
+}
