@@ -206,13 +206,14 @@ const QuestionEditPage = ({
                 <TextField
                   name="type"
                   type="text"
+                  className={`${styles.searchField} react-aria-TextField`}
                   isRequired
                   value={questionTypeName ? questionTypeName : ''}
                 >
-                  <Label>Type (required)</Label>
-                  <Input disabled />
+                  <Label className={`${styles.searchLabel} react-aria-Label`}>Type (required)</Label>
+                  <Input className={`${styles.searchInput} react-aria-Input`} disabled />
+                  <Button className={`${styles.searchButton} react-aria-Button`} type="button" onPress={redirectToQuestionTypes}>Change type</Button>
                   <FieldError />
-                  <Button type="button" onPress={redirectToQuestionTypes}>Change type</Button>
                 </TextField>
 
                 {/**Question type fields here */}

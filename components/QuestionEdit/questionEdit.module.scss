@@ -2,3 +2,27 @@
   font-size: var(--fs-lg);
   font-weight:600;
 }
+
+.searchField {
+  display: grid;
+  grid-template-areas:
+  "label label"
+  "input button";
+  grid-template-columns: 1fr auto;
+  max-width: 500px;
+}
+
+.searchLabel {
+  grid-area: label;
+}
+
+.searchInput {
+  grid-area: input;
+  
+}
+
+.searchButton {
+  grid-area: button;
+  margin-left: 10px;
+  width: fit-content;
+}
