@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -23,6 +23,7 @@ import {
 
 // GraphQL queries and mutations
 import {
+  useQuestionsDisplayOrderQuery,
   useAddQuestionMutation
 } from '@/generated/graphql';
 
@@ -61,7 +62,11 @@ const QuestionEditPage = ({
   const toastState = useToast(); // Access the toast state from context
   const { templateId } = params; // From route /template/:templateId
   const { q_slug } = params; //question id
+
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
   const step1Url = `/template/${templateId}/q/new?section_id=${sectionId}&step=1`;
+
   // State for managing form inputs
   const [question, setQuestion] = useState(sampleQuestion);
   const [rows, setRows] = useState([{ id: 1, order: 1, text: "", isDefault: false }]);
@@ -69,6 +74,13 @@ const QuestionEditPage = ({
 
   // Initialize add question mutation
   const [addQuestionMutation] = useAddQuestionMutation();
+
+  // Query request for questions to calculate max displayOrder
+  const { data: questionDisplayOrders } = useQuestionsDisplayOrderQuery({
+    variables: {
+      sectionId: Number(sectionId)
+    }
+  })
 
   const redirectToQuestionTypes = () => {
     router.push(step1Url)
@@ -87,6 +99,18 @@ const QuestionEditPage = ({
     return transformedRows;
   }
 
+  const getDisplayOrder = () => {
+    // Calculate max displayOrder
+    let maxQuestionDisplayOrder = null;
+    if (questionDisplayOrders?.questions && questionDisplayOrders.questions.length > 0) {
+      // Find the maximum displayOrder
+      maxQuestionDisplayOrder = questionDisplayOrders.questions.reduce(
+        (max, question) => (question?.displayOrder ?? -Infinity) > max ? question?.displayOrder ?? max : max,
+        0
+      );
+    }
+    return maxQuestionDisplayOrder ? maxQuestionDisplayOrder + 1 : 1;
+  }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,13 +122,14 @@ const QuestionEditPage = ({
       const transformedQuestionOptions = transformOptions();
 
       try {
+        const displayOrder = getDisplayOrder();
         // Add mutation for question
         const response = await addQuestionMutation({
           variables: {
             input: {
               templateId: Number(templateId),
               sectionId: Number(sectionId),
-              displayOrder: 1,
+              displayOrder: displayOrder,
               isDirty: true,
               questionTypeId: questionTypeId,
               questionText: question.text,
@@ -163,9 +188,13 @@ const QuestionEditPage = ({
 
       <div className="template-editor-container">
         <div className="main-content">
-          {/* Using templateId from the URL to create a back link */}
-
-
+          {errors && errors.length > 0 &&
+            <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
+              {errors.map((error, index) => (
+                <p key={index}>{error}</p>
+              ))}
+            </div>
+          }
           <Tabs>
             <TabList aria-label="Question editing">
               <Tab id="edit">Edit Question</Tab>

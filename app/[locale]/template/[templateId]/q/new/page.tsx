@@ -51,7 +51,6 @@ const QuestionTypeSelectPage: React.FC = () => {
     const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
     const [searchButtonClicked, setSearchButtonClicked] = useState(false);
     const [selectedQuestionType, setSelectedQuestionType] = useState<{ questionTypeId: number, questionTypeName: string }>();
-    const [questionTypeId, setQuestionTypeId] = useState<number | null>(null);
     const [errors, setErrors] = useState<string[]>([]);
 
     const stepQueryValue = useQueryStep();
