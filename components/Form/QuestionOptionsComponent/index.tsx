@@ -105,8 +105,9 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 aria-checked={row.isDefault}
                 aria-label={`Set row ${index + 1} as default`}
                 onChange={() => setDefault(row.id)}
+                className={`${styles.optionsCheckbox} react-aria-Checkbox`}
               >
-                <div className="checkbox">
+                <div className={`${styles.checkBox} checkbox`}>
                   <svg viewBox="0 0 18 18" aria-hidden="true">
                     <polyline points="1 9 7 14 15 4" />
                   </svg>

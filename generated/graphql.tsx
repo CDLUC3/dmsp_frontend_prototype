@@ -2830,6 +2830,20 @@ export type QuestionsDisplayOrderQueryVariables = Exact<{
 
 export type QuestionsDisplayOrderQuery = { __typename?: 'Query', questions?: Array<{ __typename?: 'Question', displayOrder?: number | null } | null> | null };
 
+export type QuestionQueryVariables = Exact<{
+  questionId: Scalars['Int']['input'];
+}>;
+
+
+export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, errors?: Array<string> | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
+
+export type UpdateQuestionMutationVariables = Exact<{
+  input: UpdateQuestionInput;
+}>;
+
+
+export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, errors?: Array<string> | null, isDirty?: boolean | null, required?: boolean | null, requirementText?: string | null, sampleText?: string | null, sectionId: number, templateId: number, questionText?: string | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, orderNumber: number, questionId: number, text: string, isDefault?: boolean | null }> | null } };
+
 export type SectionsDisplayOrderQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
 }>;
@@ -3493,6 +3507,112 @@ export type QuestionsDisplayOrderQueryHookResult = ReturnType<typeof useQuestion
 export type QuestionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderLazyQuery>;
 export type QuestionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderSuspenseQuery>;
 export type QuestionsDisplayOrderQueryResult = Apollo.QueryResult<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>;
+export const QuestionDocument = gql`
+    query Question($questionId: Int!) {
+  question(questionId: $questionId) {
+    id
+    guidanceText
+    errors
+    displayOrder
+    questionText
+    requirementText
+    sampleText
+    sectionId
+    templateId
+    questionTypeId
+    questionOptions {
+      id
+      isDefault
+      orderNumber
+      text
+      questionId
+    }
+    isDirty
+  }
+}
+    `;
+
+/**
+ * __useQuestionQuery__
+ *
+ * To run a query within a React component, call `useQuestionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuestionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuestionQuery({
+ *   variables: {
+ *      questionId: // value for 'questionId'
+ *   },
+ * });
+ */
+export function useQuestionQuery(baseOptions: Apollo.QueryHookOptions<QuestionQuery, QuestionQueryVariables> & ({ variables: QuestionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QuestionQuery, QuestionQueryVariables>(QuestionDocument, options);
+      }
+export function useQuestionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionQuery, QuestionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QuestionQuery, QuestionQueryVariables>(QuestionDocument, options);
+        }
+export function useQuestionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionQuery, QuestionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<QuestionQuery, QuestionQueryVariables>(QuestionDocument, options);
+        }
+export type QuestionQueryHookResult = ReturnType<typeof useQuestionQuery>;
+export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery>;
+export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
+export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
+export const UpdateQuestionDocument = gql`
+    mutation UpdateQuestion($input: UpdateQuestionInput!) {
+  updateQuestion(input: $input) {
+    id
+    guidanceText
+    errors
+    isDirty
+    required
+    requirementText
+    sampleText
+    sectionId
+    templateId
+    questionText
+    questionOptions {
+      id
+      orderNumber
+      questionId
+      text
+      isDefault
+    }
+  }
+}
+    `;
+export type UpdateQuestionMutationFn = Apollo.MutationFunction<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
+
+/**
+ * __useUpdateQuestionMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuestionMutation, { data, loading, error }] = useUpdateQuestionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateQuestionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuestionMutation, UpdateQuestionMutationVariables>(UpdateQuestionDocument, options);
+      }
+export type UpdateQuestionMutationHookResult = ReturnType<typeof useUpdateQuestionMutation>;
+export type UpdateQuestionMutationResult = Apollo.MutationResult<UpdateQuestionMutation>;
+export type UpdateQuestionMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
 export const SectionsDisplayOrderDocument = gql`
     query SectionsDisplayOrder($templateId: Int!) {
   sections(templateId: $templateId) {

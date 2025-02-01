@@ -21,7 +21,7 @@ import {
     ContentContainer,
     LayoutContainer,
 } from '@/components/Container';
-import QuestionEdit from '@/components/QuestionEdit';
+import QuestionAdd from '@/components/QuestionAdd';
 import QuestionTypeCard from '@/components/QuestionTypeCard';
 
 //GraphQL
@@ -248,7 +248,7 @@ const QuestionTypeSelectPage: React.FC = () => {
             {step === 2 && (
                 <>
                     {/*Show Edit Question form*/}
-                    <QuestionEdit
+                    <QuestionAdd
                         questionTypeId={selectedQuestionType?.questionTypeId ?? null}
                         questionTypeName={selectedQuestionType?.questionTypeName ?? null}
                         sectionId={sectionId ? sectionId : ''}

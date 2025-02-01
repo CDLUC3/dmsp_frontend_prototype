@@ -24,7 +24,9 @@ import {
 // GraphQL queries and mutations
 import {
   useQuestionsDisplayOrderQuery,
-  useAddQuestionMutation
+  useQuestionQuery,
+  useAddQuestionMutation,
+  useUpdateQuestionMutation,
 } from '@/generated/graphql';
 
 // Components
@@ -33,7 +35,7 @@ import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent
 
 //Other
 import { useToast } from '@/context/ToastContext';
-import styles from './questionEdit.module.scss';
+import styles from './questionAdd.module.scss';
 
 
 
@@ -48,14 +50,14 @@ const sampleQuestion = {
   sampleText: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
 };
 
-const QuestionEditPage = ({
+const QuestionAdd = ({
   questionTypeId,
   questionTypeName,
   sectionId }:
   {
     questionTypeId?: number | null,
-    questionTypeName: string | null,
-    sectionId: string
+    questionTypeName?: string | null,
+    sectionId?: string
   }) => {
   const params = useParams();
   const router = useRouter();
@@ -72,14 +74,16 @@ const QuestionEditPage = ({
   const [rows, setRows] = useState([{ id: 1, order: 1, text: "", isDefault: false }]);
   const [errors, setErrors] = useState<string[]>([]);
 
-  // Initialize add question mutation
+  // Initialize add and update question mutations
   const [addQuestionMutation] = useAddQuestionMutation();
+  const [updateQuestionMutation] = useUpdateQuestionMutation();
 
   // Query request for questions to calculate max displayOrder
   const { data: questionDisplayOrders } = useQuestionsDisplayOrderQuery({
     variables: {
       sectionId: Number(sectionId)
-    }
+    },
+    skip: !sectionId
   })
 
   const redirectToQuestionTypes = () => {
@@ -112,62 +116,55 @@ const QuestionEditPage = ({
     return maxQuestionDisplayOrder ? maxQuestionDisplayOrder + 1 : 1;
   }
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    /*If a 'q_slug' exists in path, we will update that existing question, otherwise
-    we will add a new question */
-    if (q_slug) {
-      // Update mutation for question
-    } else {
-      const transformedQuestionOptions = transformOptions();
 
-      try {
-        const displayOrder = getDisplayOrder();
-        // Add mutation for question
-        const response = await addQuestionMutation({
-          variables: {
-            input: {
-              templateId: Number(templateId),
-              sectionId: Number(sectionId),
-              displayOrder: displayOrder,
-              isDirty: true,
-              questionTypeId: questionTypeId,
-              questionText: question.text,
-              requirementText: question.requirements,
-              guidanceText: question.guidance,
-              sampleText: question.sampleText,
-              required: false,
-              questionOptions: transformedQuestionOptions
-            }
-          },
-        });
+    const transformedQuestionOptions = transformOptions();
+    try {
+      const displayOrder = getDisplayOrder();
+      // Add mutation for question
+      const response = await addQuestionMutation({
+        variables: {
+          input: {
+            templateId: Number(templateId),
+            sectionId: Number(sectionId),
+            displayOrder: displayOrder,
+            isDirty: true,
+            questionTypeId: questionTypeId,
+            questionText: question.text,
+            requirementText: question.requirements,
+            guidanceText: question.guidance,
+            sampleText: question.sampleText,
+            required: false,
+            questionOptions: transformedQuestionOptions
+          }
+        },
+      });
 
-        if (response?.data) {
-          toastState.add('Question was successfully added', { type: 'success' });
-        }
-      } catch (error) {
-        if (error instanceof ApolloError) {
-          //
-        } else {
-          // Handle other types of errors
-          setErrors(prevErrors => [...prevErrors, 'Error when updating profile']);
-        }
+      if (response?.data) {
+        toastState.add('Question was successfully added', { type: 'success' });
       }
-
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        //
+      } else {
+        // Handle other types of errors
+        setErrors(prevErrors => [...prevErrors, 'Error when updating profile']);
+      }
     }
+
   }
 
-  useEffect(() => {
-    if (!questionTypeId) {
-      // If questionTypeId is missing, return user to the Question Types selection page
-      toastState.add('Something went wrong. Please try again.', { type: 'error' });
-      router.push(step1Url);
+  // useEffect(() => {
+  //   if (!questionTypeId) {
+  //     // If questionTypeId is missing, return user to the Question Types selection page
+  //     toastState.add('Something went wrong. Please try again.', { type: 'error' });
+  //     router.push(step1Url);
 
-      // If the sectionId is missing, return user back to the Edit Template page
-      router.push(`/template/${templateId}`);
-    }
-  }, [])
-
+  //     // If the sectionId is missing, return user back to the Edit Template page
+  //     router.push(`/template/${templateId}`);
+  //   }
+  // }, [])
 
   return (
     <>
@@ -201,8 +198,9 @@ const QuestionEditPage = ({
               <Tab id="options">Options</Tab>
               <Tab id="logic">Logic</Tab>
             </TabList>
+
             <TabPanel id="edit">
-              <Form onSubmit={handleSave}>
+              <Form onSubmit={handleAdd}>
                 <TextField
                   name="type"
                   type="text"
@@ -213,7 +211,9 @@ const QuestionEditPage = ({
                   <Label className={`${styles.searchLabel} react-aria-Label`}>Type (required)</Label>
                   <Input className={`${styles.searchInput} react-aria-Input`} disabled />
                   <Button className={`${styles.searchButton} react-aria-Button`} type="button" onPress={redirectToQuestionTypes}>Change type</Button>
-                  <FieldError />
+                  <Text slot="description" className={`${styles.searchHelpText} help-text`}>
+                    Changing the question type, for example from Short question to Radio button, may result in some data being lost.
+                  </Text>
                 </TextField>
 
                 {/**Question type fields here */}
@@ -238,6 +238,9 @@ const QuestionEditPage = ({
                       text: e.currentTarget.value
                     })}
                   />
+                  <Text slot="description" className="help-text">
+                    Keep the question text concise and clear. Use the requirements or guidance to provide additional explanation.
+                  </Text>
                   <FieldError />
                 </TextField>
 
@@ -246,10 +249,9 @@ const QuestionEditPage = ({
                   isRequired
                   value={question.requirements}
                 >
-                  <Label>Question requirements (required)</Label>
-                  <Text slot="description" className="help">
-                    Keep the question concise and clear. Use the requirements or
-                    guidance to provide additional explanation.
+                  <Label>Requirements plan writer must meet (optional but recommended)</Label>
+                  <Text slot="description" className="help-text">
+                    Try to be precise and concise, so the plan writers won't miss any requirements. Question guidance is better for more general advice.
                   </Text>
                   <TextArea
                     value={question.requirements}
@@ -280,7 +282,7 @@ const QuestionEditPage = ({
                   value={question.sampleText}
                 >
                   <Label>Sample text</Label>
-                  <Text slot="description" className="help">
+                  <Text slot="description" className="help-text">
                     Provide an example or template of expected answer (optional
                     but
                     recommended)
@@ -294,11 +296,14 @@ const QuestionEditPage = ({
                     style={{ height: '80px' }}
                   />
                   <FieldError />
+                  <Text slot="description" className="help-text">
+                    Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry.
+                  </Text>
                 </TextField>
 
                 <Button type="submit">Save</Button>
-
               </Form>
+
             </TabPanel>
             <TabPanel id="options">
               <h2>Options</h2>
@@ -331,4 +336,4 @@ const QuestionEditPage = ({
   );
 }
 
-export default QuestionEditPage;
+export default QuestionAdd;
