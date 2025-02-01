@@ -60,9 +60,10 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   };
 
   // Update rows state
-  const handleChange = (id: number, field: string, value: string) => {
+  const handleChange = (id: number, field: string, value: string | number) => {
     if (id && id !== 0) {
       setRows((prevRows) => {
+
         // Update the specific field for the matching row
         return prevRows.map((row) =>
           row.id === id ? { ...row, [field]: value } : row
@@ -87,10 +88,10 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 type="text"
                 className={styles.orderNumber}
                 id={`order-${row.id}`}
-                name="order"
+                name="orderNumber"
                 value={row.orderNumber}
                 placeholder="Enter order #"
-                onChange={(e) => handleChange(row.id || 0, "order", e.target.value)}
+                onChange={(e) => handleChange(row.id || 0, "orderNumber", Number(e.target.value) || 0)}
                 aria-label={index === 0 ? undefined : "Order"}
               />
             </div>

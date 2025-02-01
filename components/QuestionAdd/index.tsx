@@ -225,10 +225,10 @@ const QuestionAdd = ({
 
                 {/**Question type fields here */}
                 {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
-                  <>
+                  <div className={styles.optionsWrapper}>
                     <p className={styles.optionsDescription}>Please enter answer choices for the {questionTypeName}</p>
                     <QuestionOptionsComponent rows={rows} setRows={setRows} />
-                  </>
+                  </div>
                 )}
 
                 <TextField

@@ -124,7 +124,7 @@ const QuestionEdit = () => {
     if (rows && rows.length > 0) {
       // If duplicate order numbers or text, do we want to give the user an error message?
       transformedRows = rows.map(option => {
-        return { questionOptionId: option.id, text: option.text, orderNumber: option.orderNumber, isDefault: option.isDefault, questionId: Number(q_slug) }
+        return { id: option.id, text: option.text, orderNumber: option.orderNumber, isDefault: option.isDefault, questionId: Number(q_slug) }
       })
     }
 

@@ -989,7 +989,7 @@ export type MutationRemoveQuestionConditionArgs = {
 
 
 export type MutationRemoveQuestionOptionArgs = {
-  questionOptionId: Scalars['Int']['input'];
+  id: Scalars['Int']['input'];
 };
 
 
@@ -1606,7 +1606,7 @@ export type Query = {
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
   questionConditions?: Maybe<Array<Maybe<QuestionCondition>>>;
-  /** Get the specific Question Option based on questionOptionId */
+  /** Get the specific Question Option based on question option id */
   questionOption?: Maybe<QuestionOption>;
   /** Get the Question Options that belong to the associated questionId */
   questionOptions?: Maybe<Array<Maybe<QuestionOption>>>;
@@ -1824,7 +1824,7 @@ export type QueryQuestionConditionsArgs = {
 
 
 export type QueryQuestionOptionArgs = {
-  questionOptionId: Scalars['Int']['input'];
+  id: Scalars['Int']['input'];
 };
 
 
@@ -2370,14 +2370,14 @@ export type UpdateQuestionInput = {
 };
 
 export type UpdateQuestionOptionInput = {
+  /** The id of the QuestionOption */
+  id?: InputMaybe<Scalars['Int']['input']>;
   /** Whether the option is the default selected one */
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
   /** The option order number */
   orderNumber: Scalars['Int']['input'];
   /** id of parent question */
   questionId?: InputMaybe<Scalars['Int']['input']>;
-  /** The id of the QuestionOption */
-  questionOptionId?: InputMaybe<Scalars['Int']['input']>;
   /** The option text */
   text: Scalars['String']['input'];
 };
