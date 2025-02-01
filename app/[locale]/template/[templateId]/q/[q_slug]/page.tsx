@@ -57,7 +57,7 @@ interface QuestionOptions {
   questionId: number;
 }
 interface Question {
-  id?: number | null;
+  id?: number | null | undefined;
   displayOrder?: number | null;
   questionText?: string | null;
   requirementText?: string | null;
@@ -78,8 +78,8 @@ const QuestionEdit = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   // State for managing form inputs
-  const [question, setQuestion] = useState<Question | null>();
-  const [rows, setRows] = useState([{ id: 1, order: 1, text: "", isDefault: false }]);
+  const [question, setQuestion] = useState<Question>();
+  const [rows, setRows] = useState<QuestionOptions[]>([]);
   const [questionType, setQuestionType] = useState<string>('');
 
   const [errors, setErrors] = useState<string[]>([]);
@@ -92,12 +92,9 @@ const QuestionEdit = () => {
     {
       variables: {
         questionId: Number(q_slug)
-      },
-      skip: !q_slug // Skip query if q_slug/questionId is not provided
+      }
     },
   );
-
-  console.log("***quesgtion", selectedQuestion);
 
   // Query for question types
   const { data: questionTypes } = useQuestionTypesQuery({
@@ -122,10 +119,14 @@ const QuestionEdit = () => {
   }
 
   const transformOptions = () => {
-    // If duplicate order numbers or text, do we want to give the user an error message?
-    const transformedRows = rows.map(option => {
-      return { text: option.text, orderNumber: option.order, isDefault: option.isDefault }
-    })
+    let transformedRows: QuestionOptions[] = [];
+
+    if (rows && rows.length > 0) {
+      // If duplicate order numbers or text, do we want to give the user an error message?
+      transformedRows = rows.map(option => {
+        return { questionOptionId: option.id, text: option.text, orderNumber: option.orderNumber, isDefault: option.isDefault, questionId: Number(q_slug) }
+      })
+    }
 
     return transformedRows;
   }
@@ -166,12 +167,28 @@ const QuestionEdit = () => {
 
   useEffect(() => {
     if (selectedQuestion) {
-      setQuestion(selectedQuestion?.question);
-      const qt = getQuestionTypeName(Number(selectedQuestion?.question?.questionTypeId))
-      if (qt) {
-        setQuestionType(qt);
-      }
+      const q = selectedQuestion?.question || null;
 
+      // Set question and rows in state
+      if (q && q.questionOptions) {
+        setQuestion(q);
+        const optionRows = q.questionOptions
+          .map(({ id, orderNumber, text, isDefault, questionId }) => ({
+            id: id ?? 0, // Ensure id is always a number
+            orderNumber,
+            text,
+            isDefault: isDefault || false,
+            questionId
+          }))
+          .sort((a, b) => a.orderNumber - b.orderNumber); // Sort in ascending order
+
+        setRows(optionRows);
+        const qt = getQuestionTypeName(Number(selectedQuestion?.question?.questionTypeId))
+        if (qt) {
+          setQuestionType(qt);
+        }
+
+      }
     }
   }, [selectedQuestion])
 
@@ -230,10 +247,10 @@ const QuestionEdit = () => {
 
                 {/**Question type fields here */}
                 {selectedQuestion?.question?.questionTypeId && [3, 4, 5].includes(selectedQuestion?.question?.questionTypeId) && (
-                  <>
+                  <div className={styles.optionsWrapper}>
                     <p className={styles.optionsDescription}>Please enter answer choices for the {questionType}</p>
                     <QuestionOptionsComponent rows={rows} setRows={setRows} />
-                  </>
+                  </div>
                 )}
 
                 <TextField

@@ -38,6 +38,13 @@ import { useToast } from '@/context/ToastContext';
 import styles from './questionAdd.module.scss';
 
 
+interface QuestionOptions {
+  id?: number | null;
+  text: string;
+  orderNumber: number;
+  isDefault?: boolean | null;
+  questionId: number;
+}
 
 // Sample data stub representing data fetched from a GraphQL server
 const sampleQuestion = {
@@ -71,7 +78,7 @@ const QuestionAdd = ({
 
   // State for managing form inputs
   const [question, setQuestion] = useState(sampleQuestion);
-  const [rows, setRows] = useState([{ id: 1, order: 1, text: "", isDefault: false }]);
+  const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
   const [errors, setErrors] = useState<string[]>([]);
 
   // Initialize add and update question mutations
@@ -97,7 +104,7 @@ const QuestionAdd = ({
   const transformOptions = () => {
     // If duplicate order numbers or text, do we want to give the user an error message?
     const transformedRows = rows.map(option => {
-      return { text: option.text, orderNumber: option.order, isDefault: option.isDefault }
+      return { text: option.text, orderNumber: option.orderNumber, isDefault: option.isDefault }
     })
 
     return transformedRows;

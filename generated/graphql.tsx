@@ -2374,6 +2374,8 @@ export type UpdateQuestionOptionInput = {
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
   /** The option order number */
   orderNumber: Scalars['Int']['input'];
+  /** id of parent question */
+  questionId?: InputMaybe<Scalars['Int']['input']>;
   /** The id of the QuestionOption */
   questionOptionId?: InputMaybe<Scalars['Int']['input']>;
   /** The option text */

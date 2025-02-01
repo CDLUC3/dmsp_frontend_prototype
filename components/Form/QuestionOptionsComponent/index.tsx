@@ -6,14 +6,15 @@ import {
 } from "react-aria-components";
 
 interface Row {
-  id: number;
-  order: number;
+  id?: number | null;
+  orderNumber: number;
   text: string;
-  isDefault: boolean;
+  isDefault?: boolean | null;
+  questionId: number;
 }
 
 interface QuestionOptionsComponentProps {
-  rows: Row[];
+  rows: Row[] | null;
   setRows: React.Dispatch<React.SetStateAction<Row[]>>;
 }
 
@@ -25,47 +26,55 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
 
   // Add options row
   const addRow = () => {
-    const newRow = {
-      id: rows.length + 1,
-      order: rows.length + 1,
-      text: "",
-      isDefault: false,
-    };
-    setRows((prevRows) => [...prevRows, newRow]);
+    if (rows) {
+      const newRow = {
+        id: rows.length + 1,
+        orderNumber: rows.length + 1,
+        text: "",
+        isDefault: false,
+        questionId: 0,
+
+      };
+      setRows((prevRows) => [...prevRows, newRow]);
+    }
   };
 
   // Delete options row
   const deleteRow = (id: number) => {
-    setRows((prevRows) => prevRows.filter(row => row.id !== id));
+    if (id && id !== 0) {
+      setRows((prevRows) => prevRows.filter(row => row.id !== id));
+    }
   };
 
 
   // Set one row as default (only one can be true)
   const setDefault = (id: number) => {
-    setRows((prevRows) =>
-      prevRows.map((row) => ({
-        ...row,
-        isDefault: row.id === id,
-      }))
-    );
+    if (id && id !== 0) {
+      setRows((prevRows) =>
+        prevRows.map((row) => ({
+          ...row,
+          isDefault: row.id === id,
+        }))
+      );
+    }
   };
 
   // Update rows state
   const handleChange = (id: number, field: string, value: string) => {
-    setRows((prevRows) => {
-
-      // Update the specific field for the matching row
-      return prevRows.map((row) =>
-        row.id === id ? { ...row, [field]: value } : row
-      );
-    });
+    if (id && id !== 0) {
+      setRows((prevRows) => {
+        // Update the specific field for the matching row
+        return prevRows.map((row) =>
+          row.id === id ? { ...row, [field]: value } : row
+        );
+      });
+    }
   };
 
   return (
     <>
       <div className={styles.tableContainer}>
-        {rows.map((row, index) => (
-
+        {rows && rows.map((row, index) => (
           <div key={row.id} className={styles.row} role="group">
             {/**Let screenreader know which row they are on */}
             <span id={`row-label-${row.id}`} className='hidden-accessibly'>
@@ -79,9 +88,9 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 className={styles.orderNumber}
                 id={`order-${row.id}`}
                 name="order"
-                value={row.order}
+                value={row.orderNumber}
                 placeholder="Enter order #"
-                onChange={(e) => handleChange(row.id, "order", e.target.value)}
+                onChange={(e) => handleChange(row.id || 0, "order", e.target.value)}
                 aria-label={index === 0 ? undefined : "Order"}
               />
             </div>
@@ -94,7 +103,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 name="text"
                 value={row.text}
                 placeholder="Enter text"
-                onChange={(e) => handleChange(row.id, "text", e.target.value)}
+                onChange={(e) => handleChange(row.id || 0, "text", e.target.value)}
                 aria-label={index === 0 ? undefined : "Text"}
               />
             </div>
@@ -104,8 +113,9 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 id={`default-${row.id}`}
                 aria-checked={row.isDefault}
                 aria-label={`Set row ${index + 1} as default`}
-                onChange={() => setDefault(row.id)}
+                onChange={() => setDefault(row.id || 0)}
                 className={`${styles.optionsCheckbox} react-aria-Checkbox`}
+                isSelected={row.isDefault ? row.isDefault : false}
               >
                 <div className={`${styles.checkBox} checkbox`}>
                   <svg viewBox="0 0 18 18" aria-hidden="true">
@@ -117,7 +127,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
             <div className={styles.remove}>
               <button
                 type="button"
-                onClick={() => deleteRow(row.id)}
+                onClick={() => deleteRow(row.id || 0)}
                 aria-label={`Delete row ${index + 1}`}
                 className={`${styles.deleteButton} react-aria-Button secondary`}
               >
