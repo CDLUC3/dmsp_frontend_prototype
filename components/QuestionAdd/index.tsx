@@ -205,7 +205,7 @@ const QuestionAdd = ({
                 {/**Question type fields here */}
                 {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
                   <div className={styles.optionsWrapper}>
-                    <p className={styles.optionsDescription}>{QuestionAdd('Please enter answer choices for the', { questionTypeName })}</p>
+                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionTypeName })}</p>
                     <QuestionOptionsComponent rows={rows} setRows={setRows} />
                   </div>
                 )}

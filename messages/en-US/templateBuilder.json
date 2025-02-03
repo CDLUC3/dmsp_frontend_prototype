@@ -231,6 +231,9 @@
     }
   },
   "QuestionAdd": {
+    "descriptions": {
+      "sampleText": "Provide an example or template of expected answer (optional but recommended)"
+    },
     "labels": {
       "order": "Order",
       "text": "Text (required)",

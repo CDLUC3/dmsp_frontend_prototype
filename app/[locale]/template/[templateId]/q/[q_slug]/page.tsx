@@ -226,7 +226,7 @@ const QuestionEdit = () => {
                 {/**Question type fields here */}
                 {selectedQuestion?.question?.questionTypeId && [3, 4, 5].includes(selectedQuestion?.question?.questionTypeId) && (
                   <div className={styles.optionsWrapper}>
-                    <p className={styles.optionsDescription}>{QuestionEdit('Please enter answer choices for the', { questionType })}</p>
+                    <p className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
                     <QuestionOptionsComponent rows={rows} setRows={setRows} questionId={Number(questionId)} />
                   </div>
                 )}

@@ -32,7 +32,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
 
   // localization keys
   const Global = useTranslations('Global');
-  const QuestionOptions = useTranslations('QuestionOptions');
+  const QuestionOptions = useTranslations('QuestionOptionsComponent');
 
   // Add options row
   const addRow = () => {
