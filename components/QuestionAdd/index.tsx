@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -58,6 +59,10 @@ const QuestionAdd = ({
   const [question, setQuestion] = useState<Question>();
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
   const [errors, setErrors] = useState<string[]>([]);
+
+  // localization keys
+  const Global = useTranslations('Global');
+  const QuestionAdd = useTranslations('QuestionAdd');
 
   // Initialize add and update question mutations
   const [addQuestionMutation] = useAddQuestionMutation();
@@ -155,9 +160,9 @@ const QuestionAdd = ({
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}`}>Edit Template</Link></Breadcrumb>
-            <Breadcrumb>Question</Breadcrumb>
+            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
@@ -175,9 +180,9 @@ const QuestionAdd = ({
           }
           <Tabs>
             <TabList aria-label="Question editing">
-              <Tab id="edit">Edit Question</Tab>
-              <Tab id="options">Options</Tab>
-              <Tab id="logic">Logic</Tab>
+              <Tab id="edit">{Global('tabs.editQuestion')}</Tab>
+              <Tab id="options">{Global('tabs.options')}</Tab>
+              <Tab id="logic">{Global('tabs.logic')}</Tab>
             </TabList>
 
             <TabPanel id="edit">
@@ -189,18 +194,18 @@ const QuestionAdd = ({
                   isRequired
                   value={questionTypeName ? questionTypeName : ''}
                 >
-                  <Label className={`${styles.searchLabel} react-aria-Label`}>Type (required)</Label>
+                  <Label className={`${styles.searchLabel} react-aria-Label`}>{QuestionAdd('labels.type')}</Label>
                   <Input className={`${styles.searchInput} react-aria-Input`} disabled />
                   <Button className={`${styles.searchButton} react-aria-Button`} type="button" onPress={redirectToQuestionTypes}>Change type</Button>
                   <Text slot="description" className={`${styles.searchHelpText} help-text`}>
-                    Changing the question type, for example from Short question to Radio button, may result in some data being lost.
+                    {QuestionAdd('helpText.textField')}
                   </Text>
                 </TextField>
 
                 {/**Question type fields here */}
                 {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
                   <div className={styles.optionsWrapper}>
-                    <p className={styles.optionsDescription}>Please enter answer choices for the {questionTypeName}</p>
+                    <p className={styles.optionsDescription}>{QuestionAdd('Please enter answer choices for the', { questionTypeName })}</p>
                     <QuestionOptionsComponent rows={rows} setRows={setRows} />
                   </div>
                 )}
@@ -210,7 +215,7 @@ const QuestionAdd = ({
                   type="text"
                   isRequired
                 >
-                  <Label>Question text (required)</Label>
+                  <Label>{QuestionAdd('labels.questionText')}</Label>
                   <Input
                     value={question?.questionText ? question.questionText : ''}
                     onChange={(e) => setQuestion({
@@ -219,7 +224,7 @@ const QuestionAdd = ({
                     })}
                   />
                   <Text slot="description" className="help-text">
-                    Keep the question text concise and clear. Use the requirements or guidance to provide additional explanation.
+                    {QuestionAdd('helpText.questionText')}
                   </Text>
                   <FieldError />
                 </TextField>
@@ -227,9 +232,9 @@ const QuestionAdd = ({
                 <TextField
                   name="question_requirements"
                 >
-                  <Label>Requirements plan writer must meet (optional but recommended)</Label>
+                  <Label>{QuestionAdd('labels.requirementText')}</Label>
                   <Text slot="description" className="help-text">
-                    Try to be precise and concise, so the plan writers won't miss any requirements. Question guidance is better for more general advice.
+                    {QuestionAdd('helpText.requirementText')}
                   </Text>
                   <TextArea
                     value={question?.requirementText ? question.requirementText : ''}
@@ -245,7 +250,7 @@ const QuestionAdd = ({
                 <TextField
                   name="question_guidance"
                 >
-                  <Label>Question guidance (optional but recommended)</Label>
+                  <Label>{QuestionAdd('labels.guidanceText')}</Label>
                   <TextArea
                     value={question?.guidanceText ? question?.guidanceText : ''}
                     onChange={(e) => setQuestion({
@@ -260,11 +265,9 @@ const QuestionAdd = ({
                 <TextField
                   name="sample_text"
                 >
-                  <Label>Sample text</Label>
+                  <Label>{QuestionAdd('labels.sampleText')}</Label>
                   <Text slot="description" className="help-text">
-                    Provide an example or template of expected answer (optional
-                    but
-                    recommended)
+                    {QuestionAdd('descriptions.sampleText')}
                   </Text>
                   <TextArea
                     value={question?.sampleText ? question.sampleText : ''}
@@ -276,19 +279,19 @@ const QuestionAdd = ({
                   />
                   <FieldError />
                   <Text slot="description" className="help-text">
-                    Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry.
+                    {QuestionAdd('helpText.sampleText')}
                   </Text>
                 </TextField>
 
-                <Button type="submit">Save</Button>
+                <Button type="submit">{Global('buttons.save')}</Button>
               </Form>
 
             </TabPanel>
             <TabPanel id="options">
-              <h2>Options</h2>
+              <h2>{Global('tabs.options')}</h2>
             </TabPanel>
             <TabPanel id="logic">
-              <h2>logic</h2>
+              <h2>{Global('tabs.logic')}</h2>
             </TabPanel>
           </Tabs>
 

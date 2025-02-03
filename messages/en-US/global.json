@@ -127,16 +127,15 @@
     "buttons": {
       "search": "Search",
       "select": "Select",
-      "next": "Next"
+      "next": "Next",
+      "save": "Save",
+      "remove": "Remove"
     },
     "labels": {
       "searchByKeyword": "Search by keyword"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc."
-    },
-    "labels": {
-      "searchByKeyword": "Search by keyword"
     },
     "links": {
       "clearFilter": "clear filter"
@@ -146,6 +145,11 @@
       "noItemsFound": "No items found",
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search"
+    },
+    "tabs": {
+      "editQuestion": "Edit Question",
+      "options": "Options",
+      "logic": "Logic"
     }
   }
 }

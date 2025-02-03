@@ -4,6 +4,8 @@ import { useState } from "react";
 import {
   Checkbox,
 } from "react-aria-components";
+
+import { useTranslations } from 'next-intl';
 import styles from './optionsComponent.module.scss';
 
 
@@ -28,6 +30,9 @@ interface QuestionOptionsComponentProps {
 const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionId }) => {
   const [announcement, setAnnouncement] = useState<string>("");
 
+  // localization keys
+  const Global = useTranslations('Global');
+  const QuestionOptions = useTranslations('QuestionOptions');
 
   // Add options row
   const addRow = () => {
@@ -91,7 +96,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
             </span>
 
             <div className={styles.cell}>
-              <label htmlFor={`order=${row.id}`}>Order</label>
+              <label htmlFor={`order=${row.id}`}>{QuestionOptions('labels.order')}</label>
               <input
                 type="text"
                 className={styles.orderNumber}
@@ -104,7 +109,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
               />
             </div>
             <div className={styles.cell}>
-              <label htmlFor={`text-${row.id}`}>Text (required)</label>
+              <label htmlFor={`text-${row.id}`}>{QuestionOptions('labels.text')}</label>
               <input
                 type="text"
                 className={styles.text}
@@ -117,7 +122,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
               />
             </div>
             <div className={`${styles.cell} ${styles.default}`}>
-              <label htmlFor={`default-${row.id}`}>Default</label>
+              <label htmlFor={`default-${row.id}`}>{QuestionOptions('labels.default')}</label>
               <Checkbox
                 id={`default-${row.id}`}
                 aria-checked={row.isDefault}
@@ -140,7 +145,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 aria-label={`Delete row ${index + 1}`}
                 className={`${styles.deleteButton} react-aria-Button secondary`}
               >
-                Remove
+                {Global('buttons.remove')}
               </button>
               {/**Screen readers will announce when a new row was added */}
               <p aria-live="polite" className='hidden-accessibly'>
@@ -153,7 +158,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
         )}
 
         <button type="button" onClick={addRow} aria-live="polite">
-          Add Row
+          {QuestionOptions('buttons.addRow')}
         </button>
       </div>
       {/** Hidden live region for screen readers */}

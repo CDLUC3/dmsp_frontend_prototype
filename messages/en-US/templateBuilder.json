@@ -197,5 +197,59 @@
     "messages": {
       "additionalGuidance": "Your research organization has additional guidance"
     }
+  },
+  "QuestionEdit": {
+    "buttons": {
+      "changeType": "Change type"
+    },
+    "descriptions": {
+      "sampleText": "Provide an example or template of expected answer (optional but recommended)"
+    },
+    "helpText": {
+      "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
+      "questionOptions": "Please enter answer choices for the {questionType}",
+      "questionText": "Keep the question text concise and clear. Use the requirements or guidance to provide additional explanation.",
+      "requirementText": "Try to be precise and concise, so the plan writers won't miss any requirements. Question guidance is better for more general advice.",
+      "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry."
+    },
+    "labels": {
+      "type": "Type (required)",
+      "questionText": "Question text (required)",
+      "requirementText": "Requirements plan writer must meet (optional but recommended)",
+      "guidanceText": "Question guidance (optional but recommended)",
+      "sampleText": "Sample text"
+    }
+  },
+  "QuestionOptionsComponent": {
+    "labels": {
+      "order": "Order",
+      "text": "Text (required)",
+      "default": "Default"
+    },
+    "buttons": {
+      "addRow": "Add Row"
+    }
+  },
+  "QuestionAdd": {
+    "labels": {
+      "order": "Order",
+      "text": "Text (required)",
+      "default": "Default",
+      "type": "Type (required)",
+      "questionText": "Question text (required)",
+      "requirementText": "Requirements plan writer must meet (optional but recommended)",
+      "guidanceText": "Question guidance (optional but recommended)",
+      "sampleText": "Sample text"
+    },
+    "buttons": {
+      "addRow": "Add Row"
+    },
+    "helpText": {
+      "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
+      "questionOptions": "Please enter answer choices for the {questionTypeName}",
+      "questionText": "Keep the question text concise and clear. Use the requirements or guidance to provide additional explanation.",
+      "requirementText": "Try to be precise and concise, so the plan writers won't miss any requirements. Question guidance is better for more general advice.",
+      "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry."
+    }
   }
 }
