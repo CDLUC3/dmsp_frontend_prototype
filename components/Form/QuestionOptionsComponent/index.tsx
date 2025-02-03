@@ -1,9 +1,11 @@
 'use client'
 
-import styles from './optionsComponent.module.scss';
+import { useState } from "react";
 import {
   Checkbox,
 } from "react-aria-components";
+import styles from './optionsComponent.module.scss';
+
 
 interface Row {
   id?: number | null;
@@ -16,13 +18,16 @@ interface Row {
 interface QuestionOptionsComponentProps {
   rows: Row[] | null;
   setRows: React.Dispatch<React.SetStateAction<Row[]>>;
+  questionId?: number;
 }
 
 
 /**This component is used to add question type fields that use options
  * For example, radio buttons, check boxes and select drop-downs
  */
-const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows }) => {
+const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionId }) => {
+  const [announcement, setAnnouncement] = useState<string>("");
+
 
   // Add options row
   const addRow = () => {
@@ -32,10 +37,11 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
         orderNumber: rows.length + 1,
         text: "",
         isDefault: false,
-        questionId: 0,
+        questionId: questionId || 0 //If there is no questionId, then it won't update the question when set to 0
 
       };
       setRows((prevRows) => [...prevRows, newRow]);
+      setAnnouncement(`Row ${newRow.orderNumber} added.`);
     }
   };
 
@@ -43,6 +49,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   const deleteRow = (id: number) => {
     if (id && id !== 0) {
       setRows((prevRows) => prevRows.filter(row => row.id !== id));
+      setAnnouncement(`Row with ID ${id} removed.`);
     }
   };
 
@@ -56,6 +63,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
           isDefault: row.id === id,
         }))
       );
+      setAnnouncement(`Row with ID ${id} set as default.`);
     }
   };
 
@@ -142,13 +150,17 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
             </div>
           </div >
         )
-
         )}
 
         <button type="button" onClick={addRow} aria-live="polite">
           Add Row
         </button>
       </div>
+      {/** Hidden live region for screen readers */}
+      <p aria-live="polite" className="hidden-accessibly">
+        {announcement}
+      </p>
+
     </>
   );
 }

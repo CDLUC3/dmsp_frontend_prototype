@@ -34,71 +34,41 @@ import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent
 
 //Other
 import { useToast } from '@/context/ToastContext';
+import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
 
-
-
-// Sample data stub representing data fetched from a GraphQL server
-const sampleQuestion = {
-  id: 'q_mnopqr',
-  templateId: 't_abcdef', // Added template ID
-  type: 'Rich Text',
-  text: 'What types of data, samples, collections, software, materials, etc., will be produced during your project?',
-  requirements: 'Keep the question concise and clear. Use the requirements or guidance to provide additional explanation.',
-  guidance: 'Be concise\nExplain the data file format\nExplain the expected size\nExplain the blah blah blah blah blah blah blah',
-  sampleText: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-};
-
-interface QuestionOptions {
-  id?: number | null;
-  text: string;
-  orderNumber: number;
-  isDefault?: boolean | null;
-  questionId: number;
-}
-interface Question {
-  id?: number | null | undefined;
-  displayOrder?: number | null;
-  questionText?: string | null;
-  requirementText?: string | null;
-  guidanceText?: string | null;
-  sampleText?: string | null;
-  required?: boolean;
-  questionOptions?: QuestionOptions[] | null;
-}
 
 const QuestionEdit = () => {
   const params = useParams();
   const router = useRouter();
   const toastState = useToast(); // Access the toast state from context
   const { templateId } = params; // From route /template/:templateId
-  const { q_slug } = params; //question id
+  const questionId = params.q_slug; //question id
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>();
-  const [rows, setRows] = useState<QuestionOptions[]>([]);
+  const [rows, setRows] = useState<QuestionOptions[]>([]);//Question options, initially set as an empty array
   const [questionType, setQuestionType] = useState<string>('');
-
   const [errors, setErrors] = useState<string[]>([]);
 
-  // Initialize add and update question mutations
+  // Initialize update question mutation
   const [updateQuestionMutation] = useUpdateQuestionMutation();
 
   // Run selected question query
   const { data: selectedQuestion, loading, error: selectedQuestionQueryError } = useQuestionQuery(
     {
       variables: {
-        questionId: Number(q_slug)
+        questionId: Number(questionId)
       }
     },
   );
 
-  // Query for question types
+  // Query for getting all question types
   const { data: questionTypes } = useQuestionTypesQuery({
-    skip: !q_slug
+    skip: !questionId
   });
 
   const getQuestionTypeName = (id: number) => {
@@ -109,44 +79,27 @@ const QuestionEdit = () => {
     return '';
   };
 
-  const handleGuidanceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setQuestion({ ...question, guidanceText: e.currentTarget.value });
-  };
-
+  // Return user back to the page to select a question type
   const redirectToQuestionTypes = () => {
     const sectionId = selectedQuestion?.question?.sectionId;
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1`)
   }
 
-  const transformOptions = () => {
-    let transformedRows: QuestionOptions[] = [];
-
-    if (rows && rows.length > 0) {
-      // If duplicate order numbers or text, do we want to give the user an error message?
-      transformedRows = rows.map(option => {
-        return { id: option.id, text: option.text, orderNumber: option.orderNumber, isDefault: option.isDefault, questionId: Number(q_slug) }
-      })
-    }
-
-    return transformedRows;
-  }
-
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const transformedQuestionOptions = transformOptions();
     if (question) {
       try {
         // Add mutation for question
         const response = await updateQuestionMutation({
           variables: {
             input: {
-              questionId: Number(q_slug),
+              questionId: Number(questionId),
               displayOrder: question.displayOrder,
               questionText: question.questionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
               sampleText: question.sampleText,
-              questionOptions: transformedQuestionOptions || selectedQuestion?.question?.questionOptions
+              questionOptions: rows || selectedQuestion?.question?.questionOptions
             }
           },
         });
@@ -166,7 +119,9 @@ const QuestionEdit = () => {
   }
 
   useEffect(() => {
+    // if the question with the given questionId exists, then set the data in state
     if (selectedQuestion) {
+
       const q = selectedQuestion?.question || null;
 
       // Set question and rows in state
@@ -193,6 +148,16 @@ const QuestionEdit = () => {
   }, [selectedQuestion])
 
 
+  useEffect(() => {
+    if (selectedQuestionQueryError) {
+      setErrors(prev => [...prev, selectedQuestionQueryError.message])
+    }
+  }, [selectedQuestionQueryError])
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       <PageHeader
@@ -209,6 +174,14 @@ const QuestionEdit = () => {
         actions={null}
         className=""
       />
+
+      {errors && errors.length > 0 &&
+        <div className="error">
+          {errors.map((error, index) => (
+            <p key={index}>{error}</p>
+          ))}
+        </div>
+      }
 
       <div className="template-editor-container">
         <div className="main-content">
@@ -249,7 +222,7 @@ const QuestionEdit = () => {
                 {selectedQuestion?.question?.questionTypeId && [3, 4, 5].includes(selectedQuestion?.question?.questionTypeId) && (
                   <div className={styles.optionsWrapper}>
                     <p className={styles.optionsDescription}>Please enter answer choices for the {questionType}</p>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows} />
+                    <QuestionOptionsComponent rows={rows} setRows={setRows} questionId={Number(questionId)} />
                   </div>
                 )}
 
@@ -296,7 +269,10 @@ const QuestionEdit = () => {
                   <Label>Question guidance (optional but recommended)</Label>
                   <TextArea
                     value={question?.guidanceText ? question.guidanceText : ''}
-                    onChange={handleGuidanceChange}
+                    onChange={(e) => setQuestion({
+                      ...question,
+                      guidanceText: e.currentTarget.value
+                    })}
                     style={{ height: '150px' }}
                   />
                   <FieldError />

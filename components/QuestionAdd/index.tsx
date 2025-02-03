@@ -24,9 +24,7 @@ import {
 // GraphQL queries and mutations
 import {
   useQuestionsDisplayOrderQuery,
-  useQuestionQuery,
   useAddQuestionMutation,
-  useUpdateQuestionMutation,
 } from '@/generated/graphql';
 
 // Components
@@ -35,27 +33,8 @@ import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent
 
 //Other
 import { useToast } from '@/context/ToastContext';
+import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
-
-
-interface QuestionOptions {
-  id?: number | null;
-  text: string;
-  orderNumber: number;
-  isDefault?: boolean | null;
-  questionId: number;
-}
-
-// Sample data stub representing data fetched from a GraphQL server
-const sampleQuestion = {
-  id: 'q_mnopqr',
-  templateId: 't_abcdef', // Added template ID
-  type: 'Rich Text',
-  text: 'What types of data, samples, collections, software, materials, etc., will be produced during your project?',
-  requirements: 'Keep the question concise and clear. Use the requirements or guidance to provide additional explanation.',
-  guidance: 'Be concise\nExplain the data file format\nExplain the expected size\nExplain the blah blah blah blah blah blah blah',
-  sampleText: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-};
 
 const QuestionAdd = ({
   questionTypeId,
@@ -68,22 +47,20 @@ const QuestionAdd = ({
   }) => {
   const params = useParams();
   const router = useRouter();
-  const toastState = useToast(); // Access the toast state from context
+  const toastState = useToast();
   const { templateId } = params; // From route /template/:templateId
-  const { q_slug } = params; //question id
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   const step1Url = `/template/${templateId}/q/new?section_id=${sectionId}&step=1`;
 
   // State for managing form inputs
-  const [question, setQuestion] = useState(sampleQuestion);
+  const [question, setQuestion] = useState<Question>();
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
   const [errors, setErrors] = useState<string[]>([]);
 
   // Initialize add and update question mutations
   const [addQuestionMutation] = useAddQuestionMutation();
-  const [updateQuestionMutation] = useUpdateQuestionMutation();
 
   // Query request for questions to calculate max displayOrder
   const { data: questionDisplayOrders } = useQuestionsDisplayOrderQuery({
@@ -96,10 +73,6 @@ const QuestionAdd = ({
   const redirectToQuestionTypes = () => {
     router.push(step1Url)
   }
-
-  const handleGuidanceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setQuestion({ ...question, guidance: e.currentTarget.value });
-  };
 
   const transformOptions = () => {
     // If duplicate order numbers or text, do we want to give the user an error message?
@@ -138,10 +111,10 @@ const QuestionAdd = ({
             displayOrder: displayOrder,
             isDirty: true,
             questionTypeId: questionTypeId,
-            questionText: question.text,
-            requirementText: question.requirements,
-            guidanceText: question.guidance,
-            sampleText: question.sampleText,
+            questionText: question?.questionText,
+            requirementText: question?.requirementText,
+            guidanceText: question?.guidanceText,
+            sampleText: question?.sampleText,
             required: false,
             questionOptions: transformedQuestionOptions
           }
@@ -162,21 +135,22 @@ const QuestionAdd = ({
 
   }
 
-  // useEffect(() => {
-  //   if (!questionTypeId) {
-  //     // If questionTypeId is missing, return user to the Question Types selection page
-  //     toastState.add('Something went wrong. Please try again.', { type: 'error' });
-  //     router.push(step1Url);
+  useEffect(() => {
+    if (!questionTypeId) {
+      // If questionTypeId is missing, return user to the Question Types selection page
+      toastState.add('Something went wrong. Please try again.', { type: 'error' });
+      router.push(step1Url);
 
-  //     // If the sectionId is missing, return user back to the Edit Template page
-  //     router.push(`/template/${templateId}`);
-  //   }
-  // }, [])
+      // If the sectionId is missing, return user back to the Edit Template page
+      router.push(`/template/${templateId}`);
+    }
+  }, [])
+
 
   return (
     <>
       <PageHeader
-        title={`Edit: ${question.text}`}
+        title={"Add New Question"}
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -235,14 +209,13 @@ const QuestionAdd = ({
                   name="question_text"
                   type="text"
                   isRequired
-                  value={question.text}
                 >
                   <Label>Question text (required)</Label>
                   <Input
-                    value={question.text}
+                    value={question?.questionText ? question.questionText : ''}
                     onChange={(e) => setQuestion({
                       ...question,
-                      text: e.currentTarget.value
+                      questionText: e.currentTarget.value
                     })}
                   />
                   <Text slot="description" className="help-text">
@@ -253,18 +226,16 @@ const QuestionAdd = ({
 
                 <TextField
                   name="question_requirements"
-                  isRequired
-                  value={question.requirements}
                 >
                   <Label>Requirements plan writer must meet (optional but recommended)</Label>
                   <Text slot="description" className="help-text">
                     Try to be precise and concise, so the plan writers won't miss any requirements. Question guidance is better for more general advice.
                   </Text>
                   <TextArea
-                    value={question.requirements}
+                    value={question?.requirementText ? question.requirementText : ''}
                     onChange={(e) => setQuestion({
                       ...question,
-                      requirements: e.currentTarget.value
+                      requirementText: e.currentTarget.value
                     })}
                     style={{ height: '100px' }}
                   />
@@ -273,12 +244,14 @@ const QuestionAdd = ({
 
                 <TextField
                   name="question_guidance"
-                  value={question.guidance}
                 >
                   <Label>Question guidance (optional but recommended)</Label>
                   <TextArea
-                    value={question.guidance}
-                    onChange={handleGuidanceChange}
+                    value={question?.guidanceText ? question?.guidanceText : ''}
+                    onChange={(e) => setQuestion({
+                      ...question,
+                      guidanceText: e.currentTarget.value
+                    })}
                     style={{ height: '150px' }}
                   />
                   <FieldError />
@@ -286,7 +259,6 @@ const QuestionAdd = ({
 
                 <TextField
                   name="sample_text"
-                  value={question.sampleText}
                 >
                   <Label>Sample text</Label>
                   <Text slot="description" className="help-text">
@@ -295,7 +267,7 @@ const QuestionAdd = ({
                     recommended)
                   </Text>
                   <TextArea
-                    value={question.sampleText}
+                    value={question?.sampleText ? question.sampleText : ''}
                     onChange={(e) => setQuestion({
                       ...question,
                       sampleText: e.currentTarget.value
