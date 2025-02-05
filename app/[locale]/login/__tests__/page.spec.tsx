@@ -5,7 +5,7 @@ import {
   render,
   renderWithProviders,
   screen,
-  waitFor
+  waitFor,
 } from '@/utils/test-utils';
 import {axe, toHaveNoViolations} from 'jest-axe';
 import logECS from '@/utils/clientLogger';
@@ -34,11 +34,11 @@ jest.mock('@/utils/authHelper', () => ({
 }));
 
 
-// jest.mock('@/context/AuthContext', () => ({
-//   useAuthContext: jest.fn(() => ({
-//     setIsAuthenticated: jest.fn(),
-//   })),
-// }));
+jest.mock('@/context/AuthContext', () => ({
+  useAuthContext: jest.fn(() => ({
+    setIsAuthenticated: jest.fn(),
+  })),
+}));
 
 
 jest.mock('@/context/CsrfContext', () => ({
@@ -49,18 +49,18 @@ jest.mock('@/context/CsrfContext', () => ({
 }));
 
 
-// jest.mock('next-intl', () => ({
-//   // useFormatter: jest.fn(() => ({
-//   //   dateTime: jest.fn(() => '01-01-2023'),
-//   // })),
-//   useTranslations: jest.fn(() => (key) => {
-//     const translations = {
-//       "LoginPage.pageTitle": "Login",
-//     };
-//     return translations[key] || key;
-//   }),
-//   useLocale: jest.fn(() => 'en-US'),
-// }));
+jest.mock('next-intl', () => ({
+  // useFormatter: jest.fn(() => ({
+  //   dateTime: jest.fn(() => '01-01-2023'),
+  // })),
+  useTranslations: jest.fn(() => (key) => {
+    const translations = {
+      "LoginPage.pageTitle": "Login",
+    };
+    return translations[key] || key;
+  }),
+  useLocale: jest.fn(() => 'en-US'),
+}));
 
 
 // Create a mock for scrollIntoView and focus
@@ -72,7 +72,7 @@ const mockUseRouter = useRouter as jest.Mock;
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 const mockRefreshAuthTokens = refreshAuthTokens as jest.Mock;
 
-// Assign fetch to global object in Node.js environment
+
 global.fetch = global.fetch || require('node-fetch');
 
 
@@ -104,7 +104,6 @@ describe('LoginPage', () => {
     (useCsrf as jest.Mock).mockReturnValue({ csrfToken: 'mocked-csrf-token' });
 
     jest.spyOn(console, 'error').mockImplementation(() => { });
-    jest.useFakeTimers();
   });
 
   afterEach(() => {
@@ -112,17 +111,18 @@ describe('LoginPage', () => {
     HTMLElement.prototype.focus = jest.fn();
     jest.restoreAllMocks();
     jest.clearAllMocks();
-    jest.useRealTimers();
   })
 
   it("should render the email step initially", async () => {
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
     expect(screen.getByTestId("emailInput")).toBeInTheDocument();
     expect(screen.getByTestId("actionContinue")).toBeInTheDocument();
   });
 
   it("should transition to the password step", async () => {
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
 
     fireEvent.change(screen.getByTestId("emailInput"), {
       target: { value: "test@test.com" }
@@ -148,7 +148,8 @@ describe('LoginPage', () => {
       return Promise.reject(new Error('Unknown URL'));
     });
 
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
 
     doSteps();
     fireEvent.click(screen.getByTestId("actionSubmit"));
@@ -187,7 +188,8 @@ describe('LoginPage', () => {
       return Promise.reject(new Error('Unknown URL'));
     });
 
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
 
     doSteps();
     fireEvent.click(screen.getByTestId("actionSubmit"));
@@ -226,7 +228,8 @@ describe('LoginPage', () => {
       return Promise.reject(new Error('Unknown URL'));
     });
 
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
 
     doSteps();
     const submitBtn = screen.getByTestId("actionSubmit");
@@ -236,7 +239,7 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(submitBtn).not.toBeDisabled();
-      expect(submitBtn).toHaveTextContent('Login');
+      expect(submitBtn).toHaveTextContent('login');
     });
   });
 
@@ -249,7 +252,8 @@ describe('LoginPage', () => {
       } as unknown as Response);
     });
 
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
 
     doSteps();
     fireEvent.click(screen.getByTestId("actionSubmit"));
@@ -280,7 +284,8 @@ describe('LoginPage', () => {
       } as unknown as Response);
     });
 
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
 
     doSteps();
     fireEvent.click(screen.getByTestId("actionSubmit"));
@@ -300,7 +305,8 @@ describe('LoginPage', () => {
       } as unknown as Response);
     });
 
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
 
     doSteps();
     fireEvent.click(screen.getByTestId("actionSubmit"));
@@ -320,7 +326,8 @@ describe('LoginPage', () => {
       } as unknown as Response);
     });
 
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
 
     doSteps();
     fireEvent.click(screen.getByTestId("actionSubmit"));
@@ -344,7 +351,8 @@ describe('LoginPage', () => {
       return Promise.reject(new Error('Unknown URL'));
     });
 
-    renderWithProviders(<LoginPage />);
+    // renderWithProviders(<LoginPage />);
+    render(<LoginPage />);
 
     doSteps();
     fireEvent.click(screen.getByTestId("actionSubmit"));

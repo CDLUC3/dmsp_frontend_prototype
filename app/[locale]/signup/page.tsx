@@ -152,7 +152,7 @@ const SignUpPage: React.FC = () => {
       hasErrors = true;
     }
 
-    if (institution === "" && otherAffiliation === "") {
+    if (!institution && !otherAffiliation) {
       setFieldErrors({
         ...fieldErrors,
         affiliationId: t('institutionRequired'),
@@ -301,7 +301,7 @@ const SignUpPage: React.FC = () => {
                 setOtherField={setOtherField}
                 helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}
-                error={fieldErrors.affiliationId}
+                error={fieldErrors?.affiliationId}
               />
               {otherField && (
                 <TextField
@@ -352,7 +352,11 @@ const SignUpPage: React.FC = () => {
               >
                 <Label>{t('passwordConfirm')}</Label>
                 <Input data-testid="confirmpass" />
-                <FieldError />
+                {fieldErrors.confirmPassword ? (
+                  <FieldError data-testid="passMissMatch">{fieldErrors.confirmPassword}</FieldError>
+                ) : (
+                  <FieldError />
+                )}
               </TextField>
 
               <Checkbox
