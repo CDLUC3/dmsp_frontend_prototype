@@ -11,7 +11,7 @@
   position: relative;
   background: var(--slate-900);
   color: var(--bg-white);
-
+font-weight: bold;
 
 
   &:active,
@@ -19,7 +19,8 @@
     color: var(--bg-white);
   }
   &:hover:not(:disabled) {
-    background: var(--slate-700);
+    background: var(--blue-500);
+    color: #fff;
   }
   &:disabled {
     opacity: 0.5;
@@ -52,31 +53,50 @@
 }
 
 @mixin button-secondary {
-  background: var(--slate-300);
+  background: transparent;
+  border: 2px solid var(--slate-900);
   color: var(--slate-900);
+  font-weight: bold;
+
+
+  &:active,
+  &:visited {
+    color: var(--slate-900);
+  }
 
   &:hover:not(:disabled) {
-    background: var(--slate-400);
+    background: var(--blue-500);
+    color: #fff;
+    border: 2px solid var(--blue-500);
+    text-decoration: none;
   }
 
   &:active:not(:disabled),
   &[data-pressed]:not(:disabled) {
-    background: var(--slate-500);
+    background: var(--blue-500);
   }
 
   &:disabled {
-    background: var(--slate-200);
-    color: var(--slate-500);
+    background: var(--blue-500);
+    opacity: 0.5;
+
   }
 }
 
 @mixin button-tertiary {
-  background: transparent;
+  background: var(--gray-100);
   color: var(--slate-900);
-  border: 1px solid var(--slate-300);
+  border: 1px solid var(--slate-100);
+
+  &:active,
+  &:visited {
+    color: var(--slate-900);
+  }
 
   &:hover:not(:disabled) {
-    background: var(--slate-100);
+    background: var(--blue-500);
+    color: #fff;
+    text-decoration: none;
   }
 
   &:active:not(:disabled),
@@ -89,6 +109,35 @@
     border-color: var(--slate-200);
   }
 }
+
+
+@mixin button-danger {
+  background: var(--red-400);
+  color: #fff;
+  border: 1px solid var(--slate-100);
+
+  &:active,
+  &:visited {
+    color: #fff;
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--slate-900);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  &:active:not(:disabled),
+  &[data-pressed]:not(:disabled) {
+    background: var(--slate-900);
+  }
+
+  &:disabled {
+    background: var(--slate-900);
+    opacity: 0.5;
+  }
+}
+
 
 // Styles for both react-aria buttons and default HTML buttons
 .react-aria-Button,
@@ -142,3 +191,12 @@ input[type="submit"].tertiary {
   @include button-tertiary;
 }
 
+.react-aria-Button.danger,
+.react-aria-Button--danger,
+button.danger,
+button--danger,
+input[type="button"].danger,
+input[type="reset"].danger,
+input[type="submit"].danger {
+  @include button-danger;
+}
