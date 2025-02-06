@@ -12,7 +12,7 @@ import styles from './optionsComponent.module.scss';
 
 interface Row {
   id?: number | null;
-  orderNumber: number | string;
+  orderNumber: number;
   text: string;
   isDefault?: boolean | null;
   questionId: number;
@@ -69,7 +69,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
           isDefault: row.id === id,
         }))
       );
-      setAnnouncement(QuestionOptions('announcments.rowDefault', { id: id }));
+      setAnnouncement(QuestionOptions('announcements.rowDefault', { id: id }));
     }
   };
 
@@ -101,10 +101,10 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 id={`order-${row.id}`}
                 name="orderNumber"
                 type="text"
+                disabled={true}
                 isRequired={true}
                 label={QuestionOptions('labels.order')}
                 value={row.orderNumber}
-                onChange={(e) => handleChange(row.id || '', "orderNumber", Number(e.target.value) || '')}
                 placeholder={QuestionOptions('placeholder.orderNumber')}
                 ariaLabel={index === 0 ? undefined : "Order"}
               />
