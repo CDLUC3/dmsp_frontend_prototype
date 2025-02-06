@@ -32,6 +32,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent';
 import FormInput from '@/components/Form/FormInput';
+import FormTextArea from '@/components/Form/FormTextArea';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -227,59 +228,45 @@ const QuestionAdd = ({
                   errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
                 />
 
-                <TextField
+                <FormTextArea
                   name="question_requirements"
-                >
-                  <Label>{QuestionAdd('labels.requirementText')}</Label>
-                  <Text slot="description" className="help-text">
-                    {QuestionAdd('helpText.requirementText')}
-                  </Text>
-                  <TextArea
-                    value={question?.requirementText ? question.requirementText : ''}
-                    onChange={(e) => setQuestion({
-                      ...question,
-                      requirementText: e.currentTarget.value
-                    })}
-                    style={{ height: '100px' }}
-                  />
-                  <FieldError />
-                </TextField>
+                  isRequired={false}
+                  description={QuestionAdd('helpText.requirementText')}
+                  textAreaClasses={styles.questionFormField}
+                  label={QuestionAdd('labels.requirementText')}
+                  value={question?.requirementText ? question.requirementText : ''}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    requirementText: e.currentTarget.value
+                  })}
+                  helpMessage={QuestionAdd('helpText.requirementText')}
+                />
 
-                <TextField
+                <FormTextArea
                   name="question_guidance"
-                >
-                  <Label>{QuestionAdd('labels.guidanceText')}</Label>
-                  <TextArea
-                    value={question?.guidanceText ? question?.guidanceText : ''}
-                    onChange={(e) => setQuestion({
-                      ...question,
-                      guidanceText: e.currentTarget.value
-                    })}
-                    style={{ height: '150px' }}
-                  />
-                  <FieldError />
-                </TextField>
+                  isRequired={false}
+                  textAreaClasses={styles.questionFormField}
+                  label={QuestionAdd('labels.guidanceText')}
+                  value={question?.guidanceText ? question?.guidanceText : ''}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    guidanceText: e.currentTarget.value
+                  })}
+                />
 
-                <TextField
+                <FormTextArea
                   name="sample_text"
-                >
-                  <Label>{QuestionAdd('labels.sampleText')}</Label>
-                  <Text slot="description" className="help-text">
-                    {QuestionAdd('descriptions.sampleText')}
-                  </Text>
-                  <TextArea
-                    value={question?.sampleText ? question.sampleText : ''}
-                    onChange={(e) => setQuestion({
-                      ...question,
-                      sampleText: e.currentTarget.value
-                    })}
-                    style={{ height: '80px' }}
-                  />
-                  <FieldError />
-                  <Text slot="description" className="help-text">
-                    {QuestionAdd('helpText.sampleText')}
-                  </Text>
-                </TextField>
+                  isRequired={false}
+                  description={QuestionAdd('descriptions.sampleText')}
+                  textAreaClasses={styles.questionFormField}
+                  label={QuestionAdd('labels.sampleText')}
+                  value={question?.sampleText ? question.sampleText : ''}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    sampleText: e.currentTarget.value
+                  })}
+                  helpMessage={QuestionAdd('helpText.sampleText')}
+                />
 
                 <Button type="submit">{Global('buttons.save')}</Button>
               </Form>

@@ -256,6 +256,10 @@
       "rowDefault": "Row with ID {id} set as default.",
       "rowRemoved": "Row with ID {id} removed.",
       "rowAdded": "Row {orderNumber} added."
+    },
+    "placeholder": {
+      "orderNumber": "Enter order #",
+      "text": "Enter text"
     }
   },
   "QuestionAdd": {

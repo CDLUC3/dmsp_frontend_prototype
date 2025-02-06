@@ -8,7 +8,6 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  FieldError,
   Form,
   Input,
   Label,
@@ -18,7 +17,6 @@ import {
   TabPanel,
   Tabs,
   Text,
-  TextArea,
   TextField
 } from "react-aria-components";
 
@@ -33,6 +31,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent';
 import FormInput from '@/components/Form/FormInput';
+import FormTextArea from '@/components/Form/FormTextArea';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -247,59 +246,44 @@ const QuestionEdit = () => {
                   errorMessage={QuestionEdit('messages.errors.questionTextRequired')}
                 />
 
-                <TextField
+                <FormTextArea
                   name="question_requirements"
-                  isRequired
-                >
-                  <Label>{QuestionEdit('labels.requirementText')}</Label>
-                  <Text slot="description" className="help-text">
-                    {QuestionEdit('helpText.requirementText')}
-                  </Text>
-                  <TextArea
-                    value={question?.requirementText ? question.requirementText : ''}
-                    onChange={(e) => setQuestion({
-                      ...question,
-                      requirementText: e.currentTarget.value
-                    })}
-                    style={{ height: '100px' }}
-                  />
-                  <FieldError />
-                </TextField>
+                  isRequired={false}
+                  description={QuestionEdit('helpText.requirementText')}
+                  textAreaClasses={styles.questionFormField}
+                  label={QuestionEdit('labels.requirementText')}
+                  value={question?.requirementText ? question.requirementText : ''}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    requirementText: e.currentTarget.value
+                  })}
+                  helpMessage={QuestionEdit('helpText.requirementText')}
+                />
 
-                <TextField
-                  name="question_guidance">
-                  <Label>{QuestionEdit('labels.guidanceText')}</Label>
-                  <TextArea
-                    value={question?.guidanceText ? question.guidanceText : ''}
-                    onChange={(e) => setQuestion({
-                      ...question,
-                      guidanceText: e.currentTarget.value
-                    })}
-                    style={{ height: '150px' }}
-                  />
-                  <FieldError />
-                </TextField>
+                <FormTextArea
+                  name="question_guidance"
+                  isRequired={false}
+                  textAreaClasses={styles.questionFormField}
+                  label={QuestionEdit('labels.guidanceText')}
+                  value={question?.guidanceText ? question.guidanceText : ''}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    guidanceText: e.currentTarget.value
+                  })}
+                />
 
-                <TextField
+                <FormTextArea
                   name="sample_text"
-                >
-                  <Label>{QuestionEdit('labels.sampleText')}</Label>
-                  <Text slot="description" className="help-text">
-                    {QuestionEdit('descriptions.sampleText')}
-                  </Text>
-                  <TextArea
-                    value={question?.sampleText ? question?.sampleText : ''}
-                    onChange={(e) => setQuestion({
-                      ...question,
-                      sampleText: e.currentTarget.value
-                    })}
-                    style={{ height: '80px' }}
-                  />
-                  <FieldError />
-                  <Text slot="description" className="help-text">
-                    {QuestionEdit('helpText.sampleText')}
-                  </Text>
-                </TextField>
+                  isRequired={false}
+                  description={QuestionEdit('descriptions.sampleText')}
+                  textAreaClasses={styles.questionFormField}
+                  label={QuestionEdit('labels.sampleText')}
+                  value={question?.sampleText ? question?.sampleText : ''}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    sampleText: e.currentTarget.value
+                  })}
+                />
 
                 <Button type="submit">{Global('buttons.save')}</Button>
 

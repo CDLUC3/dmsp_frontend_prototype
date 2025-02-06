@@ -5,13 +5,14 @@ import {
   Checkbox,
 } from "react-aria-components";
 
+import FormInput from '@/components/Form/FormInput';
 import { useTranslations } from 'next-intl';
 import styles from './optionsComponent.module.scss';
 
 
 interface Row {
   id?: number | null;
-  orderNumber: number;
+  orderNumber: number | string;
   text: string;
   isDefault?: boolean | null;
   questionId: number;
@@ -73,13 +74,13 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   };
 
   // Update rows state
-  const handleChange = (id: number, field: string, value: string | number) => {
-    if (id && id !== 0) {
+  const handleChange = (id: number | string, field: string, value: string | number) => {
+    if (id && Number(id) !== 0) {
       setRows((prevRows) => {
 
         // Update the specific field for the matching row
         return prevRows.map((row) =>
-          row.id === id ? { ...row, [field]: value } : row
+          row.id === Number(id) ? { ...row, [field]: value } : row
         );
       });
     }
@@ -96,29 +97,29 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
             </span>
 
             <div className={styles.cell}>
-              <label htmlFor={`order-${row.id}`}>{QuestionOptions('labels.order')}</label>
-              <input
-                type="text"
-                className={styles.orderNumber}
+              <FormInput
                 id={`order-${row.id}`}
                 name="orderNumber"
+                type="text"
+                isRequired={true}
+                label={QuestionOptions('labels.order')}
                 value={row.orderNumber}
-                placeholder="Enter order #"
-                onChange={(e) => handleChange(row.id || 0, "orderNumber", Number(e.target.value) || 0)}
-                aria-label={index === 0 ? undefined : "Order"}
+                onChange={(e) => handleChange(row.id || '', "orderNumber", Number(e.target.value) || '')}
+                placeholder={QuestionOptions('placeholder.orderNumber')}
+                ariaLabel={index === 0 ? undefined : "Order"}
               />
             </div>
             <div className={styles.cell}>
-              <label htmlFor={`text-${row.id}`}>{QuestionOptions('labels.text')}</label>
-              <input
-                type="text"
-                className={styles.text}
+              <FormInput
                 id={`text-${row.id}`}
                 name="text"
+                type="text"
+                isRequired={true}
+                label={QuestionOptions('labels.text')}
                 value={row.text}
-                placeholder="Enter text"
-                onChange={(e) => handleChange(row.id || 0, "text", e.target.value)}
-                aria-label={index === 0 ? undefined : "Text"}
+                onChange={(e) => handleChange(row.id || '', "text", e.target.value)}
+                placeholder={QuestionOptions('placeholder.text')}
+                ariaLabel={index === 0 ? undefined : "Text"}
               />
             </div>
             <div className={`${styles.cell} ${styles.default}`}>
