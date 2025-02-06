@@ -1,7 +1,7 @@
 @mixin button-base {
   display: inline-flex;
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 2rem;
   font-size: 1rem;
   margin-right: 10px;
   font-weight: 500;
@@ -12,6 +12,12 @@
   background: var(--slate-900);
   color: var(--bg-white);
 
+
+
+  &:active,
+  &:visited {
+    color: var(--bg-white);
+  }
   &:hover:not(:disabled) {
     background: var(--slate-700);
   }
