@@ -1,22 +1,21 @@
 import React from "react";
 import { render, screen, act, fireEvent, waitFor } from '@/utils/test-utils';
 import {
-  useQuestionQuery,
-  useUpdateQuestionMutation,
-  useQuestionTypesQuery
+  useQuestionsDisplayOrderQuery,
+  useAddQuestionMutation,
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations as OriginalUseTranslations } from 'next-intl';
-import QuestionEdit from '../page';
+import QuestionAdd from '@/components/QuestionAdd';
+
 expect.extend(toHaveNoViolations);
 
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
-  useQuestionQuery: jest.fn(),
-  useUpdateQuestionMutation: jest.fn(),
-  useQuestionTypesQuery: jest.fn()
+  useQuestionsDisplayOrderQuery: jest.fn(),
+  useAddQuestionMutation: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -64,64 +63,25 @@ jest.mock('@/components/Form/QuestionOptionsComponent', () => {
   };
 });
 
-const mockQuestionData = {
-  question: {
-    displayOrder: 17,
-    errors: null,
-    guidanceText: "This is the guidance text",
-    id: 2271,
-    isDirty: true,
-    questionOptions:
-      [
-        {
-          id: 63,
-          orderNumber: 1,
-          questionId: 2271,
-          Text: "Alpha"
-        },
-        {
-          id: 66,
-          orderNumber: 2,
-          questionId: 2271,
-          Text: "Bravo"
-        }
-      ],
-    questionText: "Testing",
-    questionTypeId: 3,
-    requirementText: "This is requirement text",
-    sampleText: "This is sample text",
-    sectionId: 67,
-    templateId: 15
-  }
-}
-
-const mockQuestionTypesData = {
-  questionTypes: [
+const mockQuestionDisplayData = {
+  "questions": [
     {
-      id: 1,
-      name: "Text Area",
-      usageDescription: "For questions that require longer answers, you can select formatting options too."
+      "displayOrder": 1
     },
     {
-      id: 2,
-      name: "Text Field",
-      usageDescription: "For questions that require short, simple answers."
+      "displayOrder": 2
     },
     {
-      id: 3,
-      name: "Radio Buttons",
-      usageDescription: "For multiple choice questions where users select just one option."
+      "displayOrder": 3
     },
     {
-      id: 4,
-      name: "Check Boxes",
-      usageDescription: "For multiple choice questions where users can select multiple options."
-    }
+      "displayOrder": 4
+    },
   ]
 }
 
 
-describe("QuestionEditPage", () => {
+describe("QuestionAdd", () => {
   let mockRouter;
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
@@ -136,27 +96,21 @@ describe("QuestionEditPage", () => {
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
-      loading: false,
-      error: undefined,
-    });
-
-    (useQuestionTypesQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockQuestionTypesData }),
+    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: mockQuestionDisplayData }),
       { loading: false, error: undefined },
     ]);
   });
 
   it("should render correct fields and content", async () => {
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
     await act(async () => {
       render(
-        <QuestionEdit />
+        <QuestionAdd />
       );
     });
 
@@ -193,14 +147,14 @@ describe("QuestionEditPage", () => {
   });
 
   it('should display error when no value is entered in question Text field', async () => {
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
     await act(async () => {
       render(
-        <QuestionEdit />
+        <QuestionAdd />
       );
     });
 
@@ -217,50 +171,33 @@ describe("QuestionEditPage", () => {
     expect(errorMessage).toBeInTheDocument();
   })
 
-  it('should redirect to Question Types page when user clicks the \'Change type\' button', async () => {
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    await act(async () => {
-      render(
-        <QuestionEdit />
-      );
-    });
-    // Get the 'Change type' button and simulate a click
-    const changeTypeButton = screen.getByRole('button', { name: /buttons.changeType/i });
-    fireEvent.click(changeTypeButton);
-
-    // Verify that router redirects to question types page
-    expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=67&step=1');
-  })
-
   // QuestionOptionsComponent has it's own separate unit test, so we are just testing that it loads here
   it('should load QuestionOptionsComponent', async () => {
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
     await act(async () => {
       render(
-        <QuestionEdit />
-      );
+        <QuestionAdd
+          questionTypeId={3}
+          questionTypeName="Radio buttons"
+        />);
     });
 
     expect(screen.getByText('Mocked Question Options Component')).toBeInTheDocument();
   })
 
-  it('should call the useUpdateQuestionMutation when user clicks \'save\' button', async () => {
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+  it('should call the useAddQuestionMutation when user clicks \'save\' button', async () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
     await act(async () => {
       render(
-        <QuestionEdit />
+        <QuestionAdd />
       );
     });
 
@@ -270,18 +207,21 @@ describe("QuestionEditPage", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(useUpdateQuestionMutation).toHaveBeenCalled();
+      expect(useAddQuestionMutation).toHaveBeenCalled();
     });
   })
 
   it('should pass axe accessibility test', async () => {
-    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
     const { container } = render(
-      <QuestionEdit />
+      <QuestionAdd
+        questionTypeId={3}
+        questionTypeName="Radio buttons"
+      />
     );
     await act(async () => {
       const results = await axe(container);

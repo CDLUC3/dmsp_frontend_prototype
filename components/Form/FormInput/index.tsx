@@ -17,6 +17,10 @@ interface InputProps {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
+  labelClasses?: string;
+  inputClasses?: string;
+  disabled?: boolean;
+  isRequired?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
@@ -31,6 +35,10 @@ const FormInput: React.FC<InputProps> = ({
   value,
   onChange,
   className = '',
+  labelClasses = '',
+  inputClasses = '',
+  disabled = false,
+  isRequired = false,
   isInvalid = false,
   errorMessage = '',
   helpMessage = ''
@@ -42,16 +50,19 @@ const FormInput: React.FC<InputProps> = ({
         name={name}
         type={type}
         className={`${className} react-aria-TextField ${isInvalid ? 'field-error' : ''}`}
+        isRequired={isRequired}
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >
-        <Label>{label}</Label>
+        <Label className={labelClasses}>{label}</Label>
         <Input
           name={name}
           type={type}
+          className={inputClasses}
           placeholder={placeholder}
           onChange={onChange}
           value={value}
+          disabled={disabled}
           aria-describedby={ariaDescribedBy}
         />
 
@@ -62,7 +73,7 @@ const FormInput: React.FC<InputProps> = ({
             {helpMessage}
           </Text>
         )}
-
+        <FieldError />
       </TextField>
     </>
   );

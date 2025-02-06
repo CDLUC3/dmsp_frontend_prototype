@@ -32,6 +32,7 @@ import {
 // Components
 import PageHeader from "@/components/PageHeader";
 import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent';
+import FormInput from '@/components/Form/FormInput';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -110,14 +111,14 @@ const QuestionEdit = () => {
         });
 
         if (response?.data) {
-          toastState.add('Question was successfully updated', { type: 'success' });
+          toastState.add(QuestionEdit('messages.success.questionUpdated'), { type: 'success' });
         }
       } catch (error) {
         if (error instanceof ApolloError) {
           //
         } else {
           // Handle other types of errors
-          setErrors(prevErrors => [...prevErrors, 'Error when updating profile']);
+          setErrors(prevErrors => [...prevErrors, QuestionEdit('messages.errors.questionUpdateError')]);
         }
       }
     }
@@ -166,7 +167,7 @@ const QuestionEdit = () => {
   return (
     <>
       <PageHeader
-        title={`Edit: ${selectedQuestion?.question?.questionText}`}
+        title={QuestionEdit('title', { title: selectedQuestion?.question?.questionText })}
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -231,24 +232,20 @@ const QuestionEdit = () => {
                   </div>
                 )}
 
-                <TextField
+                <FormInput
                   name="question_text"
                   type="text"
-                  isRequired
-                >
-                  <Label>{QuestionEdit('labels.questionText')}</Label>
-                  <Input
-                    value={question?.questionText ? question.questionText : ''}
-                    onChange={(e) => setQuestion({
-                      ...question,
-                      questionText: e.currentTarget.value
-                    })}
-                  />
-                  <Text slot="description" className="help-text">
-                    {QuestionEdit('helpText.questionText')}
-                  </Text>
-                  <FieldError />
-                </TextField>
+                  isRequired={true}
+                  label={QuestionEdit('labels.questionText')}
+                  value={question?.questionText ? question.questionText : ''}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    questionText: e.currentTarget.value
+                  })}
+                  helpMessage={QuestionEdit('helpText.questionText')}
+                  isInvalid={!question?.questionText}
+                  errorMessage={QuestionEdit('messages.errors.questionTextRequired')}
+                />
 
                 <TextField
                   name="question_requirements"
@@ -321,19 +318,14 @@ const QuestionEdit = () => {
         </div >
 
         <div className="sidebar">
-          <h2>Preview</h2>
-          <p>See how this question will look to users.</p>
-          <Button>Preview question</Button>
+          <h2>{Global('headings.preview')}</h2>
+          <p>{QuestionEdit('descriptions.previewText')}</p>
+          <Button>{QuestionEdit('buttons.previewQuestion')}</Button>
 
-          <h3>Best practice by DMP Tool</h3>
-          <p>Keep the question concise and clear. Use the requirements or
-            guidance
-            to provide additional explanation.</p>
-          <p>Outline the requirements that a user must consider for this
-            question.</p>
-          <p>Researchers will be able to copy the sample text into the field as
-            a
-            starting point, as a way to speed up content entry.</p>
+          <h3>{QuestionEdit('headings.bestPractice')}</h3>
+          <p>{QuestionEdit('descriptions.bestPracticePara1')}</p>
+          <p>{QuestionEdit('descriptions.bestPracticePara2')}</p>
+          <p>{QuestionEdit('descriptions.bestPracticePara3')}</p>
         </div>
       </div >
     </>

@@ -150,6 +150,9 @@
       "editQuestion": "Edit Question",
       "options": "Options",
       "logic": "Logic"
+    },
+    "headings": {
+      "preview": "Preview"
     }
   }
 }

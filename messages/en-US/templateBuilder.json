@@ -199,11 +199,17 @@
     }
   },
   "QuestionEdit": {
+    "title": "Edit: {title}",
     "buttons": {
-      "changeType": "Change type"
+      "changeType": "Change type",
+      "previewQuestion": "Preview question"
     },
     "descriptions": {
-      "sampleText": "Provide an example or template of expected answer (optional but recommended)"
+      "sampleText": "Provide an example or template of expected answer (optional but recommended)",
+      "previewText": "See how this question will look to users.",
+      "bestPracticePara1": "Keep the question concise and clear. Use the requirements or guidance to provide additional explanation.",
+      "bestPracticePara2": "Outline the requirements that a user must consider for this question.",
+      "bestPracticePara3": "Researchers will be able to copy the sample text into the field as a starting point, as a way to speed up content entry."
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
@@ -218,6 +224,18 @@
       "requirementText": "Requirements plan writer must meet (optional but recommended)",
       "guidanceText": "Question guidance (optional but recommended)",
       "sampleText": "Sample text"
+    },
+    "messages": {
+      "errors": {
+        "questionTextRequired": "Question text field is required.",
+        "questionUpdateError": "Error when updating question"
+      },
+      "success": {
+        "questionUpdated": "Question was successfully updated"
+      }
+    },
+    "headings": {
+      "bestPractice": "Best practice by DMP Tool"
     }
   },
   "QuestionOptionsComponent": {
@@ -227,12 +245,27 @@
       "default": "Default"
     },
     "buttons": {
-      "addRow": "Add Row"
+      "addRow": "Add Row",
+      "deleteRow": "Delete row {count}"
+    },
+    "messages": {
+      "successAddingRow": "Row {number} added",
+      "rowInfo": "Row {number}"
+    },
+    "announcements": {
+      "rowDefault": "Row with ID {id} set as default.",
+      "rowRemoved": "Row with ID {id} removed.",
+      "rowAdded": "Row {orderNumber} added."
     }
   },
   "QuestionAdd": {
+    "title": "Add New Question",
     "descriptions": {
-      "sampleText": "Provide an example or template of expected answer (optional but recommended)"
+      "sampleText": "Provide an example or template of expected answer (optional but recommended)",
+      "previewText": "See how this question will look to users.",
+      "bestPracticePara1": "Keep the question concise and clear. Use the requirements or guidance to provide additional explanation.",
+      "bestPracticePara2": "Outline the requirements that a user must consider for this question.",
+      "bestPracticePara3": "Researchers will be able to copy the sample text into the field as a starting point, as a way to speed up content entry."
     },
     "labels": {
       "order": "Order",
@@ -245,7 +278,8 @@
       "sampleText": "Sample text"
     },
     "buttons": {
-      "addRow": "Add Row"
+      "addRow": "Add Row",
+      "previewQuestion": "Preview question"
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
@@ -253,6 +287,18 @@
       "questionText": "Keep the question text concise and clear. Use the requirements or guidance to provide additional explanation.",
       "requirementText": "Try to be precise and concise, so the plan writers won't miss any requirements. Question guidance is better for more general advice.",
       "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry."
+    },
+    "headings": {
+      "bestPractice": "Best practice by DMP Tool"
+    },
+    "messages": {
+      "errors": {
+        "questionTextRequired": "Question text field is required.",
+        "questionAddingError": "Error when adding question."
+      },
+      "success": {
+        "questionAdded": "Question was successfully added."
+      }
     }
   }
 }

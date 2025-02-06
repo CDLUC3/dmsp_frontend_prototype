@@ -46,7 +46,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
 
       };
       setRows((prevRows) => [...prevRows, newRow]);
-      setAnnouncement(`Row ${newRow.orderNumber} added.`);
+      setAnnouncement(QuestionOptions('announcements.rowAdded', { orderNumber: newRow.orderNumber }));
     }
   };
 
@@ -54,7 +54,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   const deleteRow = (id: number) => {
     if (id && id !== 0) {
       setRows((prevRows) => prevRows.filter(row => row.id !== id));
-      setAnnouncement(`Row with ID ${id} removed.`);
+      setAnnouncement(QuestionOptions('announcements.rowRemoved', { id: id }));
     }
   };
 
@@ -68,7 +68,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
           isDefault: row.id === id,
         }))
       );
-      setAnnouncement(`Row with ID ${id} set as default.`);
+      setAnnouncement(QuestionOptions('announcments.rowDefault', { id: id }));
     }
   };
 
@@ -92,11 +92,11 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
           <div key={row.id} className={styles.row} role="group">
             {/**Let screenreader know which row they are on */}
             <span id={`row-label-${row.id}`} className='hidden-accessibly'>
-              Row {index + 1}
+              {QuestionOptions('messages.rowInfo', { number: index + 1 })}
             </span>
 
             <div className={styles.cell}>
-              <label htmlFor={`order=${row.id}`}>{QuestionOptions('labels.order')}</label>
+              <label htmlFor={`order-${row.id}`}>{QuestionOptions('labels.order')}</label>
               <input
                 type="text"
                 className={styles.orderNumber}
@@ -142,14 +142,14 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
               <button
                 type="button"
                 onClick={() => deleteRow(row.id || 0)}
-                aria-label={`Delete row ${index + 1}`}
+                aria-label={QuestionOptions('buttons.deleteRow', { count: index + 1 })}
                 className={`${styles.deleteButton} react-aria-Button secondary`}
               >
                 {Global('buttons.remove')}
               </button>
               {/**Screen readers will announce when a new row was added */}
               <p aria-live="polite" className='hidden-accessibly'>
-                {rows.length > 0 ? `Row ${rows.length} added` : ""}
+                {rows.length > 0 ? QuestionOptions('messages.successAddingRow', { number: rows.length }) : ""}
               </p>
 
             </div>

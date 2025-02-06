@@ -31,6 +31,7 @@ import {
 // Components
 import PageHeader from "@/components/PageHeader";
 import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent';
+import FormInput from '@/components/Form/FormInput';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -127,14 +128,14 @@ const QuestionAdd = ({
       });
 
       if (response?.data) {
-        toastState.add('Question was successfully added', { type: 'success' });
+        toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
       }
     } catch (error) {
       if (error instanceof ApolloError) {
         //
       } else {
         // Handle other types of errors
-        setErrors(prevErrors => [...prevErrors, 'Error when updating profile']);
+        setErrors(prevErrors => [...prevErrors, QuestionAdd('messages.errors.questionAddingError')]);
       }
     }
 
@@ -143,7 +144,7 @@ const QuestionAdd = ({
   useEffect(() => {
     if (!questionTypeId) {
       // If questionTypeId is missing, return user to the Question Types selection page
-      toastState.add('Something went wrong. Please try again.', { type: 'error' });
+      toastState.add(Global('messaging.somethingWentWrong'), { type: 'error' });
       router.push(step1Url);
 
       // If the sectionId is missing, return user back to the Edit Template page
@@ -155,7 +156,7 @@ const QuestionAdd = ({
   return (
     <>
       <PageHeader
-        title={"Add New Question"}
+        title={QuestionAdd('title')}
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -203,31 +204,28 @@ const QuestionAdd = ({
                 </TextField>
 
                 {/**Question type fields here */}
+                <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionTypeName })}</p>
+
                 {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
                   <div className={styles.optionsWrapper}>
-                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionTypeName })}</p>
                     <QuestionOptionsComponent rows={rows} setRows={setRows} />
                   </div>
                 )}
 
-                <TextField
+                <FormInput
                   name="question_text"
                   type="text"
-                  isRequired
-                >
-                  <Label>{QuestionAdd('labels.questionText')}</Label>
-                  <Input
-                    value={question?.questionText ? question.questionText : ''}
-                    onChange={(e) => setQuestion({
-                      ...question,
-                      questionText: e.currentTarget.value
-                    })}
-                  />
-                  <Text slot="description" className="help-text">
-                    {QuestionAdd('helpText.questionText')}
-                  </Text>
-                  <FieldError />
-                </TextField>
+                  isRequired={true}
+                  label={QuestionAdd('labels.questionText')}
+                  value={question?.questionText ? question.questionText : ''}
+                  onChange={(e) => setQuestion({
+                    ...question,
+                    questionText: e.currentTarget.value
+                  })}
+                  helpMessage={QuestionAdd('helpText.questionText')}
+                  isInvalid={!question?.questionText}
+                  errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
+                />
 
                 <TextField
                   name="question_requirements"
@@ -298,19 +296,14 @@ const QuestionAdd = ({
         </div >
 
         <div className="sidebar">
-          <h2>Preview</h2>
-          <p>See how this question will look to users.</p>
-          <Button>Preview question</Button>
+          <h2>{Global('headings.preview')}</h2>
+          <p>{QuestionAdd('descriptions.previewText')}</p>
+          <Button>{QuestionAdd('buttons.previewQuestion')}</Button>
 
-          <h3>Best practice by DMP Tool</h3>
-          <p>Keep the question concise and clear. Use the requirements or
-            guidance
-            to provide additional explanation.</p>
-          <p>Outline the requirements that a user must consider for this
-            question.</p>
-          <p>Researchers will be able to copy the sample text into the field as
-            a
-            starting point, as a way to speed up content entry.</p>
+          <h3>{QuestionAdd('headings.bestPractice')}</h3>
+          <p>{QuestionAdd('descriptions.bestPracticePara1')}</p>
+          <p>{QuestionAdd('descriptions.bestPracticePara2')}</p>
+          <p>{QuestionAdd('descriptions.bestPracticePara3')}</p>
         </div>
       </div >
     </>
