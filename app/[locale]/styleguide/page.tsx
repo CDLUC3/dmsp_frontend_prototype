@@ -75,6 +75,8 @@ import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
 import {useToast} from '@/context/ToastContext';
 
+import QuestionPreview from '@/components/QuestionPreview';
+
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
@@ -1955,6 +1957,26 @@ function Page() {
               <Button onPress={showToastAndRedirect}>Show toast with redirect</Button>
             </div>
           </div>
+
+          <h3>QuestionPreview</h3>
+          <QuestionPreview>
+            <p>This is an example of the content within the Question Preview</p>
+
+            <TextField
+              name="example_email"
+              type="email"
+              isRequired
+            >
+              <Label>Email</Label>
+              <Text slot="description" className="help">Descriptive text
+                related to the field</Text>
+              <Input />
+              <FieldError />
+            </TextField>
+
+            <DmpEditor content="<p>Example richtext field inside the preview bottomsheet</p>" setContent={() => {}} />
+          </QuestionPreview>
+
         </ContentContainer>
       </LayoutWithPanel >
     </>
