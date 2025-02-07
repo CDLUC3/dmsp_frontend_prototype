@@ -1,4 +1,4 @@
-import {useFormatter} from 'next-intl';
+import { useFormatter } from 'next-intl';
 
 export const useFormatDate = () => {
   const formatter = useFormatter();

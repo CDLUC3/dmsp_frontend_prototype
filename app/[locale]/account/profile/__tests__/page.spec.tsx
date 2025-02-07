@@ -1,6 +1,6 @@
 import React from 'react';
-import {act, fireEvent, render, screen, within} from '@/utils/test-utils';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import ProfilePage from '../page';
 import {
   useLanguagesQuery,
@@ -24,6 +24,12 @@ jest.mock('@/generated/graphql', () => ({
   useMeQuery: jest.fn(),
   useUpdateUserProfileMutation: jest.fn(),
   useLanguagesQuery: jest.fn(),
+}));
+
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    add: jest.fn(),
+  })),
 }));
 
 // Mock UpdateEmailAddress component

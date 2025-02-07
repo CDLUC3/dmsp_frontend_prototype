@@ -1,6 +1,5 @@
 import logECS from '@/utils/clientLogger';
 
-
 export class AuthError extends Error {
   status: number | null;
 
@@ -33,20 +32,28 @@ export class AuthError extends Error {
 }
 
 
-export const refreshAuthTokens = async () => {
+export const refreshAuthTokens = async (cookies?: string) => {
   // Get CSRF token first
   const crsfFetchResponse = await fetchCsrfToken();
   if (crsfFetchResponse) {
     const csrfToken = crsfFetchResponse.headers.get('X-CSRF-TOKEN');
     if (csrfToken) {
-      //Refresh auth tokens
+      // Refresh auth tokens
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken,
+      };
+
+      // Conditionally add the Cookie header if cookies are provided
+      if (cookies) {
+        headers['Cookie'] = cookies;
+      }
+
+      // Refresh auth tokens
       const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-refresh`, {
         method: 'POST',
         credentials: 'include',// This is needed or else the frontend can't access the csrf token in the header
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': csrfToken || '',
-        },
+        headers
       });
 
       if (!response.ok) {
@@ -86,3 +93,4 @@ export const fetchCsrfToken = async () => {
     return null;
   }
 };
+
