@@ -232,7 +232,20 @@ When new components or functions are added, corresponding unit tests should idea
 
 Unit tests should generally be placed in a `__tests__` folder adjacent to the component or file being tested.
 
-Functional tests are conducted using Cypress. These tests can be run in headless mode using the command `npm run cypress:run` or in headed mode is `npm run cypress:open`. Functional tests should be placed in the `cypress` directory.
+Functional tests are conducted using Cypress. These tests can be run in headless mode using the command `npm run cypress:run` or in headed mode is `npm run cypress:open`. Functional tests should be placed in the `cypress` directory. `e2e` tests will be placed in the `cypress/e2e` directory.
+
+### Cypress configuration
+In order to prevent `cypress` tests from clashing with `jest` tests, two different tsconfig files were created: one for cypress - `tsconfig.cypress.json` and one for jest - `tsconfig.json`. We specifically excluded `cypress` from the `tsconfig.json` file.
+
+Also, there is a very simple `cypress.config.ts` file that we need to add. 
+
+### Running cypress tests
+`cypress` can be opened using the `cypress:open` script in `package.json`. This will open cypress in your browser, and allow you to navigate to your test and run it.
+
+You can use the `cypress:run` script to run your tests in the terminal window.
+
+### Cypress documentation
+`cypress` provides good documentation at: https://docs.cypress.io/app/end-to-end-testing/writing-your-first-end-to-end-test
 
 ## API Routes
 * `GET /api/check-auth`: returns whether user is authenticated based on presence of auth token in cookie
