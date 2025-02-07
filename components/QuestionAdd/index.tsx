@@ -60,6 +60,8 @@ const QuestionAdd = ({
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>();
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
+  const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+  const [formErrors, setFormErrors] = useState<{ [key: number]: string }>({});
   const [errors, setErrors] = useState<string[]>([]);
 
   // localization keys
@@ -76,6 +78,18 @@ const QuestionAdd = ({
     },
     skip: !sectionId
   })
+
+  const validateOptions = () => {
+    let newErrors: { [key: number]: string } = {};
+    rows.forEach((row) => {
+      if (!row.text.trim()) {
+        newErrors[row.id || 0] = "This field is required";
+      }
+    });
+
+    setFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Returns true if no errors
+  };
 
   const redirectToQuestionTypes = () => {
     router.push(step1Url)
@@ -106,37 +120,41 @@ const QuestionAdd = ({
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const transformedQuestionOptions = transformOptions();
-    try {
-      const displayOrder = getDisplayOrder();
-      // Add mutation for question
-      const response = await addQuestionMutation({
-        variables: {
-          input: {
-            templateId: Number(templateId),
-            sectionId: Number(sectionId),
-            displayOrder: displayOrder,
-            isDirty: true,
-            questionTypeId: questionTypeId,
-            questionText: question?.questionText,
-            requirementText: question?.requirementText,
-            guidanceText: question?.guidanceText,
-            sampleText: question?.sampleText,
-            required: false,
-            questionOptions: transformedQuestionOptions
-          }
-        },
-      });
+    setFormSubmitted(true);
+    if (validateOptions()) {
 
-      if (response?.data) {
-        toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
-      }
-    } catch (error) {
-      if (error instanceof ApolloError) {
-        //
-      } else {
-        // Handle other types of errors
-        setErrors(prevErrors => [...prevErrors, QuestionAdd('messages.errors.questionAddingError')]);
+      const transformedQuestionOptions = transformOptions();
+      try {
+        const displayOrder = getDisplayOrder();
+        // Add mutation for question
+        const response = await addQuestionMutation({
+          variables: {
+            input: {
+              templateId: Number(templateId),
+              sectionId: Number(sectionId),
+              displayOrder: displayOrder,
+              isDirty: true,
+              questionTypeId: questionTypeId,
+              questionText: question?.questionText,
+              requirementText: question?.requirementText,
+              guidanceText: question?.guidanceText,
+              sampleText: question?.sampleText,
+              required: false,
+              questionOptions: transformedQuestionOptions
+            }
+          },
+        });
+
+        if (response?.data) {
+          toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
+        }
+      } catch (error) {
+        if (error instanceof ApolloError) {
+          //
+        } else {
+          // Handle other types of errors
+          setErrors(prevErrors => [...prevErrors, QuestionAdd('messages.errors.questionAddingError')]);
+        }
       }
     }
 
@@ -209,7 +227,7 @@ const QuestionAdd = ({
 
                 {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
                   <div className={styles.optionsWrapper}>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows} />
+                    <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} />
                   </div>
                 )}
 
@@ -224,7 +242,7 @@ const QuestionAdd = ({
                     questionText: e.currentTarget.value
                   })}
                   helpMessage={QuestionAdd('helpText.questionText')}
-                  isInvalid={!question?.questionText}
+                  isInvalid={!question?.questionText && formSubmitted}
                   errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
                 />
 
@@ -268,7 +286,8 @@ const QuestionAdd = ({
                   helpMessage={QuestionAdd('helpText.sampleText')}
                 />
 
-                <Button type="submit">{Global('buttons.save')}</Button>
+                {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
+                <Button type="submit" onPress={e => setFormSubmitted(true)}>{Global('buttons.save')}</Button>
               </Form>
 
             </TabPanel>

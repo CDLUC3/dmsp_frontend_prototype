@@ -22,13 +22,14 @@ interface QuestionOptionsComponentProps {
   rows: Row[] | null;
   setRows: React.Dispatch<React.SetStateAction<Row[]>>;
   questionId?: number;
+  formSubmitted?: boolean;
 }
 
 
 /**This component is used to add question type fields that use options
  * For example, radio buttons, check boxes and select drop-downs
  */
-const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionId }) => {
+const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionId, formSubmitted }) => {
   const [announcement, setAnnouncement] = useState<string>("");
 
   // localization keys
@@ -116,10 +117,13 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 type="text"
                 isRequired={true}
                 label={QuestionOptions('labels.text')}
+                labelClasses={styles.textFieldLabel}
                 value={row.text}
                 onChange={(e) => handleChange(row.id || '', "text", e.target.value)}
                 placeholder={QuestionOptions('placeholder.text')}
                 ariaLabel={index === 0 ? undefined : "Text"}
+                isInvalid={!row.text && formSubmitted}
+                errorMessage="Text field is required"
               />
             </div>
             <div className={`${styles.cell} ${styles.default}`}>

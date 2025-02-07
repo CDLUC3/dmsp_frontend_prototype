@@ -17,6 +17,7 @@
   font-weight: 700;
   font-size:medium;
 }
+
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -38,11 +39,6 @@
 
 .orderNumber {
   max-width: 30px;
-}
-
-.deleteButton,
-.react-aria-Button {
-
 }
 
 .dmpIcon {
@@ -69,4 +65,8 @@
   .checkBox {
     margin-top: 10px;
   }
+}
+
+.textFieldLabel {
+  white-space: nowrap;
 }
