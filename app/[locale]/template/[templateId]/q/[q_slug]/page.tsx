@@ -54,6 +54,7 @@ const QuestionEdit = () => {
   const [question, setQuestion] = useState<Question>();
   const [rows, setRows] = useState<QuestionOptions[]>([]);//Question options, initially set as an empty array
   const [questionType, setQuestionType] = useState<string>('');
+  const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   // Initialize update question mutation
@@ -94,6 +95,8 @@ const QuestionEdit = () => {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (question) {
+      setFormSubmitted(true);
+
       try {
         // Add mutation for question
         const response = await updateQuestionMutation({
@@ -229,7 +232,7 @@ const QuestionEdit = () => {
                 {selectedQuestion?.question?.questionTypeId && [3, 4, 5].includes(selectedQuestion?.question?.questionTypeId) && (
                   <div className={styles.optionsWrapper}>
                     <p className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows} questionId={Number(questionId)} />
+                    <QuestionOptionsComponent rows={rows} setRows={setRows} questionId={Number(questionId)} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
                   </div>
                 )}
 
@@ -305,7 +308,7 @@ const QuestionEdit = () => {
                   </Checkbox>
                 )}
 
-                <Button type="submit">{Global('buttons.save')}</Button>
+                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.save')}</Button>
 
               </Form>
 

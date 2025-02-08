@@ -221,7 +221,7 @@ const QuestionAdd = ({
 
                 {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
                   <div className={styles.optionsWrapper}>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} />
+                    <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
                   </div>
                 )}
 

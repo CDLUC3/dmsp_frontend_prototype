@@ -23,13 +23,14 @@ interface QuestionOptionsComponentProps {
   setRows: React.Dispatch<React.SetStateAction<Row[]>>;
   questionId?: number;
   formSubmitted?: boolean;
+  setFormSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 
 /**This component is used to add question type fields that use options
  * For example, radio buttons, check boxes and select drop-downs
  */
-const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionId, formSubmitted }) => {
+const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionId, formSubmitted, setFormSubmitted }) => {
   const [announcement, setAnnouncement] = useState<string>("");
 
   // localization keys
@@ -49,6 +50,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
       };
       setRows((prevRows) => [...prevRows, newRow]);
       setAnnouncement(QuestionOptions('announcements.rowAdded', { orderNumber: newRow.orderNumber }));
+      setFormSubmitted(false);
     }
   };
 

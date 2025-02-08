@@ -45,7 +45,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should render initial rows correctly', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     expect(screen.getByLabelText('labels.order')).toBeInTheDocument();
     expect(screen.getByLabelText('labels.text')).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should add a new row when the add button is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
     fireEvent.click(addButton);
@@ -62,7 +62,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should update text field correctly', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     const textInput = screen.getByLabelText('labels.text');
     fireEvent.change(textInput, { target: { value: 'Updated Option' } });
@@ -71,7 +71,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should set a row as default when checkbox is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     const defaultCheckbox = screen.getByLabelText('labels.default');
     fireEvent.click(defaultCheckbox);
@@ -80,7 +80,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should remove a row when delete button is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     const deleteButton = screen.getByRole('button', { name: /buttons.deleteRow/i });
     fireEvent.click(deleteButton);
