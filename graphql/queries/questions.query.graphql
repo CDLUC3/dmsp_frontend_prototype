@@ -27,26 +27,3 @@ query Question($questionId: Int!) {
     isDirty
   }
 }
-
-mutation UpdateQuestion($input: UpdateQuestionInput!) {
-  updateQuestion(input: $input) {
-    id
-    guidanceText
-    errors
-    isDirty
-    required
-    requirementText
-    sampleText
-    useSampleTextAsDefault
-    sectionId
-    templateId
-    questionText
-    questionOptions {
-      id
-      orderNumber
-      questionId
-      text
-      isDefault
-    }
-  }
-}

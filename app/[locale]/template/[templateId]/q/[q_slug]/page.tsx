@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
@@ -43,9 +43,11 @@ import styles from './questionEdit.module.scss';
 const QuestionEdit = () => {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toastState = useToast(); // Access the toast state from context
   const { templateId } = params; // From route /template/:templateId
   const questionId = params.q_slug; //question id
+  const questionTypeIdQueryParam = searchParams.get('questionTypeId') || null;
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -55,6 +57,7 @@ const QuestionEdit = () => {
   const [rows, setRows] = useState<QuestionOptions[]>([]);//Question options, initially set as an empty array
   const [questionType, setQuestionType] = useState<string>('');
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+  const [hasOptions, setHasOptions] = useState<boolean | null>(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   // Initialize update question mutation
@@ -89,7 +92,8 @@ const QuestionEdit = () => {
   // Return user back to the page to select a question type
   const redirectToQuestionTypes = () => {
     const sectionId = selectedQuestion?.question?.sectionId;
-    router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1`)
+    // questionId as query param included to let page know that user is updating an existing question
+    router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -98,11 +102,13 @@ const QuestionEdit = () => {
       setFormSubmitted(true);
 
       try {
-        // Add mutation for question
+        // Add mutation for question. If user has questionTypeId in query param because they just selected
+        // a new question type, then use that as the questionTypeId rather than what is currently in the db
         const response = await updateQuestionMutation({
           variables: {
             input: {
               questionId: Number(questionId),
+              questionTypeId: Number(questionTypeIdQueryParam) ?? selectedQuestion?.question?.questionTypeId,
               displayOrder: question.displayOrder,
               questionText: question.questionText,
               requirementText: question.requirementText,
@@ -148,11 +154,21 @@ const QuestionEdit = () => {
           .sort((a, b) => a.orderNumber - b.orderNumber); // Sort in ascending order
 
         setRows(optionRows);
-        const qt = getQuestionTypeName(Number(selectedQuestion?.question?.questionTypeId))
+        // If user has the questionTypeId in the query param because they just selected a new question type
+        // then use that over the one in the data
+        const qt = getQuestionTypeName(Number(questionTypeIdQueryParam ?? selectedQuestion?.question?.questionTypeId))
         if (qt) {
           setQuestionType(qt);
         }
 
+      }
+    }
+
+    if (questionTypeIdQueryParam && rows.length === 0) {
+      // If there is a questionTypeId query param, then that means that user switched to a new question type
+      // so we want to reset the rows to a fresh, empty row
+      if ([3, 4, 5].includes(Number(questionTypeIdQueryParam))) {
+        setRows([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: Number(questionId) }]);
       }
     }
   }, [selectedQuestion])
@@ -164,9 +180,19 @@ const QuestionEdit = () => {
     }
   }, [selectedQuestionQueryError])
 
+  useEffect(() => {
+    // To determine if the question type selected is one that includes options fields
+    const questionTypeOptions = !!(
+      (questionTypeIdQueryParam && [3, 4, 5].includes(Number(questionTypeIdQueryParam))) ??
+      (selectedQuestion?.question?.questionTypeId && [3, 4, 5].includes(selectedQuestion?.question?.questionTypeId))
+    );
+    setHasOptions(questionTypeOptions);
+  }, [questionTypeIdQueryParam, selectedQuestion])
+
   if (loading) {
     return <div>Loading...</div>;
   }
+
 
   return (
     <>
@@ -229,11 +255,14 @@ const QuestionEdit = () => {
                 </TextField>
 
                 {/**Question type fields here */}
-                {selectedQuestion?.question?.questionTypeId && [3, 4, 5].includes(selectedQuestion?.question?.questionTypeId) && (
-                  <div className={styles.optionsWrapper}>
-                    <p className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows} questionId={Number(questionId)} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
-                  </div>
+                {hasOptions && (
+                  <>
+                    <h2>Has options!!</h2>
+                    <div className={styles.optionsWrapper}>
+                      <p className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
+                      <QuestionOptionsComponent rows={rows} setRows={setRows} questionId={Number(questionId)} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
+                    </div>
+                  </>
                 )}
 
                 <FormInput
@@ -290,7 +319,7 @@ const QuestionEdit = () => {
                   })}
                 />
 
-                {selectedQuestion?.question?.questionTypeId && [1, 2].includes(selectedQuestion?.question?.questionTypeId) && (
+                {!hasOptions && (
                   <Checkbox
                     onChange={() => setQuestion({
                       ...question,

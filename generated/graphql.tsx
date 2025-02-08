@@ -2365,6 +2365,8 @@ export type UpdateQuestionInput = {
   questionOptions?: InputMaybe<Array<InputMaybe<UpdateQuestionOptionInput>>>;
   /** This will be used as a sort of title for the Question */
   questionText?: InputMaybe<Scalars['String']['input']>;
+  /** The type of question, such as text field, select box, radio buttons, etc */
+  questionTypeId?: InputMaybe<Scalars['Int']['input']>;
   /** To indicate whether the question is required to be completed */
   required?: InputMaybe<Scalars['Boolean']['input']>;
   /** Requirements associated with the Question */
@@ -2741,6 +2743,13 @@ export type AddQuestionMutationVariables = Exact<{
 
 export type AddQuestionMutation = { __typename?: 'Mutation', addQuestion: { __typename?: 'Question', errors?: Array<string> | null, id?: number | null, displayOrder?: number | null, questionText?: string | null, questionTypeId?: number | null, requirementText?: string | null, guidanceText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, required?: boolean | null, questionOptions?: Array<{ __typename?: 'QuestionOption', isDefault?: boolean | null, id?: number | null, questionId: number, orderNumber: number, text: string }> | null } };
 
+export type UpdateQuestionMutationVariables = Exact<{
+  input: UpdateQuestionInput;
+}>;
+
+
+export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, questionTypeId?: number | null, guidanceText?: string | null, errors?: Array<string> | null, isDirty?: boolean | null, required?: boolean | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionText?: string | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, orderNumber: number, questionId: number, text: string, isDefault?: boolean | null }> | null } };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
@@ -2845,13 +2854,6 @@ export type QuestionQueryVariables = Exact<{
 
 export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, errors?: Array<string> | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
 
-export type UpdateQuestionMutationVariables = Exact<{
-  input: UpdateQuestionInput;
-}>;
-
-
-export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, errors?: Array<string> | null, isDirty?: boolean | null, required?: boolean | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionText?: string | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, orderNumber: number, questionId: number, text: string, isDefault?: boolean | null }> | null } };
-
 export type SectionsDisplayOrderQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
 }>;
@@ -2955,6 +2957,57 @@ export function useAddQuestionMutation(baseOptions?: Apollo.MutationHookOptions<
 export type AddQuestionMutationHookResult = ReturnType<typeof useAddQuestionMutation>;
 export type AddQuestionMutationResult = Apollo.MutationResult<AddQuestionMutation>;
 export type AddQuestionMutationOptions = Apollo.BaseMutationOptions<AddQuestionMutation, AddQuestionMutationVariables>;
+export const UpdateQuestionDocument = gql`
+    mutation UpdateQuestion($input: UpdateQuestionInput!) {
+  updateQuestion(input: $input) {
+    id
+    questionTypeId
+    guidanceText
+    errors
+    isDirty
+    required
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    sectionId
+    templateId
+    questionText
+    questionOptions {
+      id
+      orderNumber
+      questionId
+      text
+      isDefault
+    }
+  }
+}
+    `;
+export type UpdateQuestionMutationFn = Apollo.MutationFunction<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
+
+/**
+ * __useUpdateQuestionMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuestionMutation, { data, loading, error }] = useUpdateQuestionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateQuestionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuestionMutation, UpdateQuestionMutationVariables>(UpdateQuestionDocument, options);
+      }
+export type UpdateQuestionMutationHookResult = ReturnType<typeof useUpdateQuestionMutation>;
+export type UpdateQuestionMutationResult = Apollo.MutationResult<UpdateQuestionMutation>;
+export type UpdateQuestionMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {
@@ -3575,56 +3628,6 @@ export type QuestionQueryHookResult = ReturnType<typeof useQuestionQuery>;
 export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery>;
 export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
 export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
-export const UpdateQuestionDocument = gql`
-    mutation UpdateQuestion($input: UpdateQuestionInput!) {
-  updateQuestion(input: $input) {
-    id
-    guidanceText
-    errors
-    isDirty
-    required
-    requirementText
-    sampleText
-    useSampleTextAsDefault
-    sectionId
-    templateId
-    questionText
-    questionOptions {
-      id
-      orderNumber
-      questionId
-      text
-      isDefault
-    }
-  }
-}
-    `;
-export type UpdateQuestionMutationFn = Apollo.MutationFunction<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
-
-/**
- * __useUpdateQuestionMutation__
- *
- * To run a mutation, you first call `useUpdateQuestionMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateQuestionMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateQuestionMutation, { data, loading, error }] = useUpdateQuestionMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateQuestionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateQuestionMutation, UpdateQuestionMutationVariables>(UpdateQuestionDocument, options);
-      }
-export type UpdateQuestionMutationHookResult = ReturnType<typeof useUpdateQuestionMutation>;
-export type UpdateQuestionMutationResult = Apollo.MutationResult<UpdateQuestionMutation>;
-export type UpdateQuestionMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
 export const SectionsDisplayOrderDocument = gql`
     query SectionsDisplayOrder($templateId: Int!) {
   sections(templateId: $templateId) {

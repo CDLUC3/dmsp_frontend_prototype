@@ -143,6 +143,9 @@ const QuestionAdd = ({
 
       if (response?.data) {
         toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
+        //redirect user to the Edit Question view with their new question id after successfully adding the new question
+        const newQuestionId = response.data.addQuestion.id;
+        router.push(`/template/${templateId}/q/${newQuestionId}`)
       }
     } catch (error) {
       if (!(error instanceof ApolloError)) {

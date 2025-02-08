@@ -19,3 +19,27 @@ mutation AddQuestion($input: AddQuestionInput!) {
     }
   }
 }
+
+mutation UpdateQuestion($input: UpdateQuestionInput!) {
+  updateQuestion(input: $input) {
+    id
+    questionTypeId
+    guidanceText
+    errors
+    isDirty
+    required
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    sectionId
+    templateId
+    questionText
+    questionOptions {
+      id
+      orderNumber
+      questionId
+      text
+      isDefault
+    }
+  }
+}

@@ -7,7 +7,7 @@ import {
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import QuestionEdit from '../page';
 expect.extend(toHaveNoViolations);
@@ -21,7 +21,8 @@ jest.mock("@/generated/graphql", () => ({
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
-  useRouter: jest.fn()
+  useRouter: jest.fn(),
+  useSearchParams: jest.fn()
 }))
 
 jest.mock('@/context/ToastContext', () => ({
@@ -161,7 +162,7 @@ describe("QuestionEditPage", () => {
     const mockUseParams = useParams as jest.Mock;
 
     // Mock the return value of useParams
-    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}`, q_slug: 67 });
 
     // Mock the router
     mockRouter = { push: jest.fn() };
@@ -184,6 +185,23 @@ describe("QuestionEditPage", () => {
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys: function* () { },
+        values: function* () { },
+        entries: function* () { },
+        forEach: () => { },
+        toString: () => '',
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
 
     await act(async () => {
       render(
@@ -229,6 +247,23 @@ describe("QuestionEditPage", () => {
       { loading: false, error: undefined },
     ]);
 
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys: function* () { },
+        values: function* () { },
+        entries: function* () { },
+        forEach: () => { },
+        toString: () => '',
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
     await act(async () => {
       render(
         <QuestionEdit />
@@ -254,6 +289,23 @@ describe("QuestionEditPage", () => {
       { loading: false, error: undefined },
     ]);
 
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys: function* () { },
+        values: function* () { },
+        entries: function* () { },
+        forEach: () => { },
+        toString: () => '',
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
     await act(async () => {
       render(
         <QuestionEdit />
@@ -264,7 +316,7 @@ describe("QuestionEditPage", () => {
     fireEvent.click(changeTypeButton);
 
     // Verify that router redirects to question types page
-    expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=67&step=1');
+    expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=67&step=1&questionId=67');
   })
 
   // QuestionOptionsComponent has it's own separate unit test, so we are just testing that it loads here
@@ -273,6 +325,23 @@ describe("QuestionEditPage", () => {
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '3' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '3' },
+        keys: function* () { },
+        values: function* () { },
+        entries: function* () { },
+        forEach: () => { },
+        toString: () => '',
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
 
     await act(async () => {
       render(
@@ -288,6 +357,23 @@ describe("QuestionEditPage", () => {
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys: function* () { },
+        values: function* () { },
+        entries: function* () { },
+        forEach: () => { },
+        toString: () => '',
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
 
     await act(async () => {
       render(
@@ -311,6 +397,23 @@ describe("QuestionEditPage", () => {
       { loading: false, error: undefined },
     ]);
 
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '' },
+        keys: function* () { },
+        values: function* () { },
+        entries: function* () { },
+        forEach: () => { },
+        toString: () => '',
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
     await act(async () => {
       render(
         <QuestionEdit />
@@ -326,6 +429,23 @@ describe("QuestionEditPage", () => {
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '' },
+        keys: function* () { },
+        values: function* () { },
+        entries: function* () { },
+        forEach: () => { },
+        toString: () => '',
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
 
     (useQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextField,

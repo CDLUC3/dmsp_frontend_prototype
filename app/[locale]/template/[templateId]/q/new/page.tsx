@@ -43,6 +43,7 @@ const QuestionTypeSelectPage: React.FC = () => {
     const topRef = useRef<HTMLDivElement>(null);
     const { templateId } = params; // From route /template/:templateId
     const sectionId = searchParams.get('section_id');
+    const questionId = searchParams.get('questionId');// if user is switching their question type while editing an existing question
 
     // State management
     const [step, setStep] = useState<number | null>(null);
@@ -63,11 +64,16 @@ const QuestionTypeSelectPage: React.FC = () => {
     const { data, loading, error: queryError } = useQuestionTypesQuery();
 
     const handleSelect = (questionTypeId: number, questionTypeName: string) => {
-        // redirect to the Question Edit page
-        if (questionTypeId) {
-            setSelectedQuestionType({ questionTypeId: questionTypeId, questionTypeName: questionTypeName })
-            setStep(2);
-            router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=2`)
+        if (questionId) {
+            //If the user came from editing an existing question, we want to return them to that page with the new questionTypeId
+            router.push(`/template/${templateId}/q/${questionId}?questionTypeId=${questionTypeId}`)
+        } else {
+            // redirect to the Question Edit page if a user is adding a new question
+            if (questionTypeId) {
+                setSelectedQuestionType({ questionTypeId: questionTypeId, questionTypeName: questionTypeName })
+                setStep(2);
+                router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=2`)
+            }
         }
     }
 

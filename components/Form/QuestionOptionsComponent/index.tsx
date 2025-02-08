@@ -40,9 +40,13 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   // Add options row
   const addRow = () => {
     if (rows) {
+      // Either calculate next order number off of last orderNumber, if present, or just use the row.length to increment
+      const length = rows.length - 1;
+      const nextNum = rows[length] ? (rows[length].orderNumber + 1) : (length + 1)
+
       const newRow = {
-        id: rows.length + 1,
-        orderNumber: rows.length + 1,
+        id: nextNum, //if rows already has a set value, then increment from there
+        orderNumber: nextNum, //if rows already has a set value, then increment from there
         text: "",
         isDefault: false,
         questionId: questionId || 0 //If there is no questionId, then it won't update the question when set to 0
