@@ -12,6 +12,8 @@ export default getRequestConfig(async ({requestLocale}) => {
   }
   // Load multiple translation files
   const mainMessages = (await import(`@/messages/${locale}/global.json`)).default;
+  const loginPageMessages = (await import(`@/messages/${locale}/loginPage.json`)).default;
+  const signupPageMessages = (await import(`@/messages/${locale}/signupPage.json`)).default;
   const templateMessages = (await import(`@/messages/${locale}/templateBuilder.json`)).default;
   const planBuilderProjectOverviewMessages = (await import(`@/messages/${locale}/planBuilderProjectOverview.json`)).default;
   const errorMessages = (await import(`@/messages/${locale}/errors.json`)).default;
@@ -20,6 +22,8 @@ export default getRequestConfig(async ({requestLocale}) => {
   // Merge all message objects
   const messages = {
     ...mainMessages,
+    ...loginPageMessages,
+    ...signupPageMessages,
     ...templateMessages,
     ...messaging,
     ...planBuilderProjectOverviewMessages,

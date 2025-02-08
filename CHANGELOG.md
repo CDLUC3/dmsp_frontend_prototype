@@ -44,6 +44,10 @@
 - Updated app/[locale]/template page to hook it up to backend and handle errors and translations[#82]
 - Updated account/profile, email/email-confirmed, email/verification-failed, and account/connections to use new, shared layout containers [#185]
 - Refactored font family usage for consistency.
+- Updated the Login and Signup pages to function as the wireframes. [#117]
+- Updated TypeAheadWithOther component to be a bit more generic [#117]
+- Cleaned up some of the error handling code so that it's easier to debug and
+  trace issues. [#117]
 
 ### Added
 - Added `MyVersionedTemplates` and `PublishedTemplates` graphql queries and `addTemplateMutation` graphql mutation [#186]
