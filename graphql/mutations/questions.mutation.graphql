@@ -5,9 +5,11 @@ mutation AddQuestion($input: AddQuestionInput!) {
     displayOrder
     questionText
     questionTypeId
-    required
     requirementText
     guidanceText
+    sampleText
+    useSampleTextAsDefault
+    required
     questionOptions {
       isDefault
       id

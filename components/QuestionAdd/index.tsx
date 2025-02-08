@@ -8,7 +8,7 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  FieldError,
+  Checkbox,
   Form,
   Input,
   Label,
@@ -18,7 +18,6 @@ import {
   TabPanel,
   Tabs,
   Text,
-  TextArea,
   TextField
 } from "react-aria-components";
 
@@ -61,7 +60,6 @@ const QuestionAdd = ({
   const [question, setQuestion] = useState<Question>();
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
-  const [formErrors, setFormErrors] = useState<{ [key: number]: string }>({});
   const [errors, setErrors] = useState<string[]>([]);
 
   // localization keys
@@ -87,7 +85,6 @@ const QuestionAdd = ({
       }
     });
 
-    setFormErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Returns true if no errors
   };
 
@@ -121,44 +118,41 @@ const QuestionAdd = ({
     e.preventDefault();
 
     setFormSubmitted(true);
-    if (validateOptions()) {
 
-      const transformedQuestionOptions = transformOptions();
-      try {
-        const displayOrder = getDisplayOrder();
-        // Add mutation for question
-        const response = await addQuestionMutation({
-          variables: {
-            input: {
-              templateId: Number(templateId),
-              sectionId: Number(sectionId),
-              displayOrder: displayOrder,
-              isDirty: true,
-              questionTypeId: questionTypeId,
-              questionText: question?.questionText,
-              requirementText: question?.requirementText,
-              guidanceText: question?.guidanceText,
-              sampleText: question?.sampleText,
-              required: false,
-              questionOptions: transformedQuestionOptions
-            }
-          },
-        });
+    const displayOrder = getDisplayOrder();
+    const isOptionQuestion = questionTypeId && [3, 4, 5].includes(questionTypeId) && validateOptions();
+    const transformedQuestionOptions = isOptionQuestion ? transformOptions() : undefined;
 
-        if (response?.data) {
-          toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
-        }
-      } catch (error) {
-        if (error instanceof ApolloError) {
-          //
-        } else {
-          // Handle other types of errors
-          setErrors(prevErrors => [...prevErrors, QuestionAdd('messages.errors.questionAddingError')]);
-        }
+    const input = {
+      templateId: Number(templateId),
+      sectionId: Number(sectionId),
+      displayOrder,
+      isDirty: true,
+      questionTypeId,
+      questionText: question?.questionText,
+      requirementText: question?.requirementText,
+      guidanceText: question?.guidanceText,
+      sampleText: question?.sampleText,
+      useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
+      required: false,
+      ...(isOptionQuestion && { questionOptions: transformedQuestionOptions }),
+    };
+
+    try {
+      const response = await addQuestionMutation({ variables: { input } });
+
+      if (response?.data) {
+        toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
+      }
+    } catch (error) {
+      if (!(error instanceof ApolloError)) {
+        setErrors(prevErrors => [
+          ...prevErrors,
+          QuestionAdd('messages.errors.questionAddingError'),
+        ]);
       }
     }
-
-  }
+  };
 
   useEffect(() => {
     if (!questionTypeId) {
@@ -285,6 +279,23 @@ const QuestionAdd = ({
                   })}
                   helpMessage={QuestionAdd('helpText.sampleText')}
                 />
+
+                {questionTypeId && [1, 2].includes(questionTypeId) && (
+                  <Checkbox
+                    onChange={() => setQuestion({
+                      ...question,
+                      useSampleTextAsDefault: !question?.useSampleTextAsDefault
+                    })}
+                    isSelected={question?.useSampleTextAsDefault || false}
+                  >
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    {QuestionAdd('descriptions.sampleTextAsDefault')}
+                  </Checkbox>
+                )}
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
                 <Button type="submit" onPress={e => setFormSubmitted(true)}>{Global('buttons.save')}</Button>

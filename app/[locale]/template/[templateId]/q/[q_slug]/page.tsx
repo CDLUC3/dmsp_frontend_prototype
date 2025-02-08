@@ -8,6 +8,7 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
+  Checkbox,
   Form,
   Input,
   Label,
@@ -104,6 +105,7 @@ const QuestionEdit = () => {
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
               sampleText: question.sampleText,
+              useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
               questionOptions: rows || selectedQuestion?.question?.questionOptions
             }
           },
@@ -284,6 +286,24 @@ const QuestionEdit = () => {
                     sampleText: e.currentTarget.value
                   })}
                 />
+
+                {selectedQuestion?.question?.questionTypeId && [1, 2].includes(selectedQuestion?.question?.questionTypeId) && (
+                  <Checkbox
+                    onChange={() => setQuestion({
+                      ...question,
+                      useSampleTextAsDefault: !question?.useSampleTextAsDefault
+                    })}
+                    isSelected={question?.useSampleTextAsDefault || false}
+                  >
+                    <div className="checkbox">
+                      <svg viewBox="0 0 18 18" aria-hidden="true">
+                        <polyline points="1 9 7 14 15 4" />
+                      </svg>
+                    </div>
+                    {QuestionEdit('descriptions.sampleTextAsDefault')}
+
+                  </Checkbox>
+                )}
 
                 <Button type="submit">{Global('buttons.save')}</Button>
 

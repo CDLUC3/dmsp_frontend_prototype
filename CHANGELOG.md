@@ -23,6 +23,7 @@
 - Added new QuestionOptionsComponent for handling the `options` question types in the form [#188]
 - Added new QuestionAdd component for adding a new question [#188]
 - Added new `QuestionsDisplayOrder` and `Question` queries and `AddQuestion` and `UpdateQuestion` mutations [#188]
+- Added useSampleTextAsDefault checkbox for text field question types [#188]
 
 ### Fixed
 

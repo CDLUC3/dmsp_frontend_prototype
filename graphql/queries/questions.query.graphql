@@ -13,6 +13,7 @@ query Question($questionId: Int!) {
     questionText
     requirementText
     sampleText
+    useSampleTextAsDefault
     sectionId
     templateId
     questionTypeId
@@ -36,6 +37,7 @@ mutation UpdateQuestion($input: UpdateQuestionInput!) {
     required
     requirementText
     sampleText
+    useSampleTextAsDefault
     sectionId
     templateId
     questionText

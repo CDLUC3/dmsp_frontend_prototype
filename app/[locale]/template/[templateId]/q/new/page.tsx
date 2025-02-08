@@ -237,7 +237,7 @@ const QuestionTypeSelectPage: React.FC = () => {
                                 {/*Show # of results with clear filter link*/}
                                 {(searchTerm.length > 0 && searchButtonClicked) && (
                                     <div className={styles.clearFilter}>
-                                        <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
+                                        <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>{QuestionTypeSelect('links.clearFilter')}</Link></div>
                                     </div>
                                 )}
                             </div>

@@ -211,6 +211,40 @@ describe("QuestionAdd", () => {
     });
   })
 
+  it('should not display the useSampleTextAsDefault checkbox if the questionTypeId is Radio Button field', async () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    const { container } = render(
+      <QuestionAdd
+        questionTypeId={3}
+        questionTypeName="Radio buttons"
+      />
+    );
+
+    const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
+    expect(checkboxText).not.toBeInTheDocument();
+  })
+
+  it('should display the useSampleTextAsDefault checkbox if the questionTypeId is a Text field', async () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    const { container } = render(
+      <QuestionAdd
+        questionTypeId={1}
+        questionTypeName="Radio buttons"
+      />
+    );
+
+    const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
+    expect(checkboxText).toBeInTheDocument();
+  })
+
   it('should pass axe accessibility test', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),

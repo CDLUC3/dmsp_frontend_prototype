@@ -140,6 +140,8 @@ export type AddQuestionInput = {
   sectionId: Scalars['Int']['input'];
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['input'];
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type AddQuestionOptionInput = {
@@ -1933,6 +1935,8 @@ export type Question = {
   sourceQestionId?: Maybe<Scalars['Int']['output']>;
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['output'];
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: Maybe<Scalars['Boolean']['output']>;
 };
 
 /**
@@ -2367,6 +2371,8 @@ export type UpdateQuestionInput = {
   requirementText?: InputMaybe<Scalars['String']['input']>;
   /** Sample text to possibly provide a starting point or example to answer question */
   sampleText?: InputMaybe<Scalars['String']['input']>;
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type UpdateQuestionOptionInput = {
@@ -2733,7 +2739,7 @@ export type AddQuestionMutationVariables = Exact<{
 }>;
 
 
-export type AddQuestionMutation = { __typename?: 'Mutation', addQuestion: { __typename?: 'Question', errors?: Array<string> | null, id?: number | null, displayOrder?: number | null, questionText?: string | null, questionTypeId?: number | null, required?: boolean | null, requirementText?: string | null, guidanceText?: string | null, questionOptions?: Array<{ __typename?: 'QuestionOption', isDefault?: boolean | null, id?: number | null, questionId: number, orderNumber: number, text: string }> | null } };
+export type AddQuestionMutation = { __typename?: 'Mutation', addQuestion: { __typename?: 'Question', errors?: Array<string> | null, id?: number | null, displayOrder?: number | null, questionText?: string | null, questionTypeId?: number | null, requirementText?: string | null, guidanceText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, required?: boolean | null, questionOptions?: Array<{ __typename?: 'QuestionOption', isDefault?: boolean | null, id?: number | null, questionId: number, orderNumber: number, text: string }> | null } };
 
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
@@ -2837,14 +2843,14 @@ export type QuestionQueryVariables = Exact<{
 }>;
 
 
-export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, errors?: Array<string> | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
+export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, errors?: Array<string> | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
 
 export type UpdateQuestionMutationVariables = Exact<{
   input: UpdateQuestionInput;
 }>;
 
 
-export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, errors?: Array<string> | null, isDirty?: boolean | null, required?: boolean | null, requirementText?: string | null, sampleText?: string | null, sectionId: number, templateId: number, questionText?: string | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, orderNumber: number, questionId: number, text: string, isDefault?: boolean | null }> | null } };
+export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, errors?: Array<string> | null, isDirty?: boolean | null, required?: boolean | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionText?: string | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, orderNumber: number, questionId: number, text: string, isDefault?: boolean | null }> | null } };
 
 export type SectionsDisplayOrderQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -2908,9 +2914,11 @@ export const AddQuestionDocument = gql`
     displayOrder
     questionText
     questionTypeId
-    required
     requirementText
     guidanceText
+    sampleText
+    useSampleTextAsDefault
+    required
     questionOptions {
       isDefault
       id
@@ -3519,6 +3527,7 @@ export const QuestionDocument = gql`
     questionText
     requirementText
     sampleText
+    useSampleTextAsDefault
     sectionId
     templateId
     questionTypeId
@@ -3576,6 +3585,7 @@ export const UpdateQuestionDocument = gql`
     required
     requirementText
     sampleText
+    useSampleTextAsDefault
     sectionId
     templateId
     questionText

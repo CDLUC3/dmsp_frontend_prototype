@@ -151,6 +151,7 @@ export interface Question {
   requirementText?: string | null;
   guidanceText?: string | null;
   sampleText?: string | null;
+  useSampleTextAsDefault?: boolean | null;
   required?: boolean;
   questionOptions?: QuestionOptions[] | null;
 }

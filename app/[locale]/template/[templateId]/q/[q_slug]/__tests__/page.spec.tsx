@@ -95,6 +95,37 @@ const mockQuestionData = {
   }
 }
 
+const mockQuestionDataForTextField = {
+  question: {
+    displayOrder: 17,
+    errors: null,
+    guidanceText: "This is the guidance text",
+    id: 2271,
+    isDirty: true,
+    questionOptions:
+      [
+        {
+          id: 63,
+          orderNumber: 1,
+          questionId: 2271,
+          Text: "Alpha"
+        },
+        {
+          id: 66,
+          orderNumber: 2,
+          questionId: 2271,
+          Text: "Bravo"
+        }
+      ],
+    questionText: "Testing",
+    questionTypeId: 1,
+    requirementText: "This is requirement text",
+    sampleText: "This is sample text",
+    sectionId: 67,
+    templateId: 15
+  }
+}
+
 const mockQuestionTypesData = {
   questionTypes: [
     {
@@ -272,6 +303,44 @@ describe("QuestionEditPage", () => {
     await waitFor(() => {
       expect(useUpdateQuestionMutation).toHaveBeenCalled();
     });
+  })
+
+  it('should not display the useSampleTextAsDefault checkbox if the questionTypeId is Radio Button field', async () => {
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+
+    const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
+    expect(checkboxText).not.toBeInTheDocument();
+  })
+
+  it('should display the useSampleTextAsDefault checkbox if the questionTypeId is for a text field', async () => {
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextField,
+      loading: false,
+      error: undefined,
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+
+    const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
+    expect(checkboxText).toBeInTheDocument();
   })
 
   it('should pass axe accessibility test', async () => {
