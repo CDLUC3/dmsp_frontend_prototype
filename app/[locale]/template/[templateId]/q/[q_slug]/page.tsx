@@ -256,13 +256,10 @@ const QuestionEdit = () => {
 
                 {/**Question type fields here */}
                 {hasOptions && (
-                  <>
-                    <h2>Has options!!</h2>
-                    <div className={styles.optionsWrapper}>
-                      <p className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
-                      <QuestionOptionsComponent rows={rows} setRows={setRows} questionId={Number(questionId)} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
-                    </div>
-                  </>
+                  <div className={styles.optionsWrapper}>
+                    <p className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
+                    <QuestionOptionsComponent rows={rows} setRows={setRows} questionId={Number(questionId)} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
+                  </div>
                 )}
 
                 <FormInput
