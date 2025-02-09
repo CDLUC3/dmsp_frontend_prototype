@@ -13,6 +13,29 @@ import logECS from '@/utils/clientLogger';
 //Need to import this useRouter after the jest.mock is in place
 import {useRouter} from 'next/navigation';
 import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
+
+
+// Mock TypeAheadWithOther component
+jest.mock('@/components/Form/TypeAheadWithOther', () => ({
+  __esModule: true,
+  default: ({ updateFormData }: { updateFormData: (name: string, value: string) => void }) => (
+    <div data-testid="type-ahead">
+      <input
+        data-testid="institution"
+        type="text"
+        name="institution"
+        onChange={(e) => updateFormData("institution", e.target.value)}
+      />
+      <input
+        data-testid="otherinst"
+        type="text"
+        name="otherAffiliation"
+        onChange={(e) => updateFormData("otherAffiliation", e.target.value)}
+      />
+    </div>
+  ),
+}));
 
 
 jest.mock('next/navigation', () => ({
@@ -48,9 +71,6 @@ jest.mock('@/context/CsrfContext', () => ({
 
 
 jest.mock('next-intl', () => ({
-  // useFormatter: jest.fn(() => ({
-  //   dateTime: jest.fn(() => '01-01-2023'),
-  // })),
   useTranslations: jest.fn(() => (key) => {
     const translations = {
       "LoginPage.pageTitle": "Login",
@@ -58,6 +78,28 @@ jest.mock('next-intl', () => ({
     return translations[key] || key;
   }),
   useLocale: jest.fn(() => 'en-US'),
+}));
+
+
+// Mock useTranslations from next-intl
+type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
+
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn(() => {
+    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+    /*eslint-disable @typescript-eslint/no-explicit-any */
+    mockUseTranslations.rich = (
+      key: string,
+      values?: Record<string, any>
+    ) => {
+      // Handle rich text formatting
+      if (values?.p) {
+        return values.p(key); // Simulate rendering the `p` tag function
+      }
+      return key;
+    };
+    return mockUseTranslations;
+  }),
 }));
 
 
@@ -76,12 +118,12 @@ global.fetch = global.fetch || require('node-fetch');
 
 describe('SignUpPage', () => {
   const signupData = {
-    email: "test@example.com",
     givenName: "John",
     surName: "Smith",
-    affiliationId: "Other",
-    otherAffiliationName: "",
+    email: "test@example.com",
     password: "Secret -- 123",
+    affiliationId: "otherAffiliation",
+    otherAffiliationName: "",
     acceptedTerms: true
   }
 
@@ -102,8 +144,12 @@ describe('SignUpPage', () => {
       target: { value: signupData.surName },
     });
 
-    fireEvent.change(screen.getByLabelText("institution"), {
-      target: { value: "other" },
+    fireEvent.change(screen.getByTestId("institution"), {
+      target: { value: "InstitutionID" },
+    });
+
+    fireEvent.change(screen.getByTestId("otherinst"), {
+      target: { value: "Test" },
     });
 
     fireEvent.change(screen.getByTestId("pass"), {
@@ -162,7 +208,7 @@ describe('SignUpPage', () => {
     await waitFor(() => {
       expect(screen.getByLabelText("firstName")).toBeInTheDocument();
       expect(screen.getByLabelText("lastName")).toBeInTheDocument();
-      expect(screen.getByLabelText("institution")).toBeInTheDocument();
+      expect(screen.getByTestId("institution")).toBeInTheDocument();
       expect(screen.getByLabelText("acceptTerms")).toBeInTheDocument();
       expect(screen.getByTestId("pass")).toBeInTheDocument();
       expect(screen.getByTestId("confirmpass")).toBeInTheDocument();
@@ -197,12 +243,6 @@ describe('SignUpPage', () => {
 
   it("makes the backend call on final signin", async () => {
     jest.spyOn(global, 'fetch').mockImplementation((url) => {
-      // return Promise.resolve({
-      //   ok: true,
-      //   status: 200,
-      //   json: () => Promise.resolve({ message: 'mock message' })
-      // } as unknown as Response);
-
       if (url === 'http://localhost:4000/apollo-signup') {
         return Promise.resolve({
           ok: true,
@@ -211,16 +251,9 @@ describe('SignUpPage', () => {
         } as unknown as Response);
       }
 
-      // We also need to handle the query made by the typeahead field when
-      // the value changes
-      // if (url === 'http://localhost:4000/graphql') {
-      //   return Promise.resolve({ message: 'mock query' });
-      // }
-
       return Promise.reject(new Error('Unknown URL'));
     });
 
-    // renderWithProviders(<SignUpPage />);
     render(<SignUpPage />);
 
     doSteps();
@@ -229,13 +262,6 @@ describe('SignUpPage', () => {
     expect(signupBtn).toBeEnabled();
 
     fireEvent.click(signupBtn);
-
-    // Filter out the fetch call with the apollo-signup URL
-    // const apolloSignupCall = (global.fetch as jest.Mock).mock.calls.find(
-    //   call => call[0].includes('/apollo-signup'));
-
-    // expect(apolloSignupCall).toBeDefined();  // Check if apollo-signup was called
-    // expect(apolloSignupCall[0]).toBe(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-signup`);
 
     await waitFor(() => {
       // expect(mockUseRouter().push).toHaveBeenCalledWith('/');
@@ -251,110 +277,107 @@ describe('SignUpPage', () => {
     });
   });
 
-  // it('should handle 403 error by calling fetchCsrfToken', async () => {
-  //   jest.spyOn(global, 'fetch').mockImplementation(() => {
-  //     return Promise.resolve({
-  //       ok: false,
-  //       status: 403,
-  //       json: () => Promise.resolve({ success: false, message: 'Invalid CSRF token' }),
-  //     } as unknown as Response);
-  //   });
+  it('should handle 403 error by calling fetchCsrfToken', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        status: 403,
+        json: () => Promise.resolve({ success: false, message: 'Invalid CSRF token' }),
+      } as unknown as Response);
+    });
 
-  //   // renderWithProviders(<SignUpPage />);
-  //   render(<SignUpPage />);
+    render(<SignUpPage />);
 
-  //   doSteps();
-  //   fireEvent.click(screen.getByText("submitSignup"));
+    doSteps();
+    fireEvent.click(screen.getByTestId("signup"));
 
-  //   // Check that user is redirected to 500 error page
-  //   await waitFor(() => {
-  //     expect(mockFetchCsrfToken).toHaveBeenCalled();
-  //   })
-  // });
+    // Check that user is redirected to 500 error page
+    await waitFor(() => {
+      expect(mockFetchCsrfToken).toHaveBeenCalled();
+    })
+  });
 
-  // it('should handle 500 error', async () => {
-  //   jest.spyOn(global, 'fetch').mockImplementation(() => {
-  //       return Promise.resolve({
-  //           ok: false,
-  //           status: 500,
-  //           json: () => Promise.resolve({ success: false, message: 'Internal Server Error' }),
-  //       } as unknown as Response);
-  //   });
+  it('should handle 500 error', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => {
+        return Promise.resolve({
+            ok: false,
+            status: 500,
+            json: () => Promise.resolve({ success: false, message: 'Internal Server Error' }),
+        } as unknown as Response);
+    });
 
-  //   // renderWithProviders(<SignUpPage />);
-  //   render(<SignUpPage />);
+    render(<SignUpPage />);
 
-  //   doSteps();
-  //   fireEvent.click(screen.getByTestId("signup"));
+    doSteps();
+    fireEvent.click(screen.getByTestId("signup"));
 
-  //   // Check that user is redirected to 500 error page
-  //   await waitFor(() => {
-  //     expect(mockUseRouter().push).toHaveBeenCalledWith('/500-error')
-  //   })
-  // });
+    // Check that user is redirected to 500 error page
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/500-error')
+    })
+  });
 
-  // it('should render correct errors to user for a 400 error', async () => {
-  //   jest.spyOn(global, 'fetch').mockImplementation(() => {
-  //     return Promise.resolve({
-  //       ok: false,
-  //       status: 400,
-  //       json: () => Promise.resolve({
-  //         success: false,
-  //         message: 'Invalid email address| Password is required',
-  //       }),
-  //     } as unknown as Response);
-  //   });
+  it('should render correct errors to user for a 400 error', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        status: 400,
+        json: () => Promise.resolve({
+          success: false,
+          message: 'Invalid email address| Password is required',
+        }),
+      } as unknown as Response);
+    });
 
-  //   // renderWithProviders(<SignUpPage />);
-  //   render(<SignUpPage />);
+    render(<SignUpPage />);
 
-  //   doSteps();
-  //   fireEvent.click(screen.getByTestId("signup"));
+    doSteps();
+    fireEvent.click(screen.getByTestId("signup"));
 
-  //   //Check that error is rendered
-  //   await waitFor(() => {
-  //     const errorElement = screen.getByText(/invalid email address/i);
-  //     expect(errorElement).toBeInTheDocument();
-  //   })
-  // });
+    //Check that error is rendered
+    await waitFor(() => {
+      const errorElement = screen.getByText(/invalid email address/i);
+      expect(errorElement).toBeInTheDocument();
+    })
+  });
 
-//   it('should render default error message when no response', async () => {
-//     jest.spyOn(global, 'fetch').mockImplementation(() => {
-//       return Promise.resolve(undefined as unknown as Response);
-//     });
-//
-//     renderWithProviders(<SignUpPage />);
-//
-//     doSteps();
-//     fireEvent.click(screen.getByTestId("signup"));
-//
-//     await waitFor(() => {
-//       const errorDiv = screen.getByText('An unexpected error occurred. Please try again.').closest('div');
-//       expect(errorDiv).toHaveClass('error');
-//       expect(errorDiv).toContainHTML('<p>An unexpected error occurred. Please try again.</p>')
-//     });
-//   });
-//
-//   it('should handle error returned from the fetch', async () => {
-//     jest.spyOn(global, 'fetch').mockImplementation(() => {
-//       return Promise.reject(new Error('Unknown URL'));
-//     });
-//
-//     renderWithProviders(<SignUpPage />);
-//
-//     doSteps();
-//     fireEvent.click(screen.getByTestId("signup"));
-//
-//     // Check that error logged
-//     await waitFor(() => {
-//       expect(logECS).toHaveBeenCalledWith(
-//         'error',
-//         'Signup error',
-//         expect.objectContaining({
-//           error: expect.anything(),
-//           url: { path: '/apollo-signup' },
-//         })
-//       )
-//     });
-//   });
+  it('should render default error message when no response', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => {
+      return Promise.resolve(undefined as unknown as Response);
+    });
+
+    render(<SignUpPage />);
+
+    doSteps();
+    fireEvent.click(screen.getByTestId("signup"));
+
+    await waitFor(() => {
+      const errorDiv = screen.getByText('An unexpected error occurred. Please try again.').closest('div');
+      expect(errorDiv).toHaveClass('error');
+      expect(errorDiv).toContainHTML('<p>An unexpected error occurred. Please try again.</p>')
+    });
+  });
+
+  it('should handle error returned from the fetch', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(() => {
+      return Promise.reject(new Error('Unknown URL'));
+    });
+
+    render(<SignUpPage />);
+
+    doSteps();
+    fireEvent.click(screen.getByTestId("signup"));
+
+    // Check that error logged
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'Signup error',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/apollo-signup' },
+        })
+      )
+    });
+  });
 });
