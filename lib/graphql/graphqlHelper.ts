@@ -16,6 +16,10 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
       if (graphQLErrors) {
         for (const { message, extensions } of graphQLErrors) {
           switch (extensions?.code) {
+            // UNAUTHENTICATED error code can be thrown from the backend when:
+            //  - the user is not logged in
+            //  - the access token has expired, invalid or has been revoked
+            //  - the refresh token has expired
             case 'UNAUTHENTICATED':
               try {
                 const result = await refreshAuthTokens();
@@ -41,26 +45,36 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
               }
               break;
 
+            // NOT_ACCEPTABLE error code can be thrown from the backend when:
+            //  - the CSRF token is missing or invalid or expired
+            case 'NOT_ACCEPTABLE':
+              try {
+                await fetchCsrfToken();
+                forward(operation).subscribe({
+                  next: observer.next.bind(observer),
+                  error: observer.error.bind(observer),
+                  complete: observer.complete.bind(observer)
+                });
+                return;
+              } catch (error) {
+                logECS('error', 'Fetching csrf token failed', { error });
+                window.location.href = '/500-error';
+              }
+
+            // FORBIDDEN error code can be thrown from the backend when:
+            //  - the user is not authorized to perform the operation
             case 'FORBIDDEN':
               try {
-                const response = await fetchCsrfToken();
-                if (response) {
-                  forward(operation).subscribe({
-                    next: observer.next.bind(observer),
-                    error: observer.error.bind(observer),
-                    complete: observer.complete.bind(observer)
-                  });
-                  return;
-                } else {
-                  logECS('error', 'Token refresh failed with no result', { errorCode: 'FORBIDDEN' });
-                  window.location.href = '/login';
-                }
+                // redirect the user to their dashboard with a toast message stating they are not authorized
+                window.location.href = '/projects';
               } catch (error) {
                 logECS('error', 'Fetching csrf token failed', { error });
                 window.location.href = '/login';
               }
               break;
 
+            // INTERNAL_SERVER_ERROR error code can be thrown from the backend when:
+            //  - the backend has encounter an unhandled error
             case 'INTERNAL_SERVER_ERROR':
               logECS('error', `[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`, {
                 errorCode: 'INTERNAL_SERVER_ERROR'
