@@ -5,7 +5,11 @@ import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {Card} from '@/components/Card/card';
 import {useTranslations} from "next-intl";
-
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel
+} from "@/components/Container";
 
 const ProjectOverviewPage: React.FC = () => {
   const t = useTranslations('ProjectOverview');
@@ -119,9 +123,8 @@ const ProjectOverviewPage: React.FC = () => {
         actions={null}
         className="page-project-list"
       />
-
-      <div className="template-editor-container">
-        <div className="main-content">
+      <LayoutWithPanel>
+        <ContentContainer>
           <div className="project-overview">
             <section className="project-overview-item project-header"
                      aria-labelledby="project-title">
@@ -181,7 +184,7 @@ const ProjectOverviewPage: React.FC = () => {
                       name: member.fullname,
                       role: member.role
                     })}
-                                {index < project.project_members.length - 1 ? '; ' : ''}
+                    {index < project.project_members.length - 1 ? '; ' : ''}
                   </span>
                 ))}
               </p>
@@ -289,8 +292,10 @@ const ProjectOverviewPage: React.FC = () => {
               </Card>
             ))}
           </section>
-        </div>
-      </div>
+        </ContentContainer>
+        <SidebarPanel></SidebarPanel>
+      </LayoutWithPanel>
+
     </>
   );
 }
