@@ -61,37 +61,37 @@ const ProjectOverviewPage: React.FC = () => {
         sections: [
           {
             section_title: "Roles and Responsibilities",
-            link: "/plan/123/section/1",
+            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
             id: "sect_1",
             progress: 1
           },
           {
             section_title: "Types of Data",
-            link: "/plan/123/section/2",
+            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
             id: "sect_2",
             progress: 1
           },
           {
             section_title: "Data and Metadata formats",
-            link: "/plan/123/section/3",
+            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
             id: "sect_3",
             progress: 2
           },
           {
             section_title: "Policies for Access and Sharing",
-            link: "/plan/123/section/4",
+            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
             id: "sect_4",
             progress: 1
           },
           {
             section_title: "Policies for reuse and re-distribution",
-            link: "/plan/123/section/5",
+            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
             id: "sect_5",
             progress: 0
           },
           {
             section_title: "Plans for archiving and preservation",
-            link: "/plan/123/section/6",
+            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
             id: "sect_6",
             progress: 0
           }
@@ -137,7 +137,7 @@ const ProjectOverviewPage: React.FC = () => {
                   endDate: (project.end_date)
                 })}
               </p>
-              <Link href="/projects/123/edit" aria-label={t('editProject')}>
+              <Link href="/projects/proj_2425/project" aria-label={t('editProject')}>
                 {t('edit')}
               </Link>
             </section>
@@ -161,7 +161,7 @@ const ProjectOverviewPage: React.FC = () => {
                     </span>
                 ))}
               </p>
-              <Link href="/projects/123/edit" aria-label={t('editFunders')}>
+              <Link href="/projects/proj_2425/funder" aria-label={t('editFunders')}>
                 {t('editFunderDetails')}
               </Link>
             </section>
@@ -185,7 +185,7 @@ const ProjectOverviewPage: React.FC = () => {
                   </span>
                 ))}
               </p>
-              <Link href="/projects/123/edit" aria-label={t('editMembers')}>
+              <Link href="/projects/proj_2425/members" aria-label={t('editMembers')}>
                 {t('editProjectMembers')}
               </Link>
             </section>
@@ -198,7 +198,7 @@ const ProjectOverviewPage: React.FC = () => {
                   {t('outputCount', {count: project.research_outputs.length})}
                 </strong>
               </p>
-              <Link href="/projects/123/edit" aria-label={t('editOutputs')}>
+              <Link href="/projects/proj_2425/research-outputs" aria-label={t('editOutputs')}>
                 {t('editResearchOutputs')}
               </Link>
             </section>
@@ -213,14 +213,14 @@ const ProjectOverviewPage: React.FC = () => {
               <div className="actions" role="group"
                    aria-label={t('planActions')}>
                 <Link
-                  href="/plans/new"
+                  href="/en-US/projects/proj_2425/dmp/upload"
                   className="react-aria-Button react-aria-Button--secondary"
                   aria-label={t('uploadPlan')}
                 >
                   {t('upload')}
                 </Link>
                 <Link
-                  href="/plans/new"
+                  href="/en-US/projects/proj_2425/dmp/create"
                   className="react-aria-Button react-aria-Button--primary"
                   aria-label={t('createNewPlan')}
                 >

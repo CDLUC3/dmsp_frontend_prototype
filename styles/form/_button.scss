@@ -4,15 +4,14 @@
   border-radius: 2rem;
   font-size: 1rem;
   margin-right: 10px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   border: none;
   position: relative;
   background: var(--slate-900);
   color: var(--bg-white);
-font-weight: bold;
-
+  align-items: center;
 
   &:active,
   &:visited {
@@ -152,6 +151,7 @@ input[type="button"] {
 
 a.button-link {
   text-decoration: none;
+
   &:hover:not(:disabled) {
     text-decoration: none;
   }

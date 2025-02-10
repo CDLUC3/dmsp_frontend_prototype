@@ -1593,7 +1593,7 @@ function Page() {
             <QuestionEdit
               key={2552}
               id="24"
-              name="This is a question"
+              text="This is a question"
               link="/edit"
             />
 

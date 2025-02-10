@@ -67,7 +67,7 @@ const QuestionEdit: React.FC<QuestionEditProps> = ({
 
       </div>
       <div className={styles.questionEdit__actions} role="group" aria-label="Question actions">
-        <Link href={link} className={styles.questionEdit__link} aria-label={`Edit question: ${name}`}>
+        <Link href={link} className={styles.questionEdit__link} aria-label={`Edit question: ${questionText}`}>
           {EditQuestion('links.editQuestion')}
         </Link>
         <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label={EditQuestion('buttons.moveUp')}>

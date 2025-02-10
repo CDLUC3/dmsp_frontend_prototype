@@ -7,6 +7,7 @@
   padding: var(--layout-container-padding, 0);
   background: var(--layout-container-background, transparent);
   color: var(--layout-container-color, var(--text-color));
+  margin-bottom: 6rem;
 }
 
 @mixin contentContainer {
@@ -115,7 +116,13 @@
       .layout-content-container {
         max-width: calc(70% - var(--layout-gap, var(--brand-space2)));
         flex-grow: 4;
+        &.layout-content-container-full{
+          width: 100%;
+          max-width: none;
+        }
       }
+
+
     }
   }
 

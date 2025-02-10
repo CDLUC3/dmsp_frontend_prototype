@@ -9,11 +9,12 @@ interface TemplateItemProps {
     lastRevisedBy: string;
     lastUpdated: string;
     hasAdditionalGuidance?: boolean;
-    onSelect?: () => void;
   };
+  onSelect?: () => void;
+
 }
 
-function TemplateSelectListItem({ item }: TemplateItemProps) {
+function TemplateSelectListItem({ item,onSelect  }: TemplateItemProps) {
   return (
     <div className={styles.templateItem} role="listitem">
       <div className={styles.TemplateItemInner}>
@@ -39,7 +40,7 @@ function TemplateSelectListItem({ item }: TemplateItemProps) {
         </div>
 
         <Button
-          onPress={item.onSelect}
+          onPress={onSelect}
           aria-label={`Select ${item.title}`}
         >
           Select

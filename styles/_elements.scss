@@ -6,6 +6,7 @@
 @import "form/checkbox";
 @import "form/switch";
 @import "form/tabs";
+@import "form/fileupload";
 
 
 // Link
@@ -541,8 +542,23 @@
 
 .Filters {
   margin: 1rem 0;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr;
 }
 
+.searchSection {
+  display: grid;
+  grid-template-columns: 1fr;  /* Single column by default (mobile) */
+  gap: 20px;
+
+}
+
+@media (min-width: 768px) {
+  .searchSection {
+    grid-template-columns: 1fr 1fr;  /* Two equal columns on larger screens */
+  }
+}
 
 .card-grid-list {
   margin-top: var(--space-4);
@@ -722,3 +738,12 @@
     }
   }
 }
+
+.form-signpost{
+  .form-signpost-inner{
+    background: var(--gray-100);
+    padding: var(--space-4);
+  }
+}
+
+

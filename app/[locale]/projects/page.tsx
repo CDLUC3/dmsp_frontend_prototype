@@ -82,7 +82,7 @@ const ProjectsListPage: React.FC = () => {
         }
         actions={
           <>
-            <Link href="/projects/create"
+            <Link href="/projects/create-project"
               className={"button-link button--primary"}>Create
               Project</Link>
           </>
