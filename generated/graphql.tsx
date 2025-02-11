@@ -275,13 +275,27 @@ export type AffiliationEmailDomainInput = {
 /** A collection of errors related to the Answer */
 export type AffiliationErrors = {
   __typename?: 'AffiliationErrors';
+  acronyms?: Maybe<Scalars['String']['output']>;
+  aliases?: Maybe<Scalars['String']['output']>;
+  answerText?: Maybe<Scalars['String']['output']>;
+  contactEmail?: Maybe<Scalars['String']['output']>;
+  contactName?: Maybe<Scalars['String']['output']>;
   displayName?: Maybe<Scalars['String']['output']>;
+  feedbackEmails?: Maybe<Scalars['String']['output']>;
+  feedbackMessage?: Maybe<Scalars['String']['output']>;
+  fundrefId?: Maybe<Scalars['String']['output']>;
   /** General error messages such as affiliation already exists */
   general?: Maybe<Scalars['String']['output']>;
+  homepage?: Maybe<Scalars['String']['output']>;
+  logoName?: Maybe<Scalars['String']['output']>;
+  logoURI?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   planId?: Maybe<Scalars['String']['output']>;
   provenance?: Maybe<Scalars['String']['output']>;
   searchName?: Maybe<Scalars['String']['output']>;
+  ssoEntityId?: Maybe<Scalars['String']['output']>;
+  subHeaderLinks?: Maybe<Scalars['String']['output']>;
+  types?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
   versionedQuestionId?: Maybe<Scalars['String']['output']>;
   versionedSectionId?: Maybe<Scalars['String']['output']>;
@@ -487,6 +501,7 @@ export type ContributorRole = {
 /** A collection of errors related to the ContributorRole */
 export type ContributorRoleErrors = {
   __typename?: 'ContributorRoleErrors';
+  description?: Maybe<Scalars['String']['output']>;
   displayOrder?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
@@ -539,6 +554,7 @@ export type License = {
 /** A collection of errors related to the License */
 export type LicenseErrors = {
   __typename?: 'LicenseErrors';
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -575,9 +591,12 @@ export type MetadataStandard = {
 /** A collection of errors related to the MetadataStandard */
 export type MetadataStandardErrors = {
   __typename?: 'MetadataStandardErrors';
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  keywords?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  researchDomainIds?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
 };
 
@@ -1248,6 +1267,7 @@ export type OutputType = {
 /** A collection of errors related to the OutputType */
 export type OutputTypeErrors = {
   __typename?: 'OutputTypeErrors';
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -1334,9 +1354,13 @@ export enum PlanCollaboratorAccessLevel {
 /** A collection of errors related to the PlanCollaborator */
 export type PlanCollaboratorErrors = {
   __typename?: 'PlanCollaboratorErrors';
+  accessLevel?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
   /** General error messages such as affiliation already exists */
   general?: Maybe<Scalars['String']['output']>;
+  invitedById?: Maybe<Scalars['String']['output']>;
   planId?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
 };
 
 /** A person involved with the research project who will appear in the Plan's citation and landing page */
@@ -1365,10 +1389,11 @@ export type PlanContributor = {
 /** A collection of errors related to the PlanContributor */
 export type PlanContributorErrors = {
   __typename?: 'PlanContributorErrors';
+  contributorRoleIds?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
-  planId?: Maybe<Scalars['String']['output']>;
-  projectContributorId?: Maybe<Scalars['String']['output']>;
+  plan?: Maybe<Scalars['String']['output']>;
+  projectContributor?: Maybe<Scalars['String']['output']>;
 };
 
 export enum PlanDownloadFormat {
@@ -1383,10 +1408,19 @@ export enum PlanDownloadFormat {
 /** A collection of errors related to the Plan */
 export type PlanErrors = {
   __typename?: 'PlanErrors';
+  answerIds?: Maybe<Scalars['String']['output']>;
+  collaboratorIds?: Maybe<Scalars['String']['output']>;
+  contributorIds?: Maybe<Scalars['String']['output']>;
+  dmpId?: Maybe<Scalars['String']['output']>;
+  feedbackIds?: Maybe<Scalars['String']['output']>;
+  funderIds?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  lastUpdatedById?: Maybe<Scalars['String']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
+  visibility?: Maybe<Scalars['String']['output']>;
 };
 
 /** A round of administrative feedback for a Data Managament Plan (DMP) */
@@ -1445,15 +1479,19 @@ export type PlanFeedbackComment = {
 /** A collection of errors related to the PlanFeedbackComment */
 export type PlanFeedbackCommentErrors = {
   __typename?: 'PlanFeedbackCommentErrors';
+  answer?: Maybe<Scalars['String']['output']>;
   comment?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
-  planFeedbackId?: Maybe<Scalars['String']['output']>;
+  planFeedback?: Maybe<Scalars['String']['output']>;
 };
 
 /** A collection of errors related to the PlanFeedback */
 export type PlanFeedbackErrors = {
   __typename?: 'PlanFeedbackErrors';
+  adminSummary?: Maybe<Scalars['String']['output']>;
+  completedById?: Maybe<Scalars['String']['output']>;
+  feedbackComments?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   planId?: Maybe<Scalars['String']['output']>;
@@ -1546,19 +1584,28 @@ export type ProjectContributor = {
 /** A collection of errors related to the ProjectContributor */
 export type ProjectContributorErrors = {
   __typename?: 'ProjectContributorErrors';
+  affiliationId?: Maybe<Scalars['String']['output']>;
+  contributorRoleIds?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  givenName?: Maybe<Scalars['String']['output']>;
   orcid?: Maybe<Scalars['String']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
+  surName?: Maybe<Scalars['String']['output']>;
 };
 
 /** A collection of errors related to the Project */
 export type ProjectErrors = {
   __typename?: 'ProjectErrors';
+  abstractText?: Maybe<Scalars['String']['output']>;
+  contributorIds?: Maybe<Scalars['String']['output']>;
   endDate?: Maybe<Scalars['String']['output']>;
+  funderIds?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  outputIds?: Maybe<Scalars['String']['output']>;
+  researchDomainId?: Maybe<Scalars['String']['output']>;
   startDate?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
 };
@@ -1596,8 +1643,11 @@ export type ProjectFunder = {
 export type ProjectFunderErrors = {
   __typename?: 'ProjectFunderErrors';
   affiliationId?: Maybe<Scalars['String']['output']>;
+  funderOpportunityNumber?: Maybe<Scalars['String']['output']>;
+  funderProjectNumber?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  grantId?: Maybe<Scalars['String']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
 };
@@ -1655,10 +1705,15 @@ export type ProjectOutput = {
 export type ProjectOutputErrors = {
   __typename?: 'ProjectOutputErrors';
   anticipatedReleaseDate?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  initialAccessLevel?: Maybe<Scalars['String']['output']>;
+  initialLicenseId?: Maybe<Scalars['String']['output']>;
+  metadataStandardIds?: Maybe<Scalars['String']['output']>;
   outputTypeId?: Maybe<Scalars['String']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
+  repositoryIds?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
 };
 
@@ -2136,6 +2191,7 @@ export enum QuestionConditionCondition {
 export type QuestionConditionErrors = {
   __typename?: 'QuestionConditionErrors';
   action?: Maybe<Scalars['String']['output']>;
+  conditionMatch?: Maybe<Scalars['String']['output']>;
   conditionType?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
@@ -2149,8 +2205,15 @@ export type QuestionErrors = {
   displayOrder?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  guidanceText?: Maybe<Scalars['String']['output']>;
+  questionConditionIds?: Maybe<Scalars['String']['output']>;
+  questionOptionIds?: Maybe<Scalars['String']['output']>;
   questionText?: Maybe<Scalars['String']['output']>;
+  questionTypeId?: Maybe<Scalars['String']['output']>;
+  requirementText?: Maybe<Scalars['String']['output']>;
+  sampleText?: Maybe<Scalars['String']['output']>;
   sectionId?: Maybe<Scalars['String']['output']>;
+  sourceQestionId?: Maybe<Scalars['String']['output']>;
   templateId?: Maybe<Scalars['String']['output']>;
 };
 
@@ -2265,9 +2328,13 @@ export type Repository = {
 /** A collection of errors related to the Repository */
 export type RepositoryErrors = {
   __typename?: 'RepositoryErrors';
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  keywords?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  repositoryTypes?: Maybe<Scalars['String']['output']>;
+  researchDomainIds?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
   website?: Maybe<Scalars['String']['output']>;
 };
@@ -2320,10 +2387,12 @@ export type ResearchDomain = {
 /** A collection of errors related to the ResearchDomain */
 export type ResearchDomainErrors = {
   __typename?: 'ResearchDomainErrors';
+  childResearchDomainIds?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
-  parentResearchDomain?: Maybe<Scalars['String']['output']>;
+  parentResearchDomainId?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
 };
 
@@ -2370,7 +2439,13 @@ export type SectionErrors = {
   displayOrder?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  guidance?: Maybe<Scalars['String']['output']>;
+  introduction?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  questionIds?: Maybe<Scalars['String']['output']>;
+  requirements?: Maybe<Scalars['String']['output']>;
+  tags?: Maybe<Scalars['String']['output']>;
+  templateId?: Maybe<Scalars['String']['output']>;
 };
 
 /** Section version type */
@@ -2405,6 +2480,7 @@ export type Tag = {
 /** A collection of errors related to the Tag */
 export type TagErrors = {
   __typename?: 'TagErrors';
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -2489,18 +2565,28 @@ export type TemplateCollaborator = {
 /** A collection of errors related to the TemplateCollaborator */
 export type TemplateCollaboratorErrors = {
   __typename?: 'TemplateCollaboratorErrors';
+  email?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  invitedById?: Maybe<Scalars['String']['output']>;
   templateId?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
 };
 
 /** A collection of errors related to the Template */
 export type TemplateErrors = {
   __typename?: 'TemplateErrors';
+  collaboratorIds?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  languageId?: Maybe<Scalars['String']['output']>;
+  latestPublishVersion?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   ownerId?: Maybe<Scalars['String']['output']>;
+  sectionIds?: Maybe<Scalars['String']['output']>;
+  sourceTemplateId?: Maybe<Scalars['String']['output']>;
+  visibility?: Maybe<Scalars['String']['output']>;
 };
 
 /** Template version type */
@@ -2752,11 +2838,19 @@ export type UserEmailErrors = {
 /** A collection of errors related to the User */
 export type UserErrors = {
   __typename?: 'UserErrors';
+  affiliationId?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
+  emailIds?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  givenName?: Maybe<Scalars['String']['output']>;
+  languageId?: Maybe<Scalars['String']['output']>;
+  orcid?: Maybe<Scalars['String']['output']>;
+  otherAffiliationName?: Maybe<Scalars['String']['output']>;
   password?: Maybe<Scalars['String']['output']>;
   role?: Maybe<Scalars['String']['output']>;
+  ssoId?: Maybe<Scalars['String']['output']>;
+  surName?: Maybe<Scalars['String']['output']>;
 };
 
 /** The types of roles supported by the DMPTool */
@@ -2859,6 +2953,7 @@ export enum VersionedQuestionConditionCondition {
 export type VersionedQuestionConditionErrors = {
   __typename?: 'VersionedQuestionConditionErrors';
   action?: Maybe<Scalars['String']['output']>;
+  conditionMatch?: Maybe<Scalars['String']['output']>;
   conditionType?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
@@ -2870,11 +2965,16 @@ export type VersionedQuestionConditionErrors = {
 /** A collection of errors related to the VersionedQuestion */
 export type VersionedQuestionErrors = {
   __typename?: 'VersionedQuestionErrors';
+  displayOrder?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  guidanceText?: Maybe<Scalars['String']['output']>;
   questionId?: Maybe<Scalars['String']['output']>;
   questionText?: Maybe<Scalars['String']['output']>;
   questionTypeId?: Maybe<Scalars['String']['output']>;
+  requirementText?: Maybe<Scalars['String']['output']>;
+  sampleText?: Maybe<Scalars['String']['output']>;
+  versionedQuestionConditionIds?: Maybe<Scalars['String']['output']>;
   versionedSectionId?: Maybe<Scalars['String']['output']>;
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
 };
@@ -2920,8 +3020,13 @@ export type VersionedSectionErrors = {
   displayOrder?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  guidance?: Maybe<Scalars['String']['output']>;
+  introduction?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  requirements?: Maybe<Scalars['String']['output']>;
   sectionId?: Maybe<Scalars['String']['output']>;
+  tagIds?: Maybe<Scalars['String']['output']>;
+  versionedQuestionIds?: Maybe<Scalars['String']['output']>;
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
 };
 
@@ -2969,12 +3074,18 @@ export type VersionedTemplate = {
 /** A collection of errors related to the VersionedTemplate */
 export type VersionedTemplateErrors = {
   __typename?: 'VersionedTemplateErrors';
+  comment?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   ownerId?: Maybe<Scalars['String']['output']>;
   templateId?: Maybe<Scalars['String']['output']>;
   version?: Maybe<Scalars['String']['output']>;
+  versionType?: Maybe<Scalars['String']['output']>;
+  versionedById?: Maybe<Scalars['String']['output']>;
+  versionedSectionIds?: Maybe<Scalars['String']['output']>;
+  visibility?: Maybe<Scalars['String']['output']>;
 };
 
 export type UpdateProjectContributorInput = {

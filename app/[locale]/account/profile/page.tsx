@@ -20,6 +20,7 @@ import {
   AffiliationsDocument,
   useLanguagesQuery,
   useMeQuery,
+  UserErrors,
   useUpdateUserProfileMutation
 } from '@/generated/graphql';
 
@@ -38,7 +39,6 @@ import {
 // Interfaces
 import {
   EmailInterface,
-  FormErrorsInterface,
   LanguageInterface,
   ProfileDataInterface
 } from '@/app/types';
@@ -59,8 +59,8 @@ const ProfilePage: React.FC = () => {
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
   const [formData, setFormData] = useState<ProfileDataInterface>({
-    firstName: '',
-    lastName: '',
+    givenName: '',
+    surName: '',
     affiliationName: '',
     affiliationId: '',
     otherAffiliationName: '',
@@ -69,17 +69,7 @@ const ProfilePage: React.FC = () => {
   })
   const [isEditing, setIsEditing] = useState(false);
   // Errors returned from request
-  const [errors, setErrors] = useState<string[]>([]);
-  // Client-side validation field errors
-  const [fieldErrors, setFieldErrors] = useState<FormErrorsInterface>({
-    firstName: '',
-    lastName: '',
-    affiliationName: '',
-    affiliationId: '',
-    languageId: '',
-    languageName: '',
-    otherAffiliationName: ''
-  });
+  const [errors, setErrors] = useState<UserErrors>({});
   const [emailAddresses, setEmailAddresses] = useState<EmailInterface[]>([]);
   const [languages, setLanguages] = useState<LanguageInterface[]>([]);
 
@@ -101,12 +91,12 @@ const ProfilePage: React.FC = () => {
   const validateField = (name: string, value: string) => {
     let error = '';
     switch (name) {
-      case 'firstName':
+      case 'givenName':
         if (!value || value.length <= 2) {
           error = 'Name must be at least 2 characters';
         }
         break;
-      case 'lastName':
+      case 'surName':
         if (!value || value.length <= 2) {
           error = 'Name must be at least 2 characters';
         }
@@ -126,7 +116,7 @@ const ProfilePage: React.FC = () => {
         }
     }
 
-    setFieldErrors(prevErrors => ({
+    setErrors(prevErrors => ({
       ...prevErrors,
       [name]: error
     }));
@@ -137,8 +127,8 @@ const ProfilePage: React.FC = () => {
     const response = await updateUserProfileMutation({
       variables: {
         input: {
-          givenName: formData.firstName,
-          surName: formData.lastName,
+          givenName: formData.givenName,
+          surName: formData.surName,
           affiliationId: formData.affiliationId,
           otherAffiliationName: formData.otherAffiliationName,
           languageId: formData.languageId,
@@ -165,7 +155,10 @@ const ProfilePage: React.FC = () => {
         setIsEditing(false);
       } else {
         // Handle other types of errors
-        setErrors(prevErrors => [...prevErrors, 'Error when updating profile']);
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          general: 'Error when updating profile'
+        }));
       }
     }
   };
@@ -180,33 +173,24 @@ const ProfilePage: React.FC = () => {
   const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    clearAllFieldErrors();
+    clearErrors();
 
     if (isFormValid()) {
       // Update profile
       await updateProfile();
-      setErrors([]); // Clear errors on successful submit
       showSuccessToast()
     }
   };
 
-  const clearAllFieldErrors = () => {
+  const clearErrors = () => {
     //Remove all field errors
-    setFieldErrors({
-      firstName: '',
-      lastName: '',
-      affiliationId: '',
-      affiliationName: '',
-      languageId: '',
-      languageName: '',
-      otherAffiliationName: ''
-    });
+    setErrors({});
   }
 
   // Clear any errors for the current active field
   const clearActiveFieldError = (name: string) => {
     // Clear error for active field
-    setFieldErrors(prevErrors => ({
+    setErrors(prevErrors => ({
       ...prevErrors,
       [name]: ''
     }));
@@ -222,22 +206,14 @@ const ProfilePage: React.FC = () => {
     setIsEditing(false);
 
     //Remove all field errors
-    clearAllFieldErrors();
+    clearErrors();
   }
 
   // Check whether form is valid before submitting
   const isFormValid = (): boolean => {
     // Initialize a flag for form validity
     let isValid = true;
-    let errors: FormErrorsInterface = {
-      firstName: '',
-      lastName: '',
-      affiliationId: '',
-      affiliationName: '',
-      languageId: '',
-      languageName: '',
-      otherAffiliationName: ''
-    };
+    clearErrors();
 
     // Iterate over formData to validate each field
     Object.keys(formData).forEach((key) => {
@@ -248,11 +224,9 @@ const ProfilePage: React.FC = () => {
       const error = validateField(name, value);
       if (error) {
         isValid = false;
-        errors[name] = error;
       }
     });
 
-    setFieldErrors(errors);
     return isValid;
   };
 
@@ -279,7 +253,10 @@ const ProfilePage: React.FC = () => {
           error: err,
           url: { path: '/account/profile' }
         });
-        setErrors(prevErrors => [...prevErrors, 'Something went wrong. Please try again.']);
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          general: 'Something went wrong. Please try again.'
+        }));
       }
     };
 
@@ -316,8 +293,8 @@ const ProfilePage: React.FC = () => {
 
         // Update originalData and formData
         const newOriginalData = {
-          firstName: data.me.givenName ?? '',
-          lastName: data.me.surName ?? '',
+          givenName: data.me.givenName ?? '',
+          surName: data.me.surName ?? '',
           affiliationName: data.me.affiliation?.name ?? '',
           affiliationId: data.me.affiliation?.uri ?? '',
           otherAffiliationName: '',
@@ -387,47 +364,45 @@ const ProfilePage: React.FC = () => {
               <div className="sectionContainer">
                 <div className={`sectionContent ${styles.section}`}>
                   <Form onSubmit={handleProfileSubmit}>
-                    {errors && errors.length > 0 &&
-                      <div className="error" role="alert" aria-live="assertive">
-                        {errors.map((error, index) => (
-                          <p key={index}>{error}</p>
-                        ))}
+                    {errors && Object.keys(errors).length > 0 &&
+                      <div className="error">
+                        <p>{errors.general}</p>
                       </div>
                     }
                     <div className="form-row two-item-row">
                       {isEditing ? (
                         <FormInput
-                          name="firstName"
+                          name="givenName"
                           type="text"
                           label="First name"
-                          placeholder={formData.firstName}
-                          value={formData.firstName}
+                          placeholder={formData.givenName}
+                          value={formData.givenName}
                           onChange={handleInputChange}
-                          isInvalid={!!fieldErrors['firstName']}
-                          errorMessage={fieldErrors['firstName']}
+                          isInvalid={!!errors['givenName']}
+                          errorMessage={errors['givenName'] ?? ''}
                         />
                       ) : (
-                        <Text slot="firstName" className={styles.readOnlyField}>
-                          <div className="field-label">{t('firstName')}</div>
-                          <p>{formData.firstName}</p>
+                        <Text slot="givenName" className={styles.readOnlyField}>
+                          <div className="field-label">{t('givenName')}</div>
+                          <p>{formData.givenName}</p>
                         </Text>
                       )}
 
                       {isEditing ? (
                         <FormInput
-                          name="lastName"
+                          name="surName"
                           type="text"
                           label="Last name"
-                          placeholder={formData.lastName}
-                          value={formData.lastName}
+                          placeholder={formData.surName}
+                          value={formData.surName}
                           onChange={handleInputChange}
-                          isInvalid={!!fieldErrors['lastName']}
-                          errorMessage={fieldErrors['lastName']}
+                          isInvalid={!!errors['surName']}
+                          errorMessage={errors['surName'] ?? ''}
                         />
                       ) : (
-                        <Text slot="lastName" className={styles.readOnlyField}>
-                          <div className="field-label">{t('lastName')}</div>
-                          <p>{formData.lastName}</p>
+                        <Text slot="surName" className={styles.readOnlyField}>
+                          <div className="field-label">{t('surName')}</div>
+                          <p>{formData.surName}</p>
                         </Text>
                       )}
 
@@ -442,7 +417,7 @@ const ProfilePage: React.FC = () => {
                             graphqlQuery={AffiliationsDocument}
                             setOtherField={setOtherField}
                             required={true}
-                            error={fieldErrors.affiliationName}
+                            error={errors['affiliationId'] ?? ''}
                             helpText={t('helpTextSearchForInstitution')}
                             updateFormData={updateAffiliationFormData}
                             value={formData.affiliationName}
@@ -456,8 +431,8 @@ const ProfilePage: React.FC = () => {
                                 placeholder={formData.otherAffiliationName}
                                 value={formData.otherAffiliationName}
                                 onChange={handleInputChange}
-                                isInvalid={!!fieldErrors['otherAffiliationName']}
-                                errorMessage={fieldErrors['otherAffiliationName']}
+                                isInvalid={!!errors['otherAffiliationName']}
+                                errorMessage={errors['otherAffiliationName'] ?? ''}
                               />
 
                             </div>

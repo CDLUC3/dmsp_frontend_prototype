@@ -12,23 +12,13 @@ export interface LanguageInterface {
 }
 
 export interface ProfileDataInterface {
-  firstName: string;
-  lastName: string;
+  givenName: string;
+  surName: string;
   affiliationName: string;
   affiliationId: string;
   otherAffiliationName: string;
   languageId: string;
   languageName: string;
-}
-
-export interface FormErrorsInterface {
-  firstName: string;
-  lastName: string;
-  affiliationName: string;
-  affiliationId: string;
-  languageId: string;
-  languageName: string;
-  otherAffiliationName: string;
 }
 
 export interface TemplateInterface {

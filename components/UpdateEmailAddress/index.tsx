@@ -118,9 +118,6 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
       const emailData = response?.data?.addUserEmail;
       if (emailData?.errors && Object.keys(emailData.errors).length > 0) {
-
-console.log('emailData.errors', emailData.errors);
-
         // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
         setErrors(emailData.errors ?? {});
         return;
