@@ -1,11 +1,21 @@
 'use client'
 
 import { useState } from 'react';
-import { Button, Dialog, DialogTrigger, Modal, ModalOverlay } from 'react-aria-components';
+import { useTranslations } from 'next-intl';
+import {
+  Button,
+  Dialog,
+  DialogTrigger,
+  Modal,
+  ModalOverlay
+} from 'react-aria-components';
 
 
 const ConfirmModal: React.FC<{ email: string, onConfirm: (email: string) => void }> = ({ email, onConfirm }) => {
   const [isOpen, setOpen] = useState(false);
+  //Localization keys
+  const Global = useTranslations('Global');
+  const AccessPage = useTranslations('TemplateAccessPage');
 
   return (
     <DialogTrigger isOpen={isOpen} onOpenChange={setOpen}>
@@ -13,11 +23,11 @@ const ConfirmModal: React.FC<{ email: string, onConfirm: (email: string) => void
       <ModalOverlay>
         <Modal>
           <Dialog>
-            <h3>Confirm checkout?</h3>
-            <p>You have 5 items in your cart. Proceed to checkout?</p>
+            <h3>{AccessPage('headings.confirmCheckout')}</h3>
+            <p>{AccessPage('paragraphs.modalPara1', { email: email })}</p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-              <Button onPress={() => setOpen(false)}>Cancel</Button>
-              <Button onPress={() => { onConfirm(email); setOpen(false); }} autoFocus>Confirm</Button>
+              <Button onPress={() => setOpen(false)}>{Global('buttons.cancel')}</Button>
+              <Button onPress={() => { onConfirm(email); setOpen(false); }} autoFocus>{Global('buttons.confirm')}</Button>
             </div>
           </Dialog>
         </Modal>

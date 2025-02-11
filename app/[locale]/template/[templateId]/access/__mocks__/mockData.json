@@ -1,0 +1,28 @@
+{
+  "template": {
+    "id": 15,
+    "name": "DMP Template",
+    "collaborators": [
+      {
+        "email": "testUser1@example.com",
+        "id": 22,
+        "user": {
+          "email": "testUser1@example.com",
+          "givenName": "Harry",
+          "id": 1,
+          "surName": "Potter"
+        }
+      },
+      {
+        "email": "testUser2@example.com",
+        "id": 20,
+        "user": {
+          "email": "testUser2@example.com",
+          "givenName": "Minerva",
+          "id": 1,
+          "surName": "McGonagall"
+        }
+      }
+    ]
+  }
+}

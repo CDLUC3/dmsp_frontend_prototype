@@ -127,16 +127,15 @@
     "buttons": {
       "search": "Search",
       "select": "Select",
-      "next": "Next"
+      "next": "Next",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
     },
     "labels": {
       "searchByKeyword": "Search by keyword"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc."
-    },
-    "labels": {
-      "searchByKeyword": "Search by keyword"
     },
     "links": {
       "clearFilter": "clear filter"

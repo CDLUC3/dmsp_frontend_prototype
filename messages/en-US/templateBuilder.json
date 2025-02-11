@@ -197,5 +197,42 @@
     "messages": {
       "additionalGuidance": "Your research organization has additional guidance"
     }
+  },
+  "TemplateAccessPage": {
+    "title": "Manage Access",
+    "intro": "This template is accessible to everyone at NSF with full view and edit permissions. It can also be shared with people outside your organization.",
+    "headings": {
+      "h3OrgAccess": "Within Organization",
+      "externalPeople": "External People",
+      "share": "Share with someone outside your organization",
+      "confirmCheckout": "Confirm checkout?"
+    },
+    "paragraphs": {
+      "orgAccessPara1": "Everyone at NSF can view and edit",
+      "orgAccessPara2": "4 administrators can manage access",
+      "externalPara1": "Share this template with people outside NSF",
+      "sharePara1": "Enter their email address. If they do not already have a DMP Tool account they will be prompted to create one.",
+      "modalPara1": "Please confirm that you want to remove {email}"
+    },
+    "buttons": {
+      "invite": "Invite"
+    },
+    "labels": {
+      "email": "Email"
+    },
+    "messages": {
+      "errors": {
+        "errorLoadingCollaborators": "Error loading collaborators",
+        "errorAddingEmail": "Error when adding new email",
+        "errorRemovingEmail": "Error when removing email"
+      },
+      "success": {
+        "emailSuccessfullyRevoked": "Email successfully revoked",
+        "emailInviteSent": "Email invite sent successfully"
+      },
+      "info": {
+        "noCollaborators": "No external people have been added yet"
+      }
+    }
   }
 }
