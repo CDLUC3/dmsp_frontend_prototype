@@ -49,7 +49,8 @@ const ProjectsProjectResearchOutputs = () => {
 
   const handleEditOutput = (outputId: string): void => {
     // Handle editing the research output
-    window.location.href = `/projects/proj_2425/research-outputs/edit/`;
+    // ignore this just getting rid of the lint error cause outputId not used
+    window.location.href = `/projects/proj_2425/research-outputs/edit/?id=${outputId}`;
   };
 
   const handleDeleteOutput = (outputId: string): void => {

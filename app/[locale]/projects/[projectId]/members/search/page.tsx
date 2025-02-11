@@ -73,12 +73,6 @@ const ProjectsProjectMembersSearch = () => {
     window.location.href = '/projects/proj_2425/members';
   };
 
-  const handleEdit = (result: SearchResult) => {
-    console.log('Editing member:', result);
-    // Handle editing member logic
-    window.location.href = '/projects/proj_2425/members/edit';
-  };
-
   const handleCreateCollaborator = () => {
     console.log('Creating new collaborator');
     // Navigate to create collaborator page
@@ -113,7 +107,7 @@ const ProjectsProjectMembersSearch = () => {
                 />
                 <Button type="submit">Search</Button>
                 <Text slot="description" className="help" id="search-help">
-                  Search by a person's name, organization and/or ORCiD. Entering
+                  Search by a person&apos;s name, organization and/or ORCiD. Entering
                   more information will help narrow the search, for example
                   Frederick Cook 0427.
                 </Text>

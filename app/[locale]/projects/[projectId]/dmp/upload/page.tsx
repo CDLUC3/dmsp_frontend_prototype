@@ -25,7 +25,7 @@ import {
 const PlanCreateUpload = () => {
   const [fileName, setFileName] = useState<string | null>(null); // Holds uploaded file name
   const [error, setError] = useState<string | null>(null); // Tracks any upload errors
-  const [isDragging, setIsDragging] = useState<boolean>(false); // State for drag-hover effect
+  //const [isDragging, setIsDragging] = useState<boolean>(false); // State for drag-hover effect
 
   const validExtensions = [
     'application/pdf',

@@ -69,6 +69,7 @@ const ResearchOutputEdit = () => {
 
   const handleSubmit = () => {
     console.log('Submitting form data:', formData);
+
     // Add custom logic for submission
   };
 
