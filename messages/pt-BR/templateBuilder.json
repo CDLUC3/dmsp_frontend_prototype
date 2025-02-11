@@ -46,7 +46,8 @@
     },
     "errors": {
       "archiveTemplateError": "Erro ao arquivar template",
-      "saveTemplateError": "Erro ao salvar modelo"
+      "saveTemplateError": "Erro ao salvar modelo",
+      "getTemplatesError": "Erro ao obter modelos"
     }
   },
   "PublishTemplate": {
@@ -123,25 +124,20 @@
     "questionsCount": "<p>Esta seção inclui:</p><p>{count} questões pré-criadas</p>"
   },
   "Section": {
-    "Section": {
-      "tabs": {
-        "editSection": "Editar seção",
-        "options": "Opções",
-        "logic": "Lógica"
-      },
-      "labels": {
-        "sectionName": "Nome da seção",
-        "sectionIntroduction": "Introdução à seção",
-        "sectionRequirements": "Requisitos da seção",
-        "sectionGuidance": "Orientação em Seção",
-        "bestPracticeTags": "Seção das melhores práticas para incluir"
-      },
-      "helpText": {
-        "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
-      }
+    "tabs": {
+      "editSection": "Editar seção",
+      "options": "Opções",
+      "logic": "Lógica"
     },
-    "CreateSectionPage": {
-      "title": "Criar seção"
+    "labels": {
+      "sectionName": "Nome da seção",
+      "sectionIntroduction": "Introdução à seção",
+      "sectionRequirements": "Requisitos da seção",
+      "sectionGuidance": "Orientação em Seção",
+      "bestPracticeTags": "Seção das melhores práticas para incluir"
+    },
+    "helpText": {
+      "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
     }
   },
   "CreateSectionPage": {
@@ -162,7 +158,7 @@
     },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
-      "errorCreatingSection": "Erro ao criar a seção.",
+      "errorUpdatingSection": "Erro ao criar a seção.",
       "success": "Seção criada com sucesso."
     }
   },
@@ -179,7 +175,7 @@
     }
   },
   "TemplateSelectTemplatePage": {
-    "title": "Selecionar um modelo existente",
+    "title": "Iniciar com uma cópia de um modelo existente",
     "resultsText": "Os resultados {name} correspondem à sua pesquisa",
     "numDisplaying": "Mostrando {num} de {total}",
     "clearFilter": "filtros transparentes",
@@ -192,14 +188,51 @@
       "publicTemplates": "Use um dos modelos públicos"
     },
     "messages": {
-      "noItemsFound": "Nenhum item encontrado",
-      "missingTemplateName": "Faltando nome de modelo",
+      "noItemsFound": "Nenhum “item” encontrado",
+      "missingTemplateName": "Nome do modelo não pode ser vazio.",
       "loadingError": "Erro ao carregar modelos. Tente novamente mais tarde."
     }
   },
   "TemplateSelectListItem": {
     "messages": {
-      "additionalGuidance": "Sua organização de pesquisa tem orientação adicional"
+      "additionalGuidance": "Your research organization has additional guidance"
+    }
+  },
+  "TemplateAccessPage": {
+    "title": "Gerenciar Acesso",
+    "intro": "Este modelo é acessível para todos no NSF com visualização completa e edição de permissões. Ele também pode ser compartilhado com pessoas fora da sua organização.",
+    "headings": {
+      "h3OrgAccess": "Na Organização",
+      "externalPeople": "Pessoas externas",
+      "share": "Compartilhe com alguém fora da sua organização",
+      "confirmCheckout": "Confirmar finalização do pedido?"
+    },
+    "paragraphs": {
+      "orgAccessPara1": "Todos em {name} podem ver e editar",
+      "orgAccessPara2": "Administradores {count} podem gerenciar o acesso",
+      "externalPara1": "Compartilhe este modelo com pessoas fora do NSF",
+      "sharePara1": "Digite seu endereço de e-mail. Se eles já não tiverem uma conta de DMP Tool eles serão convidados a criar uma.",
+      "modalPara1": "Por favor, confirme que você deseja remover {email}"
+    },
+    "buttons": {
+      "invite": "Convidar"
+    },
+    "labels": {
+      "email": "E-mail"
+    },
+    "messages": {
+      "errors": {
+        "errorLoadingCollaborators": "Erro ao carregar colaboradores",
+        "errorAddingEmail": "Erro ao adicionar pergunta",
+        "errorRemovingEmail": "Erro ao remover e-mail"
+      },
+      "success": {
+        "emailSuccessfullyRevoked": "E-mail revogado com sucesso",
+        "emailInviteSent": "Convite de e-mail enviado com sucesso"
+      },
+      "info": {
+        "noCollaborators": "Nenhuma pessoa externa foi adicionada ainda"
+      }
     }
   }
 }

@@ -122,30 +122,30 @@
       "editTemplate": "Editar Modelo",
       "question": "Pergunta"
     },
-    "lastRevisedBy": "Última revisão por",
+    "lastRevisedBy": "Last revised by",
     "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
-      "next": "Seguinte"
+      "next": "Seguinte",
+      "confirm": "Confirmação",
+      "cancel": "Cancelar",
+      "remove": "Remover"
     },
     "labels": {
-      "searchByKeyword": ""
+      "searchByKeyword": "Pesquisar por palavra-chave"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
     },
-    "labels": {
-      "searchByKeyword": ""
-    },
     "links": {
-      "clearFilter": "clear filter"
+      "clearFilter": "limpar filtro"
     },
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
-      "resultsText": "{name} results match your search"
+      "resultsText": "Os resultados {name} correspondem à sua pesquisa"
     }
   }
 }

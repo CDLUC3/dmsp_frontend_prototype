@@ -101,7 +101,7 @@ const TemplateAccessPage: React.FC = () => {
         clearErrors();
         // Show Email Revoked Success message
         const successMessage = AccessPage('messages.success.emailSuccessfullyRevoked');
-        addToast(successMessage, { type: 'success', priority: 1 });
+        addToast(successMessage, { type: 'success' });
       }
     } catch (err) {
       if (err instanceof ApolloError) {
@@ -145,7 +145,7 @@ const TemplateAccessPage: React.FC = () => {
 
       // Show success message
       const successMessage = AccessPage('messages.success.emailInviteSent');
-      addToast(successMessage, { type: 'success', priority: 1 });
+      addToast(successMessage, { type: 'success' });
     } catch (err) {
       if (err instanceof ApolloError) {
         setErrorMessages(prevErrors => [...prevErrors, err.message]);

@@ -129,7 +129,8 @@
       "select": "Select",
       "next": "Next",
       "confirm": "Confirm",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "remove": "Remove"
     },
     "labels": {
       "searchByKeyword": "Search by keyword"

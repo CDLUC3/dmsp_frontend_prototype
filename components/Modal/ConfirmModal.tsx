@@ -19,7 +19,7 @@ const ConfirmModal: React.FC<{ email: string, onConfirm: (email: string) => void
 
   return (
     <DialogTrigger isOpen={isOpen} onOpenChange={setOpen}>
-      <Button onPress={() => setOpen(true)}>Remove</Button>
+      <Button onPress={() => setOpen(true)}>{Global('buttons.remove')}</Button>
       <ModalOverlay>
         <Modal>
           <Dialog>
