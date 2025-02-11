@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ApolloError } from "@apollo/client";
@@ -31,18 +31,26 @@ import {
 
 //Utils and other
 import logECS from '@/utils/clientLogger';
-import { useToast } from '@/context/ToastContext';
 import { isValidEmail } from '@/utils/validation';
 import { scrollToTop } from '@/utils/general';
+import { useToast } from '@/context/ToastContext';
 import styles from './TemplateAccessPage.module.scss';
 
 const GET_COLLABORATORS = TemplateCollaboratorsDocument;
 
+interface OrganizationInterface {
+  name: string;
+  admins: {
+    email: string | null;
+    givenName?: string | null;
+    surName?: string | null;
+  }[]
+}
 const TemplateAccessPage: React.FC = () => {
   // Get templateId param
   const params = useParams();
   const { templateId } = params; // From route /template/:templateId
-  const toastState = useToast();
+  const { add: addToast } = useToast();
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -50,6 +58,8 @@ const TemplateAccessPage: React.FC = () => {
   // Errors returned from request
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [addCollaboratorEmail, setAddCollaboratorEmail] = useState<string>('');
+  const [organization, setOrganization] = useState<OrganizationInterface>();
+
 
   // localization keys
   const Global = useTranslations('Global');
@@ -64,24 +74,12 @@ const TemplateAccessPage: React.FC = () => {
   );
 
   // Initialize graphql mutations for component
-  const [addTemplateCollaboratorlMutation, { error: addCollaboratorError }] = useAddTemplateCollaboratorMutation();
-  const [removeTemplateCollaboratorMutation, { error: removeCollaboratorError }] = useRemoveTemplateCollaboratorMutation({
+  const [addTemplateCollaboratorlMutation] = useAddTemplateCollaboratorMutation();
+  const [removeTemplateCollaboratorMutation] = useRemoveTemplateCollaboratorMutation({
     notifyOnNetworkStatusChange: true,
   });
   const clearErrors = () => {
     setErrorMessages([]);
-  }
-
-  // Show Email Invite Success Message
-  const showSuccessEmailInviteToast = () => {
-    const successMessage = AccessPage('messages.success.emailInviteSent');
-    toastState.add(successMessage, { type: 'success', priority: 1 });
-  }
-
-  // Show Email Revoked Success Message
-  const showSuccessEmailRevokedToast = () => {
-    const successMessage = AccessPage('messages.success.emailSuccessfullyRevoked');
-    toastState.add(successMessage, { type: 'success', priority: 1 });
   }
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,25 +90,18 @@ const TemplateAccessPage: React.FC = () => {
   }
 
   // Revoke collaborator access for provided email
-  const handleRevokeAccess = async (emailToRevoke: string) => {
+  const handleRevokeAccess = useCallback(async (emailToRevoke: string) => {
     try {
       const response = await removeTemplateCollaboratorMutation({
-        variables: {
-          templateId: Number(templateId),
-          email: emailToRevoke,
-        },
-        // Need to refetch to display updated data on page
-        refetchQueries: [
-          {
-            query: GET_COLLABORATORS,
-            variables: { templateId: Number(templateId) }
-          },
-        ],
+        variables: { templateId: Number(templateId), email: emailToRevoke },
+        refetchQueries: [{ query: GET_COLLABORATORS, variables: { templateId: Number(templateId) } }],
       });
 
       if (response?.data?.removeTemplateCollaborator) {
         clearErrors();
-        showSuccessEmailRevokedToast();
+        // Show Email Revoked Success message
+        const successMessage = AccessPage('messages.success.emailSuccessfullyRevoked');
+        addToast(successMessage, { type: 'success', priority: 1 });
       }
     } catch (err) {
       if (err instanceof ApolloError) {
@@ -123,10 +114,11 @@ const TemplateAccessPage: React.FC = () => {
         });
       }
     }
-  };
+  }, [templateId, removeTemplateCollaboratorMutation]);
+
 
   // Add new collaborator email
-  const handleAddingEmail = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAddingEmail = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
       const response = await addTemplateCollaboratorlMutation({
@@ -144,13 +136,16 @@ const TemplateAccessPage: React.FC = () => {
       });
 
       const emailData = response?.data?.addTemplateCollaborator;
-      if (emailData?.errors && emailData.errors.length > 0) {
-        setErrorMessages(emailData.errors ?? []);
-        return;
+      if (emailData?.errors?.length) {
+        return setErrorMessages(emailData.errors);
       }
+
       clearErrors();
       setAddCollaboratorEmail('');
-      showSuccessEmailInviteToast();
+
+      // Show success message
+      const successMessage = AccessPage('messages.success.emailInviteSent');
+      addToast(successMessage, { type: 'success', priority: 1 });
     } catch (err) {
       if (err instanceof ApolloError) {
         setErrorMessages(prevErrors => [...prevErrors, err.message]);
@@ -163,10 +158,32 @@ const TemplateAccessPage: React.FC = () => {
         });
       }
     }
-  }
+  }, [templateId, addCollaboratorEmail, addTemplateCollaboratorlMutation]);
+
+
+  // Render the organization list of admins
+  const renderOrgAdmins = useMemo(() => {
+    if (!organization) {
+      return null;
+    }
+    return (
+      <ul className={styles.peopleList} role="list">
+        {organization.admins.map((admin) => (
+          <li key={admin.email} className={styles.personItem}>
+            <div className={styles.personInfo}>
+              <div className={styles.personName}>{admin.givenName} {admin.surName}</div>
+              <div className={styles.personEmail} aria-label={`Email: ${admin.email}`}>
+                {admin.email}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  }, [organization]);
 
   /* Handles rendering list of existing contributors*/
-  const renderExternalPeople = () => {
+  const renderExternalPeople = useMemo(() => {
     if (loading) {
       return <div>{Global('messaging.loading')}...</div>;
     }
@@ -199,7 +216,7 @@ const TemplateAccessPage: React.FC = () => {
         ))}
       </ul>
     );
-  };
+  }, [loading, templateQueryErrors, templateCollaboratorData, handleRevokeAccess]);
 
   // If errors when submitting publish form, scroll them into view
   useEffect(() => {
@@ -207,6 +224,22 @@ const TemplateAccessPage: React.FC = () => {
       scrollToTop(errorRef);
     }
   }, [errorMessages]);
+
+  // Set organization section info
+  useEffect(() => {
+    if (templateCollaboratorData?.template) {
+      const admins = templateCollaboratorData.template.admins?.map(admin => ({
+        email: admin.email as string | null,
+        givenName: admin.givenName ?? null,
+        surName: admin.surName ?? null,
+      })) ?? [];
+
+      setOrganization({
+        name: templateCollaboratorData.template.owner?.name ?? '',
+        admins: admins
+      });
+    }
+  }, [templateCollaboratorData]);
 
   return (
     <div>
@@ -247,8 +280,9 @@ const TemplateAccessPage: React.FC = () => {
                   <h3 id="org-access-heading">{AccessPage('headings.h3OrgAccess')}</h3>
                 </div>
                 <div className="sectionContent">
-                  <p>{AccessPage('paragraphs.orgAccessPara1')}</p>
-                  <p>{AccessPage('paragraphs.orgAccessPara2')}</p>
+                  <p>{AccessPage('paragraphs.orgAccessPara1', { name: organization?.name })}</p>
+                  <p>{AccessPage('paragraphs.orgAccessPara2', { count: organization?.admins?.length ?? '' })}</p>
+                  {renderOrgAdmins}
                 </div>
               </section>
 
@@ -260,7 +294,7 @@ const TemplateAccessPage: React.FC = () => {
                 <div className="sectionContent">
                   <p>{AccessPage('paragraphs.externalPara1')}</p>
                   <div className={styles.externalPeopleList}>
-                    {renderExternalPeople()}
+                    {renderExternalPeople}
                   </div>
                 </div>
               </section>

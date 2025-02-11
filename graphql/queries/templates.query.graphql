@@ -76,5 +76,13 @@ query TemplateCollaborators($templateId: Int!) {
         surName
       }
     }
+    admins {
+      givenName
+      surName
+      email
+    }
+    owner {
+      name
+    }
   }
 }

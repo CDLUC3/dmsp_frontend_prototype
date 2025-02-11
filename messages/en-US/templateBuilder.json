@@ -208,8 +208,8 @@
       "confirmCheckout": "Confirm checkout?"
     },
     "paragraphs": {
-      "orgAccessPara1": "Everyone at NSF can view and edit",
-      "orgAccessPara2": "4 administrators can manage access",
+      "orgAccessPara1": "Everyone at {name} can view and edit",
+      "orgAccessPara2": "{count} administrator(s) can manage access",
       "externalPara1": "Share this template with people outside NSF",
       "sharePara1": "Enter their email address. If they do not already have a DMP Tool account they will be prompted to create one.",
       "modalPara1": "Please confirm that you want to remove {email}"

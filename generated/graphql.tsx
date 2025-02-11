@@ -2204,6 +2204,8 @@ export type TagInput = {
 /** A Template used to create DMPs */
 export type Template = {
   __typename?: 'Template';
+  /** Admin users associated with the template's owner */
+  admins?: Maybe<Array<User>>;
   /** Whether or not this Template is designated as a 'Best Practice' template */
   bestPractice: Scalars['Boolean']['output'];
   /** Users from different affiliations who have been invited to collaborate on this template */
@@ -2895,7 +2897,7 @@ export type TemplateCollaboratorsQueryVariables = Exact<{
 }>;
 
 
-export type TemplateCollaboratorsQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, collaborators?: Array<{ __typename?: 'TemplateCollaborator', email: string, id?: number | null, user?: { __typename?: 'User', id?: number | null, email: any, givenName?: string | null, surName?: string | null } | null }> | null } | null };
+export type TemplateCollaboratorsQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, collaborators?: Array<{ __typename?: 'TemplateCollaborator', email: string, id?: number | null, user?: { __typename?: 'User', id?: number | null, email: any, givenName?: string | null, surName?: string | null } | null }> | null, admins?: Array<{ __typename?: 'User', givenName?: string | null, surName?: string | null, email: any }> | null, owner?: { __typename?: 'Affiliation', name: string } | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3948,6 +3950,14 @@ export const TemplateCollaboratorsDocument = gql`
         givenName
         surName
       }
+    }
+    admins {
+      givenName
+      surName
+      email
+    }
+    owner {
+      name
     }
   }
 }
