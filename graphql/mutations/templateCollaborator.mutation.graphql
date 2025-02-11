@@ -1,0 +1,24 @@
+mutation AddTemplateCollaborator($templateId: Int!, $email: String!) {
+  addTemplateCollaborator(templateId: $templateId, email: $email) {
+    errors
+    email
+    id
+    invitedBy {
+      id
+      givenName
+      surName
+      email
+      notify_on_comment_added
+      notify_on_feedback_complete
+      notify_on_plan_shared
+      notify_on_plan_visibility_change
+      notify_on_template_shared
+      role
+      ssoId
+    }
+  }
+}
+
+mutation RemoveTemplateCollaborator($templateId: Int!, $email: String!) {
+  removeTemplateCollaborator(templateId: $templateId, email: $email)
+}

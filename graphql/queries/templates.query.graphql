@@ -32,6 +32,7 @@ query Templates {
 
 query Template($templateId: Int!) {
   template(templateId: $templateId) {
+    id
     name
     description
     errors
@@ -57,6 +58,23 @@ query Template($templateId: Int!) {
     owner {
       displayName
       id
+    }
+  }
+}
+
+query TemplateCollaborators($templateId: Int!) {
+    template(templateId: $templateId) {
+      id
+      name
+      collaborators {
+      email
+      id
+      user {
+        id
+        email
+        givenName
+        surName
+      }
     }
   }
 }
