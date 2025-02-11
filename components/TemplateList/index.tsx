@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
-import { Button, Link } from 'react-aria-components';
-import { useTranslations } from 'next-intl';
+import React, {useRef} from 'react';
+import {Button, Link} from 'react-aria-components';
+import {useTranslations} from 'next-intl';
 import TemplateSelectListItem from "@/components/TemplateSelectListItem";
-import { TemplateItemProps } from '@/app/types';
+import {TemplateItemProps} from '@/app/types';
 import styles from './templateList.module.scss';
 
 // Define the possible keys for visibleCount object

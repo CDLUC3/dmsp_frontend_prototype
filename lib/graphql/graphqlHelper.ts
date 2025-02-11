@@ -1,10 +1,10 @@
-import { onError } from "@apollo/client/link/error";
-import { Observable } from "@apollo/client";
+import {onError} from "@apollo/client/link/error";
+import {Observable} from "@apollo/client";
 import logECS from "@/utils/clientLogger";
-import { RetryLink } from "@apollo/client/link/retry";
-import { createAuthLink } from "@/utils/authLink";
-import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
-import { getApolloClient } from './apolloClient';
+import {RetryLink} from "@apollo/client/link/retry";
+import {createAuthLink} from "@/utils/authLink";
+import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
+import {getApolloClient} from './apolloClient';
 
 interface CustomError extends Error {
   customInfo?: { errorMessage: string }

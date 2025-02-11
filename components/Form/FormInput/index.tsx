@@ -6,7 +6,6 @@ import {
   Text,
   TextField,
 } from "react-aria-components";
-import styles from './formInput.module.scss';
 
 interface InputProps {
   name: string;

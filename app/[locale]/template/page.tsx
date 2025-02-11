@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from "@apollo/client";
+import React, {useEffect, useRef, useState} from 'react';
+import {ApolloError} from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -13,17 +13,17 @@ import {
   SearchField,
   Text
 } from 'react-aria-components';
-import { useFormatter, useTranslations } from 'next-intl';
+import {useFormatter, useTranslations} from 'next-intl';
 
 //GraphQL
-import { useTemplatesQuery, } from '@/generated/graphql';
+import {useTemplatesQuery,} from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
 import TemplateListItem from '@/components/TemplateListItem';
-import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 
-import { TemplateInterface, TemplateItemProps, } from '@/app/types';
+import {TemplateInterface, TemplateItemProps,} from '@/app/types';
 
 const TemplateListPage: React.FC = () => {
   const formatter = useFormatter();

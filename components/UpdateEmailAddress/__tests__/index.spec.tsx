@@ -7,7 +7,7 @@ import {
   waitFor,
   within
 } from '@testing-library/react';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import UpdateEmailAddress from '..';
 import {
   MeDocument,
@@ -16,7 +16,7 @@ import {
   useSetPrimaryUserEmailMutation
 } from '@/generated/graphql';
 import logECS from '@/utils/clientLogger';
-import { NextIntlClientProvider } from 'next-intl';
+import {NextIntlClientProvider} from 'next-intl';
 
 expect.extend(toHaveNoViolations);
 

@@ -58,7 +58,8 @@ $colors: (
   ),
   'gray': (
     50: #ffffff,
-    100: #d0d0d0,
+    75: #eee,
+    100: #e0e0e0,
     200: #afafaf,
     300: #8f8f8f,
     400: #717171,
@@ -77,7 +78,7 @@ $colors: (
     100: #f7c4ba,
     200: #f29887,
     300: #eb664d,
-    400: #de2300,
+    400: #D3273E,
     500: #a81b00,
     600: #731200
   ),
@@ -145,6 +146,11 @@ html, body {
   --fw-normal: 400;
   --fw-bold: 600;
 
+  --border-radius-sm: 0.125rem;
+  --border-radius-md: 0.25rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 1rem;
+
 
   // Base colors
   --background-color: #f8f8f8;
@@ -179,8 +185,9 @@ html, body {
   --card-background: var(--gray-50);
   --card-border: none;
   --card-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.09);
-  --card-padding: var(--space-4);
+  --card-padding: var(--space-5);
   --card-border-radius: 0.3125rem;
+
 
   // Text
   --text-color: var(--gray-600);
@@ -270,6 +277,7 @@ html, body {
     --invalid-color-pressed: LinkText;
   }
 }
+
 * {
   font-family: inherit; // This is make sure buttons, standard elements all inherit the font-family from the body
 }

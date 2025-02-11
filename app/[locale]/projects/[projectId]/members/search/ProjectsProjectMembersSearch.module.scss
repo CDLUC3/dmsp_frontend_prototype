@@ -1,0 +1,63 @@
+.searchSection {
+  margin-bottom: 2rem;
+}
+
+.memberResultsList {
+  max-width: 60ch;
+  border-top: 1px solid var(--gray-100);
+}
+
+.memberResultsListItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.memberInfo {
+  .nameAndOrcid {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .name {
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .orcid {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: var(--fs-small);
+  }
+
+  .organization {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--fs-small);
+  }
+}
+
+.memberResultsListMore {
+  display: flex;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.createNew {
+  margin-top: 3rem;
+
+  h3 {
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    margin: 0 0 1rem 0;
+    color: var(--text-secondary);
+  }
+}

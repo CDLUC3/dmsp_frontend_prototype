@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, {useState} from 'react';
+import {useRouter} from 'next/navigation';
 import {
   Button,
   Cell,
@@ -39,8 +39,8 @@ import {
 } from "react-aria-components";
 
 
-import { DmpEditor } from "@/components/Editor";
-import { DmpIcon } from "@/components/Icons";
+import {DmpEditor} from "@/components/Editor";
+import {DmpIcon} from "@/components/Icons";
 
 import {
   Card,
@@ -60,20 +60,20 @@ import {
   ToolbarContainer,
 } from '@/components/Container';
 
-import { BrandColor, Example, handleDelete } from "./sg-components";
+import {BrandColor, Example, handleDelete} from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import { AffiliationsDocument } from '@/generated/graphql';
+import {AffiliationsDocument} from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEditCard from "@/components/QuestionEditCard";
 import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
-import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
+import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
 
 
 function Page() {

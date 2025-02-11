@@ -1,14 +1,14 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import TemplateSelectTemplatePage from '../index';
 import {
   useAddTemplateMutation,
-  usePublishedTemplatesQuery,
-  useMyVersionedTemplatesQuery
+  useMyVersionedTemplatesQuery,
+  usePublishedTemplatesQuery
 } from '@/generated/graphql';
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import logECS from '@/utils/clientLogger';
 
 expect.extend(toHaveNoViolations);

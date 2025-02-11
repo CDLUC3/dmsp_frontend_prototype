@@ -1,0 +1,25 @@
+.react-aria-DropZone {
+  background: var(--slate-100);
+  forced-color-adjust: none;
+  appearance: none;
+  vertical-align: middle;
+  font-size: 1rem;
+  text-align: center;
+  outline: none;
+  padding: 2rem;
+  width: 100%;
+  display: block;
+  margin: 0 0 1rem;
+  border: 1px solid var(--slate-300);
+  border-radius: var(--card-border-radius);
+
+  &[data-focus-visible],
+  &[data-drop-target] {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: -1px;
+  }
+
+  &[data-drop-target] {
+    background: var(--highlight-overlay);
+  }
+}

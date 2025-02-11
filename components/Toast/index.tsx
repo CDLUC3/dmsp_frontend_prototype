@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
-import { useToast as useAriaToast } from '@react-aria/toast';
-import type { ToastState } from '@react-stately/toast';
-import { Button } from 'react-aria-components';
+import React, {useRef} from 'react';
+import {useToast as useAriaToast} from '@react-aria/toast';
+import type {ToastState} from '@react-stately/toast';
+import {Button} from 'react-aria-components';
 
 import './toast.scss';
 

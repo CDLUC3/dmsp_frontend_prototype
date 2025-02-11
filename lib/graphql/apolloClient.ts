@@ -1,5 +1,5 @@
 // Create a new file: apolloClient.ts
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import {ApolloClient, NormalizedCacheObject} from '@apollo/client';
 
 let apolloClient: ApolloClient<NormalizedCacheObject> | null = null;
 

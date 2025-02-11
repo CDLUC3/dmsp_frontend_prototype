@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,7 +18,7 @@ import {
   TextArea,
   TextField
 } from "react-aria-components";
-import { useParams } from 'next/navigation';
+import {useParams} from 'next/navigation';
 
 
 // Components
@@ -35,15 +35,17 @@ const sampleQuestion = {
   sampleText: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
 };
 
-const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }) => {
+const QuestionEditPage = ({questionTypeId}: {
+  questionTypeId?: number | null
+}) => {
   const params = useParams();
-  const { templateId } = params; // From route /template/:templateId
-  const { q_slug } = params; //question id
+  const {templateId} = params; // From route /template/:templateId
+  const {q_slug} = params; //question id
 
   // State for managing form inputs
   const [question, setQuestion] = useState(sampleQuestion);
   const handleGuidanceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setQuestion({ ...question, guidance: e.currentTarget.value });
+    setQuestion({...question, guidance: e.currentTarget.value});
   };
 
   const handleSave = async () => {
@@ -65,7 +67,8 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}`}>Edit Template</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/template/${templateId}`}>Edit
+              Template</Link></Breadcrumb>
             <Breadcrumb>Question</Breadcrumb>
           </Breadcrumbs>
         }
@@ -97,8 +100,8 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
                   value={question.type}
                 >
                   <Label>Type (required)</Label>
-                  <Input disabled />
-                  <FieldError />
+                  <Input disabled/>
+                  <FieldError/>
                   <Button type="button">Change type</Button>
                 </TextField>
 
@@ -116,7 +119,7 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
                       text: e.currentTarget.value
                     })}
                   />
-                  <FieldError />
+                  <FieldError/>
                 </TextField>
 
                 <TextField
@@ -135,9 +138,9 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
                       ...question,
                       requirements: e.currentTarget.value
                     })}
-                    style={{ height: '100px' }}
+                    style={{height: '100px'}}
                   />
-                  <FieldError />
+                  <FieldError/>
                 </TextField>
 
                 <TextField
@@ -148,9 +151,9 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
                   <TextArea
                     value={question.guidance}
                     onChange={handleGuidanceChange}
-                    style={{ height: '150px' }}
+                    style={{height: '150px'}}
                   />
-                  <FieldError />
+                  <FieldError/>
                 </TextField>
 
                 <TextField
@@ -169,9 +172,9 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
                       ...question,
                       sampleText: e.currentTarget.value
                     })}
-                    style={{ height: '80px' }}
+                    style={{height: '80px'}}
                   />
-                  <FieldError />
+                  <FieldError/>
                 </TextField>
 
                 <Button type="submit" onPress={handleSave}>Save</Button>
@@ -186,7 +189,7 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
             </TabPanel>
           </Tabs>
 
-        </div >
+        </div>
 
         <div className="sidebar">
           <h2>Preview</h2>
@@ -203,7 +206,7 @@ const QuestionEditPage = ({ questionTypeId }: { questionTypeId?: number | null }
             a
             starting point, as a way to speed up content entry.</p>
         </div>
-      </div >
+      </div>
     </>
 
   );

@@ -1,0 +1,76 @@
+@import '@/styles/responsive';
+
+.outputsList {
+  // Optional styles for the main list container
+}
+
+.outputsListItem {
+  display: grid;
+
+  @include device(xl) {
+    grid-template-columns: 3fr 2fr 2fr 2fr 1fr; // Adjusted for the new columns
+  }
+
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color-light); // Optional divider between rows
+}
+
+.outputInfo {
+  h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: var(--text-primary); // Base text color for title
+  }
+
+  p {
+    margin: 0.25rem 0;
+    color: var(--text-secondary); // Font color for metadata
+    font-size: var(--fs-small); // Small font size for information
+  }
+
+  .repository {
+    font-size: var(--fs-small);
+    font-weight: bold; // Makes the repository name stand out
+    color: var(--text-primary);
+  }
+
+  .outputType {
+    font-size: var(--fs-small);
+    color: var(--text-secondary);
+  }
+}
+
+.outputActions {
+  display: flex;
+  gap: 0.5rem;
+
+  @include device(xl) {
+    justify-content: flex-end; // Align actions (Edit/Delete buttons) to the right
+  }
+
+  button {
+    font-size: var(--fs-small);
+    padding: 0.5rem 1rem;
+  }
+
+  .primary {
+    background: var(--primary-color);
+    color: var(--button-primary-text);
+    border: none;
+    &:hover {
+      background: var(--primary-color-dark);
+    }
+  }
+
+  .secondary {
+    background: var(--secondary-color);
+    color: var(--button-secondary-text);
+    border: 1px solid var(--secondary-border-color);
+    &:hover {
+      background: var(--secondary-color-dark);
+    }
+  }
+}

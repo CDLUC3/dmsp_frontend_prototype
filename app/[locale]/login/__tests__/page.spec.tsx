@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  renderWithProviders,
-  screen,
-  waitFor,
-} from '@/utils/test-utils';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import {fireEvent, render, screen, waitFor,} from '@/utils/test-utils';
 import logECS from '@/utils/clientLogger';
 
 import LoginPage from '../page';

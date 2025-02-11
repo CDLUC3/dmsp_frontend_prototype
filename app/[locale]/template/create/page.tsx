@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import React, {useEffect, useMemo, useState} from 'react';
+import {useTranslations} from 'next-intl';
+import {useRouter} from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -15,14 +15,11 @@ import sanitizeHtml from 'sanitize-html';
 // Components
 import PageHeader from "@/components/PageHeader";
 import TemplateSelectTemplatePage from '@/components/SelectExistingTemplate';
-import {
-  ContentContainer,
-  LayoutContainer,
-} from '@/components/Container';
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 import FormInput from '@/components/Form/FormInput';
 
-import { debounce } from '@/hooks/debounce';
-import { useQueryStep } from '@/app/[locale]/template/create/useQueryStep';
+import {debounce} from '@/hooks/debounce';
+import {useQueryStep} from '@/app/[locale]/template/create/useQueryStep';
 
 const TemplateCreatePage: React.FC = () => {
   const router = useRouter();

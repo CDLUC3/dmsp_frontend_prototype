@@ -1,10 +1,10 @@
 import React from 'react';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
-import { render, screen, fireEvent, waitFor } from '@/utils/test-utils';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import {fireEvent, render, screen, waitFor} from '@/utils/test-utils';
 import '@testing-library/jest-dom';
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import TemplateCreatePage from '../page';
-import { useQueryStep } from '../useQueryStep';
+import {useQueryStep} from '../useQueryStep';
 
 
 // Mock the useQueryStep hook

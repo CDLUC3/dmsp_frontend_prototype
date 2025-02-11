@@ -1,15 +1,16 @@
 import React from "react";
-import { render, screen, act, fireEvent } from '@/utils/test-utils';
+import {act, fireEvent, render, screen} from '@/utils/test-utils';
 import {
+  useSectionQuery,
   useTagsQuery,
-  useUpdateSectionMutation,
-  useSectionQuery
+  useUpdateSectionMutation
 } from '@/generated/graphql';
 
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams } from 'next/navigation';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useParams} from 'next/navigation';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import SectionUpdatePage from '../page';
+
 expect.extend(toHaveNoViolations);
 
 // Mock the useTemplateQuery hook

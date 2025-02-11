@@ -1,10 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react';
-import { SectionFormInterface, TagsInterface } from '@/app/types';
-import {
-  useSectionQuery,
-} from '@/generated/graphql';
+import {useEffect, useState} from 'react';
+import {SectionFormInterface, TagsInterface} from '@/app/types';
+import {useSectionQuery,} from '@/generated/graphql';
 
 export const useSectionData = (sectionId: number) => {
   const [sectionData, setSectionData] = useState<SectionFormInterface>({
