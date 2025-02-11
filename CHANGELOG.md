@@ -1,6 +1,8 @@
+## v0.0.1
+
 ### Added
 - Project Create Flow [#299]
-- Project Upload [#299]  
+- Project Upload [#299]
 - Project Funder [#299]
 - Project Details [#299]
 - Project Funders [#299]
@@ -15,20 +17,63 @@
 - Plan Section and boilerplate tests [#178]
 - Plan Question and boilerplate tests [#178]
 
+### Updated
+- Updated `/template/create/page.tsx`[#186]
+- Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
+- Updated existing Templates graphql query with more fields [#186]
+- Updated shared `FormInput` component to pass ‘ariaDescribedBy’ [#186]
+- Updated `TemplateSelectListItem` [#186]
+- Updated `/graphql/apollo-wrapper.tsx` since `@apollo/experimental-nextjs-app-support/ssr` was deprecated [#186]
+- Updated `/graphql/graphqlHelper.ts` with a call to `client.resetStore’` This should refetch user’s data when refreshAuthTokens() is called [#186]
+- Updated `refreshAuthTokens` function with ability to pass in cookies [#186]
+- Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
+- Updated `QuestionTypeSelectPage`- hooked up to real data and updated code [#220]
+- Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
+
 ### Added
-- Project overview page [#175]
-  - Moved pages under [locale] folder
-  - dummy portuguese brazilian translation
+- Added new `QuestionEdit` and `QuestionTypeCard` components [#220]
+
+
+### Fixed
+
+
+====================================================================================================
 
 ### Updated
 =======
+- Updated `/template/create/page.tsx`[#186]
+- Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
+- Updated existing Templates graphql query with more fields [#186]
+- Updated shared `FormInput` component to pass ‘ariaDescribedBy’ [#186]
+- Updated `TemplateSelectListItem` [#186]
+- Updated `/graphql/apollo-wrapper.tsx` since `@apollo/experimental-nextjs-app-support/ssr` was deprecated [#186]
+- Updated `/graphql/graphqlHelper.ts` with a call to `client.resetStore’` This should refetch user’s data when refreshAuthTokens() is called [#186]
+- Updated `refreshAuthTokens` function with ability to pass in cookies [#186]
+- Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
+- Updated some pages with toast messages, and updated toast files [#231]
+- Added Portuguese translations for newly added translation keys [#231]
+- Updated version of `next` to `14.2.22` [#231]
+- Updated app/template/[templateId]/section/[section_slug] to hook it into backend data [#217]
+- Updated app/template/[templateId]/section/create page to use Remirror text editors, and checkboxes with info popovers [#187]
+- Updated DMPEditor to use a skeleton while the text editors are loading, since it can be slow [#187]
 - Updated app/template/[templateId]/section/new page to hook it up to backend data, handle errors, and add translations [#189]
 - Updated app/template/[templateId] page to hook it up to the backend and handle errors and translations[#206]
 - Updated app/[locale]/template page to hook it up to backend and handle errors and translations[#82]
 - Updated account/profile, email/email-confirmed, email/verification-failed, and account/connections to use new, shared layout containers [#185]
 - Refactored font family usage for consistency.
+- Updated the Login and Signup pages to function as the wireframes. [#117]
+- Updated TypeAheadWithOther component to be a bit more generic [#117]
+- Cleaned up some of the error handling code so that it's easier to debug and
+  trace issues. [#117]
 
 ### Added
+- Added `MyVersionedTemplates` and `PublishedTemplates` graphql queries and `addTemplateMutation` graphql mutation [#186]
+- Created the `SelectExistingTemplate` component which displays the publishedTemplates and allows user to filter view [#186]
+- Created `TemplateList` component used by `SelectExistingTemplate`[#186]
+- Added Toast Message capabilities using **React Aria Component's use Toast**. [#211]
+- Project overview page [#175]
+  - Moved pages under [locale] folder
+  - dummy portuguese brazilian translation
 - New translation updates [#160]
   - Installed next-intl, and created a /messages directory for content, and /i18n directory for next-intl request and routing
   - Moved pages under dynamic folder [locale]

@@ -32,6 +32,12 @@ jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`
 }));
 
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    add: jest.fn(),
+  })),
+}));
+
 jest.mock('@/components/BackButton', () => {
   return {
     __esModule: true,

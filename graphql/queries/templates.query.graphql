@@ -1,14 +1,32 @@
 query Templates {
-  templates {
+  myTemplates {
+    id
     name
     description
     modified
-    id
+    modifiedById
+    sections {
+      id
+      name
+      bestPractice
+      displayOrder
+      isDirty
+      questions {
+        errors
+        displayOrder
+        guidanceText
+        id
+        questionText
+        sectionId
+        templateId
+      }
+    },
     owner {
       name
       displayName
       searchName
-    }
+    },
+    visibility
   }
 }
 

@@ -28,8 +28,6 @@
 .layout-toolbar-container {
   @include layoutContainer;
 
-  --layout-container-padding: var(--brand-space1);
-
   display: flex;
   flex-direction: row;
   gap: var(--layout-gap, 1em);

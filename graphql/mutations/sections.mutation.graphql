@@ -1,0 +1,37 @@
+mutation AddSection($input: AddSectionInput!) {
+  addSection(input: $input) {
+    id
+    tags {
+      name
+    }
+    guidance
+    errors
+    displayOrder
+    introduction
+    isDirty
+    name
+    questions {
+      id
+      errors
+    }
+    requirements
+  }
+}
+
+mutation UpdateSection($input: UpdateSectionInput!) {
+  updateSection(input: $input) {
+    id
+    name
+    introduction
+    requirements
+    guidance
+    displayOrder
+    errors
+    bestPractice
+    tags {
+      id
+      description
+      name
+    }
+  }
+}

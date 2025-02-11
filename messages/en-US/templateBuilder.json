@@ -46,7 +46,8 @@
     },
     "errors": {
       "archiveTemplateError": "Error when archiving template",
-      "saveTemplateError": "Error when saving template"
+      "saveTemplateError": "Error when saving template",
+      "getTemplatesError": "Error getting templates"
     }
   },
   "PublishTemplate": {
@@ -121,5 +122,80 @@
     "intro": "You have three options. You can use a section you created previously, use a DMP Tool best practice section or build a new section. All sections are customizable once selected.",
     "newSectionDescription": "Build a new section from scratch. You can add questions, instructions, and other content to your section, we highly recommend using the best practice sections.",
     "questionsCount": "<p>This section includes:</p><p>{count} pre-built questions</p>"
+  },
+  "Section": {
+    "tabs": {
+      "editSection": "Edit Section",
+      "options": "Options",
+      "logic": "Logic"
+    },
+    "labels": {
+      "sectionName": "Section name",
+      "sectionIntroduction": "Section introduction",
+      "sectionRequirements": "Section requirements",
+      "sectionGuidance": "Section guidance",
+      "bestPracticeTags": "Section Best Practices to include"
+    },
+    "helpText": {
+      "bestPracticeTagsDesc": "Select one or more tags to associate global best practice guidance written by DMP Tool."
+    }
+  },
+  "CreateSectionPage": {
+    "title": "Create Section",
+    "button": {
+      "createSection": "Create Section"
+    },
+    "messages": {
+      "fieldLengthValidation": "Name must be at least 2 characters.",
+      "errorCreatingSection": "Error when creating section.",
+      "success": "Section created successfully."
+    }
+  },
+  "SectionUpdatePage": {
+    "title": "Update Section",
+    "button": {
+      "updateSection": "Update Section"
+    },
+    "messages": {
+      "fieldLengthValidation": "Name must be at least 2 characters.",
+      "errorUpdatingSection": "Error when updating section.",
+      "success": "Section updated successfully."
+    }
+  },
+  "QuestionTypeSelectPage": {
+    "title": "What type of question would you like to add?",
+    "description": "As you create your template, you can choose different types of questions to add to it, depending on the type of information you require from the plan creator.",
+    "searchHelpText": "Search by field type or description."
+  },
+  "TemplateCreatePage": {
+    "helpText": "Don't worry, you can change this later.",
+    "nameOfYourTemplate": "Name of your template",
+    "messages": {
+      "templateNameError": "Please enter a valid value for template name."
+    }
+  },
+  "TemplateSelectTemplatePage": {
+    "title": "Start with a copy of an existing template",
+    "resultsText": "{name} results match your search",
+    "numDisplaying": "Showing {num} of {total}",
+    "clearFilter": "clear filter",
+    "buttons": {
+      "load3More": "Load 3 more",
+      "loadMore": "Load {name} more"
+    },
+    "headings": {
+      "previouslyCreatedTemplates": "Use one of your previously created templates",
+      "publicTemplates": "Use one of the public templates"
+    },
+    "messages": {
+      "noItemsFound": "No items found",
+      "missingTemplateName": "Template name cannot be blank.",
+      "loadingError": "Error loading templates. Please try again later."
+    }
+  },
+  "TemplateSelectListItem": {
+    "messages": {
+      "additionalGuidance": "Your research organization has additional guidance"
+    }
   }
 }

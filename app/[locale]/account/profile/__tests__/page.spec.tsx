@@ -26,6 +26,12 @@ jest.mock('@/generated/graphql', () => ({
   useLanguagesQuery: jest.fn(),
 }));
 
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    add: jest.fn(),
+  })),
+}));
+
 // Mock UpdateEmailAddress component
 jest.mock('@/components/UpdateEmailAddress', () => ({
   __esModule: true,

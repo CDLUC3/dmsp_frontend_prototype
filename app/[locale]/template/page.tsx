@@ -32,6 +32,7 @@ const TemplateListPage: React.FC = () => {
   const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const errorRef = useRef<HTMLDivElement | null>(null);
+
   // For translations
   const t = useTranslations('OrganizationTemplates');
 
@@ -89,7 +90,7 @@ const TemplateListPage: React.FC = () => {
 
   useEffect(() => {
     // Transform templates into format expected by TemplateListItem component
-    if (data && data?.templates) {
+    if (data && data?.myTemplates) {
       const fetchAllTemplates = async (templates: (TemplateInterface | null)[]) => {
         const transformedTemplates = await Promise.all(
           templates.map(async (template: TemplateInterface | null) => {
@@ -111,7 +112,7 @@ const TemplateListPage: React.FC = () => {
 
         setTemplates(transformedTemplates);
       }
-      fetchAllTemplates(data?.templates);
+      fetchAllTemplates(data?.myTemplates);
     }
   }, [data]);
 

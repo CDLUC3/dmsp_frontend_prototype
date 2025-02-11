@@ -41,6 +41,12 @@ jest.mock('@/utils/gqlErrorHandler', () => ({
   handleApolloErrors: jest.fn()
 }))
 
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(() => ({
+    add: jest.fn(),
+  })),
+}));
+
 const mockUserData = {
   me: {
     givenName: 'John',

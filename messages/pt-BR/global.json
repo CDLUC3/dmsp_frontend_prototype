@@ -88,7 +88,11 @@
     "btnAdd": "Adicionar",
     "linkUpdatePassword": "Atualizar senha",
     "linkUpdateConnections": "Update connections",
-    "linkManageNotifications": "Atualizar conexão?"
+    "linkManageNotifications": "Atualizar conexão?",
+    "messages": {
+      "profileUpdateSuccess": "Formulário de perfil atualizado com sucesso.",
+      "emailAddressUpdateSuccess": "O e-mail foi adicionado com sucesso ao seu perfil."
+    }
   },
   "TemplateHistory": {
     "title": "Primary Light",
@@ -110,16 +114,38 @@
     "breadcrumbs": {
       "home": "Home",
       "templates": "Modelos",
-      "section": "Seção"
+      "template": "Modelo",
+      "createTemplate": "Criar um modelo",
+      "selectExistingTemplate": "Selecionar um modelo existente",
+      "section": "Seção",
+      "editSection": "Editar seção",
+      "editTemplate": "Editar Modelo",
+      "question": "Pergunta"
     },
+    "lastRevisedBy": "Última revisão por",
+    "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
-      "select": "Select"
+      "select": "Select",
+      "next": "Seguinte"
+    },
+    "labels": {
+      "searchByKeyword": ""
+    },
+    "helpText": {
+      "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
+    },
+    "labels": {
+      "searchByKeyword": ""
+    },
+    "links": {
+      "clearFilter": "clear filter"
     },
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
-      "somethingWentWrong": "Algo deu errado. Por favor, tente novamente."
+      "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
+      "resultsText": "{name} results match your search"
     }
   }
 }

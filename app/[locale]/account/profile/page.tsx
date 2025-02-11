@@ -46,10 +46,12 @@ import {
 // Utils and other
 import logECS from '@/utils/clientLogger';
 import {refreshAuthTokens} from "@/utils/authHelper";
+import {useToast} from '@/context/ToastContext';
 import styles from './profile.module.scss';
 
 const ProfilePage: React.FC = () => {
   const t = useTranslations('UserProfile');
+  const toastState = useToast(); // Access the toast state from context
   const pathname = usePathname();
   const currentLocale = useLocale();
   const router = useRouter();
@@ -168,6 +170,12 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = t('messages.profileUpdateSuccess');
+    toastState.add(successMessage, { type: 'success', timeout: 3000 });
+  }
+
   // Handle form submit
   const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -178,6 +186,7 @@ const ProfilePage: React.FC = () => {
       // Update profile
       await updateProfile();
       setErrors([]); // Clear errors on successful submit
+      showSuccessToast()
     }
   };
 
@@ -431,6 +440,7 @@ const ProfilePage: React.FC = () => {
                             label="Institution"
                             fieldName="institution"
                             graphqlQuery={AffiliationsDocument}
+                            resultsKey="affiliations"
                             setOtherField={setOtherField}
                             required={true}
                             error={fieldErrors.affiliationName}

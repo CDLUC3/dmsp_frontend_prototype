@@ -1,6 +1,8 @@
 'use client';
 
-import React from 'react';
+import {useEffect, useRef, useState} from 'react';
+import {useTranslations} from 'next-intl';
+import {useParams} from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,138 +14,234 @@ import {
   SearchField,
   Text
 } from "react-aria-components";
+
+// Components
 import PageHeader from "@/components/PageHeader";
-import {Card, CardBody, CardFooter, CardHeading} from "@/components/Card/card";
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import QuestionEdit from '@/components/QuestionEdit';
+import QuestionTypeCard from '@/components/QuestionTypeCard';
+
+//GraphQL
+import {useQuestionTypesQuery} from '@/generated/graphql';
+
+//Other
+import {useQueryStep} from '@/app/[locale]/template/[templateId]/q/new/utils';
+import {QuestionTypesInterface} from '@/app/types';
+import styles from './newQuestion.module.scss';
+
 
 const QuestionTypeSelectPage: React.FC = () => {
+    // Get templateId param
+    const params = useParams();
+    const topRef = useRef<HTMLDivElement>(null);
+    const { templateId } = params; // From route /template/:templateId
 
-    const templates = [
-        {
-            title: 'Long text question',
-            link: '/template/353535/q/q_mnopqr',
-            text: 'For questions that require long answers, you can select formatting options too.',
-            type: 'Text',
-        },
-        {
-            title: 'Short text question',
-            link: '/template/353535/q/q_mnopqr',
-            text: 'For questions that require short, simple answers.',
-            type: 'Text',
-        },
-        {
-            title: 'URL field',
-            link: '/template/353535/q/q_mnopqr',
-            text: 'When you need the user to supply a URL. Includes validation for proper URL format.',
-            type: 'URL',
-        },
-        {
-            title: 'Radio selection',
-            link: '/template/353535/q/q_mnopqr',
-            text: 'For simple questions with only valid answer. Perfect for multiple choice questions.',
-            type: 'Choice',
-        },
-        {
-            title: 'Checkbox group',
-            link: '/template/353535/q/q_mnopqr',
-            text: 'For questions with multiple valid answers. Allows users to select multiple options.',
-            type: 'Choice',
-        }];
+    // State management
+    const [step, setStep] = useState<number | null>(null);
+    const [searchTerm, setSearchTerm] = useState<string>('');
+    const [filteredQuestionTypes, setFilteredQuestionTypes] = useState<QuestionTypesInterface[] | null>([]);
+    const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
+    const [searchButtonClicked, setSearchButtonClicked] = useState(false);
+    const [questionTypeId, setQuestionTypeId] = useState<number | null>(null);
+    const [errors, setErrors] = useState<string[]>([]);
 
-    const templates_others = [
-        {
-            title: 'ORCID search',
-            link: '/template/353535/q/q_mnopqr',
-            text: 'Search and select a researcher using their ORCID identifier.',
-            type: 'Lookup',
-        },
-        {
-            title: 'Repository select',
-            link: '/template/353535/q/q_mnopqr',
-            text: 'When users need to select or create a repository for their data.',
-            type: 'Lookup',
-        },
-        {
-            title: 'License selection',
-            link: '/template/353535/q/q_mnopqr',
-            text: 'For when users need to select a license for their content.',
-            type: 'Lookup',
-        },
-    ];
+    const stepQueryValue = useQueryStep();
+
+    //Localization keys
+    const Global = useTranslations('Global');
+    const QuestionTypeSelect = useTranslations('QuestionTypeSelectPage');
+
+    // Make graphql request for question types
+    const { data, loading, error: queryError } = useQuestionTypesQuery();
+
+    const handleSelect = (questionTypeId: number) => {
+        // redirect to the Question Edit page
+        if (questionTypeId) {
+            setQuestionTypeId(questionTypeId);
+            setStep(2);
+        }
+    }
+
+    const resetSearch = () => {
+        setSearchTerm('');
+        setFilteredQuestionTypes(null);
+        scrollToTop();
+    }
+
+    const scrollToTop = () => {
+        if (topRef.current) {
+            topRef.current.scrollIntoView({ behavior: 'smooth' });
+            topRef.current.focus();
+        }
+    }
+
+    const filterQuestionTypes = (
+        questionTypes: QuestionTypesInterface[],
+        term: string
+    ): QuestionTypesInterface[] =>
+        questionTypes.filter(qt =>
+            [qt.name, qt.usageDescription].some(field =>
+                field?.toLowerCase().includes(term.toLowerCase())
+            )
+        );
+
+    // Filter results when a user enters a search term and clicks "Search" button
+    const handleFiltering = (term: string) => {
+        setSearchButtonClicked(true);
+        setErrors([]);
+
+        // Search title, funder and description fields for terms
+        const filteredQuestionTypes = filterQuestionTypes(questionTypes, term);
+
+        if (filteredQuestionTypes.length > 0) {
+            setFilteredQuestionTypes(filteredQuestionTypes.length > 0 ? filteredQuestionTypes : null);
+        }
+    }
+
+    useEffect(() => {
+        // When data from backend changes, set template data in state
+        if (data?.questionTypes) {
+            // filter out any null values
+            const filteredQuestionTypes = data.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
+            if (data.questionTypes.length > 0) {
+                setQuestionTypes(filteredQuestionTypes);
+            }
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (queryError) {
+            setErrors(prev => [...prev, queryError.message]);
+        }
+    }, [queryError])
+
+    useEffect(() => {
+        // Need this to set list of templates back to original, full list after filtering
+        if (searchTerm === '') {
+            resetSearch();
+            setSearchButtonClicked(false);
+        }
+    }, [searchTerm])
+
+    useEffect(() => {
+        // If a step was specified in a query param, then set that step
+        if (step !== stepQueryValue) {
+            setStep(stepQueryValue);
+        }
+    }, [stepQueryValue])
+
+    // TODO: Implement shared loading
+    if (loading) {
+        return <div>{Global('messaging.loading')}...</div>;
+    }
 
     return (
         <>
-            <PageHeader
-                title="What type of question would you like to add?"
-                description="As you create your template, you can choose different types of questions to add to it, depending on the type of information you require from the plan creator. "
-                showBackButton={true}
-                breadcrumbs={
-                    <Breadcrumbs>
-                        <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-                        <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
-                        <Breadcrumb>Question</Breadcrumb>
-                    </Breadcrumbs>
-                }
-                actions={null}
-                className=""
-            />
-            <div className="Filters">
-                <SearchField>
-                    <Label>Search by keyword</Label>
-                    <Input/>
-                    <Button>Search</Button>
-                    <FieldError/>
-                    <Text slot="description" className="help">
-                        Search by field type or description.
-                    </Text>
-                </SearchField>
-            </div>
-            <div>
-                <h2>
-                    Standard
-                </h2>
-                <div className="card-grid-list">
-                    {templates.map((template, index) => (
-                        <Card key={index}>
-                            <CardHeading>{template.title}</CardHeading>
-                            <CardBody>
-                                <p>{template.text}</p>
-                            </CardBody>
-                            <CardFooter>
-                                <Link
-                                    href={template.link}
-                                    className="button-link secondary"
-                                    data-type={template.type}
-                                >
-                                    Select
-                                </Link>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
+            {step === 1 && (
+                <>
+                    <PageHeader
+                        title={QuestionTypeSelect('title')}
+                        description={QuestionTypeSelect('description')}
+                        showBackButton={false}
+                        breadcrumbs={
+                            <Breadcrumbs>
+                                <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+                                <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+                                <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
+                            </Breadcrumbs>
+                        }
+                        actions={null}
+                        className=""
+                    />
 
-                <h2>
-                    Other types of questions
-                </h2>
-                <div className="card-grid-list">
-                    {templates_others.map((template, index) => (
-                        <Card key={index}>
-                            <CardHeading>{template.title}</CardHeading>
-                            <CardBody>
-                                <p>{template.text}</p>
-                            </CardBody>
-                            <CardFooter>
-                                <Link
-                                    href={template.link}
-                                    className="button-link secondary"
-                                    data-type={template.type}
-                                >
-                                    Select
-                                </Link>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
-            </div>
+                    <LayoutContainer>
+                        <ContentContainer>
+                            {errors && errors.length > 0 &&
+                                <div className="error">
+                                    {errors.map((error, index) => (
+                                        <p key={index}>{error}</p>
+                                    ))}
+                                </div>
+                            }
+                            <div className="Filters" ref={topRef}>
+                                <SearchField>
+                                    <Label>{Global('labels.searchByKeyword')}</Label>
+                                    <Input
+                                        aria-describedby="search-help"
+                                        value={searchTerm}
+                                        onChange={e => setSearchTerm(e.target.value)} />
+                                    <Button
+                                        onPress={() => {
+                                            handleFiltering(searchTerm);
+                                        }}
+                                    >
+                                        {Global('buttons.search')}
+                                    </Button>
+                                    <FieldError />
+                                    <Text slot="description" className="help">
+                                        {QuestionTypeSelect('searchHelpText')}
+                                    </Text>
+                                </SearchField>
+                            </div>
+                            <div>
+                                {/*Show # of results with clear filter link*/}
+                                {(searchTerm.length > 0 && searchButtonClicked) && (
+                                    <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>{QuestionTypeSelect('links.clearFilter')}</Link></div>
+                                )}
+                                <div className="card-grid-list">
+                                    {filteredQuestionTypes && filteredQuestionTypes.length > 0 ? (
+                                        <>
+                                            {filteredQuestionTypes.map((questionType) => (
+                                                <QuestionTypeCard
+                                                    key={questionType.id}
+                                                    questionType={questionType}
+                                                    handleSelect={handleSelect}
+                                                />
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {/**If the user is searching, and there were no results from the search
+                                 * then display the message 'no results found
+                                 */}
+                                            {(searchTerm.length > 0 && searchButtonClicked) ? (
+                                                <>
+                                                    {Global('messaging.noItemsFound')}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {questionTypes.map((questionType) => (
+                                                        <QuestionTypeCard
+                                                            key={questionType.id}
+                                                            questionType={questionType}
+                                                            handleSelect={handleSelect}
+                                                        />
+                                                    ))}
+                                                </>
+                                            )
+                                            }
+                                        </>
+                                    )
+
+                                    }
+                                </div>
+                                {/*Show # of results with clear filter link*/}
+                                {(searchTerm.length > 0 && searchButtonClicked) && (
+                                    <div className={styles.clearFilter}>
+                                        <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
+                                    </div>
+                                )}
+                            </div>
+                        </ContentContainer>
+                    </LayoutContainer>
+                </>
+            )}
+            {step === 2 && (
+                <>
+                    {/*Show Edit Question form*/}
+                    <QuestionEdit questionTypeId={questionTypeId ? questionTypeId : null} />
+                </>
+            )}
         </>
     );
 }

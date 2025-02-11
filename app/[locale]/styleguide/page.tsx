@@ -1,6 +1,7 @@
 'use client';
 
 import React, {useState} from 'react';
+import {useRouter} from 'next/navigation';
 import {
   Button,
   Cell,
@@ -67,15 +68,18 @@ import {AffiliationsDocument} from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
-import QuestionEdit from "@/components/QuestionEdit";
+import QuestionEditCard from "@/components/QuestionEditCard";
 import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
 import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
+import {useToast} from '@/context/ToastContext';
+
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
-
+  const toastState = useToast(); // Access the toast state from context
+  const router = useRouter();
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
   const richtextDefault = html`
@@ -348,6 +352,11 @@ function Page() {
     setDrawerOpen(!drawerOpen);
   }
 
+  const showToastAndRedirect = () => {
+    toastState.add('You have successfully logged in.', { type: 'success' });
+    router.push('/');
+  }
+
   return (
     <>
       <LayoutWithPanel id="sgLayout">
@@ -370,6 +379,7 @@ function Page() {
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
+          <a href="#_toast">Toast Messages</a>
         </SidebarPanel>
 
         <ContentContainer id="sgContent">
@@ -464,6 +474,15 @@ function Page() {
                   description="Highest contrast" />
               </div>
             </div>
+
+            <h3>Messaging colors</h3>
+            <p>Our messages are broken down into the types: info, success and error</p>
+            <div className="brand-color-list">
+              <BrandColor varname="--messaging-info" />
+              <BrandColor varname="--messaging-success" />
+              <BrandColor varname="--messaging-error" />
+            </div>
+
 
             <h3>Usage Guidelines</h3>
             <ul>
@@ -687,6 +706,7 @@ function Page() {
                 <DmpIcon icon="favorite" />
                 <DmpIcon icon="format_bold" />
                 <DmpIcon icon="double_arrow" />
+                <DmpIcon icon="info" />
               </div>
             </Example>
 
@@ -1073,7 +1093,7 @@ function Page() {
           <div id="_containers">
             <h2><code>Layout Container</code></h2>
             <p>The standard <code>{`<LayoutContainer>`}</code> wraps content containers to provide
-            some common container within the layout container.</p>
+              some common container within the layout container.</p>
             <LayoutContainer>
               <ContentContainer>
                 <div><pre><code>
@@ -1207,7 +1227,7 @@ function Page() {
                 TODO: Write about this layout here
               </ContentContainer>
 
-              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false) }>
+              <DrawerPanel isOpen={drawerOpen} onClose={() => setDrawerOpen(false)}>
                 <p>This is the Drawer Content</p>
               </DrawerPanel>
             </LayoutWithPanel>
@@ -1590,11 +1610,12 @@ function Page() {
               Question Card
             </h2>
 
-            <QuestionEdit
+            <QuestionEditCard
               key={2552}
               id="24"
               text="This is a question"
               link="/edit"
+              name="question"
             />
 
 
@@ -1625,6 +1646,7 @@ function Page() {
                 label="Institution"
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
+                resultsKey="affiliations"
                 setOtherField={setOtherField}
                 required={true}
                 helpText="Search for your institution"
@@ -1886,8 +1908,55 @@ function Page() {
             <hr />
             <DmpEditor content={editorContent} setContent={setEditorContent} />
           </div>
+
+          <div id="_toast">
+            <h2>Toast Messages</h2>
+            <p>
+              Toast messages are used to provide brief, non-intrusive feedback to users about an action they&apos;ve taken within an application.
+              For instance, if they successfully submit a form, we want to give them some feedback to reassure them that the change went through successfully.
+            </p>
+            <p>
+              To implement toast messages in our app, we are using <strong>useToast React Aria Component</strong>. Documentation about this can be found here: <a href="https://react-spectrum.adobe.com/react-aria/useToast.html">https://react-spectrum.adobe.com/react-aria/useToast.html</a>.
+              We chose to implement this option because it helps make toast messages accessible by:
+            </p>
+            <ul>
+              <li>rendering a <em>landmark region</em>, which keyboard users can easily jump to</li>
+              <li>to restore focus to where it was before
+                navigating to the toast</li>
+              <li>and use of ARIA roles and attributes</li>
+            </ul>
+
+            <h3>Toast Types</h3>
+            <p>There are three different types of toasts: info, success, and error.</p>
+            <ul style={{ listStyleType: 'none' }}>
+              <li style={{ marginTop: '15px' }}>
+                <Button onPress={() => toastState.add('This is an INFO message', { type: 'info', key: 'info', timeout: 5000 })}>Show info toast</Button>
+              </li>
+              <li style={{ marginTop: '15px' }}>
+                <Button onPress={() => toastState.add('This is a SUCCESS message', { type: 'success', key: 'success', timeout: 5000 })}>Show success toast</Button>
+              </li>
+              <li style={{ marginTop: '15px' }}>
+                <Button onPress={() => toastState.add('This is an ERROR message', { type: 'error', key: 'error', timeout: 5000 })}>Show error toast</Button>
+              </li>
+            </ul>
+
+
+            <h3>Toast Options</h3>
+            <p>There is the option to set a timeout for the toast message. The default timeout is currently set to 5 seconds. </p>
+            <div>
+              <Button onPress={() => toastState.add('Toast is done!', { timeout: 1000 })}>Show toast with timeout of 1 second</Button>
+            </div>
+            <p>There is also the option to set a priority. The highest priority will sit at the top. Currently, the toast messages are configured to show a max of three messages at a time.</p>
+            <div>
+              <Button onPress={() => toastState.add('Highest priority!', { priority: 1 })}>Show toast with High Priority</Button>
+            </div>
+            <p>Toast messages even stay around after a page redirect.</p>
+            <div>
+              <Button onPress={showToastAndRedirect}>Show toast with redirect</Button>
+            </div>
+          </div>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutWithPanel >
     </>
   )
 }

@@ -8,3 +8,12 @@ mutation CreateTemplateVersion($templateId: Int!, $comment: String, $versionType
     name
   }
 }
+
+mutation AddTemplate($name: String!, $copyFromTemplateId: Int) {
+  addTemplate(name: $name, copyFromTemplateId: $copyFromTemplateId) {
+    id
+    errors
+    description
+    name
+  }
+}

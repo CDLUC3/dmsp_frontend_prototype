@@ -41,7 +41,7 @@ jest.mock('@/components/TemplateListItem', () => {
 
 // Will pass this mock data back when query is made for templates
 const mockTemplateData = {
-  templates: [{
+  myTemplates: [{
     name: 'UCOP',
     description: 'University of California Office of the President',
     modified: '2024-11-20 00:00:00',

@@ -1,9 +1,10 @@
-import { onError } from "@apollo/client/link/error";
-import { Observable } from "@apollo/client";
+import {onError} from "@apollo/client/link/error";
+import {Observable} from "@apollo/client";
 import logECS from "@/utils/clientLogger";
-import { RetryLink } from "@apollo/client/link/retry";
-import { createAuthLink } from "@/utils/authLink";
-import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
+import {RetryLink} from "@apollo/client/link/retry";
+import {createAuthLink} from "@/utils/authLink";
+import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
+import {getApolloClient} from './apolloClient';
 
 interface CustomError extends Error {
   customInfo?: { errorMessage: string }
@@ -19,6 +20,11 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
               try {
                 const result = await refreshAuthTokens();
                 if (result) {
+                  const client = getApolloClient();
+                  if (client) {
+                    await client.resetStore();
+                  }
+
                   forward(operation).subscribe({
                     next: observer.next.bind(observer),
                     error: observer.error.bind(observer),

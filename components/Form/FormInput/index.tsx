@@ -6,13 +6,13 @@ import {
   Text,
   TextField,
 } from "react-aria-components";
-import styles from './formInput.module.scss';
 
 interface InputProps {
   name: string;
   type?: string;
   label: string;
   placeholder?: string;
+  ariaDescribedBy?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
@@ -26,6 +26,7 @@ const FormInput: React.FC<InputProps> = ({
   type,
   label,
   placeholder,
+  ariaDescribedBy,
   value,
   onChange,
   className = '',
@@ -39,7 +40,7 @@ const FormInput: React.FC<InputProps> = ({
       <TextField
         name={name}
         type={type}
-        className={`${className} ${isInvalid ? 'field-error' : ''}`}
+        className={`${className} react-aria-TextField ${isInvalid ? 'field-error' : ''}`}
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >
@@ -50,6 +51,7 @@ const FormInput: React.FC<InputProps> = ({
           placeholder={placeholder}
           onChange={onChange}
           value={value}
+          aria-describedby={ariaDescribedBy}
         />
 
         {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
