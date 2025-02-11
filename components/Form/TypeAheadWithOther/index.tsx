@@ -19,6 +19,7 @@ import logECS from '@/utils/clientLogger';
 
 type TypeAheadInputProps = {
     graphqlQuery: DocumentNode;
+    resultsKey: string;
     label: string;
     placeholder?: string;
     helpText?: string;
@@ -28,6 +29,8 @@ type TypeAheadInputProps = {
     error?: string;
     updateFormData: Function; //Function to update the typeahead field value in the parent form data
     value?: string;
+    className?: string;
+    otherText?: string;
 }
 
 type SuggestionInterface = {
@@ -46,7 +49,10 @@ const TypeAheadWithOther = ({
     required,
     error,
     updateFormData,
-    value
+    value,
+    className,
+    resultsKey,
+    otherText = "Other",
 }: TypeAheadInputProps) => {
     const [inputValue, setInputValue] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string>('');
@@ -56,7 +62,7 @@ const TypeAheadWithOther = ({
     const [debouncedValue, setDebouncedValue] = useState(inputValue);
     const [currentListItemFocused, setCurrentListItemFocused] = useState(-1);
     const [activeDescendentId, setActiveDescendentId] = useState<string>("");
-    const [otherSelected, setOtherSelected] = useState(false);
+    const [otherSelected, setOtherSelected] = useState<boolean>(false);
     const [open, setOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement | null>(null);
     const listRef = useRef<HTMLUListElement | null>(null);
@@ -95,7 +101,6 @@ const TypeAheadWithOther = ({
         }
     }
 
-
     const handleInputClick = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         setOpen(true);
         setOtherField(false);
@@ -110,6 +115,7 @@ const TypeAheadWithOther = ({
         const activeDescendentId = (e.target as HTMLLIElement | HTMLInputElement).id;
 
         const dataId = (e.target as HTMLElement).dataset.id;
+        const dataValue = (e.target as HTMLElement).dataset.value;
         await updateFormData(dataId, item);
 
         setSelected(item);
@@ -121,7 +127,7 @@ const TypeAheadWithOther = ({
             inputRef.current.focus();
         }
 
-        if (item.toLowerCase() === 'other(organization not listed)') {
+        if (dataValue === "other") {
             setOtherField(true);
             setOtherSelected(true);
         } else {
@@ -149,7 +155,6 @@ const TypeAheadWithOther = ({
             listItems = Array.from(listRef.current.childNodes);
         }
 
-
         if (["ArrowUp", "ArrowDown", "Enter"].includes(e.key)) {
             e.preventDefault();
         }
@@ -161,6 +166,7 @@ const TypeAheadWithOther = ({
                     focusListItem(currentListItemFocused + 1);
                 }
                 break;
+
             case "ArrowUp":
                 // Allow user to navigate through list items using up arrow key
                 if (currentListItemFocused > 0) {
@@ -175,23 +181,16 @@ const TypeAheadWithOther = ({
                     }
                 }
                 break;
+
             case 'Enter':
-                //If user hits "Enter" on a list item, then set as current input value
+                // If user hits "Enter" on a list item, then set as current
+                // input value
                 if (currentListItemFocused !== -1) {
                     handleSelection(e)
-                    //setOtherSelected(false);
+                    // setOtherSelected(false);
                 }
                 break;
-            case "Tab":
-                setCurrentListItemFocused(-1);
-                // If the entered value is not in the response, then don't let user tab
-                const hasSelectedValue = (suggestions ? suggestions.some(item => item.displayName === selected) : false) || otherSelected === true;
 
-                if (!hasSelectedValue) {
-                    e.preventDefault();
-                }
-
-                break;
             default:
                 if (/([a-zA-Z0-9_]|ArrowLeft|ArrowRight)/.test(e.key)) {
                     // If list item is focused and user presses an alphanumeric key, or left or right
@@ -237,8 +236,10 @@ const TypeAheadWithOther = ({
                 });
 
                 if (!signal.aborted) {
-                    const affiliations = data.affiliations;
-                    setSuggestions(affiliations);
+                    if (!resultsKey) {
+                      throw Error("'resultsKey' property is missing on typeahead field, please provide the key that contain the results data.");
+                    }
+                    setSuggestions(data[resultsKey]);
                     setOpen(true);
                 }
 
@@ -252,7 +253,7 @@ const TypeAheadWithOther = ({
                 }
             }
         }
-        if (debouncedValue && debouncedValue !== '') {
+        if (debouncedValue !== '' && debouncedValue !== otherText) {
             setShowSuggestionSpinner(true);
             fetchSuggestions(debouncedValue);
         }
@@ -282,152 +283,105 @@ const TypeAheadWithOther = ({
     }, []);
 
     return (
-        <>
-            <div className={`${styles.autocompleteContainer} ${styles.expanded}`} aria-expanded={open} role="combobox">
-
-                {required ? (
-                    <TextField
-                        name="lastName"
-                        type="text"
-                        className={(!!errorMessage || !!error) ? styles.fieldError : ''}
-                        isInvalid={!!errorMessage}
-                    >
-                        <Label>{label}</Label>
-                        <Input
-                            name={fieldName}
-                            type="text"
-                            value={inputValue}
-                            role="textbox"
-                            aria-controls="results"
-                            aria-activedescendant={activeDescendentId}
-                            className={classNames('react-aria-Input', styles.searchInput)}
-                            onChange={handleUpdate}
-                            onClick={handleInputClick}
-                            onKeyDown={handleKeyboardEvents}
-                            placeholder={placeholder ? placeholder : 'Type to search...'}
-                            ref={inputRef}
-                            autoComplete="off"
-                        />
-                        {/*<FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>*/}
-                        {error ? (<div className={styles.errorMessage}>{error}</div>) : <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>}
-                        {helpText && (
-                            <Text slot="description" className='help-text'>
-                                {helpText}
-                            </Text>
-                        )}
-                        <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
-                            isActive={showSuggestionSpinner} />
-
-                        {/*Visually hidden element for screen readers */}
-                        <div
-                            aria-live="polite"
-                            className="hidden-accessibly">
-                            {showSuggestionSpinner ? "Loading..." : ""}
-                        </div>
-
-                        <div
-                            className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
-                            onClick={e => e.preventDefault()}
-                            tabIndex={-1}
-                            aria-hidden="true"
-                        >
-                            <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
-                                <title>Open drop down</title>
-                                <path d="M10 0L5 5 0 0z"></path>
-                            </svg>
-                        </div>
-                    </TextField>
-                ) : (
-                    <TextField>
-                        <Label>{label}</Label>
-                        <Input
-                            name={fieldName}
-                            type="text"
-                            value={inputValue}
-                            role="textbox"
-                            aria-controls="results"
-                            aria-activedescendant={activeDescendentId}
-                            className={classNames('react-aria-Input', styles.searchInput)}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onClick={handleInputClick}
-                            onKeyDown={handleKeyboardEvents}
-                            placeholder={placeholder ? placeholder : 'Type to search...'}
-                            ref={inputRef}
-                            autoComplete="off"
-                        />
-
-                        <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
-                            isActive={showSuggestionSpinner} />
-
-                        {/*Visually hidden element for screen readers */}
-                        <div
-                            aria-live="polite"
-                            className="hidden-accessibly">
-                            {showSuggestionSpinner ? "Loading..." : ""}
-                        </div>
-
-                        <div
-                            className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
-                            onClick={e => e.preventDefault()}
-                            tabIndex={-1}
-                            aria-hidden="true"
-                        >
-                            <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
-                                <title>Open drop down</title>
-                                <path d="M10 0L5 5 0 0z"></path>
-                            </svg>
-                        </div>
-                        <p className={styles.helpText}>{helpText}</p>
-                    </TextField>
-                )}
-
-                <ul
-                    className={`${styles.autocompleteResults} ${open ? styles.visible : ''}`}
-                    ref={listRef}
-                    id="results"
-                    role="listbox"
+        <div className={`${styles.autocompleteContainer} ${styles.expanded} ${className}`} aria-expanded={open} role="combobox">
+            <TextField
+                type="text"
+                className={(!!errorMessage || !!error) ? styles.fieldError : ''}
+                isInvalid={!!errorMessage}
+                isRequired={required}
+            >
+                <Label>{label}</Label>
+                <Input
+                    name={fieldName}
+                    type="text"
+                    value={inputValue}
+                    role="textbox"
+                    aria-controls="results"
+                    aria-activedescendant={activeDescendentId}
+                    className={classNames('react-aria-Input', styles.searchInput)}
+                    onChange={handleUpdate}
+                    onClick={handleInputClick}
                     onKeyDown={handleKeyboardEvents}
-                    tabIndex={-1}
-                >
-                    {suggestions && suggestions.length > 0 && (
-                        <>
-                            <li
-                                key="other"
-                                ref={(el) => {
-                                    listItemRefs.current[0] = el;
-                                }}
-                                onClick={handleSelection}
-                                className={`${styles.otherOption} ${styles.autocompleteItem}`}
-                                id="autocompleteItem-0"
-                                role="listitem"
-                                data-value="other"
-                                tabIndex={-1}>
-                                Other(organization not listed)
-                            </li>
+                    placeholder={placeholder ? placeholder : 'Type to search...'}
+                    ref={inputRef}
+                    autoComplete="off"
+                />
+                {/*<FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>*/}
+                {error ? (<div className={styles.errorMessage}>{error}</div>) : <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>}
+                {helpText && (
+                    <Text slot="description" className={styles.helpText}>
+                        {helpText}
+                    </Text>
+                )}
+                <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}
+                    isActive={showSuggestionSpinner} />
 
-                            {suggestions?.map((suggestion, index) => {
-                                if (suggestion.displayName !== '') {
-                                    return (
-                                        <li
-                                            key={index}
-                                            className={styles.autocompleteItem}
-                                            id={`autocompleteItem-${index + 1}`}
-                                            role='listitem'
-                                            data-id={suggestion?.uri}
-                                            onClick={handleSelection}
-                                            tabIndex={-1}
-                                            ref={(el) => {
-                                                listItemRefs.current[index + 1] = el;
-                                            }}
-                                        >{suggestion.displayName}</li>
-                                    )
-                                }
-                            })}
-                        </>
-                    )}
-                </ul>
-            </div>
-        </>
+                {/*Visually hidden element for screen readers */}
+                <div
+                    aria-live="polite"
+                    className="hidden-accessibly">
+                    {showSuggestionSpinner ? "Loading..." : ""}
+                </div>
+
+                <div
+                    className={`${styles.autocompleteDropdownArrow} ${open ? styles.expanded : ""}`}
+                    onClick={e => e.preventDefault()}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                >
+                    <svg width="10" height="5" viewBox="0 0 10 5" fillRule="evenodd">
+                        <title>Open drop down</title>
+                        <path d="M10 0L5 5 0 0z"></path>
+                    </svg>
+                </div>
+            </TextField>
+
+            <ul
+                className={`${styles.autocompleteResults} ${open ? styles.visible : ''}`}
+                ref={listRef}
+                id="results"
+                role="listbox"
+                onKeyDown={handleKeyboardEvents}
+                tabIndex={-1}
+            >
+                {suggestions && suggestions.length > 0 && (
+                    <>
+                        <li
+                            key="other"
+                            ref={(el) => {
+                                listItemRefs.current[0] = el;
+                            }}
+                            onClick={handleSelection}
+                            className={`${styles.otherOption} ${styles.autocompleteItem}`}
+                            id="autocompleteItem-0"
+                            role="listitem"
+                            data-value="other"
+                            tabIndex={-1}>
+                            {otherText}
+                        </li>
+
+                        {suggestions?.map((suggestion, index) => {
+                            if (suggestion.displayName !== '') {
+                                return (
+                                    <li
+                                        key={index}
+                                        className={styles.autocompleteItem}
+                                        id={`autocompleteItem-${index + 1}`}
+                                        role='listitem'
+                                        data-id={suggestion?.uri}
+                                        onClick={handleSelection}
+                                        tabIndex={-1}
+                                        ref={(el) => {
+                                            listItemRefs.current[index + 1] = el;
+                                        }}
+                                    >{suggestion.displayName}</li>
+                                )
+                            }
+                        })}
+                    </>
+                )}
+            </ul>
+        </div>
     );
 };
 
