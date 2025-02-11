@@ -65,6 +65,12 @@ const ProjectsProjectPlanAdjustFunding = () => {
               </Radio>
             </RadioGroup>
 
+            <p>
+              <strong>
+                Note: Changing the funder may require a template change. Only
+                change if you are sure.
+              </strong>
+            </p>
 
             <Button
               type="submit"
@@ -72,6 +78,20 @@ const ProjectsProjectPlanAdjustFunding = () => {
               Save
             </Button>
           </Form>
+
+
+          <h3 className="mt-8">
+            Adding a new funder?
+          </h3>
+          <p>
+            If you want to add a new funder, you can add a new funder at the
+            project level. This project can have multiple funders, whereas each
+            plan can only have a single funder as we match it to the required
+            template.
+          </p>
+          <a href={"/projects/proj_2425/funder/"} >
+            Add a new funder
+          </a>
 
 
         </ContentContainer>
