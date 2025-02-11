@@ -13,17 +13,11 @@ import {
 import {DmpEditor} from "@/components/Editor";
 import {Card,} from "@/components/Card/card";
 
-interface Question {
-  id: string;
-  title: string;
-  link: string;
-  isAnswered: boolean;
-}
 
 const PlanOverviewQuestionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
   const html = String.raw;
-  const richtextDefault = html`test`;
+  const richtextDefault = html`test...`;
   const [editorContent, setEditorContent] = useState(richtextDefault);
 
   const plan = {
@@ -33,26 +27,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     funder_name: "National Science Foundation"
   };
 
-  const questions: Question[] = [
-    {
-      id: "q1",
-      title: "What types of data, samples, collections, software, materials, etc. will be produced during your project?",
-      link: "/en-US/projects/proj_2425/dmp/xxx/q/2544",
-      isAnswered: true
-    },
-    {
-      id: "q2",
-      title: "What type of metadata (information others might need to use your data) will be collected during...",
-      link: "/en-US/projects/proj_2425/dmp/xxx/q/2545",
-      isAnswered: false
-    },
-    {
-      id: "q3",
-      title: "Will all data collected be converted to open source formats?",
-      link: "/en-US/projects/proj_2425/dmp/xxx/q/2546",
-      isAnswered: false
-    }
-  ];
 
   return (
     <>
@@ -81,7 +55,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         <ContentContainer>
           <div className="container">
             <section aria-label={"Requirements"}>
-              <h4>Requirements by {plan.funder_name}</h4>
+              <h3 className={"h4"}>Requirements by {plan.funder_name}</h3>
               <p>
                 The Arctic Data Center requires when submitting to the Center,
                 include methods to create these types of data.
@@ -92,7 +66,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 conversion isn&#39;t possible, explain why
               </p>
 
-              <h4>Requirements by University of California</h4>
+              <h3 className={"h4"}>Requirements by University of California</h3>
               <p>
                 The management of data and metadata is essential for supporting
                 research integrity, reproducibility and collaboration. This
@@ -113,7 +87,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 </h2>
 
                 <DmpEditor aria-labelledby="question-title"
-                           content={"test test"}
+                           content={editorContent}
                            setContent={setEditorContent}/>
 
                 <div className="lastSaved mt-5"
@@ -126,7 +100,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
 
             <section aria-label={"Guidance"}>
-              <h4>Guidance by {plan.funder_name}</h4>
+              <h3 className={"h4"}>Guidance by {plan.funder_name}</h3>
               <p>
                 In your Data Management Plan (DMP), detail the types of data and
                 materials expected to be produced in your project. This includes
@@ -149,7 +123,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 funding.nsf.gov (open in new window)
               </p>
 
-              <h4>Guidance by University of California</h4>
+              <h3 className={"h4"}>Guidance by University of California</h3>
               <p>
                 This is the most detailed section of the data management plan.
                 Describe the categories of data being collected and how they tie

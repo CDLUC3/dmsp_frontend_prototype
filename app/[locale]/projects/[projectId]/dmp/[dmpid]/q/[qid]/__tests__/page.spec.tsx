@@ -16,6 +16,10 @@ jest.mock('@/components/PageHeader', () => ({
   default: () => <div data-testid="mock-page-header" />,
 }));
 
+// Mock the DmpEditor component
+jest.mock('@/components/Editor', () => ({
+  DmpEditor: () => <div data-testid="mocked-editor">Mocked Editor</div>
+}));
 
 
 describe('PlanOverviewQuestionPage', () => {
@@ -26,7 +30,7 @@ describe('PlanOverviewQuestionPage', () => {
   });
 
   // Placeholder for future tests
-  it.todo('should handle form submission');
-  it.todo('should handle access revocation');
+  //it.todo('should handle form submission');
+  //it.todo('should handle access revocation');
 });
 

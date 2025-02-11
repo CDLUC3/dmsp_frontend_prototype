@@ -73,7 +73,7 @@ const ProjectsProjectResearchOutputs = () => {
         actions={
           <>
             <Button
-              onPress={() => window.location.href = '/projects/proj_2425/research-outputs/add'}
+              onPress={() => window.location.href = '/projects/proj_2425/research-outputs/edit'}
               className="secondary"
               aria-label="Add new research output"
             >

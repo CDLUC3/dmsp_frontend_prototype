@@ -11,34 +11,6 @@ import {
   SidebarPanel
 } from "@/components/Container";
 
-interface PlanSection {
-  section_title: string;
-  link: string;
-  id: string;
-  progress: number;
-}
-
-interface PlanMember {
-  fullname: string;
-  role: string;
-  email: string;
-}
-
-interface Plan {
-  id: string;
-  template_name: string;
-  funder_id: string;
-  funder_name: string;
-  template_id: string;
-  sections: PlanSection[];
-  doi: string;
-  last_updated: string;
-  created_date: string;
-  published_status: string;
-  visibility: string;
-  members: PlanMember[];
-  research_output_count: number;
-}
 
 const PlanOverviewPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
