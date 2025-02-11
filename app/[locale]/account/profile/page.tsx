@@ -415,6 +415,7 @@ const ProfilePage: React.FC = () => {
                             label="Institution"
                             fieldName="institution"
                             graphqlQuery={AffiliationsDocument}
+                            resultsKey="affiliations"
                             setOtherField={setOtherField}
                             required={true}
                             error={errors['affiliationId'] ?? ''}
