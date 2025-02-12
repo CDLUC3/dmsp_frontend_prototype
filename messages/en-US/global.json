@@ -128,7 +128,10 @@
     "buttons": {
       "search": "Search",
       "select": "Select",
-      "next": "Next"
+      "next": "Next",
+      "linkUpdate": "Update",
+      "linkExpand": "Expand",
+      "linkCollapse": "Collapse"
     },
     "labels": {
       "searchByKeyword": "Search by keyword"

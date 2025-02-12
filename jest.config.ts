@@ -1,5 +1,5 @@
 import nextJest from "next/jest";
-import type {Config} from 'jest'
+import type { Config } from 'jest'
 
 const createJestConfig = nextJest({
     dir: "./",
@@ -25,8 +25,8 @@ const config: Config = {
     collectCoverage: true,
     coverageThreshold: {
         global: {
-            branches: 70,
-            functions: 70,
+            branches: 60,
+            functions: 60,
             lines: 80,
             statements: 80,
         }

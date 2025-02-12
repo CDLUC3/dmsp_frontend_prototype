@@ -77,7 +77,7 @@ const ProjectsListPage: React.FC = () => {
   const Project = useTranslations('ProjectsListPage');
 
   // Query for projects
-  const { data = {}, loading, error: queryError } = useMyProjectsQuery({
+  const { data = {}, loading } = useMyProjectsQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
@@ -254,41 +254,40 @@ const ProjectsListPage: React.FC = () => {
           </div>
 
 
-          <div className="template-list" aria-label="Template list" role="list">
-            {filteredProjects && filteredProjects.length > 0 ? (
+          {filteredProjects && filteredProjects.length > 0 ? (
+            <div className="template-list" aria-label="Template list" role="list">
+              {
+                filteredProjects.map((project, index) => (
+                  <ProjectListItem
+                    key={index}
+                    item={project} />
+                ))
+              }
+            </div>
+          ) : (
+            <>
               <div className="template-list" aria-label="Template list" role="list">
-                {
-                  filteredProjects.map((project, index) => (
-                    <ProjectListItem
-                      key={index}
-                      item={project} />
-                  ))
+                {(searchTerm.length > 0 && searchButtonClicked) ? (
+                  <>
+                    <p>{Global('messaging.noItemsFound')}</p>
+                  </>
+                ) : (
+                  <>
+                    {
+                      projects.map((project, index) => (
+                        <ProjectListItem
+                          key={index}
+                          item={project} />
+                      ))
+                    }
+                  </>
+                )
                 }
               </div>
-            ) : (
-              <>
-                <div className="template-list" aria-label="Template list" role="list">
-                  {(searchTerm.length > 0 && searchButtonClicked) ? (
-                    <>
-                      <p>{Global('messaging.noItemsFound')}</p>
-                    </>
-                  ) : (
-                    <>
-                      {
-                        projects.map((project, index) => (
-                          <ProjectListItem
-                            key={index}
-                            item={project} />
-                        ))
-                      }
-                    </>
-                  )
-                  }
-                </div>
-              </>
-            )
-            }
-          </div>
+            </>
+          )
+          }
+
 
         </ContentContainer>
       </LayoutContainer>

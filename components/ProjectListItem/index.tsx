@@ -8,7 +8,8 @@ import styles from './projectList.module.scss';
 
 function ProjectListItem({ item }: { item: ProjectItemProps }) {
   const [expanded, setExpanded] = useState<boolean>(item.defaultExpanded);
-  const t = useTranslations('OrganizationTemplates');
+  const t = useTranslations('ProjectOverview');
+  const Global = useTranslations('Global')
   const toggleExpand = () => {
     setExpanded((prevExpanded) => !prevExpanded);
   };
@@ -28,7 +29,7 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
               <h2 id="project-title">{t('project')}</h2>
               <h3 id={headingId}>
                 {item.link ? (
-                  <Link href={item.link} aria-label={`${t('linkUpdate')} ${item.title}`}
+                  <Link href={item.link} aria-label={`${Global('buttons.linkUpdate')} ${item.title}`}
                     className={styles.titleLink}>
                     {item.title}
                   </Link>
@@ -43,21 +44,21 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
 
         <div className={styles.TemplateItemActions}>
           {item.link && (
-            <Link href={item.link} aria-label={`${t('linkUpdate')} ${item.title}`}
+            <Link href={item.link} aria-label={`${Global('buttons.linkUpdate')} ${item.title}`}
               className={styles.updateLink}>
-              {t('linkUpdate')}
+              {Global('buttons.linkUpdate')}
             </Link>
           )}
 
           <Button
             aria-expanded={expanded}
             aria-controls={expandedContentId}
-            aria-label={`${expanded ? t('linkCollapse') : t('linkExpand')} details for ${item.title}`}
+            aria-label={`${expanded ? Global('buttons.linkCollapse') : Global('buttons.linkExpand')} details for ${item.title}`}
             onPress={toggleExpand}
             className={styles.expandButton}
           >
-            <span>{expanded ? t('linkCollapse') : t('linkExpand')}</span>
-            <span className="sr-only">{t('details')}</span>
+            <span>{expanded ? Global('buttons.linkCollapse') : Global('buttons.linkExpand')}</span>
+            <span className="sr-only">{t('projectDetails')}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"

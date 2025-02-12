@@ -1,20 +1,17 @@
 import React from 'react';
 import {
-  act,
   fireEvent,
   render,
-  renderWithProviders,
   screen,
   waitFor,
 } from '@/utils/test-utils';
-import {axe, toHaveNoViolations} from 'jest-axe';
 import logECS from '@/utils/clientLogger';
 
 import LoginPage from '../page';
 
 //Need to import this useRouter after the jest.mock is in place
-import {useRouter} from 'next/navigation';
-import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
+import { useRouter } from 'next/navigation';
+import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 
 
 jest.mock('next/navigation', () => ({
@@ -334,7 +331,7 @@ describe('LoginPage', () => {
 
     // Check that user is redirected to 500 error page
     await waitFor(() => {
-        expect(mockUseRouter().push).toHaveBeenCalledWith('/500-error')
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/500-error')
     })
   });
 
