@@ -121,14 +121,17 @@
       "editSection": "Editar seção",
       "editTemplate": "Editar Modelo",
       "question": "Pergunta",
-      "projects": "Projects"
+      "projects": "Projetos"
     },
-    "lastRevisedBy": "Last revised by",
+    "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
-      "next": "Seguinte"
+      "next": "Seguinte",
+      "linkUpdate": "Atualização",
+      "linkExpand": "Expandir",
+      "linkCollapse": "Retrair"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave"
@@ -144,7 +147,7 @@
       "noItemsFound": "Nenhum item encontrado",
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
-      "fixBelow": "Please fix the errors below"
+      "fixBelow": "Por favor, corrija os erros abaixo"
     }
   }
 }
