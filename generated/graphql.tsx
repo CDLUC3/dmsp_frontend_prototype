@@ -2839,6 +2839,7 @@ export type UserEmailErrors = {
 export type UserErrors = {
   __typename?: 'UserErrors';
   affiliationId?: Maybe<Scalars['String']['output']>;
+  confirmPassword?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   emailIds?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
@@ -3156,7 +3157,7 @@ export type UpdateSectionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSectionMutation = { __typename?: 'Mutation', updateSection: { __typename?: 'Section', id?: number | null, name: string, introduction?: string | null, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null } };
+export type UpdateSectionMutation = { __typename?: 'Mutation', updateSection: { __typename?: 'Section', id?: number | null, name: string, introduction?: string | null, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, introduction?: string | null, requirements?: string | null, guidance?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null } };
 
 export type ArchiveTemplateMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -3357,7 +3358,9 @@ export const UpdateSectionDocument = gql`
     errors {
       general
       name
-      displayOrder
+      introduction
+      requirements
+      guidance
     }
     bestPractice
     tags {

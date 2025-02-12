@@ -44,7 +44,6 @@ export interface MyVersionedTemplatesInterface {
   modifiedById?: number | null;
   versionType?: string | null;
   visibility: string;
-  errors?: string[] | null;
   template?: {
     __typename?: string; // Match GraphQL's optional __typename
     id?: number | null;
@@ -121,7 +120,6 @@ export interface TagsInterface {
 
 export interface QuestionTypesInterface {
   id: number;
-  errors: string[];
   name: string;
   usageDescription: string;
 }

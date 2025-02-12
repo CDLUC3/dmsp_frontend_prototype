@@ -39,7 +39,9 @@ mutation UpdateSection($input: UpdateSectionInput!) {
     errors {
       general
       name
-      displayOrder
+      introduction
+      requirements
+      guidance
     }
     bestPractice
     tags {
