@@ -3,19 +3,6 @@ mutation AddTemplateCollaborator($templateId: Int!, $email: String!) {
     errors
     email
     id
-    invitedBy {
-      id
-      givenName
-      surName
-      email
-      notify_on_comment_added
-      notify_on_feedback_complete
-      notify_on_plan_shared
-      notify_on_plan_visibility_change
-      notify_on_template_shared
-      role
-      ssoId
-    }
   }
 }
 
