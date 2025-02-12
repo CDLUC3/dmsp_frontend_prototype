@@ -91,18 +91,18 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
               <h2 id="project-title" className={styles.projectDetails}>{t('projectDetails')}</h2>
               <div className={styles.container}>
                 <div className={styles.section}>
-                  <h2 id="project-title">{t('dates')}</h2>
+                  <h3 id="project-title">{t('dates')}</h3>
                   <p>{item.startDate} to {item.endDate}</p>
                 </div>
                 <div className={styles.section}>
-                  <h2 id="project-title">{t('collaborators')}</h2>
+                  <h3 id="project-title">{t('collaborators')}</h3>
                   {item.collaborators.map((collaborator, index) => (
                     <p key={index}>{collaborator.name}{collaborator.roles.length > 0 ? `(${collaborator.roles})` : ''}</p>
                   ))}
 
                 </div>
                 <div className={styles.section}>
-                  <h2 id="project-title">{t('funding')}</h2>
+                  <h3 id="project-title">{t('funding')}</h3>
                   <p>{item.funder}</p>
                   {item?.grantId ? (
                     <p>{t('grantId')}: {item.grantId}</p>
@@ -110,7 +110,7 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
 
                 </div>
                 <div className={styles.section}>
-                  <h2 id="project-title">{t('researchOutputs')}</h2>
+                  <h3 id="project-title">{t('researchOutputs')}</h3>
                   <p>TBD</p>
                 </div>
               </div>

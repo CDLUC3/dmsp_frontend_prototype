@@ -122,6 +122,9 @@
 }
 
 .overview h2.projectDetails {
-  font-weight: 700;
+  @include device(md) {
+    margin-bottom: var(--space-1);
+  }
+  margin-bottom: var(--space-5);
 }
 

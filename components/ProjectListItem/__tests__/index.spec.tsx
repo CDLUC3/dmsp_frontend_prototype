@@ -56,15 +56,15 @@ describe('ProjectListItem', () => {
     fireEvent.click(expandButton);
 
     expect(screen.getByRole('heading', { level: 2, name: /projectDetails/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: /dates/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: /dates/i })).toBeInTheDocument();
     expect(screen.getByText('2023-01-01 to 2023-12-31')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: /collaborators/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: /collaborators/i })).toBeInTheDocument();
     expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
     expect(screen.getByText(/\(Researcher\)/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: /funding/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: /funding/i })).toBeInTheDocument();
     expect(screen.getByText('NSF')).toBeInTheDocument();
     expect(screen.getByText(/grantId: GRANT123/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: /researchOutputs/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: /researchOutputs/i })).toBeInTheDocument();
 
     const collapseButton = screen.getByRole('button', { name: /buttons.linkCollapse/i });
     fireEvent.click(collapseButton);
