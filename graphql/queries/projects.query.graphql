@@ -18,6 +18,9 @@ query MyProjects {
         name
         uri
       }
+      grantId
+      funderOpportunityNumber
+      funderProjectNumber
     }
     modified
     modifiedById

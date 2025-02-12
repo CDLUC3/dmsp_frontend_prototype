@@ -87,7 +87,7 @@
     "btnUpdate": "Atualização",
     "btnAdd": "Adicionar",
     "linkUpdatePassword": "Atualizar senha",
-    "linkUpdateConnections": "Update connections",
+    "linkUpdateConnections": "Atualizar conexão?",
     "linkManageNotifications": "Atualizar conexão?",
     "messages": {
       "profileUpdateSuccess": "Formulário de perfil atualizado com sucesso.",
@@ -120,9 +120,10 @@
       "section": "Seção",
       "editSection": "Editar seção",
       "editTemplate": "Editar Modelo",
-      "question": "Pergunta"
+      "question": "Pergunta",
+      "projects": "Projects"
     },
-    "lastRevisedBy": "Última revisão por",
+    "lastRevisedBy": "Last revised by",
     "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
@@ -130,22 +131,20 @@
       "next": "Seguinte"
     },
     "labels": {
-      "searchByKeyword": ""
+      "searchByKeyword": "Pesquisar por palavra-chave"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
     },
-    "labels": {
-      "searchByKeyword": ""
-    },
     "links": {
-      "clearFilter": "clear filter"
+      "clearFilter": "limpar filtro"
     },
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
-      "resultsText": "{name} results match your search"
+      "resultsText": "Os resultados {name} correspondem à sua pesquisa",
+      "fixBelow": "Please fix the errors below"
     }
   }
 }

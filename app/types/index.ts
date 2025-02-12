@@ -153,17 +153,12 @@ export interface QuestionTypesInterface {
 
 export interface ProjectItemProps {
   id?: number | null;
-  template?: {
-    id?: number | null;
-  };
   title: string;
   content?: JSX.Element | null;
   description?: string;
   link?: LinkHref;
   defaultExpanded: boolean;
   funder?: string;
-  lastUpdated?: string | null;
-  publishStatus?: string | null;
   startDate: string;
   endDate: string;
   collaborators: {
@@ -171,6 +166,7 @@ export interface ProjectItemProps {
     roles: string[];
     orcid?: string | null;
   }[];
+  grantId?: string | null;
 }
 
 export interface ProjectContributor {

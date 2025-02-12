@@ -2824,7 +2824,7 @@ export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typen
 export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'Project', title: string, id?: number | null, startDate?: string | null, endDate?: string | null, modified?: string | null, modifiedById?: number | null, created?: string | null, createdById?: number | null, contributors?: Array<{ __typename?: 'ProjectContributor', surName?: string | null, givenName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string, id?: number | null }> | null }> | null, funders?: Array<{ __typename?: 'ProjectFunder', affiliation?: { __typename?: 'Affiliation', name: string, uri: string } | null }> | null } | null> | null };
+export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'Project', title: string, id?: number | null, startDate?: string | null, endDate?: string | null, modified?: string | null, modifiedById?: number | null, created?: string | null, createdById?: number | null, contributors?: Array<{ __typename?: 'ProjectContributor', surName?: string | null, givenName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string, id?: number | null }> | null }> | null, funders?: Array<{ __typename?: 'ProjectFunder', grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, uri: string } | null }> | null } | null> | null };
 
 export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3386,6 +3386,9 @@ export const MyProjectsDocument = gql`
         name
         uri
       }
+      grantId
+      funderOpportunityNumber
+      funderProjectNumber
     }
     modified
     modifiedById

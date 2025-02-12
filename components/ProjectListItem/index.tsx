@@ -13,8 +13,6 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
     setExpanded((prevExpanded) => !prevExpanded);
   };
 
-  console.log("***ITEM", item)
-
   // Create unique IDs for ARIA relationships
   const expandedContentId = `${item.title.toLowerCase().replace(/\s+/g, '-')}-content`;
   const headingId = `${item.title.toLowerCase().replace(/\s+/g, '-')}-heading`;
@@ -27,7 +25,7 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
             <section
               className="project-overview-item project-header"
               aria-labelledby="project-title">
-              <h2 id="project-title">Project</h2>
+              <h2 id="project-title">{t('project')}</h2>
               <h3 id={headingId}>
                 {item.link ? (
                   <Link href={item.link} aria-label={`${t('linkUpdate')} ${item.title}`}
@@ -40,61 +38,7 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
               </h3>
             </section>
           </div>
-          <div className="project-overview">
-            <section
-              className="project-overview-item project-header"
-              aria-labelledby="project-title">
-              <h2 id="project-title">Project details</h2>
-              <div className={styles.container}>
-                <div className={styles.section}>
-                  <h2 id="project-title">Dates</h2>
-                  <p>{item.startDate} to {item.endDate}</p>
-                </div>
-                <div className={styles.section}>
-                  <h2 id="project-title">Collaborators</h2>
-                  {item.collaborators.map((collaborator, index) => (
-                    <p key={index}>{collaborator.name}{collaborator.roles.length > 0 ? `(${collaborator.roles})` : ''}</p>
-                  ))}
 
-                </div>
-                <div className={styles.section}>
-                  <h2 id="project-title">Funding</h2>
-                  <p>Content for section 3.</p>
-                </div>
-                <div className={styles.section}>
-                  <h2 id="project-title">Research outputs</h2>
-                  <p>Content for section 4.</p>
-                </div>
-              </div>
-            </section>
-          </div>
-          <div className="template-content">
-            <div className={styles.statusInfo}>
-              {item.funder && (
-                <>
-                  <span className="sr-only">Funder:</span> {item.funder}
-                </>
-              )}
-              {item.lastUpdated && (
-                <>
-                  {item.funder && <span className={styles.separator}>|</span>}
-                  <span
-                    className="sr-only">Last Updated:</span> {item.lastUpdated}
-                </>
-              )}
-              {item.publishStatus && (
-                <>
-                  {(item.funder || item.lastUpdated) &&
-                    <span className={styles.separator}>|</span>}
-                  <span
-                    className="sr-only">Publish Status:</span> {item.publishStatus}
-                </>
-              )}
-            </div>
-
-
-
-          </div>
         </div>
 
         <div className={styles.TemplateItemActions}>
@@ -139,9 +83,37 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
           role="region"
           aria-labelledby={headingId}
         >
-          <p>{t('additionalInfo')}</p>
-          <div>
-            {item.content}
+          <div className="project-overview">
+            <section
+              className="project-overview-item project-header"
+              aria-labelledby="project-title">
+              <h2 id="project-title">{t('projectDetails')}</h2>
+              <div className={styles.container}>
+                <div className={styles.section}>
+                  <h2 id="project-title">{t('dates')}</h2>
+                  <p>{item.startDate} to {item.endDate}</p>
+                </div>
+                <div className={styles.section}>
+                  <h2 id="project-title">{t('collaborators')}</h2>
+                  {item.collaborators.map((collaborator, index) => (
+                    <p key={index}>{collaborator.name}{collaborator.roles.length > 0 ? `(${collaborator.roles})` : ''}</p>
+                  ))}
+
+                </div>
+                <div className={styles.section}>
+                  <h2 id="project-title">{t('funding')}</h2>
+                  <p>{item.funder}</p>
+                  {item?.grantId ? (
+                    <p>{t('grantId')}: {item.grantId}</p>
+                  ) : null}
+
+                </div>
+                <div className={styles.section}>
+                  <h2 id="project-title">{t('researchOutputs')}</h2>
+                  <p>TBD</p>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       )}

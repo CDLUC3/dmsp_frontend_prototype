@@ -58,11 +58,13 @@ interface ProjectInterface {
   modifiedById?: number | null;
   created?: string | null;
   createdById?: number | null;
+  grantId?: string | null;
 }
 
 
 const ProjectsListPage: React.FC = () => {
   const formatter = useFormatter();
+  const errorRef = useRef<HTMLDivElement | null>(null);
 
   const [projects, setProjects] = useState<(ProjectItemProps)[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
@@ -70,35 +72,56 @@ const ProjectsListPage: React.FC = () => {
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [filteredProjects, setFilteredProjects] = useState<(ProjectItemProps)[] | null>([]);
 
-  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const Global = useTranslations('Global');
+  const Project = useTranslations('ProjectsListPage');
 
   // Query for projects
-  const { data = {}, loading, error: queryError, refetch } = useMyProjectsQuery({
+  const { data = {}, loading, error: queryError } = useMyProjectsQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
-
-  console.log("***DATA", data);
-
 
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
     setSearchTerm(value);
   }
 
-  // Filter results when a user enters a search term and clicks "Search" button
+  /* Filter results when a user enters a search term and clicks "Search" button.
+  Searches through title, content, description, and collaborator fields*/
   const handleFiltering = (term: string) => {
     setSearchButtonClicked(true);
     setErrors([]);
-    const filteredList = projects.filter(item =>
-      item.title.toLowerCase().includes(term.toLowerCase())
+
+    const lowerCaseTerm = term.toLowerCase();
+
+    const filteredList = projects.filter(proj =>
+      [
+        proj.title,
+        proj.content?.toString(), // Convert JSX.Element to string if needed
+        proj.description,
+        // Ensure all collaborator fields (name, orcid, roles) are included in the search
+        proj.collaborators
+          .map(collab =>
+            [
+              collab.name.toLowerCase(),
+              collab.orcid?.toLowerCase() || "", // Handle nullable ORCID
+              collab.roles.join(" ").toLowerCase() // Convert roles array to a string
+            ].join(" ")
+          )
+          .join(" ") // Join all collaborators into one searchable string
+      ]
+        .filter(Boolean) // Remove any undefined/null values
+        .some(field => field?.toLowerCase().includes(lowerCaseTerm))
     );
+
     if (filteredList.length >= 1) {
       setSearchTerm(term);
       setFilteredProjects(filteredList);
     }
-  }
+  };
+
 
   const formatDate = (date: string | number) => {
     const parsedDate = typeof date === "number"
@@ -133,8 +156,6 @@ const ProjectsListPage: React.FC = () => {
                 </div>
               ),
               funder: (project?.funders && project?.funders[0]?.affiliation?.name) ?? '',
-              lastUpdated: (project?.modified) ? formatDate(project?.modified) : null,
-              publishStatus: 'Published',
               defaultExpanded: false,
               startDate: project?.startDate ? formatDate(project.startDate) : '',
               endDate: project?.endDate ? formatDate(project.endDate) : '',
@@ -144,7 +165,9 @@ const ProjectsListPage: React.FC = () => {
                   roles: contributor.contributorRoles ? contributor.contributorRoles.map((role) => role.label) : [],
                   orcid: contributor.orcid
                 }
-              }) : []
+              }) : [],
+              grantId: project?.grantId,
+
             }
           }));
 
@@ -172,23 +195,28 @@ const ProjectsListPage: React.FC = () => {
     }
   }, [errors]);
 
+  // TODO: Implement shared loading spinner
+  if (loading) {
+    return <div>{Global('messaging.loading')}...</div>;
+  }
+
+
   return (
     <>
       <PageHeader
-        title="Projects"
-        description="Manager or create DMSP project or by DMP"
-        showBackButton={true}
+        title={Global('breadcrumbs.projects')}
+        description={Project('intro')}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
           </Breadcrumbs>
         }
         actions={
           <>
             <Link href="/projects/create-project"
-              className={"button-link button--primary"}>Create
-              Project</Link>
+              className={"button-link button--primary"}>{Project('buttons.createProject')}</Link>
           </>
         }
         className="page-project-list"
@@ -208,7 +236,7 @@ const ProjectsListPage: React.FC = () => {
             <SearchField
               onClear={() => { setFilteredProjects(null) }}
             >
-              <Label>Search by keyword</Label>
+              <Label>{Global('labels.searchByKeyword')}</Label>
               <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
               <Button
                 onPress={() => {
@@ -216,11 +244,11 @@ const ProjectsListPage: React.FC = () => {
                   handleFiltering(searchTerm);
                 }}
               >
-                Search
+                {Global('buttons.search')}
               </Button>
               <FieldError />
               <Text slot="description" className="help">
-                Search by research organization, field station or lab, template description, etc.
+                {Global('helpText.searchHelpText')}
               </Text>
             </SearchField>
           </div>
@@ -242,7 +270,7 @@ const ProjectsListPage: React.FC = () => {
                 <div className="template-list" aria-label="Template list" role="list">
                   {(searchTerm.length > 0 && searchButtonClicked) ? (
                     <>
-                      <p>No items found</p>
+                      <p>{Global('messaging.noItemsFound')}</p>
                     </>
                   ) : (
                     <>
@@ -264,8 +292,6 @@ const ProjectsListPage: React.FC = () => {
 
         </ContentContainer>
       </LayoutContainer>
-
-
     </>
   );
 }
