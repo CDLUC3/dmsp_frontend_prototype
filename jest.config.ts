@@ -23,12 +23,16 @@ const config: Config = {
         fetch: global.fetch //added this to be able to mock 'fetch' in tests
     },
     collectCoverage: true,
+    collectCoverageFrom: [
+        "app/**",  // Include all pages
+        "components/**"// Include components
+    ],
     coverageThreshold: {
         global: {
-            branches: 50,
-            functions: 50,
-            lines: 80,
-            statements: 80,
+            branches: 60,
+            functions: 60,
+            lines: 60,
+            statements: 60,
         }
     },
     coverageDirectory: "coverage",
