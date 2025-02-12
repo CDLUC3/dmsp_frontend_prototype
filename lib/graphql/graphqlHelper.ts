@@ -45,28 +45,22 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
               }
               break;
 
-            // NOT_ACCEPTABLE error code can be thrown from the backend when:
-            //  - the CSRF token is missing or invalid or expired
-            case 'NOT_ACCEPTABLE':
-              try {
-                await fetchCsrfToken();
-                forward(operation).subscribe({
-                  next: observer.next.bind(observer),
-                  error: observer.error.bind(observer),
-                  complete: observer.complete.bind(observer)
-                });
-                return;
-              } catch (error) {
-                logECS('error', 'Fetching csrf token failed', { error });
-                window.location.href = '/500-error';
-              }
-
             // FORBIDDEN error code can be thrown from the backend when:
             //  - the user is not authorized to perform the operation
             case 'FORBIDDEN':
               try {
-                // redirect the user to their dashboard with a toast message stating they are not authorized
-                window.location.href = '/projects';
+                const response = await fetchCsrfToken();
+                 if (response) {
+                   forward(operation).subscribe({
+                     next: observer.next.bind(observer),
+                     error: observer.error.bind(observer),
+                     complete: observer.complete.bind(observer)
+                   });
+                   return;
+                 } else {
+                   logECS('error', 'Token refresh failed with no result', { errorCode: 'FORBIDDEN' });
+                   window.location.href = '/login';
+                 }
               } catch (error) {
                 logECS('error', 'Fetching csrf token failed', { error });
                 window.location.href = '/login';

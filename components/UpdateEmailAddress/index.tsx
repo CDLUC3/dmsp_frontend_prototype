@@ -229,7 +229,7 @@ calling 'refetch()' for the user query, but that didn't work. */
       <div className="sectionContainer">
         <div className="sectionContent">
           <div className={styles.subSection}>
-            {errors && Object.keys(errors).length > 0 &&
+            {errors?.general &&
               <div className="error">
                 <p>{errors.general}</p>
               </div>
@@ -277,7 +277,7 @@ calling 'refetch()' for the user query, but that didn't work. */
                   type="text"
                   label={t('headingAddAliasEmail')}
                   className={`${styles.addAliasTextField} react - aria - TextField`}
-                  isInvalid={Object.keys(errors).length > 0}
+                  isInvalid={errors?.email ? true : false}
                   errorMessage={errors?.email ?? ''}
                   helpMessage={t('helpTextForAddAlias')}
                   onChange={handleAliasChange}
