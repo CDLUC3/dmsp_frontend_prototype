@@ -24,6 +24,7 @@ import {
 } from "react-aria-components";
 // GraphQL queries and mutations
 import {
+  SectionErrors,
   useTagsQuery,
   useUpdateSectionMutation,
 } from '@/generated/graphql';
@@ -161,9 +162,9 @@ const SectionUpdatePage: React.FC = () => {
   }
 
   // Make GraphQL mutation request to update section
-  const updateSection = async () => {
+  const updateSection = async (): Promise<SectionErrors> => {
     try {
-      await updateSectionMutation({
+      const response = await updateSectionMutation({
         variables: {
           input: {
             sectionId: Number(sectionId),
@@ -176,7 +177,11 @@ const SectionUpdatePage: React.FC = () => {
             tags: selectedTags
           }
         }
-      })
+      });
+
+      if (response.data?.updateSection?.errors) {
+        return response.data.updateSection.errors;
+      }
     } catch (error) {
       logECS('error', 'updateSection', {
         error: error,
@@ -188,6 +193,7 @@ const SectionUpdatePage: React.FC = () => {
         setErrorMessages(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorUpdatingSection')]);
       }
     }
+    return {};
   };
 
   // Handle changes to tag checkbox selection
@@ -208,13 +214,31 @@ const SectionUpdatePage: React.FC = () => {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // Clear previous error messages
     clearAllFieldErrors();
+    setErrorMessages([]);
 
     if (isFormValid()) {
       // Create new section
-      await updateSection();
-      showSuccessToast()
-      setErrorMessages([]); // Clear errors on successful submit
+      const errors = await updateSection();
+
+      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
+      if (errors && Object.values(errors).filter((err) => err && err !== 'SectionErrors').length > 0) {
+        setFieldErrors({
+          sectionName: errors.name || '',
+          sectionIntroduction: errors.introduction || '',
+          sectionRequirements: errors.requirements || '',
+          sectionGuidance: errors.guidance || ''
+        });
+
+        setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
+      } else {
+        // Show success message
+        showSuccessToast();
+      }
+
+      // Scroll to top of page
+      scrollToTop(topRef);
     }
   };
 

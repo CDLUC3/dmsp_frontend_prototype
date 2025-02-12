@@ -1,7 +1,11 @@
 query QuestionTypes {
   questionTypes {
     id
-    errors
+    errors {
+      general
+      name
+      usageDescription
+    }
     name
     usageDescription
   }

@@ -4,7 +4,12 @@ mutation UpdateUserProfile($input: updateUserProfileInput!) {
     id
     givenName
     surName
-    errors
+    errors {
+      general
+      email
+      password
+      role
+    }
     affiliation {
       id
       name
@@ -20,7 +25,11 @@ mutation UpdateUserProfile($input: updateUserProfileInput!) {
 mutation AddUserEmail($email: String!, $isPrimary: Boolean!) {
   addUserEmail(email: $email, isPrimary: $isPrimary) {
     email
-    errors
+    errors {
+      general
+      userId
+      email
+    }
     isPrimary
     isConfirmed
     id
@@ -30,14 +39,22 @@ mutation AddUserEmail($email: String!, $isPrimary: Boolean!) {
 
 mutation RemoveUserEmail($email: String!) {
   removeUserEmail(email: $email) {
-    errors
+    errors {
+      general
+      userId
+      email
+    }
   }
 }
 
 mutation SetPrimaryUserEmail($email: String!) {
   setPrimaryUserEmail(email: $email) {
     id
-    errors
+    errors {
+      general
+      userId
+      email
+    }
     email
     isConfirmed
     isPrimary

@@ -24,6 +24,12 @@
 
 ### Updated
 =======
+- Updated `/graphql` files to include new backend error objects [#308]
+- Updated `/account/profile/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/section/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/section/create/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/section/[section_slug]/page.tsx` to display the new backend field level errors [#308]
 - Updated `/template/create/page.tsx`[#186]
 - Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
 - Updated existing Templates graphql query with more fields [#186]
@@ -71,7 +77,7 @@
 - Added ability to add 'Other' affiliation in the User Profile page [#170]
 - Created create/select-template page and test [#167]
   - Created new components for this page
-  - Created Template Select List Item 
+  - Created Template Select List Item
 - Template Builder: Access Page [#166]
 - Created css for sectionContainer, sectionHeader, sectionContent for generic sections
 - Updated mobile breadcrumbs css
