@@ -19,9 +19,9 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
   const headingId = `${item.title.toLowerCase().replace(/\s+/g, '-')}-heading`;
 
   return (
-    <div className={styles.templateItem} role="listitem">
-      <div className={styles.TemplateItemInner}>
-        <div className={styles.TemplateItemHeading}>
+    <div className={styles.projectItem} role="listitem">
+      <div className={styles.projectItemInner}>
+        <div className={styles.projectItemHeading}>
           <div className="project-overview">
             <section
               className="project-overview-item project-header"
@@ -42,7 +42,7 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
 
         </div>
 
-        <div className={styles.TemplateItemActions}>
+        <div className={styles.projectItemActions}>
           {item.link && (
             <Link href={item.link} aria-label={`${Global('buttons.linkUpdate')} ${item.title}`}
               className={styles.updateLink}>
@@ -80,15 +80,15 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
       {expanded && (
         <div
           id={expandedContentId}
-          className={styles.templateExpandedContent}
+          className={styles.projectExpandedContent}
           role="region"
           aria-labelledby={headingId}
         >
-          <div className="project-overview">
+          <div className={`project-overview ${styles.overview}`}>
             <section
               className="project-overview-item project-header"
               aria-labelledby="project-title">
-              <h2 id="project-title">{t('projectDetails')}</h2>
+              <h2 id="project-title" className={styles.projectDetails}>{t('projectDetails')}</h2>
               <div className={styles.container}>
                 <div className={styles.section}>
                   <h2 id="project-title">{t('dates')}</h2>

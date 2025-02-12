@@ -1,4 +1,9 @@
 import logECS from '@/utils/clientLogger';
+import dotenv from 'dotenv'
+
+//Load environment variables from .env.local
+dotenv.config({ path: './.env.local' });// 
+
 
 export class AuthError extends Error {
   status: number | null;

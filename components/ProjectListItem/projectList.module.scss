@@ -1,6 +1,6 @@
 @import '@/styles/responsive.scss';
 
-.templateItem {
+.projectItem {
 
   padding: 1.25rem 1rem;
   margin-bottom: 1rem;
@@ -10,7 +10,7 @@
   border: 1px solid var(--card-border);
 }
 
-.TemplateItemHeading {
+.projectItemHeading {
   h3 {
     font-size: var(--fs-lg);
     font-weight: var(--fw-bold);
@@ -19,7 +19,7 @@
   }
 }
 
-.TemplateItemInner {
+.projectItemInner {
   @include device(lg) {
     display: flex;
     justify-content: space-between;
@@ -27,7 +27,7 @@
   }
 }
 
-.TemplateItemActions {
+.projectItemActions {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
@@ -35,6 +35,7 @@
 
   }
 }
+
 .titleLink {
   color: var(--slate-900) !important;
   &:hover {
@@ -54,10 +55,9 @@
   text-decoration: underline;
 }
 
-.templateExpandedContent {
+.projectExpandedContent {
   margin-top: 1.5rem;
 }
-
 
 .expandButton {
   font-family: var(--font-sans);
@@ -82,8 +82,6 @@
 .expanded {
   transform: rotate(180deg); /* Rotate the arrow when expanded */
 }
-
-
 
 .statusInfo {
   display: flex;
@@ -116,12 +114,14 @@
 }
 
 .section {
-  flex: 1 1 calc(50% - 8px); // Two sections per row, accounting for gap
-  padding: 20px;
+  @include device(md) {
+    flex: 1 1 calc(50% - 8px); // Two sections per row, accounting for gap
+    padding: 20px;
+  }
+  flex: 1 1 100%; // Full width on small screens
 }
 
-@media (max-width: 768px) {
-  .section {
-    flex: 1 1 100%; // Full width on small screens
-  }
+.overview h2.projectDetails {
+  font-weight: 700;
 }
+
