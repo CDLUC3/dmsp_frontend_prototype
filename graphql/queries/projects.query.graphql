@@ -7,7 +7,6 @@ query MyProjects {
       givenName
       contributorRoles {
         label
-        id
       }
       orcid
     }
@@ -19,12 +18,6 @@ query MyProjects {
         uri
       }
       grantId
-      funderOpportunityNumber
-      funderProjectNumber
     }
-    modified
-    modifiedById
-    created
-    createdById
   }
 }

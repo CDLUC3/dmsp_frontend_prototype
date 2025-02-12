@@ -22,8 +22,6 @@ import {
   LayoutContainer
 } from '@/components/Container';
 
-
-
 //GraphQL
 import { useMyProjectsQuery, } from '@/generated/graphql';
 
@@ -44,16 +42,16 @@ interface FundersInterface {
 interface ContributorsInterface {
   givenName?: string | null;
   surName?: string | null;
-  contributorRoles?: ContributorRolesInterface[] | null; // Allow undefined or null
+  contributorRoles?: ContributorRolesInterface[] | null;
   orcid?: string | null;
 }
 interface ProjectInterface {
   title: string;
   id?: number | null;
-  contributors?: ContributorsInterface[] | null; // Allow undefined or null
+  contributors?: ContributorsInterface[] | null;
   startDate?: string | null;
   endDate?: string | null;
-  funders?: FundersInterface[] | null; // Allow undefined or null
+  funders?: FundersInterface[] | null;
   modified?: string | null;
   modifiedById?: number | null;
   created?: string | null;
@@ -72,7 +70,7 @@ const ProjectsListPage: React.FC = () => {
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [filteredProjects, setFilteredProjects] = useState<(ProjectItemProps)[] | null>([]);
 
-
+  // Translation keys
   const Global = useTranslations('Global');
   const Project = useTranslations('ProjectsListPage');
 
@@ -99,14 +97,13 @@ const ProjectsListPage: React.FC = () => {
     const filteredList = projects.filter(proj =>
       [
         proj.title,
-        proj.content?.toString(), // Convert JSX.Element to string if needed
         proj.description,
         // Ensure all collaborator fields (name, orcid, roles) are included in the search
         proj.collaborators
           .map(collab =>
             [
               collab.name.toLowerCase(),
-              collab.orcid?.toLowerCase() || "", // Handle nullable ORCID
+              collab.orcid?.toLowerCase() || "",
               collab.roles.join(" ").toLowerCase() // Convert roles array to a string
             ].join(" ")
           )
@@ -121,7 +118,6 @@ const ProjectsListPage: React.FC = () => {
       setFilteredProjects(filteredList);
     }
   };
-
 
   const formatDate = (date: string | number) => {
     const parsedDate = typeof date === "number"
@@ -141,7 +137,7 @@ const ProjectsListPage: React.FC = () => {
 
 
   useEffect(() => {
-    // Transform projects into format expected by TemplateListItem component
+    // Transform projects into format expected by ProjectListItem component
     if (data && data?.myProjects) {
       const fetchAllProjects = async (projects: (ProjectInterface | null)[]) => {
         const transformedProjects = await Promise.all(
@@ -149,12 +145,6 @@ const ProjectsListPage: React.FC = () => {
             return {
               title: project?.title || "",
               link: `/projects/${project?.id}`,
-              content: (
-                <div>
-                  <p>National Science Foundation (nsf.gov)</p>
-                  <p>Last updated: 04-01-2024</p>
-                </div>
-              ),
               funder: (project?.funders && project?.funders[0]?.affiliation?.name) ?? '',
               defaultExpanded: false,
               startDate: project?.startDate ? formatDate(project.startDate) : '',

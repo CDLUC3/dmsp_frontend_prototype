@@ -154,7 +154,6 @@ export interface QuestionTypesInterface {
 export interface ProjectItemProps {
   id?: number | null;
   title: string;
-  content?: JSX.Element | null;
   description?: string;
   link?: LinkHref;
   defaultExpanded: boolean;

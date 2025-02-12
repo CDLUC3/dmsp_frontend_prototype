@@ -2204,6 +2204,8 @@ export type TagInput = {
 /** A Template used to create DMPs */
 export type Template = {
   __typename?: 'Template';
+  /** Admin users associated with the template's owner */
+  admins?: Maybe<Array<User>>;
   /** Whether or not this Template is designated as a 'Best Practice' template */
   bestPractice: Scalars['Boolean']['output'];
   /** Users from different affiliations who have been invited to collaborate on this template */
@@ -2824,7 +2826,7 @@ export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typen
 export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'Project', title: string, id?: number | null, startDate?: string | null, endDate?: string | null, modified?: string | null, modifiedById?: number | null, created?: string | null, createdById?: number | null, contributors?: Array<{ __typename?: 'ProjectContributor', surName?: string | null, givenName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string, id?: number | null }> | null }> | null, funders?: Array<{ __typename?: 'ProjectFunder', grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, uri: string } | null }> | null } | null> | null };
+export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'Project', title: string, id?: number | null, startDate?: string | null, endDate?: string | null, contributors?: Array<{ __typename?: 'ProjectContributor', surName?: string | null, givenName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string }> | null }> | null, funders?: Array<{ __typename?: 'ProjectFunder', grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, uri: string } | null }> | null } | null> | null };
 
 export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3375,7 +3377,6 @@ export const MyProjectsDocument = gql`
       givenName
       contributorRoles {
         label
-        id
       }
       orcid
     }
@@ -3387,13 +3388,7 @@ export const MyProjectsDocument = gql`
         uri
       }
       grantId
-      funderOpportunityNumber
-      funderProjectNumber
     }
-    modified
-    modifiedById
-    created
-    createdById
   }
 }
     `;
