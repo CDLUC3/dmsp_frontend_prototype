@@ -140,6 +140,8 @@ export type AddQuestionInput = {
   sectionId: Scalars['Int']['input'];
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['input'];
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type AddQuestionOptionInput = {
@@ -989,7 +991,7 @@ export type MutationRemoveQuestionConditionArgs = {
 
 
 export type MutationRemoveQuestionOptionArgs = {
-  questionOptionId: Scalars['Int']['input'];
+  id: Scalars['Int']['input'];
 };
 
 
@@ -1606,7 +1608,7 @@ export type Query = {
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
   questionConditions?: Maybe<Array<Maybe<QuestionCondition>>>;
-  /** Get the specific Question Option based on questionOptionId */
+  /** Get the specific Question Option based on question option id */
   questionOption?: Maybe<QuestionOption>;
   /** Get the Question Options that belong to the associated questionId */
   questionOptions?: Maybe<Array<Maybe<QuestionOption>>>;
@@ -1824,7 +1826,7 @@ export type QueryQuestionConditionsArgs = {
 
 
 export type QueryQuestionOptionArgs = {
-  questionOptionId: Scalars['Int']['input'];
+  id: Scalars['Int']['input'];
 };
 
 
@@ -1933,6 +1935,8 @@ export type Question = {
   sourceQestionId?: Maybe<Scalars['Int']['output']>;
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['output'];
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: Maybe<Scalars['Boolean']['output']>;
 };
 
 /**
@@ -2361,21 +2365,27 @@ export type UpdateQuestionInput = {
   questionOptions?: InputMaybe<Array<InputMaybe<UpdateQuestionOptionInput>>>;
   /** This will be used as a sort of title for the Question */
   questionText?: InputMaybe<Scalars['String']['input']>;
+  /** The type of question, such as text field, select box, radio buttons, etc */
+  questionTypeId?: InputMaybe<Scalars['Int']['input']>;
   /** To indicate whether the question is required to be completed */
   required?: InputMaybe<Scalars['Boolean']['input']>;
   /** Requirements associated with the Question */
   requirementText?: InputMaybe<Scalars['String']['input']>;
   /** Sample text to possibly provide a starting point or example to answer question */
   sampleText?: InputMaybe<Scalars['String']['input']>;
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type UpdateQuestionOptionInput = {
+  /** The id of the QuestionOption */
+  id?: InputMaybe<Scalars['Int']['input']>;
   /** Whether the option is the default selected one */
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
   /** The option order number */
   orderNumber: Scalars['Int']['input'];
-  /** The id of the QuestionOption */
-  questionOptionId?: InputMaybe<Scalars['Int']['input']>;
+  /** id of parent question */
+  questionId?: InputMaybe<Scalars['Int']['input']>;
   /** The option text */
   text: Scalars['String']['input'];
 };
@@ -2810,6 +2820,11 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
+
+export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'Project', title: string, id?: number | null, startDate?: string | null, endDate?: string | null, modified?: string | null, modifiedById?: number | null, created?: string | null, createdById?: number | null, contributors?: Array<{ __typename?: 'ProjectContributor', surName?: string | null, givenName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string, id?: number | null }> | null }> | null, funders?: Array<{ __typename?: 'ProjectFunder', affiliation?: { __typename?: 'Affiliation', name: string, uri: string } | null }> | null } | null> | null };
 
 export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3350,6 +3365,67 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const MyProjectsDocument = gql`
+    query MyProjects {
+  myProjects {
+    title
+    id
+    contributors {
+      surName
+      givenName
+      contributorRoles {
+        label
+        id
+      }
+      orcid
+    }
+    startDate
+    endDate
+    funders {
+      affiliation {
+        name
+        uri
+      }
+    }
+    modified
+    modifiedById
+    created
+    createdById
+  }
+}
+    `;
+
+/**
+ * __useMyProjectsQuery__
+ *
+ * To run a query within a React component, call `useMyProjectsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyProjectsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyProjectsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyProjectsQuery(baseOptions?: Apollo.QueryHookOptions<MyProjectsQuery, MyProjectsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyProjectsQuery, MyProjectsQueryVariables>(MyProjectsDocument, options);
+      }
+export function useMyProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyProjectsQuery, MyProjectsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyProjectsQuery, MyProjectsQueryVariables>(MyProjectsDocument, options);
+        }
+export function useMyProjectsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyProjectsQuery, MyProjectsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyProjectsQuery, MyProjectsQueryVariables>(MyProjectsDocument, options);
+        }
+export type MyProjectsQueryHookResult = ReturnType<typeof useMyProjectsQuery>;
+export type MyProjectsLazyQueryHookResult = ReturnType<typeof useMyProjectsLazyQuery>;
+export type MyProjectsSuspenseQueryHookResult = ReturnType<typeof useMyProjectsSuspenseQuery>;
+export type MyProjectsQueryResult = Apollo.QueryResult<MyProjectsQuery, MyProjectsQueryVariables>;
 export const QuestionTypesDocument = gql`
     query QuestionTypes {
   questionTypes {

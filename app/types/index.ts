@@ -46,6 +46,21 @@ export interface TemplateInterface {
   visibility?: string;
 }
 
+export interface TemplateItemProps {
+  id?: number | null;
+  template?: {
+    id?: number | null;
+  },
+  title: string;
+  content?: JSX.Element | null;
+  description?: string;
+  link?: LinkHref;
+  defaultExpanded: boolean;
+  funder?: string;
+  lastUpdated?: string | null;
+  publishStatus?: string | null;
+}
+
 export interface MyVersionedTemplatesInterface {
   id?: number | null;
   name: string;
@@ -134,4 +149,50 @@ export interface QuestionTypesInterface {
   errors: string[];
   name: string;
   usageDescription: string;
+}
+
+export interface ProjectItemProps {
+  id?: number | null;
+  template?: {
+    id?: number | null;
+  };
+  title: string;
+  content?: JSX.Element | null;
+  description?: string;
+  link?: LinkHref;
+  defaultExpanded: boolean;
+  funder?: string;
+  lastUpdated?: string | null;
+  publishStatus?: string | null;
+  startDate: string;
+  endDate: string;
+  collaborators: {
+    name: string;
+    roles: string[];
+    orcid?: string | null;
+  }[];
+}
+
+export interface ProjectContributor {
+  id?: number | null;
+  givenName: string;
+  surName: string;
+  email?: string | null;
+  orcid?: string | null;
+  affiliation?: Affiliation | null;
+  contributorRoles: ContributorRole[];
+}
+
+export interface ContributorRole {
+  id?: number | null;
+  displayOrder: number;
+  label: string;
+  uri: string;
+  description?: string | null;
+}
+
+export interface Affiliation {
+  id?: number | null;
+  name: string;
+  url?: string | null;
 }
