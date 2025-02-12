@@ -580,7 +580,17 @@
     h2 {
       font-size: var(--fs-base);
       color: var(--blue-600);
-      font-weight: 300;
+      font-weight: 600;
+
+      padding: var(--space-0);
+      margin: var(--space-0);
+      margin-bottom: var(--space-1);
+    }
+
+    h3 {
+      font-size: var(--fs-base);
+      color: var(--blue-600);
+      font-weight: 600;
 
       padding: var(--space-0);
       margin: var(--space-0);

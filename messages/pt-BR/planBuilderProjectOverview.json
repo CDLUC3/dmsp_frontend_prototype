@@ -6,6 +6,11 @@
     "home": "Home",
     "projects": "Projetos",
     "project": "Projeto",
+    "projectDetails": "Detalhes de Projeto",
+    "dates": "Datas",
+    "collaborators": "Colaboradores",
+    "funding": "Financiamento",
+    "grantId": "ID do Financiamento",
     "edit": "Alterar",
     "editProject": "Editar Detalhes do Projeto",
     "funders": "Finalizações",
@@ -28,18 +33,24 @@
     "uploadPlan": "Enviar um novo plano",
     "createNew": "Criar novo plano",
     "createNewPlan": "Criar um novo plano",
-    "funder": "Funder",
-    "planSections": "Plan sections",
+    "funder": "Finalizações",
+    "planSections": "Planejar ações",
     "progress": "{current} de {total}",
     "doi": "DOI",
-    "lastUpdated": "Last updated",
-    "template": "Template",
-    "download": "Download",
-    "downloadPlan": "Download plan",
-    "share": "Share with others",
-    "sharePlan": "Share plan with others",
-    "update": "Update plan",
-    "updatePlan": "Update this plan",
+    "lastUpdated": "Últimas atualizações",
+    "template": "Modelo",
+    "download": "Baixar",
+    "downloadPlan": "Baixar plano",
+    "share": "Compartilhar com outros",
+    "sharePlan": "Compartilhar plano com os outros",
+    "update": "Atualizar plano",
+    "updatePlan": "Atualizar este plano",
     "dateRange": "{startDate} até {endDate}"
+  },
+  "ProjectsListPage": {
+    "intro": "Gerenciador ou criar projeto DMSP ou por DMP",
+    "buttons": {
+      "createProject": "Criar Projeto"
+    }
   }
 }

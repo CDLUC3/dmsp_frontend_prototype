@@ -1,0 +1,23 @@
+query MyProjects {
+  myProjects {
+    title
+    id
+    contributors {
+      surName
+      givenName
+      contributorRoles {
+        label
+      }
+      orcid
+    }
+    startDate
+    endDate
+    funders {
+      affiliation {
+        name
+        uri
+      }
+      grantId
+    }
+  }
+}

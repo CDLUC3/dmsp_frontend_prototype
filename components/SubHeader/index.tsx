@@ -1,11 +1,11 @@
+import Image from 'next/image';
 import styles from './subHeader.module.scss';
 
 function SubHeader() {
     return (
         <div className={styles['c-subheader']}>
             <a className={`${styles['c-logo-org']} ${styles['has-new-window-popup-info']}`} href="http://cdlib.org/services/uc3" target="_blank">
-                <img alt="University of California, Office of the President (UCOP) logo" width="104" height="39" src="https://dmptool.org/media/W1siZiIsIjIwMjQvMDkvMDkvMDkvMDkvNTEvOWJkOTNhZTMtNzRiOC00ODU5LThhNTEtOTk5YTI5M2U3Y2YwL1VDLWxvZ28tY2Fyb3VzZWwuanBnIl1d/UC-logo-carousel.jpg?sha=dc2b558efad1abac" />
-                <span className={styles['new-window-popup-info']}>Opens in a new window</span></a>
+                <Image alt="University of California, Office of the President (UCOP) logo" width="104" height="39" src="/images/logo-cdl.png" />                <span className={styles['new-window-popup-info']}>Opens in a new window</span></a>
 
             <ul className={styles['c-links-org']}>
 
