@@ -6,34 +6,42 @@ import {
   Text,
   TextField,
 } from "react-aria-components";
-import styles from './formInput.module.scss';
 
 interface InputProps {
   name: string;
+  id?: string;
   type?: string;
   label: string;
   placeholder?: string;
-  ariaDescribedBy?: string;
-  value?: string;
+  value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
+  labelClasses?: string;
+  inputClasses?: string;
+  disabled?: boolean;
+  isRequired?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
 }
 
-const FormInput: React.FC<InputProps> = ({
+const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
   name,
+  id,
   type,
   label,
   placeholder,
-  ariaDescribedBy,
   value,
   onChange,
   className = '',
+  labelClasses = '',
+  inputClasses = '',
+  disabled = false,
+  isRequired = false,
   isInvalid = false,
   errorMessage = '',
-  helpMessage = ''
+  helpMessage = '',
+  ...rest
 }) => {
 
   return (
@@ -42,17 +50,21 @@ const FormInput: React.FC<InputProps> = ({
         name={name}
         type={type}
         className={`${className} react-aria-TextField ${isInvalid ? 'field-error' : ''}`}
+        isRequired={isRequired}
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >
-        <Label>{label}</Label>
+        <Label htmlFor={id} className={labelClasses}>{label}</Label>
         <Input
+          id={id}
           name={name}
           type={type}
+          className={inputClasses}
           placeholder={placeholder}
           onChange={onChange}
           value={value}
-          aria-describedby={ariaDescribedBy}
+          disabled={disabled}
+          {...rest}
         />
 
         {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
@@ -62,7 +74,7 @@ const FormInput: React.FC<InputProps> = ({
             {helpMessage}
           </Text>
         )}
-
+        <FieldError />
       </TextField>
     </>
   );

@@ -1,6 +1,7 @@
 ## v0.0.1
 
 ### Updated
+- Updated `/template/[templateId]/access` page to hook it up to real data [#223]
 - Updated `/template/create/page.tsx`[#186]
 - Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
 - Updated existing Templates graphql query with more fields [#186]
