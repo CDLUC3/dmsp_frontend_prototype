@@ -1,0 +1,8 @@
+mutation AddProject($title: String!, $isTestProject: Boolean) {
+  addProject(title: $title, isTestProject: $isTestProject) {
+    errors {
+      title
+      general
+    }
+  }
+}

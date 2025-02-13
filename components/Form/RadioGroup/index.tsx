@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  FieldError,
   Label,
   Radio,
   RadioGroup,
@@ -11,16 +12,25 @@ import { RadioButtonProps } from '@/app/types';
 import styles from './radioGroup.module.scss';
 
 const RadioGroupComponent: React.FC<RadioButtonProps> = ({
+  name,
+  value,
   radioGroupLabel,
-  radioButtonData
+  radioButtonData,
+  isInvalid,
+  errorMessage,
+  onChange
 }) => {
 
   return (
     <>
-      <RadioGroup>
+      <RadioGroup
+        name={name}
+        value={value}
+        onChange={onChange}
+      >
         <Label>{radioGroupLabel}</Label>
         {radioButtonData.map((radioButton, index) => (
-          <>
+          <div key={index}>
             <Radio value={radioButton.value}>{radioButton.label}</Radio>
             {radioButton.description && (
               <Text
@@ -30,8 +40,9 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
                 {radioButton.description}
               </Text>
             )}
-          </>
+          </div>
         ))}
+        {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
       </RadioGroup>
     </>
   );

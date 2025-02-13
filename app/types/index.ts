@@ -124,15 +124,19 @@ export interface QuestionTypesInterface {
   usageDescription: string;
 }
 
-
 interface RadioButtonInterface {
   value: string;
   label: string;
   description: string;
 }
 export interface RadioButtonProps {
+  name: string;
   radioGroupLabel: string;
   radioButtonData: RadioButtonInterface[];
+  value: string;
+  isInvalid?: boolean;
+  errorMessage?: string;
+  onChange?: (value: string) => void;
 }
 interface CheckboxInterface {
   value: string;
@@ -140,7 +144,12 @@ interface CheckboxInterface {
   description: string;
 }
 export interface CheckboxGroupProps {
+  name: string;
   checkboxGroupLabel?: string;
   checkboxGroupDescription?: string;
   checkboxData: CheckboxInterface[];
+  value: string[];
+  isInvalid?: boolean;
+  errorMessage?: string;
+  onChange?: ((value: string[]) => void)
 }
