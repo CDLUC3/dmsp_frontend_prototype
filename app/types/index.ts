@@ -146,3 +146,13 @@ export interface RadioButtonProps {
   radioGroupLabel: string;
   radioButtonData: RadioButtonInterface[];
 }
+interface CheckboxInterface {
+  value: string;
+  label: string;
+  description: string;
+}
+export interface CheckboxGroupProps {
+  checkboxGroupLabel?: string;
+  checkboxGroupDescription?: string;
+  checkboxData: CheckboxInterface[];
+}
