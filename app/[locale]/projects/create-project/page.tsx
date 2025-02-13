@@ -227,7 +227,7 @@ const ProjectsCreateProject = () => {
       } else {
         // Show success message
         showSuccessToast();
-
+        router.push('/projects/create-project/funding');
       }
 
       // Scroll to top of page
