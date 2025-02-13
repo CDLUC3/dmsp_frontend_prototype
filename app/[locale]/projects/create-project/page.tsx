@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -17,15 +18,39 @@ import {
   Text,
   TextField
 } from "react-aria-components";
+
+// Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import RadioGroupComponent from '@/components/Form/RadioGroup';
+import SlideInPanel from '@/components/SlideInComponent';
 
+import styles from './createProject.module.scss';
 
 const ProjectsCreateProject = () => {
+  // localization keys
+  const Global = useTranslations('Global');
+  const CreateProject = useTranslations('ProjectsCreateProject');
+
+  const radioData = {
+    radioGroupLabel: CreateProject('form.newOrExisting'),
+    radioButtonData: [
+      {
+        value: 'previous',
+        label: CreateProject('form.radioExistingLabel'),
+        description: CreateProject('form.radioExistingHelpText'),
+      },
+      {
+        value: 'new',
+        label: CreateProject('form.radioNewLabel'),
+        description: CreateProject('form.radioNewHelpText')
+      }
+    ]
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,11 +66,11 @@ const ProjectsCreateProject = () => {
       <PageHeader
         title="Create a project"
         description=""
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
           </Breadcrumbs>
         }
         actions={
@@ -54,6 +79,7 @@ const ProjectsCreateProject = () => {
         }
         className="page-project-create-project"
       />
+      <SlideInPanel />
       <LayoutWithPanel>
         <ContentContainer>
           <Form onSubmit={handleSubmit}>
@@ -62,61 +88,60 @@ const ProjectsCreateProject = () => {
               type="text"
               isRequired
             >
-              <Label>What is the title of the project?</Label>
+              <Label>{CreateProject('form.projectTitle')}</Label>
               <Text slot="description" className="help">
-                This should be the formal title if you have already applied for
-                funding, as it will be used to find your Project in the Funder’s
-                database. This can be changed later.
+                {CreateProject('form.projectTitleHelpText')}
               </Text>
-              <Input/>
-              <FieldError/>
+              <Input />
+              <FieldError />
             </TextField>
 
-            <RadioGroup>
-              <Label>New or existing project?</Label>
-              <Text slot="description" className="help">
-                We will search for the project and pull in associated
-                information for you to review and edit if possible, otherwise
-                create a brand new project
-              </Text>
-              <Radio value="previous">The project already exists or might
-                exist</Radio>
-              <Radio value="new">New project</Radio>
-            </RadioGroup>
+            <RadioGroupComponent
+              radioGroupLabel={radioData.radioGroupLabel}
+              radioButtonData={radioData.radioButtonData}
+            />
 
+            {/* 
+            <RadioGroup>
+              <Label>{CreateProject('form.newOrExisting')}</Label>
+
+              <Radio value="previous">{CreateProject('form.radioExistingLabel')}</Radio>
+              <Text slot="description" className="help">
+                {CreateProject('form.radioExistingHelpText')}
+              </Text>
+
+              <Radio value="new">{CreateProject('form.radioNewLabel')}</Radio>
+              <Text slot="description" className="help">
+                {CreateProject('form.radioNewHelpText')}
+              </Text>
+            </RadioGroup> */}
 
             <CheckboxGroup className="checkbox-group">
-              <Label>This project is mock project for testing, practice, or
-                educational purposes</Label>
+              <Label>{CreateProject('form.checkboxGroupLabel')}</Label>
               <Text slot="description" className="help">
-                This is a mock project intended solely for testing, practice, or
-                educational purposes. It allows you to create a project and
-                plans, but you will not be able to receive feedback or publish
-                them.
+                {CreateProject('form.checkboxGroupHelpText')}
               </Text>
               <Checkbox value="is_mock_project">
                 <div className="checkbox">
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 <div className="">
-                <span>
-                  Yes, set this project to a mock or a test project.
-                </span>
-                  <br/>
+                  <span>
+                    {CreateProject('form.checkboxLabel')}
+                  </span>
+                  <br />
                   <span className="help">
-                      If you aim on publishing your DMSP eventually, we recommend
-                    leaving this unticked, so you get the full features. All
-                    real projects have a draft status you can use for testing.
-                </span>
+                    {CreateProject('form.checkboxHelpText')}
+                  </span>
                 </div>
               </Checkbox>
             </CheckboxGroup>
 
 
             <Button type="submit"
-                    className="">Continue</Button>
+              className="">{Global('buttons.continue')}</Button>
 
           </Form>
 

@@ -135,3 +135,14 @@ export interface QuestionTypesInterface {
   name: string;
   usageDescription: string;
 }
+
+
+interface RadioButtonInterface {
+  value: string;
+  label: string;
+  description: string;
+}
+export interface RadioButtonProps {
+  radioGroupLabel: string;
+  radioButtonData: RadioButtonInterface[];
+}

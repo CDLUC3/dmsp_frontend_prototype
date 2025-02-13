@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -23,22 +23,22 @@ import {
   Tabs,
 } from "react-aria-components";
 // GraphQL queries and mutations
-import {useTagsQuery, useUpdateSectionMutation,} from '@/generated/graphql';
+import { useTagsQuery, useUpdateSectionMutation, } from '@/generated/graphql';
 
 //Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {DmpIcon} from "@/components/Icons";
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import {DmpEditor} from "@/components/Editor";
+import { DmpEditor } from "@/components/Editor";
 
 import {
   SectionFormErrorsInterface,
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
-import {useSectionData} from "@/hooks/sectionData";
+import { useSectionData } from "@/hooks/sectionData";
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
@@ -319,7 +319,7 @@ const SectionUpdatePage: React.FC = () => {
                     >
                       <Label>{Section('labels.bestPracticeTags')}</Label>
                       <span className="help">{Section('helpText.bestPracticeTagsDesc')}</span>
-                      <div className="checkbox-group">
+                      <div className="checkbox-group-two-column">
                         {tags && tags.map(tag => {
                           const id = (tag.id)?.toString();
                           return (

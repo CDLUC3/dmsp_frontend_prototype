@@ -85,7 +85,9 @@
   }
 }
 
-.checkbox-group {
+
+
+.checkbox-group-two-column {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem; /* Add spacing between checkboxes */
