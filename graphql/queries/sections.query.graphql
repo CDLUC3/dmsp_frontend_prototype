@@ -18,7 +18,11 @@ query Section($sectionId: Int!) {
       description
       name
     }
-    errors
+    errors {
+      general
+      name
+      displayOrder
+    }
     template {
       id
     }

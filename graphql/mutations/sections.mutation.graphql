@@ -5,14 +5,24 @@ mutation AddSection($input: AddSectionInput!) {
       name
     }
     guidance
-    errors
+    errors {
+      general
+      name
+      displayOrder
+    }
     displayOrder
     introduction
     isDirty
     name
     questions {
       id
-      errors
+      errors {
+        general
+        templateId
+        sectionId
+        questionText
+        displayOrder
+      }
     }
     requirements
   }
@@ -26,7 +36,13 @@ mutation UpdateSection($input: UpdateSectionInput!) {
     requirements
     guidance
     displayOrder
-    errors
+    errors {
+      general
+      name
+      introduction
+      requirements
+      guidance
+    }
     bestPractice
     tags {
       id

@@ -46,7 +46,6 @@ import {useToast} from '@/context/ToastContext';
 import styles from './templateEditPage.module.scss';
 
 interface QuestionsInterface {
-  errors?: string[] | null;
   displayOrder?: number | null;
   guidanceText?: string | null;
   id?: number | null;
@@ -67,7 +66,6 @@ interface OwnerInterface {
 interface TemplateEditPageInterface {
   name: string;
   description?: string | null;
-  errors?: string[] | null;
   latestPublishVersion?: string | null;
   latestPublishDate?: string | null;
   created?: string | null;
@@ -82,7 +80,6 @@ const TemplateEditPage: React.FC = () => {
   const [template, setTemplate] = useState<TemplateEditPageInterface>({
     name: '',
     description: null,
-    errors: null,
     latestPublishVersion: null,
     latestPublishDate: null,
     created: null,
@@ -159,8 +156,14 @@ const TemplateEditPage: React.FC = () => {
       })
 
       if (response) {
-        setPublishModalOpen(false);
-        showSuccessToast();
+        const responseErrors = response.data?.createTemplateVersion?.errors;
+        // If there is a general error, set it in the pageErrors state
+        if (responseErrors?.general) {
+          setPageErrors([responseErrors.general]);
+        } else {
+          setPublishModalOpen(false);
+          showSuccessToast();
+        }
       }
     } catch (err) {
       if (err instanceof ApolloError) {
@@ -195,7 +198,6 @@ const TemplateEditPage: React.FC = () => {
       setTemplate({
         name: data.template.name ?? '',
         description: data.template.description ?? null,
-        errors: data.template.errors ?? null,
         latestPublishVersion: data.template.latestPublishVersion ?? null,
         latestPublishDate: formatDate(data.template.latestPublishDate) ?? null,
         created: data.template.created ?? null,
@@ -501,4 +503,3 @@ const TemplateEditPage: React.FC = () => {
 }
 
 export default TemplateEditPage;
-
