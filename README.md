@@ -18,6 +18,7 @@
 - [Authentication](#authentication)
 - [Testing](#testing)
 - [API Routes](#api-routes)
+- [Working with GraphQL](#working-with-graphql)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
 - [License](#license)
@@ -83,7 +84,7 @@ This allows components to reference the content from a page, like:
 ```
 import {useTranslations} from 'next-intl';
 import {Link} from '@/i18n/routing';
- 
+
 export default function HomePage() {
   const t = useTranslations('HomePage');
   return (
@@ -144,7 +145,7 @@ docker-compose build
 docker-compose up
 ```
 
-2. To stop the docker container, run 
+2. To stop the docker container, run
 ```bash
 docker-compose down
 ```
@@ -237,7 +238,7 @@ Functional tests are conducted using Cypress. These tests can be run in headless
 ### Cypress configuration
 In order to prevent `cypress` tests from clashing with `jest` tests, two different tsconfig files were created: one for cypress - `tsconfig.cypress.json` and one for jest - `tsconfig.json`. We specifically excluded `cypress` from the `tsconfig.json` file.
 
-Also, there is a very simple `cypress.config.ts` file that we need to add. 
+Also, there is a very simple `cypress.config.ts` file that we need to add.
 
 ### Running cypress tests
 `cypress` can be opened using the `cypress:open` script in `package.json`. This will open cypress in your browser, and allow you to navigate to your test and run it.
@@ -249,6 +250,20 @@ You can use the `cypress:run` script to run your tests in the terminal window.
 
 ## API Routes
 * `GET /api/check-auth`: returns whether user is authenticated based on presence of auth token in cookie
+
+## Working with GraphQL
+This application makes [GraphQL](https://graphql.org) calls to an [Apollo Server](https://www.apollographql.com/docs/apollo-server) backend application which provides access to data and also handles authentication and authorization functions.
+
+For more information about the Apollo Server backend, please see [it's Github repo](https://github.com/CDLUC3/dmsp_backend_prototype).
+
+GraphQL schemas are managed within the Apollo Server backend codebase and also within the `graphql` directory of this project. This directory includes all queries and mutations used by the application to interact with data within the backend.
+
+When you add or alter these files, (or when the backend has an update) you will need to run `npm run generate` to compile all of the GraphQL source. This process generates the `generated/graphql.tsx` which contains wrappers that allow you to interact with the queries and mutations as if they were callable functions.
+
+We use the `@apollo/client` package to help manage the connection with the Apollo Server system. The setup of the client can be found in `lib/graphql/apollo-wrapper.tsx`. We are using this in the client context instead of server side so that it is callable from the client.
+
+The `lib/graphql/graphqlHelper.ts` file provides logic for handling retries and the processing of GraphQL errors thrown from the Apollo Server system.
+
 
 ## Contributing
 1. Clone the repo from github (`git clone git@github.com:CDLUC3/dmsp_frontend_prototype.git`)
