@@ -235,11 +235,11 @@ describe('UpdateEmailAddressPage', () => {
     // Verify the error message is displayed
     await waitFor(() => {
       // Use container.querySelector to find the div with class "error"
-      const errorDiv = document.querySelector('.error-message') as HTMLElement;
+      const errorDiv = document.querySelector('.error') as HTMLElement;
 
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
-      expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument();
+      expect(screen.getByText('Error when deleting email')).toBeInTheDocument();
     });
 
     // Verify scrollIntoView was called with correct parameters
@@ -303,7 +303,7 @@ describe('UpdateEmailAddressPage', () => {
     // Verify the error message is displayed
     await waitFor(() => {
       // Use container.querySelector to find the div with class "error"
-      const errorDiv = document.querySelector('.error-message') as HTMLElement;
+      const errorDiv = document.querySelector('.error') as HTMLElement;
 
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
@@ -366,7 +366,7 @@ describe('UpdateEmailAddressPage', () => {
     // Verify the error message is displayed
     await waitFor(() => {
       // Use container.querySelector to find the div with class "error"
-      const errorDiv = document.querySelector('.error-message') as HTMLElement;
+      const errorDiv = document.querySelector('.error') as HTMLElement;
 
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();

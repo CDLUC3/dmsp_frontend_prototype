@@ -1,25 +1,24 @@
 import React from 'react';
 import {
   FieldError,
-  Input,
   Label,
   Text,
+  TextArea,
   TextField,
 } from "react-aria-components";
+import styles from './formInput.module.scss';
 
 interface InputProps {
   name: string;
-  id?: string;
-  type?: string;
   label: string;
+  description?: string;
   placeholder?: string;
   ariaDescribedBy?: string;
-  ariaLabel?: string;
-  value?: string | number;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   className?: string;
   labelClasses?: string;
-  inputClasses?: string;
+  textAreaClasses?: string;
   disabled?: boolean;
   isRequired?: boolean;
   isInvalid?: boolean;
@@ -27,50 +26,45 @@ interface InputProps {
   helpMessage?: string;
 }
 
-const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
+const FormTextArea: React.FC<InputProps> = ({
   name,
-  id,
-  type,
   label,
+  description,
   placeholder,
   ariaDescribedBy,
-  ariaLabel,
   value,
   onChange,
   className = '',
   labelClasses = '',
-  inputClasses = '',
+  textAreaClasses = '',
   disabled = false,
   isRequired = false,
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
-  ...rest
 }) => {
 
   return (
     <>
       <TextField
         name={name}
-        type={type}
         className={`${className} react-aria-TextField ${isInvalid ? 'field-error' : ''}`}
         isRequired={isRequired}
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >
-        <Label htmlFor={id} className={labelClasses}>{label}</Label>
-        <Input
-          id={id}
+        <Label className={labelClasses}>{label}</Label>
+        <Text slot="description" className="help-text">
+          {description}
+        </Text>
+        <TextArea
           name={name}
-          type={type}
-          className={inputClasses}
+          className={textAreaClasses}
           placeholder={placeholder}
           onChange={onChange}
           value={value}
           disabled={disabled}
           aria-describedby={ariaDescribedBy}
-          aria-label={ariaLabel}
-          {...rest}
         />
 
         {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
@@ -86,4 +80,4 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
   );
 };
 
-export default FormInput;
+export default FormTextArea;

@@ -63,8 +63,8 @@
     "headingUpdateProfile": "Atualizar Perfil",
     "yourProfile": "Seu Perfil",
     "emailAndAuth": "E-mail e autenticação",
-    "firstName": "Primeiro nome",
-    "lastName": "Sobrenome",
+    "givenName": "Primeiro nome",
+    "surName": "Sobrenome",
     "institution": "Instituição",
     "language": "Idioma",
     "headingPrimaryEmail": "Endereço de e-mail principal",
@@ -123,12 +123,16 @@
       "question": "Pergunta",
       "projects": "Projetos"
     },
-    "lastRevisedBy": "Última revisão por",
+    "lastRevisedBy": "Last revised by",
     "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
       "next": "Seguinte",
+      "save": "Salvar",
+      "remove": "Remover",
+      "confirm": "Confirmação",
+      "cancel": "Cancelar",
       "linkUpdate": "Atualização",
       "linkExpand": "Expandir",
       "linkCollapse": "Retrair"
@@ -148,6 +152,14 @@
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
       "fixBelow": "Por favor, corrija os erros abaixo"
+    },
+    "tabs": {
+      "editQuestion": "Editar Pergunta",
+      "options": "Opções",
+      "logic": "Lógica"
+    },
+    "headings": {
+      "preview": "Pré-visualizar"
     }
   }
 }

@@ -12,23 +12,13 @@ export interface LanguageInterface {
 }
 
 export interface ProfileDataInterface {
-  firstName: string;
-  lastName: string;
+  givenName: string;
+  surName: string;
   affiliationName: string;
   affiliationId: string;
   otherAffiliationName: string;
   languageId: string;
   languageName: string;
-}
-
-export interface FormErrorsInterface {
-  firstName: string;
-  lastName: string;
-  affiliationName: string;
-  affiliationId: string;
-  languageId: string;
-  languageName: string;
-  otherAffiliationName: string;
 }
 
 export interface TemplateInterface {
@@ -69,7 +59,6 @@ export interface MyVersionedTemplatesInterface {
   modifiedById?: number | null;
   versionType?: string | null;
   visibility: string;
-  errors?: string[] | null;
   template?: {
     __typename?: string; // Match GraphQL's optional __typename
     id?: number | null;
@@ -146,9 +135,28 @@ export interface TagsInterface {
 
 export interface QuestionTypesInterface {
   id: number;
-  errors: string[];
   name: string;
   usageDescription: string;
+}
+
+export interface QuestionOptions {
+  id?: number | null;
+  text: string;
+  orderNumber: number;
+  isDefault?: boolean | null;
+  questionId: number;
+}
+
+export interface Question {
+  id?: number | null | undefined;
+  displayOrder?: number | null;
+  questionText?: string | null;
+  requirementText?: string | null;
+  guidanceText?: string | null;
+  sampleText?: string | null;
+  useSampleTextAsDefault?: boolean | null;
+  required?: boolean;
+  questionOptions?: QuestionOptions[] | null;
 }
 
 export interface ProjectItemProps {
