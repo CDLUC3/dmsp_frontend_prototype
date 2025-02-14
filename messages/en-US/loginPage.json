@@ -1,0 +1,13 @@
+{
+  "LoginPage": {
+    "pageTitle": "Login",
+    "emailAddress": "Email address",
+    "singleSignOn": "To enable Single Sign On (SSO), use your institutional address. You will be redirected to your institution&apos;s single sign on platform.",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "continue": "Continue",
+    "login": "Login",
+    "signupText": "Create a free DMP Tool account instead",
+    "getHelpText": "Get Help"
+  }
+}

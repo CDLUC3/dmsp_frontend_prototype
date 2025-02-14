@@ -63,8 +63,8 @@
     "headingUpdateProfile": "Atualizar Perfil",
     "yourProfile": "Seu Perfil",
     "emailAndAuth": "E-mail e autenticação",
-    "firstName": "Primeiro nome",
-    "lastName": "Sobrenome",
+    "givenName": "Primeiro nome",
+    "surName": "Sobrenome",
     "institution": "Instituição",
     "language": "Idioma",
     "headingPrimaryEmail": "Endereço de e-mail principal",
@@ -128,9 +128,10 @@
       "search": "Buscar",
       "select": "Select",
       "next": "Seguinte",
+      "save": "Salvar",
+      "remove": "Remover",
       "confirm": "Confirmação",
-      "cancel": "Cancelar",
-      "remove": "Remover"
+      "cancel": "Cancelar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave"
@@ -146,6 +147,14 @@
       "noItemsFound": "Nenhum item encontrado",
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa"
+    },
+    "tabs": {
+      "editQuestion": "Editar Pergunta",
+      "options": "Opções",
+      "logic": "Lógica"
+    },
+    "headings": {
+      "preview": "Pré-visualizar"
     }
   }
 }

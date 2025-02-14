@@ -13,6 +13,8 @@ interface InputProps {
   type?: string;
   label: string;
   placeholder?: string;
+  ariaDescribedBy?: string;
+  ariaLabel?: string;
   value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
@@ -31,6 +33,8 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
   type,
   label,
   placeholder,
+  ariaDescribedBy,
+  ariaLabel,
   value,
   onChange,
   className = '',
@@ -64,6 +68,8 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
           onChange={onChange}
           value={value}
           disabled={disabled}
+          aria-describedby={ariaDescribedBy}
+          aria-label={ariaLabel}
           {...rest}
         />
 

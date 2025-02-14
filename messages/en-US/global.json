@@ -63,8 +63,8 @@
     "headingUpdateProfile": "Update Profile",
     "yourProfile": "Your Profile",
     "emailAndAuth": "Email and Authentication",
-    "firstName": "First name",
-    "lastName": "Last name",
+    "givenName": "First name",
+    "surName": "Last name",
     "institution": "Institution",
     "language": "Language",
     "headingPrimaryEmail": "Primary email address",
@@ -128,9 +128,10 @@
       "search": "Search",
       "select": "Select",
       "next": "Next",
+      "save": "Save",
+      "remove": "Remove",
       "confirm": "Confirm",
-      "cancel": "Cancel",
-      "remove": "Remove"
+      "cancel": "Cancel"
     },
     "labels": {
       "searchByKeyword": "Search by keyword"
@@ -145,7 +146,16 @@
       "loading": "Loading",
       "noItemsFound": "No items found",
       "somethingWentWrong": "Something went wrong. Please try again.",
-      "resultsText": "{name} results match your search"
+      "resultsText": "{name} results match your search",
+      "fixBelow": "Please fix the errors below"
+    },
+    "tabs": {
+      "editQuestion": "Edit Question",
+      "options": "Options",
+      "logic": "Logic"
+    },
+    "headings": {
+      "preview": "Preview"
     }
   }
 }

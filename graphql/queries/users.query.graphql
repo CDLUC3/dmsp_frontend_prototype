@@ -10,7 +10,12 @@ query Me{
       isPrimary
       isConfirmed
     }
-    errors
+    errors {
+      general
+      email
+      password
+      role
+    }
     affiliation {
       id
       name

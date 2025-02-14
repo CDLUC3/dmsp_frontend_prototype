@@ -2,6 +2,9 @@
 
 ### Updated
 - Updated `/template/[templateId]/access` page to hook it up to real data [#223]
+- Updated the Edit Question `template/[templateId]/q/[q_slug]/page.tsx` with actual data from backend and added functionality for `options` question types [#188]
+- Updated the Add Question`template/[templateId]/q/new/page.tsx` page with actual data from backend and added functionality to accomodate `option` question types. [#188]
+- Updated shared FormInput component [#188]
 - Updated `/template/create/page.tsx`[#186]
 - Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
 - Updated existing Templates graphql query with more fields [#186]
@@ -16,7 +19,12 @@
 
 ### Added
 - Added new `QuestionEdit` and `QuestionTypeCard` components [#220]
-
+- Added new Question and QuestionOption types [#188]
+- Added a new FormTextArea component [#188]
+- Added new QuestionOptionsComponent for handling the `options` question types in the form [#188]
+- Added new QuestionAdd component for adding a new question [#188]
+- Added new `QuestionsDisplayOrder` and `Question` queries and `AddQuestion` and `UpdateQuestion` mutations [#188]
+- Added useSampleTextAsDefault checkbox for text field question types [#188]
 
 ### Fixed
 
@@ -25,6 +33,12 @@
 
 ### Updated
 =======
+- Updated `/graphql` files to include new backend error objects [#308]
+- Updated `/account/profile/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/section/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/section/create/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/section/[section_slug]/page.tsx` to display the new backend field level errors [#308]
 - Updated `/template/create/page.tsx`[#186]
 - Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
 - Updated existing Templates graphql query with more fields [#186]
@@ -45,6 +59,10 @@
 - Updated app/[locale]/template page to hook it up to backend and handle errors and translations[#82]
 - Updated account/profile, email/email-confirmed, email/verification-failed, and account/connections to use new, shared layout containers [#185]
 - Refactored font family usage for consistency.
+- Updated the Login and Signup pages to function as the wireframes. [#117]
+- Updated TypeAheadWithOther component to be a bit more generic [#117]
+- Cleaned up some of the error handling code so that it's easier to debug and
+  trace issues. [#117]
 
 ### Added
 - Added `MyVersionedTemplates` and `PublishedTemplates` graphql queries and `addTemplateMutation` graphql mutation [#186]
@@ -68,7 +86,7 @@
 - Added ability to add 'Other' affiliation in the User Profile page [#170]
 - Created create/select-template page and test [#167]
   - Created new components for this page
-  - Created Template Select List Item 
+  - Created Template Select List Item
 - Template Builder: Access Page [#166]
 - Created css for sectionContainer, sectionHeader, sectionContent for generic sections
 - Updated mobile breadcrumbs css

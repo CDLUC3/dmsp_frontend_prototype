@@ -1,0 +1,76 @@
+.optionsRow {
+  display: flex;
+  flex-direction: row;
+
+  .orderNumber {
+    max-width: 100px;
+  }
+}
+
+.deleteButton {
+  margin-bottom: 1rem;
+}
+
+.formRow {
+  display: flex;
+  flex-direction: row;
+
+}
+
+.tableHeader {
+  font-weight: 700;
+  font-size:medium;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.cell {
+  padding: 10px;
+  flex: 1;
+}
+
+.cellData {
+  border: 1px solid #ccc;
+}
+
+.text {
+  min-width: 200px;
+}
+
+.orderNumber {
+  max-width: 30px;
+}
+
+.dmpIcon {
+  fill: black;
+}
+
+.dmpIcon:hover {
+  fill: red;
+}
+
+.remove {
+  display:flex;
+  align-items: center;
+  padding-top: 0.75rem;
+}
+
+.default {
+  margin-left: 20px;
+}
+
+.optionsCheckbox {
+  margin-bottom: 0;
+
+  .checkBox {
+    margin-top: 10px;
+  }
+}
+
+.textFieldLabel {
+  white-space: nowrap;
+}
