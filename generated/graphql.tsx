@@ -3155,6 +3155,14 @@ export type UpdateUserProfileInput = {
   surName: Scalars['String']['input'];
 };
 
+export type AddProjectMutationVariables = Exact<{
+  title: Scalars['String']['input'];
+  isTestProject?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type AddProjectMutation = { __typename?: 'Mutation', addProject?: { __typename?: 'Project', errors?: { __typename?: 'ProjectErrors', title?: string | null, general?: string | null } | null } | null };
+
 export type AddQuestionMutationVariables = Exact<{
   input: AddQuestionInput;
 }>;
@@ -3355,6 +3363,43 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
+export const AddProjectDocument = gql`
+    mutation AddProject($title: String!, $isTestProject: Boolean) {
+  addProject(title: $title, isTestProject: $isTestProject) {
+    errors {
+      title
+      general
+    }
+  }
+}
+    `;
+export type AddProjectMutationFn = Apollo.MutationFunction<AddProjectMutation, AddProjectMutationVariables>;
+
+/**
+ * __useAddProjectMutation__
+ *
+ * To run a mutation, you first call `useAddProjectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectMutation, { data, loading, error }] = useAddProjectMutation({
+ *   variables: {
+ *      title: // value for 'title'
+ *      isTestProject: // value for 'isTestProject'
+ *   },
+ * });
+ */
+export function useAddProjectMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectMutation, AddProjectMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddProjectMutation, AddProjectMutationVariables>(AddProjectDocument, options);
+      }
+export type AddProjectMutationHookResult = ReturnType<typeof useAddProjectMutation>;
+export type AddProjectMutationResult = Apollo.MutationResult<AddProjectMutation>;
+export type AddProjectMutationOptions = Apollo.BaseMutationOptions<AddProjectMutation, AddProjectMutationVariables>;
 export const AddQuestionDocument = gql`
     mutation AddQuestion($input: AddQuestionInput!) {
   addQuestion(input: $input) {

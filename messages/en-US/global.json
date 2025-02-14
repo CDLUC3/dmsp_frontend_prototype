@@ -135,7 +135,8 @@
       "cancel": "Cancel",
       "linkUpdate": "Update",
       "linkExpand": "Expand",
-      "linkCollapse": "Collapse"
+      "linkCollapse": "Collapse",
+      "continue": "Continue"
     },
     "labels": {
       "searchByKeyword": "Search by keyword"

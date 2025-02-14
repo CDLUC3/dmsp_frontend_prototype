@@ -295,6 +295,7 @@ const SignUpPage: React.FC = () => {
               <TypeAheadWithOther
                 className={styles.typeAhead}
                 label={t('institution')}
+                required={true}
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
                 resultsKey="affiliations"
@@ -302,7 +303,6 @@ const SignUpPage: React.FC = () => {
                 helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}
                 error={fieldErrors?.affiliationId}
-                required={false}
               />
               {otherField && (
                 <TextField

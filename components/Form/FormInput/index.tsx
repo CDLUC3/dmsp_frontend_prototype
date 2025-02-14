@@ -13,6 +13,7 @@ interface InputProps {
   type?: string;
   label: string;
   placeholder?: string;
+  description?: string;
   ariaDescribedBy?: string;
   ariaLabel?: string;
   value?: string | number;
@@ -33,6 +34,7 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
   type,
   label,
   placeholder,
+  description,
   ariaDescribedBy,
   ariaLabel,
   value,
@@ -59,6 +61,9 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
         data-testid="field-wrapper"
       >
         <Label htmlFor={id} className={labelClasses}>{label}</Label>
+        <Text slot="description" className="help">
+          {description}
+        </Text>
         <Input
           id={id}
           name={name}
