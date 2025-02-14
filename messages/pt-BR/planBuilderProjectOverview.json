@@ -6,6 +6,11 @@
     "home": "Home",
     "projects": "Projetos",
     "project": "Projeto",
+    "projectDetails": "Detalhes de Projeto",
+    "dates": "Datas",
+    "collaborators": "Colaboradores",
+    "funding": "Financiamento",
+    "grantId": "ID do Financiamento",
     "edit": "Alterar",
     "editProject": "Editar Detalhes do Projeto",
     "funders": "Finalizações",
@@ -41,6 +46,12 @@
     "update": "Atualizar plano",
     "updatePlan": "Atualizar este plano",
     "dateRange": "{startDate} até {endDate}"
+  },
+  "ProjectsListPage": {
+    "intro": "Gerenciador ou criar projeto DMSP ou por DMP",
+    "buttons": {
+      "createProject": "Criar Projeto"
+    }
   },
   "ProjectsCreateProject": {
     "pageTitle": "Criar um novo blog",

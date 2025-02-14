@@ -98,7 +98,6 @@ export async function middleware(request: NextRequest) {
   if (!accessToken && refreshToken) {
     try {
       await refreshAuthTokens(cookies);
-
     } catch (error) {
       logECS('error', 'refreshing', {
         error: error,

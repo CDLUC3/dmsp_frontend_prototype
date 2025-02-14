@@ -36,6 +36,21 @@ export interface TemplateInterface {
   visibility?: string;
 }
 
+export interface TemplateItemProps {
+  id?: number | null;
+  template?: {
+    id?: number | null;
+  },
+  title: string;
+  content?: JSX.Element | null;
+  description?: string;
+  link?: LinkHref;
+  defaultExpanded: boolean;
+  funder?: string;
+  lastUpdated?: string | null;
+  publishStatus?: string | null;
+}
+
 export interface MyVersionedTemplatesInterface {
   id?: number | null;
   name: string;
@@ -122,6 +137,67 @@ export interface QuestionTypesInterface {
   id: number;
   name: string;
   usageDescription: string;
+}
+
+export interface QuestionOptions {
+  id?: number | null;
+  text: string;
+  orderNumber: number;
+  isDefault?: boolean | null;
+  questionId: number;
+}
+
+export interface Question {
+  id?: number | null | undefined;
+  displayOrder?: number | null;
+  questionText?: string | null;
+  requirementText?: string | null;
+  guidanceText?: string | null;
+  sampleText?: string | null;
+  useSampleTextAsDefault?: boolean | null;
+  required?: boolean;
+  questionOptions?: QuestionOptions[] | null;
+}
+
+export interface ProjectItemProps {
+  id?: number | null;
+  title: string;
+  description?: string;
+  link?: LinkHref;
+  defaultExpanded: boolean;
+  funder?: string;
+  startDate: string;
+  endDate: string;
+  collaborators: {
+    name: string;
+    roles: string[];
+    orcid?: string | null;
+  }[];
+  grantId?: string | null;
+}
+
+export interface ProjectContributor {
+  id?: number | null;
+  givenName: string;
+  surName: string;
+  email?: string | null;
+  orcid?: string | null;
+  affiliation?: Affiliation | null;
+  contributorRoles: ContributorRole[];
+}
+
+export interface ContributorRole {
+  id?: number | null;
+  displayOrder: number;
+  label: string;
+  uri: string;
+  description?: string | null;
+}
+
+export interface Affiliation {
+  id?: number | null;
+  name: string;
+  url?: string | null;
 }
 
 interface RadioButtonInterface {

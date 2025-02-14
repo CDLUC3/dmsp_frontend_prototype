@@ -3163,6 +3163,20 @@ export type AddProjectMutationVariables = Exact<{
 
 export type AddProjectMutation = { __typename?: 'Mutation', addProject?: { __typename?: 'Project', errors?: { __typename?: 'ProjectErrors', title?: string | null, general?: string | null } | null } | null };
 
+export type AddQuestionMutationVariables = Exact<{
+  input: AddQuestionInput;
+}>;
+
+
+export type AddQuestionMutation = { __typename?: 'Mutation', addQuestion: { __typename?: 'Question', id?: number | null, displayOrder?: number | null, questionText?: string | null, questionTypeId?: number | null, requirementText?: string | null, guidanceText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, required?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', isDefault?: boolean | null, id?: number | null, questionId: number, orderNumber: number, text: string }> | null } };
+
+export type UpdateQuestionMutationVariables = Exact<{
+  input: UpdateQuestionInput;
+}>;
+
+
+export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, questionTypeId?: number | null, guidanceText?: string | null, isDirty?: boolean | null, required?: boolean | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionText?: string | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, orderNumber: number, questionId: number, text: string, isDefault?: boolean | null }> | null } };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
@@ -3176,6 +3190,22 @@ export type UpdateSectionMutationVariables = Exact<{
 
 
 export type UpdateSectionMutation = { __typename?: 'Mutation', updateSection: { __typename?: 'Section', id?: number | null, name: string, introduction?: string | null, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, introduction?: string | null, requirements?: string | null, guidance?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null } };
+
+export type AddTemplateCollaboratorMutationVariables = Exact<{
+  templateId: Scalars['Int']['input'];
+  email: Scalars['String']['input'];
+}>;
+
+
+export type AddTemplateCollaboratorMutation = { __typename?: 'Mutation', addTemplateCollaborator?: { __typename?: 'TemplateCollaborator', email: string, id?: number | null, errors?: { __typename?: 'TemplateCollaboratorErrors', general?: string | null, email?: string | null } | null } | null };
+
+export type RemoveTemplateCollaboratorMutationVariables = Exact<{
+  templateId: Scalars['Int']['input'];
+  email: Scalars['String']['input'];
+}>;
+
+
+export type RemoveTemplateCollaboratorMutation = { __typename?: 'Mutation', removeTemplateCollaborator?: { __typename?: 'TemplateCollaborator', errors?: { __typename?: 'TemplateCollaboratorErrors', general?: string | null, email?: string | null } | null } | null };
 
 export type ArchiveTemplateMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -3248,10 +3278,29 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
 
+export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'Project', title: string, id?: number | null, startDate?: string | null, endDate?: string | null, contributors?: Array<{ __typename?: 'ProjectContributor', surName?: string | null, givenName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string }> | null }> | null, funders?: Array<{ __typename?: 'ProjectFunder', grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, uri: string } | null }> | null } | null> | null };
+
 export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type QuestionTypesQuery = { __typename?: 'Query', questionTypes?: Array<{ __typename?: 'QuestionType', id?: number | null, name: string, usageDescription: string, errors?: { __typename?: 'QuestionTypeErrors', general?: string | null, name?: string | null, usageDescription?: string | null } | null } | null> | null };
+
+export type QuestionsDisplayOrderQueryVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+}>;
+
+
+export type QuestionsDisplayOrderQuery = { __typename?: 'Query', questions?: Array<{ __typename?: 'Question', displayOrder?: number | null } | null> | null };
+
+export type QuestionQueryVariables = Exact<{
+  questionId: Scalars['Int']['input'];
+}>;
+
+
+export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
 
 export type SectionsDisplayOrderQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -3299,7 +3348,14 @@ export type TemplateQueryVariables = Exact<{
 }>;
 
 
-export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', name: string, description?: string | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
+export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, description?: string | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
+
+export type TemplateCollaboratorsQueryVariables = Exact<{
+  templateId: Scalars['Int']['input'];
+}>;
+
+
+export type TemplateCollaboratorsQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, collaborators?: Array<{ __typename?: 'TemplateCollaborator', email: string, id?: number | null, user?: { __typename?: 'User', id?: number | null, email: any, givenName?: string | null, surName?: string | null } | null }> | null, admins?: Array<{ __typename?: 'User', givenName?: string | null, surName?: string | null, email: any }> | null, owner?: { __typename?: 'Affiliation', name: string } | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3344,6 +3400,112 @@ export function useAddProjectMutation(baseOptions?: Apollo.MutationHookOptions<A
 export type AddProjectMutationHookResult = ReturnType<typeof useAddProjectMutation>;
 export type AddProjectMutationResult = Apollo.MutationResult<AddProjectMutation>;
 export type AddProjectMutationOptions = Apollo.BaseMutationOptions<AddProjectMutation, AddProjectMutationVariables>;
+export const AddQuestionDocument = gql`
+    mutation AddQuestion($input: AddQuestionInput!) {
+  addQuestion(input: $input) {
+    errors {
+      general
+      questionText
+    }
+    id
+    displayOrder
+    questionText
+    questionTypeId
+    requirementText
+    guidanceText
+    sampleText
+    useSampleTextAsDefault
+    required
+    questionOptions {
+      isDefault
+      id
+      questionId
+      orderNumber
+      text
+    }
+  }
+}
+    `;
+export type AddQuestionMutationFn = Apollo.MutationFunction<AddQuestionMutation, AddQuestionMutationVariables>;
+
+/**
+ * __useAddQuestionMutation__
+ *
+ * To run a mutation, you first call `useAddQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addQuestionMutation, { data, loading, error }] = useAddQuestionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddQuestionMutation(baseOptions?: Apollo.MutationHookOptions<AddQuestionMutation, AddQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddQuestionMutation, AddQuestionMutationVariables>(AddQuestionDocument, options);
+      }
+export type AddQuestionMutationHookResult = ReturnType<typeof useAddQuestionMutation>;
+export type AddQuestionMutationResult = Apollo.MutationResult<AddQuestionMutation>;
+export type AddQuestionMutationOptions = Apollo.BaseMutationOptions<AddQuestionMutation, AddQuestionMutationVariables>;
+export const UpdateQuestionDocument = gql`
+    mutation UpdateQuestion($input: UpdateQuestionInput!) {
+  updateQuestion(input: $input) {
+    id
+    questionTypeId
+    guidanceText
+    errors {
+      general
+      questionText
+    }
+    isDirty
+    required
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    sectionId
+    templateId
+    questionText
+    questionOptions {
+      id
+      orderNumber
+      questionId
+      text
+      isDefault
+    }
+  }
+}
+    `;
+export type UpdateQuestionMutationFn = Apollo.MutationFunction<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
+
+/**
+ * __useUpdateQuestionMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuestionMutation, { data, loading, error }] = useUpdateQuestionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateQuestionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuestionMutation, UpdateQuestionMutationVariables>(UpdateQuestionDocument, options);
+      }
+export type UpdateQuestionMutationHookResult = ReturnType<typeof useUpdateQuestionMutation>;
+export type UpdateQuestionMutationResult = Apollo.MutationResult<UpdateQuestionMutation>;
+export type UpdateQuestionMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {
@@ -3452,6 +3614,82 @@ export function useUpdateSectionMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateSectionMutationHookResult = ReturnType<typeof useUpdateSectionMutation>;
 export type UpdateSectionMutationResult = Apollo.MutationResult<UpdateSectionMutation>;
 export type UpdateSectionMutationOptions = Apollo.BaseMutationOptions<UpdateSectionMutation, UpdateSectionMutationVariables>;
+export const AddTemplateCollaboratorDocument = gql`
+    mutation AddTemplateCollaborator($templateId: Int!, $email: String!) {
+  addTemplateCollaborator(templateId: $templateId, email: $email) {
+    errors {
+      general
+      email
+    }
+    email
+    id
+  }
+}
+    `;
+export type AddTemplateCollaboratorMutationFn = Apollo.MutationFunction<AddTemplateCollaboratorMutation, AddTemplateCollaboratorMutationVariables>;
+
+/**
+ * __useAddTemplateCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useAddTemplateCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddTemplateCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addTemplateCollaboratorMutation, { data, loading, error }] = useAddTemplateCollaboratorMutation({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useAddTemplateCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<AddTemplateCollaboratorMutation, AddTemplateCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddTemplateCollaboratorMutation, AddTemplateCollaboratorMutationVariables>(AddTemplateCollaboratorDocument, options);
+      }
+export type AddTemplateCollaboratorMutationHookResult = ReturnType<typeof useAddTemplateCollaboratorMutation>;
+export type AddTemplateCollaboratorMutationResult = Apollo.MutationResult<AddTemplateCollaboratorMutation>;
+export type AddTemplateCollaboratorMutationOptions = Apollo.BaseMutationOptions<AddTemplateCollaboratorMutation, AddTemplateCollaboratorMutationVariables>;
+export const RemoveTemplateCollaboratorDocument = gql`
+    mutation RemoveTemplateCollaborator($templateId: Int!, $email: String!) {
+  removeTemplateCollaborator(templateId: $templateId, email: $email) {
+    errors {
+      general
+      email
+    }
+  }
+}
+    `;
+export type RemoveTemplateCollaboratorMutationFn = Apollo.MutationFunction<RemoveTemplateCollaboratorMutation, RemoveTemplateCollaboratorMutationVariables>;
+
+/**
+ * __useRemoveTemplateCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useRemoveTemplateCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveTemplateCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeTemplateCollaboratorMutation, { data, loading, error }] = useRemoveTemplateCollaboratorMutation({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useRemoveTemplateCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<RemoveTemplateCollaboratorMutation, RemoveTemplateCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveTemplateCollaboratorMutation, RemoveTemplateCollaboratorMutationVariables>(RemoveTemplateCollaboratorDocument, options);
+      }
+export type RemoveTemplateCollaboratorMutationHookResult = ReturnType<typeof useRemoveTemplateCollaboratorMutation>;
+export type RemoveTemplateCollaboratorMutationResult = Apollo.MutationResult<RemoveTemplateCollaboratorMutation>;
+export type RemoveTemplateCollaboratorMutationOptions = Apollo.BaseMutationOptions<RemoveTemplateCollaboratorMutation, RemoveTemplateCollaboratorMutationVariables>;
 export const ArchiveTemplateDocument = gql`
     mutation ArchiveTemplate($templateId: Int!) {
   archiveTemplate(templateId: $templateId) {
@@ -3873,6 +4111,63 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const MyProjectsDocument = gql`
+    query MyProjects {
+  myProjects {
+    title
+    id
+    contributors {
+      surName
+      givenName
+      contributorRoles {
+        label
+      }
+      orcid
+    }
+    startDate
+    endDate
+    funders {
+      affiliation {
+        name
+        uri
+      }
+      grantId
+    }
+  }
+}
+    `;
+
+/**
+ * __useMyProjectsQuery__
+ *
+ * To run a query within a React component, call `useMyProjectsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyProjectsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyProjectsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyProjectsQuery(baseOptions?: Apollo.QueryHookOptions<MyProjectsQuery, MyProjectsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyProjectsQuery, MyProjectsQueryVariables>(MyProjectsDocument, options);
+      }
+export function useMyProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyProjectsQuery, MyProjectsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyProjectsQuery, MyProjectsQueryVariables>(MyProjectsDocument, options);
+        }
+export function useMyProjectsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyProjectsQuery, MyProjectsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyProjectsQuery, MyProjectsQueryVariables>(MyProjectsDocument, options);
+        }
+export type MyProjectsQueryHookResult = ReturnType<typeof useMyProjectsQuery>;
+export type MyProjectsLazyQueryHookResult = ReturnType<typeof useMyProjectsLazyQuery>;
+export type MyProjectsSuspenseQueryHookResult = ReturnType<typeof useMyProjectsSuspenseQuery>;
+export type MyProjectsQueryResult = Apollo.QueryResult<MyProjectsQuery, MyProjectsQueryVariables>;
 export const QuestionTypesDocument = gql`
     query QuestionTypes {
   questionTypes {
@@ -3919,6 +4214,107 @@ export type QuestionTypesQueryHookResult = ReturnType<typeof useQuestionTypesQue
 export type QuestionTypesLazyQueryHookResult = ReturnType<typeof useQuestionTypesLazyQuery>;
 export type QuestionTypesSuspenseQueryHookResult = ReturnType<typeof useQuestionTypesSuspenseQuery>;
 export type QuestionTypesQueryResult = Apollo.QueryResult<QuestionTypesQuery, QuestionTypesQueryVariables>;
+export const QuestionsDisplayOrderDocument = gql`
+    query QuestionsDisplayOrder($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    displayOrder
+  }
+}
+    `;
+
+/**
+ * __useQuestionsDisplayOrderQuery__
+ *
+ * To run a query within a React component, call `useQuestionsDisplayOrderQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuestionsDisplayOrderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuestionsDisplayOrderQuery({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *   },
+ * });
+ */
+export function useQuestionsDisplayOrderQuery(baseOptions: Apollo.QueryHookOptions<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables> & ({ variables: QuestionsDisplayOrderQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>(QuestionsDisplayOrderDocument, options);
+      }
+export function useQuestionsDisplayOrderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>(QuestionsDisplayOrderDocument, options);
+        }
+export function useQuestionsDisplayOrderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>(QuestionsDisplayOrderDocument, options);
+        }
+export type QuestionsDisplayOrderQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderQuery>;
+export type QuestionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderLazyQuery>;
+export type QuestionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderSuspenseQuery>;
+export type QuestionsDisplayOrderQueryResult = Apollo.QueryResult<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>;
+export const QuestionDocument = gql`
+    query Question($questionId: Int!) {
+  question(questionId: $questionId) {
+    id
+    guidanceText
+    errors {
+      general
+      questionText
+    }
+    displayOrder
+    questionText
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    sectionId
+    templateId
+    questionTypeId
+    questionOptions {
+      id
+      isDefault
+      orderNumber
+      text
+      questionId
+    }
+    isDirty
+  }
+}
+    `;
+
+/**
+ * __useQuestionQuery__
+ *
+ * To run a query within a React component, call `useQuestionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuestionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuestionQuery({
+ *   variables: {
+ *      questionId: // value for 'questionId'
+ *   },
+ * });
+ */
+export function useQuestionQuery(baseOptions: Apollo.QueryHookOptions<QuestionQuery, QuestionQueryVariables> & ({ variables: QuestionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QuestionQuery, QuestionQueryVariables>(QuestionDocument, options);
+      }
+export function useQuestionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionQuery, QuestionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QuestionQuery, QuestionQueryVariables>(QuestionDocument, options);
+        }
+export function useQuestionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionQuery, QuestionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<QuestionQuery, QuestionQueryVariables>(QuestionDocument, options);
+        }
+export type QuestionQueryHookResult = ReturnType<typeof useQuestionQuery>;
+export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery>;
+export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
+export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
 export const SectionsDisplayOrderDocument = gql`
     query SectionsDisplayOrder($templateId: Int!) {
   sections(templateId: $templateId) {
@@ -4306,6 +4702,7 @@ export type TemplatesQueryResult = Apollo.QueryResult<TemplatesQuery, TemplatesQ
 export const TemplateDocument = gql`
     query Template($templateId: Int!) {
   template(templateId: $templateId) {
+    id
     name
     description
     errors {
@@ -4378,6 +4775,65 @@ export type TemplateQueryHookResult = ReturnType<typeof useTemplateQuery>;
 export type TemplateLazyQueryHookResult = ReturnType<typeof useTemplateLazyQuery>;
 export type TemplateSuspenseQueryHookResult = ReturnType<typeof useTemplateSuspenseQuery>;
 export type TemplateQueryResult = Apollo.QueryResult<TemplateQuery, TemplateQueryVariables>;
+export const TemplateCollaboratorsDocument = gql`
+    query TemplateCollaborators($templateId: Int!) {
+  template(templateId: $templateId) {
+    id
+    name
+    collaborators {
+      email
+      id
+      user {
+        id
+        email
+        givenName
+        surName
+      }
+    }
+    admins {
+      givenName
+      surName
+      email
+    }
+    owner {
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useTemplateCollaboratorsQuery__
+ *
+ * To run a query within a React component, call `useTemplateCollaboratorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTemplateCollaboratorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTemplateCollaboratorsQuery({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *   },
+ * });
+ */
+export function useTemplateCollaboratorsQuery(baseOptions: Apollo.QueryHookOptions<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables> & ({ variables: TemplateCollaboratorsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>(TemplateCollaboratorsDocument, options);
+      }
+export function useTemplateCollaboratorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>(TemplateCollaboratorsDocument, options);
+        }
+export function useTemplateCollaboratorsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>(TemplateCollaboratorsDocument, options);
+        }
+export type TemplateCollaboratorsQueryHookResult = ReturnType<typeof useTemplateCollaboratorsQuery>;
+export type TemplateCollaboratorsLazyQueryHookResult = ReturnType<typeof useTemplateCollaboratorsLazyQuery>;
+export type TemplateCollaboratorsSuspenseQueryHookResult = ReturnType<typeof useTemplateCollaboratorsSuspenseQuery>;
+export type TemplateCollaboratorsQueryResult = Apollo.QueryResult<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {

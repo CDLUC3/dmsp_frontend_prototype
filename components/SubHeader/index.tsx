@@ -5,7 +5,8 @@ function SubHeader() {
     return (
         <div className={styles['c-subheader']}>
             <a className={`${styles['c-logo-org']} ${styles['has-new-window-popup-info']}`} href="http://cdlib.org/services/uc3" target="_blank">
-                <Image alt="University of California, Office of the President (UCOP) logo" width="104" height="39" src="/images/logo-cdl.png" />                <span className={styles['new-window-popup-info']}>Opens in a new window</span></a>
+                <Image alt="University of California, Office of the President (UCOP) logo" width="104" height="39" src="/images/logo-cdl.png" />
+                <span className={styles['new-window-popup-info']}>Opens in a new window</span></a>
 
             <ul className={styles['c-links-org']}>
 

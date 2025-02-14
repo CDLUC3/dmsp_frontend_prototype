@@ -1,0 +1,32 @@
+query QuestionsDisplayOrder($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    displayOrder
+  }
+}
+
+query Question($questionId: Int!) {
+  question(questionId: $questionId) {
+    id
+    guidanceText
+    errors {
+      general
+      questionText
+    }
+    displayOrder
+    questionText
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    sectionId
+    templateId
+    questionTypeId
+    questionOptions {
+      id
+      isDefault
+      orderNumber
+      text
+      questionId
+    }
+    isDirty
+  }
+}

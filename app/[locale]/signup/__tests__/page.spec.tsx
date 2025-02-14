@@ -110,7 +110,6 @@ const mockUseRouter = useRouter as jest.Mock;
 
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 
-
 global.fetch = global.fetch || require('node-fetch');
 
 

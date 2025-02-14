@@ -129,6 +129,13 @@
       "search": "Search",
       "select": "Select",
       "next": "Next",
+      "save": "Save",
+      "remove": "Remove",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "linkUpdate": "Update",
+      "linkExpand": "Expand",
+      "linkCollapse": "Collapse",
       "continue": "Continue"
     },
     "labels": {
@@ -146,6 +153,14 @@
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search",
       "fixBelow": "Please fix the errors below"
+    },
+    "tabs": {
+      "editQuestion": "Edit Question",
+      "options": "Options",
+      "logic": "Logic"
+    },
+    "headings": {
+      "preview": "Preview"
     }
   }
 }

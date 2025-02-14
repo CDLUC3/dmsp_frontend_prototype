@@ -123,13 +123,19 @@
       "question": "Pergunta",
       "projects": "Projetos"
     },
-    "lastRevisedBy": "Última revisão por",
+    "lastRevisedBy": "Last revised by",
     "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
       "next": "Seguinte",
-      "continue": "Continue"
+      "save": "Salvar",
+      "remove": "Remover",
+      "confirm": "Confirmação",
+      "cancel": "Cancelar",
+      "linkUpdate": "Atualização",
+      "linkExpand": "Expandir",
+      "linkCollapse": "Retrair"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave"
@@ -146,6 +152,14 @@
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
       "fixBelow": "Por favor, corrija os erros abaixo"
+    },
+    "tabs": {
+      "editQuestion": "Editar Pergunta",
+      "options": "Opções",
+      "logic": "Lógica"
+    },
+    "headings": {
+      "preview": "Pré-visualizar"
     }
   }
 }
