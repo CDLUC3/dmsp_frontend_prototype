@@ -123,3 +123,23 @@ export interface QuestionTypesInterface {
   name: string;
   usageDescription: string;
 }
+
+export interface QuestionOptions {
+  id?: number | null;
+  text: string;
+  orderNumber: number;
+  isDefault?: boolean | null;
+  questionId: number;
+}
+
+export interface Question {
+  id?: number | null | undefined;
+  displayOrder?: number | null;
+  questionText?: string | null;
+  requirementText?: string | null;
+  guidanceText?: string | null;
+  sampleText?: string | null;
+  useSampleTextAsDefault?: boolean | null;
+  required?: boolean;
+  questionOptions?: QuestionOptions[] | null;
+}
