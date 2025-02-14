@@ -1,8 +1,8 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 import {
   Breadcrumb,
@@ -18,8 +18,8 @@ import {
 
 //Components
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {filterTemplates} from '@/components/SelectExistingTemplate/utils';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
 import TemplateList from '@/components/TemplateList';
 
 //GraphQL
@@ -30,12 +30,12 @@ import {
 } from '@/generated/graphql';
 
 // Hooks
-import {useScrollToTop} from '@/hooks/scrollToTop';
+import { useScrollToTop } from '@/hooks/scrollToTop';
 // Other
 import logECS from '@/utils/clientLogger';
-import {MyVersionedTemplatesInterface, TemplateItemProps} from '@/app/types';
-import {useFormatDate} from '@/hooks/useFormatDate';
-import {useToast} from '@/context/ToastContext';
+import { MyVersionedTemplatesInterface, TemplateItemProps } from '@/app/types';
+import { useFormatDate } from '@/hooks/useFormatDate';
+import { useToast } from '@/context/ToastContext';
 
 
 // Step 2 of the Create Template start pages
@@ -105,9 +105,9 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       if (response?.data) {
         const responseData = response?.data?.addTemplate;
         //Set errors using the errors prop returned from the request
-        if (responseData && responseData.errors && responseData.errors.length > 0) {
-          // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-          setErrors(responseData.errors ?? []);
+        if (responseData && responseData.errors) {
+          // Extract error messages and convert them to an array of strings
+          const errorMessages = Object.values(responseData.errors).filter((error) => error) as string[]
         }
         clearErrors();
 

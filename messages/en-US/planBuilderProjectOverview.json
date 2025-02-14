@@ -43,8 +43,9 @@
     "dateRange": "{startDate} to {endDate}"
   },
   "ProjectsCreateProject": {
+    "pageTitle": "Create a new project",
     "form": {
-      "projectTitle": "What is the title fo the project?",
+      "projectTitle": "What is the title for the project? (required)",
       "projectTitleHelpText": "This should be the formal title if you have already applied for funding, as it will be used to find your Project in the Funder’s database. This can be changed later.",
       "newOrExisting": "New or existing project?",
       "radioExistingLabel": "The project already exists or might exist",
@@ -55,6 +56,14 @@
       "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
       "checkboxLabel": "Yes, set this project to a mock or a test project.",
       "checkboxHelpText": "If you aim on publishing your DMSP eventually, we recommend leaving this unticked, so you get the full features. All real projects have a draft status you can use for testing."
+    },
+    "messages": {
+      "success": "Successfully created project",
+      "errors": {
+        "titleLength": "Name must be at least 2 characters long.",
+        "title": "Project title is required",
+        "createProjectError": "Error creating project"
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -35,7 +35,6 @@ import {
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 import { scrollToTop } from '@/utils/general';
-import styles from './createProject.module.scss';
 
 export interface CreateProjectInterface {
   projectName: string;
@@ -65,6 +64,7 @@ const ProjectsCreateProject = () => {
     radioGroup: '',
     checkboxGroup: [],
   })
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   // localization keys
@@ -101,6 +101,7 @@ const ProjectsCreateProject = () => {
 
   // Update form data
   const handleUpdate = (name: string, value: string | string[]) => {
+    setFormSubmitted(false);
     setFormData({ ...formData, [name]: value });
   };
 
@@ -117,6 +118,7 @@ const ProjectsCreateProject = () => {
 
   // Handle changes from CheckboxGroup
   const handleCheckboxChange = (value: string[]) => {
+    setFormSubmitted(false);
     setFormData((prev) => ({
       ...prev,
       checkboxGroup: value
@@ -125,23 +127,17 @@ const ProjectsCreateProject = () => {
 
   // Show Success Message
   const showSuccessToast = () => {
-    const successMessage = 'Successfully created project';
+    const successMessage = CreateProject('messages.success');
     toastState.add(successMessage, { type: 'success' });
   }
 
 
   // Client-side validation of fields
-  const validateField = (name: keyof CreateProjectInterface, value: any) => {
-    let error = '';
+  const validateField = (name: keyof CreateProjectInterface, value: string | string[]) => {
     switch (name) {
       case 'projectName':
         if (!value || value.length <= 2) {
-          error = 'Name must be at least 2 characters';
-        }
-        break;
-      case 'radioGroup':
-        if (!value) {
-          error = 'Please select an option';
+          return CreateProject('messages.errors.titleLength')
         }
         break;
     }
@@ -162,7 +158,7 @@ const ProjectsCreateProject = () => {
     Object.keys(formData).forEach((key) => {
       const name = key as keyof CreateProjectInterface;
       const value = formData[name];
-      const error = validateField(name, value);
+      const error = validateField(name, value ? value : '');
 
       if (error) {
         hasError = true;
@@ -189,9 +185,11 @@ const ProjectsCreateProject = () => {
         }
       });
 
+
       if (response.data?.addProject?.errors) {
         return response.data.addProject.errors;
       }
+      setFormSubmitted(true)
     } catch (error) {
       logECS('error', 'updateSection', {
         error: error,
@@ -200,7 +198,7 @@ const ProjectsCreateProject = () => {
       if (error instanceof ApolloError) {
         setErrors(prevErrors => [...prevErrors, error.message]);
       } else {
-        setErrors(prevErrors => [...prevErrors, 'Error creating project']);
+        setErrors(prevErrors => [...prevErrors, CreateProject('messages.errors.createProjectError')]);
       }
     }
     return {};
@@ -214,16 +212,16 @@ const ProjectsCreateProject = () => {
     setErrors([]);
 
     if (isFormValid()) {
+
       // Create new section
       const errors = await createProject();
 
       // Check if there are any errors (always exclude the GraphQL `_typename` entry)
       if (errors && Object.values(errors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
-        setFieldErrors({
-          projectName: errors.title || '',
-        });
+        setFieldErrors(prev => ({ ...prev, projectName: errors.title || '' }));
 
-        setErrors([errors.general || 'Error creating project']);
+        setErrors([errors.general || CreateProject('messages.errors.createProjectError')]);
+
       } else {
         // Show success message
         showSuccessToast();
@@ -235,14 +233,10 @@ const ProjectsCreateProject = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("***FORM DATA", formData)
-  }, [formData])
-
   return (
     <>
       <PageHeader
-        title="Create a project"
+        title={CreateProject('pageTitle')}
         description=""
         showBackButton={false}
         breadcrumbs={
@@ -276,8 +270,8 @@ const ProjectsCreateProject = () => {
               description={CreateProject('form.projectTitleHelpText')}
               isRequired={true}
               onChange={handleInputChange}
-              isInvalid={!!fieldErrors.projectName}
-              errorMessage={fieldErrors.projectName}
+              isInvalid={(!formData.projectName || !!fieldErrors.projectName) && formSubmitted}
+              errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : CreateProject('messages.errors.title')}
               id="projectName"
             />
 
@@ -286,8 +280,6 @@ const ProjectsCreateProject = () => {
               value={formData.radioGroup ?? ''}
               radioGroupLabel={radioData.radioGroupLabel}
               radioButtonData={radioData.radioButtonData}
-              isInvalid={!!fieldErrors.radioGroup}
-              errorMessage={fieldErrors.radioGroup}
               onChange={handleRadioChange}
             />
 
@@ -297,13 +289,15 @@ const ProjectsCreateProject = () => {
               checkboxGroupLabel={CreateProject('form.checkboxGroupLabel')}
               checkboxGroupDescription={CreateProject('form.checkboxGroupHelpText')}
               checkboxData={checkboxData}
-              isInvalid={!!fieldErrors.checkboxGroup}
-              errorMessage={fieldErrors.checkboxGroup ? fieldErrors.checkboxGroup : ''}
               onChange={handleCheckboxChange}
             />
 
-            <Button type="submit"
-              className="">{Global('buttons.continue')}
+            <Button
+              type="submit"
+              className=""
+              onPress={() => { setFormSubmitted(true) }}
+            >{Global('buttons.continue')}
+
             </Button>
 
           </Form>

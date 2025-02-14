@@ -1,8 +1,8 @@
 'use client'
 
-import React, {useEffect, useRef, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import {useTranslations} from "next-intl";
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from "next-intl";
 import {
   Button,
   Checkbox,
@@ -15,11 +15,11 @@ import {
   TextField,
 } from "react-aria-components";
 
-import {AffiliationsDocument} from '@/generated/graphql';
-import {useCsrf} from '@/context/CsrfContext';
+import { AffiliationsDocument } from '@/generated/graphql';
+import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
-import {handleErrors} from '@/utils/errorHandler';
-import {useAuthContext} from '@/context/AuthContext';
+import { handleErrors } from '@/utils/errorHandler';
+import { useAuthContext } from '@/context/AuthContext';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 
 import {
@@ -295,6 +295,7 @@ const SignUpPage: React.FC = () => {
               <TypeAheadWithOther
                 className={styles.typeAhead}
                 label={t('institution')}
+                required={true}
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
                 resultsKey="affiliations"
