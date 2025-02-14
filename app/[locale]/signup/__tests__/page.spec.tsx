@@ -3,7 +3,6 @@ import {
   act,
   fireEvent,
   render,
-  renderWithProviders,
   screen,
   waitFor,
 } from '@/utils/test-utils';
@@ -11,8 +10,8 @@ import SignUpPage from '../page';
 import logECS from '@/utils/clientLogger';
 
 //Need to import this useRouter after the jest.mock is in place
-import {useRouter} from 'next/navigation';
-import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
+import { useRouter } from 'next/navigation';
+import { fetchCsrfToken } from "@/utils/authHelper";
 import { useTranslations as OriginalUseTranslations } from 'next-intl';
 
 
@@ -110,7 +109,6 @@ const mockFocus = jest.fn();
 const mockUseRouter = useRouter as jest.Mock;
 
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
-const mockRefreshAuthTokens = refreshAuthTokens as jest.Mock;
 
 
 global.fetch = global.fetch || require('node-fetch');
@@ -299,11 +297,11 @@ describe('SignUpPage', () => {
 
   it('should handle 500 error', async () => {
     jest.spyOn(global, 'fetch').mockImplementation(() => {
-        return Promise.resolve({
-            ok: false,
-            status: 500,
-            json: () => Promise.resolve({ success: false, message: 'Internal Server Error' }),
-        } as unknown as Response);
+      return Promise.resolve({
+        ok: false,
+        status: 500,
+        json: () => Promise.resolve({ success: false, message: 'Internal Server Error' }),
+      } as unknown as Response);
     });
 
     render(<SignUpPage />);

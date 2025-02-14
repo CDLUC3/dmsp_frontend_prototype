@@ -109,9 +109,10 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       if (response?.data) {
         const responseData = response?.data?.addTemplate;
         //Set errors using the errors prop returned from the request
-        if (responseData && responseData.errors && responseData.errors.length > 0) {
-          // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-          setErrors(responseData.errors ?? []);
+        if (responseData && responseData.errors) {
+          // Extract error messages and convert them to an array of strings
+          const errorMessages = Object.values(responseData.errors).filter((error) => error) as string[];
+          setErrors(errorMessages);
         }
         clearErrors();
 

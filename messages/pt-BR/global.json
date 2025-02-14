@@ -63,8 +63,8 @@
     "headingUpdateProfile": "Atualizar Perfil",
     "yourProfile": "Seu Perfil",
     "emailAndAuth": "E-mail e autenticação",
-    "givenName": "Primeiro nome",
-    "surName": "Sobrenome",
+    "givenName": "First name",
+    "surName": "Last name",
     "institution": "Instituição",
     "language": "Idioma",
     "headingPrimaryEmail": "Endereço de e-mail principal",
@@ -87,7 +87,7 @@
     "btnUpdate": "Atualização",
     "btnAdd": "Adicionar",
     "linkUpdatePassword": "Atualizar senha",
-    "linkUpdateConnections": "Update connections",
+    "linkUpdateConnections": "Atualizar conexão?",
     "linkManageNotifications": "Atualizar conexão?",
     "messages": {
       "profileUpdateSuccess": "Formulário de perfil atualizado com sucesso.",
@@ -120,32 +120,32 @@
       "section": "Seção",
       "editSection": "Editar seção",
       "editTemplate": "Editar Modelo",
-      "question": "Pergunta"
+      "question": "Pergunta",
+      "projects": "Projetos"
     },
     "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
-      "next": "Seguinte"
+      "next": "Seguinte",
+      "continue": "Continue"
     },
     "labels": {
-      "searchByKeyword": ""
+      "searchByKeyword": "Pesquisar por palavra-chave"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
     },
-    "labels": {
-      "searchByKeyword": ""
-    },
     "links": {
-      "clearFilter": "clear filter"
+      "clearFilter": "limpar filtro"
     },
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
-      "resultsText": "{name} results match your search"
+      "resultsText": "Os resultados {name} correspondem à sua pesquisa",
+      "fixBelow": "Por favor, corrija os erros abaixo"
     }
   }
 }

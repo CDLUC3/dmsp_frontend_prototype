@@ -140,6 +140,8 @@ export type AddQuestionInput = {
   sectionId: Scalars['Int']['input'];
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['input'];
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type AddQuestionOptionInput = {
@@ -2133,6 +2135,8 @@ export type Question = {
   sourceQestionId?: Maybe<Scalars['Int']['output']>;
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['output'];
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: Maybe<Scalars['Boolean']['output']>;
 };
 
 /**
@@ -2499,6 +2503,8 @@ export type TagInput = {
 /** A Template used to create DMPs */
 export type Template = {
   __typename?: 'Template';
+  /** Admin users associated with the template's owner */
+  admins?: Maybe<Array<User>>;
   /** Whether or not this Template is designated as a 'Best Practice' template */
   bestPractice: Scalars['Boolean']['output'];
   /** Users from different affiliations who have been invited to collaborate on this template */
@@ -2687,12 +2693,16 @@ export type UpdateQuestionInput = {
   questionOptions?: InputMaybe<Array<InputMaybe<UpdateQuestionOptionInput>>>;
   /** This will be used as a sort of title for the Question */
   questionText?: InputMaybe<Scalars['String']['input']>;
+  /** The type of question, such as text field, select box, radio buttons, etc */
+  questionTypeId?: InputMaybe<Scalars['Int']['input']>;
   /** To indicate whether the question is required to be completed */
   required?: InputMaybe<Scalars['Boolean']['input']>;
   /** Requirements associated with the Question */
   requirementText?: InputMaybe<Scalars['String']['input']>;
   /** Sample text to possibly provide a starting point or example to answer question */
   sampleText?: InputMaybe<Scalars['String']['input']>;
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type UpdateQuestionOptionInput = {
@@ -3145,6 +3155,14 @@ export type UpdateUserProfileInput = {
   surName: Scalars['String']['input'];
 };
 
+export type AddProjectMutationVariables = Exact<{
+  title: Scalars['String']['input'];
+  isTestProject?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type AddProjectMutation = { __typename?: 'Mutation', addProject?: { __typename?: 'Project', errors?: { __typename?: 'ProjectErrors', title?: string | null, general?: string | null } | null } | null };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
@@ -3289,6 +3307,43 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
+export const AddProjectDocument = gql`
+    mutation AddProject($title: String!, $isTestProject: Boolean) {
+  addProject(title: $title, isTestProject: $isTestProject) {
+    errors {
+      title
+      general
+    }
+  }
+}
+    `;
+export type AddProjectMutationFn = Apollo.MutationFunction<AddProjectMutation, AddProjectMutationVariables>;
+
+/**
+ * __useAddProjectMutation__
+ *
+ * To run a mutation, you first call `useAddProjectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectMutation, { data, loading, error }] = useAddProjectMutation({
+ *   variables: {
+ *      title: // value for 'title'
+ *      isTestProject: // value for 'isTestProject'
+ *   },
+ * });
+ */
+export function useAddProjectMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectMutation, AddProjectMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddProjectMutation, AddProjectMutationVariables>(AddProjectDocument, options);
+      }
+export type AddProjectMutationHookResult = ReturnType<typeof useAddProjectMutation>;
+export type AddProjectMutationResult = Apollo.MutationResult<AddProjectMutation>;
+export type AddProjectMutationOptions = Apollo.BaseMutationOptions<AddProjectMutation, AddProjectMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {

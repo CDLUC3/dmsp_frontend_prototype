@@ -28,18 +28,42 @@
     "uploadPlan": "Enviar um novo plano",
     "createNew": "Criar novo plano",
     "createNewPlan": "Criar um novo plano",
-    "funder": "Funder",
-    "planSections": "Plan sections",
+    "funder": "Finalizações",
+    "planSections": "Planejar ações",
     "progress": "{current} de {total}",
     "doi": "DOI",
-    "lastUpdated": "Last updated",
-    "template": "Template",
-    "download": "Download",
-    "downloadPlan": "Download plan",
-    "share": "Share with others",
-    "sharePlan": "Share plan with others",
-    "update": "Update plan",
-    "updatePlan": "Update this plan",
+    "lastUpdated": "Últimas atualizações",
+    "template": "Modelo",
+    "download": "Baixar",
+    "downloadPlan": "Baixar plano",
+    "share": "Compartilhar com outros",
+    "sharePlan": "Compartilhar plano com os outros",
+    "update": "Atualizar plano",
+    "updatePlan": "Atualizar este plano",
     "dateRange": "{startDate} até {endDate}"
+  },
+  "ProjectsCreateProject": {
+    "pageTitle": "Criar um novo blog",
+    "form": {
+      "projectTitle": "Qual é o título do projeto? (obrigatório)",
+      "projectTitleHelpText": "Este deveria ser o título formal, se já apresentou o pedido de financiamento. pois será usado para encontrar o seu Projeto no banco de dados do Funder. Isto pode ser alterado mais tarde.",
+      "newOrExisting": "Projeto novo ou existente?",
+      "radioExistingLabel": "O projeto já existe ou pode existir",
+      "radioExistingHelpText": "Procuraremos o projeto e faremos o pull de informações associadas para você revisar e editar, se possível, caso contrário, crie um novo projeto",
+      "radioNewLabel": "Novo projeto",
+      "radioNewHelpText": "Digite todos os detalhes do projeto você mesmo.",
+      "checkboxGroupLabel": "Este projeto é uma simulação (mock, em inglês) para fins de teste, prática ou educacional",
+      "checkboxGroupHelpText": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",
+      "checkboxLabel": "Yes, set this project to a mock or a test project.",
+      "checkboxHelpText": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste."
+    },
+    "messages": {
+      "success": "Projeto criado com sucesso",
+      "errors": {
+        "titleLength": "O nome deve ter no m&iacute;nimo 2 caracteres",
+        "title": "Título do projeto é obrigatório",
+        "createProjectError": "Erro ao criar projeto"
+      }
+    }
   }
 }
