@@ -87,7 +87,7 @@
     "btnUpdate": "Atualização",
     "btnAdd": "Adicionar",
     "linkUpdatePassword": "Atualizar senha",
-    "linkUpdateConnections": "Update connections",
+    "linkUpdateConnections": "Atualizar conexão?",
     "linkManageNotifications": "Atualizar conexão?",
     "messages": {
       "profileUpdateSuccess": "Formulário de perfil atualizado com sucesso.",
@@ -120,7 +120,8 @@
       "section": "Seção",
       "editSection": "Editar seção",
       "editTemplate": "Editar Modelo",
-      "question": "Pergunta"
+      "question": "Pergunta",
+      "projects": "Projetos"
     },
     "lastRevisedBy": "Last revised by",
     "lastUpdated": "Últimas atualizações",
@@ -131,7 +132,10 @@
       "save": "Salvar",
       "remove": "Remover",
       "confirm": "Confirmação",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "linkUpdate": "Atualização",
+      "linkExpand": "Expandir",
+      "linkCollapse": "Retrair"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave"
@@ -146,7 +150,8 @@
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
-      "resultsText": "Os resultados {name} correspondem à sua pesquisa"
+      "resultsText": "Os resultados {name} correspondem à sua pesquisa",
+      "fixBelow": "Por favor, corrija os erros abaixo"
     },
     "tabs": {
       "editQuestion": "Editar Pergunta",

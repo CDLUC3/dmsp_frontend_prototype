@@ -6,6 +6,11 @@
     "home": "Home",
     "projects": "Projects",
     "project": "Project",
+    "projectDetails": "Project details",
+    "dates": "Dates",
+    "collaborators": "Collaborators",
+    "funding": "Funding",
+    "grantId": "Grant ID",
     "edit": "Edit",
     "editProject": "Edit project details",
     "funders": "Funders",
@@ -41,5 +46,11 @@
     "update": "Update plan",
     "updatePlan": "Update this plan",
     "dateRange": "{startDate} to {endDate}"
+  },
+  "ProjectsListPage": {
+    "intro": "Manager or create DMSP project or by DMP",
+    "buttons": {
+      "createProject": "Create Project"
+    }
   }
 }

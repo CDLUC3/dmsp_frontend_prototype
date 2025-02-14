@@ -16,10 +16,10 @@ import {
 } from "react-aria-components";
 
 import { AffiliationsDocument } from '@/generated/graphql';
-import {useCsrf} from '@/context/CsrfContext';
+import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
-import {handleErrors} from '@/utils/errorHandler';
-import {useAuthContext} from '@/context/AuthContext';
+import { handleErrors } from '@/utils/errorHandler';
+import { useAuthContext } from '@/context/AuthContext';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 
 import {
@@ -302,6 +302,7 @@ const SignUpPage: React.FC = () => {
                 helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}
                 error={fieldErrors?.affiliationId}
+                required={false}
               />
               {otherField && (
                 <TextField
