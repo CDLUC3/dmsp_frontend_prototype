@@ -27,7 +27,7 @@ interface InputProps {
   helpMessage?: string;
 }
 
-const FormInput: React.FC<InputProps> = ({
+const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
   name,
   id,
   type,
@@ -45,6 +45,7 @@ const FormInput: React.FC<InputProps> = ({
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
+  ...rest
 }) => {
 
   return (
@@ -69,6 +70,7 @@ const FormInput: React.FC<InputProps> = ({
           disabled={disabled}
           aria-describedby={ariaDescribedBy}
           aria-label={ariaLabel}
+          {...rest}
         />
 
         {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}

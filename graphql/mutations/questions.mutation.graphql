@@ -1,6 +1,9 @@
 mutation AddQuestion($input: AddQuestionInput!) {
   addQuestion(input: $input) {
-    errors
+    errors {
+      general
+      questionText
+    }
     id
     displayOrder
     questionText
@@ -25,7 +28,10 @@ mutation UpdateQuestion($input: UpdateQuestionInput!) {
     id
     questionTypeId
     guidanceText
-    errors
+    errors {
+      general
+      questionText
+    }
     isDirty
     required
     requirementText

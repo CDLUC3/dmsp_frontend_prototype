@@ -8,7 +8,10 @@ query Question($questionId: Int!) {
   question(questionId: $questionId) {
     id
     guidanceText
-    errors
+    errors {
+      general
+      questionText
+    }
     displayOrder
     questionText
     requirementText

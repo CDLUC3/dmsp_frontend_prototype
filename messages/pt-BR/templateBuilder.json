@@ -304,5 +304,42 @@
         "questionAdded": "A pergunta foi adicionada com sucesso."
       }
     }
+  },
+  "TemplateAccessPage": {
+    "title": "Gerenciar Acesso",
+    "intro": "Este modelo é acessível para todos no NSF com visualização completa e edição de permissões. Ele também pode ser compartilhado com pessoas fora da sua organização.",
+    "headings": {
+      "h3OrgAccess": "Na Organização",
+      "externalPeople": "Pessoas externas",
+      "share": "Compartilhe com alguém fora da sua organização",
+      "confirmCheckout": "Confirmar finalização do pedido?"
+    },
+    "paragraphs": {
+      "orgAccessPara1": "Todos em {name} podem ver e editar",
+      "orgAccessPara2": "Administradores {count} podem gerenciar o acesso",
+      "externalPara1": "Compartilhe este modelo com pessoas fora do NSF",
+      "sharePara1": "Digite seu endereço de e-mail. Se eles já não tiverem uma conta de DMP Tool eles serão convidados a criar uma.",
+      "modalPara1": "Por favor, confirme que você deseja remover {email}"
+    },
+    "buttons": {
+      "invite": "Convidar"
+    },
+    "labels": {
+      "email": "E-mail"
+    },
+    "messages": {
+      "errors": {
+        "errorLoadingCollaborators": "Erro ao carregar colaboradores",
+        "errorAddingEmail": "Erro ao adicionar pergunta",
+        "errorRemovingEmail": "Erro ao remover e-mail"
+      },
+      "success": {
+        "emailSuccessfullyRevoked": "E-mail revogado com sucesso",
+        "emailInviteSent": "Convite de e-mail enviado com sucesso"
+      },
+      "info": {
+        "noCollaborators": "Nenhuma pessoa externa foi adicionada ainda"
+      }
+    }
   }
 }

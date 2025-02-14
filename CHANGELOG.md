@@ -1,6 +1,7 @@
 ## v0.0.1
 
 ### Updated
+- Updated `/template/[templateId]/access` page to hook it up to real data [#223]
 - Updated the Edit Question `template/[templateId]/q/[q_slug]/page.tsx` with actual data from backend and added functionality for `options` question types [#188]
 - Updated the Add Question`template/[templateId]/q/new/page.tsx` page with actual data from backend and added functionality to accomodate `option` question types. [#188]
 - Updated shared FormInput component [#188]
