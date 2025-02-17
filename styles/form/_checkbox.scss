@@ -13,7 +13,7 @@
   font-size: 1.143rem;
   color: var(--text-color);
   forced-color-adjust: none;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 
 
   .checkbox {
@@ -74,7 +74,7 @@
 }
 
 .react-aria-CheckboxGroup{
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-5);
 
   .react-aria-Checkbox {
     margin-bottom: 0.5rem;
