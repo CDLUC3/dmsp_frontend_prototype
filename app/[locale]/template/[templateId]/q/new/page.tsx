@@ -23,6 +23,7 @@ import {
 } from '@/components/Container';
 import QuestionAdd from '@/components/QuestionAdd';
 import QuestionTypeCard from '@/components/QuestionTypeCard';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
 import {
@@ -41,6 +42,8 @@ const QuestionTypeSelectPage: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const topRef = useRef<HTMLDivElement>(null);
+    //For scrolling to error in page
+    const errorRef = useRef<HTMLDivElement | null>(null);
     const { templateId } = params; // From route /template/:templateId
     const sectionId = searchParams.get('section_id');
     const questionId = searchParams.get('questionId');// if user is switching their question type while editing an existing question
@@ -171,13 +174,7 @@ const QuestionTypeSelectPage: React.FC = () => {
 
                     <LayoutContainer>
                         <ContentContainer>
-                            {errors && errors.length > 0 &&
-                                <div className="error">
-                                    {errors.map((error, index) => (
-                                        <p key={index}>{error}</p>
-                                    ))}
-                                </div>
-                            }
+                            <ErrorMessages errors={errors} ref={errorRef} />
                             <div className="Filters" ref={topRef}>
                                 <SearchField>
                                     <Label>{Global('labels.searchByKeyword')}</Label>

@@ -51,6 +51,11 @@
     "intro": "Manager or create DMSP project or by DMP",
     "buttons": {
       "createProject": "Create Project"
+    },
+    "messages": {
+      "errors": {
+        "errorRetrievingProjects": "Something went wrong with retrieving projects. Please try again later."
+      }
     }
   },
   "ProjectsCreateProject": {

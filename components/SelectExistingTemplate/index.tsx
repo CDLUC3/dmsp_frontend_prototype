@@ -3,8 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ApolloError } from "@apollo/client";
-
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -25,6 +23,7 @@ import {
 } from '@/components/Container';
 import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
 import TemplateList from '@/components/TemplateList';
+import ErrorMessages from '../ErrorMessages';
 
 //GraphQL
 import {
@@ -45,6 +44,8 @@ import { useToast } from '@/context/ToastContext';
 // Step 2 of the Create Template start pages
 const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) => {
   const nextSectionRef = useRef<HTMLDivElement>(null);
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const formatDate = useFormatDate();
   const router = useRouter();
@@ -274,13 +275,8 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       <LayoutContainer>
         <ContentContainer>
           <>
-            {errors && errors.length > 0 &&
-              <div className="error">
-                {errors.map((error, index) => (
-                  <p key={index}>{error}</p>
-                ))}
-              </div>
-            }
+            <ErrorMessages errors={errors} ref={errorRef} />
+
             <div className="Filters" role="search" ref={topRef}>
               <SearchField aria-label="Template search">
                 <Label>{Global('labels.searchByKeyword')}</Label>

@@ -39,6 +39,7 @@ import QuestionEditCard from "@/components/QuestionEditCard";
 import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
+import ErrorMessages from '@/components/ErrorMessages';
 
 import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
@@ -225,16 +226,6 @@ const TemplateEditPage: React.FC = () => {
     }
   }, [data]);
 
-  // If errors when submitting publish form, scroll them into view
-  useEffect(() => {
-    if (errors.length > 0 && errorRef.current) {
-      errorRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, [errors]);
-
   // If page-level errors that we need to scroll to
   useEffect(() => {
     if (pageErrors.length > 0 && pageErrorRef.current) {
@@ -415,16 +406,10 @@ const TemplateEditPage: React.FC = () => {
         data-testid="modal"
       >
         <Dialog>
-          <div ref={errorRef}>
+          <div>
             <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
 
-              {errors && errors.length > 0 &&
-                <div className="error" role="alert" aria-live="assertive">
-                  {errors.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
+              <ErrorMessages errors={errors} ref={errorRef} />
               <Heading slot="title">{PublishTemplate('heading.publish')}</Heading>
 
               <RadioGroup name="visibility">

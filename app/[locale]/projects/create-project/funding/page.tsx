@@ -26,9 +26,6 @@ const ProjectsCreateProjectFunding = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted');
-
-    console.log('Selected funding value:', hasFunding);
 
     if (hasFunding === 'yes') {
       window.location.href = '/projects/create-project/funding-search';

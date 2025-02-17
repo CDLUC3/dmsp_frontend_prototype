@@ -39,8 +39,9 @@ import {
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
-import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
+import ErrorMessages from '@/components/ErrorMessages';
 
+import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
 import { useToast } from '@/context/ToastContext';
 
 const CreateSectionPage: React.FC = () => {
@@ -291,13 +292,6 @@ const CreateSectionPage: React.FC = () => {
     }
   }, [sectionDisplayOrders])
 
-  // If errors when submitting publish form, scroll them into view
-  useEffect(() => {
-    if (errors.length > 0) {
-      scrollToTop(errorRef);
-    }
-  }, [errors]);
-
   useEffect(() => {
     setFormData({
       ...formData,
@@ -333,13 +327,7 @@ const CreateSectionPage: React.FC = () => {
           <div className="template-editor-container" ref={topRef}>
             <div className="main-content">
 
-              {errors && errors.length > 0 &&
-                <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-                  {errors.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
+              <ErrorMessages errors={errors} ref={errorRef} />
 
               <Tabs>
                 <TabList aria-label="Question editing">

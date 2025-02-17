@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,18 +12,18 @@ import {
   SearchField,
   Text
 } from "react-aria-components";
-import {ApolloError} from "@apollo/client";
-import {useTranslations} from 'next-intl';
-import {useParams} from 'next/navigation';
+import { ApolloError } from "@apollo/client";
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
 
 import logECS from '@/utils/clientLogger';
-import {Question, Section, useTemplateQuery} from '@/generated/graphql';
+import { Question, Section, useTemplateQuery } from '@/generated/graphql';
 
 // Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import PageHeader from "@/components/PageHeader";
-import {Card, CardBody, CardFooter, CardHeading} from "@/components/Card/card";
-
+import { Card, CardBody, CardFooter, CardHeading } from "@/components/Card/card";
+import ErrorMessages from '@/components/ErrorMessages';
 
 interface SectionInterface {
   id?: number | null;
@@ -142,21 +142,10 @@ const SectionTypeSelectPage: React.FC = () => {
     }
   }, [searchTerm])
 
-  // If errors when submitting publish form, scroll them into view
-  useEffect(() => {
-    if (errors.length > 0 && errorRef.current) {
-      errorRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, [errors]);
-
   // Show loading message
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
-
 
   return (
     <>
@@ -178,13 +167,7 @@ const SectionTypeSelectPage: React.FC = () => {
       <LayoutContainer>
         <ContentContainer>
           <div className="Filters" ref={errorRef}>
-            {errors && errors.length > 0 &&
-              <div className="error" role="alert" aria-live="assertive">
-                {errors.map((error, index) => (
-                  <p key={index}>{error}</p>
-                ))}
-              </div>
-            }
+            <ErrorMessages errors={errors} ref={errorRef} />
             <SearchField
               onClear={() => { setFilteredSections(null) }}
             >

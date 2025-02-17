@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -35,6 +35,7 @@ import {
   LayoutWithPanel,
   SidebarPanel,
 } from '@/components/Container';
+import ErrorMessages from '@/components/ErrorMessages';
 
 // Interfaces
 import {
@@ -55,6 +56,8 @@ const ProfilePage: React.FC = () => {
   const pathname = usePathname();
   const currentLocale = useLocale();
   const router = useRouter();
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -364,11 +367,7 @@ const ProfilePage: React.FC = () => {
               <div className="sectionContainer">
                 <div className={`sectionContent ${styles.section}`}>
                   <Form onSubmit={handleProfileSubmit}>
-                    {errors && Object.keys(errors).length > 0 &&
-                      <div className="error">
-                        <p>{errors.general}</p>
-                      </div>
-                    }
+                    <ErrorMessages errors={errors} ref={errorRef} />
                     <div className="form-row two-item-row">
                       {isEditing ? (
                         <FormInput

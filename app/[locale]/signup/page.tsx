@@ -20,13 +20,16 @@ import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
 import { handleErrors } from '@/utils/errorHandler';
 import { useAuthContext } from '@/context/AuthContext';
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 
+//Components
 import {
   LayoutContainer,
   ContentContainer,
   ToolbarContainer,
 } from '@/components/Container';
+import ErrorMessages from '@/components/ErrorMessages';
+import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+
 import styles from './signup.module.scss';
 
 
@@ -60,6 +63,7 @@ const SignUpPage: React.FC = () => {
   const t = useTranslations('SignupPage');
   const globalT = useTranslations('Global');
 
+  const errorRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
   const { csrfToken } = useCsrf();
@@ -240,13 +244,7 @@ const SignUpPage: React.FC = () => {
           data-step={step}
           ref={formRef}
         >
-          {errors && errors.length > 0 &&
-            <div className={`error ${styles.error}`}>
-              {errors.map((error, index) => (
-                <p key={index}>{error}</p>
-              ))}
-            </div>
-          }
+          <ErrorMessages errors={errors} ref={errorRef} />
 
           {(step === "email") && (
             <TextField

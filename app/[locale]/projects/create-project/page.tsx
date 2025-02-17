@@ -30,11 +30,11 @@ import {
   CheckboxGroupComponent,
   FormInput
 } from '@/components/Form';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
-import { scrollToTop } from '@/utils/general';
 
 export interface CreateProjectInterface {
   projectName: string;
@@ -227,9 +227,6 @@ const ProjectsCreateProject = () => {
         showSuccessToast();
         router.push('/projects/create-project/funding');
       }
-
-      // Scroll to top of page
-      scrollToTop(errorRef);
     }
   };
 
@@ -253,14 +250,7 @@ const ProjectsCreateProject = () => {
       />
       <LayoutWithPanel>
         <ContentContainer>
-          {errors && errors.length > 0 &&
-            <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-              {errors.map((error, index) => (
-                <p key={index}>{error}</p>
-              ))}
-            </div>
-          }
-
+          <ErrorMessages errors={errors} ref={errorRef} />
           <Form onSubmit={handleFormSubmit}>
             <FormInput
               name="projectName"

@@ -29,6 +29,9 @@ jest.mock('@/context/ToastContext', () => ({
   })),
 }));
 
+// Create a mock for scrollIntoView and focus
+const mockScrollIntoView = jest.fn();
+
 type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
 
 // Mock useTranslations from next-intl
@@ -62,6 +65,7 @@ const mockToast = {
 
 describe('ProjectsCreateProject', () => {
   beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
     (useAddProjectMutation as jest.Mock).mockReturnValue([jest.fn()]);
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
