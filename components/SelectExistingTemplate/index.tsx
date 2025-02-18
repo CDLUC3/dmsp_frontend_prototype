@@ -23,7 +23,7 @@ import {
 } from '@/components/Container';
 import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
 import TemplateList from '@/components/TemplateList';
-import ErrorMessages from '../ErrorMessages';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
 import {

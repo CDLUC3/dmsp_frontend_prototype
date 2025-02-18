@@ -15,8 +15,8 @@ import {
 
 // Components
 import EmailAddressRow from '@/components/EmailAddressRow';
-import FormInput from '../Form/FormInput';
-import ErrorMessages from '../ErrorMessages';
+import FormInput from '@/components/Form/FormInput';
+import ErrorMessages from '@/components/ErrorMessages';
 //Interfaces
 import { EmailInterface } from '@/app/types';
 // Utils and other
