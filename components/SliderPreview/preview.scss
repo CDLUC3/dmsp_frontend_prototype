@@ -1,0 +1,37 @@
+.preview-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100w;
+  height: 100vh;
+  background-color: white;
+  z-index: 1000;
+  transition: all 0.3s ease-in-out;
+  transition-duration: 300ms;
+  opacity: 1;
+  visibility: visible;
+  opacity: 0;
+}
+
+
+.close-button {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+  margin: 2rem;
+}
+// .fixed-inset {
+//   position: fixed;
+//   top: 0;
+//   right: 0;
+//   bottom: 0;
+//   left: 0;
+//   z-index: 50;
+//   display: flex;
+//   justify-content: flex-end;
+//   background-color: rgba(0, 0, 0, 0.5);
+
+//   @media (min-width: 768px) {
+//     justify-content: center;
+//   }
+// }
