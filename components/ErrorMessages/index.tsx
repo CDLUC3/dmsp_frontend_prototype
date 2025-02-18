@@ -1,11 +1,11 @@
 import React, { forwardRef, useEffect, ReactNode } from "react";
 import { scrollToTop } from '@/utils/general';
 
-// Define the possible error types
 type ErrorMessagesProps = {
   errors: string[] | Record<string, string | null | undefined>;
 };
 
+// Shared Error Message rendering component for both arrays and objects
 const ErrorMessages = forwardRef<HTMLDivElement, ErrorMessagesProps>(
   ({ errors }, ref) => {
     useEffect(() => {
@@ -33,7 +33,5 @@ const ErrorMessages = forwardRef<HTMLDivElement, ErrorMessagesProps>(
     );
   }
 );
-
-ErrorMessages.displayName = "ErrorMessages";
 
 export default ErrorMessages;
