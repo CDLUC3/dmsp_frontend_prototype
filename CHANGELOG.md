@@ -20,6 +20,8 @@
 - Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
 
 ### Added
+- Added `/projects/[projectId]/project-funding`, copying over the static code from `/projects/[projectId]/create-project/funding`. Updated
+  page to use shared RadioGroupComponent, and updated RadioGroupComponent to use description [#336]
 - Added new `QuestionEdit` and `QuestionTypeCard` components [#220]
 - Added new Question and QuestionOption types [#188]
 - Added a new FormTextArea component [#188]
