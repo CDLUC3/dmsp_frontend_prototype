@@ -2,16 +2,13 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
   Button,
   Form,
-  Label,
   Link,
-  Radio,
-  RadioGroup,
-  Text
 } from "react-aria-components";
 
 // Components
@@ -19,12 +16,11 @@ import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
-  SidebarPanel
 } from "@/components/Container"
 import { RadioGroupComponent } from '@/components/Form';
 
 const ProjectsCreateProjectFunding = () => {
-
+  const router = useRouter();
   const [hasFunding, setHasFunding] = useState("yes");
 
   // localization keys
@@ -35,12 +31,11 @@ const ProjectsCreateProjectFunding = () => {
     e.preventDefault();
 
     if (hasFunding === 'yes') {
-      window.location.href = '/projects/create-project/funding-search';
+      router.push('/projects/create-project/funding-search');
     } else {
-      window.location.href = '/projects/proj_2425new';
+      router.push('/projects/proj_2425new');
     }
   }
-
 
   const radioData = {
     radioGroupLabel: ProjectFunding('form.radioFundingLabel'),
@@ -59,18 +54,14 @@ const ProjectsCreateProjectFunding = () => {
   return (
     <>
       <PageHeader
-        title="Do you already have funding for this project?"
+        title={ProjectFunding('title')}
         description=""
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
           </Breadcrumbs>
-        }
-        actions={
-          <>
-          </>
         }
         className="page-project-create-project-funding"
       />
@@ -81,8 +72,7 @@ const ProjectsCreateProjectFunding = () => {
             <RadioGroupComponent
               name="has_funding"
               value={hasFunding}
-              description="  if yes, we will try to search for the project and pull in associated
-                information for you to review and edit."
+              description={ProjectFunding('form.radioFundingDescription')}
               onChange={setHasFunding}
               radioGroupLabel={radioData.radioGroupLabel}
               radioButtonData={radioData.radioButtonData}
@@ -92,21 +82,13 @@ const ProjectsCreateProjectFunding = () => {
               type="submit"
               className=""
             >
-              Continue
+              {Global('buttons.continue')}
             </Button>
 
           </Form>
 
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
       </LayoutWithPanel>
-
-
-
-
-
-
-
     </>
   );
 };

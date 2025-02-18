@@ -176,7 +176,7 @@ const ProjectsCreateProject = () => {
   };
 
   // Make GraphQL mutation request to update section
-  const createProject = async (): Promise<ProjectErrors> => {
+  const createProject = async (): Promise => {
     try {
       const response = await addProjectMutation({
         variables: {
@@ -187,7 +187,7 @@ const ProjectsCreateProject = () => {
 
 
       if (response.data?.addProject?.errors) {
-        return response.data.addProject.errors;
+        return response.data.addProject;
       }
       setFormSubmitted(true)
     } catch (error) {
@@ -214,18 +214,18 @@ const ProjectsCreateProject = () => {
     if (isFormValid()) {
 
       // Create new section
-      const errors = await createProject();
+      const response = await createProject();
 
       // Check if there are any errors (always exclude the GraphQL `_typename` entry)
-      if (errors && Object.values(errors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
-        setFieldErrors(prev => ({ ...prev, projectName: errors.title || '' }));
+      if (response.errors && Object.values(response.errors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
+        setFieldErrors(prev => ({ ...prev, projectName: response.errors.title || '' }));
 
-        setErrors([errors.general || CreateProject('messages.errors.createProjectError')]);
+        setErrors([response.errors.general || CreateProject('messages.errors.createProjectError')]);
 
       } else {
         // Show success message
         showSuccessToast();
-        router.push('/projects/create-project/funding');
+        router.push(`/projects/${response.id}/project-funding`);
       }
     }
   };

@@ -207,7 +207,7 @@ interface RadioButtonInterface {
 }
 export interface RadioButtonProps {
   name: string;
-  description: string;
+  description?: string;
   radioGroupLabel: string;
   radioButtonData: RadioButtonInterface[];
   value: string;

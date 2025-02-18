@@ -3161,7 +3161,7 @@ export type AddProjectMutationVariables = Exact<{
 }>;
 
 
-export type AddProjectMutation = { __typename?: 'Mutation', addProject?: { __typename?: 'Project', errors?: { __typename?: 'ProjectErrors', title?: string | null, general?: string | null } | null } | null };
+export type AddProjectMutation = { __typename?: 'Mutation', addProject?: { __typename?: 'Project', id?: number | null, errors?: { __typename?: 'ProjectErrors', title?: string | null, general?: string | null } | null } | null };
 
 export type AddQuestionMutationVariables = Exact<{
   input: AddQuestionInput;
@@ -3366,6 +3366,7 @@ export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: n
 export const AddProjectDocument = gql`
     mutation AddProject($title: String!, $isTestProject: Boolean) {
   addProject(title: $title, isTestProject: $isTestProject) {
+    id
     errors {
       title
       general
