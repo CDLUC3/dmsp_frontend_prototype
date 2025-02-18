@@ -203,10 +203,11 @@ export interface Affiliation {
 interface RadioButtonInterface {
   value: string;
   label: string;
-  description: string;
+  description?: string;
 }
 export interface RadioButtonProps {
   name: string;
+  description: string;
   radioGroupLabel: string;
   radioButtonData: RadioButtonInterface[];
   value: string;

@@ -14,6 +14,7 @@ import styles from './radioGroup.module.scss';
 const RadioGroupComponent: React.FC<RadioButtonProps> = ({
   name,
   value,
+  description,
   radioGroupLabel,
   radioButtonData,
   isInvalid,
@@ -29,6 +30,9 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
         onChange={onChange}
       >
         <Label>{radioGroupLabel}</Label>
+        <Text slot="description" className="help">
+          {description}
+        </Text>
         {radioButtonData.map((radioButton, index) => (
           <div key={index}>
             <Radio value={radioButton.value}>{radioButton.label}</Radio>

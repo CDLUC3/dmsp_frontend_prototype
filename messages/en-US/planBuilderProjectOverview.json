@@ -81,5 +81,11 @@
         "createProjectError": "Error creating project"
       }
     }
+  },
+  "ProjectsCreateProjectFunding": {
+    "title": "",
+    "form": {
+      "radioFundingLabel": "Do you already have funding for this project?"
+    }
   }
 }
