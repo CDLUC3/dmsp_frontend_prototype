@@ -36,13 +36,17 @@ import ErrorMessages from '@/components/ErrorMessages';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 
-export interface CreateProjectInterface {
+interface CreateProjectResponse {
+  id?: number | null;
+  errors?: ProjectErrors | null;
+}
+interface CreateProjectInterface {
   projectName: string;
   radioGroup?: string;
   checkboxGroup?: string[];
 }
 
-export interface CreateProjectErrorsInterface {
+interface CreateProjectErrorsInterface {
   projectName: string;
   radioGroup?: string;
   checkboxGroup?: string;
@@ -176,7 +180,7 @@ const ProjectsCreateProject = () => {
   };
 
   // Make GraphQL mutation request to update section
-  const createProject = async (): Promise => {
+  const createProject = async (): Promise<CreateProjectResponse> => {
     try {
       const response = await addProjectMutation({
         variables: {
@@ -218,7 +222,7 @@ const ProjectsCreateProject = () => {
 
       // Check if there are any errors (always exclude the GraphQL `_typename` entry)
       if (response.errors && Object.values(response.errors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
-        setFieldErrors(prev => ({ ...prev, projectName: response.errors.title || '' }));
+        setFieldErrors(prev => ({ ...prev, projectName: response.errors?.title || '' }));
 
         setErrors([response.errors.general || CreateProject('messages.errors.createProjectError')]);
 
