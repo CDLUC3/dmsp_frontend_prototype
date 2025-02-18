@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -21,6 +21,10 @@ import { RadioGroupComponent } from '@/components/Form';
 
 const ProjectsCreateProjectFunding = () => {
   const router = useRouter();
+  // Get project id from param
+  const params = useParams();
+  const { projectId } = params;
+
   const [hasFunding, setHasFunding] = useState("yes");
 
   // localization keys
@@ -33,7 +37,7 @@ const ProjectsCreateProjectFunding = () => {
     if (hasFunding === 'yes') {
       router.push('/projects/create-project/funding-search');
     } else {
-      router.push('/projects/proj_2425new');
+      router.push(`/projects/${projectId}`);
     }
   }
 

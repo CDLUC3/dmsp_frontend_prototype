@@ -123,19 +123,24 @@
       "question": "Pergunta",
       "projects": "Projetos"
     },
-    "lastRevisedBy": "Last revised by",
+    "form": {
+      "yesLabel": "Yes",
+      "noLabel": "No"
+    },
+    "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
       "next": "Seguinte",
-      "save": "Salvar",
-      "remove": "Remover",
-      "confirm": "Confirmação",
-      "cancel": "Cancelar",
-      "linkUpdate": "Atualização",
-      "linkExpand": "Expandir",
-      "linkCollapse": "Retrair"
+      "save": "Save",
+      "remove": "Remove",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "linkUpdate": "Update",
+      "linkExpand": "Expand",
+      "linkCollapse": "Collapse",
+      "continue": "Continue"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave"
@@ -154,12 +159,12 @@
       "fixBelow": "Por favor, corrija os erros abaixo"
     },
     "tabs": {
-      "editQuestion": "Editar Pergunta",
-      "options": "Opções",
-      "logic": "Lógica"
+      "editQuestion": "Edit Question",
+      "options": "Options",
+      "logic": "Logic"
     },
     "headings": {
-      "preview": "Pré-visualizar"
+      "preview": "Preview"
     }
   }
 }

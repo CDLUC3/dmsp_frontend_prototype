@@ -1,5 +1,5 @@
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProjectsCreateProjectFunding from '../page';
@@ -13,7 +13,8 @@ jest.mock('next-intl', () => ({
 }));
 
 jest.mock('next/navigation', () => ({
-  useRouter: jest.fn()
+  useRouter: jest.fn(),
+  useParams: jest.fn()
 }));
 
 type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
@@ -49,6 +50,12 @@ describe('ProjectsCreateProjectFunding', () => {
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
     })
+
+    const mockUseParams = useParams as jest.Mock;
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ projectId: '123' });
+
   });
 
   it('should render the component', async () => {
@@ -81,12 +88,11 @@ describe('ProjectsCreateProjectFunding', () => {
     fireEvent.click(screen.getByLabelText('form.noLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/projects/proj_2425new')
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/projects/123')
     })
   });
 
   it('should pass axe accessibility test', async () => {
-
     const { container } = render(
       <ProjectsCreateProjectFunding />
     );

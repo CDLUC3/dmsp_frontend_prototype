@@ -189,8 +189,7 @@ const ProjectsCreateProject = () => {
         }
       });
 
-
-      if (response.data?.addProject?.errors) {
+      if (response.data?.addProject) {
         return response.data.addProject;
       }
       setFormSubmitted(true)
