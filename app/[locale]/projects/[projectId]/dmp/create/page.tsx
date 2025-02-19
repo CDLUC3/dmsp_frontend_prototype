@@ -19,46 +19,48 @@ import TemplateSelectListItem from "@/components/TemplateSelectListItem";
 import {ContentContainer, LayoutWithPanel} from "@/components/Container";
 
 const PlanCreate: React.FC = () => {
-  const handleSelect = (template: Template) => {
-
-    window.location.href = '/projects/proj_2425new/dmp/222';
+  // eslint-disable-next-line no-unused-vars
+  const handleSelect = async (versionedTemplateId: number): Promise<void> => {
+    window.location.href = `/projects/proj_2425new/dmp/${versionedTemplateId}`;
   };
 
 
-  // NSF Templates
-  type Template = {
-    funder: string;
-    title: string;
-    description: string;
-    lastRevisedBy: string;
-    lastUpdated: string;
-    hasAdditionalGuidance: boolean;
-    publishStatus?: string;
-  };
 
   const funderTemplates = [
     {
+      id: 1,
+      template: {
+        id: 101
+      },
       funder: 'National Science Foundation (nsf.gov)',
       title: 'Arctic Data Center: NSF Polar Programs',
       description: 'Template for NSF Polar Programs data management plans.',
-      lastRevisedBy: 'Sue Jones',
+      lastRevisedBy: 21, // use to be name
       lastUpdated: '04-01-2024',
       hasAdditionalGuidance: true
     },
     {
+      id: 2,
+      template: {
+        id: 101
+      },
       funder: 'National Science Foundation (nsf.gov)',
       title: 'NSF Polar Expeditions',
       description: 'Specialized template for NSF polar expedition data management.',
-      lastRevisedBy: 'Sue Jones',
+      lastRevisedBy: 45,
       lastUpdated: '04-01-2024',
       hasAdditionalGuidance: false,
       publishStatus: 'Unpublished'
     },
     {
+      id: 3,
+      template: {
+        id: 101
+      },
       funder: 'National Science Foundation (nsf.gov)',
       title: 'NSF: McMurdo Station (Antarctic)',
       description: 'Template specifically designed for McMurdo Station research projects.',
-      lastRevisedBy: 'Sue Jones',
+      lastRevisedBy: 454,
       lastUpdated: '09-21-2024',
       hasAdditionalGuidance: false
     }
@@ -130,7 +132,7 @@ const PlanCreate: React.FC = () => {
                 <TemplateSelectListItem
                   key={index}
                   item={template}
-                  onSelect={() => handleSelect(template)}
+                  onSelect={handleSelect}
                 ></TemplateSelectListItem>
               ))}
             </div>

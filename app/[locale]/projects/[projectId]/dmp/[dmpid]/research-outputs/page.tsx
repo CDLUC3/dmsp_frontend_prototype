@@ -49,6 +49,7 @@ const ProjectsProjectPlanAdjustResearchOutputs = () => {
 
   const handleEditOutput = (outputId: string): void => {
     // Handle editing the research output
+    console.log(`Edit research output: ${outputId}`);
     window.location.href = `/projects/proj_2425/dmp/xxx/research-outputs/edit/`;
   };
 

@@ -58,24 +58,12 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   ];
 
-  const handleAddCollaborator = (): void => {
-    // Handle adding new collaborator
-    window.location.href = '/projects/proj_2425/members/search';
-  };
 
+
+  // eslint-disable-next-line no-unused-vars
   const handleEdit = (memberId: string): void => {
     // Handle editing member
-    window.location.href = '/projects/proj_2425/members/edit';
-  };
-
-  const handleAccessUpdate = (memberId: string): void => {
-    // Handle access update
-    window.location.href = '/projects/proj_2425/members/edit';
-  };
-
-  const handleShare = (): void => {
-    // Handle share
-    window.location.href = '/projects/proj_2425/share';
+    window.location.href = '/projects/proj_2425/members/edit?memberid='+memberId;
   };
 
   return (

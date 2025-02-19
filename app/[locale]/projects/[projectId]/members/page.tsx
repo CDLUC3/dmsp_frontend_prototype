@@ -55,12 +55,12 @@ const ProjectsProjectMembers = () => {
 
   const handleEdit = (memberId: string): void => {
     // Handle editing member
-    window.location.href = '/projects/proj_2425/members/edit';
+    window.location.href = '/projects/proj_2425/members/edit?memberid='+memberId;
   };
 
   const handleAccessUpdate = (memberId: string): void => {
     // Handle access update
-    window.location.href = '/projects/proj_2425/members/edit';
+    window.location.href = '/projects/proj_2425/members/edit?memberid='+memberId;
   };
 
   const handleShare = (): void => {

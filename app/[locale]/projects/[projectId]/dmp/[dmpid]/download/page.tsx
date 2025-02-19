@@ -1,8 +1,7 @@
 'use client';
 
-import React, {useState} from 'react';
+import React from 'react';
 import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
-import type {DropEvent, FileDropItem} from 'react-aria';
 
 
 import PageHeader from "@/components/PageHeader";
@@ -14,59 +13,9 @@ import {
 
 
 const ProjectsProjectPlanDownloadPage = () => {
-  const [fileName, setFileName] = useState<string | null>(null); // Holds uploaded file name
-  const [error, setError] = useState<string | null>(null); // Tracks any upload errors
-  //const [isDragging, setIsDragging] = useState<boolean>(false); // State for drag-hover effect
-
-  const validExtensions = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  ];
-
-  // Called when a file is dropped or selected
-  const handleFileSelect = (file: File) => {
-    setError(null); // Clear previous errors
-
-    // Validate file type
-    if (!validExtensions.includes(file.type)) {
-      setError('Only PDF, DOC, or DOCX files are allowed.');
-      setFileName(null);
-      return;
-    }
-
-    // Set valid file name
-    setFileName(file.name);
-  };
-
-  const handleDrop = (e: DropEvent) => {
-    const files = e.items.filter((file) =>
-      file.kind === 'file'
-    ) as FileDropItem[];
-
-    if (files.length > 0) {
-      const file = files[0];
-      setFileName(file.name);
-
-      file.getFile().then((actualFile) => {
-        handleFileSelect(actualFile);
-      });
-    }
-  };
 
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
 
-    if (!fileName) {
-      setError('Please upload a valid file before submitting.');
-      return;
-    }
-
-    console.log('Form submitted with file:', fileName);
-    // Perform further actions or navigation here
-    window.location.href = '/projects/proj_2425new';
-  };
 
   return (
     <>

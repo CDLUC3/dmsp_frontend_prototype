@@ -28,7 +28,7 @@ import {
 } from '@/components/Container';
 
 const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
-  const [formData, setFormData] = useState({
+  const [formData] = useState({
     type: '',
     title: '',
     abbreviation: '',
