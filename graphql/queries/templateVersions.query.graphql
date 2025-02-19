@@ -27,7 +27,13 @@ query MyVersionedTemplates {
     modifiedById
     versionType
     visibility
-    errors
+    errors {
+      general
+      templateId
+      name
+      ownerId
+      version
+    }
     template {
       id
       owner {
@@ -55,6 +61,12 @@ query PublishedTemplates {
       searchName
     }
     visibility
-    errors
+    errors {
+      general
+      templateId
+      name
+      ownerId
+      version
+    }
   }
 }

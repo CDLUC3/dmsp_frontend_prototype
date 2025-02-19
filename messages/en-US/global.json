@@ -63,8 +63,8 @@
     "headingUpdateProfile": "Update Profile",
     "yourProfile": "Your Profile",
     "emailAndAuth": "Email and Authentication",
-    "firstName": "First name",
-    "lastName": "Last name",
+    "givenName": "First name",
+    "surName": "Last name",
     "institution": "Institution",
     "language": "Language",
     "headingPrimaryEmail": "Primary email address",
@@ -120,23 +120,28 @@
       "section": "Section",
       "editSection": "Edit Section",
       "editTemplate": "Edit Template",
-      "question": "Question"
+      "question": "Question",
+      "projects": "Projects"
     },
     "lastRevisedBy": "Last revised by",
     "lastUpdated": "Last updated",
     "buttons": {
       "search": "Search",
       "select": "Select",
-      "next": "Next"
+      "next": "Next",
+      "save": "Save",
+      "remove": "Remove",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "linkUpdate": "Update",
+      "linkExpand": "Expand",
+      "linkCollapse": "Collapse"
     },
     "labels": {
       "searchByKeyword": "Search by keyword"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc."
-    },
-    "labels": {
-      "searchByKeyword": "Search by keyword"
     },
     "links": {
       "clearFilter": "clear filter"
@@ -147,6 +152,14 @@
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search",
       "fixBelow": "Please fix the errors below"
+    },
+    "tabs": {
+      "editQuestion": "Edit Question",
+      "options": "Options",
+      "logic": "Logic"
+    },
+    "headings": {
+      "preview": "Preview"
     }
   }
 }

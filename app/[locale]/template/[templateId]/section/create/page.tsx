@@ -24,6 +24,7 @@ import {
 } from "react-aria-components";
 // GraphQL queries and mutations
 import {
+  SectionErrors,
   SectionsDisplayOrderDocument,
   useAddSectionMutation,
   useSectionsDisplayOrderQuery,
@@ -179,10 +180,10 @@ const CreateSectionPage: React.FC = () => {
   }
 
   // Make GraphQL mutation request to create section
-  const createSection = async () => {
+  const createSection = async (): Promise<SectionErrors> => {
     try {
       const newDisplayOrder = getNewDisplayOrder();
-      await addSectionMutation({
+      const response = await addSectionMutation({
         variables: {
           input: {
             templateId: Number(templateId),
@@ -200,7 +201,11 @@ const CreateSectionPage: React.FC = () => {
             templateId: Number(templateId)
           }
         }]
-      })
+      });
+
+      if (response.data?.addSection?.errors) {
+        return response.data.addSection.errors;
+      }
     } catch (error) {
       if (error instanceof ApolloError) {
         setErrors(prevErrors => [...prevErrors, error.message]);
@@ -208,6 +213,7 @@ const CreateSectionPage: React.FC = () => {
         setErrors(prevErrors => [...prevErrors, CreateSectionPage('messages.errorCreatingSection')]);
       }
     }
+    return {};
   };
 
   // Handle changes to tag checkbox selection
@@ -236,13 +242,30 @@ const CreateSectionPage: React.FC = () => {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // Clear previous errors
     clearAllFieldErrors();
+    setErrors([]);
 
     if (isFormValid()) {
       // Create new section
-      await createSection();
-      setErrors([]); // Clear errors on successful submit
-      showSuccessToast();
+      const errors = await createSection();
+
+      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
+      if (errors && Object.values(errors).filter((err) => err && err !== 'SectionErrors').length > 0) {
+        setFieldErrors({
+          sectionName: errors.name || '',
+          sectionIntroduction: errors.introduction || '',
+          sectionRequirements: errors.requirements || '',
+          sectionGuidance: errors.guidance || ''
+        });
+
+        setErrors([errors.general || CreateSectionPage('messages.errorCreatingSection')]);
+      } else {
+        // Show success message
+        showSuccessToast();
+      }
+
+      scrollToTop(topRef);
     }
   };
 

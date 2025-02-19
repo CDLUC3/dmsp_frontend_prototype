@@ -302,6 +302,7 @@ const SignUpPage: React.FC = () => {
                 helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}
                 error={fieldErrors?.affiliationId}
+                required={false}
               />
               {otherField && (
                 <TextField

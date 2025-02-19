@@ -326,7 +326,7 @@ describe('LoginPage', () => {
 
     // Check that user is redirected to 500 error page
     await waitFor(() => {
-        expect(mockUseRouter().push).toHaveBeenCalledWith('/500-error')
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/500-error')
     })
   });
 

@@ -12,7 +12,13 @@ query Templates {
       displayOrder
       isDirty
       questions {
-        errors
+        errors {
+          general
+          templateId
+          sectionId
+          questionText
+          displayOrder
+        }
         displayOrder
         guidanceText
         id
@@ -32,9 +38,14 @@ query Templates {
 
 query Template($templateId: Int!) {
   template(templateId: $templateId) {
+    id
     name
     description
-    errors
+    errors {
+      general
+      name
+      ownerId
+    }
     latestPublishVersion
     latestPublishDate
     created
@@ -45,7 +56,13 @@ query Template($templateId: Int!) {
       displayOrder
       isDirty
       questions {
-        errors
+        errors {
+          general
+          templateId
+          sectionId
+          questionText
+          displayOrder
+        }
         displayOrder
         guidanceText
         id
@@ -57,6 +74,31 @@ query Template($templateId: Int!) {
     owner {
       displayName
       id
+    }
+  }
+}
+
+query TemplateCollaborators($templateId: Int!) {
+    template(templateId: $templateId) {
+      id
+      name
+      collaborators {
+      email
+      id
+      user {
+        id
+        email
+        givenName
+        surName
+      }
+    }
+    admins {
+      givenName
+      surName
+      email
+    }
+    owner {
+      name
     }
   }
 }

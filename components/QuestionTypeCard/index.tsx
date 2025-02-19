@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import {useTranslations} from 'next-intl';
 import {Button} from "react-aria-components";
@@ -6,7 +8,7 @@ import {QuestionTypesInterface} from '@/app/types';
 
 interface QuestionTypeCardProps {
   questionType: QuestionTypesInterface;
-  handleSelect: (id: number) => void;
+  handleSelect: (questionTypeId: number, questionTypeName: string) => void;
 }
 
 const QuestionTypeCard: React.FC<QuestionTypeCardProps> = ({ questionType, handleSelect }) => {
@@ -23,7 +25,7 @@ const QuestionTypeCard: React.FC<QuestionTypeCardProps> = ({ questionType, handl
         <Button
           className="button-link secondary"
           data-type={questionType.id}
-          onPress={() => handleSelect(questionType.id)}
+          onPress={() => handleSelect(questionType.id, questionType.name)}
         >
           {Global('buttons.select')}
         </Button>

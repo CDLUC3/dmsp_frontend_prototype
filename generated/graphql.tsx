@@ -141,6 +141,8 @@ export type AddQuestionInput = {
   sectionId: Scalars['Int']['input'];
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['input'];
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type AddQuestionOptionInput = {
@@ -204,8 +206,14 @@ export type Affiliation = {
   contactEmail?: Maybe<Scalars['String']['output']>;
   /** The primary contact name */
   contactName?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
   /** The display name to help disambiguate similar names (typically with domain or country appended) */
   displayName: Scalars['String']['output'];
+  /** Any errors with the Object */
+  errors?: Maybe<AffiliationErrors>;
   /** The email address(es) to notify when feedback has been requested (stored as JSON array) */
   feedbackEmails?: Maybe<Array<Scalars['String']['output']>>;
   /** Whether or not the affiliation wants to use the feedback workflow */
@@ -226,6 +234,10 @@ export type Affiliation = {
   logoURI?: Maybe<Scalars['String']['output']>;
   /** Whether or not the affiliation is allowed to have administrators */
   managed: Scalars['Boolean']['output'];
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The official name for the affiliation (defined by the system of provenance) */
   name: Scalars['String']['output'];
   /** The system the affiliation's data came from (e.g. ROR, DMPTool, etc.) */
@@ -263,12 +275,41 @@ export type AffiliationEmailDomainInput = {
   id: Scalars['Int']['input'];
 };
 
+/** A collection of errors related to the Answer */
+export type AffiliationErrors = {
+  __typename?: 'AffiliationErrors';
+  acronyms?: Maybe<Scalars['String']['output']>;
+  aliases?: Maybe<Scalars['String']['output']>;
+  answerText?: Maybe<Scalars['String']['output']>;
+  contactEmail?: Maybe<Scalars['String']['output']>;
+  contactName?: Maybe<Scalars['String']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
+  feedbackEmails?: Maybe<Scalars['String']['output']>;
+  feedbackMessage?: Maybe<Scalars['String']['output']>;
+  fundrefId?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as affiliation already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  homepage?: Maybe<Scalars['String']['output']>;
+  logoName?: Maybe<Scalars['String']['output']>;
+  logoURI?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  planId?: Maybe<Scalars['String']['output']>;
+  provenance?: Maybe<Scalars['String']['output']>;
+  searchName?: Maybe<Scalars['String']['output']>;
+  ssoEntityId?: Maybe<Scalars['String']['output']>;
+  subHeaderLinks?: Maybe<Scalars['String']['output']>;
+  types?: Maybe<Scalars['String']['output']>;
+  uri?: Maybe<Scalars['String']['output']>;
+  versionedQuestionId?: Maybe<Scalars['String']['output']>;
+  versionedSectionId?: Maybe<Scalars['String']['output']>;
+};
+
 /** Input options for adding an Affiliation */
 export type AffiliationInput = {
   /** Acronyms for the affiliation */
   acronyms?: InputMaybe<Array<Scalars['String']['input']>>;
   /** Whether or not the Affiliation is active and available in search results */
-  active: Scalars['Boolean']['input'];
+  active?: InputMaybe<Scalars['Boolean']['input']>;
   /** Alias names for the affiliation */
   aliases?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The primary contact email */
@@ -276,25 +317,27 @@ export type AffiliationInput = {
   /** The primary contact name */
   contactName?: InputMaybe<Scalars['String']['input']>;
   /** The display name to help disambiguate similar names (typically with domain or country appended) */
-  displayName: Scalars['String']['input'];
+  displayName?: InputMaybe<Scalars['String']['input']>;
   /** The email address(es) to notify when feedback has been requested (stored as JSON array) */
-  feedbackEmails?: InputMaybe<Scalars['String']['input']>;
+  feedbackEmails?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** Whether or not the affiliation wants to use the feedback workflow */
-  feedbackEnabled: Scalars['Boolean']['input'];
+  feedbackEnabled?: InputMaybe<Scalars['Boolean']['input']>;
   /** The message to display to users when they request feedback */
   feedbackMessage?: InputMaybe<Scalars['String']['input']>;
   /** Whether or not this affiliation is a funder */
-  funder: Scalars['Boolean']['input'];
+  funder?: InputMaybe<Scalars['Boolean']['input']>;
   /** The Crossref Funder id */
   fundrefId?: InputMaybe<Scalars['String']['input']>;
   /** The official homepage for the affiliation */
   homepage?: InputMaybe<Scalars['String']['input']>;
+  /** The id of the affiliation */
+  id?: InputMaybe<Scalars['Int']['input']>;
   /** The logo file name */
   logoName?: InputMaybe<Scalars['String']['input']>;
   /** The URI of the logo */
   logoURI?: InputMaybe<Scalars['String']['input']>;
   /** Whether or not the affiliation is allowed to have administrators */
-  managed: Scalars['Boolean']['input'];
+  managed?: InputMaybe<Scalars['Boolean']['input']>;
   /** The official name for the affiliation (defined by the system of provenance) */
   name: Scalars['String']['input'];
   /** The email domains associated with the affiliation (for SSO) */
@@ -304,9 +347,9 @@ export type AffiliationInput = {
   /** The links the affiliation's users can use to get help */
   subHeaderLinks?: InputMaybe<Array<AffiliationLinkInput>>;
   /** The types of the affiliation (e.g. Company, Education, Government, etc.) */
-  types: Array<AffiliationType>;
+  types?: InputMaybe<Array<AffiliationType>>;
   /** The unique identifer for the affiliation (Not editable!) */
-  uri: Scalars['String']['input'];
+  uri?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** A hyperlink displayed in the sub-header of the UI for the afiliation's users */
@@ -410,6 +453,15 @@ export type AnswerComment = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
 };
 
+/** A collection of errors related to the Answer Comment */
+export type AnswerCommentErrors = {
+  __typename?: 'AnswerCommentErrors';
+  answerId?: Maybe<Scalars['String']['output']>;
+  commentText?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as affiliation already exists */
+  general?: Maybe<Scalars['String']['output']>;
+};
+
 /** The result of the findCollaborator query */
 export type CollaboratorSearchResult = {
   __typename?: 'CollaboratorSearchResult';
@@ -436,7 +488,7 @@ export type ContributorRole = {
   /** The order in which to display these items when displayed in the UI */
   displayOrder: Scalars['Int']['output'];
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<ContributorRoleErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The Ui label to display for the contributor role */
@@ -449,19 +501,15 @@ export type ContributorRole = {
   uri: Scalars['String']['output'];
 };
 
-export type ContributorRoleMutationResponse = {
-  __typename?: 'ContributorRoleMutationResponse';
-  /** Similar to HTTP status code, represents the status of the mutation */
-  code: Scalars['Int']['output'];
-  /**
-   * The contributor role that was impacted by the mutation.
-   * The new one if we were adding, the one that was updated when updating, or the one deletd when removing
-   */
-  contributorRole?: Maybe<ContributorRole>;
-  /** Human-readable message for the UI */
-  message: Scalars['String']['output'];
-  /** Indicates whether the mutation was successful */
-  success: Scalars['Boolean']['output'];
+/** A collection of errors related to the ContributorRole */
+export type ContributorRoleErrors = {
+  __typename?: 'ContributorRoleErrors';
+  description?: Maybe<Scalars['String']['output']>;
+  displayOrder?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  label?: Maybe<Scalars['String']['output']>;
+  uri?: Maybe<Scalars['String']['output']>;
 };
 
 /** The types of object a User can be invited to Collaborate on */
@@ -491,7 +539,7 @@ export type License = {
   /** A description of the license */
   description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<LicenseErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
@@ -506,6 +554,16 @@ export type License = {
   uri: Scalars['String']['output'];
 };
 
+/** A collection of errors related to the License */
+export type LicenseErrors = {
+  __typename?: 'LicenseErrors';
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  uri?: Maybe<Scalars['String']['output']>;
+};
+
 /** A metadata standard used when describing a research output */
 export type MetadataStandard = {
   __typename?: 'MetadataStandard';
@@ -516,7 +574,7 @@ export type MetadataStandard = {
   /** A description of the metadata standard */
   description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<MetadataStandardErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** Keywords to assist in finding the metadata standard */
@@ -533,6 +591,18 @@ export type MetadataStandard = {
   uri: Scalars['String']['output'];
 };
 
+/** A collection of errors related to the MetadataStandard */
+export type MetadataStandardErrors = {
+  __typename?: 'MetadataStandardErrors';
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  keywords?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  researchDomainIds?: Maybe<Scalars['String']['output']>;
+  uri?: Maybe<Scalars['String']['output']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -541,7 +611,7 @@ export type Mutation = {
   /** Create a new Affiliation */
   addAffiliation?: Maybe<Affiliation>;
   /** Add a new contributor role (URL and label must be unique!) */
-  addContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  addContributorRole?: Maybe<ContributorRole>;
   /** Add a comment to an answer within a round of feedback */
   addFeedbackComment?: Maybe<PlanFeedbackComment>;
   /** Add a new License (don't make the URI up! should resolve to an taxonomy HTML/JSON representation of the object) */
@@ -585,7 +655,7 @@ export type Mutation = {
   /** Download the plan */
   archiveProject?: Maybe<Project>;
   /** Archive a Template (unpublishes any associated PublishedTemplate */
-  archiveTemplate?: Maybe<Scalars['Boolean']['output']>;
+  archiveTemplate?: Maybe<Template>;
   /** Mark the feedback round as complete */
   completeFeedback?: Maybe<PlanFeedback>;
   /** Publish the template or save as a draft */
@@ -611,7 +681,7 @@ export type Mutation = {
   /** Delete an Affiliation (only applicable to AffiliationProvenance == DMPTOOL) */
   removeAffiliation?: Maybe<Affiliation>;
   /** Delete the contributor role */
-  removeContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  removeContributorRole?: Maybe<ContributorRole>;
   /** Remove a comment to an answer within a round of feedback */
   removeFeedbackComment?: Maybe<PlanFeedbackComment>;
   /** Delete a License */
@@ -619,7 +689,7 @@ export type Mutation = {
   /** Delete a MetadataStandard */
   removeMetadataStandard?: Maybe<MetadataStandard>;
   /** Remove a PlanCollaborator from a Plan */
-  removePlanCollaborator?: Maybe<Scalars['Boolean']['output']>;
+  removePlanCollaborator?: Maybe<PlanCollaborator>;
   /** Remove a PlanContributor from a Plan */
   removePlanContributor?: Maybe<PlanContributor>;
   /** Remove a research project contributor */
@@ -645,7 +715,7 @@ export type Mutation = {
   /** Delete a tag */
   removeTag?: Maybe<Tag>;
   /** Remove a TemplateCollaborator from a Template */
-  removeTemplateCollaborator?: Maybe<Scalars['Boolean']['output']>;
+  removeTemplateCollaborator?: Maybe<TemplateCollaborator>;
   /** Anonymize the current user's account (essentially deletes their account without orphaning things) */
   removeUser?: Maybe<User>;
   /** Remove an email address from the current user */
@@ -663,7 +733,7 @@ export type Mutation = {
   /** Update an Affiliation */
   updateAffiliation?: Maybe<Affiliation>;
   /** Update the contributor role */
-  updateContributorRole?: Maybe<ContributorRoleMutationResponse>;
+  updateContributorRole?: Maybe<ContributorRole>;
   /** Update a License record */
   updateLicense?: Maybe<License>;
   /** Update a MetadataStandard record */
@@ -923,7 +993,7 @@ export type MutationRemoveAffiliationArgs = {
 
 
 export type MutationRemoveContributorRoleArgs = {
-  id: Scalars['ID']['input'];
+  id: Scalars['Int']['input'];
 };
 
 
@@ -990,7 +1060,7 @@ export type MutationRemoveQuestionConditionArgs = {
 
 
 export type MutationRemoveQuestionOptionArgs = {
-  questionOptionId: Scalars['Int']['input'];
+  id: Scalars['Int']['input'];
 };
 
 
@@ -1055,7 +1125,7 @@ export type MutationUpdateAffiliationArgs = {
 export type MutationUpdateContributorRoleArgs = {
   description?: InputMaybe<Scalars['String']['input']>;
   displayOrder: Scalars['Int']['input'];
-  id: Scalars['ID']['input'];
+  id: Scalars['Int']['input'];
   label: Scalars['String']['input'];
   url: Scalars['URL']['input'];
 };
@@ -1184,7 +1254,7 @@ export type OutputType = {
   /** A description of the type of output to be collected/generated during the project */
   description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<OutputTypeErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
@@ -1195,6 +1265,16 @@ export type OutputType = {
   name: Scalars['String']['output'];
   /** The taxonomy URL of the output type */
   uri: Scalars['String']['output'];
+};
+
+/** A collection of errors related to the OutputType */
+export type OutputTypeErrors = {
+  __typename?: 'OutputTypeErrors';
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  uri?: Maybe<Scalars['String']['output']>;
 };
 
 /** A Data Managament Plan (DMP) */
@@ -1213,7 +1293,7 @@ export type Plan = {
   /** The DMP ID/DOI for the plan */
   dmpId?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<PlanErrors>;
   /** Rounds of administrator feedback provided for the Plan */
   feedback?: Maybe<Array<PlanFeedback>>;
   /** The funder who is supporting the work defined by the DMP */
@@ -1228,6 +1308,8 @@ export type Plan = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The project the plan is associated with */
+  project: Project;
   /** The status of the plan */
   status?: Maybe<PlanStatus>;
   /** The template the plan is based on */
@@ -1272,6 +1354,18 @@ export enum PlanCollaboratorAccessLevel {
   Editor = 'EDITOR'
 }
 
+/** A collection of errors related to the PlanCollaborator */
+export type PlanCollaboratorErrors = {
+  __typename?: 'PlanCollaboratorErrors';
+  accessLevel?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as affiliation already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  invitedById?: Maybe<Scalars['String']['output']>;
+  planId?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
 /** A person involved with the research project who will appear in the Plan's citation and landing page */
 export type PlanContributor = {
   __typename?: 'PlanContributor';
@@ -1284,7 +1378,7 @@ export type PlanContributor = {
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<PlanContributorErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
@@ -1295,6 +1389,16 @@ export type PlanContributor = {
   plan?: Maybe<Plan>;
 };
 
+/** A collection of errors related to the PlanContributor */
+export type PlanContributorErrors = {
+  __typename?: 'PlanContributorErrors';
+  contributorRoleIds?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  plan?: Maybe<Scalars['String']['output']>;
+  projectContributor?: Maybe<Scalars['String']['output']>;
+};
+
 export enum PlanDownloadFormat {
   Csv = 'CSV',
   Docx = 'DOCX',
@@ -1303,6 +1407,24 @@ export enum PlanDownloadFormat {
   Pdf = 'PDF',
   Text = 'TEXT'
 }
+
+/** A collection of errors related to the Plan */
+export type PlanErrors = {
+  __typename?: 'PlanErrors';
+  answerIds?: Maybe<Scalars['String']['output']>;
+  collaboratorIds?: Maybe<Scalars['String']['output']>;
+  contributorIds?: Maybe<Scalars['String']['output']>;
+  dmpId?: Maybe<Scalars['String']['output']>;
+  feedbackIds?: Maybe<Scalars['String']['output']>;
+  funderIds?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  lastUpdatedById?: Maybe<Scalars['String']['output']>;
+  projectId?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  versionedTemplateId?: Maybe<Scalars['String']['output']>;
+  visibility?: Maybe<Scalars['String']['output']>;
+};
 
 /** A round of administrative feedback for a Data Managament Plan (DMP) */
 export type PlanFeedback = {
@@ -1318,7 +1440,7 @@ export type PlanFeedback = {
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<PlanFeedbackErrors>;
   /** The specific contextual commentary */
   feedbackComments?: Maybe<Array<PlanFeedbackComment>>;
   /** The unique identifer for the Object */
@@ -1348,13 +1470,35 @@ export type PlanFeedbackComment = {
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<PlanFeedbackCommentErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
+};
+
+/** A collection of errors related to the PlanFeedbackComment */
+export type PlanFeedbackCommentErrors = {
+  __typename?: 'PlanFeedbackCommentErrors';
+  answer?: Maybe<Scalars['String']['output']>;
+  comment?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  planFeedback?: Maybe<Scalars['String']['output']>;
+};
+
+/** A collection of errors related to the PlanFeedback */
+export type PlanFeedbackErrors = {
+  __typename?: 'PlanFeedbackErrors';
+  adminSummary?: Maybe<Scalars['String']['output']>;
+  completedById?: Maybe<Scalars['String']['output']>;
+  feedbackComments?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  planId?: Maybe<Scalars['String']['output']>;
+  requestedById?: Maybe<Scalars['String']['output']>;
 };
 
 export enum PlanStatus {
@@ -1388,7 +1532,7 @@ export type Project = {
   /** The estimated date the research project will end (use YYYY-MM-DD format) */
   endDate?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<ProjectErrors>;
   /** The funders who are supporting the research project */
   funders?: Maybe<Array<ProjectFunder>>;
   /** The unique identifer for the Object */
@@ -1423,7 +1567,7 @@ export type ProjectContributor = {
   /** The contributor's email address */
   email?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<ProjectContributorErrors>;
   /** The contributor's first/given name */
   givenName?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
@@ -1440,6 +1584,35 @@ export type ProjectContributor = {
   surName?: Maybe<Scalars['String']['output']>;
 };
 
+/** A collection of errors related to the ProjectContributor */
+export type ProjectContributorErrors = {
+  __typename?: 'ProjectContributorErrors';
+  affiliationId?: Maybe<Scalars['String']['output']>;
+  contributorRoleIds?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  givenName?: Maybe<Scalars['String']['output']>;
+  orcid?: Maybe<Scalars['String']['output']>;
+  projectId?: Maybe<Scalars['String']['output']>;
+  surName?: Maybe<Scalars['String']['output']>;
+};
+
+/** A collection of errors related to the Project */
+export type ProjectErrors = {
+  __typename?: 'ProjectErrors';
+  abstractText?: Maybe<Scalars['String']['output']>;
+  contributorIds?: Maybe<Scalars['String']['output']>;
+  endDate?: Maybe<Scalars['String']['output']>;
+  funderIds?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  outputIds?: Maybe<Scalars['String']['output']>;
+  researchDomainId?: Maybe<Scalars['String']['output']>;
+  startDate?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+};
+
 /** A funder affiliation that is supporting a research project */
 export type ProjectFunder = {
   __typename?: 'ProjectFunder';
@@ -1450,7 +1623,7 @@ export type ProjectFunder = {
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<ProjectFunderErrors>;
   /** The funder's unique id/url for the call for submissions to apply for a grant */
   funderOpportunityNumber?: Maybe<Scalars['String']['output']>;
   /** The funder's unique id/url for the research project (normally assigned after the grant has been awarded) */
@@ -1467,6 +1640,19 @@ export type ProjectFunder = {
   project?: Maybe<Project>;
   /** The status of the funding resquest */
   status?: Maybe<ProjectFunderStatus>;
+};
+
+/** A collection of errors related to the ProjectFunder */
+export type ProjectFunderErrors = {
+  __typename?: 'ProjectFunderErrors';
+  affiliationId?: Maybe<Scalars['String']['output']>;
+  funderOpportunityNumber?: Maybe<Scalars['String']['output']>;
+  funderProjectNumber?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  grantId?: Maybe<Scalars['String']['output']>;
+  projectId?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
 };
 
 /** The status of the funding */
@@ -1491,7 +1677,7 @@ export type ProjectOutput = {
   /** A description of the output */
   description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<ProjectOutputErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The initial access level that will be allowed for the output */
@@ -1516,6 +1702,22 @@ export type ProjectOutput = {
   repositories?: Maybe<Array<Repository>>;
   /** The title/name of the output */
   title: Scalars['String']['output'];
+};
+
+/** A collection of errors related to the ProjectOutput */
+export type ProjectOutputErrors = {
+  __typename?: 'ProjectOutputErrors';
+  anticipatedReleaseDate?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  initialAccessLevel?: Maybe<Scalars['String']['output']>;
+  initialLicenseId?: Maybe<Scalars['String']['output']>;
+  metadataStandardIds?: Maybe<Scalars['String']['output']>;
+  outputTypeId?: Maybe<Scalars['String']['output']>;
+  projectId?: Maybe<Scalars['String']['output']>;
+  repositoryIds?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
 };
 
 export type Query = {
@@ -1607,7 +1809,7 @@ export type Query = {
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
   questionConditions?: Maybe<Array<Maybe<QuestionCondition>>>;
-  /** Get the specific Question Option based on questionOptionId */
+  /** Get the specific Question Option based on question option id */
   questionOption?: Maybe<QuestionOption>;
   /** Get the Question Options that belong to the associated questionId */
   questionOptions?: Maybe<Array<Maybe<QuestionOption>>>;
@@ -1825,7 +2027,7 @@ export type QueryQuestionConditionsArgs = {
 
 
 export type QueryQuestionOptionArgs = {
-  questionOptionId: Scalars['Int']['input'];
+  id: Scalars['Int']['input'];
 };
 
 
@@ -1903,7 +2105,7 @@ export type Question = {
   /** The display order of the question */
   displayOrder?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<QuestionErrors>;
   /** Guidance to complete the question */
   guidanceText?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
@@ -1934,6 +2136,8 @@ export type Question = {
   sourceQestionId?: Maybe<Scalars['Int']['output']>;
   /** The unique id of the Template that the question belongs to */
   templateId: Scalars['Int']['output'];
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: Maybe<Scalars['Boolean']['output']>;
 };
 
 /**
@@ -1953,7 +2157,7 @@ export type QuestionCondition = {
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<QuestionConditionErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
@@ -1988,6 +2192,36 @@ export enum QuestionConditionCondition {
   Includes = 'INCLUDES'
 }
 
+/** A collection of errors related to the QuestionCondition */
+export type QuestionConditionErrors = {
+  __typename?: 'QuestionConditionErrors';
+  action?: Maybe<Scalars['String']['output']>;
+  conditionMatch?: Maybe<Scalars['String']['output']>;
+  conditionType?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  questionId?: Maybe<Scalars['String']['output']>;
+  target?: Maybe<Scalars['String']['output']>;
+};
+
+/** A collection of errors related to the Question */
+export type QuestionErrors = {
+  __typename?: 'QuestionErrors';
+  displayOrder?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  guidanceText?: Maybe<Scalars['String']['output']>;
+  questionConditionIds?: Maybe<Scalars['String']['output']>;
+  questionOptionIds?: Maybe<Scalars['String']['output']>;
+  questionText?: Maybe<Scalars['String']['output']>;
+  questionTypeId?: Maybe<Scalars['String']['output']>;
+  requirementText?: Maybe<Scalars['String']['output']>;
+  sampleText?: Maybe<Scalars['String']['output']>;
+  sectionId?: Maybe<Scalars['String']['output']>;
+  sourceQestionId?: Maybe<Scalars['String']['output']>;
+  templateId?: Maybe<Scalars['String']['output']>;
+};
+
 /** QuestionOption always belongs to a Question */
 export type QuestionOption = {
   __typename?: 'QuestionOption';
@@ -1996,7 +2230,7 @@ export type QuestionOption = {
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<QuestionOptionErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** Whether the option is the default selected one */
@@ -2011,6 +2245,16 @@ export type QuestionOption = {
   questionId: Scalars['Int']['output'];
   /** The option text */
   text: Scalars['String']['output'];
+};
+
+/** A collection of errors related to the QuestionOption */
+export type QuestionOptionErrors = {
+  __typename?: 'QuestionOptionErrors';
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  orderNumber?: Maybe<Scalars['String']['output']>;
+  questionId?: Maybe<Scalars['String']['output']>;
+  text?: Maybe<Scalars['String']['output']>;
 };
 
 /** Input for Question options operations */
@@ -2031,7 +2275,7 @@ export type QuestionType = {
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<QuestionTypeErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** Whether or not this is the default question type */
@@ -2046,6 +2290,15 @@ export type QuestionType = {
   usageDescription: Scalars['String']['output'];
 };
 
+/** A collection of errors related to the QuestionType */
+export type QuestionTypeErrors = {
+  __typename?: 'QuestionTypeErrors';
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  usageDescription?: Maybe<Scalars['String']['output']>;
+};
+
 /** A repository where research outputs are preserved */
 export type Repository = {
   __typename?: 'Repository';
@@ -2056,7 +2309,7 @@ export type Repository = {
   /** A description of the repository */
   description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<RepositoryErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** Keywords to assist in finding the repository */
@@ -2074,6 +2327,20 @@ export type Repository = {
   /** The taxonomy URL of the repository */
   uri: Scalars['String']['output'];
   /** The website URL */
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+/** A collection of errors related to the Repository */
+export type RepositoryErrors = {
+  __typename?: 'RepositoryErrors';
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  keywords?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  repositoryTypes?: Maybe<Scalars['String']['output']>;
+  researchDomainIds?: Maybe<Scalars['String']['output']>;
+  uri?: Maybe<Scalars['String']['output']>;
   website?: Maybe<Scalars['String']['output']>;
 };
 
@@ -2107,7 +2374,7 @@ export type ResearchDomain = {
   /** A description of the type of research covered by the domain */
   description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<ResearchDomainErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
@@ -2122,6 +2389,18 @@ export type ResearchDomain = {
   uri: Scalars['String']['output'];
 };
 
+/** A collection of errors related to the ResearchDomain */
+export type ResearchDomainErrors = {
+  __typename?: 'ResearchDomainErrors';
+  childResearchDomainIds?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  parentResearchDomainId?: Maybe<Scalars['String']['output']>;
+  uri?: Maybe<Scalars['String']['output']>;
+};
+
 /** A Section that contains a list of questions in a template */
 export type Section = {
   __typename?: 'Section';
@@ -2134,7 +2413,7 @@ export type Section = {
   /** The order in which the section will be displayed in the template */
   displayOrder?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<SectionErrors>;
   /** The guidance to help user with section */
   guidance?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
@@ -2159,6 +2438,21 @@ export type Section = {
   template?: Maybe<Template>;
 };
 
+/** A collection of errors related to the Section */
+export type SectionErrors = {
+  __typename?: 'SectionErrors';
+  displayOrder?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  guidance?: Maybe<Scalars['String']['output']>;
+  introduction?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  questionIds?: Maybe<Scalars['String']['output']>;
+  requirements?: Maybe<Scalars['String']['output']>;
+  tags?: Maybe<Scalars['String']['output']>;
+  templateId?: Maybe<Scalars['String']['output']>;
+};
+
 /** Section version type */
 export enum SectionVersionType {
   /** Draft - saved state for internal review */
@@ -2177,7 +2471,7 @@ export type Tag = {
   /** The tag description */
   description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<TagErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
@@ -2186,6 +2480,15 @@ export type Tag = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The tag name */
   name: Scalars['String']['output'];
+};
+
+/** A collection of errors related to the Tag */
+export type TagErrors = {
+  __typename?: 'TagErrors';
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
 };
 
 /** Input for Tag operations */
@@ -2201,6 +2504,8 @@ export type TagInput = {
 /** A Template used to create DMPs */
 export type Template = {
   __typename?: 'Template';
+  /** Admin users associated with the template's owner */
+  admins?: Maybe<Array<User>>;
   /** Whether or not this Template is designated as a 'Best Practice' template */
   bestPractice: Scalars['Boolean']['output'];
   /** Users from different affiliations who have been invited to collaborate on this template */
@@ -2212,7 +2517,7 @@ export type Template = {
   /** A description of the purpose of the template */
   description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<TemplateErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** Whether or not the Template has had any changes since it was last published */
@@ -2249,7 +2554,7 @@ export type TemplateCollaborator = {
   /** The collaborator's email */
   email: Scalars['String']['output'];
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<TemplateCollaboratorErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The user who invited the collaborator */
@@ -2262,6 +2567,33 @@ export type TemplateCollaborator = {
   template?: Maybe<Template>;
   /** The collaborator (if they have an account) */
   user?: Maybe<User>;
+};
+
+/** A collection of errors related to the TemplateCollaborator */
+export type TemplateCollaboratorErrors = {
+  __typename?: 'TemplateCollaboratorErrors';
+  email?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  invitedById?: Maybe<Scalars['String']['output']>;
+  templateId?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+/** A collection of errors related to the Template */
+export type TemplateErrors = {
+  __typename?: 'TemplateErrors';
+  collaboratorIds?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  languageId?: Maybe<Scalars['String']['output']>;
+  latestPublishVersion?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  ownerId?: Maybe<Scalars['String']['output']>;
+  sectionIds?: Maybe<Scalars['String']['output']>;
+  sourceTemplateId?: Maybe<Scalars['String']['output']>;
+  visibility?: Maybe<Scalars['String']['output']>;
 };
 
 /** Template version type */
@@ -2362,21 +2694,27 @@ export type UpdateQuestionInput = {
   questionOptions?: InputMaybe<Array<InputMaybe<UpdateQuestionOptionInput>>>;
   /** This will be used as a sort of title for the Question */
   questionText?: InputMaybe<Scalars['String']['input']>;
+  /** The type of question, such as text field, select box, radio buttons, etc */
+  questionTypeId?: InputMaybe<Scalars['Int']['input']>;
   /** To indicate whether the question is required to be completed */
   required?: InputMaybe<Scalars['Boolean']['input']>;
   /** Requirements associated with the Question */
   requirementText?: InputMaybe<Scalars['String']['input']>;
   /** Sample text to possibly provide a starting point or example to answer question */
   sampleText?: InputMaybe<Scalars['String']['input']>;
+  /** Boolean indicating whether we should use content from sampleText as the default answer */
+  useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type UpdateQuestionOptionInput = {
+  /** The id of the QuestionOption */
+  id?: InputMaybe<Scalars['Int']['input']>;
   /** Whether the option is the default selected one */
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
   /** The option order number */
   orderNumber: Scalars['Int']['input'];
-  /** The id of the QuestionOption */
-  questionOptionId?: InputMaybe<Scalars['Int']['input']>;
+  /** id of parent question */
+  questionId?: InputMaybe<Scalars['Int']['input']>;
   /** The option text */
   text: Scalars['String']['input'];
 };
@@ -2436,7 +2774,7 @@ export type User = {
   /** The user's email addresses */
   emails?: Maybe<Array<Maybe<UserEmail>>>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<UserErrors>;
   /** The number of failed login attempts */
   failed_sign_in_attemps?: Maybe<Scalars['Int']['output']>;
   /** The user's first/given name */
@@ -2484,7 +2822,7 @@ export type UserEmail = {
   /** The email address */
   email: Scalars['String']['output'];
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<UserEmailErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** Whether or not the email address has been confirmed */
@@ -2497,6 +2835,34 @@ export type UserEmail = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The user the email belongs to */
   userId: Scalars['Int']['output'];
+};
+
+/** A collection of errors related to the UserEmail */
+export type UserEmailErrors = {
+  __typename?: 'UserEmailErrors';
+  email?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+/** A collection of errors related to the User */
+export type UserErrors = {
+  __typename?: 'UserErrors';
+  affiliationId?: Maybe<Scalars['String']['output']>;
+  confirmPassword?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  emailIds?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  givenName?: Maybe<Scalars['String']['output']>;
+  languageId?: Maybe<Scalars['String']['output']>;
+  orcid?: Maybe<Scalars['String']['output']>;
+  otherAffiliationName?: Maybe<Scalars['String']['output']>;
+  password?: Maybe<Scalars['String']['output']>;
+  role?: Maybe<Scalars['String']['output']>;
+  ssoId?: Maybe<Scalars['String']['output']>;
+  surName?: Maybe<Scalars['String']['output']>;
 };
 
 /** The types of roles supported by the DMPTool */
@@ -2516,7 +2882,7 @@ export type VersionedQuestion = {
   /** The display order of the VersionedQuestion */
   displayOrder?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<VersionedQuestionErrors>;
   /** Guidance to complete the question */
   guidanceText?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
@@ -2558,7 +2924,7 @@ export type VersionedQuestionCondition = {
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<VersionedQuestionConditionErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
@@ -2595,6 +2961,36 @@ export enum VersionedQuestionConditionCondition {
   Includes = 'INCLUDES'
 }
 
+/** A collection of errors related to the VersionedQuestionCondition */
+export type VersionedQuestionConditionErrors = {
+  __typename?: 'VersionedQuestionConditionErrors';
+  action?: Maybe<Scalars['String']['output']>;
+  conditionMatch?: Maybe<Scalars['String']['output']>;
+  conditionType?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  questionConditionId?: Maybe<Scalars['String']['output']>;
+  target?: Maybe<Scalars['String']['output']>;
+  versionedQuestionId?: Maybe<Scalars['String']['output']>;
+};
+
+/** A collection of errors related to the VersionedQuestion */
+export type VersionedQuestionErrors = {
+  __typename?: 'VersionedQuestionErrors';
+  displayOrder?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  guidanceText?: Maybe<Scalars['String']['output']>;
+  questionId?: Maybe<Scalars['String']['output']>;
+  questionText?: Maybe<Scalars['String']['output']>;
+  questionTypeId?: Maybe<Scalars['String']['output']>;
+  requirementText?: Maybe<Scalars['String']['output']>;
+  sampleText?: Maybe<Scalars['String']['output']>;
+  versionedQuestionConditionIds?: Maybe<Scalars['String']['output']>;
+  versionedSectionId?: Maybe<Scalars['String']['output']>;
+  versionedTemplateId?: Maybe<Scalars['String']['output']>;
+};
+
 /** A snapshot of a Section when it became published. */
 export type VersionedSection = {
   __typename?: 'VersionedSection';
@@ -2605,7 +3001,7 @@ export type VersionedSection = {
   /** The displayOrder of this VersionedSection */
   displayOrder: Scalars['Int']['output'];
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<VersionedSectionErrors>;
   /** The guidance to help user with VersionedSection */
   guidance?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
@@ -2630,6 +3026,22 @@ export type VersionedSection = {
   versionedTemplate: VersionedTemplate;
 };
 
+/** A collection of errors related to the VersionedSection */
+export type VersionedSectionErrors = {
+  __typename?: 'VersionedSectionErrors';
+  displayOrder?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  guidance?: Maybe<Scalars['String']['output']>;
+  introduction?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  requirements?: Maybe<Scalars['String']['output']>;
+  sectionId?: Maybe<Scalars['String']['output']>;
+  tagIds?: Maybe<Scalars['String']['output']>;
+  versionedQuestionIds?: Maybe<Scalars['String']['output']>;
+  versionedTemplateId?: Maybe<Scalars['String']['output']>;
+};
+
 /** A snapshot of a Template when it became published. DMPs are created from published templates */
 export type VersionedTemplate = {
   __typename?: 'VersionedTemplate';
@@ -2646,7 +3058,7 @@ export type VersionedTemplate = {
   /** A description of the purpose of the template */
   description?: Maybe<Scalars['String']['output']>;
   /** Errors associated with the Object */
-  errors?: Maybe<Array<Scalars['String']['output']>>;
+  errors?: Maybe<VersionedTemplateErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The timestamp when the Object was last modifed */
@@ -2669,6 +3081,23 @@ export type VersionedTemplate = {
   versionedSections?: Maybe<Array<VersionedSection>>;
   /** The template's availability setting: Public is available to everyone, Private only your affiliation */
   visibility: TemplateVisibility;
+};
+
+/** A collection of errors related to the VersionedTemplate */
+export type VersionedTemplateErrors = {
+  __typename?: 'VersionedTemplateErrors';
+  comment?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  /** General error messages such as the object already exists */
+  general?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  ownerId?: Maybe<Scalars['String']['output']>;
+  templateId?: Maybe<Scalars['String']['output']>;
+  version?: Maybe<Scalars['String']['output']>;
+  versionType?: Maybe<Scalars['String']['output']>;
+  versionedById?: Maybe<Scalars['String']['output']>;
+  versionedSectionIds?: Maybe<Scalars['String']['output']>;
+  visibility?: Maybe<Scalars['String']['output']>;
 };
 
 export type UpdateProjectContributorInput = {
@@ -2727,26 +3156,56 @@ export type UpdateUserProfileInput = {
   surName: Scalars['String']['input'];
 };
 
+export type AddQuestionMutationVariables = Exact<{
+  input: AddQuestionInput;
+}>;
+
+
+export type AddQuestionMutation = { __typename?: 'Mutation', addQuestion: { __typename?: 'Question', id?: number | null, displayOrder?: number | null, questionText?: string | null, questionTypeId?: number | null, requirementText?: string | null, guidanceText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, required?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', isDefault?: boolean | null, id?: number | null, questionId: number, orderNumber: number, text: string }> | null } };
+
+export type UpdateQuestionMutationVariables = Exact<{
+  input: UpdateQuestionInput;
+}>;
+
+
+export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, questionTypeId?: number | null, guidanceText?: string | null, isDirty?: boolean | null, required?: boolean | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionText?: string | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, orderNumber: number, questionId: number, text: string, isDefault?: boolean | null }> | null } };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
 
 
-export type AddSectionMutation = { __typename?: 'Mutation', addSection: { __typename?: 'Section', id?: number | null, guidance?: string | null, errors?: Array<string> | null, displayOrder?: number | null, introduction?: string | null, isDirty: boolean, name: string, requirements?: string | null, tags?: Array<{ __typename?: 'Tag', name: string } | null> | null, questions?: Array<{ __typename?: 'Question', id?: number | null, errors?: Array<string> | null }> | null } };
+export type AddSectionMutation = { __typename?: 'Mutation', addSection: { __typename?: 'Section', id?: number | null, guidance?: string | null, displayOrder?: number | null, introduction?: string | null, isDirty: boolean, name: string, requirements?: string | null, tags?: Array<{ __typename?: 'Tag', name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, questions?: Array<{ __typename?: 'Question', id?: number | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } };
 
 export type UpdateSectionMutationVariables = Exact<{
   input: UpdateSectionInput;
 }>;
 
 
-export type UpdateSectionMutation = { __typename?: 'Mutation', updateSection: { __typename?: 'Section', id?: number | null, name: string, introduction?: string | null, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, errors?: Array<string> | null, bestPractice?: boolean | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null } };
+export type UpdateSectionMutation = { __typename?: 'Mutation', updateSection: { __typename?: 'Section', id?: number | null, name: string, introduction?: string | null, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, introduction?: string | null, requirements?: string | null, guidance?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null } };
+
+export type AddTemplateCollaboratorMutationVariables = Exact<{
+  templateId: Scalars['Int']['input'];
+  email: Scalars['String']['input'];
+}>;
+
+
+export type AddTemplateCollaboratorMutation = { __typename?: 'Mutation', addTemplateCollaborator?: { __typename?: 'TemplateCollaborator', email: string, id?: number | null, errors?: { __typename?: 'TemplateCollaboratorErrors', general?: string | null, email?: string | null } | null } | null };
+
+export type RemoveTemplateCollaboratorMutationVariables = Exact<{
+  templateId: Scalars['Int']['input'];
+  email: Scalars['String']['input'];
+}>;
+
+
+export type RemoveTemplateCollaboratorMutation = { __typename?: 'Mutation', removeTemplateCollaborator?: { __typename?: 'TemplateCollaborator', errors?: { __typename?: 'TemplateCollaboratorErrors', general?: string | null, email?: string | null } | null } | null };
 
 export type ArchiveTemplateMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
 }>;
 
 
-export type ArchiveTemplateMutation = { __typename?: 'Mutation', archiveTemplate?: boolean | null };
+export type ArchiveTemplateMutation = { __typename?: 'Mutation', archiveTemplate?: { __typename?: 'Template', id?: number | null, name: string, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null } | null };
 
 export type CreateTemplateVersionMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -2756,7 +3215,7 @@ export type CreateTemplateVersionMutationVariables = Exact<{
 }>;
 
 
-export type CreateTemplateVersionMutation = { __typename?: 'Mutation', createTemplateVersion?: { __typename?: 'Template', errors?: Array<string> | null, name: string } | null };
+export type CreateTemplateVersionMutation = { __typename?: 'Mutation', createTemplateVersion?: { __typename?: 'Template', name: string, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null } | null };
 
 export type AddTemplateMutationVariables = Exact<{
   name: Scalars['String']['input'];
@@ -2764,14 +3223,14 @@ export type AddTemplateMutationVariables = Exact<{
 }>;
 
 
-export type AddTemplateMutation = { __typename?: 'Mutation', addTemplate?: { __typename?: 'Template', id?: number | null, errors?: Array<string> | null, description?: string | null, name: string } | null };
+export type AddTemplateMutation = { __typename?: 'Mutation', addTemplate?: { __typename?: 'Template', id?: number | null, description?: string | null, name: string, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null } | null };
 
 export type UpdateUserProfileMutationVariables = Exact<{
   input: UpdateUserProfileInput;
 }>;
 
 
-export type UpdateUserProfileMutation = { __typename?: 'Mutation', updateUserProfile?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, errors?: Array<string> | null, languageId: string, email: any, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
+export type UpdateUserProfileMutation = { __typename?: 'Mutation', updateUserProfile?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, email: any, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 export type AddUserEmailMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -2779,21 +3238,21 @@ export type AddUserEmailMutationVariables = Exact<{
 }>;
 
 
-export type AddUserEmailMutation = { __typename?: 'Mutation', addUserEmail?: { __typename?: 'UserEmail', email: string, errors?: Array<string> | null, isPrimary: boolean, isConfirmed: boolean, id?: number | null, userId: number } | null };
+export type AddUserEmailMutation = { __typename?: 'Mutation', addUserEmail?: { __typename?: 'UserEmail', email: string, isPrimary: boolean, isConfirmed: boolean, id?: number | null, userId: number, errors?: { __typename?: 'UserEmailErrors', general?: string | null, userId?: string | null, email?: string | null } | null } | null };
 
 export type RemoveUserEmailMutationVariables = Exact<{
   email: Scalars['String']['input'];
 }>;
 
 
-export type RemoveUserEmailMutation = { __typename?: 'Mutation', removeUserEmail?: { __typename?: 'UserEmail', errors?: Array<string> | null } | null };
+export type RemoveUserEmailMutation = { __typename?: 'Mutation', removeUserEmail?: { __typename?: 'UserEmail', errors?: { __typename?: 'UserEmailErrors', general?: string | null, userId?: string | null, email?: string | null } | null } | null };
 
 export type SetPrimaryUserEmailMutationVariables = Exact<{
   email: Scalars['String']['input'];
 }>;
 
 
-export type SetPrimaryUserEmailMutation = { __typename?: 'Mutation', setPrimaryUserEmail?: Array<{ __typename?: 'UserEmail', id?: number | null, errors?: Array<string> | null, email: string, isConfirmed: boolean, isPrimary: boolean, userId: number } | null> | null };
+export type SetPrimaryUserEmailMutation = { __typename?: 'Mutation', setPrimaryUserEmail?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isConfirmed: boolean, isPrimary: boolean, userId: number, errors?: { __typename?: 'UserEmailErrors', general?: string | null, userId?: string | null, email?: string | null } | null } | null> | null };
 
 export type AffiliationsQueryVariables = Exact<{
   name: Scalars['String']['input'];
@@ -2812,10 +3271,29 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
 
+export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'Project', title: string, id?: number | null, startDate?: string | null, endDate?: string | null, contributors?: Array<{ __typename?: 'ProjectContributor', surName?: string | null, givenName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string }> | null }> | null, funders?: Array<{ __typename?: 'ProjectFunder', grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, uri: string } | null }> | null } | null> | null };
+
 export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type QuestionTypesQuery = { __typename?: 'Query', questionTypes?: Array<{ __typename?: 'QuestionType', id?: number | null, errors?: Array<string> | null, name: string, usageDescription: string } | null> | null };
+export type QuestionTypesQuery = { __typename?: 'Query', questionTypes?: Array<{ __typename?: 'QuestionType', id?: number | null, name: string, usageDescription: string, errors?: { __typename?: 'QuestionTypeErrors', general?: string | null, name?: string | null, usageDescription?: string | null } | null } | null> | null };
+
+export type QuestionsDisplayOrderQueryVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+}>;
+
+
+export type QuestionsDisplayOrderQuery = { __typename?: 'Query', questions?: Array<{ __typename?: 'Question', displayOrder?: number | null } | null> | null };
+
+export type QuestionQueryVariables = Exact<{
+  questionId: Scalars['Int']['input'];
+}>;
+
+
+export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
 
 export type SectionsDisplayOrderQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -2829,7 +3307,7 @@ export type SectionQueryVariables = Exact<{
 }>;
 
 
-export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, errors?: Array<string> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, template?: { __typename?: 'Template', id?: number | null } | null } | null };
+export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null } | null } | null };
 
 export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2846,31 +3324,144 @@ export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: A
 export type MyVersionedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, versionType?: TemplateVersionType | null, visibility: TemplateVisibility, errors?: Array<string> | null, template?: { __typename?: 'Template', id?: number | null, owner?: { __typename?: 'Affiliation', id?: number | null, searchName: string, name: string, displayName: string } | null } | null } | null> | null };
+export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, versionType?: TemplateVersionType | null, visibility: TemplateVisibility, errors?: { __typename?: 'VersionedTemplateErrors', general?: string | null, templateId?: string | null, name?: string | null, ownerId?: string | null, version?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, owner?: { __typename?: 'Affiliation', id?: number | null, searchName: string, name: string, displayName: string } | null } | null } | null> | null };
 
 export type PublishedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, errors?: Array<string> | null, template?: { __typename?: 'Template', id?: number | null } | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
+export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, template?: { __typename?: 'Template', id?: number | null } | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null, errors?: { __typename?: 'VersionedTemplateErrors', general?: string | null, templateId?: string | null, name?: string | null, ownerId?: string | null, version?: string | null } | null } | null> | null };
 
 export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', myTemplates?: Array<{ __typename?: 'Template', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
+export type TemplatesQuery = { __typename?: 'Query', myTemplates?: Array<{ __typename?: 'Template', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
 }>;
 
 
-export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', name: string, description?: string | null, errors?: Array<string> | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', errors?: Array<string> | null, displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
+export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, description?: string | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
+
+export type TemplateCollaboratorsQueryVariables = Exact<{
+  templateId: Scalars['Int']['input'];
+}>;
+
+
+export type TemplateCollaboratorsQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, collaborators?: Array<{ __typename?: 'TemplateCollaborator', email: string, id?: number | null, user?: { __typename?: 'User', id?: number | null, email: any, givenName?: string | null, surName?: string | null } | null }> | null, admins?: Array<{ __typename?: 'User', givenName?: string | null, surName?: string | null, email: any }> | null, owner?: { __typename?: 'Affiliation', name: string } | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, errors?: Array<string> | null, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
+export const AddQuestionDocument = gql`
+    mutation AddQuestion($input: AddQuestionInput!) {
+  addQuestion(input: $input) {
+    errors {
+      general
+      questionText
+    }
+    id
+    displayOrder
+    questionText
+    questionTypeId
+    requirementText
+    guidanceText
+    sampleText
+    useSampleTextAsDefault
+    required
+    questionOptions {
+      isDefault
+      id
+      questionId
+      orderNumber
+      text
+    }
+  }
+}
+    `;
+export type AddQuestionMutationFn = Apollo.MutationFunction<AddQuestionMutation, AddQuestionMutationVariables>;
+
+/**
+ * __useAddQuestionMutation__
+ *
+ * To run a mutation, you first call `useAddQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addQuestionMutation, { data, loading, error }] = useAddQuestionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddQuestionMutation(baseOptions?: Apollo.MutationHookOptions<AddQuestionMutation, AddQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddQuestionMutation, AddQuestionMutationVariables>(AddQuestionDocument, options);
+      }
+export type AddQuestionMutationHookResult = ReturnType<typeof useAddQuestionMutation>;
+export type AddQuestionMutationResult = Apollo.MutationResult<AddQuestionMutation>;
+export type AddQuestionMutationOptions = Apollo.BaseMutationOptions<AddQuestionMutation, AddQuestionMutationVariables>;
+export const UpdateQuestionDocument = gql`
+    mutation UpdateQuestion($input: UpdateQuestionInput!) {
+  updateQuestion(input: $input) {
+    id
+    questionTypeId
+    guidanceText
+    errors {
+      general
+      questionText
+    }
+    isDirty
+    required
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    sectionId
+    templateId
+    questionText
+    questionOptions {
+      id
+      orderNumber
+      questionId
+      text
+      isDefault
+    }
+  }
+}
+    `;
+export type UpdateQuestionMutationFn = Apollo.MutationFunction<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
+
+/**
+ * __useUpdateQuestionMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuestionMutation, { data, loading, error }] = useUpdateQuestionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateQuestionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuestionMutation, UpdateQuestionMutationVariables>(UpdateQuestionDocument, options);
+      }
+export type UpdateQuestionMutationHookResult = ReturnType<typeof useUpdateQuestionMutation>;
+export type UpdateQuestionMutationResult = Apollo.MutationResult<UpdateQuestionMutation>;
+export type UpdateQuestionMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {
@@ -2879,14 +3470,24 @@ export const AddSectionDocument = gql`
       name
     }
     guidance
-    errors
+    errors {
+      general
+      name
+      displayOrder
+    }
     displayOrder
     introduction
     isDirty
     name
     questions {
       id
-      errors
+      errors {
+        general
+        templateId
+        sectionId
+        questionText
+        displayOrder
+      }
     }
     requirements
   }
@@ -2927,7 +3528,13 @@ export const UpdateSectionDocument = gql`
     requirements
     guidance
     displayOrder
-    errors
+    errors {
+      general
+      name
+      introduction
+      requirements
+      guidance
+    }
     bestPractice
     tags {
       id
@@ -2963,9 +3570,93 @@ export function useUpdateSectionMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateSectionMutationHookResult = ReturnType<typeof useUpdateSectionMutation>;
 export type UpdateSectionMutationResult = Apollo.MutationResult<UpdateSectionMutation>;
 export type UpdateSectionMutationOptions = Apollo.BaseMutationOptions<UpdateSectionMutation, UpdateSectionMutationVariables>;
+export const AddTemplateCollaboratorDocument = gql`
+    mutation AddTemplateCollaborator($templateId: Int!, $email: String!) {
+  addTemplateCollaborator(templateId: $templateId, email: $email) {
+    errors {
+      general
+      email
+    }
+    email
+    id
+  }
+}
+    `;
+export type AddTemplateCollaboratorMutationFn = Apollo.MutationFunction<AddTemplateCollaboratorMutation, AddTemplateCollaboratorMutationVariables>;
+
+/**
+ * __useAddTemplateCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useAddTemplateCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddTemplateCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addTemplateCollaboratorMutation, { data, loading, error }] = useAddTemplateCollaboratorMutation({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useAddTemplateCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<AddTemplateCollaboratorMutation, AddTemplateCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddTemplateCollaboratorMutation, AddTemplateCollaboratorMutationVariables>(AddTemplateCollaboratorDocument, options);
+      }
+export type AddTemplateCollaboratorMutationHookResult = ReturnType<typeof useAddTemplateCollaboratorMutation>;
+export type AddTemplateCollaboratorMutationResult = Apollo.MutationResult<AddTemplateCollaboratorMutation>;
+export type AddTemplateCollaboratorMutationOptions = Apollo.BaseMutationOptions<AddTemplateCollaboratorMutation, AddTemplateCollaboratorMutationVariables>;
+export const RemoveTemplateCollaboratorDocument = gql`
+    mutation RemoveTemplateCollaborator($templateId: Int!, $email: String!) {
+  removeTemplateCollaborator(templateId: $templateId, email: $email) {
+    errors {
+      general
+      email
+    }
+  }
+}
+    `;
+export type RemoveTemplateCollaboratorMutationFn = Apollo.MutationFunction<RemoveTemplateCollaboratorMutation, RemoveTemplateCollaboratorMutationVariables>;
+
+/**
+ * __useRemoveTemplateCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useRemoveTemplateCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveTemplateCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeTemplateCollaboratorMutation, { data, loading, error }] = useRemoveTemplateCollaboratorMutation({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useRemoveTemplateCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<RemoveTemplateCollaboratorMutation, RemoveTemplateCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveTemplateCollaboratorMutation, RemoveTemplateCollaboratorMutationVariables>(RemoveTemplateCollaboratorDocument, options);
+      }
+export type RemoveTemplateCollaboratorMutationHookResult = ReturnType<typeof useRemoveTemplateCollaboratorMutation>;
+export type RemoveTemplateCollaboratorMutationResult = Apollo.MutationResult<RemoveTemplateCollaboratorMutation>;
+export type RemoveTemplateCollaboratorMutationOptions = Apollo.BaseMutationOptions<RemoveTemplateCollaboratorMutation, RemoveTemplateCollaboratorMutationVariables>;
 export const ArchiveTemplateDocument = gql`
     mutation ArchiveTemplate($templateId: Int!) {
-  archiveTemplate(templateId: $templateId)
+  archiveTemplate(templateId: $templateId) {
+    id
+    errors {
+      general
+      name
+      ownerId
+    }
+    name
+  }
 }
     `;
 export type ArchiveTemplateMutationFn = Apollo.MutationFunction<ArchiveTemplateMutation, ArchiveTemplateMutationVariables>;
@@ -3002,7 +3693,11 @@ export const CreateTemplateVersionDocument = gql`
     versionType: $versionType
     visibility: $visibility
   ) {
-    errors
+    errors {
+      general
+      name
+      ownerId
+    }
     name
   }
 }
@@ -3040,7 +3735,11 @@ export const AddTemplateDocument = gql`
     mutation AddTemplate($name: String!, $copyFromTemplateId: Int) {
   addTemplate(name: $name, copyFromTemplateId: $copyFromTemplateId) {
     id
-    errors
+    errors {
+      general
+      name
+      ownerId
+    }
     description
     name
   }
@@ -3079,7 +3778,12 @@ export const UpdateUserProfileDocument = gql`
     id
     givenName
     surName
-    errors
+    errors {
+      general
+      email
+      password
+      role
+    }
     affiliation {
       id
       name
@@ -3121,7 +3825,11 @@ export const AddUserEmailDocument = gql`
     mutation AddUserEmail($email: String!, $isPrimary: Boolean!) {
   addUserEmail(email: $email, isPrimary: $isPrimary) {
     email
-    errors
+    errors {
+      general
+      userId
+      email
+    }
     isPrimary
     isConfirmed
     id
@@ -3159,7 +3867,11 @@ export type AddUserEmailMutationOptions = Apollo.BaseMutationOptions<AddUserEmai
 export const RemoveUserEmailDocument = gql`
     mutation RemoveUserEmail($email: String!) {
   removeUserEmail(email: $email) {
-    errors
+    errors {
+      general
+      userId
+      email
+    }
   }
 }
     `;
@@ -3193,7 +3905,11 @@ export const SetPrimaryUserEmailDocument = gql`
     mutation SetPrimaryUserEmail($email: String!) {
   setPrimaryUserEmail(email: $email) {
     id
-    errors
+    errors {
+      general
+      userId
+      email
+    }
     email
     isConfirmed
     isPrimary
@@ -3351,11 +4067,72 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const MyProjectsDocument = gql`
+    query MyProjects {
+  myProjects {
+    title
+    id
+    contributors {
+      surName
+      givenName
+      contributorRoles {
+        label
+      }
+      orcid
+    }
+    startDate
+    endDate
+    funders {
+      affiliation {
+        name
+        uri
+      }
+      grantId
+    }
+  }
+}
+    `;
+
+/**
+ * __useMyProjectsQuery__
+ *
+ * To run a query within a React component, call `useMyProjectsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyProjectsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyProjectsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyProjectsQuery(baseOptions?: Apollo.QueryHookOptions<MyProjectsQuery, MyProjectsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyProjectsQuery, MyProjectsQueryVariables>(MyProjectsDocument, options);
+      }
+export function useMyProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyProjectsQuery, MyProjectsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyProjectsQuery, MyProjectsQueryVariables>(MyProjectsDocument, options);
+        }
+export function useMyProjectsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<MyProjectsQuery, MyProjectsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<MyProjectsQuery, MyProjectsQueryVariables>(MyProjectsDocument, options);
+        }
+export type MyProjectsQueryHookResult = ReturnType<typeof useMyProjectsQuery>;
+export type MyProjectsLazyQueryHookResult = ReturnType<typeof useMyProjectsLazyQuery>;
+export type MyProjectsSuspenseQueryHookResult = ReturnType<typeof useMyProjectsSuspenseQuery>;
+export type MyProjectsQueryResult = Apollo.QueryResult<MyProjectsQuery, MyProjectsQueryVariables>;
 export const QuestionTypesDocument = gql`
     query QuestionTypes {
   questionTypes {
     id
-    errors
+    errors {
+      general
+      name
+      usageDescription
+    }
     name
     usageDescription
   }
@@ -3393,6 +4170,107 @@ export type QuestionTypesQueryHookResult = ReturnType<typeof useQuestionTypesQue
 export type QuestionTypesLazyQueryHookResult = ReturnType<typeof useQuestionTypesLazyQuery>;
 export type QuestionTypesSuspenseQueryHookResult = ReturnType<typeof useQuestionTypesSuspenseQuery>;
 export type QuestionTypesQueryResult = Apollo.QueryResult<QuestionTypesQuery, QuestionTypesQueryVariables>;
+export const QuestionsDisplayOrderDocument = gql`
+    query QuestionsDisplayOrder($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    displayOrder
+  }
+}
+    `;
+
+/**
+ * __useQuestionsDisplayOrderQuery__
+ *
+ * To run a query within a React component, call `useQuestionsDisplayOrderQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuestionsDisplayOrderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuestionsDisplayOrderQuery({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *   },
+ * });
+ */
+export function useQuestionsDisplayOrderQuery(baseOptions: Apollo.QueryHookOptions<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables> & ({ variables: QuestionsDisplayOrderQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>(QuestionsDisplayOrderDocument, options);
+      }
+export function useQuestionsDisplayOrderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>(QuestionsDisplayOrderDocument, options);
+        }
+export function useQuestionsDisplayOrderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>(QuestionsDisplayOrderDocument, options);
+        }
+export type QuestionsDisplayOrderQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderQuery>;
+export type QuestionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderLazyQuery>;
+export type QuestionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderSuspenseQuery>;
+export type QuestionsDisplayOrderQueryResult = Apollo.QueryResult<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>;
+export const QuestionDocument = gql`
+    query Question($questionId: Int!) {
+  question(questionId: $questionId) {
+    id
+    guidanceText
+    errors {
+      general
+      questionText
+    }
+    displayOrder
+    questionText
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    sectionId
+    templateId
+    questionTypeId
+    questionOptions {
+      id
+      isDefault
+      orderNumber
+      text
+      questionId
+    }
+    isDirty
+  }
+}
+    `;
+
+/**
+ * __useQuestionQuery__
+ *
+ * To run a query within a React component, call `useQuestionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuestionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuestionQuery({
+ *   variables: {
+ *      questionId: // value for 'questionId'
+ *   },
+ * });
+ */
+export function useQuestionQuery(baseOptions: Apollo.QueryHookOptions<QuestionQuery, QuestionQueryVariables> & ({ variables: QuestionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QuestionQuery, QuestionQueryVariables>(QuestionDocument, options);
+      }
+export function useQuestionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionQuery, QuestionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QuestionQuery, QuestionQueryVariables>(QuestionDocument, options);
+        }
+export function useQuestionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionQuery, QuestionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<QuestionQuery, QuestionQueryVariables>(QuestionDocument, options);
+        }
+export type QuestionQueryHookResult = ReturnType<typeof useQuestionQuery>;
+export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery>;
+export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
+export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
 export const SectionsDisplayOrderDocument = gql`
     query SectionsDisplayOrder($templateId: Int!) {
   sections(templateId: $templateId) {
@@ -3448,7 +4326,11 @@ export const SectionDocument = gql`
       description
       name
     }
-    errors
+    errors {
+      general
+      name
+      displayOrder
+    }
     template {
       id
     }
@@ -3593,7 +4475,13 @@ export const MyVersionedTemplatesDocument = gql`
     modifiedById
     versionType
     visibility
-    errors
+    errors {
+      general
+      templateId
+      name
+      ownerId
+      version
+    }
     template {
       id
       owner {
@@ -3654,7 +4542,13 @@ export const PublishedTemplatesDocument = gql`
       searchName
     }
     visibility
-    errors
+    errors {
+      general
+      templateId
+      name
+      ownerId
+      version
+    }
   }
 }
     `;
@@ -3705,7 +4599,13 @@ export const TemplatesDocument = gql`
       displayOrder
       isDirty
       questions {
-        errors
+        errors {
+          general
+          templateId
+          sectionId
+          questionText
+          displayOrder
+        }
         displayOrder
         guidanceText
         id
@@ -3758,9 +4658,14 @@ export type TemplatesQueryResult = Apollo.QueryResult<TemplatesQuery, TemplatesQ
 export const TemplateDocument = gql`
     query Template($templateId: Int!) {
   template(templateId: $templateId) {
+    id
     name
     description
-    errors
+    errors {
+      general
+      name
+      ownerId
+    }
     latestPublishVersion
     latestPublishDate
     created
@@ -3771,7 +4676,13 @@ export const TemplateDocument = gql`
       displayOrder
       isDirty
       questions {
-        errors
+        errors {
+          general
+          templateId
+          sectionId
+          questionText
+          displayOrder
+        }
         displayOrder
         guidanceText
         id
@@ -3820,6 +4731,65 @@ export type TemplateQueryHookResult = ReturnType<typeof useTemplateQuery>;
 export type TemplateLazyQueryHookResult = ReturnType<typeof useTemplateLazyQuery>;
 export type TemplateSuspenseQueryHookResult = ReturnType<typeof useTemplateSuspenseQuery>;
 export type TemplateQueryResult = Apollo.QueryResult<TemplateQuery, TemplateQueryVariables>;
+export const TemplateCollaboratorsDocument = gql`
+    query TemplateCollaborators($templateId: Int!) {
+  template(templateId: $templateId) {
+    id
+    name
+    collaborators {
+      email
+      id
+      user {
+        id
+        email
+        givenName
+        surName
+      }
+    }
+    admins {
+      givenName
+      surName
+      email
+    }
+    owner {
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useTemplateCollaboratorsQuery__
+ *
+ * To run a query within a React component, call `useTemplateCollaboratorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTemplateCollaboratorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTemplateCollaboratorsQuery({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *   },
+ * });
+ */
+export function useTemplateCollaboratorsQuery(baseOptions: Apollo.QueryHookOptions<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables> & ({ variables: TemplateCollaboratorsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>(TemplateCollaboratorsDocument, options);
+      }
+export function useTemplateCollaboratorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>(TemplateCollaboratorsDocument, options);
+        }
+export function useTemplateCollaboratorsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>(TemplateCollaboratorsDocument, options);
+        }
+export type TemplateCollaboratorsQueryHookResult = ReturnType<typeof useTemplateCollaboratorsQuery>;
+export type TemplateCollaboratorsLazyQueryHookResult = ReturnType<typeof useTemplateCollaboratorsLazyQuery>;
+export type TemplateCollaboratorsSuspenseQueryHookResult = ReturnType<typeof useTemplateCollaboratorsSuspenseQuery>;
+export type TemplateCollaboratorsQueryResult = Apollo.QueryResult<TemplateCollaboratorsQuery, TemplateCollaboratorsQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {
@@ -3833,7 +4803,12 @@ export const MeDocument = gql`
       isPrimary
       isConfirmed
     }
-    errors
+    errors {
+      general
+      email
+      password
+      role
+    }
     affiliation {
       id
       name

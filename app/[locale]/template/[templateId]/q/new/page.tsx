@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
 import {useEffect, useRef, useState} from 'react';
 import {useTranslations} from 'next-intl';
-import {useParams} from 'next/navigation';
+import {useParams, useRouter, useSearchParams} from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,7 +18,7 @@ import {
 // Components
 import PageHeader from "@/components/PageHeader";
 import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import QuestionEdit from '@/components/QuestionEdit';
+import QuestionAdd from '@/components/QuestionAdd';
 import QuestionTypeCard from '@/components/QuestionTypeCard';
 
 //GraphQL
@@ -33,8 +33,12 @@ import styles from './newQuestion.module.scss';
 const QuestionTypeSelectPage: React.FC = () => {
     // Get templateId param
     const params = useParams();
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const topRef = useRef<HTMLDivElement>(null);
     const { templateId } = params; // From route /template/:templateId
+    const sectionId = searchParams.get('section_id');
+    const questionId = searchParams.get('questionId');// if user is switching their question type while editing an existing question
 
     // State management
     const [step, setStep] = useState<number | null>(null);
@@ -42,7 +46,7 @@ const QuestionTypeSelectPage: React.FC = () => {
     const [filteredQuestionTypes, setFilteredQuestionTypes] = useState<QuestionTypesInterface[] | null>([]);
     const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
     const [searchButtonClicked, setSearchButtonClicked] = useState(false);
-    const [questionTypeId, setQuestionTypeId] = useState<number | null>(null);
+    const [selectedQuestionType, setSelectedQuestionType] = useState<{ questionTypeId: number, questionTypeName: string }>();
     const [errors, setErrors] = useState<string[]>([]);
 
     const stepQueryValue = useQueryStep();
@@ -54,11 +58,17 @@ const QuestionTypeSelectPage: React.FC = () => {
     // Make graphql request for question types
     const { data, loading, error: queryError } = useQuestionTypesQuery();
 
-    const handleSelect = (questionTypeId: number) => {
-        // redirect to the Question Edit page
-        if (questionTypeId) {
-            setQuestionTypeId(questionTypeId);
-            setStep(2);
+    const handleSelect = (questionTypeId: number, questionTypeName: string) => {
+        if (questionId) {
+            //If the user came from editing an existing question, we want to return them to that page with the new questionTypeId
+            router.push(`/template/${templateId}/q/${questionId}?questionTypeId=${questionTypeId}`)
+        } else {
+            // redirect to the Question Edit page if a user is adding a new question
+            if (questionTypeId) {
+                setSelectedQuestionType({ questionTypeId: questionTypeId, questionTypeName: questionTypeName })
+                setStep(2);
+                router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=2`)
+            }
         }
     }
 
@@ -228,7 +238,7 @@ const QuestionTypeSelectPage: React.FC = () => {
                                 {/*Show # of results with clear filter link*/}
                                 {(searchTerm.length > 0 && searchButtonClicked) && (
                                     <div className={styles.clearFilter}>
-                                        <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>clear filter</Link></div>
+                                        <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>{QuestionTypeSelect('links.clearFilter')}</Link></div>
                                     </div>
                                 )}
                             </div>
@@ -239,7 +249,11 @@ const QuestionTypeSelectPage: React.FC = () => {
             {step === 2 && (
                 <>
                     {/*Show Edit Question form*/}
-                    <QuestionEdit questionTypeId={questionTypeId ? questionTypeId : null} />
+                    <QuestionAdd
+                        questionTypeId={selectedQuestionType?.questionTypeId ?? null}
+                        questionTypeName={selectedQuestionType?.questionTypeName ?? null}
+                        sectionId={sectionId ? sectionId : ''}
+                    />
                 </>
             )}
         </>

@@ -2,7 +2,7 @@ import React from "react";
 import {act, fireEvent, render, screen} from '@/utils/test-utils';
 import {useQuestionTypesQuery} from '@/generated/graphql';
 import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams} from 'next/navigation';
+import {useParams, useRouter, useSearchParams} from 'next/navigation';
 import {useQueryStep} from '@/app/[locale]/template/[templateId]/q/new/utils';
 import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import QuestionTypeSelectPage from "../page";
@@ -16,12 +16,14 @@ jest.mock("@/generated/graphql", () => ({
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
+  useRouter: jest.fn(),
+  useSearchParams: jest.fn()
 }))
 
-jest.mock('@/components/QuestionEdit', () => {
+jest.mock('@/components/QuestionAdd', () => {
   return {
     __esModule: true,
-    default: () => <div>Mocked QuestionEdit</div>,
+    default: () => <div>Mocked QuestionAdd</div>,
   };
 });
 
@@ -63,6 +65,14 @@ jest.mock('next-intl', () => ({
   }),
 }));
 
+// Mock QuestionAdd component since it has it's own separate unit test
+jest.mock('@/components/QuestionAdd', () => {
+  return {
+    __esModule: true,
+    default: () => <div>Mocked Question Add Component</div>,
+  };
+});
+
 const mockQuestionTypes = {
   questionTypes: [
     {
@@ -87,6 +97,7 @@ const mockQuestionTypes = {
 }
 
 describe("QuestionTypeSelectPage", () => {
+  let pushMock: jest.Mock;
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
@@ -97,6 +108,27 @@ describe("QuestionTypeSelectPage", () => {
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
     mockUseQueryStep.mockReturnValue(1);
+
+    pushMock = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
+
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { section_id: '123' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { section_id: '123' },
+        keys: function* () { },
+        values: function* () { },
+        entries: function* () { },
+        forEach: () => { },
+        toString: () => '',
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+
   });
 
   it("should render loading state", async () => {
@@ -169,7 +201,6 @@ describe("QuestionTypeSelectPage", () => {
       );
     });
 
-    screen.debug();
     // Searching for translation key since cannot run next-intl for unit tests
     const searchInput = screen.getByLabelText(/labels.searchByKeyword/i);
 
@@ -204,6 +235,33 @@ describe("QuestionTypeSelectPage", () => {
 
     expect(screen.getByText('There was an error.')).toBeInTheDocument();
 
+  })
+
+  it('should load QuestionAdd component when a user selects a question type', async () => {
+    (useQuestionTypesQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionTypes,
+      loading: false,
+      error: null,
+    });
+
+    await act(async () => {
+      render(
+        <QuestionTypeSelectPage />
+      );
+    });
+
+    // Find a question type that has options, like a radio button
+    const buttons = screen.getAllByText('buttons.select');
+    const selectButton = buttons.find(button => button.getAttribute('data-type') === '3');
+    expect(selectButton).toBeInTheDocument();
+    if (selectButton) {
+      fireEvent.click(selectButton);
+    } else {
+      throw new Error('Select button not found');
+    }
+
+    // Should load the QuestionAdd component once a user selects a question type with options
+    expect(screen.getByText('Mocked Question Add Component')).toBeInTheDocument();
   })
 
   it('should pass axe accessibility test', async () => {

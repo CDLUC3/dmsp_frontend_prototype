@@ -46,7 +46,8 @@
     },
     "errors": {
       "archiveTemplateError": "Erro ao arquivar template",
-      "saveTemplateError": "Erro ao salvar modelo"
+      "saveTemplateError": "Erro ao salvar modelo",
+      "getTemplatesError": "Erro ao obter modelos"
     }
   },
   "PublishTemplate": {
@@ -123,25 +124,20 @@
     "questionsCount": "<p>Esta seção inclui:</p><p>{count} questões pré-criadas</p>"
   },
   "Section": {
-    "Section": {
-      "tabs": {
-        "editSection": "Editar seção",
-        "options": "Opções",
-        "logic": "Lógica"
-      },
-      "labels": {
-        "sectionName": "Nome da seção",
-        "sectionIntroduction": "Introdução à seção",
-        "sectionRequirements": "Requisitos da seção",
-        "sectionGuidance": "Orientação em Seção",
-        "bestPracticeTags": "Seção das melhores práticas para incluir"
-      },
-      "helpText": {
-        "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
-      }
+    "tabs": {
+      "editSection": "Editar seção",
+      "options": "Opções",
+      "logic": "Lógica"
     },
-    "CreateSectionPage": {
-      "title": "Criar seção"
+    "labels": {
+      "sectionName": "Nome da seção",
+      "sectionIntroduction": "Introdução à seção",
+      "sectionRequirements": "Requisitos da seção",
+      "sectionGuidance": "Orientação em Seção",
+      "bestPracticeTags": "Seção das melhores práticas para incluir"
+    },
+    "helpText": {
+      "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
     }
   },
   "CreateSectionPage": {
@@ -162,7 +158,7 @@
     },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
-      "errorCreatingSection": "Erro ao criar a seção.",
+      "errorUpdatingSection": "Erro ao criar a seção.",
       "success": "Seção criada com sucesso."
     }
   },
@@ -179,7 +175,7 @@
     }
   },
   "TemplateSelectTemplatePage": {
-    "title": "Selecionar um modelo existente",
+    "title": "Iniciar com uma cópia de um modelo existente",
     "resultsText": "Os resultados {name} correspondem à sua pesquisa",
     "numDisplaying": "Mostrando {num} de {total}",
     "clearFilter": "filtros transparentes",
@@ -192,14 +188,158 @@
       "publicTemplates": "Use um dos modelos públicos"
     },
     "messages": {
-      "noItemsFound": "Nenhum item encontrado",
-      "missingTemplateName": "Faltando nome de modelo",
+      "noItemsFound": "Nenhum “item” encontrado",
+      "missingTemplateName": "Nome do modelo não pode ser vazio.",
       "loadingError": "Erro ao carregar modelos. Tente novamente mais tarde."
     }
   },
   "TemplateSelectListItem": {
     "messages": {
-      "additionalGuidance": "Sua organização de pesquisa tem orientação adicional"
+      "additionalGuidance": "Your research organization has additional guidance"
+    }
+  },
+  "QuestionEdit": {
+    "title": "Sua organização de pesquisa tem orientação adicional.",
+    "buttons": {
+      "changeType": "",
+      "previewQuestion": "Pergunta de visualização"
+    },
+    "descriptions": {
+      "sampleText": "Forneça um exemplo ou modelo de resposta esperada (opcional, mas recomendado)",
+      "previewText": "Veja como esta pergunta ficará para os usuários.",
+      "bestPracticePara1": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
+      "bestPracticePara2": "Esboça os requisitos que um usuário deve considerar para esta pergunta.",
+      "bestPracticePara3": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo."
+    },
+    "helpText": {
+      "textField": "Alterar o tipo de questão, por exemplo, da pergunta curta para o botão Rádio, pode resultar na perda de alguns dados.",
+      "questionOptions": "Por favor, insira as opções de resposta para o {questionType}",
+      "questionText": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
+      "requirementText": "Tente ser preciso e conciso, para que os autores do plano não faltem a quaisquer requisitos. Orientação às perguntas é melhor para conselhos mais gerais.",
+      "sampleText": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo."
+    },
+    "labels": {
+      "type": "Tipo (obrigatório)",
+      "questionText": "Conjunto de perguntas (obrigatório)",
+      "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
+      "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
+      "sampleText": "Texto de amostra"
+    },
+    "messages": {
+      "errors": {
+        "questionTextRequired": "Conjunto de perguntas (obrigatório.",
+        "questionUpdateError": "Erro ao criar a seção"
+      },
+      "success": {
+        "questionUpdated": "A pergunta foi atualizada com sucesso"
+      }
+    },
+    "headings": {
+      "bestPractice": "Melhores práticas da Ferramenta DMP"
+    }
+  },
+  "QuestionOptionsComponent": {
+    "labels": {
+      "order": "Ordem",
+      "text": "Texto (obrigatório)",
+      "default": "Padrão"
+    },
+    "buttons": {
+      "addRow": "Adicionar linha",
+      "deleteRow": "Excluir linha {count}"
+    },
+    "messages": {
+      "successAddingRow": "Linha {number} adicionada",
+      "rowInfo": "Linha {number}"
+    },
+    "announcements": {
+      "rowDefault": "Linha com ID {id} definida como padrão.",
+      "rowRemoved": "Linha com ID {id} removida.",
+      "rowAdded": "Linha {orderNumber} adicionada."
+    },
+    "placeholder": {
+      "orderNumber": "Insira o pedido #",
+      "text": "Digite o texto"
+    }
+  },
+  "QuestionAdd": {
+    "title": "Adicionar nova pergunta",
+    "descriptions": {
+      "sampleText": "Forneça um exemplo ou modelo de resposta esperada (opcional, mas recomendado)",
+      "previewText": "Veja como esta pergunta ficará para os usuários.",
+      "bestPracticePara1": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
+      "bestPracticePara2": "Esboça os requisitos que um usuário deve considerar para esta pergunta.",
+      "bestPracticePara3": "Researchers will be able to copy the sample text into the field as a starting point, as a way to speed up content entry."
+    },
+    "labels": {
+      "order": "Ordem",
+      "text": "Texto (obrigatório)",
+      "default": "Padrão",
+      "type": "Tipo (obrigatório)",
+      "questionText": "Conjunto de perguntas (obrigatório)",
+      "requirementText": "Escritor do plano de requisitos deve atender (opcional, mas recomendado)",
+      "guidanceText": "Orientação para perguntas (opcional mas recomendado)",
+      "sampleText": "Texto de amostra"
+    },
+    "buttons": {
+      "addRow": "Adicionar linha",
+      "previewQuestion": "Pergunta de visualização"
+    },
+    "helpText": {
+      "textField": "Alterar o tipo de questão, por exemplo, da pergunta curta para o botão Rádio, pode resultar na perda de alguns dados.",
+      "questionOptions": "Por favor, insira as opções de resposta para o {questionTypeName}",
+      "questionText": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
+      "requirementText": "Tente ser preciso e conciso, para que os autores do plano não faltem a quaisquer requisitos. Orientação às perguntas é melhor para conselhos mais gerais.",
+      "sampleText": "Os criadores de planos poderão copiar o texto da amostra para o campo como ponto de partida, para acelerar a entrada de conteúdo."
+    },
+    "headings": {
+      "bestPractice": "Melhores práticas pela Ferramenta DMP"
+    },
+    "messages": {
+      "errors": {
+        "questionTextRequired": "Campo texto da pergunta é obrigatório.",
+        "questionAddingError": "Erro ao adicionar pergunta."
+      },
+      "success": {
+        "questionAdded": "A pergunta foi adicionada com sucesso."
+      }
+    }
+  },
+  "TemplateAccessPage": {
+    "title": "Gerenciar Acesso",
+    "intro": "Este modelo é acessível para todos no NSF com visualização completa e edição de permissões. Ele também pode ser compartilhado com pessoas fora da sua organização.",
+    "headings": {
+      "h3OrgAccess": "Na Organização",
+      "externalPeople": "Pessoas externas",
+      "share": "Compartilhe com alguém fora da sua organização",
+      "confirmCheckout": "Confirmar finalização do pedido?"
+    },
+    "paragraphs": {
+      "orgAccessPara1": "Todos em {name} podem ver e editar",
+      "orgAccessPara2": "Administradores {count} podem gerenciar o acesso",
+      "externalPara1": "Compartilhe este modelo com pessoas fora do NSF",
+      "sharePara1": "Digite seu endereço de e-mail. Se eles já não tiverem uma conta de DMP Tool eles serão convidados a criar uma.",
+      "modalPara1": "Por favor, confirme que você deseja remover {email}"
+    },
+    "buttons": {
+      "invite": "Convidar"
+    },
+    "labels": {
+      "email": "E-mail"
+    },
+    "messages": {
+      "errors": {
+        "errorLoadingCollaborators": "Erro ao carregar colaboradores",
+        "errorAddingEmail": "Erro ao adicionar pergunta",
+        "errorRemovingEmail": "Erro ao remover e-mail"
+      },
+      "success": {
+        "emailSuccessfullyRevoked": "E-mail revogado com sucesso",
+        "emailInviteSent": "Convite de e-mail enviado com sucesso"
+      },
+      "info": {
+        "noCollaborators": "Nenhuma pessoa externa foi adicionada ainda"
+      }
     }
   }
 }
