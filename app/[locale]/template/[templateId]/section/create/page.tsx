@@ -10,32 +10,29 @@ import {
   Button,
   Checkbox,
   CheckboxGroup,
+  Dialog,
+  DialogTrigger,
   Form,
   Label,
   Link,
+  OverlayArrow,
+  Popover,
   Tab,
   TabList,
   TabPanel,
   Tabs,
-  DialogTrigger,
-  OverlayArrow,
-  Popover,
-  Dialog,
 } from "react-aria-components";
 // GraphQL queries and mutations
 import {
-  useAddSectionMutation,
-  useTagsQuery,
-  useSectionsDisplayOrderQuery,
+  SectionErrors,
   SectionsDisplayOrderDocument,
-  SectionErrors
+  useAddSectionMutation,
+  useSectionsDisplayOrderQuery,
+  useTagsQuery
 } from '@/generated/graphql';
 
 //Components
-import {
-  LayoutContainer,
-  ContentContainer,
-} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";

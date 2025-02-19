@@ -1,25 +1,10 @@
 'use client'
 
 import React from 'react';
-import { useTranslations } from 'next-intl';
-import {
-  Breadcrumb,
-  Breadcrumbs,
-  Button,
-  FieldError,
-  Input,
-  Label,
-  Link,
-  SearchField,
-  Text
-} from "react-aria-components";
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeading
-} from "@/components/Card/card";
-import { QuestionTypesInterface } from '@/app/types';
+import {useTranslations} from 'next-intl';
+import {Button} from "react-aria-components";
+import {Card, CardBody, CardFooter, CardHeading} from "@/components/Card/card";
+import {QuestionTypesInterface} from '@/app/types';
 
 interface QuestionTypeCardProps {
   questionType: QuestionTypesInterface;

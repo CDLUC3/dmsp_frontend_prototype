@@ -1,9 +1,9 @@
 import React from 'react';
-import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { useMyProjectsQuery } from '@/generated/graphql';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {useMyProjectsQuery} from '@/generated/graphql';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import ProjectsListPage from '../page';
-import { useFormatter, useTranslations } from 'next-intl';
+import {useFormatter, useTranslations} from 'next-intl';
 
 expect.extend(toHaveNoViolations);
 

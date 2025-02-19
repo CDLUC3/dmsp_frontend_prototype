@@ -1,8 +1,8 @@
-import { Button } from 'react-aria-components';
-import { useTranslations } from 'next-intl';
+import {Button} from 'react-aria-components';
+import {useTranslations} from 'next-intl';
 
 import styles from './TemplateSelectListItem.module.scss';
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
 
 interface TemplateSelectListItemProps {
   onSelect: (versionedTemplateId: number) => Promise<void>;
@@ -17,10 +17,10 @@ interface TemplateSelectListItemProps {
     lastRevisedBy?: number;
     lastUpdated?: string | null;
     hasAdditionalGuidance?: boolean;
-  },
+  }
 }
 
-function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps) {
+function TemplateSelectListItem({item, onSelect}: TemplateSelectListItemProps) {
   const toastState = useToast();
 
   //Localization keys
@@ -33,18 +33,21 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
         <div className={styles.TemplateItemContent}>
           <div className={styles.funder}>{item.funder}</div>
           <h3 className={styles.TemplateItemHeading}>{item.title}</h3>
-          {item.description && <p className={styles.description}>{item.description}</p>}
+          {item.description &&
+            <p className={styles.description}>{item.description}</p>}
 
           <div className={styles.metadata}>
             <span>{Global('lastRevisedBy')}: {item.lastRevisedBy}</span>
-            <span className={styles.separator}>{Global('lastUpdated')}: {item.lastUpdated}</span>
+            <span
+              className={styles.separator}>{Global('lastUpdated')}: {item.lastUpdated}</span>
           </div>
 
           {item.hasAdditionalGuidance && (
             <div className={styles.guidance}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <circle cx="10" cy="10" r="7.5" stroke="currentColor" />
-                <path d="M6.5 10L9 12.5L13.5 8" stroke="currentColor" strokeLinecap="round" />
+                <circle cx="10" cy="10" r="7.5" stroke="currentColor"/>
+                <path d="M6.5 10L9 12.5L13.5 8" stroke="currentColor"
+                      strokeLinecap="round"/>
               </svg>
               {SelectListItem('messages.additionalGuidance')}
             </div>
@@ -56,7 +59,7 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
             if (typeof item?.id === 'number' && typeof item?.template?.id === 'number') {
               await onSelect(item.id);
             } else {
-              toastState.add('Invalid template', { type: 'error' })
+              toastState.add('Invalid template', {type: 'error'})
             }
           }}
           aria-label={`Select ${item.title}`}

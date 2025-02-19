@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from "next-intl";
 import {
   Button,
+  Checkbox,
+  FieldError,
   Form,
-  TextField,
+  Input,
+  Label,
   Link,
   Text,
-  Label,
-  Input,
-  FieldError,
-  Checkbox,
+  TextField,
 } from "react-aria-components";
 
 import { AffiliationsDocument } from '@/generated/graphql';
@@ -23,8 +23,8 @@ import { useAuthContext } from '@/context/AuthContext';
 
 //Components
 import {
-  LayoutContainer,
   ContentContainer,
+  LayoutContainer,
   ToolbarContainer,
 } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';

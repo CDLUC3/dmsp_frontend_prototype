@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@/utils/test-utils';
+import { fireEvent, render, screen, waitFor, } from '@/utils/test-utils';
 import logECS from '@/utils/clientLogger';
 
 import LoginPage from '../page';

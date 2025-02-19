@@ -1,7 +1,7 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {act, fireEvent, render, screen} from '@/utils/test-utils';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import TemplateSelectListItem from '../index';
 
 expect.extend(toHaveNoViolations);
@@ -97,7 +97,7 @@ describe('TemplateSelectListItem', () => {
   });
 
   it('should pass accessibility tests', async () => {
-    /*Need to wrap the component in a div with role='list' to prevent 
+    /*Need to wrap the component in a div with role='list' to prevent
     an accessibility error because the component uses role = 'listitem' */
     const { container } = render(
       <div role="list">

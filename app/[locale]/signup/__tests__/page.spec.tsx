@@ -1,18 +1,12 @@
 import React from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@/utils/test-utils';
+import {act, fireEvent, render, screen, waitFor,} from '@/utils/test-utils';
 import SignUpPage from '../page';
 import logECS from '@/utils/clientLogger';
 
 //Need to import this useRouter after the jest.mock is in place
-import { useRouter } from 'next/navigation';
-import { fetchCsrfToken } from "@/utils/authHelper";
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {useRouter} from 'next/navigation';
+import {fetchCsrfToken} from "@/utils/authHelper";
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 
 
 // Mock TypeAheadWithOther component

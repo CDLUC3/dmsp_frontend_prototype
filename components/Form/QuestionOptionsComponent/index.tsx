@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from "react";
-import {
-  Checkbox,
-} from "react-aria-components";
+import {useState} from "react";
+import {Checkbox,} from "react-aria-components";
 
 import FormInput from '@/components/Form/FormInput';
-import { useTranslations } from 'next-intl';
+import {useTranslations} from 'next-intl';
 import styles from './optionsComponent.module.scss';
 
 

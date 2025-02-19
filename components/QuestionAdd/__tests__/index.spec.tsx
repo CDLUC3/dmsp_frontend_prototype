@@ -1,13 +1,13 @@
 import React from "react";
-import { render, screen, act, fireEvent, waitFor } from '@/utils/test-utils';
+import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
 import {
-  useQuestionsDisplayOrderQuery,
   useAddQuestionMutation,
+  useQuestionsDisplayOrderQuery,
 } from '@/generated/graphql';
 
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams, useRouter } from 'next/navigation';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useParams, useRouter} from 'next/navigation';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import QuestionAdd from '@/components/QuestionAdd';
 
 expect.extend(toHaveNoViolations);

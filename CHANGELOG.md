@@ -1,5 +1,22 @@
 ## v0.0.1
 
+### Added
+- Project Create Flow [#299]
+- Project Upload [#299]
+- Project Funder [#299]
+- Project Details [#299]
+- Project Funders [#299]
+- Project Members [#299]
+- Project Research outputs [#299]
+- Plan Adjust Funders [#299]
+- PLan Adjust Members [#299]
+- Plan Adjust Research outputs [#299]
+- Projects dashboard [#175]
+- Project Overview [#175]
+- Plan Overview [#178]
+- Plan Section and boilerplate tests [#178]
+- Plan Question and boilerplate tests [#178]
+
 ### Updated
 - Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
 - Updated `/projects/page.tsx` to use real data and have search capabilities [#4]
