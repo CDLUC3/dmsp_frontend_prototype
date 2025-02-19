@@ -18,6 +18,7 @@
 - Plan Question and boilerplate tests [#178]
 
 ### Updated
+- Updated `buildspec` to use the `Docker.prod` file
 - Updated `/projects/page.tsx` to use real data and have search capabilities [#4]
 - Updated `/template/[templateId]/access` page to hook it up to real data [#223]
 - Updated the Edit Question `template/[templateId]/q/[q_slug]/page.tsx` with actual data from backend and added functionality for `options` question types [#188]
