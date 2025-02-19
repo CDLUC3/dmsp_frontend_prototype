@@ -26,7 +26,7 @@ phases:
         - echo "Running build in ${NODE_ENV} mode - started on `date`"
         - echo Building the Docker image...
         - cd $CODEBUILD_SRC_DIR
-        - docker build -f Dockerfile.dev -t $SHORT_ECR_URI:nextJS-latest .
+        - docker build -f Dockerfile.prod -t $SHORT_ECR_URI:nextJS-latest .
         - docker tag $ECR_REPOSITORY_URI:nextJS-latest $SHORT_ECR_URI:$IMAGE_TAG
 
   post_build:
