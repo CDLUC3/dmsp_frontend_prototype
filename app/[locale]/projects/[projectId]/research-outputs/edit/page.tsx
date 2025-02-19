@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -42,6 +42,7 @@ const ResearchOutputEdit = () => {
     license: '',
   });
 
+
   const researchOutputTypes = [
     'Audiovisual',
     'Collection',
@@ -74,6 +75,21 @@ const ResearchOutputEdit = () => {
     // Add custom logic for submission
   };
 
+  useEffect(() => {
+    setFormData({
+      type: '',
+      title: '',
+      abbreviation: '',
+      description: '',
+      sensitiveData: false,
+      personallyIdentifiableInfo: false,
+      repository: '',
+      accessLevel: '',
+      releaseDate: '',
+      license: '',
+    })
+  }, [])
+
   return (
     <>
       <PageHeader
@@ -105,10 +121,10 @@ const ResearchOutputEdit = () => {
         <ContentContainer className="layout-content-container-full">
           <form onSubmit={(e) => e.preventDefault()}>
             <Select name="type"
-                >
+            >
               <Label>Type</Label>
               <Button>
-                <SelectValue/>
+                <SelectValue />
                 <span aria-hidden="true">▼</span>
               </Button>
               <Popover>
@@ -118,7 +134,7 @@ const ResearchOutputEdit = () => {
                   ))}
                 </ListBox>
               </Popover>
-              <FieldError/>
+              <FieldError />
             </Select>
 
             <TextField name="title" type="text" isRequired>
@@ -127,7 +143,7 @@ const ResearchOutputEdit = () => {
                 value={formData.title}
 
               />
-              <FieldError/>
+              <FieldError />
             </TextField>
 
             <TextField name="abbreviation" type="text">
@@ -135,14 +151,14 @@ const ResearchOutputEdit = () => {
               <Input
                 value={formData.abbreviation}
               />
-              <FieldError/>
+              <FieldError />
             </TextField>
 
 
             <TextField name="description" isRequired>
               <Label>Description</Label>
-              <TextArea/>
-              <FieldError/>
+              <TextArea />
+              <FieldError />
             </TextField>
 
 
@@ -154,7 +170,7 @@ const ResearchOutputEdit = () => {
               <Checkbox value="sensitiveData">
                 <div className="checkbox">
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 May contain sensitive data
@@ -162,7 +178,7 @@ const ResearchOutputEdit = () => {
               <Checkbox value="personalData">
                 <div className="checkbox">
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 May contain personally identifiable information
@@ -173,7 +189,7 @@ const ResearchOutputEdit = () => {
             <Select name="repository">
               <Label>Repository</Label>
               <Button>
-                <SelectValue/>
+                <SelectValue />
                 <span aria-hidden="true">▼</span>
               </Button>
               <Popover>
@@ -183,7 +199,7 @@ const ResearchOutputEdit = () => {
                   ))}
                 </ListBox>
               </Popover>
-              <FieldError/>
+              <FieldError />
             </Select>
 
             <Select
@@ -191,7 +207,7 @@ const ResearchOutputEdit = () => {
             >
               <Label>Initial Access Level</Label>
               <Button>
-                <SelectValue/>
+                <SelectValue />
                 <span aria-hidden="true">▼</span>
               </Button>
               <Popover>
@@ -201,7 +217,7 @@ const ResearchOutputEdit = () => {
                   ))}
                 </ListBox>
               </Popover>
-              <FieldError/>
+              <FieldError />
             </Select>
 
             <TextField name="releaseDate" type="text">
@@ -209,7 +225,7 @@ const ResearchOutputEdit = () => {
               <Input
                 value={formData.releaseDate}
               />
-              <FieldError/>
+              <FieldError />
             </TextField>
 
 
@@ -219,7 +235,7 @@ const ResearchOutputEdit = () => {
               <Input
                 value={formData.license}
               />
-              <FieldError/>
+              <FieldError />
             </TextField>
 
             <div className="formActions">
@@ -236,7 +252,7 @@ const ResearchOutputEdit = () => {
             </div>
           </form>
         </ContentContainer>
-        <SidebarPanel/>
+        <SidebarPanel />
       </LayoutWithPanel>
     </>
   );
