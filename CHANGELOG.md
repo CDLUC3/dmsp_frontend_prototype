@@ -18,6 +18,11 @@
 - Plan Question and boilerplate tests [#178]
 
 ### Updated
+- Made updates to get Dockerfile.prod to work. 
+  - Updated Dockerfile.prod
+  - Updated next.config.mjs to include output `standalone`
+  - Updated `docker-compose.yml`
+  - Fixed lint issues introduced with changes to field-level errors
 - Updated `buildspec` to use the `Docker.prod` file
 - Updated `/projects/page.tsx` to use real data and have search capabilities [#4]
 - Updated `/template/[templateId]/access` page to hook it up to real data [#223]
