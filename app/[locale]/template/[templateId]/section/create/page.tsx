@@ -1,47 +1,48 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import React, {useEffect, useRef, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useParams} from 'next/navigation';
+import {useTranslations} from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
   Button,
   Checkbox,
   CheckboxGroup,
+  Dialog,
+  DialogTrigger,
   Form,
   Label,
   Link,
+  OverlayArrow,
+  Popover,
   Tab,
   TabList,
   TabPanel,
   Tabs,
-  DialogTrigger,
-  OverlayArrow,
-  Popover,
-  Dialog,
 } from "react-aria-components";
 // GraphQL queries and mutations
 import {
-  useAddSectionMutation,
-  useTagsQuery,
-  useSectionsDisplayOrderQuery,
+  SectionErrors,
   SectionsDisplayOrderDocument,
-  SectionErrors
+  useAddSectionMutation,
+  useSectionsDisplayOrderQuery,
+  useTagsQuery
 } from '@/generated/graphql';
 
 //Components
-import {
-  LayoutContainer,
-  ContentContainer,
-} from '@/components/Container';
-import { DmpIcon } from "@/components/Icons";
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import {DmpIcon} from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import { DmpEditor } from "@/components/Editor";
-import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
+import {DmpEditor} from "@/components/Editor";
+import {
+  SectionFormErrorsInterface,
+  SectionFormInterface,
+  TagsInterface
+} from '@/app/types';
 
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
 
 const CreateSectionPage: React.FC = () => {
 

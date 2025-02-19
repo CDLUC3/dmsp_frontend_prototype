@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { Button, Form, } from "react-aria-components";
-import { ApolloError } from "@apollo/client";
+import {useTranslations} from 'next-intl';
+import {Button, Form,} from "react-aria-components";
+import {ApolloError} from "@apollo/client";
 
 // Graphql mutations
 import {
@@ -17,11 +17,11 @@ import {
 import EmailAddressRow from '@/components/EmailAddressRow';
 import FormInput from '../Form/FormInput';
 //Interfaces
-import { EmailInterface } from '@/app/types';
+import {EmailInterface} from '@/app/types';
 // Utils and other
 import logECS from '@/utils/clientLogger';
 import styles from './updateEmailAddress.module.scss';
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
 
 const GET_USER = MeDocument;
 

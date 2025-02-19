@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import {fireEvent, render, screen} from '@testing-library/react';
 import FormTextArea from '@/components/Form/FormTextArea';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {axe, toHaveNoViolations} from 'jest-axe';
+
 expect.extend(toHaveNoViolations);
 
 describe('FormTextArea', () => {

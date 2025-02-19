@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import {useState} from 'react';
+import {useTranslations} from 'next-intl';
 import Link from 'next/link';
-import { Button } from 'react-aria-components';
-import { ProjectItemProps } from '@/app/types';
+import {Button} from 'react-aria-components';
+import {ProjectItemProps} from '@/app/types';
 import styles from './projectList.module.scss';
 
 

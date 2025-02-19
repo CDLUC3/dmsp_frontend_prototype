@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen, act, fireEvent } from '@/utils/test-utils';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
-import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent';
+import {fireEvent, render, screen} from '@/utils/test-utils';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import QuestionOptionsComponent
+  from '@/components/Form/QuestionOptionsComponent';
 
 type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
 

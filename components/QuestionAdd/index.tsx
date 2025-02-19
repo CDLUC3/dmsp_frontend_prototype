@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import {useEffect, useRef, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useParams, useRouter} from 'next/navigation';
+import {useTranslations} from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -23,19 +23,20 @@ import {
 
 // GraphQL queries and mutations
 import {
-  useQuestionsDisplayOrderQuery,
   useAddQuestionMutation,
+  useQuestionsDisplayOrderQuery,
 } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import QuestionOptionsComponent from '@/components/Form/QuestionOptionsComponent';
+import QuestionOptionsComponent
+  from '@/components/Form/QuestionOptionsComponent';
 import FormInput from '@/components/Form/FormInput';
 import FormTextArea from '@/components/Form/FormTextArea';
 
 //Other
-import { useToast } from '@/context/ToastContext';
-import { Question, QuestionOptions } from '@/app/types';
+import {useToast} from '@/context/ToastContext';
+import {Question, QuestionOptions} from '@/app/types';
 import styles from './questionAdd.module.scss';
 
 const QuestionAdd = ({

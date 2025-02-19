@@ -16,6 +16,7 @@ export default getRequestConfig(async ({requestLocale}) => {
   const signupPageMessages = (await import(`@/messages/${locale}/signupPage.json`)).default;
   const templateMessages = (await import(`@/messages/${locale}/templateBuilder.json`)).default;
   const planBuilderProjectOverviewMessages = (await import(`@/messages/${locale}/planBuilderProjectOverview.json`)).default;
+  const planBuilderPlanOverviewMessages = (await import(`@/messages/${locale}/planBuilderPlanOverview.json`)).default;
   const errorMessages = (await import(`@/messages/${locale}/errors.json`)).default;
   const messaging = (await import(`@/messages/${locale}/messaging.json`)).default;
 
@@ -27,6 +28,7 @@ export default getRequestConfig(async ({requestLocale}) => {
     ...templateMessages,
     ...messaging,
     ...planBuilderProjectOverviewMessages,
+    ...planBuilderPlanOverviewMessages,
     errors: errorMessages,
   };
   return {

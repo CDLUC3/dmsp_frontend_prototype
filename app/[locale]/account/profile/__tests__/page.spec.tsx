@@ -1,6 +1,6 @@
 import React from 'react';
-import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {act, fireEvent, render, screen, within} from '@/utils/test-utils';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import ProfilePage from '../page';
 import {
   useLanguagesQuery,

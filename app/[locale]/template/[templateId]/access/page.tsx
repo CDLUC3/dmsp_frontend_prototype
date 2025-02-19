@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { ApolloError } from "@apollo/client";
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useParams} from 'next/navigation';
+import {useTranslations} from 'next-intl';
+import {ApolloError} from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -15,25 +15,22 @@ import {
 // Graphql mutations
 import {
   TemplateCollaboratorsDocument,
-  useTemplateCollaboratorsQuery,
   useAddTemplateCollaboratorMutation,
-  useRemoveTemplateCollaboratorMutation
+  useRemoveTemplateCollaboratorMutation,
+  useTemplateCollaboratorsQuery
 } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
 import FormInput from '@/components/Form/FormInput';
 import ConfirmModal from '@/components/Modal/ConfirmModal';
-import {
-  LayoutContainer,
-  ContentContainer,
-} from '@/components/Container';
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 
 //Utils and other
 import logECS from '@/utils/clientLogger';
-import { isValidEmail } from '@/utils/validation';
-import { scrollToTop } from '@/utils/general';
-import { useToast } from '@/context/ToastContext';
+import {isValidEmail} from '@/utils/validation';
+import {scrollToTop} from '@/utils/general';
+import {useToast} from '@/context/ToastContext';
 import styles from './TemplateAccessPage.module.scss';
 
 const GET_COLLABORATORS = TemplateCollaboratorsDocument;

@@ -1,15 +1,16 @@
 import React from "react";
-import { render, screen, act, fireEvent, waitFor } from '@/utils/test-utils';
+import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
 import {
   useQuestionQuery,
-  useUpdateQuestionMutation,
-  useQuestionTypesQuery
+  useQuestionTypesQuery,
+  useUpdateQuestionMutation
 } from '@/generated/graphql';
 
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useParams, useRouter, useSearchParams} from 'next/navigation';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import QuestionEdit from '../page';
+
 expect.extend(toHaveNoViolations);
 
 // Mock the useTemplateQuery hook

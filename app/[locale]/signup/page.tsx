@@ -1,30 +1,30 @@
 'use client'
 
-import React, { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from "next-intl";
+import React, {useEffect, useRef, useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {useTranslations} from "next-intl";
 import {
   Button,
+  Checkbox,
+  FieldError,
   Form,
-  TextField,
+  Input,
+  Label,
   Link,
   Text,
-  Label,
-  Input,
-  FieldError,
-  Checkbox,
+  TextField,
 } from "react-aria-components";
 
-import { AffiliationsDocument } from '@/generated/graphql';
-import { useCsrf } from '@/context/CsrfContext';
+import {AffiliationsDocument} from '@/generated/graphql';
+import {useCsrf} from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
-import { handleErrors } from '@/utils/errorHandler';
-import { useAuthContext } from '@/context/AuthContext';
+import {handleErrors} from '@/utils/errorHandler';
+import {useAuthContext} from '@/context/AuthContext';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 
 import {
-  LayoutContainer,
   ContentContainer,
+  LayoutContainer,
   ToolbarContainer,
 } from '@/components/Container';
 import styles from './signup.module.scss';

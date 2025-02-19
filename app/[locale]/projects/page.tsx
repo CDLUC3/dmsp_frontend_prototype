@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useFormatter, useTranslations } from 'next-intl';
+import {useEffect, useRef, useState} from 'react';
+import {useFormatter, useTranslations} from 'next-intl';
 
 // Components
 import {
@@ -17,15 +17,12 @@ import {
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import ProjectListItem from "@/components/ProjectListItem";
-import {
-  ContentContainer,
-  LayoutContainer
-} from '@/components/Container';
+import {ContentContainer, LayoutContainer} from '@/components/Container';
 
 //GraphQL
-import { useMyProjectsQuery, } from '@/generated/graphql';
+import {useMyProjectsQuery,} from '@/generated/graphql';
 
-import { ProjectItemProps } from '@/app/types';
+import {ProjectItemProps} from '@/app/types';
 
 interface ContributorRolesInterface {
   id?: number | null;
