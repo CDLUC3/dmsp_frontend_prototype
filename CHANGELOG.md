@@ -19,6 +19,12 @@
 
 ### Updated
 - Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
+- Made updates to get Dockerfile.prod to work. 
+  - Updated Dockerfile.prod
+  - Updated next.config.mjs to include output `standalone`
+  - Updated `docker-compose.yml`
+  - Fixed lint issues introduced with changes to field-level errors
+- Updated `buildspec` to use the `Docker.prod` file
 - Updated `/projects/page.tsx` to use real data and have search capabilities [#4]
 - Updated `/template/[templateId]/access` page to hook it up to real data [#223]
 - Updated the Edit Question `template/[templateId]/q/[q_slug]/page.tsx` with actual data from backend and added functionality for `options` question types [#188]

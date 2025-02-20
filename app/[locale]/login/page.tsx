@@ -1,12 +1,12 @@
 'use client'
 
-import React, {useEffect, useRef, useState} from "react";
-import {useRouter} from 'next/navigation';
+import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
-import {useCsrf} from '@/context/CsrfContext';
-import {handleErrors} from '@/utils/errorHandler';
-import {useAuthContext} from '@/context/AuthContext';
-import {useTranslations} from "next-intl";
+import { useCsrf } from '@/context/CsrfContext';
+import { handleErrors } from '@/utils/errorHandler';
+import { useAuthContext } from '@/context/AuthContext';
+import { useTranslations } from "next-intl";
 import {
   Button,
   FieldError,
@@ -45,6 +45,7 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { csrfToken } = useCsrf();
   const router = useRouter();
+
   const { setIsAuthenticated } = useAuthContext();
 
   const handleLogin = async () => {
