@@ -1,11 +1,11 @@
 'use client'
 
-import React, {useEffect, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useRouter} from 'next/navigation';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {useLocale, useTranslations} from 'next-intl';
-import {usePathname} from '@/i18n/routing';
+import { useLocale, useTranslations } from 'next-intl';
+import { usePathname } from '@/i18n/routing';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -28,13 +28,14 @@ import {
 import PageHeader from '@/components/PageHeader';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import {FormSelect} from '@/components/Form/FormSelect';
+import { FormSelect } from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel,
 } from '@/components/Container';
+import ErrorMessages from '@/components/ErrorMessages';
 
 // Interfaces
 import {
@@ -45,8 +46,8 @@ import {
 
 // Utils and other
 import logECS from '@/utils/clientLogger';
-import {refreshAuthTokens} from "@/utils/authHelper";
-import {useToast} from '@/context/ToastContext';
+import { refreshAuthTokens } from "@/utils/authHelper";
+import { useToast } from '@/context/ToastContext';
 import styles from './profile.module.scss';
 
 const ProfilePage: React.FC = () => {
@@ -55,6 +56,8 @@ const ProfilePage: React.FC = () => {
   const pathname = usePathname();
   const currentLocale = useLocale();
   const router = useRouter();
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -364,11 +367,7 @@ const ProfilePage: React.FC = () => {
               <div className="sectionContainer">
                 <div className={`sectionContent ${styles.section}`}>
                   <Form onSubmit={handleProfileSubmit}>
-                    {errors && Object.keys(errors).length > 0 &&
-                      <div className="error">
-                        <p>{errors.general}</p>
-                      </div>
-                    }
+                    <ErrorMessages errors={errors} ref={errorRef} />
                     <div className="form-row two-item-row">
                       {isEditing ? (
                         <FormInput

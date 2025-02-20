@@ -2,9 +2,7 @@
 
 import logECS from '@/utils/clientLogger';
 import {
-  AuthError,
   fetchCsrfToken,
-  refreshAuthTokens,
 } from "@/utils/authHelper";
 
 
@@ -22,7 +20,6 @@ async function safeJsonParse(response: Response) {
     throw new Error("Failed to parse JSON response");
   }
 }
-
 
 export const handleErrors = async (
   response: Response,
@@ -49,26 +46,9 @@ export const handleErrors = async (
         logECS('error', message, {
           url: { path: path }
         });
-
-        try {
-          // Attempt to get new auth tokens
-          const response = await refreshAuthTokens();
-
-          if (response) {
-            router.push("/");
-          } else {
-            router.push('/login');
-          }
-        } catch (err) {
-          if (err instanceof AuthError) {
-            // If NOT on the login or signup pages, redirect login
-            if ((path !== '/login') && (path !== '/signup')) {
-              router.push('/login');
-            }
-          }
-          const errorMessage = message;
-          setErrors(prevErrors => [...prevErrors, errorMessage]);
-        }
+        const errorMessage = message;
+        setErrors(prevErrors => [...prevErrors, errorMessage]);
+        return;
       }
       break;
 

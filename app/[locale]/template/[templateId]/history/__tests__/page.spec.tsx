@@ -1,11 +1,11 @@
-import React, {ReactNode} from 'react';
-import {render, screen} from '@testing-library/react';
+import React, { ReactNode } from 'react';
+import { render, screen } from '@testing-library/react';
 import TemplateHistory from '../page';
-import {useTemplateVersionsQuery} from '@/generated/graphql';
-import {MockedProvider} from '@apollo/client/testing';
-import {useParams, useRouter} from 'next/navigation';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {handleApolloErrors} from "@/utils/gqlErrorHandler";
+import { useTemplateVersionsQuery } from '@/generated/graphql';
+import { MockedProvider } from '@apollo/client/testing';
+import { useParams, useRouter } from 'next/navigation';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import mockData from './mockedResponse.json'
 
 expect.extend(toHaveNoViolations);
@@ -49,9 +49,14 @@ jest.mock('@/components/PageHeader', () => {
 });
 
 const mockUseRouter = useRouter as jest.Mock;
+// Create a mock for scrollIntoView and focus
+const mockScrollIntoView = jest.fn();
 
 describe('TemplateHistory', () => {
     beforeEach(() => {
+        HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+        window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+
         const mockTemplateId = 123;
         const mockUseParams = useParams as jest.Mock;
         mockUseRouter.mockReturnValue({

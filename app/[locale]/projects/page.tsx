@@ -1,7 +1,7 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
-import {useFormatter, useTranslations} from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 // Components
 import {
@@ -17,12 +17,16 @@ import {
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import ProjectListItem from "@/components/ProjectListItem";
-import {ContentContainer, LayoutContainer} from '@/components/Container';
+import {
+  ContentContainer,
+  LayoutContainer
+} from '@/components/Container';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
-import {useMyProjectsQuery,} from '@/generated/graphql';
+import { useMyProjectsQuery, } from '@/generated/graphql';
 
-import {ProjectItemProps} from '@/app/types';
+import { ProjectItemProps } from '@/app/types';
 
 interface ContributorRolesInterface {
   id?: number | null;
@@ -72,7 +76,7 @@ const ProjectsListPage: React.FC = () => {
   const Project = useTranslations('ProjectsListPage');
 
   // Query for projects
-  const { data = {}, loading } = useMyProjectsQuery({
+  const { data = {}, loading, errors: projectsQueryError } = useMyProjectsQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
@@ -182,11 +186,20 @@ const ProjectsListPage: React.FC = () => {
     }
   }, [errors]);
 
+  useEffect(() => {
+    if (projectsQueryError) {
+      setErrors([Global('messaging.somethingWentWrong')]);
+    } else if (data?.myProjects?.some((project) => project?.errors)) {
+      setErrors([Project('messages.errors.errorRetrievingProjects')]);
+    } else {
+      setErrors([]);
+    }
+  }, [data, projectsQueryError]);
+
   // TODO: Implement shared loading spinner
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
-
 
   return (
     <>
@@ -209,13 +222,7 @@ const ProjectsListPage: React.FC = () => {
         className="page-project-list"
       />
 
-      {errors && errors.length > 0 &&
-        <div className="error" ref={errorRef}>
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      }
+      <ErrorMessages errors={errors} ref={errorRef} />
 
       <LayoutContainer>
         <ContentContainer>

@@ -19,5 +19,9 @@ query MyProjects {
       }
       grantId
     }
+    errors {
+      general
+      title
+    }
   }
 }

@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -32,17 +32,14 @@ import {
 } from '@/generated/graphql';
 
 //Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {DmpIcon} from "@/components/Icons";
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import {DmpEditor} from "@/components/Editor";
-import {
-  SectionFormErrorsInterface,
-  SectionFormInterface,
-  TagsInterface
-} from '@/app/types';
+import { DmpEditor } from "@/components/Editor";
+import ErrorMessages from '@/components/ErrorMessages';
 
-import {useToast} from '@/context/ToastContext';
+import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
+import { useToast } from '@/context/ToastContext';
 
 const CreateSectionPage: React.FC = () => {
 
@@ -292,13 +289,6 @@ const CreateSectionPage: React.FC = () => {
     }
   }, [sectionDisplayOrders])
 
-  // If errors when submitting publish form, scroll them into view
-  useEffect(() => {
-    if (errors.length > 0) {
-      scrollToTop(errorRef);
-    }
-  }, [errors]);
-
   useEffect(() => {
     setFormData({
       ...formData,
@@ -334,13 +324,7 @@ const CreateSectionPage: React.FC = () => {
           <div className="template-editor-container" ref={topRef}>
             <div className="main-content">
 
-              {errors && errors.length > 0 &&
-                <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-                  {errors.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
+              <ErrorMessages errors={errors} ref={errorRef} />
 
               <Tabs>
                 <TabList aria-label="Question editing">
@@ -389,7 +373,7 @@ const CreateSectionPage: React.FC = () => {
                     <CheckboxGroup name="sectionTags">
                       <Label>{Section('labels.bestPracticeTags')}</Label>
                       <span className="help">{Section('helpText.bestPracticeTagsDesc')}</span>
-                      <div className="checkbox-group">
+                      <div className="checkbox-group-two-column">
                         {tags && tags.map(tag => {
                           const id = (tag.id)?.toString();
                           return (

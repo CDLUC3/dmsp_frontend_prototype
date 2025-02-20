@@ -199,3 +199,35 @@ export interface Affiliation {
   name: string;
   url?: string | null;
 }
+
+interface RadioButtonInterface {
+  value: string;
+  label: string;
+  description?: string;
+}
+export interface RadioButtonProps {
+  name: string;
+  description?: string;
+  radioGroupLabel: string;
+  radioButtonData: RadioButtonInterface[];
+  value: string;
+  isInvalid?: boolean;
+  errorMessage?: string;
+  onChange?: (value: string) => void;
+}
+
+interface CheckboxInterface {
+  value: string;
+  label: string;
+  description: string;
+}
+export interface CheckboxGroupProps {
+  name: string;
+  checkboxGroupLabel?: string;
+  checkboxGroupDescription?: string;
+  checkboxData: CheckboxInterface[];
+  value: string[];
+  isInvalid?: boolean;
+  errorMessage?: string;
+  onChange?: ((value: string[]) => void)
+}

@@ -20,6 +20,7 @@ import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
 import TemplateList from '@/components/TemplateList';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
 import {
@@ -271,13 +272,8 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       <LayoutContainer>
         <ContentContainer>
           <>
-            {errors && errors.length > 0 &&
-              <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-                {errors.map((error, index) => (
-                  <p key={index}>{error}</p>
-                ))}
-              </div>
-            }
+            <ErrorMessages errors={errors} ref={errorRef} />
+
             <div className="Filters" role="search" ref={topRef}>
               <SearchField aria-label="Template search">
                 <Label>{Global('labels.searchByKeyword')}</Label>

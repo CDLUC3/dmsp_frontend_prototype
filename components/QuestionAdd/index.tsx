@@ -33,6 +33,7 @@ import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
 import FormInput from '@/components/Form/FormInput';
 import FormTextArea from '@/components/Form/FormTextArea';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
 import {useToast} from '@/context/ToastContext';
@@ -189,13 +190,7 @@ const QuestionAdd = ({
 
       <div className="template-editor-container">
         <div className="main-content">
-          {errors && errors.length > 0 &&
-            <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-              {errors.map((error, index) => (
-                <p key={index}>{error}</p>
-              ))}
-            </div>
-          }
+          <ErrorMessages errors={errors} ref={errorRef} />
           <Tabs>
             <TabList aria-label="Question editing">
               <Tab id="edit">{Global('tabs.editQuestion')}</Tab>

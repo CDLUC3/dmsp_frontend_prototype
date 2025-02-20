@@ -60,6 +60,9 @@ jest.mock('next-intl', () => ({
   useLocale: jest.fn(() => 'en-US'), // Return a default locale
 }));
 
+// Create a mock for scrollIntoView and focus
+const mockScrollIntoView = jest.fn();
+
 const mockUserData = {
   me: {
     givenName: 'John',
@@ -87,7 +90,8 @@ const setupMocks = () => {
 describe('ProfilePage', () => {
   beforeEach(() => {
     setupMocks();
-    window.scrollTo = jest.fn(); // Called by the wrapping PageWrapper
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
     const mockUpdateUserProfile = jest.fn();
     mockHook(useUpdateUserProfileMutation).mockReturnValue([mockUpdateUserProfile, { loading: false, error: undefined }]);
   });
@@ -130,8 +134,7 @@ describe('ProfilePage', () => {
     fireEvent.click(submitButton);
 
     // Check if error message is present when fields empty
-    const errorMessage = await screen.findByText(/name must be at least 2 characters/i);
-    expect(errorMessage).toBeInTheDocument();
+    within(screen.getByRole('alert')).getByText('Name must be at least 2 characters');
   })
 
   it('should set data back to original when clicking Cancel button', async () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -26,13 +26,10 @@ const ProjectsCreateProjectFunding = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted');
-
-    console.log('Selected funding value:', hasFunding);
 
     if (hasFunding === 'yes') {
       window.location.href = '/projects/create-project/funding-search';
-    }else {
+    } else {
       window.location.href = '/projects/proj_2425new';
     }
 
@@ -80,7 +77,7 @@ const ProjectsCreateProjectFunding = () => {
 
 
             <Button type="submit"
-                    className="">Continue</Button>
+              className="">Continue</Button>
 
           </Form>
 

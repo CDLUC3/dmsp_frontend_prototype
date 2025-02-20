@@ -22,6 +22,7 @@ import {
   LayoutContainer,
   ToolbarContainer,
 } from '@/components/Container';
+import ErrorMessages from "@/components/ErrorMessages";
 import styles from './login.module.scss';
 
 
@@ -33,7 +34,7 @@ type LoginSteps =
 
 const LoginPage: React.FC = () => {
   const t = useTranslations('LoginPage');
-
+  const errorRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
   const [step, setStep] = useState<LoginSteps>("email");
 
@@ -42,7 +43,6 @@ const LoginPage: React.FC = () => {
 
   const [errors, setErrors] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const errorRef = useRef<HTMLDivElement>(null);
   const { csrfToken } = useCsrf();
   const router = useRouter();
 
@@ -114,12 +114,6 @@ const LoginPage: React.FC = () => {
   }
 
   useEffect(() => {
-    if (errors) {
-      if (errorRef.current) {
-        errorRef.current.scrollIntoView({ behavior: 'smooth' });
-        errorRef.current.focus();
-      }
-    }
     reFocusForm();
   }, [errors])
 
@@ -144,14 +138,7 @@ const LoginPage: React.FC = () => {
           ref={formRef}
           data-step={step}
         >
-          {errors && errors.length > 0 &&
-            <div className={`error ${styles.error}`}>
-              {errors.map((error, index) => (
-                <p key={index}>{error}</p>
-              ))}
-            </div>
-          }
-
+          <ErrorMessages errors={errors} ref={errorRef} />
           {(step === "email" || "password") && (
             <TextField
               name="email"

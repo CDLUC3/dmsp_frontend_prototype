@@ -34,6 +34,7 @@ import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
 import FormInput from '@/components/Form/FormInput';
 import FormTextArea from '@/components/Form/FormTextArea';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
 import {useToast} from '@/context/ToastContext';
@@ -212,13 +213,7 @@ const QuestionEdit = () => {
         className=""
       />
 
-      {errors && errors.length > 0 &&
-        <div className="error">
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      }
+      <ErrorMessages errors={errors} ref={errorRef} />
 
       <div className="template-editor-container">
         <div className="main-content">

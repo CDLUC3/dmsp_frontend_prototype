@@ -25,6 +25,7 @@ import PageHeader from "@/components/PageHeader";
 import FormInput from '@/components/Form/FormInput';
 import ConfirmModal from '@/components/Modal/ConfirmModal';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //Utils and other
 import logECS from '@/utils/clientLogger';
@@ -262,13 +263,7 @@ const TemplateAccessPage: React.FC = () => {
         <ContentContainer>
           <div className="template-editor-container" ref={errorRef}>
             <div className="main-content">
-              {errorMessages && errorMessages.length > 0 &&
-                <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-                  {errorMessages.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
+              <ErrorMessages errors={errorMessages} ref={errorRef} />
               <p>
                 {AccessPage('intro')}
               </p>
