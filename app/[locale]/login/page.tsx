@@ -1,12 +1,12 @@
 'use client'
 
-import React, {useEffect, useRef, useState} from "react";
-import {useRouter} from 'next/navigation';
+import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
-import {useCsrf} from '@/context/CsrfContext';
-import {handleErrors} from '@/utils/errorHandler';
-import {useAuthContext} from '@/context/AuthContext';
-import {useTranslations} from "next-intl";
+import { useCsrf } from '@/context/CsrfContext';
+import { handleErrors } from '@/utils/errorHandler';
+import { useAuthContext } from '@/context/AuthContext';
+import { useTranslations } from "next-intl";
 import {
   Button,
   FieldError,
@@ -45,6 +45,11 @@ const LoginPage: React.FC = () => {
   const errorRef = useRef<HTMLDivElement>(null);
   const { csrfToken } = useCsrf();
   const router = useRouter();
+
+  console.log("***process.env.NEXT_PUBLIC_SERVER_ENDPOINT", process.env.NEXT_PUBLIC_SERVER_ENDPOINT);
+
+  console.log("***process.env.NEXT_PUBLIC_BASE_URL", process.env.NEXT_PUBLIC_BASE_URL);
+
   const { setIsAuthenticated } = useAuthContext();
 
   const handleLogin = async () => {
