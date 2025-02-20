@@ -46,10 +46,6 @@ const LoginPage: React.FC = () => {
   const { csrfToken } = useCsrf();
   const router = useRouter();
 
-  console.log("***process.env.NEXT_PUBLIC_SERVER_ENDPOINT", process.env.NEXT_PUBLIC_SERVER_ENDPOINT);
-
-  console.log("***process.env.NEXT_PUBLIC_BASE_URL", process.env.NEXT_PUBLIC_BASE_URL);
-
   const { setIsAuthenticated } = useAuthContext();
 
   const handleLogin = async () => {

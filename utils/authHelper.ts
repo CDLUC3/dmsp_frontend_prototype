@@ -102,7 +102,6 @@ export const refreshAuthTokens = async (cookies?: string) => {
 
 //Function to fetch CSRF token from the backend
 export const fetchCsrfToken = async () => {
-  console.log("***process.env.NEXT_PUBLIC_SERVER_ENDPOINT", process.env.NEXT_PUBLIC_SERVER_ENDPOINT);
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-csrf`, {
       credentials: 'include',// This is needed or else the frontend can't access the csrf token in the header
