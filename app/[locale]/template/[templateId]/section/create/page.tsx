@@ -297,6 +297,7 @@ const CreateSectionPage: React.FC = () => {
       sectionRequirements: sectionRequirementsContent,
       sectionGuidance: sectionGuidanceContent
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
 

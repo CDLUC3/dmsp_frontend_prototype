@@ -224,6 +224,7 @@ const TemplateEditPage: React.FC = () => {
         },
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   // If page-level errors that we need to scroll to
