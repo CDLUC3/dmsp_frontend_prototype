@@ -1,13 +1,13 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@/utils/test-utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {fireEvent, render, screen, waitFor} from '@/utils/test-utils';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import TemplateAccessPage from '../page';
-import { useParams } from 'next/navigation';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {useParams} from 'next/navigation';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import {
-  useTemplateCollaboratorsQuery,
   useAddTemplateCollaboratorMutation,
-  useRemoveTemplateCollaboratorMutation
+  useRemoveTemplateCollaboratorMutation,
+  useTemplateCollaboratorsQuery
 } from '@/generated/graphql';
 import mockData from '../__mocks__/mockData.json';
 

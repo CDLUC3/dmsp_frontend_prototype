@@ -17,19 +17,16 @@ import {
 
 //Components
 import PageHeader from "@/components/PageHeader";
-import {
-  ContentContainer,
-  LayoutContainer,
-} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
 import TemplateList from '@/components/TemplateList';
-import ErrorMessages from '../ErrorMessages';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
 import {
   useAddTemplateMutation,
-  usePublishedTemplatesQuery,
-  useMyVersionedTemplatesQuery
+  useMyVersionedTemplatesQuery,
+  usePublishedTemplatesQuery
 } from '@/generated/graphql';
 
 // Hooks

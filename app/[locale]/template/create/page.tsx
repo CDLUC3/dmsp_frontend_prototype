@@ -15,10 +15,7 @@ import sanitizeHtml from 'sanitize-html';
 // Components
 import PageHeader from "@/components/PageHeader";
 import TemplateSelectTemplatePage from '@/components/SelectExistingTemplate';
-import {
-  ContentContainer,
-  LayoutContainer,
-} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import FormInput from '@/components/Form/FormInput';
 
 import { debounce } from '@/hooks/debounce';

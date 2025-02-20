@@ -1,8 +1,8 @@
 import React from 'react';
-import { act, render, screen, fireEvent } from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
 import ProjectListItem from '../index';
-import { ProjectItemProps } from '@/app/types';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {ProjectItemProps} from '@/app/types';
+import {axe, toHaveNoViolations} from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
 

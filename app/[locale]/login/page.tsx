@@ -9,17 +9,17 @@ import { useAuthContext } from '@/context/AuthContext';
 import { useTranslations } from "next-intl";
 import {
   Button,
+  FieldError,
   Form,
-  TextField,
+  Input,
+  Label,
   Link,
   Text,
-  Label,
-  Input,
-  FieldError,
+  TextField,
 } from "react-aria-components";
 import {
-  LayoutContainer,
   ContentContainer,
+  LayoutContainer,
   ToolbarContainer,
 } from '@/components/Container';
 import ErrorMessages from "@/components/ErrorMessages";
@@ -45,6 +45,7 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { csrfToken } = useCsrf();
   const router = useRouter();
+
   const { setIsAuthenticated } = useAuthContext();
 
   const handleLogin = async () => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation';
+import {useSearchParams} from 'next/navigation';
 
 export const useQueryStep = () => {
   const searchParams = useSearchParams();
