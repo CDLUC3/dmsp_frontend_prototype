@@ -338,7 +338,7 @@ const ProfilePage: React.FC = () => {
     if (queryError) {
       refetch();
     }
-  }, [queryError]);
+  }, [queryError, refetch]);
 
   // Show loading message on first page load when getting user
   const loading = queryLoading;

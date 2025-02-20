@@ -192,8 +192,8 @@ const ProjectsCreateProject = () => {
       setFormSubmitted(true)
     } catch (error) {
       logECS('error', 'updateSection', {
-        error: error,
-        url: { path: '/template/\[templateId\]/section/\[sectionid\]' }
+        error,
+        url: { path: '/template/[templateId]/section/[sectionid]' }
       });
       if (error instanceof ApolloError) {
         setErrors(prevErrors => [...prevErrors, error.message]);

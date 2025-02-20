@@ -113,7 +113,7 @@ const TemplateAccessPage: React.FC = () => {
         });
       }
     }
-  }, [templateId, removeTemplateCollaboratorMutation]);
+  }, [templateId, removeTemplateCollaboratorMutation, AccessPage, addToast]);
 
 
   // Add new collaborator email
@@ -157,7 +157,7 @@ const TemplateAccessPage: React.FC = () => {
         });
       }
     }
-  }, [templateId, addCollaboratorEmail, addTemplateCollaboratorlMutation]);
+  }, [templateId, addCollaboratorEmail, addTemplateCollaboratorlMutation, AccessPage, addToast]);
 
 
   // Render the organization list of admins
@@ -215,7 +215,7 @@ const TemplateAccessPage: React.FC = () => {
         ))}
       </ul>
     );
-  }, [loading, templateQueryErrors, templateCollaboratorData, handleRevokeAccess]);
+  }, [loading, templateQueryErrors, templateCollaboratorData, handleRevokeAccess, AccessPage, Global]);
 
   // If errors when submitting publish form, scroll them into view
   useEffect(() => {
@@ -227,6 +227,7 @@ const TemplateAccessPage: React.FC = () => {
   // Set organization section info
   useEffect(() => {
     if (templateCollaboratorData?.template) {
+      /* eslint-disable-next-line object-shorthand */
       const admins = templateCollaboratorData.template.admins?.map(admin => ({
         email: admin.email as string | null,
         givenName: admin.givenName ?? null,
@@ -235,7 +236,7 @@ const TemplateAccessPage: React.FC = () => {
 
       setOrganization({
         name: templateCollaboratorData.template.owner?.name ?? '',
-        admins: admins
+        admins
       });
     }
   }, [templateCollaboratorData]);

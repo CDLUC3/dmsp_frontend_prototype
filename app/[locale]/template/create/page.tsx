@@ -64,7 +64,7 @@ const TemplateCreatePage: React.FC = () => {
     if (step !== stepQueryValue) {
       setStep(stepQueryValue);
     }
-  }, [stepQueryValue])
+  }, [stepQueryValue, step])
 
   // TODO: Need to implement a shared loading component
   if (step === null) {

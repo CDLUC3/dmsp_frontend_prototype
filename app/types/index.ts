@@ -213,6 +213,7 @@ export interface RadioButtonProps {
   value: string;
   isInvalid?: boolean;
   errorMessage?: string;
+  // eslint-disable-next-line no-unused-vars
   onChange?: (value: string) => void;
 }
 
@@ -229,5 +230,6 @@ export interface CheckboxGroupProps {
   value: string[];
   isInvalid?: boolean;
   errorMessage?: string;
+  // eslint-disable-next-line no-unused-vars
   onChange?: ((value: string[]) => void)
 }

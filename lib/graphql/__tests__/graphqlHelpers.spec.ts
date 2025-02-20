@@ -6,7 +6,7 @@ import {
   Operation
 } from "@apollo/client";
 import { redirect } from "next/navigation";
-import { GraphQLError } from "graphql";
+import { GraphQLError, Kind } from "graphql";
 import { errorLink } from "@/lib/graphql/graphqlHelper";
 import logECS from "@/utils/clientLogger";
 import { refreshAuthTokens, fetchCsrfToken } from "@/utils/authHelper";
@@ -26,14 +26,6 @@ jest.mock("@/utils/authHelper", () => ({
 jest.mock("next/navigation", () => ({
   redirect: jest.fn()
 }))
-// Set up a spy for window.location.href
-Object.defineProperty(window, 'location', {
-  value: {
-    href: '',
-  },
-  writable: true,
-});
-
 
 describe("GraphQL Errors", () => {
   let operation: Operation;
@@ -44,8 +36,12 @@ describe("GraphQL Errors", () => {
     jest.clearAllMocks();
 
     // Mock window.location
-    delete window.location;
-    window.location = { href: "" } as Location;
+    Object.defineProperty(window, 'location', {
+      value: {
+        href: '',
+      },
+      writable: true,
+    });
 
     // Setup operation mock with proper typing
     operation = {
@@ -55,7 +51,7 @@ describe("GraphQL Errors", () => {
       extensions: {},
       variables: {},
       query: {
-        kind: "Document",
+        kind: Kind.DOCUMENT,
         definitions: []
       }
     };

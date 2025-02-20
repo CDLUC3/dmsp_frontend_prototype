@@ -1,10 +1,10 @@
-import {NextRequest, NextResponse} from 'next/server';
-import {JwtPayload} from 'jsonwebtoken';
-import {verifyJwtToken} from './lib/server/auth';
-import {getAuthTokenServer} from '@/utils/getAuthTokenServer';
+import { NextRequest, NextResponse } from 'next/server';
+import { JwtPayload } from 'jsonwebtoken';
+import { verifyJwtToken } from './lib/server/auth';
+import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 import createMiddleware from 'next-intl/middleware';
-import {refreshAuthTokens} from "@/utils/authHelper";
-import {routing} from './i18n/routing';
+import { refreshAuthTokens } from "@/utils/authHelper";
+import { routing } from './i18n/routing';
 import logECS from '@/utils/clientLogger';
 
 const locales = ['en-US', 'pt-BR'];
@@ -100,7 +100,7 @@ export async function middleware(request: NextRequest) {
       await refreshAuthTokens(cookies);
     } catch (error) {
       logECS('error', 'refreshing', {
-        error: error,
+        error,
         url: { path: 'middleware' }
       });
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
