@@ -59,6 +59,9 @@ const SliderPreview = ({ isOpen, setIsOpen }) => {
   const router = useRouter();
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+  const modalRef = useRef(null);
+  const sliderRef = useRef(null);
+  const [announcement, setAnnouncement] = useState('');
 
   const [fieldErrors, setFieldErrors] = useState<CreateProjectErrorsInterface>({
     projectName: '',
@@ -236,16 +239,55 @@ const SliderPreview = ({ isOpen, setIsOpen }) => {
     }
   };
 
-  // Close panel on pressing Escape key
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         closePanel();
       }
+
+      if (event.key === "Tab" && panelRef.current) {
+        const focusableElements = panelRef.current.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        ) as NodeListOf<HTMLElement>;
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey) {
+          // Shift + Tab: cycle back to the last element
+          if (document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab: cycle forward to the first element
+          if (document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
     };
 
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown);
+
+      // Ensure first focusable element is focused
+      setTimeout(() => {
+        if (panelRef.current) {
+          const firstFocusableElement = panelRef.current.querySelector(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          ) as HTMLElement;
+
+          if (firstFocusableElement) {
+            firstFocusableElement.focus();
+          } else {
+            panelRef.current.focus();
+          }
+        }
+      }, 100); // Small delay to ensure element is available
     } else {
       document.removeEventListener("keydown", handleKeyDown);
     }
@@ -253,104 +295,102 @@ const SliderPreview = ({ isOpen, setIsOpen }) => {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
 
-  // Auto-focus on panel when it opens
-  useEffect(() => {
-    if (isOpen && panelRef.current) {
-      panelRef.current.focus();
-    }
-  }, [isOpen]);
 
   return (
     <>
-      <div >
-        {/* Slide-in panel */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              ref={panelRef}
-              role="dialog"
-              aria-modal="true"
-              className=""
-              initial={{ x: "100%" }}
-              style={{ backgroundColor: 'white', marginBottom: '2rem' }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              <button
-                onClick={closePanel}
-                aria-label="Close panel"
-                className="close-button"
+      {/* Visually hidden live region for announcements */}
+      <div aria-live="assertive" className="sr-only">
+        {announcement}
+      </div>
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-labelledby="slider-title"
+        aria-modal="true"
+        className="modal"
+      >
+        <div ref={sliderRef}>
+          {/* Slide-in panel */}
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                ref={panelRef}
+                role="alertdialog"
+                aria-modal="true"
+                className=""
+                initial={{ x: "100%" }}
+                style={{ backgroundColor: 'white', marginBottom: '2rem' }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
               >
-                Close Preview
-              </button>
-              <PageHeader
-                title={CreateProject('pageTitle')}
-                description=""
-                showBackButton={false}
-                breadcrumbs={
-                  <Breadcrumbs>
-                    <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-                    <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-                  </Breadcrumbs>
-                }
-                actions={
-                  <>
-                  </>
-                }
-                className="page-project-create-project"
-              />
-              <LayoutWithPanel>
-                <ContentContainer>
-                  <ErrorMessages errors={errors} ref={errorRef} />
-                  <Form onSubmit={handleFormSubmit}>
-                    <FormInput
-                      name="projectName"
-                      type="text"
-                      value={formData.projectName}
-                      label={CreateProject('form.projectTitle')}
-                      description={CreateProject('form.projectTitleHelpText')}
-                      isRequired={true}
-                      onChange={handleInputChange}
-                      isInvalid={(!formData.projectName || !!fieldErrors.projectName) && formSubmitted}
-                      errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : CreateProject('messages.errors.title')}
-                      id="projectName"
-                    />
+                <h2 id="preview">Preview</h2>
+                <button
+                  onClick={closePanel}
+                  aria-label="Close panel"
+                  className="close-button"
+                >
+                  Close Preview
+                </button>
+                <PageHeader
+                  title={CreateProject('pageTitle')}
+                  description=""
+                  showBackButton={false}
+                  breadcrumbs={
+                    <Breadcrumbs>
+                      <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+                      <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+                    </Breadcrumbs>
+                  }
+                  actions={
+                    <>
+                    </>
+                  }
+                  className="page-project-create-project"
+                />
+                <LayoutWithPanel>
+                  <ContentContainer>
+                    <ErrorMessages errors={errors} ref={errorRef} />
+                    <Form onSubmit={handleFormSubmit}>
+                      <FormInput
+                        name="projectName"
+                        type="text"
+                        value={formData.projectName}
+                        label={CreateProject('form.projectTitle')}
+                        description={CreateProject('form.projectTitleHelpText')}
+                        isRequired={true}
+                        onChange={handleInputChange}
+                        isInvalid={(!formData.projectName || !!fieldErrors.projectName) && formSubmitted}
+                        errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : CreateProject('messages.errors.title')}
+                        id="projectName"
+                      />
 
-                    <RadioGroupComponent
-                      name="radioGroup"
-                      value={formData.radioGroup ?? ''}
-                      radioGroupLabel={radioData.radioGroupLabel}
-                      radioButtonData={radioData.radioButtonData}
-                      onChange={handleRadioChange}
-                    />
+                      <RadioGroupComponent
+                        name="radioGroup"
+                        value={formData.radioGroup ?? ''}
+                        radioGroupLabel={radioData.radioGroupLabel}
+                        radioButtonData={radioData.radioButtonData}
+                        onChange={handleRadioChange}
+                      />
 
-                    <CheckboxGroupComponent
-                      name="checkboxGroup"
-                      value={formData.checkboxGroup || []}
-                      checkboxGroupLabel={CreateProject('form.checkboxGroupLabel')}
-                      checkboxGroupDescription={CreateProject('form.checkboxGroupHelpText')}
-                      checkboxData={checkboxData}
-                      onChange={handleCheckboxChange}
-                    />
+                      <CheckboxGroupComponent
+                        name="checkboxGroup"
+                        value={formData.checkboxGroup || []}
+                        checkboxGroupLabel={CreateProject('form.checkboxGroupLabel')}
+                        checkboxGroupDescription={CreateProject('form.checkboxGroupHelpText')}
+                        checkboxData={checkboxData}
+                        onChange={handleCheckboxChange}
+                      />
+                    </Form>
 
-                    <Button
-                      type="submit"
-                      className=""
-                      onPress={() => { setFormSubmitted(true) }}
-                    >{Global('buttons.continue')}
+                  </ContentContainer>
+                  <SidebarPanel></SidebarPanel>
+                </LayoutWithPanel>
 
-                    </Button>
-
-                  </Form>
-
-                </ContentContainer>
-                <SidebarPanel></SidebarPanel>
-              </LayoutWithPanel>
-
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div >
       </div>
     </>
   );
