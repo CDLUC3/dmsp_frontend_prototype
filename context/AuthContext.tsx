@@ -5,6 +5,7 @@ import logECS from '@/utils/clientLogger';
 
 interface AuthContextType {
     isAuthenticated: boolean | null;
+    // eslint-disable-next-line no-unused-vars
     setIsAuthenticated: (auth: boolean) => void;
 }
 

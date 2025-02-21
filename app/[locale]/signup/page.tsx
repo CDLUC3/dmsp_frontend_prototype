@@ -144,7 +144,7 @@ const SignUpPage: React.FC = () => {
 
   function isValid(): boolean {
     let hasErrors = false;
-    let globalErrors = errors || [];
+    const globalErrors = errors || [];
 
     if (globalErrors.length > 0) hasErrors = true;
 

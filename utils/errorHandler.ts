@@ -5,10 +5,11 @@ import {
   fetchCsrfToken,
 } from "@/utils/authHelper";
 
-
+/* eslint-disable-next-line no-unused-vars */
 type RetryRequestType = (csrfToken: string | null) => Promise<Response>;
 
 interface CustomRouter {
+  // eslint-disable-next-line no-unused-vars
   push: (url: string) => void;
 }
 
@@ -44,7 +45,7 @@ export const handleErrors = async (
     case 401:
       if (message) {
         logECS('error', message, {
-          url: { path: path }
+          url: { path }
         });
         const errorMessage = message;
         setErrors(prevErrors => [...prevErrors, errorMessage]);
@@ -55,7 +56,7 @@ export const handleErrors = async (
     case 403:
       if (message === 'Invalid CSRF token') {
         logECS('error', message, {
-          url: { path: path }
+          url: { path }
         });
 
         try {

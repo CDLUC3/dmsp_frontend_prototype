@@ -60,7 +60,7 @@ const SectionTypeSelectPage: React.FC = () => {
     }
   );
 
-  function sortSectionsByDisplayOrder(sections: Array<Section | null>): Section[] {
+  function sortSectionsByDisplayOrder(sections: (Section | null)[]): Section[] {
     // Filter out null values and ensure type safety
     const validSections = sections.filter((section): section is Section => {
       return section !== null && section !== undefined;
@@ -133,6 +133,7 @@ const SectionTypeSelectPage: React.FC = () => {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateQueryErrors]);
 
   useEffect(() => {

@@ -1,14 +1,14 @@
 import React from "react";
-import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useQuestionQuery,
   useQuestionTypesQuery,
   useUpdateQuestionMutation
 } from '@/generated/graphql';
 
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams, useRouter, useSearchParams} from 'next/navigation';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import QuestionEdit from '../page';
 
 expect.extend(toHaveNoViolations);
@@ -196,11 +196,11 @@ describe("QuestionEditPage", () => {
         },
         getAll: () => [],
         has: (key: string) => key in { questionTypeId: '1' },
-        keys: function* () { },
-        values: function* () { },
-        entries: function* () { },
-        forEach: () => { },
-        toString: () => '',
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
@@ -257,11 +257,11 @@ describe("QuestionEditPage", () => {
         },
         getAll: () => [],
         has: (key: string) => key in { questionTypeId: '1' },
-        keys: function* () { },
-        values: function* () { },
-        entries: function* () { },
-        forEach: () => { },
-        toString: () => '',
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
@@ -299,11 +299,11 @@ describe("QuestionEditPage", () => {
         },
         getAll: () => [],
         has: (key: string) => key in { questionTypeId: '1' },
-        keys: function* () { },
-        values: function* () { },
-        entries: function* () { },
-        forEach: () => { },
-        toString: () => '',
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
@@ -336,11 +336,11 @@ describe("QuestionEditPage", () => {
         },
         getAll: () => [],
         has: (key: string) => key in { questionTypeId: '3' },
-        keys: function* () { },
-        values: function* () { },
-        entries: function* () { },
-        forEach: () => { },
-        toString: () => '',
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
@@ -368,11 +368,11 @@ describe("QuestionEditPage", () => {
         },
         getAll: () => [],
         has: (key: string) => key in { questionTypeId: '1' },
-        keys: function* () { },
-        values: function* () { },
-        entries: function* () { },
-        forEach: () => { },
-        toString: () => '',
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
@@ -407,11 +407,11 @@ describe("QuestionEditPage", () => {
         },
         getAll: () => [],
         has: (key: string) => key in { questionTypeId: '' },
-        keys: function* () { },
-        values: function* () { },
-        entries: function* () { },
-        forEach: () => { },
-        toString: () => '',
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
@@ -440,11 +440,11 @@ describe("QuestionEditPage", () => {
         },
         getAll: () => [],
         has: (key: string) => key in { questionTypeId: '' },
-        keys: function* () { },
-        values: function* () { },
-        entries: function* () { },
-        forEach: () => { },
-        toString: () => '',
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 

@@ -186,8 +186,8 @@ const SectionUpdatePage: React.FC = () => {
       }
     } catch (error) {
       logECS('error', 'updateSection', {
-        error: error,
-        url: { path: '/template/\[templateId\]/section/\[sectionid\]' }
+        error,
+        url: { path: '/template/[templateId]/section/[sectionid]' }
       });
       if (error instanceof ApolloError) {
         setErrorMessages(prevErrors => [...prevErrors, error.message]);
@@ -247,7 +247,7 @@ const SectionUpdatePage: React.FC = () => {
   useEffect(() => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
-      /*eslint-disable @typescript-eslint/no-unused-vars*/
+      /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
       const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
       setTags(cleanedData);
     }

@@ -1,8 +1,8 @@
 'use client'
 
-import {useEffect, useState} from 'react';
-import {SectionFormInterface, TagsInterface} from '@/app/types';
-import {useSectionQuery,} from '@/generated/graphql';
+import { useEffect, useState } from 'react';
+import { SectionFormInterface, TagsInterface } from '@/app/types';
+import { useSectionQuery, } from '@/generated/graphql';
 
 export const useSectionData = (sectionId: number) => {
   const [sectionData, setSectionData] = useState<SectionFormInterface>({
@@ -42,7 +42,7 @@ export const useSectionData = (sectionId: number) => {
       })
       if (data.section?.tags) {
         const cleanedTags = data.section?.tags.filter(tag => tag !== null && tag !== undefined);
-        /*eslint-disable @typescript-eslint/no-unused-vars*/
+        /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
         const cleanedData = cleanedTags.map(({ __typename, ...fields }) => fields);
         setSelectedTags((prevTags) => {
           return [...prevTags, ...cleanedData];

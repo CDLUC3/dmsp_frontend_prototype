@@ -22,6 +22,7 @@
     "@apollo/client": "^3.10.8",
     "@apollo/experimental-nextjs-app-support": "^0.11.2",
     "@elastic/ecs-pino-format": "^1.5.0",
+    "@fontsource/material-symbols-outlined": "^5.1.4",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",

@@ -1,9 +1,9 @@
 import React from "react";
-import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
-import {useTemplateQuery,} from '@/generated/graphql';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams} from 'next/navigation';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { useTemplateQuery, } from '@/generated/graphql';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams } from 'next/navigation';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import SectionTypeSelectPage from '../page';
 
 expect.extend(toHaveNoViolations);
@@ -52,40 +52,40 @@ jest.mock('@/components/BackButton', () => {
 });
 
 const mockTemplateData = {
-  "name": "DMP Template from Dataverse",
-  "description": "DMP Template from Dataverse",
-  "errors": null,
-  "latestPublishVersion": "v1",
-  "latestPublishDate": "1648835084000",
-  "created": "1412980160000",
-  "sections": [
+  name: "DMP Template from Dataverse",
+  description: "DMP Template from Dataverse",
+  errors: null,
+  latestPublishVersion: "v1",
+  latestPublishDate: "1648835084000",
+  created: "1412980160000",
+  sections: [
     {
-      "id": 67,
-      "displayOrder": 1,
-      "bestPractice": false,
-      "name": "Data description",
-      "questions": [
+      id: 67,
+      displayOrder: 1,
+      bestPractice: false,
+      name: "Data description",
+      questions: [
         {
-          "errors": null,
-          "displayOrder": 1,
-          "guidanceText": "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
-          "id": 67,
-          "questionText": "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
+          errors: null,
+          displayOrder: 1,
+          guidanceText: "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
+          id: 67,
+          questionText: "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
         }
       ]
     },
     {
-      "id": 68,
-      "displayOrder": 1,
-      "bestPractice": true,
-      "name": "Roles and Responsibilities",
-      "questions": [
+      id: 68,
+      displayOrder: 1,
+      bestPractice: true,
+      name: "Roles and Responsibilities",
+      questions: [
         {
-          "errors": null,
-          "displayOrder": 1,
-          "guidanceText": "<p>Test</p>",
-          "id": 68,
-          "questionText": "<p>Roles and Responsibilities within a data management plan covers how the responsibilities for the management of your data will be delegated and potentially transferred over the long term.</p>"
+          errors: null,
+          displayOrder: 1,
+          guidanceText: "<p>Test</p>",
+          id: 68,
+          questionText: "<p>Roles and Responsibilities within a data management plan covers how the responsibilities for the management of your data will be delegated and potentially transferred over the long term.</p>"
         }
       ]
     },
