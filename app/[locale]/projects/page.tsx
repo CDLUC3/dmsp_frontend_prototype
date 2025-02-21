@@ -166,6 +166,7 @@ const ProjectsListPage: React.FC = () => {
       }
       fetchAllProjects(data?.myProjects ? data.myProjects : []);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
@@ -194,6 +195,7 @@ const ProjectsListPage: React.FC = () => {
     } else {
       setErrors([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, projectsQueryError]);
 
   // TODO: Implement shared loading spinner

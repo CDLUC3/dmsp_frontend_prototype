@@ -26,7 +26,7 @@ export class AuthError extends Error {
     logECS(
       'error',
       statusMsg,
-      { source: source },
+      { source },
     );
   }
 }

@@ -1,14 +1,14 @@
 import React from 'react';
-import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import TemplateSelectTemplatePage from '../index';
 import {
   useAddTemplateMutation,
   useMyVersionedTemplatesQuery,
   usePublishedTemplatesQuery
 } from '@/generated/graphql';
-import {useRouter} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
 
 expect.extend(toHaveNoViolations);
@@ -295,7 +295,6 @@ describe('TemplateSelectTemplatePage', () => {
     //Search input field
     const selectButton = screen.getAllByRole('button', { name: /Select Public template 2/i });
 
-    screen.debug();
     await act(async () => {
       fireEvent.click(selectButton[0]);
     });

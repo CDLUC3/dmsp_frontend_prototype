@@ -134,7 +134,7 @@ const CreateSectionPage: React.FC = () => {
   const isFormValid = (): boolean => {
     // Initialize a flag for form validity
     let isValid = true;
-    let errors: SectionFormInterface = {
+    const errors: SectionFormInterface = {
       sectionName: '',
       sectionIntroduction: '',
       sectionRequirements: '',
@@ -269,7 +269,7 @@ const CreateSectionPage: React.FC = () => {
   useEffect(() => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
-      /*eslint-disable @typescript-eslint/no-unused-vars*/
+      /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
       const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
       setTags(cleanedData);
     }
@@ -297,6 +297,7 @@ const CreateSectionPage: React.FC = () => {
       sectionRequirements: sectionRequirementsContent,
       sectionGuidance: sectionGuidanceContent
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
 

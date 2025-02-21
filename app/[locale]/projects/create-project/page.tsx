@@ -36,13 +36,17 @@ import ErrorMessages from '@/components/ErrorMessages';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 
-export interface CreateProjectInterface {
+interface CreateProjectResponse {
+  id?: number | null;
+  errors?: ProjectErrors | null;
+}
+interface CreateProjectInterface {
   projectName: string;
   radioGroup?: string;
   checkboxGroup?: string[];
 }
 
-export interface CreateProjectErrorsInterface {
+interface CreateProjectErrorsInterface {
   projectName: string;
   radioGroup?: string;
   checkboxGroup?: string;
@@ -176,7 +180,7 @@ const ProjectsCreateProject = () => {
   };
 
   // Make GraphQL mutation request to update section
-  const createProject = async (): Promise<ProjectErrors> => {
+  const createProject = async (): Promise<CreateProjectResponse> => {
     try {
       const response = await addProjectMutation({
         variables: {
@@ -185,15 +189,14 @@ const ProjectsCreateProject = () => {
         }
       });
 
-
-      if (response.data?.addProject?.errors) {
-        return response.data.addProject.errors;
+      if (response.data?.addProject) {
+        return response.data.addProject;
       }
       setFormSubmitted(true)
     } catch (error) {
       logECS('error', 'updateSection', {
-        error: error,
-        url: { path: '/template/\[templateId\]/section/\[sectionid\]' }
+        error,
+        url: { path: '/template/[templateId]/section/[sectionid]' }
       });
       if (error instanceof ApolloError) {
         setErrors(prevErrors => [...prevErrors, error.message]);
@@ -214,18 +217,18 @@ const ProjectsCreateProject = () => {
     if (isFormValid()) {
 
       // Create new section
-      const errors = await createProject();
+      const response = await createProject();
 
       // Check if there are any errors (always exclude the GraphQL `_typename` entry)
-      if (errors && Object.values(errors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
-        setFieldErrors(prev => ({ ...prev, projectName: errors.title || '' }));
+      if (response.errors && Object.values(response.errors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
+        setFieldErrors(prev => ({ ...prev, projectName: response.errors?.title || '' }));
 
-        setErrors([errors.general || CreateProject('messages.errors.createProjectError')]);
+        setErrors([response.errors.general || CreateProject('messages.errors.createProjectError')]);
 
       } else {
         // Show success message
         showSuccessToast();
-        router.push('/projects/create-project/funding');
+        router.push(`/projects/${response.id}/project-funding`);
       }
     }
   };

@@ -1,14 +1,14 @@
 import React from "react";
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import {
   useSectionQuery,
   useTagsQuery,
   useUpdateSectionMutation
 } from '@/generated/graphql';
 
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams} from 'next/navigation';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams } from 'next/navigation';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import SectionUpdatePage from '../page';
 
 expect.extend(toHaveNoViolations);
@@ -85,61 +85,61 @@ const mockSectionsData = {
 }
 
 const mockTagsData = {
-  "tags": [
+  tags: [
     {
-      "id": 1,
-      "description": "The types of data that will be collected along with their formats and estimated volumes.",
-      "name": "Data description"
+      id: 1,
+      description: "The types of data that will be collected along with their formats and estimated volumes.",
+      name: "Data description"
     },
     {
-      "id": 2,
-      "description": "Descriptions naming conventions, metadata standards that will be used along with data dictionaries and glossaries",
-      "name": "Data organization & documentation"
+      id: 2,
+      description: "Descriptions naming conventions, metadata standards that will be used along with data dictionaries and glossaries",
+      name: "Data organization & documentation"
     },
     {
-      "id": 3,
-      "description": "Who will have access to the data and how that access will be controlled, how the data will be encrypted and relevant compliance with regulations or standards (e.g. HIPAA, GDPR)",
-      "name": "Security & privacy"
+      id: 3,
+      description: "Who will have access to the data and how that access will be controlled, how the data will be encrypted and relevant compliance with regulations or standards (e.g. HIPAA, GDPR)",
+      name: "Security & privacy"
     },
     {
-      "id": 4,
-      "description": "Ethical considerations during data collection, use or sharing and how informed consent will be obtained from participants",
-      "name": "Ethical considerations"
+      id: 4,
+      description: "Ethical considerations during data collection, use or sharing and how informed consent will be obtained from participants",
+      name: "Ethical considerations"
     },
     {
-      "id": 5,
-      "description": "Training that will be provided to team members on data management practices and support for data issues",
-      "name": "Training & support"
+      id: 5,
+      description: "Training that will be provided to team members on data management practices and support for data issues",
+      name: "Training & support"
     },
     {
-      "id": 6,
-      "description": "Policies and procedures for how the data will be shared with collaborators and/or the public, restrictions to access and the licenses and permissions used",
-      "name": "Data sharing"
+      id: 6,
+      description: "Policies and procedures for how the data will be shared with collaborators and/or the public, restrictions to access and the licenses and permissions used",
+      name: "Data sharing"
     },
     {
-      "id": 7,
-      "description": "Where the data will be stored, the backup strategy and frequency and how long it will be retained",
-      "name": "Data storage & backup"
+      id: 7,
+      description: "Where the data will be stored, the backup strategy and frequency and how long it will be retained",
+      name: "Data storage & backup"
     },
     {
-      "id": 8,
-      "description": "Methods used to ensure data quality and integrity and any procedures used for validation",
-      "name": "Data quality & integrity"
+      id: 8,
+      description: "Methods used to ensure data quality and integrity and any procedures used for validation",
+      name: "Data quality & integrity"
     },
     {
-      "id": 9,
-      "description": "Desriptions of the project team members and their roles",
-      "name": "Roles & responsibilities"
+      id: 9,
+      description: "Desriptions of the project team members and their roles",
+      name: "Roles & responsibilities"
     },
     {
-      "id": 10,
-      "description": "Description of the budget available for data collection, use and preservation including software licensing, personnel and storage costs",
-      "name": "Budget"
+      id: 10,
+      description: "Description of the budget available for data collection, use and preservation including software licensing, personnel and storage costs",
+      name: "Budget"
     },
     {
-      "id": 11,
-      "description": "How the data will be collected or generated, primary and secondary sources that will be used and any instruments that will be used",
-      "name": "Data collection"
+      id: 11,
+      description: "How the data will be collected or generated, primary and secondary sources that will be used and any instruments that will be used",
+      name: "Data collection"
     }
   ]
 };

@@ -114,6 +114,7 @@ const TemplateListPage: React.FC = () => {
         setErrors(prev => [...prev, t('somethingWentWrong')]);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryError, refetch]);
 
 
@@ -143,6 +144,7 @@ const TemplateListPage: React.FC = () => {
       }
       fetchAllTemplates(data?.myTemplates);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {

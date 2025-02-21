@@ -55,7 +55,7 @@ const TemplateHistory = () => {
 
             handleErrors();
         }
-    }, [error, refetch]); // Runs when 'error' changes
+    }, [error, refetch, router]);
 
     // Handle loading state
     if (loading) {
