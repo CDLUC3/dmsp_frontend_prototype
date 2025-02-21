@@ -51,6 +51,11 @@
     "intro": "Gerenciador ou criar projeto DMSP ou por DMP",
     "buttons": {
       "createProject": "Criar Projeto"
+    },
+    "messages": {
+      "errors": {
+        "errorRetrievingProjects": "Algo deu errado do nosso lado. Por favor, tente novamente mais tarde."
+      }
     }
   },
   "ProjectsCreateProject": {
@@ -75,6 +80,13 @@
         "title": "Título do projeto é obrigatório",
         "createProjectError": "Erro ao criar projeto"
       }
+    }
+  },
+  "ProjectsCreateProjectFunding": {
+    "title": "Vocês já têm financiamento para este projeto?",
+    "form": {
+      "radioFundingLabel": "Vocês já têm financiamento para este projeto?",
+      "radioFundingDescription": "Se sim, tentaremos pesquisar o projeto e obter informações associadas para você revisar e editar."
     }
   }
 }

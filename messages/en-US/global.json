@@ -123,6 +123,10 @@
       "question": "Question",
       "projects": "Projects"
     },
+    "form": {
+      "yesLabel": "Yes",
+      "noLabel": "No"
+    },
     "lastRevisedBy": "Last revised by",
     "lastUpdated": "Last updated",
     "buttons": {
