@@ -100,10 +100,12 @@ describe('ProjectsCreateProject', () => {
     const addProjectMutationMock = jest.fn().mockResolvedValue({
       data: {
         addProject: {
-          errors: null,
+          id: 123,
+          errors: [],
         },
       },
     });
+
     (useAddProjectMutation as jest.Mock).mockReturnValue([addProjectMutationMock]);
 
     await act(async () => {
@@ -125,7 +127,7 @@ describe('ProjectsCreateProject', () => {
         },
       });
       expect(mockToast.add).toHaveBeenCalledWith('messages.success', { type: 'success' });
-      expect(mockRouter.push).toHaveBeenCalledWith('/projects/create-project/funding');
+      expect(mockRouter.push).toHaveBeenCalledWith('/projects/123/project-funding');
     });
   });
 
@@ -147,6 +149,7 @@ describe('ProjectsCreateProject', () => {
     const addProjectMutationMock = jest.fn().mockResolvedValue({
       data: {
         addProject: {
+          id: 123,
           errors: {
             title: 'Title error',
             general: 'General error',
