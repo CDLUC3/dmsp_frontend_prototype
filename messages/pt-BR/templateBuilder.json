@@ -167,7 +167,7 @@
     "description": "À medida que você cria o seu modelo, você pode escolher diferentes tipos de perguntas para adicioná-la, dependendo do tipo de informação requerida pelo criador do plano.",
     "searchHelpText": "Pesquisar por tipo de campo ou descrição.",
     "links": {
-      "clearFilter": "clear filter"
+      "clearFilter": "limpar filtro"
     }
   },
   "TemplateCreatePage": {

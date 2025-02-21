@@ -6,7 +6,7 @@
       "navigation": "Breadcrumb navigation"
     },
     "page": {
-      "pageDescription": "Portuguse.... Overview of plan details"
+      "pageDescription": "Overview of plan details"
     },
     "funder": {
       "title": "Funder for this plan",
@@ -23,7 +23,13 @@
       "count": "{count} Outputs",
       "edit": "Adjust for this plan"
     },
+    "question": {
+      "answered": "Answered",
+      "notAnswered": "Not answered"
+    },
     "sections": {
+      "start": "Start",
+      "ariaLabel": "{action} answer for: {title}",
       "progress": "{current} of {total}",
       "questionsAnswered": "question(s) answered",
       "update": "Update",

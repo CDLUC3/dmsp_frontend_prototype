@@ -3,6 +3,7 @@
         {
             "name": "NIH-GDS: Genomic Data Sharing",
             "version": "v3.1",
+            "versionType": "DRAFT",
             "created": "1403738953000",
             "comment": "Added some additional requirements to Preservation section!",
             "versionedBy": {
@@ -18,6 +19,7 @@
         {
             "name": "NIH-GDS: Genomic Data Sharing",
             "version": "v3",
+            "versionType": "DRAFT",
             "created": "1403738953000",
             "comment": "This is the initial version of our template!",
             "versionedBy": {
@@ -33,6 +35,7 @@
         {
             "name": "NIH-GDS: Genomic Data Sharing",
             "version": "v2.2",
+            "versionType": "PUBLISHED",
             "created": "1403738953000",
             "comment": "Added some additional requirements to Preservation section!",
             "versionedBy": {
@@ -48,6 +51,7 @@
         {
             "name": "NIH-GDS: Genomic Data Sharing",
             "version": "v2.1",
+            "versionType": "DRAFT",
             "created": "1403738953000",
             "comment": "Added some additional requirements to Preservation section!",
             "versionedBy": {
@@ -63,6 +67,7 @@
         {
             "name": "NIH-GDS: Genomic Data Sharing",
             "version": "v2",
+            "versionType": "PUBLISHED",
             "created": "1403738953000",
             "comment": "This is the initial version of our template!",
             "versionedBy": {
@@ -78,6 +83,7 @@
         {
             "name": "NIH-GDS: Genomic Data Sharing",
             "version": "v1",
+            "versionType": "DRAFT",
             "created": "1403738953000",
             "comment": "This is the initial version of our template!",
             "versionedBy": {
