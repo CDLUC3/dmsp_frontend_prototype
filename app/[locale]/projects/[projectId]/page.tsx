@@ -1,15 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
   Link
 } from "react-aria-components";
 import {
-  Project,
   useProjectQuery
 } from '@/generated/graphql';
 
@@ -20,6 +19,7 @@ import {
   ContentContainer,
   LayoutContainer
 } from "@/components/Container";
+import ErrorMessages from '@/components/ErrorMessages';
 
 interface FunderInterface {
   name: string;
@@ -51,7 +51,8 @@ const ProjectOverviewPage: React.FC = () => {
   // Get projectId param
   const params = useParams();
   const { projectId } = params; // From route /projects/:projectId
-  const formatter = useFormatter();
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  const [errors, setErrors] = useState<string[]>([]);
   const [project, setProject] = useState<ProjectOverviewInterface>({
     title: '',
     startDate: null,
@@ -63,6 +64,7 @@ const ProjectOverviewPage: React.FC = () => {
 
   // Localization keys
   const ProjectOverview = useTranslations('ProjectOverview');
+  const Global = useTranslations('Global');
 
   // Get Project using projectId
   const { data, loading, error } = useProjectQuery(
@@ -72,46 +74,12 @@ const ProjectOverviewPage: React.FC = () => {
     }
   );
 
+  if (error) {
+    const errorMsg = ProjectOverview('messages.errorGettingProject');
+    setErrors(prev => [...prev, errorMsg]);
+  }
+
   const project1 = {
-    title: "Coastal Ocean Processes of North Greenland",
-    start_date: "2023-07-18",
-    end_date: "2026-06-30",
-    funders: [
-      {
-        name: "Physical Oceanography",
-        shortname: "PO",
-        id: "GR-1810",
-        grantid: "PO-GR-1810"
-      }
-    ],
-    project_members: [
-      {
-        fullname: "Frederick Ice",
-        role: "PI",
-        email: "fred.ice@example.com"
-      },
-      {
-        fullname: "Jennifer Frost",
-        role: "PI",
-        email: "jfrost@example.com"
-      },
-      {
-        fullname: "Amelia Snow",
-        role: "Other",
-        email: "asnow@example.com"
-      }
-    ],
-    research_outputs: [
-      {
-        title: "North Greenland Coastal Process Data Set 1"
-      },
-      {
-        title: "Ocean Temperature Measurements 2023-2024"
-      },
-      {
-        title: "Coastal Mapping Analysis Results"
-      }
-    ],
     plans: [
       {
         id: "plan_123",
@@ -164,30 +132,13 @@ const ProjectOverviewPage: React.FC = () => {
     ]
   };
 
-
-  const formatDate = (date: string | number) => {
-    const parsedDate = typeof date === "number"
-      ? new Date(date)
-      : new Date(date.replace(/-/g, "/")); // Replace dashes with slashes for compatibility
-
-    if (isNaN(parsedDate.getTime())) {
-      return "Invalid Date"; // Handle invalid input gracefully
-    }
-
-    return formatter.dateTime(parsedDate, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   useEffect(() => {
     // When data from backend changes, set template data in state
     if (data && data.project) {
       setProject({
         title: data.project.title ?? '',
-        startDate: project?.startDate ? formatDate(project.startDate) : '',
-        endDate: project?.endDate ? formatDate(project.endDate) : '',
+        startDate: data.project?.startDate ? data.project.startDate : '',
+        endDate: data.project?.endDate ? data.project.endDate : '',
         funders: data.project.funders
           ?.filter((funder) => funder !== null) // Filter out null
           .map((funder) => ({
@@ -212,6 +163,11 @@ const ProjectOverviewPage: React.FC = () => {
     }
   }, [data]);
 
+
+  if (loading) {
+    return <div>{Global('messaging.loading')}...</div>;
+  }
+
   return (
     <>
       <PageHeader
@@ -228,7 +184,7 @@ const ProjectOverviewPage: React.FC = () => {
         actions={null}
         className="page-project-list"
       />
-
+      <ErrorMessages errors={errors} ref={errorRef} />
       <LayoutContainer>
         <ContentContainer>
           <div className="project-overview">
@@ -242,11 +198,11 @@ const ProjectOverviewPage: React.FC = () => {
               </p>
               <p>
                 {ProjectOverview('dateRange', {
-                  startDate: (project1.start_date),
-                  endDate: (project1.end_date)
+                  startDate: (project.startDate),
+                  endDate: (project.endDate)
                 })}
               </p>
-              <Link href="/projects/proj_2425/project" aria-label={ProjectOverview('editProject')}>
+              <Link href={`/projects/${projectId}/project`} aria-label={ProjectOverview('editProject')}>
                 {ProjectOverview('edit')}
               </Link>
             </section>
@@ -263,14 +219,14 @@ const ProjectOverviewPage: React.FC = () => {
               <p>
                 {project.funders.map((funder, index) => (
                   <span key={funder.id} data-index={index}>
-                    {ProjectOverview('funderInfo', {
+                    {funder.grantId ? (ProjectOverview('funderInfo', {
                       name: funder.name,
                       id: funder.grantId
-                    })}
+                    })) : funder.name}
                   </span>
                 ))}
               </p>
-              <Link href="/projects/proj_2425/funder" aria-label={ProjectOverview('editFunders')}>
+              <Link href={`/projects/${projectId}/funder`} aria-label={ProjectOverview('editFunders')}>
                 {ProjectOverview('editFunderDetails')}
               </Link>
             </section>
@@ -280,21 +236,21 @@ const ProjectOverviewPage: React.FC = () => {
               <h2 id="members-title">{ProjectOverview('projectMembers')}</h2>
               <p className="project-overview-item-heading">
                 <strong>
-                  {ProjectOverview('memberCount', { count: project1.project_members.length })}
+                  {ProjectOverview('memberCount', { count: project.projectMembers.length })}
                 </strong>
               </p>
               <p>
-                {project1.project_members.map((member, index) => (
+                {project.projectMembers.map((member, index) => (
                   <span key={index}>
                     {ProjectOverview('memberInfo', {
                       name: member.fullname,
-                      role: member.role
+                      role: member.role.join(', ')
                     })}
-                    {index < project1.project_members.length - 1 ? '; ' : ''}
+                    {index < project.projectMembers.length - 1 ? '; ' : ''}
                   </span>
                 ))}
               </p>
-              <Link href="/projects/proj_2425/members" aria-label={ProjectOverview('editMembers')}>
+              <Link href={`/projects/${projectId}/members`} aria-label={ProjectOverview('editMembers')}>
                 {ProjectOverview('editProjectMembers')}
               </Link>
             </section>
@@ -304,10 +260,10 @@ const ProjectOverviewPage: React.FC = () => {
               <h2 id="outputs-title">{ProjectOverview('researchOutputs')}</h2>
               <p className="project-overview-item-heading">
                 <strong>
-                  {ProjectOverview('outputCount', { count: project1.research_outputs.length })}
+                  {ProjectOverview('outputCount', { count: project.researchOutputs.length })}
                 </strong>
               </p>
-              <Link href="/projects/proj_2425/research-outputs" aria-label={ProjectOverview('editOutputs')}>
+              <Link href={`/projects/${projectId}/research-outputs`} aria-label={ProjectOverview('editOutputs')}>
                 {ProjectOverview('editResearchOutputs')}
               </Link>
             </section>
@@ -322,14 +278,14 @@ const ProjectOverviewPage: React.FC = () => {
               <div className="actions" role="group"
                 aria-label={ProjectOverview('planActions')}>
                 <Link
-                  href="/en-US/projects/proj_2425/dmp/upload"
+                  href={`/projects/${projectId}/dmp/upload`}
                   className="react-aria-Button react-aria-Button--secondary"
                   aria-label={ProjectOverview('uploadPlan')}
                 >
                   {ProjectOverview('upload')}
                 </Link>
                 <Link
-                  href="/en-US/projects/proj_2425/dmp/create"
+                  href={`/projects/${projectId}/dmp/create`}
                   className="react-aria-Button react-aria-Button--primary"
                   aria-label={ProjectOverview('createNewPlan')}
                 >
@@ -387,7 +343,7 @@ const ProjectOverviewPage: React.FC = () => {
                   </div>
                   <div className="plan-action">
                     <Link
-                      href="/projects/proj_2425/dmp/xxx"
+                      href={`/projects/${projectId}/dmp/xxx`}
                       className="react-aria-Button react-aria-Button--primary"
                       aria-label={ProjectOverview('updatePlan')}
                     >

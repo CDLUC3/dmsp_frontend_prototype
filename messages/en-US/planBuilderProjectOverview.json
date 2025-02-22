@@ -45,7 +45,10 @@
     "sharePlan": "Share plan with others",
     "update": "Update plan",
     "updatePlan": "Update this plan",
-    "dateRange": "{startDate} to {endDate}"
+    "dateRange": "{startDate} to {endDate}",
+    "messages": {
+      "errorGettingProject": "Error getting project details"
+    }
   },
   "ProjectsListPage": {
     "intro": "Manager or create DMSP project or by DMP",
