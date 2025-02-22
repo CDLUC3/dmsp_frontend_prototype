@@ -119,7 +119,7 @@ const TemplateHistory = () => {
                     <Table aria-labelledby="templateHistoryHeading" className="react-aria-Table">
                         <TableHeader className="react-aria-TableHeader">
 
-                            <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnAction')}</Column>
+                            <Column isRowHeader={true} className={`react-aria-Column ${styles.firstColumn}`}>{t('tableColumnAction')}</Column>
                             <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnUser')}</Column>
                             <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnDate')}</Column>
                         </TableHeader>
@@ -133,7 +133,7 @@ const TemplateHistory = () => {
 
                                         return (
                                             <Row key={`${item?.id}-${index}`} className="react-aria-Row">
-                                                <Cell className="react-aria-Cell">
+                                                <Cell className={`react-aria-Cell ${styles.firstColumn}`}>
                                                     <div>{item?.versionType} {item?.version}</div>
                                                     <div>
                                                         <small className={styles.changeLog}>

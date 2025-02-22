@@ -8,3 +8,8 @@
     color: var(--gray-500);
     font-size: 0.75rem;
 }
+
+.firstColumn {
+    max-width: 600px;
+    word-wrap: break-word; // Ensure long content wraps within the cell
+  }

@@ -110,7 +110,7 @@ const QuestionEdit = () => {
           variables: {
             input: {
               questionId: Number(questionId),
-              questionTypeId: Number(questionTypeIdQueryParam) ?? selectedQuestion?.question?.questionTypeId,
+              questionTypeId: questionTypeIdQueryParam ? Number(questionTypeIdQueryParam) : selectedQuestion?.question?.questionTypeId,
               displayOrder: question.displayOrder,
               questionText: question.questionText,
               requirementText: question.requirementText,
