@@ -77,12 +77,36 @@ const TemplateListPage: React.FC = () => {
     setSearchTerm(value);
   }
 
-  // Filter results when a user enters a search term and clicks "Search" button
+  // Extract text content because sometimes `content` can be a JSX Element
+  const extractTextFromJSX = (element: React.ReactNode): string => {
+    if (typeof element === 'string') {
+      return element;
+    }
+    if (React.isValidElement(element)) {
+      const children = element.props.children;
+      if (Array.isArray(children)) {
+        return children.map(extractTextFromJSX).join(' ');
+      }
+      return extractTextFromJSX(children);
+    }
+    return '';
+  }
+
+  // Find title, funder, content and publishStatus fields that include search term
   const handleFiltering = (term: string) => {
     setErrors([]);
-    const filteredList = templates.filter(item =>
-      item.title.toLowerCase().includes(term.toLowerCase())
-    );
+    const lowerCaseTerm = term.toLowerCase();
+    const filteredList = templates.filter(item => {
+      const contentText = extractTextFromJSX(item.content);
+      return [item.title,
+        contentText,
+      item.funder,
+      item.publishStatus
+      ]
+        .filter(Boolean)
+        .some(field => field?.toLowerCase().includes(lowerCaseTerm));
+    });
+
     if (filteredList.length >= 1) {
       setSearchTerm(term);
       setFilteredTemplates(filteredList);
