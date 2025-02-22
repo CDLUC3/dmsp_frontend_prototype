@@ -1,9 +1,9 @@
 'use client';
 
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
-import {ApolloError} from "@apollo/client";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -24,13 +24,15 @@ import {
 import PageHeader from "@/components/PageHeader";
 import FormInput from '@/components/Form/FormInput';
 import ConfirmModal from '@/components/Modal/ConfirmModal';
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //Utils and other
 import logECS from '@/utils/clientLogger';
-import {isValidEmail} from '@/utils/validation';
-import {scrollToTop} from '@/utils/general';
-import {useToast} from '@/context/ToastContext';
+import { isValidEmail } from '@/utils/validation';
+import { scrollToTop } from '@/utils/general';
+import { useToast } from '@/context/ToastContext';
+
 import styles from './TemplateAccessPage.module.scss';
 
 const GET_COLLABORATORS = TemplateCollaboratorsDocument;
@@ -111,7 +113,7 @@ const TemplateAccessPage: React.FC = () => {
         });
       }
     }
-  }, [templateId, removeTemplateCollaboratorMutation]);
+  }, [templateId, removeTemplateCollaboratorMutation, AccessPage, addToast]);
 
 
   // Add new collaborator email
@@ -133,8 +135,8 @@ const TemplateAccessPage: React.FC = () => {
       });
 
       const emailData = response?.data?.addTemplateCollaborator;
-      if (emailData?.errors?.length) {
-        return setErrorMessages(emailData.errors);
+      if (emailData?.errors && Object.values(emailData?.errors).filter((err) => err && err !== 'TemplateCollaboratorErrors').length > 0) {
+        setErrorMessages([emailData?.errors.general || AccessPage('messages.errors.errorAddingCollaborator')]);
       }
 
       clearErrors();
@@ -155,7 +157,7 @@ const TemplateAccessPage: React.FC = () => {
         });
       }
     }
-  }, [templateId, addCollaboratorEmail, addTemplateCollaboratorlMutation]);
+  }, [templateId, addCollaboratorEmail, addTemplateCollaboratorlMutation, AccessPage, addToast]);
 
 
   // Render the organization list of admins
@@ -213,7 +215,7 @@ const TemplateAccessPage: React.FC = () => {
         ))}
       </ul>
     );
-  }, [loading, templateQueryErrors, templateCollaboratorData, handleRevokeAccess]);
+  }, [loading, templateQueryErrors, templateCollaboratorData, handleRevokeAccess, AccessPage, Global]);
 
   // If errors when submitting publish form, scroll them into view
   useEffect(() => {
@@ -225,6 +227,7 @@ const TemplateAccessPage: React.FC = () => {
   // Set organization section info
   useEffect(() => {
     if (templateCollaboratorData?.template) {
+      /* eslint-disable-next-line object-shorthand */
       const admins = templateCollaboratorData.template.admins?.map(admin => ({
         email: admin.email as string | null,
         givenName: admin.givenName ?? null,
@@ -233,7 +236,7 @@ const TemplateAccessPage: React.FC = () => {
 
       setOrganization({
         name: templateCollaboratorData.template.owner?.name ?? '',
-        admins: admins
+        admins
       });
     }
   }, [templateCollaboratorData]);
@@ -261,13 +264,7 @@ const TemplateAccessPage: React.FC = () => {
         <ContentContainer>
           <div className="template-editor-container" ref={errorRef}>
             <div className="main-content">
-              {errorMessages && errorMessages.length > 0 &&
-                <div className="error" role="alert" aria-live="assertive">
-                  {errorMessages.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
+              <ErrorMessages errors={errorMessages} ref={errorRef} />
               <p>
                 {AccessPage('intro')}
               </p>

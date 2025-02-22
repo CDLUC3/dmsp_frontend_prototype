@@ -1,8 +1,8 @@
 'use client'
 
-import React, {useEffect, useRef, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import {useTranslations} from "next-intl";
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from "next-intl";
 import {
   Button,
   Checkbox,
@@ -15,18 +15,21 @@ import {
   TextField,
 } from "react-aria-components";
 
-import {AffiliationsDocument} from '@/generated/graphql';
-import {useCsrf} from '@/context/CsrfContext';
+import { AffiliationsDocument } from '@/generated/graphql';
+import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
-import {handleErrors} from '@/utils/errorHandler';
-import {useAuthContext} from '@/context/AuthContext';
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+import { handleErrors } from '@/utils/errorHandler';
+import { useAuthContext } from '@/context/AuthContext';
 
+//Components
 import {
   ContentContainer,
   LayoutContainer,
   ToolbarContainer,
 } from '@/components/Container';
+import ErrorMessages from '@/components/ErrorMessages';
+import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+
 import styles from './signup.module.scss';
 
 
@@ -60,6 +63,7 @@ const SignUpPage: React.FC = () => {
   const t = useTranslations('SignupPage');
   const globalT = useTranslations('Global');
 
+  const errorRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
   const { csrfToken } = useCsrf();
@@ -140,7 +144,7 @@ const SignUpPage: React.FC = () => {
 
   function isValid(): boolean {
     let hasErrors = false;
-    let globalErrors = errors || [];
+    const globalErrors = errors || [];
 
     if (globalErrors.length > 0) hasErrors = true;
 
@@ -240,13 +244,7 @@ const SignUpPage: React.FC = () => {
           data-step={step}
           ref={formRef}
         >
-          {errors && errors.length > 0 &&
-            <div className={`error ${styles.error}`}>
-              {errors.map((error, index) => (
-                <p key={index}>{error}</p>
-              ))}
-            </div>
-          }
+          <ErrorMessages errors={errors} ref={errorRef} />
 
           {(step === "email") && (
             <TextField
@@ -295,6 +293,7 @@ const SignUpPage: React.FC = () => {
               <TypeAheadWithOther
                 className={styles.typeAhead}
                 label={t('institution')}
+                required={true}
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
                 resultsKey="affiliations"
@@ -302,7 +301,6 @@ const SignUpPage: React.FC = () => {
                 helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}
                 error={fieldErrors?.affiliationId}
-                required={false}
               />
               {otherField && (
                 <TextField

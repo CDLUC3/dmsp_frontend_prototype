@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -30,19 +30,20 @@ import {
 } from '@/generated/graphql';
 
 //Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {DmpIcon} from "@/components/Icons";
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import {DmpEditor} from "@/components/Editor";
+import { DmpEditor } from "@/components/Editor";
+import ErrorMessages from '@/components/ErrorMessages';
 
 import {
   SectionFormErrorsInterface,
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
-import {useSectionData} from "@/hooks/sectionData";
+import { useSectionData } from "@/hooks/sectionData";
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
@@ -185,8 +186,8 @@ const SectionUpdatePage: React.FC = () => {
       }
     } catch (error) {
       logECS('error', 'updateSection', {
-        error: error,
-        url: { path: '/template/\[templateId\]/section/\[sectionid\]' }
+        error,
+        url: { path: '/template/[templateId]/section/[sectionid]' }
       });
       if (error instanceof ApolloError) {
         setErrorMessages(prevErrors => [...prevErrors, error.message]);
@@ -246,7 +247,7 @@ const SectionUpdatePage: React.FC = () => {
   useEffect(() => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
-      /*eslint-disable @typescript-eslint/no-unused-vars*/
+      /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
       const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
       setTags(cleanedData);
     }
@@ -288,13 +289,7 @@ const SectionUpdatePage: React.FC = () => {
           <div className="template-editor-container" ref={topRef}>
             <div className="main-content">
 
-              {errorMessages && errorMessages.length > 0 &&
-                <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-                  {errorMessages.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
+              <ErrorMessages errors={errorMessages} ref={errorRef} />
 
               <Tabs>
                 <TabList aria-label="Question editing">
@@ -346,7 +341,7 @@ const SectionUpdatePage: React.FC = () => {
                     >
                       <Label>{Section('labels.bestPracticeTags')}</Label>
                       <span className="help">{Section('helpText.bestPracticeTagsDesc')}</span>
-                      <div className="checkbox-group">
+                      <div className="checkbox-group-two-column">
                         {tags && tags.map(tag => {
                           const id = (tag.id)?.toString();
                           return (

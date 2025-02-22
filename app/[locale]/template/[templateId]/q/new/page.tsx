@@ -1,32 +1,33 @@
 'use client'
 
-import {useEffect, useRef, useState} from 'react';
-import {useTranslations} from 'next-intl';
-import {useParams, useRouter, useSearchParams} from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
-  Breadcrumb,
-  Breadcrumbs,
-  Button,
-  FieldError,
-  Input,
-  Label,
-  Link,
-  SearchField,
-  Text
+    Breadcrumb,
+    Breadcrumbs,
+    Button,
+    FieldError,
+    Input,
+    Label,
+    Link,
+    SearchField,
+    Text
 } from "react-aria-components";
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import QuestionAdd from '@/components/QuestionAdd';
 import QuestionTypeCard from '@/components/QuestionTypeCard';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
-import {useQuestionTypesQuery} from '@/generated/graphql';
+import { useQuestionTypesQuery } from '@/generated/graphql';
 
 //Other
-import {useQueryStep} from '@/app/[locale]/template/[templateId]/q/new/utils';
-import {QuestionTypesInterface} from '@/app/types';
+import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
+import { QuestionTypesInterface } from '@/app/types';
 import styles from './newQuestion.module.scss';
 
 
@@ -36,6 +37,8 @@ const QuestionTypeSelectPage: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const topRef = useRef<HTMLDivElement>(null);
+    //For scrolling to error in page
+    const errorRef = useRef<HTMLDivElement | null>(null);
     const { templateId } = params; // From route /template/:templateId
     const sectionId = searchParams.get('section_id');
     const questionId = searchParams.get('questionId');// if user is switching their question type while editing an existing question
@@ -65,25 +68,27 @@ const QuestionTypeSelectPage: React.FC = () => {
         } else {
             // redirect to the Question Edit page if a user is adding a new question
             if (questionTypeId) {
-                setSelectedQuestionType({ questionTypeId: questionTypeId, questionTypeName: questionTypeName })
+                setSelectedQuestionType({ questionTypeId, questionTypeName })
                 setStep(2);
                 router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=2`)
             }
         }
     }
 
-    const resetSearch = () => {
-        setSearchTerm('');
-        setFilteredQuestionTypes(null);
-        scrollToTop();
-    }
-
-    const scrollToTop = () => {
+    const scrollToTop = useCallback(() => {
         if (topRef.current) {
             topRef.current.scrollIntoView({ behavior: 'smooth' });
             topRef.current.focus();
         }
-    }
+    }, []);
+
+
+    const resetSearch = useCallback(() => {
+        setSearchTerm('');
+        setFilteredQuestionTypes(null);
+        scrollToTop();
+    }, [scrollToTop]);
+
 
     const filterQuestionTypes = (
         questionTypes: QuestionTypesInterface[],
@@ -131,13 +136,14 @@ const QuestionTypeSelectPage: React.FC = () => {
             resetSearch();
             setSearchButtonClicked(false);
         }
-    }, [searchTerm])
+    }, [searchTerm, resetSearch])
 
     useEffect(() => {
         // If a step was specified in a query param, then set that step
         if (step !== stepQueryValue) {
             setStep(stepQueryValue);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stepQueryValue])
 
     // TODO: Implement shared loading
@@ -166,13 +172,7 @@ const QuestionTypeSelectPage: React.FC = () => {
 
                     <LayoutContainer>
                         <ContentContainer>
-                            {errors && errors.length > 0 &&
-                                <div className="error">
-                                    {errors.map((error, index) => (
-                                        <p key={index}>{error}</p>
-                                    ))}
-                                </div>
-                            }
+                            <ErrorMessages errors={errors} ref={errorRef} />
                             <div className="Filters" ref={topRef}>
                                 <SearchField>
                                     <Label>{Global('labels.searchByKeyword')}</Label>

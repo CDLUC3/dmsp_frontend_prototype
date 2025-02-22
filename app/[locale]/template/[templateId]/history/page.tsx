@@ -1,39 +1,44 @@
 'use client'
 
-import React, {useEffect, useState} from "react";
-import {useParams, useRouter} from "next/navigation";
-import {useTranslations} from 'next-intl';
-import {useTemplateVersionsQuery} from '@/generated/graphql';
+import React, { useEffect, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from 'next-intl';
+import { useTemplateVersionsQuery } from '@/generated/graphql';
 import {
-  Cell,
-  Column,
-  Row,
-  Table,
-  TableBody,
-  TableHeader,
+    Cell,
+    Column,
+    Row,
+    Table,
+    TableBody,
+    TableHeader,
 } from "react-aria-components";
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import ErrorMessages from "@/components/ErrorMessages";
 
 
-import {handleApolloErrors} from "@/utils/gqlErrorHandler";
-import {formatShortMonthDayYear, formatWithTimeAndDate} from "@/utils/dateUtils"
+import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import { formatShortMonthDayYear, formatWithTimeAndDate } from "@/utils/dateUtils"
 
 import styles from './history.module.scss';
 
 const TemplateHistory = () => {
-    const [errors, setErrors] = useState<string[]>([]);
+    //For scrolling to error in page
+    const errorRef = useRef<HTMLDivElement | null>(null);
     const params = useParams();
     const templateId = Number(params.templateId);
     const router = useRouter();
+    const [errors, setErrors] = useState<string[]>([]);
 
+    // Localization keys
+    const t = useTranslations('TemplateHistory');
+
+    // Query for Template versions
     const { data = {}, loading, error, refetch } = useTemplateVersionsQuery(
         { variables: { templateId } }
     );
-
-    const t = useTranslations('TemplateHistory');
 
     // UseEffect to handle async error handling
     useEffect(() => {
@@ -50,7 +55,7 @@ const TemplateHistory = () => {
 
             handleErrors();
         }
-    }, [error, refetch]); // Runs when 'error' changes
+    }, [error, refetch, router]);
 
     // Handle loading state
     if (loading) {
@@ -74,15 +79,7 @@ const TemplateHistory = () => {
     return (
         <>
             <PageHeader title={t('title')} />
-            {
-                errors && (
-                    <div>
-                        {errors && errors.map((err, index) => (
-                            <p key={index}>{err}</p>
-                        ))}
-                    </div>
-                )
-            }
+            <ErrorMessages errors={errors} ref={errorRef} />
 
             {loading && <p>{t('loading')}</p>}
             <LayoutContainer>

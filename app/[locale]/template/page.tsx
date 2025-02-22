@@ -1,7 +1,7 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from "@apollo/client";
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -13,17 +13,18 @@ import {
   SearchField,
   Text
 } from 'react-aria-components';
-import {useFormatter, useTranslations} from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 
 //GraphQL
-import {useTemplatesQuery,} from '@/generated/graphql';
+import { useTemplatesQuery, } from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
 import TemplateListItem from '@/components/TemplateListItem';
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import ErrorMessages from '@/components/ErrorMessages';
 
-import {TemplateInterface, TemplateItemProps,} from '@/app/types';
+import { TemplateInterface, TemplateItemProps, } from '@/app/types';
 
 const TemplateListPage: React.FC = () => {
   const formatter = useFormatter();
@@ -85,6 +86,7 @@ const TemplateListPage: React.FC = () => {
         setErrors(prev => [...prev, t('somethingWentWrong')]);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryError, refetch]);
 
 
@@ -114,6 +116,7 @@ const TemplateListPage: React.FC = () => {
       }
       fetchAllTemplates(data?.myTemplates);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
@@ -122,16 +125,6 @@ const TemplateListPage: React.FC = () => {
       setFilteredTemplates(null);
     }
   }, [searchTerm])
-
-  // If page-level errors, scroll them into view
-  useEffect(() => {
-    if (errors.length > 0 && errorRef.current) {
-      errorRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, [errors]);
 
   return (
     <>
@@ -153,13 +146,7 @@ const TemplateListPage: React.FC = () => {
         }
         className="page-template-list"
       />
-      {errors && errors.length > 0 &&
-        <div className="error" ref={errorRef}>
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      }
+      <ErrorMessages errors={errors} ref={errorRef} />
 
       {loading && <p>{t('loading')}</p>}
       <LayoutContainer>

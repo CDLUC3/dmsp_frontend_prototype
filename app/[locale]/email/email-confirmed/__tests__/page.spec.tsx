@@ -1,6 +1,6 @@
-import {fireEvent, render, screen} from '@testing-library/react';
-import {useRouter} from 'next/navigation';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { useRouter } from 'next/navigation';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import EmailConfirmed from '../page';
 
 expect.extend(toHaveNoViolations);
@@ -14,6 +14,7 @@ describe('EmailConfirmed', () => {
   let mockRouter;
 
   beforeEach(() => {
+    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
   });
@@ -50,10 +51,8 @@ describe('EmailConfirmed', () => {
   });
 
   it('should pass axe accessibility test', async () => {
-    let container: HTMLElement;
-
     const renderResult = render(<EmailConfirmed />);
-    container = renderResult.container;
+    const container = renderResult.container;
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();

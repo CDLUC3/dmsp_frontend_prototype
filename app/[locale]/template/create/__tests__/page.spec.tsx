@@ -1,10 +1,10 @@
 import React from 'react';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
-import {fireEvent, render, screen, waitFor} from '@/utils/test-utils';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import { fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import '@testing-library/jest-dom';
-import {useRouter} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import TemplateCreatePage from '../page';
-import {useQueryStep} from '../useQueryStep';
+import { useQueryStep } from '../useQueryStep';
 
 
 // Mock the useQueryStep hook
@@ -13,9 +13,11 @@ jest.mock('@/app/[locale]/template/create/useQueryStep', () => ({
 }));
 
 // Mock the debounce function
+/* eslint-disable no-unused-vars */
 jest.mock('@/hooks/debounce', () => ({
   debounce: (fn: (..._args: unknown[]) => unknown) => fn,
 }));
+/* eslint-enable no-unused-vars */
 
 // Mock the Next.js router
 jest.mock('next/navigation', () => ({

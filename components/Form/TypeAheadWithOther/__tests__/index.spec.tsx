@@ -1,17 +1,17 @@
 import React from 'react';
 import "@testing-library/jest-dom";
-import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
-import {GET_AFFILIATIONS} from '@/lib/graphql/queries/affiliations';
+import { GET_AFFILIATIONS } from '@/lib/graphql/queries/affiliations';
 import logECS from '@/utils/clientLogger';
 
 jest.mock('@/lib/graphql/client/apollo-client');
 jest.mock('@/utils/clientLogger', () => ({
-    __esModule: true,
-    default: jest.fn(),
+  __esModule: true,
+  default: jest.fn(),
 }));
 
 expect.extend(toHaveNoViolations);
@@ -128,16 +128,16 @@ describe('TypeAheadWithOther', () => {
 
     render(
       <TypeAheadWithOther
-          graphqlQuery={GET_AFFILIATIONS}
-          resultsKey="affiliations"
-          label="Institution"
-          helpText="Search for an institution"
-          setOtherField={mockSetOtherField}
-          fieldName="test"
-          required={false}
-          error=""
-          updateFormData={() => true}
-          value="input value"
+        graphqlQuery={GET_AFFILIATIONS}
+        resultsKey="affiliations"
+        label="Institution"
+        helpText="Search for an institution"
+        setOtherField={mockSetOtherField}
+        fieldName="test"
+        required={false}
+        error=""
+        updateFormData={() => true}
+        value="input value"
       />
     );
 
@@ -210,24 +210,27 @@ describe('TypeAheadWithOther', () => {
       }
     });
 
-    render(
-      <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
-        label="Institution"
-        helpText="Search for an institution"
-        setOtherField={mockSetOtherField}
-        fieldName="test"
-        required={false}
-        error=""
-        updateFormData={() => true}
-        value="input value"
-      />
-    );
+    await act(async () => {
+      render(
+        <TypeAheadWithOther
+          graphqlQuery={GET_AFFILIATIONS}
+          resultsKey="affiliations"
+          label="Institution"
+          helpText="Search for an institution"
+          setOtherField={mockSetOtherField}
+          fieldName="test"
+          required={false}
+          error=""
+          updateFormData={() => true}
+          value="input value"
+        />
+      );
+    });
+
 
     const input = screen.getByLabelText('Institution');
 
-    act(() => {
+    await act(async () => {
       fireEvent.change(input, { target: { value: 'Test University' } });
       jest.advanceTimersByTime(1000);
     });
@@ -236,16 +239,19 @@ describe('TypeAheadWithOther', () => {
       expect(screen.getByText('Test University')).toBeInTheDocument();
     });
 
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    await act(async () => {
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+    });
 
     const listItem = await screen.findByText('Test University'); // Use findBy* to handle async rendering
+    listItem.focus();
 
     expect(listItem).toHaveFocus();
     Object.defineProperty(listItem, 'innerText', { value: 'Test University' });
 
-    listItem.focus();
-    fireEvent.keyDown(listItem, { key: 'Enter', code: 'Enter' });
+    await act(async () => {
+      fireEvent.keyDown(listItem, { key: 'Enter', code: 'Enter' });
+    });
 
     expect(input).toHaveValue('Test University');
   });
