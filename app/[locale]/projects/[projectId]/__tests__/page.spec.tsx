@@ -1,6 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { useParams } from 'next/navigation';
 import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import { axe, toHaveNoViolations } from 'jest-axe';
