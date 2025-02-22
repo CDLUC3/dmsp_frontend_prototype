@@ -1,10 +1,10 @@
 // template/[templateId]/section/page.tsx
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {useTranslations} from 'next-intl';
-import {useParams} from 'next/navigation';
-import {ApolloError} from "@apollo/client";
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
+import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -40,9 +40,9 @@ import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 
-import {useFormatDate} from '@/hooks/useFormatDate';
+import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 import styles from './templateEditPage.module.scss';
 
 interface QuestionsInterface {
