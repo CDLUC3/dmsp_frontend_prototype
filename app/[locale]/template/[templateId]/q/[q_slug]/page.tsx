@@ -110,7 +110,7 @@ const QuestionEdit = () => {
           variables: {
             input: {
               questionId: Number(questionId),
-              questionTypeId: Number(questionTypeIdQueryParam) ?? selectedQuestion?.question?.questionTypeId,
+              questionTypeId: questionTypeIdQueryParam ? Number(questionTypeIdQueryParam) : selectedQuestion?.question?.questionTypeId,
               displayOrder: question.displayOrder,
               questionText: question.questionText,
               requirementText: question.requirementText,
@@ -201,10 +201,11 @@ const QuestionEdit = () => {
       <PageHeader
         title={QuestionEdit('title', { title: selectedQuestion?.question?.questionText })}
         description=""
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
             <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
           </Breadcrumbs>

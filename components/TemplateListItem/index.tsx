@@ -1,8 +1,8 @@
-import {useState} from 'react';
-import {useTranslations} from 'next-intl';
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import {Button} from 'react-aria-components';
-import {TemplateItemProps} from '@/app/types';
+import { Button } from 'react-aria-components';
+import { TemplateItemProps } from '@/app/types';
 import styles from './TemplateListItem.module.scss';
 
 
@@ -102,7 +102,6 @@ function TemplateListItem({ item }: { item: TemplateItemProps }) {
           role="region"
           aria-labelledby={headingId}
         >
-          <p>{t('additionalInfo')}</p>
           <div>
             {item.content}
           </div>

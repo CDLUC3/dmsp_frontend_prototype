@@ -18,6 +18,7 @@
 - Plan Question and boilerplate tests [#178]
 
 ### Updated
+- Made updates throughout the Template Builder flow to make the experience more consistent across pages, and fixed some bugs [#347]
 - Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
 - Made updates to get Dockerfile.prod to work. 
   - Updated Dockerfile.prod

@@ -153,12 +153,13 @@ const SectionTypeSelectPage: React.FC = () => {
       <PageHeader
         title={AddNewSection('headings.addNewSection')}
         description={AddNewSection('intro')}
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.section')}</Breadcrumb>
+            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.addNewSection')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
@@ -305,7 +306,7 @@ const SectionTypeSelectPage: React.FC = () => {
             <p>
               {AddNewSection('newSectionDescription')}
             </p>
-            <Link href={`/template/${templateId}/section/new`}
+            <Link href={`/template/${templateId}/section/create`}
               className="button-link secondary">{AddNewSection('buttons.createNew')}</Link>
           </div>
         </ContentContainer>

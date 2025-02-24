@@ -63,8 +63,8 @@
     "headingUpdateProfile": "Atualizar Perfil",
     "yourProfile": "Seu Perfil",
     "emailAndAuth": "E-mail e autenticação",
-    "givenName": "First name",
-    "surName": "Last name",
+    "givenName": "Primeiro nome",
+    "surName": "Sobrenome",
     "institution": "Instituição",
     "language": "Idioma",
     "headingPrimaryEmail": "Endereço de e-mail principal",
@@ -117,15 +117,20 @@
       "template": "Modelo",
       "createTemplate": "Criar um modelo",
       "selectExistingTemplate": "Selecionar um modelo existente",
+      "templateHistory": "Histórico do modelo",
       "section": "Seção",
+      "addNewSection": "Adicionar nova sessão",
+      "updateSection": "Seção de atualização",
       "editSection": "Editar seção",
+      "createSection": "Criar seção",
       "editTemplate": "Editar Modelo",
       "question": "Pergunta",
+      "selectQuestionType": "Selecionar o tipo de questão",
       "projects": "Projetos"
     },
     "form": {
-      "yesLabel": "Yes",
-      "noLabel": "No"
+      "yesLabel": "Sim",
+      "noLabel": "Não"
     },
     "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
@@ -133,14 +138,14 @@
       "search": "Buscar",
       "select": "Select",
       "next": "Seguinte",
-      "save": "Save",
-      "remove": "Remove",
-      "confirm": "Confirm",
-      "cancel": "Cancel",
-      "linkUpdate": "Update",
-      "linkExpand": "Expand",
-      "linkCollapse": "Collapse",
-      "continue": "Continue"
+      "save": "Salvar",
+      "remove": "Remover",
+      "confirm": "Confirmação",
+      "cancel": "Cancelar",
+      "linkUpdate": "Atualização",
+      "linkExpand": "Expandir",
+      "linkCollapse": "Retrair",
+      "continue": "Avançar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave"
@@ -159,12 +164,12 @@
       "fixBelow": "Por favor, corrija os erros abaixo"
     },
     "tabs": {
-      "editQuestion": "Edit Question",
-      "options": "Options",
-      "logic": "Logic"
+      "editQuestion": "Editar Pergunta",
+      "options": "Opções",
+      "logic": "Lógica"
     },
     "headings": {
-      "preview": "Preview"
+      "preview": "Pré-visualizar"
     }
   }
 }

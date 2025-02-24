@@ -70,7 +70,7 @@
       "radioNewHelpText": "Digite todos os detalhes do projeto você mesmo.",
       "checkboxGroupLabel": "Este projeto é uma simulação (mock, em inglês) para fins de teste, prática ou educacional",
       "checkboxGroupHelpText": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",
-      "checkboxLabel": "Yes, set this project to a mock or a test project.",
+      "checkboxLabel": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste.",
       "checkboxHelpText": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste."
     },
     "messages": {
