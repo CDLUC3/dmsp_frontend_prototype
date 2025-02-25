@@ -63,8 +63,8 @@
     "headingUpdateProfile": "Atualizar Perfil",
     "yourProfile": "Seu Perfil",
     "emailAndAuth": "E-mail e autenticação",
-    "givenName": "First name",
-    "surName": "Last name",
+    "givenName": "Primeiro nome",
+    "surName": "Sobrenome",
     "institution": "Instituição",
     "language": "Idioma",
     "headingPrimaryEmail": "Endereço de e-mail principal",
@@ -121,11 +121,12 @@
       "editSection": "Editar seção",
       "editTemplate": "Editar Modelo",
       "question": "Pergunta",
-      "projects": "Projetos"
+      "projects": "Projetos",
+      "projectOverview": "Project Overview"
     },
     "form": {
-      "yesLabel": "Yes",
-      "noLabel": "No"
+      "yesLabel": "Sim",
+      "noLabel": "Não"
     },
     "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
@@ -133,17 +134,19 @@
       "search": "Buscar",
       "select": "Select",
       "next": "Seguinte",
-      "save": "Save",
-      "remove": "Remove",
-      "confirm": "Confirm",
-      "cancel": "Cancel",
-      "linkUpdate": "Update",
-      "linkExpand": "Expand",
-      "linkCollapse": "Collapse",
-      "continue": "Continue"
+      "save": "Salvar",
+      "remove": "Remover",
+      "confirm": "Confirmação",
+      "cancel": "Cancelar",
+      "linkUpdate": "Atualização",
+      "linkExpand": "Expandir",
+      "linkCollapse": "Retrair",
+      "continue": "Avançar"
     },
     "labels": {
-      "searchByKeyword": "Pesquisar por palavra-chave"
+      "searchByKeyword": "Pesquisar por palavra-chave",
+      "startDate": "Start date",
+      "endDate": "End date"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
@@ -159,12 +162,12 @@
       "fixBelow": "Por favor, corrija os erros abaixo"
     },
     "tabs": {
-      "editQuestion": "Edit Question",
-      "options": "Options",
-      "logic": "Logic"
+      "editQuestion": "Editar Pergunta",
+      "options": "Opções",
+      "logic": "Lógica"
     },
     "headings": {
-      "preview": "Preview"
+      "preview": "Pré-visualizar"
     }
   }
 }

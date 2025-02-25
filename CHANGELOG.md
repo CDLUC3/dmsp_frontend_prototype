@@ -18,6 +18,7 @@
 - Plan Question and boilerplate tests [#178]
 
 ### Updated
+- Updated `/projects/[projectId]/project` page to hook it up to data [#351]
 - Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
 - Made updates to get Dockerfile.prod to work. 
   - Updated Dockerfile.prod

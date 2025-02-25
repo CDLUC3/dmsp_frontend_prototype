@@ -99,6 +99,7 @@
     "realProject": "Real project",
     "labels": {
       "projectName": "Project name",
+      "projectType": "Project type",
       "projectAbstract": "Project bastract",
       "researchDomain": "Research domain",
       "mockProject": "Mock project",
@@ -114,7 +115,17 @@
       "searchProjects": "Search projects"
     },
     "headings": {
-      "h4MockProject": "This project is mock project for testing, practice, or educational purposes"
+      "h2MockProject": "This project is mock project for testing, practice, or educational purposes"
+    },
+    "messages": {
+      "errors": {
+        "projectName": "Invalid project name value",
+        "projectAbstract": "Project abstract value is invalid",
+        "projectUpdateFailed": "Error updating project details"
+      },
+      "success": {
+        "projectUpdated": "Successfully updated project details"
+      }
     }
   }
 }

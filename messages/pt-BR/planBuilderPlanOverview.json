@@ -2,52 +2,58 @@
   "PlanOverview": {
     "navigation": {
       "home": "Home",
-      "projects": "Projects",
-      "navigation": "Breadcrumb navigation"
+      "projects": "Projetos",
+      "navigation": "Navegação de Breadcrumb"
     },
     "page": {
-      "pageDescription": "Portuguse.... Overview of plan details"
+      "pageDescription": "Visão geral dos detalhes do plano"
     },
     "funder": {
-      "title": "Funder for this plan",
-      "edit": "Adjust for this plan"
+      "title": "Gordo para este plano",
+      "edit": "Ajustar para este plano"
     },
     "members": {
-      "title": "Plan Members for this plan",
-      "count": "{count} team members",
+      "title": "Planejar membros para este plano",
+      "count": "Membros da equipe {count}",
       "info": "{name} ({role})",
-      "edit": "Adjust for this plan"
+      "edit": "Ajustar para este plano"
     },
     "outputs": {
-      "title": "Research Outputs for this plan",
+      "title": "Saídas de Pesquisa para este plano",
       "count": "{count} Outputs",
-      "edit": "Adjust for this plan"
+      "edit": "Ajustar para este plano"
+    },
+    "question": {
+      "answered": "Respondido",
+      "notAnswered": "Não atendida"
     },
     "sections": {
-      "progress": "{current} of {total}",
-      "questionsAnswered": "question(s) answered",
-      "update": "Update",
-      "updateSection": "Update {title}"
+      "start": "Iniciar",
+      "ariaLabel": "Resposta {action} para: {title}",
+      "progress": "{current} de {total}",
+      "questionsAnswered": "questões respondidas",
+      "update": "Atualização",
+      "updateSection": "Editar: {title}"
     },
     "status": {
       "title": "Status",
-      "lastUpdated": "Last Updated",
-      "publishedStatus": "Published Status",
+      "lastUpdated": "Atualizado pela última vez",
+      "publishedStatus": "Status da publicação",
       "doi": "DOI",
-      "notPublished": "Not Published",
-      "visibilitySettings": "Visibility Settings",
+      "notPublished": "Não publicado (Automatic Translation)",
+      "visibilitySettings": "Configurações de visibilidade",
       "download": {
-        "title": "Download",
-        "downloadPDF": "Download this plan",
-        "draftInfo": "When you save as draft, only you and people with shared access will be able to see this plan.",
-        "learnMore": "Learn more",
-        "markComplete": "Mark as complete"
+        "title": "Baixar",
+        "downloadPDF": "Baixar plano",
+        "draftInfo": "Quando você salvar como rascunho, somente você e pessoas com acesso compartilhado poderão ver este plano.",
+        "learnMore": "Saiba mais",
+        "markComplete": "Marcar como concluído"
       },
       "feedback": {
-        "title": "Feedback & Collaboration",
-        "description": "Allow people to access, edit or comment on this plan",
-        "manageAccess": "Manage Access",
-        "requestFeedback": "Request feedback"
+        "title": "Feedback e colaboração",
+        "description": "Permitir que as pessoas acessem, editem ou comentem este plano",
+        "manageAccess": "Gerenciar Acesso",
+        "requestFeedback": "Solicitar feedback"
       }
     }
   }

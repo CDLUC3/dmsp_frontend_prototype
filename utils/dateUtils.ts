@@ -1,3 +1,8 @@
+import {
+    parseDate,
+    DateValue
+} from "@internationalized/date";
+
 export const formatWithTimeAndDate = (timestamp: string): string => {
     if (timestamp) {
         // Parse the ISO date string into a Date object
@@ -30,3 +35,9 @@ export const formatShortMonthDayYear = (timestamp: string): string => {
     }
 
 }
+
+// Helper function to safely get a CalendarDate value
+export const getCalendarDateValue = (dateValue: DateValue | string | null) => {
+    if (!dateValue) return null;
+    return typeof dateValue === 'string' ? parseDate(dateValue) : dateValue;
+};

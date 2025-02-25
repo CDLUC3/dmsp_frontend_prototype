@@ -1,9 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import { CalendarDate, parseDate, DateValue } from "@internationalized/date";
+import {
+  CalendarDate,
+  parseDate,
+  DateValue
+} from "@internationalized/date";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -27,10 +32,12 @@ import {
 //GraphQL
 import {
   useTopLevelResearchDomainsQuery,
-  useProjectQuery
+  useProjectQuery,
+  useUpdateProjectMutation,
+  ProjectErrors,
 } from '@/generated/graphql';
 
-//Container
+//Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
@@ -41,13 +48,24 @@ import {
   FormSelect,
   RadioGroupComponent
 } from "@/components/Form";
+import ErrorMessages from '@/components/ErrorMessages';
 
+import { getCalendarDateValue } from "@/utils/dateUtils";
+import { scrollToTop } from '@/utils/general';
+import logECS from '@/utils/clientLogger';
+import { useToast } from '@/context/ToastContext';
 import styles from './project.module.scss';
 
 interface ResearchDomainInterface {
   id: string;
   name: string;
 }
+
+export interface ProjectFormErrorsInterface {
+  projectName: string;
+  projectAbstract: string;
+}
+
 
 interface ProjectDetailsFormInterface {
   projectName: string;
@@ -58,16 +76,18 @@ interface ProjectDetailsFormInterface {
   isTestProject: string | boolean;
 }
 
-// Helper function to safely get a CalendarDate value
-const getCalendarDateValue = (dateValue: DateValue | string | null) => {
-  if (!dateValue) return null;
-  return typeof dateValue === 'string' ? parseDate(dateValue) : dateValue;
-};
-
 const ProjectsProjectDetail = () => {
+  const toastState = useToast(); // Access the toast state from context
+
   // Get projectId param
   const params = useParams();
   const { projectId } = params; // From route /projects/:projectId
+
+  //For scrolling to top of page
+  const topRef = useRef<HTMLDivElement | null>(null);
+
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
 
   const [projectData, setProjectData] = useState<ProjectDetailsFormInterface>({
     projectName: '',
@@ -77,6 +97,11 @@ const ProjectsProjectDetail = () => {
     researchDomainId: '',
     isTestProject: 'true'
   });
+  const [fieldErrors, setFieldErrors] = useState<ProjectFormErrorsInterface>({
+    projectName: '',
+    projectAbstract: '',
+  });
+  const [errors, setErrors] = useState<string[]>([]);
   const [rDomains, setRDomains] = useState<ResearchDomainInterface[]>([]);
 
   // Localization keys
@@ -85,7 +110,7 @@ const ProjectsProjectDetail = () => {
   const Global = useTranslations('Global');
 
   const radioData = {
-    radioGroupLabel: "Project Type",
+    radioGroupLabel: ProjectDetail('labels.projectType'),
     radioButtonData: [
       {
         value: 'true',
@@ -98,6 +123,9 @@ const ProjectsProjectDetail = () => {
     ]
   }
 
+  // Initialize useUpdateProjectMutation
+  const [updateProjectMutation] = useUpdateProjectMutation();
+
   // Get Project using projectId
   const { data, loading } = useProjectQuery(
     {
@@ -108,6 +136,58 @@ const ProjectsProjectDetail = () => {
 
   // Get all Research Domains
   const { data: myResearchDomains } = useTopLevelResearchDomainsQuery();
+
+  const clearAllFieldErrors = () => {
+    //Remove all field errors
+    setFieldErrors({
+      projectName: '',
+      projectAbstract: ''
+    });
+  }
+
+
+  // Client-side validation of fields
+  /*eslint-disable @typescript-eslint/no-explicit-any */
+  const validateField = (name: string, value: any): string => {
+    switch (name) {
+      case 'projectName':
+        if (!value || value.length <= 2) {
+          return ProjectDetail('messages.errors.projectName');
+        }
+        break;
+    }
+    return '';
+  };
+
+  // Check whether form is valid before submitting
+  const isFormValid = (): boolean => {
+    const errors: ProjectFormErrorsInterface = {
+      projectName: '',
+      projectAbstract: ''
+    };
+
+    let hasError = false;
+
+    // Validate all fields and collect errors
+    Object.keys(projectData).forEach((key) => {
+      const name = key as keyof ProjectFormErrorsInterface;
+      const value = projectData[name];
+      const error = validateField(name, value);
+
+      if (error) {
+        hasError = true;
+        errors[name] = error;
+      }
+    });
+
+    // Update state with all errors
+    setFieldErrors(errors);
+    if (errors) {
+      setErrors(Object.values(errors).filter((e) => e)); // Store only non-empty error messages
+    }
+
+    return !hasError;
+  };
 
   const updateProjectContent = (
     key: string,
@@ -124,25 +204,82 @@ const ProjectsProjectDetail = () => {
     updateProjectContent('isTestProject', value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  // Make GraphQL mutation request to update section
+  const updateProject = async (): Promise<ProjectErrors> => {
     // Convert any CalendarDate objects to strings before submission
     const submissionData = {
-      ...projectData,
       startDate: projectData.startDate instanceof CalendarDate ?
         projectData.startDate.toString() : projectData.startDate,
       endDate: projectData.endDate instanceof CalendarDate ?
-        projectData.endDate.toString() : projectData.endDate
+        projectData.endDate.toString() : projectData.endDate,
+      isTestProject: projectData.isTestProject === 'true'
     };
 
-    // Convert isTestProject back to boolean
-    submissionData.isTestProject = submissionData.isTestProject === 'true';
+    try {
+      const response = await updateProjectMutation({
+        variables: {
+          input: {
+            id: Number(projectId),
+            title: projectData.projectName,
+            abstractText: projectData.projectAbstract,
+            researchDomainId: projectData.researchDomainId ? Number(projectData.researchDomainId) : null,
+            ...submissionData
+          }
+        }
 
-    console.log('Form submitted', submissionData);
-    // Submit the data...
+      });
 
-    window.location.href = '/projects/create-project/funding';
+      if (response.data?.updateProject?.errors) {
+        return response.data.updateProject.errors;
+      }
+    } catch (error) {
+      logECS('error', 'updateProjectMutation', {
+        error,
+        url: { path: '/projects/[projectId]/project' }
+      });
+      if (error instanceof ApolloError) {
+        setErrors(prevErrors => [...prevErrors, error.message]);
+      } else {
+        setErrors(prevErrors => [...prevErrors, "Error updating project"]);
+      }
+    }
+    return {};
+  };
+
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = ProjectDetail('messages.success.projectUpdated');
+    toastState.add(successMessage, { type: 'success' });
+    // Scroll to top of page
+    scrollToTop(topRef);
+  }
+
+
+  // Handle form submit
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    // Clear previous error messages
+    clearAllFieldErrors();
+    setErrors([]);
+
+    if (isFormValid()) {
+      // Create new section
+      const errors = await updateProject();
+
+      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
+      if (errors && Object.values(errors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
+        setFieldErrors({
+          projectName: errors.title || '',
+          projectAbstract: errors.abstractText || '',
+        });
+
+        setErrors([errors.general || ProjectDetail('messages.errors.projectUpdateFailed')]);
+      } else {
+        // Show success message
+        showSuccessToast();
+      }
+    }
   };
 
   useEffect(() => {
@@ -158,7 +295,6 @@ const ProjectsProjectDetail = () => {
         (typeof project.endDate === 'string' ? parseDate(project.endDate) : project.endDate) :
         null;
 
-      console.log(project.isTestProject)
       setProjectData({
         projectName: project.title,
         projectAbstract: project?.abstractText ? project.abstractText : '',
@@ -192,6 +328,7 @@ const ProjectsProjectDetail = () => {
 
   return (
     <>
+      <div ref={topRef} />
       <PageHeader
         title={ProjectDetail('title')}
         description={ProjectDetail('description')}
@@ -211,7 +348,8 @@ const ProjectsProjectDetail = () => {
       />
       <LayoutContainer>
         <ContentContainer>
-          <Form onSubmit={handleSubmit}>
+          <ErrorMessages errors={errors} ref={errorRef} />
+          <Form onSubmit={handleFormSubmit} className="project-detail-form">
             <FormInput
               name="projectName"
               type="text"
@@ -219,8 +357,8 @@ const ProjectsProjectDetail = () => {
               label={ProjectDetail('labels.projectName')}
               value={projectData.projectName}
               onChange={(e) => updateProjectContent('projectName', e.target.value)}
-              isInvalid={!projectData?.projectName}
-              errorMessage="Project name is required"
+              isInvalid={(!projectData.projectName || !!fieldErrors.projectName)}
+              errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : ProjectDetail('messages.errors.projectName')}
             />
 
             <FormInput
@@ -230,6 +368,8 @@ const ProjectsProjectDetail = () => {
               label={ProjectDetail('labels.projectAbstract')}
               value={projectData.projectAbstract}
               onChange={(e) => updateProjectContent('projectAbstract', e.target.value)}
+              isInvalid={!!fieldErrors.projectAbstract}
+              errorMessage={fieldErrors.projectAbstract.length > 0 ? fieldErrors.projectAbstract : ProjectDetail('messages.errors.projectAbstract')}
             />
 
             <div className="date-range-group">
@@ -269,7 +409,7 @@ const ProjectsProjectDetail = () => {
                 value={getCalendarDateValue(projectData.endDate)}
                 onChange={(newDate) => {
                   // Store the CalendarDate object directly
-                  updateProjectContent('startDate', newDate);
+                  updateProjectContent('endDate', newDate);
                 }}
               >
                 <Label>{Global('labels.endDate')}</Label>
@@ -303,7 +443,7 @@ const ProjectsProjectDetail = () => {
               items={rDomains}
               selectClasses={styles.researchDomainSelect}
               onSelectionChange={selected => setProjectData({ ...projectData, researchDomainId: selected as string })}
-              selectedKey={projectData.researchDomainId}
+              selectedKey={projectData.researchDomainId.toString()}
             >
               {rDomains && rDomains.map((domain) => {
                 return (
@@ -317,9 +457,7 @@ const ProjectsProjectDetail = () => {
               <div className="form-signpost-inner">
                 <div className="">
                   <p className="text-sm">
-                    Have a grant already? Not the right project? Use Search
-                    projects to find the project. If found key information
-                    will be filled in for you.
+                    {ProjectDetail('paragraphs.para1')}
                   </p>
                 </div>
                 <div className="form-signpost-button">
@@ -336,7 +474,7 @@ const ProjectsProjectDetail = () => {
             <div className="project-type-section">
               {projectData.isTestProject === 'true' && (
                 <>
-                  <h4>{ProjectDetail('headings.h4MockProject')}</h4>
+                  <h2>{ProjectDetail('headings.h2MockProject')}</h2>
                   <p className={"help"}>
                     {ProjectDetail('paragraphs.mockProject')}
                   </p>
