@@ -4,8 +4,11 @@ import { useQuestionTypesQuery } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import QuestionTypeSelectPage from "../page";
+import {
+  mockScrollIntoView,
+  mockScrollTo
+} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -37,33 +40,6 @@ jest.mock('@/components/BackButton', () => {
     default: () => <div>Mocked Back Button</div>,
   };
 });
-
-// Create a mock for scrollIntoView and focus
-const mockScrollIntoView = jest.fn();
-
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
-
-
-// Mock useTranslations from next-intl
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
-
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
-      }
-      return key;
-    };
-
-    return mockUseTranslations;
-  }),
-}));
 
 // Mock QuestionAdd component since it has it's own separate unit test
 jest.mock('@/components/QuestionAdd', () => {
@@ -100,7 +76,7 @@ describe("QuestionTypeSelectPage", () => {
   let pushMock: jest.Mock;
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+    mockScrollTo();
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
     const mockUseQueryStep = useQueryStep as jest.Mock;

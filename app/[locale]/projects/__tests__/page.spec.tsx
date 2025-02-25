@@ -4,11 +4,12 @@ import { useMyProjectsQuery } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProjectsListPage from '../page';
 import { useFormatter, useTranslations } from 'next-intl';
+import {
+  mockScrollIntoView,
+  mockScrollTo
+} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
-
-// Create a mock for scrollIntoView and focus
-const mockScrollIntoView = jest.fn();
 
 // Mock the GraphQL query
 jest.mock('@/generated/graphql', () => ({
@@ -62,7 +63,7 @@ const mockProjectsData = {
 describe('ProjectsListPage', () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+    mockScrollTo();
     (useMyProjectsQuery as jest.Mock).mockReturnValue({
       data: mockProjectsData,
       loading: false,
