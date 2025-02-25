@@ -12,20 +12,34 @@ interface MySelectProps<T extends SelectItem>
   label?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
   helpMessage?: string;
+  description?: string;
+  selectClasses?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   items?: T[];
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
 export function FormSelect<T extends SelectItem>(
-  { label, errorMessage, helpMessage, onChange, children, items, ...props }:
+  {
+    label,
+    errorMessage,
+    helpMessage,
+    description,
+    selectClasses,
+    onChange,
+    children,
+    items,
+    ...props
+  }:
     MySelectProps<T>
 ) {
   return (
-    <Select {...props} selectedKey={props.selectedKey} data-invalid={errorMessage} className={`${styles.mySelect} react-aria-Select`}>
+    <Select {...props} selectedKey={props.selectedKey} data-invalid={errorMessage} className={`${selectClasses} ${styles.mySelect} react-aria-Select`}>
       {(state) => (
         <>
           <Label>{label}</Label>
+          <Text slot="description" className="help">
+            {description}</Text>
           <Button className='react-aria-Button'>
             <SelectValue onChange={onChange} />
             <span

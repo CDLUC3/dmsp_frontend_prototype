@@ -29,8 +29,10 @@ query MyProjects {
 query Project($projectId: Int!) {
   project(projectId: $projectId) {
     title
+    abstractText
     startDate
     endDate
+    isTestProject
     funders {
       id
       grantId
@@ -53,6 +55,9 @@ query Project($projectId: Int!) {
     }
     outputs {
       title
+    }
+    researchDomain {
+      id
     }
   }
 }

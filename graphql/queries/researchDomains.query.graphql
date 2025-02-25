@@ -1,0 +1,6 @@
+query TopLevelResearchDomains {
+  topLevelResearchDomains {
+    name
+    id
+  }
+}

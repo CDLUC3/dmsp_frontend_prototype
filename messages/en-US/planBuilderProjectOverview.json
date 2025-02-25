@@ -91,5 +91,30 @@
       "radioFundingLabel": "Do you already have funding for this project?",
       "radioFundingDescription": "If yes, we will try to search for the project and pull in associated information for you to review and edit."
     }
+  },
+  "ProjectsProjectDetail": {
+    "title": "Plan: Select a DMP template",
+    "description": "Select a template to use when creating your DMP.",
+    "mockProject": "Mock project",
+    "realProject": "Real project",
+    "labels": {
+      "projectName": "Project name",
+      "projectAbstract": "Project bastract",
+      "researchDomain": "Research domain",
+      "mockProject": "Mock project",
+      "realProject": "Real project"
+    },
+    "paragraphs": {
+      "para1": "Have a grant already? Not the right project? Use Search projects to find the project. If found key information will be filled in for you.",
+      "mockProject": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
+      "mockProjectDescription": "Remain in a testing or educational environment. Your project will continue to operate in mock mode, allowing you to create plans and experiments without the ability to receive feedback or publish. You may upgrade at any time in the future.",
+      "realProjectDescription": "Convert to a real project, and remove the mock project status. By doing so, you will gain access to feedback, publishing capabilities, and additional features. However, this decision is permanent and cannot be reversed. Proceed only if you are certain you no longer need a mock environment."
+    },
+    "buttons": {
+      "searchProjects": "Search projects"
+    },
+    "headings": {
+      "h4MockProject": "This project is mock project for testing, practice, or educational purposes"
+    }
   }
 }

@@ -76,11 +76,13 @@ const ProjectsListPage: React.FC = () => {
   const Project = useTranslations('ProjectsListPage');
 
   // Query for projects
-  const { data = {}, loading, errors: projectsQueryError } = useMyProjectsQuery({
+  const { data = {}, loading } = useMyProjectsQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
+
+
 
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
@@ -188,15 +190,17 @@ const ProjectsListPage: React.FC = () => {
   }, [errors]);
 
   useEffect(() => {
-    if (projectsQueryError) {
-      setErrors([Global('messaging.somethingWentWrong')]);
-    } else if (data?.myProjects?.some((project) => project?.errors)) {
-      setErrors([Project('messages.errors.errorRetrievingProjects')]);
-    } else {
-      setErrors([]);
+    if (data?.myProjects) {
+      const projectErrors = data.myProjects
+        .filter((project) => project?.errors?.general || project?.errors?.title)
+        .map((project) => project?.errors?.general || Project('messages.errors.errorRetrievingProjects'));
+
+      if (projectErrors.length > 0) {
+        setErrors(projectErrors);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, projectsQueryError]);
+  }, [data]);
 
   // TODO: Implement shared loading spinner
   if (loading) {

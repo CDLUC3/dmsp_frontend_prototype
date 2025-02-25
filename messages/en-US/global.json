@@ -121,7 +121,8 @@
       "editSection": "Edit Section",
       "editTemplate": "Edit Template",
       "question": "Question",
-      "projects": "Projects"
+      "projects": "Projects",
+      "projectOverview": "Project Overview"
     },
     "form": {
       "yesLabel": "Yes",
@@ -143,7 +144,9 @@
       "continue": "Continue"
     },
     "labels": {
-      "searchByKeyword": "Search by keyword"
+      "searchByKeyword": "Search by keyword",
+      "startDate": "Start date",
+      "endDate": "End date"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc."
