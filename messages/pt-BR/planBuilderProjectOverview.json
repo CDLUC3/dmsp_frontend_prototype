@@ -18,7 +18,7 @@
     "funderInfo": "{name} ({id})",
     "editFunders": "Editar Detalhes do Projeto",
     "editFunderDetails": "Editar Detalhes do Projeto",
-    "projectMembers": "Membros do Projeto",
+    "projectMembers": "Membros de projeto",
     "memberCount": "Membros da equipe {count}",
     "memberInfo": "{name} ({role})",
     "editMembers": "Editar Detalhes do Projeto",
@@ -26,7 +26,7 @@
     "researchOutputs": "Resultados da pesquisa",
     "outputCount": "{count} Outputs",
     "editOutputs": "Editar resultados de pesquisa",
-    "editResearchOutputs": "Resultados da pesquisa",
+    "editResearchOutputs": "Editar resultados de pesquisa",
     "plans": "Plano(s)",
     "planActions": "Planejar ações",
     "upload": "Carregar plano",
@@ -53,7 +53,7 @@
   "ProjectsListPage": {
     "intro": "Gerenciador ou criar projeto DMSP ou por DMP",
     "buttons": {
-      "createProject": "Criar Projeto"
+      "createProject": "Criar projeto"
     },
     "messages": {
       "errors": {

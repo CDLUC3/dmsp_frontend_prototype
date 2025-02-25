@@ -60,9 +60,9 @@
   },
   "UserProfile": {
     "breadcrumbHome": "Home",
-    "headingUpdateProfile": "Atualizar Perfil",
-    "yourProfile": "Seu Perfil",
-    "emailAndAuth": "E-mail e autenticação",
+    "headingUpdateProfile": "Atulizar perfil",
+    "yourProfile": "Seu perfil",
+    "emailAndAuth": "Email e autenticação",
     "givenName": "Primeiro nome",
     "surName": "Sobrenome",
     "institution": "Instituição",
@@ -119,10 +119,10 @@
       "selectExistingTemplate": "Selecionar um modelo existente",
       "section": "Seção",
       "editSection": "Editar seção",
-      "editTemplate": "Editar Modelo",
+      "editTemplate": "Editar modelo",
       "question": "Pergunta",
       "projects": "Projetos",
-      "projectOverview": "Project Overview"
+      "projectOverview": "Visão geral do projeto"
     },
     "form": {
       "yesLabel": "Sim",
@@ -145,8 +145,8 @@
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",
-      "startDate": "Start date",
-      "endDate": "End date"
+      "startDate": "Data de início",
+      "endDate": "Data final"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
@@ -162,7 +162,7 @@
       "fixBelow": "Por favor, corrija os erros abaixo"
     },
     "tabs": {
-      "editQuestion": "Editar Pergunta",
+      "editQuestion": "Editar pergunta",
       "options": "Opções",
       "logic": "Lógica"
     },

@@ -8,7 +8,7 @@
     "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
     "noItemsFoundError": "Nenhum resultado encontrado para {term}.",
     "somethingWentWrong": "Algo deu errado ao recuperar modelos",
-    "actionCreate": "Criar Modelo",
+    "actionCreate": "Criar um modelo",
     "actionSearch": "Buscar",
     "linkUpdate": "Atualização",
     "linkExpand": "Expandir",
@@ -28,11 +28,11 @@
     "links": {
       "addSection": "Adicionar seção",
       "edit": "Alterar",
-      "manageAccess": "Gerenciar Acesso",
+      "manageAccess": "Gerenciar acesso",
       "templateHistory": "Histórico do modelo"
     },
     "button": {
-      "archiveTemplate": "Arquivar Template",
+      "archiveTemplate": "Template de arquivo",
       "saveAsDraft": "Salvar como rascunho",
       "previewTemplate": "Pré-visualizar template",
       "publishTemplate": "Publicar template"
@@ -42,7 +42,7 @@
       "visibilitySettings": "Configurações de visibilidade",
       "feedbackAndCollaboration": "Feedback e colaboração",
       "history": "História",
-      "archiveTemplate": "Arquivar Template"
+      "archiveTemplate": "Template de arquivo"
     },
     "errors": {
       "archiveTemplateError": "Erro ao arquivar template",
@@ -72,7 +72,7 @@
     "descChangeLog": "Insira uma breve descrição do que foi alterado. Isto só será visível para pessoas de sua organização.",
     "button": {
       "close": "Fechar",
-      "saveAndPublish": "Salvar e Publicar"
+      "saveAndPublish": "Guardar e publicar"
     }
   },
   "Breadcrumbs": {
@@ -267,7 +267,7 @@
     }
   },
   "QuestionAdd": {
-    "title": "Adicionar nova pergunta",
+    "title": "Acrescentar nova questão",
     "descriptions": {
       "sampleText": "Forneça um exemplo ou modelo de resposta esperada (opcional, mas recomendado)",
       "sampleTextAsDefault": "Peça que esta resposta entre no DMP por padrão",
@@ -311,17 +311,17 @@
     }
   },
   "TemplateAccessPage": {
-    "title": "Gerenciar Acesso",
+    "title": "Gerenciar acesso",
     "intro": "Este modelo é acessível para todos no NSF com visualização completa e edição de permissões. Ele também pode ser compartilhado com pessoas fora da sua organização.",
     "headings": {
-      "h3OrgAccess": "Na Organização",
+      "h3OrgAccess": "Dentro da organização",
       "externalPeople": "Pessoas externas",
       "share": "Compartilhe com alguém fora da sua organização",
       "confirmCheckout": "Confirmar finalização do pedido?"
     },
     "paragraphs": {
       "orgAccessPara1": "Todos em {name} podem ver e editar",
-      "orgAccessPara2": "{count} administrator(s) can manage access",
+      "orgAccessPara2": "Administradores {count} podem gerenciar o acesso",
       "externalPara1": "Administradores {count} podem gerenciar o acesso",
       "sharePara1": "Digite seu endereço de e-mail. Se eles já não tiverem uma conta de DMP Tool eles serão convidados a criar uma.",
       "modalPara1": "Por favor, confirme que você deseja remover {email}"

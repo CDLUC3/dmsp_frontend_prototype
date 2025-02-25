@@ -264,7 +264,7 @@ const ProjectOverviewPage: React.FC = () => {
                 </strong>
               </p>
               <Link href={`/projects/${projectId}/research-outputs`} aria-label={ProjectOverview('editOutputs')}>
-                {ProjectOverview('editResearchOutputs')}
+                {ProjectOverview('editOutputs')}
               </Link>
             </section>
 

@@ -1,6 +1,6 @@
 {
   "HomePage": {
-    "title": "Home Page",
+    "title": "Home page",
     "linkText": "Go to the Connections page",
     "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
   },
@@ -60,9 +60,9 @@
   },
   "UserProfile": {
     "breadcrumbHome": "Home",
-    "headingUpdateProfile": "Update Profile",
-    "yourProfile": "Your Profile",
-    "emailAndAuth": "Email and Authentication",
+    "headingUpdateProfile": "Update profile",
+    "yourProfile": "Your profile",
+    "emailAndAuth": "Email and authentication",
     "givenName": "First name",
     "surName": "Last name",
     "institution": "Institution",
@@ -118,11 +118,11 @@
       "createTemplate": "Create a template",
       "selectExistingTemplate": "Select an existing template",
       "section": "Section",
-      "editSection": "Edit Section",
-      "editTemplate": "Edit Template",
+      "editSection": "Edit section",
+      "editTemplate": "Edit template",
       "question": "Question",
       "projects": "Projects",
-      "projectOverview": "Project Overview"
+      "projectOverview": "Project overview"
     },
     "form": {
       "yesLabel": "Yes",
@@ -162,7 +162,7 @@
       "fixBelow": "Please fix the errors below"
     },
     "tabs": {
-      "editQuestion": "Edit Question",
+      "editQuestion": "Edit question",
       "options": "Options",
       "logic": "Logic"
     },

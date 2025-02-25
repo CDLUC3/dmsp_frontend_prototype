@@ -1,6 +1,6 @@
 {
   "ProjectOverview": {
-    "pageTitle": "Project Overview",
+    "pageTitle": "Project overview",
     "pageDescription": "Overview of project details and associated plans",
     "navigation": "Breadcrumb navigation",
     "home": "Home",
@@ -18,15 +18,15 @@
     "funderInfo": "{name} ({id})",
     "editFunders": "Edit funder details",
     "editFunderDetails": "Edit Funder details",
-    "projectMembers": "Project Members",
+    "projectMembers": "Project members",
     "memberCount": "{count} team members",
     "memberInfo": "{name} ({role})",
     "editMembers": "Edit project members",
     "editProjectMembers": "Edit project members",
-    "researchOutputs": "Research Outputs",
+    "researchOutputs": "Research outputs",
     "outputCount": "{count} Outputs",
     "editOutputs": "Edit research outputs",
-    "editResearchOutputs": "Edit Research outputs",
+    "editResearchOutputs": "Edit research outputs",
     "plans": "Plan(s)",
     "planActions": "Plan actions",
     "upload": "Upload plan",
@@ -53,7 +53,7 @@
   "ProjectsListPage": {
     "intro": "Manager or create DMSP project or by DMP",
     "buttons": {
-      "createProject": "Create Project"
+      "createProject": "Create project"
     },
     "messages": {
       "errors": {

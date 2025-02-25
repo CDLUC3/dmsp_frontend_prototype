@@ -13,14 +13,14 @@
       "edit": "Adjust for this plan"
     },
     "members": {
-      "title": "Plan Members for this plan",
+      "title": "Plan members for this plan",
       "count": "{count} team members",
       "info": "{name} ({role})",
       "edit": "Adjust for this plan"
     },
     "outputs": {
-      "title": "Research Outputs for this plan",
-      "count": "{count} Outputs",
+      "title": "Research outputs for this plan",
+      "count": "{count} outputs",
       "edit": "Adjust for this plan"
     },
     "question": {
@@ -37,11 +37,11 @@
     },
     "status": {
       "title": "Status",
-      "lastUpdated": "Last Updated",
-      "publishedStatus": "Published Status",
+      "lastUpdated": "Last updated",
+      "publishedStatus": "Published status",
       "doi": "DOI",
-      "notPublished": "Not Published",
-      "visibilitySettings": "Visibility Settings",
+      "notPublished": "Not published",
+      "visibilitySettings": "Visibility settings",
       "download": {
         "title": "Download",
         "downloadPDF": "Download this plan",
@@ -52,7 +52,7 @@
       "feedback": {
         "title": "Feedback & Collaboration",
         "description": "Allow people to access, edit or comment on this plan",
-        "manageAccess": "Manage Access",
+        "manageAccess": "Manage access",
         "requestFeedback": "Request feedback"
       }
     }
