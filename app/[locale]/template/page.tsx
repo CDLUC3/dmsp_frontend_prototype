@@ -24,6 +24,7 @@ import TemplateListItem from '@/components/TemplateListItem';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
+import logECS from '@/utils/clientLogger';
 import { TemplateInterface, TemplateItemProps, } from '@/app/types';
 
 const TemplateListPage: React.FC = () => {
@@ -38,7 +39,7 @@ const TemplateListPage: React.FC = () => {
   const t = useTranslations('OrganizationTemplates');
 
   // Make graphql request for templates under the user's affiliation
-  const { data = {}, loading, error: queryError, refetch } = useTemplatesQuery({
+  const { data = {}, loading, error: queryError } = useTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
@@ -79,15 +80,18 @@ const TemplateListPage: React.FC = () => {
   useEffect(() => {
     if (queryError) {
       if (queryError instanceof ApolloError) {
-        // Trigger a refetch on error so page re-renders for apollo errors
-        refetch();
+        setErrors(prevErrors => [...prevErrors, queryError.message]);
+        logECS('error', 'queryError', {
+          error: queryError,
+          url: { path: '/template' }
+        });
       } else {
         // Safely access queryError.message
         setErrors(prev => [...prev, t('somethingWentWrong')]);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryError, refetch]);
+  }, [queryError]);
 
 
   useEffect(() => {
