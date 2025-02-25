@@ -25,7 +25,6 @@ import {
   Heading,
   Label,
   Link,
-  ListBoxItem,
   Popover,
 } from "react-aria-components";
 
@@ -45,10 +44,10 @@ import {
 } from "@/components/Container";
 import {
   FormInput,
-  FormSelect,
   RadioGroupComponent
 } from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
+import ResearchDomainCascadingDropdown from '@/components/ResearchDomainCascadingDropdown';
 
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import { scrollToTop } from '@/utils/general';
@@ -322,6 +321,9 @@ const ProjectsProjectDetail = () => {
     handleResearchDomains();
   }, [myResearchDomains]);
 
+  useEffect(() => {
+    console.log("***PROJECT DATA", projectData);
+  }, [projectData])
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
@@ -436,22 +438,7 @@ const ProjectsProjectDetail = () => {
               </DatePicker>
             </div>
 
-            <FormSelect
-              label={ProjectDetail('labels.researchDomain')}
-              isRequired
-              name="researchDomain"
-              items={rDomains}
-              selectClasses={styles.researchDomainSelect}
-              onSelectionChange={selected => setProjectData({ ...projectData, researchDomainId: selected as string })}
-              selectedKey={projectData.researchDomainId.toString()}
-            >
-              {rDomains && rDomains.map((domain) => {
-                return (
-                  <ListBoxItem key={domain.id}>{domain.id}</ListBoxItem>
-                )
-
-              })}
-            </FormSelect>
+            <ResearchDomainCascadingDropdown projectData={projectData} setProjectData={setProjectData} />
 
             <div className="form-signpost  my-8">
               <div className="form-signpost-inner">

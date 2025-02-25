@@ -4,3 +4,10 @@ query TopLevelResearchDomains {
     id
   }
 }
+
+query ChildResearchDomains($parentResearchDomainId: Int!) {
+  childResearchDomains(parentResearchDomainId: $parentResearchDomainId) {
+    id
+    name
+  }
+}
