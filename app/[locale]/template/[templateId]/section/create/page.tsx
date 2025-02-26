@@ -311,9 +311,10 @@ const CreateSectionPage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb><Link
-              href={`/template/#`}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.editSection')}</Breadcrumb>
+              href={`/template/${templateId}/section/new`}>{Global('breadcrumbs.addNewSection')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.createSection')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}

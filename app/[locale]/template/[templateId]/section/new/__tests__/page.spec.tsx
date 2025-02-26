@@ -118,7 +118,7 @@ describe("SectionTypeSelectPage", () => {
     expect(heading).toHaveTextContent('headings.addNewSection');
     expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.templates')).toBeInTheDocument();
-    expect(screen.getByText('breadcrumbs.section')).toBeInTheDocument();
+    expect(screen.getByText('breadcrumbs.addNewSection')).toBeInTheDocument();
     expect(screen.getByText('intro')).toBeInTheDocument();
     expect(screen.getByLabelText('search.label')).toBeInTheDocument();
     expect(searchButton).toBeInTheDocument();

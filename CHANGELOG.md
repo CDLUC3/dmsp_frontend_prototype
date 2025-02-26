@@ -21,6 +21,7 @@
 - Updated `/projects/[projectId]/project` page to hook it up to data [#351]
 - Moved some shared test utils to jest.setup.ts or `__mocks__/common.ts` [#351]
 - Updated translation content to use sentence-case rather than title case [#351]
+- Made updates throughout the Template Builder flow to make the experience more consistent across pages, and fixed some bugs [#347]
 - Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
 - Made updates to get Dockerfile.prod to work. 
   - Updated Dockerfile.prod

@@ -48,9 +48,12 @@ import { useToast } from '@/context/ToastContext';
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
 
-  // Get templateId param
+  // Get sectionId param
   const params = useParams();
   const { section_slug: sectionId } = params;
+
+  // Get templateId param
+  const { templateId } = params; // From route /template/:templateId
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -276,8 +279,9 @@ const SectionUpdatePage: React.FC = () => {
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
             <Breadcrumb><Link
-              href={`/template/#`}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.editSection')}</Breadcrumb>
+              href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/template/${templateId}/section/new`}>{Global('breadcrumbs.addNewSection')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.updateSection')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}

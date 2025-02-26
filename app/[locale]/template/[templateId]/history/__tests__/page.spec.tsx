@@ -183,7 +183,7 @@ describe('TemplateHistory', () => {
         const targetRow1 = rows[1];
 
         const row1Cells = targetRow1.querySelectorAll('td');
-        expect(row1Cells[0].textContent).toBe('published v3changeLog:This is the initial version of our template!');
+        expect(row1Cells[0].textContent).toBe('DRAFT v3changeLog:This is the initial version of our template!');
         expect(row1Cells[1].textContent).toBe('Severus Snape');
         //expect(row1Cells[2].textContent).toBe('16:29 on Jun 25, 2014');
     })
