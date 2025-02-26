@@ -1,10 +1,10 @@
 import React from "react";
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
-import {useQuestionTypesQuery} from '@/generated/graphql';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams, useRouter, useSearchParams} from 'next/navigation';
-import {useQueryStep} from '@/app/[locale]/template/[templateId]/q/new/utils';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { useQuestionTypesQuery } from '@/generated/graphql';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import QuestionTypeSelectPage from "../page";
 
 expect.extend(toHaveNoViolations);
@@ -76,22 +76,22 @@ jest.mock('@/components/QuestionAdd', () => {
 const mockQuestionTypes = {
   questionTypes: [
     {
-      "errors": null,
-      "id": 1,
-      "name": "Rich Text Editor",
-      "usageDescription": "For questions that allow you to format data using mark down."
+      errors: null,
+      id: 1,
+      name: "Rich Text Editor",
+      usageDescription: "For questions that allow you to format data using mark down."
     },
     {
-      "errors": null,
-      "id": 2,
-      "name": "Text Area",
-      "usageDescription": "For questions that require longer answers."
+      errors: null,
+      id: 2,
+      name: "Text Area",
+      usageDescription: "For questions that require longer answers."
     },
     {
-      "errors": null,
-      "id": 3,
-      "name": "Text Field",
-      "usageDescription": "For questions that require short answers."
+      errors: null,
+      id: 3,
+      name: "Text Field",
+      usageDescription: "For questions that require short answers."
     }
   ]
 }
@@ -119,12 +119,12 @@ describe("QuestionTypeSelectPage", () => {
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { section_id: '123' },
-        keys: function* () { },
-        values: function* () { },
-        entries: function* () { },
-        forEach: () => { },
-        toString: () => '',
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
@@ -254,6 +254,7 @@ describe("QuestionTypeSelectPage", () => {
     const buttons = screen.getAllByText('buttons.select');
     const selectButton = buttons.find(button => button.getAttribute('data-type') === '3');
     expect(selectButton).toBeInTheDocument();
+
     if (selectButton) {
       fireEvent.click(selectButton);
     } else {

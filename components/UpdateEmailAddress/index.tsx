@@ -1,8 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import {useTranslations} from 'next-intl';
-import {Button, Form,} from "react-aria-components";
-import {ApolloError} from "@apollo/client";
+import { useTranslations } from 'next-intl';
+import { Button, Form, } from "react-aria-components";
+import { ApolloError } from "@apollo/client";
 
 // Graphql mutations
 import {
@@ -15,13 +15,14 @@ import {
 
 // Components
 import EmailAddressRow from '@/components/EmailAddressRow';
-import FormInput from '../Form/FormInput';
+import FormInput from '@/components/Form/FormInput';
+import ErrorMessages from '@/components/ErrorMessages';
 //Interfaces
-import {EmailInterface} from '@/app/types';
+import { EmailInterface } from '@/app/types';
 // Utils and other
 import logECS from '@/utils/clientLogger';
 import styles from './updateEmailAddress.module.scss';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 const GET_USER = MeDocument;
 
@@ -207,15 +208,6 @@ calling 'refetch()' for the user query, but that didn't work. */
     clearErrors();
     setAddAliasValue(value);
   }
-  // If page-level errors, scroll them into view
-  useEffect(() => {
-    if (Object.keys(errors).length > 0 && errorRef.current) {
-      errorRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, [errors]);
 
   /*Reset errors when email addresses change so that
   errors don't continue to display on page*/
@@ -229,11 +221,7 @@ calling 'refetch()' for the user query, but that didn't work. */
       <div className="sectionContainer">
         <div className="sectionContent">
           <div className={styles.subSection}>
-            {errors?.general &&
-              <div className="error">
-                <p>{errors.general}</p>
-              </div>
-            }
+            <ErrorMessages errors={errors.general ? [errors.general] : []} ref={errorRef} />
             <h3>{t('headingPrimaryEmail')}</h3>
             <p>{t('primaryEmailDesc')}</p>
 

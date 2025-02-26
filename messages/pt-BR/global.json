@@ -117,13 +117,22 @@
       "template": "Modelo",
       "createTemplate": "Criar um modelo",
       "selectExistingTemplate": "Selecionar um modelo existente",
+      "templateHistory": "Histórico do modelo",
       "section": "Seção",
+      "addNewSection": "Adicionar nova sessão",
+      "updateSection": "Seção de atualização",
       "editSection": "Editar seção",
+      "createSection": "Criar seção",
       "editTemplate": "Editar Modelo",
       "question": "Pergunta",
+      "selectQuestionType": "Selecionar o tipo de questão",
       "projects": "Projetos"
     },
-    "lastRevisedBy": "Last revised by",
+    "form": {
+      "yesLabel": "Sim",
+      "noLabel": "Não"
+    },
+    "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
@@ -135,7 +144,8 @@
       "cancel": "Cancelar",
       "linkUpdate": "Atualização",
       "linkExpand": "Expandir",
-      "linkCollapse": "Retrair"
+      "linkCollapse": "Retrair",
+      "continue": "Avançar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave"

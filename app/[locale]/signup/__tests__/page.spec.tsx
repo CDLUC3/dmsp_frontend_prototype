@@ -1,29 +1,32 @@
 import React from 'react';
-import {act, fireEvent, render, screen, waitFor,} from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor, } from '@/utils/test-utils';
 import SignUpPage from '../page';
 import logECS from '@/utils/clientLogger';
 
 //Need to import this useRouter after the jest.mock is in place
-import {useRouter} from 'next/navigation';
-import {fetchCsrfToken} from "@/utils/authHelper";
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { fetchCsrfToken } from "@/utils/authHelper";
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 
 
 // Mock TypeAheadWithOther component
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
+  /* eslint-disable-next-line no-unused-vars */
   default: ({ updateFormData }: { updateFormData: (name: string, value: string) => void }) => (
     <div data-testid="type-ahead">
       <input
         data-testid="institution"
         type="text"
         name="institution"
+        /* eslint-disable-next-line no-unused-vars */
         onChange={(e) => updateFormData("institution", e.target.value)}
       />
       <input
         data-testid="otherinst"
         type="text"
         name="otherAffiliation"
+        /* eslint-disable-next-line no-unused-vars */
         onChange={(e) => updateFormData("otherAffiliation", e.target.value)}
       />
     </div>

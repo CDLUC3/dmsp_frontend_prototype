@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -32,17 +32,14 @@ import {
 } from '@/generated/graphql';
 
 //Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {DmpIcon} from "@/components/Icons";
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import {DmpEditor} from "@/components/Editor";
-import {
-  SectionFormErrorsInterface,
-  SectionFormInterface,
-  TagsInterface
-} from '@/app/types';
+import { DmpEditor } from "@/components/Editor";
+import ErrorMessages from '@/components/ErrorMessages';
 
-import {useToast} from '@/context/ToastContext';
+import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
+import { useToast } from '@/context/ToastContext';
 
 const CreateSectionPage: React.FC = () => {
 
@@ -137,7 +134,7 @@ const CreateSectionPage: React.FC = () => {
   const isFormValid = (): boolean => {
     // Initialize a flag for form validity
     let isValid = true;
-    let errors: SectionFormInterface = {
+    const errors: SectionFormInterface = {
       sectionName: '',
       sectionIntroduction: '',
       sectionRequirements: '',
@@ -272,7 +269,7 @@ const CreateSectionPage: React.FC = () => {
   useEffect(() => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
-      /*eslint-disable @typescript-eslint/no-unused-vars*/
+      /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
       const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
       setTags(cleanedData);
     }
@@ -292,13 +289,6 @@ const CreateSectionPage: React.FC = () => {
     }
   }, [sectionDisplayOrders])
 
-  // If errors when submitting publish form, scroll them into view
-  useEffect(() => {
-    if (errors.length > 0) {
-      scrollToTop(errorRef);
-    }
-  }, [errors]);
-
   useEffect(() => {
     setFormData({
       ...formData,
@@ -307,6 +297,7 @@ const CreateSectionPage: React.FC = () => {
       sectionRequirements: sectionRequirementsContent,
       sectionGuidance: sectionGuidanceContent
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
 
@@ -320,9 +311,10 @@ const CreateSectionPage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb><Link
-              href={`/template/#`}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.editSection')}</Breadcrumb>
+              href={`/template/${templateId}/section/new`}>{Global('breadcrumbs.addNewSection')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.createSection')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
@@ -334,13 +326,7 @@ const CreateSectionPage: React.FC = () => {
           <div className="template-editor-container" ref={topRef}>
             <div className="main-content">
 
-              {errors && errors.length > 0 &&
-                <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-                  {errors.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
+              <ErrorMessages errors={errors} ref={errorRef} />
 
               <Tabs>
                 <TabList aria-label="Question editing">
@@ -389,7 +375,7 @@ const CreateSectionPage: React.FC = () => {
                     <CheckboxGroup name="sectionTags">
                       <Label>{Section('labels.bestPracticeTags')}</Label>
                       <span className="help">{Section('helpText.bestPracticeTagsDesc')}</span>
-                      <div className="checkbox-group">
+                      <div className="checkbox-group-two-column">
                         {tags && tags.map(tag => {
                           const id = (tag.id)?.toString();
                           return (

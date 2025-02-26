@@ -1,9 +1,9 @@
 'use client'
 
-import {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams, useRouter, useSearchParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -34,10 +34,11 @@ import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
 import FormInput from '@/components/Form/FormInput';
 import FormTextArea from '@/components/Form/FormTextArea';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
-import {useToast} from '@/context/ToastContext';
-import {Question, QuestionOptions} from '@/app/types';
+import { useToast } from '@/context/ToastContext';
+import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
 
 
@@ -109,7 +110,7 @@ const QuestionEdit = () => {
           variables: {
             input: {
               questionId: Number(questionId),
-              questionTypeId: Number(questionTypeIdQueryParam) ?? selectedQuestion?.question?.questionTypeId,
+              questionTypeId: questionTypeIdQueryParam ? Number(questionTypeIdQueryParam) : selectedQuestion?.question?.questionTypeId,
               displayOrder: question.displayOrder,
               questionText: question.questionText,
               requirementText: question.requirementText,
@@ -172,6 +173,7 @@ const QuestionEdit = () => {
         setRows([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: Number(questionId) }]);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedQuestion])
 
 
@@ -194,16 +196,16 @@ const QuestionEdit = () => {
     return <div>Loading...</div>;
   }
 
-
   return (
     <>
       <PageHeader
         title={QuestionEdit('title', { title: selectedQuestion?.question?.questionText })}
         description=""
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
             <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
           </Breadcrumbs>
@@ -212,13 +214,7 @@ const QuestionEdit = () => {
         className=""
       />
 
-      {errors && errors.length > 0 &&
-        <div className="error">
-          {errors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      }
+      <ErrorMessages errors={errors} ref={errorRef} />
 
       <div className="template-editor-container">
         <div className="main-content">

@@ -117,11 +117,20 @@
       "template": "Template",
       "createTemplate": "Create a template",
       "selectExistingTemplate": "Select an existing template",
+      "templateHistory": "Template history",
       "section": "Section",
+      "addNewSection": "Add a new section",
+      "updateSection": "Update Section",
       "editSection": "Edit Section",
+      "createSection": "Create Section",
       "editTemplate": "Edit Template",
       "question": "Question",
+      "selectQuestionType": "Select Question Type",
       "projects": "Projects"
+    },
+    "form": {
+      "yesLabel": "Yes",
+      "noLabel": "No"
     },
     "lastRevisedBy": "Last revised by",
     "lastUpdated": "Last updated",
@@ -135,7 +144,8 @@
       "cancel": "Cancel",
       "linkUpdate": "Update",
       "linkExpand": "Expand",
-      "linkCollapse": "Collapse"
+      "linkCollapse": "Collapse",
+      "continue": "Continue"
     },
     "labels": {
       "searchByKeyword": "Search by keyword"

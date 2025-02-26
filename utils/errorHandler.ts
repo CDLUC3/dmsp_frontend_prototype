@@ -2,15 +2,14 @@
 
 import logECS from '@/utils/clientLogger';
 import {
-  AuthError,
   fetchCsrfToken,
-  refreshAuthTokens,
 } from "@/utils/authHelper";
 
-
+/* eslint-disable-next-line no-unused-vars */
 type RetryRequestType = (csrfToken: string | null) => Promise<Response>;
 
 interface CustomRouter {
+  // eslint-disable-next-line no-unused-vars
   push: (url: string) => void;
 }
 
@@ -22,7 +21,6 @@ async function safeJsonParse(response: Response) {
     throw new Error("Failed to parse JSON response");
   }
 }
-
 
 export const handleErrors = async (
   response: Response,
@@ -47,35 +45,18 @@ export const handleErrors = async (
     case 401:
       if (message) {
         logECS('error', message, {
-          url: { path: path }
+          url: { path }
         });
-
-        try {
-          // Attempt to get new auth tokens
-          const response = await refreshAuthTokens();
-
-          if (response) {
-            router.push("/");
-          } else {
-            router.push('/login');
-          }
-        } catch (err) {
-          if (err instanceof AuthError) {
-            // If NOT on the login or signup pages, redirect login
-            if ((path !== '/login') && (path !== '/signup')) {
-              router.push('/login');
-            }
-          }
-          const errorMessage = message;
-          setErrors(prevErrors => [...prevErrors, errorMessage]);
-        }
+        const errorMessage = message;
+        setErrors(prevErrors => [...prevErrors, errorMessage]);
+        return;
       }
       break;
 
     case 403:
       if (message === 'Invalid CSRF token') {
         logECS('error', message, {
-          url: { path: path }
+          url: { path }
         });
 
         try {

@@ -18,18 +18,22 @@ type ServerParseError = Error & {
 }
 
 type CustomRouter = {
+  // eslint-disable-next-line no-unused-vars
   push: (url: string) => void;
 }
 
 type NetworkError = Error | ServerError | ServerParseError;
 
 type RefetchFunction<TData, TVariables> =
+  // eslint-disable-next-line no-unused-vars
   | ((variables?: TVariables) => Promise<TData>)
+  // eslint-disable-next-line no-unused-vars
   | ((variables?: TVariables) => Promise<FetchResult<TData>>);
 
 export async function handleGraphQLErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[],
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
+  // eslint-disable-next-line no-unused-vars
   refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
   router: CustomRouter
 ) {
@@ -92,6 +96,7 @@ export async function handleApolloErrors<TData, TVariables>(
   graphQLErrors: readonly GraphQLFormattedError[] | undefined,
   networkError: NetworkError | null,
   setErrors: React.Dispatch<React.SetStateAction<string[]>>,
+  // eslint-disable-next-line no-unused-vars
   refetch: RefetchFunction<TData, TVariables> | ((variables?: TVariables) => Promise<TData>),
   router: CustomRouter
 ): Promise<void> {

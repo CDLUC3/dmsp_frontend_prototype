@@ -18,6 +18,14 @@
 - Plan Question and boilerplate tests [#178]
 
 ### Updated
+- Made updates throughout the Template Builder flow to make the experience more consistent across pages, and fixed some bugs [#347]
+- Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
+- Made updates to get Dockerfile.prod to work. 
+  - Updated Dockerfile.prod
+  - Updated next.config.mjs to include output `standalone`
+  - Updated `docker-compose.yml`
+  - Fixed lint issues introduced with changes to field-level errors
+- Updated `buildspec` to use the `Docker.prod` file
 - Updated `/projects/page.tsx` to use real data and have search capabilities [#4]
 - Updated `/template/[templateId]/access` page to hook it up to real data [#223]
 - Updated the Edit Question `template/[templateId]/q/[q_slug]/page.tsx` with actual data from backend and added functionality for `options` question types [#188]
@@ -36,6 +44,8 @@
 - Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
 
 ### Added
+- Added `/projects/[projectId]/project-funding`, copying over the static code from `/projects/[projectId]/create-project/funding`. Updated
+  page to use shared RadioGroupComponent, and updated RadioGroupComponent to use description [#336]
 - Added new `QuestionEdit` and `QuestionTypeCard` components [#220]
 - Added new Question and QuestionOption types [#188]
 - Added a new FormTextArea component [#188]

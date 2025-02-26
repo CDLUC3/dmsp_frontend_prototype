@@ -16,9 +16,9 @@ const sanitizeTranslationFile = (filePath) => {
         ? sanitizeHtml(value, {
           allowedTags: ['b', 'i', 'em', 'p', 'strong', 'a', 'important', 'guidelines'],
           allowedAttributes: {
-            'a': ['href'],
-            'important': [],
-            'guidelines': []
+            a: ['href'],
+            important: [],
+            guidelines: []
           },
           // escapes disallowed tags
           disallowedTagsMode: 'escape'

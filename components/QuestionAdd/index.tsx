@@ -1,9 +1,9 @@
 'use client'
 
-import {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams, useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -33,10 +33,11 @@ import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
 import FormInput from '@/components/Form/FormInput';
 import FormTextArea from '@/components/Form/FormTextArea';
+import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
-import {useToast} from '@/context/ToastContext';
-import {Question, QuestionOptions} from '@/app/types';
+import { useToast } from '@/context/ToastContext';
+import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
 
 const QuestionAdd = ({
@@ -175,11 +176,12 @@ const QuestionAdd = ({
       <PageHeader
         title={QuestionAdd('title')}
         description=""
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={step1Url}>{Global('breadcrumbs.selectQuestionType')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -189,13 +191,7 @@ const QuestionAdd = ({
 
       <div className="template-editor-container">
         <div className="main-content">
-          {errors && errors.length > 0 &&
-            <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-              {errors.map((error, index) => (
-                <p key={index}>{error}</p>
-              ))}
-            </div>
-          }
+          <ErrorMessages errors={errors} ref={errorRef} />
           <Tabs>
             <TabList aria-label="Question editing">
               <Tab id="edit">{Global('tabs.editQuestion')}</Tab>

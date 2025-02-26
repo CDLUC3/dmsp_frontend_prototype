@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,18 +12,18 @@ import {
   SearchField,
   Text
 } from "react-aria-components";
-import {ApolloError} from "@apollo/client";
-import {useTranslations} from 'next-intl';
-import {useParams} from 'next/navigation';
+import { ApolloError } from "@apollo/client";
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
 
 import logECS from '@/utils/clientLogger';
-import {Question, Section, useTemplateQuery} from '@/generated/graphql';
+import { Question, Section, useTemplateQuery } from '@/generated/graphql';
 
 // Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import PageHeader from "@/components/PageHeader";
-import {Card, CardBody, CardFooter, CardHeading} from "@/components/Card/card";
-
+import { Card, CardBody, CardFooter, CardHeading } from "@/components/Card/card";
+import ErrorMessages from '@/components/ErrorMessages';
 
 interface SectionInterface {
   id?: number | null;
@@ -60,7 +60,7 @@ const SectionTypeSelectPage: React.FC = () => {
     }
   );
 
-  function sortSectionsByDisplayOrder(sections: Array<Section | null>): Section[] {
+  function sortSectionsByDisplayOrder(sections: (Section | null)[]): Section[] {
     // Filter out null values and ensure type safety
     const validSections = sections.filter((section): section is Section => {
       return section !== null && section !== undefined;
@@ -133,6 +133,7 @@ const SectionTypeSelectPage: React.FC = () => {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateQueryErrors]);
 
   useEffect(() => {
@@ -142,33 +143,23 @@ const SectionTypeSelectPage: React.FC = () => {
     }
   }, [searchTerm])
 
-  // If errors when submitting publish form, scroll them into view
-  useEffect(() => {
-    if (errors.length > 0 && errorRef.current) {
-      errorRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, [errors]);
-
   // Show loading message
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
-
 
   return (
     <>
       <PageHeader
         title={AddNewSection('headings.addNewSection')}
         description={AddNewSection('intro')}
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.section')}</Breadcrumb>
+            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.addNewSection')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
@@ -178,13 +169,7 @@ const SectionTypeSelectPage: React.FC = () => {
       <LayoutContainer>
         <ContentContainer>
           <div className="Filters" ref={errorRef}>
-            {errors && errors.length > 0 &&
-              <div className="error" role="alert" aria-live="assertive">
-                {errors.map((error, index) => (
-                  <p key={index}>{error}</p>
-                ))}
-              </div>
-            }
+            <ErrorMessages errors={errors} ref={errorRef} />
             <SearchField
               onClear={() => { setFilteredSections(null) }}
             >
@@ -321,7 +306,7 @@ const SectionTypeSelectPage: React.FC = () => {
             <p>
               {AddNewSection('newSectionDescription')}
             </p>
-            <Link href={`/template/${templateId}/section/new`}
+            <Link href={`/template/${templateId}/section/create`}
               className="button-link secondary">{AddNewSection('buttons.createNew')}</Link>
           </div>
         </ContentContainer>
