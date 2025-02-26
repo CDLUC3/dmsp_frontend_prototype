@@ -13,7 +13,6 @@ import {
 
 expect.extend(toHaveNoViolations);
 
-// Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
   useProjectQuery: jest.fn(),
 }));

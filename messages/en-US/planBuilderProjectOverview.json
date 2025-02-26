@@ -100,7 +100,7 @@
     "labels": {
       "projectName": "Project name",
       "projectType": "Project type",
-      "projectAbstract": "Project bastract",
+      "projectAbstract": "Project abstract",
       "researchDomain": "Research domain",
       "mockProject": "Mock project",
       "realProject": "Real project",

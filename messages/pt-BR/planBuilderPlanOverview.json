@@ -3,24 +3,20 @@
     "navigation": {
       "home": "Home",
       "projects": "Projetos",
-      "navigation": "Navegação de Breadcrumb""projects": "Projetos",
       "navigation": "Navegação de Breadcrumb"
     },
     "page": {
-      "pageDescription": "Visão geral dos detalhes do plano""pageDescription": "Visão geral dos detalhes do plano"
+      "pageDescription": "Visão geral dos detalhes do plano"
     },
     "funder": {
       "title": "Gordo para este plano",
-      "edit": "Ajustar para este plano""title": "Gordo para este plano",
       "edit": "Ajustar para este plano"
     },
     "members": {
       "title": "Planejar membros para este plano",
       "count": "Membros da equipe {count}",
-      "title": "Planejar membros para este plano",
-      "count": "Membros da equipe {count}",
       "info": "{name} ({role})",
-      "edit": "Ajustar para este plano""edit": "Ajustar para este plano"
+      "edit": "Ajustar para este plano"
     },
     "outputs": {
       "title": "Saídas de pesquisa para este plano",
@@ -37,11 +33,6 @@
       "progress": "{current} de {total}",
       "questionsAnswered": "questões respondidas",
       "update": "Atualização",
-      "updateSection": "Editar: {title}""start": "Iniciar",
-      "ariaLabel": "Resposta {action} para: {title}",
-      "progress": "{current} de {total}",
-      "questionsAnswered": "questões respondidas",
-      "update": "Atualização",
       "updateSection": "Editar: {title}"
     },
     "status": {
@@ -53,10 +44,6 @@
       "visibilitySettings": "Configurações de visibilidade",
       "download": {
         "title": "Baixar",
-        "downloadPDF": "Baixar plano",
-        "draftInfo": "Quando você salvar como rascunho, somente você e pessoas com acesso compartilhado poderão ver este plano.",
-        "learnMore": "Saiba mais",
-        "markComplete": "Marcar como concluído""title": "Baixar",
         "downloadPDF": "Baixar plano",
         "draftInfo": "Quando você salvar como rascunho, somente você e pessoas com acesso compartilhado poderão ver este plano.",
         "learnMore": "Saiba mais",

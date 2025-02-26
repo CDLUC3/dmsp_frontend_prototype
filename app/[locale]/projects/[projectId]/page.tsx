@@ -133,7 +133,7 @@ const ProjectOverviewPage: React.FC = () => {
   };
 
   useEffect(() => {
-    // When data from backend changes, set template data in state
+    // When data from backend changes, set project data in state
     if (data && data.project) {
       setProject({
         title: data.project.title ?? '',
