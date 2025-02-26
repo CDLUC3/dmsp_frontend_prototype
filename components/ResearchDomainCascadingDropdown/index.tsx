@@ -82,11 +82,18 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
     setProjectData({ ...projectData, researchDomainId: selected });
   };
 
+  // Find the selected parent domain
+  const selectedParentDomain = myResearchDomains?.topLevelResearchDomains?.find(domain => domain?.id === Number(selectedParent)) ?? null;
+  const selectedParentName = selectedParentDomain?.name ?? '';
+
+
   // Get human-readable selection text
   const getSelectionText = () => {
-    if (!selectedChild && selectedParent) return `Selected category: ${selectedParent}`;
+    if (!selectedChild && selectedParent) {
+      return `Selected category: ${selectedParentName}`;
+    }
     const childText = childOptionsList.find(option => option.id === selectedChild)?.name;
-    return `Selected: ${childText} (${selectedParent})`;
+    return `Selected: ${childText} (${selectedParentName})`;
   };
 
   useEffect(() => {
@@ -146,8 +153,6 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
   // Disable child dropdown if no parent is selected or no child options are available
   const isChildDisabled = Boolean(selectedParent === '' || childOptionsList.length === 0);
 
-  // Find the selected parent domain
-  const selectedParentDomain = myResearchDomains?.topLevelResearchDomains?.find(domain => domain?.id === Number(selectedParent)) ?? null;
   return (
     <div className="cascading-dropdown">
       <div className="form-group">

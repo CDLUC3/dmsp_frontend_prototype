@@ -97,6 +97,7 @@
     "description": "Selecione um modelo para usar ao criar o DMP.",
     "mockProject": "Projeto fictício",
     "realProject": "Projeto real",
+    "selectedCategory": "Selected category {category}",
     "labels": {
       "projectName": "Nome do Projeto",
       "projectType": "Tipo do projeto",
