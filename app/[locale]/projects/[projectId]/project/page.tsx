@@ -30,7 +30,6 @@ import {
 
 //GraphQL
 import {
-  useTopLevelResearchDomainsQuery,
   useProjectQuery,
   useUpdateProjectMutation,
   ProjectErrors,
@@ -53,18 +52,11 @@ import { getCalendarDateValue } from "@/utils/dateUtils";
 import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
-import styles from './project.module.scss';
 
-interface ResearchDomainInterface {
-  id: string;
-  name: string;
-}
-
-export interface ProjectFormErrorsInterface {
+interface ProjectFormErrorsInterface {
   projectName: string;
   projectAbstract: string;
 }
-
 
 interface ProjectDetailsFormInterface {
   projectName: string;
@@ -73,6 +65,7 @@ interface ProjectDetailsFormInterface {
   endDate: string | CalendarDate | null;
   researchDomainId: string | number;
   isTestProject: string | boolean;
+  parentResearchDomainId: string | number;
 }
 
 const ProjectsProjectDetail = () => {
@@ -94,14 +87,14 @@ const ProjectsProjectDetail = () => {
     startDate: '',
     endDate: '',
     researchDomainId: '',
-    isTestProject: 'true'
+    isTestProject: 'true',
+    parentResearchDomainId: ''
   });
   const [fieldErrors, setFieldErrors] = useState<ProjectFormErrorsInterface>({
     projectName: '',
     projectAbstract: '',
   });
   const [errors, setErrors] = useState<string[]>([]);
-  const [rDomains, setRDomains] = useState<ResearchDomainInterface[]>([]);
 
   // Localization keys
   const ProjectOverview = useTranslations('ProjectOverview');
@@ -132,9 +125,6 @@ const ProjectsProjectDetail = () => {
       notifyOnNetworkStatusChange: true
     }
   );
-
-  // Get all Research Domains
-  const { data: myResearchDomains } = useTopLevelResearchDomainsQuery();
 
   const clearAllFieldErrors = () => {
     //Remove all field errors
@@ -300,30 +290,12 @@ const ProjectsProjectDetail = () => {
         startDate,
         endDate,
         researchDomainId: project.researchDomain?.id ? project.researchDomain.id : '',
+        parentResearchDomainId: project.researchDomain?.parentResearchDomain?.id ? project.researchDomain.parentResearchDomain.id : '',
         isTestProject: project.isTestProject ? project.isTestProject.toString() : 'false'
       })
     }
   }, [data])
 
-  useEffect(() => {
-    const handleResearchDomains = async () => {
-      if (myResearchDomains) {
-        const researchDomains = (myResearchDomains?.topLevelResearchDomains || [])
-          .filter((domain) => domain !== null)
-          .map((domain) => ({
-            id: domain.id?.toString() ?? '',
-            name: domain.name
-          }))
-        setRDomains(researchDomains)
-      }
-    };
-
-    handleResearchDomains();
-  }, [myResearchDomains]);
-
-  useEffect(() => {
-    console.log("***PROJECT DATA", projectData);
-  }, [projectData])
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }

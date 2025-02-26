@@ -103,7 +103,12 @@
       "projectAbstract": "Project bastract",
       "researchDomain": "Research domain",
       "mockProject": "Mock project",
-      "realProject": "Real project"
+      "realProject": "Real project",
+      "childDomain": "Select a {name}:",
+      "item": "Item"
+    },
+    "helpText": {
+      "selectResearchDomain": "First select a research domain"
     },
     "paragraphs": {
       "para1": "Have a grant already? Not the right project? Use Search projects to find the project. If found key information will be filled in for you.",

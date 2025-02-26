@@ -1,7 +1,12 @@
 import React from 'react';
 import { act, render, screen, fireEvent, within } from '@testing-library/react';
 import { useParams } from 'next/navigation';
-import { useProjectQuery, useTopLevelResearchDomainsQuery, useUpdateProjectMutation } from '@/generated/graphql';
+import {
+  useProjectQuery,
+  useTopLevelResearchDomainsQuery,
+  useUpdateProjectMutation,
+  useChildResearchDomainsQuery
+} from '@/generated/graphql';
 import ProjectsProjectDetail from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import {
@@ -18,13 +23,22 @@ jest.mock('next/navigation', () => ({
 jest.mock('@/generated/graphql', () => ({
   useProjectQuery: jest.fn(),
   useTopLevelResearchDomainsQuery: jest.fn(),
-  useUpdateProjectMutation: jest.fn()
+  useUpdateProjectMutation: jest.fn(),
+  useChildResearchDomainsQuery: jest.fn(),
 }));
+
+const mockChildDomains = {
+  childResearchDomains: [
+    { id: '1', name: 'Child Domain 1' },
+    { id: '2', name: 'Child Domain 2' },
+  ],
+};
 
 describe('ProjectsProjectDetail', () => {
   const mockUseParams = useParams as jest.Mock;
   const mockUseProjectQuery = useProjectQuery as jest.Mock;
   const mockUseTopLevelResearchDomainsQuery = useTopLevelResearchDomainsQuery as jest.Mock;
+  const mockUseChildResearchDomainsQuery = useChildResearchDomainsQuery as jest.Mock;
 
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
@@ -55,6 +69,11 @@ describe('ProjectsProjectDetail', () => {
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
+
+    mockUseChildResearchDomainsQuery.mockReturnValue({
+      data: mockChildDomains,
+      loading: false, error: undefined,
+    });
   });
 
   it('should render the project details form', () => {

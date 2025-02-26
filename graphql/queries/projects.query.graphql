@@ -58,6 +58,9 @@ query Project($projectId: Int!) {
     }
     researchDomain {
       id
+      parentResearchDomainId {
+        id
+      }
     }
   }
 }

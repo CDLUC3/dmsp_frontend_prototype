@@ -3295,7 +3295,7 @@ export type ProjectQueryVariables = Exact<{
 }>;
 
 
-export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, funders?: Array<{ __typename?: 'ProjectFunder', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, contributors?: Array<{ __typename?: 'ProjectContributor', givenName?: string | null, surName?: string | null, email?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, outputs?: Array<{ __typename?: 'ProjectOutput', title: string }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null } | null } | null };
+export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, funders?: Array<{ __typename?: 'ProjectFunder', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, contributors?: Array<{ __typename?: 'ProjectContributor', givenName?: string | null, surName?: string | null, email?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, outputs?: Array<{ __typename?: 'ProjectOutput', title: string }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null, parentResearchDomain?: { __typename?: 'ResearchDomain', id?: number | null } | null } | null } | null };
 
 export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4272,6 +4272,9 @@ export const ProjectDocument = gql`
     }
     researchDomain {
       id
+      parentResearchDomain {
+        id
+      }
     }
   }
 }
