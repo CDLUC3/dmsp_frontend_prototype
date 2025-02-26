@@ -55,7 +55,7 @@
 - Added useSampleTextAsDefault checkbox for text field question types [#188]
 
 ### Fixed
-
+- Fixed `EvalError: Code generation from strings ` bug that was occurring because I set the environment in docker-compose.yml to production
 
 ====================================================================================================
 
