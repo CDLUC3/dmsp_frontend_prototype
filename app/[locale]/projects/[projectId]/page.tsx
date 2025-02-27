@@ -263,7 +263,7 @@ const ProjectOverviewPage: React.FC = () => {
                 <div className="plan-footer">
                   <div className="plan-links">
                     <Link
-                      href="/plans/123"
+                      href="/en-US/projects/proj_2425/dmp/xxx/download"
                       className="plan-link download-link"
                       aria-label={t('downloadPlan')}
                     >

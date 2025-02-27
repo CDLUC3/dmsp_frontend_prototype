@@ -1,5 +1,8 @@
 ## v0.0.1
-
+- Plan Manage Access [#299]
+- Plan Publish [#299]
+- Plan Downloads [#299]
+- 
 ### Added
 - Project Create Flow [#299]
 - Project Upload [#299]
