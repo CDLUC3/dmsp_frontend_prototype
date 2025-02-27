@@ -8,8 +8,11 @@ import {
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams } from 'next/navigation';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import SectionUpdatePage from '../page';
+import {
+  mockScrollIntoView,
+  mockScrollTo
+} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -24,38 +27,6 @@ jest.mock("@/generated/graphql", () => ({
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
 }))
-
-jest.mock('@/context/ToastContext', () => ({
-  useToast: jest.fn(() => ({
-    add: jest.fn(),
-  })),
-}));
-
-// Create a mock for scrollIntoView and focus
-const mockScrollIntoView = jest.fn();
-
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
-
-// Mock useTranslations from next-intl
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
-
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
-      }
-      return key;
-    };
-
-    return mockUseTranslations;
-  }),
-}));
 
 const mockSectionsData = {
   bestPractice: false,
@@ -147,7 +118,7 @@ const mockTagsData = {
 describe("SectionUpdatePage", () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+    mockScrollTo();
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 

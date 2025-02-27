@@ -25,3 +25,42 @@ query MyProjects {
     }
   }
 }
+
+query Project($projectId: Int!) {
+  project(projectId: $projectId) {
+    title
+    abstractText
+    startDate
+    endDate
+    isTestProject
+    funders {
+      id
+      grantId
+      affiliation {
+        name
+        displayName
+        searchName
+      }
+    }
+    contributors {
+      givenName
+      surName
+      contributorRoles {
+        description
+        displayOrder
+        label
+        uri
+      }
+      email
+    }
+    outputs {
+      title
+    }
+    researchDomain {
+      id
+      parentResearchDomainId {
+        id
+      }
+    }
+  }
+}

@@ -1,11 +1,11 @@
 {
   "SignupPage": {
     "register": "Register",
-    "createAccount": "Create a DMP Tool Account",
+    "createAccount": "Create a DMP tool account",
     "emailAddress": "Email address",
     "emailHelp": "To enable Single Sign On (SSO), use your institutional address. You will be redirected to your institution‘s single sign on platform",
     "password": "Password",
-    "passwordConfirm": "Confirm Password",
+    "passwordConfirm": "Confirm password",
     "passMissMatch": "Passwords don't match",
     "firstName": "First name",
     "lastName": "Last name",

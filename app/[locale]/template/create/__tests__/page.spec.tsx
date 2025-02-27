@@ -1,11 +1,12 @@
 import React from 'react';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import { fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import '@testing-library/jest-dom';
 import { useRouter } from 'next/navigation';
 import TemplateCreatePage from '../page';
 import { useQueryStep } from '../useQueryStep';
-
+import {
+  mockScrollTo
+} from '@/__mocks__/common';
 
 // Mock the useQueryStep hook
 jest.mock('@/app/[locale]/template/create/useQueryStep', () => ({
@@ -29,38 +30,13 @@ jest.mock('@/components/SelectExistingTemplate', () => ({
   default: () => <div data-testid="select-existing-template">Mocked TemplateSelectTemplatePage Component</div>,
 }));
 
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
-
-
-// Mock useTranslations from next-intl
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
-
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
-      }
-      return key;
-    };
-
-    return mockUseTranslations;
-  }),
-}));
-
-
 describe('TemplateCreatePage', () => {
   let pushMock: jest.Mock;
 
   beforeEach(() => {
     pushMock = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
-    window.scrollTo = jest.fn();
+    mockScrollTo();
   });
 
   it('should render loading state initially', () => {

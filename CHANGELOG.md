@@ -18,6 +18,9 @@
 - Plan Question and boilerplate tests [#178]
 
 ### Updated
+- Updated `/projects/[projectId]/project` page to hook it up to data [#351]
+- Moved some shared test utils to jest.setup.ts or `__mocks__/common.ts` [#351]
+- Updated translation content to use sentence-case rather than title case [#351]
 - Made updates throughout the Template Builder flow to make the experience more consistent across pages, and fixed some bugs [#347]
 - Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
 - Made updates to get Dockerfile.prod to work. 
@@ -42,6 +45,9 @@
 - Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
 - Updated `QuestionTypeSelectPage`- hooked up to real data and updated code [#220]
 - Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
+
+### Fixed
+- Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
 
 ### Added
 - Added `/projects/[projectId]/project-funding`, copying over the static code from `/projects/[projectId]/create-project/funding`. Updated
