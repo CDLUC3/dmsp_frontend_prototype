@@ -58,9 +58,22 @@ query Project($projectId: Int!) {
     }
     researchDomain {
       id
-      parentResearchDomainId {
-        id
+      parentResearchDomainId
+    }
+     plans {
+      sections {
+        answeredQuestions
+        displayOrder
+        sectionId
+        sectionTitle
+        totalQuestions
       }
+      templateTitle
+      id
+      funder
+      dmpId
+      modified
+      created
     }
   }
 }

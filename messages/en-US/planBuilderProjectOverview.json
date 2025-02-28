@@ -46,6 +46,7 @@
     "update": "Update plan",
     "updatePlan": "Update this plan",
     "dateRange": "{startDate} to {endDate}",
+    "created": "Created",
     "messages": {
       "errorGettingProject": "Error getting project details"
     }
