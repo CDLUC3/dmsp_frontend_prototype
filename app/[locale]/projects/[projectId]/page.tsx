@@ -2,14 +2,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
   Link
 } from "react-aria-components";
 import {
-  useProjectQuery
+  useProjectQuery,
+  PlanSearchResult,
+  PlanSectionProgress
 } from '@/generated/graphql';
 
 // Components
@@ -45,12 +47,16 @@ interface ProjectOverviewInterface {
   funders: FunderInterface[];
   projectMembers: ProjectMemberInterface[];
   researchOutputs: ResearchOutputsInterface[];
+  plans: PlanSearchResult[];
+  dmpId?: string;
+  modified?: string;
 }
 
 const ProjectOverviewPage: React.FC = () => {
   // Get projectId param
   const params = useParams();
   const { projectId } = params; // From route /projects/:projectId
+  const formatter = useFormatter();
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [project, setProject] = useState<ProjectOverviewInterface>({
@@ -58,6 +64,7 @@ const ProjectOverviewPage: React.FC = () => {
     startDate: null,
     endDate: null,
     funders: [],
+    plans: [],
     projectMembers: [],
     researchOutputs: []
   });
@@ -79,58 +86,21 @@ const ProjectOverviewPage: React.FC = () => {
     setErrors(prev => [...prev, errorMsg]);
   }
 
-  const project1 = {
-    plans: [
-      {
-        id: "plan_123",
-        template_name: "NSF Polar Programs",
-        funder_id: "nsf_1",
-        funder_name: "National Science Foundation",
-        template_id: "temp_456",
-        sections: [
-          {
-            section_title: "Roles and Responsibilities",
-            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
-            id: "sect_1",
-            progress: 1
-          },
-          {
-            section_title: "Types of Data",
-            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
-            id: "sect_2",
-            progress: 1
-          },
-          {
-            section_title: "Data and Metadata formats",
-            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
-            id: "sect_3",
-            progress: 2
-          },
-          {
-            section_title: "Policies for Access and Sharing",
-            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
-            id: "sect_4",
-            progress: 1
-          },
-          {
-            section_title: "Policies for reuse and re-distribution",
-            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
-            id: "sect_5",
-            progress: 0
-          },
-          {
-            section_title: "Plans for archiving and preservation",
-            link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
-            id: "sect_6",
-            progress: 0
-          }
-        ],
-        doi: "10.12345/example.123",
-        last_updated: "2024-04-01",
-        created_date: "2023-07-18"
-      }
-    ]
-  };
+  // Format date using next-intl date formatter
+  const formatDate = (date: string) => {
+    const formattedDate = formatter.dateTime(new Date(Number(date)), {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+    // Replace slashes with hyphens
+    return formattedDate.replace(/\//g, '-');
+  }
+
+  const sortSections = (sections: PlanSectionProgress[]) => {
+    // Create a new array with the spread operator before sorting
+    return [...sections].sort((a, b) => a.displayOrder - b.displayOrder);
+  }
 
   useEffect(() => {
     // When data from backend changes, set project data in state
@@ -139,6 +109,7 @@ const ProjectOverviewPage: React.FC = () => {
         title: data.project.title ?? '',
         startDate: data.project?.startDate ? data.project.startDate : '',
         endDate: data.project?.endDate ? data.project.endDate : '',
+        plans: data.project?.plans ?? [],
         funders: data.project.funders
           ?.filter((funder) => funder !== null) // Filter out null
           .map((funder) => ({
@@ -293,66 +264,74 @@ const ProjectOverviewPage: React.FC = () => {
                 </Link>
               </div>
             </div>
-            {project1.plans.map((plan) => (
-              <Card className="plan-item" key={plan.id}>
-                <p className="mb-1">{ProjectOverview('funder')}: {plan.funder_name}</p>
-                <h3 className="mt-0">{plan.template_name}</h3>
-                <div className="plan-sections mb-4">
-                  <ul className="plan-sections-list"
-                    aria-label={ProjectOverview('planSections')}>
-                    {plan.sections.map((section) => (
-                      <li key={section.id} className="plan-sections-list-item">
-                        <Link href={section.link}>
-                          {section.section_title}
-                        </Link>
-                        <span className="plan-sections-list-item-progress">
-                          {ProjectOverview('progress', {
-                            current: section.progress,
-                            total: 3
-                          })}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="plan-meta">
-                  <p>
-                    {ProjectOverview('doi')}: {plan.doi} <br />
-                    {ProjectOverview('lastUpdated')}: {plan.last_updated}<br />
-                    {ProjectOverview('template')}: Arctic Data Center: NSF Polar Programs
-                  </p>
-                </div>
-                <div className="plan-footer">
-                  <div className="plan-links">
-                    <Link
-                      href="/plans/123"
-                      className="plan-link download-link"
-                      aria-label={ProjectOverview('downloadPlan')}
-                    >
-                      <span className="link-text">{ProjectOverview('download')}</span>
-                      <span className="link-icon" aria-hidden="true">↓</span>
-                    </Link>
-                    <Link
-                      href="/share"
-                      className="plan-link share-link"
-                      aria-label={ProjectOverview('sharePlan')}
-                    >
-                      <span className="link-text">{ProjectOverview('share')}</span>
-                      <span className="link-icon" aria-hidden="true">👤</span>
-                    </Link>
+            {/** Plans */}
+            {project.plans.map((plan) => {
+              // extract dmp id from the full dmpId
+              const doiId = plan?.dmpId?.match(/(?:https?:\/\/doi\.org\/)(.+)/)?.[1] ?? '';
+              const modifiedDate = formatDate(plan?.modified ?? '');
+              const createdDate = formatDate(plan?.created ?? '');
+              const sortedSections = sortSections(plan.sections ?? []);
+              return (
+                <Card className="plan-item" key={plan.id}>
+                  <p className="mb-1">{ProjectOverview('funder')}: {plan.funder}</p>
+                  <h3 className="mt-0">{plan.templateTitle}</h3>
+                  <div className="plan-sections mb-4">
+                    <ul className="plan-sections-list"
+                      aria-label={ProjectOverview('planSections')}>
+                      {sortedSections.map((section) => (
+                        <li key={section.sectionId} className="plan-sections-list-item">
+                          <Link href={`/projects/${projectId}/dmp/${doiId}/s/${section.sectionId}`}>
+                            {section.sectionTitle}
+                          </Link>
+                          <span className="plan-sections-list-item-progress">
+                            {ProjectOverview('progress', {
+                              current: section.answeredQuestions,
+                              total: section.totalQuestions
+                            })}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <div className="plan-action">
-                    <Link
-                      href={`/projects/${projectId}/dmp/xxx`}
-                      className="react-aria-Button react-aria-Button--primary"
-                      aria-label={ProjectOverview('updatePlan')}
-                    >
-                      {ProjectOverview('update')}
-                    </Link>
+                  <div className="plan-meta">
+                    <p>
+                      {ProjectOverview('doi')}: {plan.dmpId} <br />
+                      {ProjectOverview('lastUpdated')}: {modifiedDate}<br />
+                      {ProjectOverview('created')}: {createdDate}
+                    </p>
                   </div>
-                </div>
-              </Card>
-            ))}
+                  <div className="plan-footer">
+                    <div className="plan-links">
+                      <Link
+                        href="/plans/123"
+                        className="plan-link download-link"
+                        aria-label={ProjectOverview('downloadPlan')}
+                      >
+                        <span className="link-text">{ProjectOverview('download')}</span>
+                        <span className="link-icon" aria-hidden="true">↓</span>
+                      </Link>
+                      <Link
+                        href="/share"
+                        className="plan-link share-link"
+                        aria-label={ProjectOverview('sharePlan')}
+                      >
+                        <span className="link-text">{ProjectOverview('share')}</span>
+                        <span className="link-icon" aria-hidden="true">👤</span>
+                      </Link>
+                    </div>
+                    <div className="plan-action">
+                      <Link
+                        href={`/projects/${projectId}/dmp/xxx`}
+                        className="react-aria-Button react-aria-Button--primary"
+                        aria-label={ProjectOverview('updatePlan')}
+                      >
+                        {ProjectOverview('update')}
+                      </Link>
+                    </div>
+                  </div>
+                </Card>
+              )
+            })}
           </section>
         </ContentContainer>
       </LayoutContainer>
