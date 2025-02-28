@@ -290,7 +290,7 @@ const ProjectsProjectDetail = () => {
         startDate,
         endDate,
         researchDomainId: project.researchDomain?.id ? project.researchDomain.id : '',
-        parentResearchDomainId: project.researchDomain?.parentResearchDomain?.id ? project.researchDomain.parentResearchDomain.id : '',
+        parentResearchDomainId: project.researchDomain?.parentResearchDomainId ? project.researchDomain.parentResearchDomainId : '',
         isTestProject: project.isTestProject ? project.isTestProject.toString() : 'false'
       })
     }

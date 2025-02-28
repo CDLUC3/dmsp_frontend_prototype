@@ -177,8 +177,8 @@ const ProjectOverviewPage: React.FC = () => {
         breadcrumbs={
           <Breadcrumbs aria-label={ProjectOverview('navigation')}>
             <Breadcrumb><Link href="/">{ProjectOverview('home')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href="/projects">{ProjectOverview('projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects">{ProjectOverview('projects')}</Link></Breadcrumb>
+            <Breadcrumb>{ProjectOverview('pageTitle')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}

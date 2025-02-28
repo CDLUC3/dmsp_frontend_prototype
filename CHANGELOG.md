@@ -18,6 +18,7 @@
 - Plan Question and boilerplate tests [#178]
 
 ### Updated
+- Updated `ProjectsProjectFundingEdit` component and moved the page under a new `[projectFunderId]` directory at `/projects/[projectId]/funder/[projectFunderId]/edit` [#357]
 - Updated `/projects/[projectId]/project` page to hook it up to data [#351]
 - Moved some shared test utils to jest.setup.ts or `__mocks__/common.ts` [#351]
 - Updated translation content to use sentence-case rather than title case [#351]
