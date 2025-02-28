@@ -270,9 +270,9 @@ const ProjectsProjectDetail = () => {
             projectName: errors.title || '',
             projectAbstract: errors.abstractText || '',
           });
-
-          setErrors([errors.general || ProjectDetail('messages.errors.projectUpdateFailed')]);
         }
+        setErrors([errors.general || ProjectDetail('messages.errors.projectUpdateFailed')]);
+
       } else {
         // Show success message
         showSuccessToast();

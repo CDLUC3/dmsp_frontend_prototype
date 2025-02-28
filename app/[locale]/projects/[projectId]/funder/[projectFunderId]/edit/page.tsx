@@ -190,9 +190,9 @@ const ProjectsProjectFundingEdit = () => {
           funderOpportunityNumber: errors.funderOpportunityNumber || '',
           funderProjectNumber: errors.funderProjectNumber || ''
         });
-
-        setErrorMessages([errors.general || EditFunding('messages.errors.projectFunderUpdateFailed')]);
       }
+      setErrorMessages([errors.general || EditFunding('messages.errors.projectFunderUpdateFailed')]);
+
     } else {
       // Show success message
       showSuccessToast();
