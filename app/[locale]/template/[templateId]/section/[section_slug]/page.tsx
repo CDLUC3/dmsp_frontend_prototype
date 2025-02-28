@@ -240,9 +240,9 @@ const SectionUpdatePage: React.FC = () => {
             sectionRequirements: errors.requirements || '',
             sectionGuidance: errors.guidance || ''
           });
-
-          setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
         }
+        setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
+
       } else {
         // Show success message
         showSuccessToast();
