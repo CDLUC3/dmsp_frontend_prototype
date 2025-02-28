@@ -233,6 +233,7 @@ const TemplateListPage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{t('breadcrumbHome')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{t('title')}</Link></Breadcrumb>
+            <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={

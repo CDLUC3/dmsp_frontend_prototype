@@ -167,7 +167,7 @@ const SectionUpdatePage: React.FC = () => {
   }
 
   // Make GraphQL mutation request to update section
-  const updateSection = async (): Promise<SectionErrors> => {
+  const updateSection = async (): Promise<[SectionErrors, boolean]> => {
     try {
       const response = await updateSectionMutation({
         variables: {
@@ -184,21 +184,26 @@ const SectionUpdatePage: React.FC = () => {
         }
       });
 
-      if (response.data?.updateSection?.errors) {
-        return response.data.updateSection.errors;
+      const responseErrors = response.data?.updateSection?.errors
+      if (responseErrors) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'SectionErrors').length > 0) {
+          return [responseErrors, false];
+        }
       }
+
+      return [{}, true];
     } catch (error) {
       logECS('error', 'updateSection', {
         error,
         url: { path: '/template/[templateId]/section/[sectionid]' }
       });
       if (error instanceof ApolloError) {
-        setErrorMessages(prevErrors => [...prevErrors, error.message]);
+        return [{}, false];
       } else {
         setErrorMessages(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorUpdatingSection')]);
+        return [{}, false];
       }
     }
-    return {};
   };
 
   // Handle changes to tag checkbox selection
@@ -225,18 +230,19 @@ const SectionUpdatePage: React.FC = () => {
 
     if (isFormValid()) {
       // Create new section
-      const errors = await updateSection();
+      const [errors, success] = await updateSection();
 
-      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
-      if (errors && Object.values(errors).filter((err) => err && err !== 'SectionErrors').length > 0) {
-        setFieldErrors({
-          sectionName: errors.name || '',
-          sectionIntroduction: errors.introduction || '',
-          sectionRequirements: errors.requirements || '',
-          sectionGuidance: errors.guidance || ''
-        });
+      if (!success) {
+        if (errors) {
+          setFieldErrors({
+            sectionName: errors.name || '',
+            sectionIntroduction: errors.introduction || '',
+            sectionRequirements: errors.requirements || '',
+            sectionGuidance: errors.guidance || ''
+          });
 
-        setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
+          setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
+        }
       } else {
         // Show success message
         showSuccessToast();
@@ -262,6 +268,7 @@ const SectionUpdatePage: React.FC = () => {
       scrollToTop(errorRef);
     }
   }, [errorMessages]);
+
 
   // We need this so that the page waits to render until data is available
   if (loading) {

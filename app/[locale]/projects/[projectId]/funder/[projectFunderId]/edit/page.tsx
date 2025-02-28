@@ -99,12 +99,6 @@ const ProjectsProjectFundingEdit = () => {
     }
   );
 
-  useEffect(() => {
-    if (queryError) {
-      setErrorMessages(prev => [...prev, queryError.message]);
-    }
-  }, [queryError])
-
   // Initialize useUpdateProjectMutation
   const [updateProjectFunderMutation] = useUpdateProjectFunderMutation();
 
@@ -204,7 +198,6 @@ const ProjectsProjectFundingEdit = () => {
       showSuccessToast();
       // Redirect back to the project funder page
       router.push(`/projects/${projectId}/funder`);
-
     }
   };
 
@@ -220,6 +213,12 @@ const ProjectsProjectFundingEdit = () => {
       });
     }
   }, [data]);
+
+  useEffect(() => {
+    if (queryError) {
+      setErrorMessages(prev => [...prev, queryError.message]);
+    }
+  }, [queryError])
 
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
