@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
+import { routePath } from '@/utils/routes';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -21,9 +22,15 @@ import { RadioGroupComponent } from '@/components/Form';
 
 const ProjectsCreateProjectFunding = () => {
   const router = useRouter();
-  // Get project id from param
   const params = useParams();
+
   const { projectId } = params;
+  const FUNDING_SEARCH_URL = routePath('projects.create.fundingSearch', {
+    projectId: projectId
+  });
+  const PROJECT_DETAIL_URL = routePath('projects.show', {
+    projectId: projectId
+  });
 
   const [hasFunding, setHasFunding] = useState("yes");
 
@@ -35,9 +42,9 @@ const ProjectsCreateProjectFunding = () => {
     e.preventDefault();
 
     if (hasFunding === 'yes') {
-      router.push('/projects/create-project/funder-search');
+      router.push(FUNDING_SEARCH_URL);
     } else {
-      router.push(`/projects/${projectId}`);
+      router.push(PROJECT_DETAIL_URL);
     }
   }
 

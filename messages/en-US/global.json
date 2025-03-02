@@ -181,10 +181,15 @@
     "labels": {
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
-      "endDate": "End date"
+      "endDate": "End date",
+      "funderSearch": "Search by funder name"
     },
     "helpText": {
-      "searchHelpText": "Search by research organization, field station or lab, template description, etc."
+      "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
+      "funderSearch": "Search by research organization, funder name, or related keywords."
+    },
+    "placeholders": {
+      "funderSearch": "Enter funder name..."
     },
     "links": {
       "clearFilter": "clear filter",
