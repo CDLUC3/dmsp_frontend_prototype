@@ -119,11 +119,13 @@
       "selectExistingTemplate": "Selecionar um modelo existente",
       "templateHistory": "Histórico do modelo",
       "section": "Seção",
-      "addNewSection": "Adicionar nova sessão",
+      "addNewSection": "Adicionar uma nova seção",
       "updateSection": "Seção de atualização",
-      "editSection": "Editar seção",
-      "editTemplate": "Editar modelo",
+      "editSection": "Edit Section",
+      "createSection": "Criar seção",
+      "editTemplate": "Editar Modelo",
       "question": "Pergunta",
+      "selectQuestionType": "Selecionar o tipo de questão",
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto"
     },
@@ -144,7 +146,8 @@
       "linkUpdate": "Atualização",
       "linkExpand": "Expandir",
       "linkCollapse": "Retrair",
-      "continue": "Avançar"
+      "continue": "Avançar",
+      "edit": "Alterar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",

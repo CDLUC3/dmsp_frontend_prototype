@@ -46,6 +46,7 @@
     "update": "Atualizar plano",
     "updatePlan": "Atualizar este plano",
     "dateRange": "{startDate} até {endDate}",
+    "created": "Criado",
     "messages": {
       "errorGettingProject": "Erro ao obter detalhes do projeto"
     }
@@ -97,14 +98,18 @@
     "description": "Selecione um modelo para usar ao criar o DMP.",
     "mockProject": "Projeto fictício",
     "realProject": "Projeto real",
-    "selectedCategory": "Selected category {category}",
     "labels": {
       "projectName": "Nome do Projeto",
       "projectType": "Tipo do projeto",
-      "projectAbstract": "Base do projeto",
+      "projectAbstract": "Resumo do projeto",
       "researchDomain": "Domínio de pesquisa",
       "mockProject": "Projeto fictício",
-      "realProject": "Projeto real"
+      "realProject": "Projeto real",
+      "childDomain": "Select a {name}:",
+      "item": "Produto"
+    },
+    "helpText": {
+      "selectResearchDomain": "Primeiro selecione um domínio de pesquisa"
     },
     "paragraphs": {
       "para1": "Já tem uma ajuda? Não tem o projeto correto? Use os projetos de pesquisa para encontrar o projeto. Se as principais informações serão preenchidas para você.",
@@ -127,6 +132,31 @@
       "success": {
         "projectUpdated": "Detalhes do projeto atualizados com sucesso"
       }
+    }
+  },
+  "ProjectsProjectMembers": {
+    "title": "Membros do Projeto",
+    "description": "Defina colaboradores e membros da equipe e seu papel neste projeto.",
+    "buttons": {
+      "addCollaborators": "Adicionar colaboradores",
+      "shareWithPeople": "Compartilhar com pessoas",
+      "shareAccess": "Compartilhar Acesso",
+      "updateAccess": "Acesso de atualização",
+      "update": "Atualização",
+      "share": "Compartilhar",
+      "accessFor": "acesso para {member}"
+    },
+    "headings": {
+      "h2AllowCollaborators": "Permitir que colaboradores possam editar ou comentar acesso?"
+    },
+    "para": {
+      "para1AllowCollaborators": "Você pode convidar pessoas para acessar, editar ou comentar nos planos usando o botão compartilhar"
+    },
+    "messages": {
+      "errors": {
+        "errorGettingContributors": "Erro ao obter contribuidores"
+      },
+      "noContributors": "Nenhum contribuidor encontrado"
     }
   }
 }

@@ -133,5 +133,30 @@
         "projectUpdated": "Successfully updated project details"
       }
     }
+  },
+  "ProjectsProjectMembers": {
+    "title": "Project Members",
+    "description": "Define contributors &amp; team members and their role in this project.",
+    "buttons": {
+      "addCollaborators": "Add collaborators",
+      "shareWithPeople": "Share with people",
+      "shareAccess": "Share access",
+      "updateAccess": "Update access",
+      "update": "Update",
+      "share": "Share",
+      "accessFor": "access for {member}"
+    },
+    "headings": {
+      "h2AllowCollaborators": "Allow collaborators edit or comment access?"
+    },
+    "para": {
+      "para1AllowCollaborators": "You can invite people to access, edit or comment on plans by using the share button"
+    },
+    "messages": {
+      "errors": {
+        "errorGettingContributors": "Error getting contributors"
+      },
+      "noContributors": "No contributors found"
+    }
   }
 }
