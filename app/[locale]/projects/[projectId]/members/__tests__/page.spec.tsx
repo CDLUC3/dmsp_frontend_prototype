@@ -118,8 +118,6 @@ describe('ProjectsProjectMembers', () => {
     expect(screen.getByRole('button', { name: /buttons.addCollaborators/i })).toBeInTheDocument();
     const editButton = screen.getByRole('button', { name: "Edit Jacques Cousteau's details" });
     expect(editButton).toBeInTheDocument();
-    const updateAccessButton = screen.getAllByText('buttons.updateAccess');
-    expect(updateAccessButton).toHaveLength(2);
     expect(screen.getByRole('heading', { level: 2, name: 'headings.h2AllowCollaborators' })).toBeInTheDocument();
     expect(screen.getByText('para.para1AllowCollaborators')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.shareWithPeople/i })).toBeInTheDocument();

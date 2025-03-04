@@ -136,15 +136,10 @@
   },
   "ProjectsProjectMembers": {
     "title": "Project Members",
-    "description": "Define contributors &amp; team members and their role in this project.",
+    "description": "Define contributors and team members and their role in this project.",
     "buttons": {
       "addCollaborators": "Add collaborators",
-      "shareWithPeople": "Share with people",
-      "shareAccess": "Share access",
-      "updateAccess": "Update access",
-      "update": "Update",
-      "share": "Share",
-      "accessFor": "access for {member}"
+      "shareWithPeople": "Share with people"
     },
     "headings": {
       "h2AllowCollaborators": "Allow collaborators edit or comment access?"

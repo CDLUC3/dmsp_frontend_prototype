@@ -63,11 +63,6 @@ const ProjectsProjectMembers = () => {
     router.push(`/projects/${projectId}/members/edit?memberid=${memberId?.toString()}`);
   };
 
-  const handleAccessUpdate = (memberId: number | null): void => {
-    // Handle access update
-    router.push(`/projects/${projectId}/members/edit?memberid=${memberId?.toString()}`);
-  };
-
   const handleShare = (): void => {
     // Handle share
     router.push(`/projects/${projectId}/share`);
@@ -167,13 +162,6 @@ const ProjectsProjectMembers = () => {
                       <p className={styles.role}>{member.role}</p>
                     </div>
                     <div className={styles.memberActions}>
-                      <Button
-                        onPress={() => handleAccessUpdate(member.id)}
-                        className="secondary"
-                        aria-label={`${member.isPrimaryInvestigator ? ProjectMembers('buttons.update') : ProjectMembers('buttons.share')} ${ProjectMembers('buttons.accessFor', { member: member.fullName })}`}
-                      >
-                        {member.isPrimaryInvestigator ? ProjectMembers('buttons.updateAccess') : ProjectMembers('buttons.shareAccess')}
-                      </Button>
                       <Button
                         onPress={() => handleEdit(member.id)}
                         className="primary"

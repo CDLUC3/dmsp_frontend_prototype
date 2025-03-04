@@ -139,12 +139,7 @@
     "description": "Defina colaboradores e membros da equipe e seu papel neste projeto.",
     "buttons": {
       "addCollaborators": "Adicionar colaboradores",
-      "shareWithPeople": "Compartilhar com pessoas",
-      "shareAccess": "Compartilhar Acesso",
-      "updateAccess": "Acesso de atualização",
-      "update": "Atualização",
-      "share": "Compartilhar",
-      "accessFor": "acesso para {member}"
+      "shareWithPeople": "Compartilhar com pessoas"
     },
     "headings": {
       "h2AllowCollaborators": "Permitir que colaboradores possam editar ou comentar acesso?"
