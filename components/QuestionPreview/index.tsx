@@ -1,5 +1,6 @@
 import React, {
   useState,
+  useEffect,
 } from 'react';
 
 import Link from 'next/link';
@@ -11,6 +12,7 @@ import {
   Modal,
   ModalOverlay,
   Dialog,
+  DialogTrigger,
 } from "react-aria-components";
 
 import {
@@ -32,87 +34,98 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   className='',
 }) => {
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setOpen] = useState<boolean>(false);
+  const [ready, setReady] = useState<boolean>(false);
 
-  function showPreview() {
-    if (!isOpen) setIsOpen(true);
-  }
+  useEffect(() => {
+    const handlePopState = () => {
+      if (!isOpen && window.location.hash === `#${id}_modal`) {
+        setOpen(true);
+      } else {
+        setOpen(false);
+      }
+    };
 
-  function hidePreview() {
-    if (isOpen) setIsOpen(false);
-  }
+    window.addEventListener('popstate', handlePopState);
 
-  function handleOpenChange(ev) {
-    console.log('Modal Event?');
-    console.log(ev);
-  }
+    if (window.location.hash === `#${id}_modal`) {
+      setOpen(true);
+    }
+
+    // NOTE:
+    // Tell the rest of the component that we are ready,
+    // This is to prevent calling window.history.back() if the url with
+    // the modal id is pasted directly into the browser location.
+    setReady(true);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (window.location.hash !== `#${id}_modal`) {
+        window.history.pushState(null, null, `#${id}_modal`);
+      }
+    } else {
+      if (ready) {
+        if (window.location.hash === `#${id}_modal`) {
+          window.history.back();
+        }
+      }
+    }
+  }, [isOpen]);
 
   return (
     <ContentContainer
       id={id}
       className={styles.PreviewContainer}
-      data-testid="preview-container"
     >
-      <Button onPress={showPreview}>Preview</Button>
-      <ModalOverlay
-        className={styles.ModalOverlay}
-        isOpen={isOpen}
-        onOpenChange={handleOpenChange}
-        isDismissable
-      >
-        <Modal
-          className={styles.Modal}
-          data-testid="bottomsheet-modal"
+      <DialogTrigger>
+        <Button
+          onPress={() => setOpen(true)}
+          data-testid="preview-button"
         >
-          <div className={styles.PreviewNotice}>
-            <h3>Preview</h3>
-            <p>
-              This is a preview of how the user will see this question, with both
-              the funder and your own Requirements and Guidance text.
-            </p>
-            <Button onPress={hidePreview}>Close</Button>
-          </div>
-
-          <LayoutWithPanel className={styles.ModalContentLayout}>
-            <ContentContainer
-              data-testid="bottomsheet-content"
+          Preview
+        </Button>
+        <ModalOverlay
+          data-testid="modal-overlay"
+          className={styles.ModalOverlay}
+          isOpen={isOpen}
+          onOpenChange={setOpen}
+          isDismissable
+        >
+          <Modal
+            className={styles.Modal}
+            data-testid="modal-bottomsheet"
+          >
+            <Dialog
+              data-testid="modal-dialog"
+              className={styles.ModalDialog}
             >
+              <div
+                data-testid="preview-notice"
+                className={styles.PreviewNotice}
+              >
+                <h3>Preview</h3>
+                <p>
+                  This is a preview of how the user will see this question, with both
+                  the funder and your own Requirements and Guidance text.
+                </p>
+                <Button
+                  data-testid="preview-close-button"
+                  onPress={() => setOpen(false)}
+                >
+                  Close
+                </Button>
+              </div>
+
               {children}
-            </ContentContainer>
-
-            <SidebarPanel
-              className={`${styles.Sidebar}`}
-              data-testid="sidebar-panel"
-            >
-              <p>Best pracive by (DMPTool Logo)</p>
-
-              <h3>Data Sharing</h3>
-              <p>
-                Give a summary of the data you will collect or create, noting the
-                content, coverage and data type, for example tabular data, survey
-                data, experimental measurements, models, software, audiovisual data,
-                physical samples, etc.
-              </p>
-              <p><a href="#">Expand</a></p>
-
-              <h3>Data Preservation</h3>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
-                imperdiet tempor mi, in fringilla lectus viverra et. Suspendisse
-                erat dolor, rutrum et tempor eu, ultricies quis nunc.
-              </p>
-              <p><a href="#">Expand</a></p>
-
-              <h3>Data Protection</h3>
-              <p>
-                Quisque sit amet ex volutpat, imperdiet risus sit amet, malesuada
-                enim.
-              </p>
-              <p><a href="#">Expand</a></p>
-            </SidebarPanel>
-          </LayoutWithPanel>
-        </Modal>
-      </ModalOverlay>
+            </Dialog>
+          </Modal>
+        </ModalOverlay>
+      </DialogTrigger>
     </ContentContainer>
   )
 }
