@@ -242,7 +242,6 @@ const PlanCreate: React.FC = () => {
     }
 
     processTemplates();
-    /*eslint-disable react-hooks/exhaustive-deps*/
   }, [data, publishedTemplatesData]);
 
   useEffect(() => {
@@ -251,7 +250,6 @@ const PlanCreate: React.FC = () => {
       resetSearch();
       setSearchButtonClicked(false);
     }
-    /*eslint-disable react-hooks/exhaustive-deps*/
   }, [searchTerm])
 
   useEffect(() => {
