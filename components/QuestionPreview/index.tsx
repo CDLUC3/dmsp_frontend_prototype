@@ -1,11 +1,6 @@
-import React, {
-  useState,
-  useEffect,
-} from 'react';
+import React, {useState, useEffect} from 'react';
 
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import sanitizeHtml from 'sanitize-html';
 
 import {
   Button,
@@ -15,11 +10,7 @@ import {
   DialogTrigger,
 } from "react-aria-components";
 
-import {
-  ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel,
-} from '@/components/Container';
+import { ContentContainer } from '@/components/Container';
 
 import styles from './QuestionPreview.module.scss';
 
@@ -36,6 +27,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
 
   const [isOpen, setOpen] = useState<boolean>(false);
   const [ready, setReady] = useState<boolean>(false);
+  const t = useTranslations('QuestionPreview');
 
   useEffect(() => {
     const handlePopState = () => {
@@ -87,7 +79,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
           onPress={() => setOpen(true)}
           data-testid="preview-button"
         >
-          Preview
+          {t("previewButton")}
         </Button>
         <ModalOverlay
           data-testid="modal-overlay"
@@ -108,16 +100,16 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 data-testid="preview-notice"
                 className={styles.PreviewNotice}
               >
-                <h3>Preview</h3>
+                <h3>{t('previewNoticeTitle')}</h3>
                 <p>
-                  This is a preview of how the user will see this question, with both
-                  the funder and your own Requirements and Guidance text.
+                  {t('previewNoticeText')}
+
                 </p>
                 <Button
                   data-testid="preview-close-button"
                   onPress={() => setOpen(false)}
                 >
-                  Close
+                  {t('closeButton')}
                 </Button>
               </div>
 
