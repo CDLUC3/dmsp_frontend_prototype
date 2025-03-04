@@ -1,0 +1,9 @@
+query ProjectFunders($projectId: Int!) {
+  projectFunders(projectId: $projectId) {
+    id
+    affiliation {
+      displayName
+      uri
+    }
+  }
+}

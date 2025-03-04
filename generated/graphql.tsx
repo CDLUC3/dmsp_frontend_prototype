@@ -3400,6 +3400,13 @@ export type ContributorRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ContributorRolesQuery = { __typename?: 'Query', contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, uri: string } | null> | null };
 
+export type ProjectFundersQueryVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+}>;
+
+
+export type ProjectFundersQuery = { __typename?: 'Query', projectFunders?: Array<{ __typename?: 'ProjectFunder', id?: number | null, affiliation?: { __typename?: 'Affiliation', displayName: string, uri: string } | null } | null> | null };
+
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3482,7 +3489,7 @@ export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTempl
 export type PublishedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, template?: { __typename?: 'Template', id?: number | null } | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null, errors?: { __typename?: 'VersionedTemplateErrors', general?: string | null, templateId?: string | null, name?: string | null, ownerId?: string | null, version?: string | null } | null } | null> | null };
+export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, bestPractice: boolean, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, template?: { __typename?: 'Template', id?: number | null } | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string, uri: string } | null, errors?: { __typename?: 'VersionedTemplateErrors', general?: string | null, templateId?: string | null, name?: string | null, ownerId?: string | null, version?: string | null } | null } | null> | null };
 
 export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4257,6 +4264,50 @@ export type ContributorRolesQueryHookResult = ReturnType<typeof useContributorRo
 export type ContributorRolesLazyQueryHookResult = ReturnType<typeof useContributorRolesLazyQuery>;
 export type ContributorRolesSuspenseQueryHookResult = ReturnType<typeof useContributorRolesSuspenseQuery>;
 export type ContributorRolesQueryResult = Apollo.QueryResult<ContributorRolesQuery, ContributorRolesQueryVariables>;
+export const ProjectFundersDocument = gql`
+    query ProjectFunders($projectId: Int!) {
+  projectFunders(projectId: $projectId) {
+    id
+    affiliation {
+      displayName
+      uri
+    }
+  }
+}
+    `;
+
+/**
+ * __useProjectFundersQuery__
+ *
+ * To run a query within a React component, call `useProjectFundersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectFundersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectFundersQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectFundersQuery(baseOptions: Apollo.QueryHookOptions<ProjectFundersQuery, ProjectFundersQueryVariables> & ({ variables: ProjectFundersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectFundersQuery, ProjectFundersQueryVariables>(ProjectFundersDocument, options);
+      }
+export function useProjectFundersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectFundersQuery, ProjectFundersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectFundersQuery, ProjectFundersQueryVariables>(ProjectFundersDocument, options);
+        }
+export function useProjectFundersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectFundersQuery, ProjectFundersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectFundersQuery, ProjectFundersQueryVariables>(ProjectFundersDocument, options);
+        }
+export type ProjectFundersQueryHookResult = ReturnType<typeof useProjectFundersQuery>;
+export type ProjectFundersLazyQueryHookResult = ReturnType<typeof useProjectFundersLazyQuery>;
+export type ProjectFundersSuspenseQueryHookResult = ReturnType<typeof useProjectFundersSuspenseQuery>;
+export type ProjectFundersQueryResult = Apollo.QueryResult<ProjectFundersQuery, ProjectFundersQueryVariables>;
 export const LanguagesDocument = gql`
     query Languages {
   languages {
@@ -4932,16 +4983,19 @@ export const PublishedTemplatesDocument = gql`
     query PublishedTemplates {
   publishedTemplates {
     id
+    bestPractice
     template {
       id
     }
     name
     description
+    modified
     modifiedById
     owner {
       name
       displayName
       searchName
+      uri
     }
     visibility
     errors {

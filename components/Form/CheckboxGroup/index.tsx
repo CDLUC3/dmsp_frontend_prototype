@@ -21,7 +21,6 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
   errorMessage,
   onChange
 }) => {
-
   return (
     <>
       <CheckboxGroup

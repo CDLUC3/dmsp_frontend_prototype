@@ -19,6 +19,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import TemplateList from '@/components/TemplateList';
+import TemplateSelectListItem from "@/components/TemplateSelectListItem";
 import ErrorMessages from '@/components/ErrorMessages';
 import {
   CheckboxGroupComponent,
@@ -27,7 +28,8 @@ import {
 //GraphQL
 import {
   useMyVersionedTemplatesQuery,
-  usePublishedTemplatesQuery
+  usePublishedTemplatesQuery,
+  useProjectFundersQuery,
 } from '@/generated/graphql';
 
 // Hooks
@@ -38,6 +40,26 @@ import { MyVersionedTemplatesInterface, TemplateItemProps } from '@/app/types';
 import { useFormatDate } from '@/hooks/useFormatDate';
 
 
+interface ProjectFundersInterface {
+  name: string
+  uri: string;
+}
+
+export interface PublicTemplatesInterface {
+  bestPractice?: boolean | null;
+  id?: number | null;
+  name: string;
+  description?: string | null;
+  modified?: string | null;
+  modifiedById?: number | null;
+  visibility: string;
+  owner?: {
+    displayName?: string; // Make displayName optional
+    name?: string; // Make name optional
+    searchName?: string; // Make searchName optional
+    uri?: string | null;
+  } | null;
+}
 const PlanCreate: React.FC = () => {
   const formatDate = useFormatDate();
   //const router = useRouter();
@@ -52,11 +74,11 @@ const PlanCreate: React.FC = () => {
   const { scrollToTop } = useScrollToTop();
 
   // State
-  const [templates, setTemplates] = useState<TemplateItemProps[]>([]);
+  const [projectFunderTemplates, setProjectFunderTemplates] = useState<TemplateItemProps[]>([]);
   const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<TemplateItemProps[] | null>([]);
   const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<TemplateItemProps[] | null>([]);
-  const [uniqueFunders, setUniqueFunders] = useState<string[]>([]);
+  const [funders, setFunders] = useState<ProjectFundersInterface[]>([]);
   const [selectedFunders, setSelectedFunders] = useState<string[]>([]); // For checkbox selections
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
@@ -72,11 +94,11 @@ const PlanCreate: React.FC = () => {
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
   const Global = useTranslations('Global');
 
-  // Make graphql request for versionedTemplates under the user's affiliation
-  const { data = {}, loading, error: queryError } = useMyVersionedTemplatesQuery({
-    /* Force Apollo to notify React of changes. This was needed for when refetch is
-    called and a re-render of data is necessary*/
-    notifyOnNetworkStatusChange: true,
+  // Get all the funders for the project
+  const { data: projectFunders, loading: projectFundersLoading, error: projectFundersError } = useProjectFundersQuery({
+    variables: {
+      projectId: Number(projectId)
+    }
   });
 
   // Make graphql request for all public versionedTemplates
@@ -101,16 +123,13 @@ const PlanCreate: React.FC = () => {
   // }
 
   // Transform data into more easier to use properties
-  const transformTemplates = async (templates: (MyVersionedTemplatesInterface | null)[]) => {
+  const transformTemplates = async (templates: (PublicTemplatesInterface | null)[]) => {
     const transformedTemplates = await Promise.all(
-      templates.map(async (template: MyVersionedTemplatesInterface | null) => ({
+      templates.map(async (template: PublicTemplatesInterface | null) => ({
         id: template?.id,
-        template: {
-          id: template?.template?.id ? template?.template.id : null
-        },
         title: template?.name || "",
         description: template?.description || "",
-        link: `/template/${template?.template?.id ? template?.template.id : ''}`,
+        link: `/template/${template?.id ? template.id : ''}`,
         content: template?.description || template?.modified ? (
           <div>
             <p>{template?.description}</p>
@@ -119,10 +138,10 @@ const PlanCreate: React.FC = () => {
             </p>
           </div>
         ) : null, // Set to null if no description or last modified data
-        funder: template?.template?.owner?.displayName || "",
+        funder: template?.owner?.displayName || "",
+        funderUri: template?.owner?.uri || "",
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedById || null,
-        publishStatus: template?.versionType,
         hasAdditionalGuidance: false,
         defaultExpanded: false,
         visibility: template?.visibility,
@@ -139,12 +158,18 @@ const PlanCreate: React.FC = () => {
   }
 
   const handleCheckboxChange = (value: string[]) => {
-    setSelectedFunders(value);
-    const filteredList = templates.filter(template =>
-      template.funder && value.includes(template.funder)
-    );
-    setFilteredTemplates(filteredList);
-    setFilteredPublicTemplates(null);
+    let filteredList;
+    if (value.length > 0) {
+      setSelectedFunders(value);
+      // Filter just the project funder templates when checkbox is checked
+      filteredList = projectFunderTemplates.filter(template =>
+        template.funder && value.includes(template.funder)
+      );
+      setFilteredPublicTemplates(filteredList);
+    } else {
+      setSelectedFunders([])
+      setFilteredPublicTemplates(null);
+    }
   };
 
   // Filter results when a user enters a search term and clicks "Search" button
@@ -152,12 +177,12 @@ const PlanCreate: React.FC = () => {
     setErrors([]);
     setSearchButtonClicked(true);
     // Search title, funder and description fields for terms
-    const filteredList = filterTemplates(templates, term);
+    // const filteredList = filterTemplates(projectFunderTemplates, term);
     const filteredPublicTemplatesList = filterTemplates(publicTemplatesList, term);
 
-    if (filteredList.length || filteredPublicTemplatesList.length) {
+    if (filteredPublicTemplatesList.length) {
       setSearchTerm(term);
-      setFilteredTemplates(filteredList.length > 0 ? filteredList : null);
+      // setFilteredTemplates(filteredList.length > 0 ? filteredList : null);
       setFilteredPublicTemplates(filteredPublicTemplatesList.length > 0 ? filteredPublicTemplatesList : null);
     } else {
       //If there are no matching results, then display an error
@@ -179,6 +204,15 @@ const PlanCreate: React.FC = () => {
     }, 0);
   };
 
+  const sortTemplatesByProjectFunders = (templates: TemplateItemProps[]) => {
+    const sortedPublicTemplates = templates.sort((a, b) => {
+      const aIsFunderTemplate = funders.some(funder => funder.name === a?.funder);
+      const bIsFunderTemplate = funders.some(funder => funder.name === b?.funder);
+      return aIsFunderTemplate === bIsFunderTemplate ? 0 : aIsFunderTemplate ? -1 : 1;
+    });
+    return sortedPublicTemplates;
+  }
+
   // zero out search and filters
   const resetSearch = () => {
     setSearchTerm('');
@@ -192,57 +226,52 @@ const PlanCreate: React.FC = () => {
   of the pre-existing template*/
   const onSelect = async (versionedTemplateId: number) => {
     console.log(versionedTemplateId);
-    //Save Plan using existing template
-    try {
-      //Call mutation
-      // const response = await AddTemplateToPlan mutation
 
-      // if (response?.data) {
-      //   const responseData = response?.data?.addTemplate;
-      //   //Set errors using the errors prop returned from the request
-      //   if (responseData && responseData.errors) {
-      //     // Extract error messages and convert them to an array of strings
-      //     const errorMessages = Object.values(responseData.errors).filter((error) => error) as string[];
-      //     setErrors(errorMessages);
-      //   }
-      //   clearErrors();
-
-      //   // Get templateId of new template so we know where to redirect
-      //   newTemplateId = response?.data?.addTemplate?.id;
-      // }
-      //router.push(`/projects/${projectId}/dmp/${versionedTemplateId}`);
-    } catch (err) {
-      // logECS('error', 'handleClick', {
-      //   error: err,
-      //   url: { path: '/template/create' }
-      // });
-    }
   }
-
 
   useEffect(() => {
     // Transform templates into format expected by TemplateListItem component
     const processTemplates = async () => {
-      if (data && data?.myVersionedTemplates) {
-        const transformedTemplates = await transformTemplates(data.myVersionedTemplates);
-        setTemplates(transformedTemplates);
-        const funders = Array.from(
-          new Set(transformedTemplates
-            .map(template => template.funder)
-            .filter(funder => funder.length > 2)
-          ));
-
-        setUniqueFunders(funders);
-      }
       if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
         const publicTemplates = await transformTemplates(publishedTemplatesData.publishedTemplates);
         const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'PUBLIC');
-        setPublicTemplatesList(transformedPublicTemplates);
+        // Sort the templates so that project funder templates come first
+        const sortedPublicTemplates = sortTemplatesByProjectFunders(transformedPublicTemplates);
+        setPublicTemplatesList(sortedPublicTemplates);
+      }
+
+      // Transform project funders and save in funders state
+      if (projectFunders && projectFunders?.projectFunders) {
+        const funders = projectFunders.projectFunders
+          .map(funder => {
+            return {
+              name: funder?.affiliation?.displayName ?? null,
+              uri: funder?.affiliation?.uri ?? null
+            }
+          })
+          .filter((funder): funder is { name: string; uri: string } => funder.name !== null); // Filter out null values and ensure type
+        if (funders) {
+          setFunders(funders);
+        }
+      }
+
+      // Find all templates that contain the project funders and set in projectFunderTemplates state
+      const matchingTemplates = publishedTemplatesData?.publishedTemplates?.filter(template =>
+        funders.some(funder => funder.uri === template?.owner?.uri)
+      );
+      if (matchingTemplates) {
+        const transformedProjectFunderTemplates = await transformTemplates(matchingTemplates);
+        setProjectFunderTemplates(transformedProjectFunderTemplates);
       }
     }
-
     processTemplates();
-  }, [data, publishedTemplatesData]);
+  }, [publishedTemplatesData, projectFunders]);
+
+  useEffect(() => {
+    /* Set selectedFunders on initial load since we want all project funder checkboxes to be checked */
+    const funderNames = funders.map(funder => funder.name);
+    handleCheckboxChange(funderNames);
+  }, [funders])
 
   useEffect(() => {
     // Need this to set list of templates back to original, full list after filtering
@@ -252,20 +281,20 @@ const PlanCreate: React.FC = () => {
     }
   }, [searchTerm])
 
+  //Query errors
   useEffect(() => {
-    if (queryError) {
-      setErrors(prev => [...prev, queryError.message]);
-    }
     if (publishedTemplatesError) {
       setErrors(prev => [...prev, publishedTemplatesError.message]);
     }
-  }, [queryError, publishedTemplatesError]);
+    if (projectFundersError) {
+      setErrors(prev => [...prev, projectFundersError.message]);
+    }
+  }, [publishedTemplatesError, projectFundersError]);
 
-  if (loading || publishedTemplatesLoading) {
+
+  if (publishedTemplatesLoading || projectFundersLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
-
-
   return (
     <>
       <PageHeader
@@ -314,73 +343,32 @@ const PlanCreate: React.FC = () => {
               onChange={handleCheckboxChange}
               checkboxGroupLabel="Filter by funder"
               checkboxGroupDescription="Select if you want to only see templates by your funder."
-              checkboxData={uniqueFunders.map(funder => ({
-                label: funder,
-                value: funder,
+              checkboxData={funders.map(funder => ({
+                label: funder.name,
+                value: funder.name,
               }))}
             />
           </div>
 
-          {/**List of templates under the user's funder/affiliation */}
-          <section className="mb-8" aria-labelledby="previously-created">
-            <h2 id="previously-created">
-              {uniqueFunders.map((funder) => (
-                <span key={funder}>
-                  {funder}
-                </span>
-              ))}
-            </h2>
-            <div className="template-list" role="list" aria-label="Your templates">
-              {(filteredTemplates && filteredTemplates.length > 0) ? (
-                <>
-                  {
-                    <TemplateList
-                      templates={filteredTemplates}
-                      visibleCountKey='filteredTemplates'
-                      onSelect={onSelect}
-                      visibleCount={visibleCount}
-                      handleLoadMore={handleLoadMore}
-                      resetSearch={resetSearch}
-                    />
-                  }
-
-                </>) : (
-                <>
-                  {/**If the user is searching, and there were no results from the search
-                   * then display the message 'no results found
-                   */}
-                  {(searchTerm.length > 0 && searchButtonClicked) ? (
-                    <>
-                      {SelectTemplate('messages.noItemsFound')}
-                    </>
-                  ) : (
-                    <TemplateList
-                      templates={templates}
-                      visibleCountKey='templates'
-                      onSelect={onSelect}
-                      visibleCount={visibleCount}
-                      handleLoadMore={handleLoadMore}
-                      resetSearch={resetSearch}
-                    />
-                  )
-
-                  }
-                </>
-              )
-              }
-            </div>
-          </section>
-
           {/**List of public templates */}
-          {(publicTemplatesList && publicTemplatesList.length > 0 && selectedFunders.length === 0) && (
+          {(publicTemplatesList && publicTemplatesList.length > 0) && (
             <section className="mb-8" aria-labelledby="public-templates">
-              <h2 id="public-templates">
-                Other public templates
-              </h2>
               <div className="template-list" role="list" aria-label="Public templates">
+                {/**if user is searching on a specific term */}
                 {filteredPublicTemplates && filteredPublicTemplates.length > 0 ? (
                   <>
-                    {
+                    {selectedFunders.length > 0 ? (
+                      filteredPublicTemplates.map((template, index) => {
+                        return (
+                          <div key={index}>
+                            <TemplateSelectListItem
+                              item={template}
+                              onSelect={onSelect}
+                            />
+                          </div>
+                        );
+                      })
+                    ) : (
                       <TemplateList
                         templates={filteredPublicTemplates}
                         visibleCountKey='filteredPublicTemplates'
@@ -389,6 +377,8 @@ const PlanCreate: React.FC = () => {
                         handleLoadMore={handleLoadMore}
                         resetSearch={resetSearch}
                       />
+                    )
+
                     }
                   </>
                 ) : (
@@ -401,14 +391,16 @@ const PlanCreate: React.FC = () => {
                         {SelectTemplate('messages.noItemsFound')}
                       </>
                     ) : (
+
                       <TemplateList
                         templates={publicTemplatesList}
-                        visibleCountKey='publicTemplatesList'
+                        visibleCountKey='templates'
                         onSelect={onSelect}
                         visibleCount={visibleCount}
                         handleLoadMore={handleLoadMore}
                         resetSearch={resetSearch}
                       />
+
                     )
                     }
                   </>
