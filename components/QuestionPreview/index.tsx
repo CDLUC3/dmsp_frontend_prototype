@@ -58,7 +58,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   useEffect(() => {
     if (isOpen) {
       if (window.location.hash !== `#${id}_modal`) {
-        window.history.pushState(null, null, `#${id}_modal`);
+        window.history.pushState(null, "", `#${id}_modal`);
       }
     } else {
       if (ready) {
