@@ -181,7 +181,11 @@ const ProjectsProjectMembers = () => {
             className={styles.collaboratorAccess}
           >
             <h2 id="collaborators-heading">{ProjectMembers('headings.h2AllowCollaborators')}</h2>
-            <p>{ProjectMembers('para.para1AllowCollaborators')}</p>
+            <p>
+              {ProjectMembers.rich('para.para1AllowCollaborators', {
+                shareWithPeople: (chunks) => <Link href={`/projects/${projectId}/share`}>{chunks}</Link>
+              })}
+            </p>
             <Button
               onPress={handleShare}
               className="secondary"

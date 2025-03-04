@@ -145,7 +145,7 @@
       "h2AllowCollaborators": "Allow collaborators edit or comment access?"
     },
     "para": {
-      "para1AllowCollaborators": "You can invite people to access, edit or comment on plans by using the share button"
+      "para1AllowCollaborators": "You can invite people to access, edit or comment on plans by using the \"<shareWithPeople>share with people</shareWithPeople>\" button."
     },
     "messages": {
       "errors": {
