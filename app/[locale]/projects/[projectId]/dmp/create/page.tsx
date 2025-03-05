@@ -112,6 +112,9 @@ const PlanCreate: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
+  const isLoading = projectFundersLoading || publishedTemplatesLoading;
+  const isError = projectFundersError || publishedTemplatesError;
+
   const filterTemplates = (
     templates: TemplateItemProps[],
     term: string
@@ -230,21 +233,13 @@ const PlanCreate: React.FC = () => {
 
   // Want to place project funders at the top of the list, and if no funders, then place best practice templates at top of list
   const sortTemplatesByProjectFunders = (templates: TemplateItemProps[]) => {
-    let sortedTemplates: TemplateItemProps[] = [];
-    // If there are no funders, then sort template by bestPractice instead of funder
-    if (funders.length === 0) {
-      sortedTemplates = templates.sort((a, b) => {
-        return a.bestPractices === b.bestPractices ? 0 : a.bestPractices ? -1 : 1;
-      });
-    } else {
-      sortedTemplates = templates.sort((a, b) => {
-        const aIsFunderTemplate = funders.some(funder => funder.name === a?.funder);
-        const bIsFunderTemplate = funders.some(funder => funder.name === b?.funder);
-        return aIsFunderTemplate === bIsFunderTemplate ? 0 : aIsFunderTemplate ? -1 : 1;
-      });
-    }
-    return sortedTemplates;
-  }
+    return [...templates].sort((a, b) => {
+      if (funders.length === 0) {
+        return Number(b.bestPractices) - Number(a.bestPractices);
+      }
+      return funders.some(f => f.name === a.funder) ? -1 : 1;
+    });
+  };
 
   // zero out search and filters
   const resetSearch = () => {
@@ -335,19 +330,13 @@ const PlanCreate: React.FC = () => {
   }, [searchTerm])
 
 
-  //Handle request query errors
-  useEffect(() => {
-    if (publishedTemplatesError) {
-      setErrors(prev => [...prev, publishedTemplatesError.message]);
-    }
-    if (projectFundersError) {
-      setErrors(prev => [...prev, projectFundersError.message]);
-    }
-  }, [publishedTemplatesError, projectFundersError]);
 
-  // Loading message
-  if (publishedTemplatesLoading || projectFundersLoading) {
+  if (isLoading) {
     return <div>{Global('messaging.loading')}...</div>;
+  }
+
+  if (isError) {
+    return <div>{Global('messaging.error')}</div>;
   }
 
 
