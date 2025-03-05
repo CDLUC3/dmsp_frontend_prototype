@@ -27,7 +27,6 @@ import {
 
 //GraphQL
 import {
-  useMyVersionedTemplatesQuery,
   usePublishedTemplatesQuery,
   useProjectFundersQuery,
 } from '@/generated/graphql';
@@ -36,12 +35,18 @@ import {
 import { useScrollToTop } from '@/hooks/scrollToTop';
 
 // Other
-import { MyVersionedTemplatesInterface, TemplateItemProps } from '@/app/types';
+import { TemplateItemProps } from '@/app/types';
 import { useFormatDate } from '@/hooks/useFormatDate';
 
 
 interface ProjectFundersInterface {
   name: string
+  uri: string;
+}
+
+interface BestPracticeTemplatesInterface {
+  bestPractice: boolean;
+  name: string;
   uri: string;
 }
 
@@ -76,9 +81,9 @@ const PlanCreate: React.FC = () => {
   // State
   const [projectFunderTemplates, setProjectFunderTemplates] = useState<TemplateItemProps[]>([]);
   const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
-  const [filteredTemplates, setFilteredTemplates] = useState<TemplateItemProps[] | null>([]);
   const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<TemplateItemProps[] | null>([]);
   const [funders, setFunders] = useState<ProjectFundersInterface[]>([]);
+  const [bestPracticeTemplates, setBestPracticeTemplates] = useState<TemplateItemProps[]>([]);
   const [selectedFunders, setSelectedFunders] = useState<string[]>([]); // For checkbox selections
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
@@ -145,6 +150,7 @@ const PlanCreate: React.FC = () => {
         hasAdditionalGuidance: false,
         defaultExpanded: false,
         visibility: template?.visibility,
+        bestPractices: template?.bestPractice || false,
       }))
     );
     return transformedTemplates;
@@ -158,14 +164,22 @@ const PlanCreate: React.FC = () => {
   }
 
   const handleCheckboxChange = (value: string[]) => {
+    console.log("***VALUE", value);
     let filteredList;
     if (value.length > 0) {
       setSelectedFunders(value);
-      // Filter just the project funder templates when checkbox is checked
-      filteredList = projectFunderTemplates.filter(template =>
-        template.funder && value.includes(template.funder)
-      );
-      setFilteredPublicTemplates(filteredList);
+      if (funders.length > 0) {
+        // Filter just the project funder templates when checkbox is checked
+        filteredList = projectFunderTemplates.filter(template =>
+          template.funder && value.includes(template.funder)
+        );
+        setFilteredPublicTemplates(filteredList);
+      } else {
+        // Filter just the project funder templates when checkbox is checked
+        filteredList = bestPracticeTemplates.filter(template => template.bestPractices);
+        setFilteredPublicTemplates(filteredList);
+      }
+
     } else {
       setSelectedFunders([])
       setFilteredPublicTemplates(null);
@@ -182,7 +196,6 @@ const PlanCreate: React.FC = () => {
 
     if (filteredPublicTemplatesList.length) {
       setSearchTerm(term);
-      // setFilteredTemplates(filteredList.length > 0 ? filteredList : null);
       setFilteredPublicTemplates(filteredPublicTemplatesList.length > 0 ? filteredPublicTemplatesList : null);
     } else {
       //If there are no matching results, then display an error
@@ -205,18 +218,25 @@ const PlanCreate: React.FC = () => {
   };
 
   const sortTemplatesByProjectFunders = (templates: TemplateItemProps[]) => {
-    const sortedPublicTemplates = templates.sort((a, b) => {
-      const aIsFunderTemplate = funders.some(funder => funder.name === a?.funder);
-      const bIsFunderTemplate = funders.some(funder => funder.name === b?.funder);
-      return aIsFunderTemplate === bIsFunderTemplate ? 0 : aIsFunderTemplate ? -1 : 1;
-    });
-    return sortedPublicTemplates;
+    let sortedTemplates: TemplateItemProps[] = [];
+    // If there are no funders, then sort template by bestPractice instead of funder
+    if (funders.length === 0) {
+      sortedTemplates = templates.sort((a, b) => {
+        return a.bestPractices === b.bestPractices ? 0 : a.bestPractices ? -1 : 1;
+      });
+    } else {
+      sortedTemplates = templates.sort((a, b) => {
+        const aIsFunderTemplate = funders.some(funder => funder.name === a?.funder);
+        const bIsFunderTemplate = funders.some(funder => funder.name === b?.funder);
+        return aIsFunderTemplate === bIsFunderTemplate ? 0 : aIsFunderTemplate ? -1 : 1;
+      });
+    }
+    return sortedTemplates;
   }
 
   // zero out search and filters
   const resetSearch = () => {
     setSearchTerm('');
-    setFilteredTemplates(null);
     setFilteredPublicTemplates(null);
     setSelectedFunders([]);
     scrollToTop(topRef);
@@ -237,6 +257,7 @@ const PlanCreate: React.FC = () => {
         const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'PUBLIC');
         // Sort the templates so that project funder templates come first
         const sortedPublicTemplates = sortTemplatesByProjectFunders(transformedPublicTemplates);
+        console.log("***SORTED PUBLIC TEMPLATES***", sortedPublicTemplates);
         setPublicTemplatesList(sortedPublicTemplates);
       }
 
@@ -292,6 +313,27 @@ const PlanCreate: React.FC = () => {
   }, [publishedTemplatesError, projectFundersError]);
 
 
+  useEffect(() => {
+    if (funders.length === 0) {
+      const bestPracticeTemplates = publicTemplatesList
+        .filter(template => template.bestPractices)
+      // .map(template => ({
+      //   bestPractice: template.bestPractices ?? false,
+      //   name: template.title,
+      //   uri: template.funderUri ?? ''
+      // }));
+
+      setBestPracticeTemplates(bestPracticeTemplates);
+
+    }
+  }, [publicTemplatesList])
+
+  useEffect(() => {
+    /* Set best practice as checkboxes and have them be checked */
+    const bestPracticeArray = bestPracticeTemplates.map(bp => bp.title);
+    handleCheckboxChange(bestPracticeArray);
+  }, [bestPracticeTemplates])
+
   if (publishedTemplatesLoading || projectFundersLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
@@ -337,17 +379,34 @@ const PlanCreate: React.FC = () => {
               <FieldError />
             </SearchField>
 
-            <CheckboxGroupComponent
-              name="funders"
-              value={selectedFunders}
-              onChange={handleCheckboxChange}
-              checkboxGroupLabel="Filter by funder"
-              checkboxGroupDescription="Select if you want to only see templates by your funder."
-              checkboxData={funders.map(funder => ({
-                label: funder.name,
-                value: funder.name,
-              }))}
-            />
+            {funders.length > 0 ? (
+              <CheckboxGroupComponent
+                name="funders"
+                value={selectedFunders}
+                onChange={handleCheckboxChange}
+                checkboxGroupLabel="Filter by funder"
+                checkboxGroupDescription="Select if you want to only see templates by your funder."
+                checkboxData={funders.map(funder => ({
+                  label: funder.name,
+                  value: funder.name,
+                }))}
+              />
+            ) : (
+
+              <CheckboxGroupComponent
+                name="bestPractices"
+                value={['bestpractice']}
+                onChange={handleCheckboxChange}
+                checkboxGroupLabel="Filter by best practice"
+                checkboxGroupDescription="Select if you want to only see best practice templates"
+                checkboxData={bestPracticeTemplates.map(bp => ({
+                  label: "DMP best practice",
+                  value: "bestpractice"
+                }))}
+              />
+
+            )}
+
           </div>
 
           {/**List of public templates */}

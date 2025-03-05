@@ -47,8 +47,10 @@ export interface TemplateItemProps {
   link?: LinkHref;
   defaultExpanded: boolean;
   funder?: string;
+  funderUri?: string;
   lastUpdated?: string | null;
   publishStatus?: string | null;
+  bestPractices?: boolean;
 }
 
 export interface MyVersionedTemplatesInterface {
