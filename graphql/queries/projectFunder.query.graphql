@@ -1,0 +1,11 @@
+query ProjectFunder($projectFunderId: Int!) {
+  projectFunder(projectFunderId: $projectFunderId) {
+    affiliation {
+      name
+    }
+    status
+    grantId
+    funderOpportunityNumber
+    funderProjectNumber
+  }
+}
