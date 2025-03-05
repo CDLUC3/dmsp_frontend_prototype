@@ -45,7 +45,6 @@ const mockProjectContributorsData = {
       affiliation: {
         displayName: "University of California, Davis (ucdavis.edu)"
       },
-      isPrimaryInvestigator: true
     },
     {
       id: 2,
@@ -62,7 +61,6 @@ const mockProjectContributorsData = {
       affiliation: {
         displayName: "University of California, Davis (ucdavis.edu)"
       },
-      isPrimaryInvestigator: false
     }
   ],
   loading: false,
