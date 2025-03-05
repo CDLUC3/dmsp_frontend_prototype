@@ -119,7 +119,7 @@ const ProjectsProjectDetail = () => {
   const [updateProjectMutation] = useUpdateProjectMutation();
 
   // Get Project using projectId
-  const { data, loading } = useProjectQuery(
+  const { data, loading, error: queryError, refetch } = useProjectQuery(
     {
       variables: { projectId: Number(projectId) },
       notifyOnNetworkStatusChange: true
@@ -194,7 +194,7 @@ const ProjectsProjectDetail = () => {
   };
 
   // Make GraphQL mutation request to update section
-  const updateProject = async (): Promise<ProjectErrors> => {
+  const updateProject = async (): Promise<[ProjectErrors, boolean]> => {
     // Convert any CalendarDate objects to strings before submission
     const submissionData = {
       startDate: projectData.startDate instanceof CalendarDate ?
@@ -218,21 +218,30 @@ const ProjectsProjectDetail = () => {
 
       });
 
-      if (response.data?.updateProject?.errors) {
-        return response.data.updateProject.errors;
+      const responseErrors = response.data?.updateProject?.errors
+      if (responseErrors) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
+          return [responseErrors, false];
+        }
       }
+
+      return [{}, true];
     } catch (error) {
       logECS('error', 'updateProjectMutation', {
         error,
         url: { path: '/projects/[projectId]/project' }
       });
       if (error instanceof ApolloError) {
-        setErrors(prevErrors => [...prevErrors, error.message]);
+        if (error.message.toLowerCase() === "unauthorized") {
+          // Need to refresh values if the refresh token was refreshed in the graphql error handler
+          refetch();
+        }
+        return [{}, false];
       } else {
         setErrors(prevErrors => [...prevErrors, "Error updating project"]);
+        return [{}, false];
       }
     }
-    return {};
   };
 
   // Show Success Message
@@ -242,7 +251,6 @@ const ProjectsProjectDetail = () => {
     // Scroll to top of page
     scrollToTop(topRef);
   }
-
 
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -254,16 +262,17 @@ const ProjectsProjectDetail = () => {
 
     if (isFormValid()) {
       // Create new section
-      const errors = await updateProject();
+      const [errors, success] = await updateProject();
 
-      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
-      if (errors && Object.values(errors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
-        setFieldErrors({
-          projectName: errors.title || '',
-          projectAbstract: errors.abstractText || '',
-        });
-
+      if (!success) {
+        if (errors) {
+          setFieldErrors({
+            projectName: errors.title || '',
+            projectAbstract: errors.abstractText || '',
+          });
+        }
         setErrors([errors.general || ProjectDetail('messages.errors.projectUpdateFailed')]);
+
       } else {
         // Show success message
         showSuccessToast();
@@ -295,6 +304,12 @@ const ProjectsProjectDetail = () => {
       })
     }
   }, [data])
+
+  useEffect(() => {
+    if (queryError) {
+      setErrors(prev => [...prev, queryError.message]);
+    }
+  }, [queryError])
 
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;

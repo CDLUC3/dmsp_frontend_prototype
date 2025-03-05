@@ -97,14 +97,18 @@
     "description": "Selecione um modelo para usar ao criar o DMP.",
     "mockProject": "Projeto fictício",
     "realProject": "Projeto real",
-    "selectedCategory": "Selected category {category}",
     "labels": {
       "projectName": "Nome do Projeto",
       "projectType": "Tipo do projeto",
-      "projectAbstract": "Base do projeto",
+      "projectAbstract": "Resumo do projeto",
       "researchDomain": "Domínio de pesquisa",
       "mockProject": "Projeto fictício",
-      "realProject": "Projeto real"
+      "realProject": "Projeto real",
+      "childDomain": "Select a {name}:",
+      "item": "Produto"
+    },
+    "helpText": {
+      "selectResearchDomain": "Primeiro selecione um domínio de pesquisa"
     },
     "paragraphs": {
       "para1": "Já tem uma ajuda? Não tem o projeto correto? Use os projetos de pesquisa para encontrar o projeto. Se as principais informações serão preenchidas para você.",
@@ -126,6 +130,27 @@
       },
       "success": {
         "projectUpdated": "Detalhes do projeto atualizados com sucesso"
+      }
+    }
+  },
+  "ProjectsProjectFundingEdit": {
+    "title": "Editar Detalhes da Barbatana",
+    "description": "Atualizar informações da fonte de financiamento",
+    "labels": {
+      "funderName": "Nome da planta",
+      "funderStatus": "Estado da Financiamento",
+      "grantNumber": "Conceder número/url",
+      "projectNumber": "Número ou ID do projeto",
+      "opportunity": "No. de Prêmio Oportunidade/Federal"
+    },
+    "messages": {
+      "errors": {
+        "projectFunderUpdateFailed": "Erro ao atualizar detalhes do financiador do projeto",
+        "funderGrantId": "Valor de ID do financiador inválido",
+        "funderProjectNumber": "Valor inválido do número do projeto financiador"
+      },
+      "success": {
+        "projectFunderUpdated": "Detalhes do financiador do projeto atualizados com sucesso"
       }
     }
   }
