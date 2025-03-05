@@ -297,14 +297,19 @@ const PlanCreate: React.FC = () => {
     processTemplates();
   }, [publishedTemplatesData, projectFunders]);
 
+
   useEffect(() => {
     if (state.funders.length === 0) {
       const bestPracticeTemplates = state.publicTemplatesList.filter(template => template.bestPractices);
       const bestPracticeArray = bestPracticeTemplates.map(bp => bp.funder || '');
       dispatch({ type: 'SET_BEST_PRACTICE_TEMPLATES', payload: bestPracticeTemplates });
       dispatch({ type: 'SET_SELECTED_FILTER_ITEMS', payload: bestPracticeArray });
+    } else {
+      const funderNames = state.funders.map(funder => funder.name);
+      handleCheckboxChange(funderNames);
     }
   }, [state.funders, state.publicTemplatesList]);
+
 
   useEffect(() => {
     if (state.bestPracticeTemplates.length > 0) {
@@ -312,13 +317,6 @@ const PlanCreate: React.FC = () => {
       handleCheckboxChange(bestPracticeArray);
     }
   }, [state.bestPracticeTemplates]);
-
-  useEffect(() => {
-    if (state.funders.length > 0) {
-      const funderNames = state.funders.map(funder => funder.name);
-      handleCheckboxChange(funderNames);
-    }
-  }, [state.funders]);
 
   useEffect(() => {
     if (state.searchTerm === '') {
