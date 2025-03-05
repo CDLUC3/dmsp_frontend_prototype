@@ -67,9 +67,8 @@ const mockProjectContributorsData = {
 }
 
 describe('ProjectsProjectMembers', () => {
-  let mockRouter;
   const mockUseParams = useParams as jest.Mock;
-  mockRouter = { push: jest.fn() };
+  const mockRouter = { push: jest.fn() };
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
   const mockUseProjectContributorsQuery = useProjectContributorsQuery as jest.Mock;
 
