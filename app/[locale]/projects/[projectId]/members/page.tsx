@@ -26,7 +26,6 @@ interface ProjectContributorsInterface {
   affiliation: string;
   orcid: string;
   role: string;
-  isPrimaryInvestigator: boolean;
 }
 
 const ProjectsProjectMembers = () => {
@@ -77,7 +76,6 @@ const ProjectsProjectMembers = () => {
         affiliation: contributor?.affiliation?.displayName ?? '',
         orcid: contributor?.orcid ?? '',
         role: (contributor?.contributorRoles && contributor.contributorRoles.length > 0) ? contributor?.contributorRoles?.map((role) => role.label).join(', ') : '',
-        isPrimaryInvestigator: true// TODO: We need to update this once we have backend data for this
       }))
       setProjectContributors(projectContributorData);
     }
