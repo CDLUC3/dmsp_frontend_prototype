@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useReducer } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
@@ -24,12 +24,17 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { CheckboxGroupComponent } from '@/components/Form';
 
 // GraphQL
-import { usePublishedTemplatesQuery, useProjectFundersQuery } from '@/generated/graphql';
+import {
+  usePublishedTemplatesQuery,
+  useProjectFundersQuery,
+  useAddPlanMutation
+} from '@/generated/graphql';
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
 
 // Other
+import logECS from '@/utils/clientLogger';
 import { TemplateItemProps } from '@/app/types';
 import { useFormatDate } from '@/hooks/useFormatDate';
 
@@ -127,6 +132,7 @@ const reducer = (state: State, action: Action): State => {
 const PlanCreate: React.FC = () => {
   const formatDate = useFormatDate();
   const params = useParams();
+  const router = useRouter();
   const { projectId } = params;
   const nextSectionRef = useRef<HTMLDivElement>(null);
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -145,6 +151,12 @@ const PlanCreate: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
+  // Initialize the addPlan mutation
+  const [addPlanMutation] = useAddPlanMutation({
+    notifyOnNetworkStatusChange: true,
+  });
+
+
   const isLoading = projectFundersLoading || publishedTemplatesLoading;
   const isError = projectFundersError || publishedTemplatesError;
 
@@ -154,6 +166,11 @@ const PlanCreate: React.FC = () => {
         field?.toLowerCase().includes(term.toLowerCase())
       )
     );
+
+
+  const clearErrors = () => {
+    dispatch({ type: 'SET_ERRORS', payload: [] });
+  }
 
   const transformTemplates = async (templates: (PublicTemplatesInterface | null)[]) => {
     const transformedTemplates = await Promise.all(
@@ -262,8 +279,34 @@ const PlanCreate: React.FC = () => {
   };
 
   const onSelect = async (versionedTemplateId: number) => {
-    console.log(versionedTemplateId);
-  };
+    let newPlanId;
+    //Add the new template
+    try {
+      const response = await addPlanMutation({
+        variables: {
+          projectId: Number(projectId),
+          versionedTemplateId: versionedTemplateId
+        },
+      });
+      if (response?.data) {
+        clearErrors();
+        // Get templateId of new template so we know where to redirect
+        newPlanId = response?.data?.addPlan?.id;
+      }
+    } catch (err) {
+      logECS('error', 'handleClick', {
+        error: err,
+        url: { path: '/template/create' }
+      });
+      dispatch({ type: 'SET_ERRORS', payload: [(err as Error).message] });
+
+    }
+
+    // Redirect to the newly created template
+    if (newPlanId) {
+      router.push(`/projects/${projectId}/dmp/${newPlanId}`)
+    }
+  }
 
   useEffect(() => {
     const processTemplates = async () => {
