@@ -313,7 +313,7 @@ const PlanCreate: React.FC = () => {
       const response = await addPlanMutation({
         variables: {
           projectId: Number(projectId),
-          versionedTemplateId: versionedTemplateId
+          versionedTemplateId
         },
       });
       if (response?.data) {
