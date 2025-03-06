@@ -16,6 +16,7 @@
 - Plan Overview [#178]
 - Plan Section and boilerplate tests [#178]
 - Plan Question and boilerplate tests [#178]
+- QuestionPreview component [#224]
 
 ### Updated
 
