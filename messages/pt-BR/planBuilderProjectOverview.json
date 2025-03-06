@@ -46,6 +46,7 @@
     "update": "Atualizar plano",
     "updatePlan": "Atualizar este plano",
     "dateRange": "{startDate} até {endDate}",
+    "created": "Criado",
     "messages": {
       "errorGettingProject": "Erro ao obter detalhes do projeto"
     }
@@ -104,7 +105,7 @@
       "researchDomain": "Domínio de pesquisa",
       "mockProject": "Projeto fictício",
       "realProject": "Projeto real",
-      "childDomain": "Select a {name}:",
+      "childDomain": "Selecione um {name}",
       "item": "Produto"
     },
     "helpText": {
@@ -134,8 +135,8 @@
     }
   },
   "ProjectsProjectFundingEdit": {
-    "title": "Editar Detalhes da Barbatana",
-    "description": "Atualizar informações da fonte de financiamento",
+    "title": "",
+    "description": "",
     "labels": {
       "funderName": "Nome da planta",
       "funderStatus": "Estado da Financiamento",

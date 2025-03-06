@@ -129,6 +129,12 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
+
+
+
+
+
+
 const PlanCreate: React.FC = () => {
   const formatDate = useFormatDate();
   const params = useParams();
@@ -140,7 +146,7 @@ const PlanCreate: React.FC = () => {
   const { scrollToTop } = useScrollToTop();
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
+  const PlanCreate = useTranslations('PlanCreate');
   const Global = useTranslations('Global');
 
   const { data: projectFunders, loading: projectFundersLoading, error: projectFundersError } = useProjectFundersQuery({
@@ -379,14 +385,14 @@ const PlanCreate: React.FC = () => {
   return (
     <>
       <PageHeader
-        title="Plan: Select a DMP template"
-        description="Select a template to use when creating your DMP."
+        title={PlanCreate('title')}
+        description={PlanCreate('description')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={`/projects/${projectId}`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb>Plan: Select a DMP template</Breadcrumb>
+            <Breadcrumb>{PlanCreate('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={<></>}
@@ -397,10 +403,9 @@ const PlanCreate: React.FC = () => {
         <ContentContainer className={"layout-content-container-full"}>
           <div className="searchSection" role="search">
             <SearchField aria-label="Template search">
-              <Label>Search by keyword</Label>
+              <Label>{Global('labels.searchByKeyword')}</Label>
               <Text slot="description" className="help">
-                Search by research organization, field station or lab, template
-                description, etc.
+                {Global('helpText.searchHelpText')}
               </Text>
               <Input
                 aria-describedby="search-help"
@@ -409,7 +414,7 @@ const PlanCreate: React.FC = () => {
               />
               <Button
                 onPress={() => handleFiltering(state.searchTerm)}
-              >Search</Button>
+              >{Global('buttons.search')}</Button>
               <FieldError />
             </SearchField>
 
@@ -418,8 +423,8 @@ const PlanCreate: React.FC = () => {
                 name="funders"
                 value={state.selectedFilterItems}
                 onChange={handleCheckboxChange}
-                checkboxGroupLabel="Filter by funder"
-                checkboxGroupDescription="Select if you want to only see templates by your funder."
+                checkboxGroupLabel={PlanCreate('checkbox.filterByFunderLabel')}
+                checkboxGroupDescription={PlanCreate('checkbox.filterByFunderDescription')}
                 checkboxData={state.funders.map(funder => ({
                   label: funder.name,
                   value: funder.name,
@@ -430,8 +435,8 @@ const PlanCreate: React.FC = () => {
                 name="bestPractices"
                 value={state.selectedFilterItems}
                 onChange={handleCheckboxChange}
-                checkboxGroupLabel="Filter by best practice"
-                checkboxGroupDescription="Select if you want to only see best practice templates"
+                checkboxGroupLabel={PlanCreate('checkbox.filterByBestPracticesLabel')}
+                checkboxGroupDescription={PlanCreate('checkbox.filterByBestPracticesDescription')}
                 checkboxData={state.bestPracticeTemplates.map(bp => ({
                   label: bp.funder || '',
                   value: bp.funder || '',
@@ -469,7 +474,7 @@ const PlanCreate: React.FC = () => {
                 ) : (
                   <>
                     {state.searchTerm.length > 0 && state.searchButtonClicked ? (
-                      <>{SelectTemplate('messages.noItemsFound')}</>
+                      <>{Global('messaging.noItemsFound')}</>
                     ) : (
                       <TemplateList
                         templates={state.publicTemplatesList}

@@ -270,7 +270,7 @@
     "descriptions": {
       "sampleText": "Forneça um exemplo ou modelo de resposta esperada (opcional, mas recomendado)",
       "sampleTextAsDefault": "Peça que esta resposta entre no DMP por padrão",
-      "previewText": "See how this question will look to users.",
+      "previewText": "Veja como esta pergunta ficará para os usuários.",
       "bestPracticePara1": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
       "bestPracticePara2": "Esboça os requisitos que um usuário deve considerar para esta pergunta.",
       "bestPracticePara3": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo."
