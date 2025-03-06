@@ -18,7 +18,7 @@
 - Plan Question and boilerplate tests [#178]
 
 ### Updated
-
+- Updated `PlanCreate` component so that it hooks up to real data. The functionality of the page is a little complicated, so I added a `CreatePlan.md` file to summarize what functionality is expected in the page. [#361]
 - Updated `ProjectsProjectFundingEdit` component and moved the page under a new `[projectFunderId]` directory at `/projects/[projectId]/funder/[projectFunderId]/edit` [#357]
 - Updated the `Project Overview` page [#339]
 - Updated `/projects/[projectId]/project` page to hook it up to data [#351]
