@@ -214,17 +214,18 @@ const PlanCreate: React.FC = () => {
   };
 
   // Handle checkbox change
-  const handleCheckboxChange = (value: string[]) => {
+  const handleCheckboxChange = (value: string[], bestPracticeTemplates?: TemplateItemProps[]) => {
     let filteredList;
 
     if (value.length > 0) {// If checkbox(es) are selected
       dispatch({ type: 'SET_SELECTED_FILTER_ITEMS', payload: value });
       if (state.funders.length > 0) {
+        // If project funders, then grab all project templates that contain a match
         filteredList = state.projectFunderTemplates.filter(template =>
           template.funder && value.includes(template.funder)
         );
       } else {
-        filteredList = state.bestPracticeTemplates;
+        filteredList = bestPracticeTemplates ?? [];
       }
       dispatch({ type: 'SET_FILTERED_PUBLIC_TEMPLATES', payload: filteredList });
       if (state.searchTerm) {
@@ -277,11 +278,12 @@ const PlanCreate: React.FC = () => {
   };
 
   const sortTemplatesByProjectFunders = (templates: TemplateItemProps[]) => {
+    const funders = projectFunders?.projectFunders || [];
     return [...templates].sort((a, b) => {
-      if (state.funders.length === 0) {
+      if (funders?.length === 0) {
         return Number(b.bestPractices) - Number(a.bestPractices);
       }
-      return state.funders.some(f => f.name === a.funder) ? -1 : 1;
+      return a.funder && funders && funders.some(f => f?.affiliation?.displayName === a.funder) ? -1 : 1;
     });
   };
 
@@ -343,23 +345,6 @@ const PlanCreate: React.FC = () => {
         dispatch({ type: 'SET_PUBLIC_TEMPLATES_LIST', payload: sortedPublicTemplates });
       }
 
-      // if (projectFunders && projectFunders?.projectFunders) {
-      //   const funders = projectFunders.projectFunders
-      //     .map(funder => ({
-      //       name: funder?.affiliation?.displayName ?? null,
-      //       uri: funder?.affiliation?.uri ?? null,
-      //     }))
-      //     .filter((funder): funder is { name: string; uri: string } => funder.name !== null);
-      //   // Remove duplicates based on `name` and `uri`
-      //   const uniqueFunders = Array.from(
-      //     new Map(funders.map(funder => [`${funder.name}-${funder.uri}`, funder])).values()
-      //   );
-
-      //   if (uniqueFunders.length > 0) {
-      //     dispatch({ type: 'SET_FUNDERS', payload: uniqueFunders });
-      //   }
-      // }
-
       // Find templates that contain project funder as owner
       const matchingTemplates = publishedTemplatesData?.publishedTemplates?.filter(template =>
         projectFunders?.projectFunders && projectFunders.projectFunders.some(pf => pf?.affiliation?.uri === template?.owner?.uri)
@@ -390,20 +375,21 @@ const PlanCreate: React.FC = () => {
 
 
   useEffect(() => {
+    // On page load, initially check the checkboxes for either project funders or best practice templates
     if (state.funders.length === 0) {
       const bestPracticeTemplates = state.publicTemplatesList.filter(template => template.bestPractices);
       // If best practice templates exist, then we want to show them by default
-      if (state.bestPracticeTemplates.length > 0) {
-        const bestPracticeArray = state.bestPracticeTemplates.map(bp => bp.funder || '');
+      if (bestPracticeTemplates.length > 0) {
+        const bestPracticeArray = bestPracticeTemplates.map(bp => bp.funder || '');
         dispatch({ type: 'SET_BEST_PRACTICE_TEMPLATES', payload: bestPracticeTemplates });
         dispatch({ type: 'SET_SELECTED_FILTER_ITEMS', payload: bestPracticeArray });
-        handleCheckboxChange(bestPracticeArray);
+        handleCheckboxChange(bestPracticeArray, bestPracticeTemplates);
       }
     } else {
       const funderNames = state.funders.map(funder => funder.name);
       handleCheckboxChange(funderNames);
     }
-  }, [state.funders, state.publicTemplatesList, state.projectFunderTemplates]);
+  }, [state.funders, state.publicTemplatesList]);
 
   useEffect(() => {
     // Reset to original state when search term is empty
@@ -413,9 +399,6 @@ const PlanCreate: React.FC = () => {
     }
   }, [state.searchTerm]);
 
-
-  useEffect(() => {
-  }, [state.funders]);
   if (isLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
@@ -461,7 +444,7 @@ const PlanCreate: React.FC = () => {
             </SearchField>
 
             {/**Only show filters if there are funders or best practice templates  */}
-            {(state.bestPracticeTemplates.length > 0 || state.projectFunderTemplates.length > 0) && (
+            {(state.bestPracticeTemplates.length > 0 || state.funders.length > 0) && (
               state.funders.length > 0 ? (
                 <CheckboxGroupComponent
                   name="funders"
@@ -495,7 +478,6 @@ const PlanCreate: React.FC = () => {
               <div className="template-list" role="list" aria-label="Public templates">
                 {state.filteredPublicTemplates && state.filteredPublicTemplates.length > 0 ? (
                   <>
-                    <h2>Filtered Templates</h2>
                     {state.selectedFilterItems.length > 0 ? (
                       state.filteredPublicTemplates.map((template, index) => (
                         <div key={index}>
@@ -519,7 +501,6 @@ const PlanCreate: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <h2>Public Templates</h2>
                     {state.searchTerm.length > 0 && state.searchButtonClicked ? (
                       <>{Global('messaging.noItemsFound')}</>
                     ) : (
