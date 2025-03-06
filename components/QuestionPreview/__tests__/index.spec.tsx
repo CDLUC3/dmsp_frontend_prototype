@@ -9,8 +9,6 @@ import {
 } from '@/utils/test-utils';
 
 import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams, useRouter} from 'next/navigation';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
 
 import QuestionPreview from '@/components/QuestionPreview';
 
@@ -141,6 +139,17 @@ describe("QuestionPreview", () => {
     waitFor(() => {
       const previewBtn = screen.getByTestId('preview-button');
       expect(previewBtn).toBeInTheDocument();
+    });
+  });
+
+  it('should pass axe accessibility test', async () => {
+    const { container } = render(
+      <QuestionPreview />
+    );
+
+    await act(async () => {
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
   });
 });

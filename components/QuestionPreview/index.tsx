@@ -72,7 +72,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   return (
     <ContentContainer
       id={id}
-      className={styles.PreviewContainer}
+      className={`${className} ${styles.PreviewContainer}`}
     >
       <DialogTrigger>
         <Button
