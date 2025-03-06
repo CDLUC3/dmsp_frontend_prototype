@@ -418,30 +418,33 @@ const PlanCreate: React.FC = () => {
               <FieldError />
             </SearchField>
 
-            {state.funders.length > 0 ? (
-              <CheckboxGroupComponent
-                name="funders"
-                value={state.selectedFilterItems}
-                onChange={handleCheckboxChange}
-                checkboxGroupLabel={PlanCreate('checkbox.filterByFunderLabel')}
-                checkboxGroupDescription={PlanCreate('checkbox.filterByFunderDescription')}
-                checkboxData={state.funders.map(funder => ({
-                  label: funder.name,
-                  value: funder.name,
-                }))}
-              />
-            ) : (
-              <CheckboxGroupComponent
-                name="bestPractices"
-                value={state.selectedFilterItems}
-                onChange={handleCheckboxChange}
-                checkboxGroupLabel={PlanCreate('checkbox.filterByBestPracticesLabel')}
-                checkboxGroupDescription={PlanCreate('checkbox.filterByBestPracticesDescription')}
-                checkboxData={state.bestPracticeTemplates.map(bp => ({
-                  label: bp.funder || '',
-                  value: bp.funder || '',
-                }))}
-              />
+            {/**Only show filters if there are filtered items */}
+            {state.selectedFilterItems.length > 0 && (
+              state.funders.length > 0 ? (
+                <CheckboxGroupComponent
+                  name="funders"
+                  value={state.selectedFilterItems}
+                  onChange={handleCheckboxChange}
+                  checkboxGroupLabel={PlanCreate('checkbox.filterByFunderLabel')}
+                  checkboxGroupDescription={PlanCreate('checkbox.filterByFunderDescription')}
+                  checkboxData={state.funders.map(funder => ({
+                    label: funder.name,
+                    value: funder.name,
+                  }))}
+                />
+              ) : (
+                <CheckboxGroupComponent
+                  name="bestPractices"
+                  value={state.selectedFilterItems}
+                  onChange={handleCheckboxChange}
+                  checkboxGroupLabel={PlanCreate('checkbox.filterByBestPracticesLabel')}
+                  checkboxGroupDescription={PlanCreate('checkbox.filterByBestPracticesDescription')}
+                  checkboxData={state.bestPracticeTemplates.map(bp => ({
+                    label: bp.funder || '',
+                    value: bp.funder || '',
+                  }))}
+                />
+              )
             )}
           </div>
 
