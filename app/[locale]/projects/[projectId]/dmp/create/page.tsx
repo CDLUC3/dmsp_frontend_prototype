@@ -343,28 +343,45 @@ const PlanCreate: React.FC = () => {
         dispatch({ type: 'SET_PUBLIC_TEMPLATES_LIST', payload: sortedPublicTemplates });
       }
 
-      if (projectFunders && projectFunders?.projectFunders) {
-        const funders = projectFunders.projectFunders
+      // if (projectFunders && projectFunders?.projectFunders) {
+      //   const funders = projectFunders.projectFunders
+      //     .map(funder => ({
+      //       name: funder?.affiliation?.displayName ?? null,
+      //       uri: funder?.affiliation?.uri ?? null,
+      //     }))
+      //     .filter((funder): funder is { name: string; uri: string } => funder.name !== null);
+      //   // Remove duplicates based on `name` and `uri`
+      //   const uniqueFunders = Array.from(
+      //     new Map(funders.map(funder => [`${funder.name}-${funder.uri}`, funder])).values()
+      //   );
+
+      //   if (uniqueFunders.length > 0) {
+      //     dispatch({ type: 'SET_FUNDERS', payload: uniqueFunders });
+      //   }
+      // }
+
+      // Find templates that contain project funder as owner
+      const matchingTemplates = publishedTemplatesData?.publishedTemplates?.filter(template =>
+        projectFunders?.projectFunders && projectFunders.projectFunders.some(pf => pf?.affiliation?.uri === template?.owner?.uri)
+      );
+
+      if (matchingTemplates) {
+        const transformedProjectFunderTemplates = await transformTemplates(matchingTemplates);
+        const funders = transformedProjectFunderTemplates
           .map(funder => ({
-            name: funder?.affiliation?.displayName ?? null,
-            uri: funder?.affiliation?.uri ?? null,
+            name: funder?.funder ?? null,
+            uri: funder?.funderUri ?? null,
           }))
           .filter((funder): funder is { name: string; uri: string } => funder.name !== null);
+
         // Remove duplicates based on `name` and `uri`
         const uniqueFunders = Array.from(
-          new Map(funders.map(funder => [`${funder.name}-${funder.uri}`, funder])).values()
+          new Map(funders.map(funder => [funder.name, funder])).values()
         );
 
         if (uniqueFunders.length > 0) {
           dispatch({ type: 'SET_FUNDERS', payload: uniqueFunders });
         }
-      }
-
-      const matchingTemplates = publishedTemplatesData?.publishedTemplates?.filter(template =>
-        state.funders.some(funder => funder.uri === template?.owner?.uri)
-      );
-      if (matchingTemplates) {
-        const transformedProjectFunderTemplates = await transformTemplates(matchingTemplates);
         dispatch({ type: 'SET_PROJECT_FUNDER_TEMPLATES', payload: transformedProjectFunderTemplates });
       }
     };
@@ -396,6 +413,9 @@ const PlanCreate: React.FC = () => {
     }
   }, [state.searchTerm]);
 
+
+  useEffect(() => {
+  }, [state.funders]);
   if (isLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
