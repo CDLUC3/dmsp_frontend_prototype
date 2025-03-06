@@ -65,6 +65,9 @@
       "filterByFunderDescription": "Select if you want to only see templates by your funder.",
       "filterByBestPracticesLabel": "Filter by best practices",
       "filterByBestPracticesDescription": "Select if you want to only see best practice templates"
+    },
+    "labels": {
+      "dmpBestPractice": "DMP best practice"
     }
   }
 }

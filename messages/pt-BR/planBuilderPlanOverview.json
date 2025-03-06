@@ -65,6 +65,9 @@
       "filterByFunderDescription": "Selecione se você quer ver apenas modelos pelo seu fundo.",
       "filterByBestPracticesLabel": "Filtrar por melhores práticas",
       "filterByBestPracticesDescription": "Selecione se você quer ver apenas os modelos de boas práticas"
+    },
+    "labels": {
+      "dmpBestPractice": "DMP best practice"
     }
   }
 }

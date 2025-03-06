@@ -215,33 +215,37 @@ const PlanCreate: React.FC = () => {
 
   // Handle checkbox change
   const handleCheckboxChange = (value: string[], bestPracticeTemplates?: TemplateItemProps[]) => {
-    let filteredList;
+    // Always dispatch selected filter items (whether empty or not)
+    dispatch({ type: 'SET_SELECTED_FILTER_ITEMS', payload: value });
 
-    if (value.length > 0) {// If checkbox(es) are selected
-      dispatch({ type: 'SET_SELECTED_FILTER_ITEMS', payload: value });
-      if (state.funders.length > 0) {
-        // If project funders, then grab all project templates that contain a match
+    let filteredList: TemplateItemProps[] | null = null;
+
+    // Determine which templates to show based on selected filters
+    if (value.length > 0) {
+      if (value.includes('DMP Best Practice')) {
+        // Use best practice templates
+        filteredList = bestPracticeTemplates ?? state.bestPracticeTemplates ?? [];
+      } else if (state.funders.length > 0) {
+        // Filter project templates by selected funders
         filteredList = state.projectFunderTemplates.filter(template =>
           template.funder && value.includes(template.funder)
         );
       } else {
+        // Default to best practice templates when no other criteria match
         filteredList = bestPracticeTemplates ?? [];
       }
-      dispatch({ type: 'SET_FILTERED_PUBLIC_TEMPLATES', payload: filteredList });
-      if (state.searchTerm) {
-        filteredList = filterTemplates(filteredList, state.searchTerm);
-        dispatch({ type: 'SET_FILTERED_PUBLIC_TEMPLATES', payload: filteredList });
-      }
     } else {
-      //Otherwise reset the filters and show all templates
-      dispatch({ type: 'SET_SELECTED_FILTER_ITEMS', payload: [] });
-      if (state.searchTerm) {
-        filteredList = filterTemplates(state.publicTemplatesList, state.searchTerm);
-        dispatch({ type: 'SET_FILTERED_PUBLIC_TEMPLATES', payload: filteredList });
-      } else {
-        dispatch({ type: 'SET_FILTERED_PUBLIC_TEMPLATES', payload: null });
-      }
+      // No filters selected - use all templates or null depending on search
+      filteredList = state.searchTerm ? state.publicTemplatesList : null;
     }
+
+    // Apply search term filtering if needed
+    if (state.searchTerm && filteredList) {
+      filteredList = filterTemplates(filteredList, state.searchTerm);
+    }
+
+    // Set filtered templates with a single dispatch
+    dispatch({ type: 'SET_FILTERED_PUBLIC_TEMPLATES', payload: filteredList });
   };
 
   const handleFiltering = (term: string) => {
@@ -383,7 +387,7 @@ const PlanCreate: React.FC = () => {
         const bestPracticeArray = bestPracticeTemplates.map(bp => bp.funder || '');
         dispatch({ type: 'SET_BEST_PRACTICE_TEMPLATES', payload: bestPracticeTemplates });
         dispatch({ type: 'SET_SELECTED_FILTER_ITEMS', payload: bestPracticeArray });
-        handleCheckboxChange(bestPracticeArray, bestPracticeTemplates);
+        handleCheckboxChange([...bestPracticeArray, "DMP Best Practice"], bestPracticeTemplates);
       }
     } else {
       const funderNames = state.funders.map(funder => funder.name);
@@ -464,9 +468,9 @@ const PlanCreate: React.FC = () => {
                   onChange={handleCheckboxChange}
                   checkboxGroupLabel={PlanCreate('checkbox.filterByBestPracticesLabel')}
                   checkboxGroupDescription={PlanCreate('checkbox.filterByBestPracticesDescription')}
-                  checkboxData={state.bestPracticeTemplates.map(bp => ({
-                    label: bp.funder || '',
-                    value: bp.funder || '',
+                  checkboxData={state.bestPracticeTemplates.map(() => ({
+                    label: PlanCreate('labels.dmpBestPractice'),
+                    value: "DMP Best Practice",
                   }))}
                 />
               )
