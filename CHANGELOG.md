@@ -19,7 +19,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
-
+- Updated the `Project Members` page with real data [#360]
 - Updated `ProjectsProjectFundingEdit` component and moved the page under a new `[projectFunderId]` directory at `/projects/[projectId]/funder/[projectFunderId]/edit` [#357]
 - Updated the `Project Overview` page [#339]
 - Updated `/projects/[projectId]/project` page to hook it up to data [#351]

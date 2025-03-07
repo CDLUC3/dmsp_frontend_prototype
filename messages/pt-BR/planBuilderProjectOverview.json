@@ -46,6 +46,7 @@
     "update": "Atualizar plano",
     "updatePlan": "Atualizar este plano",
     "dateRange": "{startDate} até {endDate}",
+    "created": "Criado",
     "messages": {
       "errorGettingProject": "Erro ao obter detalhes do projeto"
     }
@@ -152,6 +153,26 @@
       "success": {
         "projectFunderUpdated": "Detalhes do financiador do projeto atualizados com sucesso"
       }
+    }
+  },
+  "ProjectsProjectMembers": {
+    "title": "Membros do Projeto",
+    "description": "Defina contribuidores e membros da equipe e seu papel neste projeto.",
+    "buttons": {
+      "addCollaborators": "Adicionar colaboradores",
+      "shareWithPeople": "Compartilhar com pessoas"
+    },
+    "headings": {
+      "h2AllowCollaborators": "Permitir que colaboradores possam editar ou comentar acesso?"
+    },
+    "para": {
+      "para1AllowCollaborators": "Você pode convidar pessoas para acessar, editar ou comentar em planos usando o botão \"<shareWithPeople>compartilhar com pessoas</shareWithPeople>\"."
+    },
+    "messages": {
+      "errors": {
+        "errorGettingContributors": "Erro ao obter contribuidores"
+      },
+      "noContributors": "Nenhum contribuidor encontrado"
     }
   }
 }
