@@ -148,7 +148,8 @@
       "linkUpdate": "Atualização",
       "linkExpand": "Expandir",
       "linkCollapse": "Retrair",
-      "continue": "Avançar"
+      "continue": "Avançar",
+      "edit": "Alterar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",

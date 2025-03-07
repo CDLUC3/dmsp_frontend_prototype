@@ -1,83 +1,112 @@
 'use client';
 
-import React from 'react';
-import {Breadcrumb, Breadcrumbs, Button, Link} from "react-aria-components";
+import { useEffect, useRef, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
+
+import {
+  useProjectContributorsQuery
+} from '@/generated/graphql';
+
+// Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
-import {OrcidIcon} from '@/components/Icons/orcid/';
+import { OrcidIcon } from '@/components/Icons/orcid/';
+import ErrorMessages from '@/components/ErrorMessages';
+
 import styles from './ProjectsProjectMembers.module.scss';
 
-interface Member {
-  id: string;
-  name: string;
+interface ProjectContributorsInterface {
+  id: number | null;
+  fullName: string;
   affiliation: string;
   orcid: string;
   role: string;
-  isPrimaryInvestigator: boolean;
 }
 
 const ProjectsProjectMembers = () => {
-  const members: Member[] = [
+  const router = useRouter();
+  // To scroll to error message
+  const errorRef = useRef<HTMLDivElement | null>(null);
+  // Get projectId param
+  const params = useParams();
+  const { projectId } = params; // From route /projects/:projectId
+
+  // Localization keys
+  const ProjectMembers = useTranslations('ProjectsProjectMembers');
+  const Global = useTranslations('Global');
+
+  const [projectContributors, setProjectContributors] = useState<ProjectContributorsInterface[]>();
+  const [errors, setErrors] = useState<string[]>([]);
+
+  // Get project contributors using projectid
+  const { data, loading, error: queryError } = useProjectContributorsQuery(
     {
-      id: 'member-001',
-      name: 'Frederick Cook',
-      affiliation: 'University of California',
-      orcid: '0000-0001-2603-5427',
-      role: 'Primary Investigator',
-      isPrimaryInvestigator: true
-    },
-    {
-      id: 'member-002',
-      name: 'Jennifer Frost',
-      affiliation: 'University of Arctic Studies',
-      orcid: '0000-0007-7803-0427',
-      role: 'Data curator',
-      isPrimaryInvestigator: false
-    },
-    {
-      id: 'member-003',
-      name: 'Christina Snowden',
-      affiliation: 'University of California',
-      orcid: '0000-0007-7803-0417',
-      role: 'Data curator',
-      isPrimaryInvestigator: false
+      variables: { projectId: Number(projectId) },
+      notifyOnNetworkStatusChange: true
     }
-  ];
+  );
 
   const handleAddCollaborator = (): void => {
     // Handle adding new collaborator
-    window.location.href = '/projects/proj_2425/members/search';
+    router.push(`/projects/${projectId}/members/search`);
   };
 
-  const handleEdit = (memberId: string): void => {
+  const handleEdit = (memberId: number | null): void => {
+
     // Handle editing member
-    window.location.href = '/projects/proj_2425/members/edit?memberid='+memberId;
-  };
-
-  const handleAccessUpdate = (memberId: string): void => {
-    // Handle access update
-    window.location.href = '/projects/proj_2425/members/edit?memberid='+memberId;
+    router.push(`/projects/${projectId}/members/edit?memberid=${memberId?.toString()}`);
   };
 
   const handleShare = (): void => {
     // Handle share
-    window.location.href = '/projects/proj_2425/share';
+    router.push(`/projects/${projectId}/share`);
   };
+
+  useEffect(() => {
+    // When data from backend changes, set project contributors data in state
+    if (data && data.projectContributors) {
+      const projectContributorData = data.projectContributors.map((contributor) => ({
+        id: contributor?.id ?? null,
+        fullName: `${contributor?.givenName} ${contributor?.surName}`,
+        affiliation: contributor?.affiliation?.displayName ?? '',
+        orcid: contributor?.orcid ?? '',
+        role: (contributor?.contributorRoles && contributor.contributorRoles.length > 0) ? contributor?.contributorRoles?.map((role) => role.label).join(', ') : '',
+      }))
+      setProjectContributors(projectContributorData);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (queryError) {
+      const errorMsg = ProjectMembers('messages.errors.errorGettingContributors');
+      setErrors(prev => [...prev, errorMsg]);
+    }
+    /*eslint-disable react-hooks/exhaustive-deps*/
+
+  }, [queryError])
+
+  if (loading) {
+    return <div>{Global('messaging.loading')}...</div>;
+  }
+
 
   return (
     <>
       <PageHeader
-        title="Project Members"
-        description="Define contributors & team members and their role in this project."
-        showBackButton={true}
+        title={ProjectMembers('title')}
+        description={ProjectMembers('description')}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/projects/${projectId}`}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb>{ProjectMembers('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
@@ -85,88 +114,88 @@ const ProjectsProjectMembers = () => {
             <Button
               onPress={handleAddCollaborator}
               className="secondary"
-              aria-label="Add collaborators"
             >
-              Add collaborators
+              {ProjectMembers('buttons.addCollaborators')}
             </Button>
           </>
         }
         className="page-project-members"
       />
-      <LayoutWithPanel>
+      <ErrorMessages errors={errors} ref={errorRef} />
+      <LayoutContainer>
         <ContentContainer className="layout-content-container-full">
           <section
             aria-label="Project members list"
             role="region"
           >
-            <div className={styles.membersList}>
-              {members.map((member) => (
-                <div
-                  key={member.id}
-                  className={styles.membersListItem}
-                  role="listitem"
-                  aria-label={`Project member: ${member.name}`}
-                >
-                  <div className={styles.memberInfo}>
-                    <h3>
-                      {member.name}
-                    </h3>
-                    <p className={styles.affiliation}>{member.affiliation}</p>
-                    <p className={styles.orcid}>
-                      <span aria-hidden="true">
-                        <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
-                      </span>
-                      <a
-                        href={`https://orcid.org/${member.orcid}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`ORCID profile for ${member.name}`}
+            {(!projectContributors || projectContributors?.length === 0) ? (
+              <p>{ProjectMembers('messages.noContributors')}</p>
+            ) : (
+              <div className={styles.membersList} role="list">
+                {projectContributors.map((member) => (
+                  <div
+                    key={member.id}
+                    className={styles.membersListItem}
+                    role="listitem"
+                    aria-label={`Project member: ${member.fullName}`}
+                  >
+                    <div className={styles.memberInfo}>
+                      <h2 className={styles.memberNameHeading}>
+                        {member.fullName}
+                      </h2>
+                      <p className={styles.affiliation}>{member.affiliation}</p>
+                      <p className={styles.orcid}>
+                        <span aria-hidden="true">
+                          <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
+                        </span>
+                        <a
+                          href={`https://orcid.org/${member.orcid}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`ORCID profile for ${member.fullName}`}
+                        >
+                          {member.orcid}
+                        </a>
+                      </p>
+                    </div>
+                    <div className={styles.memberRole}>
+                      <p className={styles.role}>{member.role}</p>
+                    </div>
+                    <div className={styles.memberActions}>
+                      <Button
+                        onPress={() => handleEdit(member.id)}
+                        className="primary"
+                        aria-label={`Edit ${member.fullName}'s details`}
                       >
-                        {member.orcid}
-                      </a>
-                    </p>
+                        {Global('buttons.edit')}
+                      </Button>
+                    </div>
                   </div>
-                  <div className={styles.memberRole}>
-                    <p className={styles.role}>{member.role}</p>
-                  </div>
-                  <div className={styles.memberActions}>
-                    <Button
-                      onPress={() => handleAccessUpdate(member.id)}
-                      className="secondary"
-                      aria-label={`${member.isPrimaryInvestigator ? 'Update' : 'Share'} access for ${member.name}`}
-                    >
-                      {member.isPrimaryInvestigator ? 'Update Access' : 'Share Access'}
-                    </Button>
-                    <Button
-                      onPress={() => handleEdit(member.id)}
-                      className="primary"
-                      aria-label={`Edit ${member.name}'s details`}
-                    >
-                      Edit
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
 
           <section
             aria-labelledby="collaborators-heading"
             className={styles.collaboratorAccess}
           >
-            <h2 id="collaborators-heading">Allow collaborators edit or comment access?</h2>
-            <p>You can invite people to access, edit or comment on plans by using the share button</p>
+            <h2 id="collaborators-heading">{ProjectMembers('headings.h2AllowCollaborators')}</h2>
+            <p>
+              {ProjectMembers.rich('para.para1AllowCollaborators', {
+                shareWithPeople: (chunks) => <Link href={`/projects/${projectId}/share`}>{chunks}</Link>
+              })}
+            </p>
             <Button
               onPress={handleShare}
               className="secondary"
-              aria-label="Share with people"
+              aria-label={ProjectMembers('buttons.shareWithPeople')}
             >
-              Share with people
+              {ProjectMembers('buttons.shareWithPeople')}
             </Button>
           </section>
         </ContentContainer>
-        <SidebarPanel />
-      </LayoutWithPanel>
+      </LayoutContainer >
     </>
   );
 };
