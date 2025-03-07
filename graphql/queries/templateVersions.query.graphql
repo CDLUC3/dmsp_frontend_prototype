@@ -49,16 +49,19 @@ query MyVersionedTemplates {
 query PublishedTemplates {
   publishedTemplates {
     id
+    bestPractice
     template {
       id
     }
     name
     description
+    modified
     modifiedById
     owner {
       name
       displayName
       searchName
+      uri
     }
     visibility
     errors {

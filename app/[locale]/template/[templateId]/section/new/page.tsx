@@ -133,7 +133,6 @@ const SectionTypeSelectPage: React.FC = () => {
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateQueryErrors]);
 
   useEffect(() => {

@@ -183,7 +183,6 @@
     "numDisplaying": "Showing {num} of {total}",
     "clearFilter": "clear filter",
     "buttons": {
-      "load3More": "Load 3 more",
       "loadMore": "Load {name} more"
     },
     "headings": {

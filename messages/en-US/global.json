@@ -167,7 +167,8 @@
       "noItemsFound": "No items found",
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search",
-      "fixBelow": "Please fix the errors below"
+      "fixBelow": "Please fix the errors below",
+      "error": "Something went wrong. Please try again."
     },
     "tabs": {
       "editQuestion": "Edit question",

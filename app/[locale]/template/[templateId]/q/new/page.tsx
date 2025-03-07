@@ -143,7 +143,6 @@ const QuestionTypeSelectPage: React.FC = () => {
         if (step !== stepQueryValue) {
             setStep(stepQueryValue);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [stepQueryValue])
 
     // TODO: Implement shared loading

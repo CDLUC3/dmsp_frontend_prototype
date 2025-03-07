@@ -56,5 +56,18 @@
         "requestFeedback": "Request feedback"
       }
     }
+  },
+  "PlanCreate": {
+    "title": "Plan: Select a DMP template",
+    "description": "Select a template to use when creating your DMP.",
+    "checkbox": {
+      "filterByFunderLabel": "Filter by funder",
+      "filterByFunderDescription": "Select if you want to only see templates by your funder.",
+      "filterByBestPracticesLabel": "Filter by best practices",
+      "filterByBestPracticesDescription": "Select if you want to only see best practice templates"
+    },
+    "labels": {
+      "dmpBestPractice": "DMP best practice"
+    }
   }
 }

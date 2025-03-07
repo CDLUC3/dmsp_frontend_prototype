@@ -18,7 +18,7 @@ import {
 //Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
-import { filterTemplates } from '@/components/SelectExistingTemplate/utils';
+import { filterTemplates } from '@/utils/filterTemplates';
 import TemplateList from '@/components/TemplateList';
 import ErrorMessages from '@/components/ErrorMessages';
 

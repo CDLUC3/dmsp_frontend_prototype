@@ -47,8 +47,10 @@ export interface TemplateItemProps {
   link?: LinkHref;
   defaultExpanded: boolean;
   funder?: string;
+  funderUri?: string;
   lastUpdated?: string | null;
   publishStatus?: string | null;
+  bestPractices?: boolean;
 }
 
 export interface MyVersionedTemplatesInterface {
@@ -220,14 +222,14 @@ export interface RadioButtonProps {
 interface CheckboxInterface {
   value: string;
   label: string;
-  description: string;
+  description?: string;
 }
 export interface CheckboxGroupProps {
-  name: string;
+  name?: string;
   checkboxGroupLabel?: string;
   checkboxGroupDescription?: string;
   checkboxData: CheckboxInterface[];
-  value: string[];
+  value?: string[];
   isInvalid?: boolean;
   errorMessage?: string;
   // eslint-disable-next-line no-unused-vars

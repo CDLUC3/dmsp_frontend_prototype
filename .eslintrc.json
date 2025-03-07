@@ -15,6 +15,7 @@
     "object-shorthand": "warn",
     "quote-props": ["warn", "as-needed"],
     "react/react-in-jsx-scope": "off",
+    "react-hooks/exhaustive-deps": "off",
     "import/no-unresolved": "warn",
     // TypeScript rules
     "@typescript-eslint/array-type": [
