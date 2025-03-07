@@ -134,6 +134,27 @@
       }
     }
   },
+  "ProjectsProjectFundingEdit": {
+    "title": "Edit Funder Details",
+    "description": "Update funding source information",
+    "labels": {
+      "funderName": "Funder name",
+      "funderStatus": "Funder Status",
+      "grantNumber": "Grant number/url",
+      "projectNumber": "Project number or ID",
+      "opportunity": "Opportunity/Federal Award Number"
+    },
+    "messages": {
+      "errors": {
+        "projectFunderUpdateFailed": "Error updating project funder details",
+        "funderGrantId": "Invalid funder grant ID value",
+        "funderProjectNumber": "Invalid funder project number value"
+      },
+      "success": {
+        "projectFunderUpdated": "Successfully updated project funder details"
+      }
+    }
+  },
   "ProjectsProjectMembers": {
     "title": "Project Members",
     "description": "Define contributors and team members and their role in this project.",

@@ -355,6 +355,7 @@ const ProfilePage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{t('breadcrumbHome')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/account/profile">{t('headingUpdateProfile')}</Link></Breadcrumb>
+            <Breadcrumb>{t('headingUpdateProfile')}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-template-list"

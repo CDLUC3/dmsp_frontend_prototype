@@ -117,7 +117,7 @@
       "template": "Modelo",
       "createTemplate": "Criar um modelo",
       "selectExistingTemplate": "Selecionar um modelo existente",
-      "templateHistory": "Histórico do modelo",
+      "templateHistory": "Template history",
       "section": "Seção",
       "addNewSection": "Adicionar uma nova seção",
       "updateSection": "Seção de atualização",
@@ -127,7 +127,8 @@
       "question": "Pergunta",
       "selectQuestionType": "Selecionar o tipo de questão",
       "projects": "Projetos",
-      "projectOverview": "Visão geral do projeto"
+      "projectOverview": "Visão geral do projeto",
+      "projectFunder": "Project funder"
     },
     "form": {
       "yesLabel": "Sim",
@@ -140,6 +141,7 @@
       "select": "Select",
       "next": "Seguinte",
       "save": "Salvar",
+      "saveChanges": "Save changes",
       "remove": "Remover",
       "confirm": "Confirmação",
       "cancel": "Cancelar",

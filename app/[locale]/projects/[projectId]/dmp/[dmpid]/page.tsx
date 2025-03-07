@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
+import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import styles from './PlanOverviewPage.module.scss';
-import {useTranslations} from "next-intl";
+import { useTranslations } from "next-intl";
 import {
   ContentContainer,
   LayoutWithPanel,
@@ -99,8 +99,7 @@ const PlanOverviewPage: React.FC = () => {
             <Breadcrumb><Link
               href="/">{t('navigation.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{t('navigation.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects/proj_2425/">Project
-              name</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects/proj_2425/">Project name</Link></Breadcrumb>
             <Breadcrumb>{plan.title}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -113,10 +112,10 @@ const PlanOverviewPage: React.FC = () => {
           <div className={"container"}>
             <div className={styles.planOverview}>
               <section className={styles.planOverviewItem}
-                       aria-labelledby="funder-title">
+                aria-labelledby="funder-title">
                 <div className={styles.planOverviewItemContent}>
                   <h2 id="funder-title"
-                      className={styles.planOverviewItemTitle}>
+                    className={styles.planOverviewItemTitle}>
                     {t('funder.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
@@ -124,49 +123,49 @@ const PlanOverviewPage: React.FC = () => {
                   </p>
                 </div>
                 <Link href={plan.adjust_funder_url}
-                      aria-label={t('funder.edit')}>
+                  aria-label={t('funder.edit')}>
                   {t('funder.edit')}
                 </Link>
               </section>
 
               <section className={styles.planOverviewItem}
-                       aria-labelledby="members-title">
+                aria-labelledby="members-title">
                 <div className={styles.planOverviewItemContent}>
                   <h2 id="members-title"
-                      className={styles.planOverviewItemTitle}>
+                    className={styles.planOverviewItemTitle}>
                     {t('members.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
                     {plan.members.map((member, index) => (
                       <span key={index}>
-                                                {t('members.info', {
-                                                  name: member.fullname,
-                                                  role: member.role
-                                                })}
+                        {t('members.info', {
+                          name: member.fullname,
+                          role: member.role
+                        })}
                         {index < plan.members.length - 1 ? '; ' : ''}
-                                            </span>
+                      </span>
                     ))}
                   </p>
                 </div>
                 <Link href={plan.adjust_members_url}
-                      aria-label={t('members.edit')}>
+                  aria-label={t('members.edit')}>
                   {t('members.edit')}
                 </Link>
               </section>
 
               <section className={styles.planOverviewItem}
-                       aria-labelledby="outputs-title">
+                aria-labelledby="outputs-title">
                 <div className={styles.planOverviewItemContent}>
                   <h2 id="outputs-title"
-                      className={styles.planOverviewItemTitle}>
+                    className={styles.planOverviewItemTitle}>
                     {t('outputs.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
-                    {t('outputs.count', {count: plan.research_output_count})}
+                    {t('outputs.count', { count: plan.research_output_count })}
                   </p>
                 </div>
                 <Link href={plan.adjust_researchoutputs_url}
-                      aria-label={t('outputs.edit')}>
+                  aria-label={t('outputs.edit')}>
                   {t('outputs.edit')}
                 </Link>
               </section>
@@ -186,25 +185,25 @@ const PlanOverviewPage: React.FC = () => {
                     </h3>
                     <p
                       aria-label={`${section.progress} out of 3 questions answered for ${section.section_title}`}>
-                                            <span
-                                              className={styles.progressIndicator}>
-                                                <svg
-                                                  className={styles.progressIcon}
-                                                  width="18"
-                                                  height="18"
-                                                  xmlns="http://www.w3.org/2000/svg"
-                                                  viewBox="0 -960 960 960"
-                                                  fill="currentColor"
-                                                  aria-hidden="true"
-                                                >
-                                                    <path
-                                                      d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z"/>
-                                                </svg>
-                                              {t('sections.progress', {
-                                                current: section.progress,
-                                                total: 3
-                                              })} {t('sections.questionsAnswered')}
-                                            </span>
+                      <span
+                        className={styles.progressIndicator}>
+                        <svg
+                          className={styles.progressIcon}
+                          width="18"
+                          height="18"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 -960 960 960"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
+                        </svg>
+                        {t('sections.progress', {
+                          current: section.progress,
+                          total: 3
+                        })} {t('sections.questionsAnswered')}
+                      </span>
                     </p>
                   </div>
                   <Link
@@ -254,7 +253,7 @@ const PlanOverviewPage: React.FC = () => {
                 </p>
                 <p>
                   {t('status.download.draftInfo')} <Link
-                  href="#">{t('status.download.learnMore')}</Link>
+                    href="#">{t('status.download.learnMore')}</Link>
                 </p>
                 <button
                   className="react-aria-Button react-aria-Button--primary">

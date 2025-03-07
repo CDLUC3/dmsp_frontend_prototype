@@ -201,6 +201,8 @@ export type Affiliation = {
   active: Scalars['Boolean']['output'];
   /** Alias names for the affiliation */
   aliases?: Maybe<Array<Scalars['String']['output']>>;
+  /** The API URL that can be used to search for project/award information */
+  apiTarget?: Maybe<Scalars['String']['output']>;
   /** The primary contact email */
   contactEmail?: Maybe<Scalars['String']['output']>;
   /** The primary contact name */
@@ -383,6 +385,8 @@ export enum AffiliationProvenance {
 /** Search result - An abbreviated version of an Affiliation */
 export type AffiliationSearch = {
   __typename?: 'AffiliationSearch';
+  /** Has an API that be used to search for project/award information */
+  apiTarget?: Maybe<Scalars['String']['output']>;
   /** The official display name */
   displayName: Scalars['String']['output'];
   /** Whether or not this affiliation is a funder */
@@ -390,7 +394,7 @@ export type AffiliationSearch = {
   /** The unique identifer for the affiliation (typically the ROR id) */
   id: Scalars['Int']['output'];
   /** The categories the Affiliation belongs to */
-  types: Array<AffiliationType>;
+  types?: Maybe<Array<AffiliationType>>;
   /** The URI of the affiliation */
   uri: Scalars['String']['output'];
 };
@@ -3275,6 +3279,13 @@ export type UpdateUserProfileInput = {
   surName: Scalars['String']['input'];
 };
 
+export type UpdateProjectFunderMutationVariables = Exact<{
+  input: UpdateProjectFunderInput;
+}>;
+
+
+export type UpdateProjectFunderMutation = { __typename?: 'Mutation', updateProjectFunder?: { __typename?: 'ProjectFunder', errors?: { __typename?: 'ProjectFunderErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
+
 export type AddProjectMutationVariables = Exact<{
   title: Scalars['String']['input'];
   isTestProject?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3412,6 +3423,13 @@ export type ProjectContributorsQueryVariables = Exact<{
 
 export type ProjectContributorsQuery = { __typename?: 'Query', projectContributors?: Array<{ __typename?: 'ProjectContributor', id?: number | null, givenName?: string | null, surName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, description?: string | null }> | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null> | null };
 
+export type ProjectFunderQueryVariables = Exact<{
+  projectFunderId: Scalars['Int']['input'];
+}>;
+
+
+export type ProjectFunderQuery = { __typename?: 'Query', projectFunder?: { __typename?: 'ProjectFunder', status?: ProjectFunderStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string } | null } | null };
+
 export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -3516,6 +3534,47 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
+export const UpdateProjectFunderDocument = gql`
+    mutation UpdateProjectFunder($input: updateProjectFunderInput!) {
+  updateProjectFunder(input: $input) {
+    errors {
+      affiliationId
+      funderOpportunityNumber
+      funderProjectNumber
+      general
+      grantId
+      projectId
+      status
+    }
+  }
+}
+    `;
+export type UpdateProjectFunderMutationFn = Apollo.MutationFunction<UpdateProjectFunderMutation, UpdateProjectFunderMutationVariables>;
+
+/**
+ * __useUpdateProjectFunderMutation__
+ *
+ * To run a mutation, you first call `useUpdateProjectFunderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProjectFunderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateProjectFunderMutation, { data, loading, error }] = useUpdateProjectFunderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateProjectFunderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateProjectFunderMutation, UpdateProjectFunderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateProjectFunderMutation, UpdateProjectFunderMutationVariables>(UpdateProjectFunderDocument, options);
+      }
+export type UpdateProjectFunderMutationHookResult = ReturnType<typeof useUpdateProjectFunderMutation>;
+export type UpdateProjectFunderMutationResult = Apollo.MutationResult<UpdateProjectFunderMutation>;
+export type UpdateProjectFunderMutationOptions = Apollo.BaseMutationOptions<UpdateProjectFunderMutation, UpdateProjectFunderMutationVariables>;
 export const AddProjectDocument = gql`
     mutation AddProject($title: String!, $isTestProject: Boolean) {
   addProject(title: $title, isTestProject: $isTestProject) {
@@ -4356,6 +4415,52 @@ export type ProjectContributorsQueryHookResult = ReturnType<typeof useProjectCon
 export type ProjectContributorsLazyQueryHookResult = ReturnType<typeof useProjectContributorsLazyQuery>;
 export type ProjectContributorsSuspenseQueryHookResult = ReturnType<typeof useProjectContributorsSuspenseQuery>;
 export type ProjectContributorsQueryResult = Apollo.QueryResult<ProjectContributorsQuery, ProjectContributorsQueryVariables>;
+export const ProjectFunderDocument = gql`
+    query ProjectFunder($projectFunderId: Int!) {
+  projectFunder(projectFunderId: $projectFunderId) {
+    affiliation {
+      name
+    }
+    status
+    grantId
+    funderOpportunityNumber
+    funderProjectNumber
+  }
+}
+    `;
+
+/**
+ * __useProjectFunderQuery__
+ *
+ * To run a query within a React component, call `useProjectFunderQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectFunderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectFunderQuery({
+ *   variables: {
+ *      projectFunderId: // value for 'projectFunderId'
+ *   },
+ * });
+ */
+export function useProjectFunderQuery(baseOptions: Apollo.QueryHookOptions<ProjectFunderQuery, ProjectFunderQueryVariables> & ({ variables: ProjectFunderQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectFunderQuery, ProjectFunderQueryVariables>(ProjectFunderDocument, options);
+      }
+export function useProjectFunderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectFunderQuery, ProjectFunderQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectFunderQuery, ProjectFunderQueryVariables>(ProjectFunderDocument, options);
+        }
+export function useProjectFunderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectFunderQuery, ProjectFunderQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectFunderQuery, ProjectFunderQueryVariables>(ProjectFunderDocument, options);
+        }
+export type ProjectFunderQueryHookResult = ReturnType<typeof useProjectFunderQuery>;
+export type ProjectFunderLazyQueryHookResult = ReturnType<typeof useProjectFunderLazyQuery>;
+export type ProjectFunderSuspenseQueryHookResult = ReturnType<typeof useProjectFunderSuspenseQuery>;
+export type ProjectFunderQueryResult = Apollo.QueryResult<ProjectFunderQuery, ProjectFunderQueryVariables>;
 export const MyProjectsDocument = gql`
     query MyProjects {
   myProjects {

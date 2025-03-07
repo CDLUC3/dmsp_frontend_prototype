@@ -75,6 +75,8 @@ import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
 import {useToast} from '@/context/ToastContext';
 
+import QuestionPreview from '@/components/QuestionPreview';
+
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
@@ -380,6 +382,7 @@ function Page() {
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
           <a href="#_toast">Toast Messages</a>
+          <a href="#_questionpreview">QuestionPreview Bottomsheet</a>
         </SidebarPanel>
 
         <ContentContainer id="sgContent">
@@ -1955,6 +1958,60 @@ function Page() {
               <Button onPress={showToastAndRedirect}>Show toast with redirect</Button>
             </div>
           </div>
+
+          <div id="_questionpreview">
+            <h3>QuestionPreview</h3>
+            <QuestionPreview>
+              <LayoutWithPanel>
+                <ContentContainer>
+                  <p>This is an example of the content within the Question Preview</p>
+
+                  <TextField
+                    name="example_email"
+                    type="email"
+                    isRequired
+                  >
+                    <Label>Email</Label>
+                    <Text slot="description" className="help">Descriptive text
+                      related to the field</Text>
+                    <Input />
+                    <FieldError />
+                  </TextField>
+
+                  <DmpEditor content="<p>Example richtext field inside the preview bottomsheet</p>" setContent={() => {}} />
+                </ContentContainer>
+
+                <SidebarPanel>
+                  <p>Best pracive by (DMPTool Logo)</p>
+
+                  <h3>Data Sharing</h3>
+                  <p>
+                    Give a summary of the data you will collect or create, noting the
+                    content, coverage and data type, for example tabular data, survey
+                    data, experimental measurements, models, software, audiovisual data,
+                    physical samples, etc.
+                  </p>
+                  <p><a href="#">Expand</a></p>
+
+                  <h3>Data Preservation</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
+                    imperdiet tempor mi, in fringilla lectus viverra et. Suspendisse
+                    erat dolor, rutrum et tempor eu, ultricies quis nunc.
+                  </p>
+                  <p><a href="#">Expand</a></p>
+
+                  <h3>Data Protection</h3>
+                  <p>
+                    Quisque sit amet ex volutpat, imperdiet risus sit amet, malesuada
+                    enim.
+                  </p>
+                  <p><a href="#">Expand</a></p>
+                </SidebarPanel>
+              </LayoutWithPanel>
+            </QuestionPreview>
+          </div>
+
         </ContentContainer>
       </LayoutWithPanel >
     </>

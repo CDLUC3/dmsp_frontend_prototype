@@ -243,6 +243,7 @@ const ProjectsCreateProject = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb>{CreateProject('pageTitle')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={

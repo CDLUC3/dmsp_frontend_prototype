@@ -127,7 +127,8 @@
       "question": "Question",
       "selectQuestionType": "Select Question Type",
       "projects": "Projects",
-      "projectOverview": "Project overview"
+      "projectOverview": "Project overview",
+      "projectFunder": "Project funder"
     },
     "form": {
       "yesLabel": "Yes",
@@ -140,6 +141,7 @@
       "select": "Select",
       "next": "Next",
       "save": "Save",
+      "saveChanges": "Save changes",
       "remove": "Remove",
       "confirm": "Confirm",
       "cancel": "Cancel",

@@ -217,6 +217,7 @@ const ProjectsListPage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.projects')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={

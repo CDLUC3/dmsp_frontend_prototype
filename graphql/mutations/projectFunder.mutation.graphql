@@ -1,0 +1,13 @@
+mutation UpdateProjectFunder($input: updateProjectFunderInput!) {
+  updateProjectFunder(input: $input) {
+    errors {
+      affiliationId
+      funderOpportunityNumber
+      funderProjectNumber
+      general
+      grantId
+      projectId
+      status
+    }
+  }
+}

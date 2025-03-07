@@ -16,9 +16,11 @@
 - Plan Overview [#178]
 - Plan Section and boilerplate tests [#178]
 - Plan Question and boilerplate tests [#178]
+- QuestionPreview component [#224]
 
 ### Updated
 - Updated the `Project Members` page with real data [#360]
+- Updated `ProjectsProjectFundingEdit` component and moved the page under a new `[projectFunderId]` directory at `/projects/[projectId]/funder/[projectFunderId]/edit` [#357]
 - Updated the `Project Overview` page [#339]
 - Updated `/projects/[projectId]/project` page to hook it up to data [#351]
 - Moved some shared test utils to jest.setup.ts or `__mocks__/common.ts` [#351]
