@@ -1,0 +1,60 @@
+{
+  "PlanOverview": {
+    "navigation": {
+      "home": "Home",
+      "projects": "Projects",
+      "navigation": "Breadcrumb navigation"
+    },
+    "page": {
+      "pageDescription": "Overview of plan details"
+    },
+    "funder": {
+      "title": "Funder for this plan",
+      "edit": "Adjust for this plan"
+    },
+    "members": {
+      "title": "Plan members for this plan",
+      "count": "{count} team members",
+      "info": "{name} ({role})",
+      "edit": "Adjust for this plan"
+    },
+    "outputs": {
+      "title": "Research outputs for this plan",
+      "count": "{count} outputs",
+      "edit": "Adjust for this plan"
+    },
+    "question": {
+      "answered": "Answered",
+      "notAnswered": "Not answered"
+    },
+    "sections": {
+      "start": "Start",
+      "ariaLabel": "{action} answer for: {title}",
+      "progress": "{current} of {total}",
+      "questionsAnswered": "question(s) answered",
+      "update": "Update",
+      "updateSection": "Update {title}"
+    },
+    "status": {
+      "title": "Status",
+      "lastUpdated": "Last updated",
+      "publishedStatus": "Published status",
+      "doi": "DOI",
+      "notPublished": "Not published",
+      "visibilitySettings": "Visibility settings",
+      "download": {
+        "title": "Download",
+        "downloadPDF": "Download this plan",
+        "draftInfo": "When you save as draft, only you and people with shared access will be able to see this plan.",
+        "learnMore": "Learn more",
+        "markComplete": "Mark as complete"
+      },
+      "feedback": {
+        "title": "Feedback & Collaboration",
+        "description": "Allow people to access, edit or comment on this plan",
+        "manageAccess": "Manage access",
+        "requestFeedback": "Request feedback"
+      }
+    }
+  }
+}

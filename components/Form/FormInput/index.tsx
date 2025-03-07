@@ -6,32 +6,48 @@ import {
   Text,
   TextField,
 } from "react-aria-components";
-import styles from './formInput.module.scss';
 
 interface InputProps {
   name: string;
+  id?: string;
   type?: string;
   label: string;
   placeholder?: string;
-  value?: string;
+  description?: string;
+  ariaDescribedBy?: string;
+  ariaLabel?: string;
+  value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
+  labelClasses?: string;
+  inputClasses?: string;
+  disabled?: boolean;
+  isRequired?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
 }
 
-const FormInput: React.FC<InputProps> = ({
+const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
   name,
+  id,
   type,
   label,
   placeholder,
+  description,
+  ariaDescribedBy,
+  ariaLabel,
   value,
   onChange,
   className = '',
+  labelClasses = '',
+  inputClasses = '',
+  disabled = false,
+  isRequired = false,
   isInvalid = false,
   errorMessage = '',
-  helpMessage = ''
+  helpMessage = '',
+  ...rest
 }) => {
 
   return (
@@ -39,17 +55,27 @@ const FormInput: React.FC<InputProps> = ({
       <TextField
         name={name}
         type={type}
-        className={`${className} ${isInvalid ? 'field-error' : ''}`}
+        className={`${className} react-aria-TextField ${isInvalid ? 'field-error' : ''}`}
+        isRequired={isRequired}
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >
-        <Label>{label}</Label>
+        <Label htmlFor={id} className={labelClasses}>{label}</Label>
+        <Text slot="description" className="help">
+          {description}
+        </Text>
         <Input
+          id={id}
           name={name}
           type={type}
+          className={inputClasses}
           placeholder={placeholder}
           onChange={onChange}
           value={value}
+          disabled={disabled}
+          aria-describedby={ariaDescribedBy}
+          aria-label={ariaLabel}
+          {...rest}
         />
 
         {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
@@ -59,7 +85,7 @@ const FormInput: React.FC<InputProps> = ({
             {helpMessage}
           </Text>
         )}
-
+        <FieldError />
       </TextField>
     </>
   );

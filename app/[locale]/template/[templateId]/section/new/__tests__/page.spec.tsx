@@ -1,11 +1,13 @@
 import React from "react";
-import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
-import {useTemplateQuery,} from '@/generated/graphql';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams} from 'next/navigation';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { useTemplateQuery, } from '@/generated/graphql';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams } from 'next/navigation';
 import SectionTypeSelectPage from '../page';
-
+import {
+  mockScrollIntoView,
+  mockScrollTo
+} from "@/__mocks__/common";
 expect.extend(toHaveNoViolations);
 
 // Mock the useTemplateQuery hook
@@ -17,33 +19,6 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
 }))
 
-// Create a mock for scrollIntoView and focus
-const mockScrollIntoView = jest.fn();
-
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
-
-
-// Mock useTranslations from next-intl
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
-
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
-      }
-      return key;
-    };
-
-    return mockUseTranslations;
-  }),
-}));
-
 jest.mock('@/components/BackButton', () => {
   return {
     __esModule: true,
@@ -52,40 +27,40 @@ jest.mock('@/components/BackButton', () => {
 });
 
 const mockTemplateData = {
-  "name": "DMP Template from Dataverse",
-  "description": "DMP Template from Dataverse",
-  "errors": null,
-  "latestPublishVersion": "v1",
-  "latestPublishDate": "1648835084000",
-  "created": "1412980160000",
-  "sections": [
+  name: "DMP Template from Dataverse",
+  description: "DMP Template from Dataverse",
+  errors: null,
+  latestPublishVersion: "v1",
+  latestPublishDate: "1648835084000",
+  created: "1412980160000",
+  sections: [
     {
-      "id": 67,
-      "displayOrder": 1,
-      "bestPractice": false,
-      "name": "Data description",
-      "questions": [
+      id: 67,
+      displayOrder: 1,
+      bestPractice: false,
+      name: "Data description",
+      questions: [
         {
-          "errors": null,
-          "displayOrder": 1,
-          "guidanceText": "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
-          "id": 67,
-          "questionText": "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
+          errors: null,
+          displayOrder: 1,
+          guidanceText: "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
+          id: 67,
+          questionText: "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
         }
       ]
     },
     {
-      "id": 68,
-      "displayOrder": 1,
-      "bestPractice": true,
-      "name": "Roles and Responsibilities",
-      "questions": [
+      id: 68,
+      displayOrder: 1,
+      bestPractice: true,
+      name: "Roles and Responsibilities",
+      questions: [
         {
-          "errors": null,
-          "displayOrder": 1,
-          "guidanceText": "<p>Test</p>",
-          "id": 68,
-          "questionText": "<p>Roles and Responsibilities within a data management plan covers how the responsibilities for the management of your data will be delegated and potentially transferred over the long term.</p>"
+          errors: null,
+          displayOrder: 1,
+          guidanceText: "<p>Test</p>",
+          id: 68,
+          questionText: "<p>Roles and Responsibilities within a data management plan covers how the responsibilities for the management of your data will be delegated and potentially transferred over the long term.</p>"
         }
       ]
     },
@@ -95,7 +70,7 @@ const mockTemplateData = {
 describe("SectionTypeSelectPage", () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+    mockScrollTo();
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 
@@ -143,7 +118,7 @@ describe("SectionTypeSelectPage", () => {
     expect(heading).toHaveTextContent('headings.addNewSection');
     expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.templates')).toBeInTheDocument();
-    expect(screen.getByText('breadcrumbs.section')).toBeInTheDocument();
+    expect(screen.getByText('breadcrumbs.addNewSection')).toBeInTheDocument();
     expect(screen.getByText('intro')).toBeInTheDocument();
     expect(screen.getByLabelText('search.label')).toBeInTheDocument();
     expect(searchButton).toBeInTheDocument();

@@ -1,0 +1,24 @@
+.loadBtnContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.remainingText,
+.searchMatchText {
+  font-size: var(--fs-small);
+  margin-top: var(--space-2);
+}
+
+.searchMatchText {
+  margin-bottom: var(--space-2);
+}
+
+.clearFilter {
+  cursor: pointer;
+  color:var(--link-color);
+  &:hover {
+    text-decoration: underline;
+  }
+}

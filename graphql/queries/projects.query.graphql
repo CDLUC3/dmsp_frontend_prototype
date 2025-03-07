@@ -1,0 +1,79 @@
+query MyProjects {
+  myProjects {
+    title
+    id
+    contributors {
+      surName
+      givenName
+      contributorRoles {
+        label
+      }
+      orcid
+    }
+    startDate
+    endDate
+    funders {
+      affiliation {
+        name
+        uri
+      }
+      grantId
+    }
+    errors {
+      general
+      title
+    }
+  }
+}
+
+query Project($projectId: Int!) {
+  project(projectId: $projectId) {
+    title
+    abstractText
+    startDate
+    endDate
+    isTestProject
+    funders {
+      id
+      grantId
+      affiliation {
+        name
+        displayName
+        searchName
+      }
+    }
+    contributors {
+      givenName
+      surName
+      contributorRoles {
+        description
+        displayOrder
+        label
+        uri
+      }
+      email
+    }
+    outputs {
+      title
+    }
+    researchDomain {
+      id
+      parentResearchDomainId
+    }
+     plans {
+      sections {
+        answeredQuestions
+        displayOrder
+        sectionId
+        sectionTitle
+        totalQuestions
+      }
+      templateTitle
+      id
+      funder
+      dmpId
+      modified
+      created
+    }
+  }
+}

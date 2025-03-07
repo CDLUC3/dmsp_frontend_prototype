@@ -8,13 +8,15 @@ import { ApolloError } from "@apollo/client";
 import {
   MeDocument,
   useAddUserEmailMutation,
+  UserEmailErrors,
   useRemoveUserEmailMutation,
   useSetPrimaryUserEmailMutation
 } from '@/generated/graphql';
 
 // Components
 import EmailAddressRow from '@/components/EmailAddressRow';
-import FormInput from '../Form/FormInput';
+import FormInput from '@/components/Form/FormInput';
+import ErrorMessages from '@/components/ErrorMessages';
 //Interfaces
 import { EmailInterface } from '@/app/types';
 // Utils and other
@@ -34,7 +36,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   const t = useTranslations('UserProfile');
   const toastState = useToast(); // Access the toast state from context
   const errorRef = useRef<HTMLDivElement | null>(null);
-  const [errors, setErrors] = useState<string[]>([]);
+  const [errors, setErrors] = useState<UserEmailErrors>({});
   const [addAliasValue, setAddAliasValue] = useState<string>('');
 
   // Initialize graphql mutations for component
@@ -43,7 +45,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   const [removeUserEmailMutation, { error: deleteEmailError }] = useRemoveUserEmailMutation();
 
   const clearErrors = () => {
-    setErrors([]);
+    setErrors({});
   }
 
   // Set given email as isPrimary
@@ -61,9 +63,9 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       })
 
       const emailData = response?.data?.setPrimaryUserEmail?.[0];
-      if (emailData?.errors && emailData.errors.length > 0) {
+      if (emailData?.errors && Object.keys(emailData.errors).length > 0) {
         // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-        setErrors(emailData.errors ?? []);
+        setErrors(emailData.errors ?? {});
         return;
       }
       clearErrors();
@@ -84,7 +86,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         });
       } else {
         // Display other errors
-        setErrors(prevErrors => [...prevErrors, 'Error when setting primary email']);
+        setErrors(prevErrors => ({ ...prevErrors, general: 'Error when setting primary email' }));
         logECS('error', 'makePrimaryEmail', {
           error: err,
           url: { path: '/account/profile' }
@@ -116,9 +118,9 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
       });
 
       const emailData = response?.data?.addUserEmail;
-      if (emailData?.errors && emailData.errors.length > 0) {
+      if (emailData?.errors && Object.keys(emailData.errors).length > 0) {
         // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-        setErrors(emailData.errors ?? []);
+        setErrors(emailData.errors ?? {});
         return;
       }
       clearErrors();
@@ -145,7 +147,7 @@ calling 'refetch()' for the user query, but that didn't work. */
         setAddAliasValue('');
       } else {
         // Display other errors
-        setErrors(prevErrors => [...prevErrors, 'Error when adding new email']);
+        setErrors(prevErrors => ({ ...prevErrors, general: 'Error when adding new email' }));
         logECS('error', 'handleAddingAlias', {
           error: err,
           url: { path: '/account/profile' }
@@ -169,8 +171,8 @@ calling 'refetch()' for the user query, but that didn't work. */
       })
 
       const emailData = response?.data?.removeUserEmail;
-      if (emailData?.errors && emailData.errors.length > 0) {
-        setErrors(emailData.errors ?? []);
+      if (emailData?.errors && Object.keys(emailData.errors).length > 0) {
+        setErrors(emailData.errors ?? {});
         return;
       }
       clearErrors();
@@ -191,7 +193,7 @@ calling 'refetch()' for the user query, but that didn't work. */
         })
       } else {
         // Display other errors
-        setErrors(prevErrors => [...prevErrors, 'Error when deleting email']);
+        setErrors(prevErrors => ({ ...prevErrors, general: 'Error when deleting email' }));
         logECS('error', 'deleteEmail', {
           error: err,
           url: { path: '/account/profile' }
@@ -206,20 +208,11 @@ calling 'refetch()' for the user query, but that didn't work. */
     clearErrors();
     setAddAliasValue(value);
   }
-  // If page-level errors, scroll them into view
-  useEffect(() => {
-    if (errors.length > 0 && errorRef.current) {
-      errorRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, [errors]);
 
   /*Reset errors when email addresses change so that
   errors don't continue to display on page*/
   useEffect(() => {
-    setErrors([]);
+    setErrors({});
   }, [emailAddresses])
 
   return (
@@ -228,13 +221,7 @@ calling 'refetch()' for the user query, but that didn't work. */
       <div className="sectionContainer">
         <div className="sectionContent">
           <div className={styles.subSection}>
-            {errors && errors.length > 0 &&
-              <div className="error">
-                {errors.map((error, index) => (
-                  <p key={index}>{error}</p>
-                ))}
-              </div>
-            }
+            <ErrorMessages errors={errors.general ? [errors.general] : []} ref={errorRef} />
             <h3>{t('headingPrimaryEmail')}</h3>
             <p>{t('primaryEmailDesc')}</p>
 
@@ -278,8 +265,8 @@ calling 'refetch()' for the user query, but that didn't work. */
                   type="text"
                   label={t('headingAddAliasEmail')}
                   className={`${styles.addAliasTextField} react - aria - TextField`}
-                  isInvalid={errors.length > 0}
-                  errorMessage="Please enter a valid email address"
+                  isInvalid={errors?.email ? true : false}
+                  errorMessage={errors?.email ?? ''}
                   helpMessage={t('helpTextForAddAlias')}
                   onChange={handleAliasChange}
                   value={addAliasValue}

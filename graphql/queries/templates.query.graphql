@@ -1,22 +1,51 @@
 query Templates {
-  templates {
+  myTemplates {
+    id
     name
     description
     modified
-    id
+    modifiedById
+    sections {
+      id
+      name
+      bestPractice
+      displayOrder
+      isDirty
+      questions {
+        errors {
+          general
+          templateId
+          sectionId
+          questionText
+          displayOrder
+        }
+        displayOrder
+        guidanceText
+        id
+        questionText
+        sectionId
+        templateId
+      }
+    },
     owner {
       name
       displayName
       searchName
-    }
+    },
+    visibility
   }
 }
 
 query Template($templateId: Int!) {
   template(templateId: $templateId) {
+    id
     name
     description
-    errors
+    errors {
+      general
+      name
+      ownerId
+    }
     latestPublishVersion
     latestPublishDate
     created
@@ -27,7 +56,13 @@ query Template($templateId: Int!) {
       displayOrder
       isDirty
       questions {
-        errors
+        errors {
+          general
+          templateId
+          sectionId
+          questionText
+          displayOrder
+        }
         displayOrder
         guidanceText
         id
@@ -39,6 +74,31 @@ query Template($templateId: Int!) {
     owner {
       displayName
       id
+    }
+  }
+}
+
+query TemplateCollaborators($templateId: Int!) {
+    template(templateId: $templateId) {
+      id
+      name
+      collaborators {
+      email
+      id
+      user {
+        id
+        email
+        givenName
+        surName
+      }
+    }
+    admins {
+      givenName
+      surName
+      email
+    }
+    owner {
+      name
     }
   }
 }

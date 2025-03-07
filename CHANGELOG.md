@@ -1,3 +1,73 @@
+## v0.0.1
+
+### Added
+- Project Create Flow [#299]
+- Project Upload [#299]
+- Project Funder [#299]
+- Project Details [#299]
+- Project Funders [#299]
+- Project Members [#299]
+- Project Research outputs [#299]
+- Plan Adjust Funders [#299]
+- PLan Adjust Members [#299]
+- Plan Adjust Research outputs [#299]
+- Projects dashboard [#175]
+- Project Overview [#175]
+- Plan Overview [#178]
+- Plan Section and boilerplate tests [#178]
+- Plan Question and boilerplate tests [#178]
+- QuestionPreview component [#224]
+
+### Updated
+- Updated the `Project Members` page with real data [#360]
+- Updated `ProjectsProjectFundingEdit` component and moved the page under a new `[projectFunderId]` directory at `/projects/[projectId]/funder/[projectFunderId]/edit` [#357]
+- Updated the `Project Overview` page [#339]
+- Updated `/projects/[projectId]/project` page to hook it up to data [#351]
+- Moved some shared test utils to jest.setup.ts or `__mocks__/common.ts` [#351]
+- Updated translation content to use sentence-case rather than title case [#351]
+- Made updates throughout the Template Builder flow to make the experience more consistent across pages, and fixed some bugs [#347]
+- Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
+- Made updates to get Dockerfile.prod to work. 
+  - Updated Dockerfile.prod
+  - Updated next.config.mjs to include output `standalone`
+  - Updated `docker-compose.yml`
+  - Fixed lint issues introduced with changes to field-level errors
+- Updated `buildspec` to use the `Docker.prod` file
+- Updated `/projects/page.tsx` to use real data and have search capabilities [#4]
+- Updated `/template/[templateId]/access` page to hook it up to real data [#223]
+- Updated the Edit Question `template/[templateId]/q/[q_slug]/page.tsx` with actual data from backend and added functionality for `options` question types [#188]
+- Updated the Add Question`template/[templateId]/q/new/page.tsx` page with actual data from backend and added functionality to accomodate `option` question types. [#188]
+- Updated shared FormInput component [#188]
+- Updated `/template/create/page.tsx`[#186]
+- Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
+- Updated existing Templates graphql query with more fields [#186]
+- Updated shared `FormInput` component to pass ‘ariaDescribedBy’ [#186]
+- Updated `TemplateSelectListItem` [#186]
+- Updated `/graphql/apollo-wrapper.tsx` since `@apollo/experimental-nextjs-app-support/ssr` was deprecated [#186]
+- Updated `/graphql/graphqlHelper.ts` with a call to `client.resetStore’` This should refetch user’s data when refreshAuthTokens() is called [#186]
+- Updated `refreshAuthTokens` function with ability to pass in cookies [#186]
+- Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
+- Updated `QuestionTypeSelectPage`- hooked up to real data and updated code [#220]
+- Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
+
+### Fixed
+- Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
+
+### Added
+- Added `/projects/[projectId]/project-funding`, copying over the static code from `/projects/[projectId]/create-project/funding`. Updated
+  page to use shared RadioGroupComponent, and updated RadioGroupComponent to use description [#336]
+- Added new `QuestionEdit` and `QuestionTypeCard` components [#220]
+- Added new Question and QuestionOption types [#188]
+- Added a new FormTextArea component [#188]
+- Added new QuestionOptionsComponent for handling the `options` question types in the form [#188]
+- Added new QuestionAdd component for adding a new question [#188]
+- Added new `QuestionsDisplayOrder` and `Question` queries and `AddQuestion` and `UpdateQuestion` mutations [#188]
+- Added useSampleTextAsDefault checkbox for text field question types [#188]
+
+### Fixed
+- Fixed `EvalError: Code generation from strings ` bug that was occurring because I set the environment in docker-compose.yml to production
+
+====================================================================================================
 
 
 
@@ -9,6 +79,21 @@
 ===============================================================================================================
 ### Updated
 =======
+- Updated `/graphql` files to include new backend error objects [#308]
+- Updated `/account/profile/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/section/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/section/create/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/[templateid]/section/[section_slug]/page.tsx` to display the new backend field level errors [#308]
+- Updated `/template/create/page.tsx`[#186]
+- Removed select-template page, since we are using `SelectExistingTemplate` in place of it [#186]
+- Updated existing Templates graphql query with more fields [#186]
+- Updated shared `FormInput` component to pass ‘ariaDescribedBy’ [#186]
+- Updated `TemplateSelectListItem` [#186]
+- Updated `/graphql/apollo-wrapper.tsx` since `@apollo/experimental-nextjs-app-support/ssr` was deprecated [#186]
+- Updated `/graphql/graphqlHelper.ts` with a call to `client.resetStore’` This should refetch user’s data when refreshAuthTokens() is called [#186]
+- Updated `refreshAuthTokens` function with ability to pass in cookies [#186]
+- Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
 - Updated some pages with toast messages, and updated toast files [#231]
 - Added Portuguese translations for newly added translation keys [#231]
 - Updated version of `next` to `14.2.22` [#231]
@@ -20,8 +105,15 @@
 - Updated app/[locale]/template page to hook it up to backend and handle errors and translations[#82]
 - Updated account/profile, email/email-confirmed, email/verification-failed, and account/connections to use new, shared layout containers [#185]
 - Refactored font family usage for consistency.
+- Updated the Login and Signup pages to function as the wireframes. [#117]
+- Updated TypeAheadWithOther component to be a bit more generic [#117]
+- Cleaned up some of the error handling code so that it's easier to debug and
+  trace issues. [#117]
 
 ### Added
+- Added `MyVersionedTemplates` and `PublishedTemplates` graphql queries and `addTemplateMutation` graphql mutation [#186]
+- Created the `SelectExistingTemplate` component which displays the publishedTemplates and allows user to filter view [#186]
+- Created `TemplateList` component used by `SelectExistingTemplate`[#186]
 - Added Toast Message capabilities using **React Aria Component's use Toast**. [#211]
 - Project overview page [#175]
   - Moved pages under [locale] folder
@@ -40,7 +132,7 @@
 - Added ability to add 'Other' affiliation in the User Profile page [#170]
 - Created create/select-template page and test [#167]
   - Created new components for this page
-  - Created Template Select List Item 
+  - Created Template Select List Item
 - Template Builder: Access Page [#166]
 - Created css for sectionContainer, sectionHeader, sectionContent for generic sections
 - Updated mobile breadcrumbs css

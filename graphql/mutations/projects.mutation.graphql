@@ -1,0 +1,22 @@
+mutation AddProject($title: String!, $isTestProject: Boolean) {
+  addProject(title: $title, isTestProject: $isTestProject) {
+    id
+    errors {
+      title
+      general
+    }
+  }
+}
+
+mutation UpdateProject($input: UpdateProjectInput!) {
+  updateProject(input: $input) {
+    errors {
+      general
+      title
+      abstractText
+      endDate
+      startDate
+      researchDomainId
+    }
+  }
+}

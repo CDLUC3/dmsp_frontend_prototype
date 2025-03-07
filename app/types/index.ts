@@ -12,29 +12,20 @@ export interface LanguageInterface {
 }
 
 export interface ProfileDataInterface {
-  firstName: string;
-  lastName: string;
+  givenName: string;
+  surName: string;
   affiliationName: string;
   affiliationId: string;
   otherAffiliationName: string;
   languageId: string;
   languageName: string;
-}
-
-export interface FormErrorsInterface {
-  firstName: string;
-  lastName: string;
-  affiliationName: string;
-  affiliationId: string;
-  languageId: string;
-  languageName: string;
-  otherAffiliationName: string;
 }
 
 export interface TemplateInterface {
   name: string;
   description?: string | null;
   modified?: string | null;
+  modifiedById?: number | null;
   id?: number | null;
   isDirty?: boolean;
   owner?: { // Make `owner` optional and nullable
@@ -42,8 +33,44 @@ export interface TemplateInterface {
     name?: string;
     searchName?: string;
   } | null;
+  visibility?: string;
 }
 
+export interface TemplateItemProps {
+  id?: number | null;
+  template?: {
+    id?: number | null;
+  },
+  title: string;
+  content?: JSX.Element | null;
+  description?: string;
+  link?: LinkHref;
+  defaultExpanded: boolean;
+  funder?: string;
+  lastUpdated?: string | null;
+  publishStatus?: string | null;
+}
+
+export interface MyVersionedTemplatesInterface {
+  id?: number | null;
+  name: string;
+  description?: string | null;
+  modified?: string | null;
+  modifiedById?: number | null;
+  versionType?: string | null;
+  visibility: string;
+  template?: {
+    __typename?: string; // Match GraphQL's optional __typename
+    id?: number | null;
+    owner?: {
+      __typename?: string; // Match GraphQL's optional __typename
+      id?: number | null;
+      displayName?: string; // Make displayName optional
+      name?: string; // Make name optional
+      searchName?: string; // Make searchName optional
+    } | null;
+  } | null; // Allow `template` to be null or undefined
+}
 // Define valid href types for Next.js Link
 type Url = string | URL;
 type LinkHref = Url | {
@@ -53,13 +80,18 @@ type LinkHref = Url | {
 };
 
 export interface TemplateItemProps {
+  id?: number | null;
+  template?: {
+    id?: number | null;
+  },
   title: string;
   content?: JSX.Element | null;
+  description?: string;
   link?: LinkHref;
   defaultExpanded: boolean;
   funder?: string;
   lastUpdated?: string | null;
-  publishStatus?: string;
+  publishStatus?: string | null;
 }
 
 export interface TemplateVersionInterface {
@@ -99,4 +131,105 @@ export interface TagsInterface {
   id?: number | null;
   name: string;
   description?: string | null;
+}
+
+export interface QuestionTypesInterface {
+  id: number;
+  name: string;
+  usageDescription: string;
+}
+
+export interface QuestionOptions {
+  id?: number | null;
+  text: string;
+  orderNumber: number;
+  isDefault?: boolean | null;
+  questionId: number;
+}
+
+export interface Question {
+  id?: number | null | undefined;
+  displayOrder?: number | null;
+  questionText?: string | null;
+  requirementText?: string | null;
+  guidanceText?: string | null;
+  sampleText?: string | null;
+  useSampleTextAsDefault?: boolean | null;
+  required?: boolean;
+  questionOptions?: QuestionOptions[] | null;
+}
+
+export interface ProjectItemProps {
+  id?: number | null;
+  title: string;
+  description?: string;
+  link?: LinkHref;
+  defaultExpanded: boolean;
+  funder?: string;
+  startDate: string;
+  endDate: string;
+  collaborators: {
+    name: string;
+    roles: string[];
+    orcid?: string | null;
+  }[];
+  grantId?: string | null;
+}
+
+export interface ProjectContributor {
+  id?: number | null;
+  givenName: string;
+  surName: string;
+  email?: string | null;
+  orcid?: string | null;
+  affiliation?: Affiliation | null;
+  contributorRoles: ContributorRole[];
+}
+
+export interface ContributorRole {
+  id?: number | null;
+  displayOrder: number;
+  label: string;
+  uri: string;
+  description?: string | null;
+}
+
+export interface Affiliation {
+  id?: number | null;
+  name: string;
+  url?: string | null;
+}
+
+interface RadioButtonInterface {
+  value: string;
+  label: string;
+  description?: string;
+}
+export interface RadioButtonProps {
+  name: string;
+  description?: string;
+  radioGroupLabel: string;
+  radioButtonData: RadioButtonInterface[];
+  value: string;
+  isInvalid?: boolean;
+  errorMessage?: string;
+  // eslint-disable-next-line no-unused-vars
+  onChange?: (value: string) => void;
+}
+
+interface CheckboxInterface {
+  value: string;
+  label: string;
+  description: string;
+}
+export interface CheckboxGroupProps {
+  name: string;
+  checkboxGroupLabel?: string;
+  checkboxGroupDescription?: string;
+  checkboxData: CheckboxInterface[];
+  value: string[];
+  isInvalid?: boolean;
+  errorMessage?: string;
+  // eslint-disable-next-line no-unused-vars
+  onChange?: ((value: string[]) => void)
 }

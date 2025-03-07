@@ -1,11 +1,16 @@
 {
   "ProjectOverview": {
-    "pageTitle": "Project and Plans",
+    "pageTitle": "Project overview",
     "pageDescription": "Overview of project details and associated plans",
     "navigation": "Breadcrumb navigation",
     "home": "Home",
     "projects": "Projects",
     "project": "Project",
+    "projectDetails": "Project details",
+    "dates": "Dates",
+    "collaborators": "Collaborators",
+    "funding": "Funding",
+    "grantId": "Grant ID",
     "edit": "Edit",
     "editProject": "Edit project details",
     "funders": "Funders",
@@ -13,15 +18,15 @@
     "funderInfo": "{name} ({id})",
     "editFunders": "Edit funder details",
     "editFunderDetails": "Edit Funder details",
-    "projectMembers": "Project Members",
+    "projectMembers": "Project members",
     "memberCount": "{count} team members",
     "memberInfo": "{name} ({role})",
     "editMembers": "Edit project members",
     "editProjectMembers": "Edit project members",
-    "researchOutputs": "Research Outputs",
+    "researchOutputs": "Research outputs",
     "outputCount": "{count} Outputs",
     "editOutputs": "Edit research outputs",
-    "editResearchOutputs": "Edit Research outputs",
+    "editResearchOutputs": "Edit research outputs",
     "plans": "Plan(s)",
     "planActions": "Plan actions",
     "upload": "Upload plan",
@@ -40,6 +45,134 @@
     "sharePlan": "Share plan with others",
     "update": "Update plan",
     "updatePlan": "Update this plan",
-    "dateRange": "{startDate} to {endDate}"
+    "dateRange": "{startDate} to {endDate}",
+    "created": "Created",
+    "messages": {
+      "errorGettingProject": "Error getting project details"
+    }
+  },
+  "ProjectsListPage": {
+    "intro": "Manager or create DMSP project or by DMP",
+    "buttons": {
+      "createProject": "Create project"
+    },
+    "messages": {
+      "errors": {
+        "errorRetrievingProjects": "Something went wrong with retrieving projects. Please try again later."
+      }
+    }
+  },
+  "ProjectsCreateProject": {
+    "pageTitle": "Create a new project",
+    "form": {
+      "projectTitle": "What is the title for the project? (required)",
+      "projectTitleHelpText": "This should be the formal title if you have already applied for funding, as it will be used to find your Project in the Funder’s database. This can be changed later.",
+      "newOrExisting": "New or existing project?",
+      "radioExistingLabel": "The project already exists or might exist",
+      "radioExistingHelpText": "We will search for the project and pull in associated information for you to review and edit if possible, otherwise create a brand new project",
+      "radioNewLabel": "New project",
+      "radioNewHelpText": "Enter all project details yourself.",
+      "checkboxGroupLabel": "This project is mock project for testing, practice, or educational purposes",
+      "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
+      "checkboxLabel": "Yes, set this project to a mock or a test project.",
+      "checkboxHelpText": "If you aim on publishing your DMSP eventually, we recommend leaving this unticked, so you get the full features. All real projects have a draft status you can use for testing."
+    },
+    "messages": {
+      "success": "Successfully created project",
+      "errors": {
+        "titleLength": "Name must be at least 2 characters long.",
+        "title": "Project title is required",
+        "createProjectError": "Error creating project"
+      }
+    }
+  },
+  "ProjectsCreateProjectFunding": {
+    "title": "Do you already have funding for this project?",
+    "form": {
+      "radioFundingLabel": "Do you already have funding for this project?",
+      "radioFundingDescription": "If yes, we will try to search for the project and pull in associated information for you to review and edit."
+    }
+  },
+  "ProjectsProjectDetail": {
+    "title": "Plan: Select a DMP template",
+    "description": "Select a template to use when creating your DMP.",
+    "mockProject": "Mock project",
+    "realProject": "Real project",
+    "labels": {
+      "projectName": "Project name",
+      "projectType": "Project type",
+      "projectAbstract": "Project abstract",
+      "researchDomain": "Research domain",
+      "mockProject": "Mock project",
+      "realProject": "Real project",
+      "childDomain": "Select a {name}:",
+      "item": "Item"
+    },
+    "helpText": {
+      "selectResearchDomain": "First select a research domain"
+    },
+    "paragraphs": {
+      "para1": "Have a grant already? Not the right project? Use Search projects to find the project. If found key information will be filled in for you.",
+      "mockProject": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
+      "mockProjectDescription": "Remain in a testing or educational environment. Your project will continue to operate in mock mode, allowing you to create plans and experiments without the ability to receive feedback or publish. You may upgrade at any time in the future.",
+      "realProjectDescription": "Convert to a real project, and remove the mock project status. By doing so, you will gain access to feedback, publishing capabilities, and additional features. However, this decision is permanent and cannot be reversed. Proceed only if you are certain you no longer need a mock environment."
+    },
+    "buttons": {
+      "searchProjects": "Search projects"
+    },
+    "headings": {
+      "h2MockProject": "This project is mock project for testing, practice, or educational purposes"
+    },
+    "messages": {
+      "errors": {
+        "projectName": "Invalid project name value",
+        "projectAbstract": "Project abstract value is invalid",
+        "projectUpdateFailed": "Error updating project details"
+      },
+      "success": {
+        "projectUpdated": "Successfully updated project details"
+      }
+    }
+  },
+  "ProjectsProjectFundingEdit": {
+    "title": "Edit Funder Details",
+    "description": "Update funding source information",
+    "labels": {
+      "funderName": "Funder name",
+      "funderStatus": "Funder Status",
+      "grantNumber": "Grant number/url",
+      "projectNumber": "Project number or ID",
+      "opportunity": "Opportunity/Federal Award Number"
+    },
+    "messages": {
+      "errors": {
+        "projectFunderUpdateFailed": "Error updating project funder details",
+        "funderGrantId": "Invalid funder grant ID value",
+        "funderProjectNumber": "Invalid funder project number value"
+      },
+      "success": {
+        "projectFunderUpdated": "Successfully updated project funder details"
+      }
+    }
+  },
+  "ProjectsProjectMembers": {
+    "title": "Project Members",
+    "description": "Define contributors and team members and their role in this project.",
+    "buttons": {
+      "addCollaborators": "Add collaborators",
+      "shareWithPeople": "Share with people"
+    },
+    "headings": {
+      "h2AllowCollaborators": "Allow collaborators edit or comment access?"
+    },
+    "para": {
+      "para1AllowCollaborators": "You can invite people to access, edit or comment on plans by using the \"<shareWithPeople>share with people</shareWithPeople>\" button."
+    },
+    "messages": {
+      "errors": {
+        "errorGettingContributors": "Error getting contributors"
+      },
+      "noContributors": "No contributors found"
+    }
   }
 }

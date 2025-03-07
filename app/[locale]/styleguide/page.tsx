@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, {useState} from 'react';
+import {useRouter} from 'next/navigation';
 import {
   Button,
   Cell,
@@ -39,8 +39,8 @@ import {
 } from "react-aria-components";
 
 
-import { DmpEditor } from "@/components/Editor";
-import { DmpIcon } from "@/components/Icons";
+import {DmpEditor} from "@/components/Editor";
+import {DmpIcon} from "@/components/Icons";
 
 import {
   Card,
@@ -60,20 +60,22 @@ import {
   ToolbarContainer,
 } from '@/components/Container';
 
-import { BrandColor, Example, handleDelete } from "./sg-components";
+import {BrandColor, Example, handleDelete} from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import { AffiliationsDocument } from '@/generated/graphql';
+import {AffiliationsDocument} from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
-import QuestionEdit from "@/components/QuestionEdit";
+import QuestionEditCard from "@/components/QuestionEditCard";
 import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
-import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
+import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
+
+import QuestionPreview from '@/components/QuestionPreview';
 
 
 function Page() {
@@ -380,6 +382,7 @@ function Page() {
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
           <a href="#_toast">Toast Messages</a>
+          <a href="#_questionpreview">QuestionPreview Bottomsheet</a>
         </SidebarPanel>
 
         <ContentContainer id="sgContent">
@@ -1610,7 +1613,7 @@ function Page() {
               Question Card
             </h2>
 
-            <QuestionEdit
+            <QuestionEditCard
               key={2552}
               id="24"
               text="This is a question"
@@ -1646,6 +1649,7 @@ function Page() {
                 label="Institution"
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
+                resultsKey="affiliations"
                 setOtherField={setOtherField}
                 required={true}
                 helpText="Search for your institution"
@@ -1954,6 +1958,60 @@ function Page() {
               <Button onPress={showToastAndRedirect}>Show toast with redirect</Button>
             </div>
           </div>
+
+          <div id="_questionpreview">
+            <h3>QuestionPreview</h3>
+            <QuestionPreview>
+              <LayoutWithPanel>
+                <ContentContainer>
+                  <p>This is an example of the content within the Question Preview</p>
+
+                  <TextField
+                    name="example_email"
+                    type="email"
+                    isRequired
+                  >
+                    <Label>Email</Label>
+                    <Text slot="description" className="help">Descriptive text
+                      related to the field</Text>
+                    <Input />
+                    <FieldError />
+                  </TextField>
+
+                  <DmpEditor content="<p>Example richtext field inside the preview bottomsheet</p>" setContent={() => {}} />
+                </ContentContainer>
+
+                <SidebarPanel>
+                  <p>Best pracive by (DMPTool Logo)</p>
+
+                  <h3>Data Sharing</h3>
+                  <p>
+                    Give a summary of the data you will collect or create, noting the
+                    content, coverage and data type, for example tabular data, survey
+                    data, experimental measurements, models, software, audiovisual data,
+                    physical samples, etc.
+                  </p>
+                  <p><a href="#">Expand</a></p>
+
+                  <h3>Data Preservation</h3>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
+                    imperdiet tempor mi, in fringilla lectus viverra et. Suspendisse
+                    erat dolor, rutrum et tempor eu, ultricies quis nunc.
+                  </p>
+                  <p><a href="#">Expand</a></p>
+
+                  <h3>Data Protection</h3>
+                  <p>
+                    Quisque sit amet ex volutpat, imperdiet risus sit amet, malesuada
+                    enim.
+                  </p>
+                  <p><a href="#">Expand</a></p>
+                </SidebarPanel>
+              </LayoutWithPanel>
+            </QuestionPreview>
+          </div>
+
         </ContentContainer>
       </LayoutWithPanel >
     </>

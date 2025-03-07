@@ -17,3 +17,56 @@ query TemplateVersions($templateId: Int!) {
     }
   }
 }
+
+query MyVersionedTemplates {
+  myVersionedTemplates {
+    id
+    name
+    description
+    modified
+    modifiedById
+    versionType
+    visibility
+    errors {
+      general
+      templateId
+      name
+      ownerId
+      version
+    }
+    template {
+      id
+      owner {
+        id
+        searchName
+        name
+        displayName
+      }
+    }
+  }
+}
+
+query PublishedTemplates {
+  publishedTemplates {
+    id
+    template {
+      id
+    }
+    name
+    description
+    modifiedById
+    owner {
+      name
+      displayName
+      searchName
+    }
+    visibility
+    errors {
+      general
+      templateId
+      name
+      ownerId
+      version
+    }
+  }
+}

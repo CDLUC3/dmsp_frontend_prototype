@@ -1,6 +1,6 @@
-import {ReactNode} from 'react';
-import {render} from '@testing-library/react';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { ReactNode } from 'react';
+import { render } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import VerificationFailed from '../page';
 
 expect.extend(toHaveNoViolations);
@@ -35,10 +35,8 @@ describe('VerificationFailed', () => {
   })
 
   it('should pass axe accessibility test', async () => {
-    let container: HTMLElement;
-
     const renderResult = render(<VerificationFailed />);
-    container = renderResult.container;
+    const container = renderResult.container;
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();

@@ -8,6 +8,10 @@ import {
 
 import { useParams } from 'next/navigation';
 import TemplateEditPage from '../page';
+import {
+  mockScrollIntoView,
+  mockScrollTo
+} from "@/__mocks__/common";
 
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
@@ -21,21 +25,12 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
 }))
 
-// Create a mock for scrollIntoView and focus
-const mockScrollIntoView = jest.fn();
-
 // Mock useFormatter and useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useFormatter: jest.fn(() => ({
     dateTime: jest.fn(() => '01-01-2023'),
   })),
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`
-}));
-
-jest.mock('@/context/ToastContext', () => ({
-  useToast: jest.fn(() => ({
-    add: jest.fn(),
-  })),
 }));
 
 jest.mock('@/components/BackButton', () => {
@@ -46,24 +41,24 @@ jest.mock('@/components/BackButton', () => {
 });
 
 const mockTemplateData = {
-  "name": "DMP Template from Dataverse",
-  "description": "DMP Template from Dataverse",
-  "errors": null,
-  "latestPublishVersion": "v1",
-  "latestPublishDate": "1648835084000",
-  "created": "1412980160000",
-  "sections": [
+  name: "DMP Template from Dataverse",
+  description: "DMP Template from Dataverse",
+  errors: null,
+  latestPublishVersion: "v1",
+  latestPublishDate: "1648835084000",
+  created: "1412980160000",
+  sections: [
     {
-      "id": 67,
-      "displayOrder": 1,
-      "name": "Data description",
-      "questions": [
+      id: 67,
+      displayOrder: 1,
+      name: "Data description",
+      questions: [
         {
-          "errors": null,
-          "displayOrder": 1,
-          "guidanceText": "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
-          "id": 67,
-          "questionText": "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
+          errors: null,
+          displayOrder: 1,
+          guidanceText: "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
+          id: 67,
+          questionText: "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
         }
       ]
     },
@@ -73,7 +68,7 @@ const mockTemplateData = {
 describe("TemplateEditPage", () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+    mockScrollTo();
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 

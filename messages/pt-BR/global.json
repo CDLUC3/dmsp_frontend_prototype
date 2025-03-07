@@ -60,11 +60,11 @@
   },
   "UserProfile": {
     "breadcrumbHome": "Home",
-    "headingUpdateProfile": "Atualizar Perfil",
-    "yourProfile": "Seu Perfil",
-    "emailAndAuth": "E-mail e autenticação",
-    "firstName": "Primeiro nome",
-    "lastName": "Sobrenome",
+    "headingUpdateProfile": "Atulizar perfil",
+    "yourProfile": "Seu perfil",
+    "emailAndAuth": "Email e autenticação",
+    "givenName": "Primeiro nome",
+    "surName": "Sobrenome",
     "institution": "Instituição",
     "language": "Idioma",
     "headingPrimaryEmail": "Endereço de e-mail principal",
@@ -87,7 +87,7 @@
     "btnUpdate": "Atualização",
     "btnAdd": "Adicionar",
     "linkUpdatePassword": "Atualizar senha",
-    "linkUpdateConnections": "Update connections",
+    "linkUpdateConnections": "Atualizar conexão?",
     "linkManageNotifications": "Atualizar conexão?",
     "messages": {
       "profileUpdateSuccess": "Formulário de perfil atualizado com sucesso.",
@@ -115,17 +115,67 @@
       "home": "Home",
       "templates": "Modelos",
       "template": "Modelo",
+      "createTemplate": "Criar um modelo",
+      "selectExistingTemplate": "Selecionar um modelo existente",
+      "templateHistory": "Template history",
       "section": "Seção",
-      "editSection": "Editar seção"
+      "addNewSection": "Adicionar uma nova seção",
+      "updateSection": "Seção de atualização",
+      "editSection": "",
+      "createSection": "Criar seção",
+      "editTemplate": "Editar Modelo",
+      "question": "Pergunta",
+      "selectQuestionType": "Selecionar o tipo de questão",
+      "projects": "Projetos",
+      "projectOverview": "Visão geral do projeto",
+      "projectFunder": "Project funder"
     },
+    "form": {
+      "yesLabel": "Sim",
+      "noLabel": "Não"
+    },
+    "lastRevisedBy": "Última revisão por",
+    "lastUpdated": "Últimas atualizações",
     "buttons": {
       "search": "Buscar",
-      "select": "Select"
+      "select": "Select",
+      "next": "Seguinte",
+      "save": "Salvar",
+      "saveChanges": "Save changes",
+      "remove": "Remover",
+      "confirm": "Confirmação",
+      "cancel": "Cancelar",
+      "linkUpdate": "Atualização",
+      "linkExpand": "Expandir",
+      "linkCollapse": "Retrair",
+      "continue": "Avançar",
+      "edit": "Alterar"
+    },
+    "labels": {
+      "searchByKeyword": "Pesquisar por palavra-chave",
+      "startDate": "Data de início",
+      "endDate": "Data final"
+    },
+    "helpText": {
+      "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
+    },
+    "links": {
+      "clearFilter": "limpar filtro"
     },
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
-      "somethingWentWrong": "Ocorreu um erro. Tente novamente."
+      "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
+      "resultsText": "Os resultados {name} correspondem à sua pesquisa",
+      "fixBelow": "Por favor, corrija os erros abaixo"
+    },
+    "tabs": {
+      "editQuestion": "Editar pergunta",
+      "options": "Opções",
+      "logic": "Lógica"
+    },
+    "headings": {
+      "preview": "Pré-visualizar"
     }
   }
 }

@@ -10,34 +10,37 @@ import {
   Button,
   Checkbox,
   CheckboxGroup,
+  Dialog,
+  DialogTrigger,
   Form,
   Label,
   Link,
+  OverlayArrow,
+  Popover,
   Tab,
   TabList,
   TabPanel,
   Tabs,
-  DialogTrigger,
-  OverlayArrow,
-  Popover,
-  Dialog,
 } from "react-aria-components";
 // GraphQL queries and mutations
 import {
+  SectionErrors,
   useTagsQuery,
   useUpdateSectionMutation,
 } from '@/generated/graphql';
 
 //Components
-import {
-  LayoutContainer,
-  ContentContainer,
-} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
+import ErrorMessages from '@/components/ErrorMessages';
 
-import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
+import {
+  SectionFormErrorsInterface,
+  SectionFormInterface,
+  TagsInterface
+} from '@/app/types';
 import { useSectionData } from "@/hooks/sectionData";
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
@@ -45,9 +48,12 @@ import { useToast } from '@/context/ToastContext';
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
 
-  // Get templateId param
+  // Get sectionId param
   const params = useParams();
   const { section_slug: sectionId } = params;
+
+  // Get templateId param
+  const { templateId } = params; // From route /template/:templateId
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -161,9 +167,9 @@ const SectionUpdatePage: React.FC = () => {
   }
 
   // Make GraphQL mutation request to update section
-  const updateSection = async () => {
+  const updateSection = async (): Promise<[SectionErrors, boolean]> => {
     try {
-      await updateSectionMutation({
+      const response = await updateSectionMutation({
         variables: {
           input: {
             sectionId: Number(sectionId),
@@ -176,16 +182,26 @@ const SectionUpdatePage: React.FC = () => {
             tags: selectedTags
           }
         }
-      })
+      });
+
+      const responseErrors = response.data?.updateSection?.errors
+      if (responseErrors) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'SectionErrors').length > 0) {
+          return [responseErrors, false];
+        }
+      }
+
+      return [{}, true];
     } catch (error) {
       logECS('error', 'updateSection', {
-        error: error,
-        url: { path: '/template/\[templateId\]/section/\[sectionid\]' }
+        error,
+        url: { path: '/template/[templateId]/section/[sectionid]' }
       });
       if (error instanceof ApolloError) {
-        setErrorMessages(prevErrors => [...prevErrors, error.message]);
+        return [{}, false];
       } else {
         setErrorMessages(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorUpdatingSection')]);
+        return [{}, false];
       }
     }
   };
@@ -208,20 +224,39 @@ const SectionUpdatePage: React.FC = () => {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // Clear previous error messages
     clearAllFieldErrors();
+    setErrorMessages([]);
 
     if (isFormValid()) {
       // Create new section
-      await updateSection();
-      showSuccessToast()
-      setErrorMessages([]); // Clear errors on successful submit
+      const [errors, success] = await updateSection();
+
+      if (!success) {
+        if (errors) {
+          setFieldErrors({
+            sectionName: errors.name || '',
+            sectionIntroduction: errors.introduction || '',
+            sectionRequirements: errors.requirements || '',
+            sectionGuidance: errors.guidance || ''
+          });
+        }
+        setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
+
+      } else {
+        // Show success message
+        showSuccessToast();
+      }
+
+      // Scroll to top of page
+      scrollToTop(topRef);
     }
   };
 
   useEffect(() => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
-      /*eslint-disable @typescript-eslint/no-unused-vars*/
+      /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
       const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
       setTags(cleanedData);
     }
@@ -233,6 +268,7 @@ const SectionUpdatePage: React.FC = () => {
       scrollToTop(errorRef);
     }
   }, [errorMessages]);
+
 
   // We need this so that the page waits to render until data is available
   if (loading) {
@@ -250,8 +286,9 @@ const SectionUpdatePage: React.FC = () => {
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
             <Breadcrumb><Link
-              href={`/template/#`}>{Global('breadcrumbs.template')}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.editSection')}</Breadcrumb>
+              href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/template/${templateId}/section/new`}>{Global('breadcrumbs.addNewSection')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.updateSection')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
@@ -263,13 +300,7 @@ const SectionUpdatePage: React.FC = () => {
           <div className="template-editor-container" ref={topRef}>
             <div className="main-content">
 
-              {errorMessages && errorMessages.length > 0 &&
-                <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
-                  {errorMessages.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
+              <ErrorMessages errors={errorMessages} ref={errorRef} />
 
               <Tabs>
                 <TabList aria-label="Question editing">
@@ -321,7 +352,7 @@ const SectionUpdatePage: React.FC = () => {
                     >
                       <Label>{Section('labels.bestPracticeTags')}</Label>
                       <span className="help">{Section('helpText.bestPracticeTagsDesc')}</span>
-                      <div className="checkbox-group">
+                      <div className="checkbox-group-two-column">
                         {tags && tags.map(tag => {
                           const id = (tag.id)?.toString();
                           return (

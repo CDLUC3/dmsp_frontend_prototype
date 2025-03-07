@@ -30,15 +30,16 @@ import {
   TemplateVisibility,
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
-  useTemplateQuery
+  useTemplateQuery,
 } from '@/generated/graphql';
 
 // Components
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
-import QuestionEdit from "@/components/QuestionEdit";
+import QuestionEditCard from "@/components/QuestionEditCard";
 import PageHeader from "@/components/PageHeader";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
+import ErrorMessages from '@/components/ErrorMessages';
 
 import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
@@ -46,7 +47,6 @@ import { useToast } from '@/context/ToastContext';
 import styles from './templateEditPage.module.scss';
 
 interface QuestionsInterface {
-  errors?: string[] | null;
   displayOrder?: number | null;
   guidanceText?: string | null;
   id?: number | null;
@@ -67,7 +67,6 @@ interface OwnerInterface {
 interface TemplateEditPageInterface {
   name: string;
   description?: string | null;
-  errors?: string[] | null;
   latestPublishVersion?: string | null;
   latestPublishDate?: string | null;
   created?: string | null;
@@ -77,12 +76,11 @@ interface TemplateEditPageInterface {
 
 
 const TemplateEditPage: React.FC = () => {
-  let [isPublishModalOpen, setPublishModalOpen] = useState(false);
+  const [isPublishModalOpen, setPublishModalOpen] = useState(false);
   const toastState = useToast(); // Access the toast state from context
   const [template, setTemplate] = useState<TemplateEditPageInterface>({
     name: '',
     description: null,
-    errors: null,
     latestPublishVersion: null,
     latestPublishDate: null,
     created: null,
@@ -100,6 +98,7 @@ const TemplateEditPage: React.FC = () => {
   const EditTemplate = useTranslations('EditTemplates');
   const PublishTemplate = useTranslations('PublishTemplate');
   const Messaging = useTranslations('Messaging');
+  const Global = useTranslations('Global');
 
   // Get templateId param
   const params = useParams();
@@ -115,7 +114,7 @@ const TemplateEditPage: React.FC = () => {
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
 
   // Run template query to get all templates under the given templateId
-  const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
+  const { data, loading, error: templateQueryErrors } = useTemplateQuery(
     {
       variables: { templateId: Number(templateId) },
       notifyOnNetworkStatusChange: true
@@ -152,14 +151,20 @@ const TemplateEditPage: React.FC = () => {
         variables: {
           templateId: Number(templateId),
           comment: (comment && comment.length > 0) ? comment : null,
-          versionType: versionType,
-          visibility: visibility
+          versionType,
+          visibility
         },
       })
 
       if (response) {
-        setPublishModalOpen(false);
-        showSuccessToast();
+        const responseErrors = response.data?.createTemplateVersion?.errors;
+        // If there is a general error, set it in the pageErrors state
+        if (responseErrors?.general) {
+          setPageErrors([responseErrors.general]);
+        } else {
+          setPublishModalOpen(false);
+          showSuccessToast();
+        }
       }
     } catch (err) {
       if (err instanceof ApolloError) {
@@ -194,7 +199,6 @@ const TemplateEditPage: React.FC = () => {
       setTemplate({
         name: data.template.name ?? '',
         description: data.template.description ?? null,
-        errors: data.template.errors ?? null,
         latestPublishVersion: data.template.latestPublishVersion ?? null,
         latestPublishDate: formatDate(data.template.latestPublishDate) ?? null,
         created: data.template.created ?? null,
@@ -220,24 +224,8 @@ const TemplateEditPage: React.FC = () => {
         },
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
-
-  // Need to refetch on errors to re-render page
-  useEffect(() => {
-    if (templateQueryErrors) {
-      refetch();
-    }
-  }, [templateQueryErrors]);
-
-  // If errors when submitting publish form, scroll them into view
-  useEffect(() => {
-    if (errors.length > 0 && errorRef.current) {
-      errorRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, [errors]);
 
   // If page-level errors that we need to scroll to
   useEffect(() => {
@@ -249,9 +237,11 @@ const TemplateEditPage: React.FC = () => {
     }
   }, [pageErrors]);
 
-  // Show loading message
   if (loading) {
-    return <div>{Messaging('loading')}...</div>;
+    return <div>{Global('messaging.loading')}...</div>;
+  }
+  if (templateQueryErrors) {
+    return <div>{EditTemplate('errors.getTemplatesError')}</div>;
   }
 
   return (
@@ -300,7 +290,7 @@ const TemplateEditPage: React.FC = () => {
 
                   {(section?.questions && section?.questions.length > 0) && (
                     section.questions.map((question) => (
-                      <QuestionEdit
+                      <QuestionEditCard
                         key={question.id}
                         id={question.id ? question.id.toString() : ''}
                         text={question?.questionText ? question.questionText : ''}
@@ -417,16 +407,10 @@ const TemplateEditPage: React.FC = () => {
         data-testid="modal"
       >
         <Dialog>
-          <div ref={errorRef}>
+          <div>
             <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
 
-              {errors && errors.length > 0 &&
-                <div className="error" role="alert" aria-live="assertive">
-                  {errors.map((error, index) => (
-                    <p key={index}>{error}</p>
-                  ))}
-                </div>
-              }
+              <ErrorMessages errors={errors} ref={errorRef} />
               <Heading slot="title">{PublishTemplate('heading.publish')}</Heading>
 
               <RadioGroup name="visibility">
@@ -505,4 +489,3 @@ const TemplateEditPage: React.FC = () => {
 }
 
 export default TemplateEditPage;
-

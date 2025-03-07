@@ -1,12 +1,16 @@
-import React, {ReactNode} from 'react';
-import {render, screen} from '@testing-library/react';
+import React, { ReactNode } from 'react';
+import { render, screen } from '@testing-library/react';
 import TemplateHistory from '../page';
-import {useTemplateVersionsQuery} from '@/generated/graphql';
-import {MockedProvider} from '@apollo/client/testing';
-import {useParams, useRouter} from 'next/navigation';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {handleApolloErrors} from "@/utils/gqlErrorHandler";
-import mockData from './mockedResponse.json'
+import { useTemplateVersionsQuery } from '@/generated/graphql';
+import { MockedProvider } from '@apollo/client/testing';
+import { useParams, useRouter } from 'next/navigation';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { handleApolloErrors } from "@/utils/gqlErrorHandler";
+import mockData from './mockedResponse.json';
+import {
+    mockScrollIntoView,
+    mockScrollTo
+} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -52,6 +56,9 @@ const mockUseRouter = useRouter as jest.Mock;
 
 describe('TemplateHistory', () => {
     beforeEach(() => {
+        HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+        mockScrollTo();
+
         const mockTemplateId = 123;
         const mockUseParams = useParams as jest.Mock;
         mockUseRouter.mockReturnValue({
@@ -89,14 +96,13 @@ describe('TemplateHistory', () => {
             </MockedProvider>
         );
 
-        expect(useTemplateVersionsQuery).toHaveBeenCalledWith({ 'variables': { 'templateId': 123 } })
+        expect(useTemplateVersionsQuery).toHaveBeenCalledWith({ variables: { templateId: 123 } })
     });
 
     it('should render loading state correctly', () => {
         (useTemplateVersionsQuery as jest.Mock).mockReturnValue({ loading: true });
 
         render(<TemplateHistory />);
-        screen.debug();
         expect(screen.getByText('loading')).toBeInTheDocument();
     });
 
@@ -177,8 +183,7 @@ describe('TemplateHistory', () => {
         const targetRow1 = rows[1];
 
         const row1Cells = targetRow1.querySelectorAll('td');
-        screen.debug();
-        expect(row1Cells[0].textContent).toBe('published v3changeLog:This is the initial version of our template!');
+        expect(row1Cells[0].textContent).toBe('DRAFT v3changeLog:This is the initial version of our template!');
         expect(row1Cells[1].textContent).toBe('Severus Snape');
         //expect(row1Cells[2].textContent).toBe('16:29 on Jun 25, 2014');
     })

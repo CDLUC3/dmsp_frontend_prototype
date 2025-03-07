@@ -1,5 +1,5 @@
 .error-message{
-  font-size: var(--fs-xsmall);
+  font-size: var(--fs-small);
   color: red;
 }
 
@@ -12,6 +12,9 @@
 .help-text {
   display: block;
   font-size: var(--fs-small);
+  margin: var(--space-2) var(--space-2);
+  max-width: 600px;
+
 }
 
 .form-row {

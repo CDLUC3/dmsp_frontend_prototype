@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef } from 'react';
 import type { ListBoxItemProps, SelectProps, ValidationResult } from 'react-aria-components';
 import { Button, FieldError, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, Text } from 'react-aria-components';
 import styles from './formSelect.module.scss';
@@ -12,21 +12,38 @@ interface MySelectProps<T extends SelectItem>
   label?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
   helpMessage?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  description?: string;
+  selectClasses?: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   items?: T[];
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
-export function FormSelect<T extends SelectItem>(
-  { label, errorMessage, helpMessage, onChange, children, items, ...props }:
-    MySelectProps<T>
-) {
+export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem>>((props, ref) => {
+  const {
+    label,
+    errorMessage,
+    helpMessage,
+    description,
+    selectClasses,
+    onChange,
+    children,
+    items,
+    ...rest
+  } = props;
   return (
-    <Select {...props} selectedKey={props.selectedKey} data-invalid={errorMessage} className={`${styles.mySelect} react-aria-Select`}>
+    <Select
+      {...rest}
+      selectedKey={rest.selectedKey}
+      data-invalid={errorMessage}
+      className={`${selectClasses} ${styles.mySelect} react-aria-Select`}
+    >
       {(state) => (
         <>
           <Label>{label}</Label>
-          <Button className='react-aria-Button'>
+          <Text slot="description" className="help">
+            {description}</Text>
+          <Button className='react-aria-Button' ref={ref}>
             <SelectValue onChange={onChange} />
             <span
               aria-hidden="true"
@@ -59,7 +76,7 @@ export function FormSelect<T extends SelectItem>(
       )}
     </Select >
   );
-}
+});
 
 export function MyItem(props: ListBoxItemProps) {
   return (

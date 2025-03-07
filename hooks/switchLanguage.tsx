@@ -1,10 +1,11 @@
 'use client'
 
-import {useEffect} from 'react';
-import {useMeQuery, useUpdateUserProfileMutation} from '@/generated/graphql';
-import {refreshAuthTokens} from '@/utils/authHelper';
+import { useEffect } from 'react';
+import { useMeQuery, useUpdateUserProfileMutation } from '@/generated/graphql';
+import { refreshAuthTokens } from '@/utils/authHelper';
 
 interface CustomRouter {
+  // eslint-disable-next-line no-unused-vars
   push: (url: string) => void;
 }
 

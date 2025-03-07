@@ -1,10 +1,35 @@
 mutation ArchiveTemplate($templateId: Int!) {
-  archiveTemplate(templateId: $templateId)
+  archiveTemplate(templateId: $templateId) {
+    id
+    errors {
+      general
+      name
+      ownerId
+    }
+    name
+  }
 }
 
 mutation CreateTemplateVersion($templateId: Int!, $comment: String, $versionType: TemplateVersionType, $visibility: TemplateVisibility!) {
   createTemplateVersion(templateId: $templateId, comment: $comment, versionType: $versionType, visibility: $visibility) {
-    errors
+    errors {
+      general
+      name
+      ownerId
+    }
+    name
+  }
+}
+
+mutation AddTemplate($name: String!, $copyFromTemplateId: Int) {
+  addTemplate(name: $name, copyFromTemplateId: $copyFromTemplateId) {
+    id
+    errors {
+      general
+      name
+      ownerId
+    }
+    description
     name
   }
 }

@@ -1,11 +1,15 @@
 'use client'
 
 import logECS from '@/utils/clientLogger';
-import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
+import {
+  fetchCsrfToken,
+} from "@/utils/authHelper";
 
+/* eslint-disable-next-line no-unused-vars */
 type RetryRequestType = (csrfToken: string | null) => Promise<Response>;
 
 interface CustomRouter {
+  // eslint-disable-next-line no-unused-vars
   push: (url: string) => void;
 }
 
@@ -18,7 +22,6 @@ async function safeJsonParse(response: Response) {
   }
 }
 
-
 export const handleErrors = async (
   response: Response,
   retryRequest: RetryRequestType,
@@ -28,78 +31,63 @@ export const handleErrors = async (
 
 ) => {
 
-  try {
-    const { message } = await safeJsonParse(response);
+  const { message } = await safeJsonParse(response);
 
-    switch (response.status) {
-      case 400:
-        if (message) {
-          setErrors(prevErrors => [...prevErrors, message]);
-        } else {
-          setErrors(['An unexpected error occurred. Please try again.']);
-        }
-      case 401:
-        if (message) {
-          logECS('error', message, {
-            url: { path: path }
-          });
+  switch (response.status) {
+    case 400:
+      if (message) {
+        setErrors(prevErrors => [...prevErrors, message]);
+      } else {
+        setErrors(['An unexpected error occurred. Please try again.']);
+      }
+      break;
 
-          try {
-            // Attempt to get new auth tokens
-            const response = await refreshAuthTokens();
+    case 401:
+      if (message) {
+        logECS('error', message, {
+          url: { path }
+        });
+        const errorMessage = message;
+        setErrors(prevErrors => [...prevErrors, errorMessage]);
+        return;
+      }
+      break;
 
-            if (response) {
-              router.push("/");
-            } else {
-              router.push('/login')
-            }
-          } catch (err) {
-            router.push('/login');
-          }
-        }
-        break;
+    case 403:
+      if (message === 'Invalid CSRF token') {
+        logECS('error', message, {
+          url: { path }
+        });
 
-      case 403:
-        if (message === 'Invalid CSRF token') {
-          logECS('error', message, {
-            url: { path: path }
-          });
-
-          try {
-            // Attempt to get a new CSRF token
-            const response = await fetchCsrfToken();
-            if (response) {
-              const csrfToken = response?.headers.get('X-CSRF-TOKEN');
-              if (csrfToken) {
-                // Retry request
-                const newResponse = await retryRequest(csrfToken);
-                if (newResponse.ok) {
-                  router.push("/");
-                } else {
-                  const errorMessage = await newResponse.json();
-                  setErrors(prevErrors => [...prevErrors, errorMessage]);
-                }
+        try {
+          // Attempt to get a new CSRF token
+          const csfrResp = await fetchCsrfToken();
+          if (csfrResp) {
+            const csrfToken = csfrResp.headers.get('X-CSRF-TOKEN');
+            if (csrfToken) {
+              // Retry request
+              const newResponse = await retryRequest(csrfToken);
+              if (newResponse.ok) {
+                router.push("/");
+              } else {
+                const errorMessage = await newResponse.json();
+                setErrors(prevErrors => [...prevErrors, errorMessage]);
               }
             }
-          } catch (err) {
-            throw new Error(`Error fetching new CSRF - ${err}`);
           }
-        } else {
-          setErrors(prevErrors => [...prevErrors, message]);
+        } catch (err) {
+          throw new Error(`Error fetching new CSRF - ${err}`);
         }
-        break;
+      } else {
+        setErrors(prevErrors => [...prevErrors, message]);
+      }
+      break;
 
-      case 500:
-        logECS('error', 'Internal server error', {
-          url: { path: '/apollo-signin' }
-        });
-        router.push('/500-error');
-        break;
-    }
-  } catch (error) {
-    logECS('error', 'Error processing errors', {
-      url: { path: path }
-    });
-    setErrors(['An unexpected error occurred. Please try again.']);
+    case 500:
+      logECS('error', 'Internal server error', {
+        url: { path: '/apollo-signin' }
+      });
+      router.push('/500-error');
+      break;
   }
 };

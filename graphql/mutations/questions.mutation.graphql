@@ -1,0 +1,51 @@
+mutation AddQuestion($input: AddQuestionInput!) {
+  addQuestion(input: $input) {
+    errors {
+      general
+      questionText
+    }
+    id
+    displayOrder
+    questionText
+    questionTypeId
+    requirementText
+    guidanceText
+    sampleText
+    useSampleTextAsDefault
+    required
+    questionOptions {
+      isDefault
+      id
+      questionId
+      orderNumber
+      text
+    }
+  }
+}
+
+mutation UpdateQuestion($input: UpdateQuestionInput!) {
+  updateQuestion(input: $input) {
+    id
+    questionTypeId
+    guidanceText
+    errors {
+      general
+      questionText
+    }
+    isDirty
+    required
+    requirementText
+    sampleText
+    useSampleTextAsDefault
+    sectionId
+    templateId
+    questionText
+    questionOptions {
+      id
+      orderNumber
+      questionId
+      text
+      isDefault
+    }
+  }
+}

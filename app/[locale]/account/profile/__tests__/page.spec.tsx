@@ -8,6 +8,11 @@ import {
   useUpdateUserProfileMutation
 } from '@/generated/graphql';
 
+import {
+  mockScrollIntoView,
+  mockScrollTo
+} from '@/__mocks__/common';
+
 expect.extend(toHaveNoViolations);
 
 jest.mock('next/navigation', () => ({
@@ -26,11 +31,6 @@ jest.mock('@/generated/graphql', () => ({
   useLanguagesQuery: jest.fn(),
 }));
 
-jest.mock('@/context/ToastContext', () => ({
-  useToast: jest.fn(() => ({
-    add: jest.fn(),
-  })),
-}));
 
 // Mock UpdateEmailAddress component
 jest.mock('@/components/UpdateEmailAddress', () => ({
@@ -47,9 +47,6 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
 jest.mock('@/i18n/routing', () => ({
   usePathname: jest.fn(() => '/about'),
 }));
-
-jest.mock('@/components/PageHeader');
-
 
 // Mock useFormatter and useTranslations from next-intl
 jest.mock('next-intl', () => ({
@@ -87,7 +84,8 @@ const setupMocks = () => {
 describe('ProfilePage', () => {
   beforeEach(() => {
     setupMocks();
-    window.scrollTo = jest.fn(); // Called by the wrapping PageWrapper
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+    mockScrollTo();
     const mockUpdateUserProfile = jest.fn();
     mockHook(useUpdateUserProfileMutation).mockReturnValue([mockUpdateUserProfile, { loading: false, error: undefined }]);
   });
@@ -130,8 +128,7 @@ describe('ProfilePage', () => {
     fireEvent.click(submitButton);
 
     // Check if error message is present when fields empty
-    const errorMessage = await screen.findByText(/name must be at least 2 characters/i);
-    expect(errorMessage).toBeInTheDocument();
+    within(screen.getByRole('alert')).getByText('Name must be at least 2 characters');
   })
 
   it('should set data back to original when clicking Cancel button', async () => {

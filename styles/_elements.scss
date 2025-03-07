@@ -6,6 +6,7 @@
 @import "form/checkbox";
 @import "form/switch";
 @import "form/tabs";
+@import "form/fileupload";
 
 
 // Link
@@ -19,7 +20,7 @@
   position: relative;
 
   &[data-hovered] {
-    text-decoration-style: wavy;
+
   }
 
   &[data-pressed] {
@@ -75,16 +76,6 @@
   }
 }
 
-// Forms
-/*
-// REMOVED THIS AS WAS CONFLICTING - Unclear where it is used
-.react-aria-Button {
-  @include device(sm) {
-    //margin-top: var(--fs-4xl);
-  }
-  //margin-top: var(--fs-xl);
-}
-*/
 
 // Popover
 .react-aria-Popover {
@@ -541,8 +532,23 @@
 
 .Filters {
   margin: 1rem 0;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr;
 }
 
+.searchSection {
+  display: grid;
+  grid-template-columns: 1fr;  /* Single column by default (mobile) */
+  gap: 20px;
+
+}
+
+@media (min-width: 768px) {
+  .searchSection {
+    grid-template-columns: 1fr 1fr;  /* Two equal columns on larger screens */
+  }
+}
 
 .card-grid-list {
   margin-top: var(--space-4);
@@ -590,7 +596,17 @@
     h2 {
       font-size: var(--fs-base);
       color: var(--blue-600);
-      font-weight: 300;
+      font-weight: 600;
+
+      padding: var(--space-0);
+      margin: var(--space-0);
+      margin-bottom: var(--space-1);
+    }
+
+    h3 {
+      font-size: var(--fs-base);
+      color: var(--blue-600);
+      font-weight: 600;
 
       padding: var(--space-0);
       margin: var(--space-0);
@@ -721,4 +737,15 @@
       align-items: center;
     }
   }
+}
+
+.form-signpost{
+  .form-signpost-inner{
+    background: var(--gray-100);
+    padding: var(--space-4);
+  }
+}
+
+.react-aria-CalendarCell {
+  cursor: pointer;
 }

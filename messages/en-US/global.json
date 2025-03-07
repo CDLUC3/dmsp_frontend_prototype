@@ -1,6 +1,6 @@
 {
   "HomePage": {
-    "title": "Home Page",
+    "title": "Home page",
     "linkText": "Go to the Connections page",
     "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
   },
@@ -60,11 +60,11 @@
   },
   "UserProfile": {
     "breadcrumbHome": "Home",
-    "headingUpdateProfile": "Update Profile",
-    "yourProfile": "Your Profile",
-    "emailAndAuth": "Email and Authentication",
-    "firstName": "First name",
-    "lastName": "Last name",
+    "headingUpdateProfile": "Update profile",
+    "yourProfile": "Your profile",
+    "emailAndAuth": "Email and authentication",
+    "givenName": "First name",
+    "surName": "Last name",
     "institution": "Institution",
     "language": "Language",
     "headingPrimaryEmail": "Primary email address",
@@ -115,17 +115,67 @@
       "home": "Home",
       "templates": "Templates",
       "template": "Template",
+      "createTemplate": "Create a template",
+      "selectExistingTemplate": "Select an existing template",
+      "templateHistory": "Template history",
       "section": "Section",
-      "editSection": "Edit Section"
+      "addNewSection": "Add a new section",
+      "updateSection": "Update Section",
+      "editSection": "Edit Section",
+      "createSection": "Create Section",
+      "editTemplate": "Edit Template",
+      "question": "Question",
+      "selectQuestionType": "Select Question Type",
+      "projects": "Projects",
+      "projectOverview": "Project overview",
+      "projectFunder": "Project funder"
     },
+    "form": {
+      "yesLabel": "Yes",
+      "noLabel": "No"
+    },
+    "lastRevisedBy": "Last revised by",
+    "lastUpdated": "Last updated",
     "buttons": {
       "search": "Search",
-      "select": "Select"
+      "select": "Select",
+      "next": "Next",
+      "save": "Save",
+      "saveChanges": "Save changes",
+      "remove": "Remove",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "linkUpdate": "Update",
+      "linkExpand": "Expand",
+      "linkCollapse": "Collapse",
+      "continue": "Continue",
+      "edit": "Edit"
+    },
+    "labels": {
+      "searchByKeyword": "Search by keyword",
+      "startDate": "Start date",
+      "endDate": "End date"
+    },
+    "helpText": {
+      "searchHelpText": "Search by research organization, field station or lab, template description, etc."
+    },
+    "links": {
+      "clearFilter": "clear filter"
     },
     "messaging": {
       "loading": "Loading",
       "noItemsFound": "No items found",
-      "somethingWentWrong": "Something went wrong. Please try again."
+      "somethingWentWrong": "Something went wrong. Please try again.",
+      "resultsText": "{name} results match your search",
+      "fixBelow": "Please fix the errors below"
+    },
+    "tabs": {
+      "editQuestion": "Edit question",
+      "options": "Options",
+      "logic": "Logic"
+    },
+    "headings": {
+      "preview": "Preview"
     }
   }
 }
