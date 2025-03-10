@@ -1,8 +1,13 @@
 // utils/routes.ts
-import {stringify} from 'querystring';
 
 // Define query param value types
-type QueryParamValue = string | number | boolean | string[] | number[] | undefined;
+type QueryParamValue =
+  string
+  | number
+  | boolean
+  | string[]
+  | number[]
+  | undefined;
 
 
 const routes = {
@@ -82,25 +87,40 @@ export function routePath(
 
   for (const param of paramNames) {
     const paramName = param.substring(1); // Remove the leading colon
-    if (params[paramName] === undefined) {
+    if (!(paramName in params)) {
       throw new Error(`Missing required parameter: ${paramName} for route ${name}`);
     }
     // Use a template string to create a new string instead of replace
     path = path.split(param).join(String(params[paramName])) as typeof path;
   }
 
-  // Add query string if query params are provided
-  if (Object.keys(query).length > 0) {
-    // Filter out undefined values
-    const filteredQuery = Object.fromEntries(
-      Object.entries(query).filter(([, value]) => value !== undefined)
-    );
 
-    // Add query string if there are any params left
-    if (Object.keys(filteredQuery).length > 0) {
-      path += `?${stringify(filteredQuery)}`;
+// Add query string if query params are provided
+  if (Object.keys(query).length > 0) {
+    const searchParams = new URLSearchParams();
+    const manualParams: string[] = [];
+
+    for (const [key, value] of Object.entries(query)) {
+      if (value === undefined) {
+        continue; // Keep `undefined` values out of the query string
+      }
+      if (Array.isArray(value)) {
+        // Manually format arrays with `[]` notation
+        value.forEach((v) => manualParams.push(`${encodeURIComponent(key)}[]=${encodeURIComponent(String(v))}`));
+      } else {
+        searchParams.append(key, String(value)); // Convert everything else to string
+      }
+    }
+
+    const queryString = searchParams.toString();
+    const manualQueryString = manualParams.join("&");
+
+    if (queryString || manualQueryString) {
+      path += `?${[queryString, manualQueryString].filter(Boolean).join("&")}`;
     }
   }
+
+
 
   // Special case for root path
   if (path === '/') {
@@ -114,4 +134,4 @@ export function routePath(
 // Type to get all available route names for better IDE support
 export type RouteName = keyof typeof routes;
 
-export { routes };
+export {routes};
