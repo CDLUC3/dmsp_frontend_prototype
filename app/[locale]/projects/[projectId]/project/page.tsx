@@ -1,8 +1,10 @@
 'use client';
 
-import {ContentContainer, LayoutWithPanel} from "@/components/Container";
-import React from 'react';
-import PageHeader from "@/components/PageHeader";
+import {useEffect, useRef, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useTranslations} from 'next-intl';
+import {useParams} from 'next/navigation';
+import {CalendarDate, DateValue, parseDate} from "@internationalized/date";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -14,81 +16,355 @@ import {
   DatePicker,
   DateSegment,
   Dialog,
-  FieldError,
   Form,
   Group,
   Heading,
-  Input,
   Label,
   Link,
-  ListBox,
-  ListBoxItem,
   Popover,
-  Radio,
-  RadioGroup,
-  Select,
-  SelectValue,
-  Text,
-  TextArea,
-  TextField
 } from "react-aria-components";
 
-const ProjectsProjectDetail = () => {
-  const researchDomains = [
-    "Life Sciences",
-    "Physical Sciences",
-    "Social Sciences",
-    "Engineering",
-    "Environmental Sciences",
-    "Computer Science"
-  ];
+//GraphQL
+import {
+  ProjectErrors,
+  useProjectQuery,
+  useUpdateProjectMutation,
+} from '@/generated/graphql';
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted');
-    window.location.href = '/projects/create-project/funding';
+//Components
+import PageHeader from "@/components/PageHeader";
+import {ContentContainer, LayoutContainer} from "@/components/Container";
+import {FormInput, RadioGroupComponent} from "@/components/Form";
+import ErrorMessages from '@/components/ErrorMessages';
+import ResearchDomainCascadingDropdown
+  from '@/components/ResearchDomainCascadingDropdown';
+
+import {getCalendarDateValue} from "@/utils/dateUtils";
+import {scrollToTop} from '@/utils/general';
+import logECS from '@/utils/clientLogger';
+import {useToast} from '@/context/ToastContext';
+
+interface ProjectFormErrorsInterface {
+  projectName: string;
+  projectAbstract: string;
+}
+
+interface ProjectDetailsFormInterface {
+  projectName: string;
+  projectAbstract: string;
+  startDate: string | CalendarDate | null;
+  endDate: string | CalendarDate | null;
+  researchDomainId: string | number;
+  isTestProject: string | boolean;
+  parentResearchDomainId: string | number;
+}
+
+const ProjectsProjectDetail = () => {
+  const toastState = useToast(); // Access the toast state from context
+
+  // Get projectId param
+  const params = useParams();
+  const { projectId } = params; // From route /projects/:projectId
+
+  //For scrolling to top of page
+  const topRef = useRef<HTMLDivElement | null>(null);
+
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const [projectData, setProjectData] = useState<ProjectDetailsFormInterface>({
+    projectName: '',
+    projectAbstract: '',
+    startDate: '',
+    endDate: '',
+    researchDomainId: '',
+    isTestProject: 'true',
+    parentResearchDomainId: ''
+  });
+  const [fieldErrors, setFieldErrors] = useState<ProjectFormErrorsInterface>({
+    projectName: '',
+    projectAbstract: '',
+  });
+  const [errors, setErrors] = useState<string[]>([]);
+
+  // Localization keys
+  const ProjectOverview = useTranslations('ProjectOverview');
+  const ProjectDetail = useTranslations('ProjectsProjectDetail');
+  const Global = useTranslations('Global');
+
+  const radioData = {
+    radioGroupLabel: ProjectDetail('labels.projectType'),
+    radioButtonData: [
+      {
+        value: 'true',
+        label: ProjectDetail('labels.mockProject')
+      },
+      {
+        value: 'false',
+        label: ProjectDetail('labels.realProject')
+      }
+    ]
+  }
+
+  // Initialize useUpdateProjectMutation
+  const [updateProjectMutation] = useUpdateProjectMutation();
+
+  // Get Project using projectId
+  const { data, loading, error: queryError, refetch } = useProjectQuery(
+    {
+      variables: { projectId: Number(projectId) },
+      notifyOnNetworkStatusChange: true
+    }
+  );
+
+  const clearAllFieldErrors = () => {
+    //Remove all field errors
+    setFieldErrors({
+      projectName: '',
+      projectAbstract: ''
+    });
+  }
+
+
+  // Client-side validation of fields
+  /*eslint-disable @typescript-eslint/no-explicit-any */
+  const validateField = (name: string, value: any): string => {
+    switch (name) {
+      case 'projectName':
+        if (!value || value.length <= 2) {
+          return ProjectDetail('messages.errors.projectName');
+        }
+        break;
+    }
+    return '';
+  };
+
+  // Check whether form is valid before submitting
+  const isFormValid = (): boolean => {
+    const errors: ProjectFormErrorsInterface = {
+      projectName: '',
+      projectAbstract: ''
+    };
+
+    let hasError = false;
+
+    // Validate all fields and collect errors
+    Object.keys(projectData).forEach((key) => {
+      const name = key as keyof ProjectFormErrorsInterface;
+      const value = projectData[name];
+      const error = validateField(name, value);
+
+      if (error) {
+        hasError = true;
+        errors[name] = error;
+      }
+    });
+
+    // Update state with all errors
+    setFieldErrors(errors);
+    if (errors) {
+      setErrors(Object.values(errors).filter((e) => e)); // Store only non-empty error messages
+    }
+
+    return !hasError;
+  };
+
+  const updateProjectContent = (
+    key: string,
+    value: string | DateValue | boolean | number
+  ) => {
+    setProjectData((prevContents) => ({
+      ...prevContents,
+      [key]: value,
+    }));
+  };
+
+  // Handle changes from RadioGroup
+  const handleRadioChange = (value: string) => {
+    updateProjectContent('isTestProject', value);
+  };
+
+  // Make GraphQL mutation request to update section
+  const updateProject = async (): Promise<[ProjectErrors, boolean]> => {
+    // Convert any CalendarDate objects to strings before submission
+    const submissionData = {
+      startDate: projectData.startDate instanceof CalendarDate ?
+        projectData.startDate.toString() : projectData.startDate,
+      endDate: projectData.endDate instanceof CalendarDate ?
+        projectData.endDate.toString() : projectData.endDate,
+      isTestProject: projectData.isTestProject === 'true'
+    };
+
+    try {
+      const response = await updateProjectMutation({
+        variables: {
+          input: {
+            id: Number(projectId),
+            title: projectData.projectName,
+            abstractText: projectData.projectAbstract,
+            researchDomainId: projectData.researchDomainId ? Number(projectData.researchDomainId) : null,
+            ...submissionData
+          }
+        }
+
+      });
+
+      const responseErrors = response.data?.updateProject?.errors
+      if (responseErrors) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
+          return [responseErrors, false];
+        }
+      }
+
+      return [{}, true];
+    } catch (error) {
+      logECS('error', 'updateProjectMutation', {
+        error,
+        url: { path: '/projects/[projectId]/project' }
+      });
+      if (error instanceof ApolloError) {
+        if (error.message.toLowerCase() === "unauthorized") {
+          // Need to refresh values if the refresh token was refreshed in the graphql error handler
+          refetch();
+        }
+        return [{}, false];
+      } else {
+        setErrors(prevErrors => [...prevErrors, "Error updating project"]);
+        return [{}, false];
+      }
+    }
+  };
+
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = ProjectDetail('messages.success.projectUpdated');
+    toastState.add(successMessage, { type: 'success' });
+    // Scroll to top of page
+    scrollToTop(topRef);
+  }
+
+  // Handle form submit
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    // Clear previous error messages
+    clearAllFieldErrors();
+    setErrors([]);
+
+    if (isFormValid()) {
+      // Create new section
+      const [errors, success] = await updateProject();
+
+      if (!success) {
+        if (errors) {
+          setFieldErrors({
+            projectName: errors.title || '',
+            projectAbstract: errors.abstractText || '',
+          });
+        }
+        setErrors([errors.general || ProjectDetail('messages.errors.projectUpdateFailed')]);
+
+      } else {
+        // Show success message
+        showSuccessToast();
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Update project values from data results
+    if (data?.project) {
+      const project = data.project;
+      // Convert string dates to CalendarDate objects when setting initial state
+      const startDate = project.startDate ?
+        (typeof project.startDate === 'string' ? parseDate(project.startDate) : project.startDate) :
+        null;
+
+      const endDate = project.endDate ?
+        (typeof project.endDate === 'string' ? parseDate(project.endDate) : project.endDate) :
+        null;
+
+      setProjectData({
+        projectName: project.title,
+        projectAbstract: project?.abstractText ? project.abstractText : '',
+        startDate,
+        endDate,
+        researchDomainId: project.researchDomain?.id ? project.researchDomain.id : '',
+        parentResearchDomainId: project.researchDomain?.parentResearchDomainId ? project.researchDomain.parentResearchDomainId : '',
+        isTestProject: project.isTestProject ? project.isTestProject.toString() : 'false'
+      })
+    }
+  }, [data])
+
+  useEffect(() => {
+    if (queryError) {
+      setErrors(prev => [...prev, queryError.message]);
+    }
+  }, [queryError])
+
+  if (loading) {
+    return <div>{Global('messaging.loading')}...</div>;
   }
 
   return (
     <>
+      <div ref={topRef} />
       <PageHeader
-        title="Plan: Select a DMP template"
-        description="Select a template to use when creating your DMP."
-        showBackButton={true}
+        title={ProjectDetail('title')}
+        description={ProjectDetail('description')}
+        showBackButton={false}
         breadcrumbs={
-          <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">Templates</Link></Breadcrumb>
+          <Breadcrumbs aria-label={ProjectOverview('navigation')}>
+            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href={`/projects/${projectId}`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb>{ProjectDetail('title')}</Breadcrumb>
           </Breadcrumbs>
         }
-        actions={
-          <></>
-        }
-        className="page-template-list"
+        actions={null}
+        className="page-project-list"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
-          <Form onSubmit={handleSubmit}>
-            <TextField name="project_name" type="text" isRequired>
-              <Label>Project Name</Label>
-              <Input/>
-              <FieldError/>
-            </TextField>
+          <ErrorMessages errors={errors} ref={errorRef} />
+          <Form onSubmit={handleFormSubmit} className="project-detail-form">
+            <FormInput
+              name="projectName"
+              type="text"
+              isRequired={true}
+              label={ProjectDetail('labels.projectName')}
+              value={projectData.projectName}
+              onChange={(e) => updateProjectContent('projectName', e.target.value)}
+              isInvalid={(!projectData.projectName || !!fieldErrors.projectName)}
+              errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : ProjectDetail('messages.errors.projectName')}
+            />
 
-            <TextField name="project_abstract" isRequired>
-              <Label>Project Abstract</Label>
-              <TextArea/>
-              <FieldError/>
-            </TextField>
-
+            <FormInput
+              name="projectAbstract"
+              type="text"
+              isRequired={false}
+              label={ProjectDetail('labels.projectAbstract')}
+              value={projectData.projectAbstract}
+              onChange={(e) => updateProjectContent('projectAbstract', e.target.value)}
+              isInvalid={!!fieldErrors.projectAbstract}
+              errorMessage={fieldErrors.projectAbstract.length > 0 ? fieldErrors.projectAbstract : ProjectDetail('messages.errors.projectAbstract')}
+            />
 
             <div className="date-range-group">
-
-              <DatePicker name="start_date">
-                <Label>Start Date</Label>
+              <DatePicker
+                name="startDate"
+                value={getCalendarDateValue(projectData.startDate)}
+                onChange={(newDate) => {
+                  // Store the CalendarDate object directly
+                  updateProjectContent('startDate', newDate);
+                }}
+              >
+                <Label>{Global('labels.startDate')}</Label>
                 <Group>
                   <DateInput>
-                    {(segment) => <DateSegment segment={segment}/>}
+                    {(segment) => <DateSegment segment={segment} />}
                   </DateInput>
                   <Button>▼</Button>
                 </Group>
@@ -97,23 +373,29 @@ const ProjectsProjectDetail = () => {
                     <Calendar>
                       <header>
                         <Button slot="previous">◀</Button>
-                        <Heading className={"text-sm"}/>
+                        <Heading />
                         <Button slot="next">▶</Button>
                       </header>
                       <CalendarGrid>
-                        {(date) => <CalendarCell date={date}/>}
+                        {(date) => <CalendarCell date={date} />}
                       </CalendarGrid>
                     </Calendar>
                   </Dialog>
                 </Popover>
               </DatePicker>
 
-
-              <DatePicker name="end_date">
-                <Label>End Date</Label>
+              <DatePicker
+                name="endDate"
+                value={getCalendarDateValue(projectData.endDate)}
+                onChange={(newDate) => {
+                  // Store the CalendarDate object directly
+                  updateProjectContent('endDate', newDate);
+                }}
+              >
+                <Label>{Global('labels.endDate')}</Label>
                 <Group>
                   <DateInput>
-                    {(segment) => <DateSegment segment={segment}/>}
+                    {(segment) => <DateSegment segment={segment} />}
                   </DateInput>
                   <Button>▼</Button>
                 </Group>
@@ -122,11 +404,11 @@ const ProjectsProjectDetail = () => {
                     <Calendar>
                       <header>
                         <Button slot="previous">◀</Button>
-                        <Heading className={"text-sm"}/>
+                        <Heading className={"text-sm"} />
                         <Button slot="next">▶</Button>
                       </header>
                       <CalendarGrid>
-                        {(date) => <CalendarCell date={date}/>}
+                        {(date) => <CalendarCell date={date} />}
                       </CalendarGrid>
                     </Calendar>
                   </Dialog>
@@ -134,33 +416,13 @@ const ProjectsProjectDetail = () => {
               </DatePicker>
             </div>
 
-
-            <Select name="research_domain">
-              <Label>Research Domain</Label>
-              <Text slot="description" className="help">
-                This is help text</Text>
-              <Button>
-                <SelectValue/>
-                <span aria-hidden="true">▼</span>
-              </Button>
-              <Popover>
-                <ListBox>
-                  {researchDomains.map((domain) => (
-                    <ListBoxItem key={domain}>{domain}</ListBoxItem>
-                  ))}
-                </ListBox>
-              </Popover>
-              <FieldError/>
-            </Select>
-
+            <ResearchDomainCascadingDropdown projectData={projectData} setProjectData={setProjectData} />
 
             <div className="form-signpost  my-8">
               <div className="form-signpost-inner">
                 <div className="">
                   <p className="text-sm">
-                    Have a grant already? Not the right project? Use Search
-                    projects to find the project. If found key information
-                    will be filled in for you.
+                    {ProjectDetail('paragraphs.para1')}
                   </p>
                 </div>
                 <div className="form-signpost-button">
@@ -168,59 +430,44 @@ const ProjectsProjectDetail = () => {
                     className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800"
                     onPress={() => window.location.href = '/projects/search'}
                   >
-                    Search projects
+                    {ProjectDetail('buttons.searchProjects')}
                   </Button>
                 </div>
               </div>
             </div>
 
+            <div className="project-type-section">
+              {projectData.isTestProject === 'true' && (
+                <>
+                  <h2>{ProjectDetail('headings.h2MockProject')}</h2>
+                  <p className={"help"}>
+                    {ProjectDetail('paragraphs.mockProject')}
+                  </p>
+                </>
+              )}
 
-            <div className="project-type-section ">
-              <h4>This project is mock project for testing, practice, or
-                educational purposes</h4>
               <p className={"help"}>
-                This is a mock project intended solely for testing, practice, or
-                educational purposes.
-                It allows you to create a project and plans, but you will not be
-                able to receive
-                feedback or publish them.
+                <strong>{ProjectDetail('mockProject')}: </strong>
+                {ProjectDetail('paragraphs.mockProjectDescription')}
               </p>
               <p className={"help"}>
-                <strong>Mock Project: </strong>
-                Remain in a testing or educational environment. Your
-                project will
-                continue to operate in mock mode, allowing you to create
-                plans and
-                experiments without the ability to receive feedback or
-                publish.
-                You may upgrade at any time in the future.
-              </p>
-              <p className={"help"}>
-                <strong>Real Project: </strong>
-                Convert to a real project, and remove the mock project
-                status.
-                By doing so, you will gain access to feedback, publishing
-                capabilities,
-                and additional features. However, this decision is
-                permanent and cannot
-                be reversed. Proceed only if you are certain you no longer
-                need a mock environment.
+                <strong>{ProjectDetail('realProject')}: </strong>
+                {ProjectDetail('paragraphs.realProjectDescription')}
               </p>
 
-
-              <RadioGroup name={"project_type"}>
-                <Label>Project Type</Label>
-                <Radio value="mock">Keep this project as a Mock Project</Radio>
-                <Radio value="real">Convert to a real Project</Radio>
-              </RadioGroup>
-
-
+              <RadioGroupComponent
+                name="projectType"
+                value={projectData.isTestProject.toString()}
+                radioGroupLabel={radioData.radioGroupLabel}
+                radioButtonData={radioData.radioButtonData}
+                onChange={handleRadioChange}
+              />
             </div>
 
-            <Button type="submit" className="submit-button">Save</Button>
+            <Button type="submit" className="submit-button">{Global('buttons.save')}</Button>
           </Form>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer >
     </>
   )
     ;

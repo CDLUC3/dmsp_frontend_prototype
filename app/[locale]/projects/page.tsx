@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useFormatter, useTranslations } from 'next-intl';
+import {useEffect, useRef, useState} from 'react';
+import {useFormatter, useTranslations} from 'next-intl';
 
 // Components
 import {
@@ -17,16 +17,13 @@ import {
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import ProjectListItem from "@/components/ProjectListItem";
-import {
-  ContentContainer,
-  LayoutContainer
-} from '@/components/Container';
+import {ContentContainer, LayoutContainer} from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
-import { useMyProjectsQuery, } from '@/generated/graphql';
+import {useMyProjectsQuery,} from '@/generated/graphql';
 
-import { ProjectItemProps } from '@/app/types';
+import {ProjectItemProps} from '@/app/types';
 
 interface ContributorRolesInterface {
   id?: number | null;
@@ -76,11 +73,13 @@ const ProjectsListPage: React.FC = () => {
   const Project = useTranslations('ProjectsListPage');
 
   // Query for projects
-  const { data = {}, loading, errors: projectsQueryError } = useMyProjectsQuery({
+  const { data = {}, loading } = useMyProjectsQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
   });
+
+
 
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
@@ -188,15 +187,17 @@ const ProjectsListPage: React.FC = () => {
   }, [errors]);
 
   useEffect(() => {
-    if (projectsQueryError) {
-      setErrors([Global('messaging.somethingWentWrong')]);
-    } else if (data?.myProjects?.some((project) => project?.errors)) {
-      setErrors([Project('messages.errors.errorRetrievingProjects')]);
-    } else {
-      setErrors([]);
+    if (data?.myProjects) {
+      const projectErrors = data.myProjects
+        .filter((project) => project?.errors?.general || project?.errors?.title)
+        .map((project) => project?.errors?.general || Project('messages.errors.errorRetrievingProjects'));
+
+      if (projectErrors.length > 0) {
+        setErrors(projectErrors);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, projectsQueryError]);
+  }, [data]);
 
   // TODO: Implement shared loading spinner
   if (loading) {
@@ -213,6 +214,7 @@ const ProjectsListPage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.projects')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={

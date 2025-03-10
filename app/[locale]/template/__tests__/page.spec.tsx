@@ -3,6 +3,7 @@ import {act, fireEvent, render, screen} from '@/utils/test-utils';
 import TemplateListPage from '../page';
 import {axe, toHaveNoViolations} from 'jest-axe';
 import {useTemplatesQuery,} from '@/generated/graphql';
+import {mockScrollIntoView} from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 
@@ -108,10 +109,7 @@ jest.mock('@/components/PageHeader', () => {
 describe('TemplateListPage', () => {
   beforeEach(() => {
     setupMocks();
-    // Create a mock scrollIntoView function
-    const mockScrollIntoView = jest.fn();
-    // Add it to the Element prototype
-    Element.prototype.scrollIntoView = mockScrollIntoView;
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
   });
 
   it('should render the page header with correct title and description', async () => {

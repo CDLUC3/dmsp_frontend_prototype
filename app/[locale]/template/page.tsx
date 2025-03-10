@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from "@apollo/client";
+import React, {useEffect, useRef, useState} from 'react';
+import {ApolloError} from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -13,21 +13,22 @@ import {
   SearchField,
   Text
 } from 'react-aria-components';
-import { useFormatter, useTranslations } from 'next-intl';
+import {useFormatter, useTranslations} from 'next-intl';
 
 //GraphQL
-import { useTemplatesQuery, } from '@/generated/graphql';
+import {useTemplatesQuery,} from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
 import TemplateListItem from '@/components/TemplateListItem';
-import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 // Hooks
-import { useScrollToTop } from '@/hooks/scrollToTop';
+import {useScrollToTop} from '@/hooks/scrollToTop';
 
-import { TemplateInterface, TemplateItemProps, } from '@/app/types';
+import logECS from '@/utils/clientLogger';
+import {TemplateInterface, TemplateItemProps,} from '@/app/types';
 import styles from './orgTemplates.module.scss';
 
 const TemplateListPage: React.FC = () => {
@@ -54,7 +55,7 @@ const TemplateListPage: React.FC = () => {
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
 
   // Make graphql request for templates under the user's affiliation
-  const { data = {}, loading, error: queryError, refetch } = useTemplatesQuery({
+  const { data = {}, loading, error: queryError } = useTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
@@ -131,15 +132,18 @@ const TemplateListPage: React.FC = () => {
   useEffect(() => {
     if (queryError) {
       if (queryError instanceof ApolloError) {
-        // Trigger a refetch on error so page re-renders for apollo errors
-        refetch();
+        setErrors(prevErrors => [...prevErrors, queryError.message]);
+        logECS('error', 'queryError', {
+          error: queryError,
+          url: { path: '/template' }
+        });
       } else {
         // Safely access queryError.message
         setErrors(prev => [...prev, t('somethingWentWrong')]);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryError, refetch]);
+  }, [queryError]);
 
 
   useEffect(() => {
@@ -229,6 +233,7 @@ const TemplateListPage: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{t('breadcrumbHome')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{t('title')}</Link></Breadcrumb>
+            <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={

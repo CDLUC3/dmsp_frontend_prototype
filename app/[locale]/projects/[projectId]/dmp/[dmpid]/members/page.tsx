@@ -23,7 +23,6 @@ interface Member {
   affiliation: string;
   orcid: string;
   role: string;
-  isPrimaryInvestigator: boolean;
   isSelectedForThisProject: boolean;
 }
 
@@ -35,8 +34,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
       affiliation: 'University of California',
       orcid: '0000-0001-2603-5427',
       role: 'Primary Investigator',
-      isPrimaryInvestigator: true,
-      isSelectedForThisProject:true,
+      isSelectedForThisProject: true,
     },
     {
       id: 'member-002',
@@ -44,8 +42,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
       affiliation: 'University of Arctic Studies',
       orcid: '0000-0007-7803-0427',
       role: 'Data curator',
-      isPrimaryInvestigator: false,
-      isSelectedForThisProject:false,
+      isSelectedForThisProject: false,
     },
     {
       id: 'member-003',
@@ -53,8 +50,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
       affiliation: 'University of California',
       orcid: '0000-0007-7803-0417',
       role: 'Data curator',
-      isPrimaryInvestigator: false,
-      isSelectedForThisProject:true,
+      isSelectedForThisProject: true,
     }
   ];
 
@@ -63,7 +59,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
   // eslint-disable-next-line no-unused-vars
   const handleEdit = (memberId: string): void => {
     // Handle editing member
-    window.location.href = '/projects/proj_2425/members/edit?memberid='+memberId;
+    window.location.href = '/projects/proj_2425/members/edit?memberid=' + memberId;
   };
 
   return (
@@ -95,7 +91,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
           </p>
           <p>
             <Link href='projects/proj_2425/members'
-                  className={"text-base underline"}>Update project
+              className={"text-base underline"}>Update project
               members</Link> (new window)
           </p>
           <section
@@ -119,7 +115,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                     >
                       <div className="checkbox">
                         <svg viewBox="0 0 18 18" aria-hidden="true">
-                          <polyline points="1 9 7 14 15 4"/>
+                          <polyline points="1 9 7 14 15 4" />
                         </svg>
                       </div>
                     </Checkbox>
@@ -132,7 +128,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                     <p className={styles.affiliation}>{member.affiliation}</p>
                     <p className={styles.orcid}>
                       <span aria-hidden="true">
-                        <OrcidIcon icon="orcid" classes={styles.orcidLogo}/>
+                        <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
                       </span>
                       <a
                         href={`https://orcid.org/${member.orcid}`}
@@ -162,7 +158,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
           </section>
 
         </ContentContainer>
-        <SidebarPanel/>
+        <SidebarPanel />
       </LayoutWithPanel>
     </>
   );

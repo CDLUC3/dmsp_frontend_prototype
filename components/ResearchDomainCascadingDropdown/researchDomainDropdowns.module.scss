@@ -1,0 +1,9 @@
+.researchDomainSelect {
+  max-width: 600px;
+
+  button:hover,
+  .react-aria-Select .react-aria-Button:hover:not(:disabled),
+  button:hover:not(:disabled){
+    color: var(--slate-700);
+  }
+}

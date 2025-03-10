@@ -8,6 +8,8 @@ import {
   useUpdateUserProfileMutation
 } from '@/generated/graphql';
 
+import {mockScrollIntoView, mockScrollTo} from '@/__mocks__/common';
+
 expect.extend(toHaveNoViolations);
 
 jest.mock('next/navigation', () => ({
@@ -26,11 +28,6 @@ jest.mock('@/generated/graphql', () => ({
   useLanguagesQuery: jest.fn(),
 }));
 
-jest.mock('@/context/ToastContext', () => ({
-  useToast: jest.fn(() => ({
-    add: jest.fn(),
-  })),
-}));
 
 // Mock UpdateEmailAddress component
 jest.mock('@/components/UpdateEmailAddress', () => ({
@@ -48,9 +45,6 @@ jest.mock('@/i18n/routing', () => ({
   usePathname: jest.fn(() => '/about'),
 }));
 
-jest.mock('@/components/PageHeader');
-
-
 // Mock useFormatter and useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useFormatter: jest.fn(() => ({
@@ -59,9 +53,6 @@ jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
   useLocale: jest.fn(() => 'en-US'), // Return a default locale
 }));
-
-// Create a mock for scrollIntoView and focus
-const mockScrollIntoView = jest.fn();
 
 const mockUserData = {
   me: {
@@ -91,7 +82,7 @@ describe('ProfilePage', () => {
   beforeEach(() => {
     setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
-    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+    mockScrollTo();
     const mockUpdateUserProfile = jest.fn();
     mockHook(useUpdateUserProfileMutation).mockReturnValue([mockUpdateUserProfile, { loading: false, error: undefined }]);
   });
