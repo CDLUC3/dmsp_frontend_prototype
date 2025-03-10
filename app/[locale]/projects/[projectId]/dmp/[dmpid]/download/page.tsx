@@ -1,6 +1,6 @@
 'use client';
 
-import React, {ChangeEvent, useState} from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -36,15 +36,6 @@ interface SettingsState {
 }
 
 type FileFormatType = 'pdf' | 'doc' | 'html' | 'csv' | 'json';
-
-interface FileIconProps {
-  type?: FileFormatType;
-}
-
-// Icons for file formats
-const FileIcon: React.FC<FileIconProps> = () => {
-  return <span className={styles.icon}></span>;
-};
 
 const ProjectsProjectPlanDownloadPage: React.FC = () => {
   // State for form values
@@ -120,12 +111,12 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               Choose file format
             </h3>
             <div>
-                <RadioGroup
-                  className={styles.radioGroup}
-                  aria-label="File format"
-                  value={selectedFormat}
-                  onChange={(value: string) => setSelectedFormat(value as FileFormatType)}
-                >
+              <RadioGroup
+                className={styles.radioGroup}
+                aria-label="File format"
+                value={selectedFormat}
+                onChange={(value: string) => setSelectedFormat(value as FileFormatType)}
+              >
                 <Radio value="pdf">
                   {/* <FileIcon type="pdf"/> */}
                   PDF
@@ -170,7 +161,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               >
                 <div className={"checkbox"}>
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 Include a project details coversheet
@@ -186,7 +177,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               >
                 <div className={"checkbox"}>
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 Include the section headings
@@ -202,7 +193,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               >
                 <div className={"checkbox"}>
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 Include the question text
@@ -218,7 +209,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               >
                 <div className={"checkbox"}>
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 Include any unanswered questions
@@ -234,7 +225,7 @@ const ProjectsProjectPlanDownloadPage: React.FC = () => {
               >
                 <div className={"checkbox"}>
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 Remove HTML tags
