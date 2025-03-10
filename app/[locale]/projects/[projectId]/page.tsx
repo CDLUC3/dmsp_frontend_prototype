@@ -1,26 +1,19 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { useFormatter, useTranslations } from 'next-intl';
+import {useEffect, useRef, useState} from 'react';
+import {useParams} from 'next/navigation';
+import {useFormatter, useTranslations} from 'next-intl';
+import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
 import {
-  Breadcrumb,
-  Breadcrumbs,
-  Link
-} from "react-aria-components";
-import {
-  useProjectQuery,
   PlanSearchResult,
-  PlanSectionProgress
+  PlanSectionProgress,
+  useProjectQuery
 } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import { Card } from '@/components/Card/card';
-import {
-  ContentContainer,
-  LayoutContainer
-} from "@/components/Container";
+import {Card} from '@/components/Card/card';
+import {ContentContainer, LayoutContainer} from "@/components/Container";
 import ErrorMessages from '@/components/ErrorMessages';
 
 interface FunderInterface {

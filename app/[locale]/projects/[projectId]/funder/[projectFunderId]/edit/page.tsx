@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useTranslations } from 'next-intl';
-import { useParams, useRouter } from 'next/navigation';
+import React, {useEffect, useRef, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useTranslations} from 'next-intl';
+import {useParams, useRouter} from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -22,19 +22,13 @@ import {
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import {
-  ContentContainer,
-  LayoutContainer
-} from "@/components/Container";
-import {
-  FormInput,
-  FormSelect
-} from "@/components/Form";
+import {ContentContainer, LayoutContainer} from "@/components/Container";
+import {FormInput, FormSelect} from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
 
-import { scrollToTop } from '@/utils/general';
+import {scrollToTop} from '@/utils/general';
 import logECS from '@/utils/clientLogger';
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
 
 import styles from './projectFunder.module.scss';
 

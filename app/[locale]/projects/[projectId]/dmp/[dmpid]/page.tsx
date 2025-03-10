@@ -1,10 +1,19 @@
 'use client';
 
-import React from 'react';
-import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
+import React, {useState} from 'react';
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  Dialog,
+  Link,
+  Modal,
+  Radio,
+  RadioGroup
+} from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import styles from './PlanOverviewPage.module.scss';
-import { useTranslations } from "next-intl";
+import {useTranslations} from "next-intl";
 import {
   ContentContainer,
   LayoutWithPanel,
@@ -14,6 +23,15 @@ import {
 
 const PlanOverviewPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
+  const [isPublishModalOpen, setPublishModalOpen] = useState(false);
+  const [isPublishingModalOpen, setPublishingModalOpen] = useState(false);
+  const [isMarkedComplete, setIsMarkedComplete] = useState(true);
+
+  const handleOpenPublishModal = () => {
+    setIsMarkedComplete(true);
+    setPublishModalOpen(false);
+    setPublishingModalOpen(true);
+  };
 
   const plan = {
     id: "plan_123",
@@ -86,6 +104,11 @@ const PlanOverviewPage: React.FC = () => {
     doi: "10.12345/example.123",
     last_updated: "2024-04-01",
     created_date: "2023-07-18"
+  };
+
+
+  const handleMarkAsIncomplete = async () => {
+      setIsMarkedComplete(false);
   };
 
   return (
@@ -255,10 +278,10 @@ const PlanOverviewPage: React.FC = () => {
                   {t('status.download.draftInfo')} <Link
                     href="#">{t('status.download.learnMore')}</Link>
                 </p>
-                <button
-                  className="react-aria-Button react-aria-Button--primary">
+                <Button data-secondary onPress={() => setPublishModalOpen(true)}
+                        className="react-aria-Button react-aria-Button--primary">
                   {t('status.download.markComplete')}
-                </button>
+                </Button>
               </div>
               <div className="mb-5">
                 <h3>{t('status.feedback.title')}</h3>
@@ -276,6 +299,149 @@ const PlanOverviewPage: React.FC = () => {
           </div>
         </SidebarPanel>
       </LayoutWithPanel>
+
+
+      <Modal isDismissable isOpen={isPublishModalOpen}>
+        <Dialog>
+          <div>
+            {isMarkedComplete ? (
+              <>
+                <section className={"mb-8"}>
+                  <h2>{t('publishModal.markComplete.title')}</h2>
+                  <p>
+                    {t('publishModal.markComplete.description')}
+                  </p>
+                  <Button
+                    data-tertiary
+                    className={"tertiary"}
+                    onPress={handleMarkAsIncomplete}
+                  >
+                    {t('publishModal.markComplete.markIncompleteButton')}
+                  </Button>
+                </section>
+                <section>
+                  <h5 className={"mb-1"}>
+                    {t('publishModal.markComplete.step1Title')}
+                  </h5>
+                  <p className={"mt-2 mb-0"}>{t('publishModal.markComplete.step1Description')}</p>
+                  <p className={"mt-2 mb-0"}>
+                    <Link className={"text-sm"}
+                          href={plan.download_url}>{t('status.download.downloadPDF')}</Link>
+                  </p>
+
+                  <h5 className={"mb-1"}>{t('publishModal.markComplete.step2Title')}</h5>
+                  <p className={"mt-2 mb-0"}>
+                    {t('publishModal.markComplete.step2Description')}
+                  </p>
+                </section>
+                <div className="modal-actions">
+                  <div className="">
+                    <Button data-secondary className={"secondary"} onPress={() => setPublishModalOpen(false)}>
+                      {t('publishModal.markComplete.closeButton')}
+                    </Button>
+                  </div>
+                  <div className="">
+                    <Button data-primary className={"primary"} onPress={handleOpenPublishModal}>
+                      {t('publishModal.markComplete.publishButton')}
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <section>
+                <h2>{t('publishModal.markIncomplete.title')}</h2>
+                <p>{t('publishModal.markIncomplete.description')}</p>
+                <div className="modal-actions">
+                  <Button
+                    data-secondary
+                    className={"secondary"}
+                    onPress={() => setPublishModalOpen(false)}
+                  >
+                    {t('publishModal.markIncomplete.closeButton')}
+                  </Button>
+                  <Button
+                    data-primary
+                    className={"primary"}
+                    onPress={() => {
+                      setIsMarkedComplete(true);
+                      setPublishModalOpen(false);
+                    }}
+                  >
+                    {t('publishModal.markIncomplete.markCompleteButton')}
+                  </Button>
+                </div>
+              </section>
+            )}
+          </div>
+        </Dialog>
+      </Modal>
+
+      <Modal isDismissable isOpen={isPublishingModalOpen}>
+        <Dialog>
+          <div>
+            <h2>{t('publishModal.publish.title')}</h2>
+
+            <p>
+              {t('publishModal.publish.description1')}
+            </p>
+            <p>
+              {t('publishModal.publish.description2')}
+            </p>
+
+            <h3 className="mt-6">{t('publishModal.publish.visibilityTitle')}</h3>
+            <p>{t('publishModal.publish.visibilityDescription')}</p>
+
+            <RadioGroup name="visibility" className="my-4">
+              <Radio value="public" className={`${styles.radioBtn} react-aria-Radio`}>
+                <div>
+                  <span className="">{t('publishModal.publish.visibilityOptions.public.label')}</span>
+                  <p className="text-sm">
+                    {t('publishModal.publish.visibilityOptions.public.description')}
+                  </p>
+                </div>
+              </Radio>
+
+              <Radio value="organization" className={`${styles.radioBtn} react-aria-Radio`}>
+                <div>
+                  <span className="">{t('publishModal.publish.visibilityOptions.organization.label')}</span>
+                  <p className=" text-sm">
+                    {t('publishModal.publish.visibilityOptions.organization.description')}
+                  </p>
+                </div>
+              </Radio>
+
+              <Radio value="private" className={`${styles.radioBtn} react-aria-Radio`}>
+                <div>
+                  <span className="">{t('publishModal.publish.visibilityOptions.private.label')}</span>
+                  <p className="text-sm">
+                    {t('publishModal.publish.visibilityOptions.private.description')}
+                  </p>
+                </div>
+              </Radio>
+            </RadioGroup>
+
+            <div className="modal-actions mt-6">
+              <Button
+                data-secondary
+                className="secondary"
+                onPress={() => setPublishingModalOpen(false)}
+              >
+                {t('publishModal.publish.closeButton')}
+              </Button>
+              <Button
+                data-primary
+                className="primary"
+                type="button"
+                onPress={handleOpenPublishModal}
+              >
+                {t('publishModal.publish.publishButton')}
+              </Button>
+            </div>
+          </div>
+        </Dialog>
+      </Modal>
+
+
     </>
   );
 }

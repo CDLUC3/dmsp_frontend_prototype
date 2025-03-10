@@ -1,13 +1,11 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
-import { useTemplateQuery, } from '@/generated/graphql';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams } from 'next/navigation';
+import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
+import {useTemplateQuery,} from '@/generated/graphql';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useParams} from 'next/navigation';
 import SectionTypeSelectPage from '../page';
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+
 expect.extend(toHaveNoViolations);
 
 // Mock the useTemplateQuery hook

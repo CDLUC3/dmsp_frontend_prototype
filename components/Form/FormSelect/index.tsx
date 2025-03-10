@@ -1,6 +1,20 @@
-import React, { forwardRef } from 'react';
-import type { ListBoxItemProps, SelectProps, ValidationResult } from 'react-aria-components';
-import { Button, FieldError, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, Text } from 'react-aria-components';
+import React, {forwardRef} from 'react';
+import type {
+  ListBoxItemProps,
+  SelectProps,
+  ValidationResult
+} from 'react-aria-components';
+import {
+  Button,
+  FieldError,
+  Label,
+  ListBox,
+  ListBoxItem,
+  Popover,
+  Select,
+  SelectValue,
+  Text
+} from 'react-aria-components';
 import styles from './formSelect.module.scss';
 
 interface SelectItem {

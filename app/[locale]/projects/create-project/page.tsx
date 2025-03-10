@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import {useRef, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useRouter} from 'next/navigation';
+import {useTranslations} from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -13,10 +13,7 @@ import {
 } from "react-aria-components";
 
 //GraphQL
-import {
-  useAddProjectMutation,
-  ProjectErrors
-} from '@/generated/graphql';
+import {ProjectErrors, useAddProjectMutation} from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -26,15 +23,15 @@ import {
   SidebarPanel
 } from "@/components/Container";
 import {
-  RadioGroupComponent,
   CheckboxGroupComponent,
-  FormInput
+  FormInput,
+  RadioGroupComponent
 } from '@/components/Form';
 import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
 import logECS from '@/utils/clientLogger';
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
 
 interface CreateProjectResponse {
   id?: number | null;
