@@ -55,6 +55,7 @@
 - Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
 
 ### Fixed
+- Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
 
 ### Added
