@@ -23,9 +23,9 @@ import {
 
 const PlanOverviewPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
-  let [isPublishModalOpen, setPublishModalOpen] = useState(false);
-  let [isPublishingModalOpen, setPublishingModalOpen] = useState(false);
-  let [isMarkedComplete, setIsMarkedComplete] = useState(true);
+  const [isPublishModalOpen, setPublishModalOpen] = useState(false);
+  const [isPublishingModalOpen, setPublishingModalOpen] = useState(false);
+  const [isMarkedComplete, setIsMarkedComplete] = useState(true);
 
   const handleOpenPublishModal = () => {
     setIsMarkedComplete(true);

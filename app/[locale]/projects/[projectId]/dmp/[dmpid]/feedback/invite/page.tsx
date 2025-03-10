@@ -21,8 +21,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
 import styles from './ProjectsProjectPlanFeedbackInvite.module.scss';
 
@@ -44,7 +43,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
     }
 
     // Form submission logic
-    console.log('Inviting user:', {email, accessType});
+
     setStatusMessage(`Invitation sent to ${email}`);
 
     // Store the email for use in the modal
@@ -96,7 +95,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
 
 
 
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <div
             aria-live="polite"
@@ -173,13 +172,13 @@ const ProjectsProjectPlanFeedbackInvite = () => {
 
               <div className={styles.formHelp}>
                 <p>
-                  When you click <strong>Grant access</strong> we'll send an
+                  When you click <strong>Grant access</strong> we&#39;ll send an
                   email to this person inviting
                   them to view your plan.
                 </p>
                 <p>
-                  If they aren't already a member of
-                  we'll invite them to join.
+                  If they aren&#39;t already a member of
+                  we&#39;ll invite them to join.
                 </p>
                 <p>
                   <Link href="/help/sharing" className="text-base underline">Learn
@@ -189,8 +188,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
             </Form>
           </div>
         </ContentContainer>
-        <SidebarPanel/>
-      </LayoutWithPanel>
+      </LayoutContainer>
 
       {/* Confirmation Modal */}
       <Modal isDismissable isOpen={isModalOpen} onOpenChange={setIsModalOpen}>

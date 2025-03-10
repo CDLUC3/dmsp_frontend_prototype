@@ -4,7 +4,7 @@
 .formatChoices {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .radioGroup {
@@ -12,19 +12,18 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: var(--space-2);
 
   @include device(xl) {
     flex-direction: row;
-    gap: 1.5rem;
+    gap: var(--space-5);
   }
-
 }
 
 .formatOption {
   display: flex;
   align-items: flex-start;
-  padding: 0.75rem;
+  padding: var(--space-3);
   border: 1px solid #e2e8f0;
   border-radius: 0.375rem;
   transition: all 0.2s;
@@ -39,12 +38,10 @@
   background-color: #f8fafc;
 }
 
-
-
 .formatLabel {
   display: flex;
   flex-direction: column;
-  margin-left: 0.5rem;
+  margin-left: var(--space-2);
   cursor: pointer;
   flex: 1;
 }
@@ -53,21 +50,20 @@
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .formatDescription {
   font-size: 0.875rem;
   color: #64748b;
-  margin-top: 0.25rem;
+  margin-top: var(--space-1);
 }
-
 
 .marginsContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
 }
 
 .marginGroup {
@@ -83,13 +79,12 @@
 
 /* Download section */
 .downloadSection {
-  margin-top: 2rem;
-  padding-top: 1rem;
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
   border-top: 1px solid #e5e7eb;
 }
 
 .downloadText {
   font-size: 0.9375rem;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
-
