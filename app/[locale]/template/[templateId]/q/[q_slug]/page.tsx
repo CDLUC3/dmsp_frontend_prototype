@@ -173,7 +173,6 @@ const QuestionEdit = () => {
         setRows([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: Number(questionId) }]);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedQuestion])
 
 
