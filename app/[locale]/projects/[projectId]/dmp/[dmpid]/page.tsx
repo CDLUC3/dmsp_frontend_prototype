@@ -1,19 +1,21 @@
 'use client';
 
 import React from 'react';
-import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
+import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import styles from './PlanOverviewPage.module.scss';
-import { useTranslations } from "next-intl";
+import {useTranslations} from "next-intl";
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-
+import {routePath} from '@/utils/routes';
 
 const PlanOverviewPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
+  const projectId = 'proj_2425';
+  const dmpId = 'xxx';
 
   const plan = {
     id: "plan_123",
@@ -37,49 +39,48 @@ const PlanOverviewPage: React.FC = () => {
       }
     ],
 
-    adjust_funder_url: "/en-US/projects/proj_2425/dmp/xxx/funder",
-    adjust_members_url: "/en-US/projects/proj_2425/dmp/xxx/members",
-    adjust_researchoutputs_url: "/en-US/projects/proj_2425/dmp/xxx/research-outputs",
-    download_url: "/en-US/projects/proj_2425/dmp/xxx/download",
-    feedback_url: "/en-US/projects/proj_2425/dmp/xxx/feedback",
-
+    adjust_funder_url: routePath('projects.dmp.funder', { projectId, dmpId }),
+    adjust_members_url: routePath('projects.dmp.members', { projectId, dmpId }),
+    adjust_researchoutputs_url: routePath('projects.dmp.research-outputs', { projectId, dmpId }),
+    download_url: routePath('projects.dmp.download', { projectId, dmpId }),
+    feedback_url: routePath('projects.dmp.feedback', { projectId, dmpId },{"saved":"true"}),
 
     research_output_count: 3,
     sections: [
       {
         section_title: "Roles and Responsibilities",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
         id: "sect_1",
+        sectionId: "2544",
         progress: 1
       },
       {
         section_title: "Types of Data",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2545",
         id: "sect_2",
+        sectionId: "2545",
         progress: 1
       },
       {
         section_title: "Data and Metadata formats",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2546",
         id: "sect_3",
+        sectionId: "2546",
         progress: 2
       },
       {
         section_title: "Policies for Access and Sharing",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2547",
         id: "sect_4",
+        sectionId: "2547",
         progress: 1
       },
       {
         section_title: "Policies for reuse and re-distribution",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2548",
         id: "sect_5",
+        sectionId: "2548",
         progress: 0
       },
       {
         section_title: "Plans for archiving and preservation",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2549",
         id: "sect_6",
+        sectionId: "2549",
         progress: 0
       }
     ],
@@ -97,9 +98,17 @@ const PlanOverviewPage: React.FC = () => {
         breadcrumbs={
           <Breadcrumbs aria-label={t('navigation.navigation')}>
             <Breadcrumb><Link
-              href="/">{t('navigation.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{t('navigation.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects/proj_2425/">Project name</Link></Breadcrumb>
+              href={routePath('app.home')}>
+              {t('navigation.home')}
+            </Link></Breadcrumb>
+            <Breadcrumb><Link
+              href={routePath('projects.index')}>
+              {t('navigation.projects')}
+            </Link></Breadcrumb>
+            <Breadcrumb><Link
+              href={routePath('projects.show', { projectId })}>
+              Project name
+            </Link></Breadcrumb>
             <Breadcrumb>{plan.title}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -112,10 +121,10 @@ const PlanOverviewPage: React.FC = () => {
           <div className={"container"}>
             <div className={styles.planOverview}>
               <section className={styles.planOverviewItem}
-                aria-labelledby="funder-title">
+                       aria-labelledby="funder-title">
                 <div className={styles.planOverviewItemContent}>
                   <h2 id="funder-title"
-                    className={styles.planOverviewItemTitle}>
+                      className={styles.planOverviewItemTitle}>
                     {t('funder.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
@@ -123,16 +132,16 @@ const PlanOverviewPage: React.FC = () => {
                   </p>
                 </div>
                 <Link href={plan.adjust_funder_url}
-                  aria-label={t('funder.edit')}>
+                      aria-label={t('funder.edit')}>
                   {t('funder.edit')}
                 </Link>
               </section>
 
               <section className={styles.planOverviewItem}
-                aria-labelledby="members-title">
+                       aria-labelledby="members-title">
                 <div className={styles.planOverviewItemContent}>
                   <h2 id="members-title"
-                    className={styles.planOverviewItemTitle}>
+                      className={styles.planOverviewItemTitle}>
                     {t('members.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
@@ -148,16 +157,16 @@ const PlanOverviewPage: React.FC = () => {
                   </p>
                 </div>
                 <Link href={plan.adjust_members_url}
-                  aria-label={t('members.edit')}>
+                      aria-label={t('members.edit')}>
                   {t('members.edit')}
                 </Link>
               </section>
 
               <section className={styles.planOverviewItem}
-                aria-labelledby="outputs-title">
+                       aria-labelledby="outputs-title">
                 <div className={styles.planOverviewItemContent}>
                   <h2 id="outputs-title"
-                    className={styles.planOverviewItemTitle}>
+                      className={styles.planOverviewItemTitle}>
                     {t('outputs.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
@@ -165,7 +174,7 @@ const PlanOverviewPage: React.FC = () => {
                   </p>
                 </div>
                 <Link href={plan.adjust_researchoutputs_url}
-                  aria-label={t('outputs.edit')}>
+                      aria-label={t('outputs.edit')}>
                   {t('outputs.edit')}
                 </Link>
               </section>
@@ -207,7 +216,11 @@ const PlanOverviewPage: React.FC = () => {
                     </p>
                   </div>
                   <Link
-                    href={section.link}
+                    href={routePath('projects.dmp.section', {
+                      projectId,
+                      dmpId,
+                      sectionId: section.sectionId
+                    })}
                     aria-label={t('sections.updateSection', {
                       title: section.section_title
                     })}
@@ -253,7 +266,9 @@ const PlanOverviewPage: React.FC = () => {
                 </p>
                 <p>
                   {t('status.download.draftInfo')} <Link
-                    href="#">{t('status.download.learnMore')}</Link>
+                  href={routePath('help.dmp.download')}>
+                  {t('status.download.learnMore')}
+                </Link>
                 </p>
                 <button
                   className="react-aria-Button react-aria-Button--primary">
