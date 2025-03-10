@@ -4,7 +4,7 @@ import {stringify} from 'querystring';
 // Define query param value types
 type QueryParamValue = string | number | boolean | string[] | number[] | undefined;
 
-// Define your routes with flat keys
+
 const routes = {
   // Home route
   'app.home': '/',
