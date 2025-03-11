@@ -1,4 +1,3 @@
-// __tests__/utils/routes.test.ts
 import {RouteName, routePath} from '@/utils/routes';
 
 describe('routePath utility', () => {
@@ -13,6 +12,7 @@ describe('routePath utility', () => {
     it('should handle routes with parameters', () => {
       expect(routePath('projects.show', { projectId: '123' }))
         .toBe('/en-US/projects/123');
+
 
       expect(routePath('projects.dmp.show', { projectId: '123', dmpId: '456' }))
         .toBe('/en-US/projects/123/dmp/456');
@@ -63,6 +63,8 @@ describe('routePath utility', () => {
         .toBe('/en-US/projects');
     });
   });
+
+
 
   // Query parameter handling
   describe('query parameter handling', () => {
