@@ -1,5 +1,6 @@
 // utils/routes.ts
 
+
 // Define query param value types
 type QueryParamValue =
   string
@@ -9,6 +10,8 @@ type QueryParamValue =
   | number[]
   | undefined;
 
+export const supportedLocales = ['en-US', 'pt-BR'] as const;
+export type SupportedLocale = typeof supportedLocales[number];
 
 const routes = {
   // Home route
@@ -60,78 +63,86 @@ const routes = {
   'help.dmp.download': '/help/dmp/download',
 } as const;
 
+type RoutesMap = typeof routes;
+type RouteNameWithPath = {
+  [K in keyof RoutesMap]: `${K} ➜ ${RoutesMap[K]}`
+}[keyof RoutesMap];
+
+
 /**
- * Generate a URL path for a named route with parameters and query string
+ * Generate a URL path for a named route with parameters and query string.
  *
- * @param name - Dot notation route name (e.g. 'projects.show')
- * @param params - Object containing route parameters (optional)
- * @param query - Object containing query parameters (optional)
- * @param locale - Optional locale override
- * @returns Generated URL path
+ * Route mappings (hover over `RouteNameWithPath` to view details):
+ * @see {RouteNameWithPath}
+ *
+ * @param name - Route identifier (`RouteName`) - e.g., 'projects.show'
+ * @param params - Route parameters (optional)
+ * @param query - Query parameters (optional)
+ * @param locale - Optional locale (default: 'en-US')
+ * @returns Fully constructed URL path
  */
 export function routePath(
-  name: keyof typeof routes,
+  name: keyof RoutesMap,
   params: Record<string, string | number> = {},
   query: Record<string, QueryParamValue> = {},
-  locale: string = 'en-US'  // Default locale
+  locale?: string
 ): string {
+
+  // Automatically detect and validate locale from URL if not provided or invalid
+  if (!locale || !supportedLocales.includes(locale as SupportedLocale)) {
+    if (typeof window !== 'undefined') {
+      const segments = window.location.pathname.split('/');
+      const potentialLocale = segments[1];
+      if (supportedLocales.includes(potentialLocale as SupportedLocale)) {
+        locale = potentialLocale;
+      } else {
+        locale = 'en-US'; // explicit fallback
+      }
+    }
+  }
+
+
   // Get the path pattern
   const path_pattern = routes[name];
+
   if (!path_pattern) {
     throw new Error(`Route not found: ${name}`);
   }
 
-  // Replace parameters in the path
-  let path = path_pattern;
-  const paramNames = path.match(/:[a-zA-Z_]+/g) || [];
-
-  for (const param of paramNames) {
-    const paramName = param.substring(1); // Remove the leading colon
+  let path = path_pattern.replace(/:([a-zA-Z_]+)/g, (_, paramName) => {
     if (!(paramName in params)) {
       throw new Error(`Missing required parameter: ${paramName} for route ${name}`);
     }
-    // Use a template string to create a new string instead of replace
-    path = path.split(param).join(String(params[paramName])) as typeof path;
-  }
+    return encodeURIComponent(String(params[paramName]));
+  });
 
+  // Handle query params
+  const queryParams: string[] = [];
 
-// Add query string if query params are provided
-  if (Object.keys(query).length > 0) {
-    const searchParams = new URLSearchParams();
-    const manualParams: string[] = [];
+  for (const [key, value] of Object.entries(query)) {
+    if (value === undefined) continue;
 
-    for (const [key, value] of Object.entries(query)) {
-      if (value === undefined) {
-        continue; // Keep `undefined` values out of the query string
-      }
-      if (Array.isArray(value)) {
-        // Manually format arrays with `[]` notation
-        value.forEach((v) => manualParams.push(`${encodeURIComponent(key)}[]=${encodeURIComponent(String(v))}`));
-      } else {
-        searchParams.append(key, String(value)); // Convert everything else to string
-      }
-    }
-
-    const queryString = searchParams.toString();
-    const manualQueryString = manualParams.join("&");
-
-    if (queryString || manualQueryString) {
-      path += `?${[queryString, manualQueryString].filter(Boolean).join("&")}`;
+    if (Array.isArray(value)) {
+      value.forEach((v) => {
+        queryParams.push(`${encodeURIComponent(key)}[]=${encodeURIComponent(String(v))}`);
+      });
+    } else {
+      queryParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
     }
   }
 
+  const queryString = queryParams.join('&');
+  if (queryString) {
+    path += `?${queryString}`;
+  }
 
-
-  // Special case for root path
   if (path === '/') {
     return `/${locale}`;
   }
 
-  // Add locale prefix
   return `/${locale}${path}`;
 }
 
 // Type to get all available route names for better IDE support
 export type RouteName = keyof typeof routes;
-
 export {routes};

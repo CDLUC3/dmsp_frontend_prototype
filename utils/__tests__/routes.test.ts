@@ -1,5 +1,5 @@
 // __tests__/utils/routes.test.ts
-import {RouteName, routePath, routes} from '@/utils/routes';
+import {RouteName, routePath} from '@/utils/routes';
 
 describe('routePath utility', () => {
   // Basic route generation
@@ -46,11 +46,21 @@ describe('routePath utility', () => {
     it('should throw error for missing parameters', () => {
       expect(() => routePath('projects.show')).toThrow('Missing required parameter: projectId');
       expect(() => routePath('projects.dmp.show', { projectId: '123' })).toThrow('Missing required parameter: dmpId');
+      expect(() => routePath('template.q.slug', { templateId: '123' })).toThrow('Missing required parameter: q_slug');
     });
 
     it('should properly convert parameters to strings', () => {
       expect(routePath('projects.show', { projectId: 123 }))
         .toBe('/en-US/projects/123');
+    });
+
+    it('should throw error for non-existent routes', () => {
+      expect(() => routePath('invalid.route' as RouteName)).toThrow('Route not found: invalid.route');
+    });
+
+    it('should fallback to default locale for unsupported locales', () => {
+      expect(routePath('projects.index', {}, {}, 'fr-FR'))
+        .toBe('/en-US/projects');
     });
   });
 
@@ -62,7 +72,7 @@ describe('routePath utility', () => {
     });
 
     it('should handle array query parameters', () => {
-      expect(routePath('projects.index', {}, { published:true, filters: ['active', 'draft'] }))
+      expect(routePath('projects.index', {}, { published: true, filters: ['active', 'draft'] }))
         .toBe('/en-US/projects?published=true&filters[]=active&filters[]=draft');
     });
 
@@ -70,12 +80,10 @@ describe('routePath utility', () => {
       expect(routePath('projects.index', {}, { active: true, draft: false }))
         .toBe('/en-US/projects?active=true&draft=false');
     });
-  });
 
-  // Error handling
-  describe('error handling', () => {
-    it('should throw error for non-existent routes', () => {
-      expect(() => routePath('non.existent.route' as RouteName)).toThrow('Route not found');
+    it('should correctly encode special characters in query parameters', () => {
+      expect(routePath('projects.index', {}, { search: 'test & filter', status: 'active/inactive' }))
+        .toBe('/en-US/projects?search=test%20%26%20filter&status=active%2Finactive');
     });
   });
 
@@ -89,13 +97,14 @@ describe('routePath utility', () => {
 
   // Template routes
   describe('template routes', () => {
-    // Add tests for template routes once you've added them
     it('should generate template routes correctly', () => {
-      // Assuming you've added template routes:
-      if ('template.show' in routes) {
-        expect(routePath('template.show' as RouteName, { templateId: '123' }))
-          .toBe('/en-US/template/123');
-      }
+      const path = routePath('template.show', { templateId: 123 }, {}, 'en-US');
+      expect(path).toBe('/en-US/template/123');
+    });
+
+    it('should encode special characters in route parameters correctly', () => {
+      expect(routePath('template.q.slug', { templateId: '123', q_slug: 'a/b&c d' }))
+        .toBe('/en-US/template/123/q/a%2Fb%26c%20d');
     });
   });
 });
