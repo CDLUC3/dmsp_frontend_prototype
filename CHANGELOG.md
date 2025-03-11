@@ -54,6 +54,7 @@
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
 
 ### Added
+- Added real data and functionality to the PlanOverviewPage, `/projects/[projectId]/dmp/[dmpId]` [#362]
 - Added `/projects/[projectId]/project-funding`, copying over the static code from `/projects/[projectId]/create-project/funding`. Updated
   page to use shared RadioGroupComponent, and updated RadioGroupComponent to use description [#336]
 - Added new `QuestionEdit` and `QuestionTypeCard` components [#220]

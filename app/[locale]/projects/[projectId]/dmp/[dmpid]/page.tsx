@@ -2,9 +2,18 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { ApolloError } from "@apollo/client";
 import { useFormatter, useTranslations } from 'next-intl';
-import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  Dialog,
+  Form,
+  Heading,
+  Link,
+  Modal,
+} from 'react-aria-components';
 import {
   usePlanQuery,
   PlanSectionProgress
@@ -17,7 +26,10 @@ import {
   SidebarPanel
 } from "@/components/Container";
 import PageHeader from "@/components/PageHeader";
+import ErrorMessages from '@/components/ErrorMessages';
+import { DmpIcon } from "@/components/Icons";
 
+import logECS from '@/utils/clientLogger';
 import { toSentenceCase } from '@/utils/general';
 import styles from './PlanOverviewPage.module.scss';
 
@@ -51,6 +63,7 @@ const PlanOverviewPage: React.FC = () => {
   // next-intl date formatter
   const formatter = useFormatter();
   const errorRef = useRef<HTMLDivElement | null>(null);
+  const [isMarkCompleteModalOpen, setMarkCompleteModalOpen] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   const [planData, setPlanData] = useState<PlanOverviewInterface>({
@@ -74,85 +87,12 @@ const PlanOverviewPage: React.FC = () => {
   const Global = useTranslations('Global');
 
   // Get Plan using planId
-  const { data, loading, error } = usePlanQuery(
+  const { data, loading, error: queryError } = usePlanQuery(
     {
       variables: { planId: Number(planId) },
       notifyOnNetworkStatusChange: true
     }
   );
-
-  // const plan = {
-  //   id: "plan_123",
-  //   template_name: "NSF Polar Programs",
-  //   title: "NSF Polar Programs",
-  //   funder_id: "nsf_1",
-  //   funder_name: "National Science Foundation",
-  //   template_id: "temp_456",
-  //   published_status: "Draft",
-  //   visibility: "Not Published",
-  //   members: [
-  //     {
-  //       fullname: "Frederick Ice",
-  //       role: "PI",
-  //       email: "fred.ice@example.com"
-  //     },
-  //     {
-  //       fullname: "Jennifer Frost",
-  //       role: "Contributor",
-  //       email: "jfrost@example.com"
-  //     }
-  //   ],
-
-  //   adjust_funder_url: "/en-US/projects/proj_2425/dmp/xxx/funder",
-  //   adjust_members_url: "/en-US/projects/proj_2425/dmp/xxx/members",
-  //   adjust_researchoutputs_url: "/en-US/projects/proj_2425/dmp/xxx/research-outputs",
-  //   download_url: "/en-US/projects/proj_2425/dmp/xxx/download",
-  //   feedback_url: "/en-US/projects/proj_2425/dmp/xxx/feedback",
-
-
-  //   research_output_count: 3,
-  //   sections: [
-  //     {
-  //       section_title: "Roles and Responsibilities",
-  //       link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
-  //       id: "sect_1",
-  //       progress: 1
-  //     },
-  //     {
-  //       section_title: "Types of Data",
-  //       link: "/en-US/projects/proj_2425/dmp/xxx/s/2545",
-  //       id: "sect_2",
-  //       progress: 1
-  //     },
-  //     {
-  //       section_title: "Data and Metadata formats",
-  //       link: "/en-US/projects/proj_2425/dmp/xxx/s/2546",
-  //       id: "sect_3",
-  //       progress: 2
-  //     },
-  //     {
-  //       section_title: "Policies for Access and Sharing",
-  //       link: "/en-US/projects/proj_2425/dmp/xxx/s/2547",
-  //       id: "sect_4",
-  //       progress: 1
-  //     },
-  //     {
-  //       section_title: "Policies for reuse and re-distribution",
-  //       link: "/en-US/projects/proj_2425/dmp/xxx/s/2548",
-  //       id: "sect_5",
-  //       progress: 0
-  //     },
-  //     {
-  //       section_title: "Plans for archiving and preservation",
-  //       link: "/en-US/projects/proj_2425/dmp/xxx/s/2549",
-  //       id: "sect_6",
-  //       progress: 0
-  //     }
-  //   ],
-  //   doi: "10.12345/example.123",
-  //   last_updated: "2024-04-01",
-  //   created_date: "2023-07-18"
-  // };
 
   const adjustFunderUrl = `/projects/${projectId}/dmp/${planId}/funder`;
   const adjustMembersUrl = `/projects/${projectId}/dmp/${planId}/members`;
@@ -160,7 +100,35 @@ const PlanOverviewPage: React.FC = () => {
   const downloadUrl = `/projects/${projectId}/dmp/${planId}/download`;
   const feedbackUrl = `/projects/${projectId}/dmp/${planId}/feedback`;
 
+  //TODO: Get research output count from backend
   const researchOutputCount = 3;
+
+  // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
+  const saveTemplate = async () => {
+    try {
+
+    } catch (err) {
+      if (err instanceof ApolloError) {
+        //close modal
+        setMarkCompleteModalOpen(false);
+      } else {
+        setErrors(prevErrors => [...prevErrors, 'there was an error']);
+        logECS('error', 'saveTemplate', {
+          error: err,
+          url: { path: '/template/[templateId]' }
+        });
+      };
+    }
+  }
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    // Do some stuff here
+
+    await saveTemplate();
+  };
+
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
     const formattedDate = formatter.dateTime(new Date(Number(date)), {
@@ -205,6 +173,13 @@ const PlanOverviewPage: React.FC = () => {
   }, [data]);
 
 
+  useEffect(() => {
+    if (queryError) {
+      setErrors(prev => [...prev, queryError.message]);
+    }
+  }, [queryError])
+
+
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
@@ -227,6 +202,7 @@ const PlanOverviewPage: React.FC = () => {
         className="page-project-list"
       />
 
+      <ErrorMessages errors={errors} ref={errorRef} />
       <LayoutWithPanel>
         <ContentContainer>
           <div className={"container"}>
@@ -260,9 +236,9 @@ const PlanOverviewPage: React.FC = () => {
                       <span key={index}>
                         {t('members.info', {
                           name: member.fullname,
-                          role: member.role
+                          role: member.role.map((role) => role).join(', ')
                         })}
-                        {index < plan.members.length - 1 ? '; ' : ''}
+                        {index < planData.members.length - 1 ? '; ' : ''}
                       </span>
                     ))}
                   </p>
@@ -296,11 +272,11 @@ const PlanOverviewPage: React.FC = () => {
               <section
                 key={section.sectionId}
                 className={styles.planSectionsList}
-                aria-labelledby={`section - title - ${section.sectionId} `}
+                aria-labelledby={`section-title-${section.sectionId}`}
               >
                 <div className={styles.planSectionsHeader}>
                   <div className={styles.planSectionsTitle}>
-                    <h3 id={`section - title - ${section.sectionId} `}>
+                    <h3 id={`section-title-${section.sectionId}`}>
                       {section.sectionTitle}
                     </h3>
                     <p
@@ -375,10 +351,12 @@ const PlanOverviewPage: React.FC = () => {
                   {t('status.download.draftInfo')} <Link
                     href="#">{t('status.download.learnMore')}</Link>
                 </p>
-                <button
-                  className="react-aria-Button react-aria-Button--primary">
+                <Button
+                  className="react-aria-Button react-aria-Button--primary"
+                  onPress={() => setMarkCompleteModalOpen(true)}
+                >
                   {t('status.download.markComplete')}
-                </button>
+                </Button>
               </div>
               <div className="mb-5">
                 <h3>{t('status.feedback.title')}</h3>
@@ -396,6 +374,72 @@ const PlanOverviewPage: React.FC = () => {
           </div>
         </SidebarPanel>
       </LayoutWithPanel>
+
+      <Modal isDismissable
+        isOpen={isMarkCompleteModalOpen}
+        data-testid="modal"
+      >
+        <Dialog>
+          <div className={styles.markAsCompleteModal}>
+            <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
+
+              <ErrorMessages errors={errors} ref={errorRef} />
+              <Heading slot="title">Marked as complete</Heading>
+
+              <p>We have updated your plan to completed - if you have made a mistake you can mark it as incomplete</p>
+
+              <Button className="tertiary" onPress={() => console.log("marked as incomplete")}>Mark as incomplete</Button>
+
+              <Link href="/download">Download plan</Link>
+
+              <Heading level={2}>Next step: Publish this plan</Heading>
+
+              <p>
+                Publishing a Data Management Plan (DMP) assigns it a Digital Object identifier (DOI). By publishing, you&apos;ll
+                be able to l ink this plan to your ORCIiD, and to protect outputs such articles which will make it easier to show templateHistoryyou met your funder&apos;s
+                requirements by the end of the project.
+              </p>
+
+              <p>
+                This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.
+              </p>
+
+              <p>
+                Before you publish your plan, we strongly recommend that you:
+              </p>
+
+              <ul className={styles.checkList}>
+                <li>
+                  <DmpIcon icon="check_circle" /> have answered at least 50% of the questions
+                </li>
+                <li>
+                  <DmpIcon icon="check_circle" /> have identified my funder(s)
+                </li>
+                <li>
+                  <span>
+                    <DmpIcon icon="error_circle" /> have designated the ORCiD for at least one of the Project Members(<Link href="#">fix this</Link>)
+                  </span>
+                </li>
+                <li>
+                  <DmpIcon icon="error_circle" /> another suggestion(<Link href="#">fix this</Link>)
+                </li>
+              </ul>
+              <span><strong>2 item(s) can be fixed</strong></span>
+
+
+              <div className="modal-actions">
+                <div className="">
+                  <Button data-secondary onPress={() => setMarkCompleteModalOpen(false)}>Close</Button>
+                </div>
+                <div className="">
+                  <Button type="submit">Pubish the plan</Button>
+                </div>
+              </div>
+
+            </Form>
+          </div>
+        </Dialog>
+      </Modal>
     </>
   );
 }

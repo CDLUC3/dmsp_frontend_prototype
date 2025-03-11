@@ -141,3 +141,19 @@
     }
   }
 }
+
+.markAsCompleteModal {
+  .checkList {
+    margin: 0;
+    padding: 0;
+    li {
+      list-style: none;
+      display:flex;
+      flex-direction: row;
+
+      svg {
+        margin-right: var(--space-2);
+      }
+    }
+  }
+}
