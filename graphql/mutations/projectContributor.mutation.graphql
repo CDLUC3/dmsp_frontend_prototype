@@ -1,0 +1,18 @@
+
+mutation UpdateProjectContributor($input: updateProjectContributorInput!) {
+  updateProjectContributor(input: $input) {
+    givenName
+    surName
+    orcid
+    id
+    errors {
+      email
+      surName
+      general
+      givenName
+      orcid
+      affiliationId
+      contributorRoleIds
+    }
+  }
+}

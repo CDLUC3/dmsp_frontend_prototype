@@ -235,3 +235,11 @@ export interface CheckboxGroupProps {
   // eslint-disable-next-line no-unused-vars
   onChange?: ((value: string[]) => void)
 }
+
+export interface ProjectContributorFormInterface {
+  givenName: string;
+  surName: string;
+  affiliationId: string;
+  email: string;
+  orcid: string;
+}

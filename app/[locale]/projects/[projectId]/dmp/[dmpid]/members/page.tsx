@@ -14,7 +14,7 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-import {OrcidIcon} from '@/components/Icons/orcid/';
+import { OrcidIcon } from '@/components/Icons/orcid/';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
 
 interface Member {
@@ -59,7 +59,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
   // eslint-disable-next-line no-unused-vars
   const handleEdit = (memberId: string): void => {
     // Handle editing member
-    window.location.href = '/projects/proj_2425/members/edit?memberid=' + memberId;
+    window.location.href = `/projects/proj_2425/members/${memberId}/edit`;
   };
 
   return (

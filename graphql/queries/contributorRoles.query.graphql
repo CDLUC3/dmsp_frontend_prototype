@@ -3,5 +3,7 @@ query ContributorRoles{
         id
         label
         uri
+        description
+        displayOrder
     }
 }
