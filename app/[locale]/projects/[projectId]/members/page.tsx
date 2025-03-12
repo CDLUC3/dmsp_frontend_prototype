@@ -1,27 +1,20 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
-import {useParams, useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
-import {Breadcrumb, Breadcrumbs, Button, Link} from "react-aria-components";
+import { useEffect, useRef, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
 
-import {useProjectContributorsQuery} from '@/generated/graphql';
+import { useProjectContributorsQuery } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer,} from "@/components/Container";
-import {OrcidIcon} from '@/components/Icons/orcid/';
+import { ContentContainer, LayoutContainer, } from "@/components/Container";
+import { OrcidIcon } from '@/components/Icons/orcid/';
 import ErrorMessages from '@/components/ErrorMessages';
 
+import { ProjectContributorsInterface } from '@/app/types';
 import styles from './ProjectsProjectMembers.module.scss';
-
-interface ProjectContributorsInterface {
-  id: number | null;
-  fullName: string;
-  affiliation: string;
-  orcid: string;
-  role: string;
-}
 
 const ProjectsProjectMembers = () => {
   const router = useRouter();
