@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useReducer, useState } from 'react';
 import { ApolloError } from '@apollo/client';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
@@ -21,6 +21,7 @@ import {
 // Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutWithPanel } from "@/components/Container";
+import { FormInput, CheckboxGroupComponent } from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
 
 // GraphQL
@@ -66,6 +67,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   const params = useParams();
   const { projectId, memberId } = params; // From route /projects/:projectId/members/:memberId/edit
   const toastState = useToast(); // Access the toast state from context
+  const router = useRouter();
   const { scrollToTop } = useScrollToTop();
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -87,6 +89,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     projectContributorData,
     selectedRoles,
     checkboxRoles,
+    setCheckboxRoles,
     loading,
     setProjectContributorData,
     setSelectedRoles,
@@ -119,11 +122,16 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
 
   // Handle changes to role checkbox selection
-  const handleCheckboxChange = (role: ContributorRole) => {
-    setSelectedRoles(prevTags => prevTags.some(selectedRole => selectedRole.id === role.id)
-      ? prevTags.filter(selectedRole => selectedRole.id !== role.id)
-      : [...prevTags, role]
-    );
+  const handleCheckboxChange = (values: string[]) => {
+    setCheckboxRoles(values);
+
+    // Map the selected IDs back to full role objects
+    const updatedRoles = values.map(id => {
+      // Find the role object that matches this ID
+      return state.roles.find(role => role?.id?.toString() === id);
+    }).filter(Boolean) as ContributorRole[];
+
+    setSelectedRoles(updatedRoles);
   };
 
   const clearAllFieldErrors = () => {
@@ -135,13 +143,6 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       email: '',
       orcid: '',
     });
-  }
-
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Member details updated');
-    window.location.href = '/projects/proj_2425/members';
   }
 
   const handleRemoveMember = () => {
@@ -215,6 +216,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     } else {
       // Show success message
       showSuccessToast();
+      router.push(`/projects/${projectId}/members`);
     }
 
     // Scroll to top of page
@@ -226,12 +228,10 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     if (contributorRoles?.contributorRoles) {
       const filteredRoles = contributorRoles.contributorRoles.filter((role): role is ContributorRole => role !== null);
       dispatch({ type: 'SET_ROLES', payload: filteredRoles });
-      console.log("ROLES", filteredRoles);
     }
   }, [contributorRoles]);
 
 
-  console.log("CHECKBOX ROLES", checkboxRoles);
   return (
     <>
       <PageHeader
@@ -255,79 +255,76 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       <LayoutWithPanel>
         <ContentContainer>
           <div ref={topRef}>
-            <Form onSubmit={handleSubmit} className={styles.editForm}>
+            <Form onSubmit={handleFormSubmit} className={styles.editForm}>
               <div className={styles.formSection}>
-                <TextField name="first_name" type="text" isRequired>
-                  <Label>First Name</Label>
-                  <Input
-                    onChange={(e) => setProjectContributorData({ ...projectContributorData, givenName: e.target.value })}
-                    value={projectContributorData.givenName}
-                  />
-                  <FieldError />
-                </TextField>
+                <FormInput
+                  name="firstName"
+                  type="text"
+                  isRequired={false}
+                  label="First Name"
+                  value={projectContributorData.givenName}
+                  onChange={(e) => setProjectContributorData({ ...projectContributorData, givenName: e.target.value })}
+                  isInvalid={!!fieldErrors.givenName}
+                  errorMessage={fieldErrors.givenName ?? 'Error with first name field'}
+                />
 
-                <TextField name="last_name" type="text" isRequired>
-                  <Label>Last Name</Label>
-                  <Input
-                    onChange={(e) => setProjectContributorData({ ...projectContributorData, surName: e.target.value })}
-                    value={projectContributorData.surName}
-                  />
-                  <FieldError />
-                </TextField>
+                <FormInput
+                  name="lastName"
+                  type="text"
+                  isRequired={false}
+                  label="Last Name"
+                  value={projectContributorData.surName}
+                  onChange={(e) => setProjectContributorData({ ...projectContributorData, surName: e.target.value })}
+                  isInvalid={!!fieldErrors.surName}
+                  errorMessage={fieldErrors.surName ?? 'Error with last name field'}
+                />
 
-                <TextField name="affiliation" type="text" isRequired>
-                  <Label>Affiliation</Label>
-                  <Input
-                    onChange={(e) => setProjectContributorData({ ...projectContributorData, affiliationId: e.target.value })}
-                    value={projectContributorData.affiliationId}
-                  />
-                  <FieldError />
-                </TextField>
+                <FormInput
+                  name="affiliation"
+                  type="text"
+                  isRequired={false}
+                  label="Affiliation"
+                  value={projectContributorData.affiliationId}
+                  onChange={(e) => setProjectContributorData({ ...projectContributorData, affiliationId: e.target.value })}
+                  isInvalid={!!fieldErrors.affiliationId}
+                  errorMessage={fieldErrors.affiliationId ?? 'Error with affiliation field'}
+                />
 
-                <TextField name="email" type="email" isRequired>
-                  <Label>Email Address</Label>
-                  <Input
-                    onChange={(e) => setProjectContributorData({ ...projectContributorData, email: e.target.value })}
-                    value={projectContributorData.email}
-                  />
-                  <FieldError />
-                </TextField>
+                <FormInput
+                  name="email"
+                  type="email"
+                  isRequired={false}
+                  label="Email Address"
+                  value={projectContributorData.email}
+                  onChange={(e) => setProjectContributorData({ ...projectContributorData, email: e.target.value })}
+                  isInvalid={!!fieldErrors.email}
+                  errorMessage={fieldErrors.email ?? 'Error with email field'}
+                />
 
-                <TextField name="orcid" type="text">
-                  <Label>ORCID ID</Label>
-                  <Input
-                    onChange={(e) => setProjectContributorData({ ...projectContributorData, orcid: e.target.value })}
-                    value={projectContributorData.orcid}
-                    placeholder="0000-0000-0000-0000" />
-                  <FieldError />
-                </TextField>
+                <FormInput
+                  name="orcid"
+                  type="text"
+                  isRequired={false}
+                  label="ORCID ID"
+                  value={projectContributorData.orcid}
+                  onChange={(e) => setProjectContributorData({ ...projectContributorData, orcid: e.target.value })}
+                  isInvalid={!!fieldErrors.orcid}
+                  errorMessage={fieldErrors.orcid ?? 'Error with orcid field'}
+                />
 
-                <CheckboxGroup
-                  name="project_roles"
-                  className={styles.rolesGroup}
-                  aria-label="Project roles"
+                <CheckboxGroupComponent
+                  name="projectRoles"
                   value={checkboxRoles}
-                >
-                  <Label>Project Role(s)</Label>
-                  {state.roles && state.roles.map((role) => (
-                    <Checkbox
-                      key={role.id}
-                      value={role.label}
-                      onChange={() => handleCheckboxChange(role)}
-                    >
-                      <div className="checkbox">
-                        <svg viewBox="0 0 18 18" aria-hidden="true">
-                          <polyline points="1 9 7 14 15 4" />
-                        </svg>
-                      </div>
-                      {role.label}
-                    </Checkbox>
+                  onChange={(newValues) => handleCheckboxChange(newValues)}
+                  checkboxGroupLabel="Project roles"
+                  checkboxGroupDescription="Provide the role(s) of the project member"
+                  checkboxData={state.roles && state.roles.map(role => ({
+                    label: role.label,
+                    value: role?.id?.toString() ?? ''
+                  }))}
+                />
 
-                  ))}
-                  <FieldError />
-                </CheckboxGroup>
-
-                <Button type="submit" >Save Changes</Button>
+                <Button type="submit">Save Changes</Button>
               </div>
             </Form>
           </div>

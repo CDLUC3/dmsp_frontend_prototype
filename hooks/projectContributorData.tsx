@@ -45,7 +45,7 @@ export const useProjectContributorData = (projectContributorId: number) => {
         });
         const selectedRoleLabels = cleanedData
           .map(role => {
-            return role.label;
+            return role?.id?.toString() ?? '';
           })
         setCheckboxRoles(selectedRoleLabels);
       }
@@ -57,6 +57,7 @@ export const useProjectContributorData = (projectContributorId: number) => {
     projectContributorData,
     selectedRoles,
     checkboxRoles,
+    setCheckboxRoles,
     loading,
     setProjectContributorData,
     setSelectedRoles,
