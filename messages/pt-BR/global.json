@@ -128,7 +128,7 @@
       "selectQuestionType": "Selecionar o tipo de questão",
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto",
-      "projectFunder": "Project funder"
+      "projectFunder": "Fundador do Projeto"
     },
     "form": {
       "yesLabel": "Sim",
@@ -141,7 +141,7 @@
       "select": "Select",
       "next": "Seguinte",
       "save": "Salvar",
-      "saveChanges": "Save changes",
+      "saveChanges": "Salvar as alterações",
       "remove": "Remover",
       "confirm": "Confirmação",
       "cancel": "Cancelar",
@@ -167,7 +167,8 @@
       "noItemsFound": "Nenhum item encontrado",
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
-      "fixBelow": "Por favor, corrija os erros abaixo"
+      "fixBelow": "Por favor, corrija os erros abaixo",
+      "error": "Ocorreu um erro. Tente novamente."
     },
     "tabs": {
       "editQuestion": "Editar pergunta",

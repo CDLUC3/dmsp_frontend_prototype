@@ -8,14 +8,8 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
-  CheckboxGroup,
-  FieldError,
   Form,
-  Input,
-  Label,
   Link,
-  TextField
 } from "react-aria-components";
 
 // Components
@@ -29,7 +23,8 @@ import {
   ContributorRole,
   ProjectContributorErrors,
   useContributorRolesQuery,
-  useUpdateProjectContributorMutation
+  useUpdateProjectContributorMutation,
+  useRemoveProjectContributorMutation
 } from '@/generated/graphql';
 
 
@@ -80,10 +75,10 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
   // localization keys
   const Global = useTranslations('Global');
+  const t = useTranslations('ProjectsProjectMembersEdit');
 
   // Get Contributor Roles
   const { data: contributorRoles, loading: contributorRolesLoading, error: contributorRolesError } = useContributorRolesQuery();
-
 
   const {
     projectContributorData,
@@ -93,7 +88,12 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     loading,
     setProjectContributorData,
     setSelectedRoles,
+    queryError
   } = useProjectContributorData(Number(memberId));
+
+
+  const isLoading = loading || contributorRolesLoading;
+  const isError = queryError || contributorRolesError;
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<ProjectContributorFormInterface>({
@@ -104,19 +104,19 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     orcid: '',
   });
 
-  // Initialize project contributor mutation
+  // Initialize project contributor mutations
   const [updateProjectContributorMutation] = useUpdateProjectContributorMutation();
 
-  const projectRoles = [
-    "Primary Investigator (PI)",
-    "Project Administrator",
-    "Data Curator",
-    "Other"
-  ];
+  const [removeProjectContributorMutation] = useRemoveProjectContributorMutation();
 
   // Show Success Message
   const showSuccessToast = () => {
-    const successMessage = "Project contributor updated successfully";
+    const successMessage = t('form.success.memberUpdated');
+    toastState.add(successMessage, { type: 'success' });
+  }
+
+  const showRemoveSuccessToast = () => {
+    const successMessage = t('form.success.removedMember');
     toastState.add(successMessage, { type: 'success' });
   }
 
@@ -145,9 +145,59 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     });
   }
 
-  const handleRemoveMember = () => {
-    console.log('Member removed');
-    // Add confirmation dialog and removal logic
+  const removeProjectContributor = async (): Promise<[ProjectContributorErrors, boolean]> => {
+    try {
+      const response = await removeProjectContributorMutation({
+        variables: {
+          projectContributorId: Number(memberId)
+        }
+      });
+
+      const responseErrors = response.data?.removeProjectContributor?.errors
+      if (responseErrors) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectContributorErrors').length > 0) {
+          return [responseErrors, false];
+        }
+      }
+
+      return [{}, true];
+    } catch (error) {
+      logECS('error', 'removeProjectContributor', {
+        error,
+        url: { path: `/projects/${projectId}/members/${memberId}/edit` }
+      });
+      if (error instanceof ApolloError) {
+        return [{}, false];
+      } else {
+        setErrorMessages(prevErrors => [...prevErrors, t('form.errors.removingMember')]);
+        return [{}, false];
+      }
+    }
+  }
+
+  const handleRemoveMember = async () => {
+    const [errors, success] = await removeProjectContributor();
+
+    if (!success) {
+      if (errors) {
+        setFieldErrors({
+          givenName: errors.givenName || '',
+          surName: errors.surName || '',
+          affiliationId: errors.affiliationId || '',
+          email: errors.email || '',
+          orcid: errors.orcid || '',
+        });
+      }
+      setErrorMessages([errors.general || t('form.errors.updatingMember')]);
+
+    } else {
+      // Show success message
+      showRemoveSuccessToast();
+      router.push(`/projects/${projectId}/members`);
+    }
+
+    // Scroll to top of page
+    scrollToTop(topRef);
   }
 
   // Make GraphQL mutation request to update the project contributor
@@ -183,7 +233,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       if (error instanceof ApolloError) {
         return [{}, false];
       } else {
-        setErrorMessages(prevErrors => [...prevErrors, 'An error occurred while updating the project contributor.']);
+        setErrorMessages(prevErrors => [...prevErrors, t('form.errors.updatingMember')]);
         return [{}, false];
       }
     }
@@ -198,7 +248,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     clearAllFieldErrors();
     setErrorMessages([]);
 
-    // Create new section
+    // Update project contributor details
     const [errors, success] = await updateProjectContributor();
 
     if (!success) {
@@ -211,7 +261,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
           orcid: errors.orcid || '',
         });
       }
-      setErrorMessages([errors.general || "Error updating project contributor"]);
+      setErrorMessages([errors.general || t('form.errors.updatingMember')]);
 
     } else {
       // Show success message
@@ -232,19 +282,28 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   }, [contributorRoles]);
 
 
+  if (isLoading) {
+    return <div>{Global('messaging.loading')}...</div>;
+  }
+
+  if (isError) {
+    return <div>{Global('messaging.error')}</div>;
+  }
+
+
   return (
     <>
       <PageHeader
-        title="Edit Member Details"
-        description="Update collaborator information"
+        title={t('title')}
+        description={t('description')}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}/members`}>Project Members</Link></Breadcrumb>
-            <Breadcrumb>Edit Member Details</Breadcrumb>
+            <Breadcrumb><Link href={`/projects/${projectId}/members`}>{t('breadcrumbs.projectMembers')}</Link></Breadcrumb>
+            <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-member-edit"
@@ -265,7 +324,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   value={projectContributorData.givenName}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, givenName: e.target.value })}
                   isInvalid={!!fieldErrors.givenName}
-                  errorMessage={fieldErrors.givenName ?? 'Error with first name field'}
+                  errorMessage={fieldErrors.givenName ?? t('form.errors.firstName')}
                 />
 
                 <FormInput
@@ -276,7 +335,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   value={projectContributorData.surName}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, surName: e.target.value })}
                   isInvalid={!!fieldErrors.surName}
-                  errorMessage={fieldErrors.surName ?? 'Error with last name field'}
+                  errorMessage={fieldErrors.surName ?? t('form.errors.lastName')}
                 />
 
                 <FormInput
@@ -287,7 +346,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   value={projectContributorData.affiliationId}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, affiliationId: e.target.value })}
                   isInvalid={!!fieldErrors.affiliationId}
-                  errorMessage={fieldErrors.affiliationId ?? 'Error with affiliation field'}
+                  errorMessage={fieldErrors.affiliationId ?? t('form.errors.affiliation')}
                 />
 
                 <FormInput
@@ -298,7 +357,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   value={projectContributorData.email}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, email: e.target.value })}
                   isInvalid={!!fieldErrors.email}
-                  errorMessage={fieldErrors.email ?? 'Error with email field'}
+                  errorMessage={fieldErrors.email ?? t('form.errors.email')}
                 />
 
                 <FormInput
@@ -309,38 +368,37 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   value={projectContributorData.orcid}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, orcid: e.target.value })}
                   isInvalid={!!fieldErrors.orcid}
-                  errorMessage={fieldErrors.orcid ?? 'Error with orcid field'}
+                  errorMessage={fieldErrors.orcid ?? t('form.errors.orcid')}
                 />
 
                 <CheckboxGroupComponent
                   name="projectRoles"
                   value={checkboxRoles}
                   onChange={(newValues) => handleCheckboxChange(newValues)}
-                  checkboxGroupLabel="Project roles"
-                  checkboxGroupDescription="Provide the role(s) of the project member"
+                  checkboxGroupLabel={t('form.labels.checkboxGroupLabel')}
+                  checkboxGroupDescription={t('form.labels.checkboxGroupDescription')}
                   checkboxData={state.roles && state.roles.map(role => ({
                     label: role.label,
                     value: role?.id?.toString() ?? ''
                   }))}
                 />
 
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit">{Global('buttons.saveChanges')}</Button>
               </div>
             </Form>
           </div>
 
           <section className={styles.dangerZone} aria-labelledby="remove-section">
-            <h2 id="remove-section">Remove Member</h2>
+            <h2 id="remove-section">{t('headings.h2RemoveMember')}</h2>
             <p>
-              Removing this member means they will no longer be able to access this plan.
-              This is not reversible.
+              {t('paragraphs.removeMember')}
             </p>
             <Button
               onPress={handleRemoveMember}
               className="secondary"
               aria-label="Remove member from project"
             >
-              Remove Member
+              {t('buttons.removeMember')}
             </Button>
           </section>
         </ContentContainer>

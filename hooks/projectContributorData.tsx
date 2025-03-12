@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { useProjectContributorQuery, ProjectContributor, Affiliation, ContributorRole } from '@/generated/graphql';
+import { useProjectContributorQuery, ContributorRole } from '@/generated/graphql';
 import { ProjectContributorFormInterface } from '@/app/types';
 
 export const useProjectContributorData = (projectContributorId: number) => {
@@ -18,7 +18,7 @@ export const useProjectContributorData = (projectContributorId: number) => {
   const [checkboxRoles, setCheckboxRoles] = useState<string[]>([]);
 
   // Query for the specified project contributor
-  const { data, loading } = useProjectContributorQuery({
+  const { data, loading, error: queryError } = useProjectContributorQuery({
     variables: {
       projectContributorId: Number(projectContributorId)
     }
@@ -61,6 +61,7 @@ export const useProjectContributorData = (projectContributorId: number) => {
     loading,
     setProjectContributorData,
     setSelectedRoles,
-    data
+    data,
+    queryError
   };
 };

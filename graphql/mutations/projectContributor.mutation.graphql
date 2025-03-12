@@ -16,3 +16,17 @@ mutation UpdateProjectContributor($input: updateProjectContributorInput!) {
     }
   }
 }
+
+mutation RemoveProjectContributor($projectContributorId: Int!) {
+  removeProjectContributor(projectContributorId: $projectContributorId) {
+    errors {
+      general
+      email
+      affiliationId
+      givenName
+      orcid
+      surName
+      contributorRoleIds
+    }
+  }
+}
