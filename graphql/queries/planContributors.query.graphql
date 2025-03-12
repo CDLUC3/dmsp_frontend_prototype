@@ -1,11 +1,19 @@
 query PlanContributors($planId: Int!) {
   planContributors(planId: $planId) {
+    id
     isPrimaryContact
     errors {
       general
     }
     projectContributor {
       id
+    }
+    contributorRoles {
+      uri
+      id
+      label
+      description
+      displayOrder
     }
   }
 }

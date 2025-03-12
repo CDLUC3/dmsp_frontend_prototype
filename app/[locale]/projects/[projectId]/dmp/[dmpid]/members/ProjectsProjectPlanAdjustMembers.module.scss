@@ -25,6 +25,11 @@
   grid-column: 2;
   grid-row: 1;
 
+  h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+  }
+
   h3 {
     margin: 0 0 0.5rem 0;
     font-size: 1.1rem;
@@ -73,6 +78,11 @@
   grid-row: 3;
 }
 
+.otherOptions {
+  margin-top: var(--space-8);
+  width: 100%;
+}
+
 @include device('xl') {
   .membersList {
     /* Four columns: auto-width for checkbox, remaining space divided among the other three */
@@ -99,5 +109,9 @@
   .memberActions {
     grid-column: 4;
     grid-row: 1;
+  }
+  
+  .otherOptions {
+    width: 70%;
   }
 }

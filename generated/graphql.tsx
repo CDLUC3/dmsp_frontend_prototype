@@ -3443,7 +3443,7 @@ export type PlanContributorsQueryVariables = Exact<{
 }>;
 
 
-export type PlanContributorsQuery = { __typename?: 'Query', planContributors?: Array<{ __typename?: 'PlanContributor', isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null, projectContributor?: { __typename?: 'ProjectContributor', id?: number | null } | null } | null> | null };
+export type PlanContributorsQuery = { __typename?: 'Query', planContributors?: Array<{ __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null, projectContributor?: { __typename?: 'ProjectContributor', id?: number | null } | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', uri: string, id?: number | null, label: string, description?: string | null, displayOrder: number }> | null } | null> | null };
 
 export type ProjectContributorsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4474,12 +4474,20 @@ export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQ
 export const PlanContributorsDocument = gql`
     query PlanContributors($planId: Int!) {
   planContributors(planId: $planId) {
+    id
     isPrimaryContact
     errors {
       general
     }
     projectContributor {
       id
+    }
+    contributorRoles {
+      uri
+      id
+      label
+      description
+      displayOrder
     }
   }
 }
