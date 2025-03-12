@@ -1,6 +1,5 @@
 @import '@/styles/responsive';
 
-
 .membersList {
   display: grid;
   align-items: start; // Align to top
@@ -23,77 +22,80 @@
 }
 
 .memberInfo {
-  grid-column: 2; /* Just take column 2 */
+  grid-column: 2;
   grid-row: 1;
 
   h3 {
-        margin: 0 0 0.5rem 0;
-        font-size: 1.1rem;
-        padding-top: 0;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    padding-top: 0;
+  }
+
+  p {
+    margin: 0.25rem 0;
+    color: var(--text-secondary);
+    font-size: var(--fs-small);
+  }
+
+  .orcid {
+    font-size: var(--fs-small);
+
+    span {
+      margin-right: 0.5rem;
+    }
+
+    a {
+      color: var(--text-secondary);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      font-size: var(--fs-small);
+
+      &:hover {
+        text-decoration: underline;
       }
-    
-      p {
-        margin: 0.25rem 0;
-        color: var(--text-secondary);
-        font-size: var(--fs-small);
-      }
-    
-      .orcid {
-        font-size: var(--fs-small);
-        span{
-          margin-right: 0.5rem;
-        }
-        a {
-          color: var(--text-secondary);
-          text-decoration: underline;
-          text-underline-offset: 4px;
-          font-size: var(--fs-small);
-          &:hover {
-            text-decoration: underline;
-          }
-        }
-      }
+    }
+  }
 }
 
+/* on mobile, columns 3 and 4 will stack below the member info*/
 .memberRole {
-  grid-column: 2; /* Just take column 2 */
+  grid-column: 2;
   grid-row: 2;
 
-    .role {
-      margin: 0;
-      color: var(--text-secondary);
-    }
+  .role {
+    margin: 0;
+    color: var(--text-secondary);
+  }
 }
 
 .memberActions {
-  grid-column: 2; /* Just take column 2 */
+  grid-column: 2;
   grid-row: 3;
 }
 
-/* Desktop layout */
-@media (min-width: 1200px) {
+@include device('xl') {
   .membersList {
     /* Four columns: auto-width for checkbox, remaining space divided among the other three */
     grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
     justify-content: start; /* Ensure the grid starts from the left */
     align-items: start;
   }
-  
+
   .memberCheckbox {
     grid-column: 1;
     grid-row: 1;
   }
-  
+
   .memberInfo {
     grid-column: 2;
     grid-row: 1;
   }
-  
+
   .memberRole {
     grid-column: 3;
     grid-row: 1;
   }
-  
+
   .memberActions {
     grid-column: 4;
     grid-row: 1;
