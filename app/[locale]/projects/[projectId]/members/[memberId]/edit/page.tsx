@@ -159,7 +159,6 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
       return [{}, true];
     } catch (error) {
-      console.log("***ERROR", error);
       logECS('error', 'removeProjectContributor', {
         error,
         url: { path: `/projects/${projectId}/members/${memberId}/edit` }
