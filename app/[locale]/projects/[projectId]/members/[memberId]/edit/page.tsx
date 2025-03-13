@@ -58,14 +58,29 @@ const reducer = (state: State, action: Action): State => {
 
 
 const ProjectsProjectMembersEdit: React.FC = () => {
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+
   // Get projectId and memberId params
   const params = useParams();
   const { projectId, memberId } = params; // From route /projects/:projectId/members/:memberId/edit
-  const toastState = useToast(); // Access the toast state from context
+
+  // Hooks for toast, router and scroll to top
+  const toastState = useToast();
   const router = useRouter();
   const { scrollToTop } = useScrollToTop();
 
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  // Field errors
+  const [fieldErrors, setFieldErrors] = useState<ProjectContributorFormInterface>({
+    givenName: '',
+    surName: '',
+    affiliationId: '',
+    email: '',
+    orcid: '',
+  });
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -80,14 +95,13 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   // Get Contributor Roles
   const { data: contributorRoles, loading: contributorRolesLoading, error: contributorRolesError } = useContributorRolesQuery();
 
+  // Hooks for project contributor data
   const {
     projectContributorData,
-    selectedRoles,
     checkboxRoles,
     setCheckboxRoles,
     loading,
     setProjectContributorData,
-    setSelectedRoles,
     queryError
   } = useProjectContributorData(Number(memberId));
 
@@ -95,47 +109,29 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   const isLoading = loading || contributorRolesLoading;
   const isError = queryError || contributorRolesError;
 
-  const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  const [fieldErrors, setFieldErrors] = useState<ProjectContributorFormInterface>({
-    givenName: '',
-    surName: '',
-    affiliationId: '',
-    email: '',
-    orcid: '',
-  });
 
   // Initialize project contributor mutations
   const [updateProjectContributorMutation] = useUpdateProjectContributorMutation();
-
   const [removeProjectContributorMutation] = useRemoveProjectContributorMutation();
 
-  // Show Success Message
+  // Show Success Message for updating member
   const showSuccessToast = () => {
     const successMessage = t('form.success.memberUpdated');
     toastState.add(successMessage, { type: 'success' });
   }
 
+  // Show Success Message for removing member
   const showRemoveSuccessToast = () => {
     const successMessage = t('form.success.removedMember');
     toastState.add(successMessage, { type: 'success' });
   }
 
-
   // Handle changes to role checkbox selection
   const handleCheckboxChange = (values: string[]) => {
-    setCheckboxRoles(values);
-
-    // Map the selected IDs back to full role objects
-    const updatedRoles = values.map(id => {
-      // Find the role object that matches this ID
-      return state.roles.find(role => role?.id?.toString() === id);
-    }).filter(Boolean) as ContributorRole[];
-
-    setSelectedRoles(updatedRoles);
-  };
+    setCheckboxRoles(values); // Set the selected role IDs
+  }
 
   const clearAllFieldErrors = () => {
-    //Remove all field errors
     setFieldErrors({
       givenName: '',
       surName: '',
@@ -145,6 +141,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     });
   }
 
+  // Remove project contributor
   const removeProjectContributor = async (): Promise<[ProjectContributorErrors, boolean]> => {
     try {
       const response = await removeProjectContributorMutation({
@@ -162,6 +159,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
       return [{}, true];
     } catch (error) {
+      console.log("***ERROR", error);
       logECS('error', 'removeProjectContributor', {
         error,
         url: { path: `/projects/${projectId}/members/${memberId}/edit` }
@@ -175,7 +173,9 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     }
   }
 
+  // Handle remove member from project
   const handleRemoveMember = async () => {
+
     const [errors, success] = await removeProjectContributor();
 
     if (!success) {
@@ -200,7 +200,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     scrollToTop(topRef);
   }
 
-  // Make GraphQL mutation request to update the project contributor
+  // update the project contributor
   const updateProjectContributor = async (): Promise<[ProjectContributorErrors, boolean]> => {
     try {
       const response = await updateProjectContributorMutation({
@@ -212,7 +212,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
             affiliationId: projectContributorData.affiliationId,
             email: projectContributorData.email,
             orcid: projectContributorData.orcid,
-            contributorRoleIds: selectedRoles.map(role => role.id).filter((id): id is number => id !== undefined)
+            contributorRoleIds: checkboxRoles.filter((id) => id !== undefined).map(Number)
           }
         }
       });
@@ -271,10 +271,10 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
     // Scroll to top of page
     scrollToTop(topRef);
-
   };
 
   useEffect(() => {
+    // Set the roles from the query
     if (contributorRoles?.contributorRoles) {
       const filteredRoles = contributorRoles.contributorRoles.filter((role): role is ContributorRole => role !== null);
       dispatch({ type: 'SET_ROLES', payload: filteredRoles });
@@ -296,7 +296,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       <PageHeader
         title={t('title')}
         description={t('description')}
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
