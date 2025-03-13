@@ -38,7 +38,6 @@ import { ProjectContributorFormInterface } from '@/app/types';
 import styles from './ProjectsProjectMembersEdit.module.scss';
 import { useToast } from '@/context/ToastContext';
 
-
 const initialState = {
   roles: [] as ContributorRole[],
 };
@@ -56,6 +55,7 @@ const reducer = (state: State, action: Action): State => {
       return state;
   }
 };
+
 
 const ProjectsProjectMembersEdit: React.FC = () => {
   // Get projectId and memberId params
@@ -301,7 +301,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/projects/${projectId}`}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
             <Breadcrumb><Link href={`/projects/${projectId}/members`}>{t('breadcrumbs.projectMembers')}</Link></Breadcrumb>
             <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs>

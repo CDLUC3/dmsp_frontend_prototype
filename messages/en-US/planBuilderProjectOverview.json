@@ -181,6 +181,15 @@
     "breadcrumbs": {
       "projectMembers": "Project members"
     },
+    "buttons": {
+      "removeMember": "Remove member"
+    },
+    "headings": {
+      "h2RemoveMember": "Remove member"
+    },
+    "paragraphs": {
+      "removeMember": "Removing this member means they will no longer be able to access this plan. This is not reversible."
+    },
     "form": {
       "errors": {
         "firstName": "Invalid first name value",
@@ -198,15 +207,6 @@
       "labels": {
         "checkboxGroupLabel": "Project roles",
         "checkboxGroupDescription": "Provide the role(s) of the project member"
-      },
-      "headings": {
-        "h2RemoveMember": "Remove member"
-      },
-      "paragraphs": {
-        "removeMember": "Removing this member means they will no longer be able to access this plan. This is not reversible."
-      },
-      "buttons": {
-        "removeMember": "Remove member"
       }
     }
   }

@@ -181,6 +181,15 @@
     "breadcrumbs": {
       "projectMembers": "Membros de projeto"
     },
+    "headings": {
+      "h2RemoveMember": "Remover membro"
+    },
+    "paragraphs": {
+      "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível."
+    },
+    "buttons": {
+      "removeMember": "Remover membro"
+    },
     "form": {
       "errors": {
         "firstName": "Valor do primeiro nome inválido",
@@ -198,15 +207,6 @@
       "labels": {
         "checkboxGroupLabel": "Funções do projeto",
         "checkboxGroupDescription": "Forneça as funções do membro do projeto"
-      },
-      "headings": {
-        "h2RemoveMember": "Remover membro"
-      },
-      "paragraphs": {
-        "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível."
-      },
-      "buttons": {
-        "removeMember": "Remover membro"
       }
     }
   }

@@ -25,6 +25,8 @@ export const useProjectContributorData = (projectContributorId: number) => {
   })
 
 
+  console.log("***DATA", data);
+
   useEffect(() => {
     // Update state values from data results
     if (data?.projectContributor) {
