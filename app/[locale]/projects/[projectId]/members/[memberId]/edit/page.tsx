@@ -37,6 +37,7 @@ import logECS from '@/utils/clientLogger';
 import { ProjectContributorFormInterface } from '@/app/types';
 import styles from './ProjectsProjectMembersEdit.module.scss';
 import { useToast } from '@/context/ToastContext';
+import { routePath } from '@/utils/routes';
 
 const initialState = {
   roles: [] as ContributorRole[],
@@ -56,15 +57,18 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-
 const ProjectsProjectMembersEdit: React.FC = () => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
-
   // Get projectId and memberId params
   const params = useParams();
-  const { projectId, memberId } = params; // From route /projects/:projectId/members/:memberId/edit
+  const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
+  const memberId = Array.isArray(params.memberId) ? params.memberId[0] : params.memberId;
+
+  //Routes
+  const EDIT_MEMBER_ROUTE = routePath('projects.members.edit', { projectId, memberId });
+  const PROJECT_MEMBERS_ROUTE = routePath('projects.members.index', { projectId });
 
   // Hooks for toast, router and scroll to top
   const toastState = useToast();
@@ -156,12 +160,11 @@ const ProjectsProjectMembersEdit: React.FC = () => {
           return [responseErrors, false];
         }
       }
-
       return [{}, true];
     } catch (error) {
       logECS('error', 'removeProjectContributor', {
         error,
-        url: { path: `/projects/${projectId}/members/${memberId}/edit` }
+        url: { path: EDIT_MEMBER_ROUTE }
       });
       if (error instanceof ApolloError) {
         return [{}, false];
@@ -192,7 +195,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     } else {
       // Show success message
       showRemoveSuccessToast();
-      router.push(`/projects/${projectId}/members`);
+      router.push(PROJECT_MEMBERS_ROUTE);
     }
 
     // Scroll to top of page
@@ -227,7 +230,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     } catch (error) {
       logECS('error', 'updateProjectContributor', {
         error,
-        url: { path: `/projects/${projectId}/members/${memberId}/edit` }
+        url: { path: EDIT_MEMBER_ROUTE }
       });
       if (error instanceof ApolloError) {
         return [{}, false];
@@ -265,7 +268,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     } else {
       // Show success message
       showSuccessToast();
-      router.push(`/projects/${projectId}/members`);
+      router.push(PROJECT_MEMBERS_ROUTE);
     }
 
     // Scroll to top of page
@@ -299,9 +302,9 @@ const ProjectsProjectMembersEdit: React.FC = () => {
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}`}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}/members`}>{t('breadcrumbs.projectMembers')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={PROJECT_MEMBERS_ROUTE}>{t('breadcrumbs.projectMembers')}</Link></Breadcrumb>
             <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -319,7 +322,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="firstName"
                   type="text"
                   isRequired={false}
-                  label="First Name"
+                  label={t('form.labels.firstName')}
                   value={projectContributorData.givenName}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, givenName: e.target.value })}
                   isInvalid={!!fieldErrors.givenName}
@@ -330,7 +333,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="lastName"
                   type="text"
                   isRequired={false}
-                  label="Last Name"
+                  label={t('form.labels.lastName')}
                   value={projectContributorData.surName}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, surName: e.target.value })}
                   isInvalid={!!fieldErrors.surName}
@@ -341,7 +344,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="affiliation"
                   type="text"
                   isRequired={false}
-                  label="Affiliation"
+                  label={t('form.labels.affiliation')}
                   value={projectContributorData.affiliationId}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, affiliationId: e.target.value })}
                   isInvalid={!!fieldErrors.affiliationId}
@@ -352,7 +355,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="email"
                   type="email"
                   isRequired={false}
-                  label="Email Address"
+                  label={t('form.labels.emailAddress')}
                   value={projectContributorData.email}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, email: e.target.value })}
                   isInvalid={!!fieldErrors.email}
@@ -363,7 +366,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="orcid"
                   type="text"
                   isRequired={false}
-                  label="ORCID ID"
+                  label={t('form.labels.orcid')}
                   value={projectContributorData.orcid}
                   onChange={(e) => setProjectContributorData({ ...projectContributorData, orcid: e.target.value })}
                   isInvalid={!!fieldErrors.orcid}
@@ -395,7 +398,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
             <Button
               onPress={handleRemoveMember}
               className="secondary"
-              aria-label="Remove member from project"
+              aria-label={t('form.labels.removeMemberFromProject')}
             >
               {t('buttons.removeMember')}
             </Button>

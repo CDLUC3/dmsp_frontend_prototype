@@ -181,14 +181,14 @@
     "breadcrumbs": {
       "projectMembers": "Membros de projeto"
     },
+    "buttons": {
+      "removeMember": "Remover membro"
+    },
     "headings": {
       "h2RemoveMember": "Remover membro"
     },
     "paragraphs": {
       "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível."
-    },
-    "buttons": {
-      "removeMember": "Remover membro"
     },
     "form": {
       "errors": {
@@ -206,7 +206,14 @@
       },
       "labels": {
         "checkboxGroupLabel": "Funções do projeto",
-        "checkboxGroupDescription": "Forneça as funções do membro do projeto"
+        "checkboxGroupDescription": "Forneça as funções do membro do projeto",
+        "firstName": "Primeiro nome",
+        "lastName": "Último Nome",
+        "affiliation": "Afiliação",
+        "emailAddress": "E-mail",
+        "orcid": "ORCiD ID",
+        "role": "Função",
+        "removeMemberFromProject": "Remover membro do projeto"
       }
     }
   }

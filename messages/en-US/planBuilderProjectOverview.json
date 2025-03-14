@@ -206,7 +206,14 @@
       },
       "labels": {
         "checkboxGroupLabel": "Project roles",
-        "checkboxGroupDescription": "Provide the role(s) of the project member"
+        "checkboxGroupDescription": "Provide the role(s) of the project member",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "affiliation": "Affiliation",
+        "emailAddress": "Email",
+        "orcid": "ORCiD ID",
+        "role": "Role",
+        "removeMemberFromProject": "Remove member from project"
       }
     }
   }

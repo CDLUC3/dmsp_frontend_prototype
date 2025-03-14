@@ -180,16 +180,16 @@ describe("ProjectsProjectMembersEdit", () => {
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('title');
     expect(screen.getByRole('link', { name: /breadcrumbs.projects/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /first name/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /last name/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/affiliation/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/form.labels.firstName/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /firstName/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/form.labels.lastName/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /lastName/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/form.labels.affiliation/i)).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /affiliation/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /email address/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/orcid/i)).toBeInTheDocument();
-    expect(screen.getByRole('textbox', { name: /orcid id/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/form.labels.emailAddress/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /email/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/form.labels.orcid/i)).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /orcid/i })).toBeInTheDocument();
     expect(screen.getByText('form.labels.checkboxGroupLabel')).toBeInTheDocument();
     expect(screen.getByText('form.labels.checkboxGroupDescription')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.saveChanges/i })).toBeInTheDocument();
@@ -216,7 +216,7 @@ describe("ProjectsProjectMembersEdit", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockRouter.push).toHaveBeenCalledWith('/projects/1/members');
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/members');
     });
   });
 
@@ -268,7 +268,7 @@ describe("ProjectsProjectMembersEdit", () => {
         'updateProjectContributor',
         expect.objectContaining({
           error: expect.anything(),
-          url: { path: '/projects/1/members/1/edit' },
+          url: { path: '/en-US/projects/1/members/1/edit' },
         })
       );
     });
@@ -291,11 +291,11 @@ describe("ProjectsProjectMembersEdit", () => {
       );
     });
 
-    const removeButton = screen.getByRole('button', { name: /Remove member from project/i });
+    const removeButton = screen.getByRole('button', { name: /form.labels.removeMemberFromProject/i });
     fireEvent.click(removeButton);
 
     await waitFor(() => {
-      expect(mockRouter.push).toHaveBeenCalledWith('/projects/1/members');
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/members');
     });
   });
 
@@ -315,7 +315,7 @@ describe("ProjectsProjectMembersEdit", () => {
       );
     });
 
-    const removeButton = screen.getByRole('button', { name: /Remove member from project/i });
+    const removeButton = screen.getByRole('button', { name: /form.labels.removeMemberFromProject/i });
     fireEvent.click(removeButton);
 
     expect(await screen.findByText('Error removing member')).toBeInTheDocument();
@@ -337,7 +337,7 @@ describe("ProjectsProjectMembersEdit", () => {
       );
     });
 
-    const removeButton = screen.getByRole('button', { name: /Remove member from project/i });
+    const removeButton = screen.getByRole('button', { name: /form.labels.removeMemberFromProject/i });
     fireEvent.click(removeButton);
 
     await waitFor(() => {
@@ -346,7 +346,7 @@ describe("ProjectsProjectMembersEdit", () => {
         'removeProjectContributor',
         expect.objectContaining({
           error: expect.anything(),
-          url: { path: '/projects/1/members/1/edit' },
+          url: { path: '/en-US/projects/1/members/1/edit' },
         })
       );
     });
