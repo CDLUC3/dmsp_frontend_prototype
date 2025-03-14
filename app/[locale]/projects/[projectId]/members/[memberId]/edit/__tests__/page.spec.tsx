@@ -21,15 +21,7 @@ import mockResponse from '../__mocks__/mockResponseFromMutation.json';
 
 expect.extend(toHaveNoViolations);
 
-jest.mock('@/utils/clientLogger', () => jest.fn());
-
-
-jest.mock('next/navigation', () => ({
-  useParams: jest.fn(),
-  useRouter: jest.fn()
-}))
-
-// Mock the useTemplateQuery hook
+// Mock the graphql hooks
 jest.mock("@/generated/graphql", () => ({
   useProjectContributorQuery: jest.fn(),
   useContributorRolesQuery: jest.fn(),
@@ -38,7 +30,7 @@ jest.mock("@/generated/graphql", () => ({
 }));
 
 jest.mock('@/hooks/projectContributorData', () => ({
-  useProjectContributorData: jest.fn() // Make it a mock function
+  useProjectContributorData: jest.fn()
 }));
 
 const mockRouter = {
