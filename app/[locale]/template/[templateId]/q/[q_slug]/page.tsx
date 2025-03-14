@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import {useEffect, useRef, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useParams, useRouter, useSearchParams} from 'next/navigation';
+import {useTranslations} from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -37,8 +37,8 @@ import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
-import { useToast } from '@/context/ToastContext';
-import { Question, QuestionOptions } from '@/app/types';
+import {useToast} from '@/context/ToastContext';
+import {Question, QuestionOptions} from '@/app/types';
 import styles from './questionEdit.module.scss';
 
 
