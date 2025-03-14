@@ -1,0 +1,5 @@
+mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
+  addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
+    id
+  }
+}

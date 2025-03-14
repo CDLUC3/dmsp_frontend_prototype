@@ -1,12 +1,10 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import {fireEvent, render, screen, waitFor} from '@/utils/test-utils';
 import '@testing-library/jest-dom';
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import TemplateCreatePage from '../page';
-import { useQueryStep } from '../useQueryStep';
-import {
-  mockScrollTo
-} from '@/__mocks__/common';
+import {useQueryStep} from '../useQueryStep';
+import {mockScrollTo} from '@/__mocks__/common';
 
 // Mock the useQueryStep hook
 jest.mock('@/app/[locale]/template/create/useQueryStep', () => ({

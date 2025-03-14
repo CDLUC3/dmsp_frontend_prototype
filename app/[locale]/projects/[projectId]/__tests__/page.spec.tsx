@@ -1,15 +1,10 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { useParams } from 'next/navigation';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import {
-  useProjectQuery
-} from '@/generated/graphql';
+import {render, screen} from '@testing-library/react';
+import {useParams} from 'next/navigation';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useProjectQuery} from '@/generated/graphql';
 import ProjectOverviewPage from '../page';
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 

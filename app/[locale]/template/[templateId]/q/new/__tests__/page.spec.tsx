@@ -1,14 +1,11 @@
 import React from "react";
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
-import { useQuestionTypesQuery } from '@/generated/graphql';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
+import {act, fireEvent, render, screen} from '@/utils/test-utils';
+import {useQuestionTypesQuery} from '@/generated/graphql';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useParams, useRouter, useSearchParams} from 'next/navigation';
+import {useQueryStep} from '@/app/[locale]/template/[templateId]/q/new/utils';
 import QuestionTypeSelectPage from "../page";
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 

@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import React, {useEffect, useRef, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useParams} from 'next/navigation';
+import {useTranslations} from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -32,14 +32,18 @@ import {
 } from '@/generated/graphql';
 
 //Components
-import { ContentContainer, LayoutContainer, } from '@/components/Container';
-import { DmpIcon } from "@/components/Icons";
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import {DmpIcon} from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import { DmpEditor } from "@/components/Editor";
+import {DmpEditor} from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
 
-import { SectionFormInterface, SectionFormErrorsInterface, TagsInterface } from '@/app/types';
-import { useToast } from '@/context/ToastContext';
+import {
+  SectionFormErrorsInterface,
+  SectionFormInterface,
+  TagsInterface
+} from '@/app/types';
+import {useToast} from '@/context/ToastContext';
 
 const CreateSectionPage: React.FC = () => {
 
@@ -297,7 +301,6 @@ const CreateSectionPage: React.FC = () => {
       sectionRequirements: sectionRequirementsContent,
       sectionGuidance: sectionGuidanceContent
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
 

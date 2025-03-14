@@ -1,0 +1,90 @@
+@import '@/styles/responsive';
+
+/* File format selection */
+.formatChoices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.radioGroup {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+
+  @include device(xl) {
+    flex-direction: row;
+    gap: var(--space-5);
+  }
+}
+
+.formatOption {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--space-3);
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+}
+
+.formatOption:has(.radioInput[data-selected]) {
+  background-color: #f0f9ff;
+  border-color: #3b82f6;
+}
+
+.formatOption:hover {
+  background-color: #f8fafc;
+}
+
+.formatLabel {
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--space-2);
+  cursor: pointer;
+  flex: 1;
+}
+
+.formatName {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.formatDescription {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-top: var(--space-1);
+}
+
+.marginsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.marginGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.marginLabel {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+/* Download section */
+.downloadSection {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid #e5e7eb;
+}
+
+.downloadText {
+  font-size: 0.9375rem;
+  margin-bottom: var(--space-4);
+}

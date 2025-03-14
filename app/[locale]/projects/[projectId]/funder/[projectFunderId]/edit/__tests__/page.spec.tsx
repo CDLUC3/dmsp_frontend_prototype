@@ -1,16 +1,13 @@
 import React from 'react';
-import { act, render, screen, fireEvent, within } from '@testing-library/react';
-import { useParams, useRouter } from 'next/navigation';
+import {act, fireEvent, render, screen, within} from '@testing-library/react';
+import {useParams, useRouter} from 'next/navigation';
 import {
   useProjectFunderQuery,
   useUpdateProjectFunderMutation
 } from '@/generated/graphql';
 import ProjectsProjectFundingEdit from '../page';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 

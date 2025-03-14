@@ -1,17 +1,14 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
 import {
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
   useTemplateQuery
 } from '@/generated/graphql';
 
-import { useParams } from 'next/navigation';
+import {useParams} from 'next/navigation';
 import TemplateEditPage from '../page';
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
 
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({

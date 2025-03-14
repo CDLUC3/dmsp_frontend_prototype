@@ -14,7 +14,7 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-import { OrcidIcon } from '@/components/Icons/orcid/';
+import {OrcidIcon} from '@/components/Icons/orcid/';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
 
 interface Member {

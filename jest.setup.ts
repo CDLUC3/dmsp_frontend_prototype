@@ -1,10 +1,10 @@
 import '@testing-library/jest-dom';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import dotenv from 'dotenv';
 
 
 //Load environment variables from .env.local
-dotenv.config({ path: './.env.local' });// 
+dotenv.config({ path: './.env.local' });//
 
 // Mock toast
 jest.mock('@/context/ToastContext', () => ({

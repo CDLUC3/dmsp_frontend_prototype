@@ -1,18 +1,15 @@
 import React from "react";
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import {act, fireEvent, render, screen} from '@/utils/test-utils';
 import {
   useSectionQuery,
   useTagsQuery,
   useUpdateSectionMutation
 } from '@/generated/graphql';
 
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams } from 'next/navigation';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useParams} from 'next/navigation';
 import SectionUpdatePage from '../page';
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 

@@ -1,5 +1,8 @@
 ## v0.0.1
-
+- Plan Manage Access [#299]
+- Plan Publish [#299]
+- Plan Downloads [#299]
+- 
 ### Added
 - Add central "named routes" and helper function
 
@@ -22,6 +25,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated `PlanCreate` component so that it hooks up to real data. The functionality of the page is a little complicated, so I added a `CreatePlan.md` file to summarize what functionality is expected in the page. [#361]
 - Updated the `Project Members` page with real data [#360]
 - Updated `ProjectsProjectFundingEdit` component and moved the page under a new `[projectFunderId]` directory at `/projects/[projectId]/funder/[projectFunderId]/edit` [#357]
 - Updated the `Project Overview` page [#339]
@@ -54,6 +58,7 @@
 - Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
 
 ### Fixed
+- Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
 
 ### Added
