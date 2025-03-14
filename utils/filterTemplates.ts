@@ -1,4 +1,4 @@
-import { TemplateItemProps, } from '@/app/types';
+import {TemplateItemProps,} from '@/app/types';
 
 export const filterTemplates = (
   templates: TemplateItemProps[],

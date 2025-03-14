@@ -1,8 +1,8 @@
-import { Button } from 'react-aria-components';
-import { useTranslations } from 'next-intl';
+import {Button} from 'react-aria-components';
+import {useTranslations} from 'next-intl';
 
 import styles from './TemplateSelectListItem.module.scss';
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
 
 interface TemplateSelectListItemProps {
   onSelect: (versionedTemplateId: number) => Promise<void>;

@@ -19,10 +19,7 @@ import {
   TextField
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
-import {
-  ContentContainer,
-  LayoutContainer,
-} from "@/components/Container";
+import {ContentContainer, LayoutContainer,} from "@/components/Container";
 import styles from './ProjectsProjectPlanFeedbackInvite.module.scss';
 
 const ProjectsProjectPlanFeedbackInvite = () => {
