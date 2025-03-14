@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -25,17 +25,18 @@ import {
 // GraphQL queries and mutations
 import {
   SectionErrors,
-  SectionsDisplayOrderDocument,
   useAddSectionMutation,
   useSectionsDisplayOrderQuery,
   useTagsQuery
 } from '@/generated/graphql';
 
+import { createSectionOnServer } from '@/app/actions/sectionActions';
+
 //Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {DmpIcon} from "@/components/Icons";
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import {DmpEditor} from "@/components/Editor";
+import { DmpEditor } from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
 
 import {
@@ -43,7 +44,7 @@ import {
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 const CreateSectionPage: React.FC = () => {
 
@@ -94,14 +95,11 @@ const CreateSectionPage: React.FC = () => {
   //Store selection of tags in state
   const [tags, setTags] = useState<TagsInterface[]>([]);
 
-  // Initialize user addSection mutation
-  const [addSectionMutation] = useAddSectionMutation();
-
   // Query for all tags
   const { data: tagsData } = useTagsQuery();
 
   // Query for all section displayOrder
-  const { data: sectionDisplayOrders } = useSectionsDisplayOrderQuery({
+  const { data: sectionDisplayOrders, refetch } = useSectionsDisplayOrderQuery({
     variables: {
       templateId: Number(templateId)
     }
@@ -184,28 +182,21 @@ const CreateSectionPage: React.FC = () => {
   const createSection = async (): Promise<SectionErrors> => {
     try {
       const newDisplayOrder = getNewDisplayOrder();
-      const response = await addSectionMutation({
-        variables: {
-          input: {
-            templateId: Number(templateId),
-            name: sectionNameContent,
-            introduction: sectionIntroductionContent,
-            requirements: sectionRequirementsContent,
-            guidance: sectionGuidanceContent,
-            displayOrder: newDisplayOrder,
-            tags: selectedTags
-          }
-        },
-        refetchQueries: [{ //Need to update the sectionDisplayOrders with latest from db
-          query: SectionsDisplayOrderDocument,
-          variables: {
-            templateId: Number(templateId)
-          }
-        }]
+      const response = await createSectionOnServer({
+        templateId: Number(templateId),
+        name: sectionNameContent,
+        introduction: sectionIntroductionContent,
+        requirements: sectionRequirementsContent,
+        guidance: sectionGuidanceContent,
+        displayOrder: newDisplayOrder,
+        tags: selectedTags
       });
 
-      if (response.data?.addSection?.errors) {
-        return response.data.addSection.errors;
+
+      if (!response.success) {
+        return response.errors;
+      } else {
+        await refetch();
       }
     } catch (error) {
       if (error instanceof ApolloError) {
