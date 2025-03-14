@@ -26,7 +26,7 @@ const routes = {
   'projects.funder.show': '/projects/:projectId/funder/:projectFunderId',
   'projects.funder.search': '/projects/:projectId/funder/search',
   'projects.members.index': '/projects/:projectId/members',
-  'projects.members.edit': '/projects/:projectId/members/edit',
+  'projects.members.edit': '/projects/:projectId/members/:memberId/edit',
   'projects.members.search': '/projects/:projectId/members/search',
   'projects.funding.index': '/projects/:projectId/project-funding',
 
@@ -68,13 +68,14 @@ type RoutesMap = typeof routes;
  * Combines route names with their path patterns for better IDE hover documentation
  * @example 'projects.show ➜ /projects/:projectId'
  */
-type RouteNameWithPath = {
+// eslint-disable-line @typescript-eslint/no-unused-vars
+type RouteNameWithPath = {// eslint-disable-line @typescript-eslint/no-unused-vars
   [K in keyof RoutesMap]: `${K} ➜ ${RoutesMap[K]}`
 }[keyof RoutesMap];
 
 // Only used for documentation - not directly referenced in code
 // This prevents unused type lint errors
-declare const _ROUTE_DOCS: RouteNameWithPath;
+declare const _ROUTE_DOCS: RouteNameWithPath; // eslint-disable-line no-unused-vars, @typescript-eslint/no-unused-vars
 
 
 /**
@@ -154,4 +155,4 @@ export function routePath(
 
 // Type to get all available route names for better IDE support
 export type RouteName = keyof typeof routes;
-export {routes};
+export { routes };

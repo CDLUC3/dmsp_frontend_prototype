@@ -1,0 +1,17 @@
+{
+  "updateProjectContributor": {
+    "givenName": "Juliet",
+    "surName": "Cousteau",
+    "orcid": "0000-JACQ-0000-0000",
+    "id": 1,
+    "errors": {
+      "email": null,
+      "surName": null,
+      "general": null,
+      "givenName": null,
+      "orcid": null,
+      "affiliationId": null,
+      "contributorRoleIds": null
+    }
+  }
+}

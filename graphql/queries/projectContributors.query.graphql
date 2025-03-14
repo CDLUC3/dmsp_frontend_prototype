@@ -14,3 +14,23 @@ query ProjectContributors($projectId: Int!) {
     }
   }
 }
+
+query ProjectContributor($projectContributorId: Int!) {
+  projectContributor(projectContributorId: $projectContributorId) {
+    email
+    contributorRoles {
+      id
+      label
+      displayOrder
+      uri
+    }
+    givenName
+    surName
+    affiliation {
+      id
+      displayName
+      uri
+    }
+    orcid
+  }
+}
