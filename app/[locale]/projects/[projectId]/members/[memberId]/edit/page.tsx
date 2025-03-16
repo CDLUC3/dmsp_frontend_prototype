@@ -241,6 +241,60 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     }
   };
 
+  // Client-side validation of fields
+  const validateField = (name: string, value: string | string[] | undefined) => {
+    let error = '';
+    switch (name) {
+      case 'givenName':
+        if (!value || value.length <= 2) {
+          error = t('form.errors.firstName');
+        }
+        break;
+      case 'surName':
+        if (!value || value.length <= 2) {
+          error = t('form.errors.lastName');
+        }
+        break;
+    }
+
+    setFieldErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: error
+    }));
+    if (error.length > 1) {
+      setErrorMessages(prev => [...prev, error]);
+    }
+
+    return error;
+  }
+
+  // Check whether form is valid before submitting
+  const isFormValid = (): boolean => {
+    // Initialize a flag for form validity
+    let isValid = true;
+    // Field errors
+    const errors: ProjectContributorFormInterface = {
+      givenName: '',
+      surName: '',
+      affiliationId: '',
+      email: '',
+      orcid: '',
+    };
+
+    // Iterate over formData to validate each field
+    Object.keys(projectContributorData).forEach((key) => {
+      const name = key as keyof ProjectContributorFormInterface;
+      const value = projectContributorData[name];
+
+      // Call validateField to update errors for each field
+      const error = validateField(name, value);
+      if (error) {
+        isValid = false;
+        errors[name] = error;
+      }
+    });
+    return isValid;
+  };
 
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -250,29 +304,32 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     clearAllFieldErrors();
     setErrorMessages([]);
 
-    // Update project contributor details
-    const [errors, success] = await updateProjectContributor();
+    if (isFormValid()) {
+      // Create new section
+      const [errors, success] = await updateProjectContributor();
 
-    if (!success) {
-      if (errors) {
-        setFieldErrors({
-          givenName: errors.givenName || '',
-          surName: errors.surName || '',
-          affiliationId: errors.affiliationId || '',
-          email: errors.email || '',
-          orcid: errors.orcid || '',
-        });
+      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
+      if (!success) {
+        if (errors) {
+          setFieldErrors({
+            givenName: errors.givenName || '',
+            surName: errors.surName || '',
+            affiliationId: errors.affiliationId || '',
+            email: errors.email || '',
+            orcid: errors.orcid || '',
+          });
+        }
+        setErrorMessages([errors.general || t('form.errors.updatingMember')]);
+
+      } else {
+        // Show success message
+        showSuccessToast();
+        router.push(PROJECT_MEMBERS_ROUTE);
       }
-      setErrorMessages([errors.general || t('form.errors.updatingMember')]);
 
-    } else {
-      // Show success message
-      showSuccessToast();
-      router.push(PROJECT_MEMBERS_ROUTE);
+      // Scroll to top of page
+      scrollToTop(topRef);
     }
-
-    // Scroll to top of page
-    scrollToTop(topRef);
   };
 
   useEffect(() => {
@@ -283,6 +340,9 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     }
   }, [contributorRoles]);
 
+  useEffect(() => {
+    console.log(fieldErrors);
+  }, [fieldErrors]);
 
   if (isLoading) {
     return <div>{Global('messaging.loading')}...</div>;
@@ -316,61 +376,78 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       <LayoutWithPanel>
         <ContentContainer>
           <div ref={topRef}>
+            <h2>Test{fieldErrors.givenName}</h2>
+
             <Form onSubmit={handleFormSubmit} className={styles.editForm}>
               <div className={styles.formSection}>
                 <FormInput
-                  name="firstName"
+                  name="givenName"
                   type="text"
-                  isRequired={false}
                   label={t('form.labels.firstName')}
                   value={projectContributorData.givenName}
-                  onChange={(e) => setProjectContributorData({ ...projectContributorData, givenName: e.target.value })}
-                  isInvalid={!!fieldErrors.givenName}
-                  errorMessage={fieldErrors.givenName ?? t('form.errors.firstName')}
+                  onChange={(e) => {
+                    setProjectContributorData({ ...projectContributorData, givenName: e.target.value });
+                    // Clear the error for this field when user changes it
+                    setFieldErrors(prev => ({ ...prev, givenName: '' }));
+                  }}
+                  isInvalid={fieldErrors.givenName.length !== 0}
+                  errorMessage={` ${fieldErrors.givenName} Test`}
                 />
 
                 <FormInput
-                  name="lastName"
+                  name="surName"
                   type="text"
-                  isRequired={false}
                   label={t('form.labels.lastName')}
                   value={projectContributorData.surName}
-                  onChange={(e) => setProjectContributorData({ ...projectContributorData, surName: e.target.value })}
-                  isInvalid={!!fieldErrors.surName}
-                  errorMessage={fieldErrors.surName ?? t('form.errors.lastName')}
+                  onChange={(e) => {
+                    setProjectContributorData({ ...projectContributorData, surName: e.target.value });
+                    // Clear the error for this field when user changes it
+                    setFieldErrors(prev => ({ ...prev, surName: '' }));
+                  }}
+                  isInvalid={fieldErrors.surName.length !== 0}
+                  errorMessage={fieldErrors.surName}
                 />
 
                 <FormInput
                   name="affiliation"
                   type="text"
-                  isRequired={false}
                   label={t('form.labels.affiliation')}
                   value={projectContributorData.affiliationId}
-                  onChange={(e) => setProjectContributorData({ ...projectContributorData, affiliationId: e.target.value })}
-                  isInvalid={!!fieldErrors.affiliationId}
-                  errorMessage={fieldErrors.affiliationId ?? t('form.errors.affiliation')}
+                  onChange={(e) => {
+                    setProjectContributorData({ ...projectContributorData, affiliationId: e.target.value });
+                    // Clear the error for this field when user changes it
+                    setFieldErrors(prev => ({ ...prev, affiliationId: '' }));
+                  }}
+                  isInvalid={fieldErrors.affiliationId.length !== 0}
+                  errorMessage={fieldErrors.affiliationId || t('form.errors.affiliation')}
                 />
 
                 <FormInput
                   name="email"
                   type="email"
-                  isRequired={false}
                   label={t('form.labels.emailAddress')}
                   value={projectContributorData.email}
-                  onChange={(e) => setProjectContributorData({ ...projectContributorData, email: e.target.value })}
-                  isInvalid={!!fieldErrors.email}
-                  errorMessage={fieldErrors.email ?? t('form.errors.email')}
+                  onChange={(e) => {
+                    setProjectContributorData({ ...projectContributorData, email: e.target.value });
+                    // Clear the error for this field when user changes it
+                    setFieldErrors(prev => ({ ...prev, email: '' }));
+                  }}
+                  isInvalid={(fieldErrors.email.length !== 0)}
+                  errorMessage={fieldErrors.email}
                 />
 
                 <FormInput
                   name="orcid"
                   type="text"
-                  isRequired={false}
                   label={t('form.labels.orcid')}
                   value={projectContributorData.orcid}
-                  onChange={(e) => setProjectContributorData({ ...projectContributorData, orcid: e.target.value })}
-                  isInvalid={!!fieldErrors.orcid}
-                  errorMessage={fieldErrors.orcid ?? t('form.errors.orcid')}
+                  onChange={(e) => {
+                    setProjectContributorData({ ...projectContributorData, orcid: e.target.value });
+                    // Clear the error for this field when user changes it
+                    setFieldErrors(prev => ({ ...prev, orcid: '' }));
+                  }}
+                  isInvalid={fieldErrors.orcid.length !== 0}
+                  errorMessage={fieldErrors.orcid || t('form.errors.orcid')}
                 />
 
                 <CheckboxGroupComponent
