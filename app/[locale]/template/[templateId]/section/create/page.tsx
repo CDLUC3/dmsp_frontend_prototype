@@ -25,7 +25,6 @@ import {
 // GraphQL queries and mutations
 import {
   SectionErrors,
-  useAddSectionMutation,
   useSectionsDisplayOrderQuery,
   useTagsQuery
 } from '@/generated/graphql';

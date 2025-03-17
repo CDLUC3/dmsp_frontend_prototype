@@ -23,6 +23,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 //GraphQL
 import { useMyProjectsQuery, } from '@/generated/graphql';
 
+import { formatProjects } from './utils';
 import { ProjectItemProps } from '@/app/types';
 
 interface ProjectsListClientComponentProps {
@@ -35,7 +36,7 @@ const ProjectsListClientComponent: React.FC<ProjectsListClientComponentProps> = 
 }) => {
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  const projects = useState<(ProjectItemProps)[]>(initialProjects)[0];
+  const [projects, setProjects] = useState<ProjectItemProps[]>(initialProjects);
   const [errors, setErrors] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
@@ -45,9 +46,15 @@ const ProjectsListClientComponent: React.FC<ProjectsListClientComponentProps> = 
   const Global = useTranslations('Global');
   const Project = useTranslations('ProjectsListPage');
 
-  // Query for projects
-  const { data = {}, loading } = useMyProjectsQuery({
+  // Query for projects, only if needed
+  const { data, loading } = useMyProjectsQuery({
     skip: initialProjects.length > 0,
+    onCompleted: (data) => {
+      if (data?.myProjects) {
+        const formattedProjects = formatProjects(data.myProjects);
+        setProjects(formattedProjects);
+      }
+    }
   });
 
 

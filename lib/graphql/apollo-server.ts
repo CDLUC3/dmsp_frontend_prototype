@@ -19,7 +19,7 @@ const createServerAuthLink = () => {
     return {
       headers: {
         ...headers,
-        'Cookie': cookieHeader, // Forward all cookies
+        Cookie: cookieHeader, // Forward all cookies
         'Content-Type': 'application/json',
       }
     };

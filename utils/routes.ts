@@ -74,6 +74,7 @@ type RouteNameWithPath = {
 
 // Only used for documentation - not directly referenced in code
 // This prevents unused type lint errors
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars*/
 declare const _ROUTE_DOCS: RouteNameWithPath;
 
 
@@ -154,4 +155,4 @@ export function routePath(
 
 // Type to get all available route names for better IDE support
 export type RouteName = keyof typeof routes;
-export {routes};
+export { routes };
