@@ -39,6 +39,8 @@ import styles from './ProjectsProjectMembersEdit.module.scss';
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const initialState = {
   roles: [] as ContributorRole[],
 };
@@ -255,6 +257,11 @@ const ProjectsProjectMembersEdit: React.FC = () => {
           error = t('form.errors.lastName');
         }
         break;
+      case 'email':
+        if (!value || !emailRegex.test(value as string)) {
+          error = t('form.errors.email');
+        }
+        break;
     }
 
     setFieldErrors(prevErrors => ({
@@ -432,8 +439,8 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                     // Clear the error for this field when user changes it
                     setFieldErrors(prev => ({ ...prev, email: '' }));
                   }}
-                  isInvalid={(fieldErrors.email.length !== 0)}
-                  errorMessage={fieldErrors.email}
+                  isInvalid={fieldErrors.email.length > 0 || Boolean(projectContributorData.email && !emailRegex.test(projectContributorData.email))}
+                  errorMessage={fieldErrors.email || t('form.errors.email')}
                 />
 
                 <FormInput
