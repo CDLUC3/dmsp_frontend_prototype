@@ -32,9 +32,11 @@ import {
 import PageHeader from "@/components/PageHeader";
 import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
+import QuestionPreview from '@/components/QuestionPreview';
 import FormInput from '@/components/Form/FormInput';
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
+import QuestionView from '@/components/QuestionView';
 
 //Other
 import {useToast} from '@/context/ToastContext';
@@ -348,8 +350,12 @@ const QuestionEdit = () => {
 
         <div className="sidebar">
           <h2>{Global('headings.preview')}</h2>
-          <p>{QuestionEdit('descriptions.previewText')}</p>
-          <Button>{QuestionEdit('buttons.previewQuestion')}</Button>
+          <QuestionPreview buttonLabel={QuestionEdit('descriptions.previewText')}>
+            <QuestionView
+              isPreview={true}
+              question={question}
+            />
+          </QuestionPreview>
 
           <h3>{QuestionEdit('headings.bestPractice')}</h3>
           <p>{QuestionEdit('descriptions.bestPracticePara1')}</p>
