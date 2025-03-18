@@ -1160,8 +1160,9 @@ export type MutationUpdatePasswordArgs = {
 
 
 export type MutationUpdatePlanContributorArgs = {
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isPrimaryContact?: InputMaybe<Scalars['Boolean']['input']>;
   planContributorId: Scalars['Int']['input'];
-  roleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
 
@@ -3294,6 +3295,21 @@ export type AddPlanMutationVariables = Exact<{
 
 export type AddPlanMutation = { __typename?: 'Mutation', addPlan?: { __typename?: 'Plan', id?: number | null } | null };
 
+export type AddPlanContributorMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  projectContributorId: Scalars['Int']['input'];
+}>;
+
+
+export type AddPlanContributorMutation = { __typename?: 'Mutation', addPlanContributor?: { __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null, contributorRoleIds?: string | null, primaryContact?: string | null, projectContributorId?: string | null, projectId?: string | null } | null } | null };
+
+export type RemovePlanContributorMutationVariables = Exact<{
+  planContributorId: Scalars['Int']['input'];
+}>;
+
+
+export type RemovePlanContributorMutation = { __typename?: 'Mutation', removePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null, primaryContact?: string | null, projectContributorId?: string | null, projectId?: string | null, contributorRoleIds?: string | null } | null } | null };
+
 export type UpdateProjectContributorMutationVariables = Exact<{
   input: UpdateProjectContributorInput;
 }>;
@@ -3618,6 +3634,89 @@ export function useAddPlanMutation(baseOptions?: Apollo.MutationHookOptions<AddP
 export type AddPlanMutationHookResult = ReturnType<typeof useAddPlanMutation>;
 export type AddPlanMutationResult = Apollo.MutationResult<AddPlanMutation>;
 export type AddPlanMutationOptions = Apollo.BaseMutationOptions<AddPlanMutation, AddPlanMutationVariables>;
+export const AddPlanContributorDocument = gql`
+    mutation AddPlanContributor($planId: Int!, $projectContributorId: Int!) {
+  addPlanContributor(planId: $planId, projectContributorId: $projectContributorId) {
+    errors {
+      general
+      contributorRoleIds
+      primaryContact
+      projectContributorId
+      projectId
+    }
+    id
+    isPrimaryContact
+  }
+}
+    `;
+export type AddPlanContributorMutationFn = Apollo.MutationFunction<AddPlanContributorMutation, AddPlanContributorMutationVariables>;
+
+/**
+ * __useAddPlanContributorMutation__
+ *
+ * To run a mutation, you first call `useAddPlanContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPlanContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPlanContributorMutation, { data, loading, error }] = useAddPlanContributorMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      projectContributorId: // value for 'projectContributorId'
+ *   },
+ * });
+ */
+export function useAddPlanContributorMutation(baseOptions?: Apollo.MutationHookOptions<AddPlanContributorMutation, AddPlanContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddPlanContributorMutation, AddPlanContributorMutationVariables>(AddPlanContributorDocument, options);
+      }
+export type AddPlanContributorMutationHookResult = ReturnType<typeof useAddPlanContributorMutation>;
+export type AddPlanContributorMutationResult = Apollo.MutationResult<AddPlanContributorMutation>;
+export type AddPlanContributorMutationOptions = Apollo.BaseMutationOptions<AddPlanContributorMutation, AddPlanContributorMutationVariables>;
+export const RemovePlanContributorDocument = gql`
+    mutation RemovePlanContributor($planContributorId: Int!) {
+  removePlanContributor(planContributorId: $planContributorId) {
+    errors {
+      general
+      primaryContact
+      projectContributorId
+      projectId
+      contributorRoleIds
+    }
+    id
+    isPrimaryContact
+  }
+}
+    `;
+export type RemovePlanContributorMutationFn = Apollo.MutationFunction<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>;
+
+/**
+ * __useRemovePlanContributorMutation__
+ *
+ * To run a mutation, you first call `useRemovePlanContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemovePlanContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removePlanContributorMutation, { data, loading, error }] = useRemovePlanContributorMutation({
+ *   variables: {
+ *      planContributorId: // value for 'planContributorId'
+ *   },
+ * });
+ */
+export function useRemovePlanContributorMutation(baseOptions?: Apollo.MutationHookOptions<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>(RemovePlanContributorDocument, options);
+      }
+export type RemovePlanContributorMutationHookResult = ReturnType<typeof useRemovePlanContributorMutation>;
+export type RemovePlanContributorMutationResult = Apollo.MutationResult<RemovePlanContributorMutation>;
+export type RemovePlanContributorMutationOptions = Apollo.BaseMutationOptions<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>;
 export const UpdateProjectContributorDocument = gql`
     mutation UpdateProjectContributor($input: updateProjectContributorInput!) {
   updateProjectContributor(input: $input) {

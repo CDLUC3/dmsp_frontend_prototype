@@ -5,12 +5,13 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
   Form,
-  Link
+  Link,
+  Text
 } from "react-aria-components";
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+import classNames from 'classnames';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -20,10 +21,14 @@ import {
   SidebarPanel
 } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
+import { FormSelect } from '@/components/Form/FormSelect';
 
 import {
+  useAddPlanContributorMutation,
   useProjectContributorsQuery,
   usePlanContributorsQuery,
+  ProjectContributor,
+  useRemovePlanContributorMutation
 } from '@/generated/graphql';
 import { ProjectContributorsInterface } from '@/app/types';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
@@ -50,10 +55,11 @@ const ProjectsProjectPlanAdjustMembers = () => {
   // Store ids of members selected for this plan
   const [planMemberIds, setPlanMemberIds] = useState<number[]>([]);
 
-  // Store selected plan contributors
-  const [selectedPlanContributors, setSelectedPlanContributors] = useState<{ id: number, roleIds: number[] }[]>([]);
+  // To track whether user is editing the primary contact
+  const [isEditing, setIsEditing] = useState(false);
 
-
+  // Save errors in state to display on page
+  const [errors, setErrors] = useState<string[]>([]);
 
   // Localization keys
   const ProjectMembers = useTranslations('ProjectsProjectMembers');
@@ -75,34 +81,9 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   );
 
-
-  const members: Member[] = [
-    {
-      id: 'member-001',
-      name: 'Frederick Cook',
-      affiliation: 'University of California',
-      orcid: '0000-0001-2603-5427',
-      role: 'Primary Investigator',
-      isSelectedForThisProject: true,
-    },
-    {
-      id: 'member-002',
-      name: 'Jennifer Frost',
-      affiliation: 'University of Arctic Studies',
-      orcid: '0000-0007-7803-0427',
-      role: 'Data curator',
-      isSelectedForThisProject: false,
-    },
-    {
-      id: 'member-003',
-      name: 'Christina Snowden',
-      affiliation: 'University of California',
-      orcid: '0000-0007-7803-0417',
-      role: 'Data curator',
-      isSelectedForThisProject: true,
-    }
-  ];
-
+  // Initialize mutations
+  const [AddPlanContributorMutation] = useAddPlanContributorMutation();
+  const [RemovePlanContributorMutation] = useRemovePlanContributorMutation();
 
   const handleFormSubmit = () => {
     console.log("Form submitted")
@@ -113,6 +94,80 @@ const ProjectsProjectPlanAdjustMembers = () => {
     // Handle editing member
     window.location.href = '/projects/proj_2425/members/edit?memberid=' + memberId;
   };
+
+  const addPlanContributor = async (id: number) => {
+    try {
+      const response = await AddPlanContributorMutation({
+        variables: {
+          planId: Number(planId),
+          projectContributorId: id
+        }
+      });
+
+      if (response.data?.addPlanContributor?.errors) {
+        return response.data.addPlanContributor.errors;
+      }
+    } catch (error) {
+    }
+    return {};
+  };
+
+  const handleAddPlanContributor = async (memberId: number | null) => {
+    if (memberId) {
+      // Create new section
+      const errors = await addPlanContributor(memberId);
+
+      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
+      if (errors && Object.values(errors).filter((err) => err && err !== 'PlanContributorErrors').length > 0) {
+
+        setErrors([errors.general || "something went wrong"]);
+      } else {
+        //show success message
+        setPlanMemberIds(prev => [...prev, Number(memberId)]);
+      }
+    }
+  }
+
+
+  const removePlanContributor = async (id: number) => {
+    try {
+      const response = await RemovePlanContributorMutation({
+        variables: {
+          planContributorId: id
+        }
+      });
+
+      if (response.data?.removePlanContributor?.errors) {
+        return response.data.removePlanContributor.errors;
+      }
+    } catch (error) {
+    }
+    return {};
+  };
+
+  const handleRemovePlanContributor = async (memberId: number | null) => {
+    if (memberId) {
+      // Find the planContributor ID that matches the memberId
+      const planContributor = planContributorData?.planContributors?.find(
+        (contributor) => contributor?.projectContributor?.id === memberId
+      );
+
+      if (!planContributor?.id) {
+        setErrors(["Contributor not found in this plan"]);
+        return;
+      }
+      // Create new section
+      const errors = await removePlanContributor(planContributor.id);
+
+      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
+      if (errors && Object.values(errors).filter((err) => err && err !== 'PlanContributorErrors').length > 0) {
+        setErrors([errors.general || "something went wrong"]);
+      } else {
+        //show success message
+        setPlanMemberIds((prev) => prev.filter((id) => id !== memberId));
+      }
+    }
+  }
 
   const handleCheckboxChange = (id: string) => {
     // Handle checkbox change
@@ -126,6 +181,19 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   };
 
+  const isPrimaryContact = (contributor: ProjectContributor | null) => {
+    if (!planContributorData || !planContributorData.planContributors) {
+      return false;
+    }
+
+    // Find the primary contact ID from planContributors
+    const primaryContactId = planContributorData.planContributors
+      .find((planContributor) => planContributor?.isPrimaryContact)?.projectContributor?.id;
+
+    // Check if the given contributor matches the primary contact ID
+    return primaryContactId === (contributor as ProjectContributor)?.id;
+  };
+
   useEffect(() => {
     // When data from backend changes, set project contributors data in state
     if (data && data.projectContributors) {
@@ -134,11 +202,12 @@ const ProjectsProjectPlanAdjustMembers = () => {
         fullName: `${contributor?.givenName} ${contributor?.surName}`,
         affiliation: contributor?.affiliation?.displayName ?? '',
         orcid: contributor?.orcid ?? '',
+        isPrimaryContact: isPrimaryContact(contributor as ProjectContributor),
         role: (contributor?.contributorRoles && contributor.contributorRoles.length > 0) ? contributor?.contributorRoles?.map((role) => role.label).join(', ') : '',
       }))
       setProjectContributors(projectContributorData);
     }
-  }, [data]);
+  }, [data, planContributorData]);
 
   useEffect(() => {
     // When data from backend changes, set plan contributors data in state
@@ -207,22 +276,9 @@ const ProjectsProjectPlanAdjustMembers = () => {
                         role="listitem"
                         aria-label={`Project member: ${member.fullName}`}
                       >
-                        <div className={`${styles.memberCheckbox} ${styles.box}`}>
-                          <Checkbox
-                            value={member.id?.toString()}
-                            aria-label={`Select ${member.fullName} for this plan`}
-                            onChange={() => handleCheckboxChange(member.id?.toString() ?? '')}
-                            isSelected={planMemberIds.includes(Number(member.id))}
-                          >
-                            <div className="checkbox">
-                              <svg viewBox="0 0 18 18" aria-hidden="true">
-                                <polyline points="1 9 7 14 15 4" />
-                              </svg>
-                            </div>
-                          </Checkbox>
-
-                        </div>
-                        <div className={`${styles.memberInfo} ${styles.box}`}>
+                        <div className={classNames(styles.memberInfo, styles.box, {
+                          [styles.notMember]: !planMemberIds.includes(Number(member.id))
+                        })}>
                           <h2>
                             {member.fullName}
                           </h2>
@@ -241,21 +297,67 @@ const ProjectsProjectPlanAdjustMembers = () => {
                             </a>
                           </p>
                         </div>
-                        <div className={`${styles.memberRole} ${styles.box}`}>
-                          <p className={styles.role}>{member.role}</p>
-                        </div>
-                        <div className={`${styles.memberActions} ${styles.box}`}>
-                          <Button
-                            onPress={() => handleEdit(member.id?.toString() ?? '')}
+                        <div className={classNames(styles.memberRole, styles.box, {
+                          [styles.notMember]: !planMemberIds.includes(Number(member.id))
+                        })}>
 
-                            className="button-link secondary"
-                            aria-label={`Change role`}
+                          <p className={styles.role}>
+                            {member?.isPrimaryContact && <strong>Contact person,{' '}</strong>}
+                            {member.role}
+                          </p>                        </div>
+                        <div className={`${styles.memberActions} ${styles.box}`}>
+                          {planMemberIds.includes(Number(member.id)) ? (
+                            <Button
+                              onPress={() => handleRemovePlanContributor(member.id)}
+
+                              className={"button-link secondary"}
+                              aria-label={`Remove from plan`}
+                            >
+                              Remove from plan
+                            </Button>
+                          ) : (<Button
+                            onPress={() => handleAddPlanContributor(member.id)}
+
+                            className={"button-link primary"}
+                            aria-label={`Add to this plan`}
                           >
-                            Change role
-                          </Button>
+                            Add to this plan
+                          </Button>)
+                          }
+
                         </div>
                       </div>
                     ))}
+                  </div>
+                  <div>
+                    <h2 className={styles.primaryContact}>Primary contact</h2>
+                    {/**Just show the Plan Contributors in the dropdown */}
+                    {/* <Form onSubmit={handlePrimaryContactChange}>
+                      {isEditing ? (
+                        <FormSelect
+                          label="Language"
+                          isRequired
+                          name="institution"
+                          items={languages}
+                          errorMessage="A selection is required"
+                          helpMessage={t('helpTextSelectYourLanguage')}
+                          onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
+                          selectedKey={formData.languageId.trim()}
+                        >
+                          {languages && languages.map((language) => {
+                            return (
+                              <ListBoxItem key={language.id}>{language.id}</ListBoxItem>
+                            )
+
+                          })}
+                        </FormSelect>
+                      ) : (
+                        <Text slot="givenName" className={styles.readOnlyField}>
+                          <div className="field-label">{t('givenName')}</div>
+                          <p>{formData.givenName}</p>
+                        </Text>
+                      )}
+                    </Form> */}
                   </div>
                   <Button type="submit">Save</Button>
                 </Form>

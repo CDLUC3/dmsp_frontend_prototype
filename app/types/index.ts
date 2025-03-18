@@ -261,4 +261,5 @@ export interface ProjectContributorsInterface {
   affiliation: string;
   orcid: string;
   role: string;
+  isPrimaryContact: boolean;
 }

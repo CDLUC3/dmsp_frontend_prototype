@@ -4,10 +4,13 @@
   display: grid;
   align-items: start; // Align to top
   grid-template-columns: auto 1fr; /* auto-width for checkbox, remaining space for others */
-  gap: 20px;
   width: 100%;
   padding: 1rem 0;
   margin-bottom: 1rem;
+}
+
+.membersList > *:not(:first-child) {
+  padding-left: 20px; /* Adds space only to elements after the first column */
 }
 
 .box {
@@ -19,6 +22,11 @@
   grid-row: 1;
   width: min-content; /* Make the checkbox column only as wide as needed */
   justify-self: start; /* Align to the start of the cell */
+}
+
+.primaryContact {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
 }
 
 .memberInfo {
@@ -83,17 +91,16 @@
   width: 100%;
 }
 
+.notMember {
+  color: var(--gray-200);
+}
+
 @include device('xl') {
   .membersList {
     /* Four columns: auto-width for checkbox, remaining space divided among the other three */
     grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
     justify-content: start; /* Ensure the grid starts from the left */
     align-items: start;
-  }
-
-  .memberCheckbox {
-    grid-column: 1;
-    grid-row: 1;
   }
 
   .memberInfo {
