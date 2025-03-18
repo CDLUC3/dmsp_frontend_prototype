@@ -174,5 +174,48 @@
       },
       "noContributors": "Nenhum contribuidor encontrado"
     }
+  },
+  "ProjectsProjectMembersEdit": {
+    "title": "Editar Detalhes do Membro",
+    "description": "Atualizar informações colaboradoras",
+    "breadcrumbs": {
+      "projectMembers": "Membros de projeto"
+    },
+    "buttons": {
+      "removeMember": "Remover membro"
+    },
+    "headings": {
+      "h2RemoveMember": "Remover membro"
+    },
+    "paragraphs": {
+      "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível."
+    },
+    "form": {
+      "errors": {
+        "firstName": "Valor do primeiro nome inválido",
+        "lastName": "Valor de sobrenome inválido",
+        "affiliation": "Valor inválido de afiliação",
+        "email": "Valor de email inválido",
+        "orcid": "Valor ORCiD inválido",
+        "projectRoles": "Deve selecionar pelo menos uma função de projeto",
+        "removingMember": "Ocorreu um erro ao remover o colaborador do projeto.",
+        "updatingMember": "Ocorreu um erro ao atualizar o colaborador do projeto."
+      },
+      "success": {
+        "memberUpdated": "Detalhes do membro atualizados com sucesso",
+        "removedMember": "Membro removido com sucesso"
+      },
+      "labels": {
+        "checkboxGroupLabel": "Funções do projeto",
+        "checkboxGroupDescription": "Forneça as funções do membro do projeto",
+        "firstName": "Primeiro nome",
+        "lastName": "Último Nome",
+        "affiliation": "Afiliação",
+        "emailAddress": "E-mail",
+        "orcid": "ORCiD ID",
+        "role": "Função",
+        "removeMemberFromProject": "Remover membro do projeto"
+      }
+    }
   }
 }

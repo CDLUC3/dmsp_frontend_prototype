@@ -58,44 +58,44 @@
     },
     "publishModal": {
       "markComplete": {
-        "title": "Marked as complete.",
-        "description": "We have updated your plan to completed - if you have made a mistake you can mark it as incomplete",
-        "markIncompleteButton": "Mark as incomplete",
-        "step1Title": "Step 1: Download",
-        "step1Description": "You can download the completed plan",
-        "step2Title": "Step 2: Publish the plan (Recommended)",
-        "step2Description": "Publishing a Data Management Plan (DMP) assigns it a Digital Object Identifier (DOI). This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.",
-        "closeButton": "Close",
-        "publishButton": "Publish the plan"
+        "title": "Marcar como concluído",
+        "description": "Atualizamos seu plano para completar - se você cometeu algum erro, pode marcá-lo como incompleto",
+        "markIncompleteButton": "Marcar como incompleto",
+        "step1Title": "Etapa 1: Baixar",
+        "step1Description": "Você pode baixar o plano concluído",
+        "step2Title": "Passo 2: Publique o plano (recomendado)",
+        "step2Description": "A publicação de um Plano de Gerenciamento de Dados (DMP) atribui a ele um Identificador Digital de Objeto (DOI). Este DOI identifica exclusivamente o DMP, facilitando a referência e o acesso no futuro.",
+        "closeButton": "Fechar",
+        "publishButton": "Publicar o plano"
       },
       "markIncomplete": {
-        "title": "Marked as incomplete.",
-        "description": "We have updated your plan as incomplete.",
-        "closeButton": "Close",
-        "markCompleteButton": "Mark as complete"
+        "title": "Marcado como incompleto.",
+        "description": "Atualizamos o seu plano como incompleto.",
+        "closeButton": "Fechar",
+        "markCompleteButton": "Marcar como concluído"
       },
       "publish": {
-        "title": "Publish",
-        "description1": "Publishing a Data Management Plan (DMP) marks it as \"complete\" and assigns it a Digital Object Identifier (DOI).",
-        "description2": "This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.",
-        "visibilityTitle": "Visibility Settings",
-        "visibilityDescription": "You can control what parts of your plan are or are not visible once it is published.",
+        "title": "Publicar",
+        "description1": "A publicação de um Plano de Gerenciamento de Dados (DMP) marca-o como \"completa\" e atribui-lhe um Identificador de Objeto Digital (DOI).",
+        "description2": "Este DOI identifica exclusivamente o DMP, facilitando a referência e o acesso no futuro.",
+        "visibilityTitle": "Configurações de visibilidade",
+        "visibilityDescription": "Você pode controlar quais partes do seu plano são ou não visíveis uma vez que seja publicado.",
         "visibilityOptions": {
           "public": {
-            "label": "Public (recommended)",
-            "description": "All metadata will be visible to any user. Researchers will be able to view the contents of the plan itself."
+            "label": "Público (recomendado)",
+            "description": "Todos os metadados serão visíveis para qualquer usuário. Os pesquisadores poderão visualizar o conteúdo do plano em si."
           },
           "organization": {
-            "label": "Organization only",
-            "description": "The full plan will be visible to anyone within your Organization. Only basic metadata about your plan (title and collaborators) will be visible to users outside your organization."
+            "label": "Apenas organização",
+            "description": "O plano completo será visível para qualquer pessoa de sua Organização. Apenas metadados básicos do seu plano (título e colaboradores) ficarão visíveis para usuários fora da sua organização."
           },
           "private": {
-            "label": "Private",
-            "description": "Only basic metadata about your plan (title and collaborators) will be visible to other users."
+            "label": "Privado",
+            "description": "Apenas metadados básicos do seu plano (títulos e colaboradores) ficarão visíveis para os outros usuários."
           }
         },
-        "closeButton": "Close",
-        "publishButton": "Publish"
+        "closeButton": "Fechar",
+        "publishButton": "Publicar"
       }
     }
   },
@@ -109,7 +109,7 @@
       "filterByBestPracticesDescription": "Selecione se você quer ver apenas os modelos de boas práticas"
     },
     "labels": {
-      "dmpBestPractice": "DMP best practice"
+      "dmpBestPractice": "Prática de qualidade DMP"
     }
   }
 }
