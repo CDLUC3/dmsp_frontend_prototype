@@ -69,6 +69,7 @@ describe('FormSelect', () => {
       </FormSelect>
     );
 
-    expect(screen.getByText('Choose from the available options')).toBeInTheDocument();
+    const helpText = screen.getAllByText('Choose from the available options');
+    expect(helpText).toHaveLength(2);
   });
 });

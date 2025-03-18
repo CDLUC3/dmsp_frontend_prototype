@@ -1,0 +1,32 @@
+
+mutation UpdateProjectContributor($input: updateProjectContributorInput!) {
+  updateProjectContributor(input: $input) {
+    givenName
+    surName
+    orcid
+    id
+    errors {
+      email
+      surName
+      general
+      givenName
+      orcid
+      affiliationId
+      contributorRoleIds
+    }
+  }
+}
+
+mutation RemoveProjectContributor($projectContributorId: Int!) {
+  removeProjectContributor(projectContributorId: $projectContributorId) {
+    errors {
+      general
+      email
+      affiliationId
+      givenName
+      orcid
+      surName
+      contributorRoleIds
+    }
+  }
+}

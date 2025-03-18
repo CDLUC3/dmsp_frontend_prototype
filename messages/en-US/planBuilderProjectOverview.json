@@ -174,5 +174,48 @@
       },
       "noContributors": "No contributors found"
     }
+  },
+  "ProjectsProjectMembersEdit": {
+    "title": "Edit Member Details",
+    "description": "Update collaborator information",
+    "breadcrumbs": {
+      "projectMembers": "Project members"
+    },
+    "buttons": {
+      "removeMember": "Remove member"
+    },
+    "headings": {
+      "h2RemoveMember": "Remove member"
+    },
+    "paragraphs": {
+      "removeMember": "Removing this member means they will no longer be able to access this plan. This is not reversible."
+    },
+    "form": {
+      "errors": {
+        "firstName": "Invalid first name value",
+        "lastName": "Invalid last name value",
+        "affiliation": "Invalid affiliation value",
+        "email": "Invalid email value",
+        "orcid": "Invalid ORCiD value",
+        "projectRoles": "Must select at least one project role",
+        "removingMember": "An error occurred while removing the project contributor.",
+        "updatingMember": "An error occurred while updating the project contributor."
+      },
+      "success": {
+        "memberUpdated": "Successfully updated member details",
+        "removedMember": "Successfully removed member"
+      },
+      "labels": {
+        "checkboxGroupLabel": "Project roles",
+        "checkboxGroupDescription": "Provide the role(s) of the project member",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "affiliation": "Affiliation",
+        "emailAddress": "Email",
+        "orcid": "ORCiD ID",
+        "role": "Role",
+        "removeMemberFromProject": "Remove member from project"
+      }
+    }
   }
 }
