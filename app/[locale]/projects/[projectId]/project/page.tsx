@@ -1,10 +1,10 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useTranslations} from 'next-intl';
-import {useParams} from 'next/navigation';
-import {CalendarDate, DateValue, parseDate} from "@internationalized/date";
+import { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
+import { CalendarDate, DateValue, parseDate } from "@internationalized/date";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -33,16 +33,16 @@ import {
 
 //Components
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer} from "@/components/Container";
-import {FormInput, RadioGroupComponent} from "@/components/Form";
+import { ContentContainer, LayoutContainer } from "@/components/Container";
+import { FormInput, RadioGroupComponent } from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
 import ResearchDomainCascadingDropdown
   from '@/components/ResearchDomainCascadingDropdown';
 
-import {getCalendarDateValue} from "@/utils/dateUtils";
-import {scrollToTop} from '@/utils/general';
+import { getCalendarDateValue } from "@/utils/dateUtils";
+import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 interface ProjectFormErrorsInterface {
   projectName: string;
@@ -171,7 +171,7 @@ const ProjectsProjectDetail = () => {
 
   const updateProjectContent = (
     key: string,
-    value: string | DateValue | boolean | number
+    value: string | DateValue | boolean | number | CalendarDate | null
   ) => {
     setProjectData((prevContents) => ({
       ...prevContents,

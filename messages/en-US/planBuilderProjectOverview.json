@@ -197,6 +197,7 @@
         "affiliation": "Invalid affiliation value",
         "email": "Invalid email value",
         "orcid": "Invalid ORCiD value",
+        "projectRoles": "Must select at least one project role",
         "removingMember": "An error occurred while removing the project contributor.",
         "updatingMember": "An error occurred while updating the project contributor."
       },

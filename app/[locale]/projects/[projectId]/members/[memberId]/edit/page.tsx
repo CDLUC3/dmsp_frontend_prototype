@@ -34,7 +34,7 @@ import { useProjectContributorData } from "@/hooks/projectContributorData";
 
 //Other
 import logECS from '@/utils/clientLogger';
-import { ProjectContributorFormInterface } from '@/app/types';
+import { ProjectContributorFormInterface, ProjectContributorErrorInterface } from '@/app/types';
 import styles from './ProjectsProjectMembersEdit.module.scss';
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
@@ -80,12 +80,13 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   // Field errors
-  const [fieldErrors, setFieldErrors] = useState<ProjectContributorFormInterface>({
+  const [fieldErrors, setFieldErrors] = useState<ProjectContributorErrorInterface>({
     givenName: '',
     surName: '',
     affiliationId: '',
     email: '',
     orcid: '',
+    projectRoles: ''
   });
 
   //For scrolling to error in page
@@ -144,6 +145,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       affiliationId: '',
       email: '',
       orcid: '',
+      projectRoles: ''
     });
   }
 
@@ -190,6 +192,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
           affiliationId: errors.affiliationId || '',
           email: errors.email || '',
           orcid: errors.orcid || '',
+          projectRoles: errors.contributorRoleIds ?? ''
         });
       }
       setErrorMessages([errors.general || t('form.errors.updatingMember')]);
@@ -280,12 +283,13 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     // Initialize a flag for form validity
     let isValid = true;
     // Field errors
-    const errors: ProjectContributorFormInterface = {
+    const errors: ProjectContributorErrorInterface = {
       givenName: '',
       surName: '',
       affiliationId: '',
       email: '',
       orcid: '',
+      projectRoles: ''
     };
 
     // Iterate over formData to validate each field
@@ -324,6 +328,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
             affiliationId: errors.affiliationId || '',
             email: errors.email || '',
             orcid: errors.orcid || '',
+            projectRoles: errors.contributorRoleIds ?? ''
           });
         }
         setErrorMessages([errors.general || t('form.errors.updatingMember')]);
@@ -346,10 +351,6 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       dispatch({ type: 'SET_ROLES', payload: filteredRoles });
     }
   }, [contributorRoles]);
-
-  useEffect(() => {
-    console.log(fieldErrors);
-  }, [fieldErrors]);
 
   if (isLoading) {
     return <div>{Global('messaging.loading')}...</div>;
@@ -461,12 +462,15 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="projectRoles"
                   value={checkboxRoles}
                   onChange={(newValues) => handleCheckboxChange(newValues)}
+                  isRequired={true}
                   checkboxGroupLabel={t('form.labels.checkboxGroupLabel')}
                   checkboxGroupDescription={t('form.labels.checkboxGroupDescription')}
                   checkboxData={state.roles && state.roles.map(role => ({
                     label: role.label,
                     value: role?.id?.toString() ?? ''
                   }))}
+                  isInvalid={checkboxRoles.length === 0}
+                  errorMessage={fieldErrors.projectRoles || t('form.errors.projectRoles')}
                 />
 
                 <Button type="submit">{Global('buttons.saveChanges')}</Button>

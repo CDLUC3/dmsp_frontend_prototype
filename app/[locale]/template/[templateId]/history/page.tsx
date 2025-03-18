@@ -116,17 +116,17 @@ const TemplateHistory = () => {
                     )}
 
                     <h3 id="templateHistoryHeading">{t('subHeading')}</h3>
-                    <Table aria-labelledby="templateHistoryHeading" className="react-aria-Table">
-                        <TableHeader className="react-aria-TableHeader">
+                    {sortedTemplates.length > 0 ? (
+                        <Table aria-labelledby="templateHistoryHeading" className="react-aria-Table">
+                            <TableHeader className="react-aria-TableHeader">
 
-                            <Column isRowHeader={true} className={`react-aria-Column ${styles.firstColumn}`}>{t('tableColumnAction')}</Column>
-                            <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnUser')}</Column>
-                            <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnDate')}</Column>
-                        </TableHeader>
-                        <TableBody>
-                            {
-                                sortedTemplates.length > 0
-                                    ? sortedTemplates.map((item, index) => {
+                                <Column isRowHeader={true} className={`react-aria-Column ${styles.firstColumn}`}>{t('tableColumnAction')}</Column>
+                                <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnUser')}</Column>
+                                <Column isRowHeader={true} className="react-aria-Column">{t('tableColumnDate')}</Column>
+                            </TableHeader>
+                            <TableBody>
+                                {
+                                    sortedTemplates.map((item, index) => {
 
                                         const publishDate = item?.created ? formatWithTimeAndDate(item?.created) : '';
                                         const versionedBy = item?.versionedBy;
@@ -149,11 +149,11 @@ const TemplateHistory = () => {
                                             </Row>
                                         );
                                     })
-                                    : <Row><Cell>{t('notFoundMessage')}</Cell></Row>
-                            }
+                                }
 
-                        </TableBody>
-                    </Table>
+                            </TableBody>
+                        </Table>
+                    ) : <p>{t('notFoundMessage')}</p>}
                 </ContentContainer>
             </LayoutContainer>
         </>
