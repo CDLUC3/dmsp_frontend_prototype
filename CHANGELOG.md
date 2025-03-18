@@ -4,6 +4,9 @@
 - Plan Downloads [#299]
 - 
 ### Added
+- Add central "named routes" and helper function
+
+### Added
 - Project Create Flow [#299]
 - Project Upload [#299]
 - Project Funder [#299]
@@ -22,6 +25,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Update `Edit Member Details` page. Added mutation and queries, translations, and unit test [#367]
 - Updated `PlanCreate` component so that it hooks up to real data. The functionality of the page is a little complicated, so I added a `CreatePlan.md` file to summarize what functionality is expected in the page. [#361]
 - Updated the `Project Members` page with real data [#360]
 - Updated `ProjectsProjectFundingEdit` component and moved the page under a new `[projectFunderId]` directory at `/projects/[projectId]/funder/[projectFunderId]/edit` [#357]

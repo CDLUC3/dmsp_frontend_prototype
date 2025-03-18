@@ -233,8 +233,27 @@ export interface CheckboxGroupProps {
   isInvalid?: boolean;
   errorMessage?: string;
   // eslint-disable-next-line no-unused-vars
-  onChange?: ((value: string[]) => void)
+  onChange?: ((value: string[]) => void),
+  isRequired?: boolean;
 }
+
+export interface ProjectContributorErrorInterface {
+  givenName: string;
+  surName: string;
+  affiliationId: string;
+  email: string;
+  orcid: string;
+  projectRoles: string;
+}
+
+export interface ProjectContributorFormInterface {
+  givenName: string;
+  surName: string;
+  affiliationId: string;
+  email: string;
+  orcid: string;
+}
+
 
 export interface ProjectContributorsInterface {
   id: number | null;

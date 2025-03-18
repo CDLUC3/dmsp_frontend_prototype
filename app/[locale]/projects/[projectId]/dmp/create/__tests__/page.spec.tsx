@@ -1,13 +1,14 @@
 import React from 'react';
-import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
 import PlanCreate from '../page';
-import { useParams, useRouter } from 'next/navigation';
-import { useProjectFundersQuery, usePublishedTemplatesQuery, useAddPlanMutation } from '@/generated/graphql';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {useParams, useRouter} from 'next/navigation';
 import {
-  mockScrollIntoView,
-  mockScrollTo
-} from '@/__mocks__/common';
+  useAddPlanMutation,
+  useProjectFundersQuery,
+  usePublishedTemplatesQuery
+} from '@/generated/graphql';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {mockScrollIntoView, mockScrollTo} from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 

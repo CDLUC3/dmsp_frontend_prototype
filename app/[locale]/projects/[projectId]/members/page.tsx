@@ -47,7 +47,7 @@ const ProjectsProjectMembers = () => {
   const handleEdit = (memberId: number | null): void => {
 
     // Handle editing member
-    router.push(`/projects/${projectId}/members/edit?memberid=${memberId?.toString()}`);
+    router.push(`/projects/${projectId}/members/${memberId?.toString()}/edit`);
   };
 
   const handleShare = (): void => {
