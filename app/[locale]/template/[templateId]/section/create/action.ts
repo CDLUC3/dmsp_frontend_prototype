@@ -1,7 +1,7 @@
 "use server";
 
-import { getClient } from "@/lib/graphql/apollo-server";
 import { AddSectionDocument } from "@/generated/graphql";
+import { cookies } from "next/headers";
 
 export async function createSectionOnServer(input: {
   templateId: number;
@@ -13,18 +13,44 @@ export async function createSectionOnServer(input: {
   tags: { id: number }[];
 }) {
   try {
-    const client = getClient(); // Ensure getClient() is properly set up for server-side Apollo Client usage
+    // Extract mutation string from the generated document
+    const mutationString = AddSectionDocument.loc?.source.body;
 
-    const { data, errors } = await client.mutate({
-      mutation: AddSectionDocument,
-      variables: { input },
-    });
-
-    if (errors || data?.addSection?.errors) {
-      return { success: false, errors: data?.addSection?.errors || errors };
+    if (!mutationString) {
+      throw new Error("Could not extract mutation string from document");
     }
 
-    return { success: true, section: data?.addSection?.section };
+    // Get authentication token if needed
+    const cookieStore = cookies();
+    const authToken = cookieStore.get('authToken')?.value;
+
+    // Make the fetch request
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/graphql`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authToken ? `Bearer ${authToken}` : '',
+      },
+      body: JSON.stringify({
+        query: mutationString,
+        variables: { input }
+      })
+    });
+
+    const result = await response.json();
+
+    // Handle errors
+    if (result.errors || result.data?.addSection?.errors) {
+      return {
+        success: false,
+        errors: result.data?.addSection?.errors || result.errors
+      };
+    }
+
+    return {
+      success: true,
+      section: result.data?.addSection?.section
+    };
   } catch (error) {
     console.error("Error creating section:", error);
     return { success: false, errors: ["An unexpected error occurred"] };
