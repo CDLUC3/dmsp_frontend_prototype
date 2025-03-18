@@ -28,7 +28,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import {useScrollToTop} from '@/hooks/scrollToTop';
 
 import logECS from '@/utils/clientLogger';
-import {TemplateInterface, TemplateItemProps,} from '@/app/types';
+import {TemplateSearchResultInterface, TemplateInterface, TemplateItemProps,} from '@/app/types';
 import styles from './orgTemplates.module.scss';
 
 const TemplateListPage: React.FC = () => {
@@ -149,9 +149,9 @@ const TemplateListPage: React.FC = () => {
   useEffect(() => {
     // Transform templates into format expected by TemplateListItem component
     if (data && data?.myTemplates) {
-      const fetchAllTemplates = async (templates: (TemplateInterface | null)[]) => {
+      const fetchAllTemplates = async (templates: (TemplateSearchResultInterface | null)[]) => {
         const transformedTemplates = await Promise.all(
-          templates.map(async (template: TemplateInterface | null) => {
+          templates.map(async (template: TemplateSearchResultInterface | null) => {
             return {
               title: template?.name || "",
               link: `/template/${template?.id}`,
@@ -161,7 +161,7 @@ const TemplateListPage: React.FC = () => {
                   <p>Last updated: {(template?.modified) ? formatDate(template?.modified) : null}</p>
                 </div>
               ) : null, // Set to null if no description or last modified data
-              funder: template?.owner?.name || template?.name,
+              funder: template?.ownerDisplayName,
               lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
               publishStatus: (template?.isDirty) ? 'Published' : 'Unpublished',
               defaultExpanded: false

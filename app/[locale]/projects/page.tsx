@@ -23,40 +23,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 //GraphQL
 import {useMyProjectsQuery,} from '@/generated/graphql';
 
-import {ProjectItemProps} from '@/app/types';
-
-interface ContributorRolesInterface {
-  id?: number | null;
-  label: string;
-}
-
-interface FundersInterface {
-  affiliation?: {
-    name: string;
-    uri: string;
-  } | null;
-}
-
-interface ContributorsInterface {
-  givenName?: string | null;
-  surName?: string | null;
-  contributorRoles?: ContributorRolesInterface[] | null;
-  orcid?: string | null;
-}
-interface ProjectInterface {
-  title: string;
-  id?: number | null;
-  contributors?: ContributorsInterface[] | null;
-  startDate?: string | null;
-  endDate?: string | null;
-  funders?: FundersInterface[] | null;
-  modified?: string | null;
-  modifiedById?: number | null;
-  created?: string | null;
-  createdById?: number | null;
-  grantId?: string | null;
-}
-
+import {ProjectItemProps, ProjectSearchResultInterface} from '@/app/types';
 
 const ProjectsListPage: React.FC = () => {
   const formatter = useFormatter();
@@ -79,15 +46,13 @@ const ProjectsListPage: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
-
-
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
     setSearchTerm(value);
   }
 
   /* Filter results when a user enters a search term and clicks "Search" button.
-  Searches through title, content, description, and collaborator fields*/
+  Searches through title, content, description, and member fields*/
   const handleFiltering = (term: string) => {
     setSearchButtonClicked(true);
     setErrors([]);
@@ -98,16 +63,16 @@ const ProjectsListPage: React.FC = () => {
       [
         proj.title,
         proj.description,
-        // Ensure all collaborator fields (name, orcid, roles) are included in the search
-        proj.collaborators
-          .map(collab =>
+        // Ensure all member fields (name, orcid, roles) are included in the search
+        proj.members
+          .map(member =>
             [
-              collab.name.toLowerCase(),
-              collab.orcid?.toLowerCase() || "",
-              collab.roles.join(" ").toLowerCase() // Convert roles array to a string
+              member.name.toLowerCase(),
+              member.orcid?.toLowerCase() || "",
+              member.roles.split(",").map(role => role.toLowerCase()).join(" ")
             ].join(" ")
           )
-          .join(" ") // Join all collaborators into one searchable string
+          .join(" ") // Join all members into one searchable string
       ]
         .filter(Boolean) // Remove any undefined/null values
         .some(field => field?.toLowerCase().includes(lowerCaseTerm))
@@ -139,25 +104,24 @@ const ProjectsListPage: React.FC = () => {
   useEffect(() => {
     // Transform projects into format expected by ProjectListItem component
     if (data && data?.myProjects) {
-      const fetchAllProjects = async (projects: (ProjectInterface | null)[]) => {
+      const fetchAllProjects = async (projects: (ProjectSearchResultInterface | null)[]) => {
         const transformedProjects = await Promise.all(
-          projects.map(async (project: ProjectInterface | null) => {
+          projects.map(async (project: ProjectSearchResultInterface | null) => {
             return {
               title: project?.title || "",
               link: `/projects/${project?.id}`,
-              funder: (project?.funders && project?.funders[0]?.affiliation?.name) ?? '',
+              funder: project?.funders ? project?.funders.map((fund) => fund?.name).join(', ') : '',
               defaultExpanded: false,
               startDate: project?.startDate ? formatDate(project.startDate) : '',
               endDate: project?.endDate ? formatDate(project.endDate) : '',
-              collaborators: project?.contributors ? project.contributors.map((contributor) => {
+              members: (project?.contributors ? project.contributors.map((contributor) => {
                 return {
-                  name: `${contributor.givenName} ${contributor.surName}`,
-                  roles: contributor.contributorRoles ? contributor.contributorRoles.map((role) => role.label) : [],
-                  orcid: contributor.orcid
+                  name: contributor.name || '',
+                  roles: contributor.role || '',
+                  orcid: contributor.orcid || ''
                 }
-              }) : [],
-              grantId: project?.grantId,
-
+              }) : []),
+              grantId: project?.funders ? project?.funders.map((fund) => fund?.grantId).join(', ') : '',
             }
           }));
 

@@ -21,6 +21,22 @@ export interface ProfileDataInterface {
   languageName: string;
 }
 
+export interface TemplateSearchResultInterface {
+  id?: number | null;
+  name?: string | null;
+  description?: string | null;
+  visibility?: string | null;
+  isDirty?: boolean | null;
+  latestPublishVersion?: string | null;
+  latestPublishDate?: string | null;
+  modified?: string | null;
+  modifiedById?: number | null;
+  modifiedByName?: string | null;
+  ownerId?: string | null;
+  ownerDisplayName?: string | null;
+}
+
+
 export interface TemplateInterface {
   name: string;
   description?: string | null;
@@ -46,11 +62,26 @@ export interface TemplateItemProps {
   description?: string;
   link?: LinkHref;
   defaultExpanded: boolean;
-  funder?: string;
+  funder?: string | null;
   funderUri?: string;
   lastUpdated?: string | null;
   publishStatus?: string | null;
   bestPractices?: boolean;
+}
+
+export interface VersionedTemplateSearchResultInterface {
+  id: number;
+  name: string;
+  description: string;
+  modified: string;
+  modifiedById: number;
+  modifiedByName: string;
+  ownerId: number;
+  ownerURI: string;
+  ownerDisplayName: string;
+  ownerSearchName: string;
+  visibility: string;
+  bestPractice: boolean;
 }
 
 export interface MyVersionedTemplatesInterface {
@@ -80,21 +111,6 @@ type LinkHref = Url | {
   query?: Record<string, string | number | string[] | undefined>;
   hash?: string;
 };
-
-export interface TemplateItemProps {
-  id?: number | null;
-  template?: {
-    id?: number | null;
-  },
-  title: string;
-  content?: JSX.Element | null;
-  description?: string;
-  link?: LinkHref;
-  defaultExpanded: boolean;
-  funder?: string;
-  lastUpdated?: string | null;
-  publishStatus?: string | null;
-}
 
 export interface TemplateVersionInterface {
   name: string;
@@ -161,6 +177,36 @@ export interface Question {
   questionOptions?: QuestionOptions[] | null;
 }
 
+export interface ProjectSearchResultInterface {
+  id?: number | null;
+  title?: string | null;
+  abstractText?: string | null;
+  startDate?: string | null;
+  isTestProject?: boolean | null;
+  researchDomain?: string | null;
+  endDate?: string | null;
+  modified?: string | null;
+  modifiedById?: number | null;
+  modifiedByName?: string | null;
+  created?: string | null;
+  createdById?: number | null;
+  createdByName?: string | null;
+  collaborators?: {
+    name?: string | null;
+    accessLevel?: string | null;
+    orcid?: string | null;
+  }[] | null;
+  contributors?: {
+    name?: string | null;
+    role?: string | null;
+    orcid?: string | null;
+  }[] | null;
+  funders?: {
+    name?: string | null;
+    grantId? : string | null;
+  }[] | null;
+}
+
 export interface ProjectItemProps {
   id?: number | null;
   title: string;
@@ -170,9 +216,9 @@ export interface ProjectItemProps {
   funder?: string;
   startDate: string;
   endDate: string;
-  collaborators: {
+  members: {
     name: string;
-    roles: string[];
+    roles: string;
     orcid?: string | null;
   }[];
   grantId?: string | null;

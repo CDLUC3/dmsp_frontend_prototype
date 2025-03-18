@@ -1,6 +1,5 @@
+import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
-import {gql} from '@apollo/client';
-
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -630,6 +629,8 @@ export type Mutation = {
   addPlan?: Maybe<Plan>;
   /** Add a Contributor to a Plan */
   addPlanContributor?: Maybe<PlanContributor>;
+  /** Add a Funder to a Plan */
+  addPlanFunder?: Maybe<PlanFunder>;
   /** Create a project */
   addProject?: Maybe<Project>;
   /** Add a collaborator to a Plan */
@@ -696,14 +697,14 @@ export type Mutation = {
   removeMetadataStandard?: Maybe<MetadataStandard>;
   /** Remove a PlanContributor from a Plan */
   removePlanContributor?: Maybe<PlanContributor>;
+  /** Remove a PlanFunder from a Plan */
+  removePlanFunder?: Maybe<PlanFunder>;
   /** Remove a ProjectCollaborator from a Plan */
   removeProjectCollaborator?: Maybe<ProjectCollaborator>;
   /** Remove a research project contributor */
   removeProjectContributor?: Maybe<ProjectContributor>;
   /** Remove a research project Funder */
   removeProjectFunder?: Maybe<ProjectFunder>;
-  /** Remove a PlanFunder from a Plan */
-  removeProjectFunderFromPlan?: Maybe<ProjectFunder>;
   /** Remove a research project output */
   removeProjectOutput?: Maybe<ProjectOutput>;
   /** Remove an Output from a Plan */
@@ -728,8 +729,6 @@ export type Mutation = {
   removeUserEmail?: Maybe<UserEmail>;
   /** Request a round of admin feedback */
   requestFeedback?: Maybe<PlanFeedback>;
-  /** Add a Funder to a Plan */
-  selectProjectFunderForPlan?: Maybe<ProjectFunder>;
   /** Add an Output to a Plan */
   selectProjectOutputForPlan?: Maybe<ProjectOutput>;
   /** Designate the email as the current user's primary email address */
@@ -838,7 +837,13 @@ export type MutationAddPlanArgs = {
 export type MutationAddPlanContributorArgs = {
   planId: Scalars['Int']['input'];
   projectContributorId: Scalars['Int']['input'];
-  roles?: InputMaybe<Array<Scalars['String']['input']>>;
+  roleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+};
+
+
+export type MutationAddPlanFunderArgs = {
+  planId: Scalars['Int']['input'];
+  projectFunderId: Scalars['Int']['input'];
 };
 
 
@@ -1022,6 +1027,11 @@ export type MutationRemovePlanContributorArgs = {
 };
 
 
+export type MutationRemovePlanFunderArgs = {
+  planFunderId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveProjectCollaboratorArgs = {
   projectCollaboratorId: Scalars['Int']['input'];
 };
@@ -1033,12 +1043,6 @@ export type MutationRemoveProjectContributorArgs = {
 
 
 export type MutationRemoveProjectFunderArgs = {
-  projectFunderId: Scalars['Int']['input'];
-};
-
-
-export type MutationRemoveProjectFunderFromPlanArgs = {
-  planId: Scalars['Int']['input'];
   projectFunderId: Scalars['Int']['input'];
 };
 
@@ -1100,12 +1104,6 @@ export type MutationRequestFeedbackArgs = {
 };
 
 
-export type MutationSelectProjectFunderForPlanArgs = {
-  planId: Scalars['Int']['input'];
-  projectFunderId: Scalars['Int']['input'];
-};
-
-
 export type MutationSelectProjectOutputForPlanArgs = {
   planId: Scalars['Int']['input'];
   projectOutputId: Scalars['Int']['input'];
@@ -1163,7 +1161,7 @@ export type MutationUpdatePasswordArgs = {
 
 export type MutationUpdatePlanContributorArgs = {
   planContributorId: Scalars['Int']['input'];
-  roles?: InputMaybe<Array<Scalars['String']['input']>>;
+  roleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
 };
 
 
@@ -1318,6 +1316,8 @@ export type Plan = {
   registered?: Maybe<Scalars['String']['output']>;
   /** The individual who registered the plan */
   registeredById?: Maybe<Scalars['Int']['output']>;
+  /** The section search results */
+  sections?: Maybe<Array<PlanSectionProgress>>;
   /** The status/state of the plan */
   status?: Maybe<PlanStatus>;
   /** The template the plan is based on */
@@ -1854,6 +1854,72 @@ export type ProjectOutputErrors = {
   title?: Maybe<Scalars['String']['output']>;
 };
 
+export type ProjectSearchResult = {
+  __typename?: 'ProjectSearchResult';
+  /** The research project abstract */
+  abstractText?: Maybe<Scalars['String']['output']>;
+  /** The names and access levels of the collaborators */
+  collaborators?: Maybe<Array<ProjectSearchResultCollaborator>>;
+  /** The names and roles of the contributors */
+  contributors?: Maybe<Array<ProjectSearchResultContributor>>;
+  /** The timestamp when the project was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The id of the person who created the project */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the person who created the project */
+  createdByName?: Maybe<Scalars['String']['output']>;
+  /** The estimated date the research project will end (use YYYY-MM-DD format) */
+  endDate?: Maybe<Scalars['String']['output']>;
+  /** Search results errors */
+  errors?: Maybe<ProjectErrors>;
+  /** The names of the funders */
+  funders?: Maybe<Array<ProjectSearchResultFunder>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not this is test/mock research project */
+  isTestProject?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the project was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The id of the person who last modified the project */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the person who last modified the project */
+  modifiedByName?: Maybe<Scalars['String']['output']>;
+  /** The type of research being done */
+  researchDomain?: Maybe<Scalars['String']['output']>;
+  /** The estimated date the research project will begin (use YYYY-MM-DD format) */
+  startDate?: Maybe<Scalars['String']['output']>;
+  /** The name/title of the research project */
+  title?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectSearchResultCollaborator = {
+  __typename?: 'ProjectSearchResultCollaborator';
+  /** The access level of the collaborator */
+  accessLevel?: Maybe<Scalars['String']['output']>;
+  /** The name of the collaborator */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The ORCiD ID */
+  orcid?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectSearchResultContributor = {
+  __typename?: 'ProjectSearchResultContributor';
+  /** The name of the contributor */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The ORCiD ID */
+  orcid?: Maybe<Scalars['String']['output']>;
+  /** The role of the contributor */
+  role?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectSearchResultFunder = {
+  __typename?: 'ProjectSearchResultFunder';
+  /** The grant id/url */
+  grantId?: Maybe<Scalars['String']['output']>;
+  /** The name of the funder */
+  name?: Maybe<Scalars['String']['output']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -1892,11 +1958,11 @@ export type Query = {
   /** Search for a metadata standard */
   metadataStandards?: Maybe<Array<Maybe<MetadataStandard>>>;
   /** Get all of the user's projects */
-  myProjects?: Maybe<Array<Maybe<Project>>>;
+  myProjects?: Maybe<Array<Maybe<ProjectSearchResult>>>;
   /** Get the Templates that belong to the current user's affiliation (user must be an Admin) */
-  myTemplates?: Maybe<Array<Maybe<Template>>>;
+  myTemplates?: Maybe<Array<Maybe<TemplateSearchResult>>>;
   /** Get the VersionedTemplates that belong to the current user's affiliation (user must be an Admin) */
-  myVersionedTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
+  myVersionedTemplates?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
   /** Get all the research output types */
   outputTypes?: Maybe<Array<Maybe<OutputType>>>;
   /** Get a specific plan */
@@ -1936,7 +2002,7 @@ export type Query = {
   /** Search for VersionedSection whose name contains the search term */
   publishedSections?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
-  publishedTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
+  publishedTemplates?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
   /** Get the specific Question based on questionId */
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
@@ -2726,6 +2792,43 @@ export type TemplateErrors = {
   visibility?: Maybe<Scalars['String']['output']>;
 };
 
+/** A search result for templates */
+export type TemplateSearchResult = {
+  __typename?: 'TemplateSearchResult';
+  /** Whether or not this Template is designated as a 'Best Practice' template */
+  bestPractice?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the Template was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The id of the person who created the template */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** the name of the person who created the template */
+  createdByName?: Maybe<Scalars['String']['output']>;
+  /** A description of the purpose of the template */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not the Template has had any changes since it was last published */
+  isDirty?: Maybe<Scalars['Boolean']['output']>;
+  /** The last published date */
+  latestPublishDate?: Maybe<Scalars['String']['output']>;
+  /** The last published version */
+  latestPublishVersion?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Template was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The id of the person who last modified the template */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the person who last modified the template */
+  modifiedByName?: Maybe<Scalars['String']['output']>;
+  /** The name/title of the template */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The display name of the affiliation that owns the Template */
+  ownerDisplayName?: Maybe<Scalars['String']['output']>;
+  /** The id of the affiliation that owns the Template */
+  ownerId?: Maybe<Scalars['String']['output']>;
+  /** The template's availability setting: Public is available to everyone, Private only your affiliation */
+  visibility?: Maybe<TemplateVisibility>;
+};
+
 /** Template version type */
 export enum TemplateVersionType {
   /** Draft - saved state for internal review */
@@ -3230,6 +3333,39 @@ export type VersionedTemplateErrors = {
   visibility?: Maybe<Scalars['String']['output']>;
 };
 
+/** An abbreviated view of a Template for pages that allow search/filtering of published Templates */
+export type VersionedTemplateSearchResult = {
+  __typename?: 'VersionedTemplateSearchResult';
+  /** Whether or not this Template is designated as a 'Best Practice' template */
+  bestPractice?: Maybe<Scalars['Boolean']['output']>;
+  /** A description of the purpose of the template */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Template was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The name of the last person who modified the Template */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the last person who modified the Template */
+  modifiedByName?: Maybe<Scalars['String']['output']>;
+  /** The name/title of the template */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The display name of the affiliation that owns the Template */
+  ownerDisplayName?: Maybe<Scalars['String']['output']>;
+  /** The id of the affiliation that owns the Template */
+  ownerId?: Maybe<Scalars['Int']['output']>;
+  /** The search name of the affiliation that owns the Template */
+  ownerSearchName?: Maybe<Scalars['String']['output']>;
+  /** The URI of the affiliation that owns the Template */
+  ownerURI?: Maybe<Scalars['String']['output']>;
+  /** The id of the template that this version is based on */
+  templateId?: Maybe<Scalars['Int']['output']>;
+  /** The major.minor semantic version */
+  version?: Maybe<Scalars['String']['output']>;
+  /** The template's availability setting: Public is available to everyone, Private only your affiliation */
+  visibility?: Maybe<TemplateVisibility>;
+};
+
 export type UpdateProjectContributorInput = {
   /** The contributor's affiliation URI */
   affiliationId?: InputMaybe<Scalars['String']['input']>;
@@ -3455,7 +3591,7 @@ export type ProjectFunderQuery = { __typename?: 'Query', projectFunder?: { __typ
 export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'Project', title: string, id?: number | null, startDate?: string | null, endDate?: string | null, contributors?: Array<{ __typename?: 'ProjectContributor', surName?: string | null, givenName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string }> | null }> | null, funders?: Array<{ __typename?: 'ProjectFunder', grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, uri: string } | null }> | null, errors?: { __typename?: 'ProjectErrors', general?: string | null, title?: string | null } | null } | null> | null };
+export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'ProjectSearchResult', title?: string | null, id?: number | null, startDate?: string | null, endDate?: string | null, funders?: Array<{ __typename?: 'ProjectSearchResultFunder', name?: string | null, grantId?: string | null }> | null, contributors?: Array<{ __typename?: 'ProjectSearchResultContributor', name?: string | null, role?: string | null, orcid?: string | null }> | null, errors?: { __typename?: 'ProjectErrors', general?: string | null, title?: string | null } | null } | null> | null };
 
 export type ProjectQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -3524,17 +3660,17 @@ export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: A
 export type MyVersionedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, versionType?: TemplateVersionType | null, visibility: TemplateVisibility, errors?: { __typename?: 'VersionedTemplateErrors', general?: string | null, templateId?: string | null, name?: string | null, ownerId?: string | null, version?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, owner?: { __typename?: 'Affiliation', id?: number | null, searchName: string, name: string, displayName: string } | null } | null } | null> | null };
+export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTemplates?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null };
 
 export type PublishedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, bestPractice: boolean, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, template?: { __typename?: 'Template', id?: number | null } | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string, uri: string } | null, errors?: { __typename?: 'VersionedTemplateErrors', general?: string | null, templateId?: string | null, name?: string | null, ownerId?: string | null, version?: string | null } | null } | null> | null };
+export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null };
 
 export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', myTemplates?: Array<{ __typename?: 'Template', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
+export type TemplatesQuery = { __typename?: 'Query', myTemplates?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null } | null> | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -4566,22 +4702,16 @@ export const MyProjectsDocument = gql`
   myProjects {
     title
     id
-    contributors {
-      surName
-      givenName
-      contributorRoles {
-        label
-      }
-      orcid
-    }
     startDate
     endDate
     funders {
-      affiliation {
-        name
-        uri
-      }
+      name
       grantId
+    }
+    contributors {
+      name
+      role
+      orcid
     }
     errors {
       general
@@ -5134,28 +5264,19 @@ export const MyVersionedTemplatesDocument = gql`
     query MyVersionedTemplates {
   myVersionedTemplates {
     id
+    templateId
     name
     description
+    visibility
+    bestPractice
+    version
     modified
     modifiedById
-    versionType
-    visibility
-    errors {
-      general
-      templateId
-      name
-      ownerId
-      version
-    }
-    template {
-      id
-      owner {
-        id
-        searchName
-        name
-        displayName
-      }
-    }
+    modifiedByName
+    ownerId
+    ownerURI
+    ownerDisplayName
+    ownerSearchName
   }
 }
     `;
@@ -5195,28 +5316,19 @@ export const PublishedTemplatesDocument = gql`
     query PublishedTemplates {
   publishedTemplates {
     id
-    bestPractice
-    template {
-      id
-    }
+    templateId
     name
     description
+    visibility
+    bestPractice
+    version
     modified
     modifiedById
-    owner {
-      name
-      displayName
-      searchName
-      uri
-    }
-    visibility
-    errors {
-      general
-      templateId
-      name
-      ownerId
-      version
-    }
+    modifiedByName
+    ownerId
+    ownerURI
+    ownerDisplayName
+    ownerSearchName
   }
 }
     `;
@@ -5258,36 +5370,15 @@ export const TemplatesDocument = gql`
     id
     name
     description
+    visibility
+    isDirty
+    latestPublishVersion
+    latestPublishDate
+    ownerId
+    ownerDisplayName
     modified
     modifiedById
-    sections {
-      id
-      name
-      bestPractice
-      displayOrder
-      isDirty
-      questions {
-        errors {
-          general
-          templateId
-          sectionId
-          questionText
-          displayOrder
-        }
-        displayOrder
-        guidanceText
-        id
-        questionText
-        sectionId
-        templateId
-      }
-    }
-    owner {
-      name
-      displayName
-      searchName
-    }
-    visibility
+    modifiedByName
   }
 }
     `;
