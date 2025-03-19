@@ -28,7 +28,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import {useScrollToTop} from '@/hooks/scrollToTop';
 
 import logECS from '@/utils/clientLogger';
-import {TemplateSearchResultInterface, TemplateInterface, TemplateItemProps,} from '@/app/types';
+import {TemplateSearchResultInterface, TemplateItemProps,} from '@/app/types';
 import styles from './orgTemplates.module.scss';
 
 const TemplateListPage: React.FC = () => {

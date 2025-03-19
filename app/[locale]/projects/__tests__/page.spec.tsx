@@ -31,26 +31,16 @@ const mockProjectsData = {
       contributors: [
         {
           __typename: 'ProjectContributor',
-          givenName: 'John',
-          surName: 'Doe',
+          name: 'John Doe',
           orcid: '0000-0001-2345-6789',
-          contributorRoles: [
-            {
-              __typename: 'ContributorRole',
-              label: 'Researcher',
-              id: 1,
-            },
-          ],
+          role: 'Researcher',
         },
       ],
       funders: [
         {
           __typename: 'ProjectFunder',
-          affiliation: {
-            __typename: 'Affiliation',
-            name: 'NSF',
-            uri: 'http://nsf.gov',
-          },
+          name: 'NSF',
+          grantId: 'http://nsf.gov/award/99999',
         },
       ],
     },
@@ -124,9 +114,9 @@ describe('ProjectsListPage', () => {
     expect(screen.getByRole('heading', { name: /ProjectOverview.collaborators/i })).toBeInTheDocument();
     expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
     expect(screen.getByText(/\(Researcher\)/i)).toBeInTheDocument();
-    //expect(collaboratorRoleText).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /ProjectOverview.funding/i })).toBeInTheDocument();
     expect(screen.getByText('NSF')).toBeInTheDocument();
+    expect(screen.getByText(/http:\/\/nsf\.gov\/award\/99999/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /ProjectOverview.researchOutputs/i })).toBeInTheDocument();
 
     // Click on Collapse link
