@@ -2,7 +2,7 @@
 - Plan Manage Access [#299]
 - Plan Publish [#299]
 - Plan Downloads [#299]
-- 
+-
 ### Added
 - Add central "named routes" and helper function
 
@@ -25,6 +25,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated `Template` and `Projects` pages to work with the new pared down search result responses from GraphQL [#223] and [#218](https://github.com/CDLUC3/dmsp_backend_prototype/issues/218)
 - Update `Edit Member Details` page. Added mutation and queries, translations, and unit test [#367]
 - Updated `PlanCreate` component so that it hooks up to real data. The functionality of the page is a little complicated, so I added a `CreatePlan.md` file to summarize what functionality is expected in the page. [#361]
 - Updated the `Project Members` page with real data [#360]
@@ -35,7 +36,7 @@
 - Updated translation content to use sentence-case rather than title case [#351]
 - Made updates throughout the Template Builder flow to make the experience more consistent across pages, and fixed some bugs [#347]
 - Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
-- Made updates to get Dockerfile.prod to work. 
+- Made updates to get Dockerfile.prod to work.
   - Updated Dockerfile.prod
   - Updated next.config.mjs to include output `standalone`
   - Updated `docker-compose.yml`
