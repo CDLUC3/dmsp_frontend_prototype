@@ -1163,6 +1163,7 @@ export type MutationUpdatePlanContributorArgs = {
   contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
   isPrimaryContact?: InputMaybe<Scalars['Boolean']['input']>;
   planContributorId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -3310,6 +3311,15 @@ export type RemovePlanContributorMutationVariables = Exact<{
 
 export type RemovePlanContributorMutation = { __typename?: 'Mutation', removePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null, primaryContact?: string | null, projectContributorId?: string | null, projectId?: string | null, contributorRoleIds?: string | null } | null } | null };
 
+export type UpdatePlanContributorMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  planContributorId: Scalars['Int']['input'];
+  isPrimaryContact?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type UpdatePlanContributorMutation = { __typename?: 'Mutation', updatePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null } | null };
+
 export type UpdateProjectContributorMutationVariables = Exact<{
   input: UpdateProjectContributorInput;
 }>;
@@ -3473,7 +3483,7 @@ export type PlanContributorsQueryVariables = Exact<{
 }>;
 
 
-export type PlanContributorsQuery = { __typename?: 'Query', planContributors?: Array<{ __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null, projectContributor?: { __typename?: 'ProjectContributor', id?: number | null } | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', uri: string, id?: number | null, label: string, description?: string | null, displayOrder: number }> | null } | null> | null };
+export type PlanContributorsQuery = { __typename?: 'Query', planContributors?: Array<{ __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null, projectContributor?: { __typename?: 'ProjectContributor', id?: number | null, givenName?: string | null, surName?: string | null } | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', uri: string, id?: number | null, label: string, description?: string | null, displayOrder: number }> | null } | null> | null };
 
 export type ProjectContributorsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -3717,6 +3727,48 @@ export function useRemovePlanContributorMutation(baseOptions?: Apollo.MutationHo
 export type RemovePlanContributorMutationHookResult = ReturnType<typeof useRemovePlanContributorMutation>;
 export type RemovePlanContributorMutationResult = Apollo.MutationResult<RemovePlanContributorMutation>;
 export type RemovePlanContributorMutationOptions = Apollo.BaseMutationOptions<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>;
+export const UpdatePlanContributorDocument = gql`
+    mutation UpdatePlanContributor($planId: Int!, $planContributorId: Int!, $isPrimaryContact: Boolean) {
+  updatePlanContributor(
+    planId: $planId
+    planContributorId: $planContributorId
+    isPrimaryContact: $isPrimaryContact
+  ) {
+    id
+    errors {
+      general
+    }
+  }
+}
+    `;
+export type UpdatePlanContributorMutationFn = Apollo.MutationFunction<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>;
+
+/**
+ * __useUpdatePlanContributorMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlanContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlanContributorMutation, { data, loading, error }] = useUpdatePlanContributorMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      planContributorId: // value for 'planContributorId'
+ *      isPrimaryContact: // value for 'isPrimaryContact'
+ *   },
+ * });
+ */
+export function useUpdatePlanContributorMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>(UpdatePlanContributorDocument, options);
+      }
+export type UpdatePlanContributorMutationHookResult = ReturnType<typeof useUpdatePlanContributorMutation>;
+export type UpdatePlanContributorMutationResult = Apollo.MutationResult<UpdatePlanContributorMutation>;
+export type UpdatePlanContributorMutationOptions = Apollo.BaseMutationOptions<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>;
 export const UpdateProjectContributorDocument = gql`
     mutation UpdateProjectContributor($input: updateProjectContributorInput!) {
   updateProjectContributor(input: $input) {
@@ -4689,6 +4741,8 @@ export const PlanContributorsDocument = gql`
     }
     projectContributor {
       id
+      givenName
+      surName
     }
     contributorRoles {
       uri

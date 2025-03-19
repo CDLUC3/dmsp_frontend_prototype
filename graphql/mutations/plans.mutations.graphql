@@ -31,3 +31,12 @@ mutation RemovePlanContributor($planContributorId: Int!) {
     isPrimaryContact
   }
 }
+
+mutation UpdatePlanContributor($planId: Int!, $planContributorId: Int!, $isPrimaryContact: Boolean) {
+  updatePlanContributor(planId: $planId, planContributorId: $planContributorId, isPrimaryContact:$isPrimaryContact) {
+    id
+    errors {
+      general
+    }
+  }
+}

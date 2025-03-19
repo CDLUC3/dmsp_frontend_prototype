@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, FormEvent } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
   Button,
   Form,
   Link,
+  ListBoxItem,
   Text
 } from "react-aria-components";
 import { useTranslations } from 'next-intl';
@@ -26,6 +27,7 @@ import { FormSelect } from '@/components/Form/FormSelect';
 import {
   useAddPlanContributorMutation,
   useProjectContributorsQuery,
+  useUpdatePlanContributorMutation,
   usePlanContributorsQuery,
   ProjectContributor,
   useRemovePlanContributorMutation
@@ -42,6 +44,12 @@ interface Member {
   isSelectedForThisProject: boolean;
 }
 
+interface PlanContributorDropdown {
+  id: string;
+  name: string;
+  isPrimaryContact?: boolean | null | undefined;
+}
+
 const ProjectsProjectPlanAdjustMembers = () => {
   // Get projectId and planId params
   const params = useParams();
@@ -56,7 +64,10 @@ const ProjectsProjectPlanAdjustMembers = () => {
   const [planMemberIds, setPlanMemberIds] = useState<number[]>([]);
 
   // To track whether user is editing the primary contact
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
+
+  const [planMembers, setPlanMembers] = useState<PlanContributorDropdown[]>([]);
+  const [selectedPlanMember, setSelectedPlanMember] = useState<string | null>(null);
 
   // Save errors in state to display on page
   const [errors, setErrors] = useState<string[]>([]);
@@ -81,9 +92,11 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   );
 
+  console.log("***PlanContributorData***", planContributorData);
   // Initialize mutations
   const [AddPlanContributorMutation] = useAddPlanContributorMutation();
   const [RemovePlanContributorMutation] = useRemovePlanContributorMutation();
+  const [UpdatePlanContributorMutation] = useUpdatePlanContributorMutation();
 
   const handleFormSubmit = () => {
     console.log("Form submitted")
@@ -169,6 +182,43 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   }
 
+  const updatePlanContributor = async (planContributorId: number) => {
+    try {
+      const response = await UpdatePlanContributorMutation({
+        variables: {
+          planId: Number(planId),
+          planContributorId: planContributorId,
+          isPrimaryContact: true
+        }
+      });
+
+      if (response.data?.updatePlanContributor?.errors) {
+        return response.data.updatePlanContributor.errors;
+      }
+    } catch (error) {
+    }
+    return {};
+  }
+
+  const handleSelectedPlanMember = (selected) => {
+    console.log("***SELECTED", selected);
+  }
+
+  const handlePrimaryContactForm = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (selectedPlanMember) {
+      // Create new section
+      const errors = await updatePlanContributor(Number(selectedPlanMember));
+
+      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
+      if (errors && Object.values(errors).filter((err) => err && err !== 'PlanContributorErrors').length > 0) {
+
+        setErrors([errors.general || "something went wrong"]);
+      }
+    }
+  }
+
+
   const handleCheckboxChange = (id: string) => {
     // Handle checkbox change
     if (planMemberIds.includes(Number(id))) {
@@ -216,8 +266,32 @@ const ProjectsProjectPlanAdjustMembers = () => {
         .map((contributor) => contributor?.projectContributor?.id ?? null)
         .filter(id => id !== null);
       setPlanMemberIds(planContributorIds);
+
+      const transformedData = planContributorData.planContributors
+        .map((contributor): PlanContributorDropdown => ({
+          id: (contributor?.id)?.toString() ?? null,
+          name: `${contributor?.projectContributor?.givenName} ${contributor?.projectContributor?.surName}`,
+          isPrimaryContact: contributor?.isPrimaryContact ?? null, // Ensure it matches the optional type
+        }))
+        .filter((contributor): contributor is PlanContributorDropdown => contributor.id !== null); // Filter out null ids
+
+      if (transformedData.length > 0) {
+        setPlanMembers(transformedData);
+      }
     }
   }, [planContributorData]);
+
+  useEffect(() => {
+    if (planMembers?.length) {
+      console.log("*** my plan members", planMembers);
+      const primaryContact = planMembers.find(member => member.isPrimaryContact);
+      if (primaryContact) {
+        console.log("Setting selectedPlanMember:", primaryContact.id);
+
+        setSelectedPlanMember(primaryContact.id);
+      }
+    }
+  }, [planMembers]); // Runs when `planMembers` changes
 
 
   if (loading) {
@@ -267,7 +341,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
               {(!projectContributors || projectContributors?.length === 0) ? (
                 <p>{ProjectMembers('messages.noContributors')}</p>
               ) : (
-                <Form onSubmit={handleFormSubmit}>
+                <>
                   <div role="list">
                     {projectContributors.map((member) => (
                       <div
@@ -332,35 +406,31 @@ const ProjectsProjectPlanAdjustMembers = () => {
                   <div>
                     <h2 className={styles.primaryContact}>Primary contact</h2>
                     {/**Just show the Plan Contributors in the dropdown */}
-                    {/* <Form onSubmit={handlePrimaryContactChange}>
+                    <Form onSubmit={handlePrimaryContactForm}>
                       {isEditing ? (
                         <FormSelect
                           label="Language"
                           isRequired
                           name="institution"
-                          items={languages}
+                          items={planMembers}
                           errorMessage="A selection is required"
-                          helpMessage={t('helpTextSelectYourLanguage')}
-                          onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
-                          selectedKey={formData.languageId.trim()}
+                          helpMessage="This is the help text"
+                          onSelectionChange={(selected) => setSelectedPlanMember(selected as string)}
+                          selectedKey={selectedPlanMember}
                         >
-                          {languages && languages.map((language) => {
-                            return (
-                              <ListBoxItem key={language.id}>{language.id}</ListBoxItem>
-                            )
-
-                          })}
+                          {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                         </FormSelect>
                       ) : (
                         <Text slot="givenName" className={styles.readOnlyField}>
-                          <div className="field-label">{t('givenName')}</div>
-                          <p>{formData.givenName}</p>
+                          <div className="field-label">Name</div>
+                          <p>{selectedPlanMember}</p>
                         </Text>
                       )}
-                    </Form> */}
+                      <Button type="submit">Save</Button>
+
+                    </Form>
                   </div>
-                  <Button type="submit">Save</Button>
-                </Form>
+                </>
               )}
 
             </div>

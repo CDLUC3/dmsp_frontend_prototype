@@ -7,6 +7,8 @@ query PlanContributors($planId: Int!) {
     }
     projectContributor {
       id
+      givenName
+      surName
     }
     contributorRoles {
       uri
