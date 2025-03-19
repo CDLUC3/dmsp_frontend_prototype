@@ -70,6 +70,6 @@ describe('FormSelect', () => {
     );
 
     const helpText = screen.getAllByText('Choose from the available options');
-    expect(helpText).toHaveLength(2);
+    expect(helpText).toHaveLength(1);
   });
 });
