@@ -3315,6 +3315,7 @@ export type UpdatePlanContributorMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
   planContributorId: Scalars['Int']['input'];
   isPrimaryContact?: InputMaybe<Scalars['Boolean']['input']>;
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']> | Scalars['Int']['input']>;
 }>;
 
 
@@ -3728,10 +3729,11 @@ export type RemovePlanContributorMutationHookResult = ReturnType<typeof useRemov
 export type RemovePlanContributorMutationResult = Apollo.MutationResult<RemovePlanContributorMutation>;
 export type RemovePlanContributorMutationOptions = Apollo.BaseMutationOptions<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>;
 export const UpdatePlanContributorDocument = gql`
-    mutation UpdatePlanContributor($planId: Int!, $planContributorId: Int!, $isPrimaryContact: Boolean) {
+    mutation UpdatePlanContributor($planId: Int!, $planContributorId: Int!, $isPrimaryContact: Boolean, $contributorRoleIds: [Int!]) {
   updatePlanContributor(
     planId: $planId
     planContributorId: $planContributorId
+    contributorRoleIds: $contributorRoleIds
     isPrimaryContact: $isPrimaryContact
   ) {
     id
@@ -3759,6 +3761,7 @@ export type UpdatePlanContributorMutationFn = Apollo.MutationFunction<UpdatePlan
  *      planId: // value for 'planId'
  *      planContributorId: // value for 'planContributorId'
  *      isPrimaryContact: // value for 'isPrimaryContact'
+ *      contributorRoleIds: // value for 'contributorRoleIds'
  *   },
  * });
  */

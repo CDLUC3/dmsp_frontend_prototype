@@ -95,6 +95,23 @@
   color: var(--gray-200);
 }
 
+.primaryContactSelect {
+  width: auto;
+  min-width: fit-content;
+  max-width: max-content;
+}
+
+.primaryContactChangeWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .linkButton {
+    padding-left: 0.25rem;
+  }
+  
+}
+
 @include device('xl') {
   .membersList {
     /* Four columns: auto-width for checkbox, remaining space divided among the other three */

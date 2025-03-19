@@ -254,12 +254,16 @@ export interface ProjectContributorFormInterface {
   orcid: string;
 }
 
+export interface PlanContributorRolesInterface {
+  id: number | null;
+  label: string;
+}
 
 export interface ProjectContributorsInterface {
   id: number | null;
   fullName: string;
   affiliation: string;
   orcid: string;
-  role: string;
+  roles: PlanContributorRolesInterface[];
   isPrimaryContact: boolean;
 }

@@ -32,8 +32,18 @@ mutation RemovePlanContributor($planContributorId: Int!) {
   }
 }
 
-mutation UpdatePlanContributor($planId: Int!, $planContributorId: Int!, $isPrimaryContact: Boolean) {
-  updatePlanContributor(planId: $planId, planContributorId: $planContributorId, isPrimaryContact:$isPrimaryContact) {
+mutation UpdatePlanContributor(
+  $planId: Int!, 
+  $planContributorId: Int!, 
+  $isPrimaryContact: Boolean
+  $contributorRoleIds: [Int!]
+  ) {
+  updatePlanContributor(
+    planId: $planId, 
+    planContributorId: $planContributorId, 
+    contributorRoleIds:$contributorRoleIds,
+    isPrimaryContact:$isPrimaryContact,
+    ) {
     id
     errors {
       general

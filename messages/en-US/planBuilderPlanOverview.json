@@ -111,5 +111,41 @@
     "labels": {
       "dmpBestPractice": "DMP best practice"
     }
+  },
+  "ProjectsProjectPlanAdjustMembers": {
+    "title": "Members for this plan",
+    "headings": {
+      "h2PrimaryContact": "Primary contact",
+      "h3AddProjectMember": "Adding a new member?",
+      "h3AllowOthers": "Allow others access to the project"
+    },
+    "addProjectMemberInfo": "You can add any project member to this plan using the tickboxes above. If you want to add someone who isn&apos;t shown here, you must <strong>add them to the project first</strong>.",
+    "allowOthersToAccess": " You can allow others access to the project. This will grant them access to the project and all plans.",
+    "labels": {
+      "planMembers": "Plan members",
+      "orcid": "ORCIiD profile for {name}",
+      "removeFromPlan": "Remove from plan",
+      "addMemberToPlan": "Add to this plan"
+    },
+    "messaging": {
+      "success": {
+        "addedPlanMember": "Successfully added {fullName} as a plan member",
+        "removedPlanMember": "Successfully removed {fullName} as a plan member",
+        "updatedPlanMember": "Successfully updated {fullName} as a plan member"
+      },
+      "error": {
+        "memberNotFound": "Member not found in this plan"
+      }
+    },
+    "form": {
+      "select": {
+        "selectionIsRequired": "Selection is required",
+        "description": "The primary contact is required, this will be the primary lead contact which will be used if a DOI is created"
+      }
+    },
+    "links": {
+      "updateProjectMembers": "Update project members (new window)",
+      "inviteAPerson": "Invite a person"
+    }
   }
 }
