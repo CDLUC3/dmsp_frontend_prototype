@@ -1,4 +1,5 @@
-import { MyProjectsDocument } from '@/generated/graphql';
+import { redirect } from 'next/navigation';
+import { MyProjectsDocument, MyProjectsQuery } from '@/generated/graphql';
 import { formatProjects } from './utils';
 import ProjectListsClientComponent from './ProjectListsClientComponent';
 import { executeGraphQLQuery } from '@/utils/serverGraphqlFetch'; // Import the handler
@@ -22,7 +23,15 @@ export default async function ProjectsPage() {
   };
 
   // Use the executeGraphQLQuery function with error handling
-  const { data, errors } = await executeGraphQLQuery(queryString, {}, { additionalHeaders });
+  const result: { data?: MyProjectsQuery; errors?: string[]; redirect?: string } =
+    await executeGraphQLQuery(queryString, {}, { additionalHeaders });
+
+  if ('redirect' in result && result.redirect) {
+    // Use the Next.js redirect function
+    redirect(result.redirect);
+  }
+
+  const { data, errors } = result;
 
   if (errors) {
     return (

@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import logger from '@/utils/logger';
 
 // Error types that match Apollo error codes
 type GraphQLErrorCode = 'UNAUTHENTICATED' | 'FORBIDDEN' | 'INTERNAL_SERVER_ERROR' | string;
@@ -10,12 +10,6 @@ interface GraphQLError {
     code?: GraphQLErrorCode;
   };
 }
-
-interface ServerGraphQLResponse<T> {
-  data?: T;
-  errors?: GraphQLError[];
-}
-
 export class ServerAuthError extends Error {
   status: number | null;
 
@@ -39,8 +33,7 @@ export class ServerAuthError extends Error {
     this.status = status;
     this.message = message;
 
-    // You could implement server-side logging here
-    console.error(statusMsg, { source });
+    logger.error(`${statusMsg} - ${source}`);
   }
 }
 
@@ -76,7 +69,7 @@ export const serverRefreshAuthTokens = async () => {
 
     if (!response.ok) {
       if (response.status === 401) {
-        return { shouldRedirect: true, redirectTo: '/login' };
+        return { redirectTo: '/login' };
       }
       throw new ServerAuthError({
         status: response.status,
@@ -92,7 +85,7 @@ export const serverRefreshAuthTokens = async () => {
 
     return null;
   } catch (err) {
-    console.error(`Error refreshing auth token: ${err}`);
+    logger.error('Error refreshing auth token', err);
     return null;
   }
 };
@@ -109,7 +102,7 @@ export const serverFetchCsrfToken = async () => {
     });
     return response;
   } catch (err) {
-    console.error(`Error getting CSRF token from backend: ${err}`);
+    logger.error('Error getting CSRF token', err);
     return null;
   }
 };
@@ -122,7 +115,7 @@ export async function executeGraphQLQuery<T>(
     skipErrorHandling?: boolean;
     additionalHeaders?: Record<string, string>;
   }
-): Promise<{ data?: T; errors?: string[] }> {
+): Promise<{ data?: T; errors?: string[] } | { redirect: string }> {
   // Get all cookies from the server component
   const cookieStore = cookies();
   const cookieString = cookieStore.toString(); // Convert cookies to a string format for the request
@@ -131,12 +124,10 @@ export async function executeGraphQLQuery<T>(
   const headers = {
     'Content-Type': 'application/json',
     Cookie: cookieString, // Attach all cookies
-
     ...(options?.additionalHeaders || {}),
   };
 
   try {
-
     // Make the GraphQL request
     const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/graphql`, {
       method: 'POST',
@@ -151,71 +142,43 @@ export async function executeGraphQLQuery<T>(
     if (result.errors && !options?.skipErrorHandling) {
       for (const { message, extensions } of result.errors) {
         const errorCode = extensions?.code;
-        console.log("***ERROR CODE", errorCode);
         switch (errorCode) {
           case 'UNAUTHENTICATED':
             try {
               const refreshResult = await serverRefreshAuthTokens();
-              console.log("***REFRESH RESULT", refreshResult);
               if (refreshResult) {
-                if (refreshResult.shouldRedirect) {
-                  redirect(refreshResult.redirectTo);
-                }
-
-                // Retry the query with fresh tokens
-                return executeGraphQLQuery<T>(queryString, variables, {
-                  skipErrorHandling: true,
-                  additionalHeaders: options?.additionalHeaders
-                });
-              } else {
-                console.error('Token refresh failed with no result', { errorCode: 'UNAUTHENTICATED' });
-                redirect('/login');
+                logger.error('Token refresh failed with no result', { error: 'UNAUTHENTICATED' });
               }
             } catch (error) {
-              console.error('Token refresh failed', { error });
-              redirect('/login');
+              logger.error('Token refresh failed', { error });
+              return { redirect: '/login' };
             }
             break;
 
           case 'FORBIDDEN':
             try {
-              const csrfResponse = await serverFetchCsrfToken();
-              if (csrfResponse && csrfResponse.ok) {
-                // Retry the query with fresh CSRF token
-                return executeGraphQLQuery<T>(queryString, variables, {
-                  skipErrorHandling: true,
-                  additionalHeaders: options?.additionalHeaders
-                });
-              } else {
-                console.error('CSRF token fetch failed', { errorCode: 'FORBIDDEN' });
-                redirect('/login');
-              }
+              await serverFetchCsrfToken();
             } catch (error) {
-              console.error('Fetching CSRF token failed', { error });
-              redirect('/login');
+              logger.error('Fetching CSRF token failed', { error });
+              return { redirect: '/login' };
             }
             break;
 
           case 'INTERNAL_SERVER_ERROR':
-            console.error(`[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`, {
-              errorCode: 'INTERNAL_SERVER_ERROR'
-            });
-            redirect('/500-error');
+            logger.error(`[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`, { error: 'INTERNAL_SERVER_ERROR' });
+            return { redirect: '/500-error' };
             break;
 
           default:
-            console.error(`[GraphQL Error]: ${message}`, {
-              errorCode: errorCode || 'GRAPHQL'
-            });
+            logger.error(`[GraphQL Error]: ${message}`, { error: 'GRAPHQL_ERROR' });
             return { errors: [message] };
         }
       }
     }
 
-    return { data: result.data, errors: result.errors?.map(e => e.message) };
+    return { data: result.data, errors: result.errors?.map((e: GraphQLError) => e.message) };
   } catch (networkError) {
-    console.log("***NETWORK ERROR", networkError);
-    console.error(`[GraphQL Network Error]: `, { errorCode: 'NETWORK_ERROR' });
+    logger.error(`[GraphQL Network Error]: ${networkError}`, { error: 'NETWORK_ERROR' });
     return { errors: ['There was a problem connecting to the server. Please try again.'] };
   }
 }

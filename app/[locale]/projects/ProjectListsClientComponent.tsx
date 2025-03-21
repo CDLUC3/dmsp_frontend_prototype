@@ -35,7 +35,6 @@ const ProjectsListClientComponent: React.FC<ProjectsListClientComponentProps> = 
   initialProjects
 }) => {
 
-  console.log("***initialProjects", initialProjects);
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   const [projects, setProjects] = useState<ProjectItemProps[]>(initialProjects);
