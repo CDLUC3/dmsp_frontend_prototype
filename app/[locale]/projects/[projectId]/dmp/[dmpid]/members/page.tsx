@@ -375,71 +375,67 @@ const ProjectsProjectPlanAdjustMembers = () => {
         className="page-project-members"
       />
 
-
       <LayoutWithPanel>
         <ContentContainer className="layout-content-container-full">
           <p>
-            Select the relevant members for <strong>this plan only</strong> from the list of project members shown below.
-            Regardless of their role in this plan, they will remain as members of your
+            {PlanMembers.rich('description', {
+              strong: (chunks) => <strong>{chunks}</strong>
+            })}
           </p>
           <p>
-            <Link href={`/projects/${projectId}/members`}
-              className={"text-base underline"}>Update project
-              members</Link> (new window)
+            <Link href={`/projects/${projectId}/members`} className={"text-base underline"}>{PlanMembers('links.updateProjectMembers')}</Link> {PlanMembers('newWindow')}
           </p>
           <section
             aria-label="Project members list"
             role="region"
           >
+            <h2>Members of this plan only</h2>
             <div>
               {(!projectContributors || projectContributors?.length === 0) ? (
                 <p>{PlanMembers('messaging.error.memberNotFound')}</p>
               ) : (
                 <>
                   <div role="list">
-                    {projectContributors.map((member) => (
-                      <div
-                        key={member.id}
-                        className={styles.membersList}
-                        role="listitem"
-                        aria-label={`${PlanMembers('labels.planMembers')}: ${member.fullName}`}
-                      >
-                        <div className={classNames(styles.memberInfo, styles.box, {
-                          [styles.notMember]: !planMemberIds.includes(Number(member.id))
-                        })}>
-                          <h2>
-                            {member.fullName}
-                          </h2>
-                          <p className={styles.affiliation}>{member.affiliation}</p>
-                          <p className={styles.orcid}>
-                            <span aria-hidden="true">
-                              <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
-                            </span>
-                            <a
-                              href={`https://orcid.org/${member.orcid}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              aria-label={PlanMembers('labels.orcid', { name: member.fullName })}
-                            >
-                              {member.orcid}
-                            </a>
-                          </p>
-                        </div>
-                        <div className={classNames(styles.memberRole, styles.box, {
-                          [styles.notMember]: !planMemberIds.includes(Number(member.id))
-                        })}>
-
-                          <p className={styles.role}>
-                            {member?.isPrimaryContact && <strong>Contact person,{' '}</strong>}
-                            {member.roles.map((role, index) => (
-                              <span key={role.id}>
-                                {role.label}
-                                {index < member.roles.length - 1 && ', '}
+                    {projectContributors
+                      .filter((member) => planMemberIds.includes(Number(member.id))) // Filter out members already in the plan
+                      .map((member) => (
+                        <div
+                          key={member.id}
+                          className={styles.membersList}
+                          role="listitem"
+                          aria-label={`${PlanMembers('labels.planMembers')}: ${member.fullName}`}
+                        >
+                          <div className={classNames(styles.memberInfo, styles.box)}>
+                            <h3>
+                              {member.fullName}
+                            </h3>
+                            <p className={styles.affiliation}>{member.affiliation}</p>
+                            <p className={styles.orcid}>
+                              <span aria-hidden="true">
+                                <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
                               </span>
-                            ))}
-                          </p>                        </div>
-                        <div className={`${styles.memberActions} ${styles.box}`}>
-                          {planMemberIds.includes(Number(member.id)) ? (
+                              <a
+                                href={`https://orcid.org/${member.orcid}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={PlanMembers('labels.orcid', { name: member.fullName })}
+                              >
+                                {member.orcid}
+                              </a>
+                            </p>
+                          </div>
+                          <div className={classNames(styles.memberRole, styles.box)}>
+
+                            <p className={styles.role}>
+                              {member?.isPrimaryContact && <strong>Contact person,{' '}</strong>}
+                              {member.roles.map((role, index) => (
+                                <span key={role.id}>
+                                  {role.label}
+                                  {index < member.roles.length - 1 && ', '}
+                                </span>
+                              ))}
+                            </p>                        </div>
+                          <div className={`${styles.memberActions} ${styles.box}`}>
                             <Button
                               onPress={() => handleRemovePlanContributor(member.id)}
 
@@ -448,22 +444,12 @@ const ProjectsProjectPlanAdjustMembers = () => {
                             >
                               {PlanMembers('labels.removeFromPlan')}
                             </Button>
-                          ) : (<Button
-                            onPress={() => handleAddPlanContributor(member.id)}
-
-                            className={"button-link primary"}
-                            aria-label={PlanMembers('labels.addMemberToPlan')}
-                          >
-                            {PlanMembers('labels.addMemberToPlan')}
-                          </Button>)
-                          }
-
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                   <div>
-                    <h2 className={styles.primaryContact}>{PlanMembers('headings.h2PrimaryContact')}</h2>
+                    <h3 className={styles.primaryContact}>{PlanMembers('headings.h2PrimaryContact')}</h3>
 
                     {/**Just show the Plan Contributors in the dropdown */}
                     <Form onSubmit={handlePrimaryContactForm}>
@@ -500,14 +486,82 @@ const ProjectsProjectPlanAdjustMembers = () => {
             </div>
           </section>
 
+          <section
+            aria-label="Project members list"
+            role="region"
+          >
+            <h2>Project members not in this plan</h2>
+            <div>
+              {(!projectContributors || projectContributors?.length === 0) ? (
+                <p>{PlanMembers('messaging.error.memberNotFound')}</p>
+              ) : (
+                <>
+                  <div role="list">
+                    {projectContributors
+                      .filter((member) => !planMemberIds.includes(Number(member.id))) // Filter out members already in the plan
+                      .map((member) => (
+                        <div
+                          key={member.id}
+                          className={styles.membersList}
+                          role="listitem"
+                          aria-label={`${PlanMembers('labels.planMembers')}: ${member.fullName}`}
+                        >
+                          <div className={`${styles.memberInfo} ${styles.box}`}>
+                            <h3>
+                              {member.fullName}
+                            </h3>
+                            <p className={styles.affiliation}>{member.affiliation}</p>
+                            <p className={styles.orcid}>
+                              <span aria-hidden="true">
+                                <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
+                              </span>
+                              <a
+                                href={`https://orcid.org/${member.orcid}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={PlanMembers('labels.orcid', { name: member.fullName })}
+                              >
+                                {member.orcid}
+                              </a>
+                            </p>
+                          </div>
+                          <div className={`${styles.memberRole} ${styles.box}`}>
+                            <p className={styles.role}>
+                              {member?.isPrimaryContact && <strong>Contact person,{' '}</strong>}
+                              {member.roles.map((role, index) => (
+                                <span key={role.id}>
+                                  {role.label}
+                                  {index < member.roles.length - 1 && ', '}
+                                </span>
+                              ))}
+                            </p>                        </div>
+                          <div className={`${styles.memberActions} ${styles.box}`}>
+                            <Button
+                              onPress={() => handleAddPlanContributor(member.id)}
+
+                              className={"button-link primary"}
+                              aria-label={PlanMembers('labels.addMemberToPlan')}
+                            >
+                              {PlanMembers('labels.addMemberToPlan')}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </>
+              )}
+
+            </div>
+          </section>
+
           <section className={styles.otherOptions}>
-            <h3>{PlanMembers('headings.h3AddProjectMember')}</h3>
+            <h2>{PlanMembers('headings.h3AddProjectMember')}</h2>
             <p>{PlanMembers.rich('addProjectMemberInfo', {
               strong: (chunks) => <strong>{chunks}</strong>
             })}</p>
-            < Link href={`/projects/${projectId}/members`}>{PlanMembers('links.updateProjectMembers')}</Link>
+            <Link href={`/projects/${projectId}/members`} className={"text-base underline"}>{PlanMembers('links.updateProjectMembers')}</Link> {PlanMembers('newWindow')}
 
-            <h3>{PlanMembers('headings.h3AllowOthers')}</h3>
+            <h2>{PlanMembers('headings.h3AllowOthers')}</h2>
             <p>
               {PlanMembers('allowOthersToAccess')}
             </p>

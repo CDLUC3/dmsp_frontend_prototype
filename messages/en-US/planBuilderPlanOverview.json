@@ -113,13 +113,15 @@
     }
   },
   "ProjectsProjectPlanAdjustMembers": {
-    "title": "Members for this plan",
+    "title": "Plan members",
+    "description": "Select the relevant members for <strong>this plan only </strong> from the list of project members shown below. Regardless of their role in this plan, they will remain as members of your",
+    "newWindow": "(new window)",
     "headings": {
       "h2PrimaryContact": "Primary contact",
       "h3AddProjectMember": "Adding a new member?",
       "h3AllowOthers": "Allow others access to the project"
     },
-    "addProjectMemberInfo": "You can add any project member to this plan using the tickboxes above. If you want to add someone who isn&apos;t shown here, you must <strong>add them to the project first</strong>.",
+    "addProjectMemberInfo": "You can add any project member to this plan using the tickboxes above. If you want to add someone who isn't shown here, you must <strong>add them to the project first</strong>.",
     "allowOthersToAccess": " You can allow others access to the project. This will grant them access to the project and all plans.",
     "labels": {
       "planMembers": "Plan members",
@@ -144,7 +146,7 @@
       }
     },
     "links": {
-      "updateProjectMembers": "Update project members (new window)",
+      "updateProjectMembers": "Update project members",
       "inviteAPerson": "Invite a person"
     }
   }
