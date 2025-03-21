@@ -7,14 +7,18 @@
   width: 100%;
   padding: var(--space-2) 0;
   margin-bottom: var(--space-3);
-}
 
-.membersList > *:not(:first-child) {
-  padding-left: 20px; /* Adds space only to elements after the first column */
-}
+  > *:not(:first-child) {
+    padding-left: 20px; /* Adds space only to elements after the first column */
+  }
 
-.box {
-  align-self: start; // Align to top
+  .box {
+    align-self: start; // Align to top
+  }
+
+  .memberBtn {
+    margin-top: var(--space-4);
+  }
 }
 
 .memberCheckbox {
@@ -108,13 +112,16 @@
   }
   
 }
-
-@include device('xl') {
+@include device('lg') {
   .membersList {
     /* Four columns: auto-width for checkbox, remaining space divided among the other three */
     grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
     justify-content: start; /* Ensure the grid starts from the left */
     align-items: start;
+  }
+
+  .membersList .memberBtn {
+    margin-top: 0;
   }
 
   .memberInfo {

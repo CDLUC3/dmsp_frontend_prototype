@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import styles from './footer.module.scss';
 
 function Footer() {
@@ -48,7 +49,13 @@ function Footer() {
                     <div className={`${styles['dmpui-frontend-container']} ${styles['dmpui-frontend']}`}>
                         <div className={styles['footer-disclaimers-grid']}>
                             <div className={styles['footer-disclaimers-logo']}>
-                                <img src="/images/logo-cdl.png" alt="CDL" />
+                                <Image
+                                    alt="University of California, Office of the President (UCOP) logo"
+                                    width="104"
+                                    height="39"
+                                    src="/images/logo-cdl.png"
+                                    priority /*to preload large image */
+                                />
                             </div>
                             <div className={styles['footer-disclaimers-text']}>
                                 <p>DMP Tool is a service of the California Digital Library, a division of the University of California Office of the President.

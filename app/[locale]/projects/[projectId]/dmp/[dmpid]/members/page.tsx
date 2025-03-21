@@ -439,7 +439,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                             <Button
                               onPress={() => handleRemovePlanContributor(member.id)}
 
-                              className={"button-link secondary"}
+                              className={`${styles.memberBtn} button-link secondary`}
                               aria-label={PlanMembers('labels.removeFromPlan')}
                             >
                               {PlanMembers('labels.removeFromPlan')}
@@ -448,7 +448,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                         </div>
                       ))}
                   </div>
-                  <div>
+                  <div className={styles.primaryContactWrapper}>
                     <h3 className={styles.primaryContact}>{PlanMembers('headings.h2PrimaryContact')}</h3>
 
                     {/**Just show the Plan Contributors in the dropdown */}
