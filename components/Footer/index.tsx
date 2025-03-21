@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import styles from './footer.module.scss';
 
 function Footer() {
@@ -48,6 +49,12 @@ function Footer() {
                     <div className={`${styles['dmpui-frontend-container']} ${styles['dmpui-frontend']}`}>
                         <div className={styles['footer-disclaimers-grid']}>
                             <div className={styles['footer-disclaimers-logo']}>
+                                <Image
+                                    alt="University of California, Office of the President (UCOP) logo"
+                                    width="104"
+                                    height="39"
+                                    src="/images/logo-cdl.png"
+                                    priority />
                                 <img src="/images/logo-cdl.png" alt="CDL" />
                             </div>
                             <div className={styles['footer-disclaimers-text']}>
