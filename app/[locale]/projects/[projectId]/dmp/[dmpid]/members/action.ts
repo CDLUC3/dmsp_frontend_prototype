@@ -62,13 +62,15 @@ export async function addPlanContributorAction({
         switch (errorCode) {
           case "UNAUTHENTICATED":
             try {
+              // Get a new auth token if there is a refresh token
               const refreshResult = await serverRefreshAuthTokens();
 
               if (!refreshResult) {
-                logger.error("Token refresh failed with no result", { error: "UNAUTHENTICATED" });
+                logger.error("Auth token refresh failed with no result", { error: "UNAUTHENTICATED" });
                 return { redirect: "/login" };
               }
 
+              // Extract and store cookies from response
               const nextCookies = cookies();
               const setCookieHeader = refreshResult?.response?.headers?.get("set-cookie");
 
@@ -77,24 +79,37 @@ export async function addPlanContributorAction({
                 return { redirect: "/login" };
               }
 
-              // Store cookies from response
+              const refreshedCookiesArray: string[] = [];
               setCookieHeader.split(",").forEach((cookieStr) => {
                 const match = cookieStr.match(/^([^=]+)=([^;]+)/);
                 if (match) {
-                  const [_, name, value] = match;
+                  const [, name, value] = match;
                   nextCookies.set(name.trim(), value.trim(), {
                     path: "/",
                     httpOnly: cookieStr.includes("HttpOnly"),
                     secure: cookieStr.includes("Secure"),
                   });
+                  refreshedCookiesArray.push(`${name.trim()}=${value.trim()}`);
                 }
               });
 
-              // Retry GraphQL request
+              // Get all existing cookies and combine them with the refreshed ones
+              const existingCookies = nextCookies.toString();
+              const combinedCookies = existingCookies
+                ? `${existingCookies}; ${refreshedCookiesArray.join("; ")}`
+                : refreshedCookiesArray.join("; ");
+
+              // Set headers for GraphQL request with newly updated dmpst cookie
+              const headers = {
+                "Content-Type": "application/json",
+                Cookie: combinedCookies,
+              };
+
+              // Retry GraphQL request after getting the new auth token 'dmspt'
               const retryResponse = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/graphql`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include", // Automatically includes cookies
+                headers,
+                credentials: "include",
                 body: JSON.stringify({ query: mutationString, variables: { planId, projectContributorId } }),
               });
 
@@ -102,7 +117,7 @@ export async function addPlanContributorAction({
 
               if (retryResult.errors) {
                 logger.error(`[GraphQL Retry Error]: ${retryResult.errors[0]?.message}`, { error: "GRAPHQL_ERROR" });
-                return { errors: retryResult.errors.map((err) => err.message) };
+                return { errors: retryResult.errors.map((err: GraphQLError) => err.message) };
               }
 
               return { success: true, data: retryResult.data?.addPlanContributor };

@@ -46,7 +46,7 @@ export const serverRefreshAuthTokens = async () => {
       });
     }
 
-    // Get cookies from the server
+    // Get browser cookies
     const cookieStore = cookies();
     const cookieString = cookieStore.toString();
 

@@ -37,6 +37,7 @@ import {
   useRemovePlanContributorMutation,
   PlanContributorErrors
 } from '@/generated/graphql';
+import logECS from '@/utils/clientLogger';
 import { ProjectContributorsInterface } from '@/app/types';
 import { useToast } from '@/context/ToastContext';
 import { addPlanContributorAction } from './action';
@@ -135,6 +136,10 @@ const ProjectsProjectPlanAdjustMembers = () => {
         return response.data.addPlanContributor.errors;
       }
     } catch (error) {
+      logECS('error', 'addPlanContributor', {
+        error,
+        url: { path: `/projects/[${projectId}]/dmp/[${planId}]/members` }
+      });
     }
     return {};
   };
@@ -147,10 +152,8 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
       // Check if there are any errors (always exclude the GraphQL `_typename` entry)
       if (errors && Object.values(errors).filter((err) => err && err !== 'PlanContributorErrors').length > 0) {
-
         setErrorMessages([errors.general || Global('messaging.somethingWentWrong')]);
       } else {
-
         setPlanMemberIds(prev => [...prev, Number(memberId)]);
 
         //show success message
@@ -176,6 +179,10 @@ const ProjectsProjectPlanAdjustMembers = () => {
         return response.data.removePlanContributor.errors;
       }
     } catch (error) {
+      logECS('error', 'removePlanContributor', {
+        error,
+        url: { path: `/projects/[${projectId}]/dmp/[${planId}]/members` }
+      });
     }
     return {};
   };
@@ -234,6 +241,10 @@ const ProjectsProjectPlanAdjustMembers = () => {
         return response.data.updatePlanContributor.errors as PlanContributorErrors;
       }
     } catch (error) {
+      logECS('error', 'updatePlanContributor', {
+        error,
+        url: { path: `/projects/[${projectId}]/dmp/[${planId}]/members` }
+      });
     }
     return {};
   }
@@ -431,7 +442,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
                             </p>
                           </div>
                           <div className={classNames(styles.memberRole, styles.box)}>
-
                             <p className={styles.role}>
                               {member?.isPrimaryContact && <strong>{PlanMembers('contactPerson')},{' '}</strong>}
                               {member.roles.map((role, index) => (
@@ -445,7 +455,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
                           <div className={`${styles.memberActions} ${styles.box}`}>
                             <Button
                               onPress={() => handleRemovePlanContributor(member.id)}
-
                               className={`${styles.memberBtn} button-link secondary`}
                               aria-label={PlanMembers('labels.removeFromPlan')}
                             >
