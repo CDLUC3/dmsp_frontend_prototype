@@ -126,10 +126,11 @@
       "editTemplate": "Editar Modelo",
       "question": "Pergunta",
       "selectQuestionType": "Selecionar o tipo de questão",
-      "project": "Project",
+      "project": "Projeto",
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto",
-      "projectFunder": "Fundador do Projeto"
+      "projectFunder": "Fundador do Projeto",
+      "planOverview": "Resumo do plano"
     },
     "form": {
       "yesLabel": "Sim",
@@ -145,6 +146,7 @@
       "saveChanges": "Salvar as alterações",
       "remove": "Remover",
       "confirm": "Confirmação",
+      "change": "Mudança",
       "cancel": "Cancelar",
       "linkUpdate": "Atualização",
       "linkExpand": "Expandir",

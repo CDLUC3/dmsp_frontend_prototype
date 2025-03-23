@@ -389,14 +389,14 @@ const ProjectsProjectPlanAdjustMembers = () => {
             aria-label="Project members list"
             role="region"
           >
-            <h2>Members of this plan only</h2>
+            <h2>{PlanMembers('headings.h2MembersInThePlan')}</h2>
             <div>
-              {(!projectContributors || projectContributors?.length === 0) ? (
+              {(planMemberIds.length === 0) ? (
                 <p>{PlanMembers('messaging.error.memberNotFound')}</p>
               ) : (
                 <>
                   <div role="list">
-                    {projectContributors
+                    {(projectContributors ?? [])
                       .filter((member) => planMemberIds.includes(Number(member.id))) // Filter out members already in the plan
                       .map((member) => (
                         <div
@@ -427,14 +427,15 @@ const ProjectsProjectPlanAdjustMembers = () => {
                           <div className={classNames(styles.memberRole, styles.box)}>
 
                             <p className={styles.role}>
-                              {member?.isPrimaryContact && <strong>Contact person,{' '}</strong>}
+                              {member?.isPrimaryContact && <strong>{PlanMembers('contactPerson')},{' '}</strong>}
                               {member.roles.map((role, index) => (
                                 <span key={role.id}>
                                   {role.label}
                                   {index < member.roles.length - 1 && ', '}
                                 </span>
                               ))}
-                            </p>                        </div>
+                            </p>
+                          </div>
                           <div className={`${styles.memberActions} ${styles.box}`}>
                             <Button
                               onPress={() => handleRemovePlanContributor(member.id)}
@@ -449,7 +450,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                       ))}
                   </div>
                   <div className={styles.primaryContactWrapper}>
-                    <h3 className={styles.primaryContact}>{PlanMembers('headings.h2PrimaryContact')}</h3>
+                    <h3 className={styles.primaryContact}>{PlanMembers('headings.h3PrimaryContact')}</h3>
 
                     {/**Just show the Plan Contributors in the dropdown */}
                     <Form onSubmit={handlePrimaryContactForm}>
@@ -471,7 +472,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                       ) : (
                         <div className={styles.primaryContactChangeWrapper}>
                           <div className="field-label">{primaryContact}{' -'}</div>
-                          <Button className={`${styles.linkButton} link`} onPress={() => setIsEditing(true)}>Change</Button>
+                          <Button className={`${styles.linkButton} link`} onPress={() => setIsEditing(true)}>{Global('buttons.change')}</Button>
                         </div>
                       )}
                       {isEditing && (
@@ -490,14 +491,14 @@ const ProjectsProjectPlanAdjustMembers = () => {
             aria-label="Project members list"
             role="region"
           >
-            <h2>Project members not in this plan</h2>
+            <h2>{PlanMembers('headings.h2MembersNotInPlan')}</h2>
             <div>
-              {(!projectContributors || projectContributors?.length === 0) ? (
+              {projectContributors?.filter((member) => !planMemberIds.includes(Number(member.id))).length === 0 ? (
                 <p>{PlanMembers('messaging.error.memberNotFound')}</p>
               ) : (
                 <>
                   <div role="list">
-                    {projectContributors
+                    {(projectContributors ?? [])
                       .filter((member) => !planMemberIds.includes(Number(member.id))) // Filter out members already in the plan
                       .map((member) => (
                         <div
@@ -555,13 +556,13 @@ const ProjectsProjectPlanAdjustMembers = () => {
           </section>
 
           <section className={styles.otherOptions}>
-            <h2>{PlanMembers('headings.h3AddProjectMember')}</h2>
+            <h2>{PlanMembers('headings.h2AddProjectMember')}</h2>
             <p>{PlanMembers.rich('addProjectMemberInfo', {
               strong: (chunks) => <strong>{chunks}</strong>
             })}</p>
             <Link href={`/projects/${projectId}/members`} className={"text-base underline"}>{PlanMembers('links.updateProjectMembers')}</Link> {PlanMembers('newWindow')}
 
-            <h2>{PlanMembers('headings.h3AllowOthers')}</h2>
+            <h2>{PlanMembers('headings.h2AllowOthers')}</h2>
             <p>
               {PlanMembers('allowOthersToAccess')}
             </p>
