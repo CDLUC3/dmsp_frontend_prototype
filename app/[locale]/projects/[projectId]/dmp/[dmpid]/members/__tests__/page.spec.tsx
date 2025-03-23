@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { act, render, screen, fireEvent, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import {
@@ -7,11 +7,9 @@ import {
   useProjectContributorsQuery,
   useUpdatePlanContributorMutation,
   usePlanContributorsQuery,
-  ProjectContributor,
   useRemovePlanContributorMutation,
-  PlanContributorErrors
 } from '@/generated/graphql';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 import ProjectsProjectPlanAdjustMembers from '../page';
 import mockProjectContributors from '../__mocks__/projectContributorsMock.json';

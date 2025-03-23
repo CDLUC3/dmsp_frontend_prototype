@@ -22,6 +22,7 @@ import {
 } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import { FormSelect } from '@/components/Form/FormSelect';
+import ErrorMessages from '@/components/ErrorMessages';
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
@@ -221,7 +222,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
       const response = await UpdatePlanContributorMutation({
         variables: {
           planId: Number(planId),
-          planContributorId: planContributorId,
+          planContributorId,
           isPrimaryContact: true,
           contributorRoleIds: contributorRoles
             .map((role) => role.id) // Extract `id`
@@ -379,7 +380,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
         }
         className="page-project-members"
       />
-
+      <ErrorMessages errors={errorMessages} ref={errorRef} />
       <LayoutWithPanel>
         <ContentContainer className="layout-content-container-full">
           <p>
