@@ -11,6 +11,7 @@ import {
 } from "react-aria-components";
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+
 import classNames from 'classnames';
 
 // Components
@@ -29,7 +30,6 @@ import { useScrollToTop } from '@/hooks/scrollToTop';
 
 // Other
 import {
-  useAddPlanContributorMutation,
   useProjectContributorsQuery,
   useUpdatePlanContributorMutation,
   usePlanContributorsQuery,
@@ -39,6 +39,7 @@ import {
 } from '@/generated/graphql';
 import { ProjectContributorsInterface } from '@/app/types';
 import { useToast } from '@/context/ToastContext';
+import { addPlanContributorAction } from './action';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
 
 interface PlanContributorDropdown {
@@ -101,7 +102,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
 
   // Initialize mutations
-  const [AddPlanContributorMutation] = useAddPlanContributorMutation();
+  // const [AddPlanContributorMutation] = useAddPlanContributorMutation();
   const [RemovePlanContributorMutation] = useRemovePlanContributorMutation();
   const [UpdatePlanContributorMutation] = useUpdatePlanContributorMutation();
 
@@ -123,11 +124,11 @@ const ProjectsProjectPlanAdjustMembers = () => {
   // Add a new plan contributor
   const addPlanContributor = async (id: number) => {
     try {
-      const response = await AddPlanContributorMutation({
-        variables: {
-          planId: Number(planId),
-          projectContributorId: id
-        }
+      const response = await addPlanContributorAction({
+
+        planId: Number(planId),
+        projectContributorId: id
+
       });
 
       if (response.data?.addPlanContributor?.errors) {
@@ -151,7 +152,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
       } else {
 
         setPlanMemberIds(prev => [...prev, Number(memberId)]);
-        await refetch(); // Refresh the data after the update
 
         //show success message
         const planMemberAdded = projectContributors?.find((contributor) => contributor.id === memberId);

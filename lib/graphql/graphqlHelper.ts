@@ -1,10 +1,10 @@
-import {onError} from "@apollo/client/link/error";
-import {Observable} from "@apollo/client";
+import { onError } from "@apollo/client/link/error";
+import { Observable } from "@apollo/client";
 import logECS from "@/utils/clientLogger";
-import {RetryLink} from "@apollo/client/link/retry";
-import {createAuthLink} from "@/utils/authLink";
-import {fetchCsrfToken, refreshAuthTokens} from "@/utils/authHelper";
-import {getApolloClient} from './apolloClient';
+import { RetryLink } from "@apollo/client/link/retry";
+import { createAuthLink } from "@/utils/authLink";
+import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
+import { getApolloClient } from './apolloClient';
 
 interface CustomError extends Error {
   customInfo?: { errorMessage: string }
@@ -14,6 +14,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
   return new Observable((observer) => {
     const handleGraphQLErrors = async () => {
       if (graphQLErrors) {
+        console.log("***GRAPHQL ERRORS***", graphQLErrors);
         for (const { message, extensions } of graphQLErrors) {
           switch (extensions?.code) {
             // UNAUTHENTICATED error code can be thrown from the backend when:
@@ -21,6 +22,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
             //  - the access token has expired, invalid or has been revoked
             //  - the refresh token has expired
             case 'UNAUTHENTICATED':
+
               try {
                 const result = await refreshAuthTokens();
                 if (result) {
@@ -50,17 +52,17 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
             case 'FORBIDDEN':
               try {
                 const response = await fetchCsrfToken();
-                 if (response) {
-                   forward(operation).subscribe({
-                     next: observer.next.bind(observer),
-                     error: observer.error.bind(observer),
-                     complete: observer.complete.bind(observer)
-                   });
-                   return;
-                 } else {
-                   logECS('error', 'Token refresh failed with no result', { errorCode: 'FORBIDDEN' });
-                   window.location.href = '/login';
-                 }
+                if (response) {
+                  forward(operation).subscribe({
+                    next: observer.next.bind(observer),
+                    error: observer.error.bind(observer),
+                    complete: observer.complete.bind(observer)
+                  });
+                  return;
+                } else {
+                  logECS('error', 'Token refresh failed with no result', { errorCode: 'FORBIDDEN' });
+                  window.location.href = '/login';
+                }
               } catch (error) {
                 logECS('error', 'Fetching csrf token failed', { error });
                 window.location.href = '/login';
