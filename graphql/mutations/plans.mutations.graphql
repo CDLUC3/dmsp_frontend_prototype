@@ -45,8 +45,21 @@ mutation UpdatePlanContributor(
     isPrimaryContact:$isPrimaryContact,
     ) {
     id
+    isPrimaryContact
     errors {
       general
+    }
+    projectContributor {
+      id
+      givenName
+      surName
+    }
+    contributorRoles {
+      uri
+      id
+      label
+      description
+      displayOrder
     }
   }
 }

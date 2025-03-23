@@ -136,7 +136,7 @@
         "updatedPlanMember": "Successfully updated {fullName} as a plan member"
       },
       "error": {
-        "memberNotFound": "Member not found in this plan"
+        "memberNotFound": "Members not found"
       }
     },
     "form": {

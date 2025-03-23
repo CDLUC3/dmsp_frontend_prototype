@@ -3319,7 +3319,7 @@ export type UpdatePlanContributorMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePlanContributorMutation = { __typename?: 'Mutation', updatePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null } | null };
+export type UpdatePlanContributorMutation = { __typename?: 'Mutation', updatePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null, projectContributor?: { __typename?: 'ProjectContributor', id?: number | null, givenName?: string | null, surName?: string | null } | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', uri: string, id?: number | null, label: string, description?: string | null, displayOrder: number }> | null } | null };
 
 export type UpdateProjectContributorMutationVariables = Exact<{
   input: UpdateProjectContributorInput;
@@ -3737,8 +3737,21 @@ export const UpdatePlanContributorDocument = gql`
     isPrimaryContact: $isPrimaryContact
   ) {
     id
+    isPrimaryContact
     errors {
       general
+    }
+    projectContributor {
+      id
+      givenName
+      surName
+    }
+    contributorRoles {
+      uri
+      id
+      label
+      description
+      displayOrder
     }
   }
 }
