@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, FormEvent } from 'react';
+import { Fragment, useEffect, useRef, useState, FormEvent } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -87,7 +87,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   );
 
-  console.log("*** data ***", data);
   //Get Plan Contributors so that we know which members are already part of this plan
   const { data: planContributorData, loading: planContributorLoading, refetch, error: planContributorError } = usePlanContributorsQuery(
     {
@@ -95,6 +94,10 @@ const ProjectsProjectPlanAdjustMembers = () => {
       notifyOnNetworkStatusChange: true
     }
   );
+
+  const isLoading = loading || planContributorLoading;
+  const isError = queryError || planContributorError;
+
 
   // Initialize mutations
   const [AddPlanContributorMutation] = useAddPlanContributorMutation();
@@ -347,11 +350,13 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   }, [planMembers]); // Runs when `planMembers` changes
 
-
-  if (loading) {
+  if (isLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
+  if (isError) {
+    return <div>{Global('messaging.error')}</div>;
+  }
 
   return (
     <>
@@ -429,10 +434,10 @@ const ProjectsProjectPlanAdjustMembers = () => {
                             <p className={styles.role}>
                               {member?.isPrimaryContact && <strong>{PlanMembers('contactPerson')},{' '}</strong>}
                               {member.roles.map((role, index) => (
-                                <span key={role.id}>
+                                <Fragment key={role.id}>
                                   {role.label}
                                   {index < member.roles.length - 1 && ', '}
-                                </span>
+                                </Fragment>
                               ))}
                             </p>
                           </div>
@@ -457,7 +462,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                       {isEditing ? (
                         <FormSelect
                           label=""
-                          ariaLabel=""
+                          ariaLabel="primary contact selection"
                           isRequired
                           name="institution"
                           items={planMembers}
@@ -488,7 +493,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
           </section>
 
           <section
-            aria-label="Project members list"
+            aria-label="Members not in list"
             role="region"
           >
             <h2>{PlanMembers('headings.h2MembersNotInPlan')}</h2>
