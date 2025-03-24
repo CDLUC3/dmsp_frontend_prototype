@@ -103,7 +103,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
 
   // Initialize mutations
-  // const [AddPlanContributorMutation] = useAddPlanContributorMutation();
   const [RemovePlanContributorMutation] = useRemovePlanContributorMutation();
   const [UpdatePlanContributorMutation] = useUpdatePlanContributorMutation();
 
