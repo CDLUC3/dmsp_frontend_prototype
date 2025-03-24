@@ -13,8 +13,15 @@ import { ContentContainer, LayoutContainer, } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import ErrorMessages from '@/components/ErrorMessages';
 
-import { ProjectContributorsInterface } from '@/app/types';
 import styles from './ProjectsProjectMembers.module.scss';
+
+interface ProjectContributorInterface {
+  id: number | null;
+  fullName: string;
+  affiliation: string;
+  orcid: string;
+  role: string;
+}
 
 const ProjectsProjectMembers = () => {
   const router = useRouter();
@@ -28,7 +35,7 @@ const ProjectsProjectMembers = () => {
   const ProjectMembers = useTranslations('ProjectsProjectMembers');
   const Global = useTranslations('Global');
 
-  const [projectContributors, setProjectContributors] = useState<ProjectContributorsInterface[]>();
+  const [projectContributors, setProjectContributors] = useState<ProjectContributorInterface[]>();
   const [errors, setErrors] = useState<string[]>([]);
 
   // Get project contributors using projectid

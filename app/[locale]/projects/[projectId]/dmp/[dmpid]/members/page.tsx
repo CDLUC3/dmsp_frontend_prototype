@@ -11,6 +11,7 @@ import {
 } from "react-aria-components";
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+
 import classNames from 'classnames';
 
 // Components
@@ -29,7 +30,6 @@ import { useScrollToTop } from '@/hooks/scrollToTop';
 
 // Other
 import {
-  useAddPlanContributorMutation,
   useProjectContributorsQuery,
   useUpdatePlanContributorMutation,
   usePlanContributorsQuery,
@@ -37,8 +37,10 @@ import {
   useRemovePlanContributorMutation,
   PlanContributorErrors
 } from '@/generated/graphql';
-import { ProjectContributorsInterface } from '@/app/types';
+import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
+import { addPlanContributorAction } from './action';
+import { ProjectContributorsInterface } from '@/app/types';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
 
 interface PlanContributorDropdown {
@@ -62,7 +64,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
   const toastState = useToast(); // Access the toast state from context
 
   // Store project contributors
-  const [projectContributors, setProjectContributors] = useState<ProjectContributorsInterface[]>();
+  const [projectContributors, setProjectContributors] = useState<ProjectContributorsInterface[]>([]);
 
   // Store ids of members selected for this plan
   const [planMemberIds, setPlanMemberIds] = useState<number[]>([]);
@@ -101,7 +103,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
 
   // Initialize mutations
-  const [AddPlanContributorMutation] = useAddPlanContributorMutation();
+  // const [AddPlanContributorMutation] = useAddPlanContributorMutation();
   const [RemovePlanContributorMutation] = useRemovePlanContributorMutation();
   const [UpdatePlanContributorMutation] = useUpdatePlanContributorMutation();
 
@@ -123,17 +125,21 @@ const ProjectsProjectPlanAdjustMembers = () => {
   // Add a new plan contributor
   const addPlanContributor = async (id: number) => {
     try {
-      const response = await AddPlanContributorMutation({
-        variables: {
-          planId: Number(planId),
-          projectContributorId: id
-        }
+      const response = await addPlanContributorAction({
+
+        planId: Number(planId),
+        projectContributorId: id
+
       });
 
       if (response.data?.addPlanContributor?.errors) {
         return response.data.addPlanContributor.errors;
       }
     } catch (error) {
+      logECS('error', 'addPlanContributor', {
+        error,
+        url: { path: `/projects/[${projectId}]/dmp/[${planId}]/members` }
+      });
     }
     return {};
   };
@@ -146,12 +152,9 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
       // Check if there are any errors (always exclude the GraphQL `_typename` entry)
       if (errors && Object.values(errors).filter((err) => err && err !== 'PlanContributorErrors').length > 0) {
-
         setErrorMessages([errors.general || Global('messaging.somethingWentWrong')]);
       } else {
-
         setPlanMemberIds(prev => [...prev, Number(memberId)]);
-        await refetch(); // Refresh the data after the update
 
         //show success message
         const planMemberAdded = projectContributors?.find((contributor) => contributor.id === memberId);
@@ -176,6 +179,10 @@ const ProjectsProjectPlanAdjustMembers = () => {
         return response.data.removePlanContributor.errors;
       }
     } catch (error) {
+      logECS('error', 'removePlanContributor', {
+        error,
+        url: { path: `/projects/[${projectId}]/dmp/[${planId}]/members` }
+      });
     }
     return {};
   };
@@ -234,6 +241,10 @@ const ProjectsProjectPlanAdjustMembers = () => {
         return response.data.updatePlanContributor.errors as PlanContributorErrors;
       }
     } catch (error) {
+      logECS('error', 'updatePlanContributor', {
+        error,
+        url: { path: `/projects/[${projectId}]/dmp/[${planId}]/members` }
+      });
     }
     return {};
   }
@@ -305,13 +316,13 @@ const ProjectsProjectPlanAdjustMembers = () => {
               label: role.label,
             }))
             : [],
-        }));
+        })) as ProjectContributorsInterface[]; // Explicitly assert type
 
       if (projectContributorData.length > 0) {
         setProjectContributors(projectContributorData);
       }
     }
-  }, [data, planContributorData]);
+  }, [data, planContributorData]);// The planContributorData depedency is required to update the select dropdown after primary contact is changed
 
   useEffect(() => {
     // When data from backend changes, set plan contributors data in state
@@ -431,7 +442,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
                             </p>
                           </div>
                           <div className={classNames(styles.memberRole, styles.box)}>
-
                             <p className={styles.role}>
                               {member?.isPrimaryContact && <strong>{PlanMembers('contactPerson')},{' '}</strong>}
                               {member.roles.map((role, index) => (
@@ -445,7 +455,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
                           <div className={`${styles.memberActions} ${styles.box}`}>
                             <Button
                               onPress={() => handleRemovePlanContributor(member.id)}
-
                               className={`${styles.memberBtn} button-link secondary`}
                               aria-label={PlanMembers('labels.removeFromPlan')}
                             >

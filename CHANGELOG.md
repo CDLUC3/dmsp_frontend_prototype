@@ -4,9 +4,8 @@
 - Plan Downloads [#299]
 - 
 ### Added
+- Added new serverAuthHelper.ts to work with Server Actions [#364]
 - Add central "named routes" and helper function
-
-### Added
 - Project Create Flow [#299]
 - Project Upload [#299]
 - Project Funder [#299]
@@ -25,6 +24,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated `Plan Members` page. Added mutation and queries, and a server action for handling addPlanContributors mutation [#364]
 - Update `Edit Member Details` page. Added mutation and queries, translations, and unit test [#367]
 - Updated `PlanCreate` component so that it hooks up to real data. The functionality of the page is a little complicated, so I added a `CreatePlan.md` file to summarize what functionality is expected in the page. [#361]
 - Updated the `Project Members` page with real data [#360]
@@ -61,6 +61,9 @@
 ### Fixed
 - Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
+
+
+==================================================================================================== 
 
 ### Added
 - Added `/projects/[projectId]/project-funding`, copying over the static code from `/projects/[projectId]/create-project/funding`. Updated
