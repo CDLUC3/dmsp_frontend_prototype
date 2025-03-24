@@ -1,6 +1,13 @@
 'use client';
 
-import { Fragment, useEffect, useRef, useState, FormEvent } from 'react';
+import {
+  Fragment,
+  useEffect,
+  useReducer,
+  useRef,
+  FormEvent
+} from 'react';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -50,7 +57,71 @@ interface PlanContributorDropdown {
   projectContributorId: number | null;
 }
 
+const initialState = {
+  projectContributors: [] as ProjectContributorsInterface[],
+  planMemberIds: [] as number[],
+  isEditing: false,
+  planMembers: [] as PlanContributorDropdown[],
+  selectedPlanMember: null as string | null,
+  primaryContact: '',
+  errorMessages: [] as string[],
+};
+
+type Action =
+  | { type: 'SET_PROJECT_CONTRIBUTORS'; payload: ProjectContributorsInterface[] }
+  | { type: 'SET_PLAN_MEMBER_IDS'; payload: number[] }
+  | { type: 'ADD_PLAN_MEMBER_ID'; payload: number }
+  | { type: 'REMOVE_PLAN_MEMBER_ID'; payload: number }
+  | { type: 'SET_IS_EDITING'; payload: boolean }
+  | { type: 'SET_PLAN_MEMBERS'; payload: PlanContributorDropdown[] }
+  | { type: 'SET_SELECTED_PLAN_MEMBER'; payload: string | null }
+  | { type: 'SET_PRIMARY_CONTACT'; payload: string }
+  | { type: 'SET_ERROR_MESSAGES'; payload: string[] }
+  | { type: 'ADD_ERROR_MESSAGE'; payload: string };
+
+
+const reducer = (state: typeof initialState, action: Action) => {
+  switch (action.type) {
+    case 'SET_PROJECT_CONTRIBUTORS':
+      return { ...state, projectContributors: action.payload };
+    case 'SET_PLAN_MEMBER_IDS':
+      return { ...state, planMemberIds: action.payload };
+    case 'ADD_PLAN_MEMBER_ID':
+      return { ...state, planMemberIds: [...state.planMemberIds, action.payload] };
+    case 'REMOVE_PLAN_MEMBER_ID':
+      return { ...state, planMemberIds: state.planMemberIds.filter((id) => id !== action.payload) };
+    case 'SET_IS_EDITING':
+      return { ...state, isEditing: action.payload };
+    case 'SET_PLAN_MEMBERS':
+      return { ...state, planMembers: action.payload };
+    case 'SET_SELECTED_PLAN_MEMBER':
+      return { ...state, selectedPlanMember: action.payload };
+    case 'SET_PRIMARY_CONTACT':
+      return { ...state, primaryContact: action.payload };
+    case 'SET_ERROR_MESSAGES':
+      return { ...state, errorMessages: action.payload };
+    case 'ADD_ERROR_MESSAGE':
+      return { ...state, errorMessages: [...state.errorMessages, action.payload] };
+    default:
+      return state;
+  }
+};
+
+
 const ProjectsProjectPlanAdjustMembers = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const {
+    projectContributors,
+    planMemberIds,
+    isEditing,
+    planMembers,
+    selectedPlanMember,
+    primaryContact,
+    errorMessages,
+  } = state;
+
+
   const { scrollToTop } = useScrollToTop();
 
   // Get projectId and planId params
@@ -62,21 +133,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
   const topRef = useRef<HTMLDivElement>(null);
 
   const toastState = useToast(); // Access the toast state from context
-
-  // Store project contributors
-  const [projectContributors, setProjectContributors] = useState<ProjectContributorsInterface[]>([]);
-
-  // Store ids of members selected for this plan
-  const [planMemberIds, setPlanMemberIds] = useState<number[]>([]);
-
-  // To track whether user is editing the primary contact
-  const [isEditing, setIsEditing] = useState(false);
-
-  const [planMembers, setPlanMembers] = useState<PlanContributorDropdown[]>([]);
-  const [selectedPlanMember, setSelectedPlanMember] = useState<string | null>(null);
-  const [primaryContact, setPrimaryContact] = useState<string>('');
-  // Save errors in state to display on page
-  const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   // Localization keys
   const PlanMembers = useTranslations('ProjectsProjectPlanAdjustMembers');
@@ -146,16 +202,13 @@ const ProjectsProjectPlanAdjustMembers = () => {
   // handle adding of plan contributor
   const handleAddPlanContributor = async (memberId: number | null) => {
     if (memberId) {
-      // Attempt to add plan contributor
       const errors = await addPlanContributor(memberId);
 
-      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
       if (errors && Object.values(errors).filter((err) => err && err !== 'PlanContributorErrors').length > 0) {
-        setErrorMessages([errors.general || Global('messaging.somethingWentWrong')]);
+        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [errors.general || Global('messaging.somethingWentWrong')] });
       } else {
-        setPlanMemberIds(prev => [...prev, Number(memberId)]);
+        dispatch({ type: 'ADD_PLAN_MEMBER_ID', payload: memberId });
 
-        //show success message
         const planMemberAdded = projectContributors?.find((contributor) => contributor.id === memberId);
         const successMessage = PlanMembers('messaging.success.addedPlanMember', { fullName: planMemberAdded?.fullName });
         toastState.add(successMessage, { type: 'success' });
@@ -163,7 +216,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
         scrollToTop(topRef);
       }
     }
-  }
+  };
 
   // Remove a plan contributor
   const removePlanContributor = async (id: number) => {
@@ -189,36 +242,32 @@ const ProjectsProjectPlanAdjustMembers = () => {
   // handle removing of plan contributor
   const handleRemovePlanContributor = async (memberId: number | null) => {
     if (memberId) {
-      // Find the planContributor ID that matches the memberId
       const planContributor = planContributorData?.planContributors?.find(
         (contributor) => contributor?.projectContributor?.id === memberId
       );
 
       if (!planContributor?.id) {
         const errorMessage = PlanMembers('messaging.error.memberNotFound');
-        setErrorMessages(prev => [...prev, errorMessage]);
+        dispatch({ type: 'ADD_ERROR_MESSAGE', payload: errorMessage });
         return;
       }
 
-      // Attempt to remove plan contributor
       const errors = await removePlanContributor(planContributor.id);
 
-      // Check if there are any errors (always exclude the GraphQL `_typename` entry)
       if (errors && Object.values(errors).filter((err) => err && err !== 'PlanContributorErrors').length > 0) {
-        setErrorMessages([errors.general || Global('messaging.somethingWentWrong')]);
+        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [errors.general || Global('messaging.somethingWentWrong')] });
       } else {
-        setPlanMemberIds((prev) => prev.filter((id) => id !== memberId));
-        await refetch(); // Refresh the data after the update
+        dispatch({ type: 'REMOVE_PLAN_MEMBER_ID', payload: memberId });
+        await refetch();
 
-        //show success message
-        const planMemberAdded = projectContributors?.find((contributor) => contributor.id === memberId);
-        const successMessage = PlanMembers('messaging.success.removedPlanMember', { fullName: planMemberAdded?.fullName });
+        const planMemberRemoved = projectContributors?.find((contributor) => contributor.id === memberId);
+        const successMessage = PlanMembers('messaging.success.removedPlanMember', { fullName: planMemberRemoved?.fullName });
         toastState.add(successMessage, { type: 'success' });
 
         scrollToTop(topRef);
       }
     }
-  }
+  };
 
   const updatePlanContributor = async (
     planContributorId: number,
@@ -252,12 +301,11 @@ const ProjectsProjectPlanAdjustMembers = () => {
     e.preventDefault();
 
     if (selectedPlanMember) {
-      // Find the selected plan member's details
       const selectedMember = planMembers.find((member) => member.id === selectedPlanMember);
 
       if (!selectedMember) {
         const errorMessage = PlanMembers('messaging.error.memberNotFound');
-        setErrorMessages(prev => [...prev, errorMessage]);
+        dispatch({ type: 'ADD_ERROR_MESSAGE', payload: errorMessage });
         return;
       }
 
@@ -267,7 +315,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
         ?.roles ?? [];
 
       let errors;
-      // Call updatePlanContributor with the selected plan member's ID and roles
       if (projectContributorId !== null) {
         errors = await updatePlanContributor(
           Number(selectedPlanMember),
@@ -275,22 +322,20 @@ const ProjectsProjectPlanAdjustMembers = () => {
         );
       } else {
         const errorMessage = PlanMembers('messaging.error.memberNotFound');
-        setErrorMessages(prev => [...prev, errorMessage]);
+        dispatch({ type: 'ADD_ERROR_MESSAGE', payload: errorMessage });
       }
 
-      // If errors, set errorMessages, otherwise, refetch updated data and hide primary contact Select
       if (
         errors &&
         Object.values(errors).filter((err) => err && err !== "PlanContributorErrors").length > 0
       ) {
-        setErrorMessages([errors.general ?? Global('messaging.somethingWentWrong')]);
+        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [errors.general ?? Global('messaging.somethingWentWrong')] });
       } else {
-        await refetch(); // Refresh the data after the update
-        setIsEditing(false);
+        await refetch();
+        dispatch({ type: 'SET_IS_EDITING', payload: false });
 
-        //show success message
-        const planMemberAdded = projectContributors?.find((contributor) => contributor.id === projectContributorId);
-        const successMessage = PlanMembers('messaging.success.updatedPlanMember', { fullName: planMemberAdded?.fullName });
+        const planMemberUpdated = projectContributors?.find((contributor) => contributor.id === projectContributorId);
+        const successMessage = PlanMembers('messaging.success.updatedPlanMember', { fullName: planMemberUpdated?.fullName });
         toastState.add(successMessage, { type: 'success' });
 
         scrollToTop(topRef);
@@ -318,37 +363,38 @@ const ProjectsProjectPlanAdjustMembers = () => {
         })) as ProjectContributorsInterface[]; // Explicitly assert type
 
       if (projectContributorData.length > 0) {
-        setProjectContributors(projectContributorData);
+        dispatch({ type: 'SET_PROJECT_CONTRIBUTORS', payload: projectContributorData });
       }
     }
   }, [data, planContributorData]);// The planContributorData depedency is required to update the select dropdown after primary contact is changed
 
   useEffect(() => {
-    // When data from backend changes, set plan contributors data in state
     if (planContributorData && planContributorData.planContributors) {
       const planContributorIds = planContributorData.planContributors
         .map((contributor) => contributor?.projectContributor?.id ?? null)
-        .filter(id => id !== null);
-      setPlanMemberIds(planContributorIds);
+        .filter((id) => id !== null);
+      dispatch({ type: 'SET_PLAN_MEMBER_IDS', payload: planContributorIds });
 
       const transformedData = planContributorData.planContributors
         .map((contributor): PlanContributorDropdown => ({
           id: (contributor?.id)?.toString() ?? '',
           name: `${contributor?.projectContributor?.givenName} ${contributor?.projectContributor?.surName}`,
-          isPrimaryContact: contributor?.isPrimaryContact ?? null, // Ensure it matches the optional type
-          projectContributorId: contributor?.projectContributor?.id ?? null
+          isPrimaryContact: contributor?.isPrimaryContact ?? null,
+          projectContributorId: contributor?.projectContributor?.id ?? null,
         }))
-        .filter((contributor): contributor is PlanContributorDropdown => contributor.id !== null); // Filter out null ids
+        .filter((contributor): contributor is PlanContributorDropdown => contributor.id !== null);
 
       if (transformedData.length > 0) {
-        setPlanMembers(transformedData);
+        dispatch({ type: 'SET_PLAN_MEMBERS', payload: transformedData });
       }
-      const primaryContact = planContributorData.planContributors.find(member => member?.isPrimaryContact);
+
+      const primaryContact = planContributorData.planContributors.find((member) => member?.isPrimaryContact);
       if (primaryContact) {
-        setPrimaryContact(primaryContact.projectContributor?.givenName + ' ' + primaryContact.projectContributor?.surName); // Set the primary contact name for display purposes
-
+        dispatch({
+          type: 'SET_PRIMARY_CONTACT',
+          payload: `${primaryContact.projectContributor?.givenName} ${primaryContact.projectContributor?.surName}`,
+        });
       }
-
     }
   }, [planContributorData]);
 
@@ -356,7 +402,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
     if (planMembers?.length) {
       const primaryContact = planMembers.find(member => member.isPrimaryContact);
       if (primaryContact) {
-        setSelectedPlanMember(primaryContact.id);
+        dispatch({ type: 'SET_SELECTED_PLAN_MEMBER', payload: primaryContact.id });
       }
     }
   }, [planMembers]); // Runs when `planMembers` changes
@@ -478,15 +524,21 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
                           errorMessage={PlanMembers('form.select.selectionIsRequired')}
                           description={PlanMembers('form.select.description')}
-                          onSelectionChange={(selected) => setSelectedPlanMember(selected as string)}
-                          selectedKey={selectedPlanMember}
+                          onSelectionChange={(selected) =>
+                            dispatch({ type: 'SET_SELECTED_PLAN_MEMBER', payload: selected as string })
+                          } selectedKey={selectedPlanMember}
                         >
                           {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                         </FormSelect>
                       ) : (
                         <div className={styles.primaryContactChangeWrapper}>
                           <div className="field-label">{primaryContact}{' -'}</div>
-                          <Button className={`${styles.linkButton} link`} onPress={() => setIsEditing(true)}>{Global('buttons.change')}</Button>
+                          <Button
+                            className={`${styles.linkButton} link`}
+                            onPress={() => dispatch({ type: 'SET_IS_EDITING', payload: true })}
+                          >
+                            {Global('buttons.change')}
+                          </Button>
                         </div>
                       )}
                       {isEditing && (
