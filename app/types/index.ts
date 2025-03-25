@@ -71,7 +71,7 @@ export interface TemplateItemProps {
 
 export interface VersionedTemplateSearchResultInterface {
   id: number;
-  name: string;
+  name?: string;
   description: string;
   modified: string;
   modifiedById: number;
@@ -86,12 +86,12 @@ export interface VersionedTemplateSearchResultInterface {
 
 export interface MyVersionedTemplatesInterface {
   id?: number | null;
-  name: string;
+  name?: string | null;
   description?: string | null;
   modified?: string | null;
   modifiedById?: number | null;
   versionType?: string | null;
-  visibility: string;
+  visibility?: string | null;
   template?: {
     __typename?: string; // Match GraphQL's optional __typename
     id?: number | null;
@@ -299,4 +299,3 @@ export interface ProjectContributorFormInterface {
   email: string;
   orcid: string;
 }
-
