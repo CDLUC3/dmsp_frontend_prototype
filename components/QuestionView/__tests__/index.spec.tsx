@@ -1,144 +1,79 @@
 import React from 'react';
 
-import {act, fireEvent, render, screen, waitFor,} from '@/utils/test-utils';
-
+import {act, render, screen} from '@/utils/test-utils';
 import {axe, toHaveNoViolations} from 'jest-axe';
 
-import QuestionPreview from '@/components/QuestionPreview';
+import {useQuestionTypesQuery} from '@/generated/graphql';
+import QuestionView from '@/components/QuestionView';
 
 
 expect.extend(toHaveNoViolations);
 
 
-describe("QuestionPreview", () => {
+jest.mock('@/generated/graphql', () => ({
+  useQuestionTypesQuery: jest.fn(),
+}));
 
-  afterEach(() => {
-    // We need to reset the history
-    window.history.pushState(null, "", window.location.pathname);
+
+const mockQuestionTypes = {
+  questionTypes: [
+    {
+      id: "1",
+      name: "Text Area",
+    },
+  ]
+};
+
+
+const mockQuestion = {
+  guidanceText: 'Question guidance...',
+  questionText: 'Question text?',
+  requirementText: 'Question requirements',
+  sampleText: 'Lorem ipsum dolor sit...',
+  useSampleTextAsDefault: false,
+  questionTypeId: "1",
+};
+
+
+const mockHook = (hook: any) => hook as jest.Mock;
+
+
+describe("QuestionView", () => {
+  beforeEach(() => {
+    mockHook(useQuestionTypesQuery).mockReturnValue({
+      data: mockQuestionTypes,
+      error: undefined,
+    });
   });
 
-  it("should render the preview button", async () => {
-    render(<QuestionPreview> </QuestionPreview>);
-
-    const button = screen.getByTestId('preview-button');
-    expect(button).toBeInTheDocument();
-  });
-
-  it("should have a modal overlay, hidden initially", async() => {
+  it("should render the view", async () => {
     render(
-      <QuestionPreview>
-        <h2>Preview Content</h2>
-      </QuestionPreview>
-    );
+      <QuestionView
+        question={mockQuestion}
+        isPreview={true}
+      />);
 
-    expect(window.location.hash).toBe("");
-
-    // Click the preview button
-    const previewButton = screen.getByTestId('preview-button');
-    expect(previewButton).toBeInTheDocument();
-    fireEvent.click(previewButton);
-
-    await waitFor(() => {
-      const overlay = screen.getByTestId('modal-overlay');
-      const modal = screen.getByTestId('modal-bottomsheet');
-      const dialog = screen.getByTestId('modal-dialog');
-
-      expect(overlay).toBeInTheDocument();
-      expect(modal).toBeInTheDocument();
-      expect(dialog).toBeInTheDocument();
-
-      const notice = screen.getByTestId('preview-notice');
-      expect(notice).toBeInTheDocument();
-    });
-
-    const closeBtn = screen.getByTestId('preview-close-button');
-    expect(closeBtn).toBeInTheDocument();
-    fireEvent.click(closeBtn);
+    expect(screen.getByTestId('question-card')).toBeInTheDocument();
   });
 
-  it("should update the history when we toggle the preview", () => {
+  it('should render the textarea questiontype', async () => {
     render(
-      <QuestionPreview> </QuestionPreview>
-    );
+      <QuestionView
+        question={mockQuestion}
+        isPreview={true}
+      />);
 
-    expect(window.location.hash).toBe("");
-
-    // Open the preview
-    const previewButton = screen.getByTestId('preview-button');
-    expect(previewButton).toBeInTheDocument();
-    fireEvent.click(previewButton);
-
-    waitFor(() => {
-      expect(window.location.hash).toBe("#_modal");
-    });
-
-    // Mock history.back() since jest doesn't have this
-    const backMock = jest
-      .spyOn(window.history, "back")
-      .mockImplementation(() => {
-        window.history.pushState(null, "", window.location.pathname);
-      });
-
-    // Close the Preview
-    const closeBtn = screen.getByTestId('preview-close-button');
-    expect(closeBtn).toBeInTheDocument();
-    fireEvent.click(closeBtn);
-
-    waitFor(() => {
-      expect(window.location.hash).toBe("");
-    });
-
-    backMock.mockRestore();
-  });
-
-  it("should automatically show the preview using the url hash", () => {
-    const backMock = jest
-      .spyOn(window.history, "back")
-      .mockImplementation(() => {
-        window.history.pushState(null, "", window.location.pathname);
-      });
-
-    render(
-      <QuestionPreview> </QuestionPreview>
-    );
-
-    window.history.pushState(null, "#_modal", window.location.pathname);
-    waitFor(() => {
-      expect(window.location.hash).toBe("#_modal");
-    });
-
-    waitFor(() => {
-      const closeBtn = screen.getByTestId('preview-close-button');
-      expect(closeBtn).toBeInTheDocument();
-      fireEvent.click(closeBtn);
-    });
-
-    expect(window.location.hash).toBe("");
-
-    backMock.mockRestore();
-  });
-
-  it("should toggle the preview when navigating", () => {
-    render(
-      <QuestionPreview> </QuestionPreview>
-    );
-
-    window.history.pushState(null, "#_modal", window.location.pathname);
-    waitFor(() => {
-      const closeBtn = screen.getByTestId('preview-close-button');
-      expect(closeBtn).toBeInTheDocument();
-    });
-
-    window.history.pushState(null, "", window.location.pathname);
-    waitFor(() => {
-      const previewBtn = screen.getByTestId('preview-button');
-      expect(previewBtn).toBeInTheDocument();
-    });
+    expect(
+      screen.getByTestId('card-body').firstChild.classList.contains('dmpEditor')
+    ).toBe(true);
   });
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(
-      <QuestionPreview />
+      <QuestionView
+        question={mockQuestion}
+        isPreview={true}
+      />
     );
 
     await act(async () => {

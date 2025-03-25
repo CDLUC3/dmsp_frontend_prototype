@@ -16,14 +16,10 @@ import {
   Card,
   CardBody,
   CardEyebrow,
-  // CardFooter,
   CardHeading,
-  CardMutedText,
 } from "@/components/Card/card";
 
 
-import FormInput from '@/components/Form/FormInput';
-import FormTextArea from '@/components/Form/FormTextArea';
 import {DmpEditor} from "@/components/Editor";
 import {Button} from "react-aria-components";
 
@@ -44,18 +40,17 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   question,
 }) => {
 
-  const {data: questionTypes} = useQuestionTypesQuery();
+  const {data: qtData} = useQuestionTypesQuery();
   const [questionType, setQuestionType] = useState<string>('');
   const [editorContent, setEditorContent] = useState('');
 
   useEffect(() => {
     if (!question) return;
-    if (!questionTypes) return;
+    if (!qtData) return;
 
-    if (questionType == '') {
-      const qt = questionTypes
-        .questionTypes
-        .find(qt => qt && qt.id === question.questionTypeId);
+    if (questionType == '' && qtData.questionTypes) {
+      const qt = qtData.questionTypes
+                       .find(qt => qt && qt.id === question.questionTypeId);
       setQuestionType(qt.name);
     }
   }, [question]);
@@ -66,14 +61,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       className={`${styles.QuestionView} ${className}`}
     >
       <ContentContainer className={`${styles.QuestionView}__content-container`}>
-        <h2>{question.questionText}</h2>
+        <h2>{question?.questionText}</h2>
 
         <div className={styles.Requirements}>
           <p className={styles.ByLine}>
             These are requirements by
-            (TODO: do the affiliation that created the question here)
+            (TODO: Affiliation Name)
           </p>
-          <p>{question.requirementText}</p>
+          <p>{question?.requirementText}</p>
         </div>
 
         <p>
@@ -82,20 +77,20 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           </a>
         </p>
 
-        <Card id="card1" data-test='date-test'>
+        <Card data-testid='question-card'>
           <CardEyebrow>Question</CardEyebrow>
-          <CardHeading>{question.questionText}</CardHeading>
-          <CardBody>
+          <CardHeading>{question?.questionText}</CardHeading>
+          <CardBody data-testid="card-body">
             {(questionType == 'Text Area') && (
               <DmpEditor
                 content={question?.useSampleTextAsDefault ? question.sampleText : ''}
                 setContent={setEditorContent}
+                data-testid="qt-textarea"
               />
             )}
 
             {(questionType == 'Text Field') && (
-              <FormInput
-              />
+              <p>Plain text field</p>
             )}
 
             {(questionType == 'Radio Buttons') && (
@@ -124,7 +119,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             <Button>Back to Section</Button>
             <div>
               <Button>Save</Button>
-              <span className={styles.Modified}>Last Saved: {question.modified}</span>
+              <span className={styles.Modified}>Last Saved: {question?.modified}</span>
             </div>
           </ToolbarContainer>
         )}
