@@ -40,6 +40,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   question,
 }) => {
 
+  const trans = useTranslations('QuestionView');
   const {data: qtData} = useQuestionTypesQuery();
   const [questionType, setQuestionType] = useState<string>('');
   const [editorContent, setEditorContent] = useState('');
@@ -65,7 +66,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
         <div className={styles.Requirements}>
           <p className={styles.ByLine}>
-            These are requirements by
+            {trans('requirements')}
             (TODO: Affiliation Name)
           </p>
           <p>{question?.requirementText}</p>
@@ -73,12 +74,12 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
         <p>
           <a className={styles.JumpLink} href="#_guidance">
-            &darr; Jump to additional guidance
+            &darr; {trans('guidanceLink')}
           </a>
         </p>
 
         <Card data-testid='question-card'>
-          <CardEyebrow>Question</CardEyebrow>
+          <CardEyebrow>{trans('cardType')}</CardEyebrow>
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
             {(questionType == 'Text Area') && (
@@ -116,10 +117,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
         {(!isPreview) && (
           <ToolbarContainer className={styles.QuestionActions}>
-            <Button>Back to Section</Button>
+            <Button>{trans('backToSection')}</Button>
             <div>
-              <Button>Save</Button>
-              <span className={styles.Modified}>Last Saved: {question?.modified}</span>
+              <Button>{trans('saveButton')}</Button>
+              <span className={styles.Modified}>{trans('lastSaved')}: {question?.modified}</span>
             </div>
           </ToolbarContainer>
         )}

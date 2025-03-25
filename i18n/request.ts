@@ -20,6 +20,7 @@ export default getRequestConfig(async ({requestLocale}) => {
   const errorMessages = (await import(`@/messages/${locale}/errors.json`)).default;
   const messaging = (await import(`@/messages/${locale}/messaging.json`)).default;
   const questionPreviewMsgs = (await import(`@/messages/${locale}/questionPreview.json`)).default;
+  const questionViewMsgs = (await import(`@/messages/${locale}/questionView.json`)).default;
 
   // Merge all message objects
   const messages = {
@@ -31,6 +32,7 @@ export default getRequestConfig(async ({requestLocale}) => {
     ...planBuilderProjectOverviewMessages,
     ...planBuilderPlanOverviewMessages,
     ...questionPreviewMsgs,
+    ...questionViewMsgs,
     errors: errorMessages,
   };
   return {

@@ -11,7 +11,17 @@ expect.extend(toHaveNoViolations);
 
 
 jest.mock('@/generated/graphql', () => ({
-  useQuestionTypesQuery: jest.fn(),
+  useQuestionTypesQuery: jest.fn()
+}));
+
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn(() => (key) => {
+    const translations = {
+      "QuestionView.cardType": "Question",
+    };
+    return translations[key] || key;
+  }),
+  useLocale: jest.fn(() => 'en-US'),
 }));
 
 
