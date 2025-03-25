@@ -7,7 +7,7 @@ import {
   useRef,
   FormEvent
 } from 'react';
-
+import { ApolloError } from '@apollo/client';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -48,6 +48,7 @@ import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 import { addPlanContributorAction } from './action';
 import { ProjectContributorsInterface } from '@/app/types';
+import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
 
 interface PlanContributorDropdown {
@@ -124,9 +125,10 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
   const { scrollToTop } = useScrollToTop();
 
-  // Get projectId and planId params
+  // Get projectId and dmpId params from route /projects/:projectId/dmp/:dmpId
   const params = useParams();
-  const { dmpid: planId, projectId } = params; // From route /projects/:projectId/dmp/:dmpId
+  const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
+  const dmpId = Array.isArray(params.dmpid) ? params.dmpid[0] : params.dmpid;
 
   // Set refs for error messages and scrolling
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -134,12 +136,16 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
   const toastState = useToast(); // Access the toast state from context
 
+  //Routes
+  const PLAN_MEMBERS_ROUTE = routePath('projects.dmp.members', { projectId, dmpId });
+  const PROJECT_MEMBERS_ROUTE = routePath('projects.members.index', { projectId });
+
   // Localization keys
   const PlanMembers = useTranslations('ProjectsProjectPlanAdjustMembers');
   const Global = useTranslations('Global');
 
   // Get Project Contributors using projectid
-  const { data, loading, error: queryError } = useProjectContributorsQuery(
+  const { data, loading, error: queryError, refetch: refetchProjectContributors } = useProjectContributorsQuery(
     {
       variables: { projectId: Number(projectId) },
       notifyOnNetworkStatusChange: true
@@ -149,14 +155,14 @@ const ProjectsProjectPlanAdjustMembers = () => {
   //Get Plan Contributors so that we know which members are already part of this plan
   const { data: planContributorData, loading: planContributorLoading, refetch, error: planContributorError } = usePlanContributorsQuery(
     {
-      variables: { planId: Number(planId) },
+      variables: { planId: Number(dmpId) },
       notifyOnNetworkStatusChange: true
     }
   );
 
-  const isLoading = loading || planContributorLoading;
-  const isError = queryError || planContributorError;
 
+  const isLoading = loading || planContributorLoading;
+  let isError = queryError || planContributorError;
 
   // Initialize mutations
   const [RemovePlanContributorMutation] = useRemovePlanContributorMutation();
@@ -182,7 +188,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
     try {
       const response = await addPlanContributorAction({
 
-        planId: Number(planId),
+        planId: Number(dmpId),
         projectContributorId: id
 
       });
@@ -193,7 +199,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
     } catch (error) {
       logECS('error', 'addPlanContributor', {
         error,
-        url: { path: `/projects/[${projectId}]/dmp/[${planId}]/members` }
+        url: { path: PLAN_MEMBERS_ROUTE }
       });
     }
     return {};
@@ -231,10 +237,15 @@ const ProjectsProjectPlanAdjustMembers = () => {
         return response.data.removePlanContributor.errors;
       }
     } catch (error) {
-      logECS('error', 'removePlanContributor', {
-        error,
-        url: { path: `/projects/[${projectId}]/dmp/[${planId}]/members` }
-      });
+      if (error instanceof ApolloError) {
+        await refetch(); // Needed to refresh page after token refresh is triggered by an UNAUTHENTICATED graphql error
+      } else {
+        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [Global('messaging.somethingWentWrong')] });
+        logECS('error', 'removePlanContributor', {
+          error,
+          url: { path: PLAN_MEMBERS_ROUTE }
+        });
+      }
     }
     return {};
   };
@@ -276,7 +287,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
     try {
       const response = await UpdatePlanContributorMutation({
         variables: {
-          planId: Number(planId),
+          planId: Number(dmpId),
           planContributorId,
           isPrimaryContact: true,
           contributorRoleIds: contributorRoles
@@ -289,10 +300,16 @@ const ProjectsProjectPlanAdjustMembers = () => {
         return response.data.updatePlanContributor.errors as PlanContributorErrors;
       }
     } catch (error) {
-      logECS('error', 'updatePlanContributor', {
-        error,
-        url: { path: `/projects/[${projectId}]/dmp/[${planId}]/members` }
-      });
+
+      if (error instanceof ApolloError) {
+        await refetch();// Needed to refresh page after token refresh is triggered by an UNAUTHENTICATED graphql error
+      } else {
+        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [Global('messaging.somethingWentWrong')] });
+        logECS('error', 'updatePlanContributor', {
+          error,
+          url: { path: PLAN_MEMBERS_ROUTE }
+        });
+      }
     }
     return {};
   }
@@ -407,6 +424,19 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   }, [planMembers]); // Runs when `planMembers` changes
 
+
+  useEffect(() => {
+    const refetchData = async () => {
+      await refetchProjectContributors();
+      await refetch();
+    } // Refetch data when the user logs in
+
+    if (queryError instanceof ApolloError || planContributorError instanceof ApolloError) {
+      isError = undefined;
+      refetchData(); // To handle UNAUTHENTICATED errors
+    }
+  }, [queryError, planContributorError])
+
   if (isLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
@@ -425,7 +455,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}/dmp/${planId}`}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/projects/${projectId}/dmp/${dmpId}`}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
             <Breadcrumb>{PlanMembers('title')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -626,13 +656,13 @@ const ProjectsProjectPlanAdjustMembers = () => {
             <p>{PlanMembers.rich('addProjectMemberInfo', {
               strong: (chunks) => <strong>{chunks}</strong>
             })}</p>
-            <Link href={`/projects/${projectId}/members`} className={"text-base underline"}>{PlanMembers('links.updateProjectMembers')}</Link> {PlanMembers('newWindow')}
+            <Link href={PROJECT_MEMBERS_ROUTE} className={"text-base underline"}>{PlanMembers('links.updateProjectMembers')}</Link> {PlanMembers('newWindow')}
 
             <h2>{PlanMembers('headings.h2AllowOthers')}</h2>
             <p>
               {PlanMembers('allowOthersToAccess')}
             </p>
-            <Link href={`/projects/${projectId}/members`}>{PlanMembers('links.inviteAPerson')}</Link>
+            <Link href={PROJECT_MEMBERS_ROUTE}>{PlanMembers('links.inviteAPerson')}</Link>
           </section>
 
         </ContentContainer>
