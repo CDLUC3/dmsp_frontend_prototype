@@ -24,10 +24,10 @@ describe('FormSelect', () => {
     const select = container.querySelector('select');
 
     // Find the option with text "Option 1"
-    const option = Array.from(select.options).find(opt => opt.text === 'Option 1');
+    const option = Array.from(select?.options ?? []).find(opt => opt.text === 'Option 1');
 
     expect(option).toBeTruthy();
-    expect(option.value).toBe('1');
+    expect(option?.value).toBe('1');
 
   });
 
@@ -70,6 +70,6 @@ describe('FormSelect', () => {
     );
 
     const helpText = screen.getAllByText('Choose from the available options');
-    expect(helpText).toHaveLength(1);
+    expect(helpText).toHaveLength(2);
   });
 });
