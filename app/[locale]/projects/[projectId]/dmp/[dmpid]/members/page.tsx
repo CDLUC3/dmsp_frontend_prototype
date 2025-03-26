@@ -42,7 +42,8 @@ import {
   usePlanContributorsQuery,
   ProjectContributor,
   useRemovePlanContributorMutation,
-  PlanContributorErrors
+  PlanContributorErrors,
+  PlanContributor
 } from '@/generated/graphql';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
@@ -214,7 +215,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
         dispatch({ type: 'SET_ERROR_MESSAGES', payload: [errors.general || Global('messaging.somethingWentWrong')] });
       } else {
         dispatch({ type: 'ADD_PLAN_MEMBER_ID', payload: memberId });
-
+        await refetch(); //Need to refresh the primary contact dropdown after adding a new member
         const planMemberAdded = projectContributors?.find((contributor) => contributor.id === memberId);
         const successMessage = PlanMembers('messaging.success.addedPlanMember', { fullName: planMemberAdded?.fullName });
         toastState.add(successMessage, { type: 'success' });
@@ -360,6 +361,22 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   };
 
+  const transformPlanContributorData = (planContributors: PlanContributor[] | null) => {
+    if (planContributors) {
+      const transformedData = planContributors
+        .map((contributor): PlanContributorDropdown => ({
+          id: (contributor?.id)?.toString() ?? '',
+          name: `${contributor?.projectContributor?.givenName} ${contributor?.projectContributor?.surName}`,
+          isPrimaryContact: contributor?.isPrimaryContact ?? null,
+          projectContributorId: contributor?.projectContributor?.id ?? null,
+        }))
+        .filter((contributor): contributor is PlanContributorDropdown => contributor.id !== null);
+
+      return transformedData;
+    }
+    return [];
+  }
+
   useEffect(() => {
     // When data from backend changes, set project contributors data in state
     if (data && data.projectContributors) {
@@ -385,27 +402,29 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
   }, [data, planContributorData]);// The planContributorData depedency is required to update the select dropdown after primary contact is changed
 
+
   useEffect(() => {
     if (planContributorData && planContributorData.planContributors) {
-      const planContributorIds = planContributorData.planContributors
-        .map((contributor) => contributor?.projectContributor?.id ?? null)
+      // Filter out null values
+      const validPlanContributors = planContributorData.planContributors.filter(
+        (contributor): contributor is PlanContributor => contributor !== null
+      );
+
+      // Extract planContributorIds
+      const planContributorIds = validPlanContributors
+        .map((contributor) => contributor.projectContributor?.id ?? null)
         .filter((id) => id !== null);
       dispatch({ type: 'SET_PLAN_MEMBER_IDS', payload: planContributorIds });
 
-      const transformedData = planContributorData.planContributors
-        .map((contributor): PlanContributorDropdown => ({
-          id: (contributor?.id)?.toString() ?? '',
-          name: `${contributor?.projectContributor?.givenName} ${contributor?.projectContributor?.surName}`,
-          isPrimaryContact: contributor?.isPrimaryContact ?? null,
-          projectContributorId: contributor?.projectContributor?.id ?? null,
-        }))
-        .filter((contributor): contributor is PlanContributorDropdown => contributor.id !== null);
+      // Transform data
+      const transformedData = transformPlanContributorData(validPlanContributors);
 
       if (transformedData.length > 0) {
         dispatch({ type: 'SET_PLAN_MEMBERS', payload: transformedData });
       }
 
-      const primaryContact = planContributorData.planContributors.find((member) => member?.isPrimaryContact);
+      // Find primary contact
+      const primaryContact = validPlanContributors.find((member) => member.isPrimaryContact);
       if (primaryContact) {
         dispatch({
           type: 'SET_PRIMARY_CONTACT',
@@ -562,7 +581,9 @@ const ProjectsProjectPlanAdjustMembers = () => {
                         </FormSelect>
                       ) : (
                         <div className={styles.primaryContactChangeWrapper}>
-                          <div className="field-label">{primaryContact}{' -'}</div>
+                          {primaryContact && (
+                            <div className="field-label">{primaryContact}{' -'}</div>
+                          )}
                           <Button
                             className={`${styles.linkButton} link`}
                             onPress={() => dispatch({ type: 'SET_IS_EDITING', payload: true })}

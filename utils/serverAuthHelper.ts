@@ -58,7 +58,7 @@ export const serverRefreshAuthTokens = async () => {
         "X-CSRF-TOKEN": csrfToken,
         Cookie: cookieString, // Attach all cookies
       },
-      credentials: "include",
+
     });
 
     if (!response.ok) {
@@ -98,7 +98,7 @@ export const serverFetchCsrfToken = async () => {
       headers: {
         Cookie: cookieString, // Attach all cookies
       },
-      credentials: "include",
+
     });
 
     return response;
