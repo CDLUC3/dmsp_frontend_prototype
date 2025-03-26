@@ -159,7 +159,7 @@
     "title": "Project Members",
     "description": "Define contributors and team members and their role in this project.",
     "buttons": {
-      "addCollaborators": "Add collaborators",
+      "addContributors": "Add contributors",
       "shareWithPeople": "Share with people"
     },
     "headings": {

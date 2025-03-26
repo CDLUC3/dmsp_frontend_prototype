@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
 
-import { useProjectContributorsQuery } from '@/generated/graphql';
+import { useProjectContributorsQuery, useProjectCollaboratorsQuery } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -13,12 +13,15 @@ import { ContentContainer, LayoutContainer, } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import ErrorMessages from '@/components/ErrorMessages';
 
+import { DmpIcon } from '@/components/Icons';
 import styles from './ProjectsProjectMembers.module.scss';
 
 interface ProjectContributorsInterface {
   id: number | null;
   fullName: string;
+  userId: number | null;
   affiliation: string;
+  accessLevel: string | null;
   orcid: string;
   role: string;
 }
@@ -39,14 +42,25 @@ const ProjectsProjectMembers = () => {
   const [errors, setErrors] = useState<string[]>([]);
 
   // Get project contributors using projectid
-  const { data, loading, error: queryError } = useProjectContributorsQuery(
+  const { data, loading, error: projectContributorError } = useProjectContributorsQuery(
     {
       variables: { projectId: Number(projectId) },
       notifyOnNetworkStatusChange: true
     }
   );
 
-  const handleAddCollaborator = (): void => {
+  // Get project contributors using projectid
+  const { data: projectCollaboratorsData, loading: projectCollaboratorsLoading, error: projectCollaboratorsError } = useProjectCollaboratorsQuery(
+    {
+      variables: { projectId: Number(projectId) },
+      notifyOnNetworkStatusChange: true
+    }
+  );
+
+  const isLoading = loading || projectCollaboratorsLoading;
+  const isError = projectContributorError || projectCollaboratorsError;
+
+  const handleAddContributors = (): void => {
     // Handle adding new collaborator
     router.push(`/projects/${projectId}/members/search`);
   };
@@ -62,6 +76,16 @@ const ProjectsProjectMembers = () => {
     router.push(`/projects/${projectId}/share`);
   };
 
+  const getAccessLevel = (userId: number | null): string | null => {
+    if (userId) {
+      const collaborator = projectCollaboratorsData?.projectCollaborators?.find((collaborator) => collaborator?.user?.id === userId);
+
+      // Return the access level if a match is found, otherwise return null or a default value
+      return collaborator?.accessLevel?.toLowerCase() ?? null;
+    }
+    return null;
+  };
+
   useEffect(() => {
     // When data from backend changes, set project contributors data in state
     if (data && data.projectContributors) {
@@ -69,7 +93,9 @@ const ProjectsProjectMembers = () => {
         id: contributor?.id ?? null,
         fullName: `${contributor?.givenName} ${contributor?.surName}`,
         affiliation: contributor?.affiliation?.displayName ?? '',
+        userId: contributor?.userId ?? null,
         orcid: contributor?.orcid ?? '',
+        accessLevel: getAccessLevel(contributor?.userId ?? null),
         role: (contributor?.contributorRoles && contributor.contributorRoles.length > 0) ? contributor?.contributorRoles?.map((role) => role.label).join(', ') : '',
       }))
       setProjectContributors(projectContributorData);
@@ -77,16 +103,20 @@ const ProjectsProjectMembers = () => {
   }, [data]);
 
   useEffect(() => {
-    if (queryError) {
+    if (projectContributorError) {
       const errorMsg = ProjectMembers('messages.errors.errorGettingContributors');
       setErrors(prev => [...prev, errorMsg]);
     }
     /*eslint-disable react-hooks/exhaustive-deps*/
 
-  }, [queryError])
+  }, [projectContributorError])
 
-  if (loading) {
+  if (isLoading) {
     return <div>{Global('messaging.loading')}...</div>;
+  }
+
+  if (isError) {
+    return <div>{Global('messaging.error')}</div>;
   }
 
 
@@ -107,10 +137,10 @@ const ProjectsProjectMembers = () => {
         actions={
           <>
             <Button
-              onPress={handleAddCollaborator}
+              onPress={handleAddContributors}
               className="secondary"
             >
-              {ProjectMembers('buttons.addCollaborators')}
+              {ProjectMembers('buttons.addContributors')}
             </Button>
           </>
         }
@@ -152,6 +182,13 @@ const ProjectsProjectMembers = () => {
                           {member.orcid}
                         </a>
                       </p>
+                      {member.accessLevel && (<p>
+                        <span className={styles.accessLevelWrapper}>
+                          <DmpIcon icon="folder-supervised" /> Project {member.accessLevel} permission
+                        </span>
+                      </p>
+                      )}
+
                     </div>
                     <div className={styles.memberRole}>
                       <p className={styles.role}>{member.role}</p>

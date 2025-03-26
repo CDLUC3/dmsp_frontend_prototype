@@ -1160,8 +1160,10 @@ export type MutationUpdatePasswordArgs = {
 
 
 export type MutationUpdatePlanContributorArgs = {
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isPrimaryContact?: InputMaybe<Scalars['Boolean']['input']>;
   planContributorId: Scalars['Int']['input'];
-  roleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -1716,6 +1718,8 @@ export type ProjectContributor = {
   project?: Maybe<Project>;
   /** The contributor's last/sur name */
   surName?: Maybe<Scalars['String']['output']>;
+  /** The user id of the contributor */
+  userId?: Maybe<Scalars['Int']['output']>;
 };
 
 /** A collection of errors related to the ProjectContributor */
@@ -1917,6 +1921,8 @@ export type Query = {
   plans?: Maybe<Array<PlanSearchResult>>;
   /** Get a specific project */
   project?: Maybe<Project>;
+  /** Get all of the Users that are collaborators for the Project */
+  projectCollaborators?: Maybe<Array<Maybe<ProjectCollaborator>>>;
   /** Get a specific contributor on the research project */
   projectContributor?: Maybe<ProjectContributor>;
   /** Get all of the Users that a contributors to the research project */
@@ -2090,6 +2096,11 @@ export type QueryPlansArgs = {
 
 
 export type QueryProjectArgs = {
+  projectId: Scalars['Int']['input'];
+};
+
+
+export type QueryProjectCollaboratorsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
@@ -3452,12 +3463,19 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
 
+export type ProjectCollaboratorsQueryVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+}>;
+
+
+export type ProjectCollaboratorsQuery = { __typename?: 'Query', projectCollaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, email: string, user?: { __typename?: 'User', id?: number | null } | null } | null> | null };
+
 export type ProjectContributorsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
 }>;
 
 
-export type ProjectContributorsQuery = { __typename?: 'Query', projectContributors?: Array<{ __typename?: 'ProjectContributor', id?: number | null, givenName?: string | null, surName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, description?: string | null }> | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null> | null };
+export type ProjectContributorsQuery = { __typename?: 'Query', projectContributors?: Array<{ __typename?: 'ProjectContributor', id?: number | null, userId?: number | null, givenName?: string | null, surName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', id?: number | null, label: string, description?: string | null }> | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null> | null };
 
 export type ProjectContributorQueryVariables = Exact<{
   projectContributorId: Scalars['Int']['input'];
@@ -4573,10 +4591,55 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const ProjectCollaboratorsDocument = gql`
+    query ProjectCollaborators($projectId: Int!) {
+  projectCollaborators(projectId: $projectId) {
+    accessLevel
+    email
+    user {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useProjectCollaboratorsQuery__
+ *
+ * To run a query within a React component, call `useProjectCollaboratorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectCollaboratorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectCollaboratorsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectCollaboratorsQuery(baseOptions: Apollo.QueryHookOptions<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables> & ({ variables: ProjectCollaboratorsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>(ProjectCollaboratorsDocument, options);
+      }
+export function useProjectCollaboratorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>(ProjectCollaboratorsDocument, options);
+        }
+export function useProjectCollaboratorsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>(ProjectCollaboratorsDocument, options);
+        }
+export type ProjectCollaboratorsQueryHookResult = ReturnType<typeof useProjectCollaboratorsQuery>;
+export type ProjectCollaboratorsLazyQueryHookResult = ReturnType<typeof useProjectCollaboratorsLazyQuery>;
+export type ProjectCollaboratorsSuspenseQueryHookResult = ReturnType<typeof useProjectCollaboratorsSuspenseQuery>;
+export type ProjectCollaboratorsQueryResult = Apollo.QueryResult<ProjectCollaboratorsQuery, ProjectCollaboratorsQueryVariables>;
 export const ProjectContributorsDocument = gql`
     query ProjectContributors($projectId: Int!) {
   projectContributors(projectId: $projectId) {
     id
+    userId
     givenName
     surName
     orcid

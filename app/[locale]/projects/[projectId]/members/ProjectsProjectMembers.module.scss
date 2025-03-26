@@ -81,3 +81,10 @@
 .memberNameHeading {
   margin-top: 0;
 }
+
+.accessLevelWrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+}

@@ -1,0 +1,12 @@
+{
+  "projectCollaborators": [
+    {
+      "accessLevel": "COMMENT",
+      "email": "researcher@ucdavis.edu",
+      "id": 1,
+      "user": {
+        "id": 105
+      }
+    }
+  ]
+}

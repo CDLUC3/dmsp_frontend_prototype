@@ -1,0 +1,43 @@
+{
+  "projectContributors": [
+    {
+      "id": 1,
+      "givenName": "Jacques",
+      "surName": "Cousteau",
+      "orcid": "0000-JACQ-0000-0000",
+      "contributorRoles": [
+        {
+          "id": 2,
+          "label": "Principal Investigator (PI)",
+          "description": "An individual conducting a research and investigation process, specifically performing the experiments, or data/evidence collection."
+        },
+        {
+          "id": 3,
+          "label": "Project Administrator",
+          "description": "An individual with management and coordination responsibility for the research activity planning and execution."
+        }
+      ],
+      "affiliation": {
+        "displayName": "University of California, Davis (ucdavis.edu)"
+      },
+      "userId": 105
+    },
+    {
+      "id": 2,
+      "givenName": "Captain",
+      "surName": "Nemo",
+      "orcid": "0000-NEMO-0000-0000",
+      "contributorRoles": [
+        {
+          "id": 2,
+          "label": "Principal Investigator (PI)",
+          "description": "An individual conducting a research and investigation process, specifically performing the experiments, or data/evidence collection."
+        }
+      ],
+      "affiliation": {
+        "displayName": "University of California, Davis (ucdavis.edu)"
+      },
+      "userId": 5
+    }
+  ]
+}

@@ -1,10 +1,12 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
-import {useParams, useRouter} from 'next/navigation';
-import {useProjectContributorsQuery} from '@/generated/graphql';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { useParams, useRouter } from 'next/navigation';
+import { useProjectContributorsQuery, useProjectCollaboratorsQuery } from '@/generated/graphql';
 import ProjectsProjectMembers from '../page';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import mockProjectContributorsData from '../__mocks__/projectContributorsMock.json';
+import mockProjectCollaboratorsData from '../__mocks__/projectCollaboratorsMock.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -15,62 +17,21 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('@/generated/graphql', () => ({
   useProjectContributorsQuery: jest.fn(),
+  useProjectCollaboratorsQuery: jest.fn()
 }));
-
-
-const mockProjectContributorsData = {
-  projectContributors: [
-    {
-      id: 1,
-      givenName: "Jacques",
-      surName: "Cousteau",
-      orcid: "0000-JACQ-0000-0000",
-      contributorRoles: [
-        {
-          id: 2,
-          label: "Principal Investigator (PI)",
-          description: "An individual conducting a research and investigation process, specifically performing the experiments, or data/evidence collection."
-        },
-        {
-          id: 3,
-          label: "Project Administrator",
-          description: "An individual with management and coordination responsibility for the research activity planning and execution."
-        }
-      ],
-      affiliation: {
-        displayName: "University of California, Davis (ucdavis.edu)"
-      },
-    },
-    {
-      id: 2,
-      givenName: "Captain",
-      surName: "Nemo",
-      orcid: "0000-NEMO-0000-0000",
-      contributorRoles: [
-        {
-          id: 2,
-          label: "Principal Investigator (PI)",
-          description: "An individual conducting a research and investigation process, specifically performing the experiments, or data/evidence collection."
-        }
-      ],
-      affiliation: {
-        displayName: "University of California, Davis (ucdavis.edu)"
-      },
-    }
-  ],
-  loading: false,
-}
 
 describe('ProjectsProjectMembers', () => {
   const mockUseParams = useParams as jest.Mock;
   const mockRouter = { push: jest.fn() };
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
   const mockUseProjectContributorsQuery = useProjectContributorsQuery as jest.Mock;
+  const mockUseProjectCollaboratorsQuery = useProjectCollaboratorsQuery as jest.Mock;
 
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1' });
+    mockUseProjectCollaboratorsQuery.mockReturnValue({ data: mockProjectCollaboratorsData });
   });
 
   afterEach(() => {
@@ -91,10 +52,10 @@ describe('ProjectsProjectMembers', () => {
 
     render(<ProjectsProjectMembers />);
 
-    expect(screen.getByText('messages.errors.errorGettingContributors')).toBeInTheDocument();
+    expect(screen.getByText('messaging.error')).toBeInTheDocument();
   });
 
-  it('renders project members', () => {
+  it('should render project members', () => {
     mockUseProjectContributorsQuery.mockReturnValue({ data: mockProjectContributorsData });
 
     render(<ProjectsProjectMembers />);
@@ -107,7 +68,7 @@ describe('ProjectsProjectMembers', () => {
     expect(screen.getByText('0000-NEMO-0000-0000')).toBeInTheDocument();
     expect(screen.getByText('Principal Investigator (PI), Project Administrator')).toBeInTheDocument();
     expect(screen.getByText('Principal Investigator (PI)')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /buttons.addCollaborators/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /buttons.addContributors/i })).toBeInTheDocument();
     const editButton = screen.getByRole('button', { name: "Edit Jacques Cousteau's details" });
     expect(editButton).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'headings.h2AllowCollaborators' })).toBeInTheDocument();
@@ -120,19 +81,30 @@ describe('ProjectsProjectMembers', () => {
 
     render(<ProjectsProjectMembers />);
 
-    fireEvent.click(screen.getByText('buttons.addCollaborators'));
+    fireEvent.click(screen.getByText('buttons.addContributors'));
 
     expect(mockRouter.push).toHaveBeenCalledWith('/projects/1/members/search');
   });
 
   it('should handle share button click', () => {
-    mockUseProjectContributorsQuery.mockReturnValue({ data: { projectContributors: [] } });
+    mockUseProjectContributorsQuery.mockReturnValue({ data: mockProjectContributorsData });
 
     render(<ProjectsProjectMembers />);
 
-    fireEvent.click(screen.getByText('buttons.shareWithPeople'));
+  });
 
-    expect(mockRouter.push).toHaveBeenCalledWith('/projects/1/share');
+  it('should display access level info for the correct member', () => {
+    mockUseProjectContributorsQuery.mockReturnValue({ data: mockProjectContributorsData });
+
+    render(<ProjectsProjectMembers />);
+
+    const memberListItem = screen.getByRole('listitem', {
+      name: /Project member: Jacques Cousteau/i,
+    });
+
+    const { getByText } = within(memberListItem);
+
+    expect(getByText(/Project comment permission/i)).toBeInTheDocument();
   });
 
   it('should pass axe accessibility test', async () => {

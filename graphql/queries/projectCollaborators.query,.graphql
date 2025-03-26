@@ -1,0 +1,9 @@
+query ProjectCollaborators($projectId: Int!) {
+  projectCollaborators(projectId: $projectId) {
+    accessLevel
+    email
+    user {
+      id
+    }
+  }
+}

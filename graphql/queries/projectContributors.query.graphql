@@ -1,6 +1,7 @@
 query ProjectContributors($projectId: Int!) {
   projectContributors(projectId: $projectId) {
     id
+    userId
     givenName
     surName
     orcid

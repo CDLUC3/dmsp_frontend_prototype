@@ -23,6 +23,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated `Project members` page with access level info per member [#368]
 - Explicitly updated nextJS version to 14.2.25 due to an Authorization Bypass vulnerability in middleware (CVE-2025-29927) [#388]
 - Added `white-space: pre-wrap` for Prosemirror due to warnings [#388]
 - Update `Edit Member Details` page. Added mutation and queries, translations, and unit test [#367]
