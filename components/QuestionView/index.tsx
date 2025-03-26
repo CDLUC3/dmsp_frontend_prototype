@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 
 import {useTranslations} from 'next-intl';
+import Image from 'next/image';
+
 
 import {useQuestionTypesQuery} from '@/generated/graphql';
 import {Question} from '@/app/types';
@@ -127,7 +129,16 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       </ContentContainer>
 
       <SidebarPanel>
-        <p>Best practice by (DMPTool Logo)</p>
+        <p>
+          Best practice by
+          <Image
+            className={styles.Logo}
+            src="/images/DMP-logo.svg"
+            width="140"
+            height="16"
+            alt="DMP Tool"
+          />
+        </p>
 
         <h3>Data Sharing</h3>
         <p>
