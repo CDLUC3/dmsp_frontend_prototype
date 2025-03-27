@@ -55,7 +55,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   } = useTemplateQuery(
     {
       variables: {
-        templateId: Number(question.templateId),
+        templateId: Number(question?.templateId),
       },
       notifyOnNetworkStatusChange: true
     }
@@ -70,7 +70,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     if (questionType == '' && qtData.questionTypes) {
       const qt = qtData.questionTypes
                        .find(qt => qt && qt.id === question.questionTypeId);
-      setQuestionType(qt.name);
+      if (qt) {
+        setQuestionType(qt.name);
+      }
     }
   }, [question]);
 
@@ -85,7 +87,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         <div className={styles.Requirements}>
           <p className={styles.ByLine}>
             {trans('requirements')}
-            {templateData?.template?.owner?.name}
+            {templateData?.template?.owner?.displayName}
           </p>
           <p>{question?.requirementText}</p>
         </div>
@@ -102,7 +104,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardBody data-testid="card-body">
             {(questionType == 'Text Area') && (
               <DmpEditor
-                content={question?.useSampleTextAsDefault ? question.sampleText : ''}
+                content={question?.useSampleTextAsDefault ? question.sampleText as string: ''}
                 setContent={setEditorContent}
                 data-testid="qt-textarea"
               />
@@ -137,7 +139,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <div className="guidance">
             <p className={styles.ByLine}>
               {trans('guidanceBy')}
-              {templateData?.template?.owner?.name}
+              {templateData?.template?.owner?.displayName}
             </p>
             <div dangerouslySetInnerHTML={{__html: question.guidanceText}}></div>
           </div>

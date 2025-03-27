@@ -34,6 +34,8 @@ import QuestionOptionsComponent
 import FormInput from '@/components/Form/FormInput';
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
+import QuestionPreview from '@/components/QuestionPreview';
+import QuestionView from '@/components/QuestionView';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -313,9 +315,18 @@ const QuestionAdd = ({
         </div >
 
         <div className="sidebar">
-          <h2>{Global('headings.preview')}</h2>
-          <p>{QuestionAdd('descriptions.previewText')}</p>
-          <Button>{QuestionAdd('buttons.previewQuestion')}</Button>
+          {(question) && (
+            <>
+              <h2>{Global('headings.preview')}</h2>
+              <p>{QuestionAdd('descriptions.previewText')}</p>
+              <QuestionPreview buttonLabel={QuestionAdd('buttons.previewQuestion')}>
+                <QuestionView
+                  isPreview={true}
+                  question={question}
+                />
+              </QuestionPreview>
+            </>
+          )}
 
           <h3>{QuestionAdd('headings.bestPractice')}</h3>
           <p>{QuestionAdd('descriptions.bestPracticePara1')}</p>
