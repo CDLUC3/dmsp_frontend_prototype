@@ -17,6 +17,7 @@ import styles from './QuestionPreview.module.scss';
 
 interface QuestionPreviewProps extends React.HTMLAttributes<HTMLDivElement> {
   buttonLabel?: string,
+  previewDisabled: boolean,
 }
 
 
@@ -25,6 +26,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   id='',
   className='',
   buttonLabel='Preview',
+  previewDisabled=true,
 }) => {
 
   const [isOpen, setOpen] = useState<boolean>(false);
@@ -80,6 +82,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         <Button
           onPress={() => setOpen(true)}
           data-testid="preview-button"
+          disabled={previewDisabled}
         >
           {buttonLabel ? buttonLabel : t("previewButton")}
         </Button>

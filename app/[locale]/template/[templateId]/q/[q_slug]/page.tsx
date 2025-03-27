@@ -349,17 +349,17 @@ const QuestionEdit = () => {
         </div >
 
         <div className="sidebar">
-          {(question) && (
-            <>
-              <h2>{Global('headings.preview')}</h2>
-              <QuestionPreview buttonLabel={QuestionEdit('descriptions.previewText')}>
-                <QuestionView
-                  isPreview={true}
-                  question={question}
-                />
-              </QuestionPreview>
-            </>
-          )}
+          <h2>{Global('headings.preview')}</h2>
+          <p>{QuestionEdit('descriptions.previewText')}</p>
+          <QuestionPreview
+            buttonLabel={QuestionEdit('buttons.previewQuestion')}
+            previewDisabled={question ? false : true}
+          >
+            <QuestionView
+              isPreview={true}
+              question={question}
+            />
+          </QuestionPreview>
 
           <h3>{QuestionEdit('headings.bestPractice')}</h3>
           <p>{QuestionEdit('descriptions.bestPracticePara1')}</p>

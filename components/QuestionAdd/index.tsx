@@ -315,18 +315,17 @@ const QuestionAdd = ({
         </div >
 
         <div className="sidebar">
-          {(question) && (
-            <>
-              <h2>{Global('headings.preview')}</h2>
-              <p>{QuestionAdd('descriptions.previewText')}</p>
-              <QuestionPreview buttonLabel={QuestionAdd('buttons.previewQuestion')}>
-                <QuestionView
-                  isPreview={true}
-                  question={question}
-                />
-              </QuestionPreview>
-            </>
-          )}
+          <h2>{Global('headings.preview')}</h2>
+          <p>{QuestionAdd('descriptions.previewText')}</p>
+          <QuestionPreview
+            buttonLabel={QuestionAdd('buttons.previewQuestion')}
+            buttonDisabled={question ? false : true}
+          >
+            <QuestionView
+              isPreview={true}
+              question={question}
+            />
+          </QuestionPreview>
 
           <h3>{QuestionAdd('headings.bestPractice')}</h3>
           <p>{QuestionAdd('descriptions.bestPracticePara1')}</p>
