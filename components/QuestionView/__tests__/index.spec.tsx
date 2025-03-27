@@ -3,7 +3,10 @@ import React from 'react';
 import {act, render, screen} from '@/utils/test-utils';
 import {axe, toHaveNoViolations} from 'jest-axe';
 
-import {useQuestionTypesQuery} from '@/generated/graphql';
+import {
+  useQuestionTypesQuery,
+  useTemplateQuery,
+} from '@/generated/graphql';
 import QuestionView from '@/components/QuestionView';
 
 
@@ -11,7 +14,8 @@ expect.extend(toHaveNoViolations);
 
 
 jest.mock('@/generated/graphql', () => ({
-  useQuestionTypesQuery: jest.fn()
+  useQuestionTypesQuery: jest.fn(),
+  useTemplateQuery: jest.fn(),
 }));
 
 jest.mock('next-intl', () => ({
@@ -45,6 +49,24 @@ const mockQuestion = {
 };
 
 
+const mockTemplate = {
+  name: "DMP Template from Dataverse",
+  description: "DMP Template from Dataverse",
+  errors: null,
+  latestPublishVersion: "v1",
+  latestPublishDate: "1648835084000",
+  created: "1412980160000",
+  sections: [
+    {
+      id: 67,
+      displayOrder: 1,
+      name: "Data description",
+      questions: [mockQuestion],
+    },
+  ]
+};
+
+
 const mockHook = (hook: any) => hook as jest.Mock;
 
 
@@ -52,7 +74,14 @@ describe("QuestionView", () => {
   beforeEach(() => {
     mockHook(useQuestionTypesQuery).mockReturnValue({
       data: mockQuestionTypes,
-      error: undefined,
+      loading: false,
+      error: null,
+    });
+
+    mockHook(useTemplateQuery).mockReturnValue({
+      data: { template: mockTemplate },
+      loading: false,
+      error: null,
     });
   });
 
