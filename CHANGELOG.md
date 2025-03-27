@@ -57,6 +57,9 @@
 - Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
 - Updated `QuestionTypeSelectPage`- hooked up to real data and updated code [#220]
 - Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
+- Added the `QuestionView` component which will render the question fields based on the question type. [#379]
+- Integrated the `QuestionPreview` and `QuestionView` components on the add and edit question pages. [#379]
+- Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
 - Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
