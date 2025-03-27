@@ -3,6 +3,7 @@
     "cardType": "Question",
     "requirements": "These are requirements by",
     "guidanceLink": "Jump to additional guidance",
+    "guidanceBy": "Guidance by",
     "backToSection": "Back to Section",
     "saveButton": "Save",
     "lastSaved": "Last Saved"

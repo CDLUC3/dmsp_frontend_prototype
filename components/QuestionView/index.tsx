@@ -3,8 +3,11 @@ import React, {useEffect, useState} from 'react';
 import {useTranslations} from 'next-intl';
 import Image from 'next/image';
 
+import {
+  useQuestionTypesQuery,
+  useTemplateQuery,
+} from '@/generated/graphql';
 
-import {useQuestionTypesQuery} from '@/generated/graphql';
 import {Question} from '@/app/types';
 
 import {
@@ -44,6 +47,19 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   const trans = useTranslations('QuestionView');
   const {data: qtData} = useQuestionTypesQuery();
+  const {
+    data: templateData,
+    loading: templatesLoading,
+    error: templateQueryErrors,
+    refetch: templateRefetch,
+  } = useTemplateQuery(
+    {
+      variables: {
+        templateId: Number(question.templateId),
+      },
+      notifyOnNetworkStatusChange: true
+    }
+  );
   const [questionType, setQuestionType] = useState<string>('');
   const [editorContent, setEditorContent] = useState('');
 
@@ -69,7 +85,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         <div className={styles.Requirements}>
           <p className={styles.ByLine}>
             {trans('requirements')}
-            (TODO: Affiliation Name)
+            {templateData?.template?.owner?.name}
           </p>
           <p>{question?.requirementText}</p>
         </div>
@@ -116,6 +132,16 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             </div>
           </CardBody>
         </Card>
+
+        {(question?.guidanceText) && (
+          <div className="guidance">
+            <p className={styles.ByLine}>
+              {trans('guidanceBy')}
+              {templateData?.template?.owner?.name}
+            </p>
+            <div dangerouslySetInnerHTML={{__html: question.guidanceText}}></div>
+          </div>
+        )}
 
         {(!isPreview) && (
           <ToolbarContainer className={styles.QuestionActions}>
