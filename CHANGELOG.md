@@ -4,6 +4,7 @@
 - Plan Downloads [#299]
 - 
 ### Added
+- Added type check to pre-commit hook and fixed some issues in the app [#391]
 - Add central "named routes" and helper function
 - Project Create Flow [#299]
 - Project Upload [#299]
