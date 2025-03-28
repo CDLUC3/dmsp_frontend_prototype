@@ -140,7 +140,7 @@ const ProjectsProjectMembers = () => {
               onPress={handleAddContributors}
               className="secondary"
             >
-              {ProjectMembers('buttons.addContributors')}
+              {ProjectMembers('buttons.addMembers')}
             </Button>
           </>
         }

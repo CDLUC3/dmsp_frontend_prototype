@@ -68,7 +68,7 @@ describe('ProjectsProjectMembers', () => {
     expect(screen.getByText('0000-NEMO-0000-0000')).toBeInTheDocument();
     expect(screen.getByText('Principal Investigator (PI), Project Administrator')).toBeInTheDocument();
     expect(screen.getByText('Principal Investigator (PI)')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /buttons.addContributors/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /buttons.addMembers/i })).toBeInTheDocument();
     const editButton = screen.getByRole('button', { name: "Edit Jacques Cousteau's details" });
     expect(editButton).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'headings.h2AllowCollaborators' })).toBeInTheDocument();
@@ -81,7 +81,7 @@ describe('ProjectsProjectMembers', () => {
 
     render(<ProjectsProjectMembers />);
 
-    fireEvent.click(screen.getByText('buttons.addContributors'));
+    fireEvent.click(screen.getByText('buttons.addMembers'));
 
     expect(mockRouter.push).toHaveBeenCalledWith('/projects/1/members/search');
   });
