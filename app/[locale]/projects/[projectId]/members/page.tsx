@@ -15,7 +15,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 import styles from './ProjectsProjectMembers.module.scss';
 
-interface ProjectContributorsInterface {
+interface ProjectContributorInterface {
   id: number | null;
   fullName: string;
   affiliation: string;
@@ -35,7 +35,7 @@ const ProjectsProjectMembers = () => {
   const ProjectMembers = useTranslations('ProjectsProjectMembers');
   const Global = useTranslations('Global');
 
-  const [projectContributors, setProjectContributors] = useState<ProjectContributorsInterface[]>();
+  const [projectContributors, setProjectContributors] = useState<ProjectContributorInterface[]>();
   const [errors, setErrors] = useState<string[]>([]);
 
   // Get project contributors using projectid

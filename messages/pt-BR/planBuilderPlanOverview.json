@@ -111,5 +111,46 @@
     "labels": {
       "dmpBestPractice": "Prática de qualidade DMP"
     }
+  },
+  "ProjectsProjectPlanAdjustMembers": {
+    "title": "Membros do plano",
+    "description": "Selecione os membros relevantes para <strong>este plano apenas </strong> na lista de membros do projeto mostrada abaixo. Independentemente do seu papel neste plano, eles permanecerão como membros do seu",
+    "newWindow": "(nova janela)",
+    "contactPerson": "Pessoa de contato",
+    "headings": {
+      "h2MembersInThePlan": "Apenas membros deste plano",
+      "h2MembersNotInPlan": "Membros do projeto não estão neste plano",
+      "h2AddProjectMember": "Adicionando um novo membro?",
+      "h2AllowOthers": "Permitir que outros acessem ao projeto",
+      "h3PrimaryContact": "Contato principal"
+    },
+    "addProjectMemberInfo": "Você pode adicionar qualquer membro do projeto a este plano usando as caixas de seleção acima. Se quiser adicionar alguém que não esteja mostrado aqui, você deve <strong>adicioná-lo ao projeto primeiro</strong>.",
+    "allowOthersToAccess": " Você pode permitir que outros acessem ao projeto. Isto lhes dará acesso ao projeto e a todos os planos.",
+    "labels": {
+      "planMembers": "Membros do plano",
+      "orcid": "Perfil ORCIiD do {name}",
+      "removeFromPlan": "Retirar do plano",
+      "addMemberToPlan": "Adicionar a este plano"
+    },
+    "messaging": {
+      "success": {
+        "addedPlanMember": "{fullName} adicionado com sucesso como membro do plano",
+        "removedPlanMember": "{fullName} removido com sucesso como membro do plano",
+        "updatedPlanMember": "{fullName} atualizado com sucesso como membro do plano"
+      },
+      "error": {
+        "memberNotFound": "Membro não encontrado"
+      }
+    },
+    "form": {
+      "select": {
+        "selectionIsRequired": "A seleção é necessária",
+        "description": "O contato primário é necessário, este será o contato principal do lead que será usado se um DOI for criado"
+      }
+    },
+    "links": {
+      "updateProjectMembers": "Atualizar membros do projeto",
+      "inviteAPerson": "Convidar pessoa"
+    }
   }
 }
