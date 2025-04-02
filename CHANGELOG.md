@@ -2,7 +2,7 @@
 - Plan Manage Access [#299]
 - Plan Publish [#299]
 - Plan Downloads [#299]
-- 
+-
 ### Added
 - Added new serverAuthHelper.ts to work with Server Actions [#364]
 - Added type check to pre-commit hook and fixed some issues in the app [#391]
@@ -25,6 +25,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated `Template` and `Projects` pages to work with the new pared down search result responses from GraphQL [#223] and [#218](https://github.com/CDLUC3/dmsp_backend_prototype/issues/218)
 - Updated `Plan Members` page. Added mutation and queries, and a server action for handling addPlanContributors mutation [#364]
 - Explicitly updated nextJS version to 14.2.25 due to an Authorization Bypass vulnerability in middleware (CVE-2025-29927) [#388]
 - Added `white-space: pre-wrap` for Prosemirror due to warnings [#388]
@@ -38,7 +39,7 @@
 - Updated translation content to use sentence-case rather than title case [#351]
 - Made updates throughout the Template Builder flow to make the experience more consistent across pages, and fixed some bugs [#347]
 - Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
-- Made updates to get Dockerfile.prod to work. 
+- Made updates to get Dockerfile.prod to work.
   - Updated Dockerfile.prod
   - Updated next.config.mjs to include output `standalone`
   - Updated `docker-compose.yml`
@@ -66,7 +67,7 @@
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
 
 
-==================================================================================================== 
+====================================================================================================
 
 ### Added
 - Added `/projects/[projectId]/project-funding`, copying over the static code from `/projects/[projectId]/create-project/funding`. Updated

@@ -47,17 +47,19 @@ interface ProjectFundersInterface {
 interface PublicTemplatesInterface {
   bestPractice?: boolean | null;
   id?: number | null;
-  name: string;
+  name?: string | null;
   description?: string | null;
   modified?: string | null;
   modifiedById?: number | null;
-  visibility: string;
-  owner?: {
+  visibility?: string | null;
+  ownerDisplayName?: string | null;
+  ownerURI?: string | null;
+  /*owner?: {
     displayName?: string;
     name?: string;
     searchName?: string;
     uri?: string | null;
-  } | null;
+  } | null;*/
 }
 
 const PUBLIC_TEMPLATES_INCREMENT = 3;
@@ -195,8 +197,8 @@ const PlanCreate: React.FC = () => {
             </p>
           </div>
         ) : null,
-        funder: template?.owner?.displayName || "",
-        funderUri: template?.owner?.uri || "",
+        funder: template?.ownerDisplayName || "",
+        funderUri: template?.ownerURI || "",
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedById || null,
         hasAdditionalGuidance: false,
@@ -351,7 +353,7 @@ const PlanCreate: React.FC = () => {
 
       // Find templates that contain project funder as owner
       const matchingTemplates = publishedTemplatesData?.publishedTemplates?.filter(template =>
-        projectFunders?.projectFunders && projectFunders.projectFunders.some(pf => pf?.affiliation?.uri === template?.owner?.uri)
+        projectFunders?.projectFunders && projectFunders.projectFunders.some(pf => pf?.affiliation?.uri === template?.ownerURI)
       );
 
       if (matchingTemplates) {

@@ -25,10 +25,10 @@ const mockProjectItem: ProjectItemProps = {
   defaultExpanded: false,
   startDate: '2023-01-01',
   endDate: '2023-12-31',
-  collaborators: [
+  members: [
     {
       name: 'John Doe',
-      roles: ['Researcher'],
+      roles: 'Researcher',
       orcid: '0000-0001-2345-6789',
     },
   ],

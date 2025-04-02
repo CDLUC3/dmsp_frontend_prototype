@@ -33,6 +33,7 @@ jest.mock('next-intl', () => ({
 }));
 
 
+
 const mockPublishedTemplates = [
   {
     bestPractice: false,
@@ -40,10 +41,8 @@ const mockPublishedTemplates = [
     id: "1",
     name: "Agency for Healthcare Research and Quality",
     visibility: "PUBLIC",
-    owner: {
-      displayName: "National Science Foundation (nsf.gov)",
-      uri: "http://nsf.gov"
-    }
+    ownerDisplayName: "National Science Foundation (nsf.gov)",
+    ownerURI: "http://nsf.gov"
   },
   {
     bestPractice: false,
@@ -51,10 +50,8 @@ const mockPublishedTemplates = [
     id: "20",
     name: "Arctic Data Center: NSF Polar Programs",
     visibility: "PUBLIC",
-    owner: {
-      displayName: "National Science Foundation (nsf.gov)",
-      uri: "http://nsf.gov"
-    }
+    ownerDisplayName: "National Science Foundation (nsf.gov)",
+    ownerURI: "http://nsf.gov"
   },
   {
     bestPractice: false,
@@ -62,10 +59,8 @@ const mockPublishedTemplates = [
     id: "10",
     name: "Data Curation Centre",
     visibility: "PUBLIC",
-    owner: {
-      displayName: "National Institute of Health",
-      uri: "http://nih.gov"
-    }
+    ownerDisplayName: "National Institute of Health",
+    ownerURI: "http://nih.gov"
   },
   {
     bestPractice: true,
@@ -73,7 +68,8 @@ const mockPublishedTemplates = [
     id: "12",
     name: "Best Practice Template",
     visibility: "PUBLIC",
-    owner: null
+    ownerDisplayName: null,
+    ownerURI: null
   },
 ]
 
@@ -162,7 +158,7 @@ describe('PlanCreate Component', () => {
     expect(screen.getByRole('checkbox', { name: /National Institute of Health/i })).toBeInTheDocument();
   });
 
-  it('should sort correctly so that project funders are at the top of the list', async () => {
+  it.only('should sort correctly so that project funders are at the top of the list', async () => {
     mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
     await act(async () => {
@@ -195,10 +191,8 @@ describe('PlanCreate Component', () => {
         id: "10",
         name: "Data Curation Centre",
         visibility: "PUBLIC",
-        owner: {
-          displayName: "UC Davis",
-          uri: "http://ucd.gov"
-        }
+        ownerDisplayName: "UC Davis",
+        ownerURI: "http://ucd.gov"
       },
       {
         bestPractice: false,

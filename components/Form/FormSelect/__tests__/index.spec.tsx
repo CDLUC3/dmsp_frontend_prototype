@@ -24,7 +24,7 @@ describe('FormSelect', () => {
     const select = container.querySelector('select')!;
 
     // Find the option with text "Option 1"
-    const option = Array.from(select.options).find(opt => opt.text === 'Option 1');
+    const option = Array.from(select?.options ?? []).find(opt => opt.text === 'Option 1');
 
     expect(option).toBeTruthy();
     expect(option?.value).toBe('1');
