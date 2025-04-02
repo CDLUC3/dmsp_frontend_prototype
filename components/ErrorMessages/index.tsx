@@ -14,16 +14,28 @@ const ErrorMessages = forwardRef<HTMLDivElement, ErrorMessagesProps>(
       }
     }, [errors, ref]);
 
-    if (!errors || Object.keys(errors).length === 0) return null;
+
+    // Filter out empty or invalid errors
+    const hasValidErrors = (): boolean => {
+      if (Array.isArray(errors)) {
+        return errors.some((error) => error && error.trim() !== "");
+      }
+
+      return Object.values(errors).some((error) => error && error.trim() !== "");
+    };
+
+    if (!errors || !hasValidErrors()) return null;
 
     const renderErrors = (): ReactNode => {
       if (Array.isArray(errors)) {
-        return errors.map((error, index) => error && <p key={index}>{error}</p>);
+        return errors
+          .filter((error) => error && error.trim() !== "")
+          .map((error, index) => <p key={index}>{error}</p>);
       }
 
-      return Object.entries(errors).map(([key, error]) =>
-        error ? <p key={key}>{error}</p> : null
-      );
+      return Object.entries(errors)
+        .filter(([_, error]) => error && error.trim() !== "")
+        .map(([key, error]) => <p key={key}>{error}</p>);
     };
 
     return (

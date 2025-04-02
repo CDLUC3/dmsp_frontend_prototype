@@ -3,3 +3,50 @@ mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
     id
   }
 }
+
+mutation AddPlanContributor($planId: Int!, $projectContributorId: Int!) {
+  addPlanContributor(planId: $planId, projectContributorId: $projectContributorId) {
+    errors {
+      general
+      contributorRoleIds
+      primaryContact
+      projectContributorId
+      projectId
+    }
+    id
+    isPrimaryContact
+  }
+}
+
+mutation RemovePlanContributor($planContributorId: Int!) {
+  removePlanContributor(planContributorId: $planContributorId) {
+    errors {
+      general
+      primaryContact
+      projectContributorId
+      projectId
+      contributorRoleIds
+    }
+    id
+    isPrimaryContact
+  }
+}
+
+mutation UpdatePlanContributor(
+  $planId: Int!, 
+  $planContributorId: Int!, 
+  $isPrimaryContact: Boolean
+  $contributorRoleIds: [Int!]
+  ) {
+  updatePlanContributor(
+    planId: $planId, 
+    planContributorId: $planContributorId, 
+    contributorRoleIds:$contributorRoleIds,
+    isPrimaryContact:$isPrimaryContact,
+    ) {
+    id
+    errors {
+      general
+    }
+  }
+}

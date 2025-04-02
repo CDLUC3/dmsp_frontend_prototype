@@ -1160,8 +1160,10 @@ export type MutationUpdatePasswordArgs = {
 
 
 export type MutationUpdatePlanContributorArgs = {
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isPrimaryContact?: InputMaybe<Scalars['Boolean']['input']>;
   planContributorId: Scalars['Int']['input'];
-  roleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -3430,6 +3432,31 @@ export type AddPlanMutationVariables = Exact<{
 
 export type AddPlanMutation = { __typename?: 'Mutation', addPlan?: { __typename?: 'Plan', id?: number | null } | null };
 
+export type AddPlanContributorMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  projectContributorId: Scalars['Int']['input'];
+}>;
+
+
+export type AddPlanContributorMutation = { __typename?: 'Mutation', addPlanContributor?: { __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null, contributorRoleIds?: string | null, primaryContact?: string | null, projectContributorId?: string | null, projectId?: string | null } | null } | null };
+
+export type RemovePlanContributorMutationVariables = Exact<{
+  planContributorId: Scalars['Int']['input'];
+}>;
+
+
+export type RemovePlanContributorMutation = { __typename?: 'Mutation', removePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null, primaryContact?: string | null, projectContributorId?: string | null, projectId?: string | null, contributorRoleIds?: string | null } | null } | null };
+
+export type UpdatePlanContributorMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  planContributorId: Scalars['Int']['input'];
+  isPrimaryContact?: InputMaybe<Scalars['Boolean']['input']>;
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']> | Scalars['Int']['input']>;
+}>;
+
+
+export type UpdatePlanContributorMutation = { __typename?: 'Mutation', updatePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null } | null };
+
 export type UpdateProjectContributorMutationVariables = Exact<{
   input: UpdateProjectContributorInput;
 }>;
@@ -3588,6 +3615,13 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
 
+export type PlanContributorsQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+}>;
+
+
+export type PlanContributorsQuery = { __typename?: 'Query', planContributors?: Array<{ __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null, projectContributor?: { __typename?: 'ProjectContributor', id?: number | null, givenName?: string | null, surName?: string | null } | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', uri: string, id?: number | null, label: string, description?: string | null, displayOrder: number }> | null } | null> | null };
+
 export type ProjectContributorsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
 }>;
@@ -3638,7 +3672,7 @@ export type QuestionQueryVariables = Exact<{
 }>;
 
 
-export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
+export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, questionOptionIds?: string | null, questionTypeId?: string | null, sectionId?: string | null, sourceQestionId?: string | null, templateId?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3747,6 +3781,133 @@ export function useAddPlanMutation(baseOptions?: Apollo.MutationHookOptions<AddP
 export type AddPlanMutationHookResult = ReturnType<typeof useAddPlanMutation>;
 export type AddPlanMutationResult = Apollo.MutationResult<AddPlanMutation>;
 export type AddPlanMutationOptions = Apollo.BaseMutationOptions<AddPlanMutation, AddPlanMutationVariables>;
+export const AddPlanContributorDocument = gql`
+    mutation AddPlanContributor($planId: Int!, $projectContributorId: Int!) {
+  addPlanContributor(planId: $planId, projectContributorId: $projectContributorId) {
+    errors {
+      general
+      contributorRoleIds
+      primaryContact
+      projectContributorId
+      projectId
+    }
+    id
+    isPrimaryContact
+  }
+}
+    `;
+export type AddPlanContributorMutationFn = Apollo.MutationFunction<AddPlanContributorMutation, AddPlanContributorMutationVariables>;
+
+/**
+ * __useAddPlanContributorMutation__
+ *
+ * To run a mutation, you first call `useAddPlanContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPlanContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPlanContributorMutation, { data, loading, error }] = useAddPlanContributorMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      projectContributorId: // value for 'projectContributorId'
+ *   },
+ * });
+ */
+export function useAddPlanContributorMutation(baseOptions?: Apollo.MutationHookOptions<AddPlanContributorMutation, AddPlanContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddPlanContributorMutation, AddPlanContributorMutationVariables>(AddPlanContributorDocument, options);
+      }
+export type AddPlanContributorMutationHookResult = ReturnType<typeof useAddPlanContributorMutation>;
+export type AddPlanContributorMutationResult = Apollo.MutationResult<AddPlanContributorMutation>;
+export type AddPlanContributorMutationOptions = Apollo.BaseMutationOptions<AddPlanContributorMutation, AddPlanContributorMutationVariables>;
+export const RemovePlanContributorDocument = gql`
+    mutation RemovePlanContributor($planContributorId: Int!) {
+  removePlanContributor(planContributorId: $planContributorId) {
+    errors {
+      general
+      primaryContact
+      projectContributorId
+      projectId
+      contributorRoleIds
+    }
+    id
+    isPrimaryContact
+  }
+}
+    `;
+export type RemovePlanContributorMutationFn = Apollo.MutationFunction<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>;
+
+/**
+ * __useRemovePlanContributorMutation__
+ *
+ * To run a mutation, you first call `useRemovePlanContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemovePlanContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removePlanContributorMutation, { data, loading, error }] = useRemovePlanContributorMutation({
+ *   variables: {
+ *      planContributorId: // value for 'planContributorId'
+ *   },
+ * });
+ */
+export function useRemovePlanContributorMutation(baseOptions?: Apollo.MutationHookOptions<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>(RemovePlanContributorDocument, options);
+      }
+export type RemovePlanContributorMutationHookResult = ReturnType<typeof useRemovePlanContributorMutation>;
+export type RemovePlanContributorMutationResult = Apollo.MutationResult<RemovePlanContributorMutation>;
+export type RemovePlanContributorMutationOptions = Apollo.BaseMutationOptions<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>;
+export const UpdatePlanContributorDocument = gql`
+    mutation UpdatePlanContributor($planId: Int!, $planContributorId: Int!, $isPrimaryContact: Boolean, $contributorRoleIds: [Int!]) {
+  updatePlanContributor(
+    planId: $planId
+    planContributorId: $planContributorId
+    contributorRoleIds: $contributorRoleIds
+    isPrimaryContact: $isPrimaryContact
+  ) {
+    id
+    errors {
+      general
+    }
+  }
+}
+    `;
+export type UpdatePlanContributorMutationFn = Apollo.MutationFunction<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>;
+
+/**
+ * __useUpdatePlanContributorMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlanContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlanContributorMutation, { data, loading, error }] = useUpdatePlanContributorMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      planContributorId: // value for 'planContributorId'
+ *      isPrimaryContact: // value for 'isPrimaryContact'
+ *      contributorRoleIds: // value for 'contributorRoleIds'
+ *   },
+ * });
+ */
+export function useUpdatePlanContributorMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>(UpdatePlanContributorDocument, options);
+      }
+export type UpdatePlanContributorMutationHookResult = ReturnType<typeof useUpdatePlanContributorMutation>;
+export type UpdatePlanContributorMutationResult = Apollo.MutationResult<UpdatePlanContributorMutation>;
+export type UpdatePlanContributorMutationOptions = Apollo.BaseMutationOptions<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>;
 export const UpdateProjectContributorDocument = gql`
     mutation UpdateProjectContributor($input: updateProjectContributorInput!) {
   updateProjectContributor(input: $input) {
@@ -4709,6 +4870,62 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const PlanContributorsDocument = gql`
+    query PlanContributors($planId: Int!) {
+  planContributors(planId: $planId) {
+    id
+    isPrimaryContact
+    errors {
+      general
+    }
+    projectContributor {
+      id
+      givenName
+      surName
+    }
+    contributorRoles {
+      uri
+      id
+      label
+      description
+      displayOrder
+    }
+  }
+}
+    `;
+
+/**
+ * __usePlanContributorsQuery__
+ *
+ * To run a query within a React component, call `usePlanContributorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanContributorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanContributorsQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function usePlanContributorsQuery(baseOptions: Apollo.QueryHookOptions<PlanContributorsQuery, PlanContributorsQueryVariables> & ({ variables: PlanContributorsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanContributorsQuery, PlanContributorsQueryVariables>(PlanContributorsDocument, options);
+      }
+export function usePlanContributorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanContributorsQuery, PlanContributorsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanContributorsQuery, PlanContributorsQueryVariables>(PlanContributorsDocument, options);
+        }
+export function usePlanContributorsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanContributorsQuery, PlanContributorsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanContributorsQuery, PlanContributorsQueryVariables>(PlanContributorsDocument, options);
+        }
+export type PlanContributorsQueryHookResult = ReturnType<typeof usePlanContributorsQuery>;
+export type PlanContributorsLazyQueryHookResult = ReturnType<typeof usePlanContributorsLazyQuery>;
+export type PlanContributorsSuspenseQueryHookResult = ReturnType<typeof usePlanContributorsSuspenseQuery>;
+export type PlanContributorsQueryResult = Apollo.QueryResult<PlanContributorsQuery, PlanContributorsQueryVariables>;
 export const ProjectContributorsDocument = gql`
     query ProjectContributors($projectId: Int!) {
   projectContributors(projectId: $projectId) {
@@ -5095,6 +5312,15 @@ export const QuestionDocument = gql`
     errors {
       general
       questionText
+      requirementText
+      sampleText
+      displayOrder
+      questionConditionIds
+      questionOptionIds
+      questionTypeId
+      sectionId
+      sourceQestionId
+      templateId
     }
     displayOrder
     questionText

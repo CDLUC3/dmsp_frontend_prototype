@@ -21,7 +21,7 @@ describe('FormSelect', () => {
       {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
     </FormSelect>);
     const container = getByTestId('hidden-select-container');
-    const select = container.querySelector('select');
+    const select = container.querySelector('select')!;
 
     // Find the option with text "Option 1"
     const option = Array.from(select?.options ?? []).find(opt => opt.text === 'Option 1');

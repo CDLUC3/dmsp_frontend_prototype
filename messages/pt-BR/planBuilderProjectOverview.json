@@ -197,7 +197,7 @@
         "affiliation": "Valor inválido de afiliação",
         "email": "Valor de email inválido",
         "orcid": "Valor ORCiD inválido",
-        "projectRoles": "Deve selecionar pelo menos uma função de projeto",
+        "projectRoles": "Must select at least one project role",
         "removingMember": "Ocorreu um erro ao remover o colaborador do projeto.",
         "updatingMember": "Ocorreu um erro ao atualizar o colaborador do projeto."
       },

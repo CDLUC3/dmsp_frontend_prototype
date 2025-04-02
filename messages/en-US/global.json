@@ -129,7 +129,8 @@
       "project": "Project",
       "projects": "Projects",
       "projectOverview": "Project overview",
-      "projectFunder": "Project funder"
+      "projectFunder": "Project funder",
+      "planOverview": "Plan overview"
     },
     "form": {
       "yesLabel": "Yes",
@@ -145,6 +146,7 @@
       "saveChanges": "Save changes",
       "remove": "Remove",
       "confirm": "Confirm",
+      "change": "Change",
       "cancel": "Cancel",
       "linkUpdate": "Update",
       "linkExpand": "Expand",
