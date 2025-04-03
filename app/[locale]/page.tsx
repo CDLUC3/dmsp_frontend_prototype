@@ -1,9 +1,7 @@
 'use client'
 
-import { ContentContainer, LayoutContainer } from '@/components/Container';
-import {
-  Link,
-} from "react-aria-components";
+import {ContentContainer, LayoutContainer} from '@/components/Container';
+import {Link,} from "react-aria-components";
 
 const Home = () => {
   return (

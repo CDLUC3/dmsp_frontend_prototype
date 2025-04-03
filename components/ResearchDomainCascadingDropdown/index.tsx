@@ -1,16 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import React, {useEffect, useRef, useState} from 'react';
+import {useTranslations} from 'next-intl';
+import {ListBoxItem,} from "react-aria-components";
 import {
-  ListBoxItem,
-} from "react-aria-components";
-import {
-  useTopLevelResearchDomainsQuery,
   useChildResearchDomainsQuery,
+  useTopLevelResearchDomainsQuery,
 } from '@/generated/graphql';
 
-import {
-  FormSelect,
-} from "@/components/Form";
+import {FormSelect,} from "@/components/Form";
 
 
 import styles from './researchDomainDropdowns.module.scss';

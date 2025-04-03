@@ -5,22 +5,17 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
 
-import {
-  useProjectContributorsQuery
-} from '@/generated/graphql';
+import { useProjectContributorsQuery } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import {
-  ContentContainer,
-  LayoutContainer,
-} from "@/components/Container";
+import { ContentContainer, LayoutContainer, } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import ErrorMessages from '@/components/ErrorMessages';
 
 import styles from './ProjectsProjectMembers.module.scss';
 
-interface ProjectContributorsInterface {
+interface ProjectContributorInterface {
   id: number | null;
   fullName: string;
   affiliation: string;
@@ -40,7 +35,7 @@ const ProjectsProjectMembers = () => {
   const ProjectMembers = useTranslations('ProjectsProjectMembers');
   const Global = useTranslations('Global');
 
-  const [projectContributors, setProjectContributors] = useState<ProjectContributorsInterface[]>();
+  const [projectContributors, setProjectContributors] = useState<ProjectContributorInterface[]>();
   const [errors, setErrors] = useState<string[]>([]);
 
   // Get project contributors using projectid
@@ -59,7 +54,7 @@ const ProjectsProjectMembers = () => {
   const handleEdit = (memberId: number | null): void => {
 
     // Handle editing member
-    router.push(`/projects/${projectId}/members/edit?memberid=${memberId?.toString()}`);
+    router.push(`/projects/${projectId}/members/${memberId?.toString()}/edit`);
   };
 
   const handleShare = (): void => {

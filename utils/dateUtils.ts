@@ -1,7 +1,4 @@
-import {
-    parseDate,
-    DateValue
-} from "@internationalized/date";
+import {DateValue, parseDate} from "@internationalized/date";
 
 export const formatWithTimeAndDate = (timestamp: string): string => {
     if (timestamp) {

@@ -1,10 +1,9 @@
 import '@testing-library/jest-dom';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import dotenv from 'dotenv';
 
 
 //Load environment variables from .env.local
-dotenv.config({ path: './.env.local' });// 
+dotenv.config({ path: './.env.local' });//
 
 // Mock toast
 jest.mock('@/context/ToastContext', () => ({
@@ -13,25 +12,27 @@ jest.mock('@/context/ToastContext', () => ({
   })),
 }));
 
-// Mock the useTranslations hook
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
+jest.mock('next-intl', () => {
+  return {
+    useTranslations: jest.fn(() => {
+      const mockUseTranslations = (key: string) => key;
+      /*eslint-disable-next-line @typescript-eslint/no-explicit-any*/
+      mockUseTranslations.rich = (key: string, values?: Record<string, any>) => {
+        if (values?.p) {
+          return values.p(key);
+        }
+        return key;
+      };
+      return mockUseTranslations;
+    }),
+  };
+});
 
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+// Mock the clientLogger
+jest.mock('@/utils/clientLogger', () => jest.fn());
 
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
-      }
-      return key;
-    };
-
-    return mockUseTranslations;
-  }),
-}));
+// Mock the useParams and useRouter hooks
+jest.mock('next/navigation', () => ({
+  useParams: jest.fn(),
+  useRouter: jest.fn()
+}))

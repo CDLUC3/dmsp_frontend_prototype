@@ -2,14 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import {
-  useProjectQuery
-} from '@/generated/graphql';
+import { useProjectQuery } from '@/generated/graphql';
 import ProjectOverviewPage from '../page';
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -28,7 +23,6 @@ jest.mock('next-intl', () => ({
     dateTime: jest.fn(() => '01-01-2023'),
   })),
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
-  useLocale: jest.fn(() => 'en-US'), // Return a default locale
 }));
 
 const mockProjectData = {

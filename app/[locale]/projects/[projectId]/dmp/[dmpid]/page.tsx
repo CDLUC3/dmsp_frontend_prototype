@@ -31,6 +31,7 @@ import { DmpIcon } from "@/components/Icons";
 
 import logECS from '@/utils/clientLogger';
 import { toSentenceCase } from '@/utils/general';
+import { routePath } from '@/utils/routes';
 import styles from './PlanOverviewPage.module.scss';
 
 interface PlanMember {
@@ -63,7 +64,7 @@ const PlanOverviewPage: React.FC = () => {
   // next-intl date formatter
   const formatter = useFormatter();
   const errorRef = useRef<HTMLDivElement | null>(null);
-  const [isMarkCompleteModalOpen, setMarkCompleteModalOpen] = useState(false);
+  const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   const [planData, setPlanData] = useState<PlanOverviewInterface>({
@@ -110,7 +111,7 @@ const PlanOverviewPage: React.FC = () => {
     } catch (err) {
       if (err instanceof ApolloError) {
         //close modal
-        setMarkCompleteModalOpen(false);
+        setIsMarkCompleteModalOpen(false);
       } else {
         setErrors(prevErrors => [...prevErrors, 'there was an error']);
         logECS('error', 'saveTemplate', {
@@ -183,6 +184,11 @@ const PlanOverviewPage: React.FC = () => {
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
+
+
+  // const handleMarkAsIncomplete = async () => {
+  //   setIsMarkCompleteModalOpen(false);
+  // };
 
   return (
     <>
@@ -349,11 +355,13 @@ const PlanOverviewPage: React.FC = () => {
                 </p>
                 <p>
                   {t('status.download.draftInfo')} <Link
-                    href="#">{t('status.download.learnMore')}</Link>
+                    href={routePath('help.dmp.download')}>
+                    {t('status.download.learnMore')}
+                  </Link>
                 </p>
                 <Button
                   className="react-aria-Button react-aria-Button--primary"
-                  onPress={() => setMarkCompleteModalOpen(true)}
+                  onPress={() => setIsMarkCompleteModalOpen(true)}
                 >
                   {t('status.download.markComplete')}
                 </Button>
@@ -373,7 +381,7 @@ const PlanOverviewPage: React.FC = () => {
             </div>
           </div>
         </SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutWithPanel >
 
       <Modal isDismissable
         isOpen={isMarkCompleteModalOpen}
@@ -429,7 +437,7 @@ const PlanOverviewPage: React.FC = () => {
 
               <div className="modal-actions">
                 <div className="">
-                  <Button data-secondary onPress={() => setMarkCompleteModalOpen(false)}>Close</Button>
+                  <Button data-secondary onPress={() => setIsMarkCompleteModalOpen(false)}>Close</Button>
                 </div>
                 <div className="">
                   <Button type="submit">Pubish the plan</Button>

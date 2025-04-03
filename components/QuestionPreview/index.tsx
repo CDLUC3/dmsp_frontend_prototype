@@ -1,16 +1,16 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 
-import { useTranslations } from 'next-intl';
+import {useTranslations} from 'next-intl';
 
 import {
   Button,
-  Modal,
-  ModalOverlay,
   Dialog,
   DialogTrigger,
+  Modal,
+  ModalOverlay,
 } from "react-aria-components";
 
-import { ContentContainer } from '@/components/Container';
+import {ContentContainer} from '@/components/Container';
 
 import styles from './QuestionPreview.module.scss';
 

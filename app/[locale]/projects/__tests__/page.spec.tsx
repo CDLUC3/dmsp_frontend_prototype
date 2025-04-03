@@ -4,10 +4,7 @@ import { useMyProjectsQuery } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProjectsListPage from '../page';
 import { useFormatter, useTranslations } from 'next-intl';
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -34,26 +31,16 @@ const mockProjectsData = {
       contributors: [
         {
           __typename: 'ProjectContributor',
-          givenName: 'John',
-          surName: 'Doe',
+          name: 'John Doe',
           orcid: '0000-0001-2345-6789',
-          contributorRoles: [
-            {
-              __typename: 'ContributorRole',
-              label: 'Researcher',
-              id: 1,
-            },
-          ],
+          role: 'Researcher',
         },
       ],
       funders: [
         {
           __typename: 'ProjectFunder',
-          affiliation: {
-            __typename: 'Affiliation',
-            name: 'NSF',
-            uri: 'http://nsf.gov',
-          },
+          name: 'NSF',
+          grantId: 'http://nsf.gov/award/99999',
         },
       ],
     },
@@ -75,7 +62,7 @@ describe('ProjectsListPage', () => {
     });
 
     (useTranslations as jest.Mock).mockImplementation((namespace) => {
-      return (key) => `${namespace}.${key}`;
+      return (key: string) => `${namespace}.${key}`;
     });
   });
 
@@ -127,9 +114,9 @@ describe('ProjectsListPage', () => {
     expect(screen.getByRole('heading', { name: /ProjectOverview.collaborators/i })).toBeInTheDocument();
     expect(screen.getByText(/John Doe/i)).toBeInTheDocument();
     expect(screen.getByText(/\(Researcher\)/i)).toBeInTheDocument();
-    //expect(collaboratorRoleText).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /ProjectOverview.funding/i })).toBeInTheDocument();
     expect(screen.getByText('NSF')).toBeInTheDocument();
+    expect(screen.getByText(/http:\/\/nsf\.gov\/award\/99999/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /ProjectOverview.researchOutputs/i })).toBeInTheDocument();
 
     // Click on Collapse link

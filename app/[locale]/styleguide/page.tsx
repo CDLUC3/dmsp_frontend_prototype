@@ -1431,6 +1431,7 @@ function Page() {
                 <Button className="secondary">Secondary</Button>
                 <Button className="tertiary">Tertiary</Button>
                 <Button isDisabled>Disabled</Button>
+                <Button className="link">Button Link</Button>
                 <ButtonWithImage url="http://localhost:3000"
                   imageUrl="/images/orcid.svg"
                   buttonText="Connect institutional credentials" />

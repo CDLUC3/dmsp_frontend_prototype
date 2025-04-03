@@ -6,7 +6,6 @@ import logECS from '@/utils/clientLogger';
 //Need to import this useRouter after the jest.mock is in place
 import { useRouter } from 'next/navigation';
 import { fetchCsrfToken } from "@/utils/authHelper";
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
 
 
 // Mock TypeAheadWithOther component
@@ -64,40 +63,6 @@ jest.mock('@/context/CsrfContext', () => ({
   ),
   useCsrf: jest.fn(),
 }));
-
-
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => (key) => {
-    const translations = {
-      "LoginPage.pageTitle": "Login",
-    };
-    return translations[key] || key;
-  }),
-  useLocale: jest.fn(() => 'en-US'),
-}));
-
-
-// Mock useTranslations from next-intl
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
-
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
-      }
-      return key;
-    };
-    return mockUseTranslations;
-  }),
-}));
-
 
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();

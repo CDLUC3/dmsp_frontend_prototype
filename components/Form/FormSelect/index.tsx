@@ -1,6 +1,20 @@
 import React, { forwardRef } from 'react';
-import type { ListBoxItemProps, SelectProps, ValidationResult } from 'react-aria-components';
-import { Button, FieldError, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, Text } from 'react-aria-components';
+import type {
+  ListBoxItemProps,
+  SelectProps,
+  ValidationResult
+} from 'react-aria-components';
+import {
+  Button,
+  FieldError,
+  Label,
+  ListBox,
+  ListBoxItem,
+  Popover,
+  Select,
+  SelectValue,
+  Text
+} from 'react-aria-components';
 import styles from './formSelect.module.scss';
 
 interface SelectItem {
@@ -10,6 +24,7 @@ interface SelectItem {
 interface MySelectProps<T extends SelectItem>
   extends Omit<SelectProps<T>, 'children'> {
   label?: string;
+  ariaLabel?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
   helpMessage?: string;
   description?: string;
@@ -22,6 +37,7 @@ interface MySelectProps<T extends SelectItem>
 export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem>>((props, ref) => {
   const {
     label,
+    ariaLabel,
     errorMessage,
     helpMessage,
     description,
@@ -37,6 +53,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
       selectedKey={rest.selectedKey}
       data-invalid={errorMessage}
       className={`${selectClasses} ${styles.mySelect} react-aria-Select`}
+      aria-label={ariaLabel}
     >
       {(state) => (
         <>

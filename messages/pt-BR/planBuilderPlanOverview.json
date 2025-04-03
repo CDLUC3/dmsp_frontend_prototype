@@ -55,6 +55,102 @@
         "manageAccess": "Gerenciar acesso",
         "requestFeedback": "Solicitar feedback"
       }
+    },
+    "publishModal": {
+      "markComplete": {
+        "title": "Marcar como concluído",
+        "description": "Atualizamos seu plano para completar - se você cometeu algum erro, pode marcá-lo como incompleto",
+        "markIncompleteButton": "Marcar como incompleto",
+        "step1Title": "Etapa 1: Baixar",
+        "step1Description": "Você pode baixar o plano concluído",
+        "step2Title": "Passo 2: Publique o plano (recomendado)",
+        "step2Description": "A publicação de um Plano de Gerenciamento de Dados (DMP) atribui a ele um Identificador Digital de Objeto (DOI). Este DOI identifica exclusivamente o DMP, facilitando a referência e o acesso no futuro.",
+        "closeButton": "Fechar",
+        "publishButton": "Publicar o plano"
+      },
+      "markIncomplete": {
+        "title": "Marcado como incompleto.",
+        "description": "Atualizamos o seu plano como incompleto.",
+        "closeButton": "Fechar",
+        "markCompleteButton": "Marcar como concluído"
+      },
+      "publish": {
+        "title": "Publicar",
+        "description1": "A publicação de um Plano de Gerenciamento de Dados (DMP) marca-o como \"completa\" e atribui-lhe um Identificador de Objeto Digital (DOI).",
+        "description2": "Este DOI identifica exclusivamente o DMP, facilitando a referência e o acesso no futuro.",
+        "visibilityTitle": "Configurações de visibilidade",
+        "visibilityDescription": "Você pode controlar quais partes do seu plano são ou não visíveis uma vez que seja publicado.",
+        "visibilityOptions": {
+          "public": {
+            "label": "Público (recomendado)",
+            "description": "Todos os metadados serão visíveis para qualquer usuário. Os pesquisadores poderão visualizar o conteúdo do plano em si."
+          },
+          "organization": {
+            "label": "Apenas organização",
+            "description": "O plano completo será visível para qualquer pessoa de sua Organização. Apenas metadados básicos do seu plano (título e colaboradores) ficarão visíveis para usuários fora da sua organização."
+          },
+          "private": {
+            "label": "Privado",
+            "description": "Apenas metadados básicos do seu plano (títulos e colaboradores) ficarão visíveis para os outros usuários."
+          }
+        },
+        "closeButton": "Fechar",
+        "publishButton": "Publicar"
+      }
+    }
+  },
+  "PlanCreate": {
+    "title": "Plano: Selecione um modelo DMP",
+    "description": "Selecione um modelo para usar ao criar o DMP.",
+    "checkbox": {
+      "filterByFunderLabel": "Filtrar por financiador",
+      "filterByFunderDescription": "Selecione se você quer ver apenas modelos pelo seu fundo.",
+      "filterByBestPracticesLabel": "Filtrar por melhores práticas",
+      "filterByBestPracticesDescription": "Selecione se você quer ver apenas os modelos de boas práticas"
+    },
+    "labels": {
+      "dmpBestPractice": "Prática de qualidade DMP"
+    }
+  },
+  "ProjectsProjectPlanAdjustMembers": {
+    "title": "Membros do plano",
+    "description": "Selecione os membros relevantes para <strong>este plano apenas </strong> na lista de membros do projeto mostrada abaixo. Independentemente do seu papel neste plano, eles permanecerão como membros do seu",
+    "newWindow": "(nova janela)",
+    "contactPerson": "Pessoa de contato",
+    "headings": {
+      "h2MembersInThePlan": "Apenas membros deste plano",
+      "h2MembersNotInPlan": "Membros do projeto não estão neste plano",
+      "h2AddProjectMember": "Adicionando um novo membro?",
+      "h2AllowOthers": "Permitir que outros acessem ao projeto",
+      "h3PrimaryContact": "Contato principal"
+    },
+    "addProjectMemberInfo": "Você pode adicionar qualquer membro do projeto a este plano usando as caixas de seleção acima. Se quiser adicionar alguém que não esteja mostrado aqui, você deve <strong>adicioná-lo ao projeto primeiro</strong>.",
+    "allowOthersToAccess": " Você pode permitir que outros acessem ao projeto. Isto lhes dará acesso ao projeto e a todos os planos.",
+    "labels": {
+      "planMembers": "Membros do plano",
+      "orcid": "Perfil ORCIiD do {name}",
+      "removeFromPlan": "Retirar do plano",
+      "addMemberToPlan": "Adicionar a este plano"
+    },
+    "messaging": {
+      "success": {
+        "addedPlanMember": "{fullName} adicionado com sucesso como membro do plano",
+        "removedPlanMember": "{fullName} removido com sucesso como membro do plano",
+        "updatedPlanMember": "{fullName} atualizado com sucesso como membro do plano"
+      },
+      "error": {
+        "memberNotFound": "Membro não encontrado"
+      }
+    },
+    "form": {
+      "select": {
+        "selectionIsRequired": "A seleção é necessária",
+        "description": "O contato primário é necessário, este será o contato principal do lead que será usado se um DOI for criado"
+      }
+    },
+    "links": {
+      "updateProjectMembers": "Atualizar membros do projeto",
+      "inviteAPerson": "Convidar pessoa"
     }
   }
 }

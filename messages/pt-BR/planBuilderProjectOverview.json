@@ -105,7 +105,7 @@
       "researchDomain": "Domínio de pesquisa",
       "mockProject": "Projeto fictício",
       "realProject": "Projeto real",
-      "childDomain": "Select a {name}:",
+      "childDomain": "Selecione um {name}",
       "item": "Produto"
     },
     "helpText": {
@@ -135,8 +135,8 @@
     }
   },
   "ProjectsProjectFundingEdit": {
-    "title": "Editar Detalhes da Barbatana",
-    "description": "Atualizar informações da fonte de financiamento",
+    "title": "",
+    "description": "",
     "labels": {
       "funderName": "Nome da planta",
       "funderStatus": "Estado da Financiamento",
@@ -173,6 +173,49 @@
         "errorGettingContributors": "Erro ao obter contribuidores"
       },
       "noContributors": "Nenhum contribuidor encontrado"
+    }
+  },
+  "ProjectsProjectMembersEdit": {
+    "title": "Editar Detalhes do Membro",
+    "description": "Atualizar informações colaboradoras",
+    "breadcrumbs": {
+      "projectMembers": "Membros de projeto"
+    },
+    "buttons": {
+      "removeMember": "Remover membro"
+    },
+    "headings": {
+      "h2RemoveMember": "Remover membro"
+    },
+    "paragraphs": {
+      "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível."
+    },
+    "form": {
+      "errors": {
+        "firstName": "Valor do primeiro nome inválido",
+        "lastName": "Valor de sobrenome inválido",
+        "affiliation": "Valor inválido de afiliação",
+        "email": "Valor de email inválido",
+        "orcid": "Valor ORCiD inválido",
+        "projectRoles": "Must select at least one project role",
+        "removingMember": "Ocorreu um erro ao remover o colaborador do projeto.",
+        "updatingMember": "Ocorreu um erro ao atualizar o colaborador do projeto."
+      },
+      "success": {
+        "memberUpdated": "Detalhes do membro atualizados com sucesso",
+        "removedMember": "Membro removido com sucesso"
+      },
+      "labels": {
+        "checkboxGroupLabel": "Funções do projeto",
+        "checkboxGroupDescription": "Forneça as funções do membro do projeto",
+        "firstName": "Primeiro nome",
+        "lastName": "Último Nome",
+        "affiliation": "Afiliação",
+        "emailAddress": "E-mail",
+        "orcid": "ORCiD ID",
+        "role": "Função",
+        "removeMemberFromProject": "Remover membro do projeto"
+      }
     }
   }
 }

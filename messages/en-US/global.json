@@ -126,9 +126,11 @@
       "editTemplate": "Edit Template",
       "question": "Question",
       "selectQuestionType": "Select Question Type",
+      "project": "Project",
       "projects": "Projects",
       "projectOverview": "Project overview",
-      "projectFunder": "Project funder"
+      "projectFunder": "Project funder",
+      "planOverview": "Plan overview"
     },
     "form": {
       "yesLabel": "Yes",
@@ -144,6 +146,7 @@
       "saveChanges": "Save changes",
       "remove": "Remove",
       "confirm": "Confirm",
+      "change": "Change",
       "cancel": "Cancel",
       "linkUpdate": "Update",
       "linkExpand": "Expand",
@@ -167,7 +170,8 @@
       "noItemsFound": "No items found",
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search",
-      "fixBelow": "Please fix the errors below"
+      "fixBelow": "Please fix the errors below",
+      "error": "Something went wrong. Please try again."
     },
     "tabs": {
       "editQuestion": "Edit question",

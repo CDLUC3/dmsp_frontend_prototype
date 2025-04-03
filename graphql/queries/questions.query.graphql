@@ -11,6 +11,15 @@ query Question($questionId: Int!) {
     errors {
       general
       questionText
+      requirementText
+      sampleText
+      displayOrder
+      questionConditionIds
+      questionOptionIds
+      questionTypeId
+      sectionId
+      sourceQestionId
+      templateId
     }
     displayOrder
     questionText

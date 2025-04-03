@@ -109,6 +109,35 @@
   }
 }
 
+@mixin button-link {
+  background: none;
+  border: none;
+  color: var(--slate-900);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+
+  &:active,
+  &:visited {
+    color: var(--slate-900);
+  }
+
+  &:hover:not(:disabled) {
+    background: none;
+    color: var(--blue-500)
+  }
+
+  &:active:not(:disabled),
+  &[data-pressed]:not(:disabled) {
+    color: var(--slate-200);
+  }
+
+  &:disabled {
+    color: var(--slate-400);
+  }
+}
+
 
 @mixin button-danger {
   background: var(--red-400);
@@ -189,6 +218,17 @@ input[type="button"].tertiary,
 input[type="reset"].tertiary,
 input[type="submit"].tertiary {
   @include button-tertiary;
+}
+
+// Link button styles
+.react-aria-Button.link,
+.react-aria-Button--link,
+button.link,
+button--link,
+input[type="button"].link,
+input[type="reset"].link,
+input[type="submit"].link {
+  @include button-link;
 }
 
 .react-aria-Button.danger,

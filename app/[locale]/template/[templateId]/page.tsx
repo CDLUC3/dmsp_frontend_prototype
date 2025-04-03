@@ -224,7 +224,6 @@ const TemplateEditPage: React.FC = () => {
         },
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   // If page-level errors that we need to scroll to
@@ -402,7 +401,9 @@ const TemplateEditPage: React.FC = () => {
       </div>
 
 
-      <Modal isDismissable
+      <Modal
+        isDismissable
+        onOpenChange={setPublishModalOpen}
         isOpen={isPublishModalOpen}
         data-testid="modal"
       >

@@ -1,12 +1,6 @@
 import React from 'react';
 
-import {
-  render,
-  screen,
-  act,
-  fireEvent,
-  waitFor,
-} from '@/utils/test-utils';
+import {act, fireEvent, render, screen, waitFor,} from '@/utils/test-utils';
 
 import {axe, toHaveNoViolations} from 'jest-axe';
 

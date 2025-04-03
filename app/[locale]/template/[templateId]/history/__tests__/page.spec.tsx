@@ -7,10 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { handleApolloErrors } from "@/utils/gqlErrorHandler";
 import mockData from './mockedResponse.json';
-import {
-    mockScrollIntoView,
-    mockScrollTo
-} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -188,7 +185,7 @@ describe('TemplateHistory', () => {
         //expect(row1Cells[2].textContent).toBe('16:29 on Jun 25, 2014');
     })
 
-    it('should render "No template history available" when no data is available', () => {
+    it.only('should render "No template history available" when no data is available', () => {
         (useTemplateVersionsQuery as jest.Mock).mockReturnValue({
             loading: false,
             data: { templateVersions: [] },

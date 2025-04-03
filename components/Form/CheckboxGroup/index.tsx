@@ -6,10 +6,8 @@ import {
   Label,
   Text,
 } from "react-aria-components";
-import classNames from 'classnames';
 
 import { CheckboxGroupProps } from '@/app/types';
-import styles from './radioGroup.module.scss';
 
 const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
   name,
@@ -19,9 +17,9 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
   checkboxData,
   isInvalid,
   errorMessage,
-  onChange
+  onChange,
+  isRequired = false,
 }) => {
-
   return (
     <>
       <CheckboxGroup
@@ -29,14 +27,16 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
         value={value}
         className="checkbox-group"
         onChange={onChange}
+        isRequired={isRequired}
       >
         <Label>{checkboxGroupLabel}</Label>
+        {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
+
         {checkboxGroupDescription && (
           <Text slot="description" className="help">
             {checkboxGroupDescription}
           </Text>
         )}
-
         {checkboxData.map((checkbox, index) => (
           <div key={index}>
             <Checkbox value={checkbox.value}>
@@ -57,7 +57,6 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
             </Checkbox>
           </div>
         ))}
-        {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
       </CheckboxGroup>
     </>
   );

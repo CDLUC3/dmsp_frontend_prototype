@@ -1,18 +1,15 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@/utils/test-utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {fireEvent, render, screen, waitFor} from '@/utils/test-utils';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import TemplateAccessPage from '../page';
-import { useParams } from 'next/navigation';
+import {useParams} from 'next/navigation';
 import {
   useAddTemplateCollaboratorMutation,
   useRemoveTemplateCollaboratorMutation,
   useTemplateCollaboratorsQuery
 } from '@/generated/graphql';
 import mockData from '../__mocks__/mockData.json';
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 

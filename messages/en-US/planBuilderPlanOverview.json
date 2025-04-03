@@ -55,6 +55,102 @@
         "manageAccess": "Manage access",
         "requestFeedback": "Request feedback"
       }
+    },
+    "publishModal": {
+      "markComplete": {
+        "title": "Marked as complete.",
+        "description": "We have updated your plan to completed - if you have made a mistake you can mark it as incomplete",
+        "markIncompleteButton": "Mark as incomplete",
+        "step1Title": "Step 1: Download",
+        "step1Description": "You can download the completed plan",
+        "step2Title": "Step 2: Publish the plan (Recommended)",
+        "step2Description": "Publishing a Data Management Plan (DMP) assigns it a Digital Object Identifier (DOI). This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.",
+        "closeButton": "Close",
+        "publishButton": "Publish the plan"
+      },
+      "markIncomplete": {
+        "title": "Marked as incomplete.",
+        "description": "We have updated your plan as incomplete.",
+        "closeButton": "Close",
+        "markCompleteButton": "Mark as complete"
+      },
+      "publish": {
+        "title": "Publish",
+        "description1": "Publishing a Data Management Plan (DMP) marks it as \"complete\" and assigns it a Digital Object Identifier (DOI).",
+        "description2": "This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.",
+        "visibilityTitle": "Visibility Settings",
+        "visibilityDescription": "You can control what parts of your plan are or are not visible once it is published.",
+        "visibilityOptions": {
+          "public": {
+            "label": "Public (recommended)",
+            "description": "All metadata will be visible to any user. Researchers will be able to view the contents of the plan itself."
+          },
+          "organization": {
+            "label": "Organization only",
+            "description": "The full plan will be visible to anyone within your Organization. Only basic metadata about your plan (title and collaborators) will be visible to users outside your organization."
+          },
+          "private": {
+            "label": "Private",
+            "description": "Only basic metadata about your plan (title and collaborators) will be visible to other users."
+          }
+        },
+        "closeButton": "Close",
+        "publishButton": "Publish"
+      }
+    }
+  },
+  "PlanCreate": {
+    "title": "Plan: Select a DMP template",
+    "description": "Select a template to use when creating your DMP.",
+    "checkbox": {
+      "filterByFunderLabel": "Filter by funder",
+      "filterByFunderDescription": "Select if you want to only see templates by your funder.",
+      "filterByBestPracticesLabel": "Filter by best practices",
+      "filterByBestPracticesDescription": "Select if you want to only see best practice templates"
+    },
+    "labels": {
+      "dmpBestPractice": "DMP best practice"
+    }
+  },
+  "ProjectsProjectPlanAdjustMembers": {
+    "title": "Plan members",
+    "description": "Select the relevant members for <strong>this plan only </strong> from the list of project members shown below. Regardless of their role in this plan, they will remain as members of your",
+    "newWindow": "(new window)",
+    "contactPerson": "Contact person",
+    "headings": {
+      "h2MembersInThePlan": "Members of this plan only",
+      "h2MembersNotInPlan": "Project members not in this plan",
+      "h2AddProjectMember": "Adding a new member?",
+      "h2AllowOthers": "Allow others access to the project",
+      "h3PrimaryContact": "Primary contact"
+    },
+    "addProjectMemberInfo": "You can add any project member to this plan using the tickboxes above. If you want to add someone who isn't shown here, you must <strong>add them to the project first</strong>.",
+    "allowOthersToAccess": " You can allow others access to the project. This will grant them access to the project and all plans.",
+    "labels": {
+      "planMembers": "Plan members",
+      "orcid": "ORCIiD profile for {name}",
+      "removeFromPlan": "Remove from plan",
+      "addMemberToPlan": "Add to this plan"
+    },
+    "messaging": {
+      "success": {
+        "addedPlanMember": "Successfully added {fullName} as a plan member",
+        "removedPlanMember": "Successfully removed {fullName} as a plan member",
+        "updatedPlanMember": "Successfully updated {fullName} as a plan member"
+      },
+      "error": {
+        "memberNotFound": "Member not found."
+      }
+    },
+    "form": {
+      "select": {
+        "selectionIsRequired": "Selection is required",
+        "description": "The primary contact is required, this will be the primary lead contact which will be used if a DOI is created"
+      }
+    },
+    "links": {
+      "updateProjectMembers": "Update project members",
+      "inviteAPerson": "Invite a person"
     }
   }
 }
