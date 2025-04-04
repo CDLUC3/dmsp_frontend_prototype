@@ -319,7 +319,7 @@ const QuestionAdd = ({
           <p>{QuestionAdd('descriptions.previewText')}</p>
           <QuestionPreview
             buttonLabel={QuestionAdd('buttons.previewQuestion')}
-            buttonDisabled={question ? false : true}
+            previewDisabled={question ? false : true}
           >
             <QuestionView
               isPreview={true}

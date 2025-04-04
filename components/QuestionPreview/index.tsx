@@ -82,7 +82,7 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
         <Button
           onPress={() => setOpen(true)}
           data-testid="preview-button"
-          disabled={previewDisabled}
+          isDisabled={previewDisabled}
         >
           {buttonLabel ? buttonLabel : t("previewButton")}
         </Button>
@@ -108,7 +108,6 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 <h3>{t('previewNoticeTitle')}</h3>
                 <p>
                   {t('previewNoticeText')}
-
                 </p>
                 <Button
                   data-testid="preview-close-button"
