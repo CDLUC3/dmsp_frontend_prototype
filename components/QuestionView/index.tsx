@@ -33,7 +33,7 @@ import styles from './QuestionView.module.scss';
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
   isPreview: Boolean,
-  question: Question,
+  question: Question | null | undefined,
 }
 
 
@@ -44,6 +44,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   isPreview=false,
   question,
 }) => {
+
+  if (!question) return null;
 
   const trans = useTranslations('QuestionView');
   const {data: qtData} = useQuestionTypesQuery();
