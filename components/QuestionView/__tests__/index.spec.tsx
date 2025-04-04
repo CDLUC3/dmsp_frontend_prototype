@@ -18,21 +18,11 @@ jest.mock('@/generated/graphql', () => ({
   useTemplateQuery: jest.fn(),
 }));
 
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => (key) => {
-    const translations = {
-      "QuestionView.cardType": "Question",
-    };
-    return translations[key] || key;
-  }),
-  useLocale: jest.fn(() => 'en-US'),
-}));
-
 
 const mockQuestionTypes = {
   questionTypes: [
     {
-      id: "1",
+      id: 1,
       name: "Text Area",
     },
   ]
@@ -45,7 +35,7 @@ const mockQuestion = {
   requirementText: 'Question requirements',
   sampleText: 'Lorem ipsum dolor sit...',
   useSampleTextAsDefault: false,
-  questionTypeId: "1",
+  questionTypeId: 1,
 };
 
 
