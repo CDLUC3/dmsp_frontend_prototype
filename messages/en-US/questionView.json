@@ -6,6 +6,11 @@
     "guidanceBy": "Guidance by",
     "backToSection": "Back to Section",
     "saveButton": "Save",
-    "lastSaved": "Last Saved"
+    "lastSaved": "Last Saved",
+    "expandLink": "Expand",
+    "bestPractice": "Best practice by",
+    "dataSharingTitle": "Data Sharing",
+    "dataPreservationTitle": "Data Preservation",
+    "dataProtection": "Data Protection"
   }
 }

@@ -47,19 +47,12 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   const trans = useTranslations('QuestionView');
   const {data: qtData} = useQuestionTypesQuery();
-  const {
-    data: templateData,
-    loading: templatesLoading,
-    error: templateQueryErrors,
-    refetch: templateRefetch,
-  } = useTemplateQuery(
-    {
-      variables: {
-        templateId: Number(question?.templateId),
-      },
-      notifyOnNetworkStatusChange: true
-    }
-  );
+  const {data: templateData} = useTemplateQuery({
+    variables: {
+      templateId: Number(question?.templateId),
+    },
+    notifyOnNetworkStatusChange: true
+  });
   const [questionType, setQuestionType] = useState<string>('');
   const [editorContent, setEditorContent] = useState('');
 
@@ -106,7 +99,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               <DmpEditor
                 content={question?.useSampleTextAsDefault ? question.sampleText as string: ''}
                 setContent={setEditorContent}
-                data-testid="qt-textarea"
               />
             )}
 
@@ -158,7 +150,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
       <SidebarPanel>
         <p>
-          Best practice by
+          {trans('bestPractice')}
           <Image
             className={styles.Logo}
             src="/images/DMP-logo.svg"
@@ -168,29 +160,29 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         </p>
 
-        <h3>Data Sharing</h3>
+        <h3>{trans('dataSharingTitle')}</h3>
         <p>
           Give a summary of the data you will collect or create, noting the
           content, coverage and data type, for example tabular data, survey
           data, experimental measurements, models, software, audiovisual data,
           physical samples, etc.
         </p>
-        <p><a href="#">Expand</a></p>
+        <p><a href="#">{trans('expandLink')}</a></p>
 
-        <h3>Data Preservation</h3>
+        <h3>{trans('dataPreservationTitle')}</h3>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
           imperdiet tempor mi, in fringilla lectus viverra et. Suspendisse
           erat dolor, rutrum et tempor eu, ultricies quis nunc.
         </p>
-        <p><a href="#">Expand</a></p>
+        <p><a href="#">{trans('expandLink')}</a></p>
 
-        <h3>Data Protection</h3>
+        <h3>{trans('dataProtection')}</h3>
         <p>
           Quisque sit amet ex volutpat, imperdiet risus sit amet, malesuada
           enim.
         </p>
-        <p><a href="#">Expand</a></p>
+        <p><a href="#">{trans('expandLink')}</a></p>
       </SidebarPanel>
     </LayoutWithPanel>
   )
