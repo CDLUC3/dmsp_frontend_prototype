@@ -123,6 +123,7 @@
 .statusPanelContent {
   padding: var(--space-4);
   background-color: var(--gray-75);
+  border-radius: var(--border-radius-lg);
 
   h3 {
     font-size: var(--fs-h5);
@@ -148,12 +149,112 @@
     padding: 0;
     li {
       list-style: none;
-      display:flex;
-      flex-direction: row;
+      // display:flex;
+      // flex-direction: row;
 
       svg {
         margin-right: var(--space-2);
       }
     }
   }
+}
+
+
+.buttonContainer {
+  display: flex;
+  justify-content:space-between;
+  margin: var(--space-4) 0;
+}
+
+.panelRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.react-aria-Link {
+  font-size: var(--fs-small);
+  color: var(--slate-800);
+  margin-top: var(--space-1);
+  display: inline-block;
+  text-decoration:none;
+}
+
+.sidePanelContent {
+  border-top: 1px solid var(--gray-100);
+  padding-top: 20px;
+}
+
+.white {
+  color: var(--bg-white);
+}
+
+.black {
+  background-color: var(--slate-900);
+}
+
+.react-aria-Link {
+  font-size: var(--fs-small);
+  color: var(--slate-800);
+  margin-top: var(--space-1);
+  display: inline-block;
+}
+
+.sidePanelLink {
+  font-size: var(--fs-small);
+    color: var(--slate-800);
+    margin-top: var(--space-1);
+    display: inline-block;
+}
+
+.sidePanel {
+  a {
+    font-size: var(--fs-small);
+    color: var(--slate-800);
+    margin-top: var(--space-1);
+    display: inline-block;
+  }
+}
+
+.dialogWrapper {
+  a {
+    font-size: var(--fs-small);
+    color: var(--slate-800);
+    margin-top: var(--space-1);
+    display: inline-block;
+    white-space: normal;
+    word-break: break-word;
+    text-wrap-mode: wrap;
+  
+  }
+}
+
+.items {
+  display: inline-block;
+}
+
+.primaryContactChangeWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .linkButton {
+    padding-left: 0.25rem;
+  }
+  
+}
+
+.iconTextListItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+  align-items: start;
+  margin: var(--space-2) 0;
+}
+
+.iconWrapper {
+  margin-top: 2px; /* Optional: tweak vertical alignment */
+}
+
+.textWrapper {
+  line-height: 1.4;
 }

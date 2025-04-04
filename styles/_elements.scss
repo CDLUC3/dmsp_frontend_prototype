@@ -749,3 +749,12 @@
 .react-aria-CalendarCell {
   cursor: pointer;
 }
+
+.side-panel {
+  .react-aria-Link {
+    font-size: var(--fs-small);
+    color: var(--slate-800);
+    margin-top: var(--space-1);
+    display: inline-block;
+  }
+}

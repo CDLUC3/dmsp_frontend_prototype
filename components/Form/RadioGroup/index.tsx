@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import {
   FieldError,
   Label,
@@ -22,6 +22,11 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
   onChange
 }) => {
 
+  const renderDescription = (desc: string | ReactNode) => {
+    // If it's a string, just render it directly
+    // If it's a ReactNode, it will be rendered as JSX
+    return desc;
+  };
   return (
     <>
       <RadioGroup
@@ -41,7 +46,7 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
                 slot="description"
                 className={classNames('help', styles.radioDescription)}
               >
-                {radioButton.description}
+                {renderDescription(radioButton.description)}
               </Text>
             )}
           </div>

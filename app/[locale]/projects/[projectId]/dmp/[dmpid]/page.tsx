@@ -12,10 +12,14 @@ import {
   Form,
   Heading,
   Link,
+  ListBoxItem,
   Modal,
 } from 'react-aria-components';
 import {
+  PlanStatus,
+  PlanVisibility,
   usePlanQuery,
+  usePublishPlanMutation,
   PlanSectionProgress
 } from '@/generated/graphql';
 
@@ -28,26 +32,40 @@ import {
 import PageHeader from "@/components/PageHeader";
 import ErrorMessages from '@/components/ErrorMessages';
 import { DmpIcon } from "@/components/Icons";
+import {
+  FormSelect,
+  RadioGroupComponent
+} from '@/components/Form';
 
 import logECS from '@/utils/clientLogger';
 import { toSentenceCase } from '@/utils/general';
 import { routePath } from '@/utils/routes';
+import { useToast } from '@/context/ToastContext';
 import styles from './PlanOverviewPage.module.scss';
 
 interface PlanMember {
   fullname: string;
   role: string[];
+  orcid: string;
+  isPrimaryContact: boolean;
   email: string;
 }
 
+interface ListItemsInterface {
+  id: number;
+  content: JSX.Element;
+  completed: boolean;
+}[]
 
 interface PlanOverviewInterface {
   id: number | null;
+  dmpId: string;
   doi: string;
   lastUpdated?: string;
   createdDate?: string;
   templateName: string;
   title: string;
+  status: string;
   funderOpportunityNumber?: number | null;
   funderName: string;
   templateId: number | null;
@@ -55,7 +73,70 @@ interface PlanOverviewInterface {
   visibility: string;
   members: PlanMember[];
   sections: PlanSectionProgress[];
+  percentageAnswered: number;
 }
+
+const PUBLISHED = 'Published';
+const UNPUBLISHED = 'Unpublished';
+
+const radioData = {
+  radioGroupLabel: "Set visibility of yoru plan",
+  radioButtonData: [
+    {
+      value: 'public',
+      label: 'Public',
+      description: <><strong>All metadata will be visible to any user. Researchers will be able to view the contents of the plan itself.</strong></>
+    },
+    {
+      value: 'organizational',
+      label: 'Organization only',
+      description: <>The full plan will be visible to anyone within your Organization. <strong>Only basic metadata about your plan</strong> (title and collaborators) will be visible to users outside your organization.</>
+    },
+    {
+      value: 'private',
+      label: 'Private',
+      description: 'Only basic metadata about your plan (title and collaborators) will be visible to other users.'
+    }
+  ]
+}
+
+// Status options for dropdown
+const planStatusOptions = Object.entries(PlanStatus).map(([name, id]) => ({
+  id,
+  name
+}));
+
+const testSectionsData = [
+  {
+    answeredQuestions: 2,
+    displayOrder: 1,
+    sectionId: 1,
+    sectionTitle: "Roles & Responsibilities",
+    totalQuestions: 5
+  },
+  {
+    answeredQuestions: 1,
+    displayOrder: 2,
+    sectionId: 2,
+    sectionTitle: "Metadata",
+    totalQuestions: 3
+  },
+  {
+    answeredQuestions: 2,
+    displayOrder: 3,
+    sectionId: 3,
+    sectionTitle: "Sharing/Copying Issues",
+    totalQuestions: 5
+  },
+  {
+    answeredQuestions: 2,
+    displayOrder: 4,
+    sectionId: 4,
+    sectionTitle: "Long-term Preservation",
+    totalQuestions: 5
+  },
+
+]
 
 const PlanOverviewPage: React.FC = () => {
   // Get projectId and planId params
@@ -63,16 +144,25 @@ const PlanOverviewPage: React.FC = () => {
   const { dmpid: planId, projectId } = params; // From route /projects/:projectId/dmp/:dmpId
   // next-intl date formatter
   const formatter = useFormatter();
+  const toastState = useToast(); // Access the toast state from context
+
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
+  const [checklistItems, setCheckListItems] = useState<ListItemsInterface[]>([]);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  const [planVisibility, setPlanVisibility] = useState<PlanVisibility>(PlanVisibility.Private);
+  const [planStatus, setPlanStatus] = useState<PlanStatus | null>(null);
+  const [step, setStep] = useState(1);
   const [errors, setErrors] = useState<string[]>([]);
-
+  const [isEditingPlanStatus, setIsEditingPlanStatus] = useState(false);
   const [planData, setPlanData] = useState<PlanOverviewInterface>({
     id: null,
+    dmpId: '',
     doi: '',
     lastUpdated: '',
     createdDate: '',
     title: '',
+    status: '',
     templateName: '',
     funderOpportunityNumber: null,
     funderName: '',
@@ -80,12 +170,14 @@ const PlanOverviewPage: React.FC = () => {
     publishedStatus: '',
     visibility: '',
     members: [],
-    sections: []
+    sections: [],
+    percentageAnswered: 0
   });
 
   // Localization keys
   const t = useTranslations('PlanOverview');
   const Global = useTranslations('Global');
+
 
   // Get Plan using planId
   const { data, loading, error: queryError } = usePlanQuery(
@@ -95,39 +187,87 @@ const PlanOverviewPage: React.FC = () => {
     }
   );
 
+  // Initialize publish plan mutation
+  const [publishPlanMutation] = usePublishPlanMutation();
+
   const adjustFunderUrl = `/projects/${projectId}/dmp/${planId}/funder`;
   const adjustMembersUrl = `/projects/${projectId}/dmp/${planId}/members`;
   const adjustResearchoutputsUrl = `/projects/${projectId}/dmp/${planId}/research-outputs`;
   const downloadUrl = `/projects/${projectId}/dmp/${planId}/download`;
   const feedbackUrl = `/projects/${projectId}/dmp/${planId}/feedback`;
+  const changePrimaryContact = `/projects/${projectId}/dmp/${planId}/members`;
 
   //TODO: Get research output count from backend
   const researchOutputCount = 3;
 
-  // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
-  const saveTemplate = async () => {
-    try {
+  // Handle changes from RadioGroup
+  const handleRadioChange = (value: string) => {
+    const selection = value.toUpperCase();
+    if (Object.values(PlanVisibility).includes(selection as PlanVisibility)) {
+      setPlanVisibility(selection as PlanVisibility);
+    } else {
+      console.error(`Invalid visibility value: ${value}`);
+    }
+  };
 
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = "Successfully published your plan";
+    toastState.add(successMessage, { type: 'success' });
+  }
+
+
+
+  const updatePlan = async (visibility: PlanVisibility) => {
+    try {
+      const response = await publishPlanMutation({
+        variables: {
+          planId: Number(planId),
+          visibility
+        },
+      })
+
+      if (response) {
+        const responseErrors = response.data?.publishPlan?.errors;
+        // If there is a general error, set it in the pageErrors state
+        if (responseErrors?.general) {
+          setErrorMessages([responseErrors.general]);
+        } else {
+          setIsMarkCompleteModalOpen(false);
+          showSuccessToast();
+        }
+      }
     } catch (err) {
       if (err instanceof ApolloError) {
         //close modal
         setIsMarkCompleteModalOpen(false);
       } else {
-        setErrors(prevErrors => [...prevErrors, 'there was an error']);
-        logECS('error', 'saveTemplate', {
+        setErrors(prevErrors => [...prevErrors, Global('messaging.errors.somethingWentWrong')]);
+        logECS('error', 'updatePlan', {
           error: err,
-          url: { path: '/template/[templateId]' }
+          url: {
+            path: `/project/${projectId}/dmp/${planId}`
+          }
         });
       };
     }
   }
 
+  const handlePlanStatusChange = (e) => {
+    e.preventDefault = true;
+    setIsEditingPlanStatus(true);
+  }
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Do some stuff here
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
 
-    await saveTemplate();
+    // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
+    const visibility = formData.get('visibility')?.toString().toUpperCase() as PlanVisibility;
+
+    await updatePlan(visibility);
   };
 
   // Format date using next-intl date formatter
@@ -141,6 +281,18 @@ const PlanOverviewPage: React.FC = () => {
     return formattedDate.replace(/\//g, '-');
   }
 
+  const handlePlanStatusForm = (e) => {
+    e.preventDefault();
+    setIsEditingPlanStatus(false);
+  }
+
+  const calculatePercentageAnswered = (sections: PlanSectionProgress[]) => {
+    if (sections.length === 0) return 0;
+    const totalAnswered = sections.reduce((sum, section) => sum + section.answeredQuestions, 0);
+    const totalQuestions = sections.reduce((sum, section) => sum + section.totalQuestions, 0);
+    const overallPercentage = totalQuestions > 0 ? (totalAnswered / totalQuestions) * 100 : 0;
+    return Math.round(overallPercentage);
+  }
 
   useEffect(() => {
     // When data from backend changes, set project data in state
@@ -151,10 +303,12 @@ const PlanOverviewPage: React.FC = () => {
       setPlanData({
         id: Number(data?.plan.id) ?? null,
         doi: doi ?? '',
+        dmpId: data?.plan.dmpId ?? '',
         lastUpdated: formatDate(data?.plan?.modified ?? ''),
         createdDate: formatDate(data?.plan?.created ?? ''),
         templateName: data?.plan?.versionedTemplate?.template?.name ?? '',
         title: data?.plan?.project?.title ?? '',
+        status: data?.plan?.status ?? '',
         funderOpportunityNumber: Number(data?.plan?.project?.funders?.[0]?.funderOpportunityNumber) ?? '',
         funderName: data?.plan?.project?.funders?.[0]?.affiliation?.displayName ?? '',
         templateId: data?.plan?.versionedTemplate?.template?.id ?? null,
@@ -165,10 +319,12 @@ const PlanOverviewPage: React.FC = () => {
           .map((member) => ({
             fullname: `${member?.projectContributor?.givenName} ${member?.projectContributor?.surName}`,
             email: member?.projectContributor?.email ?? '',
+            orcid: member?.projectContributor?.orcid ?? '',
+            isPrimaryContact: member?.isPrimaryContact ?? false,
             role: (member?.projectContributor?.contributorRoles ?? []).map((role) => role.label),
           })) ?? [],
-        sections: data?.plan?.sections ?? [],
-
+        sections: testSectionsData ?? [],
+        percentageAnswered: calculatePercentageAnswered(testSectionsData ?? []) ?? 0,
       });
     }
   }, [data]);
@@ -180,15 +336,72 @@ const PlanOverviewPage: React.FC = () => {
     }
   }, [queryError])
 
+  useEffect(() => {
+    const listItems = [
+      {
+        id: 1,
+        content: (
+          <>
+            <strong>have a primary contact <Link href={changePrimaryContact} onPress={() => setIsMarkCompleteModalOpen(false)}>Jane Doe</Link></strong>
+          </>
+        ),
+        completed: planData.members.some(member => member.isPrimaryContact),
+      },
+      {
+        id: 2,
+        content: (
+          <>
+            marked your plan as <Link href="#" onPress={() => setIsMarkCompleteModalOpen(false)}>complete</Link>
+          </>
+        ),
+        completed: planData.status === 'COMPLETE',
+      },
+      {
+        id: 3,
+        content: (
+          <>
+            have answered at least 50% of the questions (you answered {planData.percentageAnswered}%)
+          </>
+        ),
+        completed: planData.percentageAnswered >= 50,
+      },
+      {
+        id: 4,
+        content: (
+          <>
+            have identified your (<Link href={adjustFunderUrl} onPress={() => setIsMarkCompleteModalOpen(false)}>funder(s)</Link>)
+          </>
+        ),
+        completed: !!planData.funderName, // Example: Check if funderName exists
+      },
+      {
+        id: 5,
+        content: <>completed all fields marked as "required"</>,
+        completed: false, // Example: Mark as not completed
+      },
+      {
+        id: 6,
+        content: (
+          <>
+            have designated the ORCiD for at least one of the <Link href={adjustMembersUrl} onPress={() => setIsMarkCompleteModalOpen(false)}>Project Members</Link>
+          </>
+        ),
+        completed: planData.members.some(member => member.orcid), // Example: Check if any member has an ORCiD
+      },
+    ];
+
+    setCheckListItems(listItems);
+  }, [planData]);
 
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
+  const handleDialogCloseBtn = () => {
+    setIsMarkCompleteModalOpen(false);
+    setStep(1);
+  }
 
-  // const handleMarkAsIncomplete = async () => {
-  //   setIsMarkCompleteModalOpen(false);
-  // };
 
   return (
     <>
@@ -309,7 +522,7 @@ const PlanOverviewPage: React.FC = () => {
                     </p>
                   </div>
                   <Link
-                    href={`/ en - US / projects / ${projectId} / dmp / ${planId} /s/${section.sectionId} `}
+                    href={`/projects/${projectId}/dmp/${planId}/s/${section.sectionId}`}
                     aria-label={t('sections.updateSection', {
                       title: section.sectionTitle
                     })}
@@ -320,133 +533,199 @@ const PlanOverviewPage: React.FC = () => {
                 </div>
               </section>
             ))}
-
-
           </div>
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={styles.statusPanel}>
-            <div className={styles.statusPanelHeader}>
-              <h2>{t('status.title')}</h2>
+          <div className={`${styles.statusPanelContent} ${styles.sidePanel} `}>
+            <div className={`${styles.buttonContainer} mb - 5`}>
+              <Button className="secondary">Preview</Button>
+              <Button
+                onPress={() => setIsMarkCompleteModalOpen(true)}
+              >
+                Publish
+              </Button>
             </div>
-            <div className={styles.statusPanelContent}>
-              <div className="mb-5">
-                <h3>{t('status.lastUpdated')}</h3>
-                <p>{planData.lastUpdated}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.publishedStatus')}</h3>
-                <p>{planData.publishedStatus}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.doi')}</h3>
-                <p>{planData.doi || t('status.notPublished')}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.visibilitySettings')}</h3>
-                <p>{planData.visibility}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.download.title')}</h3>
-                <p>
-                  <Link
-                    href={downloadUrl}>{t('status.download.downloadPDF')}</Link>
-                </p>
-                <p>
-                  {t('status.download.draftInfo')} <Link
-                    href={routePath('help.dmp.download')}>
-                    {t('status.download.learnMore')}
+            <div className={styles.sidePanelContent}>
+              <div className={`${styles.panelRow} mb-5`}>
+                <div>
+                  <h3>Feedback</h3>
+                  <p>No feedback</p>
+                </div>
+                <Link href={feedbackUrl} aria-label="Request feedback" >
+                  Request
+                </Link >
+              </div >
+              {isEditingPlanStatus ? (
+                <div>
+                  <h3>Plan Status</h3>
+                  <Form onSubmit={handlePlanStatusForm}>
+                    <FormSelect
+                      label=""
+                      ariaLabel="primary contact selection"
+                      isRequired
+                      name="institution"
+                      items={planStatusOptions}
+                      errorMessage={"Selection is required"}
+                      description={"Select a plan status"}
+                      onSelectionChange={(selected) => setPlanStatus(selected as PlanStatus)}
+                      selectedKey={planStatus ?? planData.status}
+                    >
+                      {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
+                    </FormSelect>
+                    {isEditingPlanStatus && (
+                      <Button type="submit">{Global('buttons.save')}</Button>
+                    )}
+                  </Form>
+                </div>
+              ) : (
+                <div className={`${styles.panelRow} mb-5`}>
+                  <div>
+                    <h3>Plan Status</h3>
+                    <p>{planData.status}</p>
+                  </div>
+                  <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={handlePlanStatusChange} aria-label="plan status">
+                    Update
                   </Link>
-                </p>
-                <Button
-                  className="react-aria-Button react-aria-Button--primary"
-                  onPress={() => setIsMarkCompleteModalOpen(true)}
-                >
-                  {t('status.download.markComplete')}
-                </Button>
+                </div>
+              )}
+
+              <div className={`${styles.panelRow} mb-5`}>
+                <div>
+                  <h3>Publish Status</h3>
+                  <p>{planData.dmpId ? PUBLISHED : UNPUBLISHED}</p>
+                </div>
+                <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={() => setIsMarkCompleteModalOpen(true)} aria-label="Publish plan">
+                  Publish
+                </Link>
               </div>
-              <div className="mb-5">
-                <h3>{t('status.feedback.title')}</h3>
-                <p>{t('status.feedback.description')}</p>
-                <p>
-                  <Link
-                    href={feedbackUrl}>{t('status.feedback.manageAccess')}</Link>
-                </p>
-                <button
-                  className="react-aria-Button react-aria-Button--secondary">
-                  {t('status.feedback.requestFeedback')}
-                </button>
+              <div className={`${styles.panelRow} mb-5`}>
+                <div>
+                  <h3>Download</h3>
+                </div>
+                <Link href={downloadUrl} aria-label="download">
+                  Download
+                </Link>
               </div>
-            </div>
-          </div>
-        </SidebarPanel>
+            </div >
+          </div >
+
+        </SidebarPanel >
       </LayoutWithPanel >
 
       <Modal isDismissable
         isOpen={isMarkCompleteModalOpen}
         data-testid="modal"
       >
-        <Dialog>
-          <div className={styles.markAsCompleteModal}>
-            <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
+
+        {step === 1 && (
+          <Dialog>
+            <div className={`${styles.markAsCompleteModal} ${styles.dialogWrapper}`}>
 
               <ErrorMessages errors={errors} ref={errorRef} />
-              <Heading slot="title">Marked as complete</Heading>
+              <Heading slot="title">Publish</Heading>
 
-              <p>We have updated your plan to completed - if you have made a mistake you can mark it as incomplete</p>
-
-              <Button className="tertiary" onPress={() => console.log("marked as incomplete")}>Mark as incomplete</Button>
-
-              <Link href="/download">Download plan</Link>
-
-              <Heading level={2}>Next step: Publish this plan</Heading>
-
-              <p>
-                Publishing a Data Management Plan (DMP) assigns it a Digital Object identifier (DOI). By publishing, you&apos;ll
-                be able to l ink this plan to your ORCIiD, and to protect outputs such articles which will make it easier to show templateHistoryyou met your funder&apos;s
-                requirements by the end of the project.
+              <p>Publishing a Data Management Plan (DMP) assigns it a Digital Object Identifier (DOI). By publishing, you&rsquo;ll be able to link this plan
+                to your ORCiD, and to project outputs such articles which will make it easier to show that you met your funder&rsquo;s requirements by the end of the project.
               </p>
 
               <p>
                 This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.
               </p>
 
-              <p>
-                Before you publish your plan, we strongly recommend that you:
-              </p>
+              <Heading level={2}>Before you publish your plan, we strongly recommend that you:</Heading>
 
               <ul className={styles.checkList}>
-                <li>
-                  <DmpIcon icon="check_circle" /> have answered at least 50% of the questions
-                </li>
-                <li>
-                  <DmpIcon icon="check_circle" /> have identified my funder(s)
-                </li>
-                <li>
-                  <span>
-                    <DmpIcon icon="error_circle" /> have designated the ORCiD for at least one of the Project Members(<Link href="#">fix this</Link>)
-                  </span>
-                </li>
-                <li>
-                  <DmpIcon icon="error_circle" /> another suggestion(<Link href="#">fix this</Link>)
-                </li>
-              </ul>
-              <span><strong>2 item(s) can be fixed</strong></span>
+                {checklistItems
+                  .filter(item => item.completed) // Filter for completed items
+                  .map(item => (
+                    <li key={item.id} className={styles.iconTextListItem}>
+                      <div className={styles.iconWrapper}>
+                        <DmpIcon
+                          icon="check_circle_black"
+                        />
+                      </div>
+                      <div className={styles.textWrapper}>
+                        {item.content}
+                      </div>
+                    </li>
+                  ))}
 
+                {/* Render incomplete items next */}
+                {checklistItems
+                  .filter(item => !item.completed) // Filter for incomplete items
+                  .map(item => (
+                    <li key={item.id} className={styles.iconTextListItem}>
+                      <div className={styles.iconWrapper}>
+                        <DmpIcon
+                          icon="error_circle"
+                        />
+                      </div>
+                      <div className={styles.textWrapper}>
+                        {item.content}
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+
+              <p>
+                <strong>{checklistItems.filter(item => !item.completed).length} item(s) can be fixed</strong>
+              </p>
 
               <div className="modal-actions">
                 <div className="">
-                  <Button data-secondary onPress={() => setIsMarkCompleteModalOpen(false)}>Close</Button>
+                  <Button data-secondary onPress={handleDialogCloseBtn}>Close</Button>
                 </div>
                 <div className="">
-                  <Button type="submit">Pubish the plan</Button>
+                  <Button
+                    type="submit"
+                    onPress={() => setStep(2)}
+                  >
+                    Next: Set visibility &gt;
+                  </Button>
                 </div>
               </div>
+            </div>
+          </Dialog>
+        )}
 
-            </Form>
-          </div>
-        </Dialog>
+        {step === 2 && (
+          <Dialog>
+            <div className={`${styles.markAsCompleteModal} ${styles.dialogWrapper}`}>
+              <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
+
+                <ErrorMessages errors={errors} ref={errorRef} />
+                <Heading slot="title">Publish: set visibility</Heading>
+
+                <p>
+                  Great, publishing your plan has many benefits.
+                </p>
+
+                <Heading level={2}>Set the visibility of your plan</Heading>
+
+                <RadioGroupComponent
+                  name="radioGroup"
+                  value={planVisibility.toLowerCase()}
+                  radioGroupLabel={radioData.radioGroupLabel}
+                  radioButtonData={radioData.radioButtonData}
+                  onChange={handleRadioChange}
+                />
+
+                <div className="modal-actions">
+                  <div className="">
+                    <Button data-secondary onPress={handleDialogCloseBtn}>Close</Button>
+                  </div>
+                  <div className="">
+                    <Button type="submit">Publish</Button>
+                  </div>
+                </div>
+
+              </Form>
+            </div>
+          </Dialog>
+        )}
+
+
       </Modal>
     </>
   );

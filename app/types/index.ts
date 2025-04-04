@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface EmailInterface {
   id?: number | null;
   email: string;
@@ -203,7 +205,7 @@ export interface ProjectSearchResultInterface {
   }[] | null;
   funders?: {
     name?: string | null;
-    grantId? : string | null;
+    grantId?: string | null;
   }[] | null;
 }
 
@@ -251,11 +253,11 @@ export interface Affiliation {
 interface RadioButtonInterface {
   value: string;
   label: string;
-  description?: string;
+  description?: string | ReactNode;
 }
 export interface RadioButtonProps {
   name: string;
-  description?: string;
+  description?: string | ReactNode;
   radioGroupLabel: string;
   radioButtonData: RadioButtonInterface[];
   value: string;

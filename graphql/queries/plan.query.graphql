@@ -25,10 +25,12 @@ query Plan($planId: Int!) {
       title
     }
     contributors {
+      isPrimaryContact
       projectContributor {
         givenName
         surName
         email
+        orcid
         contributorRoles {
           label
         }
