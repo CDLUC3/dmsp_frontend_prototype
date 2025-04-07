@@ -34,6 +34,12 @@ import styles from './QuestionView.module.scss';
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
   isPreview: Boolean,
   question: Question | null | undefined,
+
+  /**
+   * NOTE: We pass this explicitly, as we cannot predict or infer if the
+   * templateId will be available in the question object.
+   */
+  templateId: Number,
 }
 
 
@@ -43,6 +49,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   className='',
   isPreview=false,
   question,
+  templateId,
 }) => {
 
   if (!question) return null;
@@ -51,7 +58,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const {data: qtData} = useQuestionTypesQuery();
   const {data: templateData} = useTemplateQuery({
     variables: {
-      templateId: Number(question?.templateId),
+      templateId: templateId,
     },
     notifyOnNetworkStatusChange: true
   });

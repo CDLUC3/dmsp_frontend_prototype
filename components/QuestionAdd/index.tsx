@@ -324,6 +324,7 @@ const QuestionAdd = ({
             <QuestionView
               isPreview={true}
               question={question}
+              templateId={templateId}
             />
           </QuestionPreview>
 

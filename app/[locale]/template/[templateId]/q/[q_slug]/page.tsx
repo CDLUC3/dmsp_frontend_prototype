@@ -358,6 +358,7 @@ const QuestionEdit = () => {
             <QuestionView
               isPreview={true}
               question={question}
+              templateId={templateId}
             />
           </QuestionPreview>
 
