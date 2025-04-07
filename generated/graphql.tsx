@@ -749,7 +749,6 @@ export type Mutation = {
   updatePassword?: Maybe<User>;
   /** Chnage a Contributor's accessLevel on a Plan */
   updatePlanContributor?: Maybe<PlanContributor>;
-  updatePlanStatus?: Maybe<Plan>;
   /** Edit a project */
   updateProject?: Maybe<Project>;
   /** Chnage a collaborator's accessLevel on a Plan */
@@ -1168,12 +1167,6 @@ export type MutationUpdatePlanContributorArgs = {
 };
 
 
-export type MutationUpdatePlanStatusArgs = {
-  planId: Scalars['Int']['input'];
-  status: PlanStatus;
-};
-
-
 export type MutationUpdateProjectArgs = {
   input?: InputMaybe<UpdateProjectInput>;
 };
@@ -1583,9 +1576,7 @@ export enum PlanStatus {
   /** The Plan is ready for submission or download */
   Complete = 'COMPLETE',
   /** The Plan is still being written and reviewed */
-  Draft = 'DRAFT',
-  /** The Plan's DMP ID (DOI) has been registered */
-  Published = 'PUBLISHED'
+  Draft = 'DRAFT'
 }
 
 /** A version of the plan */

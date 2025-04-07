@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useEffect, useRef, useReducer, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { ApolloError } from "@apollo/client";
 import { useFormatter, useTranslations } from 'next-intl';
 import {
@@ -19,8 +19,8 @@ import {
   PlanStatus,
   PlanVisibility,
   usePlanQuery,
-  usePublishPlanMutation,
-  PlanSectionProgress
+  PlanSectionProgress,
+  PlanErrors
 } from '@/generated/graphql';
 
 //Components
@@ -40,6 +40,7 @@ import {
 import logECS from '@/utils/clientLogger';
 import { toSentenceCase } from '@/utils/general';
 import { routePath } from '@/utils/routes';
+import { publishPlanAction } from './action';
 import { useToast } from '@/context/ToastContext';
 import styles from './PlanOverviewPage.module.scss';
 
@@ -69,6 +70,7 @@ interface PlanOverviewInterface {
   funderOpportunityNumber?: number | null;
   funderName: string;
   templateId: number | null;
+  primaryContact: string;
   publishedStatus: string;
   visibility: string;
   members: PlanMember[];
@@ -79,26 +81,7 @@ interface PlanOverviewInterface {
 const PUBLISHED = 'Published';
 const UNPUBLISHED = 'Unpublished';
 
-const radioData = {
-  radioGroupLabel: "Set visibility of yoru plan",
-  radioButtonData: [
-    {
-      value: 'public',
-      label: 'Public',
-      description: <><strong>All metadata will be visible to any user. Researchers will be able to view the contents of the plan itself.</strong></>
-    },
-    {
-      value: 'organizational',
-      label: 'Organization only',
-      description: <>The full plan will be visible to anyone within your Organization. <strong>Only basic metadata about your plan</strong> (title and collaborators) will be visible to users outside your organization.</>
-    },
-    {
-      value: 'private',
-      label: 'Private',
-      description: 'Only basic metadata about your plan (title and collaborators) will be visible to other users.'
-    }
-  ]
-}
+
 
 // Status options for dropdown
 const planStatusOptions = Object.entries(PlanStatus).map(([name, id]) => ({
@@ -106,56 +89,27 @@ const planStatusOptions = Object.entries(PlanStatus).map(([name, id]) => ({
   name
 }));
 
-const testSectionsData = [
-  {
-    answeredQuestions: 2,
-    displayOrder: 1,
-    sectionId: 1,
-    sectionTitle: "Roles & Responsibilities",
-    totalQuestions: 5
-  },
-  {
-    answeredQuestions: 1,
-    displayOrder: 2,
-    sectionId: 2,
-    sectionTitle: "Metadata",
-    totalQuestions: 3
-  },
-  {
-    answeredQuestions: 2,
-    displayOrder: 3,
-    sectionId: 3,
-    sectionTitle: "Sharing/Copying Issues",
-    totalQuestions: 5
-  },
-  {
-    answeredQuestions: 2,
-    displayOrder: 4,
-    sectionId: 4,
-    sectionTitle: "Long-term Preservation",
-    totalQuestions: 5
-  },
 
-]
-
-const PlanOverviewPage: React.FC = () => {
-  // Get projectId and planId params
-  const params = useParams();
-  const { dmpid: planId, projectId } = params; // From route /projects/:projectId/dmp/:dmpId
-  // next-intl date formatter
-  const formatter = useFormatter();
-  const toastState = useToast(); // Access the toast state from context
-
-  const errorRef = useRef<HTMLDivElement | null>(null);
-  const [isMarkCompleteModalOpen, setIsMarkCompleteModalOpen] = useState(false);
-  const [checklistItems, setCheckListItems] = useState<ListItemsInterface[]>([]);
-  const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  const [planVisibility, setPlanVisibility] = useState<PlanVisibility>(PlanVisibility.Private);
-  const [planStatus, setPlanStatus] = useState<PlanStatus | null>(null);
-  const [step, setStep] = useState(1);
-  const [errors, setErrors] = useState<string[]>([]);
-  const [isEditingPlanStatus, setIsEditingPlanStatus] = useState(false);
-  const [planData, setPlanData] = useState<PlanOverviewInterface>({
+const initialState: {
+  isModalOpen: boolean;
+  checkListItems: ListItemsInterface[];
+  errorMessages: string[];
+  planVisibility: PlanVisibility;
+  planStatus: PlanStatus | null;
+  step: number;
+  errors: string[];
+  isEditingPlanStatus: boolean;
+  planData: PlanOverviewInterface;
+} = {
+  isModalOpen: false,
+  checkListItems: [] as ListItemsInterface[],
+  errorMessages: [] as string[],
+  planVisibility: PlanVisibility.Private,
+  planStatus: null,
+  step: 1,
+  errors: [] as string[],
+  isEditingPlanStatus: false,
+  planData: {
     id: null,
     dmpId: '',
     doi: '',
@@ -169,10 +123,63 @@ const PlanOverviewPage: React.FC = () => {
     templateId: null,
     publishedStatus: '',
     visibility: '',
-    members: [],
-    sections: [],
-    percentageAnswered: 0
-  });
+    primaryContact: '',
+    members: [] as PlanMember[],
+    sections: [] as PlanSectionProgress[],
+    percentageAnswered: 0,
+  },
+};
+
+type Action =
+  | { type: 'SET_IS_MODAL_OPEN'; payload: boolean }
+  | { type: 'SET_CHECKLIST_ITEMS'; payload: ListItemsInterface[] }
+  | { type: 'SET_ERROR_MESSAGES'; payload: string[] }
+  | { type: 'SET_PLAN_VISIBILITY'; payload: PlanVisibility }
+  | { type: 'SET_PLAN_STATUS'; payload: PlanStatus | null }
+  | { type: 'SET_STEP'; payload: number }
+  | { type: 'SET_ERRORS'; payload: string[] }
+  | { type: 'SET_IS_EDITING_PLAN_STATUS'; payload: boolean }
+  | { type: 'SET_PLAN_DATA'; payload: PlanOverviewInterface };
+
+type State = typeof initialState;
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'SET_IS_MODAL_OPEN':
+      return { ...state, isModalOpen: action.payload };
+    case 'SET_CHECKLIST_ITEMS':
+      return { ...state, checkListItems: action.payload };
+    case 'SET_ERROR_MESSAGES':
+      return { ...state, errorMessages: action.payload };
+    case 'SET_PLAN_VISIBILITY':
+      return { ...state, planVisibility: action.payload };
+    case 'SET_PLAN_STATUS':
+      return { ...state, planStatus: action.payload };
+    case 'SET_STEP':
+      return { ...state, step: action.payload };
+    case 'SET_ERRORS':
+      return { ...state, errors: action.payload };
+    case 'SET_IS_EDITING_PLAN_STATUS':
+      return { ...state, isEditingPlanStatus: action.payload };
+    case 'SET_PLAN_DATA':
+      return { ...state, planData: action.payload };
+    default:
+      return state;
+  }
+};
+
+const PlanOverviewPage: React.FC = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Get projectId and planId params
+  const params = useParams();
+  const router = useRouter();
+  const { dmpid: planId, projectId } = params; // From route /projects/:projectId/dmp/:dmpId
+  // next-intl date formatter
+  const formatter = useFormatter();
+  const toastState = useToast(); // Access the toast state from context
+
+  const errorRef = useRef<HTMLDivElement | null>(null);
 
   // Localization keys
   const t = useTranslations('PlanOverview');
@@ -187,9 +194,7 @@ const PlanOverviewPage: React.FC = () => {
     }
   );
 
-  // Initialize publish plan mutation
-  const [publishPlanMutation] = usePublishPlanMutation();
-
+  // Set URLs
   const adjustFunderUrl = `/projects/${projectId}/dmp/${planId}/funder`;
   const adjustMembersUrl = `/projects/${projectId}/dmp/${planId}/members`;
   const adjustResearchoutputsUrl = `/projects/${projectId}/dmp/${planId}/research-outputs`;
@@ -197,6 +202,29 @@ const PlanOverviewPage: React.FC = () => {
   const feedbackUrl = `/projects/${projectId}/dmp/${planId}/feedback`;
   const changePrimaryContact = `/projects/${projectId}/dmp/${planId}/members`;
 
+  // Set radio button data
+  const radioData = {
+    radioGroupLabel: t('publishModal.publish.visibilityOptionsTitle'),
+    radioButtonData: [
+      {
+        value: 'public',
+        label: t('publishModal.publish.visibilityOptions.public.label'),
+        description: <><strong>{t('publishModal.publish.visibilityOptions.public.description')}</strong></>
+      },
+      {
+        value: 'organizational',
+        label: t('publishModal.publish.visibilityOptions.organization.label'),
+        description: <>{t.rich('publishModal.publish.visibilityOptions.organization.description', {
+          strong: (chunks) => <strong>{chunks}</strong>
+        })}</>
+      },
+      {
+        value: 'private',
+        label: t('publishModal.publish.visibilityOptions.private.label'),
+        description: t('publishModal.publish.visibilityOptions.private.description')
+      }
+    ]
+  }
   //TODO: Get research output count from backend
   const researchOutputCount = 3;
 
@@ -204,58 +232,52 @@ const PlanOverviewPage: React.FC = () => {
   const handleRadioChange = (value: string) => {
     const selection = value.toUpperCase();
     if (Object.values(PlanVisibility).includes(selection as PlanVisibility)) {
-      setPlanVisibility(selection as PlanVisibility);
+      dispatch({
+        type: 'SET_PLAN_VISIBILITY',
+        payload: selection as PlanVisibility,
+      })
     } else {
       console.error(`Invalid visibility value: ${value}`);
     }
   };
 
-  // Show Success Message
-  const showSuccessToast = () => {
-    const successMessage = "Successfully published your plan";
-    toastState.add(successMessage, { type: 'success' });
-  }
-
-
-
   const updatePlan = async (visibility: PlanVisibility) => {
     try {
-      const response = await publishPlanMutation({
-        variables: {
-          planId: Number(planId),
-          visibility
-        },
+      const response = await publishPlanAction({
+        planId: Number(planId),
+        visibility
       })
 
-      if (response) {
-        const responseErrors = response.data?.publishPlan?.errors;
-        // If there is a general error, set it in the pageErrors state
-        if (responseErrors?.general) {
-          setErrorMessages([responseErrors.general]);
-        } else {
-          setIsMarkCompleteModalOpen(false);
-          showSuccessToast();
-        }
+      if (response.redirect) {
+        router.push(response.redirect);
       }
-    } catch (err) {
-      if (err instanceof ApolloError) {
-        //close modal
-        setIsMarkCompleteModalOpen(false);
-      } else {
-        setErrors(prevErrors => [...prevErrors, Global('messaging.errors.somethingWentWrong')]);
-        logECS('error', 'updatePlan', {
-          error: err,
-          url: {
-            path: `/project/${projectId}/dmp/${planId}`
-          }
-        });
-      };
+
+      return {
+        success: response.success,
+        errors: response.errors,
+        data: response.data
+      }
+    } catch (error) {
+      logECS('error', 'updatePlan', {
+        error: error,
+        url: {
+          path: `/project/${projectId}/dmp/${planId}`
+        }
+      });
     }
+    return {
+      success: false,
+      errors: ['Something went wrong. Please try again.'],
+      data: null
+    };
   }
 
   const handlePlanStatusChange = (e) => {
     e.preventDefault = true;
-    setIsEditingPlanStatus(true);
+    dispatch({
+      type: 'SET_IS_EDITING_PLAN_STATUS',
+      payload: true
+    });
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -267,7 +289,27 @@ const PlanOverviewPage: React.FC = () => {
     // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
     const visibility = formData.get('visibility')?.toString().toUpperCase() as PlanVisibility;
 
-    await updatePlan(visibility);
+    const result = await updatePlan(visibility);
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        dispatch({
+          type: 'SET_ERROR_MESSAGES',
+          payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
+        })
+      } else if (errors && typeof errors === 'object' && errors !== null) {
+        const errorObj = errors as PlanErrors;
+        // Handle errors as an object with general or field-level errors
+        dispatch({
+          type: 'SET_ERROR_MESSAGES',
+          payload: [errors.general || Global('messaging.somethingWentWrong')]
+        });
+      }
+    }
   };
 
   // Format date using next-intl date formatter
@@ -283,7 +325,10 @@ const PlanOverviewPage: React.FC = () => {
 
   const handlePlanStatusForm = (e) => {
     e.preventDefault();
-    setIsEditingPlanStatus(false);
+    dispatch({
+      type: 'SET_IS_EDITING_PLAN_STATUS',
+      payload: false
+    });
   }
 
   const calculatePercentageAnswered = (sections: PlanSectionProgress[]) => {
@@ -300,39 +345,49 @@ const PlanOverviewPage: React.FC = () => {
       const doiRegex = /(?:https?:\/\/(?:dx\.)?doi\.org\/|doi:)([^\/\s]+\/[^\/\s]+)/i;
       const match = data?.plan?.dmpId?.match(doiRegex);
       const doi = (match && match[1]) ? match[1] : data?.plan?.dmpId;
-      setPlanData({
-        id: Number(data?.plan.id) ?? null,
-        doi: doi ?? '',
-        dmpId: data?.plan.dmpId ?? '',
-        lastUpdated: formatDate(data?.plan?.modified ?? ''),
-        createdDate: formatDate(data?.plan?.created ?? ''),
-        templateName: data?.plan?.versionedTemplate?.template?.name ?? '',
-        title: data?.plan?.project?.title ?? '',
-        status: data?.plan?.status ?? '',
-        funderOpportunityNumber: Number(data?.plan?.project?.funders?.[0]?.funderOpportunityNumber) ?? '',
-        funderName: data?.plan?.project?.funders?.[0]?.affiliation?.displayName ?? '',
-        templateId: data?.plan?.versionedTemplate?.template?.id ?? null,
-        publishedStatus: toSentenceCase(data?.plan?.status ?? ''),
-        visibility: toSentenceCase(data?.plan?.visibility ?? ''),
-        members: data.plan.contributors
-          ?.filter((member) => member !== null) // Filter out null
-          .map((member) => ({
-            fullname: `${member?.projectContributor?.givenName} ${member?.projectContributor?.surName}`,
-            email: member?.projectContributor?.email ?? '',
-            orcid: member?.projectContributor?.orcid ?? '',
-            isPrimaryContact: member?.isPrimaryContact ?? false,
-            role: (member?.projectContributor?.contributorRoles ?? []).map((role) => role.label),
-          })) ?? [],
-        sections: testSectionsData ?? [],
-        percentageAnswered: calculatePercentageAnswered(testSectionsData ?? []) ?? 0,
-      });
+      dispatch({
+        type: 'SET_PLAN_DATA',
+        payload: {
+          id: Number(data?.plan.id) ?? null,
+          doi: doi ?? '',
+          dmpId: data?.plan.dmpId ?? '',
+          lastUpdated: formatDate(data?.plan?.modified ?? ''),
+          createdDate: formatDate(data?.plan?.created ?? ''),
+          templateName: data?.plan?.versionedTemplate?.template?.name ?? '',
+          title: data?.plan?.project?.title ?? '',
+          status: data?.plan?.status ?? '',
+          funderOpportunityNumber: Number(data?.plan?.project?.funders?.[0]?.funderOpportunityNumber) ?? '',
+          funderName: data?.plan?.project?.funders?.[0]?.affiliation?.displayName ?? '',
+          templateId: data?.plan?.versionedTemplate?.template?.id ?? null,
+          publishedStatus: toSentenceCase(data?.plan?.status ?? ''),
+          visibility: toSentenceCase(data?.plan?.visibility ?? ''),
+          primaryContact: data.plan.contributors
+            ?.filter(member => member?.isPrimaryContact === true)
+            ?.map(member => member?.projectContributor?.givenName + ' ' + member?.projectContributor?.surName)
+            ?.join(', ') ?? '',
+          members: data.plan.contributors
+            ?.filter((member) => member !== null) // Filter out null
+            .map((member) => ({
+              fullname: `${member?.projectContributor?.givenName} ${member?.projectContributor?.surName}`,
+              email: member?.projectContributor?.email ?? '',
+              orcid: member?.projectContributor?.orcid ?? '',
+              isPrimaryContact: member?.isPrimaryContact ?? false,
+              role: (member?.projectContributor?.contributorRoles ?? []).map((role) => role.label),
+            })) ?? [],
+          sections: data?.plan?.sections ?? [],
+          percentageAnswered: calculatePercentageAnswered(data?.plan?.sections ?? []) ?? 0,
+        },
+      })
     }
   }, [data]);
 
 
   useEffect(() => {
     if (queryError) {
-      setErrors(prev => [...prev, queryError.message]);
+      dispatch({
+        type: 'SET_ERRORS',
+        payload: [...state.errors, queryError.message]
+      });
     }
   }, [queryError])
 
@@ -342,86 +397,95 @@ const PlanOverviewPage: React.FC = () => {
         id: 1,
         content: (
           <>
-            <strong>have a primary contact <Link href={changePrimaryContact} onPress={() => setIsMarkCompleteModalOpen(false)}>Jane Doe</Link></strong>
+            <strong>{t('publishModal.publish.checklistItem.primaryContact')} <Link href={changePrimaryContact} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{state.planData.primaryContact}</Link></strong>
           </>
         ),
-        completed: planData.members.some(member => member.isPrimaryContact),
+        completed: state.planData.members.some(member => member.isPrimaryContact),
       },
       {
         id: 2,
         content: (
           <>
-            marked your plan as <Link href="#" onPress={() => setIsMarkCompleteModalOpen(false)}>complete</Link>
+            {t('publishModal.publish.checklistItem.complete')}
           </>
         ),
-        completed: planData.status === 'COMPLETE',
+        completed: state.planData.status === 'COMPLETE',
       },
       {
         id: 3,
         content: (
           <>
-            have answered at least 50% of the questions (you answered {planData.percentageAnswered}%)
+            {t('publishModal.publish.checklistItem.percentageAnswered', { percentage: state.planData.percentageAnswered })}
+
           </>
         ),
-        completed: planData.percentageAnswered >= 50,
+        completed: state.planData.percentageAnswered >= 50,
       },
       {
         id: 4,
         content: (
           <>
-            have identified your (<Link href={adjustFunderUrl} onPress={() => setIsMarkCompleteModalOpen(false)}>funder(s)</Link>)
+            {t('publishModal.publish.checklistItem.funderText')} (<Link href={adjustFunderUrl} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.funder')}</Link>)
           </>
         ),
-        completed: !!planData.funderName, // Example: Check if funderName exists
+        completed: !!state.planData.funderName, // Example: Check if funderName exists
       },
       {
         id: 5,
-        content: <>completed all fields marked as "required"</>,
+        content: <>{t('publishModal.publish.checklistItem.requiredFields')}</>,
         completed: false, // Example: Mark as not completed
       },
       {
         id: 6,
         content: (
           <>
-            have designated the ORCiD for at least one of the <Link href={adjustMembersUrl} onPress={() => setIsMarkCompleteModalOpen(false)}>Project Members</Link>
+            {t('publishModal.publish.checklistItem.orcidText')} <Link href={adjustMembersUrl} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.projectMembers')}</Link>
           </>
         ),
-        completed: planData.members.some(member => member.orcid), // Example: Check if any member has an ORCiD
+        completed: state.planData.members.some(member => member.orcid), // Example: Check if any member has an ORCiD
       },
     ];
-
-    setCheckListItems(listItems);
-  }, [planData]);
+    dispatch({
+      type: 'SET_CHECKLIST_ITEMS',
+      payload: listItems
+    });
+  }, [state.planData]);
 
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
   const handleDialogCloseBtn = () => {
-    setIsMarkCompleteModalOpen(false);
-    setStep(1);
+    dispatch({
+      type: 'SET_IS_MODAL_OPEN',
+      payload: false
+    });
+    dispatch({
+      type: 'SET_STEP',
+      payload: 1
+    })
   }
 
 
   return (
     <>
       <PageHeader
-        title={planData.title}
+        title={state.planData.title}
         description={t('page.pageDescription')}
         showBackButton={false}
         breadcrumbs={
-          <Breadcrumbs aria-label={t('navigation.navigation')}>
+          <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects/proj_2425/">{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb>{planData.title}</Breadcrumb>
+            <Breadcrumb>{state.planData.title}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
         className="page-project-list"
       />
 
-      <ErrorMessages errors={errors} ref={errorRef} />
+      <ErrorMessages errors={state.errors} ref={errorRef} />
       <LayoutWithPanel>
         <ContentContainer>
           <div className={"container"}>
@@ -434,7 +498,7 @@ const PlanOverviewPage: React.FC = () => {
                     {t('funder.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
-                    {planData.funderName}
+                    {state.planData.funderName}
                   </p>
                 </div>
                 <Link href={adjustFunderUrl}
@@ -451,13 +515,13 @@ const PlanOverviewPage: React.FC = () => {
                     {t('members.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
-                    {planData.members.map((member, index) => (
+                    {state.planData.members.map((member, index) => (
                       <span key={index}>
                         {t('members.info', {
                           name: member.fullname,
                           role: member.role.map((role) => role).join(', ')
                         })}
-                        {index < planData.members.length - 1 ? '; ' : ''}
+                        {index < state.planData.members.length - 1 ? '; ' : ''}
                       </span>
                     ))}
                   </p>
@@ -487,7 +551,7 @@ const PlanOverviewPage: React.FC = () => {
             </div>
 
 
-            {planData.sections.map((section) => (
+            {state.planData.sections.map((section) => (
               <section
                 key={section.sectionId}
                 className={styles.planSectionsList}
@@ -539,41 +603,38 @@ const PlanOverviewPage: React.FC = () => {
         <SidebarPanel>
           <div className={`${styles.statusPanelContent} ${styles.sidePanel} `}>
             <div className={`${styles.buttonContainer} mb - 5`}>
-              <Button className="secondary">Preview</Button>
+              <Button className="secondary">{Global('buttons.preview')}</Button>
               <Button
-                onPress={() => setIsMarkCompleteModalOpen(true)}
+                onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })}
               >
-                Publish
+                {Global('buttons.publish')}
               </Button>
             </div>
             <div className={styles.sidePanelContent}>
               <div className={`${styles.panelRow} mb-5`}>
                 <div>
-                  <h3>Feedback</h3>
+                  <h3>{t('status.feedback.title')}</h3>
                   <p>No feedback</p>
                 </div>
                 <Link href={feedbackUrl} aria-label="Request feedback" >
-                  Request
+                  {Global('links.request')}
                 </Link >
               </div >
-              {isEditingPlanStatus ? (
+              {state.isEditingPlanStatus ? (
                 <div>
-                  <h3>Plan Status</h3>
-                  <Form onSubmit={handlePlanStatusForm}>
+                  <Form onSubmit={handlePlanStatusForm} className={styles.statusForm}>
                     <FormSelect
-                      label=""
-                      ariaLabel="primary contact selection"
+                      label={t('status.title')}
+                      ariaLabel={t('status.select.label')}
                       isRequired
-                      name="institution"
+                      name="planStatus"
                       items={planStatusOptions}
-                      errorMessage={"Selection is required"}
-                      description={"Select a plan status"}
-                      onSelectionChange={(selected) => setPlanStatus(selected as PlanStatus)}
-                      selectedKey={planStatus ?? planData.status}
+                      onSelectionChange={(selected) => dispatch({ type: 'SET_PLAN_STATUS', payload: selected as PlanStatus })}
+                      selectedKey={state.planStatus ?? state.planData.status}
                     >
                       {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
                     </FormSelect>
-                    {isEditingPlanStatus && (
+                    {state.isEditingPlanStatus && (
                       <Button type="submit">{Global('buttons.save')}</Button>
                     )}
                   </Form>
@@ -581,30 +642,30 @@ const PlanOverviewPage: React.FC = () => {
               ) : (
                 <div className={`${styles.panelRow} mb-5`}>
                   <div>
-                    <h3>Plan Status</h3>
-                    <p>{planData.status}</p>
+                    <h3>{t('status.title')}</h3>
+                    <p>{state.planData.status}</p>
                   </div>
-                  <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={handlePlanStatusChange} aria-label="plan status">
-                    Update
+                  <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
+                    {Global('buttons.linkUpdate')}
                   </Link>
                 </div>
               )}
 
               <div className={`${styles.panelRow} mb-5`}>
                 <div>
-                  <h3>Publish Status</h3>
-                  <p>{planData.dmpId ? PUBLISHED : UNPUBLISHED}</p>
+                  <h3>{t('status.publish.title')}</h3>
+                  <p>{state.planData.dmpId ? PUBLISHED : UNPUBLISHED}</p>
                 </div>
-                <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={() => setIsMarkCompleteModalOpen(true)} aria-label="Publish plan">
-                  Publish
+                <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })} aria-label={t('status.publish.label')}>
+                  {t('status.publish.label')}
                 </Link>
               </div>
               <div className={`${styles.panelRow} mb-5`}>
                 <div>
-                  <h3>Download</h3>
+                  <h3>{t('status.download.title')}</h3>
                 </div>
                 <Link href={downloadUrl} aria-label="download">
-                  Download
+                  {t('status.download.title')}
                 </Link>
               </div>
             </div >
@@ -614,16 +675,16 @@ const PlanOverviewPage: React.FC = () => {
       </LayoutWithPanel >
 
       <Modal isDismissable
-        isOpen={isMarkCompleteModalOpen}
+        isOpen={state.isModalOpen}
         data-testid="modal"
       >
 
-        {step === 1 && (
+        {state.step === 1 && (
           <Dialog>
             <div className={`${styles.markAsCompleteModal} ${styles.dialogWrapper}`}>
 
-              <ErrorMessages errors={errors} ref={errorRef} />
-              <Heading slot="title">Publish</Heading>
+              <ErrorMessages errors={state.errors} ref={errorRef} />
+              <Heading slot="title">{t('publishModal.publish.title')}</Heading>
 
               <p>Publishing a Data Management Plan (DMP) assigns it a Digital Object Identifier (DOI). By publishing, you&rsquo;ll be able to link this plan
                 to your ORCiD, and to project outputs such articles which will make it easier to show that you met your funder&rsquo;s requirements by the end of the project.
@@ -633,10 +694,10 @@ const PlanOverviewPage: React.FC = () => {
                 This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.
               </p>
 
-              <Heading level={2}>Before you publish your plan, we strongly recommend that you:</Heading>
+              <Heading level={2}>{t('publishModal.publish.checklistTitle')}</Heading>
 
               <ul className={styles.checkList}>
-                {checklistItems
+                {state.checkListItems
                   .filter(item => item.completed) // Filter for completed items
                   .map(item => (
                     <li key={item.id} className={styles.iconTextListItem}>
@@ -652,7 +713,7 @@ const PlanOverviewPage: React.FC = () => {
                   ))}
 
                 {/* Render incomplete items next */}
-                {checklistItems
+                {state.checkListItems
                   .filter(item => !item.completed) // Filter for incomplete items
                   .map(item => (
                     <li key={item.id} className={styles.iconTextListItem}>
@@ -669,19 +730,19 @@ const PlanOverviewPage: React.FC = () => {
               </ul>
 
               <p>
-                <strong>{checklistItems.filter(item => !item.completed).length} item(s) can be fixed</strong>
+                <strong>{state.checkListItems.filter(item => !item.completed).length} {t('publishModal.publish.checklistInfo')}</strong>
               </p>
 
               <div className="modal-actions">
                 <div className="">
-                  <Button data-secondary onPress={handleDialogCloseBtn}>Close</Button>
+                  <Button data-secondary onPress={handleDialogCloseBtn}>{Global('buttons.close')}</Button>
                 </div>
                 <div className="">
                   <Button
                     type="submit"
-                    onPress={() => setStep(2)}
+                    onPress={() => dispatch({ type: 'SET_STEP', payload: 2 })}
                   >
-                    Next: Set visibility &gt;
+                    {t('publishModal.publish.buttonNext')}
                   </Button>
                 </div>
               </div>
@@ -689,23 +750,23 @@ const PlanOverviewPage: React.FC = () => {
           </Dialog>
         )}
 
-        {step === 2 && (
+        {state.step === 2 && (
           <Dialog>
             <div className={`${styles.markAsCompleteModal} ${styles.dialogWrapper}`}>
               <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
 
-                <ErrorMessages errors={errors} ref={errorRef} />
-                <Heading slot="title">Publish: set visibility</Heading>
+                <ErrorMessages errors={state.errors} ref={errorRef} />
+                <Heading slot="title">{t('publishModal.publish.visibilityTitle')}</Heading>
 
                 <p>
-                  Great, publishing your plan has many benefits.
+                  {t('publishModal.publish.visibilityDescription')}
                 </p>
 
-                <Heading level={2}>Set the visibility of your plan</Heading>
+                <Heading level={2}>{t('publishModal.publish.visibilityOptionsTitle')}</Heading>
 
                 <RadioGroupComponent
-                  name="radioGroup"
-                  value={planVisibility.toLowerCase()}
+                  name="visibility"
+                  value={state.planVisibility.toLowerCase()}
                   radioGroupLabel={radioData.radioGroupLabel}
                   radioButtonData={radioData.radioButtonData}
                   onChange={handleRadioChange}
@@ -713,10 +774,10 @@ const PlanOverviewPage: React.FC = () => {
 
                 <div className="modal-actions">
                   <div className="">
-                    <Button data-secondary onPress={handleDialogCloseBtn}>Close</Button>
+                    <Button data-secondary onPress={handleDialogCloseBtn}>{Global('buttons.close')}</Button>
                   </div>
                   <div className="">
-                    <Button type="submit">Publish</Button>
+                    <Button type="submit">{t('publishModal.publish.title')}</Button>
                   </div>
                 </div>
 
@@ -724,8 +785,6 @@ const PlanOverviewPage: React.FC = () => {
             </div>
           </Dialog>
         )}
-
-
       </Modal>
     </>
   );

@@ -1,21 +1,21 @@
 "use server";
 
-import { AddPlanContributorDocument } from "@/generated/graphql";
+import { PublishPlanDocument } from "@/generated/graphql";
 import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
 import logger from "@/utils/logger";
 
 
-export async function addPlanContributorAction({
+export async function publishPlanAction({
   planId,
-  projectContributorId,
+  visibility
 }: {
   planId: number;
-  projectContributorId: number;
+  visibility: string;
 }) {
 
   try {
     // Extract mutation string from the generated document
-    const mutationString = AddPlanContributorDocument.loc?.source.body;
+    const mutationString = PublishPlanDocument.loc?.source.body;
 
     if (!mutationString) {
       logger.error("Could not extract mutation string from document");
@@ -28,13 +28,13 @@ export async function addPlanContributorAction({
     // Execute the mutation using the shared handler
     return executeGraphQLMutation({
       mutationString,
-      variables: { planId, projectContributorId },
-      errorPath: "addPlanContributor.errors",
-      dataPath: "addPlanContributor"
+      variables: { planId, visibility },
+      errorPath: "publishPlan.errors",
+      dataPath: "publishPlan"
     });
 
   } catch (error) {
-    logger.error(`[Add Plan Contributor Error]: ${error}`, { error });
+    logger.error(`[Publish Plan Error]: ${error}`, { error });
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

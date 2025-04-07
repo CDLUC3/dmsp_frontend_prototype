@@ -14,7 +14,6 @@
     },
     "members": {
       "title": "Plan members for this plan",
-      "count": "{count} team members",
       "info": "{name} ({role})",
       "edit": "Adjust for this plan"
     },
@@ -36,50 +35,33 @@
       "updateSection": "Update {title}"
     },
     "status": {
-      "title": "Status",
-      "lastUpdated": "Last updated",
-      "publishedStatus": "Published status",
-      "doi": "DOI",
-      "notPublished": "Not published",
-      "visibilitySettings": "Visibility settings",
+      "title": "Plan status",
+      "select": {
+        "label": "Select a plan status",
+        "changeLabel": "Change plan status"
+      },
+      "publish": {
+        "title": "Publish status",
+        "label": "Publish"
+      },
       "download": {
-        "title": "Download",
-        "downloadPDF": "Download this plan",
-        "draftInfo": "When you save as draft, only you and people with shared access will be able to see this plan.",
-        "learnMore": "Learn more",
-        "markComplete": "Mark as complete"
+        "title": "Download"
       },
       "feedback": {
-        "title": "Feedback & Collaboration",
-        "description": "Allow people to access, edit or comment on this plan",
-        "manageAccess": "Manage access",
-        "requestFeedback": "Request feedback"
+        "title": "Feedback"
       }
     },
     "publishModal": {
-      "markComplete": {
-        "title": "Marked as complete.",
-        "description": "We have updated your plan to completed - if you have made a mistake you can mark it as incomplete",
-        "markIncompleteButton": "Mark as incomplete",
-        "step1Title": "Step 1: Download",
-        "step1Description": "You can download the completed plan",
-        "step2Title": "Step 2: Publish the plan (Recommended)",
-        "step2Description": "Publishing a Data Management Plan (DMP) assigns it a Digital Object Identifier (DOI). This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.",
-        "closeButton": "Close",
-        "publishButton": "Publish the plan"
-      },
-      "markIncomplete": {
-        "title": "Marked as incomplete.",
-        "description": "We have updated your plan as incomplete.",
-        "closeButton": "Close",
-        "markCompleteButton": "Mark as complete"
-      },
       "publish": {
         "title": "Publish",
-        "description1": "Publishing a Data Management Plan (DMP) marks it as \"complete\" and assigns it a Digital Object Identifier (DOI).",
+        "description1": "Publishing a Data Management Plan (DMP) assigns it a Digital Object Identifier (DOI). By publishing, you&rsquo;ll be able to link this plan to your ORCiD, and to project outputs such articles which will make it easier to show that you met your funder&rsquo;s requirements by the end of the project.",
         "description2": "This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.",
-        "visibilityTitle": "Visibility Settings",
-        "visibilityDescription": "You can control what parts of your plan are or are not visible once it is published.",
+        "checklistTitle": "Before you publish your plan, we strongly recommend that you:",
+        "checklistInfo": "item(s) can be fixed",
+        "buttonNext": "Next: Set visibility >",
+        "visibilityTitle": "Publish: set visibility",
+        "visibilityDescription": "Great, publishing your plan has many benefits.",
+        "visibilityOptionsTitle": "Set the visibility of your plan",
         "visibilityOptions": {
           "public": {
             "label": "Public (recommended)",
@@ -87,14 +69,23 @@
           },
           "organization": {
             "label": "Organization only",
-            "description": "The full plan will be visible to anyone within your Organization. Only basic metadata about your plan (title and collaborators) will be visible to users outside your organization."
+            "description": "The full plan will be visible to anyone within your Organization. <strong>Only basic metadata about your plan</strong> (title and collaborators) will be visible to users outside your organization."
           },
           "private": {
             "label": "Private",
             "description": "Only basic metadata about your plan (title and collaborators) will be visible to other users."
           }
         },
-        "closeButton": "Close",
+        "checklistItem": {
+          "primaryContact": "have a primary contact",
+          "complete": "marked your plan as complete",
+          "percentageAnswered": "have answered at least 50% of the questions (you answered {percentage}%",
+          "funderText": "have identified your",
+          "funder": "funder(s)",
+          "requiredFields": "completed all fields marked as 'required'",
+          "orcidText": "have designated the ORCiD for at least one of the",
+          "projectMembers": "Project members"
+        },
         "publishButton": "Publish"
       }
     }

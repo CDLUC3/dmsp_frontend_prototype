@@ -17,7 +17,7 @@ import {
   ListBoxItem
 } from "react-aria-components";
 import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import classNames from 'classnames';
 
@@ -51,6 +51,7 @@ import { addPlanContributorAction } from './action';
 import { ProjectContributorsInterface } from '@/app/types';
 import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
+import { errors } from 'jose';
 
 interface PlanContributorDropdown {
   id: string;
@@ -128,6 +129,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
   // Get projectId and dmpId params from route /projects/:projectId/dmp/:dmpId
   const params = useParams();
+  const router = useRouter();
   const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
   const dmpId = Array.isArray(params.dmpid) ? params.dmpid[0] : params.dmpid;
 
@@ -188,14 +190,18 @@ const ProjectsProjectPlanAdjustMembers = () => {
   const addPlanContributor = async (id: number) => {
     try {
       const response = await addPlanContributorAction({
-
         planId: Number(dmpId),
         projectContributorId: id
-
       });
 
-      if (response.data?.addPlanContributor?.errors) {
-        return response.data.addPlanContributor.errors;
+      if (response.redirect) {
+        router.push(response.redirect);
+      }
+
+      return {
+        success: response.success,
+        errors: response.errors,
+        data: response.data
       }
     } catch (error) {
       logECS('error', 'addPlanContributor', {
@@ -203,17 +209,38 @@ const ProjectsProjectPlanAdjustMembers = () => {
         url: { path: PLAN_MEMBERS_ROUTE }
       });
     }
-    return {};
+    return {
+      success: false,
+      errors: ['Something went wrong. Please try again.'],
+      data: null
+    };
   };
 
   // handle adding of plan contributor
   const handleAddPlanContributor = async (memberId: number | null) => {
     if (memberId) {
-      const errors = await addPlanContributor(memberId);
+      const result = await addPlanContributor(memberId);
 
-      if (errors && Object.values(errors).filter((err) => err && err !== 'PlanContributorErrors').length > 0) {
-        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [errors.general || Global('messaging.somethingWentWrong')] });
+      if (!result.success) {
+        const errors = result.errors;
+
+        //Check if errors is an array or an object
+        if (Array.isArray(errors)) {
+          //Handle errors as an array
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
+          })
+        } else if (errors && typeof errors === 'object' && errors !== null) {
+          const errorObj = errors as PlanContributorErrors;
+          // Handle errors as an object with general or field-level errors
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: [errors.general || Global('messaging.somethingWentWrong')]
+          });
+        }
       } else {
+        // Then mutation was successful
         dispatch({ type: 'ADD_PLAN_MEMBER_ID', payload: memberId });
         await refetch(); //Need to refresh the primary contact dropdown after adding a new member
         const planMemberAdded = projectContributors?.find((contributor) => contributor.id === memberId);
