@@ -13,6 +13,7 @@ import {
   Link,
   ListBoxItem,
   Modal,
+  PressEvent
 } from 'react-aria-components';
 import {
   PlanStatus,
@@ -273,8 +274,7 @@ const PlanOverviewPage: React.FC = () => {
     };
   }
 
-  const handlePlanStatusChange = (e) => {
-    e.preventDefault = true;
+  const handlePlanStatusChange = (e: PressEvent) => {
     dispatch({
       type: 'SET_IS_EDITING_PLAN_STATUS',
       payload: true
@@ -324,7 +324,7 @@ const PlanOverviewPage: React.FC = () => {
     return formattedDate.replace(/\//g, '-');
   }
 
-  const handlePlanStatusForm = (e) => {
+  const handlePlanStatusForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch({
       type: 'SET_IS_EDITING_PLAN_STATUS',
