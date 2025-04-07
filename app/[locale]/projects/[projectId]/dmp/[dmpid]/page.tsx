@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useReducer, useState } from 'react';
+import { useEffect, useRef, useReducer } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
 import {
@@ -13,14 +13,12 @@ import {
   Link,
   ListBoxItem,
   Modal,
-  PressEvent
 } from 'react-aria-components';
 import {
   PlanStatus,
   PlanVisibility,
   usePlanQuery,
   PlanSectionProgress,
-  PlanErrors
 } from '@/generated/graphql';
 
 //Components
@@ -41,7 +39,6 @@ import logECS from '@/utils/clientLogger';
 import { toSentenceCase } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { publishPlanAction } from './action';
-import { useToast } from '@/context/ToastContext';
 import styles from './PlanOverviewPage.module.scss';
 
 interface PlanMember {
@@ -179,7 +176,6 @@ const PlanOverviewPage: React.FC = () => {
   const planId = Number(dmpId);
   // next-intl date formatter
   const formatter = useFormatter();
-  const toastState = useToast(); // Access the toast state from context
 
   const errorRef = useRef<HTMLDivElement | null>(null);
 
@@ -261,7 +257,7 @@ const PlanOverviewPage: React.FC = () => {
       }
     } catch (error) {
       logECS('error', 'updatePlan', {
-        error: error,
+        error,
         url: {
           path: `/project/${projectId}/dmp/${planId}`
         }
@@ -274,7 +270,7 @@ const PlanOverviewPage: React.FC = () => {
     };
   }
 
-  const handlePlanStatusChange = (e: PressEvent) => {
+  const handlePlanStatusChange = () => {
     dispatch({
       type: 'SET_IS_EDITING_PLAN_STATUS',
       payload: true
@@ -303,7 +299,6 @@ const PlanOverviewPage: React.FC = () => {
           payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
         })
       } else if (errors && typeof errors === 'object' && errors !== null) {
-        const errorObj = errors as PlanErrors;
         // Handle errors as an object with general or field-level errors
         dispatch({
           type: 'SET_ERROR_MESSAGES',

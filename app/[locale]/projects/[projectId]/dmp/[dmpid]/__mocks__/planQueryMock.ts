@@ -42,18 +42,18 @@ export const mockPlanData = {
     ],
     sections: [
       {
-        answeredQuestions: 0,
+        answeredQuestions: 1,
         displayOrder: 1,
         sectionId: 7,
         sectionTitle: "Roles & Responsibilities",
         totalQuestions: 1
       },
       {
-        answeredQuestions: 0,
+        answeredQuestions: 2,
         displayOrder: 2,
         sectionId: 8,
         sectionTitle: "Metadata",
-        totalQuestions: 0
+        totalQuestions: 5
       },
       {
         answeredQuestions: 0,

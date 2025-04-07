@@ -14,7 +14,7 @@ export interface GraphQLError {
   };
 }
 
-export interface GraphQLActionResponse<T = any> {
+export interface GraphQLActionResponse<T = unknown> {
   success: boolean;
   data?: T;
   errors?: string[] | Record<string, string>;
@@ -30,7 +30,7 @@ export interface GraphQLActionResponse<T = any> {
  * @param dataPath - Path to extract data from response (e.g., "addPlanContributor")
  * @returns GraphQLActionResponse with appropriate success, data, errors, or redirect information
  */
-export async function executeGraphQLMutation<T = any, V = any>({
+export async function executeGraphQLMutation<T = unknown, V = Record<string, unknown>>({
   mutationString,
   variables,
   errorPath,
@@ -139,11 +139,18 @@ export async function executeGraphQLMutation<T = any, V = any>({
 
               // Check for field-level errors using provided error path
               const retryErrors = getNestedValue(retryResult.data, errorPath);
-              if (retryErrors && typeof retryErrors === 'object' && Object.keys(retryErrors).length > 0) {
-                return { success: false, errors: retryErrors };
+              if (
+                retryErrors &&
+                (Array.isArray(retryErrors) || typeof retryErrors === 'object') &&
+                Object.keys(retryErrors).length > 0
+              ) {
+                return {
+                  success: false,
+                  errors: retryErrors as string[] | Record<string, string>, // Explicitly cast to the expected type
+                };
               }
 
-              return { success: true, data: retryData };
+              return { success: true, data: retryData as T };
             } catch (error) {
               logger.error("Token refresh failed", { error });
               return { success: false, redirect: "/login" };
@@ -174,13 +181,20 @@ export async function executeGraphQLMutation<T = any, V = any>({
 
     // Check for field-level errors using provided error path
     const responseErrors = getNestedValue(result.data, errorPath);
-    if (responseErrors && typeof responseErrors === 'object' && Object.keys(responseErrors).length > 0) {
-      return { success: false, errors: responseErrors };
+    if (
+      responseErrors &&
+      (Array.isArray(responseErrors) || typeof responseErrors === 'object') &&
+      Object.keys(responseErrors).length > 0
+    ) {
+      return {
+        success: false,
+        errors: responseErrors as string[] | Record<string, string>, // Explicitly cast to the expected type
+      };
     }
 
     return {
       success: true,
-      data: responseData,
+      data: responseData as T,
     };
   } catch (networkError) {
     logger.error(`[GraphQL Network Error]: ${networkError}`, { error: "NETWORK_ERROR" });
@@ -189,17 +203,18 @@ export async function executeGraphQLMutation<T = any, V = any>({
 }
 
 // Helper function to get a nested value from an object using a dot-notation path
-function getNestedValue(obj: any, path: string): any {
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   if (!obj || !path) return undefined;
 
   const properties = path.split('.');
-  let value = obj;
+  let value: unknown = obj;
 
   for (const prop of properties) {
     if (value === null || value === undefined || typeof value !== 'object') {
       return undefined;
     }
-    value = value[prop];
+    value = (value as Record<string, unknown>)[prop];
+
   }
 
   return value;

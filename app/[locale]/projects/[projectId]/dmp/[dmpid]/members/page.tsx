@@ -51,7 +51,6 @@ import { addPlanContributorAction } from './action';
 import { ProjectContributorsInterface } from '@/app/types';
 import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
-import { errors } from 'jose';
 
 interface PlanContributorDropdown {
   id: string;
@@ -232,7 +231,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
             payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
           })
         } else if (errors && typeof errors === 'object' && errors !== null) {
-          const errorObj = errors as PlanContributorErrors;
           // Handle errors as an object with general or field-level errors
           dispatch({
             type: 'SET_ERROR_MESSAGES',
