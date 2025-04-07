@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useReducer, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ApolloError } from "@apollo/client";
 import { useFormatter, useTranslations } from 'next-intl';
 import {
   Breadcrumb,
@@ -174,7 +173,9 @@ const PlanOverviewPage: React.FC = () => {
   // Get projectId and planId params
   const params = useParams();
   const router = useRouter();
-  const { dmpid: planId, projectId } = params; // From route /projects/:projectId/dmp/:dmpId
+  const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
+  const dmpId = Array.isArray(params.dmpid) ? params.dmpid[0] : params.dmpid;
+  const planId = Number(dmpId);
   // next-intl date formatter
   const formatter = useFormatter();
   const toastState = useToast(); // Access the toast state from context
@@ -195,12 +196,12 @@ const PlanOverviewPage: React.FC = () => {
   );
 
   // Set URLs
-  const adjustFunderUrl = `/projects/${projectId}/dmp/${planId}/funder`;
-  const adjustMembersUrl = `/projects/${projectId}/dmp/${planId}/members`;
-  const adjustResearchoutputsUrl = `/projects/${projectId}/dmp/${planId}/research-outputs`;
-  const downloadUrl = `/projects/${projectId}/dmp/${planId}/download`;
-  const feedbackUrl = `/projects/${projectId}/dmp/${planId}/feedback`;
-  const changePrimaryContact = `/projects/${projectId}/dmp/${planId}/members`;
+  const FUNDER_URL = routePath('projects.dmp.funder', { projectId, dmpId: planId });
+  const MEMBERS_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
+  const RESEARCH_OUTPUT_URL = routePath('projects.dmp.research-outputs', { projectId, dmpId: planId });
+  const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
+  const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId, dmpId: planId });
+  const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
 
   // Set radio button data
   const radioData = {
@@ -397,7 +398,7 @@ const PlanOverviewPage: React.FC = () => {
         id: 1,
         content: (
           <>
-            <strong>{t('publishModal.publish.checklistItem.primaryContact')} <Link href={changePrimaryContact} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{state.planData.primaryContact}</Link></strong>
+            <strong>{t('publishModal.publish.checklistItem.primaryContact')} <Link href={CHANGE_PRIMARY_CONTACT_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{state.planData.primaryContact}</Link></strong>
           </>
         ),
         completed: state.planData.members.some(member => member.isPrimaryContact),
@@ -425,7 +426,7 @@ const PlanOverviewPage: React.FC = () => {
         id: 4,
         content: (
           <>
-            {t('publishModal.publish.checklistItem.funderText')} (<Link href={adjustFunderUrl} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.funder')}</Link>)
+            {t('publishModal.publish.checklistItem.funderText')} (<Link href={FUNDER_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.funder')}</Link>)
           </>
         ),
         completed: !!state.planData.funderName, // Example: Check if funderName exists
@@ -439,7 +440,7 @@ const PlanOverviewPage: React.FC = () => {
         id: 6,
         content: (
           <>
-            {t('publishModal.publish.checklistItem.orcidText')} <Link href={adjustMembersUrl} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.projectMembers')}</Link>
+            {t('publishModal.publish.checklistItem.orcidText')} <Link href={MEMBERS_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.projectMembers')}</Link>
           </>
         ),
         completed: state.planData.members.some(member => member.orcid), // Example: Check if any member has an ORCiD
@@ -476,8 +477,8 @@ const PlanOverviewPage: React.FC = () => {
         breadcrumbs={
           <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects/proj_2425/">{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
             <Breadcrumb>{state.planData.title}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -501,7 +502,7 @@ const PlanOverviewPage: React.FC = () => {
                     {state.planData.funderName}
                   </p>
                 </div>
-                <Link href={adjustFunderUrl}
+                <Link href={FUNDER_URL}
                   aria-label={t('funder.edit')}>
                   {t('funder.edit')}
                 </Link>
@@ -526,7 +527,7 @@ const PlanOverviewPage: React.FC = () => {
                     ))}
                   </p>
                 </div>
-                <Link href={adjustMembersUrl}
+                <Link href={MEMBERS_URL}
                   aria-label={t('members.edit')}>
                   {t('members.edit')}
                 </Link>
@@ -543,7 +544,7 @@ const PlanOverviewPage: React.FC = () => {
                     {t('outputs.count', { count: researchOutputCount })}
                   </p>
                 </div>
-                <Link href={adjustResearchoutputsUrl}
+                <Link href={RESEARCH_OUTPUT_URL}
                   aria-label={t('outputs.edit')}>
                   {t('outputs.edit')}
                 </Link>
@@ -586,7 +587,7 @@ const PlanOverviewPage: React.FC = () => {
                     </p>
                   </div>
                   <Link
-                    href={`/projects/${projectId}/dmp/${planId}/s/${section.sectionId}`}
+                    href={routePath('projects.dmp.section', { projectId, dmpId: planId, sectionId: section.sectionId })}
                     aria-label={t('sections.updateSection', {
                       title: section.sectionTitle
                     })}
@@ -616,7 +617,7 @@ const PlanOverviewPage: React.FC = () => {
                   <h3>{t('status.feedback.title')}</h3>
                   <p>No feedback</p>
                 </div>
-                <Link href={feedbackUrl} aria-label="Request feedback" >
+                <Link href={FEEDBACK_URL} aria-label="Request feedback" >
                   {Global('links.request')}
                 </Link >
               </div >
@@ -664,7 +665,7 @@ const PlanOverviewPage: React.FC = () => {
                 <div>
                   <h3>{t('status.download.title')}</h3>
                 </div>
-                <Link href={downloadUrl} aria-label="download">
+                <Link href={DOWNLOAD_URL} aria-label="download">
                   {t('status.download.title')}
                 </Link>
               </div>
