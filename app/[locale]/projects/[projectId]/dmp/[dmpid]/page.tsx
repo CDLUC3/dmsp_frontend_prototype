@@ -677,6 +677,7 @@ const PlanOverviewPage: React.FC = () => {
 
       <Modal isDismissable
         isOpen={state.isModalOpen}
+        onOpenChange={(isOpen) => { dispatch({ type: 'SET_IS_MODAL_OPEN', payload: isOpen }) }}
         data-testid="modal"
       >
 
