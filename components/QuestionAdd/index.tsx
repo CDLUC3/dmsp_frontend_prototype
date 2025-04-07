@@ -172,6 +172,17 @@ const QuestionAdd = ({
     }
   }, [])
 
+  useEffect(() => {
+    // Make sure to add the questiontypeid to the question object
+    if (question) {
+      setQuestion(
+        ...question,
+        questionTypeId
+      );
+    } else {
+      setQuestion({questionTypeId});
+    }
+  }, [questionTypeId]);
 
   return (
     <>
