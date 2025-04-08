@@ -74,6 +74,7 @@ const initialState: {
   planData: {
     id: null,
     dmpId: '',
+    registered: '',
     title: '',
     status: '',
     funderName: '',
@@ -373,6 +374,7 @@ const PlanOverviewPage: React.FC = () => {
         payload: {
           id: Number(data?.plan.id) ?? null,
           dmpId: data?.plan.dmpId ?? '',
+          registered: data?.plan.registered ?? '',
           title: data?.plan?.project?.title ?? '',
           status: data?.plan?.status ?? '',
           funderName: data?.plan?.project?.funders?.[0]?.affiliation?.displayName ?? '',
@@ -660,7 +662,7 @@ const PlanOverviewPage: React.FC = () => {
               <div className={`${styles.panelRow} mb-5`}>
                 <div>
                   <h3>{t('status.publish.title')}</h3>
-                  <p>{state.planData.dmpId ? PUBLISHED : UNPUBLISHED}</p>
+                  <p>{state.planData.registered ? PUBLISHED : UNPUBLISHED}</p>
                 </div>
                 <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })} aria-label={t('status.publish.label')}>
                   {t('status.publish.label')}

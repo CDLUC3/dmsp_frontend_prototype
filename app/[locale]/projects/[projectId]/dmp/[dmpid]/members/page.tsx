@@ -187,14 +187,12 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
   // Add a new plan contributor
   const addPlanContributor = async (id: number) => {
-    console.log("***CALLING PLAN CONTRIBUTOR ACTION");
     try {
       const response = await addPlanContributorAction({
         planId: Number(dmpId),
         projectContributorId: id
       });
 
-      console.log("***RESPONSE", response);
       if (response.redirect) {
         router.push(response.redirect);
       }

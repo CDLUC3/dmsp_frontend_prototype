@@ -3694,7 +3694,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, funders?: Array<{ __typename?: 'PlanFunder', id?: number | null, project?: { __typename?: 'Project', title: string } | null }> | null, project?: { __typename?: 'Project', title: string, funders?: Array<{ __typename?: 'ProjectFunder', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null }> | null } | null, contributors?: Array<{ __typename?: 'PlanContributor', isPrimaryContact?: boolean | null, projectContributor?: { __typename?: 'ProjectContributor', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, funders?: Array<{ __typename?: 'PlanFunder', id?: number | null, project?: { __typename?: 'Project', title: string } | null }> | null, project?: { __typename?: 'Project', title: string, funders?: Array<{ __typename?: 'ProjectFunder', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null }> | null } | null, contributors?: Array<{ __typename?: 'PlanContributor', isPrimaryContact?: boolean | null, projectContributor?: { __typename?: 'ProjectContributor', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
 
 export type PlanContributorsQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -5080,6 +5080,7 @@ export const PlanDocument = gql`
     created
     modified
     dmpId
+    registered
   }
 }
     `;

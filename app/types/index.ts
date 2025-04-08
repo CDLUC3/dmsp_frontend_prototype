@@ -333,6 +333,7 @@ export interface ListItemsInterface {
 export interface PlanOverviewInterface {
   id: number | null;
   dmpId: string;
+  registered: string;
   title: string;
   status: string;
   funderName: string;
