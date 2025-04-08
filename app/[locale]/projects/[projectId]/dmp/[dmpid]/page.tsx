@@ -38,54 +38,22 @@ import {
 import logECS from '@/utils/clientLogger';
 import { toSentenceCase } from '@/utils/general';
 import { routePath } from '@/utils/routes';
-import { publishPlanAction } from './action';
+import { publishPlanAction } from './publishPlanAction';
+import {
+  PlanMember,
+  ListItemsInterface,
+  PlanOverviewInterface
+} from '@/app/types';
 import styles from './PlanOverviewPage.module.scss';
-
-interface PlanMember {
-  fullname: string;
-  role: string[];
-  orcid: string;
-  isPrimaryContact: boolean;
-  email: string;
-}
-
-interface ListItemsInterface {
-  id: number;
-  content: JSX.Element;
-  completed: boolean;
-}[]
-
-interface PlanOverviewInterface {
-  id: number | null;
-  dmpId: string;
-  doi: string;
-  lastUpdated?: string;
-  createdDate?: string;
-  templateName: string;
-  title: string;
-  status: string;
-  funderOpportunityNumber?: number | null;
-  funderName: string;
-  templateId: number | null;
-  primaryContact: string;
-  publishedStatus: string;
-  visibility: string;
-  members: PlanMember[];
-  sections: PlanSectionProgress[];
-  percentageAnswered: number;
-}
 
 const PUBLISHED = 'Published';
 const UNPUBLISHED = 'Unpublished';
-
-
 
 // Status options for dropdown
 const planStatusOptions = Object.entries(PlanStatus).map(([name, id]) => ({
   id,
   name
 }));
-
 
 const initialState: {
   isModalOpen: boolean;
@@ -223,6 +191,7 @@ const PlanOverviewPage: React.FC = () => {
       }
     ]
   }
+
   //TODO: Get research output count from backend
   const researchOutputCount = 3;
 
@@ -239,6 +208,33 @@ const PlanOverviewPage: React.FC = () => {
     }
   };
 
+  const handlePlanStatusChange = () => {
+    dispatch({
+      type: 'SET_IS_EDITING_PLAN_STATUS',
+      payload: true
+    });
+  }
+
+  const handlePlanStatusForm = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch({
+      type: 'SET_IS_EDITING_PLAN_STATUS',
+      payload: false
+    });
+  }
+
+  const handleDialogCloseBtn = () => {
+    dispatch({
+      type: 'SET_IS_MODAL_OPEN',
+      payload: false
+    });
+    dispatch({
+      type: 'SET_STEP',
+      payload: 1
+    })
+  }
+
+  // Call Server Action publishPlanAction to run the publishPlanMutation
   const updatePlan = async (visibility: PlanVisibility) => {
     try {
       const response = await publishPlanAction({
@@ -259,7 +255,7 @@ const PlanOverviewPage: React.FC = () => {
       logECS('error', 'updatePlan', {
         error,
         url: {
-          path: `/project/${projectId}/dmp/${planId}`
+          path: routePath('projects.dmp.show', { projectId, dmpId: planId })
         }
       });
     }
@@ -268,13 +264,6 @@ const PlanOverviewPage: React.FC = () => {
       errors: ['Something went wrong. Please try again.'],
       data: null
     };
-  }
-
-  const handlePlanStatusChange = () => {
-    dispatch({
-      type: 'SET_IS_EDITING_PLAN_STATUS',
-      payload: true
-    });
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -317,14 +306,6 @@ const PlanOverviewPage: React.FC = () => {
     })
     // Replace slashes with hyphens
     return formattedDate.replace(/\//g, '-');
-  }
-
-  const handlePlanStatusForm = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    dispatch({
-      type: 'SET_IS_EDITING_PLAN_STATUS',
-      payload: false
-    });
   }
 
   const calculatePercentageAnswered = (sections: PlanSectionProgress[]) => {
@@ -424,12 +405,12 @@ const PlanOverviewPage: React.FC = () => {
             {t('publishModal.publish.checklistItem.funderText')} (<Link href={FUNDER_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.funder')}</Link>)
           </>
         ),
-        completed: !!state.planData.funderName, // Example: Check if funderName exists
+        completed: !!state.planData.funderName, // Check if funderName exists
       },
       {
         id: 5,
         content: <>{t('publishModal.publish.checklistItem.requiredFields')}</>,
-        completed: false, // Example: Mark as not completed
+        completed: false, // Mark as not completed
       },
       {
         id: 6,
@@ -438,7 +419,7 @@ const PlanOverviewPage: React.FC = () => {
             {t('publishModal.publish.checklistItem.orcidText')} <Link href={MEMBERS_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.projectMembers')}</Link>
           </>
         ),
-        completed: state.planData.members.some(member => member.orcid), // Example: Check if any member has an ORCiD
+        completed: state.planData.members.some(member => member.orcid), // Check if any member has an ORCiD
       },
     ];
     dispatch({
@@ -450,18 +431,6 @@ const PlanOverviewPage: React.FC = () => {
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
-
-  const handleDialogCloseBtn = () => {
-    dispatch({
-      type: 'SET_IS_MODAL_OPEN',
-      payload: false
-    });
-    dispatch({
-      type: 'SET_STEP',
-      payload: 1
-    })
-  }
-
 
   return (
     <>
@@ -683,19 +652,18 @@ const PlanOverviewPage: React.FC = () => {
               <ErrorMessages errors={state.errors} ref={errorRef} />
               <Heading slot="title">{t('publishModal.publish.title')}</Heading>
 
-              <p>Publishing a Data Management Plan (DMP) assigns it a Digital Object Identifier (DOI). By publishing, you&rsquo;ll be able to link this plan
-                to your ORCiD, and to project outputs such articles which will make it easier to show that you met your funder&rsquo;s requirements by the end of the project.
-              </p>
+              <p>{t('publishModal.publish.description1')}</p>
 
               <p>
-                This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.
+                {t('publishModal.publish.description2')}
               </p>
 
               <Heading level={2}>{t('publishModal.publish.checklistTitle')}</Heading>
 
               <ul className={styles.checkList}>
+                {/* Render completed items first */}
                 {state.checkListItems
-                  .filter(item => item.completed) // Filter for completed items
+                  .filter(item => item.completed)
                   .map(item => (
                     <li key={item.id} className={styles.iconTextListItem}>
                       <div className={styles.iconWrapper}>
@@ -711,7 +679,7 @@ const PlanOverviewPage: React.FC = () => {
 
                 {/* Render incomplete items next */}
                 {state.checkListItems
-                  .filter(item => !item.completed) // Filter for incomplete items
+                  .filter(item => !item.completed)
                   .map(item => (
                     <li key={item.id} className={styles.iconTextListItem}>
                       <div className={styles.iconWrapper}>
@@ -747,6 +715,7 @@ const PlanOverviewPage: React.FC = () => {
           </Dialog>
         )}
 
+        {/* Step 2: Visibility Settings & Publish Plan button*/}
         {state.step === 2 && (
           <Dialog>
             <div className={`${styles.markAsCompleteModal} ${styles.dialogWrapper}`}>
@@ -782,7 +751,7 @@ const PlanOverviewPage: React.FC = () => {
             </div>
           </Dialog>
         )}
-      </Modal>
+      </Modal >
     </>
   );
 }

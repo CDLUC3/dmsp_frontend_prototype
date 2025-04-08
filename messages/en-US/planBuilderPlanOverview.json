@@ -54,7 +54,7 @@
     "publishModal": {
       "publish": {
         "title": "Publish",
-        "description1": "Publishing a Data Management Plan (DMP) assigns it a Digital Object Identifier (DOI). By publishing, you&rsquo;ll be able to link this plan to your ORCiD, and to project outputs such articles which will make it easier to show that you met your funder&rsquo;s requirements by the end of the project.",
+        "description1": "Publishing a Data Management Plan (DMP) assigns it a Digital Object Identifier (DOI). By publishing, you'll be able to link this plan to your ORCiD, and to project outputs such articles which will make it easier to show that you met your funder's requirements by the end of the project.",
         "description2": "This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.",
         "checklistTitle": "Before you publish your plan, we strongly recommend that you:",
         "checklistInfo": "item(s) can be fixed",

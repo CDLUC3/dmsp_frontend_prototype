@@ -230,14 +230,18 @@ const ProjectsProjectPlanAdjustMembers = () => {
             type: 'SET_ERROR_MESSAGES',
             payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
           })
-        } else if (errors && typeof errors === 'object' && errors !== null) {
+        }
+      } else {
+        if (
+          result.data?.errors &&
+          typeof result.data.errors === 'object' &&
+          typeof result.data.errors.general === 'string') {
           // Handle errors as an object with general or field-level errors
           dispatch({
             type: 'SET_ERROR_MESSAGES',
-            payload: [errors.general || Global('messaging.somethingWentWrong')]
+            payload: [result.data.errors.general]
           });
         }
-      } else {
         // Then mutation was successful
         dispatch({ type: 'ADD_PLAN_MEMBER_ID', payload: memberId });
         await refetch(); //Need to refresh the primary contact dropdown after adding a new member

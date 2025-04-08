@@ -1,4 +1,3 @@
-// utils/graphqlServerActionHandler.ts
 "use server";
 
 import { cookies } from "next/headers";
@@ -33,7 +32,6 @@ export interface GraphQLActionResponse<T = unknown> {
 export async function executeGraphQLMutation<T = unknown, V = Record<string, unknown>>({
   mutationString,
   variables,
-  errorPath,
   dataPath
 }: {
   mutationString: string;
@@ -137,20 +135,10 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
               // Extract data using provided path
               const retryData = getNestedValue(retryResult.data, dataPath);
 
-              // Check for field-level errors using provided error path
-              const retryErrors = getNestedValue(retryResult.data, errorPath);
-              if (
-                retryErrors &&
-                (Array.isArray(retryErrors) || typeof retryErrors === 'object') &&
-                Object.keys(retryErrors).length > 0
-              ) {
-                return {
-                  success: false,
-                  errors: retryErrors as string[] | Record<string, string>, // Explicitly cast to the expected type
-                };
-              }
-
-              return { success: true, data: retryData as T };
+              return {
+                success: true,
+                data: retryData as T
+              };
             } catch (error) {
               logger.error("Token refresh failed", { error });
               return { success: false, redirect: "/login" };
@@ -178,19 +166,6 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 
     // Extract data using provided path
     const responseData = getNestedValue(result.data, dataPath);
-
-    // Check for field-level errors using provided error path
-    const responseErrors = getNestedValue(result.data, errorPath);
-    if (
-      responseErrors &&
-      (Array.isArray(responseErrors) || typeof responseErrors === 'object') &&
-      Object.keys(responseErrors).length > 0
-    ) {
-      return {
-        success: false,
-        errors: responseErrors as string[] | Record<string, string>, // Explicitly cast to the expected type
-      };
-    }
 
     return {
       success: true,

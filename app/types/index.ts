@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { PlanSectionProgress } from "@/generated/graphql";
 
 export interface EmailInterface {
   id?: number | null;
@@ -314,4 +315,37 @@ export interface ProjectContributorsInterface {
   orcid: string;
   roles: PlanContributorRolesInterface[];
   isPrimaryContact: boolean;
+}
+
+export interface PlanMember {
+  fullname: string;
+  role: string[];
+  orcid: string;
+  isPrimaryContact: boolean;
+  email: string;
+}
+export interface ListItemsInterface {
+  id: number;
+  content: JSX.Element;
+  completed: boolean;
+}[]
+
+export interface PlanOverviewInterface {
+  id: number | null;
+  dmpId: string;
+  doi: string;
+  lastUpdated?: string;
+  createdDate?: string;
+  templateName: string;
+  title: string;
+  status: string;
+  funderOpportunityNumber?: number | null;
+  funderName: string;
+  templateId: number | null;
+  primaryContact: string;
+  publishedStatus: string;
+  visibility: string;
+  members: PlanMember[];
+  sections: PlanSectionProgress[];
+  percentageAnswered: number;
 }

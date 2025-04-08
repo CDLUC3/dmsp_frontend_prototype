@@ -10,11 +10,10 @@ import {
   mockScrollTo
 } from "@/__mocks__/common";
 import PlanOverviewPage from "../page";
-//import { publishPlanAction } from '../action';
 import { mockPlanData } from "../__mocks__/planQueryMock";
 
 // __mocks__/publishPlanAction.ts
-jest.mock('../action', () => ({
+jest.mock('../publishPlanAction', () => ({
   publishPlanAction: jest.fn()
 }));
 
