@@ -14,12 +14,12 @@ import { useParams } from 'next/navigation';
 import ProjectsProjectPlanAdjustMembers from '../page';
 import mockProjectContributors from '../__mocks__/projectContributorsMock.json';
 import mockPlanContributors from '../__mocks__/planContributorsMock.json'
-import { addPlanContributorAction } from '../action';
+import { addPlanContributorAction } from '../actions/addPlanContributorAction';
 
 expect.extend(toHaveNoViolations);
 
 // __mocks__/addPlanContributorAction.ts
-jest.mock('../action', () => ({
+jest.mock('../actions/addPlanContributorAction', () => ({
   addPlanContributorAction: jest.fn()
 }));
 

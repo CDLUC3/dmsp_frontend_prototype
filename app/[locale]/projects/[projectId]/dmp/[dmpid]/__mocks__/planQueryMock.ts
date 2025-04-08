@@ -14,7 +14,7 @@ export const mockPlanData = {
       }
     ],
     visibility: "PUBLIC",
-    status: "PUBLISHED",
+    status: "DRAFT",
     project: {
       funders: [
         {
@@ -28,10 +28,12 @@ export const mockPlanData = {
     },
     contributors: [
       {
+        isPrimaryContact: true,
         projectContributor: {
           givenName: "Captain",
           surName: "Nemo",
           email: null,
+          orcid: "https://orcid.org/0000-0002-1234-5678",
           contributorRoles: [
             {
               label: "Principal Investigator (PI)"
@@ -79,6 +81,6 @@ export const mockPlanData = {
     ],
     created: "1741308996000",
     modified: "1741308996000",
-    dmpId: "https://doi.org/10.11111/2A3B4C"
+    dmpId: ""
   }
 }

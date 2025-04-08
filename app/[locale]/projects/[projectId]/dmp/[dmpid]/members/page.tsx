@@ -47,7 +47,7 @@ import {
 } from '@/generated/graphql';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
-import { addPlanContributorAction } from './action';
+import { addPlanContributorAction } from './actions/addPlanContributorAction';
 import { ProjectContributorsInterface } from '@/app/types';
 import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
@@ -187,12 +187,14 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
   // Add a new plan contributor
   const addPlanContributor = async (id: number) => {
+    console.log("***CALLING PLAN CONTRIBUTOR ACTION");
     try {
       const response = await addPlanContributorAction({
         planId: Number(dmpId),
         projectContributorId: id
       });
 
+      console.log("***RESPONSE", response);
       if (response.redirect) {
         router.push(response.redirect);
       }

@@ -1,9 +1,23 @@
 "use server";
 
-import { PublishPlanDocument } from "@/generated/graphql";
+import { gql } from "graphql-request";
 import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
 import logger from "@/utils/logger";
 import { ActionResponse } from "@/app/types";
+
+const PublishPlanDocument = gql`
+    mutation PublishPlan($planId: Int!, $visibility: PlanVisibility) {
+  publishPlan(planId: $planId, visibility: $visibility) {
+    errors {
+      general
+      visibility
+      status
+    }
+    visibility
+    status
+  }
+}
+    `;
 
 export async function publishPlanAction({
   planId,
@@ -12,24 +26,11 @@ export async function publishPlanAction({
   planId: number;
   visibility: string;
 }): Promise<ActionResponse> {
-
   try {
-    // Extract mutation string from the generated document
-    const mutationString = PublishPlanDocument.loc?.source.body;
-
-    if (!mutationString) {
-      logger.error("Could not extract mutation string from document");
-      return {
-        success: false,
-        errors: ["An error occurred while preparing the request."]
-      }
-    }
-
     // Execute the mutation using the shared handler
     return executeGraphQLMutation({
-      mutationString,
+      document: PublishPlanDocument,
       variables: { planId, visibility },
-      errorPath: "publishPlan.errors",
       dataPath: "publishPlan"
     });
 

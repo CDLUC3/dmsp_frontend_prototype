@@ -1,10 +1,25 @@
 "use server";
 
-import { AddPlanContributorDocument } from "@/generated/graphql";
+import { gql } from "graphql-request";
 import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
 import logger from "@/utils/logger";
 import { ActionResponse } from "@/app/types";
 
+const AddPlanContributorDocument = gql`
+    mutation AddPlanContributor($planId: Int!, $projectContributorId: Int!) {
+  addPlanContributor(planId: $planId, projectContributorId: $projectContributorId) {
+    errors {
+      general
+      contributorRoleIds
+      primaryContact
+      projectContributorId
+      projectId
+    }
+    id
+    isPrimaryContact
+  }
+}
+    `;
 
 export async function addPlanContributorAction({
   planId,
@@ -13,24 +28,11 @@ export async function addPlanContributorAction({
   planId: number;
   projectContributorId: number;
 }): Promise<ActionResponse> {
-
   try {
-    // Extract mutation string from the generated document
-    const mutationString = AddPlanContributorDocument.loc?.source.body;
-
-    if (!mutationString) {
-      logger.error("Could not extract mutation string from document");
-      return {
-        success: false,
-        errors: ["An error occurred while preparing the request."]
-      }
-    }
-
     // Execute the mutation using the shared handler
     return executeGraphQLMutation({
-      mutationString,
+      document: AddPlanContributorDocument,
       variables: { planId, projectContributorId },
-      errorPath: "addPlanContributor.errors",
       dataPath: "addPlanContributor"
     });
 

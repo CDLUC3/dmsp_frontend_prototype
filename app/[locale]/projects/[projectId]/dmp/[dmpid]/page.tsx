@@ -37,11 +37,11 @@ import {
 
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { publishPlanAction } from './publishPlanAction';
+import { publishPlanAction, updatePlanStatusAction } from './actions';
 import {
   PlanMember,
   ListItemsInterface,
-  PlanOverviewInterface
+  PlanOverviewInterface,
 } from '@/app/types';
 import styles from './PlanOverviewPage.module.scss';
 
@@ -61,7 +61,6 @@ const initialState: {
   planVisibility: PlanVisibility;
   planStatus: PlanStatus | null;
   step: number;
-  errors: string[];
   isEditingPlanStatus: boolean;
   planData: PlanOverviewInterface;
 } = {
@@ -71,7 +70,6 @@ const initialState: {
   planVisibility: PlanVisibility.Private,
   planStatus: null,
   step: 1,
-  errors: [] as string[],
   isEditingPlanStatus: false,
   planData: {
     id: null,
@@ -93,7 +91,6 @@ type Action =
   | { type: 'SET_PLAN_VISIBILITY'; payload: PlanVisibility }
   | { type: 'SET_PLAN_STATUS'; payload: PlanStatus | null }
   | { type: 'SET_STEP'; payload: number }
-  | { type: 'SET_ERRORS'; payload: string[] }
   | { type: 'SET_IS_EDITING_PLAN_STATUS'; payload: boolean }
   | { type: 'SET_PLAN_DATA'; payload: PlanOverviewInterface };
 
@@ -113,8 +110,6 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, planStatus: action.payload };
     case 'SET_STEP':
       return { ...state, step: action.payload };
-    case 'SET_ERRORS':
-      return { ...state, errors: action.payload };
     case 'SET_IS_EDITING_PLAN_STATUS':
       return { ...state, isEditingPlanStatus: action.payload };
     case 'SET_PLAN_DATA':
@@ -203,13 +198,6 @@ const PlanOverviewPage: React.FC = () => {
     });
   }
 
-  const handlePlanStatusForm = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    dispatch({
-      type: 'SET_IS_EDITING_PLAN_STATUS',
-      payload: false
-    });
-  }
 
   const handleDialogCloseBtn = () => {
     dispatch({
@@ -220,6 +208,77 @@ const PlanOverviewPage: React.FC = () => {
       type: 'SET_STEP',
       payload: 1
     })
+  }
+
+  // Call Server Action updatePlanStatusAction to run the updatePlanStatusMutation
+  const updateStatus = async (status: PlanStatus) => {
+    try {
+      const response = await updatePlanStatusAction({
+        planId: Number(planId),
+        status
+      })
+
+      if (response.redirect) {
+        router.push(response.redirect);
+      }
+
+      return {
+        success: response.success,
+        errors: response.errors,
+        data: response.data
+      }
+    } catch (error) {
+      logECS('error', 'updateStatus', {
+        error,
+        url: {
+          path: routePath('projects.dmp.show', { projectId, dmpId: planId })
+        }
+      });
+    }
+    return {
+      success: false,
+      errors: [Global('messaging.somethingWentWrong')],
+      data: null
+    };
+  }
+
+  const handlePlanStatusForm = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    dispatch({
+      type: 'SET_IS_EDITING_PLAN_STATUS',
+      payload: false
+    });
+
+    const status = state.planStatus ?? state.planData.status as PlanStatus;
+
+    const result = await updateStatus(status);
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        dispatch({
+          type: 'SET_ERROR_MESSAGES',
+          payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
+        })
+      }
+    } else {
+      if (
+        result.data?.errors &&
+        typeof result.data.errors === 'object' &&
+        typeof result.data.errors.general === 'string') {
+        // Handle errors as an object with general or field-level errors
+        dispatch({
+          type: 'SET_ERROR_MESSAGES',
+          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
+        });
+      }
+      //Need to refetch plan data to refresh the info that was changed
+      await refetch();
+    }
   }
 
   // Call Server Action publishPlanAction to run the publishPlanMutation
@@ -256,6 +315,12 @@ const PlanOverviewPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // Close modal
+    dispatch({
+      type: 'SET_IS_MODAL_OPEN',
+      payload: false
+    });
 
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
@@ -339,8 +404,8 @@ const PlanOverviewPage: React.FC = () => {
   useEffect(() => {
     if (queryError) {
       dispatch({
-        type: 'SET_ERRORS',
-        payload: [...state.errors, queryError.message]
+        type: 'SET_ERROR_MESSAGES',
+        payload: [...state.errorMessages, queryError.message]
       });
     }
   }, [queryError])
@@ -427,7 +492,7 @@ const PlanOverviewPage: React.FC = () => {
         className="page-project-list"
       />
 
-      <ErrorMessages errors={state.errors} ref={errorRef} />
+      <ErrorMessages errors={state.errorMessages} ref={errorRef} />
       <LayoutWithPanel>
         <ContentContainer>
           <div className={"container"}>
@@ -586,7 +651,7 @@ const PlanOverviewPage: React.FC = () => {
                     <h3>{t('status.title')}</h3>
                     <p>{state.planData.status}</p>
                   </div>
-                  <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
+                  <Link className={`${styles.sidePanelLink} react-aria-Link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
                     {Global('buttons.linkUpdate')}
                   </Link>
                 </div>
@@ -625,7 +690,6 @@ const PlanOverviewPage: React.FC = () => {
           <Dialog>
             <div className={`${styles.markAsCompleteModal} ${styles.dialogWrapper}`}>
 
-              <ErrorMessages errors={state.errors} ref={errorRef} />
               <Heading slot="title">{t('publishModal.publish.title')}</Heading>
 
               <p>{t('publishModal.publish.description1')}</p>
@@ -636,7 +700,7 @@ const PlanOverviewPage: React.FC = () => {
 
               <Heading level={2}>{t('publishModal.publish.checklistTitle')}</Heading>
 
-              <ul className={styles.checkList}>
+              <ul className={styles.checkList} data-testid="checklist">
                 {/* Render completed items first */}
                 {state.checkListItems
                   .filter(item => item.completed)
@@ -697,7 +761,6 @@ const PlanOverviewPage: React.FC = () => {
             <div className={`${styles.markAsCompleteModal} ${styles.dialogWrapper}`}>
               <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
 
-                <ErrorMessages errors={state.errors} ref={errorRef} />
                 <Heading slot="title">{t('publishModal.publish.visibilityTitle')}</Heading>
 
                 <p>

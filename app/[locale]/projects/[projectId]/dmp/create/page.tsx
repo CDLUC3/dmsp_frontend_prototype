@@ -1,8 +1,8 @@
 'use client';
 
-import React, {useEffect, useReducer, useRef} from 'react';
-import {useParams, useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useReducer, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -17,11 +17,11 @@ import {
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer} from '@/components/Container';
+import { ContentContainer, LayoutContainer } from '@/components/Container';
 import TemplateList from '@/components/TemplateList';
 import TemplateSelectListItem from "@/components/TemplateSelectListItem";
 import ErrorMessages from '@/components/ErrorMessages';
-import {CheckboxGroupComponent} from '@/components/Form';
+import { CheckboxGroupComponent } from '@/components/Form';
 
 // GraphQL
 import {
@@ -31,13 +31,13 @@ import {
 } from '@/generated/graphql';
 
 // Hooks
-import {useScrollToTop} from '@/hooks/scrollToTop';
+import { useScrollToTop } from '@/hooks/scrollToTop';
 
 // Other
 import logECS from '@/utils/clientLogger';
-import {filterTemplates} from '@/utils/filterTemplates';
-import {TemplateItemProps} from '@/app/types';
-import {useFormatDate} from '@/hooks/useFormatDate';
+import { filterTemplates } from '@/utils/filterTemplates';
+import { TemplateItemProps } from '@/app/types';
+import { useFormatDate } from '@/hooks/useFormatDate';
 
 interface ProjectFundersInterface {
   name: string;

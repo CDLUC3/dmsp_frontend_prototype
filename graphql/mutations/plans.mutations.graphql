@@ -62,3 +62,15 @@ mutation PublishPlan($planId: Int!, $visibility: PlanVisibility) {
     status
   }
 }
+
+mutation UpdatePlanStatus($planId: Int!, $status: PlanStatus!) {
+  updatePlanStatus(planId: $planId, status: $status) {
+    errors {
+      general
+      status
+    }
+    id
+    status
+    visibility
+  }
+}

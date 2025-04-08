@@ -1,5 +1,6 @@
 "use server";
 
+import { DocumentNode, print } from "graphql";
 import { cookies } from "next/headers";
 import logger from "@/utils/logger";
 import { serverRefreshAuthTokens, serverFetchCsrfToken } from "@/utils/serverAuthHelper";
@@ -23,22 +24,23 @@ export interface GraphQLActionResponse<T = unknown> {
 /**
  * Execute a GraphQL mutation with comprehensive error handling
  * 
- * @param mutationString - The GraphQL mutation string to execute
+ * @param document - The GraphQL mutation DocumentNodeto execute
  * @param variables - Variables to pass to the mutation
- * @param errorPath - Path to the errors object in the response data (e.g., "addPlanContributor.errors")
  * @param dataPath - Path to extract data from response (e.g., "addPlanContributor")
  * @returns GraphQLActionResponse with appropriate success, data, errors, or redirect information
  */
 export async function executeGraphQLMutation<T = unknown, V = Record<string, unknown>>({
-  mutationString,
+  document,
   variables,
   dataPath
 }: {
-  mutationString: string;
+  document: DocumentNode | string;
   variables: V;
-  errorPath: string;
   dataPath: string;
 }): Promise<GraphQLActionResponse<T>> {
+
+  const mutationString = typeof document === "string" ? document : print(document);
+
   try {
     if (!mutationString) {
       throw new Error("No mutation string provided");

@@ -1,7 +1,9 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams } from 'next/navigation';
+import { cookies } from "next/headers";
+
 import {
   usePlanQuery,
 } from '@/generated/graphql';
@@ -12,16 +14,15 @@ import {
 import PlanOverviewPage from "../page";
 import { mockPlanData } from "../__mocks__/planQueryMock";
 
-// __mocks__/publishPlanAction.ts
-jest.mock('../publishPlanAction', () => ({
-  publishPlanAction: jest.fn()
+jest.mock("next/headers", () => ({
+  cookies: jest.fn(),
 }));
 
 jest.mock("@/generated/graphql", () => ({
   usePlanQuery: jest.fn(),
   PlanStatus: {
     DRAFT: 'DRAFT',
-    COMPLET: 'COMPLETE',
+    COMPLETE: 'COMPLETE',
     ARCHIVED: 'ARCHIVED'
   },
   PlanVisibility: {
@@ -46,13 +47,14 @@ describe('PlanOverviewPage', () => {
 
     const mockUseParams = useParams as jest.Mock;
     // Mock the return value of useParams
-    mockUseParams.mockReturnValue({ projectId: '123' });
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1 });
 
     // Mock the hook for data state
     (usePlanQuery as jest.Mock).mockReturnValue({
       data: { plan: mockPlanData.plan },
       loading: false,
       error: null,
+      refetch: jest.fn()
     });
   })
 
@@ -102,7 +104,7 @@ describe('PlanOverviewPage', () => {
     expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.title' })).toBeInTheDocument();
-    expect(within(sidebar).getByText('PUBLISHED')).toBeInTheDocument();
+    expect(within(sidebar).getByText('DRAFT')).toBeInTheDocument();
     expect(within(sidebar).getByText('buttons.linkUpdate')).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.publish.title' })).toBeInTheDocument();
     expect(within(sidebar).getByText('status.publish.label')).toBeInTheDocument();
@@ -125,13 +127,188 @@ describe('PlanOverviewPage', () => {
     });
   });
 
-  /**Test that publish status is updated when user publishes plan */
+  it('should have correct info in first page of Publish modal', async () => {
+    render(<PlanOverviewPage />);
 
-  /**Test that status changes in sidebar when user selects a different status */
+    // Click the Publish button to open the modal
+    const publishButton = screen.getByText(/buttons.publish/i);
+    fireEvent.click(publishButton);
 
-  /** Test that modal closes after the above updates */
+    await waitFor(() => {
+      const checklist = screen.getByTestId('checklist');
+      expect(checklist).toBeInTheDocument();
+      expect(within(checklist).getByText('publishModal.publish.checklistItem.primaryContact')).toBeInTheDocument();
+      const linkPrimaryContact = within(checklist).getByRole('link', { name: 'Captain Nemo' });
+      expect(linkPrimaryContact).toBeInTheDocument();
+      expect(within(checklist).getByText(/publishModal\.publish\.checklistItem\.funderText\s*\(/i)).toBeInTheDocument();
+      const linkFunder = within(checklist).getByRole('link', { name: 'publishModal.publish.checklistItem.funder' });
+      expect(linkFunder).toBeInTheDocument();
+      expect(within(checklist).getByText('publishModal.publish.checklistItem.orcidText')).toBeInTheDocument();
+      const linkOrcid = within(checklist).getByRole('link', { name: 'publishModal.publish.checklistItem.projectMembers' });
+      expect(linkOrcid).toBeInTheDocument();
+      expect(within(checklist).getByText('publishModal.publish.checklistItem.complete')).toBeInTheDocument();
+      expect(within(checklist).getByText('publishModal.publish.checklistItem.percentageAnswered')).toBeInTheDocument();
+      expect(within(checklist).getByText('publishModal.publish.checklistItem.requiredFields')).toBeInTheDocument();
+      const requiredFields = screen.getByText((content) =>
+        content.includes('3') && content.includes('publishModal.publish.checklistInfo')
+      );
+      expect(requiredFields).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'buttons.close' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'publishModal.publish.buttonNext' })).toBeInTheDocument();
+    });
+  });
 
-  /** Test that clicking on links goes to correct url */
+  it('should have correct info in second page of Publish modal', async () => {
+    render(<PlanOverviewPage />);
+
+    // Click the Publish button to open the modal
+    const publishButton = screen.getByText(/buttons.publish/i);
+    fireEvent.click(publishButton);
+
+    const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext' });
+    fireEvent.click(nextButton);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'publishModal.publish.visibilityTitle' })).toBeInTheDocument();
+      expect(screen.getByText('publishModal.publish.visibilityDescription')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'publishModal.publish.visibilityOptionsTitle' })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /private/i })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /public/i })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /organizational/i })).toBeInTheDocument();
+      expect(screen.getByText('publishModal.publish.visibilityOptions.public.label')).toBeInTheDocument();
+      expect(screen.getByText('publishModal.publish.visibilityOptions.public.description')).toBeInTheDocument();
+      expect(screen.getByText('publishModal.publish.visibilityOptions.organization.label')).toBeInTheDocument();
+      expect(screen.getByText('publishModal.publish.visibilityOptions.organization.description')).toBeInTheDocument();
+      expect(screen.getByText('publishModal.publish.visibilityOptions.private.label')).toBeInTheDocument();
+      expect(screen.getByText('publishModal.publish.visibilityOptions.private.description')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'buttons.close' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'publishModal.publish.title' })).toBeInTheDocument();
+    });
+  });
+
+  it('should call publishPlan mutation with correct info when user clicks Publish button', async () => {
+    // Mock the cookies function
+    const mockCookies = {
+      toString: jest.fn().mockReturnValue("mockedCookie=value"),
+    };
+    (cookies as jest.Mock).mockReturnValue(mockCookies);
+
+
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          publishPlan: {
+            success: true,
+          },
+        },
+      }),
+    }) as jest.Mock;
+    render(<PlanOverviewPage />);
+
+    // Click the Publish button to open the modal
+    const publishButton = screen.getByText(/buttons.publish/i);
+    fireEvent.click(publishButton);
+
+    const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext' });
+    fireEvent.click(nextButton);
+
+    // Select the visibility option
+    const publicRadio = screen.getByRole('radio', { name: /public/i });
+    fireEvent.click(publicRadio);
+
+    // Click the Publish button in the modal
+    const publishPlanButton = screen.getByRole('button', { name: 'publishModal.publish.title' });
+    fireEvent.click(publishPlanButton);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/graphql"),
+        expect.objectContaining({
+          method: "POST",
+          body: expect.stringContaining("mutation PublishPlan"),
+        })
+      );
+
+      const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
+      expect(body.variables).toEqual({
+        planId: expect.any(Number),
+        visibility: "PUBLIC",
+      });
+    });
+  });
+
+  it('should call updatePlanStatus mutation with correct info when user changes', async () => {
+    // Mock the cookies function
+    const mockCookies = {
+      toString: jest.fn().mockReturnValue("mockedCookie=value"),
+    };
+    (cookies as jest.Mock).mockReturnValue(mockCookies);
+
+
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: {
+          publishPlan: {
+            success: true,
+          },
+        },
+      }),
+    }) as jest.Mock;
+
+    render(<PlanOverviewPage />);
+
+    // First check that inital Plan Status is DRAFT
+    expect(screen.getByText('DRAFT')).toBeInTheDocument();
+
+    // Click the Update link next to Plan Status to reveal the select dropdown
+    const updateLink = screen.getByTestId('updateLink');
+    await act(async () => {
+      fireEvent.click(updateLink);
+    });
+
+    // Find the dropdown button using its aria-label
+    const dropdownButton = screen.getByRole('button', { name: /draft/i });
+    await act(async () => {
+      fireEvent.click(dropdownButton);
+    });
+
+    // Find the dropdown container (role="listbox")
+    const listbox = screen.getByRole('listbox');
+
+    // Find the "Complete" option (role="option") within the listbox
+    const option = within(listbox).getByRole('option', { name: /Complete/i });
+
+    // Click the "Complete" option
+    await act(async () => {
+      fireEvent.click(option);
+    });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+
+    // Click the save button
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/graphql"),
+        expect.objectContaining({
+          method: "POST",
+          body: expect.stringContaining("mutation UpdatePlanStatus"),
+        })
+      );
+
+      const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
+      expect(body.variables).toEqual({
+        planId: expect.any(Number),
+        status: "COMPLETE",
+      });
+    });
+  });
 
   it('should pass accessibility tests', async () => {
     const { container } = render(<PlanOverviewPage />);
