@@ -168,13 +168,16 @@ export interface QuestionOptions {
 export interface Question {
   id?: number | null | undefined;
   displayOrder?: number | null;
+  questionTypeId?: number | null;
   questionText?: string | null;
   requirementText?: string | null;
   guidanceText?: string | null;
   sampleText?: string | null;
   useSampleTextAsDefault?: boolean | null;
   required?: boolean;
+  templateId?: number | null;
   questionOptions?: QuestionOptions[] | null;
+  modified?: string | null;
 }
 
 export interface ProjectSearchResultInterface {
@@ -299,6 +302,7 @@ export interface ProjectContributorFormInterface {
   email: string;
   orcid: string;
 }
+
 
 export interface PlanContributorRolesInterface {
   id: number | null;
