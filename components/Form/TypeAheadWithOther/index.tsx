@@ -1,15 +1,15 @@
 'use client'
 
-import React, {useEffect, useRef, useState} from 'react';
-import {DocumentNode} from '@apollo/client';
+import React, { useEffect, useRef, useState } from 'react';
+import { DocumentNode } from '@apollo/client';
 import {
-  FieldError,
-  Input,
-  Label,
-  Text,
-  TextField,
+    FieldError,
+    Input,
+    Label,
+    Text,
+    TextField,
 } from "react-aria-components";
-import {createApolloClient} from '@/lib/graphql/client/apollo-client';
+import { createApolloClient } from '@/lib/graphql/client/apollo-client';
 import Spinner from '@/components/Spinner';
 import classNames from 'classnames';
 import styles from './typeaheadWithOther.module.scss';
@@ -237,7 +237,7 @@ const TypeAheadWithOther = ({
 
                 if (!signal.aborted) {
                     if (!resultsKey) {
-                      throw Error("'resultsKey' property is missing on typeahead field, please provide the key that contain the results data.");
+                        throw Error("'resultsKey' property is missing on typeahead field, please provide the key that contain the results data.");
                     }
                     setSuggestions(data[resultsKey]);
                     setOpen(true);
@@ -307,7 +307,6 @@ const TypeAheadWithOther = ({
                     autoComplete="off"
                 />
                 {/*<FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>*/}
-                {error ? (<div className={styles.errorMessage}>{error}</div>) : <FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>}
                 {helpText && (
                     <Text slot="description" className={styles.helpText}>
                         {helpText}

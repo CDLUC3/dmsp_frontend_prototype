@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor, } from '@/utils/test-utils';
+import { fireEvent, render, screen, waitFor, } from '@testing-library/react';
 import logECS from '@/utils/clientLogger';
 
 import LoginPage from '../page';
@@ -40,19 +40,6 @@ jest.mock('@/context/CsrfContext', () => ({
   useCsrf: jest.fn(),
 }));
 
-
-jest.mock('next-intl', () => ({
-  // useFormatter: jest.fn(() => ({
-  //   dateTime: jest.fn(() => '01-01-2023'),
-  // })),
-  useTranslations: jest.fn(() => (key) => {
-    const translations = {
-      "LoginPage.pageTitle": "Login",
-    };
-    return translations[key] || key;
-  }),
-  useLocale: jest.fn(() => 'en-US'),
-}));
 
 
 // Create a mock for scrollIntoView and focus

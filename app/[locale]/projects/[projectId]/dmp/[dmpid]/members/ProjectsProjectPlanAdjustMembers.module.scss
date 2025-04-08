@@ -1,28 +1,45 @@
 @import '@/styles/responsive';
 
 .membersList {
-
-}
-
-.membersListItem {
   display: grid;
+  align-items: start; // Align to top
+  grid-template-columns: auto 1fr; /* auto-width for checkbox, remaining space for others */
+  width: 100%;
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-3);
 
-
-  @include device(xl) {
-    grid-template-columns: auto 3fr 1fr 1fr;
+  > *:not(:first-child) {
+    padding-left: 20px; /* Adds space only to elements after the first column */
   }
 
-  gap: 1rem;
-  align-items: flex-start;
-  padding: 1rem 0;
-  margin-bottom: 1rem;
+  .box {
+    align-self: start; // Align to top
+  }
+
+  .memberBtn {
+    margin-top: var(--space-4);
+  }
+}
+
+.memberCheckbox {
+  grid-column: 1;
+  grid-row: 1;
+  width: min-content; /* Make the checkbox column only as wide as needed */
+  justify-self: start; /* Align to the start of the cell */
+}
+
+.primaryContact {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
 }
 
 .memberInfo {
+  grid-column: 2;
+  grid-row: 1;
+
   h3 {
     margin: 0 0 0.5rem 0;
     font-size: 1.1rem;
-    padding-top: 0;
   }
 
   p {
@@ -33,14 +50,17 @@
 
   .orcid {
     font-size: var(--fs-small);
-    span{
+
+    span {
       margin-right: 0.5rem;
     }
+
     a {
       color: var(--text-secondary);
       text-decoration: underline;
       text-underline-offset: 4px;
       font-size: var(--fs-small);
+
       &:hover {
         text-decoration: underline;
       }
@@ -48,7 +68,11 @@
   }
 }
 
+/* on mobile, columns 3 and 4 will stack below the member info*/
 .memberRole {
+  grid-column: 2;
+  grid-row: 2;
+
   .role {
     margin: 0;
     color: var(--text-secondary);
@@ -56,29 +80,66 @@
 }
 
 .memberActions {
-  display: flex;
-  gap: 0.5rem;
-
-
-  @include device(xl) {
-    justify-content: flex-end; // Aligns buttons to the right
-  }
+  grid-column: 2;
+  grid-row: 3;
 }
 
-.collaboratorAccess {
-  margin-top: 3rem;
-  padding: 2rem 0rem;
-  background: var(--background-secondary);
-  border-radius: 4px;
-  max-width: 40rem;
+.otherOptions {
+  margin-top: var(--space-8);
+  width: 100%;
+}
 
-  h2 {
-    margin: 0 0 1rem 0;
-    font-size: 1.2rem;
+.notMember {
+  color: var(--gray-200);
+}
+
+.primaryContactSelect {
+  width: auto;
+  min-width: fit-content;
+  max-width: max-content;
+}
+
+.primaryContactWrapper {
+  margin: var(--space-8) 0 var(--space-12) 0;
+}
+.primaryContactChangeWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .linkButton {
+    padding-left: 0.25rem;
+  }
+  
+}
+@include device('lg') {
+  .membersList {
+    /* Four columns: auto-width for checkbox, remaining space divided among the other three */
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+    justify-content: start; /* Ensure the grid starts from the left */
+    align-items: start;
   }
 
-  p {
-    margin: 0 0 1.5rem 0;
-    color: var(--text-secondary);
+  .membersList .memberBtn {
+    margin-top: 0;
+  }
+
+  .memberInfo {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .memberRole {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .memberActions {
+    grid-column: 4;
+    grid-row: 1;
+  }
+  
+  .otherOptions {
+    width: 70%;
   }
 }

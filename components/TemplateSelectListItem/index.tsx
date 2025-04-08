@@ -11,7 +11,7 @@ interface TemplateSelectListItemProps {
     template?: {
       id?: number | null;
     },
-    funder?: string | undefined;
+    funder?: string | null;
     title: string;
     description?: string;
     lastRevisedBy?: number;

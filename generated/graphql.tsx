@@ -1160,8 +1160,10 @@ export type MutationUpdatePasswordArgs = {
 
 
 export type MutationUpdatePlanContributorArgs = {
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  isPrimaryContact?: InputMaybe<Scalars['Boolean']['input']>;
   planContributorId: Scalars['Int']['input'];
-  roleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -1854,6 +1856,72 @@ export type ProjectOutputErrors = {
   title?: Maybe<Scalars['String']['output']>;
 };
 
+export type ProjectSearchResult = {
+  __typename?: 'ProjectSearchResult';
+  /** The research project abstract */
+  abstractText?: Maybe<Scalars['String']['output']>;
+  /** The names and access levels of the collaborators */
+  collaborators?: Maybe<Array<ProjectSearchResultCollaborator>>;
+  /** The names and roles of the contributors */
+  contributors?: Maybe<Array<ProjectSearchResultContributor>>;
+  /** The timestamp when the project was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The id of the person who created the project */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the person who created the project */
+  createdByName?: Maybe<Scalars['String']['output']>;
+  /** The estimated date the research project will end (use YYYY-MM-DD format) */
+  endDate?: Maybe<Scalars['String']['output']>;
+  /** Search results errors */
+  errors?: Maybe<ProjectErrors>;
+  /** The names of the funders */
+  funders?: Maybe<Array<ProjectSearchResultFunder>>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not this is test/mock research project */
+  isTestProject?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the project was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The id of the person who last modified the project */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the person who last modified the project */
+  modifiedByName?: Maybe<Scalars['String']['output']>;
+  /** The type of research being done */
+  researchDomain?: Maybe<Scalars['String']['output']>;
+  /** The estimated date the research project will begin (use YYYY-MM-DD format) */
+  startDate?: Maybe<Scalars['String']['output']>;
+  /** The name/title of the research project */
+  title?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectSearchResultCollaborator = {
+  __typename?: 'ProjectSearchResultCollaborator';
+  /** The access level of the collaborator */
+  accessLevel?: Maybe<Scalars['String']['output']>;
+  /** The name of the collaborator */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The ORCiD ID */
+  orcid?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectSearchResultContributor = {
+  __typename?: 'ProjectSearchResultContributor';
+  /** The name of the contributor */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The ORCiD ID */
+  orcid?: Maybe<Scalars['String']['output']>;
+  /** The role of the contributor */
+  role?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProjectSearchResultFunder = {
+  __typename?: 'ProjectSearchResultFunder';
+  /** The grant id/url */
+  grantId?: Maybe<Scalars['String']['output']>;
+  /** The name of the funder */
+  name?: Maybe<Scalars['String']['output']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -1892,11 +1960,11 @@ export type Query = {
   /** Search for a metadata standard */
   metadataStandards?: Maybe<Array<Maybe<MetadataStandard>>>;
   /** Get all of the user's projects */
-  myProjects?: Maybe<Array<Maybe<Project>>>;
+  myProjects?: Maybe<Array<Maybe<ProjectSearchResult>>>;
   /** Get the Templates that belong to the current user's affiliation (user must be an Admin) */
-  myTemplates?: Maybe<Array<Maybe<Template>>>;
+  myTemplates?: Maybe<Array<Maybe<TemplateSearchResult>>>;
   /** Get the VersionedTemplates that belong to the current user's affiliation (user must be an Admin) */
-  myVersionedTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
+  myVersionedTemplates?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
   /** Get all the research output types */
   outputTypes?: Maybe<Array<Maybe<OutputType>>>;
   /** Get a specific plan */
@@ -1936,7 +2004,7 @@ export type Query = {
   /** Search for VersionedSection whose name contains the search term */
   publishedSections?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
-  publishedTemplates?: Maybe<Array<Maybe<VersionedTemplate>>>;
+  publishedTemplates?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
   /** Get the specific Question based on questionId */
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
@@ -2726,6 +2794,43 @@ export type TemplateErrors = {
   visibility?: Maybe<Scalars['String']['output']>;
 };
 
+/** A search result for templates */
+export type TemplateSearchResult = {
+  __typename?: 'TemplateSearchResult';
+  /** Whether or not this Template is designated as a 'Best Practice' template */
+  bestPractice?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the Template was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The id of the person who created the template */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** the name of the person who created the template */
+  createdByName?: Maybe<Scalars['String']['output']>;
+  /** A description of the purpose of the template */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not the Template has had any changes since it was last published */
+  isDirty?: Maybe<Scalars['Boolean']['output']>;
+  /** The last published date */
+  latestPublishDate?: Maybe<Scalars['String']['output']>;
+  /** The last published version */
+  latestPublishVersion?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Template was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The id of the person who last modified the template */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the person who last modified the template */
+  modifiedByName?: Maybe<Scalars['String']['output']>;
+  /** The name/title of the template */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The display name of the affiliation that owns the Template */
+  ownerDisplayName?: Maybe<Scalars['String']['output']>;
+  /** The id of the affiliation that owns the Template */
+  ownerId?: Maybe<Scalars['String']['output']>;
+  /** The template's availability setting: Public is available to everyone, Private only your affiliation */
+  visibility?: Maybe<TemplateVisibility>;
+};
+
 /** Template version type */
 export enum TemplateVersionType {
   /** Draft - saved state for internal review */
@@ -3230,6 +3335,39 @@ export type VersionedTemplateErrors = {
   visibility?: Maybe<Scalars['String']['output']>;
 };
 
+/** An abbreviated view of a Template for pages that allow search/filtering of published Templates */
+export type VersionedTemplateSearchResult = {
+  __typename?: 'VersionedTemplateSearchResult';
+  /** Whether or not this Template is designated as a 'Best Practice' template */
+  bestPractice?: Maybe<Scalars['Boolean']['output']>;
+  /** A description of the purpose of the template */
+  description?: Maybe<Scalars['String']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The timestamp when the Template was last modified */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The name of the last person who modified the Template */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** The name of the last person who modified the Template */
+  modifiedByName?: Maybe<Scalars['String']['output']>;
+  /** The name/title of the template */
+  name?: Maybe<Scalars['String']['output']>;
+  /** The display name of the affiliation that owns the Template */
+  ownerDisplayName?: Maybe<Scalars['String']['output']>;
+  /** The id of the affiliation that owns the Template */
+  ownerId?: Maybe<Scalars['Int']['output']>;
+  /** The search name of the affiliation that owns the Template */
+  ownerSearchName?: Maybe<Scalars['String']['output']>;
+  /** The URI of the affiliation that owns the Template */
+  ownerURI?: Maybe<Scalars['String']['output']>;
+  /** The id of the template that this version is based on */
+  templateId?: Maybe<Scalars['Int']['output']>;
+  /** The major.minor semantic version */
+  version?: Maybe<Scalars['String']['output']>;
+  /** The template's availability setting: Public is available to everyone, Private only your affiliation */
+  visibility?: Maybe<TemplateVisibility>;
+};
+
 export type UpdateProjectContributorInput = {
   /** The contributor's affiliation URI */
   affiliationId?: InputMaybe<Scalars['String']['input']>;
@@ -3293,6 +3431,31 @@ export type AddPlanMutationVariables = Exact<{
 
 
 export type AddPlanMutation = { __typename?: 'Mutation', addPlan?: { __typename?: 'Plan', id?: number | null } | null };
+
+export type AddPlanContributorMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  projectContributorId: Scalars['Int']['input'];
+}>;
+
+
+export type AddPlanContributorMutation = { __typename?: 'Mutation', addPlanContributor?: { __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null, contributorRoleIds?: string | null, primaryContact?: string | null, projectContributorId?: string | null, projectId?: string | null } | null } | null };
+
+export type RemovePlanContributorMutationVariables = Exact<{
+  planContributorId: Scalars['Int']['input'];
+}>;
+
+
+export type RemovePlanContributorMutation = { __typename?: 'Mutation', removePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null, primaryContact?: string | null, projectContributorId?: string | null, projectId?: string | null, contributorRoleIds?: string | null } | null } | null };
+
+export type UpdatePlanContributorMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  planContributorId: Scalars['Int']['input'];
+  isPrimaryContact?: InputMaybe<Scalars['Boolean']['input']>;
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']> | Scalars['Int']['input']>;
+}>;
+
+
+export type UpdatePlanContributorMutation = { __typename?: 'Mutation', updatePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null } | null };
 
 export type UpdateProjectContributorMutationVariables = Exact<{
   input: UpdateProjectContributorInput;
@@ -3452,6 +3615,13 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
 
+export type PlanContributorsQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+}>;
+
+
+export type PlanContributorsQuery = { __typename?: 'Query', planContributors?: Array<{ __typename?: 'PlanContributor', id?: number | null, isPrimaryContact?: boolean | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null, projectContributor?: { __typename?: 'ProjectContributor', id?: number | null, givenName?: string | null, surName?: string | null } | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', uri: string, id?: number | null, label: string, description?: string | null, displayOrder: number }> | null } | null> | null };
+
 export type ProjectContributorsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
 }>;
@@ -3476,7 +3646,7 @@ export type ProjectFunderQuery = { __typename?: 'Query', projectFunder?: { __typ
 export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'Project', title: string, id?: number | null, startDate?: string | null, endDate?: string | null, contributors?: Array<{ __typename?: 'ProjectContributor', surName?: string | null, givenName?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string }> | null }> | null, funders?: Array<{ __typename?: 'ProjectFunder', grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, uri: string } | null }> | null, errors?: { __typename?: 'ProjectErrors', general?: string | null, title?: string | null } | null } | null> | null };
+export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'ProjectSearchResult', title?: string | null, id?: number | null, startDate?: string | null, endDate?: string | null, funders?: Array<{ __typename?: 'ProjectSearchResultFunder', name?: string | null, grantId?: string | null }> | null, contributors?: Array<{ __typename?: 'ProjectSearchResultContributor', name?: string | null, role?: string | null, orcid?: string | null }> | null, errors?: { __typename?: 'ProjectErrors', general?: string | null, title?: string | null } | null } | null> | null };
 
 export type ProjectQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -3502,7 +3672,7 @@ export type QuestionQueryVariables = Exact<{
 }>;
 
 
-export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
+export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, questionOptionIds?: string | null, questionTypeId?: string | null, sectionId?: string | null, sourceQestionId?: string | null, templateId?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3545,17 +3715,17 @@ export type TemplateVersionsQuery = { __typename?: 'Query', templateVersions?: A
 export type MyVersionedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, versionType?: TemplateVersionType | null, visibility: TemplateVisibility, errors?: { __typename?: 'VersionedTemplateErrors', general?: string | null, templateId?: string | null, name?: string | null, ownerId?: string | null, version?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, owner?: { __typename?: 'Affiliation', id?: number | null, searchName: string, name: string, displayName: string } | null } | null } | null> | null };
+export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTemplates?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null };
 
 export type PublishedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplate', id?: number | null, bestPractice: boolean, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, template?: { __typename?: 'Template', id?: number | null } | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string, uri: string } | null, errors?: { __typename?: 'VersionedTemplateErrors', general?: string | null, templateId?: string | null, name?: string | null, ownerId?: string | null, version?: string | null } | null } | null> | null };
+export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null };
 
 export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', myTemplates?: Array<{ __typename?: 'Template', id?: number | null, name: string, description?: string | null, modified?: string | null, modifiedById?: number | null, visibility: TemplateVisibility, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null } | null> | null };
+export type TemplatesQuery = { __typename?: 'Query', myTemplates?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null } | null> | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -3611,6 +3781,133 @@ export function useAddPlanMutation(baseOptions?: Apollo.MutationHookOptions<AddP
 export type AddPlanMutationHookResult = ReturnType<typeof useAddPlanMutation>;
 export type AddPlanMutationResult = Apollo.MutationResult<AddPlanMutation>;
 export type AddPlanMutationOptions = Apollo.BaseMutationOptions<AddPlanMutation, AddPlanMutationVariables>;
+export const AddPlanContributorDocument = gql`
+    mutation AddPlanContributor($planId: Int!, $projectContributorId: Int!) {
+  addPlanContributor(planId: $planId, projectContributorId: $projectContributorId) {
+    errors {
+      general
+      contributorRoleIds
+      primaryContact
+      projectContributorId
+      projectId
+    }
+    id
+    isPrimaryContact
+  }
+}
+    `;
+export type AddPlanContributorMutationFn = Apollo.MutationFunction<AddPlanContributorMutation, AddPlanContributorMutationVariables>;
+
+/**
+ * __useAddPlanContributorMutation__
+ *
+ * To run a mutation, you first call `useAddPlanContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPlanContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPlanContributorMutation, { data, loading, error }] = useAddPlanContributorMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      projectContributorId: // value for 'projectContributorId'
+ *   },
+ * });
+ */
+export function useAddPlanContributorMutation(baseOptions?: Apollo.MutationHookOptions<AddPlanContributorMutation, AddPlanContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddPlanContributorMutation, AddPlanContributorMutationVariables>(AddPlanContributorDocument, options);
+      }
+export type AddPlanContributorMutationHookResult = ReturnType<typeof useAddPlanContributorMutation>;
+export type AddPlanContributorMutationResult = Apollo.MutationResult<AddPlanContributorMutation>;
+export type AddPlanContributorMutationOptions = Apollo.BaseMutationOptions<AddPlanContributorMutation, AddPlanContributorMutationVariables>;
+export const RemovePlanContributorDocument = gql`
+    mutation RemovePlanContributor($planContributorId: Int!) {
+  removePlanContributor(planContributorId: $planContributorId) {
+    errors {
+      general
+      primaryContact
+      projectContributorId
+      projectId
+      contributorRoleIds
+    }
+    id
+    isPrimaryContact
+  }
+}
+    `;
+export type RemovePlanContributorMutationFn = Apollo.MutationFunction<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>;
+
+/**
+ * __useRemovePlanContributorMutation__
+ *
+ * To run a mutation, you first call `useRemovePlanContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemovePlanContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removePlanContributorMutation, { data, loading, error }] = useRemovePlanContributorMutation({
+ *   variables: {
+ *      planContributorId: // value for 'planContributorId'
+ *   },
+ * });
+ */
+export function useRemovePlanContributorMutation(baseOptions?: Apollo.MutationHookOptions<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>(RemovePlanContributorDocument, options);
+      }
+export type RemovePlanContributorMutationHookResult = ReturnType<typeof useRemovePlanContributorMutation>;
+export type RemovePlanContributorMutationResult = Apollo.MutationResult<RemovePlanContributorMutation>;
+export type RemovePlanContributorMutationOptions = Apollo.BaseMutationOptions<RemovePlanContributorMutation, RemovePlanContributorMutationVariables>;
+export const UpdatePlanContributorDocument = gql`
+    mutation UpdatePlanContributor($planId: Int!, $planContributorId: Int!, $isPrimaryContact: Boolean, $contributorRoleIds: [Int!]) {
+  updatePlanContributor(
+    planId: $planId
+    planContributorId: $planContributorId
+    contributorRoleIds: $contributorRoleIds
+    isPrimaryContact: $isPrimaryContact
+  ) {
+    id
+    errors {
+      general
+    }
+  }
+}
+    `;
+export type UpdatePlanContributorMutationFn = Apollo.MutationFunction<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>;
+
+/**
+ * __useUpdatePlanContributorMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlanContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlanContributorMutation, { data, loading, error }] = useUpdatePlanContributorMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      planContributorId: // value for 'planContributorId'
+ *      isPrimaryContact: // value for 'isPrimaryContact'
+ *      contributorRoleIds: // value for 'contributorRoleIds'
+ *   },
+ * });
+ */
+export function useUpdatePlanContributorMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>(UpdatePlanContributorDocument, options);
+      }
+export type UpdatePlanContributorMutationHookResult = ReturnType<typeof useUpdatePlanContributorMutation>;
+export type UpdatePlanContributorMutationResult = Apollo.MutationResult<UpdatePlanContributorMutation>;
+export type UpdatePlanContributorMutationOptions = Apollo.BaseMutationOptions<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>;
 export const UpdateProjectContributorDocument = gql`
     mutation UpdateProjectContributor($input: updateProjectContributorInput!) {
   updateProjectContributor(input: $input) {
@@ -4573,6 +4870,62 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const PlanContributorsDocument = gql`
+    query PlanContributors($planId: Int!) {
+  planContributors(planId: $planId) {
+    id
+    isPrimaryContact
+    errors {
+      general
+    }
+    projectContributor {
+      id
+      givenName
+      surName
+    }
+    contributorRoles {
+      uri
+      id
+      label
+      description
+      displayOrder
+    }
+  }
+}
+    `;
+
+/**
+ * __usePlanContributorsQuery__
+ *
+ * To run a query within a React component, call `usePlanContributorsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanContributorsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanContributorsQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function usePlanContributorsQuery(baseOptions: Apollo.QueryHookOptions<PlanContributorsQuery, PlanContributorsQueryVariables> & ({ variables: PlanContributorsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanContributorsQuery, PlanContributorsQueryVariables>(PlanContributorsDocument, options);
+      }
+export function usePlanContributorsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanContributorsQuery, PlanContributorsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanContributorsQuery, PlanContributorsQueryVariables>(PlanContributorsDocument, options);
+        }
+export function usePlanContributorsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanContributorsQuery, PlanContributorsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanContributorsQuery, PlanContributorsQueryVariables>(PlanContributorsDocument, options);
+        }
+export type PlanContributorsQueryHookResult = ReturnType<typeof usePlanContributorsQuery>;
+export type PlanContributorsLazyQueryHookResult = ReturnType<typeof usePlanContributorsLazyQuery>;
+export type PlanContributorsSuspenseQueryHookResult = ReturnType<typeof usePlanContributorsSuspenseQuery>;
+export type PlanContributorsQueryResult = Apollo.QueryResult<PlanContributorsQuery, PlanContributorsQueryVariables>;
 export const ProjectContributorsDocument = gql`
     query ProjectContributors($projectId: Int!) {
   projectContributors(projectId: $projectId) {
@@ -4729,22 +5082,16 @@ export const MyProjectsDocument = gql`
   myProjects {
     title
     id
-    contributors {
-      surName
-      givenName
-      contributorRoles {
-        label
-      }
-      orcid
-    }
     startDate
     endDate
     funders {
-      affiliation {
-        name
-        uri
-      }
+      name
       grantId
+    }
+    contributors {
+      name
+      role
+      orcid
     }
     errors {
       general
@@ -4965,6 +5312,15 @@ export const QuestionDocument = gql`
     errors {
       general
       questionText
+      requirementText
+      sampleText
+      displayOrder
+      questionConditionIds
+      questionOptionIds
+      questionTypeId
+      sectionId
+      sourceQestionId
+      templateId
     }
     displayOrder
     questionText
@@ -5297,28 +5653,19 @@ export const MyVersionedTemplatesDocument = gql`
     query MyVersionedTemplates {
   myVersionedTemplates {
     id
+    templateId
     name
     description
+    visibility
+    bestPractice
+    version
     modified
     modifiedById
-    versionType
-    visibility
-    errors {
-      general
-      templateId
-      name
-      ownerId
-      version
-    }
-    template {
-      id
-      owner {
-        id
-        searchName
-        name
-        displayName
-      }
-    }
+    modifiedByName
+    ownerId
+    ownerURI
+    ownerDisplayName
+    ownerSearchName
   }
 }
     `;
@@ -5358,28 +5705,19 @@ export const PublishedTemplatesDocument = gql`
     query PublishedTemplates {
   publishedTemplates {
     id
-    bestPractice
-    template {
-      id
-    }
+    templateId
     name
     description
+    visibility
+    bestPractice
+    version
     modified
     modifiedById
-    owner {
-      name
-      displayName
-      searchName
-      uri
-    }
-    visibility
-    errors {
-      general
-      templateId
-      name
-      ownerId
-      version
-    }
+    modifiedByName
+    ownerId
+    ownerURI
+    ownerDisplayName
+    ownerSearchName
   }
 }
     `;
@@ -5421,36 +5759,15 @@ export const TemplatesDocument = gql`
     id
     name
     description
+    visibility
+    isDirty
+    latestPublishVersion
+    latestPublishDate
+    ownerId
+    ownerDisplayName
     modified
     modifiedById
-    sections {
-      id
-      name
-      bestPractice
-      displayOrder
-      isDirty
-      questions {
-        errors {
-          general
-          templateId
-          sectionId
-          questionText
-          displayOrder
-        }
-        displayOrder
-        guidanceText
-        id
-        questionText
-        sectionId
-        templateId
-      }
-    }
-    owner {
-      name
-      displayName
-      searchName
-    }
-    visibility
+    modifiedByName
   }
 }
     `;

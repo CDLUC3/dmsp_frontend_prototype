@@ -8,6 +8,7 @@
     "clean-build": "rm -rf node_modules/.cache && rm -rf .next && next build",
     "start": "next start",
     "lint": "next lint && npx eslint .",
+    "type-check": "tsc --noEmit",
     "generate": "graphql-codegen --config codegen.ts",
     "prepare": "husky",
     "test": "jest --coverage",

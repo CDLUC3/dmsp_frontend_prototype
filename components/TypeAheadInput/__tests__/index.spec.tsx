@@ -35,6 +35,7 @@ describe('TypeAheadInput', () => {
     it('should render initial state correctly', () => {
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -49,6 +50,7 @@ describe('TypeAheadInput', () => {
     it('should pass axe accessibility test', async () => {
         const { container } = render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -72,6 +74,7 @@ describe('TypeAheadInput', () => {
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -109,6 +112,7 @@ describe('TypeAheadInput', () => {
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -136,6 +140,7 @@ describe('TypeAheadInput', () => {
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -177,6 +182,7 @@ describe('TypeAheadInput', () => {
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -217,6 +223,7 @@ describe('TypeAheadInput', () => {
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -242,6 +249,7 @@ describe('TypeAheadInput', () => {
         });
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
