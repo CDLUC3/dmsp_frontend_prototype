@@ -48,14 +48,6 @@ describe('PlanOverviewPage', () => {
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ projectId: '123' });
 
-    // Mock useFormatter
-    /* eslint-disable @typescript-eslint/no-var-requires */
-
-    const nextIntl = require('next-intl');
-    nextIntl.useFormatter = jest.fn(() => ({
-      dateTime: jest.fn(() => '01-01-2023'),
-    }));
-
     // Mock the hook for data state
     (usePlanQuery as jest.Mock).mockReturnValue({
       data: { plan: mockPlanData.plan },
@@ -87,7 +79,7 @@ describe('PlanOverviewPage', () => {
 
   it('should render plan data', async () => {
     render(<PlanOverviewPage />);
-    screen.debug(document.body, Infinity);
+
     expect(screen.getByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).toBeInTheDocument();
     expect(screen.getByText('National Science Foundation (nsf.gov)')).toBeInTheDocument();
     expect(screen.getByText('members.title')).toBeInTheDocument();
@@ -108,7 +100,7 @@ describe('PlanOverviewPage', () => {
     expect(within(sidebar).getByRole('button', { name: 'buttons.preview' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('button', { name: 'buttons.publish' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
-    expect(within(sidebar).getByRole('link', { name: 'Request feedback' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.title' })).toBeInTheDocument();
     expect(within(sidebar).getByText('PUBLISHED')).toBeInTheDocument();
     expect(within(sidebar).getByText('buttons.linkUpdate')).toBeInTheDocument();

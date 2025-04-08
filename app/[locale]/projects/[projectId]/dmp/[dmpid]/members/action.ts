@@ -3,17 +3,8 @@
 import { AddPlanContributorDocument } from "@/generated/graphql";
 import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
 import logger from "@/utils/logger";
-interface AddPlanContributorResponse {
-  success: boolean;
-  errors?: { general?: string } | string[];
-  data?: {
-    errors?: {
-      general: string;
-      [key: string]: string | null;
-    };
-  };
-  redirect?: string;
-}
+import { ActionResponse } from "@/app/types";
+
 
 export async function addPlanContributorAction({
   planId,
@@ -21,7 +12,7 @@ export async function addPlanContributorAction({
 }: {
   planId: number;
   projectContributorId: number;
-}): Promise<AddPlanContributorResponse> {
+}): Promise<ActionResponse> {
 
   try {
     // Extract mutation string from the generated document

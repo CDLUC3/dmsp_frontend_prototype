@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useReducer } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -36,7 +36,6 @@ import {
 } from '@/components/Form';
 
 import logECS from '@/utils/clientLogger';
-import { toSentenceCase } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { publishPlanAction } from './publishPlanAction';
 import {
@@ -77,17 +76,9 @@ const initialState: {
   planData: {
     id: null,
     dmpId: '',
-    doi: '',
-    lastUpdated: '',
-    createdDate: '',
     title: '',
     status: '',
-    templateName: '',
-    funderOpportunityNumber: null,
     funderName: '',
-    templateId: null,
-    publishedStatus: '',
-    visibility: '',
     primaryContact: '',
     members: [] as PlanMember[],
     sections: [] as PlanSectionProgress[],
@@ -142,9 +133,6 @@ const PlanOverviewPage: React.FC = () => {
   const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
   const dmpId = Array.isArray(params.dmpid) ? params.dmpid[0] : params.dmpid;
   const planId = Number(dmpId);
-  // next-intl date formatter
-  const formatter = useFormatter();
-
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   // Localization keys
@@ -153,7 +141,7 @@ const PlanOverviewPage: React.FC = () => {
 
 
   // Get Plan using planId
-  const { data, loading, error: queryError } = usePlanQuery(
+  const { data, loading, error: queryError, refetch } = usePlanQuery(
     {
       variables: { planId: Number(planId) },
       notifyOnNetworkStatusChange: true
@@ -261,7 +249,7 @@ const PlanOverviewPage: React.FC = () => {
     }
     return {
       success: false,
-      errors: ['Something went wrong. Please try again.'],
+      errors: [Global('messaging.somethingWentWrong')],
       data: null
     };
   }
@@ -287,26 +275,22 @@ const PlanOverviewPage: React.FC = () => {
           type: 'SET_ERROR_MESSAGES',
           payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
         })
-      } else if (errors && typeof errors === 'object' && errors !== null) {
+      }
+    } else {
+      if (
+        result.data?.errors &&
+        typeof result.data.errors === 'object' &&
+        typeof result.data.errors.general === 'string') {
         // Handle errors as an object with general or field-level errors
         dispatch({
           type: 'SET_ERROR_MESSAGES',
-          payload: [errors.general || Global('messaging.somethingWentWrong')]
+          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
         });
       }
+      //Need to refetch plan data to refresh the info that was changed
+      await refetch();
     }
   };
-
-  // Format date using next-intl date formatter
-  const formatDate = (date: string) => {
-    const formattedDate = formatter.dateTime(new Date(Number(date)), {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-    // Replace slashes with hyphens
-    return formattedDate.replace(/\//g, '-');
-  }
 
   const calculatePercentageAnswered = (sections: PlanSectionProgress[]) => {
     if (sections.length === 0) return 0;
@@ -319,25 +303,14 @@ const PlanOverviewPage: React.FC = () => {
   useEffect(() => {
     // When data from backend changes, set project data in state
     if (data && data.plan) {
-      const doiRegex = /(?:https?:\/\/(?:dx\.)?doi\.org\/|doi:)([^\/\s]+\/[^\/\s]+)/i;
-      const match = data?.plan?.dmpId?.match(doiRegex);
-      const doi = (match && match[1]) ? match[1] : data?.plan?.dmpId;
       dispatch({
         type: 'SET_PLAN_DATA',
         payload: {
           id: Number(data?.plan.id) ?? null,
-          doi: doi ?? '',
           dmpId: data?.plan.dmpId ?? '',
-          lastUpdated: formatDate(data?.plan?.modified ?? ''),
-          createdDate: formatDate(data?.plan?.created ?? ''),
-          templateName: data?.plan?.versionedTemplate?.template?.name ?? '',
           title: data?.plan?.project?.title ?? '',
           status: data?.plan?.status ?? '',
-          funderOpportunityNumber: Number(data?.plan?.project?.funders?.[0]?.funderOpportunityNumber) ?? '',
           funderName: data?.plan?.project?.funders?.[0]?.affiliation?.displayName ?? '',
-          templateId: data?.plan?.versionedTemplate?.template?.id ?? null,
-          publishedStatus: toSentenceCase(data?.plan?.status ?? ''),
-          visibility: toSentenceCase(data?.plan?.visibility ?? ''),
           primaryContact: data.plan.contributors
             ?.filter(member => member?.isPrimaryContact === true)
             ?.map(member => member?.projectContributor?.givenName + ' ' + member?.projectContributor?.surName)
@@ -355,6 +328,10 @@ const PlanOverviewPage: React.FC = () => {
           percentageAnswered: calculatePercentageAnswered(data?.plan?.sections ?? []) ?? 0,
         },
       })
+      dispatch({
+        type: 'SET_PLAN_VISIBILITY',
+        payload: data.plan.visibility as PlanVisibility
+      });
     }
   }, [data]);
 
@@ -579,9 +556,8 @@ const PlanOverviewPage: React.FC = () => {
               <div className={`${styles.panelRow} mb-5`}>
                 <div>
                   <h3>{t('status.feedback.title')}</h3>
-                  <p>No feedback</p>
                 </div>
-                <Link href={FEEDBACK_URL} aria-label="Request feedback" >
+                <Link href={FEEDBACK_URL} aria-label={Global('links.request')} >
                   {Global('links.request')}
                 </Link >
               </div >
@@ -729,7 +705,6 @@ const PlanOverviewPage: React.FC = () => {
                 </p>
 
                 <Heading level={2}>{t('publishModal.publish.visibilityOptionsTitle')}</Heading>
-
                 <RadioGroupComponent
                   name="visibility"
                   value={state.planVisibility.toLowerCase()}

@@ -3,7 +3,7 @@
 import { PublishPlanDocument } from "@/generated/graphql";
 import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
 import logger from "@/utils/logger";
-
+import { ActionResponse } from "@/app/types";
 
 export async function publishPlanAction({
   planId,
@@ -11,7 +11,7 @@ export async function publishPlanAction({
 }: {
   planId: number;
   visibility: string;
-}) {
+}): Promise<ActionResponse> {
 
   try {
     // Extract mutation string from the generated document

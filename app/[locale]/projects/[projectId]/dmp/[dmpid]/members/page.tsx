@@ -210,7 +210,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
     }
     return {
       success: false,
-      errors: ['Something went wrong. Please try again.'],
+      errors: [Global('messaging.somethingWentWrong')],
       data: null
     };
   };

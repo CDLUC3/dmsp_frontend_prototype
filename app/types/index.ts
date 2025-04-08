@@ -333,19 +333,23 @@ export interface ListItemsInterface {
 export interface PlanOverviewInterface {
   id: number | null;
   dmpId: string;
-  doi: string;
-  lastUpdated?: string;
-  createdDate?: string;
-  templateName: string;
   title: string;
   status: string;
-  funderOpportunityNumber?: number | null;
   funderName: string;
-  templateId: number | null;
   primaryContact: string;
-  publishedStatus: string;
-  visibility: string;
   members: PlanMember[];
   sections: PlanSectionProgress[];
   percentageAnswered: number;
+}
+
+export interface ActionResponse {
+  success: boolean;
+  errors?: { general?: string } | string[];
+  data?: {
+    errors?: {
+      general: string;
+      [key: string]: string | null;
+    };
+  };
+  redirect?: string;
 }
