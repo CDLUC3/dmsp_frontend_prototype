@@ -323,6 +323,12 @@ const PlanOverviewPage: React.FC = () => {
       payload: false
     });
 
+    // Set step back to Step 1
+    dispatch({
+      type: 'SET_STEP',
+      payload: 1
+    });
+
     const form = event.target as HTMLFormElement;
     const formData = new FormData(form);
 
@@ -690,7 +696,7 @@ const PlanOverviewPage: React.FC = () => {
 
         {state.step === 1 && (
           <Dialog>
-            <div className={`${styles.markAsCompleteModal} ${styles.dialogWrapper}`}>
+            <div className={`${styles.publishModal} ${styles.dialogWrapper}`}>
 
               <Heading slot="title">{t('publishModal.publish.title')}</Heading>
 
@@ -741,16 +747,16 @@ const PlanOverviewPage: React.FC = () => {
               </p>
 
               <div className="modal-actions">
-                <div className="">
-                  <Button data-secondary onPress={handleDialogCloseBtn}>{Global('buttons.close')}</Button>
-                </div>
-                <div className="">
+                <div>
                   <Button
                     type="submit"
                     onPress={() => dispatch({ type: 'SET_STEP', payload: 2 })}
                   >
-                    {t('publishModal.publish.buttonNext')}
+                    {t('publishModal.publish.buttonNext')} &gt;
                   </Button>
+                </div>
+                <div>
+                  <Button data-secondary className="secondary" onPress={handleDialogCloseBtn}>{Global('buttons.close')}</Button>
                 </div>
               </div>
             </div>
@@ -760,7 +766,7 @@ const PlanOverviewPage: React.FC = () => {
         {/* Step 2: Visibility Settings & Publish Plan button*/}
         {state.step === 2 && (
           <Dialog>
-            <div className={`${styles.markAsCompleteModal} ${styles.dialogWrapper}`}>
+            <div className={`${styles.publishModal} ${styles.dialogWrapper}`}>
               <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
 
                 <Heading slot="title">{t('publishModal.publish.visibilityTitle')}</Heading>
@@ -779,13 +785,14 @@ const PlanOverviewPage: React.FC = () => {
                 />
 
                 <div className="modal-actions">
-                  <div className="">
-                    <Button data-secondary onPress={handleDialogCloseBtn}>{Global('buttons.close')}</Button>
-                  </div>
-                  <div className="">
+                  <div>
                     <Button type="submit">{t('publishModal.publish.title')}</Button>
                   </div>
+                  <div>
+                    <Button data-secondary className="secondary" onPress={handleDialogCloseBtn}>{Global('buttons.close')}</Button>
+                  </div>
                 </div>
+
 
               </Form>
             </div>

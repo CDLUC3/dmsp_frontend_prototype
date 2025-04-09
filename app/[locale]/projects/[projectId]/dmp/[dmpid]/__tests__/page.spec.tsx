@@ -154,7 +154,7 @@ describe('PlanOverviewPage', () => {
       );
       expect(requiredFields).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'buttons.close' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'publishModal.publish.buttonNext' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'publishModal.publish.buttonNext >' })).toBeInTheDocument();
     });
   });
 
@@ -165,7 +165,7 @@ describe('PlanOverviewPage', () => {
     const publishButton = screen.getByText(/buttons.publish/i);
     fireEvent.click(publishButton);
 
-    const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext' });
+    const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext >' });
     fireEvent.click(nextButton);
 
     await waitFor(() => {
@@ -210,7 +210,7 @@ describe('PlanOverviewPage', () => {
     const publishButton = screen.getByText(/buttons.publish/i);
     fireEvent.click(publishButton);
 
-    const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext' });
+    const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext >' });
     fireEvent.click(nextButton);
 
     // Select the visibility option

@@ -420,11 +420,35 @@
     margin-bottom: 8px;
   }
 
+  /* We want buttons to be side by side on larger screens
+  but stack on top of each other on mobile*/
+
   .modal-actions {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     gap: 1rem;
     margin-top: 1rem;
+  
+    @include device(xl) {
+      flex-direction: row-reverse;
+    }
+  
+    > div {
+      flex: 1 1 auto;
+      max-width: 100%;
+    }
+  
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%; // allows stacking gracefully
+      text-align: center;
+    }
   }
 }
 

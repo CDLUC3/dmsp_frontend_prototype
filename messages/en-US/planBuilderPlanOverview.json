@@ -58,7 +58,7 @@
         "description2": "This DOI uniquely identifies the DMP, facilitating easy reference and access in the future.",
         "checklistTitle": "Before you publish your plan, we strongly recommend that you:",
         "checklistInfo": "item(s) can be fixed",
-        "buttonNext": "Next: Set visibility >",
+        "buttonNext": "Next: Set visibility",
         "visibilityTitle": "Publish: set visibility",
         "visibilityDescription": "Great, publishing your plan has many benefits.",
         "visibilityOptionsTitle": "Set the visibility of your plan",
