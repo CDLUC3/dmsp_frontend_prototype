@@ -1,6 +1,6 @@
 # Stage 1: Dependencies
 # preferred node version chosen here (Active LTS = 22 as of 10/2024)
-FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19
+FROM public.ecr.aws/docker/library/node:22.1.0-alpine3.19 as deps
 WORKDIR /app
 
 # Copy package.json and package-lock.json
