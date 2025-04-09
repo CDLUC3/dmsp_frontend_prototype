@@ -1,6 +1,6 @@
 # dmsp_frontend_prototype app
-![Next.js](https://img.shields.io/badge/Next.js-v14.2.4-blue)
-![Node.js](https://img.shields.io/badge/Node.js-v20.9.0-green)
+![Next.js](https://img.shields.io/badge/Next.js-v14.2.25-blue)
+![Node.js](https://img.shields.io/badge/Node.js-v22.1.0-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## Table of Contents
@@ -49,8 +49,8 @@ This app was bootstrapped with [`create-next-app`](https://github.com/vercel/nex
 ## Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org) v20.9.0 or higher
-- [npm](https://www.npmjs.com/) v10.7.0 or higher
+- [Node.js](https://nodejs.org) v22.1.0
+- [npm](https://www.npmjs.com/) v10.9.1
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 -- Docker Desktop gives you Docker Engine, Docker CLI client, and Docker Compose
 
