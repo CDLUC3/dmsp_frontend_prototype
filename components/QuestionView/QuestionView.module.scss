@@ -1,0 +1,14 @@
+
+.QuestionView {
+  &__content-container {
+    grid-gap: var(--grid-gap);
+  }
+}
+
+.ByLine {
+  color: var(--text-byline-color);
+}
+
+.Logo {
+  vertical-align: middle;
+}

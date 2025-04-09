@@ -16,6 +16,8 @@ import styles from './QuestionPreview.module.scss';
 
 
 interface QuestionPreviewProps extends React.HTMLAttributes<HTMLDivElement> {
+  buttonLabel?: string,
+  previewDisabled: boolean,
 }
 
 
@@ -23,6 +25,8 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   children,
   id='',
   className='',
+  buttonLabel='Preview',
+  previewDisabled=true,
 }) => {
 
   const [isOpen, setOpen] = useState<boolean>(false);
@@ -72,14 +76,15 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   return (
     <ContentContainer
       id={id}
-      className={`${className} ${styles.PreviewContainer}`}
+      className={`${styles.QuestionPreview} ${className}`}
     >
       <DialogTrigger>
         <Button
           onPress={() => setOpen(true)}
           data-testid="preview-button"
+          isDisabled={previewDisabled}
         >
-          {t("previewButton")}
+          {buttonLabel ? buttonLabel : t("previewButton")}
         </Button>
         <ModalOverlay
           data-testid="modal-overlay"
@@ -103,7 +108,6 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                 <h3>{t('previewNoticeTitle')}</h3>
                 <p>
                   {t('previewNoticeText')}
-
                 </p>
                 <Button
                   data-testid="preview-close-button"

@@ -1995,7 +1995,7 @@ function Page() {
                 </ContentContainer>
 
                 <SidebarPanel>
-                  <p>Best pracive by (DMPTool Logo)</p>
+                  <p>Best practice by (DMPTool Logo)</p>
 
                   <h3>Data Sharing</h3>
                   <p>

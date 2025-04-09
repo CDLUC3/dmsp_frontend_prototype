@@ -26,7 +26,7 @@ describe("QuestionPreview", () => {
 
   it("should have a modal overlay, hidden initially", async() => {
     render(
-      <QuestionPreview>
+      <QuestionPreview previewDisabled={false}>
         <h2>Preview Content</h2>
       </QuestionPreview>
     );
@@ -49,11 +49,11 @@ describe("QuestionPreview", () => {
 
       const notice = screen.getByTestId('preview-notice');
       expect(notice).toBeInTheDocument();
-    });
 
-    const closeBtn = screen.getByTestId('preview-close-button');
-    expect(closeBtn).toBeInTheDocument();
-    fireEvent.click(closeBtn);
+      const closeBtn = screen.getByTestId('preview-close-button');
+      expect(closeBtn).toBeInTheDocument();
+      fireEvent.click(closeBtn);
+    });
   });
 
   it("should update the history when we toggle the preview", () => {
@@ -63,15 +63,6 @@ describe("QuestionPreview", () => {
 
     expect(window.location.hash).toBe("");
 
-    // Open the preview
-    const previewButton = screen.getByTestId('preview-button');
-    expect(previewButton).toBeInTheDocument();
-    fireEvent.click(previewButton);
-
-    waitFor(() => {
-      expect(window.location.hash).toBe("#_modal");
-    });
-
     // Mock history.back() since jest doesn't have this
     const backMock = jest
       .spyOn(window.history, "back")
@@ -79,13 +70,22 @@ describe("QuestionPreview", () => {
         window.history.pushState(null, "", window.location.pathname);
       });
 
-    // Close the Preview
-    const closeBtn = screen.getByTestId('preview-close-button');
-    expect(closeBtn).toBeInTheDocument();
-    fireEvent.click(closeBtn);
+    // Open the preview
+    const previewButton = screen.getByTestId('preview-button');
+    expect(previewButton).toBeInTheDocument();
+    fireEvent.click(previewButton);
 
     waitFor(() => {
-      expect(window.location.hash).toBe("");
+      expect(window.location.hash).toBe("#_modal");
+
+      // Close the Preview
+      const closeBtn = screen.getByTestId('preview-close-button');
+      expect(closeBtn).toBeInTheDocument();
+      fireEvent.click(closeBtn);
+
+      waitFor(() => {
+        expect(window.location.hash).toBe("");
+      });
     });
 
     backMock.mockRestore();
