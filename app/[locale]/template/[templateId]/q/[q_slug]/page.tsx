@@ -1,9 +1,9 @@
 'use client'
 
-import {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams, useRouter, useSearchParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -39,8 +39,8 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
 
 //Other
-import {useToast} from '@/context/ToastContext';
-import {Question, QuestionOptions} from '@/app/types';
+import { useToast } from '@/context/ToastContext';
+import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
 
 
@@ -358,7 +358,7 @@ const QuestionEdit = () => {
             <QuestionView
               isPreview={true}
               question={question}
-              templateId={templateId}
+              templateId={Number(templateId)}
             />
           </QuestionPreview>
 

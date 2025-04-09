@@ -175,12 +175,12 @@ const QuestionAdd = ({
   useEffect(() => {
     // Make sure to add the questiontypeid to the question object
     if (question) {
-      setQuestion(
+      setQuestion({
         ...question,
         questionTypeId
-      );
+      });
     } else {
-      setQuestion({questionTypeId});
+      setQuestion({ questionTypeId });
     }
   }, [questionTypeId]);
 
@@ -335,7 +335,7 @@ const QuestionAdd = ({
             <QuestionView
               isPreview={true}
               question={question}
-              templateId={templateId}
+              templateId={Number(templateId)}
             />
           </QuestionPreview>
 
