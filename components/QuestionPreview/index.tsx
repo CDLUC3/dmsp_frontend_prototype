@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 import {
   Button,
@@ -10,23 +10,23 @@ import {
   ModalOverlay,
 } from "react-aria-components";
 
-import {ContentContainer} from '@/components/Container';
+import { ContentContainer } from '@/components/Container';
 
 import styles from './QuestionPreview.module.scss';
 
 
 interface QuestionPreviewProps extends React.HTMLAttributes<HTMLDivElement> {
   buttonLabel?: string,
-  previewDisabled: boolean,
+  previewDisabled?: boolean,
 }
 
 
 const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   children,
-  id='',
-  className='',
-  buttonLabel='Preview',
-  previewDisabled=true,
+  id = '',
+  className = '',
+  buttonLabel = 'Preview',
+  previewDisabled = true,
 }) => {
 
   const [isOpen, setOpen] = useState<boolean>(false);
