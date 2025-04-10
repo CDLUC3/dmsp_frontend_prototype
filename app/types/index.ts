@@ -206,7 +206,7 @@ export interface ProjectSearchResultInterface {
   }[] | null;
   funders?: {
     name?: string | null;
-    grantId? : string | null;
+    grantId?: string | null;
   }[] | null;
 }
 
@@ -316,4 +316,16 @@ export interface ProjectContributorsInterface {
   orcid: string;
   roles: PlanContributorRolesInterface[];
   isPrimaryContact: boolean;
+}
+
+export interface ActionResponse {
+  success: boolean;
+  errors?: { general?: string } | string[];
+  data?: {
+    errors?: {
+      general: string;
+      [key: string]: string | null;
+    };
+  };
+  redirect?: string;
 }

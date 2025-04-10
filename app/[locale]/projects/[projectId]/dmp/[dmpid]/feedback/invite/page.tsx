@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,11 +18,30 @@ import {
   RadioGroup,
   TextField
 } from "react-aria-components";
+import { useParams, useRouter } from 'next/navigation';
+
+
+// Components
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer,} from "@/components/Container";
+import { ContentContainer, LayoutContainer, } from "@/components/Container";
+
+// Other
+import { logECS } from '@/utils/index';
+import { routePath } from '@/utils/routes';
+import { useTranslations } from 'next-intl';
+import { addProjectCollaboratorAction } from './addCollaboratorAction';
 import styles from './ProjectsProjectPlanFeedbackInvite.module.scss';
 
 const ProjectsProjectPlanFeedbackInvite = () => {
+  // Get projectId and planId params
+  const params = useParams();
+  const router = useRouter();
+  const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
+  const dmpId = Array.isArray(params.dmpid) ? params.dmpid[0] : params.dmpid;
+  const planId = Number(dmpId);
+
+  const Global = useTranslations('Global');
+
   const [accessType, setAccessType] = useState<string>('edit'); // Default to 'edit'
   const [email, setEmail] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
@@ -30,8 +49,49 @@ const ProjectsProjectPlanFeedbackInvite = () => {
   const [invitedEmail, setInvitedEmail] = useState('');
   const [addAsMember, setAddAsMember] = useState('yes');
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+
+  const addProjectCollaborator = async (email: string, accessLevel: string) => {
+    try {
+      const response = await addProjectCollaboratorAction({
+        projectId: Number(projectId),
+        email,
+        accessLevel
+      })
+
+      if (response.redirect) {
+        router.push(response.redirect);
+      }
+
+      return {
+        success: response.success,
+        errors: response.errors,
+        data: response.data
+      }
+    } catch (error) {
+      logECS('error', 'updatePlan', {
+        error,
+        url: {
+          path: routePath('projects.dmp.show', { projectId, dmpId: planId })
+        }
+      });
+    }
+    return {
+      success: false,
+      errors: [Global('messaging.somethingWentWrong')],
+      data: null
+    };
+  }
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+
+    // Extract email and access level from form data
+    const email = formData.get('email') as string;
+    const accessLevel = formData.get('accessLevel') as string;
 
     // Form validation
     if (!email) {
@@ -39,7 +99,27 @@ const ProjectsProjectPlanFeedbackInvite = () => {
       return;
     }
 
-    // Form submission logic
+    const result = await addProjectCollaborator(email, accessLevel);
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      // Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        //Set error mesages
+      }
+    } else {
+      if (
+        result.data?.errors &&
+        typeof result.data.errors === 'object' &&
+        typeof result.data.errors.general === 'string') {
+        // Handle errors as an object with general or field-level errors
+        // Set error messages
+      }
+      //Need to refetch plan data to refresh the info that was changed
+      //await refetch();
+    }
 
     setStatusMessage(`Invitation sent to ${email}`);
 
@@ -90,8 +170,6 @@ const ProjectsProjectPlanFeedbackInvite = () => {
         className="page-project-members"
       />
 
-
-
       <LayoutContainer>
         <ContentContainer>
           <div
@@ -119,7 +197,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
                     placeholder="Enter a valid email address"
                     className={styles.emailInput}
                   />
-                  <FieldError/>
+                  <FieldError />
                 </TextField>
               </div>
 
@@ -137,7 +215,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
                   >
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4"/>
+                        <polyline points="1 9 7 14 15 4" />
                       </svg>
                     </div>
                     <span>Edit the plan</span>
@@ -150,7 +228,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
                   >
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4"/>
+                        <polyline points="1 9 7 14 15 4" />
                       </svg>
                     </div>
                     <span>Comment only</span>
@@ -189,7 +267,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
 
       {/* Confirmation Modal */}
       <Modal isDismissable isOpen={isModalOpen} onOpenChange={setIsModalOpen}>
-        <Dialog >
+        <Dialog aria-label="Invite Confirmation">
           <div >
             <h2 >Invite sent</h2>
 
@@ -197,7 +275,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
               We have sent an invite to <strong>{invitedEmail}</strong>. They
               will have access to this project.
             </p>
-            <hr/>
+            <hr />
 
             <p >
               <strong>
@@ -209,39 +287,35 @@ const ProjectsProjectPlanFeedbackInvite = () => {
               This will make it easier for you add them to a plans etc
             </p>
 
-            <RadioGroup
-              name="addAsMember"
-              value={addAsMember}
-              onChange={setAddAsMember}
-              className={styles.radioGroup}
-            >
-              <Radio value="yes" className={styles.radioBtn}>
-                <div className={styles.radioContent}>
-                  <span>Yes - add as project team member</span>
-                </div>
-              </Radio>
-
-              <Radio value="no" className={styles.radioBtn}>
-                <div className={styles.radioContent}>
-                  <span>No</span>
-                </div>
-              </Radio>
-            </RadioGroup>
-
-            <div className={styles.modalActions}>
-              <Button
-                className="react-aria-Button react-aria-Button--secondary"
-                onPress={handleModalClose}
+            <Form onSubmit={handleSave}>
+              <RadioGroup
+                name="addAsMember"
+                value={addAsMember}
+                onChange={setAddAsMember}
+                className={styles.radioGroup}
               >
-                Close
-              </Button>
-              <Button
-                className="react-aria-Button react-aria-Button--primary"
-                onPress={handleSave}
-              >
-                Save
-              </Button>
-            </div>
+                <Radio value="yes" className={styles.radioBtn}>
+                  <div className={styles.radioContent}>
+                    <span>Yes - add as project team member</span>
+                  </div>
+                </Radio>
+
+                <Radio value="no" className={styles.radioBtn}>
+                  <div className={styles.radioContent}>
+                    <span>No</span>
+                  </div>
+                </Radio>
+              </RadioGroup>
+
+              <div className="modal-actions">
+                <div>
+                  <Button type="submit">{Global('buttons.save')}</Button>
+                </div>
+                <div>
+                  <Button data-secondary className="secondary" onPress={handleModalClose}>{Global('buttons.close')}</Button>
+                </div>
+              </div>
+            </Form>
           </div>
         </Dialog>
       </Modal>
@@ -250,3 +324,4 @@ const ProjectsProjectPlanFeedbackInvite = () => {
 };
 
 export default ProjectsProjectPlanFeedbackInvite;
+
