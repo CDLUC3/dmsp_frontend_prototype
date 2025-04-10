@@ -1,23 +1,9 @@
 "use server";
 
-import { gql } from "graphql-request";
 import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
 import logger from "@/utils/logger";
 import { ActionResponse } from "@/app/types";
-
-const PublishPlanDocument = gql`
-    mutation PublishPlan($planId: Int!, $visibility: PlanVisibility) {
-  publishPlan(planId: $planId, visibility: $visibility) {
-    errors {
-      general
-      visibility
-      status
-    }
-    visibility
-    status
-  }
-}
-    `;
+import { PublishPlanDocument } from "@/generated/graphql";
 
 export async function publishPlanAction({
   planId,
@@ -26,6 +12,7 @@ export async function publishPlanAction({
   planId: number;
   visibility: string;
 }): Promise<ActionResponse> {
+  console.log("***PublishPlanDocument", PublishPlanDocument);
   try {
     // Execute the mutation using the shared handler
     return executeGraphQLMutation({

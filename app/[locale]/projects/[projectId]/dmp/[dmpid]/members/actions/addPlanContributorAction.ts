@@ -1,25 +1,9 @@
 "use server";
 
-import { gql } from "graphql-request";
 import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
 import logger from "@/utils/logger";
 import { ActionResponse } from "@/app/types";
-
-const AddPlanContributorDocument = gql`
-    mutation AddPlanContributor($planId: Int!, $projectContributorId: Int!) {
-  addPlanContributor(planId: $planId, projectContributorId: $projectContributorId) {
-    errors {
-      general
-      contributorRoleIds
-      primaryContact
-      projectContributorId
-      projectId
-    }
-    id
-    isPrimaryContact
-  }
-}
-    `;
+import { AddPlanContributorDocument } from "@/generated/graphql";
 
 export async function addPlanContributorAction({
   planId,

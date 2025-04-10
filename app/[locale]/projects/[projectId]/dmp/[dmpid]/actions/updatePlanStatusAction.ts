@@ -1,23 +1,9 @@
 "use server";
 
-import { gql } from "graphql-request";
 import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
 import logger from "@/utils/logger";
 import { ActionResponse } from "@/app/types";
-
-const UpdatePlanStatusDocument = gql`
-    mutation UpdatePlanStatus($planId: Int!, $status: PlanStatus!) {
-  updatePlanStatus(planId: $planId, status: $status) {
-    errors {
-      general
-      status
-    }
-    id
-    status
-    visibility
-  }
-}
-    `;
+import { UpdatePlanStatusDocument } from "@/generated/graphql";
 
 export async function updatePlanStatusAction({
   planId,

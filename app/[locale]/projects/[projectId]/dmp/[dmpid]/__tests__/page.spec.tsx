@@ -1,12 +1,56 @@
 import React from 'react';
+import { gql } from '@apollo/client';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams } from 'next/navigation';
 import { cookies } from "next/headers";
 
-import {
-  usePlanQuery,
-} from '@/generated/graphql';
+jest.mock("@/generated/graphql", () => {
+  const actual = jest.requireActual("@/generated/graphql");
+  return {
+    ...actual,
+    usePlanQuery: jest.fn(),
+    PlanStatus: {
+      DRAFT: "DRAFT",
+      COMPLETE: "COMPLETE",
+      ARCHIVED: "ARCHIVED",
+    },
+    PlanVisibility: {
+      Public: "PUBLIC",
+      Private: "PRIVATE",
+      Organizational: "ORGANIZATIONAL",
+    },
+    UpdatePlanStatus: gql`
+    mutation UpdatePlanStatus($planId: Int!, $status: PlanStatus!) {
+  updatePlanStatus(planId: $planId, status: $status) {
+    errors {
+      general
+      status
+    }
+    id
+    status
+    visibility
+  }
+}`,
+    PublishPlanDocument: gql`
+      mutation PublishPlan($planId: Int!, $visibility: PlanVisibility) {
+        publishPlan(planId: $planId, visibility: $visibility) {
+          errors {
+            general
+            visibility
+            status
+          }
+          visibility
+          status
+        }
+      }
+    `,
+  };
+});
+
+// Now import after the mock is defined
+import { usePlanQuery } from "@/generated/graphql";
+
 import {
   mockScrollIntoView,
   mockScrollTo
@@ -18,19 +62,6 @@ jest.mock("next/headers", () => ({
   cookies: jest.fn(),
 }));
 
-jest.mock("@/generated/graphql", () => ({
-  usePlanQuery: jest.fn(),
-  PlanStatus: {
-    DRAFT: 'DRAFT',
-    COMPLETE: 'COMPLETE',
-    ARCHIVED: 'ARCHIVED'
-  },
-  PlanVisibility: {
-    Public: 'PUBLIC',
-    Private: 'PRIVATE',
-    Organizational: 'ORGANIZATIONAL',
-  },
-}));
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
