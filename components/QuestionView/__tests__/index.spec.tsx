@@ -1,7 +1,7 @@
 import React from 'react';
 
-import {act, render, screen} from '@/utils/test-utils';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { act, render, screen } from '@/utils/test-utils';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
 import {
   useQuestionTypesQuery,
@@ -80,6 +80,7 @@ describe("QuestionView", () => {
       <QuestionView
         question={mockQuestion}
         isPreview={true}
+        templateId={1}
       />);
 
     expect(screen.getByTestId('question-card')).toBeInTheDocument();
@@ -90,10 +91,11 @@ describe("QuestionView", () => {
       <QuestionView
         question={mockQuestion}
         isPreview={true}
+        templateId={1}
       />);
 
     expect(
-      screen.getByTestId('card-body').firstChild.classList.contains('dmpEditor')
+      (screen.getByTestId('card-body').firstChild as HTMLElement)?.classList.contains('dmpEditor')
     ).toBe(true);
   });
 
@@ -102,6 +104,7 @@ describe("QuestionView", () => {
       <QuestionView
         question={mockQuestion}
         isPreview={true}
+        templateId={1}
       />
     );
 

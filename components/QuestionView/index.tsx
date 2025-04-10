@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
 import {
@@ -8,7 +8,7 @@ import {
   useTemplateQuery,
 } from '@/generated/graphql';
 
-import {Question} from '@/app/types';
+import { Question } from '@/app/types';
 
 import {
   LayoutWithPanel,
@@ -25,29 +25,29 @@ import {
 } from "@/components/Card/card";
 
 
-import {DmpEditor} from "@/components/Editor";
-import {Button} from "react-aria-components";
+import { DmpEditor } from "@/components/Editor";
+import { Button } from "react-aria-components";
 
 import styles from './QuestionView.module.scss';
 
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
-  isPreview: Boolean,
+  isPreview: boolean,
   question: Question | null | undefined,
 
   /**
    * NOTE: We pass this explicitly, as we cannot predict or infer if the
    * templateId will be available in the question object.
    */
-  templateId: Number,
+  templateId: number,
 }
 
 
 const QuestionView: React.FC<QuestionViewProps> = ({
   children,
-  id='',
-  className='',
-  isPreview=false,
+  id = '',
+  className = '',
+  isPreview = false,
   question,
   templateId,
 }) => {
@@ -55,8 +55,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   if (!question) return null;
 
   const trans = useTranslations('QuestionView');
-  const {data: qtData} = useQuestionTypesQuery();
-  const {data: templateData} = useTemplateQuery({
+  const { data: qtData } = useQuestionTypesQuery();
+  const { data: templateData } = useTemplateQuery({
     variables: {
       templateId: templateId,
     },
@@ -71,7 +71,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
     if (questionType == '' && qtData.questionTypes) {
       const qt = qtData.questionTypes
-                       .find(qt => qt && qt.id === question.questionTypeId);
+        .find(qt => qt && qt.id === question.questionTypeId);
       if (qt) {
         setQuestionType(qt.name);
       }
@@ -106,7 +106,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardBody data-testid="card-body">
             {(questionType == 'Text Area') && (
               <DmpEditor
-                content={question?.useSampleTextAsDefault ? question.sampleText as string: ''}
+                content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
                 setContent={setEditorContent}
               />
             )}
@@ -142,7 +142,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               {trans('guidanceBy')}
               {templateData?.template?.owner?.displayName}
             </p>
-            <div dangerouslySetInnerHTML={{__html: question.guidanceText}}></div>
+            <div dangerouslySetInnerHTML={{ __html: question.guidanceText }}></div>
           </div>
         )}
 
