@@ -152,7 +152,8 @@
       "linkExpand": "Expand",
       "linkCollapse": "Collapse",
       "continue": "Continue",
-      "edit": "Edit"
+      "edit": "Edit",
+      "close": "Close"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",

@@ -474,7 +474,7 @@ export type CollaboratorSearchResult = {
   affiliation?: Maybe<Affiliation>;
   /** The collaborator's first/given name */
   givenName?: Maybe<Scalars['String']['output']>;
-  /** The unique identifer for the Object */
+  /** The unique identifier for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The collaborator's ORCID */
   orcid?: Maybe<Scalars['String']['output']>;
@@ -515,6 +515,56 @@ export type ContributorRoleErrors = {
   general?: Maybe<Scalars['String']['output']>;
   label?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
+};
+
+export type ExternalContributor = {
+  __typename?: 'ExternalContributor';
+  /** The ROR ID of the contributor's institution */
+  affiliationId?: Maybe<Scalars['String']['output']>;
+  /** The contributor's email address */
+  email?: Maybe<Scalars['String']['output']>;
+  /** The contributor's first/given name */
+  givenName?: Maybe<Scalars['String']['output']>;
+  /** The contributor's ORCID */
+  orcid?: Maybe<Scalars['String']['output']>;
+  /** The contributor's last/sur name */
+  surName?: Maybe<Scalars['String']['output']>;
+};
+
+export type ExternalFunding = {
+  __typename?: 'ExternalFunding';
+  /** The funder's unique id/url for the call for submissions to apply for a grant */
+  funderOpportunityNumber?: Maybe<Scalars['String']['output']>;
+  /** The funder's unique id/url for the research project (normally assigned after the grant has been awarded) */
+  funderProjectNumber?: Maybe<Scalars['String']['output']>;
+  /** The funder's unique id/url for the award/grant (normally assigned after the grant has been awarded) */
+  grantId?: Maybe<Scalars['String']['output']>;
+};
+
+/** External Project type */
+export type ExternalProject = {
+  __typename?: 'ExternalProject';
+  /** The project description */
+  abstractText?: Maybe<Scalars['String']['output']>;
+  /** Contributor information for this project */
+  contributors?: Maybe<Array<ExternalContributor>>;
+  /** The project end date */
+  endDate?: Maybe<Scalars['String']['output']>;
+  /** Funding information for this project */
+  funders?: Maybe<Array<ExternalFunding>>;
+  /** The project start date */
+  startDate?: Maybe<Scalars['String']['output']>;
+  /** The project title */
+  title?: Maybe<Scalars['String']['output']>;
+};
+
+/** Output type for the initializePlanVersion mutation */
+export type InitializePlanVersionOutput = {
+  __typename?: 'InitializePlanVersionOutput';
+  /** The number of PlanVersion records that were created */
+  count: Scalars['Int']['output'];
+  /** The ids of the Plans that were processed */
+  planIds?: Maybe<Array<Scalars['Int']['output']>>;
 };
 
 /** The types of object a User can be invited to Collaborate on */
@@ -671,10 +721,6 @@ export type Mutation = {
   createTemplateVersion?: Maybe<Template>;
   /** Deactivate the specified user Account (Admin only) */
   deactivateUser?: Maybe<User>;
-  /** Change the plan's status to COMPLETE (cannot be done once the plan is PUBLISHED) */
-  markPlanAsComplete?: Maybe<Plan>;
-  /** Change the plan's status to DRAFT (cannot be done once the plan is PUBLISHED) */
-  markPlanAsDraft?: Maybe<Plan>;
   /** Merge two licenses */
   mergeLicenses?: Maybe<License>;
   /** Merge two metadata standards */
@@ -683,6 +729,8 @@ export type Mutation = {
   mergeRepositories?: Maybe<Repository>;
   /** Merge the 2 user accounts (Admin only) */
   mergeUsers?: Maybe<User>;
+  /** Import a project from an external source */
+  projectImport?: Maybe<Project>;
   /** Publish a plan (changes status to PUBLISHED) */
   publishPlan?: Maybe<Plan>;
   /** Delete an Affiliation (only applicable to AffiliationProvenance == DMPTOOL) */
@@ -735,6 +783,8 @@ export type Mutation = {
   setPrimaryUserEmail?: Maybe<Array<Maybe<UserEmail>>>;
   /** Set the user's ORCID */
   setUserOrcid?: Maybe<User>;
+  /** Initialize an PLanVersion record in the DynamoDB for all Plans that do not have one */
+  superInitializePlanVersions: InitializePlanVersionOutput;
   /** Update an Affiliation */
   updateAffiliation?: Maybe<Affiliation>;
   /** Edit an answer */
@@ -749,9 +799,11 @@ export type Mutation = {
   updatePassword?: Maybe<User>;
   /** Chnage a Contributor's accessLevel on a Plan */
   updatePlanContributor?: Maybe<PlanContributor>;
+  /** Change the plan's status */
+  updatePlanStatus?: Maybe<Plan>;
   /** Edit a project */
   updateProject?: Maybe<Project>;
-  /** Chnage a collaborator's accessLevel on a Plan */
+  /** Change a collaborator's accessLevel on a Plan */
   updateProjectCollaborator?: Maybe<ProjectCollaborator>;
   /** Update a contributor on the research project */
   updateProjectContributor?: Maybe<ProjectContributor>;
@@ -854,8 +906,9 @@ export type MutationAddProjectArgs = {
 
 
 export type MutationAddProjectCollaboratorArgs = {
+  accessLevel?: InputMaybe<ProjectCollaboratorAccessLevel>;
   email: Scalars['String']['input'];
-  planId: Scalars['Int']['input'];
+  projectId: Scalars['Int']['input'];
 };
 
 
@@ -924,7 +977,7 @@ export type MutationAddUserEmailArgs = {
 
 
 export type MutationArchivePlanArgs = {
-  dmpId: Scalars['String']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -957,16 +1010,6 @@ export type MutationDeactivateUserArgs = {
 };
 
 
-export type MutationMarkPlanAsCompleteArgs = {
-  dmpId: Scalars['String']['input'];
-};
-
-
-export type MutationMarkPlanAsDraftArgs = {
-  dmpId: Scalars['String']['input'];
-};
-
-
 export type MutationMergeLicensesArgs = {
   licenseToKeepId: Scalars['Int']['input'];
   licenseToRemoveId: Scalars['Int']['input'];
@@ -991,8 +1034,13 @@ export type MutationMergeUsersArgs = {
 };
 
 
+export type MutationProjectImportArgs = {
+  input?: InputMaybe<ProjectImportInput>;
+};
+
+
 export type MutationPublishPlanArgs = {
-  dmpId: Scalars['String']['input'];
+  planId: Scalars['Int']['input'];
   visibility?: InputMaybe<PlanVisibility>;
 };
 
@@ -1167,6 +1215,12 @@ export type MutationUpdatePlanContributorArgs = {
 };
 
 
+export type MutationUpdatePlanStatusArgs = {
+  planId: Scalars['Int']['input'];
+  status: PlanStatus;
+};
+
+
 export type MutationUpdateProjectArgs = {
   input?: InputMaybe<UpdateProjectInput>;
 };
@@ -1304,8 +1358,6 @@ export type Plan = {
   id?: Maybe<Scalars['Int']['output']>;
   /** The language of the plan */
   languageId?: Maybe<Scalars['String']['output']>;
-  /** The last time the plan was synced with the DMPHub */
-  lastSynced?: Maybe<Scalars['String']['output']>;
   /** The timestamp when the Object was last modifed */
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
@@ -1386,7 +1438,6 @@ export type PlanErrors = {
   featured?: Maybe<Scalars['String']['output']>;
   general?: Maybe<Scalars['String']['output']>;
   languageId?: Maybe<Scalars['String']['output']>;
-  lastSynced?: Maybe<Scalars['String']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
   registered?: Maybe<Scalars['String']['output']>;
   registeredById?: Maybe<Scalars['String']['output']>;
@@ -1579,9 +1630,7 @@ export enum PlanStatus {
   /** The Plan is ready for submission or download */
   Complete = 'COMPLETE',
   /** The Plan is still being written and reviewed */
-  Draft = 'DRAFT',
-  /** The Plan's DMP ID (DOI) has been registered */
-  Published = 'PUBLISHED'
+  Draft = 'DRAFT'
 }
 
 /** A version of the plan */
@@ -1603,6 +1652,7 @@ export enum PlanVisibility {
   Public = 'PUBLIC'
 }
 
+/** DMP Tool Project type */
 export type Project = {
   __typename?: 'Project';
   /** The research project abstract */
@@ -1660,8 +1710,8 @@ export type ProjectCollaborator = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The plan the collaborator may edit */
-  plan?: Maybe<Plan>;
+  /** The project the collaborator may edit */
+  project?: Maybe<Project>;
   /** The ProjectContributor id */
   projectContributorId?: Maybe<Scalars['Int']['output']>;
   /** The collaborator (if they have an account) */
@@ -1800,6 +1850,15 @@ export enum ProjectFunderStatus {
   /** The project will be submitting a grant, or has not yet heard back from the funder */
   Planned = 'PLANNED'
 }
+
+export type ProjectImportInput = {
+  /** The external contributor data */
+  contributors?: InputMaybe<Array<AddProjectContributorInput>>;
+  /** The external funding data */
+  funding?: InputMaybe<Array<AddProjectFunderInput>>;
+  /** The external project data */
+  project: UpdateProjectInput;
+};
 
 /** Something produced/collected as part of (or as a result of) a research project */
 export type ProjectOutput = {
@@ -1969,8 +2028,6 @@ export type Query = {
   outputTypes?: Maybe<Array<Maybe<OutputType>>>;
   /** Get a specific plan */
   plan?: Maybe<Plan>;
-  /** Get all of the Users that are collaborators for the Plan */
-  planCollaborators?: Maybe<Array<Maybe<ProjectCollaborator>>>;
   /** Get all of the Users that are contributors for the specific Plan */
   planContributors?: Maybe<Array<Maybe<PlanContributor>>>;
   /** Get all rounds of admin feedback for the plan */
@@ -1985,6 +2042,8 @@ export type Query = {
   plans?: Maybe<Array<PlanSearchResult>>;
   /** Get a specific project */
   project?: Maybe<Project>;
+  /** Get all of the Users that are collaborators for the Project */
+  projectCollaborators?: Maybe<Array<Maybe<ProjectCollaborator>>>;
   /** Get a specific contributor on the research project */
   projectContributor?: Maybe<ProjectContributor>;
   /** Get all of the Users that a contributors to the research project */
@@ -2023,12 +2082,16 @@ export type Query = {
   repositories?: Maybe<Array<Maybe<Repository>>>;
   /** Fetch a specific repository */
   repository?: Maybe<Repository>;
+  /** Search for projects within external APIs */
+  searchExternalProjects?: Maybe<Array<Maybe<ExternalProject>>>;
   /** Get the specified section */
   section?: Maybe<Section>;
   /** Get all of the VersionedSection for the specified Section ID */
   sectionVersions?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get the Sections that belong to the associated templateId */
   sections?: Maybe<Array<Maybe<Section>>>;
+  /** Fetch the DynamoDB PlanVersion record for a specific plan and version timestamp (leave blank for the latest) */
+  superInspectPlanVersion?: Maybe<Scalars['String']['output']>;
   /** Get all available tags to display */
   tags: Array<Tag>;
   tagsBySectionId?: Maybe<Array<Maybe<Tag>>>;
@@ -2122,11 +2185,6 @@ export type QueryPlanArgs = {
 };
 
 
-export type QueryPlanCollaboratorsArgs = {
-  planId: Scalars['Int']['input'];
-};
-
-
 export type QueryPlanContributorsArgs = {
   planId: Scalars['Int']['input'];
 };
@@ -2158,6 +2216,11 @@ export type QueryPlansArgs = {
 
 
 export type QueryProjectArgs = {
+  projectId: Scalars['Int']['input'];
+};
+
+
+export type QueryProjectCollaboratorsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
@@ -2252,6 +2315,15 @@ export type QueryRepositoryArgs = {
 };
 
 
+export type QuerySearchExternalProjectsArgs = {
+  affiliationId: Scalars['Int']['input'];
+  awardId?: InputMaybe<Scalars['String']['input']>;
+  awardName?: InputMaybe<Scalars['String']['input']>;
+  awardYear?: InputMaybe<Scalars['String']['input']>;
+  piNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
 export type QuerySectionArgs = {
   sectionId: Scalars['Int']['input'];
 };
@@ -2264,6 +2336,12 @@ export type QuerySectionVersionsArgs = {
 
 export type QuerySectionsArgs = {
   templateId: Scalars['Int']['input'];
+};
+
+
+export type QuerySuperInspectPlanVersionArgs = {
+  modified?: InputMaybe<Scalars['String']['input']>;
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -2862,6 +2940,36 @@ export type UpdateMetadataStandardInput = {
   uri?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateProjectContributorInput = {
+  /** The contributor's affiliation URI */
+  affiliationId?: InputMaybe<Scalars['String']['input']>;
+  /** The roles the contributor has on the research project */
+  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
+  /** The contributor's email address */
+  email?: InputMaybe<Scalars['String']['input']>;
+  /** The contributor's first/given name */
+  givenName?: InputMaybe<Scalars['String']['input']>;
+  /** The contributor's ORCID */
+  orcid?: InputMaybe<Scalars['String']['input']>;
+  /** The project contributor */
+  projectContributorId: Scalars['Int']['input'];
+  /** The contributor's last/sur name */
+  surName?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateProjectFunderInput = {
+  /** The funder's unique id/url for the call for submissions to apply for a grant */
+  funderOpportunityNumber?: InputMaybe<Scalars['String']['input']>;
+  /** The funder's unique id/url for the research project (normally assigned after the grant has been awarded) */
+  funderProjectNumber?: InputMaybe<Scalars['String']['input']>;
+  /** The funder's unique id/url for the award/grant (normally assigned after the grant has been awarded) */
+  grantId?: InputMaybe<Scalars['String']['input']>;
+  /** The project funder */
+  projectFunderId: Scalars['Int']['input'];
+  /** The status of the funding resquest */
+  status?: InputMaybe<ProjectFunderStatus>;
+};
+
 export type UpdateProjectInput = {
   /** The research project description/abstract */
   abstractText?: InputMaybe<Scalars['String']['input']>;
@@ -2989,6 +3097,32 @@ export type UpdateSectionInput = {
   sectionId: Scalars['Int']['input'];
   /** The Tags associated with this section. A section might not have any tags */
   tags?: InputMaybe<Array<TagInput>>;
+};
+
+export type UpdateUserNotificationsInput = {
+  /** Whether or not email notifications are on for when a Plan has a new comment */
+  notify_on_comment_added: Scalars['Boolean']['input'];
+  /** Whether or not email notifications are on for when feedback on a Plan is completed */
+  notify_on_feedback_complete: Scalars['Boolean']['input'];
+  /** Whether or not email notifications are on for when a Plan is shared with the user */
+  notify_on_plan_shared: Scalars['Boolean']['input'];
+  /** Whether or not email notifications are on for Plan visibility changes */
+  notify_on_plan_visibility_change: Scalars['Boolean']['input'];
+  /** Whether or not email notifications are on for when a Template is shared with the User (Admin only) */
+  notify_on_template_shared: Scalars['Boolean']['input'];
+};
+
+export type UpdateUserProfileInput = {
+  /** The id of the affiliation if the user selected one from the typeahead list */
+  affiliationId?: InputMaybe<Scalars['String']['input']>;
+  /** The user's first/given name */
+  givenName: Scalars['String']['input'];
+  /** The user's preferred language */
+  languageId?: InputMaybe<Scalars['String']['input']>;
+  /** The name of the affiliation if the user did not select one from the typeahead list */
+  otherAffiliationName?: InputMaybe<Scalars['String']['input']>;
+  /** The user's last/family name */
+  surName: Scalars['String']['input'];
 };
 
 /** A user of the DMPTool */
@@ -3368,62 +3502,6 @@ export type VersionedTemplateSearchResult = {
   visibility?: Maybe<TemplateVisibility>;
 };
 
-export type UpdateProjectContributorInput = {
-  /** The contributor's affiliation URI */
-  affiliationId?: InputMaybe<Scalars['String']['input']>;
-  /** The roles the contributor has on the research project */
-  contributorRoleIds?: InputMaybe<Array<Scalars['Int']['input']>>;
-  /** The contributor's email address */
-  email?: InputMaybe<Scalars['String']['input']>;
-  /** The contributor's first/given name */
-  givenName?: InputMaybe<Scalars['String']['input']>;
-  /** The contributor's ORCID */
-  orcid?: InputMaybe<Scalars['String']['input']>;
-  /** The project contributor */
-  projectContributorId: Scalars['Int']['input'];
-  /** The contributor's last/sur name */
-  surName?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateProjectFunderInput = {
-  /** The funder's unique id/url for the call for submissions to apply for a grant */
-  funderOpportunityNumber?: InputMaybe<Scalars['String']['input']>;
-  /** The funder's unique id/url for the research project (normally assigned after the grant has been awarded) */
-  funderProjectNumber?: InputMaybe<Scalars['String']['input']>;
-  /** The funder's unique id/url for the award/grant (normally assigned after the grant has been awarded) */
-  grantId?: InputMaybe<Scalars['String']['input']>;
-  /** The project funder */
-  projectFunderId: Scalars['Int']['input'];
-  /** The status of the funding resquest */
-  status?: InputMaybe<ProjectFunderStatus>;
-};
-
-export type UpdateUserNotificationsInput = {
-  /** Whether or not email notifications are on for when a Plan has a new comment */
-  notify_on_comment_added: Scalars['Boolean']['input'];
-  /** Whether or not email notifications are on for when feedback on a Plan is completed */
-  notify_on_feedback_complete: Scalars['Boolean']['input'];
-  /** Whether or not email notifications are on for when a Plan is shared with the user */
-  notify_on_plan_shared: Scalars['Boolean']['input'];
-  /** Whether or not email notifications are on for Plan visibility changes */
-  notify_on_plan_visibility_change: Scalars['Boolean']['input'];
-  /** Whether or not email notifications are on for when a Template is shared with the User (Admin only) */
-  notify_on_template_shared: Scalars['Boolean']['input'];
-};
-
-export type UpdateUserProfileInput = {
-  /** The id of the affiliation if the user selected one from the typeahead list */
-  affiliationId?: InputMaybe<Scalars['String']['input']>;
-  /** The user's first/given name */
-  givenName: Scalars['String']['input'];
-  /** The user's preferred language */
-  languageId?: InputMaybe<Scalars['String']['input']>;
-  /** The name of the affiliation if the user did not select one from the typeahead list */
-  otherAffiliationName?: InputMaybe<Scalars['String']['input']>;
-  /** The user's last/family name */
-  surName: Scalars['String']['input'];
-};
-
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -3456,6 +3534,15 @@ export type UpdatePlanContributorMutationVariables = Exact<{
 
 
 export type UpdatePlanContributorMutation = { __typename?: 'Mutation', updatePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null } | null };
+
+export type AddProjectCollaboratorMutationVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+  email: Scalars['String']['input'];
+  accessLevel?: InputMaybe<ProjectCollaboratorAccessLevel>;
+}>;
+
+
+export type AddProjectCollaboratorMutation = { __typename?: 'Mutation', addProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, email: string, errors?: { __typename?: 'ProjectCollaboratorErrors', general?: string | null, email?: string | null, accessLevel?: string | null, userId?: string | null, invitedById?: string | null, planId?: string | null } | null } | null };
 
 export type UpdateProjectContributorMutationVariables = Exact<{
   input: UpdateProjectContributorInput;
@@ -3908,8 +3995,56 @@ export function useUpdatePlanContributorMutation(baseOptions?: Apollo.MutationHo
 export type UpdatePlanContributorMutationHookResult = ReturnType<typeof useUpdatePlanContributorMutation>;
 export type UpdatePlanContributorMutationResult = Apollo.MutationResult<UpdatePlanContributorMutation>;
 export type UpdatePlanContributorMutationOptions = Apollo.BaseMutationOptions<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>;
+export const AddProjectCollaboratorDocument = gql`
+    mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
+  addProjectCollaborator(
+    projectId: $projectId
+    email: $email
+    accessLevel: $accessLevel
+  ) {
+    id
+    errors {
+      general
+      email
+      accessLevel
+      userId
+      invitedById
+      planId
+    }
+    email
+  }
+}
+    `;
+export type AddProjectCollaboratorMutationFn = Apollo.MutationFunction<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>;
+
+/**
+ * __useAddProjectCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useAddProjectCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectCollaboratorMutation, { data, loading, error }] = useAddProjectCollaboratorMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      email: // value for 'email'
+ *      accessLevel: // value for 'accessLevel'
+ *   },
+ * });
+ */
+export function useAddProjectCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>(AddProjectCollaboratorDocument, options);
+      }
+export type AddProjectCollaboratorMutationHookResult = ReturnType<typeof useAddProjectCollaboratorMutation>;
+export type AddProjectCollaboratorMutationResult = Apollo.MutationResult<AddProjectCollaboratorMutation>;
+export type AddProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>;
 export const UpdateProjectContributorDocument = gql`
-    mutation UpdateProjectContributor($input: updateProjectContributorInput!) {
+    mutation UpdateProjectContributor($input: UpdateProjectContributorInput!) {
   updateProjectContributor(input: $input) {
     givenName
     surName
@@ -3995,7 +4130,7 @@ export type RemoveProjectContributorMutationHookResult = ReturnType<typeof useRe
 export type RemoveProjectContributorMutationResult = Apollo.MutationResult<RemoveProjectContributorMutation>;
 export type RemoveProjectContributorMutationOptions = Apollo.BaseMutationOptions<RemoveProjectContributorMutation, RemoveProjectContributorMutationVariables>;
 export const UpdateProjectFunderDocument = gql`
-    mutation UpdateProjectFunder($input: updateProjectFunderInput!) {
+    mutation UpdateProjectFunder($input: UpdateProjectFunderInput!) {
   updateProjectFunder(input: $input) {
     errors {
       affiliationId
@@ -4530,7 +4665,7 @@ export type AddTemplateMutationHookResult = ReturnType<typeof useAddTemplateMuta
 export type AddTemplateMutationResult = Apollo.MutationResult<AddTemplateMutation>;
 export type AddTemplateMutationOptions = Apollo.BaseMutationOptions<AddTemplateMutation, AddTemplateMutationVariables>;
 export const UpdateUserProfileDocument = gql`
-    mutation UpdateUserProfile($input: updateUserProfileInput!) {
+    mutation UpdateUserProfile($input: UpdateUserProfileInput!) {
   updateUserProfile(input: $input) {
     id
     givenName

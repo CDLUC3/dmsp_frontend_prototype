@@ -4,27 +4,28 @@ import { gql } from "graphql-request";
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
 import logger from "@/utils/server/logger";
 import { ActionResponse } from "@/app/types";
+import { AddProjectCollaboratorDocument } from "@/generated/graphql";
 
-const AddProjectCollaboratorDocument = gql`
-    mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
-  addProjectCollaborator(
-    projectId: $projectId
-    email: $email
-    accessLevel: $accessLevel
-  ) {
-    id
-    errors {
-      general
-      email
-      accessLevel
-      userId
-      invitedById
-      planId
-    }
-    email
-  }
-}
-    `;
+// const AddProjectCollaboratorDocument = gql`
+//     mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
+//   addProjectCollaborator(
+//     projectId: $projectId
+//     email: $email
+//     accessLevel: $accessLevel
+//   ) {
+//     id
+//     errors {
+//       general
+//       email
+//       accessLevel
+//       userId
+//       invitedById
+//       planId
+//     }
+//     email
+//   }
+// }
+//     `;
 
 export async function addProjectCollaboratorAction({
   projectId,
