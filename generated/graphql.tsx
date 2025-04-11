@@ -3535,6 +3535,22 @@ export type UpdatePlanContributorMutationVariables = Exact<{
 
 export type UpdatePlanContributorMutation = { __typename?: 'Mutation', updatePlanContributor?: { __typename?: 'PlanContributor', id?: number | null, errors?: { __typename?: 'PlanContributorErrors', general?: string | null } | null } | null };
 
+export type PublishPlanMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  visibility?: InputMaybe<PlanVisibility>;
+}>;
+
+
+export type PublishPlanMutation = { __typename?: 'Mutation', publishPlan?: { __typename?: 'Plan', visibility?: PlanVisibility | null, status?: PlanStatus | null, errors?: { __typename?: 'PlanErrors', general?: string | null, visibility?: string | null, status?: string | null } | null } | null };
+
+export type UpdatePlanStatusMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  status: PlanStatus;
+}>;
+
+
+export type UpdatePlanStatusMutation = { __typename?: 'Mutation', updatePlanStatus?: { __typename?: 'Plan', id?: number | null, status?: PlanStatus | null, visibility?: PlanVisibility | null, errors?: { __typename?: 'PlanErrors', general?: string | null, status?: string | null } | null } | null };
+
 export type AddProjectCollaboratorMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   email: Scalars['String']['input'];
@@ -3708,6 +3724,13 @@ export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type LanguagesQuery = { __typename?: 'Query', languages?: Array<{ __typename?: 'Language', id: string, isDefault: boolean, name: string } | null> | null };
+
+export type PlanQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+}>;
+
+
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, funders?: Array<{ __typename?: 'PlanFunder', id?: number | null, project?: { __typename?: 'Project', title: string } | null }> | null, project?: { __typename?: 'Project', title: string, funders?: Array<{ __typename?: 'ProjectFunder', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null }> | null } | null, contributors?: Array<{ __typename?: 'PlanContributor', isPrimaryContact?: boolean | null, projectContributor?: { __typename?: 'ProjectContributor', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, contributorRoles?: Array<{ __typename?: 'ContributorRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
 
 export type PlanContributorsQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4002,6 +4025,86 @@ export function useUpdatePlanContributorMutation(baseOptions?: Apollo.MutationHo
 export type UpdatePlanContributorMutationHookResult = ReturnType<typeof useUpdatePlanContributorMutation>;
 export type UpdatePlanContributorMutationResult = Apollo.MutationResult<UpdatePlanContributorMutation>;
 export type UpdatePlanContributorMutationOptions = Apollo.BaseMutationOptions<UpdatePlanContributorMutation, UpdatePlanContributorMutationVariables>;
+export const PublishPlanDocument = gql`
+    mutation PublishPlan($planId: Int!, $visibility: PlanVisibility) {
+  publishPlan(planId: $planId, visibility: $visibility) {
+    errors {
+      general
+      visibility
+      status
+    }
+    visibility
+    status
+  }
+}
+    `;
+export type PublishPlanMutationFn = Apollo.MutationFunction<PublishPlanMutation, PublishPlanMutationVariables>;
+
+/**
+ * __usePublishPlanMutation__
+ *
+ * To run a mutation, you first call `usePublishPlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishPlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishPlanMutation, { data, loading, error }] = usePublishPlanMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      visibility: // value for 'visibility'
+ *   },
+ * });
+ */
+export function usePublishPlanMutation(baseOptions?: Apollo.MutationHookOptions<PublishPlanMutation, PublishPlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PublishPlanMutation, PublishPlanMutationVariables>(PublishPlanDocument, options);
+      }
+export type PublishPlanMutationHookResult = ReturnType<typeof usePublishPlanMutation>;
+export type PublishPlanMutationResult = Apollo.MutationResult<PublishPlanMutation>;
+export type PublishPlanMutationOptions = Apollo.BaseMutationOptions<PublishPlanMutation, PublishPlanMutationVariables>;
+export const UpdatePlanStatusDocument = gql`
+    mutation UpdatePlanStatus($planId: Int!, $status: PlanStatus!) {
+  updatePlanStatus(planId: $planId, status: $status) {
+    errors {
+      general
+      status
+    }
+    id
+    status
+    visibility
+  }
+}
+    `;
+export type UpdatePlanStatusMutationFn = Apollo.MutationFunction<UpdatePlanStatusMutation, UpdatePlanStatusMutationVariables>;
+
+/**
+ * __useUpdatePlanStatusMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlanStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlanStatusMutation, { data, loading, error }] = useUpdatePlanStatusMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useUpdatePlanStatusMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanStatusMutation, UpdatePlanStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlanStatusMutation, UpdatePlanStatusMutationVariables>(UpdatePlanStatusDocument, options);
+      }
+export type UpdatePlanStatusMutationHookResult = ReturnType<typeof useUpdatePlanStatusMutation>;
+export type UpdatePlanStatusMutationResult = Apollo.MutationResult<UpdatePlanStatusMutation>;
+export type UpdatePlanStatusMutationOptions = Apollo.BaseMutationOptions<UpdatePlanStatusMutation, UpdatePlanStatusMutationVariables>;
 export const AddProjectCollaboratorDocument = gql`
     mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
   addProjectCollaborator(
@@ -5052,6 +5155,92 @@ export type LanguagesQueryHookResult = ReturnType<typeof useLanguagesQuery>;
 export type LanguagesLazyQueryHookResult = ReturnType<typeof useLanguagesLazyQuery>;
 export type LanguagesSuspenseQueryHookResult = ReturnType<typeof useLanguagesSuspenseQuery>;
 export type LanguagesQueryResult = Apollo.QueryResult<LanguagesQuery, LanguagesQueryVariables>;
+export const PlanDocument = gql`
+    query Plan($planId: Int!) {
+  plan(planId: $planId) {
+    id
+    versionedTemplate {
+      template {
+        id
+        name
+      }
+    }
+    funders {
+      id
+      project {
+        title
+      }
+    }
+    visibility
+    status
+    project {
+      funders {
+        affiliation {
+          displayName
+        }
+        funderOpportunityNumber
+      }
+      title
+    }
+    contributors {
+      isPrimaryContact
+      projectContributor {
+        givenName
+        surName
+        email
+        orcid
+        contributorRoles {
+          label
+        }
+      }
+    }
+    sections {
+      answeredQuestions
+      displayOrder
+      sectionId
+      sectionTitle
+      totalQuestions
+    }
+    created
+    modified
+    dmpId
+    registered
+  }
+}
+    `;
+
+/**
+ * __usePlanQuery__
+ *
+ * To run a query within a React component, call `usePlanQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function usePlanQuery(baseOptions: Apollo.QueryHookOptions<PlanQuery, PlanQueryVariables> & ({ variables: PlanQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanQuery, PlanQueryVariables>(PlanDocument, options);
+      }
+export function usePlanLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanQuery, PlanQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanQuery, PlanQueryVariables>(PlanDocument, options);
+        }
+export function usePlanSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanQuery, PlanQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanQuery, PlanQueryVariables>(PlanDocument, options);
+        }
+export type PlanQueryHookResult = ReturnType<typeof usePlanQuery>;
+export type PlanLazyQueryHookResult = ReturnType<typeof usePlanLazyQuery>;
+export type PlanSuspenseQueryHookResult = ReturnType<typeof usePlanSuspenseQuery>;
+export type PlanQueryResult = Apollo.QueryResult<PlanQuery, PlanQueryVariables>;
 export const PlanContributorsDocument = gql`
     query PlanContributors($planId: Int!) {
   planContributors(planId: $planId) {

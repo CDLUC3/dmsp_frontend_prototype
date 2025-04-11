@@ -112,6 +112,7 @@
   },
   "Global": {
     "breadcrumbs": {
+      "navigation": "Breadcrumb navigation",
       "home": "Home",
       "templates": "Templates",
       "template": "Template",
@@ -154,6 +155,8 @@
       "linkCollapse": "Collapse",
       "continue": "Continue",
       "edit": "Edit",
+      "preview": "Preview",
+      "publish": "Publish",
       "close": "Close"
     },
     "labels": {
@@ -166,6 +169,7 @@
     },
     "links": {
       "clearFilter": "clear filter",
+      "request": "Request",
       "learnMore": "Learn more"
     },
     "messaging": {

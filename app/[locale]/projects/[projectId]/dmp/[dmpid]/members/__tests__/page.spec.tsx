@@ -14,10 +14,17 @@ import { useParams } from 'next/navigation';
 import ProjectsProjectPlanAdjustMembers from '../page';
 import mockProjectContributors from '../__mocks__/projectContributorsMock.json';
 import mockPlanContributors from '../__mocks__/planContributorsMock.json'
+import { addPlanContributorAction } from '../actions/addPlanContributorAction';
 
 expect.extend(toHaveNoViolations);
 
+// __mocks__/addPlanContributorAction.ts
+jest.mock('../actions/addPlanContributorAction', () => ({
+  addPlanContributorAction: jest.fn()
+}));
+
 jest.mock("@/generated/graphql", () => ({
+  AddPlanContributorDocument: jest.fn(),
   useProjectContributorsQuery: jest.fn(),
   usePlanContributorsQuery: jest.fn(),
   useAddPlanContributorMutation: jest.fn(),
@@ -54,6 +61,8 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
+
+
     (useRemovePlanContributorMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
@@ -135,19 +144,24 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     expect(jacquesCousteau).toBeInTheDocument();
   });
 
+
   it('should handle adding a member to the plan', async () => {
+    const mockAddPlanContributorAction = addPlanContributorAction as jest.Mock;
+
+    // Mock the server action to return a successful response
+    mockAddPlanContributorAction.mockResolvedValue({
+      success: true,
+      errors: [],
+      data: { id: 1, name: 'Jacques Cousteau' },
+    });
+
     await act(async () => {
-      render(
-        <ProjectsProjectPlanAdjustMembers />
-      );
+      render(<ProjectsProjectPlanAdjustMembers />);
     });
 
     // First remove Jacques as a plan member
-
-    // Find the first button with the text "labels.removeFromPlan"
     const removeMemberButton = screen.getAllByRole('button', { name: /labels.removeFromPlan/i })[0];
 
-    // Simulate a click on the button
     await act(async () => {
       fireEvent.click(removeMemberButton);
     });
@@ -155,14 +169,19 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     // Find the first button with the text "labels.addMemberToPlan"
     const addMemberButton = screen.getAllByRole('button', { name: /labels.addMemberToPlan/i })[0];
 
-    //Simulate a click on the button
+    // Simulate a click on the button
     await act(async () => {
       fireEvent.click(addMemberButton);
     });
 
-    // Find the section with the <h2> text 'headings.h2MembersInThePlan'
-    const membersInPlanSection = screen.getByRole('region', { name: 'Project members list' });
+    // Verify that the server action was called with the correct arguments
+    expect(mockAddPlanContributorAction).toHaveBeenCalledWith({
+      planId: 1, // Replace with the actual `dmpId` value in your test
+      projectContributorId: expect.any(Number), // Replace with the actual contributor ID if known
+    });
 
+    // Verify that Jacques is added back to the "Members in the Plan" section
+    const membersInPlanSection = screen.getByRole('region', { name: 'Project members list' });
     const jacquesCousteau = within(membersInPlanSection).getByRole('heading', { level: 3, name: /Jacques Cousteau/i });
     expect(jacquesCousteau).toBeInTheDocument();
   });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql } from '@apollo/client';
-import {render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams } from 'next/navigation';
 
@@ -84,6 +84,8 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
   it('should render initial invite page', async () => {
     render(<ProjectsProjectPlanFeedbackInvite />);
 
+
+    screen.debug(undefined, Infinity);
     expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.projects')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.project')).toBeInTheDocument();
@@ -96,12 +98,12 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
     expect(within(addCollaboratorForm).getByRole('textbox', { name: 'formLabels.email' })).toBeInTheDocument();
     expect(within(addCollaboratorForm).getByText('radioButtons.access.label')).toBeInTheDocument();
     const radioButton1 = screen.getByRole('radio', {
-      name: 'radioButtons.access.edit',
-      checked: true
+      name: 'edit',
+      checked: true,
     });
     expect(radioButton1).toBeInTheDocument();
     const radioButton2 = screen.getByRole('radio', {
-      name: 'radioButtons.access.comment',
+      name: 'comment',
       checked: false
     });
     expect(radioButton2).toBeInTheDocument();

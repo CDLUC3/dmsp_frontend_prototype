@@ -420,7 +420,7 @@
     margin-bottom: 8px;
   }
 
-/* We want buttons to be side by side on larger screens
+  /* We want buttons to be side by side on larger screens
   but stack on top of each other on mobile*/
 
   .modal-actions {
@@ -772,4 +772,13 @@
 
 .react-aria-CalendarCell {
   cursor: pointer;
+}
+
+.side-panel {
+  .react-aria-Link {
+    font-size: var(--fs-small);
+    color: var(--slate-800);
+    margin-top: var(--space-1);
+    display: inline-block;
+  }
 }

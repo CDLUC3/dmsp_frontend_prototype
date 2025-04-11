@@ -112,6 +112,7 @@
   },
   "Global": {
     "breadcrumbs": {
+      "navigation": "Navegação de Breadcrumb",
       "home": "Home",
       "templates": "Modelos",
       "template": "Modelo",
@@ -154,6 +155,8 @@
       "linkCollapse": "Retrair",
       "continue": "Avançar",
       "edit": "Alterar",
+      "preview": "Pré-visualizar",
+      "publish": "Publicar",
       "close": "Fechar"
     },
     "labels": {
@@ -166,6 +169,7 @@
     },
     "links": {
       "clearFilter": "limpar filtro",
+      "request": "Solicitação",
       "learnMore": "Saiba mais"
     },
     "messaging": {

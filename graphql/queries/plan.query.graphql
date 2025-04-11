@@ -1,0 +1,51 @@
+query Plan($planId: Int!) {
+  plan(planId: $planId) {
+    id
+    versionedTemplate {
+      template {
+        id
+        name
+      }
+    }
+    funders {
+      id
+      project {
+        title
+      }
+    }
+    visibility
+    status
+    project {
+      funders {
+        affiliation {
+          displayName
+        }
+        funderOpportunityNumber
+      }
+      title
+    }
+    contributors {
+      isPrimaryContact
+      projectContributor {
+        givenName
+        surName
+        email
+        orcid
+        contributorRoles {
+          label
+        }
+      }
+    }
+    sections {
+      answeredQuestions
+      displayOrder
+      sectionId
+      sectionTitle
+      totalQuestions
+    }
+    created
+    modified
+    dmpId
+    registered
+  }
+}
