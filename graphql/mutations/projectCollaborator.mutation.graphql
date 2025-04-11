@@ -4,11 +4,16 @@ mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel:
     errors {
       general
       email
-      accessLevel
-      userId
-      invitedById
-      planId
     }
     email
+    user {
+      givenName
+      surName
+      affiliation {
+        uri
+      }
+      orcid
+    }
+    
   }
 }

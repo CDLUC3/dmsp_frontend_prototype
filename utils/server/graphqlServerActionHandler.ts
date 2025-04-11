@@ -17,7 +17,7 @@ interface GraphQLError {
 interface GraphQLActionResponse<T = unknown> {
   success: boolean;
   data?: T;
-  errors?: string[] | Record<string, string>;
+  errors?: string[];
   redirect?: string;
 }
 
@@ -71,6 +71,7 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 
     // Handle GraphQL errors
     if (result.errors) {
+      console.log("RESULT.ERRORS", result.errors);
       for (const { message, extensions } of result.errors) {
         const errorCode = extensions?.code;
         switch (errorCode) {

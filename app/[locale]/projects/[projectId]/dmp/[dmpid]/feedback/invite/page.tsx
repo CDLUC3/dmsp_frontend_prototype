@@ -1,36 +1,75 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useReducer, useRef, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Checkbox,
-  CheckboxGroup,
   Dialog,
-  FieldError,
   Form,
-  Input,
-  Label,
   Link,
   Modal,
-  Radio,
-  RadioGroup,
-  TextField
 } from "react-aria-components";
 import { useParams, useRouter } from 'next/navigation';
-
+import { useTranslations } from 'next-intl';
 
 // Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer, } from "@/components/Container";
+import { FormInput, RadioGroupComponent } from '@/components/Form';
+import ErrorMessages from '@/components/ErrorMessages';
 
 // Other
-import { logECS } from '@/utils/index';
-import { routePath } from '@/utils/routes';
-import { useTranslations } from 'next-intl';
-import { addProjectCollaboratorAction } from './addCollaboratorAction';
+import { logECS, routePath } from '@/utils/index';
+import { AddProjectContributorInput } from "@/generated/graphql";
+import { useToast } from '@/context/ToastContext';
+import { addProjectCollaboratorAction, addProjectMemberAction } from './actions/index';
+import { UserInterface, CollaboratorResponse, AddProjectContributorResponse } from '@/app/types';
 import styles from './ProjectsProjectPlanFeedbackInvite.module.scss';
+
+// Define initial state for useReducer
+const initialState = {
+  accessLevel: 'edit',
+  email: '',
+  statusMessage: '',
+  errorMessages: [] as string[],
+  isModalOpen: false,
+  invitedEmail: '',
+  addAsMember: 'yes',
+  user: {
+    givenName: '',
+    surName: '',
+    affiliation: { uri: '' },
+    orcid: ''
+  } as UserInterface,
+  emailError: null as string | null,
+};
+
+// Define reducer function
+const reducer = (state: typeof initialState, action: { type: string; payload?: any }) => {
+  switch (action.type) {
+    case 'SET_ACCESS_LEVEL':
+      return { ...state, accessLevel: action.payload };
+    case 'SET_EMAIL':
+      return { ...state, email: action.payload, emailError: null };
+    case 'SET_STATUS_MESSAGE':
+      return { ...state, statusMessage: action.payload };
+    case 'SET_ERROR_MESSAGES':
+      return { ...state, errorMessages: action.payload };
+    case 'SET_IS_MODAL_OPEN':
+      return { ...state, isModalOpen: action.payload };
+    case 'SET_INVITED_EMAIL':
+      return { ...state, invitedEmail: action.payload };
+    case 'SET_ADD_AS_MEMBER':
+      return { ...state, addAsMember: action.payload };
+    case 'SET_USER':
+      return { ...state, user: action.payload };
+    case 'SET_EMAIL_ERROR':
+      return { ...state, emailError: action.payload };
+    default:
+      return state;
+  }
+};
 
 const ProjectsProjectPlanFeedbackInvite = () => {
   // Get projectId and planId params
@@ -41,22 +80,46 @@ const ProjectsProjectPlanFeedbackInvite = () => {
   const planId = Number(dmpId);
 
   const Global = useTranslations('Global');
+  const toastState = useToast(); // Access the toast state from context
 
-  const [accessType, setAccessType] = useState<string>('edit'); // Default to 'edit'
-  const [email, setEmail] = useState('');
-  const [statusMessage, setStatusMessage] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [invitedEmail, setInvitedEmail] = useState('');
-  const [addAsMember, setAddAsMember] = useState('yes');
+  const [state, dispatch] = useReducer(reducer, initialState);
 
+  // Set refs for error messages and scrolling
+  const errorRef = useRef<HTMLDivElement | null>(null);
 
+  //Routes
+  const INVITE_ROUTE = routePath('projects.dmp.feedback.invite', { projectId, dmpId });
+  const radioData = {
+    radioGroupLabel: "What should this person be able to do?",
+    radioButtonData: [
+      { value: 'edit', label: "Edit the plan" },
+      { value: 'comment', label: "Comment only" }
+    ]
+  }
 
-  const addProjectCollaborator = async (email: string, accessLevel: string) => {
+  const addMemberRadioData = {
+    radioButtonData: [
+      { value: 'yes', label: "Yes - add as project team member" },
+      { value: 'no', label: "No" }
+    ]
+  }
+
+  const handleRadioChange = (value: string) => {
+    dispatch({ type: 'SET_ACCESS_LEVEL', payload: value });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Reset email error when user starts typing
+    dispatch({ type: 'SET_EMAIL_ERROR', payload: null });
+    dispatch({ type: 'SET_EMAIL', payload: e.target.value });
+  }
+
+  const addProjectCollaborator = async (email: string, accessLevel: string): Promise<CollaboratorResponse> => {
     try {
       const response = await addProjectCollaboratorAction({
         projectId: Number(projectId),
         email,
-        accessLevel
+        accessLevel: accessLevel.toUpperCase()
       })
 
       if (response.redirect) {
@@ -66,7 +129,8 @@ const ProjectsProjectPlanFeedbackInvite = () => {
       return {
         success: response.success,
         errors: response.errors,
-        data: response.data
+        data: response.data,
+        redirect: response.redirect
       }
     } catch (error) {
       logECS('error', 'updatePlan', {
@@ -79,75 +143,150 @@ const ProjectsProjectPlanFeedbackInvite = () => {
     return {
       success: false,
       errors: [Global('messaging.somethingWentWrong')],
-      data: null
+      data: undefined
     };
   }
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleAddProjectCollaborator = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
 
-
     // Extract email and access level from form data
     const email = formData.get('email') as string;
-    const accessLevel = formData.get('accessLevel') as string;
 
     // Form validation
     if (!email) {
-      setStatusMessage('Please enter an email address');
+      dispatch({ type: 'SET_EMAIL_ERROR', payload: 'Please enter an email address' });
       return;
     }
 
-    const result = await addProjectCollaborator(email, accessLevel);
+    const result = await addProjectCollaborator(state.email, state.accessLevel);
 
     if (!result.success) {
       const errors = result.errors;
 
       // Check if errors is an array or an object
       if (Array.isArray(errors)) {
+        logECS('error', 'addProjectCollaborator', {
+          errors,
+          url: { path: INVITE_ROUTE }
+        });
         //Handle errors as an array
-        //Set error mesages
+        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [...state.errorMessages, Global('messaging.somethingWentWrong')] });
       }
     } else {
-      if (
-        result.data?.errors &&
-        typeof result.data.errors === 'object' &&
-        typeof result.data.errors.general === 'string') {
-        // Handle errors as an object with general or field-level errors
-        // Set error messages
+      if (result.data?.errors.general) {
+        const errorMsg = result.data.errors.general;
+        toastState.add(errorMsg, { type: 'error' });
       }
-      //Need to refetch plan data to refresh the info that was changed
-      //await refetch();
+
+      if (result.data?.errors.email) {
+        dispatch({ type: 'SET_EMAIL_ERROR', payload: result.data.errors.email });
+      }
+      // Set user data so that it is available for adding to project contributor
+      if (result.data?.user) {
+        dispatch({
+          type: 'SET_USER',
+          payload: {
+            givenName: result.data.user.givenName || '',
+            surName: result.data.user.surName || '',
+            affiliation: { uri: result.data.user.affiliation?.uri || '' },
+            orcid: result.data.user.orcid || '',
+          },
+        });
+      }
+
+      // Store the email for use in the modal
+      dispatch({ type: 'SET_INVITED_EMAIL', payload: state.email });
+
+      // Open the confirmation modal
+      dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true });
     }
 
-    setStatusMessage(`Invitation sent to ${email}`);
-
-    // Store the email for use in the modal
-    setInvitedEmail(email);
-
-    // Open the confirmation modal
-    setIsModalOpen(true);
-
-    // You would typically make an API call here
   };
 
   const handleModalClose = () => {
-    setIsModalOpen(false);
+    dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false });
     // Reset form after closing the modal
-    setEmail('');
+    dispatch({ type: 'SET_EMAIL', payload: '' });
   };
 
-  const handleSave = () => {
-    // Process the user's choice about adding as a team member
-    console.log('Adding as team member:', addAsMember === 'yes');
 
-    // Here you would make an API call to save this preference
+  const addProjectMember = async (input: AddProjectContributorInput): Promise<AddProjectContributorResponse> => {
+    try {
+      const response = await addProjectMemberAction({
+        input
+      })
 
+      if (response.redirect) {
+        router.push(response.redirect);
+      }
+
+      return {
+        success: response.success,
+        errors: response.errors,
+        data: response.data,
+        redirect: response.redirect
+      }
+    } catch (error) {
+      logECS('error', 'addProjectMember', {
+        error,
+        url: {
+          path: INVITE_ROUTE
+        }
+      });
+    }
+    return {
+      success: false,
+      errors: [Global('messaging.somethingWentWrong')],
+      data: undefined
+    };
+  }
+
+  const handleAddProjectMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (state.addAsMember === 'no') {
+      handleModalClose();
+      return;
+    }
+
+    const input = {
+      projectId: Number(projectId),
+      affiliationId: state.user.affiliation?.uri,
+      givenName: state.user.givenName,
+      surName: state.user.surName,
+      orcid: state.user.orcid,
+      email: state.invitedEmail,
+    }
+
+    const result = await addProjectMember(input);
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      // Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        logECS('error', 'addProjectCollaborator', {
+          errors,
+          url: { path: INVITE_ROUTE }
+        });
+        //Handle errors as an array
+        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [...state.errorMessages, Global('messaging.somethingWentWrong')] });
+      }
+    } else {
+      if (result.data?.errors.general) {
+        dispatch({ type: 'SET_ERROR_MESSAGES', payload: [...state.errorMessages, (result.data?.errors.general ?? Global('messaging.somethingWentWrong'))] });
+      }
+
+      const addProjMemberSuccess = `${state.email} added as project member`;
+      toastState.add(addProjMemberSuccess, { type: 'success' });
+    }
     // Close the modal and reset
-    setIsModalOpen(false);
-    setEmail('');
-  };
+    handleModalClose();
+  }
 
   return (
     <>
@@ -170,70 +309,35 @@ const ProjectsProjectPlanFeedbackInvite = () => {
         className="page-project-members"
       />
 
+      <ErrorMessages errors={state.errorMessages} ref={errorRef} />
       <LayoutContainer>
         <ContentContainer>
-          <div
-            aria-live="polite"
-            className={styles.srOnly}
-            role="status"
-          >
-            {statusMessage}
-          </div>
           <div className={styles.inviteFormContainer}>
-            <h2 className={styles.formTitle}>Who should have access to this
-              plan?</h2>
-
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleAddProjectCollaborator}>
               <div className={styles.formGroup}>
-                <TextField
+                <FormInput
                   name="email"
                   type="email"
-                  isRequired
-                  value={email}
-                  onChange={setEmail}
-                >
-                  <Label>Email address</Label>
-                  <Input
-                    placeholder="Enter a valid email address"
-                    className={styles.emailInput}
-                  />
-                  <FieldError />
-                </TextField>
+                  value={state.email}
+                  onChange={handleInputChange}
+                  inputClasses={styles.emailInput}
+                  aria-required="true"
+                  label="Email address"
+                  placeholder='Enter a valid email address'
+                  isInvalid={!state.emailError ? false : true}
+                  errorMessage="Please enter a valid email address"
+                />
               </div>
 
               <div className={styles.formGroup}>
-                <h3 className={styles.sectionLabel}>What should this person be
-                  able to do?</h3>
-                <CheckboxGroup
-                  aria-label="User permissions"
-                  value={[accessType]}
-                >
-                  <Checkbox
-                    value="edit"
-                    isSelected={accessType === 'edit'}
-                    onChange={() => setAccessType('edit')}
-                  >
-                    <div className="checkbox">
-                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
-                      </svg>
-                    </div>
-                    <span>Edit the plan</span>
-                  </Checkbox>
-
-                  <Checkbox
-                    value="comment"
-                    isSelected={accessType === 'comment'}
-                    onChange={() => setAccessType('comment')}
-                  >
-                    <div className="checkbox">
-                      <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4" />
-                      </svg>
-                    </div>
-                    <span>Comment only</span>
-                  </Checkbox>
-                </CheckboxGroup>
+                <RadioGroupComponent
+                  name="accessLevel"
+                  value={state.accessLevel}
+                  classes={styles.radioGroup}
+                  radioGroupLabel={radioData.radioGroupLabel}
+                  radioButtonData={radioData.radioButtonData}
+                  onChange={handleRadioChange}
+                />
               </div>
 
               <div className={styles.formActions}>
@@ -266,13 +370,17 @@ const ProjectsProjectPlanFeedbackInvite = () => {
       </LayoutContainer>
 
       {/* Confirmation Modal */}
-      <Modal isDismissable isOpen={isModalOpen} onOpenChange={setIsModalOpen}>
-        <Dialog aria-label="Invite Confirmation">
+      < Modal
+        isDismissable
+        isOpen={state.isModalOpen}
+        onOpenChange={(isOpen) => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: isOpen })} >
+        <Dialog
+          aria-labelledby="invite-confirmation">
           <div >
-            <h2 >Invite sent</h2>
+            <h2 id="invite-confirmation">Invite sent</h2>
 
             <p >
-              We have sent an invite to <strong>{invitedEmail}</strong>. They
+              We have sent an invite to <strong>{state.invitedEmail}</strong>. They
               will have access to this project.
             </p>
             <hr />
@@ -287,25 +395,14 @@ const ProjectsProjectPlanFeedbackInvite = () => {
               This will make it easier for you add them to a plans etc
             </p>
 
-            <Form onSubmit={handleSave}>
-              <RadioGroup
+            <Form onSubmit={handleAddProjectMember}>
+              <RadioGroupComponent
                 name="addAsMember"
-                value={addAsMember}
-                onChange={setAddAsMember}
-                className={styles.radioGroup}
-              >
-                <Radio value="yes" className={styles.radioBtn}>
-                  <div className={styles.radioContent}>
-                    <span>Yes - add as project team member</span>
-                  </div>
-                </Radio>
-
-                <Radio value="no" className={styles.radioBtn}>
-                  <div className={styles.radioContent}>
-                    <span>No</span>
-                  </div>
-                </Radio>
-              </RadioGroup>
+                value={state.addAsMember}
+                classes={styles.radioGroup}
+                radioButtonData={addMemberRadioData.radioButtonData}
+                onChange={() => dispatch({ type: 'SET_ADD_AS_MEMBER', payload: state.addAsMember === 'yes' ? 'no' : 'yes' })}
+              />
 
               <div className="modal-actions">
                 <div>
@@ -318,7 +415,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
             </Form>
           </div>
         </Dialog>
-      </Modal>
+      </Modal >
     </>
   );
 };

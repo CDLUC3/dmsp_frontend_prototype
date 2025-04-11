@@ -3542,7 +3542,7 @@ export type AddProjectCollaboratorMutationVariables = Exact<{
 }>;
 
 
-export type AddProjectCollaboratorMutation = { __typename?: 'Mutation', addProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, email: string, errors?: { __typename?: 'ProjectCollaboratorErrors', general?: string | null, email?: string | null, accessLevel?: string | null, userId?: string | null, invitedById?: string | null, planId?: string | null } | null } | null };
+export type AddProjectCollaboratorMutation = { __typename?: 'Mutation', addProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, email: string, errors?: { __typename?: 'ProjectCollaboratorErrors', general?: string | null, email?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, orcid?: any | null, affiliation?: { __typename?: 'Affiliation', uri: string } | null } | null } | null };
 
 export type UpdateProjectContributorMutationVariables = Exact<{
   input: UpdateProjectContributorInput;
@@ -3557,6 +3557,13 @@ export type RemoveProjectContributorMutationVariables = Exact<{
 
 
 export type RemoveProjectContributorMutation = { __typename?: 'Mutation', removeProjectContributor?: { __typename?: 'ProjectContributor', errors?: { __typename?: 'ProjectContributorErrors', general?: string | null, email?: string | null, affiliationId?: string | null, givenName?: string | null, orcid?: string | null, surName?: string | null, contributorRoleIds?: string | null } | null } | null };
+
+export type AddProjectContributorMutationVariables = Exact<{
+  input: AddProjectContributorInput;
+}>;
+
+
+export type AddProjectContributorMutation = { __typename?: 'Mutation', addProjectContributor?: { __typename?: 'ProjectContributor', email?: string | null, errors?: { __typename?: 'ProjectContributorErrors', general?: string | null } | null } | null };
 
 export type UpdateProjectFunderMutationVariables = Exact<{
   input: UpdateProjectFunderInput;
@@ -4006,12 +4013,16 @@ export const AddProjectCollaboratorDocument = gql`
     errors {
       general
       email
-      accessLevel
-      userId
-      invitedById
-      planId
     }
     email
+    user {
+      givenName
+      surName
+      affiliation {
+        uri
+      }
+      orcid
+    }
   }
 }
     `;
@@ -4129,6 +4140,42 @@ export function useRemoveProjectContributorMutation(baseOptions?: Apollo.Mutatio
 export type RemoveProjectContributorMutationHookResult = ReturnType<typeof useRemoveProjectContributorMutation>;
 export type RemoveProjectContributorMutationResult = Apollo.MutationResult<RemoveProjectContributorMutation>;
 export type RemoveProjectContributorMutationOptions = Apollo.BaseMutationOptions<RemoveProjectContributorMutation, RemoveProjectContributorMutationVariables>;
+export const AddProjectContributorDocument = gql`
+    mutation AddProjectContributor($input: AddProjectContributorInput!) {
+  addProjectContributor(input: $input) {
+    email
+    errors {
+      general
+    }
+  }
+}
+    `;
+export type AddProjectContributorMutationFn = Apollo.MutationFunction<AddProjectContributorMutation, AddProjectContributorMutationVariables>;
+
+/**
+ * __useAddProjectContributorMutation__
+ *
+ * To run a mutation, you first call `useAddProjectContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectContributorMutation, { data, loading, error }] = useAddProjectContributorMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddProjectContributorMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectContributorMutation, AddProjectContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddProjectContributorMutation, AddProjectContributorMutationVariables>(AddProjectContributorDocument, options);
+      }
+export type AddProjectContributorMutationHookResult = ReturnType<typeof useAddProjectContributorMutation>;
+export type AddProjectContributorMutationResult = Apollo.MutationResult<AddProjectContributorMutation>;
+export type AddProjectContributorMutationOptions = Apollo.BaseMutationOptions<AddProjectContributorMutation, AddProjectContributorMutationVariables>;
 export const UpdateProjectFunderDocument = gql`
     mutation UpdateProjectFunder($input: UpdateProjectFunderInput!) {
   updateProjectFunder(input: $input) {
