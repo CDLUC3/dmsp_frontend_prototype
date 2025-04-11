@@ -1,2 +1,2 @@
 export { addProjectCollaboratorAction } from './addCollaboratorAction';
-export { addProjectMemberAction } from './addProjectMember';
+export { addProjectMemberAction } from './addProjectMemberAction';
