@@ -1,6 +1,5 @@
 "use server";
 
-import { gql } from "graphql-request";
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
 import logger from "@/utils/server/logger";
 import { CollaboratorResponse } from "@/app/types";

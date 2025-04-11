@@ -26,8 +26,33 @@ import { useToast } from '@/context/ToastContext';
 import { addProjectCollaboratorAction, addProjectMemberAction } from './actions/index';
 import { UserInterface, CollaboratorResponse, AddProjectContributorResponse } from '@/app/types';
 
+// Define types for actions
+type Action =
+  | { type: 'SET_ACCESS_LEVEL'; payload: string }
+  | { type: 'SET_EMAIL'; payload: string }
+  | { type: 'SET_STATUS_MESSAGE'; payload: string }
+  | { type: 'SET_ERROR_MESSAGES'; payload: string[] }
+  | { type: 'SET_IS_MODAL_OPEN'; payload: boolean }
+  | { type: 'SET_INVITED_EMAIL'; payload: string }
+  | { type: 'SET_ADD_AS_MEMBER'; payload: string }
+  | { type: 'SET_USER'; payload: UserInterface }
+  | { type: 'SET_EMAIL_ERROR'; payload: string | null };
+
+
+// Define the initial state type
+type State = {
+  accessLevel: string;
+  email: string;
+  statusMessage: string;
+  errorMessages: string[];
+  isModalOpen: boolean;
+  invitedEmail: string;
+  addAsMember: string;
+  user: UserInterface;
+  emailError: string | null;
+};
 // Define initial state for useReducer
-const initialState = {
+const initialState: State = {
   accessLevel: 'edit',
   email: '',
   statusMessage: '',
@@ -40,12 +65,12 @@ const initialState = {
     surName: '',
     affiliation: { uri: '' },
     orcid: ''
-  } as UserInterface,
-  emailError: null as string | null,
+  },
+  emailError: null,
 };
 
 // Define reducer function
-const reducer = (state: typeof initialState, action: { type: string; payload?: any }) => {
+const reducer = (state: typeof initialState, action: Action) => {
   switch (action.type) {
     case 'SET_ACCESS_LEVEL':
       return { ...state, accessLevel: action.payload };
@@ -121,9 +146,18 @@ const ProjectsProjectPlanFeedbackInvite = () => {
     dispatch({ type: 'SET_EMAIL', payload: '' });
   };
 
-  const performApiAction = async (
-    action: (input: any) => Promise<any>,
-    input: any,
+  const performApiAction = async <
+    TInput,
+    TData = unknown, // Default to `unknown` if no specific type is provided
+    TResponse extends { success: boolean; errors?: string[]; data?: TData; redirect?: string } = {
+      success: boolean;
+      errors?: string[];
+      data?: TData;
+      redirect?: string;
+    }
+  >(
+    action: (input: TInput) => Promise<TResponse>,
+    input: TInput,
     errorContext: string,
     path?: string
   ) => {
@@ -143,7 +177,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
     } catch (error) {
       logECS('error', errorContext, {
         error,
-        url: { path: path },
+        url: path,
       });
 
       return {

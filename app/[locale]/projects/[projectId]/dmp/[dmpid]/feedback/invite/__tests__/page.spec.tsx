@@ -1,9 +1,8 @@
 import React from 'react';
 import { gql } from '@apollo/client';
-import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import {render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams } from 'next/navigation';
-import { cookies } from "next/headers";
 
 jest.mock("@/generated/graphql", () => {
   const actual = jest.requireActual("@/generated/graphql");
