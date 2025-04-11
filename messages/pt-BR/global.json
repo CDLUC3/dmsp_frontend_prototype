@@ -112,6 +112,7 @@
   },
   "Global": {
     "breadcrumbs": {
+      "navigation": "Navegação de Breadcrumb",
       "home": "Home",
       "templates": "Modelos",
       "template": "Modelo",
@@ -152,7 +153,10 @@
       "linkExpand": "Expandir",
       "linkCollapse": "Retrair",
       "continue": "Avançar",
-      "edit": "Alterar"
+      "edit": "Alterar",
+      "preview": "Pré-visualizar",
+      "publish": "Publicar",
+      "close": "Fechar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",
@@ -163,7 +167,8 @@
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
     },
     "links": {
-      "clearFilter": "limpar filtro"
+      "clearFilter": "limpar filtro",
+      "request": "Solicitação"
     },
     "messaging": {
       "loading": "Baixar",

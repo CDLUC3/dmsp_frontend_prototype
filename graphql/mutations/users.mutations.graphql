@@ -1,5 +1,5 @@
 
-mutation UpdateUserProfile($input: updateUserProfileInput!) {
+mutation UpdateUserProfile($input: UpdateUserProfileInput!) {
   updateUserProfile(input: $input) {
     id
     givenName

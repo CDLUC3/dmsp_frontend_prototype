@@ -1,3 +1,6 @@
+import { ReactNode } from "react";
+import { PlanSectionProgress } from "@/generated/graphql";
+
 export interface EmailInterface {
   id?: number | null;
   email: string;
@@ -206,7 +209,7 @@ export interface ProjectSearchResultInterface {
   }[] | null;
   funders?: {
     name?: string | null;
-    grantId? : string | null;
+    grantId?: string | null;
   }[] | null;
 }
 
@@ -254,11 +257,11 @@ export interface Affiliation {
 interface RadioButtonInterface {
   value: string;
   label: string;
-  description?: string;
+  description?: string | ReactNode;
 }
 export interface RadioButtonProps {
   name: string;
-  description?: string;
+  description?: string | ReactNode;
   radioGroupLabel: string;
   radioButtonData: RadioButtonInterface[];
   value: string;
@@ -316,4 +319,42 @@ export interface ProjectContributorsInterface {
   orcid: string;
   roles: PlanContributorRolesInterface[];
   isPrimaryContact: boolean;
+}
+
+export interface PlanMember {
+  fullname: string;
+  role: string[];
+  orcid: string;
+  isPrimaryContact: boolean;
+  email: string;
+}
+export interface ListItemsInterface {
+  id: number;
+  content: JSX.Element;
+  completed: boolean;
+}[]
+
+export interface PlanOverviewInterface {
+  id: number | null;
+  dmpId: string;
+  registered: string;
+  title: string;
+  status: string;
+  funderName: string;
+  primaryContact: string;
+  members: PlanMember[];
+  sections: PlanSectionProgress[];
+  percentageAnswered: number;
+}
+
+export interface ActionResponse {
+  success: boolean;
+  errors?: { general?: string } | string[];
+  data?: {
+    errors?: {
+      general: string;
+      [key: string]: string | null;
+    };
+  };
+  redirect?: string;
 }

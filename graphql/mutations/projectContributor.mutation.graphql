@@ -1,5 +1,5 @@
 
-mutation UpdateProjectContributor($input: updateProjectContributorInput!) {
+mutation UpdateProjectContributor($input: UpdateProjectContributorInput!) {
   updateProjectContributor(input: $input) {
     givenName
     surName

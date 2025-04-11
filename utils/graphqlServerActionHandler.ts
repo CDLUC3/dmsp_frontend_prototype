@@ -1,55 +1,69 @@
 "use server";
 
-import { AddPlanContributorDocument } from "@/generated/graphql";
+import { DocumentNode, print } from "graphql";
 import { cookies } from "next/headers";
 import logger from "@/utils/logger";
 import { serverRefreshAuthTokens, serverFetchCsrfToken } from "@/utils/serverAuthHelper";
 
-type GraphQLErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "INTERNAL_SERVER_ERROR" | string;
+export type GraphQLErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "INTERNAL_SERVER_ERROR" | string;
 
-interface GraphQLError {
+export interface GraphQLError {
   message: string;
   extensions?: {
     code?: GraphQLErrorCode;
   };
 }
 
-export async function addPlanContributorAction({
-  planId,
-  projectContributorId,
-}: {
-  planId: number;
-  projectContributorId: number;
-}) {
-  try {
-    // Extract mutation string from the generated document
-    const mutationString = AddPlanContributorDocument.loc?.source.body;
+export interface GraphQLActionResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  errors?: string[] | Record<string, string>;
+  redirect?: string;
+}
 
+/**
+ * Execute a GraphQL mutation with comprehensive error handling
+ * 
+ * @param document - The GraphQL mutation DocumentNodeto execute
+ * @param variables - Variables to pass to the mutation
+ * @param dataPath - Path to extract data from response (e.g., "addPlanContributor")
+ * @returns GraphQLActionResponse with appropriate success, data, errors, or redirect information
+ */
+export async function executeGraphQLMutation<T = unknown, V = Record<string, unknown>>({
+  document,
+  variables,
+  dataPath
+}: {
+  document: DocumentNode | string;
+  variables: V;
+  dataPath: string;
+}): Promise<GraphQLActionResponse<T>> {
+
+  const mutationString = typeof document === "string" ? document : print(document);
+  console.log("***Mutation String***", mutationString);
+  try {
     if (!mutationString) {
-      throw new Error("Could not extract mutation string from document");
+      throw new Error("No mutation string provided");
     }
 
     // Get all cookies
     const cookieStore = cookies();
-    const cookieString = cookieStore.toString(); // Convert cookies to a string format for the request
+    const cookieString = cookieStore.toString();
 
     // Headers for the GraphQL request
     const headers = {
       "Content-Type": "application/json",
-      Cookie: cookieString, // Attach all cookies
+      Cookie: cookieString,
     };
 
     // Make the GraphQL request
     const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/graphql`, {
       method: "POST",
       headers,
-      credentials: "include", // Ensure cookies are sent with the request
+      credentials: "include",
       body: JSON.stringify({
         query: mutationString,
-        variables: {
-          planId,
-          projectContributorId
-        },
+        variables,
       }),
     });
 
@@ -67,7 +81,7 @@ export async function addPlanContributorAction({
 
               if (!refreshResult) {
                 logger.error("Auth token refresh failed with no result", { error: "UNAUTHENTICATED" });
-                return { redirect: "/login" };
+                return { success: false, redirect: "/login" };
               }
 
               // Extract and store cookies from response
@@ -76,7 +90,7 @@ export async function addPlanContributorAction({
 
               if (!setCookieHeader) {
                 logger.error("No set-cookie header found in refresh response", { error: "UNAUTHENTICATED" });
-                return { redirect: "/login" };
+                return { success: false, redirect: "/login" };
               }
 
               const refreshedCookiesArray: string[] = [];
@@ -99,62 +113,86 @@ export async function addPlanContributorAction({
                 ? `${existingCookies}; ${refreshedCookiesArray.join("; ")}`
                 : refreshedCookiesArray.join("; ");
 
-              // Set headers for GraphQL request with newly updated dmpst cookie
+              // Set headers for GraphQL request with newly updated cookie
               const headers = {
                 "Content-Type": "application/json",
                 Cookie: combinedCookies,
               };
 
-              // Retry GraphQL request after getting the new auth token 'dmspt'
+              // Retry GraphQL request after getting the new auth token
               const retryResponse = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/graphql`, {
                 method: "POST",
                 headers,
                 credentials: "include",
-                body: JSON.stringify({ query: mutationString, variables: { planId, projectContributorId } }),
+                body: JSON.stringify({ query: mutationString, variables }),
               });
 
               const retryResult = await retryResponse.json();
 
               if (retryResult.errors) {
                 logger.error(`[GraphQL Retry Error]: ${retryResult.errors[0]?.message}`, { error: "GRAPHQL_ERROR" });
-                return { errors: retryResult.errors.map((err: GraphQLError) => err.message) };
+                return { success: false, errors: retryResult.errors.map((err: GraphQLError) => err.message) };
               }
 
-              return { success: true, data: retryResult.data?.addPlanContributor };
+              // Extract data using provided path
+              const retryData = getNestedValue(retryResult.data, dataPath);
 
+              return {
+                success: true,
+                data: retryData as T
+              };
             } catch (error) {
               logger.error("Token refresh failed", { error });
-              return { redirect: "/login" };
+              return { success: false, redirect: "/login" };
             }
-            break;
 
           case "FORBIDDEN":
             try {
               await serverFetchCsrfToken();
+              return { success: false, errors: ["Forbidden. Please check your permissions."] };
             } catch (error) {
               logger.error("Fetching CSRF token failed", { error });
-              return { redirect: "/login" };
+              return { success: false, redirect: "/login" };
             }
-            break;
 
           case "INTERNAL_SERVER_ERROR":
             logger.error(`[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`, { error: "INTERNAL_SERVER_ERROR" });
-            return { redirect: "/500-error" };
-            break;
+            return { success: false, redirect: "/500-error" };
 
           default:
             logger.error(`[GraphQL Error]: ${message}`, { error: "GRAPHQL_ERROR" });
-            return { errors: [message] };
+            return { success: false, errors: [message] };
         }
       }
     }
 
+    // Extract data using provided path
+    const responseData = getNestedValue(result.data, dataPath);
+
     return {
       success: true,
-      data: result.data?.addPlanContributor,
+      data: responseData as T,
     };
   } catch (networkError) {
     logger.error(`[GraphQL Network Error]: ${networkError}`, { error: "NETWORK_ERROR" });
-    return { errors: ["There was a problem connecting to the server. Please try again."] };
+    return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
+}
+
+// Helper function to get a nested value from an object using a dot-notation path
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+  if (!obj || !path) return undefined;
+
+  const properties = path.split('.');
+  let value: unknown = obj;
+
+  for (const prop of properties) {
+    if (value === null || value === undefined || typeof value !== 'object') {
+      return undefined;
+    }
+    value = (value as Record<string, unknown>)[prop];
+
+  }
+
+  return value;
 }

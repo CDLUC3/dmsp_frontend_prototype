@@ -710,6 +710,18 @@ function Page() {
                 <DmpIcon icon="format_bold" />
                 <DmpIcon icon="double_arrow" />
                 <DmpIcon icon="info" />
+                <DmpIcon icon="cancel" />
+                <DmpIcon icon="trashcan" />
+                <DmpIcon icon="table" />
+                <DmpIcon icon="chat" />
+                <DmpIcon icon="format_bold" />
+                <DmpIcon icon="format_italic" />
+                <DmpIcon icon="format_underlined" />
+                <DmpIcon icon="format_list_bulleted" />
+                <DmpIcon icon="format_list_numbered" />
+                <DmpIcon icon="double_arrow" />
+                <DmpIcon icon="check_circle" />
+                <DmpIcon icon="error_circle" />
               </div>
             </Example>
 

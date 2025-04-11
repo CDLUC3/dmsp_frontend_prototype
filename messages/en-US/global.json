@@ -112,6 +112,7 @@
   },
   "Global": {
     "breadcrumbs": {
+      "navigation": "Breadcrumb navigation",
       "home": "Home",
       "templates": "Templates",
       "template": "Template",
@@ -152,7 +153,10 @@
       "linkExpand": "Expand",
       "linkCollapse": "Collapse",
       "continue": "Continue",
-      "edit": "Edit"
+      "edit": "Edit",
+      "preview": "Preview",
+      "publish": "Publish",
+      "close": "Close"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",
@@ -163,7 +167,8 @@
       "searchHelpText": "Search by research organization, field station or lab, template description, etc."
     },
     "links": {
-      "clearFilter": "clear filter"
+      "clearFilter": "clear filter",
+      "request": "Request"
     },
     "messaging": {
       "loading": "Loading",
