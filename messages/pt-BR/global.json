@@ -130,7 +130,8 @@
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto",
       "projectFunder": "Fundador do Projeto",
-      "planOverview": "Resumo do plano"
+      "planOverview": "Resumo do plano",
+      "feedback": "Registrar"
     },
     "form": {
       "yesLabel": "Sim",
@@ -152,7 +153,8 @@
       "linkExpand": "Expandir",
       "linkCollapse": "Retrair",
       "continue": "Avançar",
-      "edit": "Alterar"
+      "edit": "Alterar",
+      "close": "Fechar"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",
@@ -163,7 +165,8 @@
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
     },
     "links": {
-      "clearFilter": "limpar filtro"
+      "clearFilter": "limpar filtro",
+      "learnMore": "Saiba mais"
     },
     "messaging": {
       "loading": "Baixar",

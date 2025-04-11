@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useReducer, useRef, useState } from 'react';
+import React, { useReducer, useRef } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -25,7 +25,6 @@ import { AddProjectContributorInput } from "@/generated/graphql";
 import { useToast } from '@/context/ToastContext';
 import { addProjectCollaboratorAction, addProjectMemberAction } from './actions/index';
 import { UserInterface, CollaboratorResponse, AddProjectContributorResponse } from '@/app/types';
-import styles from './ProjectsProjectPlanFeedbackInvite.module.scss';
 
 // Define initial state for useReducer
 const initialState = {
@@ -79,7 +78,10 @@ const ProjectsProjectPlanFeedbackInvite = () => {
   const dmpId = Array.isArray(params.dmpid) ? params.dmpid[0] : params.dmpid;
   const planId = Number(dmpId);
 
+  // Localization keys
   const Global = useTranslations('Global');
+  const t = useTranslations('ProjectsProjectPlanFeedbackInvite');
+
   const toastState = useToast(); // Access the toast state from context
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -87,20 +89,19 @@ const ProjectsProjectPlanFeedbackInvite = () => {
   // Set refs for error messages and scrolling
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  //Routes
   const INVITE_ROUTE = routePath('projects.dmp.feedback.invite', { projectId, dmpId });
   const radioData = {
-    radioGroupLabel: "What should this person be able to do?",
+    radioGroupLabel: t('radioButtons.access.label'),
     radioButtonData: [
-      { value: 'edit', label: "Edit the plan" },
-      { value: 'comment', label: "Comment only" }
+      { value: 'edit', label: t('radioButtons.access.edit') },
+      { value: 'comment', label: t('radioButtons.access.comment') }
     ]
   }
 
   const addMemberRadioData = {
     radioButtonData: [
-      { value: 'yes', label: "Yes - add as project team member" },
-      { value: 'no', label: "No" }
+      { value: 'yes', label: t('radioButtons.addAsMember.yes') },
+      { value: 'no', label: t('radioButtons.addAsMember.no') }
     ]
   }
 
@@ -114,13 +115,20 @@ const ProjectsProjectPlanFeedbackInvite = () => {
     dispatch({ type: 'SET_EMAIL', payload: e.target.value });
   }
 
-  const addProjectCollaborator = async (email: string, accessLevel: string): Promise<CollaboratorResponse> => {
+  const handleModalClose = () => {
+    dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false });
+    // Reset form after closing the modal
+    dispatch({ type: 'SET_EMAIL', payload: '' });
+  };
+
+  const performApiAction = async (
+    action: (input: any) => Promise<any>,
+    input: any,
+    errorContext: string,
+    path?: string
+  ) => {
     try {
-      const response = await addProjectCollaboratorAction({
-        projectId: Number(projectId),
-        email,
-        accessLevel: accessLevel.toUpperCase()
-      })
+      const response = await action(input);
 
       if (response.redirect) {
         router.push(response.redirect);
@@ -130,22 +138,35 @@ const ProjectsProjectPlanFeedbackInvite = () => {
         success: response.success,
         errors: response.errors,
         data: response.data,
-        redirect: response.redirect
-      }
+        redirect: response.redirect,
+      };
     } catch (error) {
-      logECS('error', 'updatePlan', {
+      logECS('error', errorContext, {
         error,
-        url: {
-          path: routePath('projects.dmp.show', { projectId, dmpId: planId })
-        }
+        url: { path: path },
       });
+
+      return {
+        success: false,
+        errors: [Global('messaging.somethingWentWrong')],
+        data: undefined,
+      };
     }
-    return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: undefined
-    };
   }
+
+
+  const addProjectCollaborator = async (email: string, accessLevel: string): Promise<CollaboratorResponse> => {
+    return performApiAction(
+      addProjectCollaboratorAction,
+      {
+        projectId: Number(projectId),
+        email,
+        accessLevel: accessLevel.toUpperCase(),
+      },
+      'addProjectCollaborator',
+      routePath('projects.dmp.show', { projectId, dmpId: planId })
+    );
+  };
 
   const handleAddProjectCollaborator = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,7 +179,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
 
     // Form validation
     if (!email) {
-      dispatch({ type: 'SET_EMAIL_ERROR', payload: 'Please enter an email address' });
+      dispatch({ type: 'SET_EMAIL_ERROR', payload: t('messaging.errors.email') });
       return;
     }
 
@@ -177,14 +198,15 @@ const ProjectsProjectPlanFeedbackInvite = () => {
         dispatch({ type: 'SET_ERROR_MESSAGES', payload: [...state.errorMessages, Global('messaging.somethingWentWrong')] });
       }
     } else {
-      if (result.data?.errors.general) {
+      if (result.data?.errors?.general) {
         const errorMsg = result.data.errors.general;
         toastState.add(errorMsg, { type: 'error' });
       }
 
-      if (result.data?.errors.email) {
+      if (result.data?.errors?.email) {
         dispatch({ type: 'SET_EMAIL_ERROR', payload: result.data.errors.email });
       }
+
       // Set user data so that it is available for adding to project contributor
       if (result.data?.user) {
         dispatch({
@@ -204,46 +226,16 @@ const ProjectsProjectPlanFeedbackInvite = () => {
       // Open the confirmation modal
       dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true });
     }
-
   };
-
-  const handleModalClose = () => {
-    dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false });
-    // Reset form after closing the modal
-    dispatch({ type: 'SET_EMAIL', payload: '' });
-  };
-
 
   const addProjectMember = async (input: AddProjectContributorInput): Promise<AddProjectContributorResponse> => {
-    try {
-      const response = await addProjectMemberAction({
-        input
-      })
-
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data,
-        redirect: response.redirect
-      }
-    } catch (error) {
-      logECS('error', 'addProjectMember', {
-        error,
-        url: {
-          path: INVITE_ROUTE
-        }
-      });
-    }
-    return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: undefined
-    };
-  }
+    return performApiAction(
+      addProjectMemberAction,
+      { input },
+      'addProjectMember',
+      INVITE_ROUTE
+    );
+  };
 
   const handleAddProjectMember = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -281,7 +273,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
         dispatch({ type: 'SET_ERROR_MESSAGES', payload: [...state.errorMessages, (result.data?.errors.general ?? Global('messaging.somethingWentWrong'))] });
       }
 
-      const addProjMemberSuccess = `${state.email} added as project member`;
+      const addProjMemberSuccess = t('messaging.success.addMember', { email: state.email });
       toastState.add(addProjMemberSuccess, { type: 'success' });
     }
     // Close the modal and reset
@@ -291,16 +283,17 @@ const ProjectsProjectPlanFeedbackInvite = () => {
   return (
     <>
       <PageHeader
-        title="Invite people and manage access"
+        title={t('title')}
         description=""
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects/proj_2425/dmp/xxx/feedback">Manage
-              Access</Link></Breadcrumb>
-          </Breadcrumbs>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.dmp.feedback', { projectId, dmpId: planId })}>{Global('breadcrumbs.feedback')}</Link></Breadcrumb>
+            <Breadcrumb>{t('breadcrumbs.manageAccess')}</Breadcrumb>
+          </Breadcrumbs >
         }
         actions={
           <>
@@ -312,56 +305,52 @@ const ProjectsProjectPlanFeedbackInvite = () => {
       <ErrorMessages errors={state.errorMessages} ref={errorRef} />
       <LayoutContainer>
         <ContentContainer>
-          <div className={styles.inviteFormContainer}>
-            <Form onSubmit={handleAddProjectCollaborator}>
-              <div className={styles.formGroup}>
+          <div >
+            <Form onSubmit={handleAddProjectCollaborator} data-testid="add-collaborator-form">
+              <div>
                 <FormInput
                   name="email"
                   type="email"
                   value={state.email}
                   onChange={handleInputChange}
-                  inputClasses={styles.emailInput}
                   aria-required="true"
-                  label="Email address"
-                  placeholder='Enter a valid email address'
+                  label={t('formLabels.email')}
+                  placeholder={t('placeHolders.email')}
                   isInvalid={!state.emailError ? false : true}
-                  errorMessage="Please enter a valid email address"
+                  errorMessage={t('messaging.errors.email')}
                 />
               </div>
 
-              <div className={styles.formGroup}>
+              <div>
                 <RadioGroupComponent
                   name="accessLevel"
                   value={state.accessLevel}
-                  classes={styles.radioGroup}
                   radioGroupLabel={radioData.radioGroupLabel}
                   radioButtonData={radioData.radioButtonData}
                   onChange={handleRadioChange}
                 />
               </div>
 
-              <div className={styles.formActions}>
+              <div>
                 <Button
                   type="submit"
                   className="react-aria-Button react-aria-Button--primary"
                 >
-                  Grant access
+                  {t('buttons.grantAccess')}
                 </Button>
               </div>
 
-              <div className={styles.formHelp}>
+              <div>
                 <p>
-                  When you click <strong>Grant access</strong> we&#39;ll send an
-                  email to this person inviting
-                  them to view your plan.
+                  {t.rich('para1', {
+                    strong: (chunks) => <strong>{chunks}</strong>
+                  })}
                 </p>
                 <p>
-                  If they aren&#39;t already a member of
-                  we&#39;ll invite them to join.
+                  {t('para2')}
                 </p>
                 <p>
-                  <Link href="/help/sharing" className="text-base underline">Learn
-                    more</Link>
+                  <Link href="/help/sharing" className="text-base underline">{Global('links.learnMore')}</Link>
                 </p>
               </div>
             </Form>
@@ -373,33 +362,36 @@ const ProjectsProjectPlanFeedbackInvite = () => {
       < Modal
         isDismissable
         isOpen={state.isModalOpen}
-        onOpenChange={(isOpen) => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: isOpen })} >
+        onOpenChange={(isOpen) => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: isOpen })}
+        data-testid="invite-confirmation-modal"
+      >
         <Dialog
           aria-labelledby="invite-confirmation">
           <div >
-            <h2 id="invite-confirmation">Invite sent</h2>
+            <h2 id="invite-confirmation">{t('headings.h2InviteSent')}</h2>
 
             <p >
-              We have sent an invite to <strong>{state.invitedEmail}</strong>. They
-              will have access to this project.
+              {t.rich('para3', {
+                strong: (chunks) => <strong>{chunks}</strong>,
+                email: state.invitedEmail
+              })}
+
             </p>
             <hr />
 
             <p >
-              <strong>
-                Would you like to add this person as a project team member on
-                the project?
-              </strong>
+              {t.rich('para4', {
+                strong: (chunks) => <strong>{chunks}</strong>
+              })}
             </p>
             <p>
-              This will make it easier for you add them to a plans etc
+              {t('para5')}
             </p>
 
             <Form onSubmit={handleAddProjectMember}>
               <RadioGroupComponent
                 name="addAsMember"
                 value={state.addAsMember}
-                classes={styles.radioGroup}
                 radioButtonData={addMemberRadioData.radioButtonData}
                 onChange={() => dispatch({ type: 'SET_ADD_AS_MEMBER', payload: state.addAsMember === 'yes' ? 'no' : 'yes' })}
               />

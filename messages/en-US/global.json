@@ -130,7 +130,8 @@
       "projects": "Projects",
       "projectOverview": "Project overview",
       "projectFunder": "Project funder",
-      "planOverview": "Plan overview"
+      "planOverview": "Plan overview",
+      "feedback": "Feedback"
     },
     "form": {
       "yesLabel": "Yes",
@@ -164,7 +165,8 @@
       "searchHelpText": "Search by research organization, field station or lab, template description, etc."
     },
     "links": {
-      "clearFilter": "clear filter"
+      "clearFilter": "clear filter",
+      "learnMore": "Learn more"
     },
     "messaging": {
       "loading": "Loading",

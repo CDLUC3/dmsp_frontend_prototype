@@ -217,5 +217,47 @@
         "removeMemberFromProject": "Remove member from project"
       }
     }
+  },
+  "ProjectsProjectPlanFeedbackInvite": {
+    "title": "Invite people and manage access",
+    "breadcrumbs": {
+      "manageAccess": "Manage access"
+    },
+    "buttons": {
+      "grantAccess": "Grant access"
+    },
+    "radioButtons": {
+      "access": {
+        "label": "What should this person be able to do?",
+        "edit": "Edit the plan",
+        "comment": "Comment only"
+      },
+      "addAsMember": {
+        "yes": "Yes - add as project team member",
+        "no": "No"
+      }
+    },
+    "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
+    "para2": "If they aren't already a member of we'll invite them to join.",
+    "para3": "We have sent an invite to <strong>{email}</strong>. They will have access to this project.",
+    "para4": "<strong>Would you like to add this person as a project team member on the project?</strong>",
+    "para5": "This will make it easier for you add them to a plans etc",
+    "messaging": {
+      "errors": {
+        "email": "Please enter a valid email address"
+      },
+      "success": {
+        "addMember": "{email} added as project member"
+      }
+    },
+    "formLabels": {
+      "email": "Email address"
+    },
+    "placeHolders": {
+      "email": "Enter a valid email address"
+    },
+    "headings": {
+      "h2InviteSent": "Invite sent"
+    }
   }
 }
