@@ -326,7 +326,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.dmp.feedback', { projectId, dmpId: planId })}>{Global('breadcrumbs.feedback')}</Link></Breadcrumb>
-            <Breadcrumb>{t('breadcrumbs.manageAccess')}</Breadcrumb>
+            <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs >
         }
         actions={

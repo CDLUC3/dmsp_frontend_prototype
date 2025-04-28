@@ -90,7 +90,6 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
     expect(screen.getByText('breadcrumbs.projects')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.project')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.feedback')).toBeInTheDocument();
-    expect(screen.getByText('breadcrumbs.manageAccess')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'title' })).toBeInTheDocument();
     const addCollaboratorForm = screen.getByTestId('add-collaborator-form');
     expect(addCollaboratorForm).toBeInTheDocument();

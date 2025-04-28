@@ -219,7 +219,7 @@
     }
   },
   "ProjectsProjectPlanFeedbackInvite": {
-    "title": "Invite people and manage access",
+    "title": "Who should have access to this plan?",
     "breadcrumbs": {
       "manageAccess": "Manage access"
     },
