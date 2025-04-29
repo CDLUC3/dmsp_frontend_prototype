@@ -231,17 +231,13 @@
         "label": "What should this person be able to do?",
         "edit": "Editar o plano",
         "comment": "Comentário somente"
-      },
-      "addAsMember": {
-        "yes": "Sim - adicione como membro de equipe do projeto",
-        "no": "Não"
       }
     },
     "para1": "Quando você clicar em <strong>Conceder acesso</strong>, enviaremos um e-mail para essa pessoa convidando-a a visualizar seu plano.",
     "para2": "Se ainda não for membro, nós os convidaremos a entrar.",
     "para3": "Enviamos um convite para <strong>{email}</strong>. Eles terão acesso a este projeto.",
-    "para4": "\n<strong>Você gostaria de adicionar essa pessoa como membro da equipe do projeto?</strong>",
-    "para5": "Isso facilitará para você adicioná-los a um plano etc",
+    "para4": "Para adicionar este usuário como Membro do Projeto, <projectMember>vá para a página Membros do Projeto</projectMember>.",
+    "para5": "Isso tornará mais fácil adicioná-los a um plano, etc.",
     "messaging": {
       "errors": {
         "email": "Por favor, insira um endereço de e-mail válido"

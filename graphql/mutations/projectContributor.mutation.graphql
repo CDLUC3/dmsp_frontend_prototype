@@ -30,12 +30,3 @@ mutation RemoveProjectContributor($projectContributorId: Int!) {
     }
   }
 }
-
-mutation AddProjectContributor($input: AddProjectContributorInput!) {
-  addProjectContributor(input: $input) {
-    email
-    errors {
-      general
-    }
-  }
-}
