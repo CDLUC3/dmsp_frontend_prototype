@@ -236,8 +236,8 @@
     "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
     "para2": "If they aren't already a member of we'll invite them to join.",
     "para3": "We have sent an invite to <strong>{email}</strong>. They will have access to this project.",
-    "para4": "To add this user as a Project Member, <projectMember>go to the Project Members page</projectMember>.",
-    "para5": "This will make it easier for you add them to a plan, etc.",
+    "para4": "To also add them as a Project Member, <projectMember>go to the Project Members page</projectMember>.",
+    "para5": "Eles terão acesso para revisar os DMPs neste projeto.",
     "messaging": {
       "errors": {
         "email": "Please enter a valid email address"
