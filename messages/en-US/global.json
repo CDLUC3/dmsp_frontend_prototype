@@ -144,6 +144,7 @@
       "select": "Select",
       "next": "Next",
       "save": "Save",
+      "saveAndAdd": "Save and add",
       "saveChanges": "Save changes",
       "remove": "Remove",
       "confirm": "Confirm",

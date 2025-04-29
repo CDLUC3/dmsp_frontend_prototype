@@ -1,5 +1,5 @@
 import React from "react";
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useSectionQuery,
   useTagsQuery,
@@ -22,9 +22,11 @@ jest.mock("@/generated/graphql", () => ({
 }));
 
 jest.mock('next/navigation', () => ({
-  useParams: jest.fn(),
-  useRouter: jest.fn()
-}))
+  useRouter: jest.fn(),
+  useParams: jest.fn()
+}));
+
+const mockUseRouter = useRouter as jest.Mock;
 
 const mockSectionsData = {
   bestPractice: false,
@@ -128,9 +130,9 @@ describe("SectionUpdatePage", () => {
       error: null,
     });
 
-    // Mock the router
-    const mockRouter = { push: jest.fn() };
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
 
     (useSectionQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockSectionsData),
@@ -185,12 +187,39 @@ describe("SectionUpdatePage", () => {
       );
     });
 
-    const searchButton = screen.getByRole('button', { name: /button.updateSection/i });
-    fireEvent.click(searchButton);
+    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    fireEvent.click(saveAndAdd);
 
     const errorMessage = screen.getByRole('alert');
     expect(errorMessage).toBeInTheDocument();
     expect(errorMessage).toHaveTextContent('messages.fieldLengthValidation');
+  })
+
+  it('should redirect to Edit Template page after submitting form', async () => {
+    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <SectionUpdatePage />
+      );
+    });
+
+    // Simulate adding content to the sectionName field
+    const sectionNameEditor = screen.getByRole('textbox', { name: /sectionName/i });
+    await waitFor(() => {
+      fireEvent.input(sectionNameEditor, { target: { textContent: 'Updated Section Name' } });
+    });
+
+    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    fireEvent.click(saveAndAdd);
+
+    await waitFor(() => {
+      // Should redirect to the Edit template page
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
+    });
   })
 
   it('should pass axe accessibility test', async () => {

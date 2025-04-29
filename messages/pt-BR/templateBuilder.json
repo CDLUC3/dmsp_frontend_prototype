@@ -153,9 +153,6 @@
   },
   "SectionUpdatePage": {
     "title": "Seção de atualização",
-    "button": {
-      "updateSection": "Seção de atualização"
-    },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
       "errorUpdatingSection": "Erro ao criar a seção.",

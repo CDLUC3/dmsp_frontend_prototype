@@ -113,6 +113,7 @@ const SectionUpdatePage: React.FC = () => {
   // Client-side validation of fields
   const validateField = (name: string, value: string | string[] | undefined): string => {
     switch (name) {
+
       case 'sectionName':
         if (!value || value.length <= 2) {
           return SectionUpdatePage('messages.fieldLengthValidation');
@@ -386,7 +387,7 @@ const SectionUpdatePage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button type="submit">{SectionUpdatePage('button.updateSection')}</Button>
+                    <Button type="submit">{Global('buttons.saveAndAdd')}</Button>
 
                   </Form>
                 </TabPanel>
