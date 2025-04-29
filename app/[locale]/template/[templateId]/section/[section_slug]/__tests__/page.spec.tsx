@@ -1,15 +1,15 @@
 import React from "react";
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import {
   useSectionQuery,
   useTagsQuery,
   useUpdateSectionMutation
 } from '@/generated/graphql';
 
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams} from 'next/navigation';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams, useRouter } from 'next/navigation';
 import SectionUpdatePage from '../page';
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -23,6 +23,7 @@ jest.mock("@/generated/graphql", () => ({
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
+  useRouter: jest.fn()
 }))
 
 const mockSectionsData = {
@@ -126,6 +127,10 @@ describe("SectionUpdatePage", () => {
       loading: true,
       error: null,
     });
+
+    // Mock the router
+    const mockRouter = { push: jest.fn() };
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
 
     (useSectionQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockSectionsData),

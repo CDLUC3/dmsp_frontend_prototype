@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -30,10 +30,10 @@ import {
 } from '@/generated/graphql';
 
 //Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {DmpIcon} from "@/components/Icons";
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import {DmpEditor} from "@/components/Editor";
+import { DmpEditor } from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
 
 import {
@@ -41,19 +41,22 @@ import {
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
-import {useSectionData} from "@/hooks/sectionData";
+import { useSectionData } from "@/hooks/sectionData";
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
+import { scrollToTop } from '@/utils/general';
+import { routePath } from '@/utils/routes';
 
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
 
   // Get sectionId param
   const params = useParams();
-  const { section_slug: sectionId } = params;
+  const router = useRouter();
 
-  // Get templateId param
-  const { templateId } = params; // From route /template/:templateId
+  // Get templateId and sectionId params
+  const templateId = Array.isArray(params.templateId) ? params.templateId[0] : params.templateId;
+  const sectionId = Array.isArray(params.section_slug) ? params.section_slug[0] : params.section_slug;
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -87,6 +90,10 @@ const SectionUpdatePage: React.FC = () => {
 
   //Store selection of tags in state
   const [tags, setTags] = useState<TagsInterface[]>([]);
+
+  // Set URLs
+  const TEMPLATE_URL = routePath('template.show', { templateId });
+  const UPDATE_SECTION_URL = routePath('template.section.slug', { templateId, section_slug: sectionId });
 
 
   // Initialize user addSection mutation
@@ -157,15 +164,6 @@ const SectionUpdatePage: React.FC = () => {
     });
   }
 
-  const scrollToTop = (ref: React.MutableRefObject<HTMLDivElement | null>) => {
-    if (ref.current) {
-      ref.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }
-
   // Make GraphQL mutation request to update section
   const updateSection = async (): Promise<[SectionErrors, boolean]> => {
     try {
@@ -195,7 +193,7 @@ const SectionUpdatePage: React.FC = () => {
     } catch (error) {
       logECS('error', 'updateSection', {
         error,
-        url: { path: '/template/[templateId]/section/[sectionid]' }
+        url: { path: UPDATE_SECTION_URL }
       });
       if (error instanceof ApolloError) {
         return [{}, false];
@@ -244,12 +242,10 @@ const SectionUpdatePage: React.FC = () => {
         setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
 
       } else {
-        // Show success message
+        // Show success message and redirect back to Edit Templates page
         showSuccessToast();
+        router.push(TEMPLATE_URL);
       }
-
-      // Scroll to top of page
-      scrollToTop(topRef);
     }
   };
 
@@ -283,11 +279,9 @@ const SectionUpdatePage: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}/section/new`}>{Global('breadcrumbs.addNewSection')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.updateSection')}</Breadcrumb>
           </Breadcrumbs>
         }
