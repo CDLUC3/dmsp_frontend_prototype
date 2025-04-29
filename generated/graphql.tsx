@@ -391,12 +391,24 @@ export type AffiliationSearch = {
   displayName: Scalars['String']['output'];
   /** Whether or not this affiliation is a funder */
   funder: Scalars['Boolean']['output'];
-  /** The unique identifer for the affiliation (typically the ROR id) */
+  /** The unique identifer for the affiliation */
   id: Scalars['Int']['output'];
   /** The categories the Affiliation belongs to */
   types?: Maybe<Array<AffiliationType>>;
-  /** The URI of the affiliation */
+  /** The URI of the affiliation (typically the ROR id) */
   uri: Scalars['String']['output'];
+};
+
+export type AffiliationSearchResults = {
+  __typename?: 'AffiliationSearchResults';
+  /** The id of the last Affiliation in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The list of Affiliation search results */
+  feed?: Maybe<Array<Maybe<AffiliationSearch>>>;
+  /** The total number of Affiliation search results */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 /** Categories for Affiliation */
@@ -474,7 +486,7 @@ export type CollaboratorSearchResult = {
   affiliation?: Maybe<Affiliation>;
   /** The collaborator's first/given name */
   givenName?: Maybe<Scalars['String']['output']>;
-  /** The unique identifer for the Object */
+  /** The unique identifier for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The collaborator's ORCID */
   orcid?: Maybe<Scalars['String']['output']>;
@@ -558,6 +570,28 @@ export type ExternalProject = {
   title?: Maybe<Scalars['String']['output']>;
 };
 
+/** A result of the most popular funders */
+export type FunderPopularityResult = {
+  __typename?: 'FunderPopularityResult';
+  /** The official display name */
+  displayName: Scalars['String']['output'];
+  /** The unique identifer for the affiliation */
+  id: Scalars['Int']['output'];
+  /** The number of plans associated with this funder in the past year */
+  nbrPlans: Scalars['Int']['output'];
+  /** The URI of the affiliation (typically the ROR id) */
+  uri: Scalars['String']['output'];
+};
+
+/** Output type for the initializePlanVersion mutation */
+export type InitializePlanVersionOutput = {
+  __typename?: 'InitializePlanVersionOutput';
+  /** The number of PlanVersion records that were created */
+  count: Scalars['Int']['output'];
+  /** The ids of the Plans that were processed */
+  planIds?: Maybe<Array<Scalars['Int']['output']>>;
+};
+
 /** The types of object a User can be invited to Collaborate on */
 export enum InvitedToType {
   Plan = 'PLAN',
@@ -610,6 +644,18 @@ export type LicenseErrors = {
   uri?: Maybe<Scalars['String']['output']>;
 };
 
+export type LicenseSearchResults = {
+  __typename?: 'LicenseSearchResults';
+  /** The id of the last License in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The list of licenses */
+  feed?: Maybe<Array<Maybe<License>>>;
+  /** The total number of licenses */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 /** A metadata standard used when describing a research output */
 export type MetadataStandard = {
   __typename?: 'MetadataStandard';
@@ -647,6 +693,18 @@ export type MetadataStandardErrors = {
   name?: Maybe<Scalars['String']['output']>;
   researchDomainIds?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
+};
+
+export type MetadataStandardSearchResults = {
+  __typename?: 'MetadataStandardSearchResults';
+  /** The id of the last MetadataStandard in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The list of metadata standards */
+  feed?: Maybe<Array<Maybe<MetadataStandard>>>;
+  /** The total number of metadata standards */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type Mutation = {
@@ -774,6 +832,8 @@ export type Mutation = {
   setPrimaryUserEmail?: Maybe<Array<Maybe<UserEmail>>>;
   /** Set the user's ORCID */
   setUserOrcid?: Maybe<User>;
+  /** Initialize an PLanVersion record in the DynamoDB for all Plans that do not have one */
+  superInitializePlanVersions: InitializePlanVersionOutput;
   /** Update an Affiliation */
   updateAffiliation?: Maybe<Affiliation>;
   /** Edit an answer */
@@ -792,7 +852,7 @@ export type Mutation = {
   updatePlanStatus?: Maybe<Plan>;
   /** Edit a project */
   updateProject?: Maybe<Project>;
-  /** Chnage a collaborator's accessLevel on a Plan */
+  /** Change a collaborator's accessLevel on a Plan */
   updateProjectCollaborator?: Maybe<ProjectCollaborator>;
   /** Update a contributor on the research project */
   updateProjectContributor?: Maybe<ProjectContributor>;
@@ -895,8 +955,9 @@ export type MutationAddProjectArgs = {
 
 
 export type MutationAddProjectCollaboratorArgs = {
+  accessLevel?: InputMaybe<ProjectCollaboratorAccessLevel>;
   email: Scalars['String']['input'];
-  planId: Scalars['Int']['input'];
+  projectId: Scalars['Int']['input'];
 };
 
 
@@ -1324,6 +1385,12 @@ export type OutputTypeErrors = {
   uri?: Maybe<Scalars['String']['output']>;
 };
 
+export type PaginationError = {
+  __typename?: 'PaginationError';
+  /** The error message */
+  general?: Maybe<Scalars['String']['output']>;
+};
+
 /** A Data Managament Plan (DMP) */
 export type Plan = {
   __typename?: 'Plan';
@@ -1698,8 +1765,8 @@ export type ProjectCollaborator = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The plan the collaborator may edit */
-  plan?: Maybe<Plan>;
+  /** The project the collaborator may edit */
+  project?: Maybe<Project>;
   /** The ProjectContributor id */
   projectContributorId?: Maybe<Scalars['Int']['output']>;
   /** The collaborator (if they have an account) */
@@ -1969,6 +2036,44 @@ export type ProjectSearchResultFunder = {
   name?: Maybe<Scalars['String']['output']>;
 };
 
+export type ProjectSearchResults = {
+  __typename?: 'ProjectSearchResults';
+  /** The id of the last ProjectSearchResult in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The list of projects */
+  feed?: Maybe<Array<Maybe<ProjectSearchResult>>>;
+  /** The total number of projects */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+/** Paginated results of a search for publishedTemplates query */
+export type PublishedSectionSearchResult = {
+  __typename?: 'PublishedSectionSearchResult';
+  /** The id of the last VersionedSection in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The versioned sections */
+  feed?: Maybe<Array<Maybe<VersionedSection>>>;
+  /** The total number of results */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+/** Paginated results of a search for publishedTemplates query */
+export type PublishedTemplateResults = {
+  __typename?: 'PublishedTemplateResults';
+  /** The id of the last VersionedTemplate in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The versioned template results */
+  feed?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
+  /** The total number of results */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -1979,10 +2084,10 @@ export type Query = {
   /** Retrieve all of the valid Affiliation types */
   affiliationTypes?: Maybe<Array<Scalars['String']['output']>>;
   /** Perform a search for Affiliations matching the specified name */
-  affiliations?: Maybe<Array<Maybe<AffiliationSearch>>>;
-  /** Get all of the comments associated with the round of admin feedback */
+  affiliations?: Maybe<AffiliationSearchResults>;
+  /** Get the sepecific answer */
   answer?: Maybe<Answer>;
-  /** Get all rounds of admin feedback for the plan */
+  /** Get all answers for the given project and plan and section */
   answers?: Maybe<Array<Maybe<Answer>>>;
   /** Get all of the research domains related to the specified top level domain (more nuanced ones) */
   childResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
@@ -1999,25 +2104,23 @@ export type Query = {
   /** Fetch a specific license */
   license?: Maybe<License>;
   /** Search for a license */
-  licenses?: Maybe<Array<Maybe<License>>>;
+  licenses?: Maybe<LicenseSearchResults>;
   /** Returns the currently logged in user's information */
   me?: Maybe<User>;
   /** Fetch a specific metadata standard */
   metadataStandard?: Maybe<MetadataStandard>;
   /** Search for a metadata standard */
-  metadataStandards?: Maybe<Array<Maybe<MetadataStandard>>>;
+  metadataStandards?: Maybe<MetadataStandardSearchResults>;
   /** Get all of the user's projects */
-  myProjects?: Maybe<Array<Maybe<ProjectSearchResult>>>;
+  myProjects?: Maybe<ProjectSearchResults>;
   /** Get the Templates that belong to the current user's affiliation (user must be an Admin) */
-  myTemplates?: Maybe<Array<Maybe<TemplateSearchResult>>>;
+  myTemplates?: Maybe<TemplateSearchResults>;
   /** Get the VersionedTemplates that belong to the current user's affiliation (user must be an Admin) */
   myVersionedTemplates?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
   /** Get all the research output types */
   outputTypes?: Maybe<Array<Maybe<OutputType>>>;
   /** Get a specific plan */
   plan?: Maybe<Plan>;
-  /** Get all of the Users that are collaborators for the Plan */
-  planCollaborators?: Maybe<Array<Maybe<ProjectCollaborator>>>;
   /** Get all of the Users that are contributors for the specific Plan */
   planContributors?: Maybe<Array<Maybe<PlanContributor>>>;
   /** Get all rounds of admin feedback for the plan */
@@ -2030,8 +2133,12 @@ export type Query = {
   planOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Get all plans for the research project */
   plans?: Maybe<Array<PlanSearchResult>>;
+  /** Returns a list of the top 20 funders ranked by popularity (nbr of plans) for the past year */
+  popularFunders?: Maybe<Array<Maybe<FunderPopularityResult>>>;
   /** Get a specific project */
   project?: Maybe<Project>;
+  /** Get all of the Users that are collaborators for the Project */
+  projectCollaborators?: Maybe<Array<Maybe<ProjectCollaborator>>>;
   /** Get a specific contributor on the research project */
   projectContributor?: Maybe<ProjectContributor>;
   /** Get all of the Users that a contributors to the research project */
@@ -2049,9 +2156,9 @@ export type Query = {
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedQuestions?: Maybe<Array<Maybe<VersionedQuestion>>>;
   /** Search for VersionedSection whose name contains the search term */
-  publishedSections?: Maybe<Array<Maybe<VersionedSection>>>;
+  publishedSections?: Maybe<PublishedSectionSearchResult>;
   /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
-  publishedTemplates?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
+  publishedTemplates?: Maybe<PublishedTemplateResults>;
   /** Get the specific Question based on questionId */
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
@@ -2067,7 +2174,7 @@ export type Query = {
   /** Return the recommended Licenses */
   recommendedLicenses?: Maybe<Array<Maybe<License>>>;
   /** Search for a repository */
-  repositories?: Maybe<Array<Maybe<Repository>>>;
+  repositories?: Maybe<RepositorySearchResults>;
   /** Fetch a specific repository */
   repository?: Maybe<Repository>;
   /** Search for projects within external APIs */
@@ -2078,6 +2185,8 @@ export type Query = {
   sectionVersions?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get the Sections that belong to the associated templateId */
   sections?: Maybe<Array<Maybe<Section>>>;
+  /** Fetch the DynamoDB PlanVersion record for a specific plan and version timestamp (leave blank for the latest) */
+  superInspectPlanVersion?: Maybe<Scalars['String']['output']>;
   /** Get all available tags to display */
   tags: Array<Tag>;
   tagsBySectionId?: Maybe<Array<Maybe<Tag>>>;
@@ -2088,11 +2197,11 @@ export type Query = {
   /** Get all of the VersionedTemplate for the specified Template (a.k. the Template history) */
   templateVersions?: Maybe<Array<Maybe<VersionedTemplate>>>;
   /** Get all of the top level research domains (the most generic ones) */
-  topLevelResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
+  topLevelResearchDomains?: Maybe<ResearchDomainResults>;
   /** Returns the specified user (Admin only) */
   user?: Maybe<User>;
-  /** Returns all of the users associated with the current user's affiliation (Admin only) */
-  users?: Maybe<Array<Maybe<User>>>;
+  /** Returns all of the users associated with the current admin's affiliation (Super admins get everything) */
+  users?: Maybe<UserResults>;
 };
 
 
@@ -2107,8 +2216,10 @@ export type QueryAffiliationByUriArgs = {
 
 
 export type QueryAffiliationsArgs = {
+  cursor?: InputMaybe<Scalars['Int']['input']>;
   funderOnly?: InputMaybe<Scalars['Boolean']['input']>;
-  name: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  term: Scalars['String']['input'];
 };
 
 
@@ -2151,6 +2262,8 @@ export type QueryLicenseArgs = {
 
 
 export type QueryLicensesArgs = {
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2161,17 +2274,27 @@ export type QueryMetadataStandardArgs = {
 
 
 export type QueryMetadataStandardsArgs = {
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
   researchDomainId?: InputMaybe<Scalars['Int']['input']>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-export type QueryPlanArgs = {
-  planId: Scalars['Int']['input'];
+export type QueryMyProjectsArgs = {
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
-export type QueryPlanCollaboratorsArgs = {
+export type QueryMyTemplatesArgs = {
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPlanArgs = {
   planId: Scalars['Int']['input'];
 };
 
@@ -2207,6 +2330,11 @@ export type QueryPlansArgs = {
 
 
 export type QueryProjectArgs = {
+  projectId: Scalars['Int']['input'];
+};
+
+
+export type QueryProjectCollaboratorsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
@@ -2252,11 +2380,15 @@ export type QueryPublishedQuestionsArgs = {
 
 
 export type QueryPublishedSectionsArgs = {
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
   term: Scalars['String']['input'];
 };
 
 
 export type QueryPublishedTemplatesArgs = {
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2325,6 +2457,12 @@ export type QuerySectionsArgs = {
 };
 
 
+export type QuerySuperInspectPlanVersionArgs = {
+  modified?: InputMaybe<Scalars['String']['input']>;
+  planId: Scalars['Int']['input'];
+};
+
+
 export type QueryTagsBySectionIdArgs = {
   sectionId: Scalars['Int']['input'];
 };
@@ -2345,8 +2483,21 @@ export type QueryTemplateVersionsArgs = {
 };
 
 
+export type QueryTopLevelResearchDomainsArgs = {
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryUserArgs = {
   userId: Scalars['Int']['input'];
+};
+
+
+export type QueryUsersArgs = {
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Question always belongs to a Section, which always belongs to a Template */
@@ -2599,12 +2750,28 @@ export type RepositoryErrors = {
 };
 
 export type RepositorySearchInput = {
+  /** The cursor for pagination */
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  /** The number of results to return */
+  limit?: InputMaybe<Scalars['Int']['input']>;
   /** The repository category/type */
   repositoryType?: InputMaybe<Scalars['String']['input']>;
   /** The research domain associated with the repository */
   researchDomainId?: InputMaybe<Scalars['Int']['input']>;
   /** The search term */
   term?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RepositorySearchResults = {
+  __typename?: 'RepositorySearchResults';
+  /** The id of the last Repository in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The list of repositories */
+  feed?: Maybe<Array<Maybe<Repository>>>;
+  /** The total number of results */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export enum RepositoryType {
@@ -2655,6 +2822,18 @@ export type ResearchDomainErrors = {
   name?: Maybe<Scalars['String']['output']>;
   parentResearchDomainId?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResearchDomainResults = {
+  __typename?: 'ResearchDomainResults';
+  /** The id of the last ResearchDomain in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The list of research domains */
+  feed?: Maybe<Array<Maybe<ResearchDomain>>>;
+  /** The total number of research domains */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 /** A Section that contains a list of questions in a template */
@@ -2887,6 +3066,19 @@ export type TemplateSearchResult = {
   ownerId?: Maybe<Scalars['String']['output']>;
   /** The template's availability setting: Public is available to everyone, Private only your affiliation */
   visibility?: Maybe<TemplateVisibility>;
+};
+
+/** Paginated results of a search for templates */
+export type TemplateSearchResults = {
+  __typename?: 'TemplateSearchResults';
+  /** The id of the last TemplateSearchResult in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The TemplateSearchResults that match the search criteria */
+  feed?: Maybe<Array<Maybe<TemplateSearchResult>>>;
+  /** The total number of results */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 /** Template version type */
@@ -3214,6 +3406,19 @@ export type UserErrors = {
   surName?: Maybe<Scalars['String']['output']>;
 };
 
+/** Paginated results of a search for users */
+export type UserResults = {
+  __typename?: 'UserResults';
+  /** The id of the last VersionedTemplate in the results */
+  cursor?: Maybe<Scalars['Int']['output']>;
+  /** Any errors associated with the search */
+  error?: Maybe<PaginationError>;
+  /** The users that match the search criteria */
+  feed?: Maybe<Array<Maybe<User>>>;
+  /** The total number of results */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 /** The types of roles supported by the DMPTool */
 export enum UserRole {
   Admin = 'ADMIN',
@@ -3454,6 +3659,8 @@ export type VersionedTemplateSearchResult = {
   __typename?: 'VersionedTemplateSearchResult';
   /** Whether or not this Template is designated as a 'Best Practice' template */
   bestPractice?: Maybe<Scalars['Boolean']['output']>;
+  /** The id of the last VersionedTemplate in the results */
+  cursor?: Maybe<Scalars['String']['output']>;
   /** A description of the purpose of the template */
   description?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
@@ -3666,11 +3873,13 @@ export type SetPrimaryUserEmailMutationVariables = Exact<{
 export type SetPrimaryUserEmailMutation = { __typename?: 'Mutation', setPrimaryUserEmail?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isConfirmed: boolean, isPrimary: boolean, userId: number, errors?: { __typename?: 'UserEmailErrors', general?: string | null, userId?: string | null, email?: string | null } | null } | null> | null };
 
 export type AffiliationsQueryVariables = Exact<{
-  name: Scalars['String']['input'];
+  term: Scalars['String']['input'];
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null };
+export type AffiliationsQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', cursor?: number | null, feed?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null, error?: { __typename?: 'PaginationError', general?: string | null } | null } | null };
 
 export type ContributorRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3724,10 +3933,13 @@ export type ProjectFunderQueryVariables = Exact<{
 
 export type ProjectFunderQuery = { __typename?: 'Query', projectFunder?: { __typename?: 'ProjectFunder', status?: ProjectFunderStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string } | null } | null };
 
-export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
+export type MyProjectsQueryVariables = Exact<{
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
 
 
-export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'ProjectSearchResult', title?: string | null, id?: number | null, startDate?: string | null, endDate?: string | null, funders?: Array<{ __typename?: 'ProjectSearchResultFunder', name?: string | null, grantId?: string | null }> | null, contributors?: Array<{ __typename?: 'ProjectSearchResultContributor', name?: string | null, role?: string | null, orcid?: string | null }> | null, errors?: { __typename?: 'ProjectErrors', general?: string | null, title?: string | null } | null } | null> | null };
+export type MyProjectsQuery = { __typename?: 'Query', myProjects?: { __typename?: 'ProjectSearchResults', cursor?: number | null, feed?: Array<{ __typename?: 'ProjectSearchResult', title?: string | null, id?: number | null, startDate?: string | null, endDate?: string | null, funders?: Array<{ __typename?: 'ProjectSearchResultFunder', name?: string | null, grantId?: string | null }> | null, contributors?: Array<{ __typename?: 'ProjectSearchResultContributor', name?: string | null, role?: string | null, orcid?: string | null }> | null, errors?: { __typename?: 'ProjectErrors', general?: string | null, title?: string | null } | null } | null> | null, error?: { __typename?: 'PaginationError', general?: string | null } | null } | null };
 
 export type ProjectQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -3755,10 +3967,13 @@ export type QuestionQueryVariables = Exact<{
 
 export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, questionOptionIds?: string | null, questionTypeId?: string | null, sectionId?: string | null, sourceQestionId?: string | null, templateId?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
 
-export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
+export type TopLevelResearchDomainsQueryVariables = Exact<{
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
 
 
-export type TopLevelResearchDomainsQuery = { __typename?: 'Query', topLevelResearchDomains?: Array<{ __typename?: 'ResearchDomain', name: string, id?: number | null } | null> | null };
+export type TopLevelResearchDomainsQuery = { __typename?: 'Query', topLevelResearchDomains?: { __typename?: 'ResearchDomainResults', cursor?: number | null, feed?: Array<{ __typename?: 'ResearchDomain', name: string, id?: number | null } | null> | null, error?: { __typename?: 'PaginationError', general?: string | null } | null } | null };
 
 export type ChildResearchDomainsQueryVariables = Exact<{
   parentResearchDomainId: Scalars['Int']['input'];
@@ -3798,15 +4013,22 @@ export type MyVersionedTemplatesQueryVariables = Exact<{ [key: string]: never; }
 
 export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTemplates?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null };
 
-export type PublishedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+export type PublishedTemplatesQueryVariables = Exact<{
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
 
 
-export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null };
+export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: { __typename?: 'PublishedTemplateResults', cursor?: number | null, feed?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null, error?: { __typename?: 'PaginationError', general?: string | null } | null } | null };
 
-export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+export type TemplatesQueryVariables = Exact<{
+  term?: InputMaybe<Scalars['String']['input']>;
+  cursor?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', myTemplates?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null } | null> | null };
+export type TemplatesQuery = { __typename?: 'Query', myTemplates?: { __typename?: 'TemplateSearchResults', cursor?: number | null, totalCount?: number | null, feed?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null } | null> | null, error?: { __typename?: 'PaginationError', general?: string | null } | null } | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -4862,11 +5084,17 @@ export type SetPrimaryUserEmailMutationHookResult = ReturnType<typeof useSetPrim
 export type SetPrimaryUserEmailMutationResult = Apollo.MutationResult<SetPrimaryUserEmailMutation>;
 export type SetPrimaryUserEmailMutationOptions = Apollo.BaseMutationOptions<SetPrimaryUserEmailMutation, SetPrimaryUserEmailMutationVariables>;
 export const AffiliationsDocument = gql`
-    query Affiliations($name: String!) {
-  affiliations(name: $name) {
-    id
-    displayName
-    uri
+    query Affiliations($term: String!, $cursor: Int, $limit: Int) {
+  affiliations(term: $term, cursor: $cursor, limit: $limit) {
+    cursor
+    feed {
+      id
+      displayName
+      uri
+    }
+    error {
+      general
+    }
   }
 }
     `;
@@ -4883,7 +5111,9 @@ export const AffiliationsDocument = gql`
  * @example
  * const { data, loading, error } = useAffiliationsQuery({
  *   variables: {
- *      name: // value for 'name'
+ *      term: // value for 'term'
+ *      cursor: // value for 'cursor'
+ *      limit: // value for 'limit'
  *   },
  * });
  */
@@ -5325,24 +5555,30 @@ export type ProjectFunderLazyQueryHookResult = ReturnType<typeof useProjectFunde
 export type ProjectFunderSuspenseQueryHookResult = ReturnType<typeof useProjectFunderSuspenseQuery>;
 export type ProjectFunderQueryResult = Apollo.QueryResult<ProjectFunderQuery, ProjectFunderQueryVariables>;
 export const MyProjectsDocument = gql`
-    query MyProjects {
-  myProjects {
-    title
-    id
-    startDate
-    endDate
-    funders {
-      name
-      grantId
-    }
-    contributors {
-      name
-      role
-      orcid
-    }
-    errors {
-      general
+    query MyProjects($cursor: Int, $limit: Int) {
+  myProjects(cursor: $cursor, limit: $limit) {
+    cursor
+    feed {
       title
+      id
+      startDate
+      endDate
+      funders {
+        name
+        grantId
+      }
+      contributors {
+        name
+        role
+        orcid
+      }
+      errors {
+        general
+        title
+      }
+    }
+    error {
+      general
     }
   }
 }
@@ -5360,6 +5596,8 @@ export const MyProjectsDocument = gql`
  * @example
  * const { data, loading, error } = useMyProjectsQuery({
  *   variables: {
+ *      cursor: // value for 'cursor'
+ *      limit: // value for 'limit'
  *   },
  * });
  */
@@ -5622,10 +5860,16 @@ export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery
 export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
 export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
 export const TopLevelResearchDomainsDocument = gql`
-    query TopLevelResearchDomains {
-  topLevelResearchDomains {
-    name
-    id
+    query TopLevelResearchDomains($cursor: Int, $limit: Int) {
+  topLevelResearchDomains(cursor: $cursor, limit: $limit) {
+    cursor
+    feed {
+      name
+      id
+    }
+    error {
+      general
+    }
   }
 }
     `;
@@ -5642,6 +5886,8 @@ export const TopLevelResearchDomainsDocument = gql`
  * @example
  * const { data, loading, error } = useTopLevelResearchDomainsQuery({
  *   variables: {
+ *      cursor: // value for 'cursor'
+ *      limit: // value for 'limit'
  *   },
  * });
  */
@@ -5949,22 +6195,28 @@ export type MyVersionedTemplatesLazyQueryHookResult = ReturnType<typeof useMyVer
 export type MyVersionedTemplatesSuspenseQueryHookResult = ReturnType<typeof useMyVersionedTemplatesSuspenseQuery>;
 export type MyVersionedTemplatesQueryResult = Apollo.QueryResult<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>;
 export const PublishedTemplatesDocument = gql`
-    query PublishedTemplates {
-  publishedTemplates {
-    id
-    templateId
-    name
-    description
-    visibility
-    bestPractice
-    version
-    modified
-    modifiedById
-    modifiedByName
-    ownerId
-    ownerURI
-    ownerDisplayName
-    ownerSearchName
+    query PublishedTemplates($cursor: Int, $limit: Int) {
+  publishedTemplates(cursor: $cursor, limit: $limit) {
+    cursor
+    feed {
+      id
+      templateId
+      name
+      description
+      visibility
+      bestPractice
+      version
+      modified
+      modifiedById
+      modifiedByName
+      ownerId
+      ownerURI
+      ownerDisplayName
+      ownerSearchName
+    }
+    error {
+      general
+    }
   }
 }
     `;
@@ -5981,6 +6233,8 @@ export const PublishedTemplatesDocument = gql`
  * @example
  * const { data, loading, error } = usePublishedTemplatesQuery({
  *   variables: {
+ *      cursor: // value for 'cursor'
+ *      limit: // value for 'limit'
  *   },
  * });
  */
@@ -6001,20 +6255,27 @@ export type PublishedTemplatesLazyQueryHookResult = ReturnType<typeof usePublish
 export type PublishedTemplatesSuspenseQueryHookResult = ReturnType<typeof usePublishedTemplatesSuspenseQuery>;
 export type PublishedTemplatesQueryResult = Apollo.QueryResult<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>;
 export const TemplatesDocument = gql`
-    query Templates {
-  myTemplates {
-    id
-    name
-    description
-    visibility
-    isDirty
-    latestPublishVersion
-    latestPublishDate
-    ownerId
-    ownerDisplayName
-    modified
-    modifiedById
-    modifiedByName
+    query Templates($term: String, $cursor: Int, $limit: Int) {
+  myTemplates(term: $term, cursor: $cursor, limit: $limit) {
+    cursor
+    totalCount
+    feed {
+      id
+      name
+      description
+      visibility
+      isDirty
+      latestPublishVersion
+      latestPublishDate
+      ownerId
+      ownerDisplayName
+      modified
+      modifiedById
+      modifiedByName
+    }
+    error {
+      general
+    }
   }
 }
     `;
@@ -6031,6 +6292,9 @@ export const TemplatesDocument = gql`
  * @example
  * const { data, loading, error } = useTemplatesQuery({
  *   variables: {
+ *      term: // value for 'term'
+ *      cursor: // value for 'cursor'
+ *      limit: // value for 'limit'
  *   },
  * });
  */

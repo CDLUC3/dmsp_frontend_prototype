@@ -1,17 +1,24 @@
-query Templates {
-  myTemplates {
-    id
-    name
-    description
-    visibility
-    isDirty
-    latestPublishVersion
-    latestPublishDate
-    ownerId
-    ownerDisplayName
-    modified
-    modifiedById
-    modifiedByName
+query Templates($term: String, $cursor: Int, $limit: Int) {
+  myTemplates(term: $term, cursor: $cursor, limit: $limit) {
+    cursor
+    totalCount
+    feed {
+      id
+      name
+      description
+      visibility
+      isDirty
+      latestPublishVersion
+      latestPublishDate
+      ownerId
+      ownerDisplayName
+      modified
+      modifiedById
+      modifiedByName
+    }
+    error {
+      general
+    }
   }
 }
 

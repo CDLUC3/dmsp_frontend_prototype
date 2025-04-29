@@ -54,7 +54,6 @@ export interface TemplateInterface {
   } | null;
   visibility?: string;
 }
-
 export interface TemplateItemProps {
   id?: number | null;
   template?: {
@@ -357,4 +356,11 @@ export interface ActionResponse {
     };
   };
   redirect?: string;
+}
+
+export interface PaginableFeed {
+    terms?: string[] | null;
+    cursor?: number | string | null;
+    totalCount?: number | null;
+    feed?: any[] | null;
 }

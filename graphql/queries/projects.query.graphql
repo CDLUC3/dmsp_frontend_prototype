@@ -1,21 +1,27 @@
-query MyProjects {
-  myProjects {
-    title
-    id
-    startDate
-    endDate
-    funders {
-      name
-      grantId
-    }
-    contributors {
-      name
-      role
-      orcid
-    }
-    errors {
-      general
+query MyProjects($cursor: Int, $limit: Int) {
+  myProjects(cursor: $cursor, limit: $limit) {
+    cursor
+    feed {
       title
+      id
+      startDate
+      endDate
+      funders {
+        name
+        grantId
+      }
+      contributors {
+        name
+        role
+        orcid
+      }
+      errors {
+        general
+        title
+      }
+    }
+    error {
+      general
     }
   }
 }

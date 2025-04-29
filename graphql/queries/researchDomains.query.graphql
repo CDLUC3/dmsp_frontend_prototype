@@ -1,7 +1,13 @@
-query TopLevelResearchDomains {
-  topLevelResearchDomains {
-    name
-    id
+query TopLevelResearchDomains($cursor: Int, $limit: Int) {
+  topLevelResearchDomains(cursor: $cursor, limit: $limit) {
+    cursor
+    feed {
+      name
+      id
+    }
+    error {
+      general
+    }
   }
 }
 

@@ -180,11 +180,7 @@
   "TemplateSelectTemplatePage": {
     "title": "Start with a copy of an existing template",
     "resultsText": "{name} results match your search",
-    "numDisplaying": "Showing {num} of {total}",
     "clearFilter": "clear filter",
-    "buttons": {
-      "loadMore": "Load {name} more"
-    },
     "headings": {
       "previouslyCreatedTemplates": "Use one of your previously created templates",
       "publicTemplates": "Use one of the public templates"

@@ -1,7 +1,13 @@
-query Affiliations($name: String!){
-  affiliations(name: $name) {
-    id
-    displayName
-    uri
+query Affiliations($term: String!, $cursor: Int, $limit: Int) {
+  affiliations(term: $term, cursor: $cursor, limit: $limit) {
+    cursor
+    feed {
+      id
+      displayName
+      uri
+    }
+    error {
+      general
+    }
   }
 }
