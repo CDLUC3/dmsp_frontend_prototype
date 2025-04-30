@@ -272,17 +272,7 @@ const QuestionEdit = () => {
                   </Text>
                 </TextField>
 
-                {/**Question type fields here */}
-                {hasOptions && (
-                  <div className={styles.optionsWrapper}>
-                    <p
-                      className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', {questionType})}</p>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows}
-                                              questionId={Number(questionId)}
-                                              formSubmitted={formSubmitted}
-                                              setFormSubmitted={setFormSubmitted}/>
-                  </div>
-                )}
+
 
                 <FormInput
                   name="question_text"
@@ -299,6 +289,17 @@ const QuestionEdit = () => {
                   errorMessage={QuestionEdit('messages.errors.questionTextRequired')}
                 />
 
+                {/**Question type fields here */}
+                {hasOptions && (
+                  <div className={styles.optionsWrapper}>
+                    <p
+                      className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', {questionType})}</p>
+                    <QuestionOptionsComponent rows={rows} setRows={setRows}
+                                              questionId={Number(questionId)}
+                                              formSubmitted={formSubmitted}
+                                              setFormSubmitted={setFormSubmitted}/>
+                  </div>
+                )}
 
                 <FormTextArea
                   name="question_requirements"
@@ -328,6 +329,7 @@ const QuestionEdit = () => {
 
                 />
 
+                {!hasOptions && (
                 <FormTextArea
                   name="sample_text"
                   isRequired={false}
@@ -340,6 +342,7 @@ const QuestionEdit = () => {
                     sampleText: newValue
                   }))}
                 />
+                )}
 
                 {!hasOptions && (
                   <Checkbox
