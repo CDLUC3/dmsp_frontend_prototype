@@ -23,12 +23,9 @@ import ErrorMessages from '@/components/ErrorMessages';
 //GraphQL
 import {useMyProjectsQuery,} from '@/generated/graphql';
 
-import {ProjectItemProps, ProjectSearchResultInterface} from '@/app/types';
-import LoadMoreButton from '@/components/LoadMoreButton';
+import {ProjectItemProps, ProjectSearchResultInterface, PaginatedProjectSearchResultsInterface} from '@/app/types';
 
 const ProjectsListPage: React.FC = () => {
-  const PAGINATION_LIMIT = 2;
-
   const formatter = useFormatter();
   const errorRef = useRef<HTMLDivElement | null>(null);
 
@@ -42,19 +39,11 @@ const ProjectsListPage: React.FC = () => {
   const Global = useTranslations('Global');
   const Project = useTranslations('ProjectsListPage');
 
-  const [visibleCount, setVisibleCount] = useState({
-    projects: PAGINATION_LIMIT,
-    filteredProjects: PAGINATION_LIMIT,
-  });
-
   // Query for projects
-  const { data = {}, loading, fetchMore } = useMyProjectsQuery({
+  const { data = {}, loading } = useMyProjectsQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
-    variables: {
-      limit: PAGINATION_LIMIT,
-    },
   });
 
   //Update searchTerm state whenever entry in the search field changes
@@ -95,22 +84,6 @@ const ProjectsListPage: React.FC = () => {
     }
   };
 
-  type VisibleCountKeys = keyof typeof visibleCount;
-  // When user clicks the 'Load more' button, display 3 more by default
-  const handleLoadMore = (listKey: VisibleCountKeys) => {
-    fetchMore({
-      variables: {
-        cursor: data.myProjects?.cursor,
-        limit: PAGINATION_LIMIT,
-      },
-    });
-
-    setVisibleCount(prev => ({
-      ...prev,
-      [listKey]: prev[listKey] + PAGINATION_LIMIT,
-    }));
-  };
-
   const formatDate = (date: string | number) => {
     const parsedDate = typeof date === "number"
       ? new Date(date)
@@ -131,11 +104,10 @@ const ProjectsListPage: React.FC = () => {
   useEffect(() => {
     // Transform projects into format expected by ProjectListItem component
     if (data && data?.myProjects) {
-      const feed = Array.isArray(data.myProjects?.feed) ? data.myProjects.feed : [];
-
-      const fetchAllProjects = async (feed: (ProjectSearchResultInterface | null)[]) => {
+      const fetchAllProjects = async (projects: PaginatedProjectSearchResultsInterface | null) => {
+        const items = projects?.items ?? [];
         const transformedProjects = await Promise.all(
-          feed.map(async (project: ProjectSearchResultInterface | null) => {
+          items.map(async (project: ProjectSearchResultInterface | null) => {
             return {
               title: project?.title || "",
               link: `/projects/${project?.id}`,
@@ -153,9 +125,18 @@ const ProjectsListPage: React.FC = () => {
               grantId: project?.funders ? project?.funders.map((fund) => fund?.grantId).join(', ') : '',
             }
           }));
-        setProjects(prevProjects => [...prevProjects, ...transformedProjects]);
+
+        setProjects(transformedProjects);
       }
-      fetchAllProjects(feed);
+
+      if (data?.myProjects) {
+        fetchAllProjects({
+          ...data.myProjects,
+          items: (data.myProjects.items ?? []).filter((item): item is ProjectSearchResultInterface => item !== null),
+        });
+      } else {
+        fetchAllProjects({ items: [] });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
@@ -179,8 +160,9 @@ const ProjectsListPage: React.FC = () => {
   }, [errors]);
 
   useEffect(() => {
-    if (data?.myProjects?.feed) {
-      const projectErrors = data.myProjects.feed
+    if (data?.myProjects) {
+      const items = data.myProjects.items ?? [];
+      const projectErrors = items
         .filter((project) => project?.errors?.general || project?.errors?.title)
         .map((project) => project?.errors?.general || Project('messages.errors.errorRetrievingProjects'));
 
@@ -253,12 +235,6 @@ const ProjectsListPage: React.FC = () => {
                     item={project} />
                 ))
               }
-              <LoadMoreButton
-                paginableFeed={data.myProjects || undefined}
-                pageSize={PAGINATION_LIMIT}
-                onPress={() => {
-                  handleLoadMore('filteredProjects');
-                }}/>
             </div>
           ) : (
             <>
@@ -276,13 +252,6 @@ const ProjectsListPage: React.FC = () => {
                           item={project} />
                       ))
                     }
-
-                    <LoadMoreButton
-                      paginableFeed={data.myProjects || undefined}
-                      pageSize={PAGINATION_LIMIT}
-                      onPress={() => {
-                        handleLoadMore('projects');
-                      }}/>
                   </>
                 )
                 }

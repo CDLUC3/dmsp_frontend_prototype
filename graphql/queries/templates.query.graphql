@@ -1,8 +1,8 @@
-query Templates($term: String, $cursor: Int, $limit: Int) {
-  myTemplates(term: $term, cursor: $cursor, limit: $limit) {
-    cursor
+query Templates($term: String) {
+  myTemplates(term: $term) {
     totalCount
-    feed {
+    nextCursor
+    items {
       id
       name
       description
@@ -15,9 +15,6 @@ query Templates($term: String, $cursor: Int, $limit: Int) {
       modified
       modifiedById
       modifiedByName
-    }
-    error {
-      general
     }
   }
 }

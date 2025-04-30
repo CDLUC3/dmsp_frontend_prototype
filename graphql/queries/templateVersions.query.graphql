@@ -37,10 +37,11 @@ query MyVersionedTemplates {
   }
 }
 
-query PublishedTemplates($cursor: Int, $limit: Int) {
-  publishedTemplates(cursor: $cursor, limit: $limit) {
-    cursor
-    feed {
+query PublishedTemplates {
+  publishedTemplates {
+    totalCount
+    nextCursor
+    items {
       id
       templateId
       name
@@ -55,9 +56,6 @@ query PublishedTemplates($cursor: Int, $limit: Int) {
       ownerURI
       ownerDisplayName
       ownerSearchName
-    }
-    error {
-      general
     }
   }
 }

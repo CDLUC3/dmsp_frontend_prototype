@@ -160,7 +160,7 @@ const TypeAheadInput = ({ graphqlQuery, label, fieldName, helpText }: TypeAheadI
                 });
 
                 if (!signal.aborted) {
-                    const affiliations = data.affiliations;
+                    const affiliations = data.affiliations?.items;
                     setSuggestions(affiliations);
                     setOpen(true);
                 }

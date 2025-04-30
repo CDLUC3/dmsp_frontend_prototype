@@ -156,8 +156,7 @@
       "edit": "Edit",
       "preview": "Preview",
       "publish": "Publish",
-      "close": "Close",
-      "loadMore": "Load {name} more"
+      "close": "Close"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",
@@ -165,8 +164,7 @@
       "endDate": "End date"
     },
     "helpText": {
-      "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
-      "numDisplaying": "Showing {num} of {total}"
+      "searchHelpText": "Search by research organization, field station or lab, template description, etc."
     },
     "links": {
       "clearFilter": "clear filter",

@@ -1,7 +1,8 @@
-query MyProjects($cursor: Int, $limit: Int) {
-  myProjects(cursor: $cursor, limit: $limit) {
-    cursor
-    feed {
+query MyProjects {
+  myProjects {
+    totalCount
+    nextCursor
+    items {
       title
       id
       startDate
@@ -19,9 +20,6 @@ query MyProjects($cursor: Int, $limit: Int) {
         general
         title
       }
-    }
-    error {
-      general
     }
   }
 }

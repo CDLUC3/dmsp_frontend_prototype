@@ -1,7 +1,7 @@
 'use client';
 
 import React, {useEffect, useRef, useState} from 'react';
-import {ApolloClient, ApolloError} from "@apollo/client";
+import {ApolloError} from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -23,18 +23,15 @@ import PageHeader from '@/components/PageHeader';
 import TemplateListItem from '@/components/TemplateListItem';
 import {ContentContainer, LayoutContainer,} from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
-import LoadMoreButton from '@/components/LoadMoreButton';
 
 // Hooks
 import {useScrollToTop} from '@/hooks/scrollToTop';
 
 import logECS from '@/utils/clientLogger';
-import {TemplateSearchResultInterface, TemplateItemProps,} from '@/app/types';
+import {TemplateSearchResultInterface, TemplateItemProps, PaginatedTemplateSearchResultsInterface} from '@/app/types';
 import styles from './orgTemplates.module.scss';
 
 const TemplateListPage: React.FC = () => {
-  const PAGINATION_LIMIT = 3;
-
   const formatter = useFormatter();
   const { scrollToTop } = useScrollToTop();
 
@@ -46,10 +43,9 @@ const TemplateListPage: React.FC = () => {
   const [templates, setTemplates] = useState<(TemplateItemProps)[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<(TemplateItemProps)[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-
   const [visibleCount, setVisibleCount] = useState({
-    templates: PAGINATION_LIMIT,
-    filteredTemplates: PAGINATION_LIMIT,
+    templates: 3,
+    filteredTemplates: 3,
   });
 
 
@@ -59,14 +55,10 @@ const TemplateListPage: React.FC = () => {
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
 
   // Make graphql request for templates under the user's affiliation
-  const { data = {}, loading, fetchMore, updateQuery, error: queryError } = useTemplatesQuery({
+  const { data = {}, loading, error: queryError } = useTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
-    variables: {
-      term: searchTerm,
-      limit: PAGINATION_LIMIT,
-    },
   });
 
   // zero out search and filters
@@ -77,8 +69,6 @@ const TemplateListPage: React.FC = () => {
       templates: 3,
       filteredTemplates: 3,
     });
-    // Refetch the original data
-    handleLoadMore('templates');
     scrollToTop(topRef);
   }
 
@@ -128,46 +118,6 @@ const TemplateListPage: React.FC = () => {
     }
   }
 
-  type VisibleCountKeys = keyof typeof visibleCount;
-
-  // WHen the user clicks the 'Search' button, reload the data with the new search term
-  const handleNewQuery = (listKey: VisibleCountKeys) => {
-    setTemplates([]);
-
-console.log('search term', searchTerm);
-
-    updateQuery((prev) => ({
-      ...prev,
-      myTemplates: {
-        ...prev.myTemplates,
-        term: searchTerm,
-        cursor: null,
-        limit: PAGINATION_LIMIT,
-      },
-    }));
-
-    setVisibleCount(prev => ({
-      ...prev,
-      [listKey]: PAGINATION_LIMIT,
-    }));
-  };
-
-  // When user clicks the 'Load more' button, display 3 more by default
-  const handleLoadMore = (listKey: VisibleCountKeys) => {
-    fetchMore({
-      variables: {
-        term: searchTerm,
-        cursor: data.myTemplates?.cursor,
-        limit: PAGINATION_LIMIT,
-      },
-    });
-
-    setVisibleCount(prev => ({
-      ...prev,
-      [listKey]: prev[listKey] + PAGINATION_LIMIT,
-    }));
-  };
-
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
     const formattedDate = formatter.dateTime(new Date(Number(date)), {
@@ -197,39 +147,41 @@ console.log('search term', searchTerm);
 
 
   useEffect(() => {
-    if (data?.myTemplates) {
-      const feed = Array.isArray(data.myTemplates?.feed) ? data.myTemplates.feed : [];
-
-      const fetchAllTemplates = async (feed: (TemplateSearchResultInterface | null)[]) => {
+    // Transform templates into format expected by TemplateListItem component
+    if (data && data?.myTemplates) {
+      const fetchAllTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
+        const items = templates?.items ?? [];
         const transformedTemplates = await Promise.all(
-          feed.map(async (template: TemplateSearchResultInterface | null) => ({
-            id: template?.id || Math.random(), // Ensure 'id' is included
-            title: template?.name || "",
-            link: `/template/${template?.id}`,
-            content:
-              template?.description || template?.modified ? (
+          items.map(async (template: TemplateSearchResultInterface | null) => {
+            return {
+              title: template?.name || "",
+              link: `/template/${template?.id}`,
+              content: template?.description || template?.modified ? (
                 <div>
                   <p>{template?.description}</p>
-                  <p>
-                    Last updated: {template?.modified ? formatDate(template.modified) : null}
-                  </p>
+                  <p>Last updated: {(template?.modified) ? formatDate(template?.modified) : null}</p>
                 </div>
-              ) : null,
-            funder: template?.ownerDisplayName,
-            lastUpdated: template?.modified ? formatDate(template.modified) : null,
-            publishStatus: template?.isDirty ? "Published" : "Unpublished",
-            defaultExpanded: false,
-          }))
-        );
+              ) : null, // Set to null if no description or last modified data
+              funder: template?.ownerDisplayName,
+              lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
+              publishStatus: (template?.isDirty) ? 'Published' : 'Unpublished',
+              defaultExpanded: false
+            }
+          }));
 
-        // Need to concatenate the new templates with the existing ones here to get React to re-render
-        setTemplates(prevTemplates => [...prevTemplates, ...transformedTemplates]);
-      };
-
-      fetchAllTemplates(feed);
+        setTemplates(transformedTemplates);
+      }
+      if (data?.myTemplates) {
+        fetchAllTemplates({
+          ...data.myTemplates,
+          items: (data.myTemplates.items ?? []).filter((item): item is TemplateSearchResultInterface => item !== null),
+        });
+      } else {
+        fetchAllTemplates({ items: [] });
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
-
 
   useEffect(() => {
     // Need this to set list of templates back to original, full list after filtering
@@ -237,6 +189,42 @@ console.log('search term', searchTerm);
       setFilteredTemplates(null);
     }
   }, [searchTerm])
+
+  type VisibleCountKeys = keyof typeof visibleCount;
+  // When user clicks the 'Load more' button, display 3 more by default
+  const handleLoadMore = (listKey: VisibleCountKeys) => {
+    setVisibleCount((prevCounts) => ({
+      ...prevCounts,
+      [listKey]: prevCounts[listKey] + 3, // Increase the visible count for the specific list
+    }));
+
+    setTimeout(() => {
+      if (nextSectionRef.current) {
+        nextSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
+  };
+
+  const renderLoadMore = (items: TemplateItemProps[], visibleCountKey: VisibleCountKeys) => {
+    if (items.length - visibleCount[visibleCountKey] > 0) {
+      const loadMoreNumber = items.length - visibleCount[visibleCountKey]; // Calculate loadMoreNumber
+      const currentlyDisplayed = visibleCount[visibleCountKey];
+      const totalAvailable = items.length;
+      return (
+        <>
+          <Button onPress={() => handleLoadMore(visibleCountKey)}>
+            {loadMoreNumber > 2
+              ? SelectTemplate('buttons.load3More')
+              : SelectTemplate('buttons.loadMore', { name: loadMoreNumber })}
+          </Button>
+          <div className={styles.remainingText}>
+            {SelectTemplate('numDisplaying', { num: currentlyDisplayed, total: totalAvailable })}
+          </div>
+        </>
+      );
+    }
+    return null;
+  };
 
   // TODO: Implement shared loading
   if (loading) {
@@ -277,8 +265,7 @@ console.log('search term', searchTerm);
               <Button
                 onPress={() => {
                   // Call your filtering function without changing the input value
-                  // handleFiltering(searchTerm);
-                  handleNewQuery('templates');
+                  handleFiltering(searchTerm);
                 }}
               >
                 {t('actionSearch')}
@@ -291,27 +278,50 @@ console.log('search term', searchTerm);
 
           </div >
 
-          <div className="template-list" aria-label="Template list" role="list">
-            {
-              templates.slice(0, visibleCount['templates']).map((template, index) => {
-                const isFirstInNextSection = index === visibleCount['templates'] - 3;
-                return (
-                  <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
-                    <TemplateListItem
-                      key={index}
-                      item={template} />
-                  </div>
-                )
+          {filteredTemplates && filteredTemplates.length > 0 ? (
+            <div className="template-list" aria-label="Template list" role="list">
+              {
+                filteredTemplates.slice(0, visibleCount['filteredTemplates']).map((template, index) => {
+                  const isFirstInNextSection = index === visibleCount['filteredTemplates'] - 3;
+                  return (
+                    <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
+                      <TemplateListItem
+                        key={index}
+                        item={template} />
+                    </div>
+                  )
 
-              })
-            }
-            <LoadMoreButton
-              paginableFeed={data?.myTemplates || undefined}
-              pageSize={PAGINATION_LIMIT}
-              onPress={() => {
-                handleLoadMore('templates');
-              }}/>
-          </div>
+                })
+              }
+              <div className={styles.loadBtnContainer}>
+                {renderLoadMore(filteredTemplates, 'filteredTemplates')}
+                {filteredTemplates.length > 0 && (
+                  <Link onPress={resetSearch} className={`${styles.searchMatchText} ${styles.clearFilter}`}>{SelectTemplate('clearFilter')}</Link>
+                )}
+              </div>
+
+            </div>
+          ) : (
+            <div className="template-list" aria-label="Template list" role="list">
+              {
+                templates.slice(0, visibleCount['templates']).map((template, index) => {
+                  const isFirstInNextSection = index === visibleCount['templates'] - 3;
+                  return (
+                    <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
+                      <TemplateListItem
+                        key={index}
+                        item={template} />
+                    </div>
+                  )
+
+                })
+              }
+              <div className={styles.loadBtnContainer}>
+                {renderLoadMore(templates, 'templates')}
+              </div>
+            </div>
+          )
+          }
 
         </ContentContainer>
       </LayoutContainer>

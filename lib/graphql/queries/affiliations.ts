@@ -1,9 +1,13 @@
 import { gql } from '@apollo/client';
 
 export const GET_AFFILIATIONS = gql`
-query Affiliations($term: String!){
-  affiliations(term: $term) {
-    id
-    name
+query Affiliations($name: String!){
+  affiliations(name: $name) {
+    totalCount
+    nextCursor
+    items {
+      id
+      name
+    }
   }
 }`;
