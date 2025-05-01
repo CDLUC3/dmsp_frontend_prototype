@@ -33,6 +33,10 @@ async function getLocaleFromJWT(): Promise<string | null> {
       return null;
     }
     const user = await verifyJwtToken(token);
+
+    if (!user) {
+      return null;
+    }
     const { languageId } = user as JWTAccessToken;
 
     if (languageId && locales.includes(languageId)) {

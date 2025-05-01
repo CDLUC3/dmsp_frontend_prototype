@@ -66,6 +66,7 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+- Added handling of scenario where no jwt payload is returned when getting languageId in middleware [#441]
 - Fixed missing `as deps` in `Dockerfile.prod`.
 - Fixed wrong node image in `Dockerfile.prd`. Also fixed a number of linting issues.
 - Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
