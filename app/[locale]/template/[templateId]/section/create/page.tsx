@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -32,10 +32,10 @@ import {
 } from '@/generated/graphql';
 
 //Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {DmpIcon} from "@/components/Icons";
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import {DmpEditor} from "@/components/Editor";
+import { DmpEditor } from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
 
 import {
@@ -43,7 +43,7 @@ import {
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 const CreateSectionPage: React.FC = () => {
 
@@ -355,6 +355,7 @@ const CreateSectionPage: React.FC = () => {
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
                       labelId="sectionIntroductionLabel"
+                      helpText={Section('helpText.sectionIntroduction')}
                     />
 
                     <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
@@ -364,6 +365,7 @@ const CreateSectionPage: React.FC = () => {
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
                       labelId="sectionRequirementsLabel"
+                      helpText={Section('helpText.sectionRequirements')}
                     />
 
                     <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
@@ -373,6 +375,7 @@ const CreateSectionPage: React.FC = () => {
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
                       labelId="sectionGuidanceLabel"
+                      helpText={Section('helpText.sectionGuidance')}
                     />
 
                     <CheckboxGroup name="sectionTags">

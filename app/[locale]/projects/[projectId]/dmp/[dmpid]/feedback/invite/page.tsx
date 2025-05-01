@@ -109,6 +109,11 @@ const ProjectsProjectPlanFeedbackInvite = () => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  const accessLevelDescription =
+    state.accessLevel === 'comment'
+      ? t('accessLevelOn', { accessLevel: state.accessLevel })
+      : state.accessLevel; //e.g.
+
   // Set refs for error messages and scrolling
   const errorRef = useRef<HTMLDivElement | null>(null);
 
@@ -338,7 +343,8 @@ const ProjectsProjectPlanFeedbackInvite = () => {
               })}
             </p>
             <p>
-              {t('para5')}
+
+              {t('para5', { access: accessLevelDescription })}
             </p>
           </div>
           <Button data-secondary className="secondary" onPress={handleModalClose}>{Global('buttons.close')}</Button>

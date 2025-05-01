@@ -6,6 +6,7 @@
 ### Added
 - Added new Server Actions `addCollaboratorAction` [#381]
 - Added `addProjectCollaborator` mutations [#381]
+- Added help text to Section fields from the wireframe [#281]
 - Added new serverAuthHelper.ts to work with Server Actions [#364]
 - Added type check to pre-commit hook and fixed some issues in the app [#391]
 - Add central "named routes" and helper function
