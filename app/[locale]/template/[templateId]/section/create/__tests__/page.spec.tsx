@@ -1,15 +1,15 @@
 import React from "react";
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import {
   useAddSectionMutation,
   useSectionsDisplayOrderQuery,
   useTagsQuery,
 } from '@/generated/graphql';
 
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams} from 'next/navigation';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams } from 'next/navigation';
 import CreateSectionPage from '../page';
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -150,6 +150,12 @@ describe("CreateSectionPage", () => {
     expect(sectionRequirementsEditor).toBeInTheDocument();
     const sectionGuidanceEditor = screen.getByRole('textbox', { name: /sectionGuidance/i });
     expect(sectionGuidanceEditor).toBeInTheDocument();
+
+    // Check for the help text
+    expect(screen.getByText('helpText.sectionIntroduction')).toBeInTheDocument();
+    expect(screen.getByText('helpText.sectionRequirements')).toBeInTheDocument();
+    expect(screen.getByText('helpText.sectionGuidance')).toBeInTheDocument();
+
     const tagsHeader = screen.getByText('labels.bestPracticeTags');
     expect(tagsHeader).toBeInTheDocument();
     const checkboxLabels = screen.getAllByTestId('checkboxLabel');

@@ -172,6 +172,11 @@ describe("SectionUpdatePage", () => {
     expect(tagsHeader).toBeInTheDocument();
     const checkboxLabels = screen.getAllByTestId('checkboxLabel');
     expect(checkboxLabels).toHaveLength(11);
+
+    // Check for the help text
+    expect(screen.getByText('helpText.sectionIntroduction')).toBeInTheDocument();
+    expect(screen.getByText('helpText.sectionRequirements')).toBeInTheDocument();
+    expect(screen.getByText('helpText.sectionGuidance')).toBeInTheDocument();
   });
 
   it('should display error when no value is entered in section name field', async () => {
