@@ -156,9 +156,6 @@
   },
   "SectionUpdatePage": {
     "title": "Update section",
-    "button": {
-      "updateSection": "Update section"
-    },
     "messages": {
       "fieldLengthValidation": "Name must be at least 2 characters.",
       "errorUpdatingSection": "Error when updating section.",
