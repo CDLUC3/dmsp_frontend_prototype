@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -30,10 +30,10 @@ import {
 } from '@/generated/graphql';
 
 //Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {DmpIcon} from "@/components/Icons";
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import {DmpEditor} from "@/components/Editor";
+import { DmpEditor } from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
 
 import {
@@ -41,9 +41,9 @@ import {
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
-import {useSectionData} from "@/hooks/sectionData";
+import { useSectionData } from "@/hooks/sectionData";
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
@@ -326,6 +326,7 @@ const SectionUpdatePage: React.FC = () => {
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
                       labelId="sectionIntroductionLabel"
+                      helpText={Section('helpText.sectionIntroduction')}
                     />
 
                     <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
@@ -335,6 +336,7 @@ const SectionUpdatePage: React.FC = () => {
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
                       labelId="sectionRequirementsLabel"
+                      helpText={Section('helpText.sectionRequirements')}
                     />
 
                     <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
@@ -344,6 +346,7 @@ const SectionUpdatePage: React.FC = () => {
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
                       labelId="sectionGuidanceLabel"
+                      helpText={Section('helpText.sectionGuidance')}
                     />
 
                     <CheckboxGroup
