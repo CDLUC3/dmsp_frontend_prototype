@@ -109,6 +109,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // To be used in the translation key for the modal
   const accessLevelDescription =
     state.accessLevel === 'comment'
       ? t('accessLevelOn', { accessLevel: state.accessLevel })
