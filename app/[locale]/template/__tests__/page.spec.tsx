@@ -1,9 +1,9 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import TemplateListPage from '../page';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useTemplatesQuery,} from '@/generated/graphql';
-import {mockScrollIntoView} from '@/__mocks__/common';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useTemplatesQuery, } from '@/generated/graphql';
+import { mockScrollIntoView } from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 
@@ -134,7 +134,7 @@ describe('TemplateListPage', () => {
 
     const createLink = screen.getByText('actionCreate');
     expect(createLink).toBeInTheDocument();
-    expect(createLink).toHaveAttribute('href', '/template/create');
+    expect(createLink).toHaveAttribute('href', '/en-US/template/create');
   });
 
   it('should render the search field with correct label and help text', async () => {
@@ -190,11 +190,11 @@ describe('TemplateListPage', () => {
     });
 
     // Searching for translation keys since cannot run next-intl for unit tests
-    const homeLink = screen.getByRole('link', { name: 'breadcrumbHome' });
+    const homeLink = screen.getByRole('link', { name: 'breadcrumbs.home' });
     const templatesLink = screen.getByRole('link', { name: 'title' });
 
-    expect(homeLink).toHaveAttribute('href', '/');
-    expect(templatesLink).toHaveAttribute('href', '/template');
+    expect(homeLink).toHaveAttribute('href', '/en-US');
+    expect(templatesLink).toHaveAttribute('href', '/en-US/template');
   });
 
   it('should render errors', async () => {

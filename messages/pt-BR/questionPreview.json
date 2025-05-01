@@ -1,8 +1,8 @@
 {
   "QuestionPreview": {
-    "previewButton": "Preview",
-    "closeButton": "Close",
-    "previewNoticeTitle": "Preview",
-    "previewNoticeText": "This is a preview of how the user will see this question, with both the funder and your own Requirements and Guidance text."
+    "previewButton": "Pré-visualizar",
+    "closeButton": "Fechar",
+    "previewNoticeTitle": "Pré-visualizar",
+    "previewNoticeText": "Esta é uma prévia de como o usuário verá esta questão, com o financiador e seu próprio texto de Orientação."
   }
 }

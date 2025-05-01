@@ -1,15 +1,15 @@
 import React from "react";
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useSectionQuery,
   useTagsQuery,
   useUpdateSectionMutation
 } from '@/generated/graphql';
 
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams} from 'next/navigation';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams, useRouter } from 'next/navigation';
 import SectionUpdatePage from '../page';
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -22,8 +22,11 @@ jest.mock("@/generated/graphql", () => ({
 }));
 
 jest.mock('next/navigation', () => ({
-  useParams: jest.fn(),
-}))
+  useRouter: jest.fn(),
+  useParams: jest.fn()
+}));
+
+const mockUseRouter = useRouter as jest.Mock;
 
 const mockSectionsData = {
   bestPractice: false,
@@ -127,6 +130,10 @@ describe("SectionUpdatePage", () => {
       error: null,
     });
 
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
     (useSectionQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockSectionsData),
       { loading: false, error: undefined },
@@ -165,6 +172,11 @@ describe("SectionUpdatePage", () => {
     expect(tagsHeader).toBeInTheDocument();
     const checkboxLabels = screen.getAllByTestId('checkboxLabel');
     expect(checkboxLabels).toHaveLength(11);
+
+    // Check for the help text
+    expect(screen.getByText('helpText.sectionIntroduction')).toBeInTheDocument();
+    expect(screen.getByText('helpText.sectionRequirements')).toBeInTheDocument();
+    expect(screen.getByText('helpText.sectionGuidance')).toBeInTheDocument();
   });
 
   it('should display error when no value is entered in section name field', async () => {
@@ -180,12 +192,39 @@ describe("SectionUpdatePage", () => {
       );
     });
 
-    const searchButton = screen.getByRole('button', { name: /button.updateSection/i });
-    fireEvent.click(searchButton);
+    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    fireEvent.click(saveAndAdd);
 
     const errorMessage = screen.getByRole('alert');
     expect(errorMessage).toBeInTheDocument();
     expect(errorMessage).toHaveTextContent('messages.fieldLengthValidation');
+  })
+
+  it('should redirect to Edit Template page after submitting form', async () => {
+    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <SectionUpdatePage />
+      );
+    });
+
+    // Simulate adding content to the sectionName field
+    const sectionNameEditor = screen.getByRole('textbox', { name: /sectionName/i });
+    await waitFor(() => {
+      fireEvent.input(sectionNameEditor, { target: { textContent: 'Updated Section Name' } });
+    });
+
+    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    fireEvent.click(saveAndAdd);
+
+    await waitFor(() => {
+      // Should redirect to the Edit template page
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
+    });
   })
 
   it('should pass axe accessibility test', async () => {
