@@ -1,7 +1,9 @@
+'use server'
+
 import { cookies } from "next/headers";
 import logger from "@/utils/server/logger";
 
-export class ServerAuthError extends Error {
+class ServerAuthError extends Error {
   status: number | null;
 
   constructor({

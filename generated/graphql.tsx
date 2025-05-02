@@ -474,7 +474,7 @@ export type CollaboratorSearchResult = {
   affiliation?: Maybe<Affiliation>;
   /** The collaborator's first/given name */
   givenName?: Maybe<Scalars['String']['output']>;
-  /** The unique identifer for the Object */
+  /** The unique identifier for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The collaborator's ORCID */
   orcid?: Maybe<Scalars['String']['output']>;
@@ -556,6 +556,15 @@ export type ExternalProject = {
   startDate?: Maybe<Scalars['String']['output']>;
   /** The project title */
   title?: Maybe<Scalars['String']['output']>;
+};
+
+/** Output type for the initializePlanVersion mutation */
+export type InitializePlanVersionOutput = {
+  __typename?: 'InitializePlanVersionOutput';
+  /** The number of PlanVersion records that were created */
+  count: Scalars['Int']['output'];
+  /** The ids of the Plans that were processed */
+  planIds?: Maybe<Array<Scalars['Int']['output']>>;
 };
 
 /** The types of object a User can be invited to Collaborate on */
@@ -774,6 +783,8 @@ export type Mutation = {
   setPrimaryUserEmail?: Maybe<Array<Maybe<UserEmail>>>;
   /** Set the user's ORCID */
   setUserOrcid?: Maybe<User>;
+  /** Initialize an PLanVersion record in the DynamoDB for all Plans that do not have one */
+  superInitializePlanVersions: InitializePlanVersionOutput;
   /** Update an Affiliation */
   updateAffiliation?: Maybe<Affiliation>;
   /** Edit an answer */
@@ -792,7 +803,7 @@ export type Mutation = {
   updatePlanStatus?: Maybe<Plan>;
   /** Edit a project */
   updateProject?: Maybe<Project>;
-  /** Chnage a collaborator's accessLevel on a Plan */
+  /** Change a collaborator's accessLevel on a Plan */
   updateProjectCollaborator?: Maybe<ProjectCollaborator>;
   /** Update a contributor on the research project */
   updateProjectContributor?: Maybe<ProjectContributor>;
@@ -895,8 +906,9 @@ export type MutationAddProjectArgs = {
 
 
 export type MutationAddProjectCollaboratorArgs = {
+  accessLevel?: InputMaybe<ProjectCollaboratorAccessLevel>;
   email: Scalars['String']['input'];
-  planId: Scalars['Int']['input'];
+  projectId: Scalars['Int']['input'];
 };
 
 
@@ -1698,8 +1710,8 @@ export type ProjectCollaborator = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The plan the collaborator may edit */
-  plan?: Maybe<Plan>;
+  /** The project the collaborator may edit */
+  project?: Maybe<Project>;
   /** The ProjectContributor id */
   projectContributorId?: Maybe<Scalars['Int']['output']>;
   /** The collaborator (if they have an account) */
@@ -2016,8 +2028,6 @@ export type Query = {
   outputTypes?: Maybe<Array<Maybe<OutputType>>>;
   /** Get a specific plan */
   plan?: Maybe<Plan>;
-  /** Get all of the Users that are collaborators for the Plan */
-  planCollaborators?: Maybe<Array<Maybe<ProjectCollaborator>>>;
   /** Get all of the Users that are contributors for the specific Plan */
   planContributors?: Maybe<Array<Maybe<PlanContributor>>>;
   /** Get all rounds of admin feedback for the plan */
@@ -2032,6 +2042,8 @@ export type Query = {
   plans?: Maybe<Array<PlanSearchResult>>;
   /** Get a specific project */
   project?: Maybe<Project>;
+  /** Get all of the Users that are collaborators for the Project */
+  projectCollaborators?: Maybe<Array<Maybe<ProjectCollaborator>>>;
   /** Get a specific contributor on the research project */
   projectContributor?: Maybe<ProjectContributor>;
   /** Get all of the Users that a contributors to the research project */
@@ -2078,6 +2090,8 @@ export type Query = {
   sectionVersions?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get the Sections that belong to the associated templateId */
   sections?: Maybe<Array<Maybe<Section>>>;
+  /** Fetch the DynamoDB PlanVersion record for a specific plan and version timestamp (leave blank for the latest) */
+  superInspectPlanVersion?: Maybe<Scalars['String']['output']>;
   /** Get all available tags to display */
   tags: Array<Tag>;
   tagsBySectionId?: Maybe<Array<Maybe<Tag>>>;
@@ -2171,11 +2185,6 @@ export type QueryPlanArgs = {
 };
 
 
-export type QueryPlanCollaboratorsArgs = {
-  planId: Scalars['Int']['input'];
-};
-
-
 export type QueryPlanContributorsArgs = {
   planId: Scalars['Int']['input'];
 };
@@ -2207,6 +2216,11 @@ export type QueryPlansArgs = {
 
 
 export type QueryProjectArgs = {
+  projectId: Scalars['Int']['input'];
+};
+
+
+export type QueryProjectCollaboratorsArgs = {
   projectId: Scalars['Int']['input'];
 };
 
@@ -2322,6 +2336,12 @@ export type QuerySectionVersionsArgs = {
 
 export type QuerySectionsArgs = {
   templateId: Scalars['Int']['input'];
+};
+
+
+export type QuerySuperInspectPlanVersionArgs = {
+  modified?: InputMaybe<Scalars['String']['input']>;
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -3531,6 +3551,15 @@ export type UpdatePlanStatusMutationVariables = Exact<{
 
 export type UpdatePlanStatusMutation = { __typename?: 'Mutation', updatePlanStatus?: { __typename?: 'Plan', id?: number | null, status?: PlanStatus | null, visibility?: PlanVisibility | null, errors?: { __typename?: 'PlanErrors', general?: string | null, status?: string | null } | null } | null };
 
+export type AddProjectCollaboratorMutationVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+  email: Scalars['String']['input'];
+  accessLevel?: InputMaybe<ProjectCollaboratorAccessLevel>;
+}>;
+
+
+export type AddProjectCollaboratorMutation = { __typename?: 'Mutation', addProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, email: string, errors?: { __typename?: 'ProjectCollaboratorErrors', general?: string | null, email?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, orcid?: any | null, affiliation?: { __typename?: 'Affiliation', uri: string } | null } | null } | null };
+
 export type UpdateProjectContributorMutationVariables = Exact<{
   input: UpdateProjectContributorInput;
 }>;
@@ -3544,6 +3573,13 @@ export type RemoveProjectContributorMutationVariables = Exact<{
 
 
 export type RemoveProjectContributorMutation = { __typename?: 'Mutation', removeProjectContributor?: { __typename?: 'ProjectContributor', errors?: { __typename?: 'ProjectContributorErrors', general?: string | null, email?: string | null, affiliationId?: string | null, givenName?: string | null, orcid?: string | null, surName?: string | null, contributorRoleIds?: string | null } | null } | null };
+
+export type AddProjectContributorMutationVariables = Exact<{
+  input: AddProjectContributorInput;
+}>;
+
+
+export type AddProjectContributorMutation = { __typename?: 'Mutation', addProjectContributor?: { __typename?: 'ProjectContributor', email?: string | null, errors?: { __typename?: 'ProjectContributorErrors', general?: string | null } | null } | null };
 
 export type UpdateProjectFunderMutationVariables = Exact<{
   input: UpdateProjectFunderInput;
@@ -4069,6 +4105,58 @@ export function useUpdatePlanStatusMutation(baseOptions?: Apollo.MutationHookOpt
 export type UpdatePlanStatusMutationHookResult = ReturnType<typeof useUpdatePlanStatusMutation>;
 export type UpdatePlanStatusMutationResult = Apollo.MutationResult<UpdatePlanStatusMutation>;
 export type UpdatePlanStatusMutationOptions = Apollo.BaseMutationOptions<UpdatePlanStatusMutation, UpdatePlanStatusMutationVariables>;
+export const AddProjectCollaboratorDocument = gql`
+    mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
+  addProjectCollaborator(
+    projectId: $projectId
+    email: $email
+    accessLevel: $accessLevel
+  ) {
+    id
+    errors {
+      general
+      email
+    }
+    email
+    user {
+      givenName
+      surName
+      affiliation {
+        uri
+      }
+      orcid
+    }
+  }
+}
+    `;
+export type AddProjectCollaboratorMutationFn = Apollo.MutationFunction<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>;
+
+/**
+ * __useAddProjectCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useAddProjectCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectCollaboratorMutation, { data, loading, error }] = useAddProjectCollaboratorMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      email: // value for 'email'
+ *      accessLevel: // value for 'accessLevel'
+ *   },
+ * });
+ */
+export function useAddProjectCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>(AddProjectCollaboratorDocument, options);
+      }
+export type AddProjectCollaboratorMutationHookResult = ReturnType<typeof useAddProjectCollaboratorMutation>;
+export type AddProjectCollaboratorMutationResult = Apollo.MutationResult<AddProjectCollaboratorMutation>;
+export type AddProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>;
 export const UpdateProjectContributorDocument = gql`
     mutation UpdateProjectContributor($input: UpdateProjectContributorInput!) {
   updateProjectContributor(input: $input) {
@@ -4155,6 +4243,42 @@ export function useRemoveProjectContributorMutation(baseOptions?: Apollo.Mutatio
 export type RemoveProjectContributorMutationHookResult = ReturnType<typeof useRemoveProjectContributorMutation>;
 export type RemoveProjectContributorMutationResult = Apollo.MutationResult<RemoveProjectContributorMutation>;
 export type RemoveProjectContributorMutationOptions = Apollo.BaseMutationOptions<RemoveProjectContributorMutation, RemoveProjectContributorMutationVariables>;
+export const AddProjectContributorDocument = gql`
+    mutation AddProjectContributor($input: AddProjectContributorInput!) {
+  addProjectContributor(input: $input) {
+    email
+    errors {
+      general
+    }
+  }
+}
+    `;
+export type AddProjectContributorMutationFn = Apollo.MutationFunction<AddProjectContributorMutation, AddProjectContributorMutationVariables>;
+
+/**
+ * __useAddProjectContributorMutation__
+ *
+ * To run a mutation, you first call `useAddProjectContributorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectContributorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectContributorMutation, { data, loading, error }] = useAddProjectContributorMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddProjectContributorMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectContributorMutation, AddProjectContributorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddProjectContributorMutation, AddProjectContributorMutationVariables>(AddProjectContributorDocument, options);
+      }
+export type AddProjectContributorMutationHookResult = ReturnType<typeof useAddProjectContributorMutation>;
+export type AddProjectContributorMutationResult = Apollo.MutationResult<AddProjectContributorMutation>;
+export type AddProjectContributorMutationOptions = Apollo.BaseMutationOptions<AddProjectContributorMutation, AddProjectContributorMutationVariables>;
 export const UpdateProjectFunderDocument = gql`
     mutation UpdateProjectFunder($input: UpdateProjectFunderInput!) {
   updateProjectFunder(input: $input) {

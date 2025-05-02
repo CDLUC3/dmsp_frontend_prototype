@@ -4,6 +4,8 @@
 - Plan Downloads [#299]
 -
 ### Added
+- Added new Server Actions `addCollaboratorAction` [#381]
+- Added `addProjectCollaborator` mutations [#381]
 - Added help text to Section fields from the wireframe [#281]
 - Added new serverAuthHelper.ts to work with Server Actions [#364]
 - Added type check to pre-commit hook and fixed some issues in the app [#391]
@@ -26,6 +28,8 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Hooked up `projects/[projectId]/dmp/[dmpId]/feedback/invite` page to backend data [#381]
+- Removed from from the modal on `projects/[projectId]/dmp/[dmpId]/feedback/invite` to add a project member, since we don't have user data at that point [#381]
 - Updated `Template` and `Projects` pages to work with the new pared down search result responses from GraphQL [#223] and [#218](https://github.com/CDLUC3/dmsp_backend_prototype/issues/218)
 - Updated `Plan Members` page. Added mutation and queries, and a server action for handling addPlanContributors mutation [#364]
 - Explicitly updated nextJS version to 14.2.25 due to an Authorization Bypass vulnerability in middleware (CVE-2025-29927) [#388]

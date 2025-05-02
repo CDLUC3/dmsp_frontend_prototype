@@ -131,7 +131,8 @@
       "projects": "Projects",
       "projectOverview": "Project overview",
       "projectFunder": "Project funder",
-      "planOverview": "Plan overview"
+      "planOverview": "Plan overview",
+      "feedback": "Feedback"
     },
     "form": {
       "yesLabel": "Yes",
@@ -169,7 +170,8 @@
     },
     "links": {
       "clearFilter": "clear filter",
-      "request": "Request"
+      "request": "Request",
+      "learnMore": "Learn more"
     },
     "messaging": {
       "loading": "Loading",

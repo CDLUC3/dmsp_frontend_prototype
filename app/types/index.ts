@@ -262,7 +262,8 @@ interface RadioButtonInterface {
 export interface RadioButtonProps {
   name: string;
   description?: string | ReactNode;
-  radioGroupLabel: string;
+  classes?: string;
+  radioGroupLabel?: string;
   radioButtonData: RadioButtonInterface[];
   value: string;
   isInvalid?: boolean;
@@ -349,12 +350,44 @@ export interface PlanOverviewInterface {
 
 export interface ActionResponse {
   success: boolean;
-  errors?: { general?: string } | string[];
+  errors?: string[];
   data?: {
     errors?: {
-      general: string;
       [key: string]: string | null;
     };
   };
+  redirect?: string;
+}
+
+export interface UserInterface {
+  givenName: string;
+  surName: string;
+  affiliation: {
+    uri: string;
+  }
+  orcid: string;
+}
+export interface CollaboratorResponse {
+  success: boolean;
+  errors?: string[];
+  data?: {
+    user: UserInterface;
+    errors: {
+      general: string | null;
+      email: string | null;
+    }
+  };
+  redirect?: string;
+}
+
+export interface AddProjectContributorResponse {
+  success: boolean;
+  errors?: string[];
+  data?: {
+    email: string;
+    errors: {
+      general: string;
+    }
+  }
   redirect?: string;
 }

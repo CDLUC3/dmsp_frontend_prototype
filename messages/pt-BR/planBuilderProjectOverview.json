@@ -217,5 +217,44 @@
         "removeMemberFromProject": "Remover membro do projeto"
       }
     }
+  },
+  "ProjectsProjectPlanFeedbackInvite": {
+    "title": "Quem deve ter acesso a este plano?",
+    "breadcrumbs": {
+      "manageAccess": "Gerenciar acesso"
+    },
+    "buttons": {
+      "grantAccess": "Permitir acesso"
+    },
+    "radioButtons": {
+      "access": {
+        "label": "O que esta pessoa deve poder fazer?",
+        "edit": "Editar o plano",
+        "comment": "Comentário somente"
+      }
+    },
+    "accessLevelOn": "{accessLevel} em",
+    "para1": "Quando você clicar em <strong>Conceder acesso</strong>, enviaremos um e-mail para essa pessoa convidando-a a visualizar seu plano.",
+    "para2": "Se ainda não for membro, nós os convidaremos a entrar.",
+    "para3": "Enviamos um convite para <strong>{email}</strong>. Eles terão acesso a este projeto.",
+    "para4": "Para também adicioná-los como membro do projeto, &lt;projectmember&gt;vá para a página de membros do projeto&lt;/projectmember&gt;.",
+    "para5": "Eles terão acesso a DMPs {access} neste projeto.",
+    "messaging": {
+      "errors": {
+        "email": "Por favor, insira um endereço de e-mail válido"
+      },
+      "success": {
+        "addMember": "{email} adicionado como membro do projeto"
+      }
+    },
+    "formLabels": {
+      "email": "Endereço de e-mail"
+    },
+    "placeHolders": {
+      "email": "Insira um endereço de email válido"
+    },
+    "headings": {
+      "h2InviteSent": "Convite enviado com sucesso"
+    }
   }
 }

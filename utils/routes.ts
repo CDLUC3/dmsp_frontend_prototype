@@ -40,7 +40,8 @@ const routes = {
   'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
   'projects.dmp.section': '/projects/:projectId/dmp/:dmpId/s/:sectionId',
   'projects.dmp.create': '/projects/:projectId/dmp/create',
-  'projects.dmp.feedback': '/projects/:projectId/dmp/:dmpId/access',
+  'projects.dmp.feedback': '/projects/:projectId/dmp/:dmpId/feedback',
+  'projects.dmp.feedback.invite': '/projects/:projectId/dmp/:dmpId/feedback/invite',
 
   // Template
   'template.index': '/template',
@@ -99,16 +100,20 @@ export function routePath(
   locale?: string
 ): string {
 
+  // Default to 'en-US' if no locale is provided
+  if (!locale) {
+    locale = 'en-US'; // Always set a default value
+  }
+
   // Automatically detect and validate locale from URL if not provided or invalid
-  if (!locale || !supportedLocales.includes(locale as SupportedLocale)) {
-    if (typeof window !== 'undefined') {
-      const segments = window.location.pathname.split('/');
-      const potentialLocale = segments[1];
-      if (supportedLocales.includes(potentialLocale as SupportedLocale)) {
-        locale = potentialLocale;
-      } else {
-        locale = 'en-US'; // explicit fallback
-      }
+  if (!supportedLocales.includes(locale as SupportedLocale) && typeof window !== 'undefined') {
+    // Only try to detect from URL on client-side, because NextJs also has server-side rendering
+    const segments = window.location.pathname.split('/');
+    const potentialLocale = segments[1];
+    if (supportedLocales.includes(potentialLocale as SupportedLocale)) {
+      locale = potentialLocale;
+    } else {
+      locale = 'en-US'; // explicit fallback
     }
   }
 
