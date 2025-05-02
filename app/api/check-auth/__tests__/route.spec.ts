@@ -5,9 +5,9 @@ import { NextResponse } from 'next/server';
 import { GET } from '../route';
 import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 import { verifyJwtToken } from '@/lib/server/auth';
-import logger from '@/utils/logger';
+import logger from '@/utils/server/logger';
 
-jest.mock('@/utils/logger');
+jest.mock('@/utils/server/logger');
 
 jest.mock('@/utils/getAuthTokenServer', () => ({
     getAuthTokenServer: jest.fn(),

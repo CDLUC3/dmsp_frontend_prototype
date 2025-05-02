@@ -137,7 +137,10 @@
       "bestPracticeTags": "Seção das melhores práticas para incluir"
     },
     "helpText": {
-      "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP."
+      "bestPracticeTagsDesc": "Selecione uma ou mais tags para associar a orientação de boas práticas globais escrita pela Ferramenta DMP.",
+      "sectionIntroduction": "Introduza uma introdução breve e concisa à pergunta.",
+      "sectionRequirements": "Esboça os requisitos que um usuário deve considerar nesta seção.",
+      "sectionGuidance": "Forneça aos usuários orientações úteis para ajudá-los a responder a pergunta."
     }
   },
   "CreateSectionPage": {
@@ -153,9 +156,6 @@
   },
   "SectionUpdatePage": {
     "title": "Seção de atualização",
-    "button": {
-      "updateSection": "Seção de atualização"
-    },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
       "errorUpdatingSection": "Erro ao criar a seção.",

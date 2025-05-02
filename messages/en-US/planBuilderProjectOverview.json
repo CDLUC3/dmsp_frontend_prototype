@@ -217,5 +217,44 @@
         "removeMemberFromProject": "Remove member from project"
       }
     }
+  },
+  "ProjectsProjectPlanFeedbackInvite": {
+    "title": "Who should have access to this plan?",
+    "breadcrumbs": {
+      "manageAccess": "Manage access"
+    },
+    "buttons": {
+      "grantAccess": "Grant access"
+    },
+    "radioButtons": {
+      "access": {
+        "label": "What should this person be able to do?",
+        "edit": "Edit the plan",
+        "comment": "Comment only"
+      }
+    },
+    "accessLevelOn": "{accessLevel} on",
+    "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
+    "para2": "If they aren't already a member of we'll invite them to join.",
+    "para3": "We have sent an invite to <strong>{email}</strong>. They will have access to this project.",
+    "para4": "To also add them as a Project Member, &lt;projectmember&gt;go to the Project Members page&lt;/projectmember&gt;.",
+    "para5": "They will have access to {access} DMPs in this project.",
+    "messaging": {
+      "errors": {
+        "email": "Please enter a valid email address"
+      },
+      "success": {
+        "addMember": "{email} added as project member"
+      }
+    },
+    "formLabels": {
+      "email": "Email address"
+    },
+    "placeHolders": {
+      "email": "Enter a valid email address"
+    },
+    "headings": {
+      "h2InviteSent": "Invite sent"
+    }
   }
 }

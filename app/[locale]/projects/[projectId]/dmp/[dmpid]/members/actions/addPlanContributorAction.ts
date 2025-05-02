@@ -1,7 +1,7 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
-import logger from "@/utils/logger";
+import logger from "@/utils/server/logger";
 import { ActionResponse } from "@/app/types";
 import { AddPlanContributorDocument } from "@/generated/graphql";
 

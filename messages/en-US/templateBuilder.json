@@ -137,7 +137,10 @@
       "bestPracticeTags": "Section Best Practices to include"
     },
     "helpText": {
-      "bestPracticeTagsDesc": "Select one or more tags to associate global best practice guidance written by DMP Tool."
+      "bestPracticeTagsDesc": "Select one or more tags to associate global best practice guidance written by DMP Tool.",
+      "sectionIntroduction": "Enter a short, concise introduction to the question.",
+      "sectionRequirements": "Outline the requirements that a user must consider in this section.",
+      "sectionGuidance": "Provide users with helpful guidance to help them answer the question."
     }
   },
   "CreateSectionPage": {
@@ -153,9 +156,6 @@
   },
   "SectionUpdatePage": {
     "title": "Update section",
-    "button": {
-      "updateSection": "Update section"
-    },
     "messages": {
       "fieldLengthValidation": "Name must be at least 2 characters.",
       "errorUpdatingSection": "Error when updating section.",

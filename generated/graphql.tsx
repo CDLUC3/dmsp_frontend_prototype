@@ -1438,7 +1438,16 @@ export type PaginationOptions = {
   sortDir?: InputMaybe<Scalars['String']['input']>;
   /** The sort field (used for standard offset pagination only!) */
   sortField?: InputMaybe<Scalars['String']['input']>;
+  /** The type of pagination to use (cursor or offset) */
+  type?: InputMaybe<Scalars['String']['input']>;
 };
+
+export enum PaginationType {
+  /** Cursor-based pagination (infinite scroll/load more) */
+  Cursor = 'CURSOR',
+  /** Standard pagination using offsets (first, next, previous, last) */
+  Offset = 'OFFSET'
+}
 
 /** A Data Managament Plan (DMP) */
 export type Plan = {
@@ -3825,6 +3834,15 @@ export type UpdatePlanStatusMutationVariables = Exact<{
 
 export type UpdatePlanStatusMutation = { __typename?: 'Mutation', updatePlanStatus?: { __typename?: 'Plan', id?: number | null, status?: PlanStatus | null, visibility?: PlanVisibility | null, errors?: { __typename?: 'PlanErrors', general?: string | null, status?: string | null } | null } | null };
 
+export type AddProjectCollaboratorMutationVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+  email: Scalars['String']['input'];
+  accessLevel?: InputMaybe<ProjectCollaboratorAccessLevel>;
+}>;
+
+
+export type AddProjectCollaboratorMutation = { __typename?: 'Mutation', addProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, email: string, errors?: { __typename?: 'ProjectCollaboratorErrors', general?: string | null, email?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, orcid?: any | null, affiliation?: { __typename?: 'Affiliation', uri: string } | null } | null } | null };
+
 export type UpdateProjectContributorMutationVariables = Exact<{
   input: UpdateProjectContributorInput;
 }>;
@@ -4365,6 +4383,58 @@ export function useUpdatePlanStatusMutation(baseOptions?: Apollo.MutationHookOpt
 export type UpdatePlanStatusMutationHookResult = ReturnType<typeof useUpdatePlanStatusMutation>;
 export type UpdatePlanStatusMutationResult = Apollo.MutationResult<UpdatePlanStatusMutation>;
 export type UpdatePlanStatusMutationOptions = Apollo.BaseMutationOptions<UpdatePlanStatusMutation, UpdatePlanStatusMutationVariables>;
+export const AddProjectCollaboratorDocument = gql`
+    mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
+  addProjectCollaborator(
+    projectId: $projectId
+    email: $email
+    accessLevel: $accessLevel
+  ) {
+    id
+    errors {
+      general
+      email
+    }
+    email
+    user {
+      givenName
+      surName
+      affiliation {
+        uri
+      }
+      orcid
+    }
+  }
+}
+    `;
+export type AddProjectCollaboratorMutationFn = Apollo.MutationFunction<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>;
+
+/**
+ * __useAddProjectCollaboratorMutation__
+ *
+ * To run a mutation, you first call `useAddProjectCollaboratorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectCollaboratorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectCollaboratorMutation, { data, loading, error }] = useAddProjectCollaboratorMutation({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      email: // value for 'email'
+ *      accessLevel: // value for 'accessLevel'
+ *   },
+ * });
+ */
+export function useAddProjectCollaboratorMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>(AddProjectCollaboratorDocument, options);
+      }
+export type AddProjectCollaboratorMutationHookResult = ReturnType<typeof useAddProjectCollaboratorMutation>;
+export type AddProjectCollaboratorMutationResult = Apollo.MutationResult<AddProjectCollaboratorMutation>;
+export type AddProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>;
 export const UpdateProjectContributorDocument = gql`
     mutation UpdateProjectContributor($input: UpdateProjectContributorInput!) {
   updateProjectContributor(input: $input) {

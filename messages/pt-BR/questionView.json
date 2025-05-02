@@ -1,0 +1,16 @@
+{
+  "QuestionView": {
+    "cardType": "Pergunta",
+    "requirements": "Estes são requisitos por",
+    "guidanceLink": "Pule para orientação adicional",
+    "guidanceBy": "Orientação por",
+    "backToSection": "Voltar para a seção",
+    "saveButton": "Salvar",
+    "lastSaved": "Último salvamento",
+    "expandLink": "Expandir",
+    "bestPractice": "Melhores práticas por",
+    "dataSharingTitle": "Compartilhamento",
+    "dataPreservationTitle": "Preservação de Dados",
+    "dataProtection": "Proteção de dados"
+  }
+}

@@ -40,6 +40,7 @@ import QuestionView from '@/components/QuestionView';
 
 //Other
 import { useToast } from '@/context/ToastContext';
+import { routePath } from '@/utils/routes';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
 
@@ -49,7 +50,7 @@ const QuestionEdit = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toastState = useToast(); // Access the toast state from context
-  const { templateId } = params; // From route /template/:templateId
+  const templateId = Array.isArray(params.templateId) ? params.templateId[0] : params.templateId;
   const questionId = params.q_slug; //question id
   const questionTypeIdQueryParam = searchParams.get('questionTypeId') || null;
 
@@ -70,6 +71,9 @@ const QuestionEdit = () => {
   // localization keys
   const Global = useTranslations('Global');
   const QuestionEdit = useTranslations('QuestionEdit');
+
+  // Set URLs
+  const TEMPLATE_URL = routePath('template.show', { templateId });
 
   // Run selected question query
   const { data: selectedQuestion, loading, error: selectedQuestionQueryError } = useQuestionQuery(
@@ -125,7 +129,9 @@ const QuestionEdit = () => {
         });
 
         if (response?.data) {
+          // Show success message and redirect to Edit Template page
           toastState.add(QuestionEdit('messages.success.questionUpdated'), { type: 'success' });
+          router.push(TEMPLATE_URL);
         }
       } catch (error) {
         if (error instanceof ApolloError) {
@@ -205,9 +211,9 @@ const QuestionEdit = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -332,7 +338,7 @@ const QuestionEdit = () => {
                   </Checkbox>
                 )}
 
-                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.save')}</Button>
+                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
 
               </Form>
 

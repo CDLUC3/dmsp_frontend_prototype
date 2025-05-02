@@ -3,18 +3,18 @@
 import { DocumentNode, print } from "graphql";
 import { cookies } from "next/headers";
 import logger from "@/utils/server/logger";
-import { serverRefreshAuthTokens, serverFetchCsrfToken } from "@/utils/serverAuthHelper";
+import { serverRefreshAuthTokens, serverFetchCsrfToken } from "@/utils/server/serverAuthHelper";
 
-export type GraphQLErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "INTERNAL_SERVER_ERROR" | string;
+type GraphQLErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "INTERNAL_SERVER_ERROR" | string;
 
-export interface GraphQLError {
+interface GraphQLError {
   message: string;
   extensions?: {
     code?: GraphQLErrorCode;
   };
 }
 
-export interface GraphQLActionResponse<T = unknown> {
+interface GraphQLActionResponse<T = unknown> {
   success: boolean;
   data?: T;
   errors?: string[];
@@ -40,7 +40,7 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 }): Promise<GraphQLActionResponse<T>> {
 
   const mutationString = typeof document === "string" ? document : print(document);
-  console.log("***Mutation String***", mutationString);
+
   try {
     if (!mutationString) {
       throw new Error("No mutation string provided");
@@ -71,6 +71,7 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 
     // Handle GraphQL errors
     if (result.errors) {
+      console.log("RESULT.ERRORS", result.errors);
       for (const { message, extensions } of result.errors) {
         const errorCode = extensions?.code;
         switch (errorCode) {

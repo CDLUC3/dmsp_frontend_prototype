@@ -1,7 +1,7 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from "@apollo/client";
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -13,22 +13,27 @@ import {
   SearchField,
   Text
 } from 'react-aria-components';
-import {useFormatter, useTranslations} from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
 
 //GraphQL
-import {useTemplatesQuery,} from '@/generated/graphql';
+import { useTemplatesQuery, } from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
 import TemplateListItem from '@/components/TemplateListItem';
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 // Hooks
-import {useScrollToTop} from '@/hooks/scrollToTop';
+import { useScrollToTop } from '@/hooks/scrollToTop';
 
 import logECS from '@/utils/clientLogger';
-import {TemplateSearchResultInterface, TemplateItemProps, PaginatedTemplateSearchResultsInterface} from '@/app/types';
+import { routePath } from '@/utils/routes';
+import {
+  TemplateSearchResultInterface,
+  TemplateItemProps,
+  PaginatedTemplateSearchResultsInterface
+} from '@/app/types';
 import styles from './orgTemplates.module.scss';
 
 const TemplateListPage: React.FC = () => {
@@ -53,6 +58,11 @@ const TemplateListPage: React.FC = () => {
   const t = useTranslations('OrganizationTemplates');
   const Global = useTranslations('Global');
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
+
+  // Set URLs
+  const TEMPLATE_URL = routePath('template.index');
+  const TEMPLATE_CREATE_URL = routePath('template.create');
+
 
   // Make graphql request for templates under the user's affiliation
   const { data = {}, loading, error: queryError } = useTemplatesQuery({
@@ -135,7 +145,7 @@ const TemplateListPage: React.FC = () => {
         setErrors(prevErrors => [...prevErrors, queryError.message]);
         logECS('error', 'queryError', {
           error: queryError,
-          url: { path: '/template' }
+          url: { path: TEMPLATE_URL }
         });
       } else {
         // Safely access queryError.message
@@ -155,7 +165,7 @@ const TemplateListPage: React.FC = () => {
           items.map(async (template: TemplateSearchResultInterface | null) => {
             return {
               title: template?.name || "",
-              link: `/template/${template?.id}`,
+              link: routePath('template.show', { templateId: template?.id ?? '' }),
               content: template?.description || template?.modified ? (
                 <div>
                   <p>{template?.description}</p>
@@ -239,14 +249,14 @@ const TemplateListPage: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{t('breadcrumbHome')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{t('title')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index')}>{t('title')}</Link></Breadcrumb>
             <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
           <>
-            <Link href="/template/create"
+            <Link href={TEMPLATE_CREATE_URL}
               className={"button-link button--primary"}>{t('actionCreate')}</Link>
           </>
         }

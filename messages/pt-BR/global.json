@@ -131,7 +131,8 @@
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto",
       "projectFunder": "Fundador do Projeto",
-      "planOverview": "Resumo do plano"
+      "planOverview": "Resumo do plano",
+      "feedback": "Registrar"
     },
     "form": {
       "yesLabel": "Sim",
@@ -144,6 +145,7 @@
       "select": "Select",
       "next": "Seguinte",
       "save": "Salvar",
+      "saveAndAdd": "Salvar e adicionar",
       "saveChanges": "Salvar as alterações",
       "remove": "Remover",
       "confirm": "Confirmação",
@@ -168,7 +170,8 @@
     },
     "links": {
       "clearFilter": "limpar filtro",
-      "request": "Solicitação"
+      "request": "Solicitação",
+      "learnMore": "Learn more"
     },
     "messaging": {
       "loading": "Baixar",

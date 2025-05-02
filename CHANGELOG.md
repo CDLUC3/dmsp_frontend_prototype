@@ -4,6 +4,9 @@
 - Plan Downloads [#299]
 -
 ### Added
+- Added new Server Actions `addCollaboratorAction` [#381]
+- Added `addProjectCollaborator` mutations [#381]
+- Added help text to Section fields from the wireframe [#281]
 - Added new serverAuthHelper.ts to work with Server Actions [#364]
 - Added type check to pre-commit hook and fixed some issues in the app [#391]
 - Add central "named routes" and helper function
@@ -26,6 +29,8 @@
 
 ### Updated
 - Updated `affiliations`, `myTemplates`, `publishedTemplates`, `myProjects` queries to handle the new pagination format. Updated the corresponding pages and components only enough to keep them working as-is [#180](https://github.com/CDLUC3/dmsp_backend_prototype/issues/180)
+- Hooked up `projects/[projectId]/dmp/[dmpId]/feedback/invite` page to backend data [#381]
+- Removed from from the modal on `projects/[projectId]/dmp/[dmpId]/feedback/invite` to add a project member, since we don't have user data at that point [#381]
 - Updated `Template` and `Projects` pages to work with the new pared down search result responses from GraphQL [#223] and [#218](https://github.com/CDLUC3/dmsp_backend_prototype/issues/218)
 - Updated `Plan Members` page. Added mutation and queries, and a server action for handling addPlanContributors mutation [#364]
 - Explicitly updated nextJS version to 14.2.25 due to an Authorization Bypass vulnerability in middleware (CVE-2025-29927) [#388]
@@ -67,6 +72,9 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+- Fix logger path issue in auth.ts [#441]
+- Added handling of scenario where no jwt payload is returned when getting languageId in middleware [#441]
+- Fixed ordering issue for Sections on the Edit Templates page [#436]
 - Fixed missing `as deps` in `Dockerfile.prod`.
 - Fixed wrong node image in `Dockerfile.prd`. Also fixed a number of linting issues.
 - Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
