@@ -28,7 +28,7 @@ export async function verifyJwtToken(token: string): Promise<JWTPayload | null> 
 
         return payload; //return boolean
     } catch (error) {
-        console.error(JSON.stringify({ level: 'error', message: '[verifyJwtToken]: Token verification failed', error: error }));
+        console.error(JSON.stringify({ level: 'error', message: '[verifyJwtToken]: Token verification failed', error }));
         return null;
     }
 }
