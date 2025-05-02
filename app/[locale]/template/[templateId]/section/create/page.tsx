@@ -44,6 +44,7 @@ import {
   TagsInterface
 } from '@/app/types';
 import {useToast} from '@/context/ToastContext';
+import FormInput from "../../../../../../components/Form/FormInput";
 
 const CreateSectionPage: React.FC = () => {
 
@@ -315,8 +316,6 @@ const CreateSectionPage: React.FC = () => {
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
             <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href={`/template/${templateId}/section/new`}>{Global('breadcrumbs.addNewSection')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.createSection')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -339,13 +338,19 @@ const CreateSectionPage: React.FC = () => {
                 </TabList>
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
-                    <Label htmlFor="sectionName" id="sectionNameLabel">{Section('labels.sectionName')}</Label>
-                    <DmpEditor
-                      content={sectionNameContent}
-                      setContent={setSectionNameContent}
-                      error={fieldErrors['sectionName']}
+
+
+
+
+                    <FormInput
+                      name="sectionName"
                       id="sectionName"
-                      labelId="sectionNameLabel"
+                      type="text"
+                      isRequired={true}
+                      label={Section('labels.sectionName')}
+                      value={formData.sectionName}
+                      onChange={(e) => setSectionNameContent(e.currentTarget.value)} // Use specific setter
+                      errorMessage={fieldErrors['sectionName']}
                     />
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>

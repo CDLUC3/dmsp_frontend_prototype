@@ -44,6 +44,7 @@ import {
 import {useSectionData} from "@/hooks/sectionData";
 import logECS from '@/utils/clientLogger';
 import {useToast} from '@/context/ToastContext';
+import FormInput from "../../../../../../components/Form/FormInput";
 
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
@@ -287,7 +288,6 @@ const SectionUpdatePage: React.FC = () => {
             <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
             <Breadcrumb><Link
               href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}/section/new`}>{Global('breadcrumbs.addNewSection')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.updateSection')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -310,13 +310,19 @@ const SectionUpdatePage: React.FC = () => {
                 </TabList>
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
-                    <Label htmlFor="sectionName" id="sectionNameLabel">{Section('labels.sectionName')}</Label>
-                    <DmpEditor
-                      content={sectionData.sectionName}
-                      setContent={(value) => updateSectionContent('sectionName', value)}
-                      error={fieldErrors['sectionName']}
+
+                    <FormInput
+                      name="sectionName"
                       id="sectionName"
-                      labelId="sectionNameLabel"
+                      type="text"
+                      isRequired={true}
+                      label={Section('labels.sectionName')}
+                      value={sectionData.sectionName ? sectionData.sectionName : ''}
+                      onChange={(e) => setSectionData({
+                        ...sectionData,
+                        sectionName: e.currentTarget.value
+                      })}
+                      errorMessage={fieldErrors['sectionName']}
                     />
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
