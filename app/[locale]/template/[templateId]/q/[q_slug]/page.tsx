@@ -166,7 +166,7 @@ const QuestionEdit = () => {
         // If user has the questionTypeId in the query param because they just selected a new question type
         // then use that over the one in the data
         const qt = getQuestionTypeName(Number(questionTypeIdQueryParam ?? selectedQuestion?.question?.questionTypeId))
-        console.log(qt);
+
         if (qt) {
           setQuestionType(qt);
         }
