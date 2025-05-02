@@ -1,5 +1,6 @@
 import { jwtVerify, JWTPayload } from 'jose';
 import { getSecret } from '@/utils/getSecret';
+import logger from "@/utils/logger";
 
 /**
  * Get the JWT Secret
@@ -28,7 +29,7 @@ export async function verifyJwtToken(token: string): Promise<JWTPayload | null> 
 
         return payload; //return boolean
     } catch (error) {
-        console.error('Token verification failed:', error)
+        logger.error('verifyJwtToken', { error: 'Token verification failed' });
         return null;
     }
 }
