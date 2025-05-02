@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useReducer } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import {useEffect, useReducer, useRef} from 'react';
+import {useParams, useRouter} from 'next/navigation';
+import {useTranslations} from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -15,10 +15,10 @@ import {
   Modal,
 } from 'react-aria-components';
 import {
+  PlanSectionProgress,
   PlanStatus,
   PlanVisibility,
   usePlanQuery,
-  PlanSectionProgress,
 } from '@/generated/graphql';
 
 //Components
@@ -29,18 +29,15 @@ import {
 } from "@/components/Container";
 import PageHeader from "@/components/PageHeader";
 import ErrorMessages from '@/components/ErrorMessages';
-import { DmpIcon } from "@/components/Icons";
-import {
-  FormSelect,
-  RadioGroupComponent
-} from '@/components/Form';
+import {DmpIcon} from "@/components/Icons";
+import {FormSelect, RadioGroupComponent} from '@/components/Form';
 
 import logECS from '@/utils/clientLogger';
-import { routePath } from '@/utils/routes';
-import { publishPlanAction, updatePlanStatusAction } from './actions';
+import {routePath} from '@/utils/routes';
+import {publishPlanAction, updatePlanStatusAction} from './actions';
 import {
-  PlanMember,
   ListItemsInterface,
+  PlanMember,
   PlanOverviewInterface,
 } from '@/app/types';
 import styles from './PlanOverviewPage.module.scss';
@@ -490,7 +487,7 @@ const PlanOverviewPage: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
             <Breadcrumb>{state.planData.title}</Breadcrumb>

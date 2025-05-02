@@ -190,11 +190,12 @@ interface DmpEditorProps {
   id?: string;
   error?: string;
   labelId?: string;
+  helpText?: string;
 }
 
 const MemoizedEditorToolbar = memo(EditorToolbar);
 
-export const DmpEditor = memo(({ content, setContent, error, id, labelId }: DmpEditorProps) => {
+export const DmpEditor = memo(({ content, setContent, error, id, labelId, helpText }: DmpEditorProps) => {
   const [isMounted, setIsMounted] = useState(false);
   const extensions = useMemo(() => () => [
     new BoldExtension({}),
@@ -263,6 +264,7 @@ export const DmpEditor = memo(({ content, setContent, error, id, labelId }: DmpE
       >
         <MemoizedEditorToolbar />
         <EditorComponent />
+        <div className="help-text">{helpText}</div>
         <div className="error-message">{error}</div>
       </Remirror>
     </div>

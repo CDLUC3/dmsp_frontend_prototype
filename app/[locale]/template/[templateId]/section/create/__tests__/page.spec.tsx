@@ -150,6 +150,12 @@ describe("CreateSectionPage", () => {
     expect(sectionRequirementsEditor).toBeInTheDocument();
     const sectionGuidanceEditor = screen.getByRole('textbox', { name: /sectionGuidance/i });
     expect(sectionGuidanceEditor).toBeInTheDocument();
+
+    // Check for the help text
+    expect(screen.getByText('helpText.sectionIntroduction')).toBeInTheDocument();
+    expect(screen.getByText('helpText.sectionRequirements')).toBeInTheDocument();
+    expect(screen.getByText('helpText.sectionGuidance')).toBeInTheDocument();
+
     const tagsHeader = screen.getByText('labels.bestPracticeTags');
     expect(tagsHeader).toBeInTheDocument();
     const checkboxLabels = screen.getAllByTestId('checkboxLabel');

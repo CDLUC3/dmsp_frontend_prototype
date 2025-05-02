@@ -1,10 +1,10 @@
 // template/[templateId]/section/page.tsx
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
-import { ApolloError } from "@apollo/client";
+import React, {useEffect, useRef, useState} from 'react';
+import {useTranslations} from 'next-intl';
+import {useParams} from 'next/navigation';
+import {ApolloError} from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -41,9 +41,9 @@ import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from '@/components/ErrorMessages';
 
-import { useFormatDate } from '@/hooks/useFormatDate';
+import {useFormatDate} from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
 import styles from './templateEditPage.module.scss';
 
 interface QuestionsInterface {
@@ -121,6 +121,11 @@ const TemplateEditPage: React.FC = () => {
     }
   );
 
+  const sortSections = (sections: Section[]) => {
+    // Create a new array with the spread operator before sorting
+    return [...sections].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+  }
+
   // Show Success Message
   const showSuccessToast = () => {
     const successMessage = Messaging('successfullyUpdated');
@@ -196,28 +201,30 @@ const TemplateEditPage: React.FC = () => {
   useEffect(() => {
     // When data from backend changes, set template data in state
     if (data && data.template) {
+      const sortedSections = data.template.sections
+        ? sortSections(data.template.sections.filter((section): section is Section => section !== null)) //Filter out null sections
+        : [];
+
       setTemplate({
         name: data.template.name ?? '',
         description: data.template.description ?? null,
         latestPublishVersion: data.template.latestPublishVersion ?? null,
         latestPublishDate: formatDate(data.template.latestPublishDate) ?? null,
         created: data.template.created ?? null,
-        sections: data.template.sections
-          ?.filter((section): section is Section => section !== null) // Filter out null
-          .map((section) => ({
-            id: section.id,
-            name: section.name ?? '',
-            displayOrder: section.displayOrder,
-            questions: section.questions
-              ?.filter((question): question is Question => question !== null) //Filter out null
-              ?.map((question) => ({
-                errors: question.errors,
-                displayOrder: question.displayOrder,
-                guidanceText: question.guidanceText,
-                id: question.id,
-                questionText: question.questionText,
-              })),
-          })),
+        sections: sortedSections.map((section) => ({
+          id: section.id,
+          name: section.name ?? '',
+          displayOrder: section.displayOrder,
+          questions: section.questions
+            ?.filter((question): question is Question => question !== null) // Filter out null
+            ?.map((question) => ({
+              errors: question.errors,
+              displayOrder: question.displayOrder,
+              guidanceText: question.guidanceText,
+              id: question.id,
+              questionText: question.questionText,
+            })),
+        })),
         owner: {
           displayName: data.template.owner?.displayName ?? '',
           id: data.template.owner?.id ?? 0,

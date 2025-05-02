@@ -44,7 +44,6 @@ import {
   TagsInterface
 } from '@/app/types';
 import {useToast} from '@/context/ToastContext';
-import FormInput from "../../../../../../components/Form/FormInput";
 
 const CreateSectionPage: React.FC = () => {
 
@@ -360,6 +359,7 @@ const CreateSectionPage: React.FC = () => {
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
                       labelId="sectionIntroductionLabel"
+                      helpText={Section('helpText.sectionIntroduction')}
                     />
 
                     <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
@@ -369,6 +369,7 @@ const CreateSectionPage: React.FC = () => {
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
                       labelId="sectionRequirementsLabel"
+                      helpText={Section('helpText.sectionRequirements')}
                     />
 
                     <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
@@ -378,6 +379,7 @@ const CreateSectionPage: React.FC = () => {
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
                       labelId="sectionGuidanceLabel"
+                      helpText={Section('helpText.sectionGuidance')}
                     />
 
                     <CheckboxGroup name="sectionTags">
