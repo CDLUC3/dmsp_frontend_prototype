@@ -71,6 +71,7 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+- Fix logger path issue in auth.ts [#441]
 - Added handling of scenario where no jwt payload is returned when getting languageId in middleware [#441]
 - Fixed ordering issue for Sections on the Edit Templates page [#436]
 - Fixed missing `as deps` in `Dockerfile.prod`.
