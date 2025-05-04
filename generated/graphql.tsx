@@ -391,11 +391,11 @@ export type AffiliationSearch = {
   displayName: Scalars['String']['output'];
   /** Whether or not this affiliation is a funder */
   funder: Scalars['Boolean']['output'];
-  /** The unique identifer for the affiliation (typically the ROR id) */
+  /** The unique identifer for the affiliation */
   id: Scalars['Int']['output'];
   /** The categories the Affiliation belongs to */
   types?: Maybe<Array<AffiliationType>>;
-  /** The URI of the affiliation */
+  /** The URI of the affiliation (typically the ROR id) */
   uri: Scalars['String']['output'];
 };
 
@@ -556,6 +556,19 @@ export type ExternalProject = {
   startDate?: Maybe<Scalars['String']['output']>;
   /** The project title */
   title?: Maybe<Scalars['String']['output']>;
+};
+
+/** A result of the most popular funders */
+export type FunderPopularityResult = {
+  __typename?: 'FunderPopularityResult';
+  /** The official display name */
+  displayName: Scalars['String']['output'];
+  /** The unique identifer for the affiliation */
+  id: Scalars['Int']['output'];
+  /** The number of plans associated with this funder in the past year */
+  nbrPlans: Scalars['Int']['output'];
+  /** The URI of the affiliation (typically the ROR id) */
+  uri: Scalars['String']['output'];
 };
 
 /** Output type for the initializePlanVersion mutation */
@@ -1280,7 +1293,7 @@ export type MutationUpdateTagArgs = {
 
 
 export type MutationUpdateTemplateArgs = {
-  bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
+  bestPractice: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
   visibility: TemplateVisibility;
@@ -2040,6 +2053,8 @@ export type Query = {
   planOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Get all plans for the research project */
   plans?: Maybe<Array<PlanSearchResult>>;
+  /** Returns a list of the top 20 funders ranked by popularity (nbr of plans) for the past year */
+  popularFunders?: Maybe<Array<Maybe<FunderPopularityResult>>>;
   /** Get a specific project */
   project?: Maybe<Project>;
   /** Get all of the Users that are collaborators for the Project */
@@ -3574,13 +3589,6 @@ export type RemoveProjectContributorMutationVariables = Exact<{
 
 export type RemoveProjectContributorMutation = { __typename?: 'Mutation', removeProjectContributor?: { __typename?: 'ProjectContributor', errors?: { __typename?: 'ProjectContributorErrors', general?: string | null, email?: string | null, affiliationId?: string | null, givenName?: string | null, orcid?: string | null, surName?: string | null, contributorRoleIds?: string | null } | null } | null };
 
-export type AddProjectContributorMutationVariables = Exact<{
-  input: AddProjectContributorInput;
-}>;
-
-
-export type AddProjectContributorMutation = { __typename?: 'Mutation', addProjectContributor?: { __typename?: 'ProjectContributor', email?: string | null, errors?: { __typename?: 'ProjectContributorErrors', general?: string | null } | null } | null };
-
 export type UpdateProjectFunderMutationVariables = Exact<{
   input: UpdateProjectFunderInput;
 }>;
@@ -3671,6 +3679,16 @@ export type AddTemplateMutationVariables = Exact<{
 
 
 export type AddTemplateMutation = { __typename?: 'Mutation', addTemplate?: { __typename?: 'Template', id?: number | null, description?: string | null, name: string, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null } | null };
+
+export type UpdateTemplateMutationVariables = Exact<{
+  templateId: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  visibility: TemplateVisibility;
+  bestPractice: Scalars['Boolean']['input'];
+}>;
+
+
+export type UpdateTemplateMutation = { __typename?: 'Mutation', updateTemplate?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, name: string, visibility: TemplateVisibility } | null };
 
 export type UpdateUserProfileMutationVariables = Exact<{
   input: UpdateUserProfileInput;
@@ -3849,7 +3867,7 @@ export type TemplateQueryVariables = Exact<{
 }>;
 
 
-export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, description?: string | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
+export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, description?: string | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, visibility: TemplateVisibility, bestPractice: boolean, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
 
 export type TemplateCollaboratorsQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -4243,42 +4261,6 @@ export function useRemoveProjectContributorMutation(baseOptions?: Apollo.Mutatio
 export type RemoveProjectContributorMutationHookResult = ReturnType<typeof useRemoveProjectContributorMutation>;
 export type RemoveProjectContributorMutationResult = Apollo.MutationResult<RemoveProjectContributorMutation>;
 export type RemoveProjectContributorMutationOptions = Apollo.BaseMutationOptions<RemoveProjectContributorMutation, RemoveProjectContributorMutationVariables>;
-export const AddProjectContributorDocument = gql`
-    mutation AddProjectContributor($input: AddProjectContributorInput!) {
-  addProjectContributor(input: $input) {
-    email
-    errors {
-      general
-    }
-  }
-}
-    `;
-export type AddProjectContributorMutationFn = Apollo.MutationFunction<AddProjectContributorMutation, AddProjectContributorMutationVariables>;
-
-/**
- * __useAddProjectContributorMutation__
- *
- * To run a mutation, you first call `useAddProjectContributorMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddProjectContributorMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addProjectContributorMutation, { data, loading, error }] = useAddProjectContributorMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useAddProjectContributorMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectContributorMutation, AddProjectContributorMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddProjectContributorMutation, AddProjectContributorMutationVariables>(AddProjectContributorDocument, options);
-      }
-export type AddProjectContributorMutationHookResult = ReturnType<typeof useAddProjectContributorMutation>;
-export type AddProjectContributorMutationResult = Apollo.MutationResult<AddProjectContributorMutation>;
-export type AddProjectContributorMutationOptions = Apollo.BaseMutationOptions<AddProjectContributorMutation, AddProjectContributorMutationVariables>;
 export const UpdateProjectFunderDocument = gql`
     mutation UpdateProjectFunder($input: UpdateProjectFunderInput!) {
   updateProjectFunder(input: $input) {
@@ -4814,6 +4796,50 @@ export function useAddTemplateMutation(baseOptions?: Apollo.MutationHookOptions<
 export type AddTemplateMutationHookResult = ReturnType<typeof useAddTemplateMutation>;
 export type AddTemplateMutationResult = Apollo.MutationResult<AddTemplateMutation>;
 export type AddTemplateMutationOptions = Apollo.BaseMutationOptions<AddTemplateMutation, AddTemplateMutationVariables>;
+export const UpdateTemplateDocument = gql`
+    mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: TemplateVisibility!, $bestPractice: Boolean!) {
+  updateTemplate(
+    templateId: $templateId
+    name: $name
+    visibility: $visibility
+    bestPractice: $bestPractice
+  ) {
+    id
+    bestPractice
+    name
+    visibility
+  }
+}
+    `;
+export type UpdateTemplateMutationFn = Apollo.MutationFunction<UpdateTemplateMutation, UpdateTemplateMutationVariables>;
+
+/**
+ * __useUpdateTemplateMutation__
+ *
+ * To run a mutation, you first call `useUpdateTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTemplateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTemplateMutation, { data, loading, error }] = useUpdateTemplateMutation({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *      name: // value for 'name'
+ *      visibility: // value for 'visibility'
+ *      bestPractice: // value for 'bestPractice'
+ *   },
+ * });
+ */
+export function useUpdateTemplateMutation(baseOptions?: Apollo.MutationHookOptions<UpdateTemplateMutation, UpdateTemplateMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateTemplateMutation, UpdateTemplateMutationVariables>(UpdateTemplateDocument, options);
+      }
+export type UpdateTemplateMutationHookResult = ReturnType<typeof useUpdateTemplateMutation>;
+export type UpdateTemplateMutationResult = Apollo.MutationResult<UpdateTemplateMutation>;
+export type UpdateTemplateMutationOptions = Apollo.BaseMutationOptions<UpdateTemplateMutation, UpdateTemplateMutationVariables>;
 export const UpdateUserProfileDocument = gql`
     mutation UpdateUserProfile($input: UpdateUserProfileInput!) {
   updateUserProfile(input: $input) {
@@ -6214,6 +6240,8 @@ export const TemplateDocument = gql`
       displayName
       id
     }
+    visibility
+    bestPractice
   }
 }
     `;

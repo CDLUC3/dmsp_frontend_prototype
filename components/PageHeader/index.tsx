@@ -1,6 +1,6 @@
 'use client';
 
-import React, {ReactNode, useEffect} from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import BackButton from "@/components/BackButton";
 import './pageheader.scss';
 
