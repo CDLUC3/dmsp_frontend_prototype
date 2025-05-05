@@ -19,7 +19,7 @@
 
 .searchInput {
   grid-area: input;
-  
+
 }
 
 .searchButton {
@@ -34,9 +34,8 @@
 }
 
 .optionsWrapper {
-  border: 1px solid var(--border-color);
-  padding: var(--space-4);
-  margin-bottom: var(--space-4);
+  padding: var(--space-0);
+  margin-bottom: var(--space-6);
 }
 
 .questionFormField {

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from "@apollo/client";
+import React, {useEffect, useRef, useState} from 'react';
+import {ApolloError} from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -13,23 +13,23 @@ import {
   SearchField,
   Text
 } from 'react-aria-components';
-import { useFormatter, useTranslations } from 'next-intl';
+import {useFormatter, useTranslations} from 'next-intl';
 
 //GraphQL
-import { useTemplatesQuery, } from '@/generated/graphql';
+import {useTemplatesQuery,} from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
 import TemplateListItem from '@/components/TemplateListItem';
-import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import {ContentContainer, LayoutContainer,} from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 // Hooks
-import { useScrollToTop } from '@/hooks/scrollToTop';
+import {useScrollToTop} from '@/hooks/scrollToTop';
 
 import logECS from '@/utils/clientLogger';
-import { routePath } from '@/utils/routes';
-import { TemplateSearchResultInterface, TemplateItemProps, } from '@/app/types';
+import {routePath} from '@/utils/routes';
+import {TemplateItemProps, TemplateSearchResultInterface,} from '@/app/types';
 import styles from './orgTemplates.module.scss';
 
 const TemplateListPage: React.FC = () => {

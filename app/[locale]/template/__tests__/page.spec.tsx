@@ -1,9 +1,9 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import {act, fireEvent, render, screen} from '@/utils/test-utils';
 import TemplateListPage from '../page';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useTemplatesQuery, } from '@/generated/graphql';
-import { mockScrollIntoView } from '@/__mocks__/common';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useTemplatesQuery,} from '@/generated/graphql';
+import {mockScrollIntoView} from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 

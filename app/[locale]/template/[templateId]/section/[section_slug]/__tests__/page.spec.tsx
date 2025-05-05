@@ -1,15 +1,15 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
 import {
   useSectionQuery,
   useTagsQuery,
   useUpdateSectionMutation
 } from '@/generated/graphql';
 
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams, useRouter } from 'next/navigation';
+import {axe, toHaveNoViolations} from 'jest-axe';
+import {useParams, useRouter} from 'next/navigation';
 import SectionUpdatePage from '../page';
-import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -123,7 +123,7 @@ describe("SectionUpdatePage", () => {
     const mockUseParams = useParams as jest.Mock;
 
     // Mock the return value of useParams
-    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+    mockUseParams.mockReturnValue({templateId: `${mockTemplateId}`});
     (useTagsQuery as jest.Mock).mockReturnValue({
       data: mockTagsData,
       loading: true,
@@ -136,37 +136,37 @@ describe("SectionUpdatePage", () => {
 
     (useSectionQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockSectionsData),
-      { loading: false, error: undefined },
+      {loading: false, error: undefined},
     ]);
   });
 
   it("should render correct fields", async () => {
     (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({data: {key: 'value'}}),
+      {loading: false, error: undefined},
     ]);
 
     await act(async () => {
       render(
-        <SectionUpdatePage />
+        <SectionUpdatePage/>
       );
     });
 
-    const heading = screen.getByRole('heading', { level: 1 });
+    const heading = screen.getByRole('heading', {level: 1});
     expect(heading).toHaveTextContent('title');
-    const editQuestionTab = screen.getByRole('tab', { name: 'tabs.editSection' });
+    const editQuestionTab = screen.getByRole('tab', {name: 'tabs.editSection'});
     expect(editQuestionTab).toBeInTheDocument();
-    const editOptionsTab = screen.getByRole('tab', { name: 'tabs.options' });
+    const editOptionsTab = screen.getByRole('tab', {name: 'tabs.options'});
     expect(editOptionsTab).toBeInTheDocument();
-    const editLogicTab = screen.getByRole('tab', { name: 'tabs.logic' });
+    const editLogicTab = screen.getByRole('tab', {name: 'tabs.logic'});
     expect(editLogicTab).toBeInTheDocument();
-    const sectionNameEditor = screen.getByRole('textbox', { name: /sectionName/i });
+    const sectionNameEditor = screen.getByRole('textbox', {name: /sectionName/i});
     expect(sectionNameEditor).toBeInTheDocument();
-    const sectionIntroductionEditor = screen.getByRole('textbox', { name: /sectionIntroduction/i });
+    const sectionIntroductionEditor = screen.getByRole('textbox', {name: /sectionIntroduction/i});
     expect(sectionIntroductionEditor).toBeInTheDocument();
-    const sectionRequirementsEditor = screen.getByRole('textbox', { name: /sectionRequirements/i });
+    const sectionRequirementsEditor = screen.getByRole('textbox', {name: /sectionRequirements/i});
     expect(sectionRequirementsEditor).toBeInTheDocument();
-    const sectionGuidanceEditor = screen.getByRole('textbox', { name: /sectionGuidance/i });
+    const sectionGuidanceEditor = screen.getByRole('textbox', {name: /sectionGuidance/i});
     expect(sectionGuidanceEditor).toBeInTheDocument();
     const tagsHeader = screen.getByText('labels.bestPracticeTags');
     expect(tagsHeader).toBeInTheDocument();
@@ -181,18 +181,18 @@ describe("SectionUpdatePage", () => {
 
   it('should display error when no value is entered in section name field', async () => {
     (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({data: {key: 'value'}}),
+      {loading: false, error: undefined},
     ]);
 
 
     await act(async () => {
       render(
-        <SectionUpdatePage />
+        <SectionUpdatePage/>
       );
     });
 
-    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    const saveAndAdd = screen.getByRole('button', {name: /buttons.saveAndAdd/i});
     fireEvent.click(saveAndAdd);
 
     const errorMessage = screen.getByRole('alert');
@@ -202,40 +202,38 @@ describe("SectionUpdatePage", () => {
 
   it('should redirect to Edit Template page after submitting form', async () => {
     (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({data: {key: 'value'}}),
+      {loading: false, error: undefined},
     ]);
 
     await act(async () => {
-      render(
-        <SectionUpdatePage />
-      );
+      render(<SectionUpdatePage/>);
     });
 
     // Simulate adding content to the sectionName field
-    const sectionNameEditor = screen.getByRole('textbox', { name: /sectionName/i });
-    await waitFor(() => {
-      fireEvent.input(sectionNameEditor, { target: { textContent: 'Updated Section Name' } });
+    const sectionNameInput = screen.getByLabelText(/sectionName/i);
+    await act(async () => {
+      fireEvent.change(sectionNameInput, {target: {value: 'Updated Section Name'}});
     });
 
-    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    const saveAndAdd = screen.getByRole('button', {name: /buttons.saveAndAdd/i});
     fireEvent.click(saveAndAdd);
 
     await waitFor(() => {
-      // Should redirect to the Edit template page
       expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
     });
-  })
+  });
+
 
   it('should pass axe accessibility test', async () => {
     (useUpdateSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({data: {key: 'value'}}),
+      {loading: false, error: undefined},
     ]);
 
 
-    const { container } = render(
-      <SectionUpdatePage />
+    const {container} = render(
+      <SectionUpdatePage/>
     );
     await act(async () => {
       const results = await axe(container);

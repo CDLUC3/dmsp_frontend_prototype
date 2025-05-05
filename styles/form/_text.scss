@@ -60,6 +60,9 @@ textarea {
   resize: vertical;
   min-height: 100px;
 }
+.richtext-field-container{
+  max-width: 600px;
+}
 
 // Styles for select dropdowns
 select {

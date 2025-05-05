@@ -35,7 +35,7 @@ import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
-
+import FormInput from '@/components/Form/FormInput';
 import {
   SectionFormErrorsInterface,
   SectionFormInterface,
@@ -46,6 +46,7 @@ import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
+import { stripHtmlTags } from '@/utils/general';
 
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
@@ -167,12 +168,15 @@ const SectionUpdatePage: React.FC = () => {
 
   // Make GraphQL mutation request to update section
   const updateSection = async (): Promise<[SectionErrors, boolean]> => {
+    // string all tags from sectionName before sending to backend
+    const cleanedSectionName = stripHtmlTags(sectionData.sectionName);
+
     try {
       const response = await updateSectionMutation({
         variables: {
           input: {
             sectionId: Number(sectionId),
-            name: sectionData.sectionName,
+            name: cleanedSectionName,
             introduction: sectionData.sectionIntroduction,
             requirements: sectionData.sectionRequirements,
             guidance: sectionData.sectionGuidance,
@@ -297,6 +301,8 @@ const SectionUpdatePage: React.FC = () => {
 
               <ErrorMessages errors={errorMessages} ref={errorRef} />
 
+
+
               <Tabs>
                 <TabList aria-label="Question editing">
                   <Tab id="edit">{Section('tabs.editSection')}</Tab>
@@ -305,13 +311,20 @@ const SectionUpdatePage: React.FC = () => {
                 </TabList>
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
-                    <Label htmlFor="sectionName" id="sectionNameLabel">{Section('labels.sectionName')}</Label>
-                    <DmpEditor
-                      content={sectionData.sectionName}
-                      setContent={(value) => updateSectionContent('sectionName', value)}
-                      error={fieldErrors['sectionName']}
+
+                    <FormInput
+                      name="sectionName"
                       id="sectionName"
-                      labelId="sectionNameLabel"
+                      type="text"
+                      isRequired={false}
+                      aria-required={true}
+                      label={Section('labels.sectionName')}
+                      value={sectionData.sectionName ? sectionData.sectionName : ''}
+                      onChange={(e) => setSectionData({
+                        ...sectionData,
+                        sectionName: e.currentTarget.value
+                      })}
+                      errorMessage={fieldErrors['sectionName']}
                     />
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
@@ -323,6 +336,7 @@ const SectionUpdatePage: React.FC = () => {
                       labelId="sectionIntroductionLabel"
                       helpText={Section('helpText.sectionIntroduction')}
                     />
+
 
                     <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
                     <DmpEditor
