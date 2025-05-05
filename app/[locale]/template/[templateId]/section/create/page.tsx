@@ -37,6 +37,7 @@ import {DmpIcon} from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import {DmpEditor} from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
+import FormInput from '@/components/Form/FormInput';
 
 import {
   SectionFormErrorsInterface,
@@ -51,7 +52,7 @@ const CreateSectionPage: React.FC = () => {
 
   // Get templateId param
   const params = useParams();
-  const { templateId } = params; // From route /template/:templateId/section/create
+  const {templateId} = params; // From route /template/:templateId/section/create
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -98,10 +99,10 @@ const CreateSectionPage: React.FC = () => {
   const [addSectionMutation] = useAddSectionMutation();
 
   // Query for all tags
-  const { data: tagsData } = useTagsQuery();
+  const {data: tagsData} = useTagsQuery();
 
   // Query for all section displayOrder
-  const { data: sectionDisplayOrders } = useSectionsDisplayOrderQuery({
+  const {data: sectionDisplayOrders} = useSectionsDisplayOrderQuery({
     variables: {
       templateId: Number(templateId)
     }
@@ -236,7 +237,7 @@ const CreateSectionPage: React.FC = () => {
   // Show Success Message
   const showSuccessToast = () => {
     const successMessage = CreateSectionPage('messages.success');
-    toastState.add(successMessage, { type: 'success' });
+    toastState.add(successMessage, {type: 'success'});
   }
 
   // Handle form submit
@@ -274,7 +275,10 @@ const CreateSectionPage: React.FC = () => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
       /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
-      const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
+      const cleanedData = tagsData.tags.map(({
+                                               __typename,
+                                               ...fields
+                                             }) => fields);
       setTags(cleanedData);
     }
   }, [tagsData])
@@ -327,7 +331,7 @@ const CreateSectionPage: React.FC = () => {
           <div className="template-editor-container" ref={topRef}>
             <div className="main-content">
 
-              <ErrorMessages errors={errors} ref={errorRef} />
+              <ErrorMessages errors={errors} ref={errorRef}/>
 
               <Tabs>
                 <TabList aria-label="Question editing">
@@ -337,8 +341,6 @@ const CreateSectionPage: React.FC = () => {
                 </TabList>
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
-
-
 
 
                     <FormInput
@@ -352,7 +354,7 @@ const CreateSectionPage: React.FC = () => {
                       errorMessage={fieldErrors['sectionName']}
                     />
 
-                    <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
+                    <Label htmlFor="sectionIntroduction"  id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
                     <DmpEditor
                       content={sectionIntroductionContent}
                       setContent={setSectionIntroductionContent}
@@ -397,18 +399,23 @@ const CreateSectionPage: React.FC = () => {
                             >
                               <div className="checkbox">
                                 <svg viewBox="0 0 18 18" aria-hidden="true">
-                                  <polyline points="1 9 7 14 15 4" />
+                                  <polyline points="1 9 7 14 15 4"/>
                                 </svg>
                               </div>
-                              <span className="checkbox-label" data-testid='checkboxLabel'>
+                              <span className="checkbox-label"
+                                    data-testid='checkboxLabel'>
                                 <div className="checkbox-wrapper">
                                   <div>{tag.name}</div>
                                   <DialogTrigger>
-                                    <Button className="popover-btn" aria-label="Click for more info"><div className="icon"><DmpIcon icon="info" /></div></Button>
+                                    <Button className="popover-btn"
+                                            aria-label="Click for more info"><div
+                                      className="icon"><DmpIcon
+                                      icon="info"/></div></Button>
                                     <Popover>
                                       <OverlayArrow>
-                                        <svg width={12} height={12} viewBox="0 0 12 12">
-                                          <path d="M0 0 L6 6 L12 0" />
+                                        <svg width={12} height={12}
+                                             viewBox="0 0 12 12">
+                                          <path d="M0 0 L6 6 L12 0"/>
                                         </svg>
                                       </OverlayArrow>
                                       <Dialog>
@@ -425,7 +432,8 @@ const CreateSectionPage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button type="submit">{CreateSectionPage('button.createSection')}</Button>
+                    <Button
+                      type="submit">{CreateSectionPage('button.createSection')}</Button>
 
                   </Form>
                 </TabPanel>
@@ -439,7 +447,7 @@ const CreateSectionPage: React.FC = () => {
             </div>
           </div>
         </ContentContainer>
-      </LayoutContainer >
+      </LayoutContainer>
     </>
   );
 }
