@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams, useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -30,10 +30,10 @@ import {
 } from '@/generated/graphql';
 
 //Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {DmpIcon} from "@/components/Icons";
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import {DmpEditor} from "@/components/Editor";
+import { DmpEditor } from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
 import {
@@ -41,11 +41,12 @@ import {
   SectionFormInterface,
   TagsInterface
 } from '@/app/types';
-import {useSectionData} from "@/hooks/sectionData";
+import { useSectionData } from "@/hooks/sectionData";
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
-import {scrollToTop} from '@/utils/general';
-import {routePath} from '@/utils/routes';
+import { useToast } from '@/context/ToastContext';
+import { scrollToTop } from '@/utils/general';
+import { routePath } from '@/utils/routes';
+import { stripHtmlTags } from '@/utils/general';
 
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
@@ -167,12 +168,15 @@ const SectionUpdatePage: React.FC = () => {
 
   // Make GraphQL mutation request to update section
   const updateSection = async (): Promise<[SectionErrors, boolean]> => {
+    // string all tags from sectionName before sending to backend
+    const cleanedSectionName = stripHtmlTags(sectionData.sectionName);
+
     try {
       const response = await updateSectionMutation({
         variables: {
           input: {
             sectionId: Number(sectionId),
-            name: sectionData.sectionName,
+            name: cleanedSectionName,
             introduction: sectionData.sectionIntroduction,
             requirements: sectionData.sectionRequirements,
             guidance: sectionData.sectionGuidance,

@@ -1,9 +1,9 @@
 'use client'
 
-import {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams, useRouter, useSearchParams} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -39,9 +39,10 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
 
 //Other
-import {useToast} from '@/context/ToastContext';
-import {routePath} from '@/utils/routes';
-import {Question, QuestionOptions} from '@/app/types';
+import { useToast } from '@/context/ToastContext';
+import { routePath } from '@/utils/routes';
+import { stripHtmlTags } from '@/utils/general';
+import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
 
 
@@ -89,7 +90,7 @@ const QuestionEdit = () => {
   );
 
   // Query for getting all question types
-  const {data: questionTypes} = useQuestionTypesQuery({
+  const { data: questionTypes } = useQuestionTypesQuery({
     skip: !questionId
   });
 
@@ -113,7 +114,8 @@ const QuestionEdit = () => {
     e.preventDefault();
     if (question) {
       setFormSubmitted(true);
-
+      // string all tags from questionText before sending to backend
+      const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
       try {
         // Add mutation for question. If user has questionTypeId in query param because they just selected
         // a new question type, then use that as the questionTypeId rather than what is currently in the db
@@ -123,7 +125,7 @@ const QuestionEdit = () => {
               questionId: Number(questionId),
               questionTypeId: questionTypeIdQueryParam ? Number(questionTypeIdQueryParam) : selectedQuestion?.question?.questionTypeId,
               displayOrder: question.displayOrder,
-              questionText: question.questionText,
+              questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
               sampleText: question.sampleText,
@@ -157,9 +159,14 @@ const QuestionEdit = () => {
 
       // Set question and rows in state
       if (q && q.questionOptions) {
-        setQuestion(q);
+        const sanitizedQuestion = {
+          ...q,
+          questionText: stripHtmlTags(q.questionText ?? ''), // Sanitize questionText
+        };
+
+        setQuestion(sanitizedQuestion);
         const optionRows = q.questionOptions
-          .map(({id, orderNumber, text, isDefault, questionId}) => ({
+          .map(({ id, orderNumber, text, isDefault, questionId }) => ({
             id: id ?? 0, // Ensure id is always a number
             orderNumber,
             text,
@@ -218,7 +225,7 @@ const QuestionEdit = () => {
   return (
     <>
       <PageHeader
-        title={QuestionEdit('title', {title: selectedQuestion?.question?.questionText})}
+        title={QuestionEdit('title', { title: selectedQuestion?.question?.questionText })}
         description=""
         showBackButton={false}
         breadcrumbs={
@@ -233,13 +240,13 @@ const QuestionEdit = () => {
         className=""
       />
 
-      <ErrorMessages errors={errors} ref={errorRef}/>
+      <ErrorMessages errors={errors} ref={errorRef} />
 
       <div className="template-editor-container">
         <div className="main-content">
           {errors && errors.length > 0 &&
             <div className="messages error" role="alert" aria-live="assertive"
-                 ref={errorRef}>
+              ref={errorRef}>
               {errors.map((error, index) => (
                 <p key={index}>{error}</p>
               ))}
@@ -265,17 +272,15 @@ const QuestionEdit = () => {
                   <Input
                     value={questionType}
                     className={`${styles.searchInput} react-aria-Input`}
-                    disabled/>
+                    disabled />
                   <Button className={`${styles.searchButton} react-aria-Button`}
-                          type="button"
-                          onPress={redirectToQuestionTypes}>{QuestionEdit('buttons.changeType')}</Button>
+                    type="button"
+                    onPress={redirectToQuestionTypes}>{QuestionEdit('buttons.changeType')}</Button>
                   <Text slot="description"
-                        className={`${styles.searchHelpText} help-text`}>
+                    className={`${styles.searchHelpText} help-text`}>
                     {QuestionEdit('helpText.textField')}
                   </Text>
                 </TextField>
-
-
 
                 <FormInput
                   name="question_text"
@@ -296,11 +301,11 @@ const QuestionEdit = () => {
                 {hasOptions && (
                   <div className={styles.optionsWrapper}>
                     <p
-                      className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', {questionType})}</p>
+                      className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
                     <QuestionOptionsComponent rows={rows} setRows={setRows}
-                                              questionId={Number(questionId)}
-                                              formSubmitted={formSubmitted}
-                                              setFormSubmitted={setFormSubmitted}/>
+                      questionId={Number(questionId)}
+                      formSubmitted={formSubmitted}
+                      setFormSubmitted={setFormSubmitted} />
                   </div>
                 )}
 
@@ -333,18 +338,18 @@ const QuestionEdit = () => {
                 />
 
                 {!hasOptions && (
-                <FormTextArea
-                  name="sample_text"
-                  isRequired={false}
-                  description={QuestionEdit('descriptions.sampleText')}
-                  textAreaClasses={styles.questionFormField}
-                  label={QuestionEdit('labels.sampleText')}
-                  value={question?.sampleText ? question?.sampleText : ''}
-                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
-                    ...prev,
-                    sampleText: newValue
-                  }))}
-                />
+                  <FormTextArea
+                    name="sample_text"
+                    isRequired={false}
+                    description={QuestionEdit('descriptions.sampleText')}
+                    textAreaClasses={styles.questionFormField}
+                    label={QuestionEdit('labels.sampleText')}
+                    value={question?.sampleText ? question?.sampleText : ''}
+                    onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                      ...prev,
+                      sampleText: newValue
+                    }))}
+                  />
                 )}
 
                 {!hasOptions && (
@@ -357,7 +362,7 @@ const QuestionEdit = () => {
                   >
                     <div className="checkbox">
                       <svg viewBox="0 0 18 18" aria-hidden="true">
-                        <polyline points="1 9 7 14 15 4"/>
+                        <polyline points="1 9 7 14 15 4" />
                       </svg>
                     </div>
                     {QuestionEdit('descriptions.sampleTextAsDefault')}

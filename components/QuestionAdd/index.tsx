@@ -1,9 +1,9 @@
 'use client'
 
-import {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useParams, useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -38,8 +38,9 @@ import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 
 //Other
-import {useToast} from '@/context/ToastContext';
-import {Question, QuestionOptions} from '@/app/types';
+import { useToast } from '@/context/ToastContext';
+import { stripHtmlTags } from '@/utils/general';
+import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
 
 const QuestionAdd = ({
@@ -126,14 +127,15 @@ const QuestionAdd = ({
     const displayOrder = getDisplayOrder();
     const isOptionQuestion = questionTypeId && [3, 4, 5].includes(questionTypeId) && validateOptions();
     const transformedQuestionOptions = isOptionQuestion ? transformOptions() : undefined;
-
+    // string all tags from questionText before sending to backend
+    const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
     const input = {
       templateId: Number(templateId),
       sectionId: Number(sectionId),
       displayOrder,
       isDirty: true,
       questionTypeId,
-      questionText: question?.questionText,
+      questionText: cleanedQuestionText,
       requirementText: question?.requirementText,
       guidanceText: question?.guidanceText,
       sampleText: question?.sampleText,
@@ -149,7 +151,7 @@ const QuestionAdd = ({
         toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
         //redirect user to the Edit Question view with their new question id after successfully adding the new question
         const newQuestionId = response.data.addQuestion.id;
-        router.push(`/template/${templateId}/q/${newQuestionId}`)
+        router.push(`/template/${templateId}`)
       }
     } catch (error) {
       if (!(error instanceof ApolloError)) {

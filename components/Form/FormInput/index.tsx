@@ -1,4 +1,3 @@
-import {stripHtml} from '@/utils/general';
 import React from 'react';
 import {
   FieldError,
@@ -7,7 +6,6 @@ import {
   Text,
   TextField,
 } from "react-aria-components";
-
 
 interface InputProps {
   name: string;
@@ -31,47 +29,26 @@ interface InputProps {
 }
 
 const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
-                     name,
-                     id,
-                     type,
-                     label,
-                     placeholder,
-                     description,
-                     ariaDescribedBy,
-                     ariaLabel,
-                     value,
-                     onChange,
-                     className = '',
-                     labelClasses = '',
-                     inputClasses = '',
-                     disabled = false,
-                     isRequired = false,
-                     isInvalid = false,
-                     errorMessage = '',
-                     helpMessage = '',
-                     ...rest
-                   }) => {
-
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      const strippedValue = stripHtml(e.target.value);
-
-      const syntheticEvent = {
-        ...e,
-        target: { ...e.target, value: strippedValue },
-        currentTarget: { ...e.currentTarget, value: strippedValue }
-      } as React.ChangeEvent<HTMLInputElement>;
-
-      onChange(syntheticEvent);
-    }
-  };
-
-
-  // Process display value only when needed
-  const displayValue = value !== undefined && value !== null
-    ? stripHtml(String(value))
-    : '';
+  name,
+  id,
+  type,
+  label,
+  placeholder,
+  description,
+  ariaDescribedBy,
+  ariaLabel,
+  value,
+  onChange,
+  className = '',
+  labelClasses = '',
+  inputClasses = '',
+  disabled = false,
+  isRequired = false,
+  isInvalid = false,
+  errorMessage = '',
+  helpMessage = '',
+  ...rest
+}) => {
 
   return (
     <>
@@ -93,23 +70,22 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
           type={type}
           className={inputClasses}
           placeholder={placeholder}
-          onChange={handleChange}
-          value={displayValue}
+          onChange={onChange}
+          value={value}
           disabled={disabled}
           aria-describedby={ariaDescribedBy}
           aria-label={ariaLabel}
           {...rest}
         />
 
-        {isInvalid &&
-          <FieldError className='error-message'>{errorMessage}</FieldError>}
+        {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
 
         {helpMessage && (
           <Text slot="description" className='help-text'>
             {helpMessage}
           </Text>
         )}
-        <FieldError/>
+        <FieldError />
       </TextField>
     </>
   );

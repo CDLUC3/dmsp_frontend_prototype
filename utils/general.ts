@@ -33,3 +33,13 @@ export const stripHtml = (htmlString: string | null | undefined): string => {
   }
 };
 
+/**
+ * Removes all content enclosed in "<" and ">" brackets, including the brackets themselves.
+ * @param input - The string to sanitize.
+ * @returns The sanitized string.
+ */
+export const stripHtmlTags = (input: string): string => {
+  return input.replace(/<[^>]*>/g, '');
+};
+
+
