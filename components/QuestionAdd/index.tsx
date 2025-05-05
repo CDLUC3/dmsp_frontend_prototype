@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import {useEffect, useRef, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useParams, useRouter} from 'next/navigation';
+import {useTranslations} from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -38,8 +38,8 @@ import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 
 //Other
-import { useToast } from '@/context/ToastContext';
-import { Question, QuestionOptions } from '@/app/types';
+import {useToast} from '@/context/ToastContext';
+import {Question, QuestionOptions} from '@/app/types';
 import styles from './questionAdd.module.scss';
 
 const QuestionAdd = ({
@@ -238,6 +238,9 @@ const QuestionAdd = ({
                   </div>
                 )}
 
+
+
+
                 <FormInput
                   name="question_text"
                   type="text"
@@ -253,17 +256,21 @@ const QuestionAdd = ({
                   errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
                 />
 
+
+
+
                 <FormTextArea
                   name="question_requirements"
                   isRequired={false}
+                  richText={true}
                   description={QuestionAdd('helpText.requirementText')}
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    requirementText: e.currentTarget.value
-                  })}
+                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                    ...prev,
+                    requirementText: newValue
+                  }))}
                   helpMessage={QuestionAdd('helpText.requirementText')}
                 />
 
@@ -273,10 +280,10 @@ const QuestionAdd = ({
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.guidanceText')}
                   value={question?.guidanceText ? question?.guidanceText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    guidanceText: e.currentTarget.value
-                  })}
+                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                    ...prev,
+                    guidanceText: newValue
+                  }))}
                 />
 
                 <FormTextArea
@@ -286,10 +293,11 @@ const QuestionAdd = ({
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.sampleText')}
                   value={question?.sampleText ? question.sampleText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    sampleText: e.currentTarget.value
-                  })}
+
+                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                    ...prev,
+                    sampleText: newValue
+                  }))}
                   helpMessage={QuestionAdd('helpText.sampleText')}
                 />
 
