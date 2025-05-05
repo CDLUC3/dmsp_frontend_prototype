@@ -66,6 +66,7 @@ const QuestionAdd = ({
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [hasOptions, setHasOptions] = useState<boolean | null>(false);
 
   // localization keys
   const Global = useTranslations('Global');
@@ -186,6 +187,12 @@ const QuestionAdd = ({
     }
   }, [questionTypeId]);
 
+  useEffect(() => {
+    // To determine if the question type selected is one that includes options fields
+    const isOptionQuestion = Boolean(questionTypeId && [3, 4, 5].includes(questionTypeId)); // Ensure the result is a boolean
+    setHasOptions(isOptionQuestion);
+  }, [questionTypeId])
+
   return (
     <>
       <PageHeader
@@ -231,18 +238,6 @@ const QuestionAdd = ({
                   </Text>
                 </TextField>
 
-                {/**Question type fields here */}
-                <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionTypeName })}</p>
-
-                {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
-                  <div className={styles.optionsWrapper}>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
-                  </div>
-                )}
-
-
-
-
                 <FormInput
                   name="question_text"
                   type="text"
@@ -259,7 +254,14 @@ const QuestionAdd = ({
                 />
 
 
-
+                {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
+                  <>
+                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionTypeName })}</p>
+                    <div className={styles.optionsWrapper}>
+                      <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
+                    </div>
+                  </>
+                )}
 
                 <FormTextArea
                   name="question_requirements"
@@ -288,20 +290,23 @@ const QuestionAdd = ({
                   }))}
                 />
 
-                <FormTextArea
-                  name="sample_text"
-                  isRequired={false}
-                  description={QuestionAdd('descriptions.sampleText')}
-                  textAreaClasses={styles.questionFormField}
-                  label={QuestionAdd('labels.sampleText')}
-                  value={question?.sampleText ? question.sampleText : ''}
+                {!hasOptions && (
+                  <FormTextArea
+                    name="sample_text"
+                    isRequired={false}
+                    description={QuestionAdd('descriptions.sampleText')}
+                    textAreaClasses={styles.questionFormField}
+                    label={QuestionAdd('labels.sampleText')}
+                    value={question?.sampleText ? question.sampleText : ''}
 
-                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
-                    ...prev,
-                    sampleText: newValue
-                  }))}
-                  helpMessage={QuestionAdd('helpText.sampleText')}
-                />
+                    onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                      ...prev,
+                      sampleText: newValue
+                    }))}
+                    helpMessage={QuestionAdd('helpText.sampleText')}
+                  />
+                )}
+
 
                 {questionTypeId && [1, 2].includes(questionTypeId) && (
                   <Checkbox
