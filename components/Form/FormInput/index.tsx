@@ -53,30 +53,25 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
                    }) => {
 
 
-  const handleInternalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.currentTarget.value;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onChange) {
+      const strippedValue = stripHtml(e.target.value);
 
-    const strippedValue = stripHtml(rawValue);
+      const syntheticEvent = {
+        ...e,
+        target: { ...e.target, value: strippedValue },
+        currentTarget: { ...e.currentTarget, value: strippedValue }
+      } as React.ChangeEvent<HTMLInputElement>;
 
-    const modifiedEvent = {
-      ...e,
-      currentTarget: {
-        ...e.currentTarget,
-        value: strippedValue,
-      },
-      target: {
-        ...e.target,
-        value: strippedValue,
-      }
-    };
-
-    // Call the parent's original onChange handler with the modified event object
-    onChange?.(modifiedEvent as React.ChangeEvent<HTMLInputElement>);
+      onChange(syntheticEvent);
+    }
   };
 
 
-  const displayValue = stripHtml(value !== undefined && value !== null ? String(value) : value);
-
+  // Process display value only when needed
+  const displayValue = value !== undefined && value !== null
+    ? stripHtml(String(value))
+    : '';
 
   return (
     <>
@@ -98,7 +93,7 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
           type={type}
           className={inputClasses}
           placeholder={placeholder}
-          onChange={handleInternalChange}
+          onChange={handleChange}
           value={displayValue}
           disabled={disabled}
           aria-describedby={ariaDescribedBy}

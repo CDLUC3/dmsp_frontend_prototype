@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useCallback} from 'react'; // Import useCallback
+import React from 'react'; // Import useCallback
 import {
   FieldError,
   Label,
@@ -60,15 +60,15 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
 
   // Internal handler for the standard TextArea
   // It extracts the value from the event and calls the unified onChange
-  const handleTextAreaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange?.(e.currentTarget.value); // Call the parent's onChange with the string value
-  }, [onChange]); // Depend on the onChange prop from the parent
+  };
 
   // The handler for the DmpEditor's setContent prop
   // It directly calls the unified onChange with the new content string
-  const handleEditorContentChange = useCallback((newContent: string) => {
+  const handleEditorContentChange = (newContent: string) => {
     onChange?.(newContent); // Call the parent's onChange with the string value
-  }, [onChange]); // Depend on the onChange prop from the parent
+  };
 
 
   return (
