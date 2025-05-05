@@ -302,8 +302,6 @@ const TemplateEditPage: React.FC = () => {
         newTitle={newTitle}
       />
 
-
-
       {pageErrors.length > 0 && (
         <div className="error" role="alert" aria-live="assertive" ref={pageErrorRef}>
           {pageErrors.map((error, index) => (
