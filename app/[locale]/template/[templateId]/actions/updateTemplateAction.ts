@@ -9,18 +9,16 @@ export async function updateTemplateAction({
   templateId,
   name,
   visibility,
-  bestPractice
 }: {
   templateId: number;
   name: string;
-  bestPractice: boolean;
   visibility: TemplateVisibility;
 }): Promise<ActionResponse> {
   try {
     // Execute the mutation using the shared handler
     return executeGraphQLMutation({
       document: UpdateTemplateDocument,
-      variables: { templateId, name, visibility, bestPractice },
+      variables: { templateId, name, visibility },
       dataPath: "updateTemplate"
     });
 

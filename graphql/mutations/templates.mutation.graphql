@@ -34,10 +34,9 @@ mutation AddTemplate($name: String!, $copyFromTemplateId: Int) {
   }
 }
 
-mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: TemplateVisibility!, $bestPractice: Boolean!) {
-  updateTemplate(templateId: $templateId, name: $name, visibility: $visibility, bestPractice: $bestPractice) {
+mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: TemplateVisibility!) {
+  updateTemplate(templateId: $templateId, name: $name, visibility: $visibility) {
     id
-    bestPractice
     name
     visibility
   }

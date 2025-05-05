@@ -1293,7 +1293,7 @@ export type MutationUpdateTagArgs = {
 
 
 export type MutationUpdateTemplateArgs = {
-  bestPractice: Scalars['Boolean']['input'];
+  bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
   visibility: TemplateVisibility;
@@ -3684,11 +3684,10 @@ export type UpdateTemplateMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
   name: Scalars['String']['input'];
   visibility: TemplateVisibility;
-  bestPractice: Scalars['Boolean']['input'];
 }>;
 
 
-export type UpdateTemplateMutation = { __typename?: 'Mutation', updateTemplate?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, name: string, visibility: TemplateVisibility } | null };
+export type UpdateTemplateMutation = { __typename?: 'Mutation', updateTemplate?: { __typename?: 'Template', id?: number | null, name: string, visibility: TemplateVisibility } | null };
 
 export type UpdateUserProfileMutationVariables = Exact<{
   input: UpdateUserProfileInput;
@@ -4797,15 +4796,9 @@ export type AddTemplateMutationHookResult = ReturnType<typeof useAddTemplateMuta
 export type AddTemplateMutationResult = Apollo.MutationResult<AddTemplateMutation>;
 export type AddTemplateMutationOptions = Apollo.BaseMutationOptions<AddTemplateMutation, AddTemplateMutationVariables>;
 export const UpdateTemplateDocument = gql`
-    mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: TemplateVisibility!, $bestPractice: Boolean!) {
-  updateTemplate(
-    templateId: $templateId
-    name: $name
-    visibility: $visibility
-    bestPractice: $bestPractice
-  ) {
+    mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: TemplateVisibility!) {
+  updateTemplate(templateId: $templateId, name: $name, visibility: $visibility) {
     id
-    bestPractice
     name
     visibility
   }
@@ -4829,7 +4822,6 @@ export type UpdateTemplateMutationFn = Apollo.MutationFunction<UpdateTemplateMut
  *      templateId: // value for 'templateId'
  *      name: // value for 'name'
  *      visibility: // value for 'visibility'
- *      bestPractice: // value for 'bestPractice'
  *   },
  * });
  */

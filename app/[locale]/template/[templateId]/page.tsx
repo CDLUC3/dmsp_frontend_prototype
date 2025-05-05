@@ -49,7 +49,6 @@ interface TemplateInfoInterface {
   templateId: number | null;
   name: string;
   visibility: TemplateVisibility;
-  bestPracice: boolean;
 }
 const TemplateEditPage: React.FC = () => {
   const [isPublishModalOpen, setPublishModalOpen] = useState(false);
@@ -60,7 +59,6 @@ const TemplateEditPage: React.FC = () => {
     templateId: null,
     name: '',
     visibility: TemplateVisibility.Private,
-    bestPracice: false
   });
   const [newTitle, setNewTitle] = useState('');
   const formatDate = useFormatDate();
@@ -192,7 +190,6 @@ const TemplateEditPage: React.FC = () => {
         templateId: templateInfo.templateId,
         name: newTitle,
         visibility: templateInfo.visibility,
-        bestPractice: templateInfo.bestPracice,
       });
 
       if (response.redirect) {
@@ -264,7 +261,6 @@ const TemplateEditPage: React.FC = () => {
         templateId: Number(data.template.id),
         name: data.template.name || '',
         visibility: data.template.visibility || null,
-        bestPracice: data.template.bestPractice || false,
       });
     }
   }, [data]);
