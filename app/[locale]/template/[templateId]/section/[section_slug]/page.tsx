@@ -35,7 +35,7 @@ import {DmpIcon} from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import {DmpEditor} from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
-
+import FormInput from '@/components/Form/FormInput';
 import {
   SectionFormErrorsInterface,
   SectionFormInterface,
@@ -297,6 +297,8 @@ const SectionUpdatePage: React.FC = () => {
 
               <ErrorMessages errors={errorMessages} ref={errorRef} />
 
+
+
               <Tabs>
                 <TabList aria-label="Question editing">
                   <Tab id="edit">{Section('tabs.editSection')}</Tab>
@@ -329,6 +331,7 @@ const SectionUpdatePage: React.FC = () => {
                       labelId="sectionIntroductionLabel"
                       helpText={Section('helpText.sectionIntroduction')}
                     />
+
 
                     <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
                     <DmpEditor
