@@ -150,7 +150,6 @@ const CreateSectionPage: React.FC = () => {
     Object.keys(formData).forEach((key) => {
       const name = key as keyof SectionFormErrorsInterface;
       const value = formData[name];
-
       // Call validateField to update errors for each field
       const error = validateField(name, value);
       if (error) {
@@ -347,7 +346,7 @@ const CreateSectionPage: React.FC = () => {
                       name="sectionName"
                       id="sectionName"
                       type="text"
-                      isRequired={true}
+                      aria-required={true}
                       label={Section('labels.sectionName')}
                       value={formData.sectionName}
                       onChange={(e) => setSectionNameContent(e.currentTarget.value)} // Use specific setter
