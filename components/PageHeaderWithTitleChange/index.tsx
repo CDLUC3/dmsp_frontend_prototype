@@ -75,7 +75,7 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
       <div className="pageheader-container">
         {/* Title and description section */}
         <div>
-          <Form onSubmit={handleFormSubmit}>
+          <Form onSubmit={handleFormSubmit} className="pageheader-title-form">
             {isEditing ? (
               <FormInput
                 name={title}

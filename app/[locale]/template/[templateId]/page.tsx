@@ -312,8 +312,6 @@ const TemplateEditPage: React.FC = () => {
         </div>
       )}
 
-      <h2>{EditTemplate('title')}</h2>
-
       <div className="template-editor-container">
         <div className="main-content">
           {sortedSections.length > 0 && (
