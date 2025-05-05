@@ -207,25 +207,20 @@ describe("SectionUpdatePage", () => {
     ]);
 
     await act(async () => {
-      render(
-        <SectionUpdatePage />
-      );
+      render(<SectionUpdatePage />);
     });
 
-    // Simulate adding content to the sectionName field
+    // Simulate typing in the new text input field
     const sectionNameEditor = screen.getByRole('textbox', { name: /sectionName/i });
-    await waitFor(() => {
-      fireEvent.input(sectionNameEditor, { target: { textContent: 'Updated Section Name' } });
-    });
+    fireEvent.change(sectionNameEditor, { target: { value: 'Updated Section Name' } });
 
     const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
     fireEvent.click(saveAndAdd);
 
     await waitFor(() => {
-      // Should redirect to the Edit template page
       expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
     });
-  })
+  });
 
   it('should pass axe accessibility test', async () => {
     (useUpdateSectionMutation as jest.Mock).mockReturnValue([
