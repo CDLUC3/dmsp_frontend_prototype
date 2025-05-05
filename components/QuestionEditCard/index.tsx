@@ -13,11 +13,11 @@ interface QuestionEditCardProps {
 }
 
 const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
-                                                             id,
-                                                             text,
-                                                             link,
-                                                             name
-                                                           }) => {
+ id,
+ text,
+ link,
+ name
+}) => {
 
   const questionText = stripHtml(text);
   const EditQuestion = useTranslations('EditQuestion');
