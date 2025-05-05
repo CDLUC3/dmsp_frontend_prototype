@@ -312,7 +312,8 @@ const SectionUpdatePage: React.FC = () => {
                       name="sectionName"
                       id="sectionName"
                       type="text"
-                      isRequired={true}
+                      isRequired={false}
+                      aria-required={true}
                       label={Section('labels.sectionName')}
                       value={sectionData.sectionName ? sectionData.sectionName : ''}
                       onChange={(e) => setSectionData({
