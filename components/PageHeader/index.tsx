@@ -33,10 +33,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   const plainTitle = stripHtml(title);
 
   useEffect(() => {
-
     document.title = `${plainTitle} | DMPTool`;
     window.scrollTo(0, 0);
-  });
+  }, [plainTitle]);
 
   return (
     <div className={`template-editor-header ${className}`.trim()}>
