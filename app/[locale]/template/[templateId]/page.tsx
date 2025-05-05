@@ -38,7 +38,6 @@ import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from '@/components/ErrorMessages';
-import { FormInput } from '@/components/Form';
 
 import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
@@ -63,7 +62,6 @@ const TemplateEditPage: React.FC = () => {
     visibility: TemplateVisibility.Private,
     bestPracice: false
   });
-  const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const formatDate = useFormatDate();
 
@@ -224,7 +222,6 @@ const TemplateEditPage: React.FC = () => {
   const handleTitleChange = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    setIsEditing(false);
     const result = await updateTemplate(templateInfo);
 
     if (!result.success) {

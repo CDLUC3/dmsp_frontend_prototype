@@ -1,25 +1,27 @@
 import React from "react";
-import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
-  useTemplateQuery
+  useTemplateQuery,
 } from '@/generated/graphql';
 
-import {useParams} from 'next/navigation';
+import { useParams } from 'next/navigation';
 import TemplateEditPage from '../page';
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
   useTemplateQuery: jest.fn(),
   useArchiveTemplateMutation: jest.fn(),
   useCreateTemplateVersionMutation: jest.fn(),
-  TemplateVersionType: { Draft: 'DRAFT', Published: 'PUBLISHED' }
+  TemplateVersionType: { Draft: 'DRAFT', Published: 'PUBLISHED' },
+  TemplateVisibility: { Private: 'PRIVATE', Public: 'PUBLIC' },
 }));
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
+  useRouter: jest.fn()
 }))
 
 // Mock useFormatter and useTranslations from next-intl

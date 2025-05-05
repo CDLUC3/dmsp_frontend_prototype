@@ -46,23 +46,17 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const Global = useTranslations('Global');
 
-  // const handleTitleChange = async (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   console.log('Title changed');
-  // };
 
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setNewTitle(e.target.value)
-  // };
+  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsEditing(false);
+    handleTitleChange?.(event);
+  }
 
   useEffect(() => {
     document.title = `${title} | DMPTool`;
     window.scrollTo(0, 0);
   }, [title]);
-
-  useEffect(() => {
-    console.log("New Title:", newTitle);
-  }, [newTitle]);
 
   return (
     <div className={`template-editor-header ${className}`.trim()}>
@@ -81,7 +75,7 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
       <div className="pageheader-container">
         {/* Title and description section */}
         <div>
-          <Form onSubmit={handleTitleChange}>
+          <Form onSubmit={handleFormSubmit}>
             {isEditing ? (
               <FormInput
                 name={title}
