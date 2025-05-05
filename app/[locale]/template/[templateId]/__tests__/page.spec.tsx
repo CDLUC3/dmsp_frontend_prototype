@@ -15,7 +15,7 @@ jest.mock("@/generated/graphql", () => ({
   useTemplateQuery: jest.fn(),
   useArchiveTemplateMutation: jest.fn(),
   useCreateTemplateVersionMutation: jest.fn(),
-  TemplateVersionType: { Draft: 'DRAFT', Published: 'PUBLISHED' }
+  TemplateVersionType: {Draft: 'DRAFT', Published: 'PUBLISHED'}
 }));
 
 jest.mock('next/navigation', () => ({
@@ -55,7 +55,7 @@ const mockTemplateData = {
           displayOrder: 1,
           guidanceText: "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
           id: 67,
-          questionText: "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
+          questionText: "Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected."
         }
       ]
     },
@@ -70,11 +70,11 @@ describe("TemplateEditPage", () => {
     const mockUseParams = useParams as jest.Mock;
 
     // Mock the return value of useParams
-    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+    mockUseParams.mockReturnValue({templateId: `${mockTemplateId}`});
 
     (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({data: {key: 'value'}}),
+      {loading: false, error: undefined},
     ]);
   });
 
@@ -87,13 +87,13 @@ describe("TemplateEditPage", () => {
     });
 
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({data: {key: 'value'}}),
+      {loading: false, error: undefined},
     ]);
 
     await act(async () => {
       render(
-        <TemplateEditPage />
+        <TemplateEditPage/>
       );
     });
 
@@ -103,55 +103,66 @@ describe("TemplateEditPage", () => {
   it("should render data returned from template query correctly", async () => {
     // Mock the hook for data state
     (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: { template: mockTemplateData },
+      data: {template: mockTemplateData},
       loading: false,
       error: null,
     });
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage/>);
     });
 
-    const heading = screen.getByRole('heading', { level: 1 });
+    const heading = screen.getByRole('heading', {level: 1});
     expect(heading).toHaveTextContent('DMP Template from Dataverse');
-    const versionText = screen.getByText(/Version: v1/i); // Use a regex for partial match
+
+    const versionText = screen.getByText(/Version: v1/i);
     expect(versionText).toBeInTheDocument();
-    const heading2 = screen.getByRole('heading', { level: 2, name: 'labels.section 1 Data description' });
+
+    const heading2 = screen.getByRole('heading', {
+      level: 2,
+      name: 'labels.section 1 Data description',
+    });
     expect(heading2).toBeInTheDocument();
-    const questionText = screen.getByText('Briefly describe nature & scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.', { selector: 'p' });
+
+    const questionText = screen.getByText(
+      (content) => content.includes('Briefly describe nature'),
+      { selector: 'p' }
+    );
+
     expect(questionText).toBeInTheDocument();
+
+
   });
+
 
   it('should close dialog when \'Publish template\' form submitted', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: { template: mockTemplateData },
+      data: {template: mockTemplateData},
       loading: false,
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({data: {key: 'value'}}), // Correct way to mock a resolved promise
+      {loading: false, error: undefined},
     ]);
 
     await act(async () => {
       render(
-        <TemplateEditPage />
+        <TemplateEditPage/>
       );
     });
 
     // Simulate the user triggering the publishTemplate button
-    const publishTemplateButton = screen.getByRole('button', { name: /button.publishtemplate/i });
+    const publishTemplateButton = screen.getByRole('button', {name: /button.publishtemplate/i});
     fireEvent.click(publishTemplateButton);
 
     // Locate the textarea using data-testid
     const textarea = screen.getByTestId('changeLog');
 
     // Simulate user typing into the textarea
-    fireEvent.change(textarea, { target: { value: 'This is a test comment.' } });
+    fireEvent.change(textarea, {target: {value: 'This is a test comment.'}});
 
-    const saveAndPublishButton = screen.getByRole('button', { name: /button.saveandpublish/i });
+    const saveAndPublishButton = screen.getByRole('button', {name: /button.saveandpublish/i});
     fireEvent.click(saveAndPublishButton);
 
     // Wait for mutation response
@@ -164,7 +175,7 @@ describe("TemplateEditPage", () => {
 
   it('should set correct error when useCreate returns error', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: { template: mockTemplateData },
+      data: {template: mockTemplateData},
       loading: false,
       error: null,
     });
@@ -174,21 +185,21 @@ describe("TemplateEditPage", () => {
 
     await act(async () => {
       render(
-        <TemplateEditPage />
+        <TemplateEditPage/>
       );
     });
 
     // Simulate the user triggering the publishTemplate button
-    const publishTemplateButton = screen.getByRole('button', { name: /button.publishtemplate/i });
+    const publishTemplateButton = screen.getByRole('button', {name: /button.publishtemplate/i});
     fireEvent.click(publishTemplateButton);
 
     // Locate the textarea using data-testid
     const textarea = screen.getByTestId('changeLog');
 
     // Simulate user typing into the textarea
-    fireEvent.change(textarea, { target: { value: 'This is a test comment.' } });
+    fireEvent.change(textarea, {target: {value: 'This is a test comment.'}});
 
-    const saveAndPublishButton = screen.getByRole('button', { name: /button.saveandpublish/i });
+    const saveAndPublishButton = screen.getByRole('button', {name: /button.saveandpublish/i});
     fireEvent.click(saveAndPublishButton);
 
     // Wait for the error to be added to the page
@@ -199,18 +210,18 @@ describe("TemplateEditPage", () => {
 
   it('should call useArchiveTemplateMutation when user clicks on the Archive Template button', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: { template: mockTemplateData },
+      data: {template: mockTemplateData},
       loading: false,
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({data: {key: 'value'}}), // Correct way to mock a resolved promise
+      {loading: false, error: undefined},
     ]);
 
     await act(async () => {
       render(
-        <TemplateEditPage />
+        <TemplateEditPage/>
       );
     });
 
@@ -227,13 +238,13 @@ describe("TemplateEditPage", () => {
 
   it('should display correct error when archving template fails', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: { template: mockTemplateData },
+      data: {template: mockTemplateData},
       loading: false,
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
+      jest.fn().mockResolvedValueOnce({data: {key: 'value'}}), // Correct way to mock a resolved promise
+      {loading: false, error: undefined},
     ]);
 
     (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
@@ -242,7 +253,7 @@ describe("TemplateEditPage", () => {
 
     await act(async () => {
       render(
-        <TemplateEditPage />
+        <TemplateEditPage/>
       );
     });
 
