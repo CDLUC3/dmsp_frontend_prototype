@@ -25,7 +25,7 @@ describe('PageHeaderWithTitleChange', () => {
     newTitle: 'New Test Title',
   };
 
-  it('renders the component with default props', () => {
+  it('should render the component with default props', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
 
     // Check if the title is rendered
@@ -41,7 +41,7 @@ describe('PageHeaderWithTitleChange', () => {
     expect(screen.getByText('Mock Action')).toBeInTheDocument();
   });
 
-  it('allows editing the title', () => {
+  it('should allow editing of the title', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
 
     // Click the "Edit template name" button
@@ -56,7 +56,7 @@ describe('PageHeaderWithTitleChange', () => {
     expect(mockHandleInputChange).toHaveBeenCalled();
   });
 
-  it('calls handleTitleChange on form submission', () => {
+  it('should call handleTitleChange on form submission', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
 
     // Click the "Edit template name" button
@@ -70,7 +70,7 @@ describe('PageHeaderWithTitleChange', () => {
     expect(mockHandleTitleChange).toHaveBeenCalled();
   });
 
-  it('cancels editing when the cancel button is clicked', () => {
+  it('should cancel editing when the cancel button is clicked', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
 
     // Click the "Edit template name" button
@@ -84,7 +84,7 @@ describe('PageHeaderWithTitleChange', () => {
     expect(screen.queryByPlaceholderText('Enter new template title')).not.toBeInTheDocument();
   });
 
-  it('renders without crashing', () => {
+  it('should render without crashing', () => {
     render(<PageHeaderWithTitleChange title="Test Title" />);
   });
 
