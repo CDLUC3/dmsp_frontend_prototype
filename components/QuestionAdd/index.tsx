@@ -281,6 +281,7 @@ const QuestionAdd = ({
                 <FormTextArea
                   name="question_guidance"
                   isRequired={false}
+                  richText={true}
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.guidanceText')}
                   value={question?.guidanceText ? question?.guidanceText : ''}
@@ -294,6 +295,7 @@ const QuestionAdd = ({
                   <FormTextArea
                     name="sample_text"
                     isRequired={false}
+                    richText={true}
                     description={QuestionAdd('descriptions.sampleText')}
                     textAreaClasses={styles.questionFormField}
                     label={QuestionAdd('labels.sampleText')}
