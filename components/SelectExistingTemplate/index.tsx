@@ -1,8 +1,8 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -17,8 +17,8 @@ import {
 
 //Components
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {filterTemplates} from '@/utils/filterTemplates';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { filterTemplates } from '@/utils/filterTemplates';
 import TemplateList from '@/components/TemplateList';
 import ErrorMessages from '@/components/ErrorMessages';
 
@@ -30,12 +30,12 @@ import {
 } from '@/generated/graphql';
 
 // Hooks
-import {useScrollToTop} from '@/hooks/scrollToTop';
+import { useScrollToTop } from '@/hooks/scrollToTop';
 // Other
 import logECS from '@/utils/clientLogger';
-import {MyVersionedTemplatesInterface, TemplateItemProps} from '@/app/types';
-import {useFormatDate} from '@/hooks/useFormatDate';
-import {useToast} from '@/context/ToastContext';
+import { MyVersionedTemplatesInterface, TemplateItemProps } from '@/app/types';
+import { useFormatDate } from '@/hooks/useFormatDate';
+import { useToast } from '@/context/ToastContext';
 
 
 // Step 2 of the Create Template start pages

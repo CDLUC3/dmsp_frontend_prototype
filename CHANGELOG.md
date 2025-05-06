@@ -71,6 +71,13 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+- Fixed bugs related to the template builder flow
+  - Fixed Preview page to not display HTML at top for Requirements [#449]
+  - Added redirect back to Edit Template page when user creates a new Section [#452]
+  - On `/template` page, fixed the `published` and `unpublished` labels on the list items because they were reversed [#453]
+  - Replaced hard-coded org names with the actual org names in text on `Manage access` page, and fixed archive modal title to `Confirm removal` [#454]
+  - Changed `Published` to `Last updated` on `/template/[templateId]` page and fixed missing translation for `Load 3 more`. Also when adding a new `Question`, the button should say `Save and add` and when editing an existing question, the form button should say `Save and update`. [#455]
+  - Added missing space after `Guidance by` and `These are requirements by` in the Preview page [#455]
 - Fix logger path issue in auth.ts [#441]
 - Added handling of scenario where no jwt payload is returned when getting languageId in middleware [#441]
 - Fixed ordering issue for Sections on the Edit Templates page [#436]

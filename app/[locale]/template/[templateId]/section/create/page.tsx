@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
@@ -53,6 +53,7 @@ const CreateSectionPage: React.FC = () => {
 
   // Get templateId param
   const params = useParams();
+  const router = useRouter();
   const { templateId } = params; // From route /template/:templateId/section/create
 
   //For scrolling to error in page
@@ -268,6 +269,8 @@ const CreateSectionPage: React.FC = () => {
       } else {
         // Show success message
         showSuccessToast();
+        // Redirect to the edit template page
+        router.push(`/template/${templateId}`)
       }
 
       scrollToTop(topRef);

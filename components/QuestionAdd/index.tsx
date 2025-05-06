@@ -326,7 +326,7 @@ const QuestionAdd = ({
                 )}
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
-                <Button type="submit" onPress={e => setFormSubmitted(true)}>{Global('buttons.save')}</Button>
+                <Button type="submit" onPress={e => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
               </Form>
 
             </TabPanel>

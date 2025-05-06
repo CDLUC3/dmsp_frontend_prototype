@@ -1,9 +1,9 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import TemplateListPage from '../page';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useTemplatesQuery,} from '@/generated/graphql';
-import {mockScrollIntoView} from '@/__mocks__/common';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useTemplatesQuery, } from '@/generated/graphql';
+import { mockScrollIntoView } from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 
@@ -191,7 +191,7 @@ describe('TemplateListPage', () => {
 
     // Searching for translation keys since cannot run next-intl for unit tests
     const homeLink = screen.getByRole('link', { name: 'breadcrumbs.home' });
-    const templatesLink = screen.getByRole('link', { name: 'title' });
+    const templatesLink = screen.getByRole('link', { name: 'breadcrumbs.templates' });
 
     expect(homeLink).toHaveAttribute('href', '/en-US');
     expect(templatesLink).toHaveAttribute('href', '/en-US/template');

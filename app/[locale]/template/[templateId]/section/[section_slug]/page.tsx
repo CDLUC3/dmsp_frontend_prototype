@@ -404,7 +404,7 @@ const SectionUpdatePage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button type="submit">{Global('buttons.saveAndAdd')}</Button>
+                    <Button type="submit">{Global('buttons.saveAndUpdate')}</Button>
 
                   </Form>
                 </TabPanel>
