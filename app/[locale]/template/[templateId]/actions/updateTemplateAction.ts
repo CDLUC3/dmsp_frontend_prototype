@@ -1,6 +1,6 @@
 "use server";
 
-import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
+import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
 import logger from "@/utils/server/logger";
 import { ActionResponse } from "@/app/types";
 import { UpdateTemplateDocument, TemplateVisibility } from "@/generated/graphql";
