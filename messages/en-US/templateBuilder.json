@@ -21,6 +21,7 @@
     "titleStatus": "Status",
     "draft": "Draft",
     "notPublished": "Not Published",
+    "published": "Published",
     "allowAccess": "Allow people to access, edit or comment on this plan",
     "description": {
       "archiveTemplate": "This template will no longer be visible to plan creators. Pre-existing plans that use this template will be unaffected. This is not reversible."

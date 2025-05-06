@@ -1,0 +1,124 @@
+@import '@/styles/responsive.scss';
+
+.template-editor-header {
+  // This is to match the left padding for content container
+  padding: 0 var(--brand-space2);
+}
+
+.pageheader-container {
+  padding: 0;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  
+  @include device(lg) {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .pageheader-title-container {
+    display: flex;
+    align-items: baseline;
+    gap: var(--brand-space2);
+    
+    @include device(md) {
+      flex-direction: row;
+    }
+    
+    // Mobile default (outside of any device mixin)
+    flex-direction: column;
+    gap: 0;
+
+    @include device(md) {
+      gap: var(--brand-space2);
+    }
+    
+    .pageheader-title {
+      margin-bottom: 0;
+    }
+
+    .link {
+      font-size: var(--fs-small);
+      color: var(--gray-600);
+      font-weight:300;
+    }
+  }
+  
+  .pageheader-title {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: var(--fw-bold);
+  }
+  
+  .pageheader-intro {
+    font-size: 1rem;
+  }
+  
+  .heading-buttons-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}
+
+// Form styles
+.pageheader-title-form{
+  // Make the form a flex container
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  
+  // Mobile first approach - column layout by default
+  flex-direction: column;
+  
+  @include device(md) {
+    flex-direction: row;
+  }
+  
+  .react-aria-TextField {
+    margin-bottom: 0;
+  }
+  
+  // Field wrapper takes most of the space
+  [data-testid="field-wrapper"] {
+    flex: 1 1 300px; // Grow, shrink, and min width
+    height: auto; // Explicitly set height to auto
+    min-height: 0; // Reset any min-height
+    
+    // Mobile style
+    width: 100%;
+    flex-basis: auto; // Remove any flex-basis influence
+    
+    @include device(md) {
+      width: auto;
+      flex-basis: 300px;
+    }
+  }
+  
+  // Button container for the two buttons
+  .button-container {
+    display: flex;
+    gap: 8px; // Space between buttons
+    align-items: flex-start;
+    
+    // Mobile styles
+    margin-top: 8px;
+    align-self: flex-end; // Right-align on mobile
+    
+    @include device(md) {
+      margin-top: 24px; // Align with the input field's bottom
+      margin-left: var(--brand-space2);
+    }
+  }
+  
+  // Make the intro paragraph take full width
+  .pageheader-intro {
+    flex-basis: 100%;
+    margin-top: 16px;
+  }
+}
+
+// Custom input class
+.titleChange-input {
+  margin-bottom: 0;
+}

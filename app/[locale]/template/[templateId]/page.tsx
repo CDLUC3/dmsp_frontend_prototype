@@ -1,4 +1,3 @@
-// template/[templateId]/section/page.tsx
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -24,7 +23,6 @@ import {
 } from 'react-aria-components';
 
 import {
-  Question,
   Section,
   TemplateVersionType,
   TemplateVisibility,
@@ -36,7 +34,7 @@ import {
 // Components
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEditCard from "@/components/QuestionEditCard";
-import PageHeader from "@/components/PageHeader";
+import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from '@/components/ErrorMessages';
@@ -45,53 +43,24 @@ import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
+import { updateTemplateAction } from './actions';
 import styles from './templateEditPage.module.scss';
-
-interface QuestionsInterface {
-  displayOrder?: number | null;
-  guidanceText?: string | null;
-  id?: number | null;
-  questionText: string | null | undefined;
-}
-
-interface SectionInterface {
-  id?: number | null;
+interface TemplateInfoInterface {
+  templateId: number | null;
   name: string;
-  displayOrder?: number | null;
-  questions?: QuestionsInterface[] | null;
+  visibility: TemplateVisibility;
 }
-
-interface OwnerInterface {
-  displayName: string;
-  id: number;
-}
-interface TemplateEditPageInterface {
-  name: string;
-  description?: string | null;
-  latestPublishVersion?: string | null;
-  latestPublishDate?: string | null;
-  created?: string | null;
-  sections?: SectionInterface[] | null;
-  owner: OwnerInterface
-}
-
-
 const TemplateEditPage: React.FC = () => {
   const [isPublishModalOpen, setPublishModalOpen] = useState(false);
-  const toastState = useToast(); // Access the toast state from context
-  const [template, setTemplate] = useState<TemplateEditPageInterface>({
-    name: '',
-    description: null,
-    latestPublishVersion: null,
-    latestPublishDate: null,
-    created: null,
-    sections: [],
-    owner: { displayName: '', id: 0 },
-  });
-
-  // Errors returned from request
-  const [errors, setErrors] = useState<string[]>([]);
+  const toastState = useToast();
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [pageErrors, setPageErrors] = useState<string[]>([]);
+  const [templateInfo, setTemplateInfoState] = useState<TemplateInfoInterface>({
+    templateId: null,
+    name: '',
+    visibility: TemplateVisibility.Private,
+  });
+  const [newTitle, setNewTitle] = useState('');
   const formatDate = useFormatDate();
 
   // localization keys
@@ -102,8 +71,10 @@ const TemplateEditPage: React.FC = () => {
   const Global = useTranslations('Global');
 
   // Get templateId param
+  const params = useParams();
   const router = useRouter();
-  const templateId = String(useParams().templateId); // Ensure templateId is a string
+  //const { templateId } = params; // From route /template/:templateId
+  const templateId = String(params.templateId);
 
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -116,7 +87,7 @@ const TemplateEditPage: React.FC = () => {
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
 
   // Run template query to get all templates under the given templateId
-  const { data, loading, error: templateQueryErrors } = useTemplateQuery(
+  const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
     {
       variables: { templateId: Number(templateId) },
       notifyOnNetworkStatusChange: true
@@ -126,27 +97,26 @@ const TemplateEditPage: React.FC = () => {
   const sortSections = (sections: Section[]) => {
     // Create a new array with the spread operator before sorting
     return [...sections].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
-  }
+  };
 
-  // Show Success Message
   const showSuccessToast = () => {
     const successMessage = Messaging('successfullyUpdated');
     toastState.add(successMessage, { type: 'success' });
-  }
+  };
+
 
   const showSuccessArchiveToast = () => {
     const successMessage = EditTemplate('messages.successfullyArchived');
     toastState.add(successMessage, { type: 'success' });
   }
 
-  // Archive current template
   const handleArchiveTemplate = async () => {
     try {
       const response = await archiveTemplateMutation({
         variables: {
           templateId: Number(templateId),
         },
-      })
+      });
 
       const responseErrors = response.data?.archiveTemplate?.errors
       if (responseErrors) {
@@ -157,15 +127,14 @@ const TemplateEditPage: React.FC = () => {
           router.push(routePath('template.show', { templateId }));
         }
       }
-
     } catch (err) {
       setPageErrors(prevErrors => [...prevErrors, EditTemplate('errors.archiveTemplateError')]);
       logECS('error', 'handleArchiveTemplate', {
         error: err,
         url: { path: '/template/[templateId]' }
       });
-    };
-  }
+    }
+  };
 
   // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
   const saveTemplate = async (versionType: TemplateVersionType, comment: string | undefined, visibility: TemplateVisibility) => {
@@ -177,7 +146,7 @@ const TemplateEditPage: React.FC = () => {
           versionType,
           visibility
         },
-      })
+      });
 
       if (response) {
         const responseErrors = response.data?.createTemplateVersion?.errors;
@@ -194,14 +163,14 @@ const TemplateEditPage: React.FC = () => {
         //close modal
         setPublishModalOpen(false);
       } else {
-        setErrors(prevErrors => [...prevErrors, EditTemplate('errors.saveTemplateError')]);
+        setErrorMessages(prevErrors => [...prevErrors, EditTemplate('errors.saveTemplateError')]);
         logECS('error', 'saveTemplate', {
           error: err,
           url: { path: '/template/[templateId]' }
         });
-      };
+      }
     }
-  }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -211,47 +180,87 @@ const TemplateEditPage: React.FC = () => {
 
     // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
     const visibility = formData.get('visibility')?.toString().toUpperCase() as TemplateVisibility;
-    const changeLog = formData.get('change_log')?.toString(); // Extract the textarea value
+    const changeLog = formData.get('change_log')?.toString();
 
     await saveTemplate(TemplateVersionType.Published, changeLog, visibility);
   };
 
-  useEffect(() => {
-    // When data from backend changes, set template data in state
-    if (data && data.template) {
-      const sortedSections = data.template.sections
-        ? sortSections(data.template.sections.filter((section): section is Section => section !== null)) //Filter out null sections
-        : [];
-
-      setTemplate({
-        name: data.template.name ?? '',
-        description: data.template.description ?? null,
-        latestPublishVersion: data.template.latestPublishVersion ?? null,
-        latestPublishDate: formatDate(data.template.latestPublishDate) ?? null,
-        created: data.template.created ?? null,
-        sections: sortedSections.map((section) => ({
-          id: section.id,
-          name: section.name ?? '',
-          displayOrder: section.displayOrder,
-          questions: section.questions
-            ?.filter((question): question is Question => question !== null) // Filter out null
-            ?.map((question) => ({
-              errors: question.errors,
-              displayOrder: question.displayOrder,
-              guidanceText: question.guidanceText,
-              id: question.id,
-              questionText: question.questionText,
-            })),
-        })),
-        owner: {
-          displayName: data.template.owner?.displayName ?? '',
-          id: data.template.owner?.id ?? 0,
+  // Call Server Action updateTemplateAction
+  const updateTemplate = async (templateInfo: TemplateInfoInterface) => {
+    if (templateInfo.templateId === null) {
+      // Handle the case where templateId is null (e.g., log an error or return early)
+      logECS('error', 'updateTemplate', {
+        error: 'templateId is null',
+        url: {
+          path: routePath('template.show', { templateId: 'unknown' }),
         },
       });
+      return {
+        success: false,
+        errors: [Global('messaging.somethingWentWrong')],
+        data: null,
+      };
     }
-  }, [data]);
+    try {
+      const response = await updateTemplateAction({
+        templateId: templateInfo.templateId,
+        name: newTitle,
+        visibility: templateInfo.visibility,
+      });
 
-  // If page-level errors that we need to scroll to
+      if (response.redirect) {
+        router.push(response.redirect);
+      }
+
+      return {
+        success: response.success,
+        errors: response.errors,
+        data: response.data
+      }
+    } catch (error) {
+      logECS('error', 'updateTemplate', {
+        error,
+        url: {
+          path: routePath('template.show', { templateId })
+        }
+      });
+    }
+    return {
+      success: false,
+      errors: [Global('messaging.somethingWentWrong')],
+      data: null
+    };
+  }
+
+  const handleTitleChange = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const result = await updateTemplate(templateInfo);
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        setErrorMessages(errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')])
+      }
+    } else {
+      if (
+        result.data?.errors &&
+        typeof result.data.errors === 'object' &&
+        typeof result.data.errors.general === 'string') {
+        // Handle errors as an object with general or field-level errors
+        setErrorMessages(prev => [...prev, result.data?.errors?.general || Global('messaging.somethingWentWrong')]);
+      }
+      //Need to refetch plan data to refresh the info that was changed
+      await refetch();
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(e.target.value)
+  };
+
   useEffect(() => {
     if (pageErrors.length > 0 && pageErrorRef.current) {
       pageErrorRef.current.scrollIntoView({
@@ -261,48 +270,72 @@ const TemplateEditPage: React.FC = () => {
     }
   }, [pageErrors]);
 
+  // Need to set this info to update template title
+  useEffect(() => {
+    if (data?.template) {
+      setTemplateInfoState({
+        templateId: Number(data.template.id),
+        name: data.template.name || '',
+        visibility: data.template.visibility || null,
+      });
+    }
+  }, [data]);
+
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
+
   if (templateQueryErrors) {
     return <div>{EditTemplate('errors.getTemplatesError')}</div>;
   }
 
+  const template = data?.template;
+
+  if (!template) {
+    return <div>{EditTemplate('errors.noTemplateFound')}</div>;
+  }
+
+  // Format the latest publish date if it exists
+  const formattedPublishDate = template.latestPublishDate ? formatDate(template.latestPublishDate) : null;
+
+
+  const sortedSections = template.sections
+    ? sortSections(template.sections.filter((section): section is Section => section !== null))
+    : [];
+
   return (
     <div>
-
-      <PageHeader
-        title={template?.name ? template?.name : 'Template'}
-        description={`by ${template?.name} - ${Global('version')}: ${template?.latestPublishVersion} - ${Global('lastUpdated')}: ${template?.latestPublishDate}`}
+      <PageHeaderWithTitleChange
+        title={newTitle || template.name}
+        description={`by ${template?.name} - ${Global('version')}: ${template?.latestPublishVersion} - ${Global('lastUpdated')}: ${formattedPublishDate || template?.latestPublishDate}`}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{BreadCrumbs('home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{BreadCrumbs('templates')}</Link></Breadcrumb>
-            <Breadcrumb>{template?.name}</Breadcrumb>
+            <Breadcrumb>{template.name}</Breadcrumb>
           </Breadcrumbs>
         }
-
         className="page-template-overview"
+        handleTitleChange={handleTitleChange}
+        handleInputChange={handleInputChange}
+        newTitle={newTitle}
       />
 
-      {pageErrors && pageErrors.length > 0 &&
+      {pageErrors.length > 0 && (
         <div className="error" role="alert" aria-live="assertive" ref={pageErrorRef}>
           {pageErrors.map((error, index) => (
             <p key={index}>{error}</p>
           ))}
-        </div>}
-      <h2>{EditTemplate('title')}</h2>
+        </div>
+      )}
 
       <div className="template-editor-container">
         <div className="main-content">
-
-          {(template?.sections && template?.sections.length > 0) && (
-            <div className="">
-              {template.sections.map((section, index) => (
-                <div key={section.id} role="list" aria-label="Questions list"
-                  style={{ marginBottom: '40px' }}>
-
+          {sortedSections.length > 0 && (
+            <div>
+              {sortedSections.map((section, index) => (
+                <div key={section.id} role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
                   <SectionHeaderEdit
                     key={section.id}
                     sectionNumber={index + 1}
@@ -311,30 +344,20 @@ const TemplateEditPage: React.FC = () => {
                     onMoveUp={() => null}
                     onMoveDown={() => null}
                   />
-
-                  {(section?.questions && section?.questions.length > 0) && (
-                    section.questions.map((question) => (
-                      <QuestionEditCard
-                        key={question.id}
-                        id={question.id ? question.id.toString() : ''}
-                        text={question?.questionText ? question.questionText : ''}
-                        link={`/template/${templateId}/q/${question.id}`}
-                      />
-                    ))
-                  )}
-                  <AddQuestionButton
-                    href={`/template/${templateId}/q/new?section_id=${section.id}`}
-                  />
+                  {section.questions?.map((question) => (
+                    <QuestionEditCard
+                      key={question.id}
+                      id={question.id ? question.id.toString() : ''}
+                      text={question.questionText || ''}
+                      link={`/template/${templateId}/q/${question.id}`}
+                    />
+                  ))}
+                  <AddQuestionButton href={`/template/${templateId}/q/new?section_id=${section.id}`} />
                 </div>
-
               ))}
-
             </div>
           )}
-
           <AddSectionButton href={`/template/${templateId}/section/new`} />
-
-
         </div>
         <aside className="sidebar">
           <div className="sidebar-inner">
@@ -351,20 +374,22 @@ const TemplateEditPage: React.FC = () => {
 
             </div>
 
-            <div className="sidebar-section">
-              <h5 className="sidebar-section-title">{EditTemplate('button.publishTemplate')}</h5>
-              <div className="status">
-                <p>
-                  {EditTemplate('draft')} <Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
-                </p>
+            {template.isDirty && (
+              <div className="sidebar-section">
+                <h5 className="sidebar-section-title">{EditTemplate('button.publishTemplate')}</h5>
+                <div className="status">
+                  <p>
+                    {EditTemplate('draft')} <Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="sidebar-section">
               <h5 className="sidebar-section-title">{EditTemplate('heading.visibilitySettings')}</h5>
               <div className="status">
                 <p>
-                  {EditTemplate('notPublished')}{' '}<Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
+                  {template.isDirty ? EditTemplate('notPublished') : EditTemplate('published')}{' '}<Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
                 </p>
               </div>
             </div>
@@ -436,7 +461,7 @@ const TemplateEditPage: React.FC = () => {
           <div>
             <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
 
-              <ErrorMessages errors={errors} ref={errorRef} />
+              <ErrorMessages errors={errorMessages} ref={errorRef} />
               <Heading slot="title">{PublishTemplate('heading.publish')}</Heading>
 
               <RadioGroup name="visibility">
@@ -512,6 +537,6 @@ const TemplateEditPage: React.FC = () => {
 
     </div >
   );
-}
+};
 
 export default TemplateEditPage;

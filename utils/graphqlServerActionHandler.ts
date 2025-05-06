@@ -40,7 +40,6 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 }): Promise<GraphQLActionResponse<T>> {
 
   const mutationString = typeof document === "string" ? document : print(document);
-  console.log("***Mutation String***", mutationString);
   try {
     if (!mutationString) {
       throw new Error("No mutation string provided");

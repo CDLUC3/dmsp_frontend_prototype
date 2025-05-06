@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
-  useTemplateQuery
+  useTemplateQuery,
 } from '@/generated/graphql';
 
 import { useParams } from 'next/navigation';
@@ -15,7 +15,8 @@ jest.mock("@/generated/graphql", () => ({
   useTemplateQuery: jest.fn(),
   useArchiveTemplateMutation: jest.fn(),
   useCreateTemplateVersionMutation: jest.fn(),
-  TemplateVersionType: { Draft: 'DRAFT', Published: 'PUBLISHED' }
+  TemplateVersionType: { Draft: 'DRAFT', Published: 'PUBLISHED' },
+  TemplateVisibility: { Private: 'PRIVATE', Public: 'PUBLIC' },
 }));
 
 jest.mock('next/navigation', () => ({
