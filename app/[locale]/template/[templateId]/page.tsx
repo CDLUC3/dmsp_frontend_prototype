@@ -156,6 +156,7 @@ const TemplateEditPage: React.FC = () => {
         } else {
           setPublishModalOpen(false);
           showSuccessToast();
+          await refetch();
         }
       }
     } catch (err) {
