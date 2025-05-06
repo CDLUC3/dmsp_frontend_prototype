@@ -341,6 +341,7 @@ const QuestionEdit = () => {
                   <FormTextArea
                     name="sample_text"
                     isRequired={false}
+                    richText={true}
                     description={QuestionEdit('descriptions.sampleText')}
                     textAreaClasses={styles.questionFormField}
                     label={QuestionEdit('labels.sampleText')}
