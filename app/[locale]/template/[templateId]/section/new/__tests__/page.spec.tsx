@@ -1,20 +1,24 @@
 import React from "react";
-import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
-import {useTemplateQuery,} from '@/generated/graphql';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams} from 'next/navigation';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { useAddSectionMutation, usePublishedSectionsQuery } from '@/generated/graphql';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams } from 'next/navigation';
 import SectionTypeSelectPage from '../page';
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import mockPublishedSections from '../__mocks__/mockPublishedSections.json';
+
 
 expect.extend(toHaveNoViolations);
 
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
-  useTemplateQuery: jest.fn(),
+  useAddSectionMutation: jest.fn(),
+  usePublishedSectionsQuery: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
+  useRouter: jest.fn(),
 }))
 
 jest.mock('@/components/BackButton', () => {
@@ -24,46 +28,6 @@ jest.mock('@/components/BackButton', () => {
   };
 });
 
-const mockTemplateData = {
-  name: "DMP Template from Dataverse",
-  description: "DMP Template from Dataverse",
-  errors: null,
-  latestPublishVersion: "v1",
-  latestPublishDate: "1648835084000",
-  created: "1412980160000",
-  sections: [
-    {
-      id: 67,
-      displayOrder: 1,
-      bestPractice: false,
-      name: "Data description",
-      questions: [
-        {
-          errors: null,
-          displayOrder: 1,
-          guidanceText: "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
-          id: 67,
-          questionText: "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
-        }
-      ]
-    },
-    {
-      id: 68,
-      displayOrder: 1,
-      bestPractice: true,
-      name: "Roles and Responsibilities",
-      questions: [
-        {
-          errors: null,
-          displayOrder: 1,
-          guidanceText: "<p>Test</p>",
-          id: 68,
-          questionText: "<p>Roles and Responsibilities within a data management plan covers how the responsibilities for the management of your data will be delegated and potentially transferred over the long term.</p>"
-        }
-      ]
-    },
-  ]
-};
 
 describe("SectionTypeSelectPage", () => {
   beforeEach(() => {
@@ -77,7 +41,11 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it("should render loading state", async () => {
-    (useTemplateQuery as jest.Mock).mockReturnValue({
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+    (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
       data: null,
       loading: true,
       error: null,
@@ -93,11 +61,18 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it("should render data returned from template query correctly", async () => {
-    (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: { template: mockTemplateData },
+    (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
+      data: mockPublishedSections,
       loading: false,
       error: null,
     });
+
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
 
     await act(async () => {
       render(
@@ -105,14 +80,13 @@ describe("SectionTypeSelectPage", () => {
       );
     });
 
+
     const heading = screen.getByRole('heading', { level: 1 });
     const headingPreviouslyCreated = screen.getByRole('heading', { level: 2, name: 'headings.previouslyCreatedSections' });
     const headingBestPractice = screen.getByRole('heading', { level: 2, name: 'headings.previouslyCreatedSections' });
     const headingsBuildNewSection = screen.getByRole('heading', { level: 2, name: 'headings.buildNewSection' });
     const searchButton = screen.getByRole('button', { name: 'Clear search' });
-    const selectLink = screen.getAllByRole('link', { name: 'Select' });
     const createNew = screen.getByRole('link', { name: 'buttons.createNew' });
-    const questionsCount = screen.getAllByText('questionsCount');
     expect(heading).toHaveTextContent('headings.addNewSection');
     expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.templates')).toBeInTheDocument();
@@ -122,21 +96,26 @@ describe("SectionTypeSelectPage", () => {
     expect(searchButton).toBeInTheDocument();
     expect(screen.getByText('search.helpText')).toBeInTheDocument();
     expect(headingPreviouslyCreated).toBeInTheDocument();
-    expect(screen.getByText('Data description')).toBeInTheDocument();
-    expect(questionsCount).toHaveLength(2);
-    expect(selectLink).toHaveLength(2);
+    expect(screen.getByText('Data Sharing')).toBeInTheDocument();
     expect(headingBestPractice).toBeInTheDocument();
-    expect(screen.getByText('Roles and Responsibilities')).toBeInTheDocument();
+    expect(screen.getByText('Selection and Preservation')).toBeInTheDocument();
     expect(headingsBuildNewSection).toBeInTheDocument();
     expect(createNew).toBeInTheDocument();
   });
 
   it('should show filtered list when user clicks Search button', async () => {
-    (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: { template: mockTemplateData },
+
+    (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
+      data: mockPublishedSections,
       loading: false,
       error: null,
     });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
 
     await act(async () => {
       render(
@@ -153,20 +132,25 @@ describe("SectionTypeSelectPage", () => {
       fireEvent.change(searchInput, { target: { value: 'Data' } });
     });
 
-
     const searchButton = screen.getByLabelText('Clear search');
     fireEvent.click(searchButton);
 
     // Check that we can find section name that matches the search item
-    expect(screen.getByText('Data description')).toBeInTheDocument();
+    expect(screen.getByText('Data Sharing')).toBeInTheDocument();
   })
 
   it('should show error message when we cannot find item that matches search term', async () => {
-    (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: { template: mockTemplateData },
+
+    (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
+      data: { publishedSections: mockPublishedSections },
       loading: false,
       error: null,
     });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
 
     await act(async () => {
       render(
@@ -192,12 +176,19 @@ describe("SectionTypeSelectPage", () => {
   })
 
   it('should show error message when query fails with a network error', async () => {
-    (useTemplateQuery as jest.Mock).mockReturnValue({
+
+    (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
       data: undefined,
       loading: false,
       error: { message: 'There was an error.' },
       refetch: jest.fn()
     });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
     await act(async () => {
       render(
         <SectionTypeSelectPage />
@@ -210,11 +201,18 @@ describe("SectionTypeSelectPage", () => {
   })
 
   it('should pass axe accessibility test', async () => {
-    (useTemplateQuery as jest.Mock).mockReturnValue({
-      data: { template: mockTemplateData },
+
+    (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
+      data: { publishedSections: mockPublishedSections },
       loading: false,
       error: null,
     });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
     const { container } = render(
       <SectionTypeSelectPage />
     );
@@ -226,3 +224,4 @@ describe("SectionTypeSelectPage", () => {
 
   });
 });
+

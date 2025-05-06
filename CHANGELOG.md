@@ -4,6 +4,7 @@
 - Plan Downloads [#299]
 -
 ### Added
+- PublishedSections graphQL query [#448]
 - Added new Server Actions `addCollaboratorAction` [#381]
 - Added `addProjectCollaborator` mutations [#381]
 - Added help text to Section fields from the wireframe [#281]
@@ -28,6 +29,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated `templates/[templateId]/sections/new` to use the new PublishedSections query and to use the addSection mutation when the user selects a section to copy
 - Hooked up `projects/[projectId]/dmp/[dmpId]/feedback/invite` page to backend data [#381]
 - Removed from from the modal on `projects/[projectId]/dmp/[dmpId]/feedback/invite` to add a project member, since we don't have user data at that point [#381]
 - Updated `Template` and `Projects` pages to work with the new pared down search result responses from GraphQL [#223] and [#218](https://github.com/CDLUC3/dmsp_backend_prototype/issues/218)
