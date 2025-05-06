@@ -53,7 +53,7 @@ export const serverRefreshAuthTokens = async () => {
     const cookieString = cookieStore.toString();
 
     // Refresh auth tokens
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-refresh`, {
+    const response = await fetch(`${process.env.SERVER_ENDPOINT}/apollo-refresh`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -96,7 +96,7 @@ export const serverFetchCsrfToken = async () => {
     const cookieStore = cookies();
     const cookieString = cookieStore.toString();
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/apollo-csrf`, {
+    const response = await fetch(`${process.env.SERVER_ENDPOINT}/apollo-csrf`, {
       headers: {
         Cookie: cookieString, // Attach all cookies
       },

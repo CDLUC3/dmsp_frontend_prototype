@@ -73,6 +73,7 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+- 
 - Fixed issue with Template not refreshing after published [#455]
   - Added a server endpoint env variable for graphqlServerActionHandler.ts since env variables prefixed with NEXT_PUBLIC do not work on the server side [#455]
 - Added Rich Text Editor for Sample Text in the Question forms [#456]
@@ -204,6 +205,7 @@
 
 
 ### Fixed
+- Remove duplicate graphqlServerActionHandler.ts and serverAuthHelper.ts
 - Fixed `login` 404 error issue and looping issue in middleware [#194]
 - Removed old `app/layout.tsx` page. It was causing errors, since we have one located at `app/[locale]/layout.tsx` now.
 - Fixed a failing unit test and build for `confirm-email` component when backend server was not running [#180]
