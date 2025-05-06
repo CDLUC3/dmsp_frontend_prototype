@@ -1,0 +1,37 @@
+{
+  "publishedSections": [
+    {
+      "id": 207,
+      "name": "Responsibilities and Resources",
+      "displayOrder": 7,
+      "bestPractice": true,
+      "modified": "1719500676000",
+      "created": "1518454886000",
+      "versionedTemplateId": 35,
+      "versionedTemplateName": "Digital Curation Centre",
+      "versionedQuestionCount": 2
+    },
+    {
+      "id": 206,
+      "name": "Data Sharing",
+      "displayOrder": 6,
+      "bestPractice": true,
+      "modified": "1719500676000",
+      "created": "1518454886000",
+      "versionedTemplateId": 35,
+      "versionedTemplateName": "Digital Curation Centre",
+      "versionedQuestionCount": 2
+    },
+    {
+      "id": 205,
+      "name": "Selection and Preservation",
+      "displayOrder": 5,
+      "bestPractice": true,
+      "modified": "1719500676000",
+      "created": "1518454886000",
+      "versionedTemplateId": 35,
+      "versionedTemplateName": "Digital Curation Centre",
+      "versionedQuestionCount": 2
+    }
+  ]
+}
