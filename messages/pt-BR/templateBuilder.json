@@ -183,7 +183,8 @@
     "numDisplaying": "Mostrando {num} de {total}",
     "clearFilter": "filtros transparentes",
     "buttons": {
-      "loadMore": "Carregue mais {name}"
+      "loadMore": "Carregue mais {name}",
+      "load3More": "Carregue mais 3"
     },
     "headings": {
       "previouslyCreatedTemplates": "Use uma de suas seções criadas anteriormente",

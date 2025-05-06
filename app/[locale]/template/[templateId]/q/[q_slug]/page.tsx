@@ -370,7 +370,7 @@ const QuestionEdit = () => {
                   </Checkbox>
                 )}
 
-                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
+                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndUpdate')}</Button>
 
               </Form>
 

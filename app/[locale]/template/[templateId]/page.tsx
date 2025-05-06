@@ -1,10 +1,10 @@
 // template/[templateId]/section/page.tsx
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {useTranslations} from 'next-intl';
-import {useParams} from 'next/navigation';
-import {ApolloError} from "@apollo/client";
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useParams, useRouter } from 'next/navigation';
+import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -41,9 +41,10 @@ import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from '@/components/ErrorMessages';
 
-import {useFormatDate} from '@/hooks/useFormatDate';
+import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
+import { routePath } from '@/utils/routes';
 import styles from './templateEditPage.module.scss';
 
 interface QuestionsInterface {
@@ -101,8 +102,9 @@ const TemplateEditPage: React.FC = () => {
   const Global = useTranslations('Global');
 
   // Get templateId param
-  const params = useParams();
-  const { templateId } = params; // From route /template/:templateId
+  const router = useRouter();
+  const templateId = String(useParams().templateId); // Ensure templateId is a string
+
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
 
@@ -132,14 +134,30 @@ const TemplateEditPage: React.FC = () => {
     toastState.add(successMessage, { type: 'success' });
   }
 
+  const showSuccessArchiveToast = () => {
+    const successMessage = EditTemplate('messages.successfullyArchived');
+    toastState.add(successMessage, { type: 'success' });
+  }
+
   // Archive current template
   const handleArchiveTemplate = async () => {
     try {
-      await archiveTemplateMutation({
+      const response = await archiveTemplateMutation({
         variables: {
           templateId: Number(templateId),
         },
       })
+
+      const responseErrors = response.data?.archiveTemplate?.errors
+      if (responseErrors) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'TemplateErrors').length > 0) {
+          setPageErrors(prev => [...prev, responseErrors?.general ?? '']);
+        } else {
+          showSuccessArchiveToast();
+          router.push(routePath('template.show', { templateId }));
+        }
+      }
+
     } catch (err) {
       setPageErrors(prevErrors => [...prevErrors, EditTemplate('errors.archiveTemplateError')]);
       logECS('error', 'handleArchiveTemplate', {
@@ -255,7 +273,7 @@ const TemplateEditPage: React.FC = () => {
 
       <PageHeader
         title={template?.name ? template?.name : 'Template'}
-        description={`by ${template?.name} - Version: ${template?.latestPublishVersion} - Published: ${template?.latestPublishDate}`}
+        description={`by ${template?.name} - ${Global('version')}: ${template?.latestPublishVersion} - ${Global('lastUpdated')}: ${template?.latestPublishDate}`}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>

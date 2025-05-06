@@ -116,7 +116,6 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
                   {t('closeButton')}
                 </Button>
               </div>
-
               {children}
             </Dialog>
           </Modal>

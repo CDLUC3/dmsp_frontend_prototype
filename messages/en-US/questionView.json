@@ -1,9 +1,9 @@
 {
   "QuestionView": {
     "cardType": "Question",
-    "requirements": "These are requirements by",
+    "requirements": "These are requirements by {orgName}",
     "guidanceLink": "Jump to additional guidance",
-    "guidanceBy": "Guidance by",
+    "guidanceBy": "Guidance by {orgName}",
     "backToSection": "Back to Section",
     "saveButton": "Save",
     "lastSaved": "Last Saved",
