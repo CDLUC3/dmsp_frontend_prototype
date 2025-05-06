@@ -41,7 +41,6 @@ describe("SectionTypeSelectPage", () => {
   });
 
   it("should render loading state", async () => {
-
     (useAddSectionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -63,10 +62,11 @@ describe("SectionTypeSelectPage", () => {
 
   it("should render data returned from template query correctly", async () => {
     (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
-      data: { publishedSections: mockPublishedSections },
+      data: mockPublishedSections,
       loading: false,
       error: null,
     });
+
 
     (useAddSectionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
@@ -86,9 +86,7 @@ describe("SectionTypeSelectPage", () => {
     const headingBestPractice = screen.getByRole('heading', { level: 2, name: 'headings.previouslyCreatedSections' });
     const headingsBuildNewSection = screen.getByRole('heading', { level: 2, name: 'headings.buildNewSection' });
     const searchButton = screen.getByRole('button', { name: 'Clear search' });
-    //const selectLink = screen.getByRole('button', { name: 'buttons.select' });
     const createNew = screen.getByRole('link', { name: 'buttons.createNew' });
-    //const questionsCount = screen.getAllByText('questionsCount');
     expect(heading).toHaveTextContent('headings.addNewSection');
     expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.templates')).toBeInTheDocument();
@@ -98,9 +96,9 @@ describe("SectionTypeSelectPage", () => {
     expect(searchButton).toBeInTheDocument();
     expect(screen.getByText('search.helpText')).toBeInTheDocument();
     expect(headingPreviouslyCreated).toBeInTheDocument();
-    //expect(screen.getByText('Data description')).toBeInTheDocument();
+    expect(screen.getByText('Data Sharing')).toBeInTheDocument();
     expect(headingBestPractice).toBeInTheDocument();
-    //expect(screen.getByText('Roles and Responsibilities')).toBeInTheDocument();
+    expect(screen.getByText('Selection and Preservation')).toBeInTheDocument();
     expect(headingsBuildNewSection).toBeInTheDocument();
     expect(createNew).toBeInTheDocument();
   });
