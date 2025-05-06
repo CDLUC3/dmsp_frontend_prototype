@@ -391,11 +391,11 @@ export type AffiliationSearch = {
   displayName: Scalars['String']['output'];
   /** Whether or not this affiliation is a funder */
   funder: Scalars['Boolean']['output'];
-  /** The unique identifer for the affiliation (typically the ROR id) */
+  /** The unique identifer for the affiliation */
   id: Scalars['Int']['output'];
   /** The categories the Affiliation belongs to */
   types?: Maybe<Array<AffiliationType>>;
-  /** The URI of the affiliation */
+  /** The URI of the affiliation (typically the ROR id) */
   uri: Scalars['String']['output'];
 };
 
@@ -556,6 +556,19 @@ export type ExternalProject = {
   startDate?: Maybe<Scalars['String']['output']>;
   /** The project title */
   title?: Maybe<Scalars['String']['output']>;
+};
+
+/** A result of the most popular funders */
+export type FunderPopularityResult = {
+  __typename?: 'FunderPopularityResult';
+  /** The official display name */
+  displayName: Scalars['String']['output'];
+  /** The unique identifer for the affiliation */
+  id: Scalars['Int']['output'];
+  /** The number of plans associated with this funder in the past year */
+  nbrPlans: Scalars['Int']['output'];
+  /** The URI of the affiliation (typically the ROR id) */
+  uri: Scalars['String']['output'];
 };
 
 /** Output type for the initializePlanVersion mutation */
@@ -1996,6 +2009,8 @@ export type Query = {
   answer?: Maybe<Answer>;
   /** Get all rounds of admin feedback for the plan */
   answers?: Maybe<Array<Maybe<Answer>>>;
+  /** Get all of the best practice VersionedSection */
+  bestPracticeSections?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get all of the research domains related to the specified top level domain (more nuanced ones) */
   childResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
   /** Get the contributor role by it's id */
@@ -2040,6 +2055,8 @@ export type Query = {
   planOutputs?: Maybe<Array<Maybe<ProjectOutput>>>;
   /** Get all plans for the research project */
   plans?: Maybe<Array<PlanSearchResult>>;
+  /** Returns a list of the top 20 funders ranked by popularity (nbr of plans) for the past year */
+  popularFunders?: Maybe<Array<Maybe<FunderPopularityResult>>>;
   /** Get a specific project */
   project?: Maybe<Project>;
   /** Get all of the Users that are collaborators for the Project */
@@ -2061,7 +2078,7 @@ export type Query = {
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedQuestions?: Maybe<Array<Maybe<VersionedQuestion>>>;
   /** Search for VersionedSection whose name contains the search term */
-  publishedSections?: Maybe<Array<Maybe<VersionedSection>>>;
+  publishedSections?: Maybe<Array<Maybe<VersionedSectionSearchResult>>>;
   /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
   publishedTemplates?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
   /** Get the specific Question based on questionId */
@@ -3411,6 +3428,30 @@ export type VersionedSectionErrors = {
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
 };
 
+export type VersionedSectionSearchResult = {
+  __typename?: 'VersionedSectionSearchResult';
+  /** Whether or not this VersionedSection is designated as a 'Best Practice' section */
+  bestPractice?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The displayOrder of this VersionedSection */
+  displayOrder: Scalars['Int']['output'];
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The VersionedSection introduction */
+  introduction?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The VersionedSection name/title */
+  name: Scalars['String']['output'];
+  /** The number of questions associated with this VersionedSection */
+  versionedQuestionCount?: Maybe<Scalars['Int']['output']>;
+  /** The id of the VersionedTemplate that this VersionedSection belongs to */
+  versionedTemplateId?: Maybe<Scalars['Int']['output']>;
+  /** The name of the VersionedTemplate that this VersionedSection belongs to */
+  versionedTemplateName?: Maybe<Scalars['String']['output']>;
+};
+
 /** A snapshot of a Template when it became published. DMPs are created from published templates */
 export type VersionedTemplate = {
   __typename?: 'VersionedTemplate';
@@ -3573,13 +3614,6 @@ export type RemoveProjectContributorMutationVariables = Exact<{
 
 
 export type RemoveProjectContributorMutation = { __typename?: 'Mutation', removeProjectContributor?: { __typename?: 'ProjectContributor', errors?: { __typename?: 'ProjectContributorErrors', general?: string | null, email?: string | null, affiliationId?: string | null, givenName?: string | null, orcid?: string | null, surName?: string | null, contributorRoleIds?: string | null } | null } | null };
-
-export type AddProjectContributorMutationVariables = Exact<{
-  input: AddProjectContributorInput;
-}>;
-
-
-export type AddProjectContributorMutation = { __typename?: 'Mutation', addProjectContributor?: { __typename?: 'ProjectContributor', email?: string | null, errors?: { __typename?: 'ProjectContributorErrors', general?: string | null } | null } | null };
 
 export type UpdateProjectFunderMutationVariables = Exact<{
   input: UpdateProjectFunderInput;
@@ -3809,6 +3843,13 @@ export type SectionsDisplayOrderQueryVariables = Exact<{
 
 
 export type SectionsDisplayOrderQuery = { __typename?: 'Query', sections?: Array<{ __typename?: 'Section', displayOrder?: number | null } | null> | null };
+
+export type PublishedSectionsQueryVariables = Exact<{
+  term: Scalars['String']['input'];
+}>;
+
+
+export type PublishedSectionsQuery = { __typename?: 'Query', publishedSections?: Array<{ __typename?: 'VersionedSectionSearchResult', id?: number | null, name: string, displayOrder: number, bestPractice?: boolean | null, modified?: string | null, created?: string | null, versionedTemplateId?: number | null, versionedTemplateName?: string | null, versionedQuestionCount?: number | null } | null> | null };
 
 export type SectionQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
@@ -4243,42 +4284,6 @@ export function useRemoveProjectContributorMutation(baseOptions?: Apollo.Mutatio
 export type RemoveProjectContributorMutationHookResult = ReturnType<typeof useRemoveProjectContributorMutation>;
 export type RemoveProjectContributorMutationResult = Apollo.MutationResult<RemoveProjectContributorMutation>;
 export type RemoveProjectContributorMutationOptions = Apollo.BaseMutationOptions<RemoveProjectContributorMutation, RemoveProjectContributorMutationVariables>;
-export const AddProjectContributorDocument = gql`
-    mutation AddProjectContributor($input: AddProjectContributorInput!) {
-  addProjectContributor(input: $input) {
-    email
-    errors {
-      general
-    }
-  }
-}
-    `;
-export type AddProjectContributorMutationFn = Apollo.MutationFunction<AddProjectContributorMutation, AddProjectContributorMutationVariables>;
-
-/**
- * __useAddProjectContributorMutation__
- *
- * To run a mutation, you first call `useAddProjectContributorMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddProjectContributorMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [addProjectContributorMutation, { data, loading, error }] = useAddProjectContributorMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useAddProjectContributorMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectContributorMutation, AddProjectContributorMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddProjectContributorMutation, AddProjectContributorMutationVariables>(AddProjectContributorDocument, options);
-      }
-export type AddProjectContributorMutationHookResult = ReturnType<typeof useAddProjectContributorMutation>;
-export type AddProjectContributorMutationResult = Apollo.MutationResult<AddProjectContributorMutation>;
-export type AddProjectContributorMutationOptions = Apollo.BaseMutationOptions<AddProjectContributorMutation, AddProjectContributorMutationVariables>;
 export const UpdateProjectFunderDocument = gql`
     mutation UpdateProjectFunder($input: UpdateProjectFunderInput!) {
   updateProjectFunder(input: $input) {
@@ -5866,6 +5871,54 @@ export type SectionsDisplayOrderQueryHookResult = ReturnType<typeof useSectionsD
 export type SectionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useSectionsDisplayOrderLazyQuery>;
 export type SectionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useSectionsDisplayOrderSuspenseQuery>;
 export type SectionsDisplayOrderQueryResult = Apollo.QueryResult<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>;
+export const PublishedSectionsDocument = gql`
+    query PublishedSections($term: String!) {
+  publishedSections(term: $term) {
+    id
+    name
+    displayOrder
+    bestPractice
+    modified
+    created
+    versionedTemplateId
+    versionedTemplateName
+    versionedQuestionCount
+  }
+}
+    `;
+
+/**
+ * __usePublishedSectionsQuery__
+ *
+ * To run a query within a React component, call `usePublishedSectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublishedSectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublishedSectionsQuery({
+ *   variables: {
+ *      term: // value for 'term'
+ *   },
+ * });
+ */
+export function usePublishedSectionsQuery(baseOptions: Apollo.QueryHookOptions<PublishedSectionsQuery, PublishedSectionsQueryVariables> & ({ variables: PublishedSectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PublishedSectionsQuery, PublishedSectionsQueryVariables>(PublishedSectionsDocument, options);
+      }
+export function usePublishedSectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedSectionsQuery, PublishedSectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PublishedSectionsQuery, PublishedSectionsQueryVariables>(PublishedSectionsDocument, options);
+        }
+export function usePublishedSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedSectionsQuery, PublishedSectionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PublishedSectionsQuery, PublishedSectionsQueryVariables>(PublishedSectionsDocument, options);
+        }
+export type PublishedSectionsQueryHookResult = ReturnType<typeof usePublishedSectionsQuery>;
+export type PublishedSectionsLazyQueryHookResult = ReturnType<typeof usePublishedSectionsLazyQuery>;
+export type PublishedSectionsSuspenseQueryHookResult = ReturnType<typeof usePublishedSectionsSuspenseQuery>;
+export type PublishedSectionsQueryResult = Apollo.QueryResult<PublishedSectionsQuery, PublishedSectionsQueryVariables>;
 export const SectionDocument = gql`
     query Section($sectionId: Int!) {
   section(sectionId: $sectionId) {

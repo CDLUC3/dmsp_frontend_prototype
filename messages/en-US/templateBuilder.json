@@ -121,7 +121,7 @@
     },
     "intro": "You have three options. You can use a section you created previously, use a DMP Tool best practice section or build a new section. All sections are customizable once selected.",
     "newSectionDescription": "Build a new section from scratch. You can add questions, instructions, and other content to your section, we highly recommend using the best practice sections.",
-    "questionsCount": "<p>This section includes:</p><p>{count} pre-built questions</p>"
+    "questionsCount": "<p>{count} pre-built questions</p>"
   },
   "Section": {
     "tabs": {

@@ -1,6 +1,6 @@
 import React from "react";
 import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
-import {useTemplateQuery,} from '@/generated/graphql';
+import {useAddSectionMutation, useTemplateQuery,} from '@/generated/graphql';
 import {axe, toHaveNoViolations} from 'jest-axe';
 import {useParams} from 'next/navigation';
 import SectionTypeSelectPage from '../page';
@@ -11,6 +11,7 @@ expect.extend(toHaveNoViolations);
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
   useTemplateQuery: jest.fn(),
+  useAddSectionMutation: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -138,6 +139,12 @@ describe("SectionTypeSelectPage", () => {
       error: null,
     });
 
+    (useAddSectionMutation as jest.Mock).mockReturnValue({
+      addSection: jest.fn(),
+      loading: false,
+      error: null,
+    });
+
     await act(async () => {
       render(
         <SectionTypeSelectPage />
@@ -164,6 +171,12 @@ describe("SectionTypeSelectPage", () => {
   it('should show error message when we cannot find item that matches search term', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue({
+      addSection: jest.fn(),
       loading: false,
       error: null,
     });
@@ -198,6 +211,13 @@ describe("SectionTypeSelectPage", () => {
       error: { message: 'There was an error.' },
       refetch: jest.fn()
     });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue({
+      addSection: jest.fn(),
+      loading: false,
+      error: null,
+    });
+
     await act(async () => {
       render(
         <SectionTypeSelectPage />
@@ -215,6 +235,13 @@ describe("SectionTypeSelectPage", () => {
       loading: false,
       error: null,
     });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue({
+      addSection: jest.fn(),
+      loading: false,
+      error: null,
+    });
+
     const { container } = render(
       <SectionTypeSelectPage />
     );

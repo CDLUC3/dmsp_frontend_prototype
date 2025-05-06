@@ -121,7 +121,7 @@
     },
     "intro": "Você tem três opções. Você pode usar uma seção que você criou anteriormente, usar uma seção de melhor prática da Ferramenta de DMP ou construir uma nova seção. Todas as seções são personalizáveis uma vez selecionado.",
     "newSectionDescription": "Crie uma nova seção do zero. Você pode adicionar perguntas, instruções e outros conteúdos à sua seção, recomendamos o uso das seções de melhor prática.",
-    "questionsCount": "<p>Esta seção inclui:</p><p>{count} questões pré-criadas</p>"
+    "questionsCount": "<p>{count} questões pré-criadas</p>"
   },
   "Section": {
     "tabs": {
