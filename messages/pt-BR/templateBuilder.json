@@ -21,6 +21,7 @@
     "titleStatus": "Status",
     "draft": "Rascunho",
     "notPublished": "Não publicado",
+    "published": "Publicado",
     "allowAccess": "Permitir que as pessoas acessem, editem ou comentem este plano",
     "description": {
       "archiveTemplate": "Este modelo não será mais visível para os criadores de planos. Os planos pré-existentes que usam este modelo não serão afetados. Isto não é reversível."

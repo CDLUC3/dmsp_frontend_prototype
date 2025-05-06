@@ -295,6 +295,10 @@ const TemplateEditPage: React.FC = () => {
     return <div>{EditTemplate('errors.noTemplateFound')}</div>;
   }
 
+  // Format the latest publish date if it exists
+  const formattedPublishDate = template.latestPublishDate ? formatDate(template.latestPublishDate) : null;
+
+
   const sortedSections = template.sections
     ? sortSections(template.sections.filter((section): section is Section => section !== null))
     : [];
@@ -303,7 +307,7 @@ const TemplateEditPage: React.FC = () => {
     <div>
       <PageHeaderWithTitleChange
         title={newTitle || template.name}
-        description={`by ${template.owner?.displayName} - Version: ${template.latestPublishVersion} - Published: ${formatDate(template.latestPublishDate)}`}
+        description={`by ${template?.name} - ${Global('version')}: ${template?.latestPublishVersion} - ${Global('lastUpdated')}: ${formattedPublishDate || template?.latestPublishDate}`}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
@@ -370,20 +374,22 @@ const TemplateEditPage: React.FC = () => {
 
             </div>
 
-            <div className="sidebar-section">
-              <h5 className="sidebar-section-title">{EditTemplate('button.publishTemplate')}</h5>
-              <div className="status">
-                <p>
-                  {EditTemplate('draft')} <Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
-                </p>
+            {template.isDirty && (
+              <div className="sidebar-section">
+                <h5 className="sidebar-section-title">{EditTemplate('button.publishTemplate')}</h5>
+                <div className="status">
+                  <p>
+                    {EditTemplate('draft')} <Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="sidebar-section">
               <h5 className="sidebar-section-title">{EditTemplate('heading.visibilitySettings')}</h5>
               <div className="status">
                 <p>
-                  {EditTemplate('notPublished')}{' '}<Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
+                  {template.isDirty ? EditTemplate('notPublished') : EditTemplate('published')}{' '}<Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
                 </p>
               </div>
             </div>
