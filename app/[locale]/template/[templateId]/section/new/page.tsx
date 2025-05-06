@@ -48,7 +48,7 @@ const SectionTypeSelectPage: React.FC = () => {
   // Get templateId param
   const params = useParams();
   const toastState = useToast();
-  const router = useRouter;
+  const router = useRouter();
   const { templateId: rawTemplateId } = params; // From route /template/:templateId
   // routePath requires this to be a string but it can be either a string or an array
   const templateId = Array.isArray(rawTemplateId) ? rawTemplateId[0] : rawTemplateId;

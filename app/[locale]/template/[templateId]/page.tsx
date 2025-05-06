@@ -205,9 +205,6 @@ const TemplateEditPage: React.FC = () => {
         ? sortSections(data.template.sections.filter((section): section is Section => section !== null)) //Filter out null sections
         : [];
 
-console.log('useEffect template data');
-console.log('sortedSections', sortedSections);
-
       setTemplate({
         name: data.template.name ?? '',
         description: data.template.description ?? null,

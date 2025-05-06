@@ -28,7 +28,7 @@ import {
   SectionsDisplayOrderDocument,
   useAddSectionMutation,
   useSectionsDisplayOrderQuery,
-  useTagsQuery,
+  useTagsQuery
 } from '@/generated/graphql';
 
 //Components
@@ -53,7 +53,6 @@ const CreateSectionPage: React.FC = () => {
 
   // Get templateId param
   const params = useParams();
-
   const { templateId } = params; // From route /template/:templateId/section/create
 
   //For scrolling to error in page
