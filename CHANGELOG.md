@@ -72,6 +72,7 @@
 
 ### Fixed
 - Added Rich Text Editor for Sample Text in the Question forms [#456]
+  - Adjusted widths of Edit template title to accomodate for very long titles [#456]
 - Fixed bugs related to the template builder flow
   - Fixed Preview page to not display HTML at top for Requirements [#449]
   - Added redirect back to Edit Template page when user creates a new Section [#452]

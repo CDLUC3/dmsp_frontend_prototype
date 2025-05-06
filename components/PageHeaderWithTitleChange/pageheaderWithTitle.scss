@@ -35,6 +35,7 @@
     
     .pageheader-title {
       margin-bottom: 0;
+      max-width: 70%;
     }
 
     .link {
@@ -77,6 +78,13 @@
   
   .react-aria-TextField {
     margin-bottom: 0;
+    max-width: 70%;
+  }
+
+  // Custom input class
+  .titleChange-input {
+    margin-bottom: 0;
+    max-width: 100%;
   }
   
   // Field wrapper takes most of the space
@@ -116,9 +124,4 @@
     flex-basis: 100%;
     margin-top: 16px;
   }
-}
-
-// Custom input class
-.titleChange-input {
-  margin-bottom: 0;
 }
