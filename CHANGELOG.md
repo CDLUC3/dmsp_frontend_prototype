@@ -71,6 +71,8 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+- Fixed issue with Template not refreshing after published [#455]
+  - Added a server endpoint env variable for graphqlServerActionHandler.ts since env variables prefixed with NEXT_PUBLIC do not work on the server side [#455]
 - Added Rich Text Editor for Sample Text in the Question forms [#456]
   - Adjusted widths of Edit template title to accomodate for very long titles [#456]
 - Fixed bugs related to the template builder flow
