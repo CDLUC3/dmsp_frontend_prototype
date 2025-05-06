@@ -192,7 +192,7 @@ describe("SectionUpdatePage", () => {
       );
     });
 
-    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndUpdate/i });
     fireEvent.click(saveAndAdd);
 
     const errorMessage = screen.getByRole('alert');
@@ -207,25 +207,23 @@ describe("SectionUpdatePage", () => {
     ]);
 
     await act(async () => {
-      render(
-        <SectionUpdatePage />
-      );
+      render(<SectionUpdatePage />);
     });
 
     // Simulate adding content to the sectionName field
-    const sectionNameEditor = screen.getByRole('textbox', { name: /sectionName/i });
-    await waitFor(() => {
-      fireEvent.input(sectionNameEditor, { target: { textContent: 'Updated Section Name' } });
+    const sectionNameInput = screen.getByLabelText(/sectionName/i);
+    await act(async () => {
+      fireEvent.change(sectionNameInput, { target: { value: 'Updated Section Name' } });
     });
 
-    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndUpdate/i });
     fireEvent.click(saveAndAdd);
 
     await waitFor(() => {
-      // Should redirect to the Edit template page
       expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
     });
-  })
+  });
+
 
   it('should pass axe accessibility test', async () => {
     (useUpdateSectionMutation as jest.Mock).mockReturnValue([

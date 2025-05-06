@@ -48,6 +48,9 @@
       "archiveTemplateError": "Erro ao arquivar template",
       "saveTemplateError": "Erro ao salvar modelo",
       "getTemplatesError": "Erro ao obter modelos"
+    },
+    "messages": {
+      "successfullyArchived": "Modelo arquivado com sucesso"
     }
   },
   "PublishTemplate": {
@@ -183,7 +186,8 @@
     "numDisplaying": "Mostrando {num} de {total}",
     "clearFilter": "filtros transparentes",
     "buttons": {
-      "loadMore": "Carregue mais {name}"
+      "loadMore": "Carregue mais {name}",
+      "load3More": "Carregue mais 3"
     },
     "headings": {
       "previouslyCreatedTemplates": "Use uma de suas seções criadas anteriormente",
@@ -316,12 +320,13 @@
       "h3OrgAccess": "Dentro da organização",
       "externalPeople": "Pessoas externas",
       "share": "Compartilhe com alguém fora da sua organização",
-      "confirmCheckout": "Confirmar finalização do pedido?"
+      "confirmCheckout": "Confirmar finalização do pedido?",
+      "confirmRemoval": "Confirme a exclusão"
     },
     "paragraphs": {
       "orgAccessPara1": "Todos em {name} podem ver e editar",
       "orgAccessPara2": "Administradores {count} podem gerenciar o acesso",
-      "externalPara1": "Administradores {count} podem gerenciar o acesso",
+      "externalPara1": "Compartilhe este modelo com pessoas fora do {orgName}",
       "sharePara1": "Digite seu endereço de e-mail. Se eles já não tiverem uma conta de DMP Tool eles serão convidados a criar uma.",
       "modalPara1": "Por favor, confirme que você deseja remover {email}"
     },

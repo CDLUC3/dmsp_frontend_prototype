@@ -350,7 +350,7 @@ describe("QuestionEditPage", () => {
       );
     });
 
-    const saveButton = screen.getByText('buttons.saveAndAdd');
+    const saveButton = screen.getByText('buttons.saveAndUpdate');
     expect(saveButton).toBeInTheDocument();
 
     fireEvent.click(saveButton);

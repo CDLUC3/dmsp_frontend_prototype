@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
@@ -37,6 +37,8 @@ import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { DmpEditor } from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
+import FormInput from '@/components/Form/FormInput';
+import { stripHtmlTags } from '@/utils/general';
 
 import {
   SectionFormErrorsInterface,
@@ -51,6 +53,7 @@ const CreateSectionPage: React.FC = () => {
 
   // Get templateId param
   const params = useParams();
+  const router = useRouter();
   const { templateId } = params; // From route /template/:templateId/section/create
 
   //For scrolling to error in page
@@ -149,7 +152,6 @@ const CreateSectionPage: React.FC = () => {
     Object.keys(formData).forEach((key) => {
       const name = key as keyof SectionFormErrorsInterface;
       const value = formData[name];
-
       // Call validateField to update errors for each field
       const error = validateField(name, value);
       if (error) {
@@ -182,13 +184,16 @@ const CreateSectionPage: React.FC = () => {
 
   // Make GraphQL mutation request to create section
   const createSection = async (): Promise<SectionErrors> => {
+    // string all tags from sectionName before sending to backend
+    const cleanedSectionName = stripHtmlTags(sectionNameContent);
+
     try {
       const newDisplayOrder = getNewDisplayOrder();
       const response = await addSectionMutation({
         variables: {
           input: {
             templateId: Number(templateId),
-            name: sectionNameContent,
+            name: cleanedSectionName,
             introduction: sectionIntroductionContent,
             requirements: sectionRequirementsContent,
             guidance: sectionGuidanceContent,
@@ -264,6 +269,8 @@ const CreateSectionPage: React.FC = () => {
       } else {
         // Show success message
         showSuccessToast();
+        // Redirect to the edit template page
+        router.push(`/template/${templateId}`)
       }
 
       scrollToTop(topRef);
@@ -274,7 +281,10 @@ const CreateSectionPage: React.FC = () => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
       /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
-      const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
+      const cleanedData = tagsData.tags.map(({
+        __typename,
+        ...fields
+      }) => fields);
       setTags(cleanedData);
     }
   }, [tagsData])
@@ -315,8 +325,6 @@ const CreateSectionPage: React.FC = () => {
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
             <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href={`/template/${templateId}/section/new`}>{Global('breadcrumbs.addNewSection')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.createSection')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -339,13 +347,17 @@ const CreateSectionPage: React.FC = () => {
                 </TabList>
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
-                    <Label htmlFor="sectionName" id="sectionNameLabel">{Section('labels.sectionName')}</Label>
-                    <DmpEditor
-                      content={sectionNameContent}
-                      setContent={setSectionNameContent}
-                      error={fieldErrors['sectionName']}
+
+
+                    <FormInput
+                      name="sectionName"
                       id="sectionName"
-                      labelId="sectionNameLabel"
+                      type="text"
+                      aria-required={true}
+                      label={Section('labels.sectionName')}
+                      value={formData.sectionName}
+                      onChange={(e) => setSectionNameContent(e.currentTarget.value)} // Use specific setter
+                      errorMessage={fieldErrors['sectionName']}
                     />
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
@@ -396,14 +408,19 @@ const CreateSectionPage: React.FC = () => {
                                   <polyline points="1 9 7 14 15 4" />
                                 </svg>
                               </div>
-                              <span className="checkbox-label" data-testid='checkboxLabel'>
+                              <span className="checkbox-label"
+                                data-testid='checkboxLabel'>
                                 <div className="checkbox-wrapper">
                                   <div>{tag.name}</div>
                                   <DialogTrigger>
-                                    <Button className="popover-btn" aria-label="Click for more info"><div className="icon"><DmpIcon icon="info" /></div></Button>
+                                    <Button className="popover-btn"
+                                      aria-label="Click for more info"><div
+                                        className="icon"><DmpIcon
+                                          icon="info" /></div></Button>
                                     <Popover>
                                       <OverlayArrow>
-                                        <svg width={12} height={12} viewBox="0 0 12 12">
+                                        <svg width={12} height={12}
+                                          viewBox="0 0 12 12">
                                           <path d="M0 0 L6 6 L12 0" />
                                         </svg>
                                       </OverlayArrow>
@@ -421,7 +438,8 @@ const CreateSectionPage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button type="submit">{CreateSectionPage('button.createSection')}</Button>
+                    <Button
+                      type="submit">{CreateSectionPage('button.createSection')}</Button>
 
                   </Form>
                 </TabPanel>
@@ -435,7 +453,7 @@ const CreateSectionPage: React.FC = () => {
             </div>
           </div>
         </ContentContainer>
-      </LayoutContainer >
+      </LayoutContainer>
     </>
   );
 }

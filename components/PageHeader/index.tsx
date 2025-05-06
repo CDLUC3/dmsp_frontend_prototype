@@ -3,6 +3,7 @@
 import React, { ReactNode, useEffect } from 'react';
 import BackButton from "@/components/BackButton";
 import './pageheader.scss';
+import {stripHtml} from "@/utils/general";
 
 interface PageHeaderProps {
   /** The main title of the page */
@@ -28,10 +29,13 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   className = ''
 }: PageHeaderProps) => {
 
+
+  const plainTitle = stripHtml(title);
+
   useEffect(() => {
-    document.title = `${title} | DMPTool`;
+    document.title = `${plainTitle} | DMPTool`;
     window.scrollTo(0, 0);
-  }, [title]);
+  }, [plainTitle]);
 
   return (
     <div className={`template-editor-header ${className}`.trim()}>
@@ -50,7 +54,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="pageheader-container">
         {/* Title and description section */}
         <div className="">
-          <h1 className="pageheader-title">{title}</h1>
+          <h1 className="pageheader-title">{plainTitle}</h1>
           {description && (
             <p className="pageheader-intro">
               {description}

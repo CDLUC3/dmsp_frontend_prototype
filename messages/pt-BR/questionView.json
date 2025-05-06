@@ -1,9 +1,9 @@
 {
   "QuestionView": {
     "cardType": "Pergunta",
-    "requirements": "Estes são requisitos por",
+    "requirements": "Estes são requisitos de {orgName}",
     "guidanceLink": "Pule para orientação adicional",
-    "guidanceBy": "Orientação por",
+    "guidanceBy": "Guia por {orgName}",
     "backToSection": "Voltar para a seção",
     "saveButton": "Salvar",
     "lastSaved": "Último salvamento",

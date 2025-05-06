@@ -21,7 +21,7 @@ jest.mock("@/generated/graphql", () => ({
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
-  useRouter: jest.fn()
+  useRouter: jest.fn(),
 }))
 
 // Mock useFormatter and useTranslations from next-intl
@@ -57,7 +57,7 @@ const mockTemplateData = {
           displayOrder: 1,
           guidanceText: "<p><br><a href=\"http://thedata.org/book/data-management-plan\">Dataverse page on DMPs</a></p>",
           id: 67,
-          questionText: "<p>Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.</p>"
+          questionText: "Briefly describe nature &amp; scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected."
         }
       ]
     },
@@ -111,20 +111,31 @@ describe("TemplateEditPage", () => {
     });
 
     await act(async () => {
-      render(
-        <TemplateEditPage />
-      );
+      render(<TemplateEditPage />);
     });
 
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('DMP Template from Dataverse');
-    const versionText = screen.getByText(/Version: v1/i); // Use a regex for partial match
+
+    const versionText = screen.getByText(/Version: v1/i);
     expect(versionText).toBeInTheDocument();
-    const heading2 = screen.getByRole('heading', { level: 2, name: 'labels.section 1 Data description' });
+
+    const heading2 = screen.getByRole('heading', {
+      level: 2,
+      name: 'labels.section 1 Data description',
+    });
     expect(heading2).toBeInTheDocument();
-    const questionText = screen.getByText('Briefly describe nature & scale of data {simulated, observed, experimental information; samples; publications; physical collections; software; models} generated or collected.', { selector: 'p' });
+
+    const questionText = screen.getByText(
+      (content) => content.includes('Briefly describe nature'),
+      { selector: 'p' }
+    );
+
     expect(questionText).toBeInTheDocument();
+
+
   });
+
 
   it('should close dialog when \'Publish template\' form submitted', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({

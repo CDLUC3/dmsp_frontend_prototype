@@ -208,6 +208,7 @@ const TemplateAccessPage: React.FC = () => {
               </div>
             </div>
             <ConfirmModal
+              title={AccessPage('headings.confirmRemoval')}
               email={person.email}
               onConfirm={handleRevokeAccess}
             />
@@ -266,7 +267,7 @@ const TemplateAccessPage: React.FC = () => {
             <div className="main-content">
               <ErrorMessages errors={errorMessages} ref={errorRef} />
               <p>
-                {AccessPage('intro')}
+                {AccessPage('intro', { orgName: organization?.name })}
               </p>
               <section className="sectionContainer"
                 aria-labelledby="org-access-heading">
@@ -286,7 +287,7 @@ const TemplateAccessPage: React.FC = () => {
                   <h3 id="external-access-heading">{AccessPage('headings.externalPeople')}</h3>
                 </div>
                 <div className="sectionContent">
-                  <p>{AccessPage('paragraphs.externalPara1')}</p>
+                  <p>{AccessPage('paragraphs.externalPara1', { orgName: organization?.name })}</p>
                   <div className={styles.externalPeopleList}>
                     {renderExternalPeople}
                   </div>

@@ -104,13 +104,29 @@ const TemplateEditPage: React.FC = () => {
     toastState.add(successMessage, { type: 'success' });
   };
 
+
+  const showSuccessArchiveToast = () => {
+    const successMessage = EditTemplate('messages.successfullyArchived');
+    toastState.add(successMessage, { type: 'success' });
+  }
+
   const handleArchiveTemplate = async () => {
     try {
-      await archiveTemplateMutation({
+      const response = await archiveTemplateMutation({
         variables: {
           templateId: Number(templateId),
         },
       });
+
+      const responseErrors = response.data?.archiveTemplate?.errors
+      if (responseErrors) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'TemplateErrors').length > 0) {
+          setPageErrors(prev => [...prev, responseErrors?.general ?? '']);
+        } else {
+          showSuccessArchiveToast();
+          router.push(routePath('template.show', { templateId }));
+        }
+      }
     } catch (err) {
       setPageErrors(prevErrors => [...prevErrors, EditTemplate('errors.archiveTemplateError')]);
       logECS('error', 'handleArchiveTemplate', {
