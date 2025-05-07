@@ -2,10 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Editor as TinyMCEEditorType } from 'tinymce';
-
 import styles from './tinyMCEEditor.module.scss';
 
-// Import type only, not the actual implementation
+// We need to reference "window.tinymce" but TypeScript doesn't know about it.
 // This prevents "window.tinymce is undefined" runtime errors
 // while still providing TypeScript type safety
 declare global {
@@ -38,9 +37,8 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
         license_key: 'gpl',
         promotion: false,// Removes TinyMCE promotional link
         branding: false, // removed the tinyMCE branding
-        statusbar: false, //removes the bottom status bar because page flickers with every edit
+        statusbar: true, //removes the bottom status bar
         selector: `#${elementId}`,
-        // height: 200,
         menubar: true,
         max_height: 400,
         min_height: 200,
@@ -57,7 +55,7 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
           body { font-family: "Poppins", sans-serif; color:#393939;};
           `,
         init_instance_callback: (editor: TinyMCEEditorType) => {
-          editorRef.current = editor; // No more TypeScript error
+          editorRef.current = editor;
           editor.setContent(content);
           setIsEditorReady(true);
 
