@@ -25,6 +25,7 @@ import { ContentContainer, LayoutContainer } from '@/components/Container';
 import PageHeader from "@/components/PageHeader";
 import { Card, CardBody, CardFooter, CardHeading } from "@/components/Card/card";
 import ErrorMessages from '@/components/ErrorMessages';
+import styles from './newSectionPage.module.scss';
 
 interface SectionInterface {
   id?: number | null;
@@ -40,8 +41,18 @@ interface SectionInterface {
 const SectionTypeSelectPage: React.FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [sections, setSections] = useState<SectionInterface[]>([]);
+  const [bestPracticeSections, setBestPracticeSections] = useState<SectionInterface[]>([]);
   const [filteredSections, setFilteredSections] = useState<(SectionInterface)[] | null>([]);
+  const [filteredBestPracticeSections, setFilteredBestPracticeSections] = useState<(SectionInterface)[] | null>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  // Visibility counts
+  const [visibleCount, setVisibleCount] = useState({
+    sections: 6,
+    filteredSections: 6,
+    bestPracticeSections: 6,
+    filteredBestPracticeSections: 6
+  });
+  const nextSectionsRef = useRef<HTMLDivElement>(null);
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
 
@@ -128,7 +139,14 @@ const SectionTypeSelectPage: React.FC = () => {
       setErrors(prev => [...prev, errorMessage]);
     }
 
-    setFilteredSections(filteredList);
+    const affiliationSections = filteredList.filter(item => item?.bestPractice === false) ?? [];
+    const bestPracticeSections = filteredList.filter(item => item?.bestPractice === true) ?? [];
+
+    setFilteredSections(affiliationSections);
+    // Filter best practice sections and exclude if they are already in the org sections
+    setFilteredBestPracticeSections(bestPracticeSections.filter(
+      item => !affiliationSections.some(affiliation => affiliation.name === item.name)
+    ));
   }
 
   useEffect(() => {
@@ -147,7 +165,14 @@ const SectionTypeSelectPage: React.FC = () => {
           }
         });
 
-        setSections(transformedSections);
+        const affiliationSections = transformedSections.filter(section => section?.bestPractice === false);
+        const bestPracticeSections = transformedSections.filter(section => section?.bestPractice === true);
+
+        setSections(affiliationSections);
+        // Filter best practice sections and exclude if they are already in the org sections
+        setBestPracticeSections(bestPracticeSections.filter(
+          item => !affiliationSections.some(affiliation => affiliation.name === item.name)
+        ));
       }
 
     }
@@ -173,8 +198,45 @@ const SectionTypeSelectPage: React.FC = () => {
     // Need this to set list of templates back to original, full list after filtering
     if (searchTerm === '') {
       setFilteredSections(null);
+      setFilteredBestPracticeSections(null);
     }
   }, [searchTerm])
+
+  type VisibleCountKeys = keyof typeof visibleCount;
+  // When user clicks the 'Load more' button, display 3 more by default
+  const handleLoadMore = (listKey: VisibleCountKeys) => {
+    setVisibleCount((prevCounts) => ({
+      ...prevCounts,
+      [listKey]: prevCounts[listKey] + 6, // Increase the visible count for the specific list
+    }));
+
+    setTimeout(() => {
+      if (nextSectionsRef.current) {
+        nextSectionsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
+  };
+
+  const renderLoadMore = (items: SectionInterface[], visibleCountKey: VisibleCountKeys) => {
+    if (items.length - visibleCount[visibleCountKey] > 0) {
+      const loadMoreNumber = items.length - visibleCount[visibleCountKey]; // Calculate loadMoreNumber
+      const currentlyDisplayed = visibleCount[visibleCountKey];
+      const totalAvailable = items.length;
+      return (
+        <>
+          <Button onPress={() => handleLoadMore(visibleCountKey)}>
+            {loadMoreNumber > 6
+              ? AddNewSection('buttons.load6More')
+              : AddNewSection('buttons.loadMore', { name: loadMoreNumber })}
+          </Button>
+          <div className={styles.remainingText}>
+            {AddNewSection('numDisplaying', { num: currentlyDisplayed, total: totalAvailable })}
+          </div>
+        </>
+      );
+    }
+    return null;
+  };
 
   // Show loading message
   if (loading) {
@@ -204,7 +266,10 @@ const SectionTypeSelectPage: React.FC = () => {
           <div className="Filters" ref={errorRef}>
             <ErrorMessages errors={errors} ref={errorRef} />
             <SearchField
-              onClear={() => { setFilteredSections(null) }}
+              onClear={() => {
+                setFilteredSections(null);
+                setFilteredBestPracticeSections(null);
+              }}
             >
               <Label>{AddNewSection('search.label')}</Label>
               <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
@@ -234,6 +299,7 @@ const SectionTypeSelectPage: React.FC = () => {
                 <>
                   {
                     filteredSections
+                      .slice(0, visibleCount['filteredSections'])
                       .filter(section => section?.bestPractice === false)
                       .map((section, index) => (
                         <Card key={index}>
@@ -260,6 +326,7 @@ const SectionTypeSelectPage: React.FC = () => {
                 <>
                   {
                     sections
+                      .slice(0, visibleCount['sections'])
                       .filter(section => section?.bestPractice === false)
                       .map((section, index) => (
                         <Card key={index}>
@@ -285,6 +352,14 @@ const SectionTypeSelectPage: React.FC = () => {
               )
               }
             </div>
+
+            {((filteredSections && filteredSections.length > 0) || (sections && sections.length > 0)) && (
+              <div className={styles.loadBtnContainer}>
+                {filteredSections && filteredSections.length > 0
+                  ? renderLoadMore(filteredSections, 'filteredSections')
+                  : renderLoadMore(sections, 'sections')}
+              </div>
+            )}
 
             <h2>
               {AddNewSection('headings.bestPracticeSections')}
@@ -292,10 +367,11 @@ const SectionTypeSelectPage: React.FC = () => {
 
             {/*Best Practice sections */}
             <div className="card-grid-list">
-              {filteredSections && filteredSections.length > 0 ? (
+              {filteredBestPracticeSections && filteredBestPracticeSections.length > 0 ? (
                 <>
                   {
-                    filteredSections
+                    filteredBestPracticeSections
+                      .slice(0, visibleCount['filteredBestPracticeSections'])
                       .filter(section => section?.bestPractice === true)
                       .map((section, index) => (
                         <Card key={index}>
@@ -321,7 +397,8 @@ const SectionTypeSelectPage: React.FC = () => {
               ) : (
                 <>
                   {
-                    sections
+                    bestPracticeSections
+                      .slice(0, visibleCount['bestPracticeSections'])
                       .filter(section => section?.bestPractice === true)
                       .map((section, index) => (
                         <Card key={index}>
@@ -347,6 +424,14 @@ const SectionTypeSelectPage: React.FC = () => {
               )
               }
             </div>
+            {((filteredBestPracticeSections && filteredBestPracticeSections.length > 0)
+              || (bestPracticeSections && bestPracticeSections.length > 0)) && (
+              <div className={styles.loadBtnContainer}>
+                {filteredBestPracticeSections && filteredBestPracticeSections.length > 0
+                  ? renderLoadMore(filteredBestPracticeSections, 'filteredBestPracticeSections')
+                  : renderLoadMore(bestPracticeSections, 'bestPracticeSections')}
+              </div>
+            )}
 
 
             <h2>
