@@ -38,9 +38,9 @@ import {
   TextField
 } from "react-aria-components";
 
-
 import { DmpEditor } from "@/components/Editor";
 import { DmpIcon } from "@/components/Icons";
+import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 import {
   Card,
@@ -381,6 +381,7 @@ function Page() {
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
+          <a href="#_tinymce">TinyMCE Editor</a>
           <a href="#_toast">Toast Messages</a>
           <a href="#_questionpreview">QuestionPreview Bottomsheet</a>
         </SidebarPanel>
@@ -1906,6 +1907,7 @@ function Page() {
             </Example>
           </div>
 
+
           <div id="_richtext">
             <h2>ReMirror Editor (Custom)</h2>
             <p>Required properties:</p>
@@ -1923,6 +1925,15 @@ function Page() {
             </div>
             <hr />
             <DmpEditor content={editorContent} setContent={setEditorContent} />
+          </div>
+
+          <div id="_tinymce">
+            <h2>TinyMCE Editor</h2>
+            <p>Example Usage:</p>
+            <TinyMCEEditor
+              initialValue={editorContent}
+              height={400}
+            />
           </div>
 
           <div id="_toast">
