@@ -34,44 +34,46 @@ jest.mock('next-intl', () => ({
 
 
 
-const mockPublishedTemplates = [
-  {
-    bestPractice: false,
-    description: "Template 1",
-    id: "1",
-    name: "Agency for Healthcare Research and Quality",
-    visibility: "PUBLIC",
-    ownerDisplayName: "National Science Foundation (nsf.gov)",
-    ownerURI: "http://nsf.gov"
-  },
-  {
-    bestPractice: false,
-    description: "Arctic Data Center",
-    id: "20",
-    name: "Arctic Data Center: NSF Polar Programs",
-    visibility: "PUBLIC",
-    ownerDisplayName: "National Science Foundation (nsf.gov)",
-    ownerURI: "http://nsf.gov"
-  },
-  {
-    bestPractice: false,
-    description: "Develop data plans",
-    id: "10",
-    name: "Data Curation Centre",
-    visibility: "PUBLIC",
-    ownerDisplayName: "National Institute of Health",
-    ownerURI: "http://nih.gov"
-  },
-  {
-    bestPractice: true,
-    description: "Best Practice Template",
-    id: "12",
-    name: "Best Practice Template",
-    visibility: "PUBLIC",
-    ownerDisplayName: null,
-    ownerURI: null
-  },
-]
+const mockPublishedTemplates = {
+  items: [
+    {
+      bestPractice: false,
+      description: "Template 1",
+      id: "1",
+      name: "Agency for Healthcare Research and Quality",
+      visibility: "PUBLIC",
+      ownerDisplayName: "National Science Foundation (nsf.gov)",
+      ownerURI: "http://nsf.gov"
+    },
+    {
+      bestPractice: false,
+      description: "Arctic Data Center",
+      id: "20",
+      name: "Arctic Data Center: NSF Polar Programs",
+      visibility: "PUBLIC",
+      ownerDisplayName: "National Science Foundation (nsf.gov)",
+      ownerURI: "http://nsf.gov"
+    },
+    {
+      bestPractice: false,
+      description: "Develop data plans",
+      id: "10",
+      name: "Data Curation Centre",
+      visibility: "PUBLIC",
+      ownerDisplayName: "National Institute of Health",
+      ownerURI: "http://nih.gov"
+    },
+    {
+      bestPractice: true,
+      description: "Best Practice Template",
+      id: "12",
+      name: "Best Practice Template",
+      visibility: "PUBLIC",
+      ownerDisplayName: null,
+      ownerURI: null
+    },
+  ]
+}
 
 const mockProjectFunders = [
   {

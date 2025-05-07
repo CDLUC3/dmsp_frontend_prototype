@@ -6,15 +6,19 @@ query SectionsDisplayOrder($templateId: Int!) {
 
 query PublishedSections($term: String!) {
   publishedSections(term: $term) {
-    id
-    name
-    displayOrder
-    bestPractice
-    modified
-    created
-    versionedTemplateId
-    versionedTemplateName
-    versionedQuestionCount
+    totalCount
+    nextCursor
+    items {
+      id
+      name
+      displayOrder
+      bestPractice
+      modified
+      created
+      versionedTemplateId
+      versionedTemplateName
+      versionedQuestionCount
+    }
   }
 }
 

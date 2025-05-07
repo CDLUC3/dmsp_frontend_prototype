@@ -29,6 +29,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated `affiliations`, `myTemplates`, `publishedTemplates`, `myProjects` queries to handle the new pagination format. Updated the corresponding pages and components only enough to keep them working as-is [#180](https://github.com/CDLUC3/dmsp_backend_prototype/issues/180)
 - Updated `templates/[templateId]/sections/new` to use the new PublishedSections query and to use the addSection mutation when the user selects a section to copy
 - Hooked up `projects/[projectId]/dmp/[dmpId]/feedback/invite` page to backend data [#381]
 - Removed from from the modal on `projects/[projectId]/dmp/[dmpId]/feedback/invite` to add a project member, since we don't have user data at that point [#381]
@@ -73,7 +74,7 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
-- 
+-
 - Fixed issue with Template not refreshing after published [#455]
   - Added a server endpoint env variable for graphqlServerActionHandler.ts since env variables prefixed with NEXT_PUBLIC do not work on the server side [#455]
 - Added Rich Text Editor for Sample Text in the Question forms [#456]

@@ -235,11 +235,22 @@ const TypeAheadWithOther = ({
                     context: { fetchOptions: { signal } }
                 });
 
+                // split the resultsKey on dot and get each key in the path. This allows keys like:
+                //   "afffiliations", "affiliations.items", etc.
+                const keys = resultsKey.split('.');
+                // reduce the data object to get the value of the resultsKey
+                const results = keys.reduce((acc, key) => {
+                    if (acc && acc[key]) {
+                        return acc[key];
+                    }
+                    return null;
+                }, data);
+
                 if (!signal.aborted) {
                     if (!resultsKey) {
                         throw Error("'resultsKey' property is missing on typeahead field, please provide the key that contain the results data.");
                     }
-                    setSuggestions(data[resultsKey]);
+                    setSuggestions(results || []);
                     setOpen(true);
                 }
 
