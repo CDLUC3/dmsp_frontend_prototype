@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import {useTranslations} from 'next-intl';
-import sanitizeHtml from 'sanitize-html';
 import styles from './QuestionEditCard.module.scss';
 import {Button} from "react-aria-components";
+import {stripHtml} from "@/utils/general";
 
 interface QuestionEditCardProps {
   id: string;
@@ -13,13 +13,13 @@ interface QuestionEditCardProps {
 }
 
 const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
-  id,
-  text,
-  link,
-  name
+ id,
+ text,
+ link,
+ name
 }) => {
 
-  const questionText = sanitizeHtml(text);
+  const questionText = stripHtml(text);
   const EditQuestion = useTranslations('EditQuestion');
   const UpArrowIcon = () => (
     <svg
@@ -59,24 +59,32 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
 
   return (
     <div className={styles.questionEditCard} key={id} role="listitem">
-      <div className={styles.questionEditCard__content} aria-labelledby={`question-${id}`}>
-        <p className={styles.questionEditCard__label} id={`question-label-${id}`}>
+      <div className={styles.questionEditCard__content}
+           aria-labelledby={`question-${id}`}>
+        <p className={styles.questionEditCard__label}
+           id={`question-label-${id}`}>
           {EditQuestion('label.question')}
         </p>
-        <div className={styles.questionEditCard__name} id={`question-${id}`}
-          dangerouslySetInnerHTML={{ __html: questionText }}
-        />
+        <div className={styles.questionEditCard__name} id={`question-${id}`}>
+          <p>
+            {questionText}
+          </p>
+        </div>
 
       </div>
-      <div className={styles.questionEditCard__actions} role="group" aria-label="Question actions">
-        <Link href={link} className={styles.questionEditCard__link} aria-label={`Edit question: ${name}`}>
+      <div className={styles.questionEditCard__actions} role="group"
+           aria-label="Question actions">
+        <Link href={link} className={styles.questionEditCard__link}
+              aria-label={`Edit question: ${name}`}>
           {EditQuestion('links.editQuestion')}
         </Link>
-        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label={EditQuestion('buttons.moveUp')}>
-          <UpArrowIcon />
+        <Button className={`${styles.btnDefault} ${styles.orderButton}`}
+                aria-label={EditQuestion('buttons.moveUp')}>
+          <UpArrowIcon/>
         </Button>
-        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label={EditQuestion('buttons.moveDown')}>
-          <DownArrowIcon />
+        <Button className={`${styles.btnDefault} ${styles.orderButton}`}
+                aria-label={EditQuestion('buttons.moveDown')}>
+          <DownArrowIcon/>
         </Button>
       </div>
     </div>

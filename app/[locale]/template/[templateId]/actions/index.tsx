@@ -1,0 +1,1 @@
+export { updateTemplateAction } from './updateTemplateAction';

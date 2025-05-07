@@ -20,31 +20,33 @@ jest.mock('next-intl', () => ({
 }));
 
 const mockProjectsData = {
-  myProjects: [
-    {
-      __typename: 'Project',
-      title: 'Project 1',
-      id: 1,
-      startDate: '2023-01-01',
-      endDate: '2023-12-31',
-      modified: '2023-06-01',
-      contributors: [
-        {
-          __typename: 'ProjectContributor',
-          name: 'John Doe',
-          orcid: '0000-0001-2345-6789',
-          role: 'Researcher',
-        },
-      ],
-      funders: [
-        {
-          __typename: 'ProjectFunder',
-          name: 'NSF',
-          grantId: 'http://nsf.gov/award/99999',
-        },
-      ],
-    },
-  ],
+  myProjects: {
+    items: [
+      {
+        __typename: 'Project',
+        title: 'Project 1',
+        id: 1,
+        startDate: '2023-01-01',
+        endDate: '2023-12-31',
+        modified: '2023-06-01',
+        contributors: [
+          {
+            __typename: 'ProjectContributor',
+            name: 'John Doe',
+            orcid: '0000-0001-2345-6789',
+            role: 'Researcher',
+          },
+        ],
+        funders: [
+          {
+            __typename: 'ProjectFunder',
+            name: 'NSF',
+            grantId: 'http://nsf.gov/award/99999',
+          },
+        ],
+      },
+    ],
+  }
 };
 
 describe('ProjectsListPage', () => {

@@ -1,0 +1,19 @@
+mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
+  addProjectCollaborator(projectId: $projectId, email: $email, accessLevel: $accessLevel) {
+    id
+    errors {
+      general
+      email
+    }
+    email
+    user {
+      givenName
+      surName
+      affiliation {
+        uri
+      }
+      orcid
+    }
+    
+  }
+}

@@ -1,8 +1,8 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
-import {useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -17,8 +17,8 @@ import {
 
 //Components
 import PageHeader from "@/components/PageHeader";
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
-import {filterTemplates} from '@/utils/filterTemplates';
+import { ContentContainer, LayoutContainer, } from '@/components/Container';
+import { filterTemplates } from '@/utils/filterTemplates';
 import TemplateList from '@/components/TemplateList';
 import ErrorMessages from '@/components/ErrorMessages';
 
@@ -30,10 +30,15 @@ import {
 } from '@/generated/graphql';
 
 // Hooks
-import {useScrollToTop} from '@/hooks/scrollToTop';
+import { useScrollToTop } from '@/hooks/scrollToTop';
 // Other
 import logECS from '@/utils/clientLogger';
-import {MyVersionedTemplatesInterface, TemplateItemProps} from '@/app/types';
+import {
+  MyVersionedTemplatesInterface,
+  TemplateItemProps,
+  PaginatedMyVersionedTemplatesInterface,
+  PaginatedVersionedTemplateSearchResultsInterface
+} from '@/app/types';
 import {useFormatDate} from '@/hooks/useFormatDate';
 import {useToast} from '@/context/ToastContext';
 
@@ -131,9 +136,12 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }
 
   // Transform data into more easier to use properties
-  const transformTemplates = async (templates: (MyVersionedTemplatesInterface | null)[]) => {
+  const transformTemplates = async (
+    templates: PaginatedMyVersionedTemplatesInterface | PaginatedVersionedTemplateSearchResultsInterface | null
+  ) => {
+    const items = templates?.items || [];
     const transformedTemplates = await Promise.all(
-      templates.map(async (template: MyVersionedTemplatesInterface | null) => ({
+      items.map(async (template: MyVersionedTemplatesInterface | null) => ({
         id: template?.id,
         template: {
           id: template?.template?.id ? template?.template.id : null
@@ -212,11 +220,13 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     // Transform templates into format expected by TemplateListItem component
     const processTemplates = async () => {
       if (data && data?.myVersionedTemplates) {
-        const transformedTemplates = await transformTemplates(data.myVersionedTemplates);
+        const templates = { items: data?.myVersionedTemplates ?? [] };
+        const transformedTemplates = await transformTemplates(templates as PaginatedMyVersionedTemplatesInterface);
         setTemplates(transformedTemplates);
       }
       if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
-        const publicTemplates = await transformTemplates(publishedTemplatesData.publishedTemplates);
+        const templates = publishedTemplatesData?.publishedTemplates ?? { items: [] };
+        const publicTemplates = await transformTemplates(templates as PaginatedVersionedTemplateSearchResultsInterface);
         const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'PUBLIC');
         setPublicTemplatesList(transformedPublicTemplates);
       }

@@ -1,7 +1,7 @@
-import {NextRequest, NextResponse} from 'next/server';
-import {middleware} from '../middleware';
-import {verifyJwtToken} from '@/lib/server/auth';
-import {getAuthTokenServer} from '@/utils/getAuthTokenServer';
+import { NextRequest, NextResponse } from 'next/server';
+import { middleware } from '../middleware';
+import { verifyJwtToken } from '@/lib/server/auth';
+import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
 
 jest.mock('next/server', () => ({
     NextResponse: {
@@ -106,5 +106,16 @@ describe('middleware', () => {
         expect(NextResponse.next).toHaveBeenCalled();
         expect(NextResponse.redirect).not.toHaveBeenCalled();
         expect(result).toBe(response);
+    });
+
+    it('should fall back to using default locale when verifyJwtToken fails', async () => {
+        request.nextUrl.pathname = '/';
+        (getAuthTokenServer as jest.Mock).mockResolvedValue('mock-token');
+        (verifyJwtToken as jest.Mock).mockRejectedValue(new Error('Token verification failed'));
+
+        await middleware(request);
+
+        const expectedUrl = new URL("http://localhost/en-US/");
+        expect(NextResponse.redirect).toHaveBeenCalledWith(expectedUrl);
     });
 });

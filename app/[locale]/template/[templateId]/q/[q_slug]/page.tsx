@@ -40,6 +40,8 @@ import QuestionView from '@/components/QuestionView';
 
 //Other
 import { useToast } from '@/context/ToastContext';
+import { routePath } from '@/utils/routes';
+import { stripHtmlTags } from '@/utils/general';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
 
@@ -49,7 +51,7 @@ const QuestionEdit = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toastState = useToast(); // Access the toast state from context
-  const { templateId } = params; // From route /template/:templateId
+  const templateId = Array.isArray(params.templateId) ? params.templateId[0] : params.templateId;
   const questionId = params.q_slug; //question id
   const questionTypeIdQueryParam = searchParams.get('questionTypeId') || null;
 
@@ -71,8 +73,15 @@ const QuestionEdit = () => {
   const Global = useTranslations('Global');
   const QuestionEdit = useTranslations('QuestionEdit');
 
+  // Set URLs
+  const TEMPLATE_URL = routePath('template.show', { templateId });
+
   // Run selected question query
-  const { data: selectedQuestion, loading, error: selectedQuestionQueryError } = useQuestionQuery(
+  const {
+    data: selectedQuestion,
+    loading,
+    error: selectedQuestionQueryError
+  } = useQuestionQuery(
     {
       variables: {
         questionId: Number(questionId)
@@ -100,11 +109,13 @@ const QuestionEdit = () => {
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (question) {
       setFormSubmitted(true);
-
+      // string all tags from questionText before sending to backend
+      const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
       try {
         // Add mutation for question. If user has questionTypeId in query param because they just selected
         // a new question type, then use that as the questionTypeId rather than what is currently in the db
@@ -114,7 +125,7 @@ const QuestionEdit = () => {
               questionId: Number(questionId),
               questionTypeId: questionTypeIdQueryParam ? Number(questionTypeIdQueryParam) : selectedQuestion?.question?.questionTypeId,
               displayOrder: question.displayOrder,
-              questionText: question.questionText,
+              questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
               sampleText: question.sampleText,
@@ -125,7 +136,9 @@ const QuestionEdit = () => {
         });
 
         if (response?.data) {
+          // Show success message and redirect to Edit Template page
           toastState.add(QuestionEdit('messages.success.questionUpdated'), { type: 'success' });
+          router.push(TEMPLATE_URL);
         }
       } catch (error) {
         if (error instanceof ApolloError) {
@@ -146,7 +159,12 @@ const QuestionEdit = () => {
 
       // Set question and rows in state
       if (q && q.questionOptions) {
-        setQuestion(q);
+        const sanitizedQuestion = {
+          ...q,
+          questionText: stripHtmlTags(q.questionText ?? ''), // Sanitize questionText
+        };
+
+        setQuestion(sanitizedQuestion);
         const optionRows = q.questionOptions
           .map(({ id, orderNumber, text, isDefault, questionId }) => ({
             id: id ?? 0, // Ensure id is always a number
@@ -161,6 +179,7 @@ const QuestionEdit = () => {
         // If user has the questionTypeId in the query param because they just selected a new question type
         // then use that over the one in the data
         const qt = getQuestionTypeName(Number(questionTypeIdQueryParam ?? selectedQuestion?.question?.questionTypeId))
+
         if (qt) {
           setQuestionType(qt);
         }
@@ -172,7 +191,13 @@ const QuestionEdit = () => {
       // If there is a questionTypeId query param, then that means that user switched to a new question type
       // so we want to reset the rows to a fresh, empty row
       if ([3, 4, 5].includes(Number(questionTypeIdQueryParam))) {
-        setRows([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: Number(questionId) }]);
+        setRows([{
+          id: 1,
+          orderNumber: 1,
+          text: "",
+          isDefault: false,
+          questionId: Number(questionId)
+        }]);
       }
     }
   }, [selectedQuestion])
@@ -205,9 +230,9 @@ const QuestionEdit = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -220,7 +245,8 @@ const QuestionEdit = () => {
       <div className="template-editor-container">
         <div className="main-content">
           {errors && errors.length > 0 &&
-            <div className="messages error" role="alert" aria-live="assertive" ref={errorRef}>
+            <div className="messages error" role="alert" aria-live="assertive"
+              ref={errorRef}>
               {errors.map((error, index) => (
                 <p key={index}>{error}</p>
               ))}
@@ -241,24 +267,20 @@ const QuestionEdit = () => {
                   className={`${styles.searchField} react-aria-TextField`}
                   isRequired
                 >
-                  <Label className={`${styles.searchLabel} react-aria-Label`}>{QuestionEdit('labels.type')}</Label>
+                  <Label
+                    className={`${styles.searchLabel} react-aria-Label`}>{QuestionEdit('labels.type')}</Label>
                   <Input
                     value={questionType}
                     className={`${styles.searchInput} react-aria-Input`}
                     disabled />
-                  <Button className={`${styles.searchButton} react-aria-Button`} type="button" onPress={redirectToQuestionTypes}>{QuestionEdit('buttons.changeType')}</Button>
-                  <Text slot="description" className={`${styles.searchHelpText} help-text`}>
+                  <Button className={`${styles.searchButton} react-aria-Button`}
+                    type="button"
+                    onPress={redirectToQuestionTypes}>{QuestionEdit('buttons.changeType')}</Button>
+                  <Text slot="description"
+                    className={`${styles.searchHelpText} help-text`}>
                     {QuestionEdit('helpText.textField')}
                   </Text>
                 </TextField>
-
-                {/**Question type fields here */}
-                {hasOptions && (
-                  <div className={styles.optionsWrapper}>
-                    <p className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows} questionId={Number(questionId)} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
-                  </div>
-                )}
 
                 <FormInput
                   name="question_text"
@@ -275,44 +297,61 @@ const QuestionEdit = () => {
                   errorMessage={QuestionEdit('messages.errors.questionTextRequired')}
                 />
 
+                {/**Question type fields here */}
+                {hasOptions && (
+                  <div className={styles.optionsWrapper}>
+                    <p
+                      className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
+                    <QuestionOptionsComponent rows={rows} setRows={setRows}
+                      questionId={Number(questionId)}
+                      formSubmitted={formSubmitted}
+                      setFormSubmitted={setFormSubmitted} />
+                  </div>
+                )}
+
                 <FormTextArea
                   name="question_requirements"
                   isRequired={false}
+                  richText={true}
                   description={QuestionEdit('helpText.requirementText')}
                   textAreaClasses={styles.questionFormField}
                   label={QuestionEdit('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    requirementText: e.currentTarget.value
-                  })}
-                  helpMessage={QuestionEdit('helpText.requirementText')}
+                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                    ...prev,
+                    requirementText: newValue
+                  }))}
                 />
 
                 <FormTextArea
                   name="question_guidance"
                   isRequired={false}
+                  richText={true}
                   textAreaClasses={styles.questionFormField}
                   label={QuestionEdit('labels.guidanceText')}
                   value={question?.guidanceText ? question.guidanceText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    guidanceText: e.currentTarget.value
-                  })}
+                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                    ...prev,
+                    guidanceText: newValue
+                  }))}
+
                 />
 
-                <FormTextArea
-                  name="sample_text"
-                  isRequired={false}
-                  description={QuestionEdit('descriptions.sampleText')}
-                  textAreaClasses={styles.questionFormField}
-                  label={QuestionEdit('labels.sampleText')}
-                  value={question?.sampleText ? question?.sampleText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    sampleText: e.currentTarget.value
-                  })}
-                />
+                {!hasOptions && (
+                  <FormTextArea
+                    name="sample_text"
+                    isRequired={false}
+                    richText={true}
+                    description={QuestionEdit('descriptions.sampleText')}
+                    textAreaClasses={styles.questionFormField}
+                    label={QuestionEdit('labels.sampleText')}
+                    value={question?.sampleText ? question?.sampleText : ''}
+                    onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                      ...prev,
+                      sampleText: newValue
+                    }))}
+                  />
+                )}
 
                 {!hasOptions && (
                   <Checkbox
@@ -332,7 +371,7 @@ const QuestionEdit = () => {
                   </Checkbox>
                 )}
 
-                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.save')}</Button>
+                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndUpdate')}</Button>
 
               </Form>
 
@@ -346,7 +385,9 @@ const QuestionEdit = () => {
             </TabPanel>
           </Tabs>
 
-        </div >
+        </div>
+
+
 
         <div className="sidebar">
           <h2>{Global('headings.preview')}</h2>
@@ -367,7 +408,7 @@ const QuestionEdit = () => {
           <p>{QuestionEdit('descriptions.bestPracticePara2')}</p>
           <p>{QuestionEdit('descriptions.bestPracticePara3')}</p>
         </div>
-      </div >
+      </div>
     </>
 
   );

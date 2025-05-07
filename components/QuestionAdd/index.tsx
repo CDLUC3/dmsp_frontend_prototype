@@ -39,6 +39,7 @@ import QuestionView from '@/components/QuestionView';
 
 //Other
 import { useToast } from '@/context/ToastContext';
+import { stripHtmlTags } from '@/utils/general';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
 
@@ -65,6 +66,7 @@ const QuestionAdd = ({
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [hasOptions, setHasOptions] = useState<boolean | null>(false);
 
   // localization keys
   const Global = useTranslations('Global');
@@ -126,14 +128,15 @@ const QuestionAdd = ({
     const displayOrder = getDisplayOrder();
     const isOptionQuestion = questionTypeId && [3, 4, 5].includes(questionTypeId) && validateOptions();
     const transformedQuestionOptions = isOptionQuestion ? transformOptions() : undefined;
-
+    // string all tags from questionText before sending to backend
+    const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
     const input = {
       templateId: Number(templateId),
       sectionId: Number(sectionId),
       displayOrder,
       isDirty: true,
       questionTypeId,
-      questionText: question?.questionText,
+      questionText: cleanedQuestionText,
       requirementText: question?.requirementText,
       guidanceText: question?.guidanceText,
       sampleText: question?.sampleText,
@@ -149,7 +152,7 @@ const QuestionAdd = ({
         toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
         //redirect user to the Edit Question view with their new question id after successfully adding the new question
         const newQuestionId = response.data.addQuestion.id;
-        router.push(`/template/${templateId}/q/${newQuestionId}`)
+        router.push(`/template/${templateId}`)
       }
     } catch (error) {
       if (!(error instanceof ApolloError)) {
@@ -183,6 +186,12 @@ const QuestionAdd = ({
       setQuestion({ questionTypeId });
     }
   }, [questionTypeId]);
+
+  useEffect(() => {
+    // To determine if the question type selected is one that includes options fields
+    const isOptionQuestion = Boolean(questionTypeId && [3, 4, 5].includes(questionTypeId)); // Ensure the result is a boolean
+    setHasOptions(isOptionQuestion);
+  }, [questionTypeId])
 
   return (
     <>
@@ -229,15 +238,6 @@ const QuestionAdd = ({
                   </Text>
                 </TextField>
 
-                {/**Question type fields here */}
-                <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionTypeName })}</p>
-
-                {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
-                  <div className={styles.optionsWrapper}>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
-                  </div>
-                )}
-
                 <FormInput
                   name="question_text"
                   type="text"
@@ -253,45 +253,62 @@ const QuestionAdd = ({
                   errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
                 />
 
+
+                {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
+                  <>
+                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionTypeName })}</p>
+                    <div className={styles.optionsWrapper}>
+                      <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
+                    </div>
+                  </>
+                )}
+
                 <FormTextArea
                   name="question_requirements"
                   isRequired={false}
+                  richText={true}
                   description={QuestionAdd('helpText.requirementText')}
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    requirementText: e.currentTarget.value
-                  })}
+                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                    ...prev,
+                    requirementText: newValue
+                  }))}
                   helpMessage={QuestionAdd('helpText.requirementText')}
                 />
 
                 <FormTextArea
                   name="question_guidance"
                   isRequired={false}
+                  richText={true}
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.guidanceText')}
                   value={question?.guidanceText ? question?.guidanceText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    guidanceText: e.currentTarget.value
-                  })}
+                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                    ...prev,
+                    guidanceText: newValue
+                  }))}
                 />
 
-                <FormTextArea
-                  name="sample_text"
-                  isRequired={false}
-                  description={QuestionAdd('descriptions.sampleText')}
-                  textAreaClasses={styles.questionFormField}
-                  label={QuestionAdd('labels.sampleText')}
-                  value={question?.sampleText ? question.sampleText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    sampleText: e.currentTarget.value
-                  })}
-                  helpMessage={QuestionAdd('helpText.sampleText')}
-                />
+                {!hasOptions && (
+                  <FormTextArea
+                    name="sample_text"
+                    isRequired={false}
+                    richText={true}
+                    description={QuestionAdd('descriptions.sampleText')}
+                    textAreaClasses={styles.questionFormField}
+                    label={QuestionAdd('labels.sampleText')}
+                    value={question?.sampleText ? question.sampleText : ''}
+
+                    onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                      ...prev,
+                      sampleText: newValue
+                    }))}
+                    helpMessage={QuestionAdd('helpText.sampleText')}
+                  />
+                )}
+
 
                 {questionTypeId && [1, 2].includes(questionTypeId) && (
                   <Checkbox
@@ -311,7 +328,7 @@ const QuestionAdd = ({
                 )}
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
-                <Button type="submit" onPress={e => setFormSubmitted(true)}>{Global('buttons.save')}</Button>
+                <Button type="submit" onPress={e => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
               </Form>
 
             </TabPanel>

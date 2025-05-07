@@ -1,9 +1,9 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import TemplateListPage from '../page';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useTemplatesQuery,} from '@/generated/graphql';
-import {mockScrollIntoView} from '@/__mocks__/common';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useTemplatesQuery, } from '@/generated/graphql';
+import { mockScrollIntoView } from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 
@@ -42,13 +42,15 @@ jest.mock('@/components/TemplateListItem', () => {
 
 // Will pass this mock data back when query is made for templates
 const mockTemplateData = {
-  myTemplates: [{
-    name: 'UCOP',
-    description: 'University of California Office of the President',
-    modified: '2024-11-20 00:00:00',
-    id: 1,
-    owner: null
-  }]
+  myTemplates: {
+    items: [{
+      name: 'UCOP',
+      description: 'University of California Office of the President',
+      modified: '2024-11-20 00:00:00',
+      id: 1,
+      owner: null
+    }]
+  }
 }
 
 // Helper function to cast to jest.Mock for TypeScript
@@ -65,14 +67,16 @@ jest.mock('@/lib/graphql/client/apollo-client', () => ({
   createApolloClient: jest.fn(() => ({
     query: jest.fn().mockResolvedValueOnce({
       data: {
-        templateVersions: [
-          {
-            name: 'UCOP',
-            versionType: 'PUBLISHED',
-            id: 1,
-            modified: '1672531200000',
-          },
-        ],
+        templateVersions: {
+          items: [
+            {
+              name: 'UCOP',
+              versionType: 'PUBLISHED',
+              id: 1,
+              modified: '1672531200000',
+            },
+          ],
+        }
       },
     }),
   })),
@@ -134,7 +138,7 @@ describe('TemplateListPage', () => {
 
     const createLink = screen.getByText('actionCreate');
     expect(createLink).toBeInTheDocument();
-    expect(createLink).toHaveAttribute('href', '/template/create');
+    expect(createLink).toHaveAttribute('href', '/en-US/template/create');
   });
 
   it('should render the search field with correct label and help text', async () => {
@@ -190,11 +194,11 @@ describe('TemplateListPage', () => {
     });
 
     // Searching for translation keys since cannot run next-intl for unit tests
-    const homeLink = screen.getByRole('link', { name: 'breadcrumbHome' });
-    const templatesLink = screen.getByRole('link', { name: 'title' });
+    const homeLink = screen.getByRole('link', { name: 'breadcrumbs.home' });
+    const templatesLink = screen.getByRole('link', { name: 'breadcrumbs.templates' });
 
-    expect(homeLink).toHaveAttribute('href', '/');
-    expect(templatesLink).toHaveAttribute('href', '/template');
+    expect(homeLink).toHaveAttribute('href', '/en-US');
+    expect(templatesLink).toHaveAttribute('href', '/en-US/template');
   });
 
   it('should render errors', async () => {

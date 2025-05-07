@@ -197,10 +197,34 @@
     --border-color: transparent;
     --button-background-highlight: transparent;
 
+
+    background-color: transparent;
     font-weight: normal;
     box-sizing: border-box;
-    padding: 0;
+    padding: 3px 5px; // custom padding
     width: auto;
+    border-radius: 5px;
+
+
+    &[data-hovered="true"] {
+      background-color: #e0e0e0;
+       border-color: #cccccc;
+      cursor: pointer;
+    }
+
+    &[data-focus-visible="true"] {
+      outline: 2px solid var(--focus-ring-color);
+      outline-offset: 2px;
+    }
+
+    &[data-pressed="true"] {
+      background-color: #ccc;
+    }
+
+    &[data-selected="true"] {
+      background-color: #eee;
+      border: 1px solid #000;
+    }
   }
 
   .toolbar-break {
@@ -429,16 +453,16 @@
     justify-content: space-between;
     gap: 1rem;
     margin-top: 1rem;
-  
+
     @include device(xl) {
       flex-direction: row-reverse;
     }
-  
+
     > div {
       flex: 1 1 auto;
       max-width: 100%;
     }
-  
+
     button {
       display: flex;
       align-items: center;
@@ -781,4 +805,42 @@
     margin-top: var(--space-1);
     display: inline-block;
   }
+}
+
+
+
+
+
+
+/* --- Basic ProseMirror Table Styling --- */
+.ProseMirror table,
+.editor-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  border: 1px solid #ccc;
+}
+
+/* Style table header (th) and data cells (td) */
+.ProseMirror th,
+.ProseMirror td,
+.editor-content th,
+.editor-content td {
+  border: 1px solid #ccc;
+  padding: var(--space-1);
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Style header cells specifically */
+.ProseMirror th,
+.editor-content th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+/* Add hover effect to rows for better readability */
+.ProseMirror tbody tr:hover,
+.editor-content tbody tr:hover {
+  background-color: #f9f9f9;
 }

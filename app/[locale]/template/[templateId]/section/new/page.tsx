@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,25 +12,28 @@ import {
   SearchField,
   Text
 } from "react-aria-components";
-import {ApolloError} from "@apollo/client";
-import {useTranslations} from 'next-intl';
-import {useParams} from 'next/navigation';
+import { ApolloError } from "@apollo/client";
+import { useTranslations } from 'next-intl';
+import { useRouter, useParams } from 'next/navigation';
+import { useToast } from '@/context/ToastContext';
 
 import logECS from '@/utils/clientLogger';
-import {Question, Section, useTemplateQuery} from '@/generated/graphql';
+import { useAddSectionMutation, usePublishedSectionsQuery } from '@/generated/graphql';
 
 // Components
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import { ContentContainer, LayoutContainer } from '@/components/Container';
 import PageHeader from "@/components/PageHeader";
-import {Card, CardBody, CardFooter, CardHeading} from "@/components/Card/card";
+import { Card, CardBody, CardFooter, CardHeading } from "@/components/Card/card";
 import ErrorMessages from '@/components/ErrorMessages';
 
 interface SectionInterface {
   id?: number | null;
   name: string;
-  displayOrder?: number | null;
+  modified?: string | null;
   bestPractice?: boolean | null;
-  questions?: Question[] | undefined | null;
+  isDirty?: boolean | null;
+  templateName?: string | null;
+  questionCount?: number | null;
 }
 
 
@@ -44,35 +47,67 @@ const SectionTypeSelectPage: React.FC = () => {
 
   // Get templateId param
   const params = useParams();
-  const { templateId } = params; // From route /template/:templateId
+  const toastState = useToast();
+  const router = useRouter();
+  const { templateId: rawTemplateId } = params; // From route /template/:templateId
+  // routePath requires this to be a string but it can be either a string or an array
+  const templateId = Array.isArray(rawTemplateId) ? rawTemplateId[0] : rawTemplateId;
 
+  // Initialize user addSection mutation
+  const [addSectionMutation] = useAddSectionMutation();
 
   //Localization keys
   const AddNewSection = useTranslations('SectionTypeSelectPage');
+  const createSection = useTranslations('CreateSectionPage');
   const Global = useTranslations('Global');
 
-
   // Run template query to get all templates under the given templateId
-  const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
+  const { data, loading, error: templateQueryErrors, refetch } = usePublishedSectionsQuery(
     {
-      variables: { templateId: Number(templateId) },
+      variables: { term: '' },
       notifyOnNetworkStatusChange: true // To re-render component whenever network status of query changes
     }
   );
 
-  function sortSectionsByDisplayOrder(sections: (Section | null)[]): Section[] {
-    // Filter out null values and ensure type safety
-    const validSections = sections.filter((section): section is Section => {
-      return section !== null && section !== undefined;
-    });
-
-    return validSections.sort((a, b) => {
-      const orderA = a.displayOrder ?? Infinity;
-      const orderB = b.displayOrder ?? Infinity;
-
-      return orderA - orderB;
-    });
+  // Show Failure Message
+  const showFailureToast = () => {
+    const errorMessage = createSection('messages.errorCreatingSection');
+    toastState.add(errorMessage, { type: 'error' });
   }
+
+  // Make GraphQL mutation request to clone a section
+  const copyPublishedSection = async (section: SectionInterface): Promise<SectionInterface | null> => {
+    if (section) {
+      try {
+        const response = await addSectionMutation({
+          variables: {
+            input: {
+              templateId: Number(templateId),
+              copyFromVersionedSectionId: section.id,
+              name: section.name,
+            }
+          }
+        });
+
+        if (response.data?.addSection) {
+          const errs = Array.isArray(response.data?.addSection?.errors) ? response.data.addSection.errors : {};
+          if (errs && Object.values(errs).filter((err) => err && err !== 'SectionErrors').length === 0) {
+            // redirect to the edit section page for the newly copied section
+            router.push(`/template/${templateId}/section/${response.data.addSection.id}`);
+          } else {
+            showFailureToast();
+          }
+        }
+      } catch (error) {
+        logECS('error', 'copyPublishedSection', {
+          error,
+          url: { path: '/template/[templateId]/section/new' }
+        });
+        showFailureToast();
+      }
+    }
+    return section;
+  };
 
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
@@ -98,22 +133,21 @@ const SectionTypeSelectPage: React.FC = () => {
 
   useEffect(() => {
     // When data from backend changes, set template data in state
-    if (data && data.template) {
-      if (data.template?.sections) {
-        const sectionsArray = data.template.sections ?? [];
-
-        const sortedOrgSections = sortSectionsByDisplayOrder(sectionsArray);
-        sortedOrgSections?.map(section => {
-          const sectionObj = {
+    if (data && data.publishedSections) {
+      const publishedSections = data.publishedSections.items ?? [];
+      if (publishedSections.length > 0) {
+        const transformedSections = publishedSections?.map(section => {
+          return {
             id: section?.id ?? null,
             name: section?.name ?? '',
-            displayOrder: section?.displayOrder,
-            bestPractice: section?.bestPractice,
-            questions: section?.questions
+            modified: section?.modified,
+            bestPractice: section?.bestPractice ?? false,
+            templateName: section?.versionedTemplateName ?? '',
+            questionCount: section?.versionedQuestionCount
           }
+        });
 
-          setSections(prev => prev.concat(sectionObj));
-        })
+        setSections(transformedSections);
       }
 
     }
@@ -205,14 +239,18 @@ const SectionTypeSelectPage: React.FC = () => {
                         <Card key={index}>
                           <CardHeading>{section.name}</CardHeading>
                           <CardBody>
+                            <p>Template: {section.templateName}</p>
                             {AddNewSection.rich("questionsCount", {
-                              count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
+                              count: section.questionCount ? section.questionCount : 0,
                               p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
                             })}
                           </CardBody>
                           <CardFooter>
-                            <Link href={`/template/${templateId}/section/${section.id}`}
-                              className="button-link secondary">{Global('buttons.select')}</Link>
+                            <Button
+                              onPress={() => copyPublishedSection(section)}
+                              className="button-link secondary">
+                              {Global('buttons.select')}
+                            </Button>
                           </CardFooter>
                         </Card>
                       ))
@@ -227,14 +265,18 @@ const SectionTypeSelectPage: React.FC = () => {
                         <Card key={index}>
                           <CardHeading>{section.name}</CardHeading>
                           <CardBody>
+                            <p>Template: {section.templateName}</p>
                             {AddNewSection.rich("questionsCount", {
-                              count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
+                              count: section.questionCount ? section.questionCount : 0,
                               p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
                             })}
                           </CardBody>
                           <CardFooter>
-                            <Link href={`/template/${templateId}/section/${section.id}`}
-                              className="button-link secondary">Select</Link>
+                            <Button
+                              onPress={() => copyPublishedSection(section)}
+                              className="button-link secondary">
+                              {Global('buttons.select')}
+                            </Button>
                           </CardFooter>
                         </Card>
                       ))
@@ -259,14 +301,18 @@ const SectionTypeSelectPage: React.FC = () => {
                         <Card key={index}>
                           <CardHeading>{section.name}</CardHeading>
                           <CardBody>
+                            <p>Template: {section.templateName}</p>
                             {AddNewSection.rich("questionsCount", {
-                              count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
+                              count: section.questionCount ? section.questionCount : 0,
                               p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
                             })}
                           </CardBody>
                           <CardFooter>
-                            <Link href={`/template/${templateId}/section/${section.id}`}
-                              className="button-link secondary">{Global('buttons.select')}</Link>
+                            <Button
+                              onPress={() => copyPublishedSection(section)}
+                              className="button-link secondary">
+                              {Global('buttons.select')}
+                            </Button>
                           </CardFooter>
                         </Card>
                       ))
@@ -281,14 +327,18 @@ const SectionTypeSelectPage: React.FC = () => {
                         <Card key={index}>
                           <CardHeading>{section.name}</CardHeading>
                           <CardBody>
+                            <p>Template: {section.templateName}</p>
                             {AddNewSection.rich("questionsCount", {
-                              count: section.questions ? section.questions.length : 0, // Inject the dynamic questions count
+                              count: section.questionCount ? section.questionCount : 0,
                               p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
                             })}
                           </CardBody>
                           <CardFooter>
-                            <Link href={`/template/${templateId}/section/${section.id}`}
-                              className="button-link secondary">Select</Link>
+                            <Button
+                              onPress={() => copyPublishedSection(section)}
+                              className="button-link secondary">
+                              {Global('buttons.select')}
+                            </Button>
                           </CardFooter>
                         </Card>
                       ))

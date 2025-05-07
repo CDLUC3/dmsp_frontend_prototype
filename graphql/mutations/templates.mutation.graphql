@@ -33,3 +33,11 @@ mutation AddTemplate($name: String!, $copyFromTemplateId: Int) {
     name
   }
 }
+
+mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: TemplateVisibility!) {
+  updateTemplate(templateId: $templateId, name: $name, visibility: $visibility) {
+    id
+    name
+    visibility
+  }
+}

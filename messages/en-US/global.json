@@ -131,7 +131,8 @@
       "projects": "Projects",
       "projectOverview": "Project overview",
       "projectFunder": "Project funder",
-      "planOverview": "Plan overview"
+      "planOverview": "Plan overview",
+      "feedback": "Feedback"
     },
     "form": {
       "yesLabel": "Yes",
@@ -144,6 +145,8 @@
       "select": "Select",
       "next": "Next",
       "save": "Save",
+      "saveAndAdd": "Save and add",
+      "saveAndUpdate": "Save and update",
       "saveChanges": "Save changes",
       "remove": "Remove",
       "confirm": "Confirm",
@@ -168,7 +171,8 @@
     },
     "links": {
       "clearFilter": "clear filter",
-      "request": "Request"
+      "request": "Request",
+      "learnMore": "Learn more"
     },
     "messaging": {
       "loading": "Loading",
@@ -185,6 +189,7 @@
     },
     "headings": {
       "preview": "Preview"
-    }
+    },
+    "version": "Version"
   }
 }

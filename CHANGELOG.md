@@ -4,6 +4,10 @@
 - Plan Downloads [#299]
 -
 ### Added
+- PublishedSections graphQL query [#448]
+- Added new Server Actions `addCollaboratorAction` [#381]
+- Added `addProjectCollaborator` mutations [#381]
+- Added help text to Section fields from the wireframe [#281]
 - Added new serverAuthHelper.ts to work with Server Actions [#364]
 - Added type check to pre-commit hook and fixed some issues in the app [#391]
 - Add central "named routes" and helper function
@@ -25,6 +29,10 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated `affiliations`, `myTemplates`, `publishedTemplates`, `myProjects` queries to handle the new pagination format. Updated the corresponding pages and components only enough to keep them working as-is [#180](https://github.com/CDLUC3/dmsp_backend_prototype/issues/180)
+- Updated `templates/[templateId]/sections/new` to use the new PublishedSections query and to use the addSection mutation when the user selects a section to copy
+- Hooked up `projects/[projectId]/dmp/[dmpId]/feedback/invite` page to backend data [#381]
+- Removed from from the modal on `projects/[projectId]/dmp/[dmpId]/feedback/invite` to add a project member, since we don't have user data at that point [#381]
 - Updated `Template` and `Projects` pages to work with the new pared down search result responses from GraphQL [#223] and [#218](https://github.com/CDLUC3/dmsp_backend_prototype/issues/218)
 - Updated `Plan Members` page. Added mutation and queries, and a server action for handling addPlanContributors mutation [#364]
 - Explicitly updated nextJS version to 14.2.25 due to an Authorization Bypass vulnerability in middleware (CVE-2025-29927) [#388]
@@ -66,6 +74,21 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+-
+- Fixed issue with Template not refreshing after published [#455]
+  - Added a server endpoint env variable for graphqlServerActionHandler.ts since env variables prefixed with NEXT_PUBLIC do not work on the server side [#455]
+- Added Rich Text Editor for Sample Text in the Question forms [#456]
+  - Adjusted widths of Edit template title to accomodate for very long titles [#456]
+- Fixed bugs related to the template builder flow
+  - Fixed Preview page to not display HTML at top for Requirements [#449]
+  - Added redirect back to Edit Template page when user creates a new Section [#452]
+  - On `/template` page, fixed the `published` and `unpublished` labels on the list items because they were reversed [#453]
+  - Replaced hard-coded org names with the actual org names in text on `Manage access` page, and fixed archive modal title to `Confirm removal` [#454]
+  - Changed `Published` to `Last updated` on `/template/[templateId]` page and fixed missing translation for `Load 3 more`. Also when adding a new `Question`, the button should say `Save and add` and when editing an existing question, the form button should say `Save and update`. [#455]
+  - Added missing space after `Guidance by` and `These are requirements by` in the Preview page [#455]
+- Fix logger path issue in auth.ts [#441]
+- Added handling of scenario where no jwt payload is returned when getting languageId in middleware [#441]
+- Fixed ordering issue for Sections on the Edit Templates page [#436]
 - Fixed missing `as deps` in `Dockerfile.prod`.
 - Fixed wrong node image in `Dockerfile.prd`. Also fixed a number of linting issues.
 - Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
@@ -183,6 +206,7 @@
 
 
 ### Fixed
+- Remove duplicate graphqlServerActionHandler.ts and serverAuthHelper.ts
 - Fixed `login` 404 error issue and looping issue in middleware [#194]
 - Removed old `app/layout.tsx` page. It was causing errors, since we have one located at `app/[locale]/layout.tsx` now.
 - Fixed a failing unit test and build for `confirm-email` component when backend server was not running [#180]

@@ -122,7 +122,7 @@
       "section": "Seção",
       "addNewSection": "Adicionar uma nova seção",
       "updateSection": "Seção de atualização",
-      "editSection": "",
+      "editSection": "Editar seção",
       "createSection": "Criar seção",
       "editTemplate": "Editar Modelo",
       "question": "Pergunta",
@@ -131,7 +131,8 @@
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto",
       "projectFunder": "Fundador do Projeto",
-      "planOverview": "Resumo do plano"
+      "planOverview": "Resumo do plano",
+      "feedback": "Registrar"
     },
     "form": {
       "yesLabel": "Sim",
@@ -144,6 +145,8 @@
       "select": "Select",
       "next": "Seguinte",
       "save": "Salvar",
+      "saveAndAdd": "Salvar e adicionar",
+      "saveAndUpdate": "Salvar e atualizar",
       "saveChanges": "Salvar as alterações",
       "remove": "Remover",
       "confirm": "Confirmação",
@@ -168,7 +171,8 @@
     },
     "links": {
       "clearFilter": "limpar filtro",
-      "request": "Solicitação"
+      "request": "Solicitação",
+      "learnMore": "Saiba mais"
     },
     "messaging": {
       "loading": "Baixar",
@@ -185,6 +189,7 @@
     },
     "headings": {
       "preview": "Pré-visualizar"
-    }
+    },
+    "version": "Versão"
   }
 }

@@ -21,6 +21,7 @@
     "titleStatus": "Status",
     "draft": "Draft",
     "notPublished": "Not Published",
+    "published": "Published",
     "allowAccess": "Allow people to access, edit or comment on this plan",
     "description": {
       "archiveTemplate": "This template will no longer be visible to plan creators. Pre-existing plans that use this template will be unaffected. This is not reversible."
@@ -48,6 +49,9 @@
       "archiveTemplateError": "Error when archiving template",
       "saveTemplateError": "Error when saving template",
       "getTemplatesError": "Error getting templates"
+    },
+    "messages": {
+      "successfullyArchived": "Successfully archived the template"
     }
   },
   "PublishTemplate": {
@@ -121,7 +125,7 @@
     },
     "intro": "You have three options. You can use a section you created previously, use a DMP Tool best practice section or build a new section. All sections are customizable once selected.",
     "newSectionDescription": "Build a new section from scratch. You can add questions, instructions, and other content to your section, we highly recommend using the best practice sections.",
-    "questionsCount": "<p>This section includes:</p><p>{count} pre-built questions</p>"
+    "questionsCount": "<p>{count} pre-built questions</p>"
   },
   "Section": {
     "tabs": {
@@ -137,7 +141,10 @@
       "bestPracticeTags": "Section Best Practices to include"
     },
     "helpText": {
-      "bestPracticeTagsDesc": "Select one or more tags to associate global best practice guidance written by DMP Tool."
+      "bestPracticeTagsDesc": "Select one or more tags to associate global best practice guidance written by DMP Tool.",
+      "sectionIntroduction": "Enter a short, concise introduction to the question.",
+      "sectionRequirements": "Outline the requirements that a user must consider in this section.",
+      "sectionGuidance": "Provide users with helpful guidance to help them answer the question."
     }
   },
   "CreateSectionPage": {
@@ -153,9 +160,6 @@
   },
   "SectionUpdatePage": {
     "title": "Update section",
-    "button": {
-      "updateSection": "Update section"
-    },
     "messages": {
       "fieldLengthValidation": "Name must be at least 2 characters.",
       "errorUpdatingSection": "Error when updating section.",
@@ -183,7 +187,8 @@
     "numDisplaying": "Showing {num} of {total}",
     "clearFilter": "clear filter",
     "buttons": {
-      "loadMore": "Load {name} more"
+      "loadMore": "Load {name} more",
+      "load3More": "Load 3 more"
     },
     "headings": {
       "previouslyCreatedTemplates": "Use one of your previously created templates",
@@ -311,17 +316,18 @@
   },
   "TemplateAccessPage": {
     "title": "Manage access",
-    "intro": "This template is accessible to everyone at NSF with full view and edit permissions. It can also be shared with people outside your organization.",
+    "intro": "This template is accessible to everyone at {orgName} with full view and edit permissions. It can also be shared with people outside your organization.",
     "headings": {
       "h3OrgAccess": "Within organization",
       "externalPeople": "External people",
       "share": "Share with someone outside your organization",
-      "confirmCheckout": "Confirm checkout?"
+      "confirmCheckout": "Confirm checkout?",
+      "confirmRemoval": "Confirm removal"
     },
     "paragraphs": {
       "orgAccessPara1": "Everyone at {name} can view and edit",
       "orgAccessPara2": "{count} administrator(s) can manage access",
-      "externalPara1": "Share this template with people outside NSF",
+      "externalPara1": "Share this template with people outside {orgName}",
       "sharePara1": "Enter their email address. If they do not already have a DMP Tool account they will be prompted to create one.",
       "modalPara1": "Please confirm that you want to remove {email}"
     },

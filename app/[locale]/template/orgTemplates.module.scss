@@ -1,11 +1,3 @@
-.loadBtnContainer {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.remainingText,
 .searchMatchText {
   font-size: var(--fs-small);
   margin-top: var(--space-2);

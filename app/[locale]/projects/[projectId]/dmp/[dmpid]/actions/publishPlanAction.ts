@@ -1,7 +1,7 @@
 "use server";
 
-import { executeGraphQLMutation } from "@/utils/graphqlServerActionHandler";
-import logger from "@/utils/logger";
+import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
+import logger from "@/utils/server/logger";
 import { ActionResponse } from "@/app/types";
 import { PublishPlanDocument } from "@/generated/graphql";
 
@@ -12,7 +12,6 @@ export async function publishPlanAction({
   planId: number;
   visibility: string;
 }): Promise<ActionResponse> {
-  console.log("***PublishPlanDocument", PublishPlanDocument);
   try {
     // Execute the mutation using the shared handler
     return executeGraphQLMutation({

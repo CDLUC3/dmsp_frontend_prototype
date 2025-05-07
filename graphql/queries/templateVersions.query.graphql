@@ -39,19 +39,23 @@ query MyVersionedTemplates {
 
 query PublishedTemplates {
   publishedTemplates {
-    id
-    templateId
-    name
-    description
-    visibility
-    bestPractice
-    version
-    modified
-    modifiedById
-    modifiedByName
-    ownerId
-    ownerURI
-    ownerDisplayName
-    ownerSearchName
+    totalCount
+    nextCursor
+    items {
+      id
+      templateId
+      name
+      description
+      visibility
+      bestPractice
+      version
+      modified
+      modifiedById
+      modifiedByName
+      ownerId
+      ownerURI
+      ownerDisplayName
+      ownerSearchName
+    }
   }
 }

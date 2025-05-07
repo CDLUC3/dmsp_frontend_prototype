@@ -4,6 +4,24 @@ query SectionsDisplayOrder($templateId: Int!) {
   }
 }
 
+query PublishedSections($term: String!) {
+  publishedSections(term: $term) {
+    totalCount
+    nextCursor
+    items {
+      id
+      name
+      displayOrder
+      bestPractice
+      modified
+      created
+      versionedTemplateId
+      versionedTemplateName
+      versionedQuestionCount
+    }
+  }
+}
+
 query Section($sectionId: Int!) {
   section(sectionId: $sectionId) {
     id
