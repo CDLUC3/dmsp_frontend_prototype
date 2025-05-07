@@ -191,6 +191,7 @@ function Page() {
       </tr>
       </tbody>
     </table>
+
     <p>(Raw) data generated within the working group Herres-Pawlis at the
       Institute of Inorganic Chemistry, RWTH Aachen University will be saved at
       least in a non-proprietary file format for reuse by scientists within the
@@ -1929,11 +1930,30 @@ function Page() {
 
           <div id="_tinymce">
             <h2>TinyMCE Editor</h2>
+            <p>Required properties:</p>
+            <dl>
+              <dt><code>content</code></dt>
+              <dd>The variable that hold the html content for the editor.</dd>
+
+              <dt><code>setContent</code></dt>
+              <dd>The effect function that will update the content variable</dd>
+
+              <dt><code>Optional props</code></dt>
+              <dd>
+                <p>The <code>error</code> and <code>helpText</code> adds text below the editor.</p>
+                <p>And the <code>id</code> is added to the editor tag, and the <code>labelid</code> is used for an aria-labelledby</p>
+              </dd>
+            </dl>
             <p>Example Usage:</p>
             <TinyMCEEditor
-              initialValue={editorContent}
-              height={400}
+              content={editorContent}
+              setContent={setEditorContent}
+              error={undefined}
+              id="tinymce-test"
+              labelId="_tinymce"
+              helpText="This is a tinymce test to try out the editor"
             />
+
           </div>
 
           <div id="_toast">

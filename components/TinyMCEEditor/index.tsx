@@ -1,14 +1,21 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import type { Editor as TinyMCEEditorType } from 'tinymce';
 
-export default function TinyMCEEditor({
-  initialValue = '',
-  onChange = () => {},
-  height = 500
-}) {
-  const editorRef = useRef(null);
-  const elementId = 'tiny-editor';
+import styles from './tinyMCEEditor.module.scss';
+interface TinyMCEEditorProps {
+  content: string;
+  setContent: (newContent: string) => void;
+  id?: string;
+  error?: string;
+  labelId?: string;
+  helpText?: string;
+}
+
+const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: TinyMCEEditorProps) => {
+  const editorRef = useRef<TinyMCEEditorType | null>(null); // Update the type here
+  const elementId = id || 'tiny-editor';
 
   useEffect(() => {
     // Check if tinymce is available
@@ -24,9 +31,12 @@ export default function TinyMCEEditor({
           branding: false, // removed the tinyMCE branding
           statusbar: false, //removes the bottom status bar because page flickers with every edit
           selector: `#${elementId}`,
-          height,
+          // height: 200,
           menubar: true,
+          max_height: 400,
+          min_height: 200,
           plugins: [
+            'autoresize',
             'table',
             'code'
           ],
@@ -36,37 +46,13 @@ export default function TinyMCEEditor({
           content_style: `
           @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
           body { font-family: "Poppins", sans-serif; color:#393939;};
-          table, th, td {
-            border: 1px solid black !important;
-            border-collapse: collapse;
-            border-style: solid !important;
-          }
-
-          .mce-item-table,
-          table {
-            border-collapse: collapse !important;
-            border: 1px solid black !important;
-          }
-
-          th, td {
-            padding: 8px;
-            border: 1px solid black !important;
-            border-style: solid !important;
-          }
-
-          /* This removes the dashed outline TinyMCE adds to cells */
-          .mce-content-body table td.mce-item-table,
-          .mce-content-body table th.mce-item-table {
-            outline: none !important;
-          }
-
           `,
-          init_instance_callback: (editor) => {
-            editorRef.current = editor;
-            editor.setContent(initialValue);
+          init_instance_callback: (editor: TinyMCEEditorType) => {
+            editorRef.current = editor; // No more TypeScript error
+            editor.setContent(content);
 
             editor.on('Change', () => {
-              onChange(editor.getContent());
+              setContent(editor.getContent());
             });
           }
         });
@@ -81,11 +67,24 @@ export default function TinyMCEEditor({
         window.tinymce.remove(`#${elementId}`);
       }
     };
-  }, [initialValue, height]);
+  }, []);
 
   return (
-    <div>
-      <textarea id={elementId} style={{ visibility: 'hidden' }} />
-    </div>
+    <div className={styles['tinyMCE-editor-container']}>
+      <textarea
+        id={elementId}
+        aria-label={id ?? 'Editor input area'}
+        aria-labelledby={labelId ?? ''}
+        aria-describedby={helpText ? `${elementId}-help-text` : ''}
+        aria-invalid={error ? 'true' : 'false'}
+        style={{ visibility: 'hidden' }
+        }
+      />
+      {error && <div className={`${styles['editor-help-text']} error-message`}>{error}</div>}
+      {helpText && <div className={`${styles['editor-help-text']} help-text`}>{helpText}</div>}
+    </div >
   );
 }
+
+
+export default TinyMCEEditor;

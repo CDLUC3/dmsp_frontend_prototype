@@ -4,6 +4,7 @@
 - Plan Downloads [#299]
 -
 ### Added
+- Added TinyMCE Editor component and added it to the styleguide [#462]
 - PublishedSections graphQL query [#448]
 - Added new Server Actions `addCollaboratorAction` [#381]
 - Added `addProjectCollaborator` mutations [#381]
