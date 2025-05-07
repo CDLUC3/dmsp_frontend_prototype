@@ -136,8 +136,8 @@ const SectionTypeSelectPage: React.FC = () => {
     if (data && data.publishedSections) {
       const publishedSections = data.publishedSections.items ?? [];
       if (publishedSections.length > 0) {
-        publishedSections?.map(section => {
-          const sectionObj = {
+        const transformedSections = publishedSections?.map(section => {
+          return {
             id: section?.id ?? null,
             name: section?.name ?? '',
             modified: section?.modified,
@@ -145,9 +145,9 @@ const SectionTypeSelectPage: React.FC = () => {
             templateName: section?.versionedTemplateName ?? '',
             questionCount: section?.versionedQuestionCount
           }
+        });
 
-          setSections(prev => prev.concat(sectionObj));
-        })
+        setSections(transformedSections);
       }
 
     }
