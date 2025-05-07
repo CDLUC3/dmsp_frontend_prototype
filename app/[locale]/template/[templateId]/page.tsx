@@ -58,7 +58,7 @@ const TemplateEditPage: React.FC = () => {
   const [templateInfo, setTemplateInfoState] = useState<TemplateInfoInterface>({
     templateId: null,
     name: '',
-    visibility: TemplateVisibility.Private,
+    visibility: TemplateVisibility.Organization,
   });
   const [newTitle, setNewTitle] = useState('');
   const formatDate = useFormatDate();
@@ -304,11 +304,15 @@ const TemplateEditPage: React.FC = () => {
     ? sortSections(template.sections.filter((section): section is Section => section !== null))
     : [];
 
+  const description = `by ${template?.name}` +
+    (template?.latestPublishVersion ? ` - ${Global('version')}: ${template.latestPublishVersion}` : '') +
+    (template?.latestPublishDate || formattedPublishDate ? ` - ${Global('lastUpdated')}: ${formattedPublishDate || template.latestPublishDate}` : '');
+
   return (
     <div>
       <PageHeaderWithTitleChange
         title={newTitle || template.name}
-        description={`by ${template?.name} - ${Global('version')}: ${template?.latestPublishVersion} - ${Global('lastUpdated')}: ${formattedPublishDate || template?.latestPublishDate}`}
+        description={description}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
@@ -366,7 +370,7 @@ const TemplateEditPage: React.FC = () => {
             <div className="sidebar-section">
 
               <Button data-secondary className="my-3 secondary"
-                onPress={() => saveTemplate(TemplateVersionType.Draft, '', TemplateVisibility.Private)}>
+                onPress={() => saveTemplate(TemplateVersionType.Draft, '', TemplateVisibility.Organization)}>
                 {EditTemplate('button.saveAsDraft')}
               </Button>
 
