@@ -101,8 +101,8 @@ function Page() {
       be measured by cooperation partners are marked with an asterisk (*).
       Already existing data of the analytical methods will be reused in the
       stated formats.</p>
-    <table style="border-collapse: collapse; width: 100%; height: 371px;"
-           border="1">
+<table style="border-collapse: collapse; width: 99.9706%;" border="1">
+
       <colgroup>
         <col style="width: 20%;">
         <col style="width: 20%;">

@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 
 export default function TinyMCEEditor({
   initialValue = '',
+  onChange = () => {},
   height = 500
 }) {
   const editorRef = useRef(null);
@@ -33,16 +34,40 @@ export default function TinyMCEEditor({
             'alignleft aligncenter alignright alignjustify | ' +
             'bullist numlist outdent indent | removeformat | help',
           content_style: `
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
-          body { font-family: "Poppins", sans-serif; color:#393939;}
+          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+          body { font-family: "Poppins", sans-serif; color:#393939;};
+          table, th, td {
+            border: 1px solid black !important;
+            border-collapse: collapse;
+            border-style: solid !important;
+          }
+
+          .mce-item-table,
+          table {
+            border-collapse: collapse !important;
+            border: 1px solid black !important;
+          }
+
+          th, td {
+            padding: 8px;
+            border: 1px solid black !important;
+            border-style: solid !important;
+          }
+
+          /* This removes the dashed outline TinyMCE adds to cells */
+          .mce-content-body table td.mce-item-table,
+          .mce-content-body table th.mce-item-table {
+            outline: none !important;
+          }
+
           `,
           init_instance_callback: (editor) => {
             editorRef.current = editor;
             editor.setContent(initialValue);
 
-            // editor.on('Change', () => {
-            //   onChange(editor.getContent());
-            // });
+            editor.on('Change', () => {
+              onChange(editor.getContent());
+            });
           }
         });
       };

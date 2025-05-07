@@ -17,6 +17,7 @@ export default function EditorPage() {
       <div className="mb-6">
         <TinyMCEEditor
           initialValue={content}
+          onChange={handleEditorChange}
           height={400}
         />
       </div>
