@@ -33,9 +33,14 @@ import {
 import { useScrollToTop } from '@/hooks/scrollToTop';
 // Other
 import logECS from '@/utils/clientLogger';
-import { MyVersionedTemplatesInterface, TemplateItemProps } from '@/app/types';
-import { useFormatDate } from '@/hooks/useFormatDate';
-import { useToast } from '@/context/ToastContext';
+import {
+  MyVersionedTemplatesInterface,
+  TemplateItemProps,
+  PaginatedMyVersionedTemplatesInterface,
+  PaginatedVersionedTemplateSearchResultsInterface
+} from '@/app/types';
+import {useFormatDate} from '@/hooks/useFormatDate';
+import {useToast} from '@/context/ToastContext';
 
 
 // Step 2 of the Create Template start pages
@@ -131,9 +136,12 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }
 
   // Transform data into more easier to use properties
-  const transformTemplates = async (templates: (MyVersionedTemplatesInterface | null)[]) => {
+  const transformTemplates = async (
+    templates: PaginatedMyVersionedTemplatesInterface | PaginatedVersionedTemplateSearchResultsInterface | null
+  ) => {
+    const items = templates?.items || [];
     const transformedTemplates = await Promise.all(
-      templates.map(async (template: MyVersionedTemplatesInterface | null) => ({
+      items.map(async (template: MyVersionedTemplatesInterface | null) => ({
         id: template?.id,
         template: {
           id: template?.template?.id ? template?.template.id : null
@@ -212,11 +220,13 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     // Transform templates into format expected by TemplateListItem component
     const processTemplates = async () => {
       if (data && data?.myVersionedTemplates) {
-        const transformedTemplates = await transformTemplates(data.myVersionedTemplates);
+        const templates = { items: data?.myVersionedTemplates ?? [] };
+        const transformedTemplates = await transformTemplates(templates as PaginatedMyVersionedTemplatesInterface);
         setTemplates(transformedTemplates);
       }
       if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
-        const publicTemplates = await transformTemplates(publishedTemplatesData.publishedTemplates);
+        const templates = publishedTemplatesData?.publishedTemplates ?? { items: [] };
+        const publicTemplates = await transformTemplates(templates as PaginatedVersionedTemplateSearchResultsInterface);
         const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'PUBLIC');
         setPublicTemplatesList(transformedPublicTemplates);
       }

@@ -344,15 +344,17 @@ const PlanCreate: React.FC = () => {
 
   useEffect(() => {
     const processTemplates = async () => {
+      const templates = publishedTemplatesData?.publishedTemplates?.items ?? [];
+
       if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
-        const publicTemplates = await transformTemplates(publishedTemplatesData.publishedTemplates);
+        const publicTemplates = await transformTemplates(templates);
         const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'PUBLIC');
         const sortedPublicTemplates = sortTemplatesByProjectFunders(transformedPublicTemplates);
         dispatch({ type: 'SET_PUBLIC_TEMPLATES_LIST', payload: sortedPublicTemplates });
       }
 
       // Find templates that contain project funder as owner
-      const matchingTemplates = publishedTemplatesData?.publishedTemplates?.filter(template =>
+      const matchingTemplates = templates.filter(template =>
         projectFunders?.projectFunders && projectFunders.projectFunders.some(pf => pf?.affiliation?.uri === template?.ownerURI)
       );
 

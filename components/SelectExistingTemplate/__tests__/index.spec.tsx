@@ -75,34 +75,36 @@ jest.mock('@/hooks/useFormatDate', () => ({
 
 
 const mockPublicTemplates = {
-  publishedTemplates: [
-    {
-      description: "",
-      errors: null,
-      id: 1,
-      modifiedById: 1,
-      name: "Public template 1",
-      owner: null,
-      template: {
+  publishedTemplates: {
+    items: [
+      {
+        description: "",
+        errors: null,
         id: 1,
-        __typename: "Template",
+        modifiedById: 1,
+        name: "Public template 1",
+        owner: null,
+        template: {
+          id: 1,
+          __typename: "Template",
+        },
+        visibility: "PUBLIC"
       },
-      visibility: "PUBLIC"
-    },
-    {
-      description: "",
-      errors: null,
-      id: 2,
-      modifiedById: 2,
-      name: "Public template 2",
-      owner: null,
-      template: {
+      {
+        description: "",
+        errors: null,
         id: 2,
-        __typename: "Template",
-      },
-      visibility: "PUBLIC"
-    }
-  ]
+        modifiedById: 2,
+        name: "Public template 2",
+        owner: null,
+        template: {
+          id: 2,
+          __typename: "Template",
+        },
+        visibility: "PUBLIC"
+      }
+    ]
+  }
 }
 
 const mockTemplates = {

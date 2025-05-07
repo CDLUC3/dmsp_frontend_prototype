@@ -399,6 +399,26 @@ export type AffiliationSearch = {
   uri: Scalars['String']['output'];
 };
 
+export type AffiliationSearchResults = PaginatedQueryResults & {
+  __typename?: 'AffiliationSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<AffiliationSearch>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 /** Categories for Affiliation */
 export enum AffiliationType {
   Archive = 'ARCHIVE',
@@ -632,6 +652,26 @@ export type LicenseErrors = {
   uri?: Maybe<Scalars['String']['output']>;
 };
 
+export type LicenseSearchResults = PaginatedQueryResults & {
+  __typename?: 'LicenseSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<License>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 /** A metadata standard used when describing a research output */
 export type MetadataStandard = {
   __typename?: 'MetadataStandard';
@@ -669,6 +709,26 @@ export type MetadataStandardErrors = {
   name?: Maybe<Scalars['String']['output']>;
   researchDomainIds?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
+};
+
+export type MetadataStandardSearchResults = PaginatedQueryResults & {
+  __typename?: 'MetadataStandardSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<MetadataStandard>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export type Mutation = {
@@ -1349,6 +1409,46 @@ export type OutputTypeErrors = {
   uri?: Maybe<Scalars['String']['output']>;
 };
 
+export type PaginatedQueryResults = {
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination only!) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page (standard offset pagination only!) */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more only!) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+/** Pagination options, either cursor-based (inifite-scroll) or offset-based pagination (standard first, next, etc.) */
+export type PaginationOptions = {
+  /** The cursor to start the pagination from (used for cursor infinite scroll/load more only!) */
+  cursor?: InputMaybe<Scalars['String']['input']>;
+  /** The number of items to return */
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  /** The number of items to skip before starting the pagination (used for standard offset pagination only!) */
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  /** The sort order (used for standard offset pagination only!) */
+  sortDir?: InputMaybe<Scalars['String']['input']>;
+  /** The sort field (used for standard offset pagination only!) */
+  sortField?: InputMaybe<Scalars['String']['input']>;
+  /** The type of pagination to use (cursor or offset) */
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum PaginationType {
+  /** Cursor-based pagination (infinite scroll/load more) */
+  Cursor = 'CURSOR',
+  /** Standard pagination using offsets (first, next, previous, last) */
+  Offset = 'OFFSET'
+}
+
 /** A Data Managament Plan (DMP) */
 export type Plan = {
   __typename?: 'Plan';
@@ -1994,6 +2094,46 @@ export type ProjectSearchResultFunder = {
   name?: Maybe<Scalars['String']['output']>;
 };
 
+export type ProjectSearchResults = PaginatedQueryResults & {
+  __typename?: 'ProjectSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<ProjectSearchResult>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type PublishedTemplateSearchResults = PaginatedQueryResults & {
+  __typename?: 'PublishedTemplateSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   _empty?: Maybe<Scalars['String']['output']>;
@@ -2004,10 +2144,10 @@ export type Query = {
   /** Retrieve all of the valid Affiliation types */
   affiliationTypes?: Maybe<Array<Scalars['String']['output']>>;
   /** Perform a search for Affiliations matching the specified name */
-  affiliations?: Maybe<Array<Maybe<AffiliationSearch>>>;
-  /** Get all of the comments associated with the round of admin feedback */
+  affiliations?: Maybe<AffiliationSearchResults>;
+  /** Get the sepecific answer */
   answer?: Maybe<Answer>;
-  /** Get all rounds of admin feedback for the plan */
+  /** Get all answers for the given project and plan and section */
   answers?: Maybe<Array<Maybe<Answer>>>;
   /** Get all of the best practice VersionedSection */
   bestPracticeSections?: Maybe<Array<Maybe<VersionedSection>>>;
@@ -2026,17 +2166,17 @@ export type Query = {
   /** Fetch a specific license */
   license?: Maybe<License>;
   /** Search for a license */
-  licenses?: Maybe<Array<Maybe<License>>>;
+  licenses?: Maybe<LicenseSearchResults>;
   /** Returns the currently logged in user's information */
   me?: Maybe<User>;
   /** Fetch a specific metadata standard */
   metadataStandard?: Maybe<MetadataStandard>;
   /** Search for a metadata standard */
-  metadataStandards?: Maybe<Array<Maybe<MetadataStandard>>>;
+  metadataStandards?: Maybe<MetadataStandardSearchResults>;
   /** Get all of the user's projects */
-  myProjects?: Maybe<Array<Maybe<ProjectSearchResult>>>;
+  myProjects?: Maybe<ProjectSearchResults>;
   /** Get the Templates that belong to the current user's affiliation (user must be an Admin) */
-  myTemplates?: Maybe<Array<Maybe<TemplateSearchResult>>>;
+  myTemplates?: Maybe<TemplateSearchResults>;
   /** Get the VersionedTemplates that belong to the current user's affiliation (user must be an Admin) */
   myVersionedTemplates?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
   /** Get all the research output types */
@@ -2078,9 +2218,9 @@ export type Query = {
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedQuestions?: Maybe<Array<Maybe<VersionedQuestion>>>;
   /** Search for VersionedSection whose name contains the search term */
-  publishedSections?: Maybe<Array<Maybe<VersionedSectionSearchResult>>>;
+  publishedSections?: Maybe<VersionedSectionSearchResults>;
   /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
-  publishedTemplates?: Maybe<Array<Maybe<VersionedTemplateSearchResult>>>;
+  publishedTemplates?: Maybe<PublishedTemplateSearchResults>;
   /** Get the specific Question based on questionId */
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
@@ -2096,7 +2236,7 @@ export type Query = {
   /** Return the recommended Licenses */
   recommendedLicenses?: Maybe<Array<Maybe<License>>>;
   /** Search for a repository */
-  repositories?: Maybe<Array<Maybe<Repository>>>;
+  repositories?: Maybe<RepositorySearchResults>;
   /** Fetch a specific repository */
   repository?: Maybe<Repository>;
   /** Search for projects within external APIs */
@@ -2122,8 +2262,8 @@ export type Query = {
   topLevelResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
   /** Returns the specified user (Admin only) */
   user?: Maybe<User>;
-  /** Returns all of the users associated with the current user's affiliation (Admin only) */
-  users?: Maybe<Array<Maybe<User>>>;
+  /** Returns all of the users associated with the current admin's affiliation (Super admins get everything) */
+  users?: Maybe<UserSearchResults>;
 };
 
 
@@ -2140,6 +2280,7 @@ export type QueryAffiliationByUriArgs = {
 export type QueryAffiliationsArgs = {
   funderOnly?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
+  paginationOptions?: InputMaybe<PaginationOptions>;
 };
 
 
@@ -2182,6 +2323,7 @@ export type QueryLicenseArgs = {
 
 
 export type QueryLicensesArgs = {
+  paginationOptions?: InputMaybe<PaginationOptions>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2192,7 +2334,20 @@ export type QueryMetadataStandardArgs = {
 
 
 export type QueryMetadataStandardsArgs = {
+  paginationOptions?: InputMaybe<PaginationOptions>;
   researchDomainId?: InputMaybe<Scalars['Int']['input']>;
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMyProjectsArgs = {
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMyTemplatesArgs = {
+  paginationOptions?: InputMaybe<PaginationOptions>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2283,11 +2438,13 @@ export type QueryPublishedQuestionsArgs = {
 
 
 export type QueryPublishedSectionsArgs = {
+  paginationOptions?: InputMaybe<PaginationOptions>;
   term: Scalars['String']['input'];
 };
 
 
 export type QueryPublishedTemplatesArgs = {
+  paginationOptions?: InputMaybe<PaginationOptions>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -2384,6 +2541,12 @@ export type QueryTemplateVersionsArgs = {
 
 export type QueryUserArgs = {
   userId: Scalars['Int']['input'];
+};
+
+
+export type QueryUsersArgs = {
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  term?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Question always belongs to a Section, which always belongs to a Template */
@@ -2636,12 +2799,34 @@ export type RepositoryErrors = {
 };
 
 export type RepositorySearchInput = {
+  /** The pagination options */
+  paginationOptions?: InputMaybe<PaginationOptions>;
   /** The repository category/type */
   repositoryType?: InputMaybe<Scalars['String']['input']>;
   /** The research domain associated with the repository */
   researchDomainId?: InputMaybe<Scalars['Int']['input']>;
   /** The search term */
   term?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type RepositorySearchResults = PaginatedQueryResults & {
+  __typename?: 'RepositorySearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<Repository>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 export enum RepositoryType {
@@ -2692,6 +2877,26 @@ export type ResearchDomainErrors = {
   name?: Maybe<Scalars['String']['output']>;
   parentResearchDomainId?: Maybe<Scalars['String']['output']>;
   uri?: Maybe<Scalars['String']['output']>;
+};
+
+export type ResearchDomainSearchResults = PaginatedQueryResults & {
+  __typename?: 'ResearchDomainSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<ResearchDomain>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 /** A Section that contains a list of questions in a template */
@@ -2924,6 +3129,27 @@ export type TemplateSearchResult = {
   ownerId?: Maybe<Scalars['String']['output']>;
   /** The template's availability setting: Public is available to everyone, Private only your affiliation */
   visibility?: Maybe<TemplateVisibility>;
+};
+
+/** Paginated results of a search for templates */
+export type TemplateSearchResults = PaginatedQueryResults & {
+  __typename?: 'TemplateSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<TemplateSearchResult>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 /** Template version type */
@@ -3258,6 +3484,26 @@ export enum UserRole {
   Superadmin = 'SUPERADMIN'
 }
 
+export type UserSearchResults = PaginatedQueryResults & {
+  __typename?: 'UserSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<User>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 /** A snapshot of a Question when it became published. */
 export type VersionedQuestion = {
   __typename?: 'VersionedQuestion';
@@ -3452,6 +3698,26 @@ export type VersionedSectionSearchResult = {
   versionedTemplateName?: Maybe<Scalars['String']['output']>;
 };
 
+export type VersionedSectionSearchResults = PaginatedQueryResults & {
+  __typename?: 'VersionedSectionSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<VersionedSectionSearchResult>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 /** A snapshot of a Template when it became published. DMPs are created from published templates */
 export type VersionedTemplate = {
   __typename?: 'VersionedTemplate';
@@ -3515,6 +3781,8 @@ export type VersionedTemplateSearchResult = {
   __typename?: 'VersionedTemplateSearchResult';
   /** Whether or not this Template is designated as a 'Best Practice' template */
   bestPractice?: Maybe<Scalars['Boolean']['output']>;
+  /** The id of the last VersionedTemplate in the results */
+  cursor?: Maybe<Scalars['String']['output']>;
   /** A description of the purpose of the template */
   description?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
@@ -3749,7 +4017,7 @@ export type AffiliationsQueryVariables = Exact<{
 }>;
 
 
-export type AffiliationsQuery = { __typename?: 'Query', affiliations?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null };
+export type AffiliationsQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
 
 export type ContributorRolesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3806,7 +4074,7 @@ export type ProjectFunderQuery = { __typename?: 'Query', projectFunder?: { __typ
 export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyProjectsQuery = { __typename?: 'Query', myProjects?: Array<{ __typename?: 'ProjectSearchResult', title?: string | null, id?: number | null, startDate?: string | null, endDate?: string | null, funders?: Array<{ __typename?: 'ProjectSearchResultFunder', name?: string | null, grantId?: string | null }> | null, contributors?: Array<{ __typename?: 'ProjectSearchResultContributor', name?: string | null, role?: string | null, orcid?: string | null }> | null, errors?: { __typename?: 'ProjectErrors', general?: string | null, title?: string | null } | null } | null> | null };
+export type MyProjectsQuery = { __typename?: 'Query', myProjects?: { __typename?: 'ProjectSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'ProjectSearchResult', title?: string | null, id?: number | null, startDate?: string | null, endDate?: string | null, funders?: Array<{ __typename?: 'ProjectSearchResultFunder', name?: string | null, grantId?: string | null }> | null, contributors?: Array<{ __typename?: 'ProjectSearchResultContributor', name?: string | null, role?: string | null, orcid?: string | null }> | null, errors?: { __typename?: 'ProjectErrors', general?: string | null, title?: string | null } | null } | null> | null } | null };
 
 export type ProjectQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -3858,7 +4126,7 @@ export type PublishedSectionsQueryVariables = Exact<{
 }>;
 
 
-export type PublishedSectionsQuery = { __typename?: 'Query', publishedSections?: Array<{ __typename?: 'VersionedSectionSearchResult', id?: number | null, name: string, displayOrder: number, bestPractice?: boolean | null, modified?: string | null, created?: string | null, versionedTemplateId?: number | null, versionedTemplateName?: string | null, versionedQuestionCount?: number | null } | null> | null };
+export type PublishedSectionsQuery = { __typename?: 'Query', publishedSections?: { __typename?: 'VersionedSectionSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'VersionedSectionSearchResult', id?: number | null, name: string, displayOrder: number, bestPractice?: boolean | null, modified?: string | null, created?: string | null, versionedTemplateId?: number | null, versionedTemplateName?: string | null, versionedQuestionCount?: number | null } | null> | null } | null };
 
 export type SectionQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
@@ -3887,12 +4155,14 @@ export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTempl
 export type PublishedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null };
+export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: { __typename?: 'PublishedTemplateSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null } | null };
 
-export type TemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+export type TemplatesQueryVariables = Exact<{
+  term?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', myTemplates?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null } | null> | null };
+export type TemplatesQuery = { __typename?: 'Query', myTemplates?: { __typename?: 'TemplateSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null } | null> | null } | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -5039,9 +5309,13 @@ export type SetPrimaryUserEmailMutationOptions = Apollo.BaseMutationOptions<SetP
 export const AffiliationsDocument = gql`
     query Affiliations($name: String!) {
   affiliations(name: $name) {
-    id
-    displayName
-    uri
+    totalCount
+    nextCursor
+    items {
+      id
+      displayName
+      uri
+    }
   }
 }
     `;
@@ -5502,22 +5776,26 @@ export type ProjectFunderQueryResult = Apollo.QueryResult<ProjectFunderQuery, Pr
 export const MyProjectsDocument = gql`
     query MyProjects {
   myProjects {
-    title
-    id
-    startDate
-    endDate
-    funders {
-      name
-      grantId
-    }
-    contributors {
-      name
-      role
-      orcid
-    }
-    errors {
-      general
+    totalCount
+    nextCursor
+    items {
       title
+      id
+      startDate
+      endDate
+      funders {
+        name
+        grantId
+      }
+      contributors {
+        name
+        role
+        orcid
+      }
+      errors {
+        general
+        title
+      }
     }
   }
 }
@@ -5920,15 +6198,19 @@ export type SectionsDisplayOrderQueryResult = Apollo.QueryResult<SectionsDisplay
 export const PublishedSectionsDocument = gql`
     query PublishedSections($term: String!) {
   publishedSections(term: $term) {
-    id
-    name
-    displayOrder
-    bestPractice
-    modified
-    created
-    versionedTemplateId
-    versionedTemplateName
-    versionedQuestionCount
+    totalCount
+    nextCursor
+    items {
+      id
+      name
+      displayOrder
+      bestPractice
+      modified
+      created
+      versionedTemplateId
+      versionedTemplateName
+      versionedQuestionCount
+    }
   }
 }
     `;
@@ -6174,20 +6456,24 @@ export type MyVersionedTemplatesQueryResult = Apollo.QueryResult<MyVersionedTemp
 export const PublishedTemplatesDocument = gql`
     query PublishedTemplates {
   publishedTemplates {
-    id
-    templateId
-    name
-    description
-    visibility
-    bestPractice
-    version
-    modified
-    modifiedById
-    modifiedByName
-    ownerId
-    ownerURI
-    ownerDisplayName
-    ownerSearchName
+    totalCount
+    nextCursor
+    items {
+      id
+      templateId
+      name
+      description
+      visibility
+      bestPractice
+      version
+      modified
+      modifiedById
+      modifiedByName
+      ownerId
+      ownerURI
+      ownerDisplayName
+      ownerSearchName
+    }
   }
 }
     `;
@@ -6224,20 +6510,24 @@ export type PublishedTemplatesLazyQueryHookResult = ReturnType<typeof usePublish
 export type PublishedTemplatesSuspenseQueryHookResult = ReturnType<typeof usePublishedTemplatesSuspenseQuery>;
 export type PublishedTemplatesQueryResult = Apollo.QueryResult<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>;
 export const TemplatesDocument = gql`
-    query Templates {
-  myTemplates {
-    id
-    name
-    description
-    visibility
-    isDirty
-    latestPublishVersion
-    latestPublishDate
-    ownerId
-    ownerDisplayName
-    modified
-    modifiedById
-    modifiedByName
+    query Templates($term: String) {
+  myTemplates(term: $term) {
+    totalCount
+    nextCursor
+    items {
+      id
+      name
+      description
+      visibility
+      isDirty
+      latestPublishVersion
+      latestPublishDate
+      ownerId
+      ownerDisplayName
+      modified
+      modifiedById
+      modifiedByName
+    }
   }
 }
     `;
@@ -6254,6 +6544,7 @@ export const TemplatesDocument = gql`
  * @example
  * const { data, loading, error } = useTemplatesQuery({
  *   variables: {
+ *      term: // value for 'term'
  *   },
  * });
  */

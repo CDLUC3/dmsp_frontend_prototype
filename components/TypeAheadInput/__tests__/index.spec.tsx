@@ -65,10 +65,12 @@ describe('TypeAheadInput', () => {
     it('should fetch and display suggestions', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: [
-                    { id: '1', displayName: 'Test University' },
-                    { id: '2', displayName: 'Test Institution' }
-                ]
+                affiliations: {
+                    items: [
+                        { id: '1', displayName: 'Test University' },
+                        { id: '2', displayName: 'Test Institution' }
+                    ]
+                }
             }
         });
 
@@ -106,7 +108,7 @@ describe('TypeAheadInput', () => {
     it('should not display suggestions when there are no matching results', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: []
+                affiliations: { items: [] }
             }
         });
 
@@ -131,10 +133,12 @@ describe('TypeAheadInput', () => {
     it('should handle keyboard navigation in suggestions list', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: [
-                    { id: '1', displayName: 'Test University' },
-                    { id: '2', displayName: 'Test Institution' }
-                ]
+                affiliations: {
+                    items: [
+                        { id: '1', displayName: 'Test University' },
+                        { id: '2', displayName: 'Test Institution' }
+                    ]
+                }
             }
         });
 
@@ -172,10 +176,12 @@ describe('TypeAheadInput', () => {
     it('should correctly handle use of \'Enter\' key for selecting an item from the dropdown', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: [
-                    { id: '1', displayName: 'Test University' },
-                    { id: '2', displayName: 'Test Institution' }
-                ]
+                affiliations: {
+                    items: [
+                        { id: '1', displayName: 'Test University' },
+                        { id: '2', displayName: 'Test Institution' }
+                    ]
+                }
             }
         });
 
@@ -217,7 +223,7 @@ describe('TypeAheadInput', () => {
     it('should display a "No results found" message when no suggestions match the input', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: []
+                affiliations: { items: [] }
             }
         });
 
@@ -241,10 +247,12 @@ describe('TypeAheadInput', () => {
         (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => { });
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: [
-                    { id: '1', displayName: 'Test University' },
-                    { id: '2', displayName: 'Test Institution' }
-                ]
+                affiliations: {
+                    items: [
+                        { id: '1', displayName: 'Test University' },
+                        { id: '2', displayName: 'Test Institution' }
+                    ]
+                }
             }
         });
         render(

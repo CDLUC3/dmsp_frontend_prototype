@@ -134,9 +134,10 @@ const SectionTypeSelectPage: React.FC = () => {
   useEffect(() => {
     // When data from backend changes, set template data in state
     if (data && data.publishedSections) {
-      if (data.publishedSections?.length > 0) {
-        data.publishedSections?.map(section => {
-          const sectionObj = {
+      const publishedSections = data.publishedSections.items ?? [];
+      if (publishedSections.length > 0) {
+        const transformedSections = publishedSections?.map(section => {
+          return {
             id: section?.id ?? null,
             name: section?.name ?? '',
             modified: section?.modified,
@@ -144,9 +145,9 @@ const SectionTypeSelectPage: React.FC = () => {
             templateName: section?.versionedTemplateName ?? '',
             questionCount: section?.versionedQuestionCount
           }
+        });
 
-          setSections(prev => prev.concat(sectionObj));
-        })
+        setSections(transformedSections);
       }
 
     }

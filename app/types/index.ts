@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { PlanSectionProgress } from "@/generated/graphql";
+import { PlanSectionProgress, TemplateVisibility } from "@/generated/graphql";
 
 export interface EmailInterface {
   id?: number | null;
@@ -24,11 +24,14 @@ export interface ProfileDataInterface {
   languageName: string;
 }
 
+export interface PaginatedTemplateSearchResultsInterface {
+  items: TemplateSearchResultInterface[] | null;
+}
 export interface TemplateSearchResultInterface {
   id?: number | null;
   name?: string | null;
   description?: string | null;
-  visibility?: string | null;
+  visibility?: TemplateVisibility | null;
   isDirty?: boolean | null;
   latestPublishVersion?: string | null;
   latestPublishDate?: string | null;
@@ -54,7 +57,6 @@ export interface TemplateInterface {
   } | null;
   visibility?: string;
 }
-
 export interface TemplateItemProps {
   id?: number | null;
   template?: {
@@ -72,6 +74,9 @@ export interface TemplateItemProps {
   bestPractices?: boolean;
 }
 
+export interface PaginatedVersionedTemplateSearchResultsInterface {
+  items: VersionedTemplateSearchResultInterface[] | null;
+}
 export interface VersionedTemplateSearchResultInterface {
   id: number;
   name?: string;
@@ -87,6 +92,9 @@ export interface VersionedTemplateSearchResultInterface {
   bestPractice: boolean;
 }
 
+export interface PaginatedMyVersionedTemplatesInterface {
+  items: MyVersionedTemplatesInterface[] | null;
+}
 export interface MyVersionedTemplatesInterface {
   id?: number | null;
   name?: string | null;
@@ -183,6 +191,9 @@ export interface Question {
   modified?: string | null;
 }
 
+export interface PaginatedProjectSearchResultsInterface {
+  items: ProjectSearchResultInterface[] | null;
+}
 export interface ProjectSearchResultInterface {
   id?: number | null;
   title?: string | null;

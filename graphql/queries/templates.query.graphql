@@ -1,17 +1,21 @@
-query Templates {
-  myTemplates {
-    id
-    name
-    description
-    visibility
-    isDirty
-    latestPublishVersion
-    latestPublishDate
-    ownerId
-    ownerDisplayName
-    modified
-    modifiedById
-    modifiedByName
+query Templates($term: String) {
+  myTemplates(term: $term) {
+    totalCount
+    nextCursor
+    items {
+      id
+      name
+      description
+      visibility
+      isDirty
+      latestPublishVersion
+      latestPublishDate
+      ownerId
+      ownerDisplayName
+      modified
+      modifiedById
+      modifiedByName
+    }
   }
 }
 
