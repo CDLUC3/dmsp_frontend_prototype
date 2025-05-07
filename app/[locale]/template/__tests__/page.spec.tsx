@@ -195,7 +195,7 @@ describe('TemplateListPage', () => {
 
     // Searching for translation keys since cannot run next-intl for unit tests
     const homeLink = screen.getByRole('link', { name: 'breadcrumbs.home' });
-    const templatesLink = screen.getByRole('link', { name: 'title' });
+    const templatesLink = screen.getByRole('link', { name: 'breadcrumbs.templates' });
 
     expect(homeLink).toHaveAttribute('href', '/en-US');
     expect(templatesLink).toHaveAttribute('href', '/en-US/template');

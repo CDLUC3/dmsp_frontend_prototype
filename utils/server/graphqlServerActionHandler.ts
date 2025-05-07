@@ -57,7 +57,7 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
     };
 
     // Make the GraphQL request
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/graphql`, {
+    const response = await fetch(`${process.env.SERVER_ENDPOINT}/graphql`, {
       method: "POST",
       headers,
       credentials: "include",
@@ -121,7 +121,7 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
               };
 
               // Retry GraphQL request after getting the new auth token
-              const retryResponse = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ENDPOINT}/graphql`, {
+              const retryResponse = await fetch(`${process.env.SERVER_ENDPOINT}/graphql`, {
                 method: "POST",
                 headers,
                 credentials: "include",

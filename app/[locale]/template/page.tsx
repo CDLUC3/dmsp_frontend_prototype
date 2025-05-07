@@ -174,7 +174,7 @@ const TemplateListPage: React.FC = () => {
               ) : null, // Set to null if no description or last modified data
               funder: template?.ownerDisplayName,
               lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
-              publishStatus: (template?.isDirty) ? 'Published' : 'Unpublished',
+              publishStatus: (template?.isDirty) ? 'Unpublished' : 'Published',
               defaultExpanded: false
             }
           }));
@@ -250,7 +250,7 @@ const TemplateListPage: React.FC = () => {
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('template.index')}>{t('title')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index')}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
             <Breadcrumb>{t('title')}</Breadcrumb>
           </Breadcrumbs>
         }

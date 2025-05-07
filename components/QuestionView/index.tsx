@@ -86,13 +86,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       <ContentContainer className={`${styles.QuestionView}__content-container`}>
         <h2>{question?.questionText}</h2>
 
-        <div className={styles.Requirements}>
-          <p className={styles.ByLine}>
-            {trans('requirements')}
-            {templateData?.template?.owner?.displayName}
-          </p>
-          <p>{question?.requirementText}</p>
-        </div>
+        {(question?.requirementText) && (
+          <div className={styles.Requirements}>
+            <p className={styles.ByLine}>
+              {trans('requirements', { orgName: templateData?.template?.owner?.displayName })}
+            </p>
+            <div dangerouslySetInnerHTML={{ __html: question.requirementText || '' }}></div>
+          </div>
+        )}
 
         <p>
           <a className={styles.JumpLink} href="#_guidance">
@@ -139,8 +140,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         {(question?.guidanceText) && (
           <div className="guidance">
             <p className={styles.ByLine}>
-              {trans('guidanceBy')}
-              {templateData?.template?.owner?.displayName}
+              {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName })}
             </p>
             <div dangerouslySetInnerHTML={{ __html: question.guidanceText }}></div>
           </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { SectionFormInterface, TagsInterface } from '@/app/types';
 import { useSectionQuery, } from '@/generated/graphql';
+import { stripHtmlTags } from '@/utils/general';
 
 export const useSectionData = (sectionId: number) => {
   const [sectionData, setSectionData] = useState<SectionFormInterface>({
@@ -31,8 +32,9 @@ export const useSectionData = (sectionId: number) => {
     // Update state values from data results
     if (data?.section) {
       const section = data.section;
+      const cleanedSectionName = stripHtmlTags(section.name);
       setSectionData({
-        sectionName: section.name,
+        sectionName: cleanedSectionName,
         sectionIntroduction: section?.introduction ? section.introduction : '',
         sectionRequirements: section?.requirements ? section.requirements : '',
         sectionGuidance: section?.guidance ? section.guidance : '',

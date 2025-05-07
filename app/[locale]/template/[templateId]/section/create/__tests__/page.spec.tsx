@@ -22,6 +22,7 @@ jest.mock("@/generated/graphql", () => ({
 }));
 
 jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
   useParams: jest.fn(),
 }))
 

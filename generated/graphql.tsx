@@ -2114,26 +2114,6 @@ export type ProjectSearchResults = PaginatedQueryResults & {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-export type PublishedSectionSearchResults = PaginatedQueryResults & {
-  __typename?: 'PublishedSectionSearchResults';
-  /** The sortFields that are available for this query (for standard offset pagination only!) */
-  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  /** The current offset of the results (for standard offset pagination) */
-  currentOffset?: Maybe<Scalars['Int']['output']>;
-  /** Whether or not there is a next page */
-  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
-  /** Whether or not there is a previous page */
-  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
-  /** The TemplateSearchResults that match the search criteria */
-  items?: Maybe<Array<Maybe<VersionedSection>>>;
-  /** The number of items returned */
-  limit?: Maybe<Scalars['Int']['output']>;
-  /** The cursor to use for the next page of results (for infinite scroll/load more) */
-  nextCursor?: Maybe<Scalars['String']['output']>;
-  /** The total number of possible items */
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 export type PublishedTemplateSearchResults = PaginatedQueryResults & {
   __typename?: 'PublishedTemplateSearchResults';
   /** The sortFields that are available for this query (for standard offset pagination only!) */
@@ -2169,6 +2149,8 @@ export type Query = {
   answer?: Maybe<Answer>;
   /** Get all answers for the given project and plan and section */
   answers?: Maybe<Array<Maybe<Answer>>>;
+  /** Get all of the best practice VersionedSection */
+  bestPracticeSections?: Maybe<Array<Maybe<VersionedSection>>>;
   /** Get all of the research domains related to the specified top level domain (more nuanced ones) */
   childResearchDomains?: Maybe<Array<Maybe<ResearchDomain>>>;
   /** Get the contributor role by it's id */
@@ -2236,7 +2218,7 @@ export type Query = {
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedQuestions?: Maybe<Array<Maybe<VersionedQuestion>>>;
   /** Search for VersionedSection whose name contains the search term */
-  publishedSections?: Maybe<PublishedSectionSearchResults>;
+  publishedSections?: Maybe<VersionedSectionSearchResults>;
   /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
   publishedTemplates?: Maybe<PublishedTemplateSearchResults>;
   /** Get the specific Question based on questionId */
@@ -3692,6 +3674,50 @@ export type VersionedSectionErrors = {
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
 };
 
+export type VersionedSectionSearchResult = {
+  __typename?: 'VersionedSectionSearchResult';
+  /** Whether or not this VersionedSection is designated as a 'Best Practice' section */
+  bestPractice?: Maybe<Scalars['Boolean']['output']>;
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The displayOrder of this VersionedSection */
+  displayOrder: Scalars['Int']['output'];
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The VersionedSection introduction */
+  introduction?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The VersionedSection name/title */
+  name: Scalars['String']['output'];
+  /** The number of questions associated with this VersionedSection */
+  versionedQuestionCount?: Maybe<Scalars['Int']['output']>;
+  /** The id of the VersionedTemplate that this VersionedSection belongs to */
+  versionedTemplateId?: Maybe<Scalars['Int']['output']>;
+  /** The name of the VersionedTemplate that this VersionedSection belongs to */
+  versionedTemplateName?: Maybe<Scalars['String']['output']>;
+};
+
+export type VersionedSectionSearchResults = PaginatedQueryResults & {
+  __typename?: 'VersionedSectionSearchResults';
+  /** The sortFields that are available for this query (for standard offset pagination only!) */
+  availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** The current offset of the results (for standard offset pagination) */
+  currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not there is a next page */
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  /** Whether or not there is a previous page */
+  hasPreviousPage?: Maybe<Scalars['Boolean']['output']>;
+  /** The TemplateSearchResults that match the search criteria */
+  items?: Maybe<Array<Maybe<VersionedSectionSearchResult>>>;
+  /** The number of items returned */
+  limit?: Maybe<Scalars['Int']['output']>;
+  /** The cursor to use for the next page of results (for infinite scroll/load more) */
+  nextCursor?: Maybe<Scalars['String']['output']>;
+  /** The total number of possible items */
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 /** A snapshot of a Template when it became published. DMPs are created from published templates */
 export type VersionedTemplate = {
   __typename?: 'VersionedTemplate';
@@ -3948,6 +3974,15 @@ export type AddTemplateMutationVariables = Exact<{
 
 export type AddTemplateMutation = { __typename?: 'Mutation', addTemplate?: { __typename?: 'Template', id?: number | null, description?: string | null, name: string, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null } | null };
 
+export type UpdateTemplateMutationVariables = Exact<{
+  templateId: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  visibility: TemplateVisibility;
+}>;
+
+
+export type UpdateTemplateMutation = { __typename?: 'Mutation', updateTemplate?: { __typename?: 'Template', id?: number | null, name: string, visibility: TemplateVisibility } | null };
+
 export type UpdateUserProfileMutationVariables = Exact<{
   input: UpdateUserProfileInput;
 }>;
@@ -4086,6 +4121,13 @@ export type SectionsDisplayOrderQueryVariables = Exact<{
 
 export type SectionsDisplayOrderQuery = { __typename?: 'Query', sections?: Array<{ __typename?: 'Section', displayOrder?: number | null } | null> | null };
 
+export type PublishedSectionsQueryVariables = Exact<{
+  term: Scalars['String']['input'];
+}>;
+
+
+export type PublishedSectionsQuery = { __typename?: 'Query', publishedSections?: { __typename?: 'VersionedSectionSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'VersionedSectionSearchResult', id?: number | null, name: string, displayOrder: number, bestPractice?: boolean | null, modified?: string | null, created?: string | null, versionedTemplateId?: number | null, versionedTemplateName?: string | null, versionedQuestionCount?: number | null } | null> | null } | null };
+
 export type SectionQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
 }>;
@@ -4127,7 +4169,7 @@ export type TemplateQueryVariables = Exact<{
 }>;
 
 
-export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, description?: string | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
+export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, description?: string | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, visibility: TemplateVisibility, bestPractice: boolean, isDirty: boolean, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
 
 export type TemplateCollaboratorsQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -5056,6 +5098,43 @@ export function useAddTemplateMutation(baseOptions?: Apollo.MutationHookOptions<
 export type AddTemplateMutationHookResult = ReturnType<typeof useAddTemplateMutation>;
 export type AddTemplateMutationResult = Apollo.MutationResult<AddTemplateMutation>;
 export type AddTemplateMutationOptions = Apollo.BaseMutationOptions<AddTemplateMutation, AddTemplateMutationVariables>;
+export const UpdateTemplateDocument = gql`
+    mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: TemplateVisibility!) {
+  updateTemplate(templateId: $templateId, name: $name, visibility: $visibility) {
+    id
+    name
+    visibility
+  }
+}
+    `;
+export type UpdateTemplateMutationFn = Apollo.MutationFunction<UpdateTemplateMutation, UpdateTemplateMutationVariables>;
+
+/**
+ * __useUpdateTemplateMutation__
+ *
+ * To run a mutation, you first call `useUpdateTemplateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTemplateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTemplateMutation, { data, loading, error }] = useUpdateTemplateMutation({
+ *   variables: {
+ *      templateId: // value for 'templateId'
+ *      name: // value for 'name'
+ *      visibility: // value for 'visibility'
+ *   },
+ * });
+ */
+export function useUpdateTemplateMutation(baseOptions?: Apollo.MutationHookOptions<UpdateTemplateMutation, UpdateTemplateMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateTemplateMutation, UpdateTemplateMutationVariables>(UpdateTemplateDocument, options);
+      }
+export type UpdateTemplateMutationHookResult = ReturnType<typeof useUpdateTemplateMutation>;
+export type UpdateTemplateMutationResult = Apollo.MutationResult<UpdateTemplateMutation>;
+export type UpdateTemplateMutationOptions = Apollo.BaseMutationOptions<UpdateTemplateMutation, UpdateTemplateMutationVariables>;
 export const UpdateUserProfileDocument = gql`
     mutation UpdateUserProfile($input: UpdateUserProfileInput!) {
   updateUserProfile(input: $input) {
@@ -6116,6 +6195,58 @@ export type SectionsDisplayOrderQueryHookResult = ReturnType<typeof useSectionsD
 export type SectionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useSectionsDisplayOrderLazyQuery>;
 export type SectionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useSectionsDisplayOrderSuspenseQuery>;
 export type SectionsDisplayOrderQueryResult = Apollo.QueryResult<SectionsDisplayOrderQuery, SectionsDisplayOrderQueryVariables>;
+export const PublishedSectionsDocument = gql`
+    query PublishedSections($term: String!) {
+  publishedSections(term: $term) {
+    totalCount
+    nextCursor
+    items {
+      id
+      name
+      displayOrder
+      bestPractice
+      modified
+      created
+      versionedTemplateId
+      versionedTemplateName
+      versionedQuestionCount
+    }
+  }
+}
+    `;
+
+/**
+ * __usePublishedSectionsQuery__
+ *
+ * To run a query within a React component, call `usePublishedSectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublishedSectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublishedSectionsQuery({
+ *   variables: {
+ *      term: // value for 'term'
+ *   },
+ * });
+ */
+export function usePublishedSectionsQuery(baseOptions: Apollo.QueryHookOptions<PublishedSectionsQuery, PublishedSectionsQueryVariables> & ({ variables: PublishedSectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PublishedSectionsQuery, PublishedSectionsQueryVariables>(PublishedSectionsDocument, options);
+      }
+export function usePublishedSectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedSectionsQuery, PublishedSectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PublishedSectionsQuery, PublishedSectionsQueryVariables>(PublishedSectionsDocument, options);
+        }
+export function usePublishedSectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedSectionsQuery, PublishedSectionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PublishedSectionsQuery, PublishedSectionsQueryVariables>(PublishedSectionsDocument, options);
+        }
+export type PublishedSectionsQueryHookResult = ReturnType<typeof usePublishedSectionsQuery>;
+export type PublishedSectionsLazyQueryHookResult = ReturnType<typeof usePublishedSectionsLazyQuery>;
+export type PublishedSectionsSuspenseQueryHookResult = ReturnType<typeof usePublishedSectionsSuspenseQuery>;
+export type PublishedSectionsQueryResult = Apollo.QueryResult<PublishedSectionsQuery, PublishedSectionsQueryVariables>;
 export const SectionDocument = gql`
     query Section($sectionId: Int!) {
   section(sectionId: $sectionId) {
@@ -6473,6 +6604,9 @@ export const TemplateDocument = gql`
       displayName
       id
     }
+    visibility
+    bestPractice
+    isDirty
   }
 }
     `;

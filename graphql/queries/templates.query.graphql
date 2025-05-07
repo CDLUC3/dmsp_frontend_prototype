@@ -57,7 +57,10 @@ query Template($templateId: Int!) {
     owner {
       displayName
       id
-    }
+    },
+    visibility,
+    bestPractice,
+    isDirty
   }
 }
 

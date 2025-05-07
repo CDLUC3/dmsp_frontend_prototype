@@ -1,13 +1,13 @@
 import React from "react";
-import {act, fireEvent, render, screen, waitFor} from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useAddQuestionMutation,
   useQuestionsDisplayOrderQuery,
 } from '@/generated/graphql';
 
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams, useRouter} from 'next/navigation';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import QuestionAdd from '@/components/QuestionAdd';
 
 expect.extend(toHaveNoViolations);
@@ -201,7 +201,7 @@ describe("QuestionAdd", () => {
       );
     });
 
-    const saveButton = screen.getByText('buttons.save');
+    const saveButton = screen.getByText('buttons.saveAndAdd');
     expect(saveButton).toBeInTheDocument();
 
     fireEvent.click(saveButton);
