@@ -29,6 +29,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Changed all instances of TemplateVisibility.PRIVATE to TemplateVisibility.ORGANIZATION to accomodate backend changes and also made update to `template/[templateId]` so that the `Version` and `Last updated` titles don't show in `description` when values are undefined [#466]
 - Updated `templates/[templateId]/sections/new` to use the new PublishedSections query and to use the addSection mutation when the user selects a section to copy
 - Hooked up `projects/[projectId]/dmp/[dmpId]/feedback/invite` page to backend data [#381]
 - Removed from from the modal on `projects/[projectId]/dmp/[dmpId]/feedback/invite` to add a project member, since we don't have user data at that point [#381]

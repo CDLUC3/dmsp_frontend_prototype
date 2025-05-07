@@ -16,7 +16,7 @@ jest.mock("@/generated/graphql", () => ({
   useArchiveTemplateMutation: jest.fn(),
   useCreateTemplateVersionMutation: jest.fn(),
   TemplateVersionType: { Draft: 'DRAFT', Published: 'PUBLISHED' },
-  TemplateVisibility: { Private: 'PRIVATE', Public: 'PUBLIC' },
+  TemplateVisibility: { Organization: 'ORGANIZATION', Public: 'PUBLIC' },
 }));
 
 jest.mock('next/navigation', () => ({
@@ -117,7 +117,7 @@ describe("TemplateEditPage", () => {
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('DMP Template from Dataverse');
 
-    const versionText = screen.getByText(/Version: v1/i);
+    const versionText = screen.getByText(/version: v1/i);
     expect(versionText).toBeInTheDocument();
 
     const heading2 = screen.getByRole('heading', {
