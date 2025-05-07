@@ -37,7 +37,7 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
         license_key: 'gpl',
         promotion: false,// Removes TinyMCE promotional link
         branding: false, // removed the tinyMCE branding
-        statusbar: true, //removes the bottom status bar
+        statusbar: false, //removes the bottom status bar
         selector: `#${elementId}`,
         menubar: true,
         max_height: 400,
