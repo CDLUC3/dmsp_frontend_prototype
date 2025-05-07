@@ -26,30 +26,16 @@ export default function TinyMCEEditor({
           height,
           menubar: true,
           plugins: [
-            'advlist',
-            'autolink',
-            'lists',
-            'link',
-            'image',
-            'charmap',
-            'preview',
-            'anchor',
-            'searchreplace',
-            'visualblocks',
-            'code',
-            'fullscreen',
-            'insertdatetime',
-            'media',
             'table',
-            'code',
-            'help',
-            'wordcount'
+            'code'
           ],
           toolbar: 'undo redo | formatselect | bold italic backcolor | ' +
             'alignleft aligncenter alignright alignjustify | ' +
             'bullist numlist outdent indent | removeformat | help',
-          content_style: 'body { "Poppins", sans-serif }',
-          content_css: ['@/styles/globals.scss'],
+          content_style: `
+          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+          body { font-family: "Poppins", sans-serif; color:#393939;}
+          `,
           init_instance_callback: (editor) => {
             editorRef.current = editor;
             editor.setContent(initialValue);
