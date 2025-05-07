@@ -1,7 +1,11 @@
-query Affiliations($name: String!){
+query Affiliations($name: String!) {
   affiliations(name: $name) {
-    id
-    displayName
-    uri
+    totalCount
+    nextCursor
+    items {
+      id
+      displayName
+      uri
+    }
   }
 }

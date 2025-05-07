@@ -29,7 +29,11 @@ import { useScrollToTop } from '@/hooks/scrollToTop';
 
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { TemplateItemProps, TemplateSearchResultInterface, } from '@/app/types';
+import {
+  TemplateSearchResultInterface,
+  TemplateItemProps,
+  PaginatedTemplateSearchResultsInterface
+} from '@/app/types';
 import styles from './orgTemplates.module.scss';
 
 const TemplateListPage: React.FC = () => {
@@ -155,9 +159,10 @@ const TemplateListPage: React.FC = () => {
   useEffect(() => {
     // Transform templates into format expected by TemplateListItem component
     if (data && data?.myTemplates) {
-      const fetchAllTemplates = async (templates: (TemplateSearchResultInterface | null)[]) => {
+      const fetchAllTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
+        const items = templates?.items ?? [];
         const transformedTemplates = await Promise.all(
-          templates.map(async (template: TemplateSearchResultInterface | null) => {
+          items.map(async (template: TemplateSearchResultInterface | null) => {
             return {
               title: template?.name || "",
               link: routePath('template.show', { templateId: template?.id ?? '' }),
@@ -176,7 +181,14 @@ const TemplateListPage: React.FC = () => {
 
         setTemplates(transformedTemplates);
       }
-      fetchAllTemplates(data?.myTemplates);
+      if (data?.myTemplates) {
+        fetchAllTemplates({
+          ...data.myTemplates,
+          items: (data.myTemplates.items ?? []).filter((item): item is TemplateSearchResultInterface => item !== null),
+        });
+      } else {
+        fetchAllTemplates({ items: [] });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);

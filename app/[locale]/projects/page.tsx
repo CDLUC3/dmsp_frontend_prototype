@@ -23,7 +23,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 //GraphQL
 import {useMyProjectsQuery,} from '@/generated/graphql';
 
-import {ProjectItemProps, ProjectSearchResultInterface} from '@/app/types';
+import {ProjectItemProps, ProjectSearchResultInterface, PaginatedProjectSearchResultsInterface} from '@/app/types';
 
 const ProjectsListPage: React.FC = () => {
   const formatter = useFormatter();
@@ -104,9 +104,10 @@ const ProjectsListPage: React.FC = () => {
   useEffect(() => {
     // Transform projects into format expected by ProjectListItem component
     if (data && data?.myProjects) {
-      const fetchAllProjects = async (projects: (ProjectSearchResultInterface | null)[]) => {
+      const fetchAllProjects = async (projects: PaginatedProjectSearchResultsInterface | null) => {
+        const items = projects?.items ?? [];
         const transformedProjects = await Promise.all(
-          projects.map(async (project: ProjectSearchResultInterface | null) => {
+          items.map(async (project: ProjectSearchResultInterface | null) => {
             return {
               title: project?.title || "",
               link: `/projects/${project?.id}`,
@@ -127,7 +128,15 @@ const ProjectsListPage: React.FC = () => {
 
         setProjects(transformedProjects);
       }
-      fetchAllProjects(data?.myProjects ? data.myProjects : []);
+
+      if (data?.myProjects) {
+        fetchAllProjects({
+          ...data.myProjects,
+          items: (data.myProjects.items ?? []).filter((item): item is ProjectSearchResultInterface => item !== null),
+        });
+      } else {
+        fetchAllProjects({ items: [] });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
@@ -152,7 +161,8 @@ const ProjectsListPage: React.FC = () => {
 
   useEffect(() => {
     if (data?.myProjects) {
-      const projectErrors = data.myProjects
+      const items = data.myProjects.items ?? [];
+      const projectErrors = items
         .filter((project) => project?.errors?.general || project?.errors?.title)
         .map((project) => project?.errors?.general || Project('messages.errors.errorRetrievingProjects'));
 

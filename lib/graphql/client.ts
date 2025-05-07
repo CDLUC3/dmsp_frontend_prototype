@@ -54,4 +54,3 @@ export const { getClient } = registerApolloClient(() => {
         cache: new InMemoryCache(),
     });
 });
-

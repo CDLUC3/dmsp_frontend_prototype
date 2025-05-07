@@ -296,7 +296,7 @@ const SignUpPage: React.FC = () => {
                 required={true}
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
-                resultsKey="affiliations"
+                resultsKey="affiliations.items"
                 setOtherField={setOtherField}
                 helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}

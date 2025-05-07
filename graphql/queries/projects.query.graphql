@@ -1,21 +1,25 @@
 query MyProjects {
   myProjects {
-    title
-    id
-    startDate
-    endDate
-    funders {
-      name
-      grantId
-    }
-    contributors {
-      name
-      role
-      orcid
-    }
-    errors {
-      general
+    totalCount
+    nextCursor
+    items {
       title
+      id
+      startDate
+      endDate
+      funders {
+        name
+        grantId
+      }
+      contributors {
+        name
+        role
+        orcid
+      }
+      errors {
+        general
+        title
+      }
     }
   }
 }

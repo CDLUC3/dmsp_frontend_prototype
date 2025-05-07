@@ -42,13 +42,15 @@ jest.mock('@/components/TemplateListItem', () => {
 
 // Will pass this mock data back when query is made for templates
 const mockTemplateData = {
-  myTemplates: [{
-    name: 'UCOP',
-    description: 'University of California Office of the President',
-    modified: '2024-11-20 00:00:00',
-    id: 1,
-    owner: null
-  }]
+  myTemplates: {
+    items: [{
+      name: 'UCOP',
+      description: 'University of California Office of the President',
+      modified: '2024-11-20 00:00:00',
+      id: 1,
+      owner: null
+    }]
+  }
 }
 
 // Helper function to cast to jest.Mock for TypeScript
@@ -65,14 +67,16 @@ jest.mock('@/lib/graphql/client/apollo-client', () => ({
   createApolloClient: jest.fn(() => ({
     query: jest.fn().mockResolvedValueOnce({
       data: {
-        templateVersions: [
-          {
-            name: 'UCOP',
-            versionType: 'PUBLISHED',
-            id: 1,
-            modified: '1672531200000',
-          },
-        ],
+        templateVersions: {
+          items: [
+            {
+              name: 'UCOP',
+              versionType: 'PUBLISHED',
+              id: 1,
+              modified: '1672531200000',
+            },
+          ],
+        }
       },
     }),
   })),
