@@ -39,6 +39,8 @@ interface SectionInterface {
 
 
 const SectionTypeSelectPage: React.FC = () => {
+  const VISIBLE_CARD_COUNT = 6;
+
   const [errors, setErrors] = useState<string[]>([]);
   const [sections, setSections] = useState<SectionInterface[]>([]);
   const [bestPracticeSections, setBestPracticeSections] = useState<SectionInterface[]>([]);
@@ -47,10 +49,10 @@ const SectionTypeSelectPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   // Visibility counts
   const [visibleCount, setVisibleCount] = useState({
-    sections: 6,
-    filteredSections: 6,
-    bestPracticeSections: 6,
-    filteredBestPracticeSections: 6
+    sections: VISIBLE_CARD_COUNT,
+    filteredSections: VISIBLE_CARD_COUNT,
+    bestPracticeSections: VISIBLE_CARD_COUNT,
+    filteredBestPracticeSections: VISIBLE_CARD_COUNT
   });
   const nextSectionsRef = useRef<HTMLDivElement>(null);
   //For scrolling to error in modal window
@@ -203,11 +205,11 @@ const SectionTypeSelectPage: React.FC = () => {
   }, [searchTerm])
 
   type VisibleCountKeys = keyof typeof visibleCount;
-  // When user clicks the 'Load more' button, display 3 more by default
+  // When user clicks the 'Load more' button, display more cards
   const handleLoadMore = (listKey: VisibleCountKeys) => {
     setVisibleCount((prevCounts) => ({
       ...prevCounts,
-      [listKey]: prevCounts[listKey] + 6, // Increase the visible count for the specific list
+      [listKey]: prevCounts[listKey] + VISIBLE_CARD_COUNT, // Increase the visible count for the specific list
     }));
 
     setTimeout(() => {
@@ -225,7 +227,7 @@ const SectionTypeSelectPage: React.FC = () => {
       return (
         <>
           <Button onPress={() => handleLoadMore(visibleCountKey)}>
-            {loadMoreNumber > 6
+            {loadMoreNumber > VISIBLE_CARD_COUNT
               ? AddNewSection('buttons.load6More')
               : AddNewSection('buttons.loadMore', { name: loadMoreNumber })}
           </Button>
@@ -301,25 +303,30 @@ const SectionTypeSelectPage: React.FC = () => {
                     filteredSections
                       .slice(0, visibleCount['filteredSections'])
                       .filter(section => section?.bestPractice === false)
-                      .map((section, index) => (
-                        <Card key={index}>
-                          <CardHeading>{section.name}</CardHeading>
-                          <CardBody>
-                            <p>Template: {section.templateName}</p>
-                            {AddNewSection.rich("questionsCount", {
-                              count: section.questionCount ? section.questionCount : 0,
-                              p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                            })}
-                          </CardBody>
-                          <CardFooter>
-                            <Button
-                              onPress={() => copyPublishedSection(section)}
-                              className="button-link secondary">
-                              {Global('buttons.select')}
-                            </Button>
-                          </CardFooter>
-                        </Card>
-                      ))
+                      .map((section, index) => {
+                        const isFirstInNextSection = index === visibleCount['filteredSections'] - VISIBLE_CARD_COUNT;
+                        return (
+                          <div ref={isFirstInNextSection ? nextSectionsRef : null} key={index}>
+                            <Card>
+                              <CardHeading>{section.name}</CardHeading>
+                              <CardBody>
+                                <p>Template: {section.templateName}</p>
+                                {AddNewSection.rich("questionsCount", {
+                                  count: section.questionCount ? section.questionCount : 0,
+                                  p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
+                                })}
+                              </CardBody>
+                              <CardFooter>
+                                <Button
+                                  onPress={() => copyPublishedSection(section)}
+                                  className="button-link secondary">
+                                  {Global('buttons.select')}
+                                </Button>
+                              </CardFooter>
+                            </Card>
+                          </div>
+                        )
+                      })
                   }
                 </>
               ) : (
@@ -328,29 +335,34 @@ const SectionTypeSelectPage: React.FC = () => {
                     sections
                       .slice(0, visibleCount['sections'])
                       .filter(section => section?.bestPractice === false)
-                      .map((section, index) => (
-                        <Card key={index}>
-                          <CardHeading>{section.name}</CardHeading>
-                          <CardBody>
-                            <p>Template: {section.templateName}</p>
-                            {AddNewSection.rich("questionsCount", {
-                              count: section.questionCount ? section.questionCount : 0,
-                              p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                            })}
-                          </CardBody>
-                          <CardFooter>
-                            <Button
-                              onPress={() => copyPublishedSection(section)}
-                              className="button-link secondary">
-                              {Global('buttons.select')}
-                            </Button>
-                          </CardFooter>
-                        </Card>
-                      ))
+                      .map((section, index) => {
+                        const isFirstInNextSection = index === visibleCount['sections'] - VISIBLE_CARD_COUNT;
+                        return (
+                          <div ref={isFirstInNextSection ? nextSectionsRef : null} key={index}>
+                            <Card>
+                              <CardHeading>{section.name}</CardHeading>
+                              <CardBody>
+                                <p>Template: {section.templateName}</p>
+                                {AddNewSection.rich("questionsCount", {
+                                  count: section.questionCount ? section.questionCount : 0,
+                                  p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
+                                })}
+                              </CardBody>
+                              <CardFooter>
+                                <Button
+                                  onPress={() => copyPublishedSection(section)}
+                                  className="button-link secondary">
+                                  {Global('buttons.select')}
+                                </Button>
+                              </CardFooter>
+                            </Card>
+                          </div>
+                        )
+                      })
                   }
                 </>
               )
-              }
+             }
             </div>
 
             {((filteredSections && filteredSections.length > 0) || (sections && sections.length > 0)) && (
@@ -373,25 +385,30 @@ const SectionTypeSelectPage: React.FC = () => {
                     filteredBestPracticeSections
                       .slice(0, visibleCount['filteredBestPracticeSections'])
                       .filter(section => section?.bestPractice === true)
-                      .map((section, index) => (
-                        <Card key={index}>
-                          <CardHeading>{section.name}</CardHeading>
-                          <CardBody>
-                            <p>Template: {section.templateName}</p>
-                            {AddNewSection.rich("questionsCount", {
-                              count: section.questionCount ? section.questionCount : 0,
-                              p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                            })}
-                          </CardBody>
-                          <CardFooter>
-                            <Button
-                              onPress={() => copyPublishedSection(section)}
-                              className="button-link secondary">
-                              {Global('buttons.select')}
-                            </Button>
-                          </CardFooter>
-                        </Card>
-                      ))
+                      .map((section, index) => {
+                        const isFirstInNextSection = index === visibleCount['filteredBestPracticeSections'] - VISIBLE_CARD_COUNT;
+                        return (
+                          <div ref={isFirstInNextSection ? nextSectionsRef : null} key={index}>
+                            <Card>
+                              <CardHeading>{section.name}</CardHeading>
+                              <CardBody>
+                                <p>Template: {section.templateName}</p>
+                                {AddNewSection.rich("questionsCount", {
+                                  count: section.questionCount ? section.questionCount : 0,
+                                  p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
+                                })}
+                              </CardBody>
+                              <CardFooter>
+                                <Button
+                                  onPress={() => copyPublishedSection(section)}
+                                  className="button-link secondary">
+                                  {Global('buttons.select')}
+                                </Button>
+                              </CardFooter>
+                            </Card>
+                          </div>
+                        )
+                      })
                   }
                 </>
               ) : (
@@ -400,25 +417,30 @@ const SectionTypeSelectPage: React.FC = () => {
                     bestPracticeSections
                       .slice(0, visibleCount['bestPracticeSections'])
                       .filter(section => section?.bestPractice === true)
-                      .map((section, index) => (
-                        <Card key={index}>
-                          <CardHeading>{section.name}</CardHeading>
-                          <CardBody>
-                            <p>Template: {section.templateName}</p>
-                            {AddNewSection.rich("questionsCount", {
-                              count: section.questionCount ? section.questionCount : 0,
-                              p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
-                            })}
-                          </CardBody>
-                          <CardFooter>
-                            <Button
-                              onPress={() => copyPublishedSection(section)}
-                              className="button-link secondary">
-                              {Global('buttons.select')}
-                            </Button>
-                          </CardFooter>
-                        </Card>
-                      ))
+                      .map((section, index) => {
+                        const isFirstInNextSection = index === visibleCount['bestPracticeSections'] - VISIBLE_CARD_COUNT;
+                        return (
+                          <div ref={isFirstInNextSection ? nextSectionsRef : null} key={index}>
+                            <Card>
+                              <CardHeading>{section.name}</CardHeading>
+                              <CardBody>
+                                <p>Template: {section.templateName}</p>
+                                {AddNewSection.rich("questionsCount", {
+                                  count: section.questionCount ? section.questionCount : 0,
+                                  p: (chunks) => <p>{chunks}</p>, // Replace <p> with React <p>
+                                })}
+                              </CardBody>
+                              <CardFooter>
+                                <Button
+                                  onPress={() => copyPublishedSection(section)}
+                                  className="button-link secondary">
+                                  {Global('buttons.select')}
+                                </Button>
+                              </CardFooter>
+                            </Card>
+                          </div>
+                        )
+                      })
                   }
                 </>
               )
