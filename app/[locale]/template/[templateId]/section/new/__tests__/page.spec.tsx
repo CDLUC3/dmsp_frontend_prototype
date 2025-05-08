@@ -40,7 +40,7 @@ describe("SectionTypeSelectPage", () => {
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
   });
 
-  it.skip("should render loading state", async () => {
+  it("should render loading state", async () => {
     (useAddSectionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -60,7 +60,7 @@ describe("SectionTypeSelectPage", () => {
     expect(screen.getByText(/messaging.loading.../i)).toBeInTheDocument();
   });
 
-  it.skip("should render data returned from template query correctly", async () => {
+  it("should render data returned from published section query correctly", async () => {
     (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
       data: mockPublishedSections,
       loading: false,
@@ -96,14 +96,24 @@ describe("SectionTypeSelectPage", () => {
     expect(searchButton).toBeInTheDocument();
     expect(screen.getByText('search.helpText')).toBeInTheDocument();
     expect(headingPreviouslyCreated).toBeInTheDocument();
-    expect(screen.getByText('Data Sharing')).toBeInTheDocument();
+    expect(screen.getByText('Affiliation section A')).toBeInTheDocument();
+    expect(screen.getByText('Affiliation section B')).toBeInTheDocument();
+    expect(screen.getByText('Affiliation section C')).toBeInTheDocument();
+    expect(screen.getByText('Affiliation section D')).toBeInTheDocument();
+    expect(screen.getByText('Affiliation section E')).toBeInTheDocument();
+    expect(screen.getByText('Affiliation section F')).toBeInTheDocument();
     expect(headingBestPractice).toBeInTheDocument();
-    expect(screen.getByText('Selection and Preservation')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section A')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section B')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section C')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section D')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section E')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section F')).toBeInTheDocument();
     expect(headingsBuildNewSection).toBeInTheDocument();
     expect(createNew).toBeInTheDocument();
   });
 
-  it.skip('should show filtered list when user clicks Search button', async () => {
+  it('should show filtered lists when user clicks Search button', async () => {
 
     (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
       data: mockPublishedSections,
@@ -129,17 +139,25 @@ describe("SectionTypeSelectPage", () => {
 
     // enter findable search term
     await act(async () => {
-      fireEvent.change(searchInput, { target: { value: 'Data' } });
+      fireEvent.change(searchInput, { target: { value: 'G' } });
     });
-
     const searchButton = screen.getByLabelText('Clear search');
     fireEvent.click(searchButton);
 
-    // Check that we can find section name that matches the search item
-    expect(screen.getByText('Data Sharing')).toBeInTheDocument();
+    expect(screen.getByText('Affiliation section G')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section G')).toBeInTheDocument();
+
+    // Remove the search term
+    await act(async () => {
+      fireEvent.change(searchInput, { target: { value: '' } });
+    });
+    fireEvent.click(searchButton);
+
+    expect(screen.getByText('Affiliation section A')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section A')).toBeInTheDocument();
   })
 
-  it.skip('should show error message when we cannot find item that matches search term', async () => {
+  it('should show error message when we cannot find item that matches search term', async () => {
 
     (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
       data: { publishedSections: mockPublishedSections },
@@ -175,7 +193,7 @@ describe("SectionTypeSelectPage", () => {
     expect(errorElement).toBeInTheDocument();
   })
 
-  it.skip('should show error message when query fails with a network error', async () => {
+  it('should show error message when query fails with a network error', async () => {
 
     (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
       data: undefined,
@@ -200,7 +218,7 @@ describe("SectionTypeSelectPage", () => {
     });
   })
 
-  it.skip('should pass axe accessibility test', async () => {
+  it('should pass axe accessibility test', async () => {
 
     (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
       data: { publishedSections: mockPublishedSections },
@@ -222,5 +240,40 @@ describe("SectionTypeSelectPage", () => {
       expect(results).toHaveNoViolations();
     });
 
+  });
+
+  it.skip('loads more affiliation sections', async () => {
+
+    (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
+      data: mockPublishedSections,
+      loading: false,
+      error: null,
+    });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <SectionTypeSelectPage />
+      );
+    });
+
+    // For some reason this does not work although it does for the search button in the test above
+    const loadMoreButtons = screen.getAllByLabelText(/buttons.loadMore/i);
+    fireEvent.click(loadMoreButtons[0]);
+
+    expect(screen.getByText('Affiliation section G')).toBeInTheDocument();
+    expect(screen.getByText('Affiliation section H')).toBeInTheDocument();
+    expect(screen.getByText('Affiliation section I')).toBeInTheDocument();
+
+
+    fireEvent.click(loadMoreButtons[1]);
+
+    expect(screen.getByText('Best practice section G')).toBeInTheDocument();
+    expect(screen.getByText('Best practice section H')).toBeInTheDocument();
+    expect(screen.getByText('Best practice section I')).toBeInTheDocument();
   });
 });

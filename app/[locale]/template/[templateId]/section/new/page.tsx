@@ -131,23 +131,24 @@ const SectionTypeSelectPage: React.FC = () => {
   const handleFiltering = (term: string) => {
     setSearchTerm(term);
     setErrors([]);
+
     // Filter org sections
-    const filteredList = sections.filter(item =>
+    const filteredSectionsList = sections.filter(item =>
+      item?.name.toLowerCase().includes(term.toLowerCase())
+    );
+    const filteredBestPracticeSectionsList = bestPracticeSections.filter(item =>
       item?.name.toLowerCase().includes(term.toLowerCase())
     );
 
-    if (filteredList.length === 0) {
+    if (filteredSectionsList.length === 0 && filteredBestPracticeSectionsList.length === 0) {
       const errorMessage = Global('messaging.noItemsFound');
       setErrors(prev => [...prev, errorMessage]);
     }
 
-    const affiliationSections = filteredList.filter(item => item?.bestPractice === false) ?? [];
-    const bestPracticeSections = filteredList.filter(item => item?.bestPractice === true) ?? [];
-
-    setFilteredSections(affiliationSections);
+    setFilteredSections(filteredSectionsList);
     // Filter best practice sections and exclude if they are already in the org sections
-    setFilteredBestPracticeSections(bestPracticeSections.filter(
-      item => !affiliationSections.some(affiliation => affiliation.name === item.name)
+    setFilteredBestPracticeSections(filteredBestPracticeSectionsList.filter(
+      item => !filteredSectionsList.some(sect => sect.name === item.name)
     ));
   }
 
@@ -224,12 +225,13 @@ const SectionTypeSelectPage: React.FC = () => {
       const loadMoreNumber = items.length - visibleCount[visibleCountKey]; // Calculate loadMoreNumber
       const currentlyDisplayed = visibleCount[visibleCountKey];
       const totalAvailable = items.length;
+
       return (
         <>
           <Button onPress={() => handleLoadMore(visibleCountKey)}>
             {loadMoreNumber > VISIBLE_CARD_COUNT
-              ? AddNewSection('buttons.load6More')
-              : AddNewSection('buttons.loadMore', { name: loadMoreNumber })}
+              ? AddNewSection.rich('buttons.load6More', { name: loadMoreNumber })
+              : AddNewSection.rich('buttons.loadMore', { name: loadMoreNumber })}
           </Button>
           <div className={styles.remainingText}>
             {AddNewSection('numDisplaying', { num: currentlyDisplayed, total: totalAvailable })}
