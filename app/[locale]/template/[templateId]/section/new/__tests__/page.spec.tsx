@@ -242,7 +242,7 @@ describe("SectionTypeSelectPage", () => {
 
   });
 
-  it.skip('loads more affiliation sections', async () => {
+  it('loads more affiliation sections', async () => {
 
     (usePublishedSectionsQuery as jest.Mock).mockReturnValue({
       data: mockPublishedSections,
@@ -262,18 +262,17 @@ describe("SectionTypeSelectPage", () => {
     });
 
     // For some reason this does not work although it does for the search button in the test above
-    const loadMoreButtons = screen.getAllByLabelText(/buttons.loadMore/i);
-    fireEvent.click(loadMoreButtons[0]);
+    const loadMoreButtons = screen.getAllByRole('button', { name: /buttons.loadMore/i });
+    expect(loadMoreButtons).toHaveLength(2);
 
+    fireEvent.click(loadMoreButtons[0]);
     expect(screen.getByText('Affiliation section G')).toBeInTheDocument();
     expect(screen.getByText('Affiliation section H')).toBeInTheDocument();
     expect(screen.getByText('Affiliation section I')).toBeInTheDocument();
 
-
     fireEvent.click(loadMoreButtons[1]);
-
-    expect(screen.getByText('Best practice section G')).toBeInTheDocument();
-    expect(screen.getByText('Best practice section H')).toBeInTheDocument();
-    expect(screen.getByText('Best practice section I')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section G')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section H')).toBeInTheDocument();
+    expect(screen.getByText('Best Practice section I')).toBeInTheDocument();
   });
 });
