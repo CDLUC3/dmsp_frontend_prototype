@@ -2,9 +2,31 @@
   "publishedSections": {
     "items": [
       {
-        "id": 207,
-        "name": "Responsibilities and Resources",
-        "displayOrder": 7,
+        "id": 201,
+        "name": "Affiliation section A",
+        "displayOrder": 1,
+        "bestPractice": false,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 202,
+        "name": "Affiliation section B",
+        "displayOrder": 2,
+        "bestPractice": false,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 203,
+        "name": "Best Practice section A",
+        "displayOrder": 1,
         "bestPractice": true,
         "modified": "1719500676000",
         "created": "1518454886000",
@@ -13,8 +35,118 @@
         "versionedQuestionCount": 2
       },
       {
+        "id": 204,
+        "name": "Affiliation section C",
+        "displayOrder": 3,
+        "bestPractice": false,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 205,
+        "name": "Affiliation section D",
+        "displayOrder": 4,
+        "bestPractice": false,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
         "id": 206,
-        "name": "Data Sharing",
+        "name": "Best Practice section B",
+        "displayOrder": 2,
+        "bestPractice": true,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 207,
+        "name": "Affiliation section E",
+        "displayOrder": 5,
+        "bestPractice": false,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 208,
+        "name": "Affiliation section F",
+        "displayOrder": 6,
+        "bestPractice": false,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 209,
+        "name": "Best Practice section C",
+        "displayOrder": 3,
+        "bestPractice": true,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 210,
+        "name": "Affiliation section G",
+        "displayOrder": 7,
+        "bestPractice": false,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 211,
+        "name": "Affiliation section H",
+        "displayOrder": 8,
+        "bestPractice": false,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 212,
+        "name": "Best Practice section D",
+        "displayOrder": 4,
+        "bestPractice": true,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 213,
+        "name": "Best Practice section E",
+        "displayOrder": 5,
+        "bestPractice": true,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 214,
+        "name": "Best Practice section F",
         "displayOrder": 6,
         "bestPractice": true,
         "modified": "1719500676000",
@@ -24,10 +156,43 @@
         "versionedQuestionCount": 2
       },
       {
-        "id": 205,
-        "name": "Selection and Preservation",
-        "displayOrder": 5,
+        "id": 215,
+        "name": "Best Practice section G",
+        "displayOrder": 7,
         "bestPractice": true,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 216,
+        "name": "Best Practice section H",
+        "displayOrder": 8,
+        "bestPractice": true,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 217,
+        "name": "Best Practice section I",
+        "displayOrder": 9,
+        "bestPractice": true,
+        "modified": "1719500676000",
+        "created": "1518454886000",
+        "versionedTemplateId": 35,
+        "versionedTemplateName": "Digital Curation Centre",
+        "versionedQuestionCount": 2
+      },
+      {
+        "id": 218,
+        "name": "Affiliation section I",
+        "displayOrder": 9,
+        "bestPractice": false,
         "modified": "1719500676000",
         "created": "1518454886000",
         "versionedTemplateId": 35,

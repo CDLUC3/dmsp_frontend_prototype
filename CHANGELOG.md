@@ -4,6 +4,7 @@
 - Plan Downloads [#299]
 -
 ### Added
+- Added a Load more button to the Add new section page [#450]
 - PublishedSections graphQL query [#448]
 - Added new Server Actions `addCollaboratorAction` [#381]
 - Added `addProjectCollaborator` mutations [#381]
@@ -29,6 +30,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated the "add new section" page to properly split our the affiliation's sections from best practice sections [#451]
 - Changed all instances of TemplateVisibility.PRIVATE to TemplateVisibility.ORGANIZATION to accomodate backend changes and also made update to `template/[templateId]` so that the `Version` and `Last updated` titles don't show in `description` when values are undefined [#466]
 - Updated `affiliations`, `myTemplates`, `publishedTemplates`, `myProjects` queries to handle the new pagination format. Updated the corresponding pages and components only enough to keep them working as-is [#180](https://github.com/CDLUC3/dmsp_backend_prototype/issues/180)
 - Updated `templates/[templateId]/sections/new` to use the new PublishedSections query and to use the addSection mutation when the user selects a section to copy
