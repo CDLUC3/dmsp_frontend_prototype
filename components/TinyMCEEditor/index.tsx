@@ -39,14 +39,7 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
         branding: false, // removed the tinyMCE branding
         statusbar: false, //removes the bottom status bar
         selector: `#${elementId}`,
-        menubar: 'file edit view insert table',
-        menu: { //Specify what you want in the menu bar
-          file: { title: 'File', items: 'newdocument restoredraft' },
-          edit: { title: 'Edit', items: 'undo redo | cut copy paste | selectall' },
-          view: { title: 'View', items: 'visualaid' },
-          insert: { title: 'Insert', items: 'image link media' },
-          table: { title: 'Table', items: 'inserttable tableprops deletetable | cell row column' },
-        },
+        menubar: false,
         max_height: 400,
         min_height: 200,
         plugins: [
@@ -55,7 +48,7 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
         ],
         toolbar: 'undo redo | formatselect | bold italic backcolor | ' +
           'alignleft aligncenter alignright alignjustify | ' +
-          'bullist numlist outdent indent | removeformat | help',
+          'bullist numlist outdent indent | removeformat | help | table',
         content_style: `
           @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
           body { font-family: "Poppins", sans-serif; color:#393939;};
