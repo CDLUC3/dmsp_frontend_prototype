@@ -1,6 +1,7 @@
 import React from 'react';
-import {act, fireEvent, render, screen, within} from '@/utils/test-utils';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { act, fireEvent, render, screen, within, waitFor } from '@/utils/test-utils';
+import userEvent from '@testing-library/user-event';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import ProfilePage from '../page';
 import {
   useLanguagesQuery,
@@ -8,12 +9,17 @@ import {
   useUpdateUserProfileMutation
 } from '@/generated/graphql';
 
-import {mockScrollIntoView, mockScrollTo} from '@/__mocks__/common';
+import { mockScrollIntoView, mockScrollTo } from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
+}));
+
+jest.mock('@/components/PageHeader', () => ({
+  __esModule: true,
+  default: () => <div data-testid="page-header">Mocked PageHeader Component</div>,
 }));
 
 jest.mock('@/utils/clientLogger', () => ({
@@ -38,7 +44,7 @@ jest.mock('@/components/UpdateEmailAddress', () => ({
 // Mock TypeAheadWithOther component
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
-  default: () => <div data-testid="type-ahead">Mocked TypeAheadWithOther Component</div>,
+  default: () => <div data-testid="type-ahead">Mocked Institution Field</div>,
 }));
 
 jest.mock('@/i18n/routing', () => ({
@@ -65,7 +71,10 @@ const mockUserData = {
 };
 
 const mockLanguagesData = {
-  languages: [{ id: 'en', name: 'English', isDefault: true }],
+  languages: [
+    { id: 'en', name: 'English', isDefault: true },
+    { id: 'pt', name: 'Portuguese', isDefault: false },
+  ],
 };
 
 // Helper function to cast to jest.Mock for TypeScript
@@ -102,7 +111,6 @@ describe('ProfilePage', () => {
     // Confirm that "FormInput" fields are initially hidden
     expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
 
-    // Wrap state-changing interactions in act()
     await act(async () => {
       // Locate the Edit button and click it
       const editButton = screen.getByRole('button', { name: /edit/i });
@@ -111,10 +119,14 @@ describe('ProfilePage', () => {
 
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
+    const typeAheadInstitutionField = screen.getByText("Mocked Institution Field");
+    const languageSelector = screen.getByRole('button', { name: /Language/i });
 
     // Confirm that clicking "Edit" reveals the form input fields
     expect(firstNameInput).toBeInTheDocument();
     expect(lastNameInput).toBeInTheDocument();
+    expect(typeAheadInstitutionField).toBeInTheDocument();
+    expect(languageSelector).toBeInTheDocument();
 
     // Enter an invalid value for first name field
     await act(async () => {
@@ -127,6 +139,61 @@ describe('ProfilePage', () => {
     // Check if error message is present when fields empty
     within(screen.getByRole('alert')).getByText('Name must be at least 2 characters');
   })
+
+  it('should render correct language Select dropdown and display options when user clicks it', async () => {
+    render(<ProfilePage />);
+
+    await act(async () => {
+      // Locate the Edit button and click it
+      const editButton = screen.getByRole('button', { name: /edit/i });
+      fireEvent.click(editButton);
+    });
+
+    const formSelectContainer = screen.getByRole('button', { name: /Language/i });
+    expect(formSelectContainer).toBeInTheDocument();
+
+    // Verify the label
+    const label = screen.getByText('Language');
+    expect(label).toBeInTheDocument();
+    expect(label).toHaveAttribute('id');
+
+    // Verify the help text
+    const helpText = screen.getAllByText('helpTextSelectYourLanguage');
+    expect(helpText[0]).toBeInTheDocument();
+    expect(helpText[0]).toHaveClass('help-text');
+
+    // Verify the dropdown button
+    expect(formSelectContainer).toHaveAttribute('aria-expanded', 'false');
+    expect(formSelectContainer).toHaveAttribute('aria-haspopup', 'listbox');
+
+    // Verify the dropdown value
+    const hiddenContainer = screen.getByTestId('hidden-select-container');
+
+    // Locate the <select> element inside the hidden container
+    const selectElement = within(hiddenContainer).getByRole('combobox', { hidden: true });
+
+    // Verify the "English" option exists
+    const englishOption = within(selectElement).getByText('English');
+    expect(englishOption).toBeInTheDocument();
+
+    // Verify the hidden select container
+    const hiddenSelect = screen.getByTestId('hidden-select-container');
+    expect(hiddenSelect).toBeInTheDocument();
+    expect(hiddenSelect).toHaveAttribute('aria-hidden', 'true');
+
+    // Click the button to open dropdown
+    const selectButton = screen.getByRole('button', { name: /english/i });
+    await userEvent.click(selectButton);
+
+    // Assert that dropdown is open
+    expect(selectButton).toHaveAttribute('aria-expanded', 'true');
+
+    // Check for options in the dropdown
+    const englishSelection = await screen.findByRole('option', { name: /english/i });
+    const portugueseSelection = await screen.findByRole('option', { name: /portuguese/i });
+    expect(portugueseSelection).toBeInTheDocument();
+    expect(englishSelection).toBeInTheDocument();
+  });
 
   it('should set data back to original when clicking Cancel button', async () => {
     render(<ProfilePage />);
@@ -141,6 +208,7 @@ describe('ProfilePage', () => {
       fireEvent.click(editButton);
     })
 
+    screen.debug(undefined, 100000);
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
 
@@ -160,19 +228,52 @@ describe('ProfilePage', () => {
     expect(screen.getByText('John')).toBeInTheDocument();
   })
 
-  it('should load languages', async () => {
+  it('should call updateUserProfile with correct data when form is submitted', async () => {
+    const mockUpdateUserProfile = jest.fn();
+    mockHook(useUpdateUserProfileMutation).mockReturnValue([mockUpdateUserProfile, { loading: false, error: undefined }]);
+
     render(<ProfilePage />);
 
+    // Locate the Edit button and click it
+    const editButton = screen.getByRole('button', { name: /edit/i });
+
     await act(async () => {
-      // Locate the Edit button and click it
-      const editButton = screen.getByRole('button', { name: /edit/i });
       fireEvent.click(editButton);
+    })
+
+    const firstNameInput = screen.getByLabelText(/first name/i);
+    const lastNameInput = screen.getByLabelText(/last name/i);
+
+    // Confirm that clicking "Edit" reveals the form input fields
+    expect(firstNameInput).toBeInTheDocument();
+    expect(lastNameInput).toBeInTheDocument();
+
+    // Enter new values for the form fields
+    await act(async () => {
+      fireEvent.change(firstNameInput, { target: { value: 'Mary' } });
+      fireEvent.change(lastNameInput, { target: { value: 'Smith' } });
     });
 
-    const hiddenContainer = screen.getByTestId('hidden-select-container');
-    const select = within(hiddenContainer).getByDisplayValue('English');
-    expect(select).toBeInTheDocument();
+    // Submit the form
+    const updateButton = screen.getByRole('button', { name: /update/i });
+    fireEvent.click(updateButton);
+
+    await waitFor(() => {
+      expect(mockUpdateUserProfile).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            givenName: 'Mary',
+            surName: 'Smith',
+            affiliationId: 'test-uri',
+            otherAffiliationName: '',
+            languageId: 'en',
+          },
+        },
+      });
+    });
+
   })
+
 
   it('should display Loading message when meQuery returns queryLoading', async () => {
     mockHook(useMeQuery).mockReturnValue({ data: mockUserData, loading: true, error: null });
@@ -189,3 +290,4 @@ describe('ProfilePage', () => {
     })
   })
 });
+
