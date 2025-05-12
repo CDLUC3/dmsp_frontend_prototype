@@ -136,6 +136,20 @@ describe('ProfilePage', () => {
     expect(lastNameInput).toBeInTheDocument();
     expect(typeAheadInstitutionField).toBeInTheDocument();
     expect(languageSelector).toBeInTheDocument();
+  })
+
+
+  it('should display validation error when first name field does not pass validation', async () => {
+    render(<ProfilePage />);
+
+    // Locate the Edit button and click it
+    const editButton = screen.getByRole('button', { name: /edit/i });
+
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
+
+    const firstNameInput = screen.getByLabelText(/first name/i);
 
     // Enter an invalid value for first name field
     await act(async () => {
@@ -147,6 +161,58 @@ describe('ProfilePage', () => {
 
     // Check if error message is present when fields empty
     within(screen.getByRole('alert')).getByText('Name must be at least 2 characters');
+  })
+
+  it('should display validation error when last name field does not pass validation', async () => {
+    render(<ProfilePage />);
+
+    // Locate the Edit button and click it
+    const editButton = screen.getByRole('button', { name: /edit/i });
+
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
+
+    const lastNameInput = screen.getByLabelText(/last name/i);
+
+    // Enter an invalid value for first name field
+    await act(async () => {
+      fireEvent.change(lastNameInput, { target: { value: '' } });
+    });
+
+    const submitButton = screen.getByRole('button', { name: /update/i });
+    fireEvent.click(submitButton);
+
+    // Check if error message is present when fields empty
+    within(screen.getByRole('alert')).getByText('Name must be at least 2 characters');
+  })
+
+  it('should display validation error when affiliationName field does not pass validation', async () => {
+    const mockUserData = {
+      me: {
+        givenName: 'John',
+        surName: 'Doe',
+        affiliation: { name: '', uri: '' },
+        emails: [{ id: '1', email: 'test@example.com', isPrimary: true, isConfirmed: true }],
+        languageId: 'en',
+      },
+    };
+    mockHook(useMeQuery).mockReturnValue({ data: mockUserData, loading: false, error: null });
+
+    render(<ProfilePage />);
+
+    // Locate the Edit button and click it
+    const editButton = screen.getByRole('button', { name: /edit/i });
+
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
+
+    const submitButton = screen.getByRole('button', { name: /update/i });
+    fireEvent.click(submitButton);
+
+    // Check if error message is present when fields empty
+    within(screen.getByRole('alert')).getByText('Institution name cannot be blank and must be at least 2 characters long');
   })
 
   it('should render correct language Select dropdown and display options when user clicks it', async () => {
@@ -237,7 +303,14 @@ describe('ProfilePage', () => {
   })
 
   it('should call updateUserProfile with correct data when form is submitted', async () => {
-    const mockUpdateUserProfile = jest.fn();
+    const mockUpdateUserProfile = jest.fn().mockResolvedValue({
+      data: {
+        updateUserProfile: {
+          success: true,
+          message: 'Profile updated successfully',
+        },
+      },
+    });
     mockHook(useUpdateUserProfileMutation).mockReturnValue([
       mockUpdateUserProfile,
       { loading: false, error: undefined },
