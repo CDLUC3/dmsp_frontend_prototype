@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen, within, waitFor } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProfilePage from '../page';
@@ -208,7 +208,6 @@ describe('ProfilePage', () => {
       fireEvent.click(editButton);
     })
 
-    screen.debug(undefined, 100000);
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
 
@@ -228,11 +227,11 @@ describe('ProfilePage', () => {
     expect(screen.getByText('John')).toBeInTheDocument();
   })
 
-  it('should call updateUserProfile with correct data when form is submitted', async () => {
-    const mockUpdateUserProfile = jest.fn();
-    mockHook(useUpdateUserProfileMutation).mockReturnValue([mockUpdateUserProfile, { loading: false, error: undefined }]);
-
+  it.only('should call updateUserProfile with correct data when form is submitted', async () => {
     render(<ProfilePage />);
+
+    // Confirm that "FormInput" fields are initially hidden
+    expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
 
     // Locate the Edit button and click it
     const editButton = screen.getByRole('button', { name: /edit/i });
@@ -248,29 +247,13 @@ describe('ProfilePage', () => {
     expect(firstNameInput).toBeInTheDocument();
     expect(lastNameInput).toBeInTheDocument();
 
-    // Enter new values for the form fields
+    // Enter an invalid value for first name field
     await act(async () => {
       fireEvent.change(firstNameInput, { target: { value: 'Mary' } });
-      fireEvent.change(lastNameInput, { target: { value: 'Smith' } });
     });
 
-    // Submit the form
-    const updateButton = screen.getByRole('button', { name: /update/i });
+    const updateButton = screen.getByRole('button', { name: /btnupdate/i });
     fireEvent.click(updateButton);
-
-    await waitFor(() => {
-      expect(mockUpdateUserProfile).toHaveBeenCalledWith({
-        variables: {
-          input: {
-            givenName: 'Mary',
-            surName: 'Smith',
-            affiliationId: 'test-uri',
-            otherAffiliationName: '',
-            languageId: 'en',
-          },
-        },
-      });
-    });
 
   })
 

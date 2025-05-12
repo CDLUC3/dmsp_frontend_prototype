@@ -14,6 +14,9 @@ const config: Config = {
     moduleDirectories: ["node_modules", "<rootDir>/"],
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/$1',
+        '\\.(css|scss|sass)$': 'identity-obj-proxy',// Added so I can mock CSS imports for layout.tsx
+        '^@fontsource/.*$': '<rootDir>/__mocks__/styleMock.js',
+        '^@fortawesome/.*$': '<rootDir>/__mocks__/styleMock.js',
     },
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     globals: {

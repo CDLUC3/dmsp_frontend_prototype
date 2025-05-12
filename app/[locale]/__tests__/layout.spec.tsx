@@ -1,0 +1,82 @@
+/**
+ * @jest-environment jsdom
+ */
+
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import LocaleLayout from '@/app/[locale]/layout';
+import { routing } from '@/i18n/routing';
+import { notFound } from 'next/navigation'; // Replace require with import
+
+
+// Mocks
+jest.mock('next-intl/server', () => ({
+  getMessages: jest.fn().mockResolvedValue({}),
+}));
+
+jest.mock('next/navigation', () => ({
+  notFound: jest.fn(),
+}));
+
+// jest.mock('@/components/Header', () => () => <div>Mock Header</div>);
+// jest.mock('@/components/Footer', () => () => <div>Mock Footer</div>);
+// jest.mock('@/components/SubHeader', () => () => <div>Mock SubHeader</div>);
+
+jest.mock('@/components/Header', () => {
+  const MockHeader = () => <div>Mock Header</div>;
+  MockHeader.displayName = 'MockHeader';
+  return MockHeader;
+});
+jest.mock('@/components/Footer', () => {
+  const MockFooter = () => <div>Mock Footer</div>;
+  MockFooter.displayName = 'MockFooter';
+  return MockFooter;
+});
+jest.mock('@/components/SubHeader', () => {
+  const MockSubHeader = () => <div>Mock SubHeader</div>;
+  MockSubHeader.displayName = 'MockSubHeader';
+  return MockSubHeader;
+});
+
+jest.mock('@/lib/graphql/apollo-wrapper', () => ({
+  ApolloWrapper: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+jest.mock('@/context/AuthContext', () => ({
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+jest.mock('@/context/CsrfContext', () => ({
+  CsrfProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+jest.mock('@/context/ToastContext', () => ({
+  ToastProviderWrapper: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+jest.mock('next-intl', () => ({
+  NextIntlClientProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+describe('LocaleLayout', () => {
+  it('renders layout with valid locale', async () => {
+    const TestComponent = await LocaleLayout({
+      children: <>Main Content</>,
+      params: { locale: routing.locales[0] }, // valid locale
+    });
+
+    render(TestComponent);
+
+    expect(screen.getByText('Mock Header')).toBeInTheDocument();
+    expect(screen.getByText('Main Content')).toBeInTheDocument();
+    expect(screen.getByText('Mock Footer')).toBeInTheDocument();
+  });
+
+  it('calls notFound() on invalid locale', async () => {
+    const invalidLocale = 'xx';
+
+    await LocaleLayout({
+      children: <div>Main Content</div>,
+      params: { locale: invalidLocale },
+    });
+
+    expect(notFound).toHaveBeenCalled();
+  });
+});
