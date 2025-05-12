@@ -96,6 +96,35 @@ export default function HomePage() {
 }
 ```
 
+Additional examples of how to use the translation keys:
+```
+    <PageHeader title={t('title')} />
+    <p>{t('content', { name })}</p>
+    <p>{t('itemCount', { count: 1 })}</p>
+    <p>
+      {t.rich('message', {
+        guidelines: (chunks) => <a href="/guidelines">{chunks}</a>
+      })}
+    </p>
+    {t.rich('markup', {
+      important: (chunks) => <b>${chunks}</b>
+    })}
+    <div dangerouslySetInnerHTML={{ __html: t.raw('raw') }} />
+    <p>{t('general')}</p>
+```
+with the translation definitions looking like:
+```
+    "LocaleTest": {
+    "title": "Localization Test",
+    "content": "Hello {name}!",
+    "itemCount": "{count, plural, one {You have {count} item} other {You have {count} items}}",
+    "message": "Please refer to <guidelines>the guidelines</guidelines>.",
+    "markup": "This is <important>important</important>",
+    "raw": "&lt;script&gt;alert('Hacked!')&lt;/script&gt;",
+    "general": "This is new content"
+  },
+```
+
 For more documentation on what is available in `next-intl`, go to: https://next-intl-docs.vercel.app/docs/getting-started
 
 #### Crowdin - Localization Management Platform

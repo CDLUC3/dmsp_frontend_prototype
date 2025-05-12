@@ -155,6 +155,7 @@ const ProfilePage: React.FC = () => {
       }
     } catch (error) {
       if (error instanceof ApolloError) {
+        //
         setIsEditing(false);
       } else {
         // Handle other types of errors
