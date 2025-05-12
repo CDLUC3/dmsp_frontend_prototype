@@ -2,6 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { ApolloError } from '@apollo/client';
 import ProfilePage from '../page';
 import {
   useLanguagesQuery,
@@ -92,7 +93,14 @@ describe('ProfilePage', () => {
     setupMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
-    const mockUpdateUserProfile = jest.fn();
+    const mockUpdateUserProfile = jest.fn().mockResolvedValue({
+      data: {
+        updateUserProfile: {
+          success: true,
+          message: 'Profile updated successfully',
+        },
+      },
+    });
     mockHook(useUpdateUserProfileMutation).mockReturnValue([mockUpdateUserProfile, { loading: false, error: undefined }]);
   });
 
@@ -111,14 +119,15 @@ describe('ProfilePage', () => {
     // Confirm that "FormInput" fields are initially hidden
     expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
 
-    await act(async () => {
-      // Locate the Edit button and click it
-      const editButton = screen.getByRole('button', { name: /edit/i });
-      fireEvent.click(editButton);
-    });
+    // Locate the Edit button and click it
+    const editButton = screen.getByRole('button', { name: /edit/i });
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
-    const lastNameInput = screen.getByLabelText(/last name/i);
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
+
+    const firstNameInput = await screen.getByLabelText(/first name/i);
+    const lastNameInput = await screen.getByLabelText(/last name/i);
     const typeAheadInstitutionField = screen.getByText("Mocked Institution Field");
     const languageSelector = screen.getByRole('button', { name: /Language/i });
 
@@ -227,7 +236,13 @@ describe('ProfilePage', () => {
     expect(screen.getByText('John')).toBeInTheDocument();
   })
 
-  it.only('should call updateUserProfile with correct data when form is submitted', async () => {
+  it('should call updateUserProfile with correct data when form is submitted', async () => {
+    const mockUpdateUserProfile = jest.fn();
+    mockHook(useUpdateUserProfileMutation).mockReturnValue([
+      mockUpdateUserProfile,
+      { loading: false, error: undefined },
+    ]);
+
     render(<ProfilePage />);
 
     // Confirm that "FormInput" fields are initially hidden
@@ -238,7 +253,7 @@ describe('ProfilePage', () => {
 
     await act(async () => {
       fireEvent.click(editButton);
-    })
+    });
 
     const firstNameInput = screen.getByLabelText(/first name/i);
     const lastNameInput = screen.getByLabelText(/last name/i);
@@ -247,22 +262,95 @@ describe('ProfilePage', () => {
     expect(firstNameInput).toBeInTheDocument();
     expect(lastNameInput).toBeInTheDocument();
 
-    // Enter an invalid value for first name field
+    // Enter new values for the form fields
     await act(async () => {
       fireEvent.change(firstNameInput, { target: { value: 'Mary' } });
+      fireEvent.change(lastNameInput, { target: { value: 'Smith' } });
     });
 
     const updateButton = screen.getByRole('button', { name: /btnupdate/i });
-    fireEvent.click(updateButton);
+    await act(async () => {
+      fireEvent.click(updateButton);
+    });
 
-  })
-
+    // Assert that mockUpdateUserProfile was called with the correct data
+    expect(mockUpdateUserProfile).toHaveBeenCalledWith({
+      variables: {
+        input: {
+          givenName: 'Mary',
+          surName: 'Smith',
+          affiliationId: 'test-uri', // Assuming no affiliation was selected
+          otherAffiliationName: '', // Assuming no "Other" affiliation was entered
+          languageId: 'en', // Assuming no language was selected
+        },
+      },
+    });
+  });
 
   it('should display Loading message when meQuery returns queryLoading', async () => {
     mockHook(useMeQuery).mockReturnValue({ data: mockUserData, loading: true, error: null });
     render(<ProfilePage />);
     const loadingText = screen.getByText(/loading/i);
     expect(loadingText).toBeInTheDocument();
+  })
+
+  it('should display error message when updateProfile mutation returns an error', async () => {
+    const mockUpdateUserProfile = jest.fn();
+    mockHook(useUpdateUserProfileMutation).mockReturnValue([
+      mockUpdateUserProfile,
+      { loading: false, error: new Error('Error updating profile') },
+    ]);
+
+    render(<ProfilePage />);
+
+    // Trigger the Edit button to enable form editing
+    const editButton = screen.getByRole('button', { name: /edit/i });
+    await act(async () => {
+      fireEvent.click(editButton);
+    });
+
+    // Submit the form to trigger the mutation
+    const updateButton = screen.getByRole('button', { name: /update/i });
+    await act(async () => {
+      fireEvent.click(updateButton);
+    });
+
+    // Check if the error message is displayed
+    const errorMsg = screen.getByText(/Error when updating profile/i);
+    expect(errorMsg).toBeInTheDocument();
+  })
+
+  it('should display error message when updateProfile mutation returns an ApolloError', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Apollo error occurred',
+    });
+
+    // Make the mutation function throw the ApolloError when called
+    const mockUpdateUserProfile = jest.fn().mockRejectedValue(apolloError);
+
+    mockHook(useUpdateUserProfileMutation).mockReturnValue([
+      mockUpdateUserProfile,
+      { loading: false, error: null }, // Start with no error in the result
+    ]);
+
+    render(<ProfilePage />);
+
+    // Trigger the Edit button to enable form editing
+    const editButton = screen.getByRole('button', { name: /edit/i });
+    await act(async () => {
+      fireEvent.click(editButton);
+    });
+
+    // Submit the form to trigger the mutation
+    const updateButton = screen.getByRole('button', { name: /update/i });
+    await act(async () => {
+      fireEvent.click(updateButton);
+    });
+
+    // The form inputs should no lonber be visible
+    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
   })
 
   it('should pass axe accessibility test', async () => {

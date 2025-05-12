@@ -138,6 +138,7 @@ const ProfilePage: React.FC = () => {
         }
       },
     });
+
     return response.data;
   }
 
@@ -154,7 +155,6 @@ const ProfilePage: React.FC = () => {
       }
     } catch (error) {
       if (error instanceof ApolloError) {
-        //
         setIsEditing(false);
       } else {
         // Handle other types of errors
@@ -475,12 +475,12 @@ const ProfilePage: React.FC = () => {
                     </div>
                     {isEditing ? (
                       <div className={styles.btnContainer}>
-                        <Button className="secondary" onPress={cancelEdit}>{t('btnCancel')}</Button>
+                        <Button type="button" className="secondary" onPress={cancelEdit}>{t('btnCancel')}</Button>
                         <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? t('btnUpdating') : t('btnUpdate')}</Button>
                       </div>
                     ) : (
                       <div className={styles.btnContainer}>
-                        <Button type="submit" onPress={handleEdit} className={styles.btn}>{t('btnEdit')}</Button>
+                        <Button type="button" onPress={handleEdit} className={styles.btn}>{t('btnEdit')}</Button>
                       </div>
                     )}
                   </Form>

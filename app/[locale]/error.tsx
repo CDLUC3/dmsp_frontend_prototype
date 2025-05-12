@@ -10,7 +10,7 @@ export default function ErrorBoundary({ error, reset }: ErrorProps) {
 
     return (
         <>
-            <h2>{error.message || "Something went wrong!"} </h2>
+            <h1>{error.message || "Something went wrong!"} </h1>
             <button
                 type="button"
                 onClick={() => reset()}
