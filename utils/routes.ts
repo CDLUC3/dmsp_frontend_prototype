@@ -38,6 +38,7 @@ const routes = {
   'projects.dmp.members': '/projects/:projectId/dmp/:dmpId/members',
   'projects.dmp.question': '/projects/:projectId/dmp/:dmpId/q',
   'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
+  'projects.dmp.research-outputs.edit': '/projects/:projectId/dmp/:dmpId/research-outputs/edit',
   'projects.dmp.section': '/projects/:projectId/dmp/:dmpId/s/:sectionId',
   'projects.dmp.create': '/projects/:projectId/dmp/create',
   'projects.dmp.feedback': '/projects/:projectId/dmp/:dmpId/feedback',

@@ -40,6 +40,17 @@ h3,.h3 {
   }
 }
 
+// Sometimes we need to apply heading 3 styles to an <h2> element
+.heading-3 {
+  font-size: calc(var(--fs-lg) * var(--scale-mobile));
+  color: var(--heading-color);
+  padding: 5px 10px 5px 3px;
+
+  @include device(md) {
+    font-size: var(--fs-xl);
+  }
+}
+
 h4,.h4 {
   font-size: calc(var(--fs-base) * var(--scale-mobile));
   color: var(--heading-color);
