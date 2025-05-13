@@ -30,6 +30,13 @@ const config: Config = {
         "app/**",  // Include all pages
         "components/**"// Include components
     ],
+    // Add coverage path ignore patterns to exclude server actions
+    coveragePathIgnorePatterns: [
+        "/node_modules/",
+        "/app/actions/",         // Exclude server actions in app/actions
+        "/actions/",             // Exclude server actions if in root actions folder
+        ".*\\.server\\.(js|ts|tsx)$"  // Optional: Exclude files ending with .server.ts etc.
+    ],
     coverageThreshold: {
         global: {
             branches: 50,
