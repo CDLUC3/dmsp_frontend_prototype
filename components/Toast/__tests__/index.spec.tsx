@@ -37,7 +37,7 @@ describe('Toast', () => {
     jest.clearAllMocks();
   });
 
-  it('renders with the correct content', () => {
+  it('should render with the correct content', () => {
     const toast = {
       key: '1',
       content: 'Test toast message',
@@ -53,7 +53,7 @@ describe('Toast', () => {
     expect(screen.getByTestId('toast')).toHaveClass('toast toast-info');
   });
 
-  it('applies the correct class based on type', () => {
+  it('should apply the correct class based on type', () => {
     const toast = {
       key: '1',
       content: 'Error message',
@@ -66,7 +66,7 @@ describe('Toast', () => {
     expect(screen.getByTestId('toast')).toHaveClass('toast toast-error');
   });
 
-  it('uses default type "info" if not specified', () => {
+  it('should use default type "info" if not specified', () => {
     const toast = {
       key: '1',
       content: 'Default toast'
@@ -78,7 +78,7 @@ describe('Toast', () => {
     expect(screen.getByTestId('toast')).toHaveClass('toast toast-info');
   });
 
-  it('renders close button with proper accessibility attribute', () => {
+  it('should render close button with proper accessibility attribute', () => {
     const toast = {
       key: '1',
       content: 'Test toast',
