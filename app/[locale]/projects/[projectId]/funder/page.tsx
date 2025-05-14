@@ -1,23 +1,28 @@
 'use client';
 
 import React from 'react';
-import {Breadcrumb, Breadcrumbs, Button, Link,} from "react-aria-components";
+import { useRouter } from 'next/navigation';
+
+import { Breadcrumb, Breadcrumbs, Button, Link, } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectFunding.module.scss';
 
 const ProjectsProjectFunding = () => {
+  const router = useRouter();
+
   const handleAddFunder = () => {
-    window.location.href = '/projects/proj_2425/funder/search';
+    router.push(routePath('projects.funder.search', { projectId: 'proj_2425' }))
   };
 
   const handleEditFunder = () => {
     // Navigate to edit page or open modal
-    window.location.href = '/projects/proj_2425/funder/edit';
+    router.push(routePath('projects.funder.edit', { projectId: 'proj_2425' }))
   };
 
   return (

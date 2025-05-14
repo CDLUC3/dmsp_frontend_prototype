@@ -25,6 +25,7 @@ const routes = {
   'projects.funder.index': '/projects/:projectId/funder',
   'projects.funder.show': '/projects/:projectId/funder/:projectFunderId',
   'projects.funder.search': '/projects/:projectId/funder/search',
+  'projects.funder.edit': '/projects/:projectId/funder/edit',
   'projects.members.index': '/projects/:projectId/members',
   'projects.members.edit': '/projects/:projectId/members/:memberId/edit',
   'projects.members.search': '/projects/:projectId/members/search',
