@@ -35,6 +35,10 @@ const config: Config = {
         "/node_modules/",
         "/app/actions/",         // Exclude server actions in app/actions
         "/actions/",             // Exclude server actions if in root actions folder
+        "<rootDir>/app/\\[locale\\]/styleguide/sg-components.tsx", // Exclude style guide
+        "<rootDir>/app/\\[locale\\]/styleguide/page.tsx", // Exclude style guide
+        "<rootDir>/app/types/index.ts", // Exclude types
+        "<rootDir>/app/\\[locale\\]/healthcheck/page.tsx", // Exclude health check
         ".*\\.server\\.(js|ts|tsx)$"  // Optional: Exclude files ending with .server.ts etc.
     ],
     coverageThreshold: {
