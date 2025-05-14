@@ -1,12 +1,12 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {useTranslations} from 'next-intl';
-import {ListBoxItem,} from "react-aria-components";
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { ListBoxItem, } from "react-aria-components";
 import {
   useChildResearchDomainsQuery,
   useTopLevelResearchDomainsQuery,
 } from '@/generated/graphql';
 
-import {FormSelect,} from "@/components/Form";
+import { FormSelect, } from "@/components/Form";
 
 
 import styles from './researchDomainDropdowns.module.scss';
@@ -30,6 +30,7 @@ interface CascadingDropdownProps {
   projectData: any;
   setProjectData: (data: any) => void;
 }
+
 const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ projectData, setProjectData }) => {
   const [selectedParent, setSelectedParent] = useState<string>('');
   const [selectedChild, setSelectedChild] = useState('');
@@ -54,13 +55,13 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
   );
 
   // Update child dropdown when parent selection changes
-  const updateChildDropdown = (parentResearchDomainId: string) => {
+  const updateChildDropdown = async (parentResearchDomainId: string) => {
     setSelectedParent(parentResearchDomainId);
     setSelectedChild('');
     setProjectData({ ...projectData, researchDomainId: parentResearchDomainId });
 
     if (parentResearchDomainId) {
-      refetch({ parentResearchDomainId: Number(parentResearchDomainId) });
+      await refetch({ parentResearchDomainId: Number(parentResearchDomainId) });
       // Set a brief timeout to ensure DOM is updated before focusing
       setTimeout(() => {
         if (childSelectRef.current) {
