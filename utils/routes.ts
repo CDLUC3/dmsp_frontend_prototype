@@ -30,6 +30,8 @@ const routes = {
   'projects.members.edit': '/projects/:projectId/members/:memberId/edit',
   'projects.members.search': '/projects/:projectId/members/search',
   'projects.funding.index': '/projects/:projectId/project-funding',
+  'projects.outputs.index': '/projects/:projectId/research-outputs',
+  'projects.outputs.edit': '/projects/:projectId/research-outputs/edit',
 
   // DMP (Data Management Plan) routes
   'projects.dmp.index': '/projects/:projectId/dmp',
