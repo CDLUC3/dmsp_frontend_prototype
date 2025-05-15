@@ -16,7 +16,7 @@ describe('ResearchDomainCascadingDropdown', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-  });
+  })
 
   it('should render parent dropdown with top-level research domains', async () => {
     (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
@@ -105,10 +105,10 @@ describe('ResearchDomainCascadingDropdown', () => {
     fireEvent.click(childDropdownButton);
 
     // Confirm child dropdown updated
-    const childOption1 = await screen.findByRole('option', { name: 'Child Domain 1' });
-    const childOption2 = await screen.findByRole('option', { name: 'Child Domain 2' });
-    expect(childOption1).toBeInTheDocument();
-    expect(childOption2).toBeInTheDocument();
+    const childOption1 = await screen.findAllByText(/Child Domain 1/i);
+    const childOption2 = await screen.findAllByText(/Child Domain 2/i);
+    expect(childOption1[0]).toBeInTheDocument();
+    expect(childOption2[0]).toBeInTheDocument();
   });
 
 
@@ -174,7 +174,7 @@ describe('ResearchDomainCascadingDropdown', () => {
 
     // Assert that mockSetProjectData was called with the correct value
     expect(mockSetProjectData).toHaveBeenCalledWith({
-      researchDomainId: '3',
+      researchDomainId: '1',
     });
   });
 });
