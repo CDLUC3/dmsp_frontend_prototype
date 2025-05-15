@@ -1,17 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { routePath } from '@/utils/routes';
 
+import { LoggedError } from "@/utils/exceptions";
+
 // import {
 //   useLanguagesQuery,
-//   UserErrors,
 // } from '@/generated/graphql';
 import {
   AffiliationSearch,
   AffiliationSearchResults,
   useAddProjectFunderMutation,
+  ProjectFunderErrors,
 } from '@/generated/graphql';
 
 import {
@@ -28,11 +30,25 @@ import {
   SidebarPanel
 } from "@/components/Container";
 import FunderSearch from '@/components/FunderSearch';
+import ErrorMessages from "@/components/ErrorMessages";
 
 import styles from './ProjectsCreateProjectFundingSearch.module.scss';
 
 
-const ProjectsCreateProjectFundingSearch = () => {
+/**
+ * A custom error that we can catch and handle on this page
+ */
+class AddFunderError extends Error {
+  errors: string[];
+
+  constructor(message: string, errors: string[]) {
+    super(message);
+    this.errors = errors;
+  }
+}
+
+
+const CreateProjectSearchFunder = () => {
   const router = useRouter();
   const params = useParams();
   const { projectId } = params;
@@ -43,9 +59,34 @@ const ProjectsCreateProjectFundingSearch = () => {
   const [nextCursor, setNextCursor] = useState<string|null>(null);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [addProjectFunder, {data, loading, error}] = useAddProjectFunderMutation({});
+  const [errors, setErrors] = useState<string[]>([]);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Handle specific errors that we care about in this component.
+   * @param {ProjectFunderErrors} errs - The errors from the graphql response
+   */
+  function checkErrors(errs: ProjectFunderErrors) {
+    const typedKeys: (keyof ProjectFunderErrors)[] = [
+      "affiliationId",
+      "general",
+      "projectId",
+      "status",
+    ];
+    let newErrors = [];
+    for (const k of typedKeys) {
+      const errVal = errs[k];
+      if (errVal) {
+        newErrors.push(errVal);
+      }
+    }
+    if (newErrors.length > 0) {
+      throw new AddFunderError("Could not add the funder", newErrors);
+    }
+  }
 
   async function handleSelectFunder(funder: AffiliationSearch) {
-    const NEXT_URL = routePath('projects.create.fundingSearch', {
+    const NEXT_URL = routePath('projects.create.projectSearch', {
       projectId: projectId,
     });
 
@@ -55,18 +96,17 @@ const ProjectsCreateProjectFundingSearch = () => {
     }
 
     try {
-      const result = await addProjectFunder({variables: { input }})
+      const result = await addProjectFunder({variables: { input }});
+      checkErrors(result.data.addProjectFunder.errors as ProjectFunderErrors);
       router.push(NEXT_URL);
-    } catch(err) {
-      // TODO:: Proper Error handling
-      console.log(err);
+    } catch (e) {
+      if (e instanceof AddFunderError) {
+        setErrors(e.errors);
+      } else {
+        throw new LoggedError(e.message);
+      }
     }
   };
-
-  function hasMore() {
-    if (!nextCursor) return false;
-    if (funders.length < totalCount) return true;
-  }
 
   async function handleAddFunderManually(funderName: string) {
     // TODO:: Handle manual addition of funders
@@ -82,6 +122,14 @@ const ProjectsCreateProjectFundingSearch = () => {
       }
       if (!hasSearched) setHasSearched(true);
     }
+  }
+
+  /**
+   * Checks if the useMore button should display or not.
+   */
+  function hasMore() {
+    if (!nextCursor) return false;
+    if (funders.length < totalCount) return true;
   }
 
   return (
@@ -100,8 +148,9 @@ const ProjectsCreateProjectFundingSearch = () => {
       />
       <LayoutWithPanel>
         <ContentContainer>
+          <ErrorMessages errors={errors} ref={errorRef} />
           <FunderSearch
-            limit={2}
+            data-testid="search-component"
             onResults={onResults}
             moreTrigger={moreCounter}
           />
@@ -165,4 +214,4 @@ const ProjectsCreateProjectFundingSearch = () => {
   );
 };
 
-export default ProjectsCreateProjectFundingSearch;
+export default CreateProjectSearchFunder;

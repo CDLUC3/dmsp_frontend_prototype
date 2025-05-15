@@ -2,7 +2,12 @@ mutation AddProjectFunding($input: AddProjectFunderInput!) {
   addProjectFunder(input: $input) {
     errors {
       affiliationId
+      funderOpportunityNumber
+      funderProjectNumber
+      general
+      grantId
       projectId
+      status
     }
   }
 }

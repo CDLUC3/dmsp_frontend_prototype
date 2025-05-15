@@ -45,12 +45,8 @@ const FunderSearch = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // If search is blank, we want to return an empty results, rather than a
-    // lookup that could potentially return hunders/thousands of results.
-    if (!searchTerm.trim()) {
-      onResults?.(null);
-      return;
-    }
+    // Don't perform any lookup if the search term is empty.
+    if (!searchTerm.trim()) return;
 
     // Now perform the affiliation search with our search term
     fetchAffiliations({
@@ -93,7 +89,10 @@ const FunderSearch = ({
     <>
       <Form onSubmit={handleSubmit} aria-labelledby="search-section">
         <section id="search-section">
-          <SearchField aria-label="Search funders">
+          <SearchField
+            data-testid="search-field"
+            aria-label="Search funders"
+          >
             <Label>{trans('labels.funderSearch')}</Label>
             <Input
               aria-describedby="search-help"
@@ -101,7 +100,9 @@ const FunderSearch = ({
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={trans('placeholders.funderSearch')}
             />
-            <Button type={"submit"}>Search</Button>
+            <Button data-testid="search-btn" type={"submit"}>
+              Search
+            </Button>
             <Text slot="description" className="help" id="search-help">
               {trans('helpText.funderSearch')}
             </Text>
