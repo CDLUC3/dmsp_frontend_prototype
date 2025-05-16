@@ -1,0 +1,10 @@
+
+.loadBtnContainer {
+  // make sure this div takes up the full width of the parent container and centers all content
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: -25px 0 25px 0;
+}
