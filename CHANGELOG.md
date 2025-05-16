@@ -4,6 +4,7 @@
 - Plan Downloads [#299]
 -
 ### Added
+- Added TinyMCE Editor component and added it to the styleguide [#462]
 - Added a Load more button to the Add new section page [#450]
 - PublishedSections graphQL query [#448]
 - Added new Server Actions `addCollaboratorAction` [#381]
