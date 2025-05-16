@@ -39,6 +39,7 @@ import { DmpEditor } from "@/components/Editor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
 import { stripHtmlTags } from '@/utils/general';
+import { scrollToTop } from '@/utils/general';
 
 import {
   SectionFormErrorsInterface,
@@ -173,15 +174,6 @@ const CreateSectionPage: React.FC = () => {
     });
   }
 
-  const scrollToTop = (ref: React.MutableRefObject<HTMLDivElement | null>) => {
-    if (ref.current) {
-      ref.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }
-
   // Make GraphQL mutation request to create section
   const createSection = async (): Promise<SectionErrors> => {
     // string all tags from sectionName before sending to backend
@@ -208,6 +200,8 @@ const CreateSectionPage: React.FC = () => {
           }
         }]
       });
+
+      console.log('Response from addSectionMutation:', response);
 
       if (response.data?.addSection?.errors) {
         return response.data.addSection.errors;

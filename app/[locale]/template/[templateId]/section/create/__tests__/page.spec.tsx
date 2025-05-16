@@ -1,5 +1,5 @@
 import React from "react";
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useAddSectionMutation,
   useSectionsDisplayOrderQuery,
@@ -7,13 +7,14 @@ import {
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import CreateSectionPage from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import mockSectionData from '../__mocks__/addSectionMock.json';
 
 expect.extend(toHaveNoViolations);
 
-// Mock the useTemplateQuery hook
+// Mock the graphql hooks
 jest.mock("@/generated/graphql", () => ({
   useAddSectionMutation: jest.fn(),
   useTagsQuery: jest.fn(),
@@ -25,6 +26,8 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
   useParams: jest.fn(),
 }))
+
+const mockUseRouter = useRouter as jest.Mock;
 
 jest.mock('@/context/ToastContext', () => ({
   useToast: jest.fn(() => ({
@@ -104,6 +107,7 @@ const mockTagsData = {
 
 describe("CreateSectionPage", () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     const mockTemplateId = 123;
@@ -117,17 +121,22 @@ describe("CreateSectionPage", () => {
       error: null,
     });
 
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
     (useSectionsDisplayOrderQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockSectionsData), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
+
   });
 
   it("should render correct fields", async () => {
-    (useAddSectionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
-    ]);
+
+    (useAddSectionMutation as jest.Mock).mockImplementation(() => {
+      return [{ data: { key: 'value' } }, { loading: false, error: undefined }];
+    });
 
     await act(async () => {
       render(
@@ -182,6 +191,33 @@ describe("CreateSectionPage", () => {
     expect(errorMessage).toBeInTheDocument();
     expect(errorMessage).toHaveTextContent('messages.fieldLengthValidation');
   })
+
+  it('should call addSectionMutation when user enters data and clicks Create section button', async () => {
+    const mockAddSection = jest.fn().mockResolvedValueOnce({ data: mockSectionData });
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      mockAddSection,
+      { loading: false, error: undefined },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <CreateSectionPage />
+      );
+    });
+
+    const sectionNameInput = screen.getByRole('textbox', { name: /sectionName/i });
+    fireEvent.change(sectionNameInput, { target: { value: 'Test Section' } });
+
+    const searchButton = screen.getByRole('button', { name: /button.createSection/i });
+    fireEvent.click(searchButton);
+    expect(mockAddSection).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/template/123');
+    });
+  })
+
 
   it('should pass axe accessibility test', async () => {
     (useAddSectionMutation as jest.Mock).mockReturnValue([
