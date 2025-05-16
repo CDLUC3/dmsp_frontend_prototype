@@ -188,6 +188,7 @@ const TemplateEditPage: React.FC = () => {
 
   // Call Server Action updateTemplateAction
   const updateTemplate = async (templateInfo: TemplateInfoInterface) => {
+
     if (templateInfo.templateId === null) {
       // Handle the case where templateId is null (e.g., log an error or return early)
       logECS('error', 'updateTemplate', {
@@ -202,34 +203,23 @@ const TemplateEditPage: React.FC = () => {
         data: null,
       };
     }
-    try {
-      const response = await updateTemplateAction({
-        templateId: templateInfo.templateId,
-        name: newTitle,
-        visibility: templateInfo.visibility,
-      });
 
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
+    // Don't need a try-catch block here, as the error is handled in the server action
+    const response = await updateTemplateAction({
+      templateId: templateInfo.templateId,
+      name: newTitle,
+      visibility: templateInfo.visibility,
+    });
 
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      }
-    } catch (error) {
-      logECS('error', 'updateTemplate', {
-        error,
-        url: {
-          path: routePath('template.show', { templateId })
-        }
-      });
+
+    if (response.redirect) {
+      router.push(response.redirect);
     }
+
     return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: null
+      success: response.success,
+      errors: response.errors,
+      data: response.data,
     };
   }
 
@@ -260,6 +250,11 @@ const TemplateEditPage: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewTitle(e.target.value)
+    setTemplateInfoState({
+      templateId: templateInfo.templateId,
+      name: e.target.value,
+      visibility: templateInfo.visibility
+    });
   };
 
   useEffect(() => {
@@ -275,7 +270,7 @@ const TemplateEditPage: React.FC = () => {
   useEffect(() => {
     if (data?.template) {
       setTemplateInfoState({
-        templateId: Number(data.template.id),
+        templateId: data.template.id ? Number(data.template.id) : null,
         name: data.template.name || '',
         visibility: data.template.visibility || null,
       });
