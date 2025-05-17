@@ -1,7 +1,7 @@
 'use client'
 
-import React, {memo, useEffect, useMemo, useState} from 'react';
-import {EditorSkeleton} from './EditorSkeleton';
+import React, { memo, useEffect, useMemo, useState } from 'react';
+import { EditorSkeleton } from './EditorSkeleton';
 
 import {
   EditorComponent,
@@ -12,9 +12,9 @@ import {
   useRemirrorContext,
 } from '@remirror/react';
 
-import {EditorState,} from '@remirror/pm/state';
+import { EditorState, } from '@remirror/pm/state';
 
-import {prosemirrorNodeToHtml,} from '@remirror/core-utils';
+import { prosemirrorNodeToHtml, } from '@remirror/core-utils';
 
 import {
   AnnotationExtension,
@@ -30,7 +30,7 @@ import {
 import 'remirror/styles/all.css';
 import styles from './editor.module.scss';
 
-import {DmpIcon} from '@/components/Icons';
+import { DmpIcon } from '@/components/Icons';
 import {
   Button,
   Group,
@@ -258,8 +258,8 @@ export const DmpEditor = memo(({ content, setContent, error, id, labelId, helpTe
         attributes={{
           'aria-label': id ?? 'Editor input area',
           'aria-labelledby': labelId ?? '',
-          'class': styles.editorProsemirror,
-          'id': id ?? ''
+          'class': styles.editorProsemirror, /*eslint-disable-line quote-props*/
+          'id': id ?? '' /*eslint-disable-line quote-props*/
         }}
       >
         <MemoizedEditorToolbar />
@@ -269,4 +269,5 @@ export const DmpEditor = memo(({ content, setContent, error, id, labelId, helpTe
       </Remirror>
     </div>
   )
-})
+});
+DmpEditor.displayName = "DmpEditor";

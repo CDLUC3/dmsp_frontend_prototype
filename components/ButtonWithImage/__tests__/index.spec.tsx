@@ -1,12 +1,20 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+// Mock the Next.js Image component
+import type { ImgHTMLAttributes } from 'react';
+
 import ButtonWithImage from '..';
 
 
-// Mock the Next.js Image component
-jest.mock('next/image', () => (props: any) => {
-  return <img {...props} />;
-});
+const MockedImage = (props: ImgHTMLAttributes<HTMLImageElement>) => {
+  /* eslint-disable @next/next/no-img-element */
+
+  return <img {...props} alt="test" />;
+};
+
+MockedImage.displayName = 'MockedNextImage';
+
+jest.mock('next/image', () => MockedImage);
 
 describe('ButtonWithImage', () => {
   const mockImageUrl = '/path/to/image.jpg';

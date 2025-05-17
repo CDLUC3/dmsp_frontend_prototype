@@ -1,4 +1,3 @@
 app/dmps/*
-components/*
 generated/graphql.tsx
 cypress.config.ts

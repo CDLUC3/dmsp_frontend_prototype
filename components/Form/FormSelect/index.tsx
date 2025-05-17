@@ -43,7 +43,6 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     description,
     selectClasses,
     onChange,
-    children,
     items,
     ...rest
   } = props;
@@ -94,6 +93,9 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     </Select >
   );
 });
+
+FormSelect.displayName = 'FormSelect';
+
 
 export function MyItem(props: ListBoxItemProps) {
   return (

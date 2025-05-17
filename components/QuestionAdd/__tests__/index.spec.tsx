@@ -96,10 +96,11 @@ describe("QuestionAdd", () => {
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
 
-    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockQuestionDisplayData }),
-      { loading: false, error: undefined },
-    ]);
+    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDisplayData,
+      loading: false,
+      error: undefined,
+    });
   });
 
   it("should render correct fields and content", async () => {
@@ -169,6 +170,57 @@ describe("QuestionAdd", () => {
 
     const errorMessage = screen.getByText('messages.errors.questionTextRequired');
     expect(errorMessage).toBeInTheDocument();
+  })
+
+  it('should call addQuestionMutation when Save button is clicked after entering data', async () => {
+    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
+      data: { addQuestion: { id: 1 } },
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionTypeId={1}
+          questionTypeName="Text field"
+          sectionId="5"
+        />
+      );
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+    fireEvent.click(saveButton);
+
+    // Check if the addQuestionMutation was called
+    await waitFor(() => {
+      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            templateId: 123,
+            sectionId: 5,
+            displayOrder: 5,
+            isDirty: true,
+            questionTypeId: 1,
+            questionText: 'New Question',
+            requirementText: '',
+            guidanceText: '',
+            sampleText: '',
+            useSampleTextAsDefault: false,
+            required: false,
+          },
+        },
+      });
+    });
   })
 
   // QuestionOptionsComponent has it's own separate unit test, so we are just testing that it loads here

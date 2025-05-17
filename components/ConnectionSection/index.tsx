@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import ButtonWithImage from '../ButtonWithImage';
 import TooltipWithDialog from '../TooltipWithDialog';
 import { ModalOverlayComponent } from '../ModalOverlayComponent';
@@ -21,11 +21,6 @@ interface ConnectionSectionProps {
   btnText: string;
 }
 
-interface AuthData {
-  id: string;
-  token: string;
-}
-
 type CloseFunction = () => void;
 type HandleDeleteFunction = (e: PressEvent, close: CloseFunction) => void;
 type ConnectionDataType = {
@@ -44,7 +39,6 @@ const ConnectionSection = ({
   btnText,
 }: ConnectionSectionProps) => {
 
-  const [authData, setAuthData] = useState<AuthData | null>(null);
 
   const handleDelete: HandleDeleteFunction = async (e, close) => {
     try {
