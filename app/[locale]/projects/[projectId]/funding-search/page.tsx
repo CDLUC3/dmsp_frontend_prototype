@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { routePath } from '@/utils/routes';
 
+import { scrollToTop } from '@/utils/general';
 import { LoggedError } from "@/utils/exceptions";
 
-// import {
-//   useLanguagesQuery,
-// } from '@/generated/graphql';
 import {
   AffiliationSearch,
   AffiliationSearchResults,
@@ -35,20 +34,8 @@ import ErrorMessages from "@/components/ErrorMessages";
 import styles from './ProjectsCreateProjectFundingSearch.module.scss';
 
 
-/**
- * A custom error that we can catch and handle on this page
- */
-class AddFunderError extends Error {
-  errors: string[];
-
-  constructor(message: string, errors: string[]) {
-    super(message);
-    this.errors = errors;
-  }
-}
-
-
 const CreateProjectSearchFunder = () => {
+  const trans = useTranslations('Global');
   const router = useRouter();
   const params = useParams();
   const { projectId } = params;
@@ -58,7 +45,7 @@ const CreateProjectSearchFunder = () => {
   const [funders, setFunders] = useState<AffiliationSearch[]>([]);
   const [nextCursor, setNextCursor] = useState<string|null>(null);
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [addProjectFunder, {data, loading, error}] = useAddProjectFunderMutation({});
+  const [addProjectFunder] = useAddProjectFunderMutation({});
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
 
@@ -67,45 +54,44 @@ const CreateProjectSearchFunder = () => {
    * @param {ProjectFunderErrors} errs - The errors from the graphql response
    */
   function checkErrors(errs: ProjectFunderErrors) {
+    if (!errs) return;
+
     const typedKeys: (keyof ProjectFunderErrors)[] = [
       "affiliationId",
       "general",
       "projectId",
       "status",
     ];
-    let newErrors = [];
+    const newErrors = [];
+
     for (const k of typedKeys) {
       const errVal = errs[k];
       if (errVal) {
         newErrors.push(errVal);
       }
     }
+
     if (newErrors.length > 0) {
-      throw new AddFunderError("Could not add the funder", newErrors);
+      setErrors(newErrors);
     }
   }
 
   async function handleSelectFunder(funder: AffiliationSearch) {
-    const NEXT_URL = routePath('projects.create.projectSearch', {
-      projectId: projectId,
-    });
+    const NEXT_URL = routePath('projects.create.projectSearch', {projectId});
 
     const input = {
       projectId: Number(projectId),
       affiliationId: funder.uri
     }
 
-    try {
-      const result = await addProjectFunder({variables: { input }});
-      checkErrors(result.data.addProjectFunder.errors as ProjectFunderErrors);
-      router.push(NEXT_URL);
-    } catch (e) {
-      if (e instanceof AddFunderError) {
-        setErrors(e.errors);
-      } else {
-        throw new LoggedError(e.message);
-      }
-    }
+    addProjectFunder({variables: { input }})
+      .then((result) => {
+        checkErrors(result.data.addProjectFunder?.errors as ProjectFunderErrors);
+        router.push(NEXT_URL);
+      })
+      .catch((err) => {
+        throw new LoggedError(err.message);
+      });
   };
 
   async function handleAddFunderManually(funderName: string) {
@@ -146,11 +132,11 @@ const CreateProjectSearchFunder = () => {
         }
         className="page-project-create-project-funding"
       />
+
       <LayoutWithPanel>
         <ContentContainer>
           <ErrorMessages errors={errors} ref={errorRef} />
           <FunderSearch
-            data-testid="search-component"
             onResults={onResults}
             moreTrigger={moreCounter}
           />
@@ -173,7 +159,7 @@ const CreateProjectSearchFunder = () => {
                       onPress={() => handleSelectFunder(funder)}
                       aria-label={`Select ${funder.displayName}`}
                     >
-                      Select
+                      {trans('General.Select')}
                     </Button>
                   </div>
                 ))}
@@ -181,6 +167,7 @@ const CreateProjectSearchFunder = () => {
                 {(hasMore()) && (
                   <div className={styles.funderResultsListMore}>
                     <Button
+                      data-testid="load-more-btn"
                       onPress={() => setMoreCounter(moreCounter + 1)}
                       aria-label="Load more funders"
                     >
