@@ -84,10 +84,10 @@ describe('Header', () => {
 
     render(<Header />);
 
-    const mobileMenuButton = screen.getByAltText('Mobile Menu');
+    const mobileMenuButton = screen.getByAltText('Mobile menu');
     fireEvent.click(mobileMenuButton);
 
-    const closeButton = screen.getByAltText('Close Mobile Menu');
+    const closeButton = screen.getByAltText('Close mobile menu');
     expect(closeButton).toBeInTheDocument();
 
     fireEvent.click(closeButton);

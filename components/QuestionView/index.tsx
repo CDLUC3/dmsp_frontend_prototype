@@ -74,6 +74,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     }
   }, [question]);
 
+  if (!question) return null;
+
   return (
     <LayoutWithPanel
       id={id}

@@ -1,3 +1,4 @@
+'use client';
 import './spinner.scss'
 
 type SpinnerProps = {
@@ -11,6 +12,7 @@ function Spinner(props: SpinnerProps) {
       {props?.isActive && (
         <div
           id={(props.id ? props.id : "spinner")}
+          data-testid="spinner"
           tabIndex={-1}
           aria-hidden="true"
           className={"spinner " + (props.className ? props.className : "")}>
