@@ -16,6 +16,7 @@ interface ToastData {
 
 interface ToastProps {
   toast: ToastData;
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   state: ToastState<any>;
 }
 

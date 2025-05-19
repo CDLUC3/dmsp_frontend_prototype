@@ -64,18 +64,18 @@ jest.mock('@/components/Form/QuestionOptionsComponent', () => {
 });
 
 const mockQuestionDisplayData = {
-  "questions": [
+  questions: [
     {
-      "displayOrder": 1
+      displayOrder: 1
     },
     {
-      "displayOrder": 2
+      displayOrder: 2
     },
     {
-      "displayOrder": 3
+      displayOrder: 3
     },
     {
-      "displayOrder": 4
+      displayOrder: 4
     },
   ]
 }
@@ -269,7 +269,7 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
-    const { container } = render(
+    render(
       <QuestionAdd
         questionTypeId={3}
         questionTypeName="Radio buttons"
@@ -286,7 +286,7 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
-    const { container } = render(
+    render(
       <QuestionAdd
         questionTypeId={1}
         questionTypeName="Radio buttons"

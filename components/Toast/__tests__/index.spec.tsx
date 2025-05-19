@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Toast from '../index';
-import { useToast } from '@/context/ToastContext';
 
 // Mock the context
 jest.mock('@/context/ToastContext', () => ({

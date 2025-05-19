@@ -59,7 +59,7 @@ const mockTemplate = {
 
 // Mock the DmpEditor component
 jest.mock('@/components/Editor', () => ({
-  DmpEditor: ({ content, setContent }: { content: string, setContent: (newContent: string) => void }) => {
+  DmpEditor: ({ content }: { content: string, setContent: (newContent: string) => void }) => {
     return (
       <div data-testid="dmp-editor" data-content={content}>
         {content}
@@ -69,7 +69,7 @@ jest.mock('@/components/Editor', () => ({
 }));
 
 
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const mockHook = (hook: any) => hook as jest.Mock;
 
 

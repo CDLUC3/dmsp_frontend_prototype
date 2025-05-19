@@ -21,11 +21,7 @@ interface ResearchDomainInterface {
   id: string;
   name: string;
 }
-
-interface ChildOptionsMap {
-  [key: string]: ChildOption[];
-}
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface CascadingDropdownProps {
   projectData: any;
   setProjectData: (data: any) => void;

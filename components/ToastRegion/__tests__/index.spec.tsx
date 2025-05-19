@@ -3,8 +3,10 @@ import { render, screen } from '@testing-library/react';
 import ToastRegion from '../index';
 import { useToast } from '@/context/ToastContext';
 
+/* eslint-disable react/display-name */
 // Mock the Toast component
-jest.mock('@/components/Toast', () => ({ toast, state }: any) => (
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+jest.mock('@/components/Toast', () => ({ toast }: any) => (
   <div data-testid="mock-toast">{toast.content}</div>
 ));
 
