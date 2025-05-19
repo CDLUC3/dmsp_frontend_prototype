@@ -17,7 +17,6 @@ import {
   useSetPrimaryUserEmailMutation
 } from '@/generated/graphql';
 import logECS from '@/utils/clientLogger';
-import { NextIntlClientProvider } from 'next-intl';
 
 expect.extend(toHaveNoViolations);
 
@@ -72,20 +71,6 @@ jest.mock('next-intl', () => ({
   }),
 }));
 
-const mockUserData = {
-  me: {
-    givenName: 'John',
-    surName: 'Doe',
-    affiliation: { name: 'Test Institution', uri: 'test-uri' },
-    emails: [{ id: '1', email: 'test@example.com', isPrimary: true, isConfirmed: true }],
-    languageId: 'en',
-  },
-};
-
-const mockLanguagesData = {
-  languages: [{ id: 'en', name: 'English', isDefault: true }],
-};
-
 export interface EmailInterface {
   id?: number | null;
   email: string;
@@ -107,12 +92,12 @@ const mockEmailAddresses = [
 ]
 
 const mockEmailData = {
-  "id": 15,
-  "errors": null,
-  "email": "jshin3@test.com",
-  "isConfirmed": false,
-  "isPrimary": false,
-  "userId": 5,
+  id: 15,
+  errors: null,
+  email: "jshin3@test.com",
+  isConfirmed: false,
+  isPrimary: false,
+  userId: 5,
 }
 
 // Helper function to cast to jest.Mock for TypeScript
@@ -184,9 +169,6 @@ describe('UpdateEmailAddressPage', () => {
       { loading: false }
     ]);
 
-    // Mock the refetch function
-    const mockRefetch = jest.fn();
-
     // Render the component
     render(
       <UpdateEmailAddress
@@ -223,9 +205,6 @@ describe('UpdateEmailAddressPage', () => {
       mockRemoveEmailMutation,
       { loading: false }
     ]);
-
-    // Mock setErrors function to verify it's called
-    const mockSetEmailAddresses = jest.fn();
 
     // Render the component
     render(
@@ -278,9 +257,6 @@ describe('UpdateEmailAddressPage', () => {
       mockAddUserEmailMutation,
       { loading: false }
     ]);
-
-    // Mock setErrors function to verify it's called
-    const mockSetEmailAddresses = jest.fn();
 
     // Render the component
     render(
@@ -343,10 +319,6 @@ describe('UpdateEmailAddressPage', () => {
       mockSetPrimaryMutation,
       { loading: false }
     ]);
-
-    // Mock setErrors function to verify it's called
-    const mockSetEmailAddresses = jest.fn();
-
     // Render the component
     render(
       <UpdateEmailAddress

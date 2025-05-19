@@ -41,8 +41,8 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
   // Initialize graphql mutations for component
   const [setPrimaryUserEmailMutation] = useSetPrimaryUserEmailMutation();
-  const [addUserEmailMutation, { error: addUserEmailError }] = useAddUserEmailMutation();
-  const [removeUserEmailMutation, { error: deleteEmailError }] = useRemoveUserEmailMutation();
+  const [addUserEmailMutation] = useAddUserEmailMutation();
+  const [removeUserEmailMutation] = useRemoveUserEmailMutation();
 
   const clearErrors = () => {
     setErrors({});
