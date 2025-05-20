@@ -14,6 +14,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
     const handleGraphQLErrors = async () => {
       if (graphQLErrors) {
         for (const { message, extensions } of graphQLErrors) {
+          console.error(`[GraphQL Error]: ${message}`, { extensions });
           switch (extensions?.code) {
             // UNAUTHENTICATED error code can be thrown from the backend when:
             //  - the user is not logged in

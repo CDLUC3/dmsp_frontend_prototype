@@ -62,12 +62,14 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         ],
       })
 
+
       const emailData = response?.data?.setPrimaryUserEmail?.[0];
       if (emailData?.errors && Object.keys(emailData.errors).length > 0) {
-        // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-        setErrors(emailData.errors ?? {});
+        const errorMessage = emailData?.errors?.email || emailData.errors.general;
+        setErrors(prevErrors => ({ ...prevErrors, email: errorMessage }));
         return;
       }
+
       clearErrors();
     } catch (err) {
       /* We need to call this mutation again when there is an error and

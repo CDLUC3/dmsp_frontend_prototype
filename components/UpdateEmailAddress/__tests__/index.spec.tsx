@@ -362,6 +362,45 @@ describe('UpdateEmailAddressPage', () => {
     );
   });
 
+  it('should display error message when call to setPrimaryUserEmailMutation returns errors', async () => {
+    const mockSetPrimaryUserEmailResponse = jest.fn().mockResolvedValue({
+      data: { setPrimaryUserEmail: [{ errors: { email: ['Email is already in use'] } }] },
+    });
+
+    // Override the mock for this specific test
+    (useSetPrimaryUserEmailMutation as jest.Mock).mockReturnValue([
+      mockSetPrimaryUserEmailResponse,
+      { loading: false, error: undefined },
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    // Find the "Make primary email address" button
+    const makePrimaryButton = screen.getByRole('button', {
+      name: /linkMakePrimary/i
+    });
+
+    // Trigger the make primary action
+    await act(async () => {
+      fireEvent.click(makePrimaryButton);
+    });
+
+    // Verify the error message is displayed
+    await waitFor(() => {
+      // Use container.querySelector to find the div with class "error"
+      const errorDiv = document.querySelector('.error-message') as HTMLElement;
+
+      // Check that the errorDiv exists
+      expect(errorDiv).toBeInTheDocument();
+      expect(screen.getByText('Email is already in use')).toBeInTheDocument();
+    });
+  });
+
   it('should pass axe accessibility test', async () => {
     const { container } = render(
       <UpdateEmailAddress
