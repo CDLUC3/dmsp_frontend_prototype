@@ -15,6 +15,7 @@ import {
   AddProjectFunderDocument,
 } from '@/generated/graphql';
 
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { stripHtml, scrollToTop } from '@/utils/general';
 
 import CreateProjectSearchFunder from '../page';
@@ -208,8 +209,8 @@ jest.mock('next/navigation', () => ({
 jest.mock('@/utils/general', () => ({
   scrollToTop: jest.fn(),
 
-  // FIXME:: I'm mocking this function because it's breaking all my tests
-  // for some reason. Need to debug
+  // FIXME:: I'm mocking stripHtml because it's breaking all my tests for
+  // some reason. Need to debug
   stripHtml: jest.fn(),
 }));
 

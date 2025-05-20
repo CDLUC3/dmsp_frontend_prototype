@@ -32,7 +32,7 @@ const ProjectsCreateProjectFunding = () => {
     e.preventDefault();
 
     if (hasFunding === 'yes') {
-      router.push(routePath('projects.create.funder.search'))
+      router.push(routePath('projects.create.fundings.search', {projectId}));
     } else {
       router.push(routePath('projects.show', { projectId: 'proj_2425new' }))
     }

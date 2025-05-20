@@ -78,8 +78,11 @@ const ProjectsProjectFunding = () => {
       <LayoutWithPanel>
         <ContentContainer>
           <section aria-label="Current fundings">
-            {funders?.projectFunders && funders.projectFunders.map(funder => (
-              <div className={styles.funderResultsList}>
+            {funders?.projectFunders && funders.projectFunders.map((funder, index) => (
+              <div
+                key={index}
+                className={styles.funderResultsList}
+              >
                 <div
                   className={styles.funderResultsListItem}
                   role="group"

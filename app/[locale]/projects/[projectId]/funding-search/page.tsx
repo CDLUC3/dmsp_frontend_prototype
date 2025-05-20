@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { routePath } from '@/utils/routes';
 
-import { scrollToTop } from '@/utils/general';
 import { LoggedError } from "@/utils/exceptions";
 
 import {
@@ -78,7 +77,6 @@ const CreateProjectSearchFunder = () => {
 
   async function handleSelectFunder(funder: AffiliationSearch) {
     const NEXT_URL = routePath('projects.create.projectSearch', {projectId});
-
     const input = {
       projectId: Number(projectId),
       affiliationId: funder.uri

@@ -25,12 +25,8 @@ const ProjectsCreateProjectFunding = () => {
   const params = useParams();
 
   const { projectId } = params;
-  const FUNDING_SEARCH_URL = routePath('projects.create.fundingSearch', {
-    projectId: projectId
-  });
-  const PROJECT_DETAIL_URL = routePath('projects.show', {
-    projectId: projectId
-  });
+  const FUNDING_SEARCH_URL = routePath('projects.create.fundingSearch', {projectId});
+  const PROJECT_DETAIL_URL = routePath('projects.show', {projectId});
 
   const [hasFunding, setHasFunding] = useState("yes");
 
