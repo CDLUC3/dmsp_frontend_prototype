@@ -7,15 +7,16 @@ import {
   waitFor,
   within
 } from '@/utils/test-utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import UpdateEmailAddress from '..';
 import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import { ApolloError } from '@apollo/client';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import {
   MeDocument,
   useAddUserEmailMutation,
   useRemoveUserEmailMutation,
   useSetPrimaryUserEmailMutation
 } from '@/generated/graphql';
+import UpdateEmailAddress from '..';
 import logECS from '@/utils/clientLogger';
 
 expect.extend(toHaveNoViolations);
@@ -247,6 +248,43 @@ describe('UpdateEmailAddressPage', () => {
     );
   });
 
+  it('should call mockRemoveEmailMutation again if the initial call returns an instance of an Apollo error', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Apollo error occurred',
+    });
+
+    const mockRemoveEmailResponse = jest.fn()
+      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
+
+
+    (useRemoveUserEmailMutation as jest.Mock).mockReturnValue([
+      mockRemoveEmailResponse,
+      { loading: false, error: undefined }
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    // Find and click the delete button for test@test.com
+    const deleteTrigger = document.querySelector('.delete-email') as HTMLElement;
+
+    await act(async () => {
+      fireEvent.click(deleteTrigger);
+    });
+
+    // Verify the mutation was called twice
+    await waitFor(() => {
+      expect(mockRemoveEmailResponse).toHaveBeenCalledTimes(2);
+    });
+  });
+
   it('should handle general error when adding alias', async () => {
     // Create a general error (not Apollo Error)
     const generalError = new Error('General error occurred');
@@ -392,10 +430,49 @@ describe('UpdateEmailAddressPage', () => {
 
     // Verify the error message is displayed
     await waitFor(() => {
-
       expect(screen.getByText('Email is already in use')).toBeInTheDocument();
     });
   });
+
+  it('should call setPrimaryUserEmailMutation again if the initial call returns an instance of an Apollo Error', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Apollo error occurred',
+    });
+
+    const mockSetPrimaryUserEmailResponse = jest.fn()
+      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockResolvedValueOnce({ data: { setPrimaryUserEmail: [{ errors: null }] } }); // Second call succeeds
+
+    // Override the mock for this specific test
+    (useSetPrimaryUserEmailMutation as jest.Mock).mockReturnValue([
+      mockSetPrimaryUserEmailResponse,
+      { loading: false, error: undefined },
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    // Find the "Make primary email address" button
+    const makePrimaryButton = screen.getByRole('button', {
+      name: /linkMakePrimary/i
+    });
+
+    // Trigger the make primary action
+    await act(async () => {
+      fireEvent.click(makePrimaryButton);
+    });
+
+    // Verify the mutation was called twice
+    await waitFor(() => {
+      expect(mockSetPrimaryUserEmailResponse).toHaveBeenCalledTimes(2);
+    });
+  })
 
   it('should display error message when call to adding email alias', async () => {
     const mockAddUserEmailMutation = jest.fn().mockResolvedValue({
@@ -439,6 +516,52 @@ describe('UpdateEmailAddressPage', () => {
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
       expect(screen.getByText('Email is already in use')).toBeInTheDocument();
+    });
+  });
+
+  it('should call mockAddUserEmailMutation again if the initial call returns an instance of an Apollo Error', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Apollo error occurred',
+    });
+
+    const mockAddUserEmailMutationResponse = jest.fn()
+      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockResolvedValueOnce({ data: { addUserEmail: [{ errors: null }] } }); // Second call succeeds
+
+    // Override the mock for this specific test
+    (useAddUserEmailMutation as jest.Mock).mockReturnValue([
+      mockAddUserEmailMutationResponse,
+      { loading: false, error: undefined },
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    //Enter a value into the add alias input field
+    const addAliasInput = screen.getByLabelText(/headingAddAliasEmail/i);
+    fireEvent.change(addAliasInput, { target: { value: 'msmith@test.com' } });
+
+    // Locate the Add button and click it
+    // Select the wrapping div with class "addContainer" and assert it's not null
+    const addContainer = document.querySelector('.addContainer') as HTMLElement;
+    expect(addContainer).not.toBeNull(); // Ensure addContainer is found
+
+    // Now we can safely use addContainer with `within`
+    const addButton = within(addContainer!).getByRole('button', { name: 'btnAdd' });
+
+    await act(async () => {
+      fireEvent.click(addButton);
+    })
+
+    // Verify the mutation was called twice
+    await waitFor(() => {
+      expect(mockAddUserEmailMutationResponse).toHaveBeenCalledTimes(2);
     });
   });
 
