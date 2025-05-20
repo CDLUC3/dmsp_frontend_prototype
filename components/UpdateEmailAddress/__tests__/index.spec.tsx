@@ -392,6 +392,47 @@ describe('UpdateEmailAddressPage', () => {
 
     // Verify the error message is displayed
     await waitFor(() => {
+
+      expect(screen.getByText('Email is already in use')).toBeInTheDocument();
+    });
+  });
+
+  it('should display error message when call to adding email alias', async () => {
+    const mockAddUserEmailMutation = jest.fn().mockResolvedValue({
+      data: { addUserEmail: { errors: { email: 'Email is already in use' } } },
+    });
+
+    // Override the mock for this specific test
+    (useAddUserEmailMutation as jest.Mock).mockReturnValue([
+      mockAddUserEmailMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    //Enter a value into the add alias input field
+    const addAliasInput = screen.getByLabelText(/headingAddAliasEmail/i);
+    fireEvent.change(addAliasInput, { target: { value: 'msmith@test.com' } });
+
+    // Locate the Add button and click it
+    // Select the wrapping div with class "addContainer" and assert it's not null
+    const addContainer = document.querySelector('.addContainer') as HTMLElement;
+    expect(addContainer).not.toBeNull(); // Ensure addContainer is found
+
+    // Now we can safely use addContainer with `within`
+    const addButton = within(addContainer!).getByRole('button', { name: 'btnAdd' });
+
+    await act(async () => {
+      fireEvent.click(addButton);
+    })
+
+    // Verify the error message is displayed
+    await waitFor(() => {
       // Use container.querySelector to find the div with class "error"
       const errorDiv = document.querySelector('.error-message') as HTMLElement;
 
@@ -400,6 +441,7 @@ describe('UpdateEmailAddressPage', () => {
       expect(screen.getByText('Email is already in use')).toBeInTheDocument();
     });
   });
+
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(

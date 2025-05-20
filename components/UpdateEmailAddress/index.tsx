@@ -53,32 +53,34 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
     try {
       const response = await setPrimaryUserEmailMutation({
         variables: {
-          email: primaryEmail
+          email: primaryEmail,
         },
         refetchQueries: [
           {
             query: GET_USER,
           },
         ],
-      })
+      });
 
+      const emailArray = response?.data?.setPrimaryUserEmail || [];
+      let foundError = false;
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      emailArray.forEach((emailObj: any) => {
+        if (emailObj.errors?.general || emailObj.errors?.email) {
+          const errorMessage = emailObj.errors.email || emailObj.errors.general;
+          setErrors(prevErrors => ({ ...prevErrors, general: errorMessage[0] }));
+          foundError = true;
+        }
+      });
 
-      const emailData = response?.data?.setPrimaryUserEmail?.[0];
-      if (emailData?.errors && Object.keys(emailData.errors).length > 0) {
-        const errorMessage = emailData?.errors?.email || emailData.errors.general;
-        setErrors(prevErrors => ({ ...prevErrors, email: errorMessage }));
-        return;
+      if (!foundError) {
+        clearErrors();
       }
-
-      clearErrors();
     } catch (err) {
-      /* We need to call this mutation again when there is an error and
-      refetch the user query in order for the page to reload with updated info. I tried just
-      calling 'refetch()' for the user query, but that didn't work. */
       if (err instanceof ApolloError) {
         await setPrimaryUserEmailMutation({
           variables: {
-            email: primaryEmail
+            email: primaryEmail,
           },
           refetchQueries: [
             {
@@ -87,11 +89,10 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
           ],
         });
       } else {
-        // Display other errors
         setErrors(prevErrors => ({ ...prevErrors, general: 'Error when setting primary email' }));
         logECS('error', 'makePrimaryEmail', {
           error: err,
-          url: { path: '/account/profile' }
+          url: { path: '/account/profile' },
         });
       }
     }
@@ -106,6 +107,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   // Adding new email alias
   const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    clearErrors();
     try {
       const response = await addUserEmailMutation({
         variables: {
@@ -121,19 +123,22 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
       const emailData = response?.data?.addUserEmail;
       if (emailData?.errors && Object.keys(emailData.errors).length > 0) {
-        // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-        setErrors(emailData.errors ?? {});
-        return;
+        const errorMessage = emailData?.errors.email || emailData?.errors.general;
+        setErrors(prevErrors => {
+          return {
+            ...prevErrors,
+            email: errorMessage
+          }
+        });
       }
-      clearErrors();
       // Clear the add alias input field
       setAddAliasValue('');
       showSuccessToast();
     } catch (err) {
       if (err instanceof ApolloError) {
         /* We need to call this mutation again when there is an error and
-refetch the user query in order for the page to reload with updated info. I tried just
-calling 'refetch()' for the user query, but that didn't work. */
+  refetch the user query in order for the page to reload with updated info. I tried just
+  calling 'refetch()' for the user query, but that didn't work. */
         await addUserEmailMutation({
           variables: {
             email: addAliasValue,
@@ -181,8 +186,8 @@ calling 'refetch()' for the user query, but that didn't work. */
     } catch (err) {
       if (err instanceof ApolloError) {
         /* We need to call this mutation again when there is an error and
-refetch the user query in order for the page to reload with updated info. I tried just
-calling 'refetch()' for the user query, but that didn't work. */
+  refetch the user query in order for the page to reload with updated info. I tried just
+  calling 'refetch()' for the user query, but that didn't work. */
         await removeUserEmailMutation({
           variables: {
             email: emailToDelete
@@ -207,7 +212,7 @@ calling 'refetch()' for the user query, but that didn't work. */
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Clear errors
-    clearErrors();
+    //clearErrors();
     setAddAliasValue(value);
   }
 
@@ -223,7 +228,7 @@ calling 'refetch()' for the user query, but that didn't work. */
       <div className="sectionContainer">
         <div className="sectionContent">
           <div className={styles.subSection}>
-            <ErrorMessages errors={errors.general ? [errors.general] : []} ref={errorRef} />
+            <ErrorMessages errors={[errors?.general ? errors?.general : '']} ref={errorRef} />
             <h3>{t('headingPrimaryEmail')}</h3>
             <p>{t('primaryEmailDesc')}</p>
 
