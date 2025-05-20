@@ -101,7 +101,7 @@ const FunderSearch = ({
               placeholder={trans('placeholders.funderSearch')}
             />
             <Button data-testid="search-btn" type={"submit"}>
-              Search
+              {trans('buttons.search')}
             </Button>
             <Text slot="description" className="help" id="search-help">
               {trans('helpText.funderSearch')}

@@ -108,6 +108,14 @@
     "linkUpdateConnections": "Update connections",
     "linkManageNotifications": "Manage notifications"
   },
+  "FunderSearch": {
+    "headerTitle": "Search for Funders",
+    "funder": "Funder",
+    "found": "funders found",
+    "addManuallyHeading": "Not in this list?",
+    "addManuallyText": "If your project isn’t shown, you can add the details manually.",
+    "addManuallyLabel": "Add funder manually"
+  },
   "TemplateHistory": {
     "title": "Template history",
     "subHeading": "History",
@@ -176,7 +184,8 @@
       "edit": "Edit",
       "preview": "Preview",
       "publish": "Publish",
-      "close": "Close"
+      "close": "Close",
+      "loadMore": "Load More"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",

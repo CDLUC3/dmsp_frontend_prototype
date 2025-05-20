@@ -34,7 +34,8 @@ import styles from './ProjectsCreateProjectFundingSearch.module.scss';
 
 
 const CreateProjectSearchFunder = () => {
-  const trans = useTranslations('Global');
+  const globalTrans = useTranslations('Global');
+  const trans = useTranslations('FunderSearch');
   const router = useRouter();
   const params = useParams();
   const { projectId } = params;
@@ -92,6 +93,7 @@ const CreateProjectSearchFunder = () => {
       });
   };
 
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   async function handleAddFunderManually(funderName: string) {
     // TODO:: Handle manual addition of funders
     // FIXME:: What should this do? There is no indication in the wireframes
@@ -119,13 +121,13 @@ const CreateProjectSearchFunder = () => {
   return (
     <>
       <PageHeader
-        title="Search for Funders"
+        title={trans('headerTitle')}
         description=""
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{globalTrans('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects">{globalTrans('breadcrumbs.projects')}</Link></Breadcrumb>
           </Breadcrumbs>
         }
         className="page-project-create-project-funding"
@@ -141,23 +143,23 @@ const CreateProjectSearchFunder = () => {
 
           {funders.length > 0 && (
             <section aria-labelledby="funders-section">
-              <h3 id="funders-section">{totalCount} funders found</h3>
+              <h3 id="funders-section">{totalCount} {trans('found')}</h3>
               <div className={styles.funderResultsList}>
                 {funders.map((funder, index) => (
                   <div
                     key={index}
                     className={styles.funderResultsListItem}
                     role="group"
-                    aria-label={`Funder: ${funder.displayName}`}
+                    aria-label={`${trans('funder')}: ${funder.displayName}`}
                   >
                     <p className="funder-name">{funder.displayName}</p>
                     <Button
                       className="secondary select-button"
                       data-funder-uri={funder.uri}
                       onPress={() => handleSelectFunder(funder)}
-                      aria-label={`Select ${funder.displayName}`}
+                      aria-label={`${globalTrans('buttons.select')} ${funder.displayName}`}
                     >
-                      {trans('General.Select')}
+                      {globalTrans('buttons.select')}
                     </Button>
                   </div>
                 ))}
@@ -169,7 +171,7 @@ const CreateProjectSearchFunder = () => {
                       onPress={() => setMoreCounter(moreCounter + 1)}
                       aria-label="Load more funders"
                     >
-                      Load More
+                      {globalTrans('buttons.loadMore')}
                     </Button>
                   </div>
                 )}
@@ -180,14 +182,14 @@ const CreateProjectSearchFunder = () => {
           {/* Add Funder Manually (Always Visible After Search) */}
           {hasSearched && (
             <section aria-labelledby="manual-section" className="mt-8">
-              <h3 id="manual-section">Not in this list?</h3>
-              <p>If your project isn’t shown, you can add the details manually.</p>
+              <h3 id="manual-section">{trans('addManuallyHeading')}</h3>
+              <p>{trans('addManuallyText')}</p>
               <Button
                 className="add-funder-button"
                 onPress={handleAddFunderManually}
-                aria-label="Add funder manually"
+                aria-label="{trans(addManuallyLabel)}"
               >
-                Add Funder Manually
+                {trans('addManuallyLabel')}
               </Button>
             </section>
           )}
