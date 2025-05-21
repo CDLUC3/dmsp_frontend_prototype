@@ -110,7 +110,6 @@ const QuestionAdd = ({
   const getDisplayOrder = () => {
     // Calculate max displayOrder
     let maxQuestionDisplayOrder = null;
-    console.log("questionDisplayOrders", questionDisplayOrders);
     if (questionDisplayOrders?.questions && questionDisplayOrders.questions.length > 0) {
       // Find the maximum displayOrder
       maxQuestionDisplayOrder = questionDisplayOrders.questions.reduce(
