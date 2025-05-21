@@ -231,12 +231,6 @@ describe('UpdateEmailAddressPage', () => {
       expect(screen.getByText('Error when deleting email')).toBeInTheDocument();
     });
 
-    // Verify scrollIntoView was called with correct parameters
-    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start'
-    });
-
     // Verify logECS was called with correct parameters
     expect(logECS).toHaveBeenCalledWith(
       'error',
@@ -329,12 +323,6 @@ describe('UpdateEmailAddressPage', () => {
       expect(screen.getByText('Error when adding new email')).toBeInTheDocument();
     });
 
-    // Verify scrollIntoView was called with correct parameters
-    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start'
-    });
-
     // Verify logECS was called with correct parameters
     expect(logECS).toHaveBeenCalledWith(
       'error',
@@ -382,11 +370,6 @@ describe('UpdateEmailAddressPage', () => {
       // Check that the errorDiv exists
       expect(errorDiv).toBeInTheDocument();
       expect(screen.getByText('Error when setting primary email')).toBeInTheDocument();
-    });
-    // Verify scrollIntoView was called with correct parameters
-    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start'
     });
 
     // Verify logECS was called with correct parameters

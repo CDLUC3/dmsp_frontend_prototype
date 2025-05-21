@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -56,8 +56,6 @@ const ProfilePage: React.FC = () => {
   const pathname = usePathname();
   const currentLocale = useLocale();
   const router = useRouter();
-  //For scrolling to error in page
-  const errorRef = useRef<HTMLDivElement | null>(null);
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -111,7 +109,7 @@ const ProfilePage: React.FC = () => {
         break;
       case 'otherAffiliationName':
         // We only want to validate this field if the user specifically selected this 'Other' option
-        if (formData['affiliationName'] === 'Other(organization not listed)') {
+        if (formData['affiliationName'] === 'Other') {
           if (!value || value.length <= 2) {
             error = 'Institution name cannot be blank and must be at least 2 characters long';
           }
@@ -369,7 +367,7 @@ const ProfilePage: React.FC = () => {
               <div className="sectionContainer">
                 <div className={`sectionContent ${styles.section}`}>
                   <Form onSubmit={handleProfileSubmit}>
-                    <ErrorMessages errors={errors} ref={errorRef} />
+                    <ErrorMessages errors={errors} />
                     <div className="form-row two-item-row">
                       {isEditing ? (
                         <FormInput

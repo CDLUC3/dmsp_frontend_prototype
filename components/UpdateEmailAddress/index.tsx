@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Button, Form, } from "react-aria-components";
@@ -35,7 +35,6 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 }) => {
   const t = useTranslations('UserProfile');
   const toastState = useToast(); // Access the toast state from context
-  const errorRef = useRef<HTMLDivElement | null>(null);
   const [errors, setErrors] = useState<UserEmailErrors>({});
   const [addAliasValue, setAddAliasValue] = useState<string>('');
 
@@ -223,12 +222,12 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   }, [emailAddresses])
 
   return (
-    <div ref={errorRef}>
+    <div>
       <h2 className={styles.title}>{t('emailAndAuth')}</h2>
       <div className="sectionContainer">
         <div className="sectionContent">
           <div className={styles.subSection}>
-            <ErrorMessages errors={[errors?.general ? errors?.general : '']} ref={errorRef} />
+            <ErrorMessages errors={[errors?.general ? errors?.general : '']} />
             <h3>{t('headingPrimaryEmail')}</h3>
             <p>{t('primaryEmailDesc')}</p>
 
