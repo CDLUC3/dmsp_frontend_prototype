@@ -406,3 +406,15 @@ export interface AddProjectMemberResponse {
   }
   redirect?: string;
 }
+
+export type FunderSearchItem = {
+  id: number;
+  displayName: string;
+  uri: string;
+};
+
+export type FunderSearchResults = {
+  totalCount?: number | null;
+  nextCursor?: string | null;
+  items?: (FunderSearchItem | null)[] | null;
+};

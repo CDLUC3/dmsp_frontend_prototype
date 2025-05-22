@@ -9,10 +9,10 @@ import { LoggedError } from "@/utils/exceptions";
 
 import {
   AffiliationSearch,
-  AffiliationSearchResults,
   useAddProjectFunderMutation,
   ProjectFunderErrors,
 } from '@/generated/graphql';
+import { FunderSearchResults } from '@/app/types';
 
 import {
   Breadcrumb,
@@ -53,8 +53,8 @@ const CreateProjectSearchFunder = () => {
    * Handle specific errors that we care about in this component.
    * @param {ProjectFunderErrors} errs - The errors from the graphql response
    */
-  function checkErrors(errs: ProjectFunderErrors) {
-    if (!errs) return;
+  function checkErrors(errs: ProjectFunderErrors): string[] {
+    if (!errs) return [];
 
     const typedKeys: (keyof ProjectFunderErrors)[] = [
       "affiliationId",
@@ -62,7 +62,7 @@ const CreateProjectSearchFunder = () => {
       "projectId",
       "status",
     ];
-    const newErrors = [];
+    const newErrors: string[] = [];
 
     for (const k of typedKeys) {
       const errVal = errs[k];
@@ -71,13 +71,13 @@ const CreateProjectSearchFunder = () => {
       }
     }
 
-    if (newErrors.length > 0) {
-      setErrors(newErrors);
-    }
+    return newErrors
   }
 
   async function handleSelectFunder(funder: AffiliationSearch) {
-    const NEXT_URL = routePath('projects.create.projectSearch', {projectId});
+    const NEXT_URL = routePath('projects.create.projectSearch', {
+      projectId: projectId as string,
+    });
     const input = {
       projectId: Number(projectId),
       affiliationId: funder.uri
@@ -85,24 +85,36 @@ const CreateProjectSearchFunder = () => {
 
     addProjectFunder({variables: { input }})
       .then((result) => {
-        checkErrors(result.data.addProjectFunder?.errors as ProjectFunderErrors);
-        router.push(NEXT_URL);
+        const errs = checkErrors(result?.data?.addProjectFunder?.errors as ProjectFunderErrors);
+        if (errs.length > 0) {
+          setErrors(errs);
+        } else {
+          router.push(NEXT_URL);
+        }
       })
       .catch((err) => {
         throw new LoggedError(err.message);
       });
   };
 
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-  async function handleAddFunderManually(funderName: string) {
+  async function handleAddFunderManually() {
     // TODO:: Handle manual addition of funders
     // FIXME:: What should this do? There is no indication in the wireframes
   };
 
-  function onResults(results: AffiliationSearchResults) {
+  function onResults(results: FunderSearchResults) {
     if (results) {
-      setFunders(funders.concat(results.items));
-      setTotalCount(results.totalCount);
+      const items = (results.items ?? [])
+        .filter((f): f is AffiliationSearch => f != null);
+
+      if (!funders) {
+        setFunders(items);
+      } else {
+        setFunders(funders.concat(items));
+      }
+
+      setTotalCount(results.totalCount as number);
+
       if (results.nextCursor) {
         setNextCursor(results.nextCursor);
       }
@@ -186,7 +198,7 @@ const CreateProjectSearchFunder = () => {
               <p>{trans('addManuallyText')}</p>
               <Button
                 className="add-funder-button"
-                onPress={handleAddFunderManually}
+                onPress={() => handleAddFunderManually()}
                 aria-label="{trans(addManuallyLabel)}"
               >
                 {trans('addManuallyLabel')}

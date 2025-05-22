@@ -27,10 +27,7 @@ const ProjectsProjectFunding = () => {
   const params = useParams();
   const { projectId } = params;
 
-  const {
-    data: funders,
-    loading: fundersLoading,
-  } = useProjectFundersQuery({
+  const {data: funders} = useProjectFundersQuery({
     variables: {
       projectId: Number(projectId),
     }
@@ -38,16 +35,13 @@ const ProjectsProjectFunding = () => {
 
   const handleAddFunding = () => {
     const NEXT_URL = routePath('projects.funder.search', {
-      projectId: projectId,
+      projectId: projectId as string,
     });
     router.push(NEXT_URL);
   };
 
   const handleEditFunder = () => {
-    const NEXT_URL = routePath('projects.funder.edit', {
-      projectId: projectId,
-    });
-    router.push(NEXT_URL);
+    window.location.href = '/projects/proj_2425/funder/edit';
   };
 
   return (
@@ -86,13 +80,13 @@ const ProjectsProjectFunding = () => {
                 <div
                   className={styles.funderResultsListItem}
                   role="group"
-                  aria-label="{funder.affiliation.displayName}"
+                  aria-label="{funder?.affiliation?.displayName}"
                 >
-                  <p className="funder-name">{funder.affiliation.displayName}</p>
+                  <p className="funder-name">{funder?.affiliation?.displayName}</p>
                   <Button
-                    onPress={(funder) => handleEditFunder(funder)}
+                    onPress={handleEditFunder}
                     className="secondary"
-                    aria-label={`Edit ${funder.affiliation.displayName} details`}
+                    aria-label={`Edit ${funder?.affiliation?.displayName} details`}
                   >
                     Edit
                   </Button>

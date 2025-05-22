@@ -66,6 +66,7 @@ import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 import {
   AffiliationsDocument,
   AffiliationSearch,
+  AffiliationSearchResults,
 } from '@/generated/graphql';
 
 import "./styleguide.scss";
@@ -365,6 +366,14 @@ function Page() {
 
   // To test the funder search results
   const [funders, setFunders] = useState<AffiliationSearch[]>([]);
+
+  function onFunderResults(results: AffiliationSearchResults) {
+    if (results) {
+      const items = (results.items ?? [])
+        .filter((f): f is AffiliationSearch => f != null);
+      setFunders(items);
+    }
+  }
 
   return (
     <>
@@ -2050,7 +2059,7 @@ function Page() {
 
           <div id="_fundersearch">
             <h3>Funder Search</h3>
-            <FunderSearch onResults={setFunders} />
+            <FunderSearch onResults={onFunderResults} />
 
             <div id="_fundersearchResults">
               <h4>Results</h4>

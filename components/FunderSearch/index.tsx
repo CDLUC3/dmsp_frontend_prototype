@@ -5,9 +5,9 @@ import { useTranslations } from 'next-intl';
 
 import {
   AffiliationSearch,
-  AffiliationSearchResults,
   useAffiliationFundersLazyQuery,
 } from '@/generated/graphql';
+import { FunderSearchResults } from '@/app/types';
 
 import {
   Button,
@@ -21,7 +21,7 @@ import {
 
 interface FunderSearchProps extends React.HTMLAttributes<HTMLDivElement> {
   // Call back to return the results
-  onResults(results: AffiliationSearchResults): void;
+  onResults(results: FunderSearchResults): void;
 
   // A simple counter to trigger fetching more results
   moreTrigger?: number;
@@ -63,12 +63,15 @@ const FunderSearch = ({
 
   useEffect(() => {
     if (data?.affiliations) {
-      setNextCursor(data.affiliations.nextCursor);
-      onResults?.(data.affiliations);
+      setNextCursor(data.affiliations.nextCursor ?? null);
+      if (onResults) {
+        onResults(data.affiliations as FunderSearchResults);
+      }
     }
   }, [data]);
 
   useEffect(() => {
+    if (!moreTrigger) return;
     if (moreTrigger > moreCounter) {
       fetchAffiliations({
         variables: {
