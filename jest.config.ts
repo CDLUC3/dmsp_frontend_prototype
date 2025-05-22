@@ -6,11 +6,7 @@ const createJestConfig = nextJest({
 });
 
 const config: Config = {
-  preset: "ts-jest",
   testEnvironment: "jest-environment-jsdom",
-  transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": "ts-jest",
-  },
   moduleDirectories: ["node_modules", "<rootDir>/"],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
@@ -19,12 +15,6 @@ const config: Config = {
     '^@fortawesome/.*$': '<rootDir>/__mocks__/styleMock.js',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json'
-    },
-    fetch: global.fetch //added this to be able to mock 'fetch' in tests
-  },
   collectCoverage: true,
   collectCoverageFrom: [
     "app/**",  // Include all pages
@@ -50,11 +40,11 @@ const config: Config = {
     }
   },
   coverageDirectory: "coverage",
-  coverageProvider: 'v8',
   transformIgnorePatterns: [
     'node_modules/(?!(next-intl|other-esm-package)/)',
   ],
 }
 
 
-module.exports = createJestConfig(config);
+// Use export default for TypeScript
+export default createJestConfig(config);

@@ -21,6 +21,7 @@ const routes = {
   'projects.index': '/projects',
   'projects.show': '/projects/:projectId',
   'projects.create': '/projects/create',
+  'projects.search': '/projects/search',
   'projects.create.funding.search': '/projects/create-project/funding-search',
   'projects.create.projects.search': '/projects/create-project/projects-search',
   'projects.upload': '/projects/:projectId/upload',

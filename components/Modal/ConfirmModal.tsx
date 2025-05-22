@@ -16,16 +16,17 @@ import {
 const ConfirmModal: React.FC<{
   title: string,
   email: string,
+  isOpenProp?: boolean
   onConfirm: (email: string) => void
 }
-> = ({ title, email, onConfirm }) => {
+> = ({ title, email, isOpenProp, onConfirm }) => {
   const [isOpen, setOpen] = useState(false);
   //Localization keys
   const Global = useTranslations('Global');
   const AccessPage = useTranslations('TemplateAccessPage');
 
   return (
-    <DialogTrigger isOpen={isOpen} onOpenChange={setOpen}>
+    <DialogTrigger isOpen={isOpen ?? isOpenProp} onOpenChange={setOpen}>
       <Button onPress={() => setOpen(true)}>{Global('buttons.remove')}</Button>
       <ModalOverlay>
         <Modal>

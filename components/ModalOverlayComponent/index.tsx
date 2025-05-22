@@ -12,6 +12,7 @@ import {
 interface ModalOverlayProps {
   heading: string;
   content: string;
+  isOpen?: boolean;
   btnSecondaryText?: string;
   btnPrimaryText?: string;
   onPressAction: (e: PressEvent, close: () => void) => void; // Allow passing arguments
@@ -20,12 +21,14 @@ interface ModalOverlayProps {
 export const ModalOverlayComponent = ({
   heading,
   content,
+  isOpen,
   btnSecondaryText,
   btnPrimaryText,
   onPressAction
 }: ModalOverlayProps) => {
+
   return (
-    <ModalOverlay>
+    <ModalOverlay isOpen={isOpen}>
       <Modal>
         <Dialog>
           {({ close }) => (
