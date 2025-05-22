@@ -252,7 +252,7 @@ function Header() {
               </li>
             )}
 
-            <li role="menuitem"><Link className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']}`} rel="nofollow" data-method="delete" href="/users/sign_out" onClick={handleLogout}>{t('btnLogout')}</Link>
+            <li role="menuitem"><Link className={`${styles['dmpui-frontend-btn']} ${styles['dmpui-frontend-btn-secondary']}`} rel="nofollow" data-method="mobile-delete" href="/users/sign_out" onClick={handleLogout}>{t('btnLogout')}</Link>
             </li></ul>
         </div>
       </div>

@@ -1,7 +1,8 @@
-import {useSearchParams} from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 export const useQueryStep = () => {
   const searchParams = useSearchParams();
   const stepParam = searchParams.get('step');
-  return stepParam ? parseInt(stepParam, 10) : 1;
+  const step = stepParam ? parseInt(stepParam, 10) : 1;
+  return isNaN(step) ? 1 : step;
 };

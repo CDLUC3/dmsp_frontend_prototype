@@ -272,7 +272,21 @@ Also, there is a very simple `cypress.config.ts` file that we need to add.
 ### Running cypress tests
 `cypress` can be opened using the `cypress:open` script in `package.json`. This will open cypress in your browser, and allow you to navigate to your test and run it.
 
-You can use the `cypress:run` script to run your tests in the terminal window.
+You can use the `cypress:run` script to run your tests in headless mode in the terminal window.
+
+By default, Cypress looks for tests in `cypress/e2e` directory. tests are run from the `cypress/e2e` directory. You can customize this and add your own test directories by updating the `cypress.config.ts` file:
+```
+export default defineConfig({
+  e2e: {
+    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+    specPattern: 'tests/**/*.cy.{js,jsx,ts,tsx}', // Custom directory
+    setupNodeEvents(on, config) {
+      return config;
+    },
+  },
+  // ... rest of config
+});
+```
 
 ### Cypress documentation
 `cypress` provides good documentation at: https://docs.cypress.io/app/end-to-end-testing/writing-your-first-end-to-end-test
