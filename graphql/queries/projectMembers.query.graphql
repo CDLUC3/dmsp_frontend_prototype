@@ -1,10 +1,10 @@
-query ProjectContributors($projectId: Int!) {
-  projectContributors(projectId: $projectId) {
+query ProjectMembers($projectId: Int!) {
+  projectMembers(projectId: $projectId) {
     id
     givenName
     surName
     orcid
-    contributorRoles {
+    memberRoles {
       id
       label
       description
@@ -15,10 +15,10 @@ query ProjectContributors($projectId: Int!) {
   }
 }
 
-query ProjectContributor($projectContributorId: Int!) {
-  projectContributor(projectContributorId: $projectContributorId) {
+query ProjectMember($projectMemberId: Int!) {
+  projectMember(projectMemberId: $projectMemberId) {
     email
-    contributorRoles {
+    memberRoles {
       id
       label
       displayOrder

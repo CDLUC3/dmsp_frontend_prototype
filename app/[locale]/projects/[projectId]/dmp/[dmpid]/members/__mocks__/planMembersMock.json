@@ -1,17 +1,17 @@
 {
-  "planContributors": [
+  "planMembers": [
     {
       "id": 20,
       "isPrimaryContact": true,
       "errors": {
         "general": null
       },
-      "projectContributor": {
+      "projectMember": {
         "id": 1,
         "givenName": "Jacques",
         "surName": "Cousteau"
       },
-      "contributorRoles": [
+      "memberRoles": [
         {
           "uri": "https://credit.niso.org/contributor-roles/investigation/",
           "id": 2,
@@ -34,12 +34,12 @@
       "errors": {
         "general": null
       },
-      "projectContributor": {
+      "projectMember": {
         "id": 2,
         "givenName": "Captain",
         "surName": "Nemo"
       },
-      "contributorRoles": [
+      "memberRoles": [
         {
           "uri": "https://credit.niso.org/contributor-roles/investigation/",
           "id": 2,

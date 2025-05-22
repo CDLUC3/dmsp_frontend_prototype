@@ -1,5 +1,5 @@
-query ProjectFunder($projectFunderId: Int!) {
-  projectFunder(projectFunderId: $projectFunderId) {
+query ProjectFunding($projectFundingId: Int!) {
+  projectFunding(projectFundingId: $projectFundingId) {
     affiliation {
       name
     }

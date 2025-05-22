@@ -14,10 +14,10 @@ import {
 } from "react-aria-components";
 
 import {
-  ProjectFunderErrors,
-  ProjectFunderStatus,
-  useProjectFunderQuery,
-  useUpdateProjectFunderMutation
+  ProjectFundingErrors,
+  ProjectFundingStatus,
+  useProjectFundingQuery,
+  useUpdateProjectFundingMutation
 } from '@/generated/graphql';
 
 // Components
@@ -30,17 +30,17 @@ import {scrollToTop} from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 import {useToast} from '@/context/ToastContext';
 
-import styles from './projectFunder.module.scss';
+import styles from './projectFunding.module.scss';
 
-interface ProjectFunderFormErrorsInterface {
+interface ProjectFundingFormErrorsInterface {
   funderGrantId: string;
   funderOpportunityNumber: string;
   funderProjectNumber: string;
 }
 
-interface ProjectFunderInterface {
+interface ProjectFundingInterface {
   funderName: string;
-  funderStatus: ProjectFunderStatus;
+  fundingStatus: ProjectFundingStatus;
   funderGrantId: string;
   funderOpportunityNumber: string;
   funderProjectNumber: string;
@@ -55,19 +55,19 @@ const ProjectsProjectFundingEdit = () => {
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  // Get projectId and projectFunderID
+  // Get projectId and projectFundingID
   const params = useParams();
-  const { projectId, projectFunderId } = params; // From route /projects/:projectId/funder/:projectFunderId/edit
+  const { projectId, projectFundingId } = params; // From route /projects/:projectId/funding/:projectFundingId/edit
 
-  const [projectFunder, setProjectFunder] = useState<ProjectFunderInterface>({
+  const [projectFunding, setProjectFunding] = useState<ProjectFundingInterface>({
     funderName: '',
-    funderStatus: ProjectFunderStatus.Planned,
+    fundingStatus: ProjectFundingStatus.Planned,
     funderGrantId: '',
     funderOpportunityNumber: '',
     funderProjectNumber: ''
   });
 
-  const [fieldErrors, setFieldErrors] = useState<ProjectFunderFormErrorsInterface>({
+  const [fieldErrors, setFieldErrors] = useState<ProjectFundingFormErrorsInterface>({
     funderGrantId: '',
     funderOpportunityNumber: '',
     funderProjectNumber: ''
@@ -80,21 +80,21 @@ const ProjectsProjectFundingEdit = () => {
   const Global = useTranslations('Global');
 
   // Place statuses into SelectItem interface for FormSelect component
-  const funderStatuses = Object.values(ProjectFunderStatus).map(status => ({
+  const fundingStatuses = Object.values(ProjectFundingStatus).map(status => ({
     id: status,
     name: status.toLowerCase()
   }));
 
-  // Get Project Funder data
-  const { data, loading, error: queryError, refetch } = useProjectFunderQuery(
+  // Get Project Funding data
+  const { data, loading, error: queryError, refetch } = useProjectFundingQuery(
     {
-      variables: { projectFunderId: Number(projectFunderId) },
+      variables: { projectFundingId: Number(projectFundingId) },
       notifyOnNetworkStatusChange: true
     }
   );
 
   // Initialize useUpdateProjectMutation
-  const [updateProjectFunderMutation] = useUpdateProjectFunderMutation();
+  const [updateProjectFundingMutation] = useUpdateProjectFundingMutation();
 
   const clearAllFieldErrors = () => {
     //Remove all field errors
@@ -107,49 +107,49 @@ const ProjectsProjectFundingEdit = () => {
 
   // Show Success Message
   const showSuccessToast = () => {
-    const successMessage = EditFunding('messages.success.projectFunderUpdated');
+    const successMessage = EditFunding('messages.success.projectFundingUpdated');
     toastState.add(successMessage, { type: 'success' });
     // Scroll to top of page
     scrollToTop(topRef);
   }
 
-  const updateProjectFunderContent = (
+  const updateProjectFundingContent = (
     key: string,
     value: string
   ) => {
-    setProjectFunder((prevContents) => ({
+    setProjectFunding((prevContents) => ({
       ...prevContents,
       [key]: value,
     }));
   };
 
-  // Make GraphQL mutation request to update projectFunder table
-  const updateProjectFunder = async (): Promise<[ProjectFunderErrors, boolean]> => {
+  // Make GraphQL mutation request to update projectFunding table
+  const updateProjectFunding = async (): Promise<[ProjectFundingErrors, boolean]> => {
     try {
-      const response = await updateProjectFunderMutation({
+      const response = await updateProjectFundingMutation({
         variables: {
           input: {
-            projectFunderId: Number(projectFunderId),
-            status: projectFunder.funderStatus,
-            funderProjectNumber: projectFunder.funderProjectNumber,
-            grantId: projectFunder.funderGrantId,
-            funderOpportunityNumber: projectFunder.funderOpportunityNumber
+            projectFundingId: Number(projectFundingId),
+            status: projectFunding.fundingStatus,
+            funderProjectNumber: projectFunding.funderProjectNumber,
+            grantId: projectFunding.funderGrantId,
+            funderOpportunityNumber: projectFunding.funderOpportunityNumber
           }
         }
       });
 
-      const responseErrors = response.data?.updateProjectFunder?.errors
+      const responseErrors = response.data?.updateProjectFunding?.errors
       if (responseErrors) {
-        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectFunderErrors').length > 0) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectFundingErrors').length > 0) {
           return [responseErrors, false];
         }
       }
 
       return [{}, true];
     } catch (error) {
-      logECS('error', 'updateProjectFunderMutation', {
+      logECS('error', 'updateProjectFundingMutation', {
         error,
-        url: { path: '/projects/[projectId]/funder/[projectFunderId]/edit' }
+        url: { path: '/projects/[projectId]/funding/[projectFundingId]/edit' }
       });
       if (error instanceof ApolloError) {
         if (error.message.toLowerCase() === "unauthorized") {
@@ -158,7 +158,7 @@ const ProjectsProjectFundingEdit = () => {
         }
         return [{}, false];
       } else {
-        setErrorMessages(prevErrors => [...prevErrors, EditFunding('messages.errors.projectFunderUpdateFailed')]);
+        setErrorMessages(prevErrors => [...prevErrors, EditFunding('messages.errors.projectFundingUpdateFailed')]);
         return [{}, false];
       }
     }
@@ -174,7 +174,7 @@ const ProjectsProjectFundingEdit = () => {
     setErrorMessages([]);
 
     // Create new section
-    const [errors, success] = await updateProjectFunder();
+    const [errors, success] = await updateProjectFunding();
 
     if (!success) {
       // Check if there are any errors (always exclude the GraphQL `_typename` entry)
@@ -185,25 +185,25 @@ const ProjectsProjectFundingEdit = () => {
           funderProjectNumber: errors.funderProjectNumber || ''
         });
       }
-      setErrorMessages([errors.general || EditFunding('messages.errors.projectFunderUpdateFailed')]);
+      setErrorMessages([errors.general || EditFunding('messages.errors.projectFundingUpdateFailed')]);
 
     } else {
       // Show success message
       showSuccessToast();
-      // Redirect back to the project funder page
-      router.push(`/projects/${projectId}/funder`);
+      // Redirect back to the project funding page
+      router.push(`/projects/${projectId}/funding`);
     }
   };
 
   useEffect(() => {
     // set project data in state
-    if (data && data.projectFunder) {
-      setProjectFunder({
-        funderName: data.projectFunder?.affiliation?.name || '',
-        funderStatus: data.projectFunder.status || ProjectFunderStatus.Planned,
-        funderGrantId: data.projectFunder?.grantId || '',
-        funderOpportunityNumber: data.projectFunder?.funderOpportunityNumber || '',
-        funderProjectNumber: data.projectFunder?.funderProjectNumber || ''
+    if (data && data.projectFunding) {
+      setProjectFunding({
+        funderName: data.projectFunding?.affiliation?.name || '',
+        fundingStatus: data.projectFunding.status || ProjectFundingStatus.Planned,
+        funderGrantId: data.projectFunding?.grantId || '',
+        funderOpportunityNumber: data.projectFunding?.funderOpportunityNumber || '',
+        funderProjectNumber: data.projectFunding?.funderProjectNumber || ''
       });
     }
   }, [data]);
@@ -229,11 +229,11 @@ const ProjectsProjectFundingEdit = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}/funder`}>{Global('breadcrumbs.projectFunder')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/projects/${projectId}/funding`}>{Global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
             <Breadcrumb>{EditFunding('title')}</Breadcrumb>
           </Breadcrumbs>
         }
-        className="page-funder-edit"
+        className="page-funding-edit"
       />
       <LayoutContainer>
         <ContentContainer>
@@ -244,21 +244,21 @@ const ProjectsProjectFundingEdit = () => {
               type="text"
               isRequired={true}
               label={EditFunding('labels.funderName')}
-              value={projectFunder.funderName}
-              onChange={(e) => updateProjectFunderContent('projectName', e.target.value)}
+              value={projectFunding.funderName}
+              onChange={(e) => updateProjectFundingContent('projectName', e.target.value)}
             />
 
             <FormSelect
-              label={EditFunding('labels.funderStatus')}
+              label={EditFunding('labels.fundingStatus')}
               isRequired
-              name="funderStatus"
-              items={funderStatuses}
-              selectClasses={styles.funderStatusSelect}
-              onSelectionChange={selected => updateProjectFunderContent('funderStatus', selected as ProjectFunderStatus)}
-              selectedKey={projectFunder.funderStatus}
+              name="fundingStatus"
+              items={fundingStatuses}
+              selectClasses={styles.fundingStatusSelect}
+              onSelectionChange={selected => updateProjectFundingContent('fundingStatus', selected as ProjectFundingStatus)}
+              selectedKey={projectFunding.fundingStatus}
             >
 
-              {funderStatuses && funderStatuses.map((status) => {
+              {fundingStatuses && fundingStatuses.map((status) => {
                 return (
                   <ListBoxItem key={status.id}>{status.name}</ListBoxItem>
                 )
@@ -271,10 +271,10 @@ const ProjectsProjectFundingEdit = () => {
               type="text"
               isRequired={true}
               label={EditFunding('labels.grantNumber')}
-              value={projectFunder.funderGrantId}
-              onChange={(e) => updateProjectFunderContent('funderGrantId', e.target.value)}
-              isInvalid={(!projectFunder.funderGrantId || !!fieldErrors.funderGrantId)}
-              errorMessage={fieldErrors.funderGrantId.length > 0 ? fieldErrors.funderGrantId : EditFunding('messages.errors.funderGrantId')}
+              value={projectFunding.funderGrantId}
+              onChange={(e) => updateProjectFundingContent('funderGrantId', e.target.value)}
+              isInvalid={(!projectFunding.funderGrantId || !!fieldErrors.funderGrantId)}
+              errorMessage={fieldErrors.funderGrantId.length > 0 ? fieldErrors.funderGrantId : EditFunding('messages.errors.fundingGrantId')}
             />
 
             <FormInput
@@ -282,10 +282,10 @@ const ProjectsProjectFundingEdit = () => {
               type="text"
               isRequired={true}
               label={EditFunding('labels.projectNumber')}
-              value={projectFunder.funderProjectNumber}
-              onChange={(e) => updateProjectFunderContent('funderProjectNumber', e.target.value)}
-              isInvalid={(!projectFunder.funderProjectNumber || !!fieldErrors.funderProjectNumber)}
-              errorMessage={fieldErrors.funderProjectNumber.length > 0 ? fieldErrors.funderProjectNumber : EditFunding('messages.errors.funderProjectNumber')}
+              value={projectFunding.funderProjectNumber}
+              onChange={(e) => updateProjectFundingContent('funderProjectNumber', e.target.value)}
+              isInvalid={(!projectFunding.funderProjectNumber || !!fieldErrors.funderProjectNumber)}
+              errorMessage={fieldErrors.funderProjectNumber.length > 0 ? fieldErrors.funderProjectNumber : EditFunding('messages.errors.fundingProjectNumber')}
             />
 
             <FormInput
@@ -293,10 +293,10 @@ const ProjectsProjectFundingEdit = () => {
               type="text"
               isRequired={true}
               label={EditFunding('labels.opportunity')}
-              value={projectFunder.funderOpportunityNumber}
-              onChange={(e) => updateProjectFunderContent('funderOpportunityNumber', e.target.value)}
-              isInvalid={(!projectFunder.funderOpportunityNumber || !!fieldErrors.funderOpportunityNumber)}
-              errorMessage={fieldErrors.funderOpportunityNumber.length > 0 ? fieldErrors.funderOpportunityNumber : EditFunding('messages.errors.funderProjectNumber')}
+              value={projectFunding.funderOpportunityNumber}
+              onChange={(e) => updateProjectFundingContent('funderOpportunityNumber', e.target.value)}
+              isInvalid={(!projectFunding.funderOpportunityNumber || !!fieldErrors.funderOpportunityNumber)}
+              errorMessage={fieldErrors.funderOpportunityNumber.length > 0 ? fieldErrors.funderOpportunityNumber : EditFunding('messages.errors.fundingProjectNumber')}
             />
 
             <Button type="submit" className="submit-button">{Global('buttons.saveChanges')}</Button>

@@ -1,7 +1,7 @@
 import React from 'react';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {useParams, useRouter} from 'next/navigation';
-import {useProjectContributorsQuery} from '@/generated/graphql';
+import {useProjectMembersQuery} from '@/generated/graphql';
 import ProjectsProjectMembers from '../page';
 import {axe, toHaveNoViolations} from 'jest-axe';
 import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
@@ -14,18 +14,18 @@ jest.mock('next/navigation', () => ({
 }));
 
 jest.mock('@/generated/graphql', () => ({
-  useProjectContributorsQuery: jest.fn(),
+  useProjectMembersQuery: jest.fn(),
 }));
 
 
-const mockProjectContributorsData = {
-  projectContributors: [
+const mockProjectMembersData = {
+  projectMembers: [
     {
       id: 1,
       givenName: "Jacques",
       surName: "Cousteau",
       orcid: "0000-JACQ-0000-0000",
-      contributorRoles: [
+      memberRoles: [
         {
           id: 2,
           label: "Principal Investigator (PI)",
@@ -46,7 +46,7 @@ const mockProjectContributorsData = {
       givenName: "Captain",
       surName: "Nemo",
       orcid: "0000-NEMO-0000-0000",
-      contributorRoles: [
+      memberRoles: [
         {
           id: 2,
           label: "Principal Investigator (PI)",
@@ -65,7 +65,7 @@ describe('ProjectsProjectMembers', () => {
   const mockUseParams = useParams as jest.Mock;
   const mockRouter = { push: jest.fn() };
   (useRouter as jest.Mock).mockReturnValue(mockRouter);
-  const mockUseProjectContributorsQuery = useProjectContributorsQuery as jest.Mock;
+  const mockUseProjectMembersQuery = useProjectMembersQuery as jest.Mock;
 
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
@@ -79,7 +79,7 @@ describe('ProjectsProjectMembers', () => {
 
 
   it('should render loading state', () => {
-    mockUseProjectContributorsQuery.mockReturnValue({ loading: true });
+    mockUseProjectMembersQuery.mockReturnValue({ loading: true });
 
     render(<ProjectsProjectMembers />);
 
@@ -87,15 +87,15 @@ describe('ProjectsProjectMembers', () => {
   });
 
   it('should render error state', () => {
-    mockUseProjectContributorsQuery.mockReturnValue({ error: true });
+    mockUseProjectMembersQuery.mockReturnValue({ error: true });
 
     render(<ProjectsProjectMembers />);
 
-    expect(screen.getByText('messages.errors.errorGettingContributors')).toBeInTheDocument();
+    expect(screen.getByText('messages.errors.errorGettingMembers')).toBeInTheDocument();
   });
 
   it('renders project members', () => {
-    mockUseProjectContributorsQuery.mockReturnValue({ data: mockProjectContributorsData });
+    mockUseProjectMembersQuery.mockReturnValue({ data: mockProjectMembersData });
 
     render(<ProjectsProjectMembers />);
 
@@ -116,7 +116,7 @@ describe('ProjectsProjectMembers', () => {
   });
 
   it('should handle add collaborator button click', () => {
-    mockUseProjectContributorsQuery.mockReturnValue({ data: { projectContributors: [] } });
+    mockUseProjectMembersQuery.mockReturnValue({ data: { projectMembers: [] } });
 
     render(<ProjectsProjectMembers />);
 
@@ -126,7 +126,7 @@ describe('ProjectsProjectMembers', () => {
   });
 
   it('should handle share button click', () => {
-    mockUseProjectContributorsQuery.mockReturnValue({ data: { projectContributors: [] } });
+    mockUseProjectMembersQuery.mockReturnValue({ data: { projectMembers: [] } });
 
     render(<ProjectsProjectMembers />);
 
@@ -136,7 +136,7 @@ describe('ProjectsProjectMembers', () => {
   });
 
   it('should pass axe accessibility test', async () => {
-    mockUseProjectContributorsQuery.mockReturnValue({ data: mockProjectContributorsData });
+    mockUseProjectMembersQuery.mockReturnValue({ data: mockProjectMembersData });
 
     const { container } = render(
       <ProjectsProjectMembers />

@@ -11,19 +11,19 @@ import {
 import styles from './ProjectsProjectFunding.module.scss';
 
 const ProjectsProjectFunding = () => {
-  const handleAddFunder = () => {
-    window.location.href = '/projects/proj_2425/funder/search';
+  const handleAddFunding = () => {
+    window.location.href = '/projects/proj_2425/funding/search';
   };
 
-  const handleEditFunder = () => {
+  const handleEditFunding = () => {
     // Navigate to edit page or open modal
-    window.location.href = '/projects/proj_2425/funder/edit';
+    window.location.href = '/projects/proj_2425/funding/edit';
   };
 
   return (
     <>
       <PageHeader
-        title="Project Funders"
+        title="Project Funding"
         description="Manage funding sources for your project"
         showBackButton={true}
         breadcrumbs={
@@ -35,28 +35,28 @@ const ProjectsProjectFunding = () => {
         actions={
           <>
             <Button
-              onPress={handleAddFunder}
+              onPress={handleAddFunding}
               className="secondary"
-              aria-label="Add a funder"
+              aria-label="Add funding"
             >
-              Add a funder
+              Add a funding source
             </Button>
           </>
         }
-        className="page-project-funders"
+        className="page-project-fundings"
       />
       <LayoutWithPanel>
         <ContentContainer>
-          <section aria-label="Current funders">
-            <div className={styles.funderResultsList}>
+          <section aria-label="Current fundings">
+            <div className={styles.fundingResultsList}>
               <div
-                className={styles.funderResultsListItem}
+                className={styles.fundingResultsListItem}
                 role="group"
-                aria-label="Current funder"
+                aria-label="Current funding"
               >
-                <p className="funder-name">National Science Foundation (NSF)</p>
+                <p className="funding-name">National Science Foundation (NSF)</p>
                 <Button
-                  onPress={handleEditFunder}
+                  onPress={handleEditFunding}
                   className="secondary"
                   aria-label="Edit National Science Foundation details"
                 >

@@ -8,8 +8,8 @@
     "page": {
       "pageDescription": "Overview of plan details"
     },
-    "funder": {
-      "title": "Funder for this plan",
+    "funding": {
+      "title": "Funding for this plan",
       "edit": "Adjust for this plan"
     },
     "members": {

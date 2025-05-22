@@ -1,11 +1,11 @@
 {
-  "projectContributors": [
+  "projectMembers": [
     {
       "id": 1,
       "givenName": "Jacques",
       "surName": "Cousteau",
       "orcid": "0000-JACQ-0000-0000",
-      "contributorRoles": [
+      "memberRoles": [
         {
           "id": 2,
           "label": "Principal Investigator (PI)",
@@ -26,7 +26,7 @@
       "givenName": "Captain",
       "surName": "Nemo",
       "orcid": "0000-NEMO-0000-0000",
-      "contributorRoles": [
+      "memberRoles": [
         {
           "id": 2,
           "label": "Principal Investigator (PI)",

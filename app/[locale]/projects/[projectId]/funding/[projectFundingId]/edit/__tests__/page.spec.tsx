@@ -2,8 +2,8 @@ import React from 'react';
 import {act, fireEvent, render, screen, within} from '@testing-library/react';
 import {useParams, useRouter} from 'next/navigation';
 import {
-  useProjectFunderQuery,
-  useUpdateProjectFunderMutation
+  useProjectFundingQuery,
+  useUpdateProjectFundingMutation
 } from '@/generated/graphql';
 import ProjectsProjectFundingEdit from '../page';
 import {axe, toHaveNoViolations} from 'jest-axe';
@@ -17,9 +17,9 @@ jest.mock('next/navigation', () => ({
 }));
 
 jest.mock('@/generated/graphql', () => ({
-  useProjectFunderQuery: jest.fn(),
-  useUpdateProjectFunderMutation: jest.fn(),
-  ProjectFunderStatus: {
+  useProjectFundingQuery: jest.fn(),
+  useUpdateProjectFundingMutation: jest.fn(),
+  ProjectFundingStatus: {
     Planned: 'PLANNED',
     Denied: 'DENIED',
     Granted: 'GRANTED'
@@ -33,16 +33,16 @@ const mockRouter = {
 
 describe('ProjectsProjectFundingEdit', () => {
   const mockUseParams = useParams as jest.Mock;
-  const mockUseProjectFunderQuery = useProjectFunderQuery as jest.Mock;
+  const mockUseProjectFundingQuery = useProjectFundingQuery as jest.Mock;
 
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
-    mockUseParams.mockReturnValue({ projectId: '1', projectFunderId: '1' });
+    mockUseParams.mockReturnValue({ projectId: '1', projectFundingId: '1' });
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    mockUseProjectFunderQuery.mockReturnValue({
+    mockUseProjectFundingQuery.mockReturnValue({
       data: {
-        projectFunder: {
+        projectFunding: {
           affiliation: {
             name: 'National Science Foundation',
           },
@@ -57,7 +57,7 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should render the project details form', async () => {
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -69,14 +69,14 @@ describe('ProjectsProjectFundingEdit', () => {
     });
 
     expect(screen.getByLabelText('labels.funderName')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.funderStatus')).toBeInTheDocument();
+    expect(screen.getByLabelText('labels.fundingStatus')).toBeInTheDocument();
     // Find the "denied" text within a <span> element
     const deniedSpan = screen.getByText((content, element) => {
       return element?.tagName.toLowerCase() === 'span' && content === 'denied';
     });
     expect(deniedSpan).toBeInTheDocument();
 
-    // Funder status select dropdown
+    // Funding status select dropdown
     const hiddenContainer = screen.getByTestId('hidden-select-container');
     const selectElement = within(hiddenContainer).getByDisplayValue('denied');//default value
 
@@ -97,11 +97,11 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should display loading message when data is loading', async () => {
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
-    mockUseProjectFunderQuery.mockReturnValueOnce({ loading: true });
+    mockUseProjectFundingQuery.mockReturnValueOnce({ loading: true });
     await act(async () => {
       render(
         <ProjectsProjectFundingEdit />
@@ -112,13 +112,13 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should update project data on form submit', async () => {
-    const mockUpdateProjectFunderMutation = jest.fn().mockResolvedValue({
-      data: { updateProjectFunder: { errors: null } },
+    const mockUpdateProjectFundingMutation = jest.fn().mockResolvedValue({
+      data: { updateProjectFunding: { errors: null } },
     });
 
     // Override the mock for this specific test
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
-      mockUpdateProjectFunderMutation,
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      mockUpdateProjectFundingMutation,
       { loading: false, error: undefined },
     ]);
 
@@ -130,10 +130,10 @@ describe('ProjectsProjectFundingEdit', () => {
     });
 
     fireEvent.submit(screen.getByRole('button', { name: /buttons.saveChanges/i }));
-    expect(mockUpdateProjectFunderMutation).toHaveBeenCalledWith({
+    expect(mockUpdateProjectFundingMutation).toHaveBeenCalledWith({
       variables: {
         input: {
-          projectFunderId: 1,
+          projectFundingId: 1,
           status: 'DENIED',
           funderProjectNumber: 'IRL-123-1234',
           grantId: 'https://example.com/awards/IRL-000000X1',
@@ -144,12 +144,12 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should display error messages when form submission fails', async () => {
-    const mockUpdateProjectFunderMutation = jest.fn().mockResolvedValue({
-      data: { updateProjectFunder: { errors: { general: 'Update failed' } } },
+    const mockUpdateProjectFundingMutation = jest.fn().mockResolvedValue({
+      data: { updateProjectFunding: { errors: { general: 'Update failed' } } },
     });
 
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
-      mockUpdateProjectFunderMutation,
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      mockUpdateProjectFundingMutation,
       { loading: false, error: undefined },
     ]);
 
@@ -164,7 +164,7 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should pass axe accessibility test', async () => {
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);

@@ -1,5 +1,5 @@
-query ContributorRoles{
-    contributorRoles {
+query MemberRoles{
+    memberRoles {
         id
         label
         uri

@@ -181,7 +181,7 @@ const TemplateAccessPage: React.FC = () => {
     );
   }, [organization]);
 
-  /* Handles rendering list of existing contributors*/
+  /* Handles rendering list of existing members*/
   const renderExternalPeople = useMemo(() => {
     if (loading) {
       return <div>{Global('messaging.loading')}...</div>;

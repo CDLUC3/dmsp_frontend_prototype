@@ -7,9 +7,9 @@ jest.mock("@/generated/graphql", () => {
   const actual = jest.requireActual("@/generated/graphql");
   return {
     ...actual,
-    AddProjectContributorDocument: gql`
-    mutation AddProjectContributor($input: AddProjectContributorInput!) {
-    addProjectContributor(input: $input) {
+    AddProjectMemberDocument: gql`
+    mutation AddProjectMember($input: AddProjectMemberInput!) {
+    addProjectMember(input: $input) {
     email
     errors {
       general

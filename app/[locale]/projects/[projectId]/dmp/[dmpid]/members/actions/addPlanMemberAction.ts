@@ -3,25 +3,25 @@
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
 import logger from "@/utils/server/logger";
 import { ActionResponse } from "@/app/types";
-import { AddPlanContributorDocument } from "@/generated/graphql";
+import { AddPlanMemberDocument } from "@/generated/graphql";
 
-export async function addPlanContributorAction({
+export async function addPlanMemberAction({
   planId,
-  projectContributorId,
+  projectMemberId,
 }: {
   planId: number;
-  projectContributorId: number;
+  projectMemberId: number;
 }): Promise<ActionResponse> {
   try {
     // Execute the mutation using the shared handler
     return executeGraphQLMutation({
-      document: AddPlanContributorDocument,
-      variables: { planId, projectContributorId },
-      dataPath: "addPlanContributor"
+      document: AddPlanMemberDocument,
+      variables: { planId, projectMemberId },
+      dataPath: "addPlanMember"
     });
 
   } catch (error) {
-    logger.error(`[Add Plan Contributor Error]: ${error}`, { error });
+    logger.error(`[Add Plan Member Error]: ${error}`, { error });
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

@@ -1,16 +1,16 @@
-query PlanContributors($planId: Int!) {
-  planContributors(planId: $planId) {
+query PlanMembers($planId: Int!) {
+  planMembers(planId: $planId) {
     id
     isPrimaryContact
     errors {
       general
     }
-    projectContributor {
+    projectMember {
       id
       givenName
       surName
     }
-    contributorRoles {
+    memberRoles {
       uri
       id
       label

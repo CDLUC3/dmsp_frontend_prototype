@@ -23,7 +23,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Funder details updated');
+    console.log('Funding details updated');
     // Redirect or show success message
     window.location.href = '/projects/proj_2425/dmp/xxx';
   }
@@ -32,7 +32,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
   return (
     <>
       <PageHeader
-        title="Project Funders"
+        title="Project Funding"
         description="Manage funding sources for your project"
         showBackButton={true}
         breadcrumbs={
@@ -45,17 +45,17 @@ const ProjectsProjectPlanAdjustFunding = () => {
           <>
           </>
         }
-        className="page-project-funders"
+        className="page-project-fundings"
       />
       <LayoutWithPanel>
         <ContentContainer>
           <Form onSubmit={handleSubmit}>
             <RadioGroup>
               <Label>
-                Select a funder for this plan
+                Select funding for this plan
               </Label>
               <Text slot="description" className="help">
-                These funders come from the funders attached to the project.
+                This funding list comes from the funding list attached to the project.
               </Text>
               <Radio value="2525252525">
                 National Science Foundation (NSF)
@@ -81,16 +81,16 @@ const ProjectsProjectPlanAdjustFunding = () => {
 
 
           <h3 className="mt-8">
-            Adding a new funder?
+            Adding funding information?
           </h3>
           <p>
-            If you want to add a new funder, you can add a new funder at the
-            project level. This project can have multiple funders, whereas each
-            plan can only have a single funder as we match it to the required
+            If you want to add new funding information, you can add funding at the
+            project level. This project can have multiple funding sources, whereas each
+            plan can only have a single source of funding as we match it to the required
             template.
           </p>
-          <a href={"/projects/proj_2425/funder/"} >
-            Add a new funder
+          <a href={"/projects/proj_2425/funding/"} >
+            Add a new funding source
           </a>
 
 

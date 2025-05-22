@@ -171,9 +171,9 @@ describe('PlanOverviewPage', () => {
       expect(within(checklist).getByText('publishModal.publish.checklistItem.primaryContact')).toBeInTheDocument();
       const linkPrimaryContact = within(checklist).getByRole('link', { name: 'Captain Nemo' });
       expect(linkPrimaryContact).toBeInTheDocument();
-      expect(within(checklist).getByText(/publishModal\.publish\.checklistItem\.funderText\s*\(/i)).toBeInTheDocument();
-      const linkFunder = within(checklist).getByRole('link', { name: 'publishModal.publish.checklistItem.funder' });
-      expect(linkFunder).toBeInTheDocument();
+      expect(within(checklist).getByText(/publishModal\.publish\.checklistItem\.fundingText\s*\(/i)).toBeInTheDocument();
+      const linkFunding = within(checklist).getByRole('link', { name: 'publishModal.publish.checklistItem.funding' });
+      expect(linkFunding).toBeInTheDocument();
       expect(within(checklist).getByText('publishModal.publish.checklistItem.orcidText')).toBeInTheDocument();
       const linkOrcid = within(checklist).getByRole('link', { name: 'publishModal.publish.checklistItem.projectMembers' });
       expect(linkOrcid).toBeInTheDocument();
