@@ -201,8 +201,6 @@ const CreateSectionPage: React.FC = () => {
         }]
       });
 
-      console.log('Response from addSectionMutation:', response);
-
       if (response.data?.addSection?.errors) {
         return response.data.addSection.errors;
       }
@@ -307,7 +305,6 @@ const CreateSectionPage: React.FC = () => {
     });
   }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
-
   return (
     <>
       <PageHeader
@@ -351,6 +348,7 @@ const CreateSectionPage: React.FC = () => {
                       label={Section('labels.sectionName')}
                       value={formData.sectionName}
                       onChange={(e) => setSectionNameContent(e.currentTarget.value)} // Use specific setter
+                      isInvalid={fieldErrors['sectionName'] !== ''}
                       errorMessage={fieldErrors['sectionName']}
                     />
 

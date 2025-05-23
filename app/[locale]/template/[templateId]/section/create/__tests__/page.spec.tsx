@@ -1,4 +1,6 @@
 import React from "react";
+import { ApolloError } from '@apollo/client';
+import { useParams, useRouter } from 'next/navigation';
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useAddSectionMutation,
@@ -7,7 +9,6 @@ import {
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams, useRouter } from 'next/navigation';
 import CreateSectionPage from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import mockSectionData from '../__mocks__/addSectionMock.json';
@@ -125,15 +126,15 @@ describe("CreateSectionPage", () => {
       push: jest.fn(),
     });
 
-    (useSectionsDisplayOrderQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce(mockSectionsData), // Correct way to mock a resolved promise
-      { loading: false, error: undefined },
-    ]);
+    (useSectionsDisplayOrderQuery as jest.Mock).mockReturnValue({
+      data: mockSectionsData,
+      loading: false,
+      error: undefined,
+    });
 
   });
 
   it("should render correct fields", async () => {
-
     (useAddSectionMutation as jest.Mock).mockImplementation(() => {
       return [{ data: { key: 'value' } }, { loading: false, error: undefined }];
     });
@@ -210,11 +211,118 @@ describe("CreateSectionPage", () => {
     const sectionNameInput = screen.getByRole('textbox', { name: /sectionName/i });
     fireEvent.change(sectionNameInput, { target: { value: 'Test Section' } });
 
-    const searchButton = screen.getByRole('button', { name: /button.createSection/i });
-    fireEvent.click(searchButton);
+    // Test checkboxes
+    const dataDescriptionCheckbox = screen.getByRole('checkbox', { name: /data description/i });
+    fireEvent.click(dataDescriptionCheckbox);
+
+    expect(dataDescriptionCheckbox).toBeChecked();
+
+    // Test if I check the box again
+    const dataDescriptionCheckboxSecondTime = screen.getByRole('checkbox', { name: /data description/i });
+    fireEvent.click(dataDescriptionCheckboxSecondTime);
+
+    const createButton = screen.getByRole('button', { name: /button.createSection/i });
+    fireEvent.click(createButton);
     expect(mockAddSection).toHaveBeenCalledTimes(1);
     await waitFor(() => {
       expect(mockUseRouter().push).toHaveBeenCalledWith('/template/123');
+    });
+  })
+
+  it('should display error when addSectionMutation throws an error', async () => {
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockRejectedValueOnce(new Error("Error")),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <CreateSectionPage />
+      );
+    });
+
+    const sectionNameInput = screen.getByRole('textbox', { name: /sectionName/i });
+    fireEvent.change(sectionNameInput, { target: { value: 'Test Section' } });
+
+    const createButton = screen.getByRole('button', { name: /button.createSection/i });
+    act(() => {
+      fireEvent.click(createButton);
+
+    })
+    await waitFor(() => {
+      expect(screen.getByText('messages.errorCreatingSection')).toBeInTheDocument();
+    });
+  })
+
+  it('should display error when addSectionMutation returns an instance of apollo error', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Apollo error occurred',
+    });
+
+    const mockUpdateSection = jest.fn()
+      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
+
+
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      mockUpdateSection,
+      { loading: false, error: undefined }
+    ]);
+
+    await act(async () => {
+      render(
+        <CreateSectionPage />
+      );
+    });
+
+    const sectionNameInput = screen.getByRole('textbox', { name: /sectionName/i });
+    fireEvent.change(sectionNameInput, { target: { value: 'Test Section' } });
+
+    const createButton = screen.getByRole('button', { name: /button.createSection/i });
+    act(() => {
+      fireEvent.click(createButton);
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Apollo error occurred')).toBeInTheDocument();
+    });
+  })
+
+  it('should display errors when addSectionMutation returns field-level errors', async () => {
+    (useAddSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({
+        data: {
+          addSection: {
+            errors: {
+              general: 'Error adding section',
+              name: 'Section name not in correct format',
+            },
+          },
+        },
+      }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<CreateSectionPage />);
+    });
+
+    const sectionNameInput = screen.getByRole('textbox', { name: /sectionName/i });
+    await act(async () => {
+      fireEvent.change(sectionNameInput, { target: { value: 'Test Section' } });
+    });
+
+    const createButton = screen.getByRole('button', { name: /button.createSection/i });
+    await act(async () => {
+      fireEvent.click(createButton);
+    });
+
+    await waitFor(() => {
+      // Check for the general error message
+      expect(screen.getByText('Error adding section')).toBeInTheDocument();
+      // Check for the sectionName field error
+      expect(screen.getByText(/section name not in correct format/i)).toBeInTheDocument();
     });
   })
 
