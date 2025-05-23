@@ -77,7 +77,6 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
--
 - Fixed issue with Template not refreshing after published [#455]
   - Added a server endpoint env variable for graphqlServerActionHandler.ts since env variables prefixed with NEXT_PUBLIC do not work on the server side [#455]
 - Added Rich Text Editor for Sample Text in the Question forms [#456]
@@ -98,6 +97,8 @@
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
 
 ### Chore
+- Updated and added unit tests to increase coverage in the app [#490]
+- Updated and improved the cypress functional tests to fix them and updated some cypress documentation in the README.md file [#490]
 - Updated NodeJS version to v22 [#144]
 ====================================================================================================
 
