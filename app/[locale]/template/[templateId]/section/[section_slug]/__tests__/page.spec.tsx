@@ -185,7 +185,6 @@ describe("SectionUpdatePage", () => {
       { loading: false, error: undefined },
     ]);
 
-
     await act(async () => {
       render(
         <SectionUpdatePage />

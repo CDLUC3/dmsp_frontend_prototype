@@ -227,6 +227,7 @@ const SectionUpdatePage: React.FC = () => {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    console.log("FORM SUBMIT CALLED")
     // Clear previous error messages
     clearAllFieldErrors();
     setErrorMessages([]);
