@@ -26,6 +26,7 @@ import {
 
 
 import { DmpEditor } from "@/components/Editor";
+import TinyMCEEditor from '@/components/TinyMCEEditor';
 import { Button } from "react-aria-components";
 
 import styles from './QuestionView.module.scss';
@@ -106,7 +107,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
             {(questionType == 'Text Area') && (
-              <DmpEditor
+              <TinyMCEEditor
                 content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
                 setContent={setEditorContent}
               />

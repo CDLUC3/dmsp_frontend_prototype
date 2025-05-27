@@ -35,7 +35,7 @@ import {
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import { DmpEditor } from "@/components/Editor";
+import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
 import { stripHtmlTags } from '@/utils/general';
@@ -348,7 +348,6 @@ const CreateSectionPage: React.FC = () => {
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
 
-
                     <FormInput
                       name="sectionName"
                       id="sectionName"
@@ -361,7 +360,7 @@ const CreateSectionPage: React.FC = () => {
                     />
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
-                    <DmpEditor
+                    <TinyMCEEditor
                       content={sectionIntroductionContent}
                       setContent={setSectionIntroductionContent}
                       error={fieldErrors['sectionIntroduction']}
@@ -370,8 +369,8 @@ const CreateSectionPage: React.FC = () => {
                       helpText={Section('helpText.sectionIntroduction')}
                     />
 
-                    <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionRequirements" id="sectionRequirementsLabel">{Section('labels.sectionRequirements')}</Label>
+                    <TinyMCEEditor
                       content={sectionRequirementsContent}
                       setContent={setSectionRequirementsContent}
                       error={fieldErrors['sectionRequirements']}
@@ -380,8 +379,8 @@ const CreateSectionPage: React.FC = () => {
                       helpText={Section('helpText.sectionRequirements')}
                     />
 
-                    <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionGuidance" id="sectionGuidanceLabel">{Section('labels.sectionGuidance')}</Label>
+                    <TinyMCEEditor
                       content={sectionGuidanceContent}
                       setContent={setSectionGuidanceContent}
                       error={fieldErrors['sectionGuidance']}

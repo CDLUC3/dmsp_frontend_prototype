@@ -33,7 +33,7 @@ import {
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import { DmpEditor } from "@/components/Editor";
+import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
 import {
@@ -300,9 +300,6 @@ const SectionUpdatePage: React.FC = () => {
             <div className="main-content">
 
               <ErrorMessages errors={errorMessages} ref={errorRef} />
-
-
-
               <Tabs>
                 <TabList aria-label="Question editing">
                   <Tab id="edit">{Section('tabs.editSection')}</Tab>
@@ -328,7 +325,7 @@ const SectionUpdatePage: React.FC = () => {
                     />
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
-                    <DmpEditor
+                    <TinyMCEEditor
                       content={sectionData.sectionIntroduction}
                       setContent={(value) => updateSectionContent('sectionIntroduction', value)}
                       error={fieldErrors['sectionIntroduction']}
@@ -337,9 +334,8 @@ const SectionUpdatePage: React.FC = () => {
                       helpText={Section('helpText.sectionIntroduction')}
                     />
 
-
-                    <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionRequirements" id="sectionRequirementsLabel">{Section('labels.sectionRequirements')}</Label>
+                    <TinyMCEEditor
                       content={sectionData.sectionRequirements}
                       setContent={(value) => updateSectionContent('sectionRequirements', value)}
                       error={fieldErrors['sectionRequirements']}
@@ -348,8 +344,8 @@ const SectionUpdatePage: React.FC = () => {
                       helpText={Section('helpText.sectionRequirements')}
                     />
 
-                    <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionGuidance" id="sectionGuidanceLabel">{Section('labels.sectionGuidance')}</Label>
+                    <TinyMCEEditor
                       content={sectionData.sectionGuidance}
                       setContent={(value) => updateSectionContent('sectionGuidance', value)}
                       error={fieldErrors['sectionGuidance']}

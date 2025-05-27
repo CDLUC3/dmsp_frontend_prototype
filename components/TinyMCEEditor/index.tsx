@@ -22,6 +22,7 @@ interface TinyMCEEditorProps {
   helpText?: string;
 }
 
+
 const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: TinyMCEEditorProps) => {
   const editorRef = useRef<TinyMCEEditorType | null>(null); // Update the type here
   const elementId = id || 'tiny-editor';
@@ -41,12 +42,14 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
         selector: `#${elementId}`,
         menubar: false,
         max_height: 400,
-        min_height: 200,
+        min_height: 100,
+        popup_container: 'body',
         plugins: [
           'autoresize',
           'table',
+          'lists'
         ],
-        toolbar: 'undo redo | formatselect | bold italic backcolor | ' +
+        toolbar: 'formatselect | bold italic backcolor | ' +
           'alignleft aligncenter alignright alignjustify | ' +
           'bullist numlist outdent indent | removeformat | help | table',
         content_style: `
@@ -60,6 +63,12 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
 
           editor.on('Change', () => {
             setContent(editor.getContent());
+
+            // Close all remaining open menus when content changes. 
+            const openMenus = document.querySelectorAll('.tox-pop, .tox-menu, .tox-toolbar__overflow');
+            openMenus.forEach(menu => {
+              (menu as HTMLElement).style.display = 'none';
+            });
           });
         }
       });
@@ -70,12 +79,13 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
 
     // Cleanup function when component unmounts
     return () => {
-      window.tinymce.remove(`#${elementId}`);
+      if (window.tinymce) {
+        window.tinymce.remove(`#${elementId}`);
+      }
       editorRef.current = null;
       setIsEditorReady(false);
-
     };
-  }, [elementId]);
+  }, [elementId]); // Add isMounted to dependencies
 
   // Update editor content when content prop changes
   useEffect(() => {

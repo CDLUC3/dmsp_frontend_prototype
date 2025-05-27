@@ -106,6 +106,14 @@ describe("CreateSectionPage", () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
+
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 
@@ -135,6 +143,8 @@ describe("CreateSectionPage", () => {
       );
     });
 
+    screen.debug(undefined, 1000000);
+
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('title');
     const editQuestionTab = screen.getByRole('tab', { name: 'tabs.editSection' });
@@ -143,14 +153,14 @@ describe("CreateSectionPage", () => {
     expect(editOptionsTab).toBeInTheDocument();
     const editLogicTab = screen.getByRole('tab', { name: 'tabs.logic' });
     expect(editLogicTab).toBeInTheDocument();
-    const sectionNameEditor = screen.getByRole('textbox', { name: /sectionName/i });
-    expect(sectionNameEditor).toBeInTheDocument();
-    const sectionIntroductionEditor = screen.getByRole('textbox', { name: /sectionIntroduction/i });
-    expect(sectionIntroductionEditor).toBeInTheDocument();
-    const sectionRequirementsEditor = screen.getByRole('textbox', { name: /sectionRequirements/i });
-    expect(sectionRequirementsEditor).toBeInTheDocument();
-    const sectionGuidanceEditor = screen.getByRole('textbox', { name: /sectionGuidance/i });
-    expect(sectionGuidanceEditor).toBeInTheDocument();
+    const sectionNameInput = screen.getByLabelText('labels.sectionName');
+    expect(sectionNameInput).toBeInTheDocument();
+    const sectionIntroductionLabel = screen.getByLabelText(/sectionIntroduction/i);
+    expect(sectionIntroductionLabel).toBeInTheDocument();
+    const sectionRequirementsLabel = screen.getByLabelText(/sectionRequirements/i);
+    expect(sectionRequirementsLabel).toBeInTheDocument();
+    const sectionGuidanceLabel = screen.getByLabelText(/sectionGuidance/i);
+    expect(sectionGuidanceLabel).toBeInTheDocument();
 
     // Check for the help text
     expect(screen.getByText('helpText.sectionIntroduction')).toBeInTheDocument();
