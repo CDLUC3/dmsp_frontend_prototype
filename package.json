@@ -33,8 +33,6 @@
     "@graphql-codegen/typescript-react-apollo": "^4.3.0",
     "@react-aria/toast": "^3.0.0-beta.18",
     "@react-stately/toast": "^3.0.0-beta.7",
-    "@remirror/pm": "^3.0.0",
-    "@remirror/react": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/parser": "^7.14.1",
     "classnames": "^2.5.1",
@@ -52,7 +50,6 @@
     "react": "^18",
     "react-aria-components": "^1.2.1",
     "react-dom": "^18",
-    "remirror": "^3.0.1",
     "sharp": "^0.33.5",
     "tinymce": "^7.8.0"
   },
