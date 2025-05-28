@@ -47,11 +47,13 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
         plugins: [
           'autoresize',
           'table',
-          'lists'
+          'lists',
+          'link'
         ],
         toolbar: 'formatselect | bold italic backcolor | ' +
           'alignleft aligncenter alignright alignjustify | ' +
-          'bullist numlist outdent indent | removeformat | help | table',
+          'bullist numlist outdent indent | ' +
+          'link unlink |removeformat | help | table',
         content_style: `
           @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
           body { font-family: "Poppins", sans-serif; color:#393939;};

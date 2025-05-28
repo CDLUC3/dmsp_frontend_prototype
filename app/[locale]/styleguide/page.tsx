@@ -1929,7 +1929,7 @@ function Page() {
               error={undefined}
               id="tinymce-test"
               labelId="_tinymce"
-              helpText="This is a tinymce test to try out the editor"
+              helpText="This is using the tinyMCE editor component"
             />
 
           </div>
@@ -1987,7 +1987,7 @@ function Page() {
               previewDisabled={false}
             >
               <LayoutWithPanel>
-                <ContentContainer>
+                <ContentContainer className="question-preview-container">
                   <p>This is an example of the content within the Question Preview</p>
 
                   <TextField
