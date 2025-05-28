@@ -14,7 +14,7 @@ interface TemplateSelectListItemProps {
     funder?: string | null;
     title: string;
     description?: string;
-    lastRevisedBy?: number;
+    lastRevisedBy?: string | null;
     lastUpdated?: string | null;
     hasAdditionalGuidance?: boolean;
   }

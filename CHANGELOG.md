@@ -31,6 +31,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated the templates cards on `/template` page to match the look of the cards on the `/template/create` page [#470]
 - Updated the "add new section" page to properly split our the affiliation's sections from best practice sections [#451]
 - Changed all instances of TemplateVisibility.PRIVATE to TemplateVisibility.ORGANIZATION to accomodate backend changes and also made update to `template/[templateId]` so that the `Version` and `Last updated` titles don't show in `description` when values are undefined [#466]
 - Updated `affiliations`, `myTemplates`, `publishedTemplates`, `myProjects` queries to handle the new pagination format. Updated the corresponding pages and components only enough to keep them working as-is [#180](https://github.com/CDLUC3/dmsp_backend_prototype/issues/180)
@@ -78,7 +79,6 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
--
 - Fixed issue with Template not refreshing after published [#455]
   - Added a server endpoint env variable for graphqlServerActionHandler.ts since env variables prefixed with NEXT_PUBLIC do not work on the server side [#455]
 - Added Rich Text Editor for Sample Text in the Question forms [#456]

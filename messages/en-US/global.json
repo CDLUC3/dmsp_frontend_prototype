@@ -140,6 +140,9 @@
     },
     "lastRevisedBy": "Last revised by",
     "lastUpdated": "Last updated",
+    "published": "Published",
+    "visibility": "Visibility",
+    "notPublished": "Not published",
     "buttons": {
       "search": "Search",
       "select": "Select",

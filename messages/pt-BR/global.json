@@ -140,6 +140,9 @@
     },
     "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
+    "published": "Publicado",
+    "visibility": "Visibilidade",
+    "notPublished": "Não publicado",
     "buttons": {
       "search": "Buscar",
       "select": "Select",

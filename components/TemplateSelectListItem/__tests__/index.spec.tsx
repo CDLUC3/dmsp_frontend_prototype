@@ -52,7 +52,7 @@ const props = {
     funder: 'NSF',
     title: 'NSF Dolphin Research',
     description: 'Researching dolphins in Fiji',
-    lastRevisedBy: 10,
+    lastRevisedBy: "Henry Ford",
     lastUpdated: '10-25-2025',
     hasAdditionalGuidance: true
   },
@@ -77,7 +77,7 @@ describe('TemplateSelectListItem', () => {
     expect(role).toBeInTheDocument();
     expect(description).toBeInTheDocument();
     expect(selectButton).toBeInTheDocument();
-    expect(screen.getByText('lastRevisedBy: 10')).toBeInTheDocument();
+    expect(screen.getByText('lastRevisedBy: Henry Ford')).toBeInTheDocument();
     expect(screen.getByText('lastUpdated: 10-25-2025')).toBeInTheDocument();
     expect(screen.getByText('messages.additionalGuidance')).toBeInTheDocument();
   });

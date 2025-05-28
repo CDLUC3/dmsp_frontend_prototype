@@ -70,8 +70,11 @@ export interface TemplateItemProps {
   funder?: string | null;
   funderUri?: string;
   lastUpdated?: string | null;
+  lastRevisedBy?: string | null;
   publishStatus?: string | null;
+  publishDate?: string | null;
   bestPractices?: boolean;
+  visibility?: string | null;
 }
 
 export interface PaginatedVersionedTemplateSearchResultsInterface {
@@ -101,6 +104,7 @@ export interface MyVersionedTemplatesInterface {
   description?: string | null;
   modified?: string | null;
   modifiedById?: number | null;
+  modifiedByName?: string | null;
   versionType?: string | null;
   visibility?: string | null;
   template?: {

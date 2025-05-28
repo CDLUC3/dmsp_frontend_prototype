@@ -140,6 +140,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     templates: PaginatedMyVersionedTemplatesInterface | PaginatedVersionedTemplateSearchResultsInterface | null
   ) => {
     const items = templates?.items || [];
+    console.log('Transforming templates:', items);
     const transformedTemplates = await Promise.all(
       items.map(async (template: MyVersionedTemplatesInterface | null) => ({
         id: template?.id,
@@ -159,7 +160,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         ) : null, // Set to null if no description or last modified data
         funder: template?.template?.owner?.name || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
-        lastRevisedBy: template?.modifiedById || null,
+        lastRevisedBy: template?.modifiedByName || null,
         publishStatus: template?.versionType,
         hasAdditionalGuidance: false,
         defaultExpanded: false,

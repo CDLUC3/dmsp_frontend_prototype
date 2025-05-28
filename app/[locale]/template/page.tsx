@@ -174,8 +174,11 @@ const TemplateListPage: React.FC = () => {
               ) : null, // Set to null if no description or last modified data
               funder: template?.ownerDisplayName,
               lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
+              lastRevisedBy: template?.modifiedByName,
               publishStatus: (template?.isDirty) ? 'Unpublished' : 'Published',
-              defaultExpanded: false
+              publishDate: (template?.latestPublishDate) ? formatDate(template?.latestPublishDate) : null,
+              defaultExpanded: false,
+              visibility: template?.visibility || null
             }
           }));
 
