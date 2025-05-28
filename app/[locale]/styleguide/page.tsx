@@ -38,7 +38,6 @@ import {
   TextField
 } from "react-aria-components";
 
-import { DmpEditor } from "@/components/Editor";
 import { DmpIcon } from "@/components/Icons";
 import TinyMCEEditor from '@/components/TinyMCEEditor';
 
@@ -381,7 +380,6 @@ function Page() {
           <a href="#_table">Table</a>
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
-          <a href="#_richtext">RichText Editor</a>
           <a href="#_tinymce">TinyMCE Editor</a>
           <a href="#_toast">Toast Messages</a>
           <a href="#_questionpreview">QuestionPreview Bottomsheet</a>
@@ -1908,26 +1906,6 @@ function Page() {
             </Example>
           </div>
 
-
-          <div id="_richtext">
-            <h2>ReMirror Editor (Custom)</h2>
-            <p>Required properties:</p>
-            <dl>
-              <dt><code>content</code></dt>
-              <dd>The variable that hold the html content for the editor.</dd>
-
-              <dt><code>setContent</code></dt>
-              <dd>The effect function that will update the content variable</dd>
-            </dl>
-            <p>Example Usage:</p>
-            <div><pre><code>
-              {`<DmpEditor content={editorContent} setContent={setEditorContent} \\>`}
-            </code></pre>
-            </div>
-            <hr />
-            <DmpEditor content={editorContent} setContent={setEditorContent} />
-          </div>
-
           <div id="_tinymce">
             <h2>TinyMCE Editor</h2>
             <p>Required properties:</p>
@@ -2005,7 +1983,9 @@ function Page() {
 
           <div id="_questionpreview">
             <h3>QuestionPreview</h3>
-            <QuestionPreview>
+            <QuestionPreview
+              previewDisabled={false}
+            >
               <LayoutWithPanel>
                 <ContentContainer>
                   <p>This is an example of the content within the Question Preview</p>
@@ -2022,7 +2002,7 @@ function Page() {
                     <FieldError />
                   </TextField>
 
-                  <DmpEditor content="<p>Example richtext field inside the preview bottomsheet</p>" setContent={() => { }} />
+                  <TinyMCEEditor content="<p>Example richtext field inside the preview bottomsheet</p>" setContent={() => { }} />
                 </ContentContainer>
 
                 <SidebarPanel>

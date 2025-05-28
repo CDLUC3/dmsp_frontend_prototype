@@ -133,6 +133,13 @@ describe("QuestionEditPage", () => {
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}`, q_slug: 67 });
 
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+
     // Mock the router
     mockRouter = { push: jest.fn() };
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
@@ -186,15 +193,15 @@ describe("QuestionEditPage", () => {
     expect(editOptionsTab).toBeInTheDocument();
     const editLogicTab = screen.getByRole('tab', { name: 'tabs.logic' });
     expect(editLogicTab).toBeInTheDocument();
-    const questionTypeLabel = screen.getByRole('textbox', { name: 'labels.type' });
+    const questionTypeLabel = screen.getByText(/labels.type/i);
     expect(questionTypeLabel).toBeInTheDocument();
-    const questionTextLabel = screen.getByRole('textbox', { name: 'labels.questionText' });
+    const questionTextLabel = screen.getByText(/labels.questionText/i);
     expect(questionTextLabel).toBeInTheDocument();
-    const questionRequirementTextLabel = screen.getByRole('textbox', { name: 'labels.requirementText' });
+    const questionRequirementTextLabel = screen.getByText(/labels.requirementText/i);
     expect(questionRequirementTextLabel).toBeInTheDocument();
-    const questionGuidanceTextLabel = screen.getByRole('textbox', { name: 'labels.guidanceText' });
+    const questionGuidanceTextLabel = screen.getByText(/labels.guidanceText/i);
     expect(questionGuidanceTextLabel).toBeInTheDocument();
-    const questionSampleTextLabel = screen.getByRole('textbox', { name: 'labels.sampleText' });
+    const questionSampleTextLabel = screen.getByText(/labels.sampleText/i);
     expect(questionSampleTextLabel).toBeInTheDocument();
     const sidebarHeading = screen.getByRole('heading', { level: 2 });
     expect(sidebarHeading).toHaveTextContent('headings.preview');
@@ -435,6 +442,23 @@ describe("QuestionEditPage", () => {
   })
 
   it('should pass axe accessibility test', async () => {
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '3' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '3' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
     (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },

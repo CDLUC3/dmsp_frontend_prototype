@@ -25,7 +25,6 @@ import {
 } from "@/components/Card/card";
 
 
-import { DmpEditor } from "@/components/Editor";
 import TinyMCEEditor from '@/components/TinyMCEEditor';
 import { Button } from "react-aria-components";
 

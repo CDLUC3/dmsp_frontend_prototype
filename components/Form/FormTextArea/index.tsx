@@ -8,7 +8,6 @@ import {
   TextArea,
   TextField,
 } from "react-aria-components";
-import { DmpEditor } from "@/components/Editor"; // Adjust path as needed
 import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 interface FormTextInputAreaProps {
@@ -32,7 +31,7 @@ interface FormTextInputAreaProps {
   errorMessage?: string;
   helpMessage?: string;
 
-  // If true, render DmpEditor; otherwise, render TextArea
+  // If true, render TinyMCEEditor; otherwise, render TextArea
   richText?: boolean;
 }
 
@@ -68,7 +67,7 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
     onChange?.(e.currentTarget.value); // Call the parent's onChange with the string value
   };
 
-  // The handler for the DmpEditor's setContent prop
+  // The handler for the TinyMCEEditor's setContent prop
   // It directly calls the unified onChange with the new content string
   const handleEditorContentChange = (newContent: string) => {
     onChange?.(newContent); // Call the parent's onChange with the string value

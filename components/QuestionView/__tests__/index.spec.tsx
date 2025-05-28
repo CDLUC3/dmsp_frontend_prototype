@@ -62,6 +62,12 @@ const mockHook = (hook: any) => hook as jest.Mock;
 
 describe("QuestionView", () => {
   beforeEach(() => {
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
     mockHook(useQuestionTypesQuery).mockReturnValue({
       data: mockQuestionTypes,
       loading: false,
@@ -86,17 +92,18 @@ describe("QuestionView", () => {
     expect(screen.getByTestId('question-card')).toBeInTheDocument();
   });
 
-  it('should render the textarea questiontype', async () => {
+  it('should render the textarea element with class "tiny-editor"', async () => {
     render(
       <QuestionView
         question={mockQuestion}
         isPreview={true}
         templateId={1}
-      />);
+      />
+    );
 
-    expect(
-      (screen.getByTestId('card-body').firstChild as HTMLElement)?.classList.contains('dmpEditor')
-    ).toBe(true);
+    const cardBody = screen.getByTestId('card-body');
+    const textarea = cardBody.querySelector('textarea.tiny-editor');
+    expect(textarea).toBeInTheDocument();
   });
 
   it('should pass axe accessibility test', async () => {

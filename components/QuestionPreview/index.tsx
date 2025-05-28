@@ -34,31 +34,31 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   const [ready, setReady] = useState<boolean>(false);
   const t = useTranslations('QuestionPreview');
 
-  // useEffect(() => {
-  //   const handlePopState = () => {
-  //     if (!isOpen && window.location.hash === `#${id}_modal`) {
-  //       setOpen(true);
-  //     } else {
-  //       setOpen(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const handlePopState = () => {
+      if (!isOpen && window.location.hash === `#${id}_modal`) {
+        setOpen(true);
+      } else {
+        setOpen(false);
+      }
+    };
 
-  //   window.addEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handlePopState);
 
-  //   if (window.location.hash === `#${id}_modal`) {
-  //     setOpen(true);
-  //   }
+    if (window.location.hash === `#${id}_modal`) {
+      setOpen(true);
+    }
 
-  //   // NOTE:
-  //   // Tell the rest of the component that we are ready,
-  //   // This is to prevent calling window.history.back() if the url with
-  //   // the modal id is pasted directly into the browser location.
-  //   setReady(true);
+    // NOTE:
+    // Tell the rest of the component that we are ready,
+    // This is to prevent calling window.history.back() if the url with
+    // the modal id is pasted directly into the browser location.
+    setReady(true);
 
-  //   return () => {
-  //     window.removeEventListener('popstate', handlePopState);
-  //   };
-  // }, []);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   // Close on click outside
   useEffect(() => {
@@ -89,19 +89,19 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
     };
   }, [isOpen]);
 
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     if (window.location.hash !== `#${id}_modal`) {
-  //       window.history.pushState(null, "", `#${id}_modal`);
-  //     }
-  //   } else {
-  //     if (ready) {
-  //       if (window.location.hash === `#${id}_modal`) {
-  //         window.history.back();
-  //       }
-  //     }
-  //   }
-  // }, [isOpen]);
+  useEffect(() => {
+    if (isOpen) {
+      if (window.location.hash !== `#${id}_modal`) {
+        window.history.pushState(null, "", `#${id}_modal`);
+      }
+    } else {
+      if (ready) {
+        if (window.location.hash === `#${id}_modal`) {
+          window.history.back();
+        }
+      }
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

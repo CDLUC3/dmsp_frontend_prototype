@@ -98,6 +98,7 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
     <div className={styles['tinyMCE-editor-container']}>
       <textarea
         id={elementId}
+        className={elementId}
         aria-label={id ?? 'Editor input area'}
         aria-labelledby={labelId ?? ''}
         aria-describedby={helpText ? `${elementId}-help-text` : ''}
