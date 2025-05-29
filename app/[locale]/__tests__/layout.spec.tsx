@@ -18,10 +18,6 @@ jest.mock('next/navigation', () => ({
   notFound: jest.fn(),
 }));
 
-// jest.mock('@/components/Header', () => () => <div>Mock Header</div>);
-// jest.mock('@/components/Footer', () => () => <div>Mock Footer</div>);
-// jest.mock('@/components/SubHeader', () => () => <div>Mock SubHeader</div>);
-
 jest.mock('@/components/Header', () => {
   const MockHeader = () => <div>Mock Header</div>;
   MockHeader.displayName = 'MockHeader';
