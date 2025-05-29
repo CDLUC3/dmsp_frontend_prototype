@@ -184,7 +184,6 @@ const PlanCreate: React.FC = () => {
 
   // Transform the templates data into more useable format
   const transformTemplates = async (templates: (PublicTemplatesInterface | null)[]) => {
-    console.log('Transforming templates:', templates);
     const transformedTemplates = await Promise.all(
       templates.map(async (template: PublicTemplatesInterface | null) => ({
         id: template?.id,
