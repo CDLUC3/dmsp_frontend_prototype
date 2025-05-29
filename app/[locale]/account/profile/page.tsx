@@ -399,7 +399,7 @@ const ProfilePage: React.FC = () => {
                 <div className={`sectionContent ${styles.section}`}>
                   <Form onSubmit={handleProfileSubmit}>
                     <ErrorMessages errors={errors} ref={errorRef} />
-                    <div className="form-row two-item-row">
+                    <div className={`${isEditing ? styles.formEditingRow : styles.formRow} ${`${isEditing ? styles.twoItemRowIsEditing : styles.twoItemRow}`}`}>
                       {isEditing ? (
                         <FormInput
                           name="givenName"
@@ -438,7 +438,7 @@ const ProfilePage: React.FC = () => {
 
                     </div>
 
-                    <div className="form-row one-item-row">
+                    <div className={`${styles.formRow} ${styles.oneItemRow}`}>
                       {isEditing ? (
                         <>
                           <TypeAheadWithOther
@@ -454,7 +454,7 @@ const ProfilePage: React.FC = () => {
                             value={formData.affiliationName}
                           />
                           {otherField && (
-                            <div className="form-row one-item-row">
+                            <div className={`${styles.formRow} ${styles.oneItemRow}`}>
                               <FormInput
                                 name="otherAffiliationName"
                                 type="text"
@@ -477,7 +477,7 @@ const ProfilePage: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="form-row one-item-row">
+                    <div className={`${styles.formRow} ${styles.oneItemRow}`}>
                       {isEditing ? (
                         <FormSelect
                           label="Language"
@@ -503,16 +503,16 @@ const ProfilePage: React.FC = () => {
                         </Text>
                       )}
                     </div>
-                    {isEditing ? (
-                      <div className={styles.btnContainer}>
-                        <Button className="secondary" onPress={cancelEdit}>{t('btnCancel')}</Button>
-                        <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? t('btnUpdating') : t('btnUpdate')}</Button>
-                      </div>
-                    ) : (
-                      <div className={styles.btnContainer}>
-                        <Button type="submit" onPress={handleEdit} className={styles.btn}>{t('btnEdit')}</Button>
-                      </div>
-                    )}
+                      {isEditing ? (
+                        <div className={styles.btnContainer}>
+                          <Button className="secondary" onPress={() => cancelEdit()}>{t('btnCancel')}</Button>
+                          <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? t('btnUpdating') : t('btnUpdate')}</Button>
+                        </div>
+                      ) : (
+                        <div className={styles.btnContainer}>
+                          <Button onPress={() => handleEdit()} className={styles.btnEdit}>{t('btnEdit')}</Button>
+                        </div>
+                      )}
                   </Form>
                 </div>
               </div>
