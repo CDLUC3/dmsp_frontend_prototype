@@ -13,7 +13,10 @@ import {mockScrollIntoView, mockScrollTo} from '@/__mocks__/common';
 expect.extend(toHaveNoViolations);
 
 jest.mock('next/navigation', () => ({
-  useRouter: jest.fn()
+  useRouter: jest.fn(),
+  useSearchParams: () => ({
+    get: jest.fn(),
+  })
 }));
 
 jest.mock('@/utils/clientLogger', () => ({

@@ -2,7 +2,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import {ApolloError} from '@apollo/client';
-import {useRouter} from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
 import Link from 'next/link';
 import {useLocale, useTranslations} from 'next-intl';
 import {usePathname} from '@/i18n/routing';
@@ -56,8 +56,12 @@ const ProfilePage: React.FC = () => {
   const pathname = usePathname();
   const currentLocale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+  //To control display of showSuccess toast message
+  const hasShownToastRef = useRef(false);
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -76,9 +80,17 @@ const ProfilePage: React.FC = () => {
   const [emailAddresses, setEmailAddresses] = useState<EmailInterface[]>([]);
   const [languages, setLanguages] = useState<LanguageInterface[]>([]);
 
-  const switchLanguage = (newLocale: string) => {
+  const switchLanguage = async (newLocale: string, showToast = false) => {
     if (newLocale !== currentLocale) {
-      const newPath = `/${newLocale}${pathname}`;
+      const params = new URLSearchParams();
+      // There was an issue with the toast message disappearing when switching languages, 
+      // so we added a query parameter to the URL to indicate that the profile was updated
+      if (showToast) {
+        params.set('profileUpdated', 'true');
+      }
+      const queryString = params.toString();
+      const basePath = `/${newLocale}${pathname}`;
+      const newPath = queryString ? `${basePath}?${queryString}` : basePath;
       router.push(newPath);
     }
   };
@@ -150,7 +162,7 @@ const ProfilePage: React.FC = () => {
         // Refresh token to include preferred language in token
         await refreshAuthTokens();
         // Update pathname to match the selected language so user can see page in selected language
-        switchLanguage(formData.languageId);
+        await switchLanguage(formData.languageId, true);
       }
     } catch (error) {
       if (error instanceof ApolloError) {
@@ -181,7 +193,6 @@ const ProfilePage: React.FC = () => {
     if (isFormValid()) {
       // Update profile
       await updateProfile();
-      showSuccessToast()
     }
   };
 
@@ -332,6 +343,25 @@ const ProfilePage: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleUpdate(e);
   };
+
+    // Check for query param to display toast message after page load/navigation
+    useEffect(() => {
+      // Check if the toast has already been shown
+      if (hasShownToastRef.current) return;
+
+      const profileUpdated = searchParams.get('profileUpdated');
+      // If the profile was updated, show the success toast once
+      if (profileUpdated === 'true') {
+        hasShownToastRef.current = true; // Prevent showing the toast again
+        showSuccessToast();
+        // Clean up the URL parameter
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('profileUpdated');
+        const basePath = `/${currentLocale}${pathname}`;
+        const newUrl = `${basePath}${newParams.toString() ? `?${newParams.toString()}` : ''}`;
+        router.replace(newUrl);
+      }
+    }, [searchParams, currentLocale, pathname]);
 
   // Handle errors from loading of user data
   useEffect(() => {
