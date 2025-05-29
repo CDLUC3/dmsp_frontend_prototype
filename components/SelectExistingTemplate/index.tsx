@@ -39,6 +39,7 @@ import {
   PaginatedMyVersionedTemplatesInterface,
   PaginatedVersionedTemplateSearchResultsInterface
 } from '@/app/types';
+import { toSentenceCase } from '@/utils/general';
 import {useFormatDate} from '@/hooks/useFormatDate';
 import {useToast} from '@/context/ToastContext';
 
@@ -140,7 +141,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     templates: PaginatedMyVersionedTemplatesInterface | PaginatedVersionedTemplateSearchResultsInterface | null
   ) => {
     const items = templates?.items || [];
-    console.log('Transforming templates:', items);
     const transformedTemplates = await Promise.all(
       items.map(async (template: MyVersionedTemplatesInterface | null) => ({
         id: template?.id,
@@ -164,9 +164,10 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         publishStatus: template?.versionType,
         hasAdditionalGuidance: false,
         defaultExpanded: false,
-        visibility: template?.visibility,
+        visibility: template?.visibility ? toSentenceCase(template.visibility) : ''
       }))
     );
+
     return transformedTemplates;
   };
 
@@ -228,7 +229,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
         const templates = publishedTemplatesData?.publishedTemplates ?? { items: [] };
         const publicTemplates = await transformTemplates(templates as PaginatedVersionedTemplateSearchResultsInterface);
-        const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'PUBLIC');
+        const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'Public');
         setPublicTemplatesList(transformedPublicTemplates);
       }
     }
@@ -252,6 +253,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       router.push('/template/create?step1');
     }
   }, [templateName])
+
 
   if (loading || publishedTemplatesLoading) {
     return <div>{Global('messaging.loading')}...</div>;

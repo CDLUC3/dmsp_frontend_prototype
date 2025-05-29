@@ -21,6 +21,7 @@ import { useTemplatesQuery, } from '@/generated/graphql';
 // Components
 import PageHeader from '@/components/PageHeader';
 import TemplateListItem from '@/components/TemplateListItem';
+import TemplateSelectListItem from '@/components/TemplateSelectListItem';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
@@ -28,6 +29,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { useScrollToTop } from '@/hooks/scrollToTop';
 
 import logECS from '@/utils/clientLogger';
+import { toSentenceCase } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import {
   TemplateSearchResultInterface,
@@ -112,7 +114,9 @@ const TemplateListPage: React.FC = () => {
       return [item.title,
         contentText,
       item.funder,
-      item.publishStatus
+      item.publishStatus,
+      item.visibility,
+      item.description
       ]
         .filter(Boolean)
         .some(field => field?.toLowerCase().includes(lowerCaseTerm));
@@ -163,22 +167,17 @@ const TemplateListPage: React.FC = () => {
         const items = templates?.items ?? [];
         const transformedTemplates = await Promise.all(
           items.map(async (template: TemplateSearchResultInterface | null) => {
+            console.log('Template:', template);
             return {
               title: template?.name || "",
-              link: routePath('template.show', { templateId: template?.id ?? '' }),
-              content: template?.description || template?.modified ? (
-                <div>
-                  <p>{template?.description}</p>
-                  <p>Last updated: {(template?.modified) ? formatDate(template?.modified) : null}</p>
-                </div>
-              ) : null, // Set to null if no description or last modified data
+              link: routePath('template.show', { templateId: template?.id ?? '' }) || '',
               funder: template?.ownerDisplayName,
               lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
               lastRevisedBy: template?.modifiedByName,
               publishStatus: (template?.isDirty) ? 'Unpublished' : 'Published',
               publishDate: (template?.latestPublishDate) ? formatDate(template?.latestPublishDate) : null,
               defaultExpanded: false,
-              visibility: template?.visibility || null
+              visibility: toSentenceCase(template?.visibility ? template?.visibility?.toString() : '')
             }
           }));
 
@@ -321,7 +320,7 @@ const TemplateListPage: React.FC = () => {
                   const isFirstInNextSection = index === visibleCount['templates'] - 3;
                   return (
                     <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
-                      <TemplateListItem
+                      <TemplateSelectListItem
                         key={index}
                         item={template} />
                     </div>

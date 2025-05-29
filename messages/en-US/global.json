@@ -175,7 +175,8 @@
     "links": {
       "clearFilter": "clear filter",
       "request": "Request",
-      "learnMore": "Learn more"
+      "learnMore": "Learn more",
+      "update": "Update"
     },
     "messaging": {
       "loading": "Loading",

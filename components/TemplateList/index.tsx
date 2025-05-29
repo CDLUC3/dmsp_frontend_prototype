@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useRef, useEffect} from 'react';
 import {Button, Link} from 'react-aria-components';
 import {useTranslations} from 'next-intl';
 import TemplateSelectListItem from "@/components/TemplateSelectListItem";
@@ -43,6 +43,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
   handleLoadMore,
   resetSearch
 }) => {
+
   const nextSectionRef = useRef<HTMLDivElement>(null);
   //Localization keys
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
@@ -60,6 +61,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
       }
     }, 0);
   }
+
   return (
     <>
       {(visibleCountKey === 'filteredTemplates' || visibleCountKey === 'filteredPublicTemplates') && (

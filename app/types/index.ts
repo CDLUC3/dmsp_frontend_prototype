@@ -65,7 +65,7 @@ export interface TemplateItemProps {
   title: string;
   content?: JSX.Element | null;
   description?: string;
-  link?: LinkHref;
+  link?: string | null;
   defaultExpanded: boolean;
   funder?: string | null;
   funderUri?: string;
