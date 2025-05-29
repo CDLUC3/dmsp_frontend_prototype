@@ -2002,7 +2002,11 @@ function Page() {
                     <FieldError />
                   </TextField>
 
-                  <TinyMCEEditor content="<p>Example richtext field inside the preview bottomsheet</p>" setContent={() => { }} />
+                  <TinyMCEEditor 
+                  id="question-editor-preview"
+                  content="<p>Example richtext field inside the preview bottomsheet</p>" 
+                  setContent={() => { }} 
+                  />
                 </ContentContainer>
 
                 <SidebarPanel>

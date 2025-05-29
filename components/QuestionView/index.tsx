@@ -107,6 +107,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardBody data-testid="card-body">
             {(questionType == 'Text Area') && (
               <TinyMCEEditor
+                id="question-text-editor"
                 content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
                 setContent={setEditorContent}
               />

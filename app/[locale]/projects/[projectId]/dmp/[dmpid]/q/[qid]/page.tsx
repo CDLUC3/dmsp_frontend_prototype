@@ -86,6 +86,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 </h2>
 
                 <TinyMCEEditor
+                  id="question-editor"
                   content={editorContent}
                   setContent={setEditorContent}
                 />

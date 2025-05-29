@@ -92,7 +92,7 @@ describe("QuestionView", () => {
     expect(screen.getByTestId('question-card')).toBeInTheDocument();
   });
 
-  it('should render the textarea element with class "tiny-editor"', async () => {
+  it('should render the textarea element with class "question-text-editor"', async () => {
     render(
       <QuestionView
         question={mockQuestion}
@@ -102,7 +102,7 @@ describe("QuestionView", () => {
     );
 
     const cardBody = screen.getByTestId('card-body');
-    const textarea = cardBody.querySelector('textarea.tiny-editor');
+    const textarea = cardBody.querySelector('textarea.question-text-editor');
     expect(textarea).toBeInTheDocument();
   });
 

@@ -16,7 +16,7 @@ declare global {
 interface TinyMCEEditorProps {
   content: string;
   setContent: (newContent: string) => void;
-  id?: string;
+  id: string;
   error?: string;
   labelId?: string;
   helpText?: string;
