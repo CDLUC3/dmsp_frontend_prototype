@@ -1,7 +1,7 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import TemplateSelectListItem from '../index';
 
 expect.extend(toHaveNoViolations);
@@ -54,7 +54,11 @@ const props = {
     description: 'Researching dolphins in Fiji',
     lastRevisedBy: "Henry Ford",
     lastUpdated: '10-25-2025',
-    hasAdditionalGuidance: true
+    hasAdditionalGuidance: true,
+    publishStatus: 'notPublished',
+    visibility: 'public',
+    publishDate: '10-25-2025',
+    link: '/templates/10',
   },
 }
 
@@ -79,6 +83,8 @@ describe('TemplateSelectListItem', () => {
     expect(selectButton).toBeInTheDocument();
     expect(screen.getByText('lastRevisedBy: Henry Ford')).toBeInTheDocument();
     expect(screen.getByText('lastUpdated: 10-25-2025')).toBeInTheDocument();
+    expect(screen.getByText(/notPublished.*(10-25-2025)/i)).toBeInTheDocument();
+    expect(screen.getByText(/visibility\s*:\s*Public/i)).toBeInTheDocument();
     expect(screen.getByText('messages.additionalGuidance')).toBeInTheDocument();
   });
 

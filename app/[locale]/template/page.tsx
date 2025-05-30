@@ -20,7 +20,6 @@ import { useTemplatesQuery, } from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
-import TemplateListItem from '@/components/TemplateListItem';
 import TemplateSelectListItem from '@/components/TemplateSelectListItem';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
@@ -161,13 +160,12 @@ const TemplateListPage: React.FC = () => {
 
 
   useEffect(() => {
-    // Transform templates into format expected by TemplateListItem component
+    // Transform templates into format expected by TemplateSelectListItem component
     if (data && data?.myTemplates) {
       const fetchAllTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
         const items = templates?.items ?? [];
         const transformedTemplates = await Promise.all(
           items.map(async (template: TemplateSearchResultInterface | null) => {
-            console.log('Template:', template);
             return {
               title: template?.name || "",
               link: routePath('template.show', { templateId: template?.id ?? '' }) || '',
@@ -297,7 +295,7 @@ const TemplateListPage: React.FC = () => {
                   const isFirstInNextSection = index === visibleCount['filteredTemplates'] - 3;
                   return (
                     <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
-                      <TemplateListItem
+                      <TemplateSelectListItem
                         key={index}
                         item={template} />
                     </div>

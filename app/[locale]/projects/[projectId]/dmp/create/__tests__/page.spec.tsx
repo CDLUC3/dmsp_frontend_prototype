@@ -1,14 +1,14 @@
 import React from 'react';
-import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import PlanCreate from '../page';
-import {useParams, useRouter} from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import {
   useAddPlanMutation,
   useProjectFundersQuery,
   usePublishedTemplatesQuery
 } from '@/generated/graphql';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {mockScrollIntoView, mockScrollTo} from '@/__mocks__/common';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { mockScrollIntoView, mockScrollTo } from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 
@@ -43,7 +43,8 @@ const mockPublishedTemplates = {
       name: "Agency for Healthcare Research and Quality",
       visibility: "PUBLIC",
       ownerDisplayName: "National Science Foundation (nsf.gov)",
-      ownerURI: "http://nsf.gov"
+      ownerURI: "http://nsf.gov",
+      modifiedByName: "John Doe",
     },
     {
       bestPractice: false,
@@ -52,7 +53,9 @@ const mockPublishedTemplates = {
       name: "Arctic Data Center: NSF Polar Programs",
       visibility: "PUBLIC",
       ownerDisplayName: "National Science Foundation (nsf.gov)",
-      ownerURI: "http://nsf.gov"
+      ownerURI: "http://nsf.gov",
+      modified: "2021-10-25 18:42:37",
+      modifiedByName: 'John Doe'
     },
     {
       bestPractice: false,
@@ -61,7 +64,9 @@ const mockPublishedTemplates = {
       name: "Data Curation Centre",
       visibility: "PUBLIC",
       ownerDisplayName: "National Institute of Health",
-      ownerURI: "http://nih.gov"
+      ownerURI: "http://nih.gov",
+      modified: "2021-10-25 18:42:37",
+      modifiedByName: 'John Doe'
     },
     {
       bestPractice: true,
@@ -70,7 +75,9 @@ const mockPublishedTemplates = {
       name: "Best Practice Template",
       visibility: "PUBLIC",
       ownerDisplayName: null,
-      ownerURI: null
+      ownerURI: null,
+      modified: "2021-10-25 18:42:37",
+      modifiedByName: 'John Doe'
     },
   ]
 }
@@ -125,6 +132,7 @@ describe('PlanCreate Component', () => {
         <PlanCreate />
       );
     });
+
     expect(screen.getByRole('heading', { name: /title/i })).toBeInTheDocument();
     expect(screen.getByLabelText('labels.searchByKeyword')).toBeInTheDocument();
     expect(screen.getByText('helpText.searchHelpText')).toBeInTheDocument();
@@ -138,8 +146,31 @@ describe('PlanCreate Component', () => {
     expect(screen.getByRole('checkbox', { name: /National Institute of Health/i })).toBeInTheDocument();
     // Expected three funder templates to display by default
     expect(screen.getByRole('heading', { level: 3, name: /Agency for Healthcare Research and Quality/i })).toBeInTheDocument();
+    const templateData = screen.getAllByTestId('template-metadata');
+    const lastRevisedBy1 = within(templateData[0]).getByText(/lastRevisedBy.*John Doe/);
+    const publishStatus1 = within(templateData[0]).getByText(/notPublished/);
+    const visibility1 = within(templateData[0]).getByText(/visibility.*PUBLIC/);
+    expect(lastRevisedBy1).toBeInTheDocument();
+    expect(publishStatus1).toBeInTheDocument();
+    expect(visibility1).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 3, name: /Arctic Data Center: NSF Polar Programs/i })).toBeInTheDocument();
+    const lastRevisedBy2 = within(templateData[1]).getByText(/lastRevisedBy.*John Doe/);
+    const lastUpdated2 = within(templateData[1]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus2 = within(templateData[1]).getByText(/notPublished/);
+    const visibility2 = within(templateData[1]).getByText(/visibility.*PUBLIC/);
+    expect(lastRevisedBy2).toBeInTheDocument();
+    expect(lastUpdated2).toBeInTheDocument();
+    expect(publishStatus2).toBeInTheDocument();
+    expect(visibility2).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 3, name: /Data Curation Centre/i })).toBeInTheDocument();
+    const lastRevisedBy3 = within(templateData[2]).getByText(/lastRevisedBy.*John Doe/);
+    const lastUpdated3 = within(templateData[2]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus3 = within(templateData[2]).getByText(/notPublished/);
+    const visibility3 = within(templateData[2]).getByText(/visibility.*PUBLIC/);
+    expect(lastRevisedBy3).toBeInTheDocument();
+    expect(lastUpdated3).toBeInTheDocument();
+    expect(publishStatus3).toBeInTheDocument();
+    expect(visibility3).toBeInTheDocument();
     // Should not show the best practice template on first load
     expect(screen.queryByRole('heading', { level: 3, name: /Best Practice Template/i })).not.toBeInTheDocument();
     expect(screen.getAllByText('buttons.select')).toHaveLength(3);

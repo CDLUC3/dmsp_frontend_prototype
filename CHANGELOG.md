@@ -31,6 +31,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated the template cards in `TemplateListPage` and `PlanCreate` components to use the `TemplateSelectListItem` component, which was updated to correctly display `ownerDisplayName`, `publish status` and `visibility` [#470]
 - Updated the templates cards on `/template` page to match the look of the cards on the `/template/create` page [#470]
 - Updated the "add new section" page to properly split our the affiliation's sections from best practice sections [#451]
 - Changed all instances of TemplateVisibility.PRIVATE to TemplateVisibility.ORGANIZATION to accomodate backend changes and also made update to `template/[templateId]` so that the `Version` and `Last updated` titles don't show in `description` when values are undefined [#466]

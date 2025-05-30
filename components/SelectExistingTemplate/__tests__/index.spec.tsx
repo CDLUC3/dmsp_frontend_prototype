@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import TemplateSelectTemplatePage from '../index';
@@ -68,9 +68,12 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-// Mock the debounce function
-jest.mock('@/hooks/useFormatDate', () => ({
-  useFormatDate: (fn: () => string) => fn,
+// Mock useFormatter from next-intl
+jest.mock('next-intl', () => ({
+  useFormatter: jest.fn(() => ({
+    dateTime: jest.fn(() => '01-01-2023'),
+  })),
+  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
 }));
 
 
@@ -82,12 +85,15 @@ const mockPublicTemplates = {
         errors: null,
         id: 1,
         modifiedById: 1,
+        modifiedByName: "User One",
         name: "Public template 1",
         owner: null,
         template: {
           id: 1,
           __typename: "Template",
         },
+        publishStatus: "PUBLISHED",
+        modified: "2018-01-30 18:18:28",
         visibility: "PUBLIC"
       },
       {
@@ -95,6 +101,8 @@ const mockPublicTemplates = {
         errors: null,
         id: 2,
         modifiedById: 2,
+        modifiedByName: "User Two",
+        modified: "2018-01-30 18:18:28",
         name: "Public template 2",
         owner: null,
         template: {
@@ -114,6 +122,8 @@ const mockTemplates = {
       errors: null,
       id: 3,
       modifiedById: 3,
+      modifiedByName: "User Three",
+      modified: "2018-01-30 18:18:28",
       name: "Public template 3",
       owner: {
         name: 'Institution',
@@ -131,6 +141,8 @@ const mockTemplates = {
       errors: null,
       id: 4,
       modifiedById: 4,
+      modifiedByName: "User Four",
+      modified: "2018-01-30 18:18:28",
       name: "Public template 4",
       owner: {
         name: 'Institution',
@@ -148,6 +160,8 @@ const mockTemplates = {
       errors: null,
       id: 5,
       modifiedById: 5,
+      modifiedByName: "User Five",
+      modified: "2018-01-30 18:18:28",
       name: "Odd template 5",
       owner: {
         name: 'Institution',
@@ -165,6 +179,7 @@ const mockTemplates = {
       errors: null,
       id: 6,
       modifiedById: 6,
+      modified: "2018-01-30 18:18:28",
       name: "Public template 6",
       owner: {
         name: 'Institution',
@@ -205,6 +220,7 @@ describe('TemplateSelectTemplatePage', () => {
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
+
     const input = screen.getByLabelText('labels.searchByKeyword');
     expect(input).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /public template 1/i })).toBeInTheDocument();
@@ -212,6 +228,23 @@ describe('TemplateSelectTemplatePage', () => {
     expect(screen.getByRole('heading', { name: /public template 3/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /public template 4/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /odd template 5/i })).toBeInTheDocument();
+    const templateData = screen.getAllByTestId('template-list-item');
+    const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*User Three/);
+    const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus = within(templateData[0]).getByText(/notPublished/);
+    const visibility = within(templateData[0]).getByText(/visibility\s*:\s*Public/i);
+    expect(lastRevisedBy).toBeInTheDocument();
+    expect(lastUpdated).toBeInTheDocument();
+    expect(publishStatus).toBeInTheDocument();
+    expect(visibility).toBeInTheDocument();
+    const lastRevisedBy1 = within(templateData[1]).getByText(/lastRevisedBy.*User Four/);
+    const lastUpdated1 = within(templateData[1]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus1 = within(templateData[1]).getByText(/notPublished/);
+    const visibility1 = within(templateData[1]).getByText(/visibility\s*:\s*Public/i);
+    expect(lastRevisedBy1).toBeInTheDocument();
+    expect(lastUpdated1).toBeInTheDocument();
+    expect(publishStatus1).toBeInTheDocument();
+    expect(visibility1).toBeInTheDocument();
   });
 
   it('should render text loading if templates are still loading', async () => {

@@ -219,7 +219,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }
 
   useEffect(() => {
-    // Transform templates into format expected by TemplateListItem component
+    // Transform templates into format expected by TemplateSelectListItem component
     const processTemplates = async () => {
       if (data && data?.myVersionedTemplates) {
         const templates = { items: data?.myVersionedTemplates ?? [] };
@@ -253,7 +253,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       router.push('/template/create?step1');
     }
   }, [templateName])
-
 
   if (loading || publishedTemplatesLoading) {
     return <div>{Global('messaging.loading')}...</div>;

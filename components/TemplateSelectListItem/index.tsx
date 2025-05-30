@@ -1,8 +1,8 @@
-import {Button} from 'react-aria-components';
-import {useTranslations} from 'next-intl';
+import { Button } from 'react-aria-components';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import styles from './TemplateSelectListItem.module.scss';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 interface TemplateSelectListItemProps {
   onSelect?: (versionedTemplateId: number) => Promise<void>;
@@ -25,7 +25,6 @@ interface TemplateSelectListItemProps {
 }
 
 function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps) {
-
   const toastState = useToast();
 
   //Localization keys
@@ -36,40 +35,40 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
   const headingId = `${item.title.toLowerCase().replace(/\s+/g, '-')}-heading`;
 
   return (
-    <div className={styles.templateItem} role="listitem">
+    <div className={styles.templateItem} role="listitem" data-testid="template-list-item">
       <div className={styles.TemplateItemInner}>
         <div className={styles.TemplateItemContent}>
           <div className={styles.funder}>{item.funder}</div>
           {onSelect ? (
-          <h3 className={styles.TemplateItemHeading}>{item.title}</h3>
-          ): (
+            <h3 className={styles.TemplateItemHeading}>{item.title}</h3>
+          ) : (
             <h3 id={headingId}>
-            {item.link ? (
-              <Link href={item.link} aria-label={`${Global('links.update')} ${item.title}`}
-                className={styles.titleLink}>
-                {item.title}
-              </Link>
-            ) : (
-              item.title
-            )}
-          </h3>
+              {item.link ? (
+                <Link href={item.link} aria-label={`${Global('links.update')} ${item.title}`}
+                  className={styles.titleLink}>
+                  {item.title}
+                </Link>
+              ) : (
+                item.title
+              )}
+            </h3>
           )}
           {item.description &&
             <p className={styles.description}>{item.description}</p>}
 
-          <div className={styles.metadata}>
+          <div className={styles.metadata} data-testid="template-metadata">
             <span>{Global('lastRevisedBy')}: {item.lastRevisedBy}</span>
             <span
               className={styles.separator}>{Global('lastUpdated')}: {item.lastUpdated}
-              </span>
-              <span
+            </span>
+            <span
               className={styles.separator}>
-                {item.publishStatus === 'Published' ? Global('published') : Global('notPublished')}
+              {item.publishStatus === 'Published' ? Global('published') : Global('notPublished')}
               {item?.publishDate ? ` (${item.publishDate})` : ''}
-              </span>
-              <span className={styles.separator}>
-                {Global('visibility')}: {item.visibility}
-                </span>
+            </span>
+            <span className={styles.separator}>
+              {Global('visibility')}: {item.visibility}
+            </span>
           </div>
 
           {item.hasAdditionalGuidance && (
@@ -84,31 +83,31 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
           )}
         </div>
 
-{onSelect ? (
-  <Button
-  onPress={async () => {
-    if (typeof item?.id === 'number') {
-      await onSelect(item.id);
-    } else {
-      toastState.add('Invalid template', { type: 'error' })
-    }
-  }}
-  aria-label={`Select ${item.title}`}
-  data-versioned-template-id={item?.id}
->
-  {Global('buttons.select')}
-</Button>
-): (
-  <div className={styles.TemplateItemActions}>
-          {item.link && (
-            <Link href={item.link} aria-label={`${Global('links.update')} ${item.title}`}
-              className={styles.updateLink}>
-              {Global('links.update')}
-            </Link>
-          )}
-        </div>
-)}
-      
+        {onSelect ? (
+          <Button
+            onPress={async () => {
+              if (typeof item?.id === 'number') {
+                await onSelect(item.id);
+              } else {
+                toastState.add('Invalid template', { type: 'error' })
+              }
+            }}
+            aria-label={`Select ${item.title}`}
+            data-versioned-template-id={item?.id}
+          >
+            {Global('buttons.select')}
+          </Button>
+        ) : (
+          <div className={styles.TemplateItemActions}>
+            {item.link && (
+              <Link href={item.link} aria-label={`${Global('links.update')} ${item.title}`}
+                className={styles.updateLink}>
+                {Global('links.update')}
+              </Link>
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );
