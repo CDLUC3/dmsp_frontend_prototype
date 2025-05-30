@@ -626,7 +626,7 @@
 
 
 /* Desktop layout */
-@media (min-width: 768px) {
+@include device('md') {
   .searchSection {
     grid-template-columns: 1fr auto;
     grid-template-areas: "search filters";
