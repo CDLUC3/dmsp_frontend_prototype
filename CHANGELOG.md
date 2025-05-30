@@ -1,3 +1,7 @@
+### Updated
+- Clean up connections page and buttons [#516]
+
+
 ## v0.0.1
 - Plan Manage Access [#299]
 - Plan Publish [#299]
