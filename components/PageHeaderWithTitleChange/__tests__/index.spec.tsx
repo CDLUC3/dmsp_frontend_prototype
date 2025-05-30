@@ -10,8 +10,8 @@ describe('PageHeaderWithTitleChange', () => {
   beforeEach(() => {
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
   });
-  const mockHandleTitleChange = jest.fn();
-  const mockHandleInputChange = jest.fn();
+
+  const mockOnTitleChange = jest.fn();
 
   const defaultProps = {
     title: 'Test Title',
@@ -20,9 +20,7 @@ describe('PageHeaderWithTitleChange', () => {
     breadcrumbs: <div>Mock Breadcrumbs</div>,
     actions: <button>Mock Action</button>,
     className: 'test-class',
-    handleTitleChange: mockHandleTitleChange,
-    handleInputChange: mockHandleInputChange,
-    newTitle: 'New Test Title',
+    onTitleChange: mockOnTitleChange,
   };
 
   it('should render the component with default props', () => {
@@ -50,24 +48,41 @@ describe('PageHeaderWithTitleChange', () => {
     // Check if the input field is rendered
     const input = screen.getByPlaceholderText('Enter new template title');
     expect(input).toBeInTheDocument();
-
-    // Simulate typing in the input field
-    fireEvent.change(input, { target: { value: 'Updated Title' } });
-    expect(mockHandleInputChange).toHaveBeenCalled();
   });
 
-  it('should call handleTitleChange on form submission', () => {
+  it('should ignore the callback if the title did not change', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
 
     // Click the "Edit template name" button
     fireEvent.click(screen.getByText('Edit template name'));
+
+    // NOTE: We deliberately do not change the title text before we submit
+    // because we need to test that the callback was NOT called
 
     // Submit the form
     const saveButton = screen.getByText('buttons.save');
     fireEvent.click(saveButton);
 
     // Check if handleTitleChange was called
-    expect(mockHandleTitleChange).toHaveBeenCalled();
+    expect(mockOnTitleChange).not.toHaveBeenCalled();
+  });
+
+  it('should call onTitleChange on form submission', () => {
+    render(<PageHeaderWithTitleChange {...defaultProps} />);
+
+    // Click the "Edit template name" button
+    fireEvent.click(screen.getByText('Edit template name'));
+
+    // Change the title Text
+    const input = screen.getByPlaceholderText('Enter new template title');
+    fireEvent.change(input, { target: { value: 'Updated Title' } });
+
+    // Submit the form
+    const saveButton = screen.getByText('buttons.save');
+    fireEvent.click(saveButton);
+
+    // Check if handleTitleChange was called
+    expect(mockOnTitleChange).toHaveBeenCalled();
   });
 
   it('should cancel editing when the cancel button is clicked', () => {
