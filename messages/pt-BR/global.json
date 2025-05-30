@@ -94,6 +94,31 @@
       "emailAddressUpdateSuccess": "O e-mail foi adicionado com sucesso ao seu perfil."
     }
   },
+  "UserConnections": {
+    "breadcrumbHome": "Início",
+    "breadcrumbProfile": "Perfil do usuário",
+    "breadcrumbConnections": "Conexões",
+    "title": "Conexões",
+    "orcidConnection": {
+      "title": "ORCID iD",
+      "content": "O ORCID fornece um identificador persistente — um ORCID iD — que distingue você de outros usuários. Saiba mais em <link>ORCID.org</link>.",
+      "btnText": "Conectar seu ORCID iD"
+    },
+    "orcidConnectionConnected": {
+      "title": "ORCID iD",
+      "content": "Seu ORCID iD foi conectado com sucesso. Saiba mais ou gerencie seu registro em <link>ORCID.org</link>.",
+      "btnText": "Ver ORCID iD"
+    },
+    "ssoConnection": {
+      "title": "Login Único (SSO)",
+      "content": "Conecte sua conta para poder acessar o DMP Tool por meio da sua instituição.",
+      "btnText": "Conectar credenciais institucionais"
+    },
+    "headingRelatedActions": "Ações relacionadas",
+    "linkUpdatePassword": "Atualizar senha",
+    "linkUpdateConnections": "Atualizar conexões",
+    "linkManageNotifications": "Gerenciar notificações"
+  },
   "TemplateHistory": {
     "title": "Primary Light",
     "subHeading": "História",

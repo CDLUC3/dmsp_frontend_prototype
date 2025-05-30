@@ -1,16 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, {useState} from 'react';
 import ButtonWithImage from '../ButtonWithImage';
 import TooltipWithDialog from '../TooltipWithDialog';
-import { ModalOverlayComponent } from '../ModalOverlayComponent';
-import { DmpIcon } from '@/components/Icons';
+import {ModalOverlayComponent} from '../ModalOverlayComponent';
+import {DmpIcon} from '@/components/Icons';
 import styles from './connectionSection.module.scss';
 import connectionData from './connection-types.json';
 
-import {
-  PressEvent
-} from 'react-aria-components';
+import {PressEvent} from 'react-aria-components';
 
 interface ConnectionSectionProps {
   type: string;
@@ -59,9 +57,12 @@ const ConnectionSection = ({
 
   return (
     <>
-      {(type === 'orcidtest') ? (
+      {(type === 'orcidconnected') ? (
         <div className={styles.connectionSection}>
-          <h2>{title}</h2>
+          <h2 className={"h3"}>{title}</h2>
+          {content && (
+            <p dangerouslySetInnerHTML={{ __html: content }} />
+          )}
           <TooltipWithDialog
             text="0000-0001-2345-6789"
             tooltipText={tooltipText}
@@ -78,7 +79,7 @@ const ConnectionSection = ({
         </div >
       ) : (
         <div className={styles.connectionSection}>
-          <h2>{title}</h2>
+          <h2 className={"h3"}>{title}</h2>
           {content && (
             <p dangerouslySetInnerHTML={{ __html: content }} />
           )}
