@@ -7,9 +7,9 @@ import {
   waitFor,
   within
 } from '@/utils/test-utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import UpdateEmailAddress from '..';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import {useTranslations as OriginalUseTranslations} from 'next-intl';
 import {
   MeDocument,
   useAddUserEmailMutation,
@@ -17,7 +17,7 @@ import {
   useSetPrimaryUserEmailMutation
 } from '@/generated/graphql';
 import logECS from '@/utils/clientLogger';
-import { NextIntlClientProvider } from 'next-intl';
+import {routePath} from '@/utils/routes';
 
 expect.extend(toHaveNoViolations);
 
@@ -144,8 +144,9 @@ describe('UpdateEmailAddressPage', () => {
       expect(screen.getByText('emailAndAuth')).toBeInTheDocument();
       const headingElement1 = screen.getByRole('heading', { name: 'headingPrimaryEmail' });
       const headingElement2 = screen.getByRole('heading', { name: 'headingAliasEmailAddr' });
-      const headingElement3 = screen.getByRole('heading', { name: 'headingSSO' })
-      const headingElement4 = screen.getByRole('heading', { name: 'headingNotifications' });
+      // Updated lines for the <p> tags:
+      const headingElement3 = screen.getByText('headingSSO');
+      const headingElement4 = screen.getByText('headingNotifications');
       expect(headingElement1).toBeInTheDocument();
       expect(headingElement2).toBeInTheDocument();
       expect(headingElement3).toBeInTheDocument();
@@ -258,12 +259,13 @@ describe('UpdateEmailAddressPage', () => {
     });
 
     // Verify logECS was called with correct parameters
+    const expectedPath = routePath('account.profile');
     expect(logECS).toHaveBeenCalledWith(
       'error',
       'deleteEmail',
       {
         error: generalError,
-        url: { path: '/account/profile' }
+        url: { path: expectedPath }
       }
     );
   });
@@ -322,12 +324,13 @@ describe('UpdateEmailAddressPage', () => {
     });
 
     // Verify logECS was called with correct parameters
+    const expectedPath = routePath('account.profile');
     expect(logECS).toHaveBeenCalledWith(
       'error',
       'handleAddingAlias',
       {
         error: generalError,
-        url: { path: '/account/profile' }
+        url: { path: expectedPath }
       }
     );
   });
@@ -380,12 +383,13 @@ describe('UpdateEmailAddressPage', () => {
     });
 
     // Verify logECS was called with correct parameters
+    const expectedPath = routePath('account.profile');
     expect(logECS).toHaveBeenCalledWith(
       'error',
       'makePrimaryEmail',
       {
         error: generalError,
-        url: { path: '/account/profile' }
+        url: { path: expectedPath }
       }
     );
   });
