@@ -39,8 +39,8 @@ import {
   PaginatedMyVersionedTemplatesInterface,
   PaginatedVersionedTemplateSearchResultsInterface
 } from '@/app/types';
-import {useFormatDate} from '@/hooks/useFormatDate';
-import {useToast} from '@/context/ToastContext';
+import { useFormatDate } from '@/hooks/useFormatDate';
+import { useToast } from '@/context/ToastContext';
 
 
 // Step 2 of the Create Template start pages
@@ -283,8 +283,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         <ContentContainer>
           <>
             <ErrorMessages errors={errors} ref={errorRef} />
-
-            <div className="Filters" role="search" ref={topRef}>
+            <div className="searchSection" role="search" ref={topRef}>
               <SearchField aria-label="Template search">
                 <Label>{Global('labels.searchByKeyword')}</Label>
                 <Input

@@ -578,23 +578,97 @@
   }
 }
 
-.Filters {
-  margin: 1rem 0;
-  display: grid;
-  gap: 20px;
-  grid-template-columns: 1fr 1fr;
-}
+// .Filters {
+//   margin: 1rem 0;
+//   display: grid;
+//   gap: 20px;
+//   grid-template-columns: 1fr 1fr;
+// }
+
+// .searchSection {
+//   display: grid;
+//   grid-template-columns: 1fr;  /* Single column by default (mobile) */
+//   gap: 20px;
+
+// }
+
+// @media (min-width: 768px) {
+//   .searchSection {
+//     grid-template-columns: 1fr 1fr;  /* Two equal columns on larger screens */
+//   }
+// }
 
 .searchSection {
   display: grid;
-  grid-template-columns: 1fr;  /* Single column by default (mobile) */
-  gap: 20px;
-
+  gap: 1rem;
+  /* Mobile-first: single column */
+  grid-template-columns: 1fr;
+  grid-template-areas: 
+    "search"
+    "filters";
 }
 
+.react-aria-SearchField {
+  grid-area: search;
+  display: grid;
+  gap: 0.5rem;
+  /* Mobile layout for search field */
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "label"
+    "input"
+    "help" 
+    "button";
+  max-width: 500px;
+
+  .react-aria-Label {
+    grid-area: label;
+  }
+  
+  .help {
+    grid-area: help;
+  }
+  
+  .react-aria-Input {
+    grid-area: input;
+    min-width: 250px;
+  }
+  
+  .react-aria-Button {
+    grid-area: button;
+    justify-self: start; /* Prevents button from stretching full width */
+  }
+  
+  .checkbox-group {
+    grid-area: filters;
+  }
+}
+
+
+
+/* Desktop layout */
 @media (min-width: 768px) {
   .searchSection {
-    grid-template-columns: 1fr 1fr;  /* Two equal columns on larger screens */
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "search filters";
+    align-items: start;
+  }
+  
+  .react-aria-SearchField {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "label label"
+      "input button"
+      "help help";
+    align-items: end; /* Aligns input and button to bottom */
+  }
+  
+  .react-aria-Button {
+    margin-left: 0;
+  }
+  
+  .checkbox-group {
+    justify-self: end; /* Aligns checkbox group to the right */
   }
 }
 
