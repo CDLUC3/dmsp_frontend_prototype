@@ -578,26 +578,6 @@
   }
 }
 
-// .Filters {
-//   margin: 1rem 0;
-//   display: grid;
-//   gap: 20px;
-//   grid-template-columns: 1fr 1fr;
-// }
-
-// .searchSection {
-//   display: grid;
-//   grid-template-columns: 1fr;  /* Single column by default (mobile) */
-//   gap: 20px;
-
-// }
-
-// @media (min-width: 768px) {
-//   .searchSection {
-//     grid-template-columns: 1fr 1fr;  /* Two equal columns on larger screens */
-//   }
-// }
-
 .searchSection {
   display: grid;
   gap: 1rem;
@@ -612,7 +592,6 @@
   grid-area: search;
   display: grid;
   gap: 0.5rem;
-  /* Mobile layout for search field */
   grid-template-columns: 1fr;
   grid-template-areas:
     "label"
