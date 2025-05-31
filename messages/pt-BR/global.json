@@ -66,6 +66,7 @@
     "givenName": "Primeiro nome",
     "surName": "Sobrenome",
     "institution": "Instituição",
+    "otherInstitution": "Outra instituição",
     "language": "Idioma",
     "headingPrimaryEmail": "Endereço de e-mail principal",
     "headingSSO": "Logon único ativado",

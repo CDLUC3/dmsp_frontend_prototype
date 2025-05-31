@@ -66,6 +66,7 @@
     "givenName": "First name",
     "surName": "Last name",
     "institution": "Institution",
+    "otherInstitution": "Other institution",
     "language": "Language",
     "headingPrimaryEmail": "Primary email address",
     "headingSSO": "Single sign on activated",
