@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React, {ReactNode} from 'react';
+import {render, screen, waitFor} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ConnectionSection from '..';
 
@@ -22,12 +22,12 @@ jest.mock('../../TooltipWithDialog', () => {
 });
 
 jest.mock('../connection-types.json', () => ({
-  orcidtest: { tooltipText: 'Test Tooltip', content: 'Test Content' }
+  orcidconnected: { tooltipText: 'Test Tooltip', content: 'Test Content' }
 }));
 
 describe('ConnectionSection', () => {
   const mockProps = {
-    type: 'orcidtest',
+    type: 'orcidconnected',
     title: 'Test Title',
     content: 'Test Content',
     btnUrl: 'https://example.com',
@@ -39,8 +39,8 @@ describe('ConnectionSection', () => {
     localStorage.clear();
   });
 
-  it('should render TooltipWithDialog when type is of orcidtest', () => {
-    localStorage.setItem('connectionDataorcidtest', JSON.stringify({ id: 'testId', token: 'testToken' }));
+  it('should render TooltipWithDialog when type is of orcidconnected', () => {
+    localStorage.setItem('connectionDataorcidconnected', JSON.stringify({ id: 'testId', token: 'testToken' }));
     render(<ConnectionSection {...mockProps} />);
     waitFor(() => {
       expect(screen.getByTestId('tooltip-with-dialog')).toBeInTheDocument();
@@ -50,7 +50,7 @@ describe('ConnectionSection', () => {
     })
   });
 
-  it('should not render TooltipWithDialog it is not the orcidtest type', () => {
+  it('should not render TooltipWithDialog it is not the orcidconnected type', () => {
     render(<ConnectionSection {...mockProps} />);
     waitFor(() => {
       expect(screen.getByTestId('tooltip-with-dialog')).not.toBeInTheDocument();

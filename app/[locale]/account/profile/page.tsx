@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from '@apollo/client';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, {useEffect, useRef, useState} from 'react';
+import {ApolloError} from '@apollo/client';
+import {useRouter, useSearchParams} from 'next/navigation';
 import Link from 'next/link';
-import { useLocale, useTranslations } from 'next-intl';
-import { usePathname } from '@/i18n/routing';
+import {useLocale, useTranslations} from 'next-intl';
+import {usePathname} from '@/i18n/routing';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -28,7 +28,7 @@ import {
 import PageHeader from '@/components/PageHeader';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import { FormSelect } from '@/components/Form/FormSelect';
+import {FormSelect} from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
 import {
   ContentContainer,
@@ -46,8 +46,8 @@ import {
 
 // Utils and other
 import logECS from '@/utils/clientLogger';
-import { refreshAuthTokens } from "@/utils/authHelper";
-import { useToast } from '@/context/ToastContext';
+import {refreshAuthTokens} from "@/utils/authHelper";
+import {useToast} from '@/context/ToastContext';
 import styles from './profile.module.scss';
 import {routePath} from '@/utils/routes';
 

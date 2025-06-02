@@ -1,4 +1,7 @@
 ### Updated
+- Clean up connections page and buttons [#516]
+
+### Updated
 - Added spacing on the `Account Profile` for the demo [#509]
 - Updated `Account Profile` to use routePath() instead of hardcoded paths
 - fix translation string to use the correct tags for the `Account Profile` [#515]

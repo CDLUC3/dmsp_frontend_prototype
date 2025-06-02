@@ -1,6 +1,6 @@
 import React from 'react';
-import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import {act, fireEvent, render, screen, within} from '@/utils/test-utils';
+import {axe, toHaveNoViolations} from 'jest-axe';
 import ProfilePage from '../page';
 import {
   useLanguagesQuery,
@@ -8,7 +8,7 @@ import {
   useUpdateUserProfileMutation
 } from '@/generated/graphql';
 
-import { mockScrollIntoView, mockScrollTo } from '@/__mocks__/common';
+import {mockScrollIntoView, mockScrollTo} from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 
