@@ -1,6 +1,6 @@
-import React, {ReactNode} from 'react';
-import {act, render, screen, waitFor} from '@testing-library/react';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import React, { ReactNode } from 'react';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import ConnectionsPage from '../page';
 
 expect.extend(toHaveNoViolations);
@@ -16,6 +16,7 @@ jest.mock('@/components/PageHeader', () => {
 });
 jest.mock('next-intl', () => {
   const t = (key: string) => key;
+  /* eslint-disable no-unused-vars */
   t.markup = (key: string, values: Record<string, (chunks: string) => string>) => {
     // Simulate interpolation of the `link` function
     const chunks = key; // Simplified, in real case you'd simulate how the lib works

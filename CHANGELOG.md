@@ -87,6 +87,7 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+- Fixed breaking build by addressing a type error
 - Fixed missing translations on User Profile page [#488]
 - Fixed issue with TypeAheadWithOther dropdown menu displaying when user clicks the `Edit` button on `User profile` page [#511]
 - Fixed issue with Template not refreshing after published [#455]

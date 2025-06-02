@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react';
-import sanitizeHtml from 'sanitize-html';
 import ConnectionSection from '@/components/ConnectionSection';
 import PageHeader from '@/components/PageHeader';
 import {
@@ -9,9 +8,9 @@ import {
   LayoutWithPanel,
   SidebarPanel,
 } from '@/components/Container';
-import {Breadcrumb, Breadcrumbs} from "react-aria-components";
+import { Breadcrumb, Breadcrumbs } from "react-aria-components";
 import Link from "next/link";
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 import styles from "@/app/[locale]/account/profile/profile.module.scss";
 
 const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
