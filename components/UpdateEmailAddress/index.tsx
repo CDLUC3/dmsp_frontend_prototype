@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { Button, Form, } from "react-aria-components";
-import { ApolloError } from "@apollo/client";
+import {useTranslations} from 'next-intl';
+import {Button, Form,} from "react-aria-components";
+import {ApolloError} from "@apollo/client";
 
 // Graphql mutations
 import {
@@ -18,11 +18,12 @@ import EmailAddressRow from '@/components/EmailAddressRow';
 import FormInput from '@/components/Form/FormInput';
 import ErrorMessages from '@/components/ErrorMessages';
 //Interfaces
-import { EmailInterface } from '@/app/types';
+import {EmailInterface} from '@/app/types';
 // Utils and other
 import logECS from '@/utils/clientLogger';
 import styles from './updateEmailAddress.module.scss';
-import { useToast } from '@/context/ToastContext';
+import {useToast} from '@/context/ToastContext';
+import {routePath} from '@/utils/routes';
 
 const GET_USER = MeDocument;
 
@@ -31,8 +32,8 @@ export interface UpdateEmailAddressProps {
 }
 
 const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
-  emailAddresses,
-}) => {
+                                                                 emailAddresses,
+                                                               }) => {
   const t = useTranslations('UserProfile');
   const toastState = useToast(); // Access the toast state from context
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -41,8 +42,8 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
   // Initialize graphql mutations for component
   const [setPrimaryUserEmailMutation] = useSetPrimaryUserEmailMutation();
-  const [addUserEmailMutation, { error: addUserEmailError }] = useAddUserEmailMutation();
-  const [removeUserEmailMutation, { error: deleteEmailError }] = useRemoveUserEmailMutation();
+  const [addUserEmailMutation, {error: addUserEmailError}] = useAddUserEmailMutation();
+  const [removeUserEmailMutation, {error: deleteEmailError}] = useRemoveUserEmailMutation();
 
   const clearErrors = () => {
     setErrors({});
@@ -86,10 +87,13 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         });
       } else {
         // Display other errors
-        setErrors(prevErrors => ({ ...prevErrors, general: 'Error when setting primary email' }));
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          general: 'Error when setting primary email'
+        }));
         logECS('error', 'makePrimaryEmail', {
           error: err,
-          url: { path: '/account/profile' }
+          url: {path: routePath('account.profile')}
         });
       }
     }
@@ -99,7 +103,11 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   // Show Success Message
   const showSuccessToast = () => {
     const successMessage = t('messages.emailAddressUpdateSuccess');
-    toastState.add(successMessage, { type: 'success', priority: 1, timeout: 10000 });
+    toastState.add(successMessage, {
+      type: 'success',
+      priority: 1,
+      timeout: 10000
+    });
   }
   // Adding new email alias
   const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -147,10 +155,13 @@ calling 'refetch()' for the user query, but that didn't work. */
         setAddAliasValue('');
       } else {
         // Display other errors
-        setErrors(prevErrors => ({ ...prevErrors, general: 'Error when adding new email' }));
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          general: 'Error when adding new email'
+        }));
         logECS('error', 'handleAddingAlias', {
           error: err,
-          url: { path: '/account/profile' }
+          url: {path: routePath('account.profile')}
         });
       }
     }
@@ -193,13 +204,17 @@ calling 'refetch()' for the user query, but that didn't work. */
         })
       } else {
         // Display other errors
-        setErrors(prevErrors => ({ ...prevErrors, general: 'Error when deleting email' }));
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          general: 'Error when deleting email'
+        }));
         logECS('error', 'deleteEmail', {
           error: err,
-          url: { path: '/account/profile' }
+          url: {path: routePath('account.profile')}
         });
       }
-    };
+    }
+    ;
   }
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,9 +236,10 @@ calling 'refetch()' for the user query, but that didn't work. */
       <div className="sectionContainer">
         <div className="sectionContent">
           <div className={styles.subSection}>
-            <ErrorMessages errors={errors.general ? [errors.general] : []} ref={errorRef} />
+            <ErrorMessages errors={errors.general ? [errors.general] : []}
+                           ref={errorRef}/>
             <h3>{t('headingPrimaryEmail')}</h3>
-            <p>{t('primaryEmailDesc')}</p>
+            <p className={"my-1 pb-0"}>{t('primaryEmailDesc')}</p>
 
             {/* Render the primary email */}
             {emailAddresses.filter(emailObj => emailObj.isPrimary).map((emailObj) => (
@@ -236,15 +252,22 @@ calling 'refetch()' for the user query, but that didn't work. */
                 toolTipMessage="Primary email cannot be deleted."
               />
             ))}
-            <h4>{t('headingSSO')}</h4>
-            <p>{t('SSODesc')}</p>
-            <h4>{t('headingNotifications')}</h4>
-            <p>        {t.rich('notificationsDesc', {
-              manage: (chunks) => <Link href="">{chunks}</Link>
-            })}</p>
+            <div className="mt-2">
+              <p className={"mb-1 pb-0"}><strong>{t('headingSSO')}</strong></p>
+              <p className={"my-0 pb-0"}>{t('SSODesc')}</p>
+
+              <p className={"mb-1 pb-0"}>
+                <strong>{t('headingNotifications')}</strong></p>
+              <p className={"my-0 pb-4"}>{t.rich('notificationsDesc', {
+                manage: (chunks) => <Link
+                  href={routePath('account.notifications')}
+                  target="_blank">{chunks}</Link>
+              })}</p>
+            </div>
+            <hr/>
           </div>
           <div className={styles.subSection}>
-            <hr />
+
             <h3>{t('headingAliasEmailAddr')}</h3>
             <p>{t('aliasEmailDesc')}</p>
 
@@ -257,14 +280,14 @@ calling 'refetch()' for the user query, but that didn't work. */
                 makePrimaryEmail={makePrimaryEmail}
               />
             ))}
-            <hr />
+
             <Form onSubmit={e => handleAddingAlias(e)}>
               <div className={styles.addContainer}>
                 <FormInput
                   name="addAlias"
                   type="text"
                   label={t('headingAddAliasEmail')}
-                  className={`${styles.addAliasTextField} react - aria - TextField`}
+                  className={`${styles.addAliasTextField} react-aria-TextField`}
                   isInvalid={errors?.email ? true : false}
                   errorMessage={errors?.email ?? ''}
                   helpMessage={t('helpTextForAddAlias')}

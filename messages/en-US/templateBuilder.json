@@ -117,7 +117,9 @@
       "buildNewSection": "Build a new section"
     },
     "buttons": {
-      "createNew": "Create new section"
+      "createNew": "Create new section",
+      "loadMore": "Load {name} more",
+      "load6More": "Load 6 more"
     },
     "search": {
       "label": "Search by keyword",
@@ -125,7 +127,8 @@
     },
     "intro": "You have three options. You can use a section you created previously, use a DMP Tool best practice section or build a new section. All sections are customizable once selected.",
     "newSectionDescription": "Build a new section from scratch. You can add questions, instructions, and other content to your section, we highly recommend using the best practice sections.",
-    "questionsCount": "<p>{count} pre-built questions</p>"
+    "questionsCount": "<p>{count} pre-built questions</p>",
+    "numDisplaying": "Showing {num} of {total}"
   },
   "Section": {
     "tabs": {

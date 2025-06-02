@@ -1,9 +1,19 @@
+### Updated
+- Clean up connections page and buttons [#516]
+
+### Updated
+- Added spacing on the `Account Profile` for the demo [#509]
+- Updated `Account Profile` to use routePath() instead of hardcoded paths
+- fix translation string to use the correct tags for the `Account Profile` [#515]
+
 ## v0.0.1
 - Plan Manage Access [#299]
 - Plan Publish [#299]
 - Plan Downloads [#299]
 -
 ### Added
+- Added TinyMCE Editor component and added it to the styleguide [#462]
+- Added a Load more button to the Add new section page [#450]
 - PublishedSections graphQL query [#448]
 - Added new Server Actions `addCollaboratorAction` [#381]
 - Added `addProjectCollaborator` mutations [#381]
@@ -29,6 +39,9 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Added the `Account Profile` link on the home page for the demo and fixed the success message when updating profile [#508] [#512]
+- Updated the "add new section" page to properly split our the affiliation's sections from best practice sections [#451]
+- Changed all instances of TemplateVisibility.PRIVATE to TemplateVisibility.ORGANIZATION to accomodate backend changes and also made update to `template/[templateId]` so that the `Version` and `Last updated` titles don't show in `description` when values are undefined [#466]
 - Updated `affiliations`, `myTemplates`, `publishedTemplates`, `myProjects` queries to handle the new pagination format. Updated the corresponding pages and components only enough to keep them working as-is [#180](https://github.com/CDLUC3/dmsp_backend_prototype/issues/180)
 - Updated `templates/[templateId]/sections/new` to use the new PublishedSections query and to use the addSection mutation when the user selects a section to copy
 - Hooked up `projects/[projectId]/dmp/[dmpId]/feedback/invite` page to backend data [#381]
@@ -74,7 +87,9 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
--
+- Fixed breaking build by addressing a type error
+- Fixed missing translations on User Profile page [#488]
+- Fixed issue with TypeAheadWithOther dropdown menu displaying when user clicks the `Edit` button on `User profile` page [#511]
 - Fixed issue with Template not refreshing after published [#455]
   - Added a server endpoint env variable for graphqlServerActionHandler.ts since env variables prefixed with NEXT_PUBLIC do not work on the server side [#455]
 - Added Rich Text Editor for Sample Text in the Question forms [#456]
