@@ -208,7 +208,7 @@
 
     &[data-hovered="true"] {
       background-color: #e0e0e0;
-       border-color: #cccccc;
+      border-color: #cccccc;
       cursor: pointer;
     }
 
@@ -747,7 +747,7 @@
       align-items: center;
       margin-bottom: var(--space-2);
     }
-    .actions{
+    .actions {
       @include device(sm) {
         flex-direction: row;
         align-items: center;
@@ -756,10 +756,6 @@
         margin-bottom: var(--space-1);
       }
     }
-  }
-
-  .plan-item {
-
   }
 
   .plan-sections-list {
