@@ -49,6 +49,7 @@ import logECS from '@/utils/clientLogger';
 import {refreshAuthTokens} from "@/utils/authHelper";
 import {useToast} from '@/context/ToastContext';
 import styles from './profile.module.scss';
+import {routePath} from '@/utils/routes';
 
 const ProfilePage: React.FC = () => {
   const t = useTranslations('UserProfile');
@@ -83,7 +84,7 @@ const ProfilePage: React.FC = () => {
   const switchLanguage = async (newLocale: string, showToast = false) => {
     if (newLocale !== currentLocale) {
       const params = new URLSearchParams();
-      // There was an issue with the toast message disappearing when switching languages, 
+      // There was an issue with the toast message disappearing when switching languages,
       // so we added a query parameter to the URL to indicate that the profile was updated
       if (showToast) {
         params.set('profileUpdated', 'true');
@@ -265,7 +266,7 @@ const ProfilePage: React.FC = () => {
       } catch (err) {
         logECS('error', 'loading languages', {
           error: err,
-          url: { path: '/account/profile' }
+          url: { path: routePath('account.profile') }
         });
         setErrors(prevErrors => ({
           ...prevErrors,
@@ -344,24 +345,24 @@ const ProfilePage: React.FC = () => {
     handleUpdate(e);
   };
 
-    // Check for query param to display toast message after page load/navigation
-    useEffect(() => {
-      // Check if the toast has already been shown
-      if (hasShownToastRef.current) return;
+  // Check for query param to display toast message after page load/navigation
+  useEffect(() => {
+    // Check if the toast has already been shown
+    if (hasShownToastRef.current) return;
 
-      const profileUpdated = searchParams.get('profileUpdated');
-      // If the profile was updated, show the success toast once
-      if (profileUpdated === 'true') {
-        hasShownToastRef.current = true; // Prevent showing the toast again
-        showSuccessToast();
-        // Clean up the URL parameter
-        const newParams = new URLSearchParams(searchParams);
-        newParams.delete('profileUpdated');
-        const basePath = `/${currentLocale}${pathname}`;
-        const newUrl = `${basePath}${newParams.toString() ? `?${newParams.toString()}` : ''}`;
-        router.replace(newUrl);
-      }
-    }, [searchParams, currentLocale, pathname]);
+    const profileUpdated = searchParams.get('profileUpdated');
+    // If the profile was updated, show the success toast once
+    if (profileUpdated === 'true') {
+      hasShownToastRef.current = true; // Prevent showing the toast again
+      showSuccessToast();
+      // Clean up the URL parameter
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('profileUpdated');
+      const basePath = `/${currentLocale}${pathname}`;
+      const newUrl = `${basePath}${newParams.toString() ? `?${newParams.toString()}` : ''}`;
+      router.replace(newUrl);
+    }
+  }, [searchParams, currentLocale, pathname]);
 
   // Handle errors from loading of user data
   useEffect(() => {
@@ -384,7 +385,6 @@ const ProfilePage: React.FC = () => {
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{t('breadcrumbHome')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/account/profile">{t('headingUpdateProfile')}</Link></Breadcrumb>
             <Breadcrumb>{t('headingUpdateProfile')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -396,7 +396,7 @@ const ProfilePage: React.FC = () => {
             <ContentContainer className={styles.layoutContentContainer}>
               <h2>{t('yourProfile')}</h2>
               <div className="sectionContainer">
-                <div className={`sectionContent ${styles.section}`}>
+                <div className={`sectionContent`}>
                   <Form onSubmit={handleProfileSubmit}>
                     <ErrorMessages errors={errors} ref={errorRef} />
                     <div className={`${isEditing ? styles.formEditingRow : styles.formRow} ${`${isEditing ? styles.twoItemRowIsEditing : styles.twoItemRow}`}`}>
@@ -404,7 +404,7 @@ const ProfilePage: React.FC = () => {
                         <FormInput
                           name="givenName"
                           type="text"
-                          label="First name"
+                          label={t('givenName')}
                           placeholder={formData.givenName}
                           value={formData.givenName}
                           onChange={handleInputChange}
@@ -414,7 +414,7 @@ const ProfilePage: React.FC = () => {
                       ) : (
                         <Text slot="givenName" className={styles.readOnlyField}>
                           <div className="field-label">{t('givenName')}</div>
-                          <p>{formData.givenName}</p>
+                          <p className={"py-0 my-2"}>{formData.givenName}</p>
                         </Text>
                       )}
 
@@ -422,7 +422,7 @@ const ProfilePage: React.FC = () => {
                         <FormInput
                           name="surName"
                           type="text"
-                          label="Last name"
+                          label={t('surName')}
                           placeholder={formData.surName}
                           value={formData.surName}
                           onChange={handleInputChange}
@@ -432,7 +432,7 @@ const ProfilePage: React.FC = () => {
                       ) : (
                         <Text slot="surName" className={styles.readOnlyField}>
                           <div className="field-label">{t('surName')}</div>
-                          <p>{formData.surName}</p>
+                          <p className={"py-0 my-2"}>{formData.surName}</p>
                         </Text>
                       )}
 
@@ -442,7 +442,7 @@ const ProfilePage: React.FC = () => {
                       {isEditing ? (
                         <>
                           <TypeAheadWithOther
-                            label="Institution"
+                            label={t('institution')}
                             fieldName="institution"
                             graphqlQuery={AffiliationsDocument}
                             resultsKey="affiliations.items"
@@ -458,7 +458,7 @@ const ProfilePage: React.FC = () => {
                               <FormInput
                                 name="otherAffiliationName"
                                 type="text"
-                                label="Other institution"
+                                label={t('otherInstitution')}
                                 placeholder={formData.otherAffiliationName}
                                 value={formData.otherAffiliationName}
                                 onChange={handleInputChange}
@@ -472,7 +472,7 @@ const ProfilePage: React.FC = () => {
                       ) : (
                         <Text slot="institution" className={styles.readOnlyField}>
                           <div className="field-label">{t('institution')}</div>
-                          <p>{formData.affiliationName}</p>
+                          <p className={"py-0 my-2"}>{formData.affiliationName?.trim() || "Affiliation not set"}</p>
                         </Text>
                       )}
                     </div>
@@ -480,7 +480,7 @@ const ProfilePage: React.FC = () => {
                     <div className={`${styles.formRow} ${styles.oneItemRow}`}>
                       {isEditing ? (
                         <FormSelect
-                          label="Language"
+                          label={t('language')}
                           isRequired
                           name="institution"
                           items={languages}
@@ -499,20 +499,20 @@ const ProfilePage: React.FC = () => {
                       ) : (
                         <Text slot="language" className={styles.readOnlyField}>
                           <div className="field-label">{t('language')}</div>
-                          <p>{formData.languageName}</p>
+                          <p className={"py-0 my-2"}>{formData.languageName}</p>
                         </Text>
                       )}
                     </div>
-                      {isEditing ? (
-                        <div className={styles.btnContainer}>
-                          <Button className="secondary" onPress={() => cancelEdit()}>{t('btnCancel')}</Button>
-                          <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? t('btnUpdating') : t('btnUpdate')}</Button>
-                        </div>
-                      ) : (
-                        <div className={styles.btnContainer}>
-                          <Button onPress={() => handleEdit()} className={styles.btnEdit}>{t('btnEdit')}</Button>
-                        </div>
-                      )}
+                    {isEditing ? (
+                      <div className={styles.btnContainer}>
+                        <Button className="secondary" onPress={() => cancelEdit()}>{t('btnCancel')}</Button>
+                        <Button type="submit" isDisabled={updateUserProfileLoading} className={styles.btn}>{updateUserProfileLoading ? t('btnUpdating') : t('btnUpdate')}</Button>
+                      </div>
+                    ) : (
+                      <div className={styles.btnContainer}>
+                        <Button onPress={() => handleEdit()} className={styles.btnEdit}>{t('btnEdit')}</Button>
+                      </div>
+                    )}
                   </Form>
                 </div>
               </div>
@@ -522,11 +522,11 @@ const ProfilePage: React.FC = () => {
               />
             </ContentContainer>
             <SidebarPanel className={styles.layoutSidebarPanel}>
-              <h2>{t('headingRelatedActions')}</h2>
+              <h2 className={styles.relatedItemsHeaading}>{t('headingRelatedActions')}</h2>
               <ul className={styles.relatedItems}>
-                <li><Link href="/account/update-password">{t('linkUpdatePassword')}</Link></li>
-                <li><Link href="/account/connections">{t('linkUpdateConnections')}</Link></li>
-                <li><Link href="/account/notifications">{t('linkManageNotifications')}</Link></li>
+                <li><Link href={routePath('account.password')}>{t('linkUpdatePassword')}</Link></li>
+                <li><Link href={routePath('account.connections')}>{t('linkUpdateConnections')}</Link></li>
+                <li><Link href={routePath('account.notifications')}>{t('linkManageNotifications')}</Link></li>
               </ul>
             </SidebarPanel>
           </LayoutWithPanel>

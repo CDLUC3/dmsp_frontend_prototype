@@ -103,7 +103,7 @@ describe('ProfilePage', () => {
     render(<ProfilePage />);
 
     // Confirm that "FormInput" fields are initially hidden
-    expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/givenName/i)).not.toBeInTheDocument();
 
     // Wrap state-changing interactions in act()
     await act(async () => {
@@ -112,8 +112,8 @@ describe('ProfilePage', () => {
       fireEvent.click(editButton);
     });
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
-    const lastNameInput = screen.getByLabelText(/last name/i);
+    const firstNameInput = screen.getByLabelText(/givenName/i);
+    const lastNameInput = screen.getByLabelText(/surName/i);
 
     // Confirm that clicking "Edit" reveals the form input fields
     expect(firstNameInput).toBeInTheDocument();
@@ -135,7 +135,7 @@ describe('ProfilePage', () => {
     render(<ProfilePage />);
 
     // Confirm that "FormInput" fields are initially hidden
-    expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/givenName/i)).not.toBeInTheDocument();
 
     // Locate the Edit button and click it
     const editButton = screen.getByRole('button', { name: /edit/i });
@@ -144,8 +144,8 @@ describe('ProfilePage', () => {
       fireEvent.click(editButton);
     })
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
-    const lastNameInput = screen.getByLabelText(/last name/i);
+    const firstNameInput = screen.getByLabelText(/givenName/i);
+    const lastNameInput = screen.getByLabelText(/surName/i);
 
     // Confirm that clicking "Edit" reveals the form input fields
     expect(firstNameInput).toBeInTheDocument();

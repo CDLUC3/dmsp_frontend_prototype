@@ -208,7 +208,7 @@
 
     &[data-hovered="true"] {
       background-color: #e0e0e0;
-       border-color: #cccccc;
+      border-color: #cccccc;
       cursor: pointer;
     }
 
@@ -587,14 +587,14 @@
 
 .searchSection {
   display: grid;
-  grid-template-columns: 1fr;  /* Single column by default (mobile) */
+  grid-template-columns: 1fr; /* Single column by default (mobile) */
   gap: 20px;
 
 }
 
 @media (min-width: 768px) {
   .searchSection {
-    grid-template-columns: 1fr 1fr;  /* Two equal columns on larger screens */
+    grid-template-columns: 1fr 1fr; /* Two equal columns on larger screens */
   }
 }
 
@@ -631,6 +631,12 @@
     background: var(--bg-white);
     box-shadow: var(--card-shadow);
     border: 1px solid var(--card-border);
+
+    h2, .h2, h3, .h3, h4, .h4, h5, .h5 {
+      margin: 2rem 0px 1rem;
+      display: block;
+    }
+
   }
 }
 
@@ -694,12 +700,14 @@
       align-items: center;
       margin-bottom: var(--space-2);
     }
-    .actions{
+
+    .actions {
       @include device(sm) {
         flex-direction: row;
         align-items: center;
       }
-      a{
+
+      a {
         margin-bottom: var(--space-1);
       }
     }
@@ -787,8 +795,8 @@
   }
 }
 
-.form-signpost{
-  .form-signpost-inner{
+.form-signpost {
+  .form-signpost-inner {
     background: var(--gray-100);
     padding: var(--space-4);
   }
@@ -806,10 +814,6 @@
     display: inline-block;
   }
 }
-
-
-
-
 
 
 /* --- Basic ProseMirror Table Styling --- */

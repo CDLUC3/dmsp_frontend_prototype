@@ -1,6 +1,10 @@
 ### Updated
 - Clean up connections page and buttons [#516]
 
+### Updated
+- Added spacing on the `Account Profile` for the demo [#509]
+- Updated `Account Profile` to use routePath() instead of hardcoded paths
+- fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ## v0.0.1
 - Plan Manage Access [#299]
@@ -83,6 +87,7 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+- Fixed missing translations on User Profile page [#488]
 - Fixed issue with TypeAheadWithOther dropdown menu displaying when user clicks the `Edit` button on `User profile` page [#511]
 - Fixed issue with Template not refreshing after published [#455]
   - Added a server endpoint env variable for graphqlServerActionHandler.ts since env variables prefixed with NEXT_PUBLIC do not work on the server side [#455]
