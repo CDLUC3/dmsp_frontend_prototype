@@ -31,7 +31,7 @@ const ConnectionsPage: React.FC = () => {
   const isOrcidConnected = true;
 
 
-  /*
+
   const orcidContentString = t.markup(
     isOrcidConnected
       ? 'orcidConnectionConnected.content'
@@ -41,8 +41,6 @@ const ConnectionsPage: React.FC = () => {
         `<a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">${chunks}</a>`
     }
   );
-*/
-  const orcidContentString = sanitizeHtml('ORCID provides a persistent identifier - an ORCID iD - that distinguishes you from other users. Learn more at <a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">ORCID.org</a>.');
 
   return (
     <>

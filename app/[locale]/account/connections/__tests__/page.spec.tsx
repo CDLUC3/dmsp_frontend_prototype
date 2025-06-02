@@ -14,10 +14,20 @@ jest.mock('@/components/PageHeader', () => {
     default: mockPageHeader
   }
 });
-
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`
-}));
+jest.mock('next-intl', () => {
+  const t = (key: string) => key;
+  t.markup = (key: string, values: Record<string, (chunks: string) => string>) => {
+    // Simulate interpolation of the `link` function
+    const chunks = key; // Simplified, in real case you'd simulate how the lib works
+    const interpolated = Object.entries(values).reduce((acc, [name, fn]) => {
+      return acc.replace(`{${name}}`, fn(chunks));
+    }, key);
+    return interpolated;
+  };
+  return {
+    useTranslations: jest.fn(() => t)
+  };
+});
 
 describe('Connections page', () => {
   beforeEach(() => {
@@ -27,17 +37,7 @@ describe('Connections page', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   })
-/*
-  it('should render the component with PageHeader', async () => {
-    const titleProp = 'Connections';
-    const pageHeader = await import('@/components/PageHeader');
-    const mockPageHeader = pageHeader.default;
-    const { getByTestId } = render(<ConnectionsPage />);
 
-    expect(getByTestId('mock-page-wrapper')).toBeInTheDocument();
-    expect(mockPageHeader).toHaveBeenCalledWith(expect.objectContaining({ title: titleProp, }), {})
-  })
-*/
   it('should render connections page', async () => {
 
     await act(async () => {
