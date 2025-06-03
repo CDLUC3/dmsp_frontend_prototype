@@ -58,8 +58,17 @@ const routes = {
   'template.create': '/template/create',
   'template.edit': '/template/:templateId/edit',
 
+  // account/profile
+  'account.profile': '/account/profile',
+  'account.password': '/account/update-password',
+  'account.connections': '/account/connections',
+  'account.notifications': '/account/notifications',
+
+
   // Help pages
   'help.dmp.download': '/help/dmp/download',
+
+
 } as const;
 
 type RoutesMap = typeof routes;
@@ -160,4 +169,4 @@ export function routePath(
 
 // Type to get all available route names for better IDE support
 export type RouteName = keyof typeof routes;
-export { routes };
+export {routes};
