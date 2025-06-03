@@ -311,6 +311,24 @@ describe('TemplateSelectTemplatePage', () => {
     )
   });
 
+  it('should call useAddTemplateMuration when user clicks to start a new template', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    const selectButton = screen.getByTestId('startNewButton');
+    fireEvent.click(selectButton);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
 
   it('should pass accessibility tests', async () => {
     const { container } = render(<TemplateSelectTemplatePage templateName="test" />);

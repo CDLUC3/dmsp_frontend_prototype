@@ -191,11 +191,13 @@
     "clearFilter": "clear filter",
     "buttons": {
       "loadMore": "Load {name} more",
-      "load3More": "Load 3 more"
+      "load3More": "Load 3 more",
+      "startNew": "Start"
     },
     "headings": {
       "previouslyCreatedTemplates": "Use one of your previously created templates",
-      "publicTemplates": "Use one of the public templates"
+      "publicTemplates": "Use one of the public templates",
+      "createNew": "Build a new template"
     },
     "messages": {
       "noItemsFound": "No items found",

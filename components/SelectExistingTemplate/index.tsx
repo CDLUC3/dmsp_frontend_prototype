@@ -135,6 +135,32 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }
   }
 
+  async function handleStartNew() {
+    addTemplateMutation({
+      variables: { name: templateName },
+    }).then(response => {
+      if (response?.data) {
+        const responseData = response?.data?.addTemplate;
+        if (responseData && responseData.errors) {
+          const errorMessages = Object.values(responseData.errors)
+                                      .filter((error) => error) as string[];
+          setErrors(errorMessages);
+        }
+        clearErrors();
+
+        const newTemplateId = response?.data?.addTemplate?.id;
+        if (newTemplateId) {
+          router.push(`/template/${newTemplateId}`)
+        }
+      }
+    }).catch(err => {
+      logECS('error', 'handleStartNew', {
+        error: err,
+        url: { path: '/template/create' }
+      });
+    });
+  }
+
   // Transform data into more easier to use properties
   const transformTemplates = async (
     templates: PaginatedMyVersionedTemplatesInterface | PaginatedVersionedTemplateSearchResultsInterface | null
@@ -397,6 +423,19 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
                 </div>
               </section>
             )}
+
+            <section className="mb-8" aria-labelledby="create-new">
+              <h2 id="create-new">
+                {SelectTemplate('headings.createNew')}
+              </h2>
+              <Button
+                className="tertiary"
+                onPress={handleStartNew}
+                data-testid="startNewButton"
+              >
+                {SelectTemplate('buttons.startNew')}
+              </Button>
+            </section>
 
           </>
         </ContentContainer>
