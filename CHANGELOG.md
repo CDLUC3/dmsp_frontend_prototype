@@ -98,6 +98,7 @@
 - Fixed wrong node image in `Dockerfile.prd`. Also fixed a number of linting issues.
 - Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
+- Added the missing button to create a new template from scratch [#474]
 
 ### Chore
 - Updated NodeJS version to v22 [#144]
