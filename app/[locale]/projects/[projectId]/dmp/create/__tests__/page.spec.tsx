@@ -1,14 +1,14 @@
 import React from 'react';
-import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import PlanCreate from '../page';
-import {useParams, useRouter} from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import {
   useAddPlanMutation,
   useProjectFundersQuery,
   usePublishedTemplatesQuery
 } from '@/generated/graphql';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {mockScrollIntoView, mockScrollTo} from '@/__mocks__/common';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { mockScrollIntoView, mockScrollTo } from '@/__mocks__/common';
 
 expect.extend(toHaveNoViolations);
 
@@ -59,6 +59,24 @@ const mockPublishedTemplates = {
       description: "Develop data plans",
       id: "10",
       name: "Data Curation Centre",
+      visibility: "PUBLIC",
+      ownerDisplayName: "National Institute of Health",
+      ownerURI: "http://nih.gov"
+    },
+    {
+      bestPractice: false,
+      description: "Develop data plans",
+      id: "40",
+      name: "Practice Template",
+      visibility: "PUBLIC",
+      ownerDisplayName: "National Institute of Health",
+      ownerURI: "http://nih.gov"
+    },
+    {
+      bestPractice: false,
+      description: "Develop data plans",
+      id: "50",
+      name: "Detailed DMP Template",
       visibility: "PUBLIC",
       ownerDisplayName: "National Institute of Health",
       ownerURI: "http://nih.gov"
@@ -135,14 +153,13 @@ describe('PlanCreate Component', () => {
 
     // We should have two checkboxes for project funders checked
     expect(screen.getByRole('checkbox', { name: /National Science Foundation \(nsf.gov\)/i })).toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: /National Institute of Health/i })).toBeInTheDocument();
     // Expected three funder templates to display by default
     expect(screen.getByRole('heading', { level: 3, name: /Agency for Healthcare Research and Quality/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 3, name: /Arctic Data Center: NSF Polar Programs/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 3, name: /Data Curation Centre/i })).toBeInTheDocument();
     // Should not show the best practice template on first load
     expect(screen.queryByRole('heading', { level: 3, name: /Best Practice Template/i })).not.toBeInTheDocument();
-    expect(screen.getAllByText('buttons.select')).toHaveLength(3);
+    expect(screen.getAllByText('buttons.select')).toHaveLength(5);
   });
 
   it('should not display duplicate project funder checkboxes', async () => {
@@ -160,7 +177,7 @@ describe('PlanCreate Component', () => {
     expect(screen.getByRole('checkbox', { name: /National Institute of Health/i })).toBeInTheDocument();
   });
 
-  it.only('should sort correctly so that project funders are at the top of the list', async () => {
+  it('should sort correctly so that project funders are at the top of the list', async () => {
     mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
     await act(async () => {
@@ -173,15 +190,15 @@ describe('PlanCreate Component', () => {
     const funderCheckboxes = screen.getAllByRole('checkbox');
     // Uncheck initially checked project funder checkboxes
     fireEvent.click(funderCheckboxes[0]);
-    fireEvent.click(funderCheckboxes[1]);
-
     await waitFor(() => {
       // It should now show the initial three templates before Load More button, with the project funder templates at the top
       const listItems = screen.getAllByRole('listitem').filter(item => item.classList.contains('templateItem'));
       expect(listItems).toHaveLength(3);
-      expect(listItems[0]).toHaveTextContent(/Arctic Data Center/);
-      expect(listItems[1]).toHaveTextContent(/Agency for Healthcare Research and Quality/);
-      expect(listItems[2]).toHaveTextContent(/Data Curation Centre/);
+      expect(listItems[0]).toHaveTextContent(/Data Curation Centre/);
+      const heading = within(listItems[1]).getByRole('heading', { name: /Practice Template/ });
+      expect(heading).toBeInTheDocument();
+      const heading2 = within(listItems[2]).getByRole('heading', { name: /Detailed DMP Template/ });
+      expect(heading2).toBeInTheDocument();
     });
   });
 
@@ -201,6 +218,7 @@ describe('PlanCreate Component', () => {
         description: "Best Practice Template",
         id: "12",
         name: "Best Practice Template",
+        ownerDisplayName: 'NIH',
         visibility: "PUBLIC",
         owner: null
       },
@@ -220,6 +238,44 @@ describe('PlanCreate Component', () => {
   it('should display best practices template when no funder templates', async () => {
     mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: [] }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
+    await act(async () => {
+      render(
+        <PlanCreate />
+      );
+    });
+
+    const funderCheckboxes = screen.queryAllByRole('checkbox');
+    expect(funderCheckboxes).toHaveLength(1);
+    const listItems = screen.getAllByRole('listitem').filter(item => item.classList.contains('templateItem'));
+    expect(listItems).toHaveLength(1);
+    expect(listItems[0]).toHaveTextContent(/Best Practice Template/);
+  });
+
+  it('should display best practices template when there are no matching templates', async () => {
+    const mockPublishedTemplates2 = {
+      items: [
+        {
+          bestPractice: false,
+          description: "Template 1",
+          id: "1",
+          name: "Agency for Healthcare Research and Quality",
+          visibility: "PUBLIC",
+          ownerDisplayName: "National Science Foundation (nsf.gov)",
+          ownerURI: "http://random.gove"
+        },
+        {
+          bestPractice: true,
+          description: "Best Practice Template",
+          id: "12",
+          name: "Best Practice Template",
+          visibility: "PUBLIC",
+          ownerDisplayName: 'NIH',
+          ownerURI: null
+        },
+      ]
+    }
+    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: [] }, loading: false, error: null });
+    mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates2 }, loading: false, error: null });
     await act(async () => {
       render(
         <PlanCreate />
@@ -296,14 +352,53 @@ describe('PlanCreate Component', () => {
     const searchInput = screen.getByLabelText('Template search');
     // Enter matching search term
     fireEvent.change(searchInput, { target: { value: 'Arctic' } });
+
     // Click search button
     const searchButton = screen.getByText('buttons.search');
     fireEvent.click(searchButton);
+
+
     await waitFor(() => {
       // Should bring up this matching template
       expect(screen.getByRole('heading', { level: 3, name: /Arctic Data Center: NSF Polar Programs/i })).toBeInTheDocument();
     });
   });
+
+  it('should handle Load More functionality', async () => {
+    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
+    mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
+    await act(async () => {
+      render(
+        <PlanCreate />
+      );
+    });
+
+    // Get all checkboxes with name="funders"
+    const funderCheckboxes = screen.getAllByRole('checkbox').filter(
+      (checkbox) => checkbox.getAttribute('name') === 'funders'
+    );
+
+    // Uncheck each one if it's checked
+    for (const checkbox of funderCheckboxes) {
+      if ((checkbox as HTMLInputElement).checked) {
+        await act(async () => {
+          fireEvent.click(checkbox);
+        });
+        expect((checkbox as HTMLInputElement).checked).toBe(false); // Confirm it's unchecked
+      }
+    }
+
+    const loadMoreButton = screen.getByRole('button', { name: /buttons.loadMore/i });
+    await waitFor(() => {
+      // Should bring up this matching template
+      expect(loadMoreButton).toBeInTheDocument();
+      fireEvent.click(loadMoreButton);
+    });
+
+    const listItems = screen.getAllByRole('listitem').filter(item => item.classList.contains('templateItem'));
+    expect(listItems).toHaveLength(6);
+  });
+
 
   it('should pass axe accessibility test', async () => {
     mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });

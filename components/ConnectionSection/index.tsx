@@ -1,14 +1,14 @@
 'use client';
 
-import React, {useState} from 'react';
+import React from 'react';
 import ButtonWithImage from '../ButtonWithImage';
 import TooltipWithDialog from '../TooltipWithDialog';
-import {ModalOverlayComponent} from '../ModalOverlayComponent';
-import {DmpIcon} from '@/components/Icons';
+import { ModalOverlayComponent } from '../ModalOverlayComponent';
+import { DmpIcon } from '@/components/Icons';
 import styles from './connectionSection.module.scss';
 import connectionData from './connection-types.json';
 
-import {PressEvent} from 'react-aria-components';
+import { PressEvent } from 'react-aria-components';
 
 interface ConnectionSectionProps {
   type: string;
@@ -17,11 +17,6 @@ interface ConnectionSectionProps {
   btnUrl: string;
   btnImageUrl?: string;
   btnText: string;
-}
-
-interface AuthData {
-  id: string;
-  token: string;
 }
 
 type CloseFunction = () => void;
@@ -42,14 +37,9 @@ const ConnectionSection = ({
   btnText,
 }: ConnectionSectionProps) => {
 
-  const [authData, setAuthData] = useState<AuthData | null>(null);
 
   const handleDelete: HandleDeleteFunction = async (e, close) => {
-    try {
-      close();
-    } catch (error) {
-      console.error('An error occurred while deleting the item:', error);
-    }
+    close();
   };
 
   const tooltipText = (connectionData as ConnectionDataType)[type]?.tooltipText || '';

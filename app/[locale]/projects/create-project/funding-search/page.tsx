@@ -1,6 +1,8 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,9 +20,12 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { routePath } from '@/utils/routes';
 import styles from './ProjectsCreateProjectFundingSearch.module.scss';
 
 const ProjectsCreateProjectFundingSearch = () => {
+  const router = useRouter();
+
   // State for search field input
   const [searchTerm, setSearchTerm] = useState<string>("NSF");
 
@@ -66,7 +71,7 @@ const ProjectsCreateProjectFundingSearch = () => {
   const handleSelectFunder = (funder: string) => {
     console.log('Funder selected:', funder);
     // Handle funder selection logic (e.g., save state)
-    window.location.href = '/projects/create-project/projects-search';
+    router.push(routePath('projects.create.projects.search'))
   };
 
   const handleAddFunderManually = () => {
@@ -112,7 +117,7 @@ const ProjectsCreateProjectFundingSearch = () => {
           {/* "Empty State" - Most Used Funders (shown before search is executed) */}
           {!hasSearched && (
             <section aria-labelledby="most-used-section">
-              <h3 id="most-used-section">Most popular funders</h3>
+              <h2 id="most-used-section" className="heading-3">Most popular funders</h2>
               <div className={styles.funderResultsList}>
                 {mostUsedFunders.map((funder, index) => (
                   <div

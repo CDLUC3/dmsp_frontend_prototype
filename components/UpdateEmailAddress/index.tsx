@@ -1,8 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import {useTranslations} from 'next-intl';
-import {Button, Form,} from "react-aria-components";
-import {ApolloError} from "@apollo/client";
+import { useTranslations } from 'next-intl';
+import { Button, Form, } from "react-aria-components";
+import { ApolloError } from "@apollo/client";
 
 // Graphql mutations
 import {
@@ -18,12 +18,12 @@ import EmailAddressRow from '@/components/EmailAddressRow';
 import FormInput from '@/components/Form/FormInput';
 import ErrorMessages from '@/components/ErrorMessages';
 //Interfaces
-import {EmailInterface} from '@/app/types';
+import { EmailInterface } from '@/app/types';
 // Utils and other
 import logECS from '@/utils/clientLogger';
 import styles from './updateEmailAddress.module.scss';
-import {useToast} from '@/context/ToastContext';
-import {routePath} from '@/utils/routes';
+import { useToast } from '@/context/ToastContext';
+import { routePath } from '@/utils/routes';
 
 const GET_USER = MeDocument;
 
@@ -32,18 +32,17 @@ export interface UpdateEmailAddressProps {
 }
 
 const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
-                                                                 emailAddresses,
-                                                               }) => {
+  emailAddresses,
+}) => {
   const t = useTranslations('UserProfile');
   const toastState = useToast(); // Access the toast state from context
-  const errorRef = useRef<HTMLDivElement | null>(null);
   const [errors, setErrors] = useState<UserEmailErrors>({});
   const [addAliasValue, setAddAliasValue] = useState<string>('');
 
   // Initialize graphql mutations for component
   const [setPrimaryUserEmailMutation] = useSetPrimaryUserEmailMutation();
-  const [addUserEmailMutation, {error: addUserEmailError}] = useAddUserEmailMutation();
-  const [removeUserEmailMutation, {error: deleteEmailError}] = useRemoveUserEmailMutation();
+  const [addUserEmailMutation] = useAddUserEmailMutation();
+  const [removeUserEmailMutation] = useRemoveUserEmailMutation();
 
   const clearErrors = () => {
     setErrors({});
@@ -54,30 +53,34 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
     try {
       const response = await setPrimaryUserEmailMutation({
         variables: {
-          email: primaryEmail
+          email: primaryEmail,
         },
         refetchQueries: [
           {
             query: GET_USER,
           },
         ],
-      })
+      });
 
-      const emailData = response?.data?.setPrimaryUserEmail?.[0];
-      if (emailData?.errors && Object.keys(emailData.errors).length > 0) {
-        // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-        setErrors(emailData.errors ?? {});
-        return;
+      const emailArray = response?.data?.setPrimaryUserEmail || [];
+      let foundError = false;
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      emailArray.forEach((emailObj: any) => {
+        if (emailObj.errors?.general || emailObj.errors?.email) {
+          const errorMessage = emailObj.errors.email || emailObj.errors.general;
+          setErrors(prevErrors => ({ ...prevErrors, general: errorMessage[0] }));
+          foundError = true;
+        }
+      });
+
+      if (!foundError) {
+        clearErrors();
       }
-      clearErrors();
     } catch (err) {
-      /* We need to call this mutation again when there is an error and
-      refetch the user query in order for the page to reload with updated info. I tried just
-      calling 'refetch()' for the user query, but that didn't work. */
       if (err instanceof ApolloError) {
         await setPrimaryUserEmailMutation({
           variables: {
-            email: primaryEmail
+            email: primaryEmail,
           },
           refetchQueries: [
             {
@@ -93,7 +96,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         }));
         logECS('error', 'makePrimaryEmail', {
           error: err,
-          url: {path: routePath('account.profile')}
+          url: { path: routePath('account.profile') }
         });
       }
     }
@@ -112,6 +115,7 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   // Adding new email alias
   const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    clearErrors();
     try {
       const response = await addUserEmailMutation({
         variables: {
@@ -127,19 +131,22 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
 
       const emailData = response?.data?.addUserEmail;
       if (emailData?.errors && Object.keys(emailData.errors).length > 0) {
-        // Use the nullish coalescing operator to ensure `setErrors` receives a `string[]`
-        setErrors(emailData.errors ?? {});
-        return;
+        const errorMessage = emailData?.errors.email || emailData?.errors.general;
+        setErrors(prevErrors => {
+          return {
+            ...prevErrors,
+            email: errorMessage
+          }
+        });
       }
-      clearErrors();
       // Clear the add alias input field
       setAddAliasValue('');
       showSuccessToast();
     } catch (err) {
       if (err instanceof ApolloError) {
         /* We need to call this mutation again when there is an error and
-refetch the user query in order for the page to reload with updated info. I tried just
-calling 'refetch()' for the user query, but that didn't work. */
+  refetch the user query in order for the page to reload with updated info. I tried just
+  calling 'refetch()' for the user query, but that didn't work. */
         await addUserEmailMutation({
           variables: {
             email: addAliasValue,
@@ -161,7 +168,7 @@ calling 'refetch()' for the user query, but that didn't work. */
         }));
         logECS('error', 'handleAddingAlias', {
           error: err,
-          url: {path: routePath('account.profile')}
+          url: { path: routePath('account.profile') }
         });
       }
     }
@@ -190,8 +197,8 @@ calling 'refetch()' for the user query, but that didn't work. */
     } catch (err) {
       if (err instanceof ApolloError) {
         /* We need to call this mutation again when there is an error and
-refetch the user query in order for the page to reload with updated info. I tried just
-calling 'refetch()' for the user query, but that didn't work. */
+  refetch the user query in order for the page to reload with updated info. I tried just
+  calling 'refetch()' for the user query, but that didn't work. */
         await removeUserEmailMutation({
           variables: {
             email: emailToDelete
@@ -210,7 +217,7 @@ calling 'refetch()' for the user query, but that didn't work. */
         }));
         logECS('error', 'deleteEmail', {
           error: err,
-          url: {path: routePath('account.profile')}
+          url: { path: routePath('account.profile') }
         });
       }
     }
@@ -219,8 +226,6 @@ calling 'refetch()' for the user query, but that didn't work. */
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Clear errors
-    clearErrors();
     setAddAliasValue(value);
   }
 
@@ -231,13 +236,13 @@ calling 'refetch()' for the user query, but that didn't work. */
   }, [emailAddresses])
 
   return (
-    <div ref={errorRef}>
+    <div>
       <h2 className={styles.title}>{t('emailAndAuth')}</h2>
       <div className="sectionContainer">
         <div className="sectionContent">
           <div className={styles.subSection}>
-            <ErrorMessages errors={errors.general ? [errors.general] : []}
-                           ref={errorRef}/>
+            <ErrorMessages errors={[errors?.general ? errors?.general : '']} />
+
             <h3>{t('headingPrimaryEmail')}</h3>
             <p className={"my-1 pb-0"}>{t('primaryEmailDesc')}</p>
 
@@ -264,7 +269,7 @@ calling 'refetch()' for the user query, but that didn't work. */
                   target="_blank">{chunks}</Link>
               })}</p>
             </div>
-            <hr/>
+            <hr />
           </div>
           <div className={styles.subSection}>
 

@@ -43,6 +43,14 @@ const TooltipWithDialog = ({
 
   const buttonRef = useRef<HTMLButtonElement>(null);
 
+  const onDialogChange = (isOpen: boolean) => {
+    setIsOpen(isOpen);
+    if (!isOpen) {
+      setIsConfirmed(true);
+    }
+  };
+
+
   const { buttonProps } = useButton(
     {
       onPress: () => setIsOpen(true),
@@ -53,7 +61,7 @@ const TooltipWithDialog = ({
 
   return (
     <>
-      <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger isOpen={isOpen} onOpenChange={onDialogChange}>
         <TooltipTrigger delay={0}>
           <Button {...buttonProps as {}} className={classNames('react-aria-Button', styles.tooltipButton)}>
             {imageUrl && (

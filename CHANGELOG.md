@@ -110,6 +110,8 @@
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
 
 ### Chore
+- Updated and added unit tests to increase coverage in the app [#490]
+- Updated and improved the cypress functional tests to fix them and updated some cypress documentation in the README.md file [#490]
 - Updated NodeJS version to v22 [#144]
 ====================================================================================================
 

@@ -1,13 +1,15 @@
 'use client';
 
 import React from 'react';
-import {Breadcrumb, Breadcrumbs, Button, Link} from "react-aria-components";
+import { useRouter } from 'next/navigation';
+import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectResearchOutputs.module.scss';
 
 interface ResearchOutput {
@@ -20,6 +22,7 @@ interface ResearchOutput {
 }
 
 const ProjectsProjectResearchOutputs = () => {
+  const router = useRouter();
   const researchOutputs: ResearchOutput[] = [
     {
       id: 'output-001',
@@ -50,7 +53,7 @@ const ProjectsProjectResearchOutputs = () => {
   const handleEditOutput = (outputId: string): void => {
     // Handle editing the research output
     // ignore this just getting rid of the lint error cause outputId not used
-    window.location.href = `/projects/proj_2425/research-outputs/edit/?id=${outputId}`;
+    router.push(routePath('projects.outputs.edit', { projectId: 'proj_2425' }, { id: outputId }));
   };
 
   const handleDeleteOutput = (outputId: string): void => {
@@ -74,7 +77,7 @@ const ProjectsProjectResearchOutputs = () => {
         actions={
           <>
             <Button
-              onPress={() => window.location.href = '/projects/proj_2425/research-outputs/edit'}
+              onPress={() => router.push(routePath('projects.outputs.edit', { projectId: 'proj_2425' }))}
               className="secondary"
               aria-label="Add new research output"
             >
@@ -90,7 +93,7 @@ const ProjectsProjectResearchOutputs = () => {
             aria-label="Research outputs list"
             role="region"
           >
-            <div className={styles.outputsList}>
+            <div className={styles.outputsList} role="list">
               {researchOutputs.map((output) => (
                 <div
                   key={output.id}
@@ -99,13 +102,11 @@ const ProjectsProjectResearchOutputs = () => {
                   aria-label={`Research output: ${output.title}`}
                 >
                   <div className={styles.outputInfo}>
-                    <h3>
-                      {output.title}
-                    </h3>
+                    <h2 className="heading-3">{output.title}</h2>
                     <p className={styles.metadata}>
                       Personal Information
                       Included? {output.personalInfoIncluded ? 'Yes' : 'No'}
-                      <br/>
+                      <br />
                       Sensitive Data
                       Included? {output.sensitiveDataIncluded ? 'Yes' : 'No'}
                     </p>
@@ -114,12 +115,12 @@ const ProjectsProjectResearchOutputs = () => {
                   </div>
 
                   <div className={styles.repository}>
-                    Repository:<br/>{output.repository}
+                    Repository:<br />{output.repository}
                   </div>
 
 
                   <div className={styles.outputType}>
-                    Type:<br/>{output.type}
+                    Type:<br />{output.type}
                   </div>
 
                   <div className={styles.outputActions}>
@@ -143,7 +144,7 @@ const ProjectsProjectResearchOutputs = () => {
             </div>
           </section>
         </ContentContainer>
-        <SidebarPanel/>
+        <SidebarPanel />
       </LayoutWithPanel>
     </>
   );
