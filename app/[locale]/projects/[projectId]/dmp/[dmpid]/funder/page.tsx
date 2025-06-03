@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -12,20 +13,21 @@ import {
   RadioGroup,
   Text,
 } from "react-aria-components";
+
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { routePath } from '@/utils/routes';
 
 const ProjectsProjectPlanAdjustFunding = () => {
-
+  const router = useRouter();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Funding details updated');
     // Redirect or show success message
-    window.location.href = '/projects/proj_2425/dmp/xxx';
+    router.push(routePath('projects.dmp.show', { projectId: 'proj_2425', dmpId: 'xxx' }))
   }
 
 
@@ -80,9 +82,9 @@ const ProjectsProjectPlanAdjustFunding = () => {
           </Form>
 
 
-          <h3 className="mt-8">
-            Adding funding information?
-          </h3>
+          <h2 className="heading-3 mt-8">
+            Adding a funding source?
+          </h2>
           <p>
             If you want to add new funding information, you can add funding at the
             project level. This project can have multiple funding sources, whereas each

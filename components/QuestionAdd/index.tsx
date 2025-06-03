@@ -84,7 +84,7 @@ const QuestionAdd = ({
   })
 
   const validateOptions = () => {
-    let newErrors: { [key: number]: string } = {};
+    const newErrors: { [key: number]: string } = {};
     rows.forEach((row) => {
       if (!row.text.trim()) {
         newErrors[row.id || 0] = "This field is required";
@@ -151,7 +151,6 @@ const QuestionAdd = ({
       if (response?.data) {
         toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
         //redirect user to the Edit Question view with their new question id after successfully adding the new question
-        const newQuestionId = response.data.addQuestion.id;
         router.push(`/template/${templateId}`)
       }
     } catch (error) {
@@ -328,7 +327,7 @@ const QuestionAdd = ({
                 )}
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
-                <Button type="submit" onPress={e => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
+                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
               </Form>
 
             </TabPanel>

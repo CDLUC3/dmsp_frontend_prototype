@@ -114,7 +114,6 @@ const SectionUpdatePage: React.FC = () => {
   // Client-side validation of fields
   const validateField = (name: string, value: string | string[] | undefined): string => {
     switch (name) {
-
       case 'sectionName':
         if (!value || value.length <= 2) {
           return SectionUpdatePage('messages.fieldLengthValidation');
@@ -223,6 +222,10 @@ const SectionUpdatePage: React.FC = () => {
     toastState.add(successMessage, { type: 'success' });
   }
 
+  const handleSectionNameChange = (sectionData: SectionFormInterface) => {
+    setSectionData(sectionData);
+  };
+
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -269,7 +272,6 @@ const SectionUpdatePage: React.FC = () => {
       scrollToTop(errorRef);
     }
   }, [errorMessages]);
-
 
   // We need this so that the page waits to render until data is available
   if (loading) {
@@ -320,7 +322,7 @@ const SectionUpdatePage: React.FC = () => {
                       aria-required={true}
                       label={Section('labels.sectionName')}
                       value={sectionData.sectionName ? sectionData.sectionName : ''}
-                      onChange={(e) => setSectionData({
+                      onChange={(e) => handleSectionNameChange({
                         ...sectionData,
                         sectionName: e.currentTarget.value
                       })}

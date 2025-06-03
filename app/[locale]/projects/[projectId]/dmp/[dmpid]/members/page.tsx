@@ -185,6 +185,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
     return primaryContactId === (member as ProjectMember)?.id;
   };
 
+<<<<<<< HEAD
   // Add a new plan member
   const addPlanMember = async (id: number) => {
     try {
@@ -207,12 +208,25 @@ const ProjectsProjectPlanAdjustMembers = () => {
         error,
         url: { path: PLAN_MEMBERS_ROUTE }
       });
+=======
+  // Add a new plan contributor
+  const addPlanContributor = async (id: number) => {
+    // Don't need a try-catch block here, as the error is handled in the server action
+    const response = await addPlanContributorAction({
+      planId: Number(dmpId),
+      projectContributorId: id
+    });
+
+    if (response.redirect) {
+      router.push(response.redirect);
+>>>>>>> 2f82e74565ca728c81094ea04d273fdcd6ab81e7
     }
+
     return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: null
-    };
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
   };
 
   // handle adding of plan member

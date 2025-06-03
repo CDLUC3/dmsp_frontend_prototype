@@ -1,8 +1,8 @@
 'use client';
 
-import {useEffect, useReducer, useRef} from 'react';
-import {useParams, useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import { useEffect, useReducer, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -29,12 +29,12 @@ import {
 } from "@/components/Container";
 import PageHeader from "@/components/PageHeader";
 import ErrorMessages from '@/components/ErrorMessages';
-import {DmpIcon} from "@/components/Icons";
-import {FormSelect, RadioGroupComponent} from '@/components/Form';
+import { DmpIcon } from "@/components/Icons";
+import { FormSelect, RadioGroupComponent } from '@/components/Form';
 
 import logECS from '@/utils/clientLogger';
-import {routePath} from '@/utils/routes';
-import {publishPlanAction, updatePlanStatusAction} from './actions';
+import { routePath } from '@/utils/routes';
+import { publishPlanAction, updatePlanStatusAction } from './actions';
 import {
   ListItemsInterface,
   PlanMember,
@@ -210,34 +210,21 @@ const PlanOverviewPage: React.FC = () => {
 
   // Call Server Action updatePlanStatusAction to run the updatePlanStatusMutation
   const updateStatus = async (status: PlanStatus) => {
-    try {
-      const response = await updatePlanStatusAction({
-        planId: Number(planId),
-        status
-      })
+    // Don't need a try-catch block here, as the error is handled in the action
+    const response = await updatePlanStatusAction({
+      planId: Number(planId),
+      status
+    })
 
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      }
-    } catch (error) {
-      logECS('error', 'updateStatus', {
-        error,
-        url: {
-          path: routePath('projects.dmp.show', { projectId, dmpId: planId })
-        }
-      });
+    if (response.redirect) {
+      router.push(response.redirect);
     }
+
     return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: null
-    };
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
   }
 
   const handlePlanStatusForm = async (e: React.FormEvent<HTMLFormElement>) => {

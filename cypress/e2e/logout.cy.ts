@@ -2,105 +2,90 @@
 /// <reference types="cypress" />
 
 
-describe('Logout test on Desktop', () => {
-  beforeEach(() => {
-    cy.viewport(1280, 720);
-  })
+// Base configuration
+const baseUrl = Cypress.env('BASE_URL') || 'http://localhost:3000';
 
-  it('should redirect users after logging out', () => {
+describe('Authentication flow tests', () => {
 
-    //First log in
-    cy.request('http://localhost:4000/apollo-csrf')
-      .then((response) => {
-        const csrfToken = response.headers['x-csrf-token'];
+  describe('Logout functionality on desktop', () => {
+    beforeEach(() => {
+      cy.viewport(1280, 720);
+    })
+    it('should redirect user after logging out on desktop', () => {
+      // First make sure the user is logged in
+      // Visit login page
+      cy.visit(`${baseUrl}/en-US/login`);
 
-        // Log the token (you can check it in Cypress's command log)
-        cy.log(`CSRF Token: ${csrfToken}`);
+      // Step 1: Enter email
+      cy.get('[data-testid="emailInput"]')
+        .should('be.visible')
+        .type(Cypress.env('TEST_USER_EMAIL'));
 
-        // Now use the token in your subsequent request
-        cy.request({
-          method: 'POST',
-          url: 'http://localhost:4000/apollo-signin',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken || '',
-          },
-          body: {
-            email: 'admin@colorado.edu',
-            password: 'Password123$9'
-          }
-        }).then((signinResponse) => {
-          // If you want to make the entire response object available in the Cypress command log
-          cy.wrap(signinResponse).as('signinResponse');
+      cy.get('[data-testid="actionContinue"]')
+        .should('be.enabled')
+        .click();
 
-          cy.wrap(signinResponse).its('status').should('equal', 200);
+      // Step 2: Enter password
+      cy.get('[data-testid="passInput"]')
+        .should('be.visible')
+        .type(Cypress.env('TEST_USER_PASSWORD'), { log: false }); // hide password in logs
 
-          // Check that cookies were added
-          cy.getCookie('dmspt').should('exist')
-          cy.getCookie('dmspr').should('exist')
+      cy.get('[data-testid="actionSubmit"]')
+        .should('be.enabled')
+        .click();
 
-          //Go to home page
-          cy.visit('http://localhost:3000');
+      //Go to home page
+      cy.visit(`${baseUrl}/en-US`);
 
-          // Click logout button
-          cy.get('[data-method="delete"]').click();
+      // Click logout button
+      cy.get('[data-method="delete"]').click();
 
-          // Verify redirect to login page
-          cy.url().should('include', '/login');
-        });
-      });
-  })
+      // Verify redirect to login page
+      cy.url().should('include', '/login');
+    });
+  });
+
+  describe('Logout test on mobile', () => {
+    beforeEach(() => {
+      cy.viewport(375, 667);
+    })
+
+    it('should redirect users after logging out on mobile', () => {
+
+      // First make sure the user is logged in
+      // Visit login page
+      cy.visit(`${baseUrl}/en-US/login`);
+
+      // Step 1: Enter email
+      cy.get('[data-testid="emailInput"]')
+        .should('be.visible')
+        .type(Cypress.env('TEST_USER_EMAIL'));
+
+      cy.get('[data-testid="actionContinue"]')
+        .should('be.enabled')
+        .click();
+
+      // Step 2: Enter password
+      cy.get('[data-testid="passInput"]')
+        .should('be.visible')
+        .type(Cypress.env('TEST_USER_PASSWORD'), { log: false }); // hide password in logs
+
+      cy.get('[data-testid="actionSubmit"]')
+        .should('be.enabled')
+        .click();
+
+      //Go to home page
+      cy.visit(`${baseUrl}/en-US`);
+
+      // Open dropdown menu from hamburger icon
+      cy.get('#mobile-menu-open').click();
+
+      //Click logout button
+      cy.get('[data-method="mobile-delete"]').click();
+
+      // Verify redirect to login page
+      cy.url().should('include', '/login');
+    });
+  });
 })
 
-describe('Logout test on mobile', () => {
-  beforeEach(() => {
-    cy.viewport(375, 667);
-  })
-
-  it('should delete cookies after logging out', () => {
-
-    //First log in
-    cy.request('http://localhost:4000/apollo-csrf')
-      .then((response) => {
-        const csrfToken = response.headers['x-csrf-token'];
-
-        // Log the token (you can check it in Cypress's command log)
-        cy.log(`CSRF Token: ${csrfToken}`);
-
-        // Now use the token in your subsequent request
-        cy.request({
-          method: 'POST',
-          url: 'http://localhost:4000/apollo-signin',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken || '',
-          },
-          body: {
-            email: 'admin@colorado.edu',
-            password: 'Password123$9'
-          }
-        }).then((signinResponse) => {
-          // If you want to make the entire response object available in the Cypress command log
-          cy.wrap(signinResponse).as('signinResponse');
-
-          cy.wrap(signinResponse).its('status').should('equal', 200);
-
-          // Check that cookies were added
-          cy.getCookie('dmspt').should('exist')
-          cy.getCookie('dmspr').should('exist')
-
-          //Go to home page
-          cy.visit('http://localhost:3000');
-
-          // Open dropdown menu from hamburger icon
-          cy.get('.mobile-icon').click();
-
-          //Click logout button
-          cy.get('#mobile-navigation [data-method="delete"]').click();
-
-          // Verify redirect to login page
-          cy.url().should('include', '/login');
-        });
-      });
-  })
-})

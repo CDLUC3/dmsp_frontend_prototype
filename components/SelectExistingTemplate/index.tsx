@@ -39,8 +39,8 @@ import {
   PaginatedMyVersionedTemplatesInterface,
   PaginatedVersionedTemplateSearchResultsInterface
 } from '@/app/types';
-import {useFormatDate} from '@/hooks/useFormatDate';
-import {useToast} from '@/context/ToastContext';
+import { useFormatDate } from '@/hooks/useFormatDate';
+import { useToast } from '@/context/ToastContext';
 
 
 // Step 2 of the Create Template start pages
@@ -80,7 +80,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     notifyOnNetworkStatusChange: true,
   });
 
-
   // Make graphql request for all public versionedTemplates
   const { data: publishedTemplatesData, loading: publishedTemplatesLoading, error: publishedTemplatesError } = usePublishedTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
@@ -109,15 +108,16 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
           copyFromTemplateId: versionedTemplateId
         },
       });
+
       if (response?.data) {
+        clearErrors();
         const responseData = response?.data?.addTemplate;
         //Set errors using the errors prop returned from the request
         if (responseData && responseData.errors) {
           // Extract error messages and convert them to an array of strings
           const errorMessages = Object.values(responseData.errors).filter((error) => error) as string[];
-          setErrors(errorMessages);
+          setErrors(prev => [...prev, ...errorMessages]);
         }
-        clearErrors();
 
         // Get templateId of new template so we know where to redirect
         newTemplateId = response?.data?.addTemplate?.id;
@@ -252,6 +252,10 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }
   }, [templateName])
 
+
+  useEffect(() => {
+    console.log('Errors:', errors);
+  }, [errors])
   if (loading || publishedTemplatesLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }

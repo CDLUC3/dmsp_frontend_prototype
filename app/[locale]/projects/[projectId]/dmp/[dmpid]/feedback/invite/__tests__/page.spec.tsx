@@ -165,6 +165,86 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
     })
   });
 
+  it('should call addProjectCollaboratorAction with correct access level after changing the radio option', async () => {
+    (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        error: {
+          general: null,
+          email: null
+        },
+        user: {
+          givenName: 'John',
+          surName: 'Doe',
+          affiliation: { uri: 'affiliation-uri' },
+          orcid: 'orcid-id',
+        },
+      },
+    });
+
+    render(<ProjectsProjectPlanFeedbackInvite />);
+
+    // Enter email address
+    const emailField = screen.getByPlaceholderText('placeHolders.email');
+    fireEvent.change(emailField, { target: { value: 'testing@example.com' } });
+
+    expect(emailField).toHaveValue('testing@example.com');
+
+    // Select the "Comment only" radio option
+    const commentOnlyRadio = screen.getByRole('radio', { name: 'comment' });
+    fireEvent.click(commentOnlyRadio);
+
+    // Click "Grant Access" button
+    const grantAccessBtn = screen.getByRole('button', { name: /buttons\.grantAccess/i });
+    fireEvent.click(grantAccessBtn);
+    await waitFor(() => {
+      expect(addProjectCollaboratorAction).toHaveBeenCalledWith({
+        projectId: 1,
+        email: 'testing@example.com',
+        accessLevel: 'COMMENT',
+      });
+    });
+  });
+
+  it('should display email error when the request result contains an email error', async () => {
+    (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+          email: "Email already exists",
+        },
+        user: {
+          givenName: 'John',
+          surName: 'Doe',
+          affiliation: { uri: 'affiliation-uri' },
+          orcid: 'orcid-id',
+        },
+      },
+    });
+
+    render(<ProjectsProjectPlanFeedbackInvite />);
+
+    // Enter email address
+    const emailField = screen.getByPlaceholderText('placeHolders.email');
+    fireEvent.change(emailField, { target: { value: 'testing@example.com' } });
+
+    expect(emailField).toHaveValue('testing@example.com');
+
+    // Select the "Comment only" radio option
+    const commentOnlyRadio = screen.getByRole('radio', { name: 'comment' });
+    fireEvent.click(commentOnlyRadio);
+
+    // Click "Grant Access" button
+    const grantAccessBtn = screen.getByRole('button', { name: /buttons\.grantAccess/i });
+    fireEvent.click(grantAccessBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('Email already exists')).toBeInTheDocument();
+
+    });
+  });
+
   it('should display error messages when addProjectCollaboratorAction fails', async () => {
     (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
       success: false,
@@ -182,6 +262,27 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
 
     await waitFor(() => {
       expect(screen.getByText('messaging.somethingWentWrong')).toBeInTheDocument();
+    });
+  });
+
+  it('should redirect to correct path if addProjectCollaboratorAction returns a redirect path', async () => {
+    (addProjectCollaboratorAction as jest.Mock).mockResolvedValue({
+      success: false,
+      redirect: '/login'
+    });
+
+    render(<ProjectsProjectPlanFeedbackInvite />);
+
+    // Fill out the form
+    const emailField = screen.getByPlaceholderText('placeHolders.email');
+    fireEvent.change(emailField, { target: { value: 'test@example.com' } });
+
+    const grantAccessButton = screen.getByRole('button', { name: /buttons\.grantAccess/i });
+    fireEvent.click(grantAccessButton);
+
+    await waitFor(() => {
+      // Should redirect to the Feeback page when modal is closed
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/login');
     });
   });
 

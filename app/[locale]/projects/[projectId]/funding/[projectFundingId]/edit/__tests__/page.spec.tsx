@@ -1,13 +1,16 @@
 import React from 'react';
-import {act, fireEvent, render, screen, within} from '@testing-library/react';
-import {useParams, useRouter} from 'next/navigation';
+import { act, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
+import { useParams, useRouter } from 'next/navigation';
+import { ApolloError } from '@apollo/client';
 import {
   useProjectFundingQuery,
   useUpdateProjectFundingMutation
 } from '@/generated/graphql';
+import logECS from '@/utils/clientLogger';
+
 import ProjectsProjectFundingEdit from '../page';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -53,6 +56,7 @@ describe('ProjectsProjectFundingEdit', () => {
         },
       },
       loading: false,
+      refetch: jest.fn()
     });
   });
 
@@ -94,6 +98,97 @@ describe('ProjectsProjectFundingEdit', () => {
     expect(screen.getByLabelText('labels.projectNumber')).toBeInTheDocument();
     expect(screen.getByLabelText('labels.opportunity')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.saveChanges/i })).toBeInTheDocument();
+  });
+
+  it('should update the funderName field when the user types in the input', async () => {
+    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const funderNameInput = screen.getByLabelText('labels.funderName');
+    fireEvent.change(funderNameInput, { target: { value: 'New-funderName-123' } });
+
+    expect(funderNameInput).toHaveValue('New-funderName-123');
+  });
+
+  it('should update the funderStatus field when the user selects a new option', async () => {
+    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const funderStatusSelect = screen.getByLabelText('labels.funderStatus');
+    fireEvent.change(funderStatusSelect, { target: { value: 'GRANTED' } });
+
+    expect(funderStatusSelect).toHaveValue('GRANTED');
+  });
+
+  it('should update the grantNumber field when the user types in the input', async () => {
+    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const grantNumberInput = screen.getByLabelText('labels.grantNumber');
+    fireEvent.change(grantNumberInput, { target: { value: 'New-grantNumber-123' } });
+
+    expect(grantNumberInput).toHaveValue('New-grantNumber-123');
+  });
+
+  it('should update the projectNumber field when the user types in the input', async () => {
+    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const projectNumberInput = screen.getByLabelText('labels.projectNumber');
+    fireEvent.change(projectNumberInput, { target: { value: 'New-projectNumber-123' } });
+
+    expect(projectNumberInput).toHaveValue('New-projectNumber-123');
+  });
+
+
+  it('should update the opportunityNumber field when the user types in the input', async () => {
+    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const opportunityInput = screen.getByLabelText('labels.opportunity');
+    fireEvent.change(opportunityInput, { target: { value: 'New-opportunity-123' } });
+
+    expect(opportunityInput).toHaveValue('New-opportunity-123');
   });
 
   it('should display loading message when data is loading', async () => {
@@ -143,6 +238,32 @@ describe('ProjectsProjectFundingEdit', () => {
     });
   });
 
+  it('should display error messages when mutation throws an error', async () => {
+    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockRejectedValueOnce(new Error("Error")),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    fireEvent.submit(screen.getByRole('button', { name: /buttons.saveChanges/i }));
+    expect(await screen.findByText('messages.errors.projectFunderUpdateFailed')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'updateProjectFunderMutation',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/projects/[projectId]/funder/[projectFunderId]/edit' },
+        })
+      );
+    });
+  });
+
   it('should display error messages when form submission fails', async () => {
     const mockUpdateProjectFundingMutation = jest.fn().mockResolvedValue({
       data: { updateProjectFunding: { errors: { general: 'Update failed' } } },
@@ -161,6 +282,52 @@ describe('ProjectsProjectFundingEdit', () => {
 
     fireEvent.submit(screen.getByRole('button', { name: /buttons.saveChanges/i }));
     expect(await screen.findByText('Update failed')).toBeInTheDocument();
+  });
+
+  it('should call refetch when the mutation returns an error that is an instance of Apollo Error', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'unauthorized',
+    });
+
+    const mockRefetch = jest.fn(); // Mock the refetch function
+
+    mockUseProjectFunderQuery.mockReturnValue({
+      data: {
+        projectFunder: {
+          affiliation: {
+            name: 'National Science Foundation',
+          },
+          funderOpportunityNumber: 'NSF-12345-ABC',
+          funderProjectNumber: 'IRL-123-1234',
+          grantId: 'https://example.com/awards/IRL-000000X1',
+          status: 'DENIED',
+        },
+      },
+      loading: false,
+      refetch: mockRefetch, // Use the mocked refetch function
+    });
+
+    const mockUpdateUserFunder = jest.fn().mockRejectedValue(apolloError);
+
+    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+      mockUpdateUserFunder,
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    fireEvent.submit(screen.getByRole('button', { name: /buttons.saveChanges/i }));
+
+    // Assert that refetch was called
+    await waitFor(() => {
+      expect(mockRefetch).toHaveBeenCalled();
+    });
   });
 
   it('should pass axe accessibility test', async () => {

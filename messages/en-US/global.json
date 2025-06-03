@@ -4,20 +4,8 @@
     "linkText": "Go to the Connections page",
     "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
   },
-  "LocaleTest": {
-    "title": "Localization Test",
-    "content": "Hello {name}!",
-    "itemCount": "{count, plural, one {You have {count} item} other {You have {count} items}}",
-    "message": "Please refer to <guidelines>the guidelines</guidelines>.",
-    "markup": "This is <important>important</important>",
-    "raw": "&lt;script&gt;alert('Hacked!')&lt;/script&gt;",
-    "general": "This is new content"
-  },
   "About": {
     "title": "Welcome to the DMP Tool"
-  },
-  "Test": {
-    "info": "You can try again later."
   },
   "Header": {
     "menuDashboard": "Dashboard",

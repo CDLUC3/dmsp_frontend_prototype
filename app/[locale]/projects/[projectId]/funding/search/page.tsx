@@ -1,6 +1,8 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,9 +20,13 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { routePath } from '@/utils/routes';
+
 import styles from './ProjectsProjectFundingSearch.module.scss';
 
 const ProjectsProjectFundingSearch = () => {
+  const router = useRouter();
+
   // State for search field input
   const [searchTerm, setSearchTerm] = useState<string>("NSF");
 
@@ -66,13 +72,13 @@ const ProjectsProjectFundingSearch = () => {
   const handleSelectFunder = (funder: string) => {
     console.log('Funder selected:', funder);
     // Handle funder selection logic (e.g., save state)
-    window.location.href = '/en-US/projects/proj_2425/funder';
+    router.push(routePath('projects.funder.index', { projectId: 'proj_2425' }))
   };
 
   const handleAddFunderManually = () => {
     console.log('Add funder manually clicked');
     // Handle manual addition of funders
-    window.location.href = '/projects/proj_2425/funder/edit';
+    router.push(routePath('projects.funder.edit', { projectId: 'proj_2425' }))
   };
 
   return (
@@ -113,7 +119,7 @@ const ProjectsProjectFundingSearch = () => {
           {/* "Empty State" - Most Used Funders (shown before search is executed) */}
           {!hasSearched && (
             <section aria-labelledby="most-used-section">
-              <h3 id="most-used-section">Most popular funders</h3>
+              <h2 id="most-used-section" className="heading-3">Most popular funders</h2>
               <div className={styles.funderResultsList}>
                 {mostUsedFunders.map((funder, index) => (
                   <div

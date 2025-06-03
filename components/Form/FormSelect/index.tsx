@@ -43,7 +43,6 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     description,
     selectClasses,
     onChange,
-    children,
     items,
     ...rest
   } = props;
@@ -60,7 +59,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
           <Label>{label}</Label>
           <Text slot="description" className="help">
             {description}</Text>
-          <Button className='react-aria-Button' ref={ref}>
+          <Button className='react-aria-Button' ref={ref} data-testid="select-button">
             <SelectValue onChange={onChange} />
             <span
               aria-hidden="true"
@@ -94,6 +93,9 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     </Select >
   );
 });
+
+FormSelect.displayName = 'FormSelect';
+
 
 export function MyItem(props: ListBoxItemProps) {
   return (

@@ -1,6 +1,7 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -26,8 +27,12 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from '@/components/Container';
+import { routePath } from '@/utils/routes';
+
 
 const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
+  const router = useRouter();
+
   const [formData] = useState({
     type: '',
     title: '',
@@ -66,6 +71,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
     'University Repository',
   ];
 
+  const REDIRECT_TO_RESEARCH_OUTPUTS = routePath('projects.dmp.research-outputs', { projectId: 'proj_2425', dmpId: 'xxx' });
 
   const handleSubmit = () => {
     console.log('Submitting form data:', formData);
@@ -103,10 +109,10 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
         <ContentContainer className="layout-content-container-full">
           <form onSubmit={(e) => e.preventDefault()}>
             <Select name="type"
-                >
+            >
               <Label>Type</Label>
               <Button>
-                <SelectValue/>
+                <SelectValue />
                 <span aria-hidden="true">▼</span>
               </Button>
               <Popover>
@@ -116,7 +122,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
                   ))}
                 </ListBox>
               </Popover>
-              <FieldError/>
+              <FieldError />
             </Select>
 
             <TextField name="title" type="text" isRequired>
@@ -125,7 +131,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
                 value={formData.title}
 
               />
-              <FieldError/>
+              <FieldError />
             </TextField>
 
             <TextField name="abbreviation" type="text">
@@ -133,14 +139,14 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
               <Input
                 value={formData.abbreviation}
               />
-              <FieldError/>
+              <FieldError />
             </TextField>
 
 
             <TextField name="description" isRequired>
               <Label>Description</Label>
-              <TextArea/>
-              <FieldError/>
+              <TextArea />
+              <FieldError />
             </TextField>
 
 
@@ -152,7 +158,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
               <Checkbox value="sensitiveData">
                 <div className="checkbox">
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 May contain sensitive data
@@ -160,7 +166,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
               <Checkbox value="personalData">
                 <div className="checkbox">
                   <svg viewBox="0 0 18 18" aria-hidden="true">
-                    <polyline points="1 9 7 14 15 4"/>
+                    <polyline points="1 9 7 14 15 4" />
                   </svg>
                 </div>
                 May contain personally identifiable information
@@ -171,7 +177,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
             <Select name="repository">
               <Label>Repository</Label>
               <Button>
-                <SelectValue/>
+                <SelectValue />
                 <span aria-hidden="true">▼</span>
               </Button>
               <Popover>
@@ -181,7 +187,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
                   ))}
                 </ListBox>
               </Popover>
-              <FieldError/>
+              <FieldError />
             </Select>
 
             <Select
@@ -189,7 +195,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
             >
               <Label>Initial Access Level</Label>
               <Button>
-                <SelectValue/>
+                <SelectValue />
                 <span aria-hidden="true">▼</span>
               </Button>
               <Popover>
@@ -199,7 +205,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
                   ))}
                 </ListBox>
               </Popover>
-              <FieldError/>
+              <FieldError />
             </Select>
 
             <TextField name="releaseDate" type="text">
@@ -207,7 +213,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
               <Input
                 value={formData.releaseDate}
               />
-              <FieldError/>
+              <FieldError />
             </TextField>
 
 
@@ -217,7 +223,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
               <Input
                 value={formData.license}
               />
-              <FieldError/>
+              <FieldError />
             </TextField>
 
             <div className="formActions">
@@ -227,14 +233,14 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
               <Button
                 type="button"
                 className="secondary"
-                onPress={() => window.history.back()}
+                onPress={() => router.push(REDIRECT_TO_RESEARCH_OUTPUTS)}
               >
                 Cancel
               </Button>
             </div>
           </form>
         </ContentContainer>
-        <SidebarPanel/>
+        <SidebarPanel />
       </LayoutWithPanel>
     </>
   );

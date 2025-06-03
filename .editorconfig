@@ -5,7 +5,7 @@
 # top-most EditorConfig file
 root = true
 
-[*]
+[*, *.tsx, *.ts, *.js, *.jsx]
 charset = utf-8
 # Unix-style newlines with a newline ending every file
 end_of_line = lf
