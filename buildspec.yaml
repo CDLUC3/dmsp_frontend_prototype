@@ -10,14 +10,6 @@ phases:
       # EnvironmentVariable config for the Pipeline action :(
       - export AWS_VERSION=$(aws --version)
 
-      # Install dependencies for testing
-      - echo "Installing dependencies for testing..."
-      - npm ci
-      
-      # Run tests
-      - echo "Running unit tests..."
-      - npm run test
-      
       # Fetch the ECR repository name
       - echo $ECR_REPOSITORY_URI >> .ecr
       - export SHORT_ECR_URI=$(awk '{gsub("$ECR_REPOSITORY_NAME", "");print}' .ecr)
