@@ -159,7 +159,7 @@
     "title": "Membros do Projeto",
     "description": "Defina contribuidores e membros da equipe e seu papel neste projeto.",
     "buttons": {
-      "addCollaborators": "Adicionar colaboradores",
+      "addMembers": "Adicionar membros",
       "shareWithPeople": "Compartilhar com pessoas"
     },
     "headings": {

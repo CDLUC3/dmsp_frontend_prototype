@@ -46,8 +46,8 @@ const ProjectsProjectMembers = () => {
     }
   );
 
-  const handleAddCollaborator = (): void => {
-    // Handle adding new collaborator
+  const handleAddMember = (): void => {
+    // Handle adding new member
     router.push(`/projects/${projectId}/members/search`);
   };
 
@@ -107,10 +107,10 @@ const ProjectsProjectMembers = () => {
         actions={
           <>
             <Button
-              onPress={handleAddCollaborator}
+              onPress={handleAddMember}
               className="secondary"
             >
-              {ProjectMembers('buttons.addCollaborators')}
+              {ProjectMembers('buttons.addMembers')}
             </Button>
           </>
         }

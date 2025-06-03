@@ -73,16 +73,16 @@ const ProjectsProjectMembersSearch = () => {
     window.location.href = '/projects/proj_2425/members';
   };
 
-  const handleCreateCollaborator = () => {
-    console.log('Creating new collaborator');
-    // Navigate to create collaborator page
+  const handleCreateMember = () => {
+    console.log('Creating new member');
+    // Navigate to create member page
     window.location.href = '/projects/proj_2425/members/edit';
   };
 
   return (
     <>
       <PageHeader
-        title="Who are the collaborators?"
+        title="Who are the project members?"
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -172,10 +172,10 @@ const ProjectsProjectMembersSearch = () => {
               manually</p>
             <Button
               className="secondary"
-              onPress={handleCreateCollaborator}
-              aria-label="Create collaborator"
+              onPress={handleCreateMember}
+              aria-label="Create member"
             >
-              Create collaborator
+              Create member
             </Button>
           </section>
         </ContentContainer>
