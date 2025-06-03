@@ -23,6 +23,7 @@ import { EmailInterface } from '@/app/types';
 import logECS from '@/utils/clientLogger';
 import styles from './updateEmailAddress.module.scss';
 import { useToast } from '@/context/ToastContext';
+import { routePath } from '@/utils/routes';
 
 const GET_USER = MeDocument;
 
@@ -88,10 +89,14 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
           ],
         });
       } else {
-        setErrors(prevErrors => ({ ...prevErrors, general: 'Error when setting primary email' }));
+        // Display other errors
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          general: 'Error when setting primary email'
+        }));
         logECS('error', 'makePrimaryEmail', {
           error: err,
-          url: { path: '/account/profile' },
+          url: { path: routePath('account.profile') }
         });
       }
     }
@@ -101,7 +106,11 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
   // Show Success Message
   const showSuccessToast = () => {
     const successMessage = t('messages.emailAddressUpdateSuccess');
-    toastState.add(successMessage, { type: 'success', priority: 1, timeout: 10000 });
+    toastState.add(successMessage, {
+      type: 'success',
+      priority: 1,
+      timeout: 10000
+    });
   }
   // Adding new email alias
   const handleAddingAlias = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -153,10 +162,13 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         setAddAliasValue('');
       } else {
         // Display other errors
-        setErrors(prevErrors => ({ ...prevErrors, general: 'Error when adding new email' }));
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          general: 'Error when adding new email'
+        }));
         logECS('error', 'handleAddingAlias', {
           error: err,
-          url: { path: '/account/profile' }
+          url: { path: routePath('account.profile') }
         });
       }
     }
@@ -199,19 +211,21 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         })
       } else {
         // Display other errors
-        setErrors(prevErrors => ({ ...prevErrors, general: 'Error when deleting email' }));
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          general: 'Error when deleting email'
+        }));
         logECS('error', 'deleteEmail', {
           error: err,
-          url: { path: '/account/profile' }
+          url: { path: routePath('account.profile') }
         });
       }
-    };
+    }
+    ;
   }
 
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Clear errors
-    //clearErrors();
     setAddAliasValue(value);
   }
 
@@ -228,8 +242,9 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
         <div className="sectionContent">
           <div className={styles.subSection}>
             <ErrorMessages errors={[errors?.general ? errors?.general : '']} />
+
             <h3>{t('headingPrimaryEmail')}</h3>
-            <p>{t('primaryEmailDesc')}</p>
+            <p className={"my-1 pb-0"}>{t('primaryEmailDesc')}</p>
 
             {/* Render the primary email */}
             {emailAddresses.filter(emailObj => emailObj.isPrimary).map((emailObj) => (
@@ -242,15 +257,22 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
                 toolTipMessage="Primary email cannot be deleted."
               />
             ))}
-            <h4>{t('headingSSO')}</h4>
-            <p>{t('SSODesc')}</p>
-            <h4>{t('headingNotifications')}</h4>
-            <p>        {t.rich('notificationsDesc', {
-              manage: (chunks) => <Link href="">{chunks}</Link>
-            })}</p>
+            <div className="mt-2">
+              <p className={"mb-1 pb-0"}><strong>{t('headingSSO')}</strong></p>
+              <p className={"my-0 pb-0"}>{t('SSODesc')}</p>
+
+              <p className={"mb-1 pb-0"}>
+                <strong>{t('headingNotifications')}</strong></p>
+              <p className={"my-0 pb-4"}>{t.rich('notificationsDesc', {
+                manage: (chunks) => <Link
+                  href={routePath('account.notifications')}
+                  target="_blank">{chunks}</Link>
+              })}</p>
+            </div>
+            <hr />
           </div>
           <div className={styles.subSection}>
-            <hr />
+
             <h3>{t('headingAliasEmailAddr')}</h3>
             <p>{t('aliasEmailDesc')}</p>
 
@@ -263,14 +285,14 @@ const UpdateEmailAddress: React.FC<UpdateEmailAddressProps> = ({
                 makePrimaryEmail={makePrimaryEmail}
               />
             ))}
-            <hr />
+
             <Form onSubmit={e => handleAddingAlias(e)}>
               <div className={styles.addContainer}>
                 <FormInput
                   name="addAlias"
                   type="text"
                   label={t('headingAddAliasEmail')}
-                  className={`${styles.addAliasTextField} react - aria - TextField`}
+                  className={`${styles.addAliasTextField} react-aria-TextField`}
                   isInvalid={errors?.email ? true : false}
                   errorMessage={errors?.email ?? ''}
                   helpMessage={t('helpTextForAddAlias')}

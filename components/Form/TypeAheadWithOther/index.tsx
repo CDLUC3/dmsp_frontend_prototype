@@ -55,6 +55,7 @@ const TypeAheadWithOther = ({
   resultsKey,
   otherText = "Other",
 }: TypeAheadInputProps) => {
+  const [initialInputValue, setInitialInputValue] = useState<string>(''); // Needed to set initial input value without triggering search
   const [inputValue, setInputValue] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
@@ -108,6 +109,7 @@ const TypeAheadWithOther = ({
     setOpen(true);
     setOtherField(false);
     setInputValue('');
+    setInitialInputValue('');
     updateFormData({});
   }
 
@@ -185,7 +187,6 @@ const TypeAheadWithOther = ({
         // input value
         if (currentListItemFocused !== -1) {
           handleSelection(e)
-          // setOtherSelected(false);
         }
         break;
 
@@ -205,7 +206,7 @@ const TypeAheadWithOther = ({
 
   useEffect(() => {
     if (value) {
-      setInputValue(value);
+      setInitialInputValue(value);
     }
   }, [])
 
@@ -312,7 +313,7 @@ const TypeAheadWithOther = ({
         <Input
           name={fieldName}
           type="text"
-          value={inputValue}
+          value={inputValue ? inputValue : initialInputValue}
           role="textbox"
           aria-controls="results"
           aria-activedescendant={activeDescendentId}

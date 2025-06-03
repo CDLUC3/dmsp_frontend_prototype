@@ -38,9 +38,9 @@ import {
   TextField
 } from "react-aria-components";
 
-
 import { DmpEditor } from "@/components/Editor";
 import { DmpIcon } from "@/components/Icons";
+import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 import {
   Card,
@@ -101,8 +101,8 @@ function Page() {
       be measured by cooperation partners are marked with an asterisk (*).
       Already existing data of the analytical methods will be reused in the
       stated formats.</p>
-    <table style="border-collapse: collapse; width: 100%; height: 371px;"
-           border="1">
+<table style="border-collapse: collapse; width: 99.9706%;" border="1">
+
       <colgroup>
         <col style="width: 20%;">
         <col style="width: 20%;">
@@ -191,6 +191,7 @@ function Page() {
       </tr>
       </tbody>
     </table>
+
     <p>(Raw) data generated within the working group Herres-Pawlis at the
       Institute of Inorganic Chemistry, RWTH Aachen University will be saved at
       least in a non-proprietary file format for reuse by scientists within the
@@ -381,6 +382,7 @@ function Page() {
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
           <a href="#_richtext">RichText Editor</a>
+          <a href="#_tinymce">TinyMCE Editor</a>
           <a href="#_toast">Toast Messages</a>
           <a href="#_questionpreview">QuestionPreview Bottomsheet</a>
         </SidebarPanel>
@@ -1906,6 +1908,7 @@ function Page() {
             </Example>
           </div>
 
+
           <div id="_richtext">
             <h2>ReMirror Editor (Custom)</h2>
             <p>Required properties:</p>
@@ -1923,6 +1926,34 @@ function Page() {
             </div>
             <hr />
             <DmpEditor content={editorContent} setContent={setEditorContent} />
+          </div>
+
+          <div id="_tinymce">
+            <h2>TinyMCE Editor</h2>
+            <p>Required properties:</p>
+            <dl>
+              <dt><code>content</code></dt>
+              <dd>The variable that hold the html content for the editor.</dd>
+
+              <dt><code>setContent</code></dt>
+              <dd>The effect function that will update the content variable</dd>
+
+              <dt><code>Optional props</code></dt>
+              <dd>
+                <p>The <code>error</code> and <code>helpText</code> adds text below the editor.</p>
+                <p>And the <code>id</code> is added to the editor tag, and the <code>labelid</code> is used for an aria-labelledby</p>
+              </dd>
+            </dl>
+            <p>Example Usage:</p>
+            <TinyMCEEditor
+              content={editorContent}
+              setContent={setEditorContent}
+              error={undefined}
+              id="tinymce-test"
+              labelId="_tinymce"
+              helpText="This is a tinymce test to try out the editor"
+            />
+
           </div>
 
           <div id="_toast">

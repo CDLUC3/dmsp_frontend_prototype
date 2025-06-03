@@ -15,12 +15,10 @@ import { mockScrollIntoView, mockScrollTo } from '@/__mocks__/common';
 expect.extend(toHaveNoViolations);
 
 jest.mock('next/navigation', () => ({
-  useRouter: jest.fn()
-}));
-
-jest.mock('@/components/PageHeader', () => ({
-  __esModule: true,
-  default: () => <div data-testid="page-header">Mocked PageHeader Component</div>,
+  useRouter: jest.fn(),
+  useSearchParams: () => ({
+    get: jest.fn(),
+  })
 }));
 
 jest.mock('@/utils/clientLogger', () => ({
@@ -117,7 +115,7 @@ describe('ProfilePage', () => {
     render(<ProfilePage />);
 
     // Confirm that "FormInput" fields are initially hidden
-    expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/givenName/i)).not.toBeInTheDocument();
 
     // Locate the Edit button and click it
     const editButton = screen.getByRole('button', { name: /edit/i });
@@ -126,8 +124,8 @@ describe('ProfilePage', () => {
       fireEvent.click(editButton);
     })
 
-    const firstNameInput = await screen.getByLabelText(/first name/i);
-    const lastNameInput = await screen.getByLabelText(/last name/i);
+    const firstNameInput = await screen.getByLabelText(/givenName/i);
+    const lastNameInput = await screen.getByLabelText(/surName/i);
     const typeAheadInstitutionField = screen.getByText("Mocked Institution Field");
     const languageSelector = screen.getByRole('button', { name: /Language/i });
 
@@ -149,7 +147,7 @@ describe('ProfilePage', () => {
       fireEvent.click(editButton);
     })
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
+    const firstNameInput = screen.getByLabelText(/givenName/i);
 
     // Enter an invalid value for first name field
     await act(async () => {
@@ -173,7 +171,7 @@ describe('ProfilePage', () => {
       fireEvent.click(editButton);
     })
 
-    const lastNameInput = screen.getByLabelText(/last name/i);
+    const lastNameInput = screen.getByLabelText(/surName/i);
 
     // Enter an invalid value for first name field
     await act(async () => {
@@ -228,7 +226,7 @@ describe('ProfilePage', () => {
     expect(formSelectContainer).toBeInTheDocument();
 
     // Verify the label
-    const label = screen.getByText('Language');
+    const label = screen.getByText('language');
     expect(label).toBeInTheDocument();
     expect(label).toHaveAttribute('id');
 
@@ -270,11 +268,12 @@ describe('ProfilePage', () => {
     expect(englishSelection).toBeInTheDocument();
   });
 
+
   it('should set data back to original when clicking Cancel button', async () => {
     render(<ProfilePage />);
 
     // Confirm that "FormInput" fields are initially hidden
-    expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/givenName/i)).not.toBeInTheDocument();
 
     // Locate the Edit button and click it
     const editButton = screen.getByRole('button', { name: /edit/i });
@@ -283,8 +282,8 @@ describe('ProfilePage', () => {
       fireEvent.click(editButton);
     })
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
-    const lastNameInput = screen.getByLabelText(/last name/i);
+    const firstNameInput = screen.getByLabelText(/givenName/i);
+    const lastNameInput = screen.getByLabelText(/surName/i);
 
     // Confirm that clicking "Edit" reveals the form input fields
     expect(firstNameInput).toBeInTheDocument();
@@ -319,7 +318,7 @@ describe('ProfilePage', () => {
     render(<ProfilePage />);
 
     // Confirm that "FormInput" fields are initially hidden
-    expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/givenName/i)).not.toBeInTheDocument();
 
     // Locate the Edit button and click it
     const editButton = screen.getByRole('button', { name: /edit/i });
@@ -328,8 +327,8 @@ describe('ProfilePage', () => {
       fireEvent.click(editButton);
     });
 
-    const firstNameInput = screen.getByLabelText(/first name/i);
-    const lastNameInput = screen.getByLabelText(/last name/i);
+    const firstNameInput = screen.getByLabelText(/givenName/i);
+    const lastNameInput = screen.getByLabelText(/surName/i);
 
     // Confirm that clicking "Edit" reveals the form input fields
     expect(firstNameInput).toBeInTheDocument();
