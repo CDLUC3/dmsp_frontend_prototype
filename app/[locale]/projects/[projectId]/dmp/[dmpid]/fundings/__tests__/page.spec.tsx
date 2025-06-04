@@ -18,6 +18,8 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
     })
+
+    window.scrollTo = jest.fn(); // Mock scrollTo to prevent errors in tests
   })
 
   afterEach(() => {

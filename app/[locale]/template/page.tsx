@@ -237,8 +237,8 @@ const TemplateListPage: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('Filtered templates:', filteredTemplates);
-    console.log('Templates:', templates);
+    // console.log('Filtered templates:', filteredTemplates);
+    // console.log('Templates:', templates);
   }, [filteredTemplates, templates]);
 
   // TODO: Implement shared loading
