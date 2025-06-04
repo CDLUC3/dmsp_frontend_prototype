@@ -258,7 +258,7 @@ describe('ProjectsProjectFundingEdit', () => {
         'updateProjectFundingMutation',
         expect.objectContaining({
           error: expect.anything(),
-          url: { path: '/projects/[projectId]/funding/[projectFundingId]/edit' },
+          url: { path: '/projects/[projectId]/fundings/[projectFundingId]/edit' },
         })
       );
     });

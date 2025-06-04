@@ -57,7 +57,7 @@ const ProjectsProjectFundingEdit = () => {
 
   // Get projectId and projectFundingID
   const params = useParams();
-  const { projectId, projectFundingId } = params; // From route /projects/:projectId/funding/:projectFundingId/edit
+  const { projectId, projectFundingId } = params; // From route /projects/:projectId/fundings/:projectFundingId/edit
 
   const [projectFunding, setProjectFunding] = useState<ProjectFundingInterface>({
     funderName: '',
@@ -149,7 +149,7 @@ const ProjectsProjectFundingEdit = () => {
     } catch (error) {
       logECS('error', 'updateProjectFundingMutation', {
         error,
-        url: { path: '/projects/[projectId]/funding/[projectFundingId]/edit' }
+        url: { path: '/projects/[projectId]/fundings/[projectFundingId]/edit' }
       });
       if (error instanceof ApolloError) {
         if (error.message.toLowerCase() === "unauthorized") {
@@ -191,7 +191,7 @@ const ProjectsProjectFundingEdit = () => {
       // Show success message
       showSuccessToast();
       // Redirect back to the project funding page
-      router.push(`/projects/${projectId}/funding`);
+      router.push(`/projects/${projectId}/fundings`);
     }
   };
 
@@ -229,7 +229,7 @@ const ProjectsProjectFundingEdit = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}/funding`}>{Global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={`/projects/${projectId}/fundings`}>{Global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
             <Breadcrumb>{EditFunding('title')}</Breadcrumb>
           </Breadcrumbs>
         }

@@ -142,7 +142,7 @@ const PlanOverviewPage: React.FC = () => {
   );
 
   // Set URLs
-  const FUNDINGS_URL = routePath('projects.dmp.funding', { projectId, dmpId: planId });
+  const FUNDINGS_URL = routePath('projects.dmp.fundings', { projectId, dmpId: planId });
   const MEMBERS_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
   const RESEARCH_OUTPUT_URL = routePath('projects.dmp.research-outputs', { projectId, dmpId: planId });
   const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });

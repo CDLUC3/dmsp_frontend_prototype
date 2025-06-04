@@ -190,7 +190,7 @@ const ProjectOverviewPage: React.FC = () => {
                   </span>
                 ))}
               </p>
-              <Link href={`/projects/${projectId}/funding`} aria-label={ProjectOverview('editFundings')}>
+              <Link href={`/projects/${projectId}/fundings`} aria-label={ProjectOverview('editFundings')}>
                 {ProjectOverview('editFundingDetails')}
               </Link>
             </section>

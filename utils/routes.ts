@@ -40,7 +40,7 @@ const routes = {
   'projects.dmp.index': '/projects/:projectId/dmp',
   'projects.dmp.show': '/projects/:projectId/dmp/:dmpId',
   'projects.dmp.download': '/projects/:projectId/dmp/:dmpId/download',
-  'projects.dmp.funding': '/projects/:projectId/dmp/:dmpId/fundings',
+  'projects.dmp.fundings': '/projects/:projectId/dmp/:dmpId/fundings',
   'projects.dmp.members': '/projects/:projectId/dmp/:dmpId/members',
   'projects.dmp.question': '/projects/:projectId/dmp/:dmpId/q',
   'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
