@@ -185,41 +185,16 @@ const ProjectsProjectPlanAdjustMembers = () => {
     return primaryContactId === (member as ProjectMember)?.id;
   };
 
-<<<<<<< HEAD
   // Add a new plan member
   const addPlanMember = async (id: number) => {
-    try {
-      const response = await addPlanMemberAction({
-        planId: Number(dmpId),
-        projectMemberId: id
-      });
-
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      }
-    } catch (error) {
-      logECS('error', 'addPlanMember', {
-        error,
-        url: { path: PLAN_MEMBERS_ROUTE }
-      });
-=======
-  // Add a new plan contributor
-  const addPlanContributor = async (id: number) => {
     // Don't need a try-catch block here, as the error is handled in the server action
-    const response = await addPlanContributorAction({
+    const response = await addPlanMemberAction({
       planId: Number(dmpId),
-      projectContributorId: id
+      projectMemberId: id
     });
 
     if (response.redirect) {
       router.push(response.redirect);
->>>>>>> 2f82e74565ca728c81094ea04d273fdcd6ab81e7
     }
 
     return {

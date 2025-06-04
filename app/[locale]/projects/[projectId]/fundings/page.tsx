@@ -17,12 +17,12 @@ const ProjectsProjectFunding = () => {
   const router = useRouter();
 
   const handleAddFunding = () => {
-    router.push(routePath('projects.funding.search', { projectId: 'proj_2425' }))
+    router.push(routePath('projects.fundings.search', { projectId: 'proj_2425' }))
   };
 
   const handleEditFunding = () => {
     // Navigate to edit page or open modal
-    router.push(routePath('projects.funding.edit', { projectId: 'proj_2425' }))
+    router.push(routePath('projects.fundings.edit', { projectId: 'proj_2425', projectFundingId: 'projFund_6902' }))
   };
 
   return (

@@ -61,7 +61,7 @@ describe('ProjectsCreateProjectFunding', () => {
     fireEvent.click(continueButton);
     await waitFor(() => {
       // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/create-project/funding-search');
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/create-project/funder-search');
     });
   });
 

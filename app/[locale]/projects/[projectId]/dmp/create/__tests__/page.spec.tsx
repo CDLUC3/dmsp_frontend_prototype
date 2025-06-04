@@ -148,8 +148,8 @@ describe('PlanCreate Component', () => {
     expect(screen.getByText('helpText.searchHelpText')).toBeInTheDocument();
     expect(screen.getByText('buttons.search')).toBeInTheDocument();
 
-    expect(screen.getByRole('group', { name: /checkbox.filterByFundingLabel/i })).toBeInTheDocument();
-    expect(screen.getByText('checkbox.filterByFundingDescription')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /checkbox.filterByFunderLabel/i })).toBeInTheDocument();
+    expect(screen.getByText('checkbox.filterByFunderDescription')).toBeInTheDocument();
 
     // We should have two checkboxes for project funders checked
     expect(screen.getByRole('checkbox', { name: /National Science Foundation \(nsf.gov\)/i })).toBeInTheDocument();

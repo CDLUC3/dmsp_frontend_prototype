@@ -26,7 +26,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
 
   it('should render the page header with correct title and description', () => {
     render(<ProjectsProjectPlanAdjustFunding />);
-    expect(screen.getByText('Project Funders')).toBeInTheDocument();
+    expect(screen.getByText('Project Funding')).toBeInTheDocument();
     expect(screen.getByText('Manage funding sources for your project')).toBeInTheDocument();
   });
 
@@ -36,16 +36,16 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     expect(screen.getByText('Projects')).toBeInTheDocument();
   });
 
-  it('should render the radio group with funder options', () => {
+  it('should render the radio group with funding options', () => {
     render(<ProjectsProjectPlanAdjustFunding />);
-    expect(screen.getByText('Select a funder for this plan')).toBeInTheDocument();
+    expect(screen.getByText('Select funding sources for this plan')).toBeInTheDocument();
     expect(screen.getByText('National Science Foundation (NSF)')).toBeInTheDocument();
     expect(screen.getByText('National Science Foundation - AAA (NSF-AA)')).toBeInTheDocument();
   });
 
-  it('should render the note about changing the funder', () => {
+  it('should render the note about changing the funding sources', () => {
     render(<ProjectsProjectPlanAdjustFunding />);
-    expect(screen.getByText(/Note: Changing the funder may require a template change./)).toBeInTheDocument();
+    expect(screen.getByText(/Note: Changing the funding sources may require a template change./)).toBeInTheDocument();
   });
 
   it('should render the save button', () => {
@@ -53,10 +53,10 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
 
-  it('should render the link to add a new funder', () => {
+  it('should render the link to add new funding', () => {
     render(<ProjectsProjectPlanAdjustFunding />);
-    expect(screen.getByText('Add a new funder')).toBeInTheDocument();
-    expect(screen.getByText('Add a new funder').closest('a')).toHaveAttribute('href', '/projects/proj_2425/funder/');
+    expect(screen.getByText('Add a new funding source')).toBeInTheDocument();
+    expect(screen.getByText('Add a new funding source').closest('a')).toHaveAttribute('href', '/projects/proj_2425/fundings/');
   });
 
   it('should handle form submission', async () => {

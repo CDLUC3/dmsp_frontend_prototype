@@ -72,13 +72,13 @@ const ProjectsProjectFundingSearch = () => {
   const handleSelectFunder = (funder: string) => {
     console.log('Funder selected:', funder);
     // Handle funder selection logic (e.g., save state)
-    router.push(routePath('projects.funder.index', { projectId: 'proj_2425' }))
+    router.push(routePath('projects.fundings.index', { projectId: 'proj_2425' }))
   };
 
   const handleAddFunderManually = () => {
     console.log('Add funder manually clicked');
     // Handle manual addition of funders
-    router.push(routePath('projects.funder.edit', { projectId: 'proj_2425' }))
+    router.push(routePath('projects.fundings.edit', { projectId: 'proj_2425', projectFundingId: 'projFund_6902' }))
   };
 
   return (

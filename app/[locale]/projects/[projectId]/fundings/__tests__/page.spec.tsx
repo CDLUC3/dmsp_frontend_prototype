@@ -26,7 +26,7 @@ describe('ProjectsProjectFunding', () => {
 
   it('should render the page header with title and description', () => {
     render(<ProjectsProjectFunding />);
-    expect(screen.getByText('Project Fundings')).toBeInTheDocument();
+    expect(screen.getByText('Project Funding')).toBeInTheDocument();
     expect(screen.getByText('Manage funding sources for your project')).toBeInTheDocument();
   });
 
@@ -44,7 +44,7 @@ describe('ProjectsProjectFunding', () => {
     fireEvent.click(addButton);
     await waitFor(() => {
       // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/funding/search');
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/fundings/search');
     });
   });
 
@@ -56,7 +56,7 @@ describe('ProjectsProjectFunding', () => {
     fireEvent.click(editButton);
     await waitFor(() => {
       // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/funding/edit');
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/fundings/projFund_6902/edit');
     });
   });
 

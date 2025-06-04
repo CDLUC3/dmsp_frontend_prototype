@@ -147,7 +147,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     expect(jacquesCousteau).toBeInTheDocument();
   });
 
-  it('should call refetch for projectsContributorQuery when an Apollo Error instance is returned from removing a member', async () => {
+  it('should call refetch for projectsMemberQuery when an Apollo Error instance is returned from removing a member', async () => {
     const apolloError = new ApolloError({
       graphQLErrors: [{ message: 'Apollo error occurred' }],
       networkError: null,
@@ -159,7 +159,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
       .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
 
 
-    (useRemovePlanContributorMutation as jest.Mock).mockReturnValue([
+    (useRemovePlanMemberMutation as jest.Mock).mockReturnValue([
       mockRemoveEmailResponse,
       { loading: false, error: undefined }
     ]);
@@ -184,9 +184,9 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     });
   });
 
-  it('should call logECS when useRemovePlanContributorMutation throws an error', async () => {
+  it('should call logECS when useRemovePlanMemberMutation throws an error', async () => {
 
-    (useRemovePlanContributorMutation as jest.Mock).mockReturnValue([
+    (useRemovePlanMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockRejectedValueOnce(new Error("Error")),
       { loading: false, error: undefined },
     ]);
@@ -209,7 +209,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'removePlanContributor',
+        'removePlanMember',
         expect.objectContaining({
           error: expect.anything(),
           url: { path: '/en-US/projects/1/dmp/1/members' },
@@ -260,13 +260,13 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     expect(jacquesCousteau).toBeInTheDocument();
   });
 
-  it('should display error when error is returned while adding a contributor', async () => {
-    const mockAddPlanContributorAction = addPlanContributorAction as jest.Mock;
+  it('should display error when error is returned while adding a member', async () => {
+    const mockAddPlanMemberAction = addPlanMemberAction as jest.Mock;
 
     // Mock the server action to return a successful response
-    mockAddPlanContributorAction.mockResolvedValue({
+    mockAddPlanMemberAction.mockResolvedValue({
       success: false,
-      errors: ['There was an error adding the contributor'],
+      errors: ['There was an error adding the member'],
       data: { id: 1, name: 'Jacques Cousteau' },
     });
 
@@ -289,18 +289,18 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
       fireEvent.click(addMemberButton);
     });
 
-    expect(screen.getByText('There was an error adding the contributor')).toBeInTheDocument();
+    expect(screen.getByText('There was an error adding the member')).toBeInTheDocument();
   });
 
   it('should handle any field-level errors returned in the data', async () => {
-    const mockAddPlanContributorAction = addPlanContributorAction as jest.Mock;
+    const mockAddPlanMemberAction = addPlanMemberAction as jest.Mock;
 
     // Mock the server action to return a successful response, but with field-level errors
-    mockAddPlanContributorAction.mockResolvedValue({
+    mockAddPlanMemberAction.mockResolvedValue({
       success: true,
       data: {
         errors: {
-          general: 'There was an error adding the contributor',
+          general: 'There was an error adding the member',
           email: null,
         },
         id: 15,
@@ -327,7 +327,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
       fireEvent.click(addMemberButton);
     });
 
-    expect(screen.getByText('There was an error adding the contributor')).toBeInTheDocument();
+    expect(screen.getByText('There was an error adding the member')).toBeInTheDocument();
   });
 
   it('should handle updating the primary contact', async () => {

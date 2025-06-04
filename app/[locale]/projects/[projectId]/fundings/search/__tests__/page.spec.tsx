@@ -71,7 +71,7 @@ describe('ProjectsProjectFundingSearch', () => {
     fireEvent.click(selectButton);
     await waitFor(() => {
       // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/funding');
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/fundings');
     });
   });
 
@@ -83,12 +83,12 @@ describe('ProjectsProjectFundingSearch', () => {
     fireEvent.change(input, { target: { value: 'NSF' } });
     fireEvent.click(searchButton);
 
-    const addFunderButton = screen.getByRole('button', { name: 'Add funding manually' });
+    const addFunderButton = screen.getByRole('button', { name: 'Add funder manually' });
 
     fireEvent.click(addFunderButton);
     await waitFor(() => {
       // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/funding/edit');
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/fundings/projFund_6902/edit');
     });
   });
 

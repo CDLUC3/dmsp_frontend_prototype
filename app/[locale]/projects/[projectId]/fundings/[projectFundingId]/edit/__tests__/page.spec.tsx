@@ -101,7 +101,7 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should update the funderName field when the user types in the input', async () => {
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -118,8 +118,8 @@ describe('ProjectsProjectFundingEdit', () => {
     expect(funderNameInput).toHaveValue('New-funderName-123');
   });
 
-  it('should update the funderStatus field when the user selects a new option', async () => {
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+  it('should update the fundingStatus field when the user selects a new option', async () => {
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -130,14 +130,14 @@ describe('ProjectsProjectFundingEdit', () => {
       );
     });
 
-    const funderStatusSelect = screen.getByLabelText('labels.funderStatus');
-    fireEvent.change(funderStatusSelect, { target: { value: 'GRANTED' } });
+    const fundingStatusSelect = screen.getByLabelText('labels.fundingStatus');
+    fireEvent.change(fundingStatusSelect, { target: { value: 'GRANTED' } });
 
-    expect(funderStatusSelect).toHaveValue('GRANTED');
+    expect(fundingStatusSelect).toHaveValue('GRANTED');
   });
 
   it('should update the grantNumber field when the user types in the input', async () => {
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -155,7 +155,7 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should update the projectNumber field when the user types in the input', async () => {
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -174,7 +174,7 @@ describe('ProjectsProjectFundingEdit', () => {
 
 
   it('should update the opportunityNumber field when the user types in the input', async () => {
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -239,7 +239,7 @@ describe('ProjectsProjectFundingEdit', () => {
   });
 
   it('should display error messages when mutation throws an error', async () => {
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
       jest.fn().mockRejectedValueOnce(new Error("Error")),
       { loading: false, error: undefined },
     ]);
@@ -251,14 +251,14 @@ describe('ProjectsProjectFundingEdit', () => {
     });
 
     fireEvent.submit(screen.getByRole('button', { name: /buttons.saveChanges/i }));
-    expect(await screen.findByText('messages.errors.projectFunderUpdateFailed')).toBeInTheDocument();
+    expect(await screen.findByText('messages.errors.projectFundingUpdateFailed')).toBeInTheDocument();
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'updateProjectFunderMutation',
+        'updateProjectFundingMutation',
         expect.objectContaining({
           error: expect.anything(),
-          url: { path: '/projects/[projectId]/funder/[projectFunderId]/edit' },
+          url: { path: '/projects/[projectId]/funding/[projectFundingId]/edit' },
         })
       );
     });
@@ -293,9 +293,9 @@ describe('ProjectsProjectFundingEdit', () => {
 
     const mockRefetch = jest.fn(); // Mock the refetch function
 
-    mockUseProjectFunderQuery.mockReturnValue({
+    mockUseProjectFundingQuery.mockReturnValue({
       data: {
-        projectFunder: {
+        projectFunding: {
           affiliation: {
             name: 'National Science Foundation',
           },
@@ -309,10 +309,10 @@ describe('ProjectsProjectFundingEdit', () => {
       refetch: mockRefetch, // Use the mocked refetch function
     });
 
-    const mockUpdateUserFunder = jest.fn().mockRejectedValue(apolloError);
+    const mockUpdateUserFunding = jest.fn().mockRejectedValue(apolloError);
 
-    (useUpdateProjectFunderMutation as jest.Mock).mockReturnValue([
-      mockUpdateUserFunder,
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      mockUpdateUserFunding,
       { loading: false, error: undefined },
     ]);
 

@@ -26,7 +26,7 @@ describe('ProjectsProjectMembersSearch', () => {
 
   it('should render the page header with title', () => {
     render(<ProjectsProjectMembersSearch />);
-    expect(screen.getByText('Who are the collaborators?')).toBeInTheDocument();
+    expect(screen.getByText('Who are the project members?')).toBeInTheDocument();
   });
 
   it('should render the search field with label and description', () => {
@@ -73,7 +73,7 @@ describe('ProjectsProjectMembersSearch', () => {
 
   it('should handle "Create collaborator" button click', async () => {
     render(<ProjectsProjectMembersSearch />);
-    const createCollaboratorButton = screen.getByRole('button', { name: /Create collaborator/i });
+    const createCollaboratorButton = screen.getByRole('button', { name: /Create member/i });
 
     fireEvent.click(createCollaboratorButton);
     await waitFor(() => {

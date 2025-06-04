@@ -54,7 +54,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
           <Form onSubmit={handleSubmit}>
             <RadioGroup>
               <Label>
-                Select funding for this plan
+                Select funding sources for this plan
               </Label>
               <Text slot="description" className="help">
                 This funding list comes from the funding list attached to the project.
@@ -69,7 +69,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
 
             <p>
               <strong>
-                Note: Changing the funder may require a template change. Only
+                Note: Changing the funding sources may require a template change. Only
                 change if you are sure.
               </strong>
             </p>
@@ -91,7 +91,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
             plan can only have a single source of funding as we match it to the required
             template.
           </p>
-          <a href={"/projects/proj_2425/funding/"} >
+          <a href={"/projects/proj_2425/fundings/"} >
             Add a new funding source
           </a>
 
