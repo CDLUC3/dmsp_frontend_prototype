@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import ProjectsCreateProjectFundingSearch from '../page';
+import ProjectsCreateProjectFunderSearch from '../page';
 expect.extend(toHaveNoViolations);
 
 jest.mock('next/navigation', () => ({
@@ -13,7 +13,7 @@ jest.mock('next/navigation', () => ({
 
 const mockUseRouter = useRouter as jest.Mock;
 
-describe('ProjectsCreateProjectFundingSearch', () => {
+describe('ProjectsCreateProjectFunderSearch', () => {
   beforeEach(() => {
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
     mockUseRouter.mockReturnValue({
@@ -26,17 +26,17 @@ describe('ProjectsCreateProjectFundingSearch', () => {
   });
 
   it('should render the page header with title', () => {
-    render(<ProjectsCreateProjectFundingSearch />);
+    render(<ProjectsCreateProjectFunderSearch />);
     expect(screen.getByText('Search for Funders')).toBeInTheDocument();
   });
 
   it('should render the search field with placeholder', () => {
-    render(<ProjectsCreateProjectFundingSearch />);
+    render(<ProjectsCreateProjectFunderSearch />);
     expect(screen.getByPlaceholderText('Enter funder name...')).toBeInTheDocument();
   });
 
   it('should render the most popular funders before search', () => {
-    render(<ProjectsCreateProjectFundingSearch />);
+    render(<ProjectsCreateProjectFunderSearch />);
     expect(screen.getByText('Most popular funders')).toBeInTheDocument();
     expect(screen.getByText('Bill & Melinda Gates Foundation')).toBeInTheDocument();
     expect(screen.getByText('Wellcome Trust')).toBeInTheDocument();
@@ -44,7 +44,7 @@ describe('ProjectsCreateProjectFundingSearch', () => {
   });
 
   it('should execute search and displays results', () => {
-    render(<ProjectsCreateProjectFundingSearch />);
+    render(<ProjectsCreateProjectFunderSearch />);
     const input = screen.getByPlaceholderText('Enter funder name...');
     const searchButton = screen.getByRole('button', { name: /Search/i });
 
@@ -58,7 +58,7 @@ describe('ProjectsCreateProjectFundingSearch', () => {
   });
 
   it('should handle "Select" button click for a funder', async () => {
-    render(<ProjectsCreateProjectFundingSearch />);
+    render(<ProjectsCreateProjectFunderSearch />);
     const input = screen.getByPlaceholderText('Enter funder name...');
     const searchButton = screen.getByRole('button', { name: /Search/i });
 
@@ -75,7 +75,7 @@ describe('ProjectsCreateProjectFundingSearch', () => {
   });
 
   it('should display no results when search term does not match', () => {
-    render(<ProjectsCreateProjectFundingSearch />);
+    render(<ProjectsCreateProjectFunderSearch />);
     const input = screen.getByPlaceholderText('Enter funder name...');
     const searchButton = screen.getByRole('button', { name: /Search/i });
 
@@ -87,7 +87,7 @@ describe('ProjectsCreateProjectFundingSearch', () => {
 
   it('should handle "Add Funder Manually" button click', () => {
     const consoleSpy = jest.spyOn(console, 'log');
-    render(<ProjectsCreateProjectFundingSearch />);
+    render(<ProjectsCreateProjectFunderSearch />);
     const input = screen.getByPlaceholderText('Enter funder name...');
     const searchButton = screen.getByRole('button', { name: /Search/i });
 
@@ -101,7 +101,7 @@ describe('ProjectsCreateProjectFundingSearch', () => {
   });
 
   it('should pass accessibility tests', async () => {
-    const { container } = render(<ProjectsCreateProjectFundingSearch />);
+    const { container } = render(<ProjectsCreateProjectFunderSearch />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

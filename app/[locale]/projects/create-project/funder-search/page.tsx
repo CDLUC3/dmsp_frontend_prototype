@@ -21,9 +21,9 @@ import {
   SidebarPanel
 } from "@/components/Container";
 import { routePath } from '@/utils/routes';
-import styles from './ProjectsCreateProjectFundingSearch.module.scss';
+import styles from './ProjectsCreateProjectFunderSearch.module.scss';
 
-const ProjectsCreateProjectFundingSearch = () => {
+const ProjectsCreateProjectFunderSearch = () => {
   const router = useRouter();
 
   // State for search field input
@@ -196,4 +196,4 @@ const ProjectsCreateProjectFundingSearch = () => {
   );
 };
 
-export default ProjectsCreateProjectFundingSearch;
+export default ProjectsCreateProjectFunderSearch;
