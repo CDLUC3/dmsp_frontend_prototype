@@ -166,6 +166,7 @@ export interface QuestionTypesInterface {
   id: number;
   name: string;
   usageDescription: string;
+  json: string;
 }
 
 export interface QuestionOptions {
