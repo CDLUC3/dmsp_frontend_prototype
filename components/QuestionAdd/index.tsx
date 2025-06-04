@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { z } from "zod";
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -37,21 +39,98 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 
+import { CURRENT_SCHEMA_VERSION, QuestionTypesEnum } from "@dmptool/types";
+
 //Other
 import { useToast } from '@/context/ToastContext';
 import { stripHtmlTags } from '@/utils/general';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
 
+const questionTypeHandlers: Record<
+  z.infer<typeof QuestionTypesEnum>,
+  (baseJSON: any, userInput: any) => any
+> = {
+  text: (json, input) => ({
+    ...json,
+    meta: {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+    },
+    attributes: {
+      ...json.attributes,
+      maxLength: 1000,
+    },
+  }),
+  radioButtons: (json, input) => ({
+    ...json,
+    options: input.options.map(option => ({
+      type: 'option',
+      attributes: {
+        label: option.label || option.value,
+        selected: option.selected || false,
+        value: option.value,
+      },
+      meta: {
+        labelTranslationKey: option.labelTranslationKey || undefined,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+    })),
+  }),
+  checkBoxes: (json, input) => ({
+    ...json,
+    options: input.options.map(option => ({
+      attributes: {
+        label: option.label || option.value,
+        selected: option.selected || false,
+        value: option.value,
+      },
+      meta: {
+        labelTranslationKey: option.labelTranslationKey || undefined,
+        schemaVersion: "1",
+      },
+    })),
+  }),
+
+  // For types without specific logic:
+  boolean: (json, _) => json,
+  currency: (json, _) => json,
+  datePicker: (json, _) => json,
+  dateRange: (json, _) => json,
+  email: (json, _) => json,
+  filteredSearch: (json, _) => json,
+  number: (json, _) => json,
+  selectBox: (json, _) => json,
+  table: (json, _) => json,
+  textArea: (json, input) =>
+    questionTypeHandlers.text(json, input), // alias logic
+  typeaheadSearch: (json, _) => json,
+  url: (json, input) => ({
+    ...json,
+    meta: {
+      ...json.meta,
+      schemaVersion: CURRENT_SCHEMA_VERSION
+    },
+    attributes: {
+      ...json.attributes,
+      pattern: input?.pattern || "https://.*",
+      maxLength: input?.maxLength || null,
+      minLength: input?.minLength || null
+    }
+  }),
+};
+
 const QuestionAdd = ({
-  questionTypeId,
-  questionTypeName,
+  questionType,
+  questionName,
+  questionJSON,
   sectionId }:
   {
-    questionTypeId?: number | null,
-    questionTypeName?: string | null,
+    questionType?: string | null,
+    questionName?: string | null,
+    questionJSON: string,
     sectionId?: string
   }) => {
+
   const params = useParams();
   const router = useRouter();
   const toastState = useToast();
@@ -126,8 +205,42 @@ const QuestionAdd = ({
     setFormSubmitted(true);
 
     const displayOrder = getDisplayOrder();
-    const isOptionQuestion = questionTypeId && [3, 4, 5].includes(questionTypeId) && validateOptions();
-    const transformedQuestionOptions = isOptionQuestion ? transformOptions() : undefined;
+
+    const parsedQuestionJSON = JSON.parse(questionJSON); // Parse questionJSON into an object
+    const type = parsedQuestionJSON.type as z.infer<typeof QuestionTypesEnum>;
+    const getHandlerInput = () => {
+      switch (type) {
+        case 'radioButtons':
+        case 'checkBoxes':
+        case 'selectBox': {
+          const options = rows.map((row) => ({
+            label: row.text,
+            value: row.text.toLowerCase().replace(/\s+/g, '_'), // e.g., "Yes" → "yes"
+            selected: row.isDefault ?? false
+          }));
+          return { options };
+        }
+        case 'url':
+          return { pattern: "https?://.+" };
+        case 'textArea':
+          return {
+            maxLength: 1000,
+            rows: 2,
+            cols: 20
+          };
+        default:
+          return {}; // fallback safe default
+      }
+    };
+
+    const handlerInput = getHandlerInput();
+    if (!questionTypeHandlers[type]) {
+      throw new Error(`Unsupported question type: ${type}`);
+    }
+
+    const updatedQuestionJSON = questionTypeHandlers[type](parsedQuestionJSON, handlerInput);
+
+    console.log("***UPDATED QUESTION JSON***", updatedQuestionJSON);
     // string all tags from questionText before sending to backend
     const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
     const input = {
@@ -135,14 +248,13 @@ const QuestionAdd = ({
       sectionId: Number(sectionId),
       displayOrder,
       isDirty: true,
-      questionTypeId,
       questionText: cleanedQuestionText,
+      json: JSON.stringify(updatedQuestionJSON),
       requirementText: question?.requirementText,
       guidanceText: question?.guidanceText,
       sampleText: question?.sampleText,
       useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
       required: false,
-      ...(isOptionQuestion && { questionOptions: transformedQuestionOptions }),
     };
 
     try {
@@ -165,8 +277,8 @@ const QuestionAdd = ({
   };
 
   useEffect(() => {
-    if (!questionTypeId) {
-      // If questionTypeId is missing, return user to the Question Types selection page
+    if (!questionType) {
+      // If questionId is missing, return user to the Question Types selection page
       toastState.add(Global('messaging.somethingWentWrong'), { type: 'error' });
       router.push(step1Url);
 
@@ -176,22 +288,27 @@ const QuestionAdd = ({
   }, [])
 
   useEffect(() => {
-    // Make sure to add the questiontypeid to the question object
+    // Make sure to add the questionType to the question object so it can be used in the QuestionView component
     if (question) {
       setQuestion({
         ...question,
-        questionTypeId
+        questionType
       });
     } else {
-      setQuestion({ questionTypeId });
+      setQuestion({ questionType });
     }
-  }, [questionTypeId]);
+  }, [questionType]);
 
   useEffect(() => {
     // To determine if the question type selected is one that includes options fields
-    const isOptionQuestion = Boolean(questionTypeId && [3, 4, 5].includes(questionTypeId)); // Ensure the result is a boolean
+    const isOptionQuestion = Boolean(questionType && ["radioButtons", "checkBoxes", "selectBox"].includes(questionType)); // Ensure the result is a boolean
+
     setHasOptions(isOptionQuestion);
-  }, [questionTypeId])
+  }, [questionType])
+
+  useEffect(() => {
+    console.log("***ROWS***", rows);
+  }, [rows])
 
   return (
     <>
@@ -228,7 +345,7 @@ const QuestionAdd = ({
                   type="text"
                   className={`${styles.searchField} react-aria-TextField`}
                   isRequired
-                  value={questionTypeName ? questionTypeName : ''}
+                  value={questionName ? questionName : ''}
                 >
                   <Label className={`${styles.searchLabel} react-aria-Label`}>{QuestionAdd('labels.type')}</Label>
                   <Input className={`${styles.searchInput} react-aria-Input`} disabled />
@@ -254,9 +371,9 @@ const QuestionAdd = ({
                 />
 
 
-                {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
+                {questionType && ["radioButtons", "checkBoxes", "selectBox"].includes(questionType) && (
                   <>
-                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionTypeName })}</p>
+                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionName })}</p>
                     <div className={styles.optionsWrapper}>
                       <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
                     </div>
@@ -310,7 +427,7 @@ const QuestionAdd = ({
                 )}
 
 
-                {questionTypeId && [1, 2].includes(questionTypeId) && (
+                {questionType && ["text", "textarea"].includes(questionType) && (
                   <Checkbox
                     onChange={() => setQuestion({
                       ...question,

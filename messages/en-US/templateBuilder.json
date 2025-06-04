@@ -299,7 +299,7 @@
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
-      "questionOptions": "Please enter answer choices for the {questionTypeName}",
+      "questionOptions": "Please enter answer choices for the {questionName}",
       "questionText": "Keep the question text concise and clear. Use the requirements or guidance to provide additional explanation.",
       "requirementText": "Try to be precise and concise, so the plan writers won't miss any requirements. Question guidance is better for more general advice.",
       "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry."

@@ -55,7 +55,8 @@
     "react-dom": "^18",
     "remirror": "^3.0.1",
     "sharp": "^0.33.5",
-    "tinymce": "^7.8.0"
+    "tinymce": "^7.8.0",
+    "zod": "^3.25.51"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.6",

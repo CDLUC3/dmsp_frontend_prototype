@@ -65,18 +65,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const [questionType, setQuestionType] = useState<string>('');
   const [editorContent, setEditorContent] = useState('');
 
-  useEffect(() => {
-    if (!question) return;
-    if (!qtData) return;
+  // useEffect(() => {
+  //   if (!question) return;
+  //   if (!qtData) return;
 
-    if (questionType == '' && qtData.questionTypes) {
-      const qt = qtData.questionTypes
-        .find(qt => qt && qt.id === question.questionTypeId);
-      if (qt) {
-        setQuestionType(qt.name);
-      }
-    }
-  }, [question]);
+  //   if (questionType == '' && qtData.questionTypes) {
+  //     const qt = qtData.questionTypes
+  //       .find(qt => qt && qt.id === question.questionTypeId);
+  //     if (qt) {
+  //       setQuestionType(qt.name);
+  //     }
+  //   }
+  // }, [question]);
 
   return (
     <LayoutWithPanel
@@ -105,31 +105,27 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardEyebrow>{trans('cardType')}</CardEyebrow>
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
-            {(questionType == 'Text Area') && (
+            {(questionType == 'textarea') && (
               <DmpEditor
                 content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
                 setContent={setEditorContent}
               />
             )}
 
-            {(questionType == 'Text Field') && (
+            {(questionType == 'text') && (
               <p>Plain text field</p>
             )}
 
-            {(questionType == 'Radio Buttons') && (
+            {(questionType == 'radioButtons') && (
               <p>Radios</p>
             )}
 
-            {(questionType == 'Check Boxes') && (
+            {(questionType == 'checkBoxes') && (
               <p>Checkboxes</p>
             )}
 
-            {(questionType == 'Select Box') && (
+            {(questionType == 'selectBox') && (
               <p>Select Box</p>
-            )}
-
-            {(questionType == 'Multi Select Box') && (
-              <p>Multi Select Box</p>
             )}
 
             <div id="_guidance" className={styles.Guidance}>

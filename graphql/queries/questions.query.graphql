@@ -21,7 +21,6 @@ query Question($questionId: Int!) {
     }
     displayOrder
     questionText
-    questionType
     json
     requirementText
     sampleText

@@ -7,7 +7,6 @@ mutation AddQuestion($input: AddQuestionInput!) {
     id
     displayOrder
     questionText
-    questionType
     json
     requirementText
     guidanceText
@@ -27,7 +26,6 @@ mutation UpdateQuestion($input: UpdateQuestionInput!) {
     }
     isDirty
     required
-    questionType
     json
     requirementText
     sampleText

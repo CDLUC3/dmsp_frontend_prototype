@@ -180,7 +180,7 @@ export interface QuestionOptions {
 export interface Question {
   id?: number | null | undefined;
   displayOrder?: number | null;
-  questionTypeId?: number | null;
+  questionType?: string | null;
   questionText?: string | null;
   requirementText?: string | null;
   guidanceText?: string | null;

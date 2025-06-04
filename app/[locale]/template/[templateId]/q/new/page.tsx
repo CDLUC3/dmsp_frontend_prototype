@@ -49,7 +49,7 @@ const QuestionTypeSelectPage: React.FC = () => {
   const [filteredQuestionTypes, setFilteredQuestionTypes] = useState<QuestionTypesInterface[] | null>([]);
   const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
-  const [selectedQuestionType, setSelectedQuestionType] = useState<{ questionTypeId: number, questionTypeName: string }>();
+  const [selectedQuestionType, setSelectedQuestionType] = useState<{ questionType: string, questionName: string, questionJSON: string }>();
   const [errors, setErrors] = useState<string[]>([]);
 
   const stepQueryValue = useQueryStep();
@@ -61,14 +61,15 @@ const QuestionTypeSelectPage: React.FC = () => {
   // Make graphql request for question types
   const { data, loading, error: queryError } = useQuestionTypesQuery();
 
-  const handleSelect = (questionTypeId: number, questionTypeName: string) => {
+  const handleSelect = ({ questionJSON, questionType, questionTypeName }: { questionJSON: string; questionType: string; questionTypeName: string; }) => {
+
     if (questionId) {
       //If the user came from editing an existing question, we want to return them to that page with the new questionTypeId
-      router.push(`/template/${templateId}/q/${questionId}?questionTypeId=${questionTypeId}`)
+      router.push(`/template/${templateId}/q/${questionId}?questionType=${questionTypeName}`)
     } else {
       // redirect to the Question Edit page if a user is adding a new question
-      if (questionTypeId) {
-        setSelectedQuestionType({ questionTypeId, questionTypeName })
+      if (questionType) {
+        setSelectedQuestionType({ questionType: questionType, questionName: questionTypeName, questionJSON: questionJSON });
         setStep(2);
         router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=2`)
       }
@@ -220,7 +221,6 @@ const QuestionTypeSelectPage: React.FC = () => {
                         </>
                       ) : (
                         <>
-                          <h1>TESTING</h1>
                           {questionTypes.map((questionType) => (
                             <QuestionTypeCard
                               key={questionType.id}
@@ -251,8 +251,9 @@ const QuestionTypeSelectPage: React.FC = () => {
         <>
           {/*Show Edit Question form*/}
           <QuestionAdd
-            questionTypeId={selectedQuestionType?.questionTypeId ?? null}
-            questionTypeName={selectedQuestionType?.questionTypeName ?? null}
+            questionType={selectedQuestionType?.questionType ?? null}
+            questionName={selectedQuestionType?.questionName ?? null}
+            questionJSON={selectedQuestionType?.questionJSON ?? ''}
             sectionId={sectionId ? sectionId : ''}
           />
         </>

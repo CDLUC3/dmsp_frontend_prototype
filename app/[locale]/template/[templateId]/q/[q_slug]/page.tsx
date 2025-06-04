@@ -53,7 +53,7 @@ const QuestionEdit = () => {
   const toastState = useToast(); // Access the toast state from context
   const templateId = Array.isArray(params.templateId) ? params.templateId[0] : params.templateId;
   const questionId = params.q_slug; //question id
-  const questionTypeIdQueryParam = searchParams.get('questionTypeId') || null;
+  const questionTypeIdQueryParam = searchParams.get('questionType') || null;
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -123,14 +123,12 @@ const QuestionEdit = () => {
           variables: {
             input: {
               questionId: Number(questionId),
-              questionTypeId: questionTypeIdQueryParam ? Number(questionTypeIdQueryParam) : selectedQuestion?.question?.questionTypeId,
               displayOrder: question.displayOrder,
               questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
               sampleText: question.sampleText,
               useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-              questionOptions: rows || selectedQuestion?.question?.questionOptions
             }
           },
         });
