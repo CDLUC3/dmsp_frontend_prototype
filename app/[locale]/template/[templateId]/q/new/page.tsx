@@ -65,7 +65,7 @@ const QuestionTypeSelectPage: React.FC = () => {
 
     if (questionId) {
       //If the user came from editing an existing question, we want to return them to that page with the new questionTypeId
-      router.push(`/template/${templateId}/q/${questionId}?questionType=${questionTypeName}`)
+      router.push(`/template/${templateId}/q/${questionId}?questionType=${questionType}`)
     } else {
       // redirect to the Question Edit page if a user is adding a new question
       if (questionType) {
@@ -117,6 +117,7 @@ const QuestionTypeSelectPage: React.FC = () => {
   useEffect(() => {
     // When data from backend changes, set template data in state
     if (data?.questionTypes) {
+      console.log("***QUESTION TYPES***", data.questionTypes);
       // filter out any null values
       const filteredQuestionTypes = data.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
       if (data.questionTypes.length > 0) {

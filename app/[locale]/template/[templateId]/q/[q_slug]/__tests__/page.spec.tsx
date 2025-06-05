@@ -10,6 +10,7 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import { json } from "stream/consumers";
 
 expect.extend(toHaveNoViolations);
 
@@ -41,23 +42,17 @@ const mockQuestionData = {
     guidanceText: "This is the guidance text",
     id: 2271,
     isDirty: true,
-    questionOptions:
-      [
-        {
-          id: 63,
-          orderNumber: 1,
-          questionId: 2271,
-          Text: "Alpha"
-        },
-        {
-          id: 66,
-          orderNumber: 2,
-          questionId: 2271,
-          Text: "Bravo"
-        }
-      ],
     questionText: "Testing",
-    questionTypeId: 3,
+    json: {
+      meta: {
+        asRichText: true,
+        schemaVersion: "1.0"
+      },
+      type: "textArea",
+      attributes: {
+        rows: 4
+      }
+    },
     requirementText: "This is requirement text",
     sampleText: "This is sample text",
     sectionId: 67,
@@ -72,23 +67,17 @@ const mockQuestionDataForTextField = {
     guidanceText: "This is the guidance text",
     id: 2271,
     isDirty: true,
-    questionOptions:
-      [
-        {
-          id: 63,
-          orderNumber: 1,
-          questionId: 2271,
-          Text: "Alpha"
-        },
-        {
-          id: 66,
-          orderNumber: 2,
-          questionId: 2271,
-          Text: "Bravo"
-        }
-      ],
+    json: {
+      meta: {
+        asRichText: true,
+        schemaVersion: "1.0"
+      },
+      type: "textField",
+      attributes: {
+        rows: 1
+      }
+    },
     questionText: "Testing",
-    questionTypeId: 1,
     requirementText: "This is requirement text",
     sampleText: "This is sample text",
     sectionId: 67,

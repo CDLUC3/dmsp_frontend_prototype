@@ -172,14 +172,13 @@ export interface QuestionTypesInterface {
 export interface QuestionOptions {
   id?: number | null;
   text: string;
-  orderNumber: number;
   isDefault?: boolean | null;
-  questionId: number;
 }
 
 export interface Question {
   id?: number | null | undefined;
   displayOrder?: number | null;
+  json?: string | null;
   questionType?: string | null;
   questionText?: string | null;
   requirementText?: string | null;

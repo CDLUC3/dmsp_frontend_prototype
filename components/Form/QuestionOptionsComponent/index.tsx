@@ -1,19 +1,17 @@
 'use client'
 
-import {useState} from "react";
-import {Checkbox,} from "react-aria-components";
+import { useState, useEffect } from "react";
+import { Checkbox, } from "react-aria-components";
 
 import FormInput from '@/components/Form/FormInput';
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 import styles from './optionsComponent.module.scss';
 
 
 interface Row {
   id?: number | null;
-  orderNumber: number;
   text: string;
   isDefault?: boolean | null;
-  questionId: number;
 }
 
 interface QuestionOptionsComponentProps {
@@ -28,7 +26,7 @@ interface QuestionOptionsComponentProps {
 /**This component is used to add question type fields that use options
  * For example, radio buttons, check boxes and select drop-downs
  */
-const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionId, formSubmitted, setFormSubmitted }) => {
+const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, formSubmitted, setFormSubmitted }) => {
   const [announcement, setAnnouncement] = useState<string>("");
 
   // localization keys
@@ -39,19 +37,17 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   const addRow = () => {
     if (rows) {
       // Either calculate next order number off of last orderNumber, if present, or just use the row.length to increment
-      const length = rows.length - 1;
-      const nextNum = rows[length] ? (rows[length].orderNumber + 1) : (length + 1)
+      const length = rows.length;
+      const nextNum = (length + 1);
 
       const newRow = {
         id: nextNum, //if rows already has a set value, then increment from there
-        orderNumber: nextNum, //if rows already has a set value, then increment from there
         text: "",
         isDefault: false,
-        questionId: questionId || 0 //If there is no questionId, then it won't update the question when set to 0
-
       };
+
       setRows((prevRows) => [...prevRows, newRow]);
-      setAnnouncement(QuestionOptions('announcements.rowAdded', { orderNumber: newRow.orderNumber }));
+      setAnnouncement(QuestionOptions('announcements.rowAdded', { nextNum }));
       setFormSubmitted(false);
     }
   };
@@ -80,16 +76,21 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
 
   // Update rows state
   const handleChange = (id: number | string, field: string, value: string | number) => {
-    if (id && Number(id) !== 0) {
-      setRows((prevRows) => {
-
-        // Update the specific field for the matching row
-        return prevRows.map((row) =>
-          row.id === Number(id) ? { ...row, [field]: value } : row
-        );
+    console.log("ID", id, "Field", field, "Value", value);
+    setRows((prevRows) => {
+      return prevRows.map((row) => {
+        if (row.id === id) {
+          return { ...row, [field]: value }; // Update only the matching row
+        }
+        return row; // Leave other rows unchanged
       });
-    }
+    });
+
   };
+
+  useEffect(() => {
+    console.log("Rows updated:", rows);
+  }, [rows])
 
   return (
     <>
@@ -102,6 +103,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
             </span>
 
             <div className={styles.cell}>
+              <h2>{index}</h2>
               <FormInput
                 id={`order-${row.id}`}
                 name="orderNumber"
@@ -109,7 +111,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 disabled={true}
                 isRequired={true}
                 label={QuestionOptions('labels.order')}
-                value={row.orderNumber}
+                value={index + 1}
                 placeholder={QuestionOptions('placeholder.orderNumber')}
                 ariaLabel={index === 0 ? undefined : "Order"}
               />
@@ -123,7 +125,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 label={QuestionOptions('labels.text')}
                 labelClasses={styles.textFieldLabel}
                 value={row.text}
-                onChange={(e) => handleChange(row.id || '', "text", e.target.value)}
+                onChange={(e) => handleChange(row.id || 0, "text", e.target.value)} // Use row.id instead of index + 1
                 placeholder={QuestionOptions('placeholder.text')}
                 ariaLabel={index === 0 ? undefined : "Text"}
                 isInvalid={!row.text && formSubmitted}

@@ -59,6 +59,7 @@ const questionTypeHandlers: Record<
     attributes: {
       ...json.attributes,
       maxLength: 1000,
+      pattern: " ^.+ $"  // Match any non-empty string
     },
   }),
   radioButtons: (json, input) => ({
@@ -79,6 +80,7 @@ const questionTypeHandlers: Record<
   checkBoxes: (json, input) => ({
     ...json,
     options: input.options.map(option => ({
+      type: 'option',
       attributes: {
         label: option.label || option.value,
         selected: option.selected || false,
@@ -86,11 +88,25 @@ const questionTypeHandlers: Record<
       },
       meta: {
         labelTranslationKey: option.labelTranslationKey || undefined,
-        schemaVersion: "1",
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       },
     })),
   }),
-
+  selectBox: (json, input) => ({
+    ...json,
+    options: input.options.map(option => ({
+      type: 'option',
+      attributes: {
+        label: option.label || option.value,
+        selected: option.selected || false,
+        value: option.value,
+      },
+      meta: {
+        labelTranslationKey: option.labelTranslationKey || undefined,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+    })),
+  }),
   // For types without specific logic:
   boolean: (json, _) => json,
   currency: (json, _) => json,
@@ -99,7 +115,6 @@ const questionTypeHandlers: Record<
   email: (json, _) => json,
   filteredSearch: (json, _) => json,
   number: (json, _) => json,
-  selectBox: (json, _) => json,
   table: (json, _) => json,
   textArea: (json, input) =>
     questionTypeHandlers.text(json, input), // alias logic
@@ -142,7 +157,7 @@ const QuestionAdd = ({
 
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>();
-  const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
+  const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isDefault: false }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
@@ -180,7 +195,7 @@ const QuestionAdd = ({
   const transformOptions = () => {
     // If duplicate order numbers or text, do we want to give the user an error message?
     const transformedRows = rows.map(option => {
-      return { text: option.text, orderNumber: option.orderNumber, isDefault: option.isDefault }
+      return { text: option.text, isDefault: option.isDefault }
     })
 
     return transformedRows;
@@ -240,7 +255,6 @@ const QuestionAdd = ({
 
     const updatedQuestionJSON = questionTypeHandlers[type](parsedQuestionJSON, handlerInput);
 
-    console.log("***UPDATED QUESTION JSON***", updatedQuestionJSON);
     // string all tags from questionText before sending to backend
     const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
     const input = {
@@ -294,6 +308,7 @@ const QuestionAdd = ({
         ...question,
         questionType
       });
+      console.log("***QUESTION***", question);
     } else {
       setQuestion({ questionType });
     }

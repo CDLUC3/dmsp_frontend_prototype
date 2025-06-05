@@ -1,6 +1,6 @@
 import React from 'react';
-import {fireEvent, render, screen} from '@/utils/test-utils';
-import {useTranslations as OriginalUseTranslations} from 'next-intl';
+import { fireEvent, render, screen } from '@/utils/test-utils';
+import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
 
@@ -29,10 +29,8 @@ jest.mock('next-intl', () => ({
 
 type Row = {
   id?: number | null;
-  orderNumber: number;
   text: string;
   isDefault?: boolean | null;
-  questionId: number;
 };
 
 describe('QuestionOptionsComponent', () => {
@@ -40,7 +38,7 @@ describe('QuestionOptionsComponent', () => {
 
   beforeEach(() => {
     rows = [
-      { id: 1, orderNumber: 1, text: 'Option 1', isDefault: false, questionId: 123 },
+      { id: 1, text: 'Option 1', isDefault: false },
     ];
     setRows = jest.fn();
   });

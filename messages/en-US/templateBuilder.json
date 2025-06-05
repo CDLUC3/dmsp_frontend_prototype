@@ -266,7 +266,7 @@
     "announcements": {
       "rowDefault": "Row with ID {id} set as default.",
       "rowRemoved": "Row with ID {id} removed.",
-      "rowAdded": "Row {orderNumber} added."
+      "rowAdded": "Row {nextNum} added."
     },
     "placeholder": {
       "orderNumber": "Enter order #",

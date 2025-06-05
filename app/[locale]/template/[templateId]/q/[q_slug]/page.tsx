@@ -38,6 +38,9 @@ import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
 
+import { CURRENT_SCHEMA_VERSION, QuestionTypesEnum } from "@dmptool/types";
+
+
 //Other
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
@@ -45,6 +48,77 @@ import { stripHtmlTags } from '@/utils/general';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
 
+const questionTypeHandlers: Record<
+  z.infer<typeof QuestionTypesEnum>,
+  (baseJSON: any, userInput: any) => any
+> = {
+  text: (json, input) => ({
+    ...json,
+    meta: {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+    },
+    attributes: {
+      ...json.attributes,
+      maxLength: 1000,
+    },
+  }),
+  radioButtons: (json, input) => ({
+    ...json,
+    options: input.options.map(option => ({
+      type: 'option',
+      attributes: {
+        label: option.label || option.value,
+        selected: option.selected || false,
+        value: option.value,
+      },
+      meta: {
+        labelTranslationKey: option.labelTranslationKey || undefined,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+    })),
+  }),
+  checkBoxes: (json, input) => ({
+    ...json,
+    options: input.options.map(option => ({
+      attributes: {
+        label: option.label || option.value,
+        selected: option.selected || false,
+        value: option.value,
+      },
+      meta: {
+        labelTranslationKey: option.labelTranslationKey || undefined,
+        schemaVersion: "1",
+      },
+    })),
+  }),
+
+  // For types without specific logic:
+  boolean: (json, _) => json,
+  currency: (json, _) => json,
+  datePicker: (json, _) => json,
+  dateRange: (json, _) => json,
+  email: (json, _) => json,
+  filteredSearch: (json, _) => json,
+  number: (json, _) => json,
+  selectBox: (json, _) => json,
+  table: (json, _) => json,
+  textArea: (json, input) =>
+    questionTypeHandlers.text(json, input), // alias logic
+  typeaheadSearch: (json, _) => json,
+  url: (json, input) => ({
+    ...json,
+    meta: {
+      ...json.meta,
+      schemaVersion: CURRENT_SCHEMA_VERSION
+    },
+    attributes: {
+      ...json.attributes,
+      pattern: input?.pattern || "https://.*",
+      maxLength: input?.maxLength || null,
+      minLength: input?.minLength || null
+    }
+  }),
+};
 
 const QuestionEdit = () => {
   const params = useParams();
@@ -94,12 +168,26 @@ const QuestionEdit = () => {
     skip: !questionId
   });
 
-  const getQuestionTypeName = (id: number) => {
-    if (questionTypes && questionTypes?.questionTypes) {
-      const questionType = questionTypes?.questionTypes?.find(qt => qt && qt.id === id);
-      return questionType ? questionType.name : null; // Return question type name if found, else null
+  const getParsedQuestionJSON = (question: Question | null) => {
+    if (question) {
+      const parsedJSON = question?.json ? JSON.parse(question.json) : null;
+      return parsedJSON;
     }
-    return '';
+    return null;
+  }
+
+  const getQuestionTypeName = (json: string) => {
+    // if (questionTypes && questionTypes?.questionTypes) {
+    //   const questionType = questionTypes?.questionTypes?.find(qt => qt && qt.id === id);
+    //   return questionType ? questionType.name : null; // Return question type name if found, else null
+    // }
+    // return '';
+    if (json) {
+      const parsedJSON = JSON.parse(json);
+      const questionType = parsedJSON.type;
+      return questionType || '';
+    }
+
   };
 
   // Return user back to the page to select a question type
@@ -109,10 +197,43 @@ const QuestionEdit = () => {
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
+  const getHandlerInput = (type: string) => {
+    switch (type) {
+      case 'radioButtons':
+      case 'checkBoxes':
+      case 'selectBox': {
+        const options = rows.map((row) => ({
+          label: row.text,
+          value: row.text.toLowerCase().replace(/\s+/g, '_'), // e.g., "Yes" → "yes"
+          selected: row.isDefault ?? false
+        }));
+        return { options };
+      }
+      case 'url':
+        return { pattern: "https?://.+" };
+      case 'textArea':
+        return {
+          maxLength: 1000,
+          rows: 2,
+          cols: 20
+        };
+      default:
+        return {}; // fallback safe default
+    }
+  };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (question) {
+      const handlerInput = getHandlerInput(questionType);
+      if (!questionTypeHandlers[questionType]) {
+        throw new Error(`Unsupported question type: ${questionType}`);
+      }
+
+      // Get updated question JSON using the appropriate handler
+      const updatedQuestionJSON = questionTypeHandlers[questionType](getParsedQuestionJSON(question), handlerInput);
+
       setFormSubmitted(true);
       // string all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
@@ -124,6 +245,7 @@ const QuestionEdit = () => {
             input: {
               questionId: Number(questionId),
               displayOrder: question.displayOrder,
+              json: JSON.stringify(updatedQuestionJSON),
               questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
@@ -154,48 +276,35 @@ const QuestionEdit = () => {
     if (selectedQuestion) {
 
       const q = selectedQuestion?.question || null;
+      const json = getParsedQuestionJSON(q);
+      const questionType = json.type;
+      // If user has the questionTypeId in the query param because they just selected a new question type
+      // then use that over the one in the data
+
+      setQuestionType(questionTypeIdQueryParam ?? questionType);
+      const isOptionQuestion = Boolean(questionType && ["radioButtons", "checkBoxes", "selectBox"].includes(questionType)); // Ensure the result is a boolean
 
       // Set question and rows in state
-      if (q && q.questionOptions) {
+      if (q) {
         const sanitizedQuestion = {
           ...q,
           questionText: stripHtmlTags(q.questionText ?? ''), // Sanitize questionText
         };
 
         setQuestion(sanitizedQuestion);
-        const optionRows = q.questionOptions
-          .map(({ id, orderNumber, text, isDefault, questionId }) => ({
-            id: id ?? 0, // Ensure id is always a number
-            orderNumber,
-            text,
-            isDefault: isDefault || false,
-            questionId
-          }))
-          .sort((a, b) => a.orderNumber - b.orderNumber); // Sort in ascending order
-
-        setRows(optionRows);
-        // If user has the questionTypeId in the query param because they just selected a new question type
-        // then use that over the one in the data
-        const qt = getQuestionTypeName(Number(questionTypeIdQueryParam ?? selectedQuestion?.question?.questionTypeId))
-
-        if (qt) {
-          setQuestionType(qt);
-        }
 
       }
-    }
 
-    if (questionTypeIdQueryParam && rows.length === 0) {
-      // If there is a questionTypeId query param, then that means that user switched to a new question type
-      // so we want to reset the rows to a fresh, empty row
-      if ([3, 4, 5].includes(Number(questionTypeIdQueryParam))) {
-        setRows([{
-          id: 1,
-          orderNumber: 1,
-          text: "",
-          isDefault: false,
-          questionId: Number(questionId)
-        }]);
+      if (isOptionQuestion) {
+        const optionRows = json.options
+          .map((option, index) => ({
+            id: index,
+            text: option.attributes.label,
+            isDefault: option.attributes.selected || false
+          }))
+
+        setRows(optionRows);
+
       }
     }
   }, [selectedQuestion])
@@ -208,13 +317,18 @@ const QuestionEdit = () => {
   }, [selectedQuestionQueryError])
 
   useEffect(() => {
+    const selectedQuestionType = getQuestionTypeName(selectedQuestion?.question?.json || '');
     // To determine if the question type selected is one that includes options fields
     const questionTypeOptions = !!(
-      (questionTypeIdQueryParam && [3, 4, 5].includes(Number(questionTypeIdQueryParam))) ??
-      (selectedQuestion?.question?.questionTypeId && [3, 4, 5].includes(selectedQuestion?.question?.questionTypeId))
+      (questionTypeIdQueryParam && ["radioButtons", "checkBoxes", "selectBox"].includes(questionTypeIdQueryParam)) ??
+      (selectedQuestionType && ["radioButtons", "checkBoxes", "selectBox"].includes(selectedQuestionType))
     );
     setHasOptions(questionTypeOptions);
   }, [questionTypeIdQueryParam, selectedQuestion])
+
+  useEffect(() => {
+    console.log(rows);
+  }, [rows])
 
   if (loading) {
     return <div>Loading...</div>;

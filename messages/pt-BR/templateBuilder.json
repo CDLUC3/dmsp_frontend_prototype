@@ -266,7 +266,7 @@
     "announcements": {
       "rowDefault": "Linha com ID {id} definida como padrão.",
       "rowRemoved": "Linha com ID {id} removida.",
-      "rowAdded": "Linha {orderNumber} adicionada."
+      "rowAdded": "Linha {nextNum} adicionada."
     },
     "placeholder": {
       "orderNumber": "Insira o pedido #",
