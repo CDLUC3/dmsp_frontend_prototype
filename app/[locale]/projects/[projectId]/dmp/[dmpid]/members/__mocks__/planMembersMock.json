@@ -1,0 +1,53 @@
+{
+  "planMembers": [
+    {
+      "id": 20,
+      "isPrimaryContact": true,
+      "errors": {
+        "general": null
+      },
+      "projectMember": {
+        "id": 1,
+        "givenName": "Jacques",
+        "surName": "Cousteau"
+      },
+      "memberRoles": [
+        {
+          "uri": "https://credit.niso.org/contributor-roles/investigation/",
+          "id": 2,
+          "label": "Principal Investigator (PI)",
+          "description": "An individual conducting a research and investigation process, specifically performing the experiments, or data/evidence collection.",
+          "displayOrder": 1
+        },
+        {
+          "uri": "https://credit.niso.org/contributor-roles/project-administration/",
+          "id": 3,
+          "label": "Project Administrator",
+          "description": "An individual with management and coordination responsibility for the research activity planning and execution.",
+          "displayOrder": 2
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "isPrimaryContact": true,
+      "errors": {
+        "general": null
+      },
+      "projectMember": {
+        "id": 2,
+        "givenName": "Captain",
+        "surName": "Nemo"
+      },
+      "memberRoles": [
+        {
+          "uri": "https://credit.niso.org/contributor-roles/investigation/",
+          "id": 2,
+          "label": "Principal Investigator (PI)",
+          "description": "An individual conducting a research and investigation process, specifically performing the experiments, or data/evidence collection.",
+          "displayOrder": 1
+        }
+      ]
+    }
+  ]
+}

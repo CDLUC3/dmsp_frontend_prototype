@@ -58,7 +58,8 @@ describe('LocaleLayout', () => {
       params: { locale: routing.locales[0] }, // valid locale
     });
 
-    render(TestComponent);
+    // Wrap with empty fragment to match expected DOM structure
+    render(<>{TestComponent}</>);
 
     expect(screen.getByText('Mock Header')).toBeInTheDocument();
     expect(screen.getByText('Main Content')).toBeInTheDocument();

@@ -30,7 +30,7 @@ export const ModalOverlayComponent = ({
   return (
     <ModalOverlay isOpen={isOpen}>
       <Modal>
-        <Dialog>
+        <Dialog aria-label={heading}>
           {({ close }) => (
             <>
               <Heading>{heading}</Heading>

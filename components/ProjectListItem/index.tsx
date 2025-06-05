@@ -103,7 +103,7 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
                 </div>
                 <div className={styles.section}>
                   <h3 id="project-title">{t('funding')}</h3>
-                  <p>{item.funder}</p>
+                  <p>{item.funding}</p>
                   {item?.grantId ? (
                     <p>{t('grantId')}: {item.grantId}</p>
                   ) : null}

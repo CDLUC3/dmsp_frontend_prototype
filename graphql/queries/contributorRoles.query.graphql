@@ -1,9 +1,0 @@
-query ContributorRoles{
-    contributorRoles {
-        id
-        label
-        uri
-        description
-        displayOrder
-    }
-}

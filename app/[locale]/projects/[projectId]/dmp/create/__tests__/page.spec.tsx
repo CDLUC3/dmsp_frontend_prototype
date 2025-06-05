@@ -4,7 +4,7 @@ import PlanCreate from '../page';
 import { useParams, useRouter } from 'next/navigation';
 import {
   useAddPlanMutation,
-  useProjectFundersQuery,
+  useProjectFundingsQuery,
   usePublishedTemplatesQuery
 } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -19,7 +19,7 @@ jest.mock('next/navigation', () => ({
 }));
 
 jest.mock('@/generated/graphql', () => ({
-  useProjectFundersQuery: jest.fn(),
+  useProjectFundingsQuery: jest.fn(),
   usePublishedTemplatesQuery: jest.fn(),
   useAddPlanMutation: jest.fn(),
 }));
@@ -93,7 +93,7 @@ const mockPublishedTemplates = {
   ]
 }
 
-const mockProjectFunders = [
+const mockProjectFundings = [
   {
     id: 1,
     affiliation: {
@@ -119,7 +119,7 @@ const mockProjectFunders = [
 describe('PlanCreate Component', () => {
   const mockUseParams = useParams as jest.Mock;
   const mockUseRouter = useRouter as jest.Mock;
-  const mockUseProjectFundersQuery = useProjectFundersQuery as jest.Mock;
+  const mockUseProjectFundingsQuery = useProjectFundingsQuery as jest.Mock;
   const mockUsePublishedTemplatesQuery = usePublishedTemplatesQuery as jest.Mock;
   const mockUseAddPlanMutation = useAddPlanMutation as jest.Mock;
 
@@ -136,7 +136,7 @@ describe('PlanCreate Component', () => {
   });
 
   it('should render PlanCreate component with funder checkbox', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
     await act(async () => {
       render(
@@ -163,7 +163,7 @@ describe('PlanCreate Component', () => {
   });
 
   it('should not display duplicate project funder checkboxes', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
     await act(async () => {
       render(
@@ -178,7 +178,7 @@ describe('PlanCreate Component', () => {
   });
 
   it('should sort correctly so that project funders are at the top of the list', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
     await act(async () => {
       render(
@@ -223,7 +223,7 @@ describe('PlanCreate Component', () => {
         owner: null
       },
     ]
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: [] }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: [] }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockTemplates }, loading: false, error: null });
     await act(async () => {
       render(
@@ -236,7 +236,7 @@ describe('PlanCreate Component', () => {
   });
 
   it('should display best practices template when no funder templates', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: [] }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: [] }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
     await act(async () => {
       render(
@@ -274,7 +274,7 @@ describe('PlanCreate Component', () => {
         },
       ]
     }
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: [] }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: [] }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates2 }, loading: false, error: null });
     await act(async () => {
       render(
@@ -291,7 +291,7 @@ describe('PlanCreate Component', () => {
 
 
   it('should display loading state', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: null }, loading: true, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: null }, loading: true, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: null }, loading: true, error: null });
 
     await act(async () => {
@@ -303,7 +303,7 @@ describe('PlanCreate Component', () => {
   });
 
   it('should display error state', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: null }, loading: false, error: new Error('Error') });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: null }, loading: false, error: new Error('Error') });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: [] }, loading: false, error: null });
 
     await act(async () => {
@@ -315,7 +315,7 @@ describe('PlanCreate Component', () => {
   });
 
   it('should handle no items found in search', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
     await act(async () => {
       render(
@@ -341,7 +341,7 @@ describe('PlanCreate Component', () => {
   });
 
   it('should return matching templates on search item', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
     await act(async () => {
       render(
@@ -365,7 +365,7 @@ describe('PlanCreate Component', () => {
   });
 
   it('should handle Load More functionality', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
     await act(async () => {
       render(
@@ -401,7 +401,7 @@ describe('PlanCreate Component', () => {
 
 
   it('should pass axe accessibility test', async () => {
-    mockUseProjectFundersQuery.mockReturnValue({ data: { projectFunders: mockProjectFunders }, loading: false, error: null });
+    mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
     mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
 
     const { container } = render(

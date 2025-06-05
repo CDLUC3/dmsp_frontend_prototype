@@ -4,34 +4,34 @@ import { act, render, screen, fireEvent, waitFor, within } from '@testing-librar
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import {
-  useAddPlanContributorMutation,
-  useProjectContributorsQuery,
-  useUpdatePlanContributorMutation,
-  usePlanContributorsQuery,
-  useRemovePlanContributorMutation,
+  useAddPlanMemberMutation,
+  useProjectMembersQuery,
+  useUpdatePlanMemberMutation,
+  usePlanMembersQuery,
+  useRemovePlanMemberMutation,
 } from '@/generated/graphql';
 import { useParams } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
 
 import ProjectsProjectPlanAdjustMembers from '../page';
-import mockProjectContributors from '../__mocks__/projectContributorsMock.json';
-import mockPlanContributors from '../__mocks__/planContributorsMock.json'
-import { addPlanContributorAction } from '../actions/addPlanContributorAction';
+import mockProjectMembers from '../__mocks__/projectMembersMock.json';
+import mockPlanMembers from '../__mocks__/planMembersMock.json'
+import { addPlanMemberAction } from '../actions/addPlanMemberAction';
 
 expect.extend(toHaveNoViolations);
 
-// __mocks__/addPlanContributorAction.ts
-jest.mock('../actions/addPlanContributorAction', () => ({
-  addPlanContributorAction: jest.fn()
+// __mocks__/addPlanMemberAction.ts
+jest.mock('../actions/addPlanMemberAction', () => ({
+  addPlanMemberAction: jest.fn()
 }));
 
 jest.mock("@/generated/graphql", () => ({
-  AddPlanContributorDocument: jest.fn(),
-  useProjectContributorsQuery: jest.fn(),
-  usePlanContributorsQuery: jest.fn(),
-  useAddPlanContributorMutation: jest.fn(),
-  useUpdatePlanContributorMutation: jest.fn(),
-  useRemovePlanContributorMutation: jest.fn(),
+  AddPlanMemberDocument: jest.fn(),
+  useProjectMembersQuery: jest.fn(),
+  usePlanMembersQuery: jest.fn(),
+  useAddPlanMemberMutation: jest.fn(),
+  useUpdatePlanMemberMutation: jest.fn(),
+  useRemovePlanMemberMutation: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -48,37 +48,37 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     const mockUseParams = useParams as jest.Mock;
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1 });
-    (useProjectContributorsQuery as jest.Mock).mockReturnValue({
-      data: mockProjectContributors,
+    (useProjectMembersQuery as jest.Mock).mockReturnValue({
+      data: mockProjectMembers,
       loading: false,
       error: undefined,
     });
 
-    (usePlanContributorsQuery as jest.Mock).mockReturnValue({
-      data: mockPlanContributors,
+    (usePlanMembersQuery as jest.Mock).mockReturnValue({
+      data: mockPlanMembers,
       loading: false,
       error: null,
       refetch: mockRefetch
     });
-    (useAddPlanContributorMutation as jest.Mock).mockReturnValue([
+    (useAddPlanMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
 
-    (useRemovePlanContributorMutation as jest.Mock).mockReturnValue([
+    (useRemovePlanMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
-    (useUpdatePlanContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdatePlanMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
   });
 
   it('should render the loading state when queries are still loading', async () => {
-    (useProjectContributorsQuery as jest.Mock).mockReturnValue({
+    (useProjectMembersQuery as jest.Mock).mockReturnValue({
       data: null,
       loading: true,
       error: undefined,
@@ -93,7 +93,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
   });
 
   it('should render errors when errors from queries are returned', async () => {
-    (useProjectContributorsQuery as jest.Mock).mockReturnValue({
+    (useProjectMembersQuery as jest.Mock).mockReturnValue({
       data: null,
       loading: false,
       error: new Error('Error'),
@@ -147,7 +147,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     expect(jacquesCousteau).toBeInTheDocument();
   });
 
-  it('should call refetch for projectsContributorQuery when an Apollo Error instance is returned from removing a member', async () => {
+  it('should call refetch for projectsMemberQuery when an Apollo Error instance is returned from removing a member', async () => {
     const apolloError = new ApolloError({
       graphQLErrors: [{ message: 'Apollo error occurred' }],
       networkError: null,
@@ -159,7 +159,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
       .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
 
 
-    (useRemovePlanContributorMutation as jest.Mock).mockReturnValue([
+    (useRemovePlanMemberMutation as jest.Mock).mockReturnValue([
       mockRemoveEmailResponse,
       { loading: false, error: undefined }
     ]);
@@ -184,9 +184,9 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     });
   });
 
-  it('should call logECS when useRemovePlanContributorMutation throws an error', async () => {
+  it('should call logECS when useRemovePlanMemberMutation throws an error', async () => {
 
-    (useRemovePlanContributorMutation as jest.Mock).mockReturnValue([
+    (useRemovePlanMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockRejectedValueOnce(new Error("Error")),
       { loading: false, error: undefined },
     ]);
@@ -209,7 +209,7 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'removePlanContributor',
+        'removePlanMember',
         expect.objectContaining({
           error: expect.anything(),
           url: { path: '/en-US/projects/1/dmp/1/members' },
@@ -220,10 +220,10 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
 
 
   it('should handle adding a member to the plan', async () => {
-    const mockAddPlanContributorAction = addPlanContributorAction as jest.Mock;
+    const mockAddPlanMemberAction = addPlanMemberAction as jest.Mock;
 
     // Mock the server action to return a successful response
-    mockAddPlanContributorAction.mockResolvedValue({
+    mockAddPlanMemberAction.mockResolvedValue({
       success: true,
       errors: [],
       data: { id: 1, name: 'Jacques Cousteau' },
@@ -249,9 +249,9 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     });
 
     // Verify that the server action was called with the correct arguments
-    expect(mockAddPlanContributorAction).toHaveBeenCalledWith({
+    expect(mockAddPlanMemberAction).toHaveBeenCalledWith({
       planId: 1, // Replace with the actual `dmpId` value in your test
-      projectContributorId: expect.any(Number), // Replace with the actual contributor ID if known
+      projectMemberId: expect.any(Number), // Replace with the actual member ID if known
     });
 
     // Verify that Jacques is added back to the "Members in the Plan" section
@@ -260,13 +260,13 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
     expect(jacquesCousteau).toBeInTheDocument();
   });
 
-  it('should display error when error is returned while adding a contributor', async () => {
-    const mockAddPlanContributorAction = addPlanContributorAction as jest.Mock;
+  it('should display error when error is returned while adding a member', async () => {
+    const mockAddPlanMemberAction = addPlanMemberAction as jest.Mock;
 
     // Mock the server action to return a successful response
-    mockAddPlanContributorAction.mockResolvedValue({
+    mockAddPlanMemberAction.mockResolvedValue({
       success: false,
-      errors: ['There was an error adding the contributor'],
+      errors: ['There was an error adding the member'],
       data: { id: 1, name: 'Jacques Cousteau' },
     });
 
@@ -289,18 +289,18 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
       fireEvent.click(addMemberButton);
     });
 
-    expect(screen.getByText('There was an error adding the contributor')).toBeInTheDocument();
+    expect(screen.getByText('There was an error adding the member')).toBeInTheDocument();
   });
 
   it('should handle any field-level errors returned in the data', async () => {
-    const mockAddPlanContributorAction = addPlanContributorAction as jest.Mock;
+    const mockAddPlanMemberAction = addPlanMemberAction as jest.Mock;
 
     // Mock the server action to return a successful response, but with field-level errors
-    mockAddPlanContributorAction.mockResolvedValue({
+    mockAddPlanMemberAction.mockResolvedValue({
       success: true,
       data: {
         errors: {
-          general: 'There was an error adding the contributor',
+          general: 'There was an error adding the member',
           email: null,
         },
         id: 15,
@@ -327,14 +327,14 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
       fireEvent.click(addMemberButton);
     });
 
-    expect(screen.getByText('There was an error adding the contributor')).toBeInTheDocument();
+    expect(screen.getByText('There was an error adding the member')).toBeInTheDocument();
   });
 
   it('should handle updating the primary contact', async () => {
-    const mockUpdatePlanContributor = jest.fn().mockResolvedValueOnce({ data: { key: 'value' } });
+    const mockUpdatePlanMember = jest.fn().mockResolvedValueOnce({ data: { key: 'value' } });
 
-    (useUpdatePlanContributorMutation as jest.Mock).mockReturnValue([
-      mockUpdatePlanContributor, // Use the mock function here
+    (useUpdatePlanMemberMutation as jest.Mock).mockReturnValue([
+      mockUpdatePlanMember, // Use the mock function here
       { loading: false, error: undefined },
     ]);
 
@@ -374,12 +374,12 @@ describe('ProjectsProjectPlanAdjustMembers', () => {
       fireEvent.click(saveButton);
     });
 
-    expect(mockUpdatePlanContributor).toHaveBeenCalledTimes(1);
-    expect(mockUpdatePlanContributor).toHaveBeenCalledWith({
+    expect(mockUpdatePlanMember).toHaveBeenCalledTimes(1);
+    expect(mockUpdatePlanMember).toHaveBeenCalledWith({
       variables: {
-        contributorRoleIds: [2],
+        memberRoleIds: [2],
         isPrimaryContact: true,
-        planContributorId: 21,
+        planMemberId: 21,
         planId: 1
       },
     });

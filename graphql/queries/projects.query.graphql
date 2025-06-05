@@ -7,11 +7,11 @@ query MyProjects {
       id
       startDate
       endDate
-      funders {
+      fundings {
         name
         grantId
       }
-      contributors {
+      members {
         name
         role
         orcid
@@ -31,7 +31,7 @@ query Project($projectId: Int!) {
     startDate
     endDate
     isTestProject
-    funders {
+    fundings {
       id
       grantId
       affiliation {
@@ -40,10 +40,10 @@ query Project($projectId: Int!) {
         searchName
       }
     }
-    contributors {
+    members {
       givenName
       surName
-      contributorRoles {
+      memberRoles {
         description
         displayOrder
         label
@@ -68,7 +68,7 @@ query Project($projectId: Int!) {
       }
       templateTitle
       id
-      funder
+      funding
       dmpId
       modified
       created

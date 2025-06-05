@@ -142,7 +142,7 @@ const PlanOverviewPage: React.FC = () => {
   );
 
   // Set URLs
-  const FUNDER_URL = routePath('projects.dmp.funder', { projectId, dmpId: planId });
+  const FUNDINGS_URL = routePath('projects.dmp.fundings', { projectId, dmpId: planId });
   const MEMBERS_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
   const RESEARCH_OUTPUT_URL = routePath('projects.dmp.research-outputs', { projectId, dmpId: planId });
   const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
@@ -367,19 +367,19 @@ const PlanOverviewPage: React.FC = () => {
           registered: data?.plan.registered ?? '',
           title: data?.plan?.project?.title ?? '',
           status: data?.plan?.status ?? '',
-          funderName: data?.plan?.project?.funders?.[0]?.affiliation?.displayName ?? '',
-          primaryContact: data.plan.contributors
+          funderName: data?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
+          primaryContact: data.plan.members
             ?.filter(member => member?.isPrimaryContact === true)
-            ?.map(member => member?.projectContributor?.givenName + ' ' + member?.projectContributor?.surName)
+            ?.map(member => member?.projectMember?.givenName + ' ' + member?.projectMember?.surName)
             ?.join(', ') ?? '',
-          members: data.plan.contributors
+          members: data.plan.members
             ?.filter((member) => member !== null) // Filter out null
             .map((member) => ({
-              fullname: `${member?.projectContributor?.givenName} ${member?.projectContributor?.surName}`,
-              email: member?.projectContributor?.email ?? '',
-              orcid: member?.projectContributor?.orcid ?? '',
+              fullname: `${member?.projectMember?.givenName} ${member?.projectMember?.surName}`,
+              email: member?.projectMember?.email ?? '',
+              orcid: member?.projectMember?.orcid ?? '',
               isPrimaryContact: member?.isPrimaryContact ?? false,
-              role: (member?.projectContributor?.contributorRoles ?? []).map((role) => role.label),
+              role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
             })) ?? [],
           sections: data?.plan?.sections ?? [],
           percentageAnswered: calculatePercentageAnswered(data?.plan?.sections ?? []) ?? 0,
@@ -436,7 +436,7 @@ const PlanOverviewPage: React.FC = () => {
         id: 4,
         content: (
           <>
-            {t('publishModal.publish.checklistItem.funderText')} (<Link href={FUNDER_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.funder')}</Link>)
+            {t('publishModal.publish.checklistItem.fundingText')} (<Link href={FUNDINGS_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.funding')}</Link>)
           </>
         ),
         completed: !!state.planData.funderName, // Check if funderName exists
@@ -490,19 +490,19 @@ const PlanOverviewPage: React.FC = () => {
           <div className={"container"}>
             <div className={styles.planOverview}>
               <section className={styles.planOverviewItem}
-                aria-labelledby="funder-title">
+                aria-labelledby="funding-title">
                 <div className={styles.planOverviewItemContent}>
-                  <h2 id="funder-title"
+                  <h2 id="funding-title"
                     className={styles.planOverviewItemTitle}>
-                    {t('funder.title')}
+                    {t('funding.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
                     {state.planData.funderName}
                   </p>
                 </div>
-                <Link href={FUNDER_URL}
-                  aria-label={t('funder.edit')}>
-                  {t('funder.edit')}
+                <Link href={FUNDINGS_URL}
+                  aria-label={t('funding.edit')}>
+                  {t('funding.edit')}
                 </Link>
               </section>
 

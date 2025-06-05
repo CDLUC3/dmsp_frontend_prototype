@@ -7,7 +7,7 @@ query Plan($planId: Int!) {
         name
       }
     }
-    funders {
+    fundings {
       id
       project {
         title
@@ -16,7 +16,7 @@ query Plan($planId: Int!) {
     visibility
     status
     project {
-      funders {
+      fundings {
         affiliation {
           displayName
         }
@@ -24,14 +24,14 @@ query Plan($planId: Int!) {
       }
       title
     }
-    contributors {
+    members {
       isPrimaryContact
-      projectContributor {
+      projectMember {
         givenName
         surName
         email
         orcid
-        contributorRoles {
+        memberRoles {
           label
         }
       }

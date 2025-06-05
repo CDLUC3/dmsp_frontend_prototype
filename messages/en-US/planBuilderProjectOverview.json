@@ -13,11 +13,11 @@
     "grantId": "Grant ID",
     "edit": "Edit",
     "editProject": "Edit project details",
-    "funders": "Funders",
-    "funderCount": "{count} Funder(s)",
-    "funderInfo": "{name} ({id})",
-    "editFunders": "Edit funder details",
-    "editFunderDetails": "Edit Funder details",
+    "fundings": "Funding sources",
+    "fundingCount": "{count} Funding Source(s)",
+    "fundingInfo": "{name} ({id})",
+    "editFundings": "Edit funding details",
+    "editFundingDetails": "Edit funding details",
     "projectMembers": "Project members",
     "memberCount": "{count} team members",
     "memberInfo": "{name} ({role})",
@@ -135,23 +135,23 @@
     }
   },
   "ProjectsProjectFundingEdit": {
-    "title": "Edit Funder Details",
+    "title": "Edit Funding Details",
     "description": "Update funding source information",
     "labels": {
       "funderName": "Funder name",
-      "funderStatus": "Funder Status",
+      "funderStatus": "Funding Status",
       "grantNumber": "Grant number/url",
       "projectNumber": "Project number or ID",
       "opportunity": "Opportunity/Federal Award Number"
     },
     "messages": {
       "errors": {
-        "projectFunderUpdateFailed": "Error updating project funder details",
+        "projectFundingUpdateFailed": "Error updating project funding details",
         "funderGrantId": "Invalid funder grant ID value",
         "funderProjectNumber": "Invalid funder project number value"
       },
       "success": {
-        "projectFunderUpdated": "Successfully updated project funder details"
+        "projectFundingUpdated": "Successfully updated project funding details"
       }
     }
   },
@@ -159,7 +159,7 @@
     "title": "Project Members",
     "description": "Define contributors and team members and their role in this project.",
     "buttons": {
-      "addCollaborators": "Add collaborators",
+      "addMembers": "Add members",
       "shareWithPeople": "Share with people"
     },
     "headings": {
@@ -170,9 +170,9 @@
     },
     "messages": {
       "errors": {
-        "errorGettingContributors": "Error getting contributors"
+        "errorGettingMembers": "Error getting members"
       },
-      "noContributors": "No contributors found"
+      "noMembers": "No members found"
     }
   },
   "ProjectsProjectMembersEdit": {
@@ -198,8 +198,8 @@
         "email": "Invalid email value",
         "orcid": "Invalid ORCiD value",
         "projectRoles": "Must select at least one project role",
-        "removingMember": "An error occurred while removing the project contributor.",
-        "updatingMember": "An error occurred while updating the project contributor."
+        "removingMember": "An error occurred while removing the project member.",
+        "updatingMember": "An error occurred while updating the project member."
       },
       "success": {
         "memberUpdated": "Successfully updated member details",

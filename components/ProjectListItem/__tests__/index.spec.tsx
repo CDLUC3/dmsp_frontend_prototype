@@ -24,7 +24,7 @@ const mockProjectItem: ProjectItemProps = {
       orcid: '0000-0001-2345-6789',
     },
   ],
-  funder: 'NSF',
+  funding: 'NSF',
   grantId: 'GRANT123',
 };
 
