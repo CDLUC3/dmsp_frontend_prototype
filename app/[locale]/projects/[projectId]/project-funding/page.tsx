@@ -35,7 +35,7 @@ const ProjectsCreateProjectFunding = () => {
     e.preventDefault();
 
     if (hasFunding === 'yes') {
-      router.push('/projects/create-project/funding-search');
+      router.push('/projects/create-project/funder-search');
     } else {
       router.push(`/projects/${projectId}`);
     }

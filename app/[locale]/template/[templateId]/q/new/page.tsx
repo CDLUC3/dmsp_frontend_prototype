@@ -117,7 +117,6 @@ const QuestionTypeSelectPage: React.FC = () => {
   useEffect(() => {
     // When data from backend changes, set template data in state
     if (data?.questionTypes) {
-      console.log("***QUESTION TYPES***", data.questionTypes);
       // filter out any null values
       const filteredQuestionTypes = data.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
       if (data.questionTypes.length > 0) {
@@ -175,7 +174,7 @@ const QuestionTypeSelectPage: React.FC = () => {
           <LayoutContainer>
             <ContentContainer>
               <ErrorMessages errors={errors} ref={errorRef} />
-              <div className="Filters" ref={topRef}>
+              <div className="searchSection" role="search" ref={topRef}>
                 <SearchField>
                   <Label>{Global('labels.searchByKeyword')}</Label>
                   <Input

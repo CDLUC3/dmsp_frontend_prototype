@@ -39,6 +39,10 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated the template cards in `TemplateListPage` and `PlanCreate` components to use the `TemplateSelectListItem` component, which was updated to correctly display `ownerDisplayName`, `publish status` and `visibility` [#470]
+- Updated the templates cards on `/template` page to match the look of the cards on the `/template/create` page [#470]
+- Switched out all occurrences of Remirror/DMPEditor rich text editor with TinyMCE [#496]
+- Convert all references to the old `Contributor` to `Member` and `Project/PlanFunder` to `Project/PlanFunding` to mimic language used in UI
 - Added the `Account Profile` link on the home page for the demo and fixed the success message when updating profile [#508] [#512]
 - Updated the "add new section" page to properly split our the affiliation's sections from best practice sections [#451]
 - Changed all instances of TemplateVisibility.PRIVATE to TemplateVisibility.ORGANIZATION to accomodate backend changes and also made update to `template/[templateId]` so that the `Version` and `Last updated` titles don't show in `description` when values are undefined [#466]
@@ -87,6 +91,7 @@
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
 
 ### Fixed
+- Fixed issue with search fields not looking good on smaller devices. Made updates to get the `Search` button to wrap for mobile [#488]
 - Fixed breaking build by addressing a type error
 - Fixed missing translations on User Profile page [#488]
 - Fixed issue with TypeAheadWithOther dropdown menu displaying when user clicks the `Edit` button on `User profile` page [#511]
@@ -110,6 +115,8 @@
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
 
 ### Chore
+- Updated and added unit tests to increase coverage in the app [#490]
+- Updated and improved the cypress functional tests to fix them and updated some cypress documentation in the README.md file [#490]
 - Updated NodeJS version to v22 [#144]
 ====================================================================================================
 

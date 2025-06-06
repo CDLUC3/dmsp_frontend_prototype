@@ -58,6 +58,7 @@ describe('QuestionOptionsComponent', () => {
     fireEvent.click(addButton);
 
     expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+    expect(screen.getByText('announcements.rowAdded')).toBeInTheDocument();
   });
 
   it('should update text field correctly', () => {
@@ -78,6 +79,15 @@ describe('QuestionOptionsComponent', () => {
     expect(setRows).toHaveBeenCalledWith(expect.any(Function));
   });
 
+  it('should add a row when the add button is clicked', () => {
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
+
+    const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
+    fireEvent.click(addButton);
+
+    expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+  });
+
   it('should remove a row when delete button is clicked', () => {
     render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
@@ -85,5 +95,35 @@ describe('QuestionOptionsComponent', () => {
     fireEvent.click(deleteButton);
 
     expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it('should set the correct row as default and unset others', () => {
+    const mockSetRows = jest.fn();
+    const rows = [
+      { id: 1, orderNumber: 1, text: 'Option 1', isDefault: false, questionId: 1 },
+      { id: 2, orderNumber: 2, text: 'Option 2', isDefault: false, questionId: 1 },
+    ];
+
+    const { getByLabelText } = render(
+      <QuestionOptionsComponent
+        rows={rows}
+        setRows={mockSetRows}
+        questionId={1}
+        setFormSubmitted={jest.fn()}
+      />
+    );
+
+    const defaultCheckbox = getByLabelText('Set row 2 as default');
+    fireEvent.click(defaultCheckbox);
+
+    expect(mockSetRows).toHaveBeenCalledTimes(1);
+
+    const updateFn = mockSetRows.mock.calls[0][0]; // This is the function passed to setRows
+    const updatedRows = updateFn(rows); // Simulate how React would call the updater with current state
+
+    expect(updatedRows).toEqual([
+      { id: 1, orderNumber: 1, text: 'Option 1', isDefault: false, questionId: 1 },
+      { id: 2, orderNumber: 2, text: 'Option 2', isDefault: true, questionId: 1 }, // <== isDefault changed
+    ]);
   });
 });

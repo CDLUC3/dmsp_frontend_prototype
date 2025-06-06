@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 'use client'
 
 import { useState, useEffect } from "react";
@@ -56,7 +58,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   const deleteRow = (id: number) => {
     if (id && id !== 0) {
       setRows((prevRows) => prevRows.filter(row => row.id !== id));
-      setAnnouncement(QuestionOptions('announcements.rowRemoved', { id: id }));
+      setAnnouncement(QuestionOptions('announcements.rowRemoved', { id }));
     }
   };
 

@@ -20,21 +20,21 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 // GraphQL
 import {
-  ContributorRole,
-  ProjectContributorErrors,
-  useContributorRolesQuery,
-  useUpdateProjectContributorMutation,
-  useRemoveProjectContributorMutation
+  MemberRole,
+  ProjectMemberErrors,
+  useMemberRolesQuery,
+  useUpdateProjectMemberMutation,
+  useRemoveProjectMemberMutation
 } from '@/generated/graphql';
 
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
-import { useProjectContributorData } from "@/hooks/projectContributorData";
+import { useProjectMemberData } from "@/hooks/projectMemberData";
 
 //Other
 import logECS from '@/utils/clientLogger';
-import { ProjectContributorFormInterface, ProjectContributorErrorInterface } from '@/app/types';
+import { ProjectMemberFormInterface, ProjectMemberErrorInterface } from '@/app/types';
 import styles from './ProjectsProjectMembersEdit.module.scss';
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
@@ -42,12 +42,12 @@ import { routePath } from '@/utils/routes';
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const initialState = {
-  roles: [] as ContributorRole[],
+  roles: [] as MemberRole[],
 };
 
 type State = typeof initialState;
 
-type Action = { type: 'SET_ROLES'; payload: ContributorRole[] };
+type Action = { type: 'SET_ROLES'; payload: MemberRole[] };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -80,7 +80,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   // Field errors
-  const [fieldErrors, setFieldErrors] = useState<ProjectContributorErrorInterface>({
+  const [fieldErrors, setFieldErrors] = useState<ProjectMemberErrorInterface>({
     givenName: '',
     surName: '',
     affiliationId: '',
@@ -99,27 +99,27 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   const Global = useTranslations('Global');
   const t = useTranslations('ProjectsProjectMembersEdit');
 
-  // Get Contributor Roles
-  const { data: contributorRoles, loading: contributorRolesLoading, error: contributorRolesError } = useContributorRolesQuery();
+  // Get Member Roles
+  const { data: memberRoles, loading: memberRolesLoading, error: memberRolesError } = useMemberRolesQuery();
 
-  // Hooks for project contributor data
+  // Hooks for project member data
   const {
-    projectContributorData,
+    projectMemberData,
     checkboxRoles,
     setCheckboxRoles,
     loading,
-    setProjectContributorData,
+    setProjectMemberData,
     queryError
-  } = useProjectContributorData(Number(memberId));
+  } = useProjectMemberData(Number(memberId));
 
 
-  const isLoading = loading || contributorRolesLoading;
-  const isError = queryError || contributorRolesError;
+  const isLoading = loading || memberRolesLoading;
+  const isError = queryError || memberRolesError;
 
 
-  // Initialize project contributor mutations
-  const [updateProjectContributorMutation] = useUpdateProjectContributorMutation();
-  const [removeProjectContributorMutation] = useRemoveProjectContributorMutation();
+  // Initialize project member mutations
+  const [updateProjectMemberMutation] = useUpdateProjectMemberMutation();
+  const [removeProjectMemberMutation] = useRemoveProjectMemberMutation();
 
   // Show Success Message for updating member
   const showSuccessToast = () => {
@@ -149,24 +149,24 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     });
   }
 
-  // Remove project contributor
-  const removeProjectContributor = async (): Promise<[ProjectContributorErrors, boolean]> => {
+  // Remove project member
+  const removeProjectMember = async (): Promise<[ProjectMemberErrors, boolean]> => {
     try {
-      const response = await removeProjectContributorMutation({
+      const response = await removeProjectMemberMutation({
         variables: {
-          projectContributorId: Number(memberId)
+          projectMemberId: Number(memberId)
         }
       });
 
-      const responseErrors = response.data?.removeProjectContributor?.errors
+      const responseErrors = response.data?.removeProjectMember?.errors
       if (responseErrors) {
-        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectContributorErrors').length > 0) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectMemberErrors').length > 0) {
           return [responseErrors, false];
         }
       }
       return [{}, true];
     } catch (error) {
-      logECS('error', 'removeProjectContributor', {
+      logECS('error', 'removeProjectMember', {
         error,
         url: { path: EDIT_MEMBER_ROUTE }
       });
@@ -182,7 +182,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   // Handle remove member from project
   const handleRemoveMember = async () => {
 
-    const [errors, success] = await removeProjectContributor();
+    const [errors, success] = await removeProjectMember();
 
     if (!success) {
       if (errors) {
@@ -192,7 +192,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
           affiliationId: errors.affiliationId || '',
           email: errors.email || '',
           orcid: errors.orcid || '',
-          projectRoles: errors.contributorRoleIds ?? ''
+          projectRoles: errors.memberRoleIds ?? ''
         });
       }
       setErrorMessages([errors.general || t('form.errors.updatingMember')]);
@@ -207,33 +207,33 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     scrollToTop(topRef);
   }
 
-  // update the project contributor
-  const updateProjectContributor = async (): Promise<[ProjectContributorErrors, boolean]> => {
+  // update the project member
+  const updateProjectMember = async (): Promise<[ProjectMemberErrors, boolean]> => {
     try {
-      const response = await updateProjectContributorMutation({
+      const response = await updateProjectMemberMutation({
         variables: {
           input: {
-            projectContributorId: Number(memberId),
-            givenName: projectContributorData.givenName,
-            surName: projectContributorData.surName,
-            affiliationId: projectContributorData.affiliationId,
-            email: projectContributorData.email,
-            orcid: projectContributorData.orcid,
-            contributorRoleIds: checkboxRoles.filter((id) => id !== undefined).map(Number)
+            projectMemberId: Number(memberId),
+            givenName: projectMemberData.givenName,
+            surName: projectMemberData.surName,
+            affiliationId: projectMemberData.affiliationId,
+            email: projectMemberData.email,
+            orcid: projectMemberData.orcid,
+            memberRoleIds: checkboxRoles.filter((id) => id !== undefined).map(Number)
           }
         }
       });
 
-      const responseErrors = response.data?.updateProjectContributor?.errors
+      const responseErrors = response.data?.updateProjectMember?.errors
       if (responseErrors) {
-        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectContributorErrors').length > 0) {
+        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectMemberErrors').length > 0) {
           return [responseErrors, false];
         }
       }
 
       return [{}, true];
     } catch (error) {
-      logECS('error', 'updateProjectContributor', {
+      logECS('error', 'updateProjectMember', {
         error,
         url: { path: EDIT_MEMBER_ROUTE }
       });
@@ -283,7 +283,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     // Initialize a flag for form validity
     let isValid = true;
     // Field errors
-    const errors: ProjectContributorErrorInterface = {
+    const errors: ProjectMemberErrorInterface = {
       givenName: '',
       surName: '',
       affiliationId: '',
@@ -293,9 +293,9 @@ const ProjectsProjectMembersEdit: React.FC = () => {
     };
 
     // Iterate over formData to validate each field
-    Object.keys(projectContributorData).forEach((key) => {
-      const name = key as keyof ProjectContributorFormInterface;
-      const value = projectContributorData[name];
+    Object.keys(projectMemberData).forEach((key) => {
+      const name = key as keyof ProjectMemberFormInterface;
+      const value = projectMemberData[name];
 
       // Call validateField to update errors for each field
       const error = validateField(name, value);
@@ -317,7 +317,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
     if (isFormValid()) {
       // Create new section
-      const [errors, success] = await updateProjectContributor();
+      const [errors, success] = await updateProjectMember();
 
       // Check if there are any errors (always exclude the GraphQL `_typename` entry)
       if (!success) {
@@ -328,7 +328,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
             affiliationId: errors.affiliationId || '',
             email: errors.email || '',
             orcid: errors.orcid || '',
-            projectRoles: errors.contributorRoleIds ?? ''
+            projectRoles: errors.memberRoleIds ?? ''
           });
         }
         setErrorMessages([errors.general || t('form.errors.updatingMember')]);
@@ -346,11 +346,11 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
   useEffect(() => {
     // Set the roles from the query
-    if (contributorRoles?.contributorRoles) {
-      const filteredRoles = contributorRoles.contributorRoles.filter((role): role is ContributorRole => role !== null);
+    if (memberRoles?.memberRoles) {
+      const filteredRoles = memberRoles.memberRoles.filter((role): role is MemberRole => role !== null);
       dispatch({ type: 'SET_ROLES', payload: filteredRoles });
     }
-  }, [contributorRoles]);
+  }, [memberRoles]);
 
   if (isLoading) {
     return <div>{Global('messaging.loading')}...</div>;
@@ -392,9 +392,9 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="givenName"
                   type="text"
                   label={t('form.labels.firstName')}
-                  value={projectContributorData.givenName}
+                  value={projectMemberData.givenName}
                   onChange={(e) => {
-                    setProjectContributorData({ ...projectContributorData, givenName: e.target.value });
+                    setProjectMemberData({ ...projectMemberData, givenName: e.target.value });
                     // Clear the error for this field when user changes it
                     setFieldErrors(prev => ({ ...prev, givenName: '' }));
                   }}
@@ -406,9 +406,9 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="surName"
                   type="text"
                   label={t('form.labels.lastName')}
-                  value={projectContributorData.surName}
+                  value={projectMemberData.surName}
                   onChange={(e) => {
-                    setProjectContributorData({ ...projectContributorData, surName: e.target.value });
+                    setProjectMemberData({ ...projectMemberData, surName: e.target.value });
                     // Clear the error for this field when user changes it
                     setFieldErrors(prev => ({ ...prev, surName: '' }));
                   }}
@@ -420,9 +420,9 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="affiliation"
                   type="text"
                   label={t('form.labels.affiliation')}
-                  value={projectContributorData.affiliationId}
+                  value={projectMemberData.affiliationId}
                   onChange={(e) => {
-                    setProjectContributorData({ ...projectContributorData, affiliationId: e.target.value });
+                    setProjectMemberData({ ...projectMemberData, affiliationId: e.target.value });
                     // Clear the error for this field when user changes it
                     setFieldErrors(prev => ({ ...prev, affiliationId: '' }));
                   }}
@@ -434,13 +434,13 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="email"
                   type="email"
                   label={t('form.labels.emailAddress')}
-                  value={projectContributorData.email}
+                  value={projectMemberData.email}
                   onChange={(e) => {
-                    setProjectContributorData({ ...projectContributorData, email: e.target.value });
+                    setProjectMemberData({ ...projectMemberData, email: e.target.value });
                     // Clear the error for this field when user changes it
                     setFieldErrors(prev => ({ ...prev, email: '' }));
                   }}
-                  isInvalid={fieldErrors.email.length > 0 || Boolean(projectContributorData.email && !emailRegex.test(projectContributorData.email))}
+                  isInvalid={fieldErrors.email.length > 0 || Boolean(projectMemberData.email && !emailRegex.test(projectMemberData.email))}
                   errorMessage={fieldErrors.email || t('form.errors.email')}
                 />
 
@@ -448,9 +448,9 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   name="orcid"
                   type="text"
                   label={t('form.labels.orcid')}
-                  value={projectContributorData.orcid}
+                  value={projectMemberData.orcid}
                   onChange={(e) => {
-                    setProjectContributorData({ ...projectContributorData, orcid: e.target.value });
+                    setProjectMemberData({ ...projectMemberData, orcid: e.target.value });
                     // Clear the error for this field when user changes it
                     setFieldErrors(prev => ({ ...prev, orcid: '' }));
                   }}

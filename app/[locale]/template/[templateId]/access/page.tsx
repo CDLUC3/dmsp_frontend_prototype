@@ -119,6 +119,9 @@ const TemplateAccessPage: React.FC = () => {
   // Add new collaborator email
   const handleAddingEmail = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    clearErrors();
+
     try {
       const response = await addTemplateCollaboratorlMutation({
         variables: {
@@ -138,8 +141,6 @@ const TemplateAccessPage: React.FC = () => {
       if (emailData?.errors && Object.values(emailData?.errors).filter((err) => err && err !== 'TemplateCollaboratorErrors').length > 0) {
         setErrorMessages([emailData?.errors.general || AccessPage('messages.errors.errorAddingCollaborator')]);
       }
-
-      clearErrors();
       setAddCollaboratorEmail('');
 
       // Show success message
@@ -181,7 +182,7 @@ const TemplateAccessPage: React.FC = () => {
     );
   }, [organization]);
 
-  /* Handles rendering list of existing contributors*/
+  /* Handles rendering list of existing members*/
   const renderExternalPeople = useMemo(() => {
     if (loading) {
       return <div>{Global('messaging.loading')}...</div>;
@@ -307,6 +308,7 @@ const TemplateAccessPage: React.FC = () => {
                       <FormInput
                         name="email"
                         type="text"
+                        data-testid="email-input"
                         value={addCollaboratorEmail}
                         onChange={handleEmailChange}
                         isRequired={true}

@@ -1,13 +1,17 @@
 'use client';
 
 import React from 'react';
-import {Breadcrumb, Breadcrumbs, Button, Link} from "react-aria-components";
+import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
+import { useRouter } from 'next/navigation';
+
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { routePath } from '@/utils/routes';
+
 import styles from './ProjectsProjectPlanAdjustResearchOutputs.module.scss';
 
 interface ResearchOutput {
@@ -20,6 +24,8 @@ interface ResearchOutput {
 }
 
 const ProjectsProjectPlanAdjustResearchOutputs = () => {
+  const router = useRouter();
+
   const researchOutputs: ResearchOutput[] = [
     {
       id: 'output-001',
@@ -48,9 +54,9 @@ const ProjectsProjectPlanAdjustResearchOutputs = () => {
   ];
 
   const handleEditOutput = (outputId: string): void => {
+    console.log(`Editing research output: ${outputId}`);
     // Handle editing the research output
-    console.log(`Edit research output: ${outputId}`);
-    window.location.href = `/projects/proj_2425/dmp/xxx/research-outputs/edit/`;
+    router.push(routePath('projects.dmp.research-outputs.edit', { projectId: 'proj_2425', dmpId: 'xxx' }))
   };
 
   const handleDeleteOutput = (outputId: string): void => {
@@ -74,7 +80,7 @@ const ProjectsProjectPlanAdjustResearchOutputs = () => {
         actions={
           <>
             <Button
-              onPress={() => window.location.href = '/projects/proj_2425/research-outputs/edit'}
+              onPress={() => router.push(routePath('projects.dmp.research-outputs.edit', { projectId: 'proj_2425', dmpId: 'xxx' }))}
               className="secondary"
               aria-label="Add new research output"
             >
@@ -90,7 +96,7 @@ const ProjectsProjectPlanAdjustResearchOutputs = () => {
             aria-label="Research outputs list"
             role="region"
           >
-            <div className={styles.outputsList}>
+            <div className={styles.outputsList} role="list">
               {researchOutputs.map((output) => (
                 <div
                   key={output.id}
@@ -99,13 +105,13 @@ const ProjectsProjectPlanAdjustResearchOutputs = () => {
                   aria-label={`Research output: ${output.title}`}
                 >
                   <div className={styles.outputInfo}>
-                    <h3>
+                    <h2>
                       {output.title}
-                    </h3>
+                    </h2>
                     <p className={styles.metadata}>
                       Personal Information
                       Included? {output.personalInfoIncluded ? 'Yes' : 'No'}
-                      <br/>
+                      <br />
                       Sensitive Data
                       Included? {output.sensitiveDataIncluded ? 'Yes' : 'No'}
                     </p>
@@ -114,12 +120,12 @@ const ProjectsProjectPlanAdjustResearchOutputs = () => {
                   </div>
 
                   <div className={styles.repository}>
-                    Repository:<br/>{output.repository}
+                    Repository:<br />{output.repository}
                   </div>
 
 
                   <div className={styles.outputType}>
-                    Type:<br/>{output.type}
+                    Type:<br />{output.type}
                   </div>
 
                   <div className={styles.outputActions}>
@@ -143,7 +149,7 @@ const ProjectsProjectPlanAdjustResearchOutputs = () => {
             </div>
           </section>
         </ContentContainer>
-        <SidebarPanel/>
+        <SidebarPanel />
       </LayoutWithPanel>
     </>
   );

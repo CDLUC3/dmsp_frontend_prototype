@@ -4,20 +4,8 @@
     "linkText": "Ir para a página de conexões",
     "content": "É um fato estabelecido há muito tempo que um leitor se distrairá com o conteúdo legível de uma página ao observar sua disposição."
   },
-  "LocaleTest": {
-    "title": "Teste de localização",
-    "content": "Olá, {name}!",
-    "itemCount": "{count, plural, one {Você tem {count} Item} other {Você tem {count} itens}}",
-    "message": "Consulte as <guidelines>diretrizes</guidelines>.",
-    "markup": "Este é <important>importante</important>",
-    "raw": "&lt; script&gt; alert('Hacked!');&lt;/script&gt;",
-    "general": "Este é um novo conteúdo"
-  },
   "About": {
     "title": "Bem-vindo à Ferramenta DMP"
-  },
-  "Test": {
-    "info": "Você pode tentar novamente mais tarde."
   },
   "Header": {
     "menuDashboard": "Painel de controle",
@@ -156,7 +144,7 @@
       "project": "Projeto",
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto",
-      "projectFunder": "Fundador do Projeto",
+      "projectFunding": "Fundador do Projeto",
       "planOverview": "Resumo do plano",
       "feedback": "Registrar"
     },
@@ -166,6 +154,9 @@
     },
     "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
+    "published": "Publicado",
+    "visibility": "Visibilidade",
+    "notPublished": "Não publicado",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
@@ -198,7 +189,8 @@
     "links": {
       "clearFilter": "limpar filtro",
       "request": "Solicitação",
-      "learnMore": "Saiba mais"
+      "learnMore": "Saiba mais",
+      "update": "Atualizar"
     },
     "messaging": {
       "loading": "Baixar",

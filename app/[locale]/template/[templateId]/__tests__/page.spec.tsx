@@ -5,9 +5,10 @@ import {
   useCreateTemplateVersionMutation,
   useTemplateQuery,
 } from '@/generated/graphql';
-
 import { useParams } from 'next/navigation';
+import logECS from '@/utils/clientLogger';
 import TemplateEditPage from '../page';
+import { updateTemplateAction } from '../actions';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 // Mock the useTemplateQuery hook
@@ -17,6 +18,10 @@ jest.mock("@/generated/graphql", () => ({
   useCreateTemplateVersionMutation: jest.fn(),
   TemplateVersionType: { Draft: 'DRAFT', Published: 'PUBLISHED' },
   TemplateVisibility: { Organization: 'ORGANIZATION', Public: 'PUBLIC' },
+}));
+
+jest.mock('../actions/index', () => ({
+  updateTemplateAction: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -39,8 +44,45 @@ jest.mock('@/components/BackButton', () => {
   };
 });
 
-const mockTemplateData = {
+const mockArchiveTemplateData = {
+  data: {
+    archiveTemplate: {
+      id: 15,
+      name: "Test template",
+      errors: {
+        general: "Template could not be archived",
+        name: null,
+        owner: null,
+      },
+    },
+  },
+}
+
+const mockTemplateData: {
+  name: string;
+  id: number | null; // Allow `id` to be `number` or `null`
+  visibility: string;
+  description: string;
+  errors: null;
+  latestPublishVersion: string;
+  latestPublishDate: string;
+  created: string;
+  sections: {
+    id: number;
+    displayOrder: number;
+    name: string;
+    questions: {
+      errors: null;
+      displayOrder: number;
+      guidanceText: string;
+      id: number;
+      questionText: string;
+    }[];
+  }[];
+} = {
   name: "DMP Template from Dataverse",
+  id: 15,
+  visibility: "ORGANIZATION",
   description: "DMP Template from Dataverse",
   errors: null,
   latestPublishVersion: "v1",
@@ -132,8 +174,6 @@ describe("TemplateEditPage", () => {
     );
 
     expect(questionText).toBeInTheDocument();
-
-
   });
 
 
@@ -269,4 +309,188 @@ describe("TemplateEditPage", () => {
       expect(screen.getByText('errors.archiveTemplateError')).toBeInTheDocument();
     });
   })
+
+  it('should display the general error if it is returned from the archiveTemplateMutation', async () => {
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    const mockArchiveTemplate = jest.fn().mockResolvedValue(mockArchiveTemplateData);
+
+    // Use it in your test:
+    (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
+      mockArchiveTemplate,
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateEditPage />
+      );
+    });
+
+    // Locate the Archive Template button
+    const archiveTemplateBtn = screen.getByTestId('archive-template');
+    //Click the button
+    fireEvent.click(archiveTemplateBtn);
+
+    // Wait until error is displayed
+    await waitFor(() => {
+      expect(screen.getByText('Template could not be archived')).toBeInTheDocument();
+    });
+  })
+
+  it('should display Template Title input field when user clicks on Edit Template', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateEditPage />
+      );
+    });
+
+
+    const editTemplateButton = screen.getByRole('button', { name: /Edit template name/i });
+    fireEvent.click(editTemplateButton);
+
+    // Check if the input field is displayed
+    const inputField = screen.getByRole('textbox', { name: /Template title/i });
+    expect(inputField).toBeInTheDocument();
+  });
+
+  it('should call updateTemplateAction when user enters a new title and clicks save', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    (updateTemplateAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        error: {
+          general: null,
+          email: null,
+        },
+        id: 15,
+        name: 'New Template Title',
+        visibility: 'ORGANIZATION',
+      },
+    });
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    // Simulate clicking the "Edit template name" button
+    const editTemplateButton = screen.getByRole('button', { name: /Edit template name/i });
+    await act(async () => {
+      fireEvent.click(editTemplateButton);
+    });
+
+    // Simulate typing a new title into the input field
+    const inputField = screen.getByPlaceholderText('Enter new template title');
+    await act(async () => {
+      fireEvent.change(inputField, { target: { value: 'New Template Title' } });
+    });
+
+    // Simulate clicking the "Save" button
+    const saveButton = screen.getByTestId('save-button');
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // Wait for the updateTemplateAction to be called
+    await waitFor(() => {
+      expect(updateTemplateAction).toHaveBeenCalledWith({
+        templateId: 15,
+        name: 'New Template Title', // Ensure the updated title is passed
+        visibility: 'ORGANIZATION',
+      });
+    });
+  });
+
+  it('should log error if updateTemplate is called with no templateId', async () => {
+    mockTemplateData.id = null; // Set templateId to null
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    (updateTemplateAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        error: {
+          general: null,
+          email: null,
+        },
+        id: 15,
+        name: 'New Template Title',
+        visibility: 'ORGANIZATION',
+      },
+    });
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    // Simulate clicking the "Edit template name" button
+    const editTemplateButton = screen.getByRole('button', { name: /Edit template name/i });
+    await act(async () => {
+      fireEvent.click(editTemplateButton);
+    });
+
+    // Simulate typing a new title into the input field
+    const inputField = screen.getByPlaceholderText('Enter new template title');
+    await act(async () => {
+      fireEvent.change(inputField, { target: { value: 'New Template Title' } });
+    });
+
+    // Simulate clicking the "Save" button
+    const saveButton = screen.getByTestId('save-button');
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // Wait for the updateTemplateAction to be called
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'updateTemplate',
+        expect.objectContaining({
+          error: "templateId is null",
+          url: { path: '/en-US/template/unknown' },
+        })
+      )
+    })
+  });
 });
+
