@@ -63,15 +63,15 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
 
   // Set one row as default (only one can be true)
   const setDefault = (id: number) => {
-    if (id && id !== 0) {
-      setRows((prevRows) =>
-        prevRows.map((row) => ({
-          ...row,
-          isDefault: row.id === id,
-        }))
-      );
-      setAnnouncement(QuestionOptions('announcements.rowDefault', { id: id }));
-    }
+
+    setRows((prevRows) =>
+      prevRows.map((row) => ({
+        ...row,
+        isDefault: row.id === id,
+      }))
+    );
+    setAnnouncement(QuestionOptions('announcements.rowDefault', { id: id }));
+
   };
 
   // Update rows state
@@ -111,7 +111,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 disabled={true}
                 isRequired={true}
                 label={QuestionOptions('labels.order')}
-                value={index + 1}
+                value={row.id?.toString()}
                 placeholder={QuestionOptions('placeholder.orderNumber')}
                 ariaLabel={index === 0 ? undefined : "Order"}
               />
