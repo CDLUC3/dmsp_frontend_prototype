@@ -42,6 +42,14 @@ interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
   templateId: number,
 }
 
+const getParsedQuestionJSON = (question: Question | null) => {
+  if (question) {
+    const parsedJSON = question?.json ? JSON.parse(question.json) : null;
+    return parsedJSON;
+  }
+  return null;
+}
+
 
 const QuestionView: React.FC<QuestionViewProps> = ({
   id = '',
@@ -61,19 +69,28 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   });
   const [questionType, setQuestionType] = useState<string>('');
 
-  // useEffect(() => {
-  //   if (!question) return;
-  //   if (!qtData) return;
+  useEffect(() => {
+    if (!question || !qtData?.questionTypes) return;
 
-  //   if (questionType == '' && qtData.questionTypes) {
-  //     const qt = qtData.questionTypes
-  //       .find(qt => qt && qt.id === question.questionTypeId);
-  //     if (qt) {
-  //       setQuestionType(qt.name);
-  //     }
-  //   }
-  // }, [question]);
+    const parsedQuestion = getParsedQuestionJSON(question);
+    if (!parsedQuestion) return;
+    const type = parsedQuestion.type;
 
+    for (const qt of qtData.questionTypes) {
+      if (!qt || !qt.json) continue; // null check
+      const qtJson = JSON.parse(qt.json);
+      if (qtJson?.type === type) {
+        setQuestionType(type);
+        break;
+      }
+    }
+  })
+
+
+  useEffect(() => {
+    console.log("Question TYPE", questionType);
+
+  }, [questionType])
   if (!question) return null;
 
   return (
@@ -103,12 +120,15 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardEyebrow>{trans('cardType')}</CardEyebrow>
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
-            {(questionType == 'Text Area') && (
-              <TinyMCEEditor
-                id="question-text-editor"
-                content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
-                setContent={() => { }} // Pass an empty function
-              />
+            {(questionType == 'textArea') && (
+              <>
+                <h1>TESTING</h1>
+                <TinyMCEEditor
+                  id="question-text-editor"
+                  content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
+                  setContent={() => { }} // Pass an empty function
+                />
+              </>
             )}
 
             {(questionType == 'text') && (

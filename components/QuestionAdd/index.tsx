@@ -39,11 +39,14 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 
-import { CURRENT_SCHEMA_VERSION, QuestionTypesEnum } from "@dmptool/types";
+import { QuestionTypesEnum } from "@dmptool/types";
 
 //Other
 import { useToast } from '@/context/ToastContext';
+import logECS from '@/utils/clientLogger';
 import { stripHtmlTags } from '@/utils/general';
+import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
+import { routePath } from '@/utils/routes';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
 
@@ -53,93 +56,6 @@ const defaultQuestion = {
   sampleText: '',
   useSampleTextAsDefault: false,
   required: false,
-};
-
-const questionTypeHandlers: Record<
-  z.infer<typeof QuestionTypesEnum>,
-  (baseJSON: any, userInput: any) => any
-> = {
-  text: (json, input) => ({
-    ...json,
-    meta: {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-    },
-    attributes: {
-      ...json.attributes,
-      maxLength: 1000,
-      pattern: " ^.+ $"  // Match any non-empty string
-    },
-  }),
-  radioButtons: (json, input) => ({
-    ...json,
-    options: input.options.map(option => ({
-      type: 'option',
-      attributes: {
-        label: option.label || option.value,
-        selected: option.selected || false,
-        value: option.value,
-      },
-      meta: {
-        labelTranslationKey: option.labelTranslationKey || undefined,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
-    })),
-  }),
-  checkBoxes: (json, input) => ({
-    ...json,
-    options: input.options.map(option => ({
-      type: 'option',
-      attributes: {
-        label: option.label || option.value,
-        selected: option.selected || false,
-        value: option.value,
-      },
-      meta: {
-        labelTranslationKey: option.labelTranslationKey || undefined,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
-    })),
-  }),
-  selectBox: (json, input) => ({
-    ...json,
-    options: input.options.map(option => ({
-      type: 'option',
-      attributes: {
-        label: option.label || option.value,
-        selected: option.selected || false,
-        value: option.value,
-      },
-      meta: {
-        labelTranslationKey: option.labelTranslationKey || undefined,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
-    })),
-  }),
-  // For types without specific logic:
-  boolean: (json, _) => json,
-  currency: (json, _) => json,
-  datePicker: (json, _) => json,
-  dateRange: (json, _) => json,
-  email: (json, _) => json,
-  filteredSearch: (json, _) => json,
-  number: (json, _) => json,
-  table: (json, _) => json,
-  textArea: (json, input) =>
-    questionTypeHandlers.text(json, input), // alias logic
-  typeaheadSearch: (json, _) => json,
-  url: (json, input) => ({
-    ...json,
-    meta: {
-      ...json.meta,
-      schemaVersion: CURRENT_SCHEMA_VERSION
-    },
-    attributes: {
-      ...json.attributes,
-      pattern: input?.pattern || "https://.*",
-      maxLength: input?.maxLength || null,
-      minLength: input?.minLength || null
-    }
-  }),
 };
 
 const QuestionAdd = ({
@@ -164,8 +80,9 @@ const QuestionAdd = ({
   const step1Url = `/template/${templateId}/q/new?section_id=${sectionId}&step=1`;
 
   // State for managing form inputs
-  const [question, setQuestion] = useState<Question>();
-  const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isDefault: false }]);
+  const [question, setQuestion] = useState<Question>({
+    ...defaultQuestion,
+  }); const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isDefault: false }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
@@ -229,9 +146,23 @@ const QuestionAdd = ({
 
     const displayOrder = getDisplayOrder();
 
-    const parsedQuestionJSON = JSON.parse(questionJSON); // Parse questionJSON into an object
-    const type = parsedQuestionJSON.type as z.infer<typeof QuestionTypesEnum>;
-    const getHandlerInput = () => {
+    const parsedQuestionJSON = JSON.parse(questionJSON);
+
+    const typeResult = QuestionTypesEnum.safeParse(parsedQuestionJSON.type); // using Zod's safeParse to validate that parsedQuestionJSON.type is a valid value according to QuestionTypesEnum
+
+    if (!typeResult.success) {
+      const errorMsg = `Invalid question type: ${parsedQuestionJSON.type}`;
+      setErrors(prevErrors => [...prevErrors, errorMsg]);
+      logECS('error', 'adding question', {
+        error: errorMsg,
+        url: { path: routePath('template.q.new') }
+      });
+      return;
+    }
+
+    const type = typeResult.data;
+
+    const getHandlerInput = (type: string) => {
       switch (type) {
         case 'radioButtons':
         case 'checkBoxes':
@@ -246,22 +177,48 @@ const QuestionAdd = ({
         case 'url':
           return { pattern: "https?://.+" };
         case 'textArea':
+        case 'text':
           return {
             maxLength: 1000,
             rows: 2,
             cols: 20
           };
+        case 'boolean':
+          return { checked: false }; // or get from form state
         default:
           return {}; // fallback safe default
       }
     };
 
-    const handlerInput = getHandlerInput();
-    if (!questionTypeHandlers[type]) {
-      throw new Error(`Unsupported question type: ${type}`);
+    const handlerInput = getHandlerInput(type);
+    const handlerFn = questionTypeHandlers[type as keyof typeof questionTypeHandlers];
+
+    if (!handlerFn) {
+      const msg = `No handler found for question type: ${type}`;
+      setErrors(prev => [...prev, msg]);
+      logECS('error', 'Missing question type handler', {
+        type,
+        url: { path: routePath('template.q.new') }
+      });
+      return;
+
     }
 
-    const updatedQuestionJSON = questionTypeHandlers[type](parsedQuestionJSON, handlerInput);
+    // Call the handler and check validation result
+    const handlerResult = handlerFn(parsedQuestionJSON, handlerInput);
+
+    if (!handlerResult.success) {
+      const errorMsg = handlerResult.error || 'Question validation failed';
+      setErrors(prev => [...prev, errorMsg]);
+      logECS('error', 'Question validation failed', {
+        type,
+        error: errorMsg,
+        url: { path: routePath('template.q.new') }
+      });
+      return;
+    }
+
+    const updatedQuestionJSON = handlerResult.data;
 
     // string all tags from questionText before sending to backend
     const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
@@ -296,7 +253,6 @@ const QuestionAdd = ({
       }
     }
   };
-
   useEffect(() => {
     if (!questionType) {
       // If questionId is missing, return user to the Question Types selection page
@@ -499,3 +455,4 @@ const QuestionAdd = ({
 }
 
 export default QuestionAdd;
+

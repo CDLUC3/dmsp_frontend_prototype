@@ -20,6 +20,7 @@ import {
   Text,
   TextField
 } from "react-aria-components";
+import { QuestionTypesEnum } from "@dmptool/types";
 
 // GraphQL queries and mutations
 import {
@@ -38,87 +39,16 @@ import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
 
-import { CURRENT_SCHEMA_VERSION, QuestionTypesEnum } from "@dmptool/types";
-
-
 //Other
 import { useToast } from '@/context/ToastContext';
+
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
+import logECS from '@/utils/clientLogger';
+import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
 
-const questionTypeHandlers: Record<
-  z.infer<typeof QuestionTypesEnum>,
-  (baseJSON: any, userInput: any) => any
-> = {
-  text: (json, input) => ({
-    ...json,
-    meta: {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-    },
-    attributes: {
-      ...json.attributes,
-      maxLength: 1000,
-    },
-  }),
-  radioButtons: (json, input) => ({
-    ...json,
-    options: input.options.map(option => ({
-      type: 'option',
-      attributes: {
-        label: option.label || option.value,
-        selected: option.selected || false,
-        value: option.value,
-      },
-      meta: {
-        labelTranslationKey: option.labelTranslationKey || undefined,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
-    })),
-  }),
-  checkBoxes: (json, input) => ({
-    ...json,
-    options: input.options.map(option => ({
-      attributes: {
-        label: option.label || option.value,
-        selected: option.selected || false,
-        value: option.value,
-      },
-      meta: {
-        labelTranslationKey: option.labelTranslationKey || undefined,
-        schemaVersion: "1",
-      },
-    })),
-  }),
-
-  // For types without specific logic:
-  boolean: (json, _) => json,
-  currency: (json, _) => json,
-  datePicker: (json, _) => json,
-  dateRange: (json, _) => json,
-  email: (json, _) => json,
-  filteredSearch: (json, _) => json,
-  number: (json, _) => json,
-  selectBox: (json, _) => json,
-  table: (json, _) => json,
-  textArea: (json, input) =>
-    questionTypeHandlers.text(json, input), // alias logic
-  typeaheadSearch: (json, _) => json,
-  url: (json, input) => ({
-    ...json,
-    meta: {
-      ...json.meta,
-      schemaVersion: CURRENT_SCHEMA_VERSION
-    },
-    attributes: {
-      ...json.attributes,
-      pattern: input?.pattern || "https://.*",
-      maxLength: input?.maxLength || null,
-      minLength: input?.minLength || null
-    }
-  }),
-};
 
 const QuestionEdit = () => {
   const params = useParams();
@@ -227,12 +157,10 @@ const QuestionEdit = () => {
 
     if (question) {
       const handlerInput = getHandlerInput(questionType);
-      if (!questionTypeHandlers[questionType]) {
-        throw new Error(`Unsupported question type: ${questionType}`);
-      }
+      const handlerFn = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers];
 
       // Get updated question JSON using the appropriate handler
-      const updatedQuestionJSON = questionTypeHandlers[questionType](getParsedQuestionJSON(question), handlerInput);
+      const updatedQuestionJSON = handlerFn(getParsedQuestionJSON(question), handlerInput);
 
       setFormSubmitted(true);
       // string all tags from questionText before sending to backend
