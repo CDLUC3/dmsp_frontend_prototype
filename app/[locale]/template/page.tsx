@@ -236,6 +236,11 @@ const TemplateListPage: React.FC = () => {
     return null;
   };
 
+  useEffect(() => {
+    // console.log('Filtered templates:', filteredTemplates);
+    // console.log('Templates:', templates);
+  }, [filteredTemplates, templates]);
+
   // TODO: Implement shared loading
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
@@ -334,7 +339,7 @@ const TemplateListPage: React.FC = () => {
           }
 
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 }

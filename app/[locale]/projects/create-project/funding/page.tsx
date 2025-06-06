@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,9 +20,11 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { routePath } from '@/utils/routes';
 
 
 const ProjectsCreateProjectFunding = () => {
+  const router = useRouter();
 
   const [hasFunding, setHasFunding] = useState("yes");
 
@@ -28,12 +32,10 @@ const ProjectsCreateProjectFunding = () => {
     e.preventDefault();
 
     if (hasFunding === 'yes') {
-      window.location.href = '/projects/create-project/funding-search';
+      router.push(routePath('projects.create.funder.search'))
     } else {
-      window.location.href = '/projects/proj_2425new';
+      router.push(routePath('projects.show', { projectId: 'proj_2425new' }))
     }
-
-
   }
 
   return (

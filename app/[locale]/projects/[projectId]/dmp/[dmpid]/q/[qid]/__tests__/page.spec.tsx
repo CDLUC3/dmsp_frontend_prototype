@@ -1,6 +1,6 @@
 import React from 'react';
-import {render} from '@testing-library/react';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { render } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
 import PlanOverviewQuestionPage from "../page";
 
@@ -16,9 +16,10 @@ jest.mock('@/components/PageHeader', () => ({
   default: () => <div data-testid="mock-page-header" />,
 }));
 
-// Mock the DmpEditor component
-jest.mock('@/components/Editor', () => ({
-  DmpEditor: () => <div data-testid="mocked-editor">Mocked Editor</div>
+// Mock the TinyMCE Editor component
+jest.mock('@/components/TinyMCEEditor', () => ({
+  __esModule: true,
+  default: () => <div data-testid="mocked-editor">Mocked Editor</div>
 }));
 
 

@@ -191,8 +191,6 @@ footer {
 }
 
 
-
-
 .template-editor-container {
   padding: 0 var(--brand-space2);
   @include device(lg) {
@@ -239,6 +237,13 @@ footer {
     max-width: 66%;
   }
 }
+
 .mx-auto {
   margin: 0 auto;
+}
+
+.page-connections-list {
+  .pageheader-container {
+    margin-bottom: 0.5rem;
+  }
 }

@@ -35,10 +35,11 @@ import {
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import { DmpEditor } from "@/components/Editor";
+import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
 import { stripHtmlTags } from '@/utils/general';
+import { scrollToTop } from '@/utils/general';
 
 import {
   SectionFormErrorsInterface,
@@ -173,15 +174,6 @@ const CreateSectionPage: React.FC = () => {
     });
   }
 
-  const scrollToTop = (ref: React.MutableRefObject<HTMLDivElement | null>) => {
-    if (ref.current) {
-      ref.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }
-
   // Make GraphQL mutation request to create section
   const createSection = async (): Promise<SectionErrors> => {
     // string all tags from sectionName before sending to backend
@@ -313,7 +305,6 @@ const CreateSectionPage: React.FC = () => {
     });
   }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
-
   return (
     <>
       <PageHeader
@@ -348,7 +339,6 @@ const CreateSectionPage: React.FC = () => {
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
 
-
                     <FormInput
                       name="sectionName"
                       id="sectionName"
@@ -357,11 +347,12 @@ const CreateSectionPage: React.FC = () => {
                       label={Section('labels.sectionName')}
                       value={formData.sectionName}
                       onChange={(e) => setSectionNameContent(e.currentTarget.value)} // Use specific setter
+                      isInvalid={fieldErrors['sectionName'] !== ''}
                       errorMessage={fieldErrors['sectionName']}
                     />
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
-                    <DmpEditor
+                    <TinyMCEEditor
                       content={sectionIntroductionContent}
                       setContent={setSectionIntroductionContent}
                       error={fieldErrors['sectionIntroduction']}
@@ -370,8 +361,8 @@ const CreateSectionPage: React.FC = () => {
                       helpText={Section('helpText.sectionIntroduction')}
                     />
 
-                    <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionRequirements" id="sectionRequirementsLabel">{Section('labels.sectionRequirements')}</Label>
+                    <TinyMCEEditor
                       content={sectionRequirementsContent}
                       setContent={setSectionRequirementsContent}
                       error={fieldErrors['sectionRequirements']}
@@ -380,8 +371,8 @@ const CreateSectionPage: React.FC = () => {
                       helpText={Section('helpText.sectionRequirements')}
                     />
 
-                    <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionGuidance" id="sectionGuidanceLabel">{Section('labels.sectionGuidance')}</Label>
+                    <TinyMCEEditor
                       content={sectionGuidanceContent}
                       setContent={setSectionGuidanceContent}
                       error={fieldErrors['sectionGuidance']}

@@ -1,9 +1,10 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import TooltipWithDialog from '..';
 import { PressEvent } from 'react-aria-components';
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 const handleDelete = async (e: PressEvent, close: any) => {
   try {
     console.log('Deleted');

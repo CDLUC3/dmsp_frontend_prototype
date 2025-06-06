@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import ButtonWithImage from '../ButtonWithImage';
 import TooltipWithDialog from '../TooltipWithDialog';
 import { ModalOverlayComponent } from '../ModalOverlayComponent';
@@ -8,9 +8,7 @@ import { DmpIcon } from '@/components/Icons';
 import styles from './connectionSection.module.scss';
 import connectionData from './connection-types.json';
 
-import {
-  PressEvent
-} from 'react-aria-components';
+import { PressEvent } from 'react-aria-components';
 
 interface ConnectionSectionProps {
   type: string;
@@ -19,11 +17,6 @@ interface ConnectionSectionProps {
   btnUrl: string;
   btnImageUrl?: string;
   btnText: string;
-}
-
-interface AuthData {
-  id: string;
-  token: string;
 }
 
 type CloseFunction = () => void;
@@ -44,14 +37,9 @@ const ConnectionSection = ({
   btnText,
 }: ConnectionSectionProps) => {
 
-  const [authData, setAuthData] = useState<AuthData | null>(null);
 
   const handleDelete: HandleDeleteFunction = async (e, close) => {
-    try {
-      close();
-    } catch (error) {
-      console.error('An error occurred while deleting the item:', error);
-    }
+    close();
   };
 
   const tooltipText = (connectionData as ConnectionDataType)[type]?.tooltipText || '';
@@ -59,9 +47,12 @@ const ConnectionSection = ({
 
   return (
     <>
-      {(type === 'orcidtest') ? (
+      {(type === 'orcidconnected') ? (
         <div className={styles.connectionSection}>
-          <h2>{title}</h2>
+          <h2 className={"h3"}>{title}</h2>
+          {content && (
+            <p dangerouslySetInnerHTML={{ __html: content }} />
+          )}
           <TooltipWithDialog
             text="0000-0001-2345-6789"
             tooltipText={tooltipText}
@@ -78,7 +69,7 @@ const ConnectionSection = ({
         </div >
       ) : (
         <div className={styles.connectionSection}>
-          <h2>{title}</h2>
+          <h2 className={"h3"}>{title}</h2>
           {content && (
             <p dangerouslySetInnerHTML={{ __html: content }} />
           )}

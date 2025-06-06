@@ -1,5 +1,5 @@
 {
-  "updateProjectContributor": {
+  "updateProjectMember": {
     "givenName": "Juliet",
     "surName": "Cousteau",
     "orcid": "0000-JACQ-0000-0000",
@@ -11,7 +11,7 @@
       "givenName": null,
       "orcid": null,
       "affiliationId": null,
-      "contributorRoleIds": null
+      "memberRoleIds": null
     }
   }
 }

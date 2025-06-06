@@ -21,23 +21,30 @@ const routes = {
   'projects.index': '/projects',
   'projects.show': '/projects/:projectId',
   'projects.create': '/projects/create',
+  'projects.search': '/projects/search',
+  'projects.create.funder.search': '/projects/create-project/funder-search',
+  'projects.create.projects.search': '/projects/create-project/projects-search',
   'projects.upload': '/projects/:projectId/upload',
-  'projects.funder.index': '/projects/:projectId/funder',
-  'projects.funder.show': '/projects/:projectId/funder/:projectFunderId',
-  'projects.funder.search': '/projects/:projectId/funder/search',
+  // 'projects.fundings.index': '/projects/:projectId/project-funding',
+  'projects.fundings.index': '/projects/:projectId/fundings',
+  'projects.fundings.show': '/projects/:projectId/fundings/:projectFundingId',
+  'projects.fundings.search': '/projects/:projectId/fundings/search',
+  'projects.fundings.edit': '/projects/:projectId/fundings/:projectFundingId/edit',
   'projects.members.index': '/projects/:projectId/members',
   'projects.members.edit': '/projects/:projectId/members/:memberId/edit',
   'projects.members.search': '/projects/:projectId/members/search',
-  'projects.funding.index': '/projects/:projectId/project-funding',
+  'projects.outputs.index': '/projects/:projectId/research-outputs',
+  'projects.outputs.edit': '/projects/:projectId/research-outputs/edit',
 
   // DMP (Data Management Plan) routes
   'projects.dmp.index': '/projects/:projectId/dmp',
   'projects.dmp.show': '/projects/:projectId/dmp/:dmpId',
   'projects.dmp.download': '/projects/:projectId/dmp/:dmpId/download',
-  'projects.dmp.funder': '/projects/:projectId/dmp/:dmpId/funder',
+  'projects.dmp.fundings': '/projects/:projectId/dmp/:dmpId/fundings',
   'projects.dmp.members': '/projects/:projectId/dmp/:dmpId/members',
   'projects.dmp.question': '/projects/:projectId/dmp/:dmpId/q',
   'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
+  'projects.dmp.research-outputs.edit': '/projects/:projectId/dmp/:dmpId/research-outputs/edit',
   'projects.dmp.section': '/projects/:projectId/dmp/:dmpId/s/:sectionId',
   'projects.dmp.create': '/projects/:projectId/dmp/create',
   'projects.dmp.feedback': '/projects/:projectId/dmp/:dmpId/feedback',
@@ -58,8 +65,17 @@ const routes = {
   'template.create': '/template/create',
   'template.edit': '/template/:templateId/edit',
 
+  // account/profile
+  'account.profile': '/account/profile',
+  'account.password': '/account/update-password',
+  'account.connections': '/account/connections',
+  'account.notifications': '/account/notifications',
+
+
   // Help pages
   'help.dmp.download': '/help/dmp/download',
+
+
 } as const;
 
 type RoutesMap = typeof routes;
@@ -160,4 +176,4 @@ export function routePath(
 
 // Type to get all available route names for better IDE support
 export type RouteName = keyof typeof routes;
-export { routes };
+export {routes};

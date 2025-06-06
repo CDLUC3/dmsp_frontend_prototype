@@ -1,0 +1,21 @@
+query PlanMembers($planId: Int!) {
+  planMembers(planId: $planId) {
+    id
+    isPrimaryContact
+    errors {
+      general
+    }
+    projectMember {
+      id
+      givenName
+      surName
+    }
+    memberRoles {
+      uri
+      id
+      label
+      description
+      displayOrder
+    }
+  }
+}

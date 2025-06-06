@@ -1,21 +1,28 @@
 import React from 'react';
-import {act, fireEvent, render, screen, within} from '@testing-library/react';
-import {useParams} from 'next/navigation';
+import { act, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
+import { useParams, useRouter } from 'next/navigation';
+import { ApolloError } from '@apollo/client';
+
 import {
   useChildResearchDomainsQuery,
   useProjectQuery,
   useTopLevelResearchDomainsQuery,
   useUpdateProjectMutation
 } from '@/generated/graphql';
+import logECS from '@/utils/clientLogger';
+
 import ProjectsProjectDetail from '../page';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
+  useRouter: jest.fn(),
 }));
+
+const mockUseRouter = useRouter as jest.Mock;
 
 jest.mock('@/generated/graphql', () => ({
   useProjectQuery: jest.fn(),
@@ -31,6 +38,8 @@ const mockChildDomains = {
   ],
 };
 
+const mockRefetch = jest.fn();
+
 describe('ProjectsProjectDetail', () => {
   const mockUseParams = useParams as jest.Mock;
   const mockUseProjectQuery = useProjectQuery as jest.Mock;
@@ -41,6 +50,10 @@ describe('ProjectsProjectDetail', () => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1' });
+
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    })
     mockUseProjectQuery.mockReturnValue({
       data: {
         project: {
@@ -53,6 +66,7 @@ describe('ProjectsProjectDetail', () => {
         },
       },
       loading: false,
+      refetch: mockRefetch
     });
     mockUseTopLevelResearchDomainsQuery.mockReturnValue({
       data: {
@@ -98,6 +112,17 @@ describe('ProjectsProjectDetail', () => {
     expect(screen.getByText('messaging.loading...')).toBeInTheDocument();
   });
 
+  it('should display error when useProjectsQuery returns a query error', () => {
+    (useUpdateProjectMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: null }),
+      { loading: false, error: undefined },
+    ]);
+    mockUseProjectQuery.mockReturnValueOnce({ loading: false, error: { message: 'query failed' } });
+    render(<ProjectsProjectDetail />);
+    expect(screen.getByText('query failed')).toBeInTheDocument();
+  });
+
+
   it('should display error messages when form validation fails', async () => {
     (useUpdateProjectMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: null }),
@@ -142,6 +167,89 @@ describe('ProjectsProjectDetail', () => {
     });
   });
 
+  it('should call logECS to log error if updateProject mutation throws an error', async () => {
+    (useUpdateProjectMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockRejectedValueOnce(new Error("Error")),
+      { loading: false, error: undefined },
+    ]);
+
+
+    render(<ProjectsProjectDetail />);
+    fireEvent.change(screen.getByLabelText('labels.projectName'), { target: { value: 'Updated Project' } });
+    fireEvent.submit(screen.getByRole('button', { name: /save/i }));
+
+    // //Check that error logged
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'updateProjectMutation',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/projects/1/project' },
+        })
+      )
+    })
+    expect(screen.getByText('messages.errors.projectUpdateFailed')).toBeInTheDocument();
+  });
+
+  it('should updateProjectMutation response includes data.errors', async () => {
+
+    const mockUpdateProjectMutation = jest.fn().mockResolvedValue({
+      data: {
+        updateProject: {
+          errors: {
+            general: "Could not update project"
+          }
+        }
+      },
+    });
+
+    (useUpdateProjectMutation as jest.Mock).mockReturnValue([
+      mockUpdateProjectMutation,
+      { loading: false, error: undefined },
+    ]);
+
+
+    render(<ProjectsProjectDetail />);
+
+    act(() => {
+      fireEvent.change(screen.getByLabelText('labels.projectName'), { target: { value: 'Updated Project' } });
+      fireEvent.submit(screen.getByRole('button', { name: /save/i }));
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Could not update project')).toBeInTheDocument();
+    }
+    );
+  });
+
+  it('should call refetch for useProjectsQuery if an apollo error is returned', async () => {
+
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Unauthorized',
+    });
+
+    // Make the mutation function throw the ApolloError when called
+    const mockUpdateProjectMutation = jest.fn().mockRejectedValue(apolloError);
+
+    (useUpdateProjectMutation as jest.Mock).mockReturnValue([
+      mockUpdateProjectMutation,
+      { loading: false, error: undefined },
+    ]);
+
+
+    render(<ProjectsProjectDetail />);
+    fireEvent.change(screen.getByLabelText('labels.projectName'), { target: { value: 'Updated Project' } });
+    fireEvent.submit(screen.getByRole('button', { name: /save/i }));
+
+    // Assert that refetch was called
+    await waitFor(() => {
+      expect(mockRefetch).toHaveBeenCalled();
+    });
+  });
+
   it('should handle radio button change', () => {
     (useUpdateProjectMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
@@ -150,6 +258,18 @@ describe('ProjectsProjectDetail', () => {
     render(<ProjectsProjectDetail />);
     fireEvent.click(screen.getByLabelText('labels.realProject'));
     expect(screen.getByLabelText('labels.realProject')).toBeChecked();
+  });
+
+  it('should redirect to project search page when Search button is clicked', () => {
+    (useUpdateProjectMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+    render(<ProjectsProjectDetail />);
+
+    const searchBtn = screen.getByTestId('search-projects-button');
+    fireEvent.click(searchBtn);
+    expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/search');
   });
 
   it('should pass axe accessibility test', async () => {

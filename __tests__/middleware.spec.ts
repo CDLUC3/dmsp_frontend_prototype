@@ -112,6 +112,8 @@ describe('middleware', () => {
         request.nextUrl.pathname = '/';
         (getAuthTokenServer as jest.Mock).mockResolvedValue('mock-token');
         (verifyJwtToken as jest.Mock).mockRejectedValue(new Error('Token verification failed'));
+        // Mock console.error to avoid cluttering test output
+        jest.spyOn(console, 'error').mockImplementation(() => {});
 
         await middleware(request);
 

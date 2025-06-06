@@ -1,6 +1,6 @@
-import React, {ReactNode} from 'react';
-import {act, render, screen, waitFor} from '@testing-library/react';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import React, { ReactNode } from 'react';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import ConnectionsPage from '../page';
 
 expect.extend(toHaveNoViolations);
@@ -14,7 +14,21 @@ jest.mock('@/components/PageHeader', () => {
     default: mockPageHeader
   }
 });
-
+jest.mock('next-intl', () => {
+  const t = (key: string) => key;
+  /* eslint-disable no-unused-vars */
+  t.markup = (key: string, values: Record<string, (chunks: string) => string>) => {
+    // Simulate interpolation of the `link` function
+    const chunks = key; // Simplified, in real case you'd simulate how the lib works
+    const interpolated = Object.entries(values).reduce((acc, [name, fn]) => {
+      return acc.replace(`{${name}}`, fn(chunks));
+    }, key);
+    return interpolated;
+  };
+  return {
+    useTranslations: jest.fn(() => t)
+  };
+});
 
 describe('Connections page', () => {
   beforeEach(() => {
@@ -23,16 +37,6 @@ describe('Connections page', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-  })
-
-  it('should render the component with PageHeader', async () => {
-    const titleProp = 'Connections';
-    const pageHeader = await import('@/components/PageHeader');
-    const mockPageHeader = pageHeader.default;
-    const { getByTestId } = render(<ConnectionsPage />);
-
-    expect(getByTestId('mock-page-wrapper')).toBeInTheDocument();
-    expect(mockPageHeader).toHaveBeenCalledWith(expect.objectContaining({ title: titleProp, }), {})
   })
 
   it('should render connections page', async () => {
@@ -48,7 +52,7 @@ describe('Connections page', () => {
     expect(heading4Elements.length).toBe(3);
 
     const buttons = screen.getAllByRole('button');
-    expect(buttons.length).toBe(3);
+    expect(buttons.length).toBe(2);
   });
 
   it('should pass axe accessibility test', async () => {

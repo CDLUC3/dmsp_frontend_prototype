@@ -1,49 +1,73 @@
+// enable TypeScript and IntelliSense support for Cypress
 /// <reference types="cypress" />
 
-function generateUniqueUser() {
-  const timestamp = new Date().getTime();
-  return {
-    email: `user${timestamp}@example.com`,
-    password: 'Password123$9',
-    acceptedTerms: 1
-  };
-}
+describe('Authentication flow tests', () => {
+  // Base configuration
+  const baseUrl = Cypress.env('BASE_URL') || 'http://localhost:3000';
 
-describe('Signup', () => {
-  it('Should sign up a new user', () => {
+  beforeEach(() => {
+    // Clear cookies and local storage before each test
+    cy.clearCookies();
+    cy.clearLocalStorage();
+  });
 
-    const newUser = generateUniqueUser();
+  describe('Signup functionality', () => {
+    it('Should sign up user with valid credentials', () => {
+      const timestamp = Date.now();
+      const testEmail = `test.user.${timestamp}@example.com`;
+      const testUserFirstName = "testUser";
+      const testUserLastName = "testUserLastName";
+      // Visit login page
+      cy.visit(`${baseUrl}/en-US/signup`);
 
-    cy.visit('http://localhost:3000/signup')
+      // Step 1: Enter email
+      cy.get('input[name="email"]')
+        .should('be.visible')
+        .type(testEmail);
 
-    // I need to run the test like this because Cypress wasn't picking up on the 
-    // CsrfContext adding the token to the header
-    cy.request('http://localhost:4000/apollo-csrf')
-      .then((response) => {
-        const csrfToken = response.headers['x-csrf-token'];
+      // Click on the "Continue" button
+      cy.get('[data-testid="continue"]')
+        .should('be.enabled')
+        .click();
 
-        // Log the token (you can check it in Cypress's command log)
-        cy.log(`CSRF Token: ${csrfToken}`);
+      // Step 2: Enter user info
+      cy.get('input[name="first_name"]')
+        .should('be.visible')
+        .type(testUserFirstName);
 
-        // Now use the token in your subsequent request
-        cy.request({
-          method: 'POST',
-          url: 'http://localhost:4000/apollo-signup',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken || '',
-          },
-          body: newUser,
-        }).then((signupResponse) => {
-          // If you want to make the entire response object available in the Cypress command log
-          cy.wrap(signupResponse).as('signupResponse');
+      cy.get('input[name="last_name"]')
+        .should('be.visible')
+        .type(testUserLastName);
 
-          cy.wrap(signupResponse).its('status').should('equal', 201);
+      cy.get('[name="institution"]')
+        .type('National Science Foundation') // Type partial text to trigger suggestions
+        .wait(500); // Optional: wait for suggestions to load
 
-          // Check that cookies were added
-          cy.getCookie('dmspt').should('exist')
-          cy.getCookie('dmspr').should('exist')
-        });
-      });
-  })
-})
+      // Then select from the institution from the dropdown options
+      cy.get('[role="listbox"]').contains('National Science Foundation (nsf.gov)').click();
+
+      cy.get('input[name="password"]')
+        .should('be.visible')
+        .type(Cypress.env('TEST_USER_PASSWORD'), { log: false }); // hide password in logs
+
+      cy.get('input[name="confirmPassword"]')
+        .should('be.visible')
+        .type(Cypress.env('TEST_USER_PASSWORD'), { log: false }); // hide password in logs
+
+      // Check the Accept Terms checkbox
+      cy.get('label').contains('Accept terms?').click();
+
+      // Click on the "Sign Up" button
+      cy.get('[data-testid="signup"]')
+        .should('be.enabled')
+        .click();
+
+      // Expect to be redirected to homepage or dashboard
+      cy.url().should('eq', `${baseUrl}/en-US`);
+
+      // Verify authentication cookies are set
+      cy.getCookie('dmspt').should('exist'); // access token
+      cy.getCookie('dmspr').should('exist'); // refresh token
+    });
+  });
+});

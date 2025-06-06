@@ -1,5 +1,7 @@
-import React, {ReactNode} from 'react';
-
+import React, { ReactNode } from 'react';
+import {
+  PressEvent
+} from 'react-aria-components';
 interface ExampleProps {
   children: ReactNode;
 }
@@ -29,10 +31,8 @@ export function BrandColor({ varname, description }: BrandColorProps) {
   );
 }
 
-export const handleDelete = async () => {
-  try {
-    console.log('Deleted');
-  } catch (error) {
-    console.error("An error occurred while deleting the item:", error);
-  }
+
+export const handleDelete = async (e: PressEvent, close: () => void) => {
+  console.log('Deleting item...');
+  close();
 };

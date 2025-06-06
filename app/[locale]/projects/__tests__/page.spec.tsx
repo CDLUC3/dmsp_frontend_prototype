@@ -29,17 +29,17 @@ const mockProjectsData = {
         startDate: '2023-01-01',
         endDate: '2023-12-31',
         modified: '2023-06-01',
-        contributors: [
+        members: [
           {
-            __typename: 'ProjectContributor',
+            __typename: 'ProjectMember',
             name: 'John Doe',
             orcid: '0000-0001-2345-6789',
             role: 'Researcher',
           },
         ],
-        funders: [
+        fundings: [
           {
-            __typename: 'ProjectFunder',
+            __typename: 'ProjectFunding',
             name: 'NSF',
             grantId: 'http://nsf.gov/award/99999',
           },
