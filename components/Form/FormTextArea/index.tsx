@@ -8,7 +8,7 @@ import {
   TextArea,
   TextField,
 } from "react-aria-components";
-import {DmpEditor} from "@/components/Editor"; // Adjust path as needed
+import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 interface FormTextInputAreaProps {
   name: string;
@@ -31,32 +31,35 @@ interface FormTextInputAreaProps {
   errorMessage?: string;
   helpMessage?: string;
 
-  // If true, render DmpEditor; otherwise, render TextArea
+  // If true, render TinyMCEEditor; otherwise, render TextArea
   richText?: boolean;
 }
 
 const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
-                                                               name,
-                                                               label,
-                                                               description,
-                                                               placeholder,
-                                                               value = '',
-                                                               onChange, // This prop now expects (newValue: string) => void
-                                                               className = '',
-                                                               labelClasses = '',
-                                                               textAreaClasses = '',
-                                                               editorWrapperClasses = '',
-                                                               disabled = false,
-                                                               isRequired = false,
-                                                               isInvalid = false,
-                                                               errorMessage = '',
-                                                               helpMessage = '',
-                                                               richText = false,
-                                                             }) => {
+  name,
+  label,
+  description,
+  placeholder,
+  value = '',
+  onChange, // This prop now expects (newValue: string) => void
+  className = '',
+  labelClasses = '',
+  textAreaClasses = '',
+  editorWrapperClasses = '',
+  disabled = false,
+  isRequired = false,
+  isInvalid = false,
+  errorMessage = '',
+  helpMessage = '',
+  richText = false,
+}) => {
 
-  // Generate unique IDs for accessibility
-  const inputId = `${name}-input-${React.useId()}`;
-  const labelId = `${name}-label-${React.useId()}`;
+  const sanitizeId = (id: string) => id.replace(/[^a-zA-Z0-9-_]/g, ''); // Remove invalid characters
+
+  // Generate unique IDs for accessibility. SanitizeId removes invalid characters that cannot be used with
+  // TinyMCEEEditor's use of querySelectorAll
+  const inputId = sanitizeId(`${name}-input-${React.useId()}`);
+  const labelId = sanitizeId(`${name}-label-${React.useId()}`);
 
   // Internal handler for the standard TextArea
   // It extracts the value from the event and calls the unified onChange
@@ -64,7 +67,7 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
     onChange?.(e.currentTarget.value); // Call the parent's onChange with the string value
   };
 
-  // The handler for the DmpEditor's setContent prop
+  // The handler for the TinyMCEEditor's setContent prop
   // It directly calls the unified onChange with the new content string
   const handleEditorContentChange = (newContent: string) => {
     onChange?.(newContent); // Call the parent's onChange with the string value
@@ -92,13 +95,14 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
       {richText ? (
         // Render DmpEditor
         <div className={editorWrapperClasses}>
-          <DmpEditor
+
+          <TinyMCEEditor
             content={value}
             setContent={handleEditorContentChange}
             labelId={labelId}
             id={inputId}
-
           />
+
         </div>
       ) : (
         // Render standard TextArea

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, render, screen, waitFor } from '@/utils/test-utils';
+import { act, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 import {
@@ -56,25 +56,18 @@ const mockTemplate = {
   ]
 };
 
-
-// Mock the DmpEditor component
-jest.mock('@/components/Editor', () => ({
-  DmpEditor: ({ content }: { content: string, setContent: (newContent: string) => void }) => {
-    return (
-      <div data-testid="dmp-editor" data-content={content}>
-        {content}
-      </div>
-    );
-  }
-}));
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const mockHook = (hook: any) => hook as jest.Mock;
 
 
 describe("QuestionView", () => {
   beforeEach(() => {
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
     mockHook(useQuestionTypesQuery).mockReturnValue({
       data: mockQuestionTypes,
       loading: false,
@@ -103,15 +96,16 @@ describe("QuestionView", () => {
     expect(screen.getByTestId('question-card')).toBeInTheDocument();
   });
 
-  it('should render the textarea questiontype', async () => {
+  it('should render the textarea element with class "question-text-editor"', async () => {
     render(
       <QuestionView
         question={mockQuestion}
         isPreview={true}
         templateId={1}
-      />);
+      />
+    );
 
-    expect(screen.getByTestId('dmp-editor')).toBeInTheDocument();
+    expect(screen.getByLabelText(/question-text-editor/i)).toBeInTheDocument();
   });
 
   it('should return null when question is null', () => {
@@ -146,22 +140,18 @@ describe("QuestionView", () => {
     expect(requirementsSection).toBeNull();
   });
 
-  it('should render the Text Area question type', async () => {
-
-    const mockQuestionWithTextArea = { ...mockQuestion, questionTypeId: 1, useSampleTextAsDefault: true };
+  it('should render the textarea element with class "question-text-editor"', async () => {
     render(
       <QuestionView
-        question={mockQuestionWithTextArea}
+        question={mockQuestion}
         isPreview={true}
         templateId={1}
       />
     );
 
-    // Verify the DmpEditor received the correct content prop
-    await waitFor(() => {
-      const editor = screen.getByTestId('dmp-editor');
-      expect(editor.textContent).toBe('Lorem ipsum dolor sit...');
-    });
+    const cardBody = screen.getByTestId('card-body');
+    const textarea = cardBody.querySelector('textarea.question-text-editor');
+    expect(textarea).toBeInTheDocument();
   });
 
   it('should render the Text Field question type', () => {

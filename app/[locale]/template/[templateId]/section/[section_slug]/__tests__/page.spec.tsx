@@ -159,6 +159,14 @@ describe("SectionUpdatePage", () => {
     const mockTemplateId = 123;
     const mockUseParams = useParams as jest.Mock;
 
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}`, section_slug: '123' });
     (useTagsQuery as jest.Mock).mockReturnValue({
@@ -198,14 +206,14 @@ describe("SectionUpdatePage", () => {
     expect(editOptionsTab).toBeInTheDocument();
     const editLogicTab = screen.getByRole('tab', { name: 'tabs.logic' });
     expect(editLogicTab).toBeInTheDocument();
-    const sectionNameEditor = screen.getByRole('textbox', { name: /sectionName/i });
-    expect(sectionNameEditor).toBeInTheDocument();
-    const sectionIntroductionEditor = screen.getByRole('textbox', { name: /sectionIntroduction/i });
-    expect(sectionIntroductionEditor).toBeInTheDocument();
-    const sectionRequirementsEditor = screen.getByRole('textbox', { name: /sectionRequirements/i });
-    expect(sectionRequirementsEditor).toBeInTheDocument();
-    const sectionGuidanceEditor = screen.getByRole('textbox', { name: /sectionGuidance/i });
-    expect(sectionGuidanceEditor).toBeInTheDocument();
+    const sectionNameInput = screen.getByLabelText('labels.sectionName');
+    expect(sectionNameInput).toBeInTheDocument();
+    const sectionIntroductionLabel = screen.getByLabelText(/sectionIntroduction/i);
+    expect(sectionIntroductionLabel).toBeInTheDocument();
+    const sectionRequirementsLabel = screen.getByLabelText(/sectionRequirements/i);
+    expect(sectionRequirementsLabel).toBeInTheDocument();
+    const sectionGuidanceLabel = screen.getByLabelText(/sectionGuidance/i);
+    expect(sectionGuidanceLabel).toBeInTheDocument();
     const tagsHeader = screen.getByText('labels.bestPracticeTags');
     expect(tagsHeader).toBeInTheDocument();
     const checkboxLabels = screen.getAllByTestId('checkboxLabel');
