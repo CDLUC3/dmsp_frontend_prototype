@@ -154,6 +154,9 @@
     },
     "lastRevisedBy": "Last revised by",
     "lastUpdated": "Last updated",
+    "published": "Published",
+    "visibility": "Visibility",
+    "notPublished": "Not published",
     "buttons": {
       "search": "Search",
       "select": "Select",
@@ -186,7 +189,8 @@
     "links": {
       "clearFilter": "clear filter",
       "request": "Request",
-      "learnMore": "Learn more"
+      "learnMore": "Learn more",
+      "update": "Update"
     },
     "messaging": {
       "loading": "Loading",

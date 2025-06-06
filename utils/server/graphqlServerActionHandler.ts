@@ -71,7 +71,6 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 
     // Handle GraphQL errors
     if (result.errors) {
-
       for (const { message, extensions } of result.errors) {
         const errorCode = extensions?.code;
         switch (errorCode) {

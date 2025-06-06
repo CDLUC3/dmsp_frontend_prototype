@@ -154,6 +154,9 @@
     },
     "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
+    "published": "Publicado",
+    "visibility": "Visibilidade",
+    "notPublished": "Não publicado",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
@@ -186,7 +189,8 @@
     "links": {
       "clearFilter": "limpar filtro",
       "request": "Solicitação",
-      "learnMore": "Saiba mais"
+      "learnMore": "Saiba mais",
+      "update": "Atualizar"
     },
     "messaging": {
       "loading": "Baixar",

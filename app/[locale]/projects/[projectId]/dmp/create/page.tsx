@@ -50,6 +50,7 @@ interface PublicTemplatesInterface {
   name?: string | null;
   description?: string | null;
   modified?: string | null;
+  modifiedByName?: string | null;
   modifiedById?: number | null;
   visibility?: string | null;
   ownerDisplayName?: string | null;
@@ -200,7 +201,7 @@ const PlanCreate: React.FC = () => {
         funder: template?.ownerDisplayName || "",
         funderUri: template?.ownerURI || "",
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
-        lastRevisedBy: template?.modifiedById || null,
+        lastRevisedBy: template?.modifiedByName || null,
         hasAdditionalGuidance: false,
         defaultExpanded: false,
         visibility: template?.visibility,

@@ -39,6 +39,7 @@ import {
   PaginatedMyVersionedTemplatesInterface,
   PaginatedVersionedTemplateSearchResultsInterface
 } from '@/app/types';
+import { toSentenceCase } from '@/utils/general';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { useToast } from '@/context/ToastContext';
 
@@ -159,13 +160,14 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         ) : null, // Set to null if no description or last modified data
         funder: template?.template?.owner?.name || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
-        lastRevisedBy: template?.modifiedById || null,
+        lastRevisedBy: template?.modifiedByName || null,
         publishStatus: template?.versionType,
         hasAdditionalGuidance: false,
         defaultExpanded: false,
-        visibility: template?.visibility,
+        visibility: template?.visibility ? toSentenceCase(template.visibility) : ''
       }))
     );
+
     return transformedTemplates;
   };
 
@@ -217,7 +219,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }
 
   useEffect(() => {
-    // Transform templates into format expected by TemplateListItem component
+    // Transform templates into format expected by TemplateSelectListItem component
     const processTemplates = async () => {
       if (data && data?.myVersionedTemplates) {
         const templates = { items: data?.myVersionedTemplates ?? [] };
@@ -227,7 +229,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
         const templates = publishedTemplatesData?.publishedTemplates ?? { items: [] };
         const publicTemplates = await transformTemplates(templates as PaginatedVersionedTemplateSearchResultsInterface);
-        const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'PUBLIC');
+        const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'Public');
         setPublicTemplatesList(transformedPublicTemplates);
       }
     }

@@ -39,6 +39,8 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated the template cards in `TemplateListPage` and `PlanCreate` components to use the `TemplateSelectListItem` component, which was updated to correctly display `ownerDisplayName`, `publish status` and `visibility` [#470]
+- Updated the templates cards on `/template` page to match the look of the cards on the `/template/create` page [#470]
 - Switched out all occurrences of Remirror/DMPEditor rich text editor with TinyMCE [#496]
 - Convert all references to the old `Contributor` to `Member` and `Project/PlanFunder` to `Project/PlanFunding` to mimic language used in UI
 - Added the `Account Profile` link on the home page for the demo and fixed the success message when updating profile [#508] [#512]
