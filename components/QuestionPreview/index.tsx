@@ -4,10 +4,7 @@ import { useTranslations } from 'next-intl';
 
 import {
   Button,
-  Dialog,
   DialogTrigger,
-  Modal,
-  ModalOverlay,
 } from "react-aria-components";
 
 import { ContentContainer } from '@/components/Container';
