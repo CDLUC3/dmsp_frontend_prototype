@@ -39,6 +39,7 @@ import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
 import { stripHtmlTags } from '@/utils/general';
+import { scrollToTop } from '@/utils/general';
 
 import {
   SectionFormErrorsInterface,
@@ -173,15 +174,6 @@ const CreateSectionPage: React.FC = () => {
     });
   }
 
-  const scrollToTop = (ref: React.MutableRefObject<HTMLDivElement | null>) => {
-    if (ref.current) {
-      ref.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }
-
   // Make GraphQL mutation request to create section
   const createSection = async (): Promise<SectionErrors> => {
     // string all tags from sectionName before sending to backend
@@ -313,7 +305,6 @@ const CreateSectionPage: React.FC = () => {
     });
   }, [sectionNameContent, sectionIntroductionContent, sectionRequirementsContent, sectionGuidanceContent])
 
-
   return (
     <>
       <PageHeader
@@ -356,6 +347,7 @@ const CreateSectionPage: React.FC = () => {
                       label={Section('labels.sectionName')}
                       value={formData.sectionName}
                       onChange={(e) => setSectionNameContent(e.currentTarget.value)} // Use specific setter
+                      isInvalid={fieldErrors['sectionName'] !== ''}
                       errorMessage={fieldErrors['sectionName']}
                     />
 

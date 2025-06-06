@@ -141,7 +141,6 @@ const ResearchOutputEdit = () => {
               <Label>Title</Label>
               <Input
                 value={formData.title}
-
               />
               <FieldError />
             </TextField>

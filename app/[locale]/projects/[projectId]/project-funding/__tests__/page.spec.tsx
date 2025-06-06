@@ -79,7 +79,7 @@ describe('ProjectsCreateProjectFunding', () => {
     fireEvent.click(screen.getByLabelText('form.yesLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/projects/create-project/funding-search')
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/projects/create-project/funder-search')
     })
   });
 

@@ -284,7 +284,7 @@ describe('TemplateSelectTemplatePage', () => {
     });
   });
 
-  it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
+  it('should log error when useAddTemplateMutation rejects with an error', async () => {
     (useAddTemplateMutation as jest.Mock).mockReturnValue([
       jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
     ]);
@@ -309,6 +309,44 @@ describe('TemplateSelectTemplatePage', () => {
         url: { path: '/template/create' },
       })
     )
+  });
+
+  it('should display error if useAddTemplateMutation returns response.errors', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn(() =>
+        Promise.resolve({
+          data: {
+            addTemplate: {
+              id: 32,
+              errors: {
+                general: 'Something went wrong',
+                name: null,
+                ownerId: null,
+                __typename: 'TemplateErrors',
+              },
+              description: '<p class="Normal">Test description</p>',
+              name: 'Testing a template name',
+              __typename: 'Template',
+            },
+          },
+        })
+      ),
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    // Simulate clicking the "Select" button
+    const selectButton = screen.getAllByRole('button', { name: /Select Public template 2/i });
+    await act(async () => {
+      fireEvent.click(selectButton[0]);
+    });
+
+    // Optionally, verify that the error is displayed in the UI
+    expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
   });
 
 

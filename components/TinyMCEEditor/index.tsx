@@ -9,6 +9,7 @@ import styles from './tinyMCEEditor.module.scss';
 // while still providing TypeScript type safety
 declare global {
   interface Window {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     tinymce: any;
   }
 }

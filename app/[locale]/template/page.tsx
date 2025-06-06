@@ -236,6 +236,11 @@ const TemplateListPage: React.FC = () => {
     return null;
   };
 
+  useEffect(() => {
+    // console.log('Filtered templates:', filteredTemplates);
+    // console.log('Templates:', templates);
+  }, [filteredTemplates, templates]);
+
   // TODO: Implement shared loading
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
@@ -294,7 +299,7 @@ const TemplateListPage: React.FC = () => {
                 filteredTemplates.slice(0, visibleCount['filteredTemplates']).map((template, index) => {
                   const isFirstInNextSection = index === visibleCount['filteredTemplates'] - 3;
                   return (
-                    <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
+                    < div ref={isFirstInNextSection ? nextSectionRef : null} key={index} >
                       <TemplateListItem
                         key={index}
                         item={template} />
@@ -334,7 +339,7 @@ const TemplateListPage: React.FC = () => {
           }
 
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 }

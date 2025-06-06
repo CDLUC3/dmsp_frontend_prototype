@@ -44,7 +44,6 @@ interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
 
 
 const QuestionView: React.FC<QuestionViewProps> = ({
-  children,
   id = '',
   className = '',
   isPreview = false,
@@ -52,18 +51,15 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   templateId,
 }) => {
 
-  if (!question) return null;
-
   const trans = useTranslations('QuestionView');
   const { data: qtData } = useQuestionTypesQuery();
   const { data: templateData } = useTemplateQuery({
     variables: {
-      templateId: templateId,
+      templateId,
     },
     notifyOnNetworkStatusChange: true
   });
   const [questionType, setQuestionType] = useState<string>('');
-  const [editorContent, setEditorContent] = useState('');
 
   useEffect(() => {
     if (!question) return;
@@ -77,6 +73,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       }
     }
   }, [question]);
+
+  if (!question) return null;
 
   return (
     <LayoutWithPanel
@@ -109,7 +107,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               <TinyMCEEditor
                 id="question-text-editor"
                 content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
-                setContent={setEditorContent}
+                setContent={() => { }} // Pass an empty function
               />
             )}
 

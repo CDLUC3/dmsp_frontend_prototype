@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { ApolloError } from '@apollo/client';
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useSectionQuery,
@@ -8,6 +9,7 @@ import {
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
+import logECS from '@/utils/clientLogger';
 import SectionUpdatePage from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
@@ -24,6 +26,41 @@ jest.mock("@/generated/graphql", () => ({
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
   useParams: jest.fn()
+}));
+
+// Need to mock the useSectionData hook with state to get react to re-render
+// when the state changes
+jest.mock('@/hooks/sectionData', () => ({
+  useSectionData: () => {
+    const [sectionData, setSectionData] = useState({
+      sectionName: '',
+      sectionIntroduction: '',
+      sectionRequirements: '',
+      sectionGuidance: '',
+      displayOrder: undefined,
+      bestPractice: undefined,
+    });
+
+    return {
+      sectionData,
+      setSectionData,
+      selectedTags: [],
+      checkboxTags: [],
+      loading: false,
+      setSelectedTags: jest.fn(),
+      data: {
+        section: {
+          name: '',
+          introduction: '',
+          requirements: '',
+          guidance: '',
+          displayOrder: 1,
+          bestPractice: false,
+          tags: []
+        }
+      }
+    };
+  }
 }));
 
 const mockUseRouter = useRouter as jest.Mock;
@@ -131,7 +168,7 @@ describe("SectionUpdatePage", () => {
 
 
     // Mock the return value of useParams
-    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}`, section_slug: '123' });
     (useTagsQuery as jest.Mock).mockReturnValue({
       data: mockTagsData,
       loading: true,
@@ -146,6 +183,7 @@ describe("SectionUpdatePage", () => {
       jest.fn().mockResolvedValueOnce(mockSectionsData),
       { loading: false, error: undefined },
     ]);
+
   });
 
   it("should render correct fields", async () => {
@@ -193,7 +231,6 @@ describe("SectionUpdatePage", () => {
       { loading: false, error: undefined },
     ]);
 
-
     await act(async () => {
       render(
         <SectionUpdatePage />
@@ -207,6 +244,105 @@ describe("SectionUpdatePage", () => {
     expect(errorMessage).toBeInTheDocument();
     expect(errorMessage).toHaveTextContent('messages.fieldLengthValidation');
   })
+
+  it('should call logECS when updateSection throws an error', async () => {
+    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockRejectedValueOnce(new Error("Error")),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<SectionUpdatePage />);
+    });
+
+    const sectionName = screen.getByLabelText(/labels.sectionName/i);
+
+    await act(async () => {
+      fireEvent.change(sectionName, { target: { value: 'My section name' } });
+    });
+
+    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndUpdate/i });
+
+    await act(async () => {
+      fireEvent.click(saveAndAdd);
+    });
+
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'updateSection',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/en-US/template/123/section/123' },
+        })
+      );
+    });
+  });
+
+  it('should log error when an apollo error instance is returned', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Apollo error occurred',
+    });
+
+    const mockUpdateSection = jest.fn()
+      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
+
+
+    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+      mockUpdateSection,
+      { loading: false, error: undefined }
+    ]);
+
+    await act(async () => {
+      render(<SectionUpdatePage />);
+    });
+
+    const sectionName = screen.getByLabelText(/labels.sectionName/i);
+
+    await act(async () => {
+      fireEvent.change(sectionName, { target: { value: 'My section name' } });
+    });
+
+    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndUpdate/i });
+
+    await act(async () => {
+      fireEvent.click(saveAndAdd);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('messages.errorUpdatingSection')).toBeInTheDocument();
+    });
+  });
+
+  it('should log error when field-level errors are returned', async () => {
+    (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { updateSection: { errors: { general: 'Error updating section' } } } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<SectionUpdatePage />);
+    });
+
+    const sectionName = screen.getByLabelText(/labels.sectionName/i);
+
+    await act(async () => {
+      fireEvent.change(sectionName, { target: { value: 'My section name' } });
+    });
+
+    const saveAndAdd = screen.getByRole('button', { name: /buttons.saveAndUpdate/i });
+
+    await act(async () => {
+      fireEvent.click(saveAndAdd);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(/error updating section/i)).toBeInTheDocument();
+    });
+  });
 
   it('should redirect to Edit Template page after submitting form', async () => {
     (useUpdateSectionMutation as jest.Mock).mockReturnValue([

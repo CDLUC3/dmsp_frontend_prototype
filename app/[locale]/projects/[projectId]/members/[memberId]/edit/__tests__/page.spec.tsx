@@ -5,32 +5,32 @@ import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
 
 import {
-  useProjectContributorQuery,
-  useContributorRolesQuery,
-  useUpdateProjectContributorMutation,
-  useRemoveProjectContributorMutation
+  useProjectMemberQuery,
+  useMemberRolesQuery,
+  useUpdateProjectMemberMutation,
+  useRemoveProjectMemberMutation
 } from '@/generated/graphql';
-import { useProjectContributorData } from '@/hooks/projectContributorData';
+import { useProjectMemberData } from '@/hooks/projectMemberData';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProjectsProjectMembersEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-import mockProjectContributorData from '../__mocks__/mockProjectContributorData.json';
-import mockContributorRoles from '../__mocks__/mockcontributorRoles.json';
+import mockProjectMemberData from '../__mocks__/mockProjectMemberData.json';
+import mockMemberRoles from '../__mocks__/mockMemberRoles.json';
 import mockResponse from '../__mocks__/mockResponseFromMutation.json';
 
 expect.extend(toHaveNoViolations);
 
 // Mock the graphql hooks
 jest.mock("@/generated/graphql", () => ({
-  useProjectContributorQuery: jest.fn(),
-  useContributorRolesQuery: jest.fn(),
-  useUpdateProjectContributorMutation: jest.fn(),
-  useRemoveProjectContributorMutation: jest.fn()
+  useProjectMemberQuery: jest.fn(),
+  useMemberRolesQuery: jest.fn(),
+  useUpdateProjectMemberMutation: jest.fn(),
+  useRemoveProjectMemberMutation: jest.fn()
 }));
 
-jest.mock('@/hooks/projectContributorData', () => ({
-  useProjectContributorData: jest.fn()
+jest.mock('@/hooks/projectMemberData', () => ({
+  useProjectMemberData: jest.fn()
 }));
 
 const mockRouter = {
@@ -53,20 +53,20 @@ describe("ProjectsProjectMembersEdit", () => {
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     (useToast as jest.Mock).mockReturnValue(mockToast);
 
-    (useProjectContributorQuery as jest.Mock).mockReturnValue({
-      data: mockProjectContributorData,
+    (useProjectMemberQuery as jest.Mock).mockReturnValue({
+      data: mockProjectMemberData,
       loading: false,
       error: undefined,
     });
 
-    (useContributorRolesQuery as jest.Mock).mockReturnValue({
-      data: mockContributorRoles,
+    (useMemberRolesQuery as jest.Mock).mockReturnValue({
+      data: mockMemberRoles,
       loading: false,
       error: null,
     });
 
-    (useProjectContributorData as jest.Mock).mockReturnValue({
-      projectContributorData: {
+    (useProjectMemberData as jest.Mock).mockReturnValue({
+      projectMemberData: {
         givenName: 'Test',
         surName: 'User',
         affiliationId: 'test-affiliation',
@@ -76,17 +76,17 @@ describe("ProjectsProjectMembersEdit", () => {
       checkboxRoles: ['1', '2'],
       setCheckboxRoles: jest.fn(),
       loading: false,
-      setProjectContributorData: jest.fn(),
+      setProjectMemberData: jest.fn(),
       data: {
-        projectContributor: {
+        projectMember: {
           givenName: 'Test',
           surName: 'User',
           affiliation: { uri: 'test-affiliation' },
           email: 'test@example.com',
           orcid: '0000-0000-0000-0000',
-          contributorRoles: [
-            { id: '1', __typename: 'ContributorRole' },
-            { id: '2', __typename: 'ContributorRole' }
+          memberRoles: [
+            { id: '1', __typename: 'MemberRole' },
+            { id: '2', __typename: 'MemberRole' }
           ]
         }
       },
@@ -100,18 +100,18 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it('should render loading state', async () => {
-    (useContributorRolesQuery as jest.Mock).mockReturnValue({
+    (useMemberRolesQuery as jest.Mock).mockReturnValue({
       data: null,
       loading: true,
       error: null,
     });
 
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -126,18 +126,18 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it('should render error state', async () => {
-    (useContributorRolesQuery as jest.Mock).mockReturnValue({
+    (useMemberRolesQuery as jest.Mock).mockReturnValue({
       data: null,
       loading: false,
       error: true,
     });
 
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -152,13 +152,13 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should render correct fields", async () => {
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
 
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -188,12 +188,12 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle form submission", async () => {
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: mockResponse }),
       { loading: false, error: undefined },
     ]);
 
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -213,12 +213,12 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle field level errors from submitting form", async () => {
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { updateProjectContributor: { errors: { general: 'Error updating member' } } } }),
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { updateProjectMember: { errors: { general: 'Error updating member' } } } }),
       { loading: false, error: undefined },
     ]);
 
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -236,11 +236,11 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle update member request errors", async () => {
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockRejectedValueOnce(new Error("Error removing member")),
       { loading: false, error: undefined },
     ]);
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -257,7 +257,7 @@ describe("ProjectsProjectMembersEdit", () => {
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'updateProjectContributor',
+        'updateProjectMember',
         expect.objectContaining({
           error: expect.anything(),
           url: { path: '/en-US/projects/1/members/1/edit' },
@@ -267,12 +267,12 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle remove member", async () => {
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: mockResponse }),
       { loading: false, error: undefined },
     ]);
 
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -292,12 +292,12 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle field-level errors from remove member request", async () => {
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: mockResponse }),
       { loading: false, error: undefined },
     ]);
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { removeProjectContributor: { errors: { general: 'Error removing member' } } } }),
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { removeProjectMember: { errors: { general: 'Error removing member' } } } }),
       { loading: false, error: undefined },
     ]);
 
@@ -314,11 +314,11 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle remove member request errors", async () => {
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: mockResponse }),
       { loading: false, error: undefined },
     ]);
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockRejectedValueOnce(new Error("Error removing member")),
       { loading: false, error: undefined },
     ]);
@@ -335,7 +335,7 @@ describe("ProjectsProjectMembersEdit", () => {
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'removeProjectContributor',
+        'removeProjectMember',
         expect.objectContaining({
           error: expect.anything(),
           url: { path: '/en-US/projects/1/members/1/edit' },
@@ -345,12 +345,12 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should handle checkbox change", async () => {
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: mockResponse }),
       { loading: false, error: undefined },
     ]);
 
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
@@ -358,8 +358,8 @@ describe("ProjectsProjectMembersEdit", () => {
     const setCheckboxRolesMock = jest.fn();
 
     // Override the mock implementation for this specific test
-    (useProjectContributorData as jest.Mock).mockReturnValue({
-      projectContributorData: {
+    (useProjectMemberData as jest.Mock).mockReturnValue({
+      projectMemberData: {
         givenName: 'Test',
         surName: 'User',
         affiliationId: 'test-affiliation',
@@ -369,17 +369,17 @@ describe("ProjectsProjectMembersEdit", () => {
       checkboxRoles: ['1', '2'],
       setCheckboxRoles: setCheckboxRolesMock,
       loading: false,
-      setProjectContributorData: jest.fn(),
+      setProjectMemberData: jest.fn(),
       data: {
-        projectContributor: {
+        projectMember: {
           givenName: 'Test',
           surName: 'User',
           affiliation: { uri: 'test-affiliation' },
           email: 'test@example.com',
           orcid: '0000-0000-0000-0000',
-          contributorRoles: [
-            { id: '1', __typename: 'ContributorRole' },
-            { id: '2', __typename: 'ContributorRole' }
+          memberRoles: [
+            { id: '1', __typename: 'MemberRole' },
+            { id: '2', __typename: 'MemberRole' }
           ]
         }
       },
@@ -397,12 +397,12 @@ describe("ProjectsProjectMembersEdit", () => {
   });
 
   it("should pass accessibility checks", async () => {
-    (useUpdateProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
 
-    (useRemoveProjectContributorMutation as jest.Mock).mockReturnValue([
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);

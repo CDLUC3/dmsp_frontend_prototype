@@ -213,12 +213,12 @@ export interface ProjectSearchResultInterface {
     accessLevel?: string | null;
     orcid?: string | null;
   }[] | null;
-  contributors?: {
+  members?: {
     name?: string | null;
     role?: string | null;
     orcid?: string | null;
   }[] | null;
-  funders?: {
+  fundings?: {
     name?: string | null;
     grantId?: string | null;
   }[] | null;
@@ -230,7 +230,7 @@ export interface ProjectItemProps {
   description?: string;
   link?: LinkHref;
   defaultExpanded: boolean;
-  funder?: string;
+  funding?: string;
   startDate: string;
   endDate: string;
   members: {
@@ -241,17 +241,17 @@ export interface ProjectItemProps {
   grantId?: string | null;
 }
 
-export interface ProjectContributor {
+export interface ProjectMember {
   id?: number | null;
   givenName: string;
   surName: string;
   email?: string | null;
   orcid?: string | null;
   affiliation?: Affiliation | null;
-  contributorRoles: ContributorRole[];
+  memberRoles: MemberRole[];
 }
 
-export interface ContributorRole {
+export interface MemberRole {
   id?: number | null;
   displayOrder: number;
   label: string;
@@ -301,7 +301,7 @@ export interface CheckboxGroupProps {
   isRequired?: boolean;
 }
 
-export interface ProjectContributorErrorInterface {
+export interface ProjectMemberErrorInterface {
   givenName: string;
   surName: string;
   affiliationId: string;
@@ -310,7 +310,7 @@ export interface ProjectContributorErrorInterface {
   projectRoles: string;
 }
 
-export interface ProjectContributorFormInterface {
+export interface ProjectMemberFormInterface {
   givenName: string;
   surName: string;
   affiliationId: string;
@@ -319,17 +319,17 @@ export interface ProjectContributorFormInterface {
 }
 
 
-export interface PlanContributorRolesInterface {
+export interface PlanMemberRolesInterface {
   id: number | null;
   label: string;
 }
 
-export interface ProjectContributorsInterface {
+export interface ProjectMembersInterface {
   id: number | null;
   fullName: string;
   affiliation: string;
   orcid: string;
-  roles: PlanContributorRolesInterface[];
+  roles: PlanMemberRolesInterface[];
   isPrimaryContact: boolean;
 }
 
@@ -391,7 +391,7 @@ export interface CollaboratorResponse {
   redirect?: string;
 }
 
-export interface AddProjectContributorResponse {
+export interface AddProjectMemberResponse {
   success: boolean;
   errors?: string[];
   data?: {

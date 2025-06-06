@@ -111,18 +111,18 @@ const ProjectsListPage: React.FC = () => {
             return {
               title: project?.title || "",
               link: `/projects/${project?.id}`,
-              funder: project?.funders ? project?.funders.map((fund) => fund?.name).join(', ') : '',
+              funding: project?.fundings ? project?.fundings.map((fund) => fund?.name).join(', ') : '',
               defaultExpanded: false,
               startDate: project?.startDate ? formatDate(project.startDate) : '',
               endDate: project?.endDate ? formatDate(project.endDate) : '',
-              members: (project?.contributors ? project.contributors.map((contributor) => {
+              members: (project?.members ? project.members.map((member) => {
                 return {
-                  name: contributor.name || '',
-                  roles: contributor.role || '',
-                  orcid: contributor.orcid || ''
+                  name: member.name || '',
+                  roles: member.role || '',
+                  orcid: member.orcid || ''
                 }
               }) : []),
-              grantId: project?.funders ? project?.funders.map((fund) => fund?.grantId).join(', ') : '',
+              grantId: project?.fundings ? project?.fundings.map((fund) => fund?.grantId).join(', ') : '',
             }
           }));
 
