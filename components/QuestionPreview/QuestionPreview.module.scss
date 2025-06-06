@@ -1,4 +1,3 @@
-
 .QuestionPreview {
   --layout-content-padding: 0;
 }
@@ -34,6 +33,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
+  pointer-events: auto;
   z-index: 100;
 
   &[data-entering] {
@@ -72,10 +72,10 @@
   padding: 0;
   margin: 0;
 
-  &:focus-within {
-    border: 0 none;
-    outline: none;
-  }
+  // &:focus-within {
+  //   border: 0 none;
+  //   outline: none;
+  // }
 }
 
 .PreviewNotice {

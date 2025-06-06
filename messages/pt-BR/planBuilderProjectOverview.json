@@ -13,11 +13,11 @@
     "grantId": "ID do Financiamento",
     "edit": "Alterar",
     "editProject": "Editar Detalhes do Projeto",
-    "funders": "Finalizações",
-    "funderCount": "{count} Fina(s)",
-    "funderInfo": "{name} ({id})",
-    "editFunders": "Editar Detalhes do Projeto",
-    "editFunderDetails": "Editar Detalhes do Projeto",
+    "fundings": "Finalizações",
+    "fundingCount": "{count} Finalizações",
+    "fundingInfo": "{name} ({id})",
+    "editFundings": "Editar Detalhes do Projeto",
+    "editFundingDetails": "Editar Detalhes do Projeto",
     "projectMembers": "Membros de projeto",
     "memberCount": "Membros da equipe {count}",
     "memberInfo": "{name} ({role})",
@@ -139,19 +139,19 @@
     "description": "",
     "labels": {
       "funderName": "Nome da planta",
-      "funderStatus": "Estado da Financiamento",
+      "fundingStatus": "Estado da Financiamento",
       "grantNumber": "Conceder número/url",
       "projectNumber": "Número ou ID do projeto",
       "opportunity": "No. de Prêmio Oportunidade/Federal"
     },
     "messages": {
       "errors": {
-        "projectFunderUpdateFailed": "Erro ao atualizar detalhes do financiador do projeto",
+        "projectFundingUpdateFailed": "Erro ao atualizar detalhes do financiador do projeto",
         "funderGrantId": "Valor de ID do financiador inválido",
         "funderProjectNumber": "Valor inválido do número do projeto financiador"
       },
       "success": {
-        "projectFunderUpdated": "Detalhes do financiador do projeto atualizados com sucesso"
+        "projectFundingUpdated": "Detalhes do financiador do projeto atualizados com sucesso"
       }
     }
   },
@@ -159,7 +159,7 @@
     "title": "Membros do Projeto",
     "description": "Defina contribuidores e membros da equipe e seu papel neste projeto.",
     "buttons": {
-      "addCollaborators": "Adicionar colaboradores",
+      "addMembers": "Adicionar membros",
       "shareWithPeople": "Compartilhar com pessoas"
     },
     "headings": {
@@ -170,9 +170,9 @@
     },
     "messages": {
       "errors": {
-        "errorGettingContributors": "Erro ao obter contribuidores"
+        "errorGettingMembers": "Erro ao obter membros"
       },
-      "noContributors": "Nenhum contribuidor encontrado"
+      "noMembers": "Nenhum membro encontrado"
     }
   },
   "ProjectsProjectMembersEdit": {

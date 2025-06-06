@@ -1,7 +1,6 @@
 'use client';
 
 import React, {
-  CSSProperties,
   useState,
   useEffect,
   useRef,
