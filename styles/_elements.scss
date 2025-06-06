@@ -578,23 +578,76 @@
   }
 }
 
-.Filters {
-  margin: 1rem 0;
-  display: grid;
-  gap: 20px;
-  grid-template-columns: 1fr 1fr;
-}
-
 .searchSection {
   display: grid;
-  grid-template-columns: 1fr; /* Single column by default (mobile) */
-  gap: 20px;
-
+  gap: 1rem;
+  /* Mobile-first: single column */
+  grid-template-columns: 1fr;
+  grid-template-areas: 
+    "search"
+    "filters";
 }
 
-@media (min-width: 768px) {
+.react-aria-SearchField {
+  grid-area: search;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "label"
+    "input"
+    "help" 
+    "button";
+  max-width: 500px;
+
+  .react-aria-Label {
+    grid-area: label;
+  }
+  
+  .help {
+    grid-area: help;
+  }
+  
+  .react-aria-Input {
+    grid-area: input;
+    min-width: 250px;
+  }
+  
+  .react-aria-Button {
+    grid-area: button;
+    justify-self: start; /* Prevents button from stretching full width */
+  }
+  
+  .checkbox-group {
+    grid-area: filters;
+  }
+}
+
+
+
+/* Desktop layout */
+@include device('md') {
   .searchSection {
-    grid-template-columns: 1fr 1fr; /* Two equal columns on larger screens */
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "search filters";
+    align-items: start;
+  }
+  
+  .react-aria-SearchField {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "label label"
+      "input button"
+      "help help";
+    align-items: end; /* Aligns input and button to bottom */
+  }
+  
+  .react-aria-Button {
+    margin-left: 0;
+  }
+  
+  .checkbox-group {
+    justify-self: end; /* Aligns checkbox group to the right */
   }
 }
 
@@ -631,12 +684,6 @@
     background: var(--bg-white);
     box-shadow: var(--card-shadow);
     border: 1px solid var(--card-border);
-
-    h2, .h2, h3, .h3, h4, .h4, h5, .h5 {
-      margin: 2rem 0px 1rem;
-      display: block;
-    }
-
   }
 }
 
@@ -700,21 +747,15 @@
       align-items: center;
       margin-bottom: var(--space-2);
     }
-
     .actions {
       @include device(sm) {
         flex-direction: row;
         align-items: center;
       }
-
-      a {
+      a{
         margin-bottom: var(--space-1);
       }
     }
-  }
-
-  .plan-item {
-
   }
 
   .plan-sections-list {
@@ -795,8 +836,8 @@
   }
 }
 
-.form-signpost {
-  .form-signpost-inner {
+.form-signpost{
+  .form-signpost-inner{
     background: var(--gray-100);
     padding: var(--space-4);
   }
@@ -814,6 +855,10 @@
     display: inline-block;
   }
 }
+
+
+
+
 
 
 /* --- Basic ProseMirror Table Styling --- */

@@ -267,7 +267,7 @@ const SectionTypeSelectPage: React.FC = () => {
 
       <LayoutContainer>
         <ContentContainer>
-          <div className="Filters" ref={errorRef}>
+          <div className="searchSection" role="search" ref={errorRef}>
             <ErrorMessages errors={errors} ref={errorRef} />
             <SearchField
               onClear={() => {
@@ -364,7 +364,7 @@ const SectionTypeSelectPage: React.FC = () => {
                   }
                 </>
               )
-             }
+              }
             </div>
 
             {((filteredSections && filteredSections.length > 0) || (sections && sections.length > 0)) && (
@@ -450,12 +450,12 @@ const SectionTypeSelectPage: React.FC = () => {
             </div>
             {((filteredBestPracticeSections && filteredBestPracticeSections.length > 0)
               || (bestPracticeSections && bestPracticeSections.length > 0)) && (
-              <div className={styles.loadBtnContainer}>
-                {filteredBestPracticeSections && filteredBestPracticeSections.length > 0
-                  ? renderLoadMore(filteredBestPracticeSections, 'filteredBestPracticeSections')
-                  : renderLoadMore(bestPracticeSections, 'bestPracticeSections')}
-              </div>
-            )}
+                <div className={styles.loadBtnContainer}>
+                  {filteredBestPracticeSections && filteredBestPracticeSections.length > 0
+                    ? renderLoadMore(filteredBestPracticeSections, 'filteredBestPracticeSections')
+                    : renderLoadMore(bestPracticeSections, 'bestPracticeSections')}
+                </div>
+              )}
 
 
             <h2>

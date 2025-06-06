@@ -1,7 +1,7 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
-import {useFormatter, useTranslations} from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 // Components
 import {
@@ -17,13 +17,13 @@ import {
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import ProjectListItem from "@/components/ProjectListItem";
-import {ContentContainer, LayoutContainer} from '@/components/Container';
+import { ContentContainer, LayoutContainer } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
-import {useMyProjectsQuery,} from '@/generated/graphql';
+import { useMyProjectsQuery, } from '@/generated/graphql';
 
-import {ProjectItemProps, ProjectSearchResultInterface, PaginatedProjectSearchResultsInterface} from '@/app/types';
+import { ProjectItemProps, ProjectSearchResultInterface, PaginatedProjectSearchResultsInterface } from '@/app/types';
 
 const ProjectsListPage: React.FC = () => {
   const formatter = useFormatter();
@@ -204,7 +204,7 @@ const ProjectsListPage: React.FC = () => {
 
       <LayoutContainer>
         <ContentContainer>
-          <div className="Filters">
+          <div className="searchSection" role="search">
             <SearchField
               onClear={() => { setFilteredProjects(null) }}
             >

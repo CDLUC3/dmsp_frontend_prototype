@@ -271,7 +271,7 @@ const TemplateListPage: React.FC = () => {
 
       <LayoutContainer>
         <ContentContainer>
-          <div className="Filters" ref={topRef}>
+          <div className="searchSection" role="search" ref={topRef}>
             <SearchField
               onClear={() => { setFilteredTemplates(null) }}
             >
