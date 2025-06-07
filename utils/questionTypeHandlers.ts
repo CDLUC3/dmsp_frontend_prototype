@@ -7,7 +7,14 @@ import {
   RadioButtonsQuestionSchema,
   CheckboxesQuestionSchema,
   SelectBoxQuestionSchema,
-  URLQuestionSchema
+  URLQuestionSchema,
+  TextQuestionType,
+  TextAreaQuestionType,
+  RadioButtonsQuestionType,
+  CheckboxesQuestionType,
+  SelectBoxQuestionType,
+  URLQuestionType,
+  BooleanQuestionType,
 } from "@dmptool/types";
 import { z, ZodSchema } from "zod";
 
@@ -69,7 +76,7 @@ export const questionTypeHandlers: Record<
   QuestionTypeHandler
 > = {
   text: (json, input) => {
-    const questionData = {
+    const questionData: TextQuestionType = {
       ...json,
       type: "text",
       meta: {
@@ -88,7 +95,7 @@ export const questionTypeHandlers: Record<
   },
 
   textArea: (json, input) => {
-    const questionData = {
+    const questionData: TextAreaQuestionType = {
       ...json,
       type: "text",
       meta: {
@@ -108,7 +115,7 @@ export const questionTypeHandlers: Record<
   },
 
   radioButtons: (json, input) => {
-    const questionData = {
+    const questionData: RadioButtonsQuestionType = {
       ...json,
       type: "radioButtons",
       meta: {
@@ -129,7 +136,7 @@ export const questionTypeHandlers: Record<
   },
 
   checkBoxes: (json, input) => {
-    const questionData = {
+    const questionData: CheckboxesQuestionType = {
       ...json,
       type: "checkBoxes",
       meta: {
@@ -150,7 +157,7 @@ export const questionTypeHandlers: Record<
   },
 
   selectBox: (json, input) => {
-    const questionData = {
+    const questionData: SelectBoxQuestionType = {
       ...json,
       type: "selectBox",
       meta: {
@@ -171,7 +178,7 @@ export const questionTypeHandlers: Record<
   },
 
   boolean: (json, input) => {
-    const questionData = {
+    const questionData: BooleanQuestionType = {
       ...json,
       type: "boolean",
       meta: {
@@ -188,7 +195,7 @@ export const questionTypeHandlers: Record<
   },
 
   url: (json, input) => {
-    const questionData = {
+    const questionData: URLQuestionType = {
       ...json,
       type: "url",
       meta: {
