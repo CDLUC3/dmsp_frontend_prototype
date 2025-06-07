@@ -79,6 +79,7 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         maxLength: input?.maxLength || 1000,
+        minLength: input?.minLength || 0,
         pattern: input?.pattern || "^.+$", // Fixed regex pattern
       },
     };
@@ -87,8 +88,23 @@ export const questionTypeHandlers: Record<
   },
 
   textArea: (json, input) => {
-    // Reuse text handler logic for textArea
-    return questionTypeHandlers.text(json, input);
+    const questionData = {
+      ...json,
+      type: "text",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      attributes: {
+        ...json.attributes,
+        maxLength: input?.maxLength || 1000,
+        minLength: input?.minLength || 0,
+        rows: input?.rows || 2,
+        cols: input?.cols || 40,
+      },
+    };
+
+    return createAndValidateQuestion("text", questionData, questionSchemas.text);
   },
 
   radioButtons: (json, input) => {
@@ -105,10 +121,6 @@ export const questionTypeHandlers: Record<
           label: option.label || option.value,
           selected: option.selected || false,
           value: option.value,
-        },
-        meta: {
-          labelTranslationKey: option.labelTranslationKey || undefined,
-          schemaVersion: CURRENT_SCHEMA_VERSION,
         },
       })) || [],
     };
@@ -131,10 +143,6 @@ export const questionTypeHandlers: Record<
           selected: option.selected || false,
           value: option.value,
         },
-        meta: {
-          labelTranslationKey: option.labelTranslationKey || undefined,
-          schemaVersion: CURRENT_SCHEMA_VERSION,
-        },
       })) || [],
     };
 
@@ -155,10 +163,6 @@ export const questionTypeHandlers: Record<
           label: option.label || option.value,
           selected: option.selected || false,
           value: option.value,
-        },
-        meta: {
-          labelTranslationKey: option.labelTranslationKey || undefined,
-          schemaVersion: CURRENT_SCHEMA_VERSION,
         },
       })) || [],
     };

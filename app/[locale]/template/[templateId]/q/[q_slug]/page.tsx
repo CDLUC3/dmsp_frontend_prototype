@@ -127,40 +127,55 @@ const QuestionEdit = () => {
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
-  const getHandlerInput = (type: string) => {
-    switch (type) {
-      case 'radioButtons':
-      case 'checkBoxes':
-      case 'selectBox': {
-        const options = rows.map((row) => ({
-          label: row.text,
-          value: row.text.toLowerCase().replace(/\s+/g, '_'), // e.g., "Yes" → "yes"
-          selected: row.isDefault ?? false
-        }));
-        return { options };
-      }
-      case 'url':
-        return { pattern: "https?://.+" };
-      case 'textArea':
-        return {
-          maxLength: 1000,
-          rows: 2,
-          cols: 20
-        };
-      default:
-        return {}; // fallback safe default
-    }
+  const defaultInputs: Record<string, any> = {
+    text: {
+      maxLength: 1000,
+      pattern: "^.+$",
+    },
+    textArea: {
+      maxLength: 1000,
+      minLength: 0,
+      rows: 2,
+      cols: 40,
+    },
+    radioButtons: (formState: any) => ({
+      options: formState.map(row => ({
+        label: row.text,
+        value: row.text,
+        selected: row.isDefault,
+      })),
+    }),
+    checkBoxes: (formState: any) => ({
+      options: formState.map(row => ({
+        label: row.text,
+        value: row.text,
+        selected: row.isDefault,
+      })),
+    }),
+    // Add more as needed
   };
+
+  function getHandlerInput(type: string, formState: any) {
+    const defaults = defaultInputs[type];
+
+    if (typeof defaults === "function") {
+      return defaults(formState);
+    }
+
+    return {
+      ...defaults,
+      ...formState,
+    };
+  }
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (question) {
-      const handlerInput = getHandlerInput(questionType);
-      const handlerFn = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers];
 
-      // Get updated question JSON using the appropriate handler
-      const updatedQuestionJSON = handlerFn(getParsedQuestionJSON(question), handlerInput);
+      const userInput = getHandlerInput(questionType ? questionType : '', rows);
+      const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](getParsedQuestionJSON(question), userInput);
+
 
       setFormSubmitted(true);
       // string all tags from questionText before sending to backend
@@ -173,7 +188,7 @@ const QuestionEdit = () => {
             input: {
               questionId: Number(questionId),
               displayOrder: question.displayOrder,
-              json: JSON.stringify(updatedQuestionJSON),
+              json: JSON.stringify(result.data),
               questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
