@@ -13,11 +13,11 @@
     "grantId": "ID do Financiamento",
     "edit": "Alterar",
     "editProject": "Editar Detalhes do Projeto",
-    "fundings": "Finalizações",
-    "fundingCount": "{count} Finalizações",
+    "fundings": "Fontes de financiamento",
+    "fundingCount": "{count} Fontes de Financiamento",
     "fundingInfo": "{name} ({id})",
-    "editFundings": "Editar Detalhes do Projeto",
-    "editFundingDetails": "Editar Detalhes do Projeto",
+    "editFundings": "Editar detalhes do financiamento",
+    "editFundingDetails": "Editar detalhes do financiamento",
     "projectMembers": "Membros de projeto",
     "memberCount": "Membros da equipe {count}",
     "memberInfo": "{name} ({role})",
@@ -135,18 +135,18 @@
     }
   },
   "ProjectsProjectFundingEdit": {
-    "title": "",
-    "description": "",
+    "title": "Editar detalhes do financiamento",
+    "description": "Atualizar informações da fonte de financiamento",
     "labels": {
       "funderName": "Nome da planta",
-      "fundingStatus": "Estado da Financiamento",
+      "funderStatus": "Status do financiamento",
       "grantNumber": "Conceder número/url",
       "projectNumber": "Número ou ID do projeto",
       "opportunity": "No. de Prêmio Oportunidade/Federal"
     },
     "messages": {
       "errors": {
-        "projectFundingUpdateFailed": "Erro ao atualizar detalhes do financiador do projeto",
+        "projectFundingUpdateFailed": "Error updating project funding details",
         "funderGrantId": "Valor de ID do financiador inválido",
         "funderProjectNumber": "Valor inválido do número do projeto financiador"
       },
@@ -170,7 +170,7 @@
     },
     "messages": {
       "errors": {
-        "errorGettingMembers": "Erro ao obter membros"
+        "errorGettingMembers": "Erro ao obter modelos"
       },
       "noMembers": "Nenhum membro encontrado"
     }

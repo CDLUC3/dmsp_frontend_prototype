@@ -77,7 +77,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   };
 
   // Update rows state
-  const handleChange = (id: number | string, field: string, value: string | number) => {
+  const handleChange = (id: number | string | null, field: string, value: string | number) => {
     setRows((prevRows) => {
       return prevRows.map((row) => {
         if (row.id === id) {
@@ -121,7 +121,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 label={QuestionOptions('labels.text')}
                 labelClasses={styles.textFieldLabel}
                 value={row.text}
-                onChange={(e) => handleChange(row.id || 0, "text", e.target.value)}
+                onChange={(e) => handleChange(row.id ?? null, "text", e.target.value)}
                 placeholder={QuestionOptions('placeholder.text')}
                 ariaLabel={index === 0 ? undefined : "Text"}
                 isInvalid={!row.text && formSubmitted}

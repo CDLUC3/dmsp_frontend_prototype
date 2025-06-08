@@ -47,6 +47,7 @@ import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
 
+// Configure what overrides you want to apply to the question type json objects
 const getOverrides = (questionType: string | null | undefined) => {
   switch (questionType) {
     case "text":
@@ -60,7 +61,7 @@ const getOverrides = (questionType: string | null | undefined) => {
     case "url":
       return { maxLength: 2048, minLength: 2, pattern: "https?://.+" };
     default:
-      return {}; // No overrides for other types
+      return {};
   }
 };
 
@@ -133,6 +134,7 @@ const QuestionEdit = () => {
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
+  // Handle form submission to update the question
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -161,7 +163,7 @@ const QuestionEdit = () => {
             input: {
               questionId: Number(questionId),
               displayOrder: question.displayOrder,
-              json: JSON.stringify(result.data),
+              json: JSON.stringify(result.data),//updated json for question type
               questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
@@ -188,7 +190,7 @@ const QuestionEdit = () => {
   }
 
   useEffect(() => {
-    // if the question with the given questionId exists, then set the data in state
+    // if the question with the given questionType exists, then set the data in state
     if (selectedQuestion) {
 
       const q = selectedQuestion?.question || null;
@@ -212,6 +214,7 @@ const QuestionEdit = () => {
 
       }
 
+      // Set options info
       if (isOptionQuestion) {
         const optionRows = json.options
           .map((option: Option, index: number) => ({
@@ -331,7 +334,7 @@ const QuestionEdit = () => {
                   textAreaClasses={styles.questionFormField}
                   label={QuestionEdit('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
-                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                  onChange={(newValue) => setQuestion(prev => ({
                     ...prev,
                     requirementText: newValue
                   }))}
@@ -344,7 +347,7 @@ const QuestionEdit = () => {
                   textAreaClasses={styles.questionFormField}
                   label={QuestionEdit('labels.guidanceText')}
                   value={question?.guidanceText ? question.guidanceText : ''}
-                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                  onChange={(newValue) => setQuestion(prev => ({
                     ...prev,
                     guidanceText: newValue
                   }))}
@@ -360,7 +363,7 @@ const QuestionEdit = () => {
                     textAreaClasses={styles.questionFormField}
                     label={QuestionEdit('labels.sampleText')}
                     value={question?.sampleText ? question?.sampleText : ''}
-                    onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                    onChange={(newValue) => setQuestion(prev => ({
                       ...prev,
                       sampleText: newValue
                     }))}
