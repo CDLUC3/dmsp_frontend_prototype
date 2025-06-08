@@ -116,9 +116,9 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        maxLength: input?.maxLength || 1000,
-        minLength: input?.minLength || 0,
-        pattern: input?.pattern || "^.+$", // Fixed regex pattern
+        maxLength: input?.attributes?.maxLength ?? 1000,
+        minLength: input?.attributes?.minLength ?? 0,
+        pattern: input?.attributes?.pattern ?? "^.+$",
       },
     };
 
@@ -135,16 +135,15 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        maxLength: input?.maxLength || 1000,
-        minLength: input?.minLength || 0,
-        rows: input?.rows || 2,
-        cols: input?.cols || 40,
+        maxLength: input?.attributes?.maxLength ?? 1000,
+        minLength: input?.attributes?.minLength ?? 0,
+        rows: input?.attributes?.rows ?? 2,
+        cols: input?.attributes?.cols ?? 40,
       },
     };
 
     return createAndValidateQuestion("textArea", questionData, questionSchemas.textArea);
   },
-
   radioButtons: (json, input: { options: Option[] }) => {
     const questionData: RadioButtonsQuestionType = {
       ...json,
@@ -156,8 +155,8 @@ export const questionTypeHandlers: Record<
       options: input.options?.map(option => ({
         type: 'option',
         attributes: {
-          label: option.label || option.value,
-          selected: option.selected || false,
+          label: option.label ?? option.value,
+          selected: option.selected ?? false,
           value: option.value,
         },
       })) || [],
@@ -177,8 +176,8 @@ export const questionTypeHandlers: Record<
       options: input.options?.map(option => ({
         type: 'option',
         attributes: {
-          label: option.label || option.value,
-          selected: option.selected || false,
+          label: option.label ?? option.value,
+          selected: option.selected ?? false,
           value: option.value,
         },
       })) || [],
@@ -198,8 +197,8 @@ export const questionTypeHandlers: Record<
       options: input.options?.map(option => ({
         type: 'option',
         attributes: {
-          label: option.label || option.value,
-          selected: option.selected || false,
+          label: option.label ?? option.value,
+          selected: option.selected ?? false,
           value: option.value,
         },
       })) || [],
@@ -218,7 +217,7 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        checked: input?.checked || false,
+        checked: input?.checked ?? false,
       },
     };
 
@@ -235,9 +234,9 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        pattern: input?.pattern || "https?://.+",
-        maxLength: input?.maxLength ?? null,
-        minLength: input?.minLength !== undefined ? input.minLength : 0 // Fall back to 0 instead of null
+        pattern: input?.attributes?.pattern ?? "https?://.+",
+        maxLength: input?.attributes?.maxLength ?? null,
+        minLength: input?.attributes?.minLength !== undefined ? input.attributes?.minLength : 0 // Fall back to 0 instead of null
       }
     };
 
@@ -254,9 +253,9 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        max: input?.max ?? 10000000, // Optional maximum value
-        min: input?.min ?? 0,
-        step: input?.step || 1,
+        max: input?.attributes?.max ?? 10000000, // Optional maximum value
+        min: input?.attributes?.min ?? 0,
+        step: input?.attributes?.step ?? 1,
       },
     };
 
@@ -272,9 +271,9 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        max: input?.max || null,
-        min: input?.min || null,
-        step: input?.step || null,
+        max: input?.max ?? null,
+        min: input?.min ?? null,
+        step: input?.step ?? null,
       },
     };
 
@@ -295,10 +294,10 @@ export const questionTypeHandlers: Record<
           },
           type: "date",
           attributes: {
-            max: input?.from?.max || null,
-            min: input?.from?.min || null,
-            step: input?.from?.step || 1,
-            label: input?.from?.label || "From",
+            max: input?.from?.max ?? null,
+            min: input?.from?.min ?? null,
+            step: input?.from?.step ?? 1,
+            label: input?.from?.label ?? "From",
           },
         },
         {
@@ -307,10 +306,10 @@ export const questionTypeHandlers: Record<
           },
           type: "date",
           attributes: {
-            max: input?.to?.max || null,
-            min: input?.to?.min || null,
-            step: input?.to?.step || 1,
-            label: input?.to?.label || "To",
+            max: input?.to?.max ?? null,
+            min: input?.to?.min ?? null,
+            step: input?.to?.step ?? 1,
+            label: input?.to?.label ?? "To",
           },
         },
       ],
@@ -328,10 +327,10 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        pattern: input?.pattern || null,
-        multiple: input?.multiple || false,
-        maxLength: input?.maxLength || null,
-        minLength: input?.minLength || 0,
+        pattern: input?.pattern ?? null,
+        multiple: input?.multiple ?? false,
+        maxLength: input?.maxLength ?? null,
+        minLength: input?.minLength ?? 0,
       },
     };
 
@@ -353,22 +352,22 @@ export const questionTypeHandlers: Record<
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
       graphQL: {
-        query: input?.query || "",
-        queryId: input?.queryId || "",
+        query: input?.query ?? "",
+        queryId: input?.queryId ?? "",
         variables: input?.variables?.map(variable => ({
-          name: variable.name || "",
-          type: variable.type || "string",
-          label: variable.label || "",
-          minLength: variable.minLength || 0,
-          labelTranslationKey: variable.labelTranslationKey || null,
-        })) || [],
-        answerField: input?.answerField || "",
+          name: variable.name ?? "",
+          type: variable.type ?? "string",
+          label: variable.label ?? "",
+          minLength: variable.minLength ?? 0,
+          labelTranslationKey: variable.labelTranslationKey ?? null,
+        })) ?? [],
+        answerField: input?.answerField ?? "",
         displayFields: input?.displayFields?.map(field => ({
-          label: field.label || "",
-          propertyName: field.propertyName || "",
-          labelTranslationKey: field.labelTranslationKey || null,
-        })) || [],
-        responseField: input?.responseField || "",
+          label: field.label ?? "",
+          propertyName: field.propertyName ?? "",
+          labelTranslationKey: field.labelTranslationKey ?? null,
+        })) ?? [],
+        responseField: input?.responseField ?? "",
       },
     };
 
@@ -384,9 +383,9 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        max: input?.max || null,
-        min: input?.min || 0,
-        step: input?.step || 1,
+        max: input?.attributes?.max ?? null,
+        min: input?.attributes?.min ?? 0,
+        step: input?.attributes?.step ?? 1,
       },
     };
 
@@ -407,10 +406,10 @@ export const questionTypeHandlers: Record<
         const baseColumn = {
           meta: {
             ...column.meta,
-            label: "label" in column.meta ? column.meta.label || "" : "",
+            label: "label" in column.meta ? column.meta.label ?? "" : "",
             schemaVersion: CURRENT_SCHEMA_VERSION,
           },
-          type: column.type || "text",
+          type: column.type ?? "text",
         };
 
         // Add `attributes` only if it exists
@@ -426,10 +425,10 @@ export const questionTypeHandlers: Record<
         return baseColumn;
       }) || [],
       attributes: {
-        maxRows: input?.attributes?.maxRows || null,
-        minRows: input?.attributes?.minRows || null,
+        maxRows: input?.attributes?.maxRows ?? null,
+        minRows: input?.attributes?.minRows ?? null,
         canAddRows: input?.attributes?.canAddRows ?? true,
-        initialRows: input?.attributes?.initialRows || 1,
+        initialRows: input?.attributes?.initialRows ?? 1,
         canRemoveRows: input?.attributes?.canRemoveRows ?? true,
       },
     };
@@ -452,22 +451,22 @@ export const questionTypeHandlers: Record<
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
       graphQL: {
-        query: input?.query || "",
-        localQueryId: input?.localQueryId || "",
-        responseField: input?.responseField || "",
+        query: input?.query ?? "",
+        localQueryId: input?.localQueryId ?? "",
+        responseField: input?.responseField ?? "",
         variables: input?.variables?.map(variable => ({
-          name: variable.name || "",
-          type: variable.type || "string",
-          label: variable.label || "",
-          minLength: variable.minLength || 0,
-          defaultValue: variable.defaultValue || "",
-          labelTranslationKey: variable.labelTranslationKey || null,
-        })) || [],
+          name: variable.name ?? "",
+          type: variable.type ?? "string",
+          label: variable.label ?? "",
+          minLength: variable.minLength ?? 0,
+          defaultValue: variable.defaultValue ?? "",
+          labelTranslationKey: variable.labelTranslationKey ?? null,
+        })) ?? [],
         displayFields: input?.displayFields?.map(field => ({
-          propertyName: field.propertyName || "",
-          label: field.label || "",
-          labelTranslationKey: field.labelTranslationKey || null,
-        })) || [],
+          propertyName: field.propertyName ?? "",
+          label: field.label ?? "",
+          labelTranslationKey: field.labelTranslationKey ?? null,
+        })) ?? [],
       },
     };
 

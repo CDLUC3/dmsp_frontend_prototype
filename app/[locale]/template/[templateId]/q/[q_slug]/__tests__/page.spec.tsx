@@ -414,7 +414,7 @@ describe("QuestionEditPage", () => {
         type: "text",
         meta: { schemaVersion: "1.0" },
         attributes: {
-          maxLength: 500,
+          maxLength: 1000,
           minLength: 0,
           pattern: "^.+$",
         }
@@ -430,8 +430,8 @@ describe("QuestionEditPage", () => {
           schemaVersion: "1.0",
         },
         attributes: {
-          cols: 40,
-          rows: 5,
+          cols: 20,
+          rows: 20,
           maxLength: 1000,
           minLength: 0,
         },
@@ -447,8 +447,8 @@ describe("QuestionEditPage", () => {
         },
         attributes: {
           min: 0,
-          max: 1000,
-          step: 5,
+          max: 10000000,
+          step: 1,
         },
       },
     },
@@ -460,7 +460,7 @@ describe("QuestionEditPage", () => {
         attributes: {
           min: 0,
           max: 10000000,
-          step: 1
+          step: 0.01
         },
         meta: {
           schemaVersion: "1.0",

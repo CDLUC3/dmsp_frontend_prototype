@@ -50,13 +50,13 @@ import styles from './questionEdit.module.scss';
 const getOverrides = (questionType: string | null | undefined) => {
   switch (questionType) {
     case "text":
-      return { maxLength: 500 };
+      return { maxLength: null };
     case "textArea":
-      return { maxLength: 1000, rows: 5 };
+      return { maxLength: null, rows: 20 };
     case "number":
-      return { min: 0, max: 1000, step: 5 };
+      return { min: 0, max: 10000000, step: 1 };
     case "currency":
-      return { min: 0, max: 100000, step: 0.01 };
+      return { min: 0, max: 10000000, step: 0.01 };
     case "url":
       return { maxLength: 2048, minLength: 2, pattern: "https?://.+" };
     default:
