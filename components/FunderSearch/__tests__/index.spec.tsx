@@ -30,10 +30,12 @@ const mocks = [
         affiliations: {
           items: [
             {
+              id: 1,
               uri: "https://fundera",
               displayName: "Funder A"
             },
             {
+              id: 2,
               uri: "https://funderb",
               displayName: "Funder B"
             },
@@ -69,10 +71,12 @@ const mocks = [
         affiliations: {
           items: [
             {
+              id: 3,
               uri: "https://funderc",
               displayName: "Funder C"
             },
             {
+              id: 4,
               uri: "https://funderd",
               displayName: "Funder D"
             },
@@ -92,6 +96,10 @@ const mocks = [
 
 
 describe("FunderSearch", () => {
+  beforeEach(() => {
+    window.scrollTo = jest.fn();
+  });
+
   /**
     * A wrapper to simulate how the component is used, so that we can simulate
     * some the events and state changes.

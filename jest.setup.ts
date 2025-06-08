@@ -36,3 +36,37 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
   useRouter: jest.fn()
 }))
+
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+
+beforeEach(() => {
+  jest.restoreAllMocks(); // reset any mocks between tests
+
+  console.error = (...args) => {
+    throw new Error(`Unexpected console.error: ${args.join(' ')}`);
+  };
+
+  console.warn = (...args) => {
+    throw new Error(`Unexpected console.warn: ${args.join(' ')}`);
+  };
+
+  // Fail test on uncaught promise rejections
+  process.on('unhandledRejection', (reason) => {
+    throw new Error(`Unhandled Promise rejection: ${reason}`);
+  });
+
+  // Fail test on unhandled exceptions
+  process.on('uncaughtException', (err) => {
+    throw err;
+  });
+});
+
+afterEach(() => {
+  // Restore original console behavior
+  console.error = originalConsoleError;
+  console.warn = originalConsoleWarn;
+
+  process.removeAllListeners('unhandledRejection');
+  process.removeAllListeners('uncaughtException');
+});

@@ -217,6 +217,7 @@ describe("CreateProjectSearchFunder", () => {
   beforeEach(() => {
     const mockParams = useParams as jest.Mock;
     mockParams.mockReturnValue({ projectId: '123' });
+    window.scrollTo = jest.fn();
   });
 
   it("Should render the view", async () => {
