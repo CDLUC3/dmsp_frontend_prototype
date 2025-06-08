@@ -1,0 +1,15 @@
+{
+  "question": {
+    "displayOrder": 17,
+    "errors": null,
+    "guidanceText": "This is the guidance text",
+    "id": 2271,
+    "isDirty": true,
+    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"url\",\"attributes\":{\"pattern\":null,\"maxLength\":2000,\"minLength\":0}}",
+    "questionText": "Testing",
+    "requirementText": "This is requirement text",
+    "sampleText": "This is sample text",
+    "sectionId": 67,
+    "templateId": 15
+  }
+}

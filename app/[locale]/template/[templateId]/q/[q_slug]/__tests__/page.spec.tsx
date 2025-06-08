@@ -11,8 +11,12 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import mockQuestionData from '../__mocks__/mockQuestionData.json';
-import mockRadioQuestion from '../__mocks__/mockRadioQuestion.json';
-import mockQuestionDataForTextField from '../__mocks__/mockQuestionDataForTextField.json';
+import mockRadioQuestion from '@/__mocks__/common/mockRadioQuestion.json';
+import mockQuestionDataForTextField from '@/__mocks__/common/mockQuestionDataForTextField.json';
+import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
+import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.json';
+import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNumber.json';
+import mockQuestionDataForCurrency from '@/__mocks__/common/mockQuestionDataForCurrency.json';
 import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
 
 expect.extend(toHaveNoViolations);
@@ -401,4 +405,135 @@ describe("QuestionEditPage", () => {
       expect(results).toHaveNoViolations();
     });
   });
+
+  describe.each([
+    {
+      questionType: "text",
+      mockData: mockQuestionDataForTextField,
+      expectedJson: {
+        type: "text",
+        meta: { schemaVersion: "1.0" },
+        attributes: {
+          maxLength: 500,
+          minLength: 0,
+          pattern: "^.+$",
+        }
+      }
+    },
+    {
+      questionType: "textArea",
+      mockData: mockQuestionDataForTextArea,
+      expectedJson: {
+        type: "textArea",
+        meta: {
+          asRichText: true,
+          schemaVersion: "1.0",
+        },
+        attributes: {
+          cols: 40,
+          rows: 5,
+          maxLength: 1000,
+          minLength: 0,
+        },
+      },
+    },
+    {
+      questionType: "number",
+      mockData: mockQuestionDataForNumber,
+      expectedJson: {
+        type: "number",
+        meta: {
+          schemaVersion: "1.0",
+        },
+        attributes: {
+          min: 0,
+          max: 1000,
+          step: 5,
+        },
+      },
+    },
+    {
+      questionType: "currency",
+      mockData: mockQuestionDataForCurrency,
+      expectedJson: {
+        type: "currency",
+        attributes: {
+          min: 0,
+          max: 100000,
+          step: 0.01
+        },
+        meta: {
+          schemaVersion: "1.0",
+        }
+
+      },
+    },
+    {
+      questionType: "url",
+      mockData: mockQuestionDataForURL,
+      expectedJson: {
+        type: "url",
+        meta: {
+          schemaVersion: "1.0",
+        },
+        attributes: {
+          maxLength: 2048,
+          minLength: 2,
+          pattern: "https?://.+",
+        },
+      },
+    },
+  ])("QuestionEditPage - $questionType", ({ questionType, mockData, expectedJson }) => {
+    it(`should call updateQuestionMutation with correct JSON for ${questionType}`, async () => {
+      (useQuestionQuery as jest.Mock).mockReturnValue({
+        data: mockData,
+        loading: false,
+        error: undefined,
+      });
+      const mockUpdateQuestion = jest.fn().mockResolvedValue({
+        data: {
+          key: "value"
+        },
+      });
+
+      (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+        mockUpdateQuestion,
+        { loading: false, error: undefined },
+      ]);
+
+      (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+        return {
+          get: (key: string) => {
+            const params: Record<string, string> = { questionType };
+            return params[key] || null;
+          },
+          getAll: () => [],
+          has: (key: string) => key in { questionType },
+          keys() { },
+          values() { },
+          entries() { },
+          forEach() { },
+          toString() {
+            return "";
+          },
+        } as unknown as ReturnType<typeof useSearchParams>;
+      });
+
+      await act(async () => {
+        render(<QuestionEdit />);
+      });
+
+      const saveButton = screen.getByText("buttons.saveAndUpdate");
+      expect(saveButton).toBeInTheDocument();
+
+      fireEvent.click(saveButton);
+      await waitFor(() => {
+        const [[callArgs]] = mockUpdateQuestion.mock.calls;
+        const actualJson = JSON.parse(callArgs.variables.input.json);
+        expect(actualJson).toEqual(expectedJson);
+      });
+
+    });
+  });
 });
+

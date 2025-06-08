@@ -58,7 +58,7 @@ const getOverrides = (questionType: string | null | undefined) => {
     case "currency":
       return { min: 0, max: 100000, step: 0.01 };
     case "url":
-      return { maxLength: 2048, pattern: "https?://.+" };
+      return { maxLength: 2048, minLength: 2, pattern: "https?://.+" };
     default:
       return {}; // No overrides for other types
   }

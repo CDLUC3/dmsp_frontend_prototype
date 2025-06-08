@@ -5,7 +5,7 @@
     "guidanceText": "This is the guidance text",
     "id": 2271,
     "isDirty": true,
-    "json": "{\"meta\":{\"asRichText\":true,\"schemaVersion\":\"1.0\"},\"type\":\"textField\",\"attributes\":{\"rows\":1}}",
+    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"number\",\"attributes\":{\"max\":null,\"min\":0,\"step\":1}}",
     "questionText": "Testing",
     "requirementText": "This is requirement text",
     "sampleText": "This is sample text",

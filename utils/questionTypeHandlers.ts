@@ -236,8 +236,8 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         pattern: input?.pattern || "https?://.+",
-        maxLength: input?.maxLength || null,
-        minLength: input?.minLength || null
+        maxLength: input?.maxLength ?? null,
+        minLength: input?.minLength !== undefined ? input.minLength : 0 // Fall back to 0 instead of null
       }
     };
 
@@ -254,8 +254,8 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        max: input?.max || null,
-        min: input?.min || null,
+        max: input?.max ?? 10000000, // Optional maximum value
+        min: input?.min ?? 0,
         step: input?.step || 1,
       },
     };
@@ -272,9 +272,9 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        max: input?.max || null, // Optional max date as a string
-        min: input?.min || null, // Optional min date as a string
-        step: input?.step || null, // Optional step as a number
+        max: input?.max || null,
+        min: input?.min || null,
+        step: input?.step || null,
       },
     };
 
@@ -328,10 +328,10 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        pattern: input?.pattern || null, // Optional regex pattern for email validation
-        multiple: input?.multiple || false, // Whether multiple emails are allowed
-        maxLength: input?.maxLength || null, // Optional maximum length
-        minLength: input?.minLength || 0, // Optional minimum length, defaults to 0
+        pattern: input?.pattern || null,
+        multiple: input?.multiple || false,
+        maxLength: input?.maxLength || null,
+        minLength: input?.minLength || 0,
       },
     };
 
@@ -384,9 +384,9 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        max: input?.max || null, // Optional maximum value
-        min: input?.min || 0, // Optional minimum value, defaults to 0
-        step: input?.step || 1, // Optional step value, defaults to 1
+        max: input?.max || null,
+        min: input?.min || 0,
+        step: input?.step || 1,
       },
     };
 
