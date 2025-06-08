@@ -185,6 +185,7 @@ const CreateProjectSearchFunder = () => {
                     >
                       {globalTrans('buttons.loadMore')}
                     </Button>
+                    <p>Showing {funders.length} of {totalCount}</p>
                   </div>
                 )}
               </div>
