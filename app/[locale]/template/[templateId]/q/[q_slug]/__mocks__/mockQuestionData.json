@@ -1,0 +1,15 @@
+{
+  "question": {
+    "displayOrder": 17,
+    "errors": null,
+    "guidanceText": "This is the guidance text",
+    "id": 2271,
+    "isDirty": true,
+    "questionText": "Testing",
+    "json": "{\"meta\":{\"asRichText\":true,\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"rows\":4}}",
+    "requirementText": "This is requirement text",
+    "sampleText": "This is sample text",
+    "sectionId": 67,
+    "templateId": 15
+  }
+}

@@ -86,11 +86,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     }
   })
 
-
-  useEffect(() => {
-    console.log("Question TYPE", questionType);
-
-  }, [questionType])
   if (!question) return null;
 
   return (
@@ -120,15 +115,13 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardEyebrow>{trans('cardType')}</CardEyebrow>
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
+            {questionType}
             {(questionType == 'textArea') && (
-              <>
-                <h1>TESTING</h1>
-                <TinyMCEEditor
-                  id="question-text-editor"
-                  content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
-                  setContent={() => { }} // Pass an empty function
-                />
-              </>
+              <TinyMCEEditor
+                id="question-text-editor"
+                content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
+                setContent={() => { }} // Pass an empty function
+              />
             )}
 
             {(questionType == 'text') && (

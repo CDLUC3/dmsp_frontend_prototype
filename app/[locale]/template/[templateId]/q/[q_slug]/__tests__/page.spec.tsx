@@ -10,6 +10,10 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import mockQuestionData from '../__mocks__/mockQuestionData.json';
+import mockRadioQuestion from '../__mocks__/mockRadioQuestion.json';
+import mockQuestionDataForTextField from '../__mocks__/mockQuestionDataForTextField.json';
+import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -33,81 +37,6 @@ jest.mock('@/components/Form/QuestionOptionsComponent', () => {
     default: () => <div>Mocked Question Options Component</div>,
   };
 });
-
-const mockQuestionData = {
-  question: {
-    displayOrder: 17,
-    errors: null,
-    guidanceText: "This is the guidance text",
-    id: 2271,
-    isDirty: true,
-    questionText: "Testing",
-    json: {
-      meta: {
-        asRichText: true,
-        schemaVersion: "1.0"
-      },
-      type: "textArea",
-      attributes: {
-        rows: 4
-      }
-    },
-    requirementText: "This is requirement text",
-    sampleText: "This is sample text",
-    sectionId: 67,
-    templateId: 15
-  }
-}
-
-const mockQuestionDataForTextField = {
-  question: {
-    displayOrder: 17,
-    errors: null,
-    guidanceText: "This is the guidance text",
-    id: 2271,
-    isDirty: true,
-    json: {
-      meta: {
-        asRichText: true,
-        schemaVersion: "1.0"
-      },
-      type: "textField",
-      attributes: {
-        rows: 1
-      }
-    },
-    questionText: "Testing",
-    requirementText: "This is requirement text",
-    sampleText: "This is sample text",
-    sectionId: 67,
-    templateId: 15
-  }
-}
-
-const mockQuestionTypesData = {
-  questionTypes: [
-    {
-      id: 1,
-      name: "Text Area",
-      usageDescription: "For questions that require longer answers, you can select formatting options too."
-    },
-    {
-      id: 2,
-      name: "Text Field",
-      usageDescription: "For questions that require short, simple answers."
-    },
-    {
-      id: 3,
-      name: "Radio Buttons",
-      usageDescription: "For multiple choice questions where users select just one option."
-    },
-    {
-      id: 4,
-      name: "Check Boxes",
-      usageDescription: "For multiple choice questions where users can select multiple options."
-    }
-  ]
-}
 
 
 describe("QuestionEditPage", () => {
@@ -139,7 +68,7 @@ describe("QuestionEditPage", () => {
     });
 
     (useQuestionTypesQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockQuestionTypesData }),
+      jest.fn().mockResolvedValueOnce({ data: mockQuestionTypes }),
       { loading: false, error: undefined },
     ]);
   });
@@ -285,6 +214,12 @@ describe("QuestionEditPage", () => {
 
   // QuestionOptionsComponent has it's own separate unit test, so we are just testing that it loads here
   it('should load QuestionOptionsComponent', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockRadioQuestion,
+      loading: false,
+      error: undefined,
+    });
+
     (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -358,6 +293,12 @@ describe("QuestionEditPage", () => {
   })
 
   it('should not display the useSampleTextAsDefault checkbox if the questionTypeId is Radio Button field', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockRadioQuestion,
+      loading: false,
+      error: undefined,
+    });
+
     (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
