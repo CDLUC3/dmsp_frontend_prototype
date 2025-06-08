@@ -2,7 +2,7 @@
 
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Checkbox, } from "react-aria-components";
 
 import FormInput from '@/components/Form/FormInput';
@@ -78,7 +78,6 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
 
   // Update rows state
   const handleChange = (id: number | string, field: string, value: string | number) => {
-    console.log("ID", id, "Field", field, "Value", value);
     setRows((prevRows) => {
       return prevRows.map((row) => {
         if (row.id === id) {
@@ -108,7 +107,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 disabled={true}
                 isRequired={true}
                 label={QuestionOptions('labels.order')}
-                value={(index + 1).toString()} // Changed to index + 1
+                value={(index + 1).toString()}
                 placeholder={QuestionOptions('placeholder.orderNumber')}
                 ariaLabel={index === 0 ? undefined : "Order"}
               />
@@ -122,7 +121,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 label={QuestionOptions('labels.text')}
                 labelClasses={styles.textFieldLabel}
                 value={row.text}
-                onChange={(e) => handleChange(row.id || 0, "text", e.target.value)} // Use row.id instead of index + 1
+                onChange={(e) => handleChange(row.id || 0, "text", e.target.value)}
                 placeholder={QuestionOptions('placeholder.text')}
                 ariaLabel={index === 0 ? undefined : "Text"}
                 isInvalid={!row.text && formSubmitted}

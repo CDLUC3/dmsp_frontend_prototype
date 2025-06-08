@@ -8,6 +8,14 @@ import {
   CheckboxesQuestionSchema,
   SelectBoxQuestionSchema,
   URLQuestionSchema,
+  CurrencyQuestionSchema,
+  DatePickerQuestionSchema,
+  DateRangeQuestionSchema,
+  EmailQuestionSchema,
+  FilteredSearchQuestionSchema,
+  NumberQuestionSchema,
+  TableQuestionSchema,
+  TypeaheadSearchQuestionSchema,
   TextQuestionType,
   TextAreaQuestionType,
   RadioButtonsQuestionType,
@@ -15,18 +23,34 @@ import {
   SelectBoxQuestionType,
   URLQuestionType,
   BooleanQuestionType,
+  CurrencyQuestionType,
+  DatePickerQuestionType,
+  DateRangeQuestionType,
+  EmailQuestionType,
+  FilteredSearchQuestionType,
+  NumberQuestionType,
+  TableQuestionType,
+  TypeaheadSearchQuestionType,
 } from "@dmptool/types";
 import { z, ZodSchema } from "zod";
 
 // Type for handler result with validation
 type HandlerResult = {
   success: boolean;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   data?: any;
   error?: string;
 };
 
 // Enhanced handler type that returns validation result
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type QuestionTypeHandler = (baseJSON: any, userInput: any) => HandlerResult;
+
+type Option = {
+  label: string; // The display label for the option
+  value: string; // The value associated with the option
+  selected?: boolean; // Whether the option is selected (optional)
+};
 
 // Map question types to their corresponding Zod schemas
 const questionSchemas: Record<string, ZodSchema> = {
@@ -37,17 +61,24 @@ const questionSchemas: Record<string, ZodSchema> = {
   checkBoxes: CheckboxesQuestionSchema,
   selectBox: SelectBoxQuestionSchema,
   url: URLQuestionSchema,
-  // Add other schemas as they become available
+  currency: CurrencyQuestionSchema,
+  datePicker: DatePickerQuestionSchema,
+  dateRange: DateRangeQuestionSchema,
+  email: EmailQuestionSchema,
+  filteredSearch: FilteredSearchQuestionSchema,
+  number: NumberQuestionSchema,
+  table: TableQuestionSchema,
+  typeAheadSearch: TypeaheadSearchQuestionSchema,
 };
 
-// Helper function to create and validate question JSON
+// Helper function to create and validate question type JSON
 const createAndValidateQuestion = (
   type: string,
   jsonData: any,
   schema?: ZodSchema
 ): HandlerResult => {
   try {
-    // If we have a schema for this type, validate it
+    // Validates jsonData and checks if it conforms to the specified schema
     if (schema) {
       const validatedData = schema.parse(jsonData);
       return { success: true, data: validatedData };
@@ -56,7 +87,6 @@ const createAndValidateQuestion = (
     // If no schema available, return the data as-is (backward compatibility)
     return { success: true, data: jsonData };
   } catch (error) {
-    console.log("***ERROR***", error, type);
     if (error instanceof z.ZodError) {
       const errorMessage = `Validation failed for ${type}: ${error.errors
         .map(e => `${e.path.join('.')}: ${e.message}`)
@@ -115,7 +145,7 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("textArea", questionData, questionSchemas.textArea);
   },
 
-  radioButtons: (json, input) => {
+  radioButtons: (json, input: { options: Option[] }) => {
     const questionData: RadioButtonsQuestionType = {
       ...json,
       type: "radioButtons",
@@ -136,7 +166,7 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("radioButtons", questionData, questionSchemas.radioButtons);
   },
 
-  checkBoxes: (json, input) => {
+  checkBoxes: (json, input: { options: Option[] }) => {
     const questionData: CheckboxesQuestionType = {
       ...json,
       type: "checkBoxes",
@@ -157,7 +187,7 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("checkBoxes", questionData, questionSchemas.checkBoxes);
   },
 
-  selectBox: (json, input) => {
+  selectBox: (json, input: { options: Option[] }) => {
     const questionData: SelectBoxQuestionType = {
       ...json,
       type: "selectBox",
@@ -215,7 +245,7 @@ export const questionTypeHandlers: Record<
   },
 
   currency: (json, input) => {
-    const questionData = {
+    const questionData: CurrencyQuestionType = {
       ...json,
       type: "currency",
       meta: {
@@ -233,7 +263,7 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("currency", questionData, questionSchemas.currency);
   },
   datePicker: (json, input) => {
-    const questionData = {
+    const questionData: DatePickerQuestionType = {
       ...json,
       type: "datePicker",
       meta: {
@@ -251,7 +281,7 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("datePicker", questionData, questionSchemas.datePicker);
   },
   dateRange: (json, input) => {
-    const questionData = {
+    const questionData: DateRangeQuestionType = {
       ...json,
       type: "dateRange",
       meta: {
@@ -289,7 +319,7 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("dateRange", questionData, questionSchemas.dateRange);
   },
   email: (json, input) => {
-    const questionData = {
+    const questionData: EmailQuestionType = {
       ...json,
       type: "email",
       meta: {
@@ -307,8 +337,15 @@ export const questionTypeHandlers: Record<
 
     return createAndValidateQuestion("email", questionData, questionSchemas.email);
   },
-  filteredSearch: (json, input) => {
-    const questionData = {
+  filteredSearch: (json, input: {
+    query?: string;
+    queryId?: string;
+    variables?: FilteredSearchQuestionType["graphQL"]["variables"];
+    answerField?: string;
+    displayFields?: FilteredSearchQuestionType["graphQL"]["displayFields"];
+    responseField?: string;
+  }) => {
+    const questionData: FilteredSearchQuestionType = {
       ...json,
       type: "filteredSearch",
       meta: {
@@ -338,7 +375,7 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("filteredSearch", questionData, questionSchemas.filteredSearch);
   },
   number: (json, input) => {
-    const questionData = {
+    const questionData: NumberQuestionType = {
       ...json,
       type: "number",
       meta: {
@@ -355,26 +392,39 @@ export const questionTypeHandlers: Record<
 
     return createAndValidateQuestion("number", questionData, questionSchemas.number);
   },
-  table: (json, input) => {
-    const questionData = {
+  table: (json, input: {
+    columns?: TableQuestionType["columns"];
+    attributes?: TableQuestionType["attributes"];
+  }) => {
+    const questionData: TableQuestionType = {
       ...json,
       type: "table",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
-      columns: input?.columns?.map(column => ({
-        meta: {
-          label: column.meta?.label || "",
-          schemaVersion: CURRENT_SCHEMA_VERSION,
-        },
-        type: column.type || "text",
-        attributes: {
-          pattern: column.attributes?.pattern || null,
-          maxLength: column.attributes?.maxLength || null,
-          minLength: column.attributes?.minLength || 0,
-        },
-      })) || [],
+      columns: input?.columns?.map(column => {
+        const baseColumn = {
+          meta: {
+            ...column.meta,
+            label: "label" in column.meta ? column.meta.label || "" : "",
+            schemaVersion: CURRENT_SCHEMA_VERSION,
+          },
+          type: column.type || "text",
+        };
+
+        // Add `attributes` only if it exists
+        if ("attributes" in column && column.attributes) {
+          return { ...baseColumn, attributes: column.attributes };
+        }
+
+        // Handle `columns` property for `dateRange` type
+        if (column.type === "dateRange" && "columns" in column) {
+          return { ...baseColumn, columns: column.columns };
+        }
+
+        return baseColumn;
+      }) || [],
       attributes: {
         maxRows: input?.attributes?.maxRows || null,
         minRows: input?.attributes?.minRows || null,
@@ -386,8 +436,15 @@ export const questionTypeHandlers: Record<
 
     return createAndValidateQuestion("table", questionData, questionSchemas.table);
   },
-  typeaheadSearch: (json, input) => {
-    const questionData = {
+  typeaheadSearch: (json, input: {
+    query?: string;
+    localQueryId?: string;
+    variables?: TypeaheadSearchQuestionType["graphQL"]["variables"];
+    answerField?: string;
+    displayFields?: FilteredSearchQuestionType["graphQL"]["displayFields"];
+    responseField?: string;
+  }) => {
+    const questionData: TypeaheadSearchQuestionType = {
       ...json,
       type: "typeaheadSearch",
       meta: {

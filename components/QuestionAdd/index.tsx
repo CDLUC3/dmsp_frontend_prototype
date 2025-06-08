@@ -39,8 +39,6 @@ import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
 
-import { QuestionTypesEnum } from "@dmptool/types";
-
 //Other
 import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
@@ -57,6 +55,23 @@ const defaultQuestion = {
   sampleText: '',
   useSampleTextAsDefault: false,
   required: false,
+};
+
+const getOverrides = (questionType: string | null | undefined) => {
+  switch (questionType) {
+    case "text":
+      return { maxLength: 500 };
+    case "textArea":
+      return { maxLength: 1000, rows: 5 };
+    case "number":
+      return { min: 0, max: 1000, step: 5 };
+    case "currency":
+      return { min: 0, max: 100000, step: 0.01 };
+    case "url":
+      return { maxLength: 2048, pattern: "https?://.+" };
+    default:
+      return {}; // No overrides for other types
+  }
 };
 
 
@@ -104,28 +119,8 @@ const QuestionAdd = ({
     skip: !sectionId
   })
 
-  const validateOptions = () => {
-    const newErrors: { [key: number]: string } = {};
-    rows.forEach((row) => {
-      if (!row.text.trim()) {
-        newErrors[row.id || 0] = "This field is required";
-      }
-    });
-
-    return Object.keys(newErrors).length === 0; // Returns true if no errors
-  };
-
   const redirectToQuestionTypes = () => {
     router.push(step1Url)
-  }
-
-  const transformOptions = () => {
-    // If duplicate order numbers or text, do we want to give the user an error message?
-    const transformedRows = rows.map(option => {
-      return { text: option.text, isDefault: option.isDefault }
-    })
-
-    return transformedRows;
   }
 
   const getDisplayOrder = () => {
@@ -147,31 +142,16 @@ const QuestionAdd = ({
     setFormSubmitted(true);
 
     const displayOrder = getDisplayOrder();
-
     const parsedQuestionJSON = JSON.parse(questionJSON);
-
     const formState = hasOptions ? rows : parsedQuestionJSON; // Use rows for "options" types, otherwise pass parsed question.json
 
-    // Determine overrides based on questionType
-    const overrides = (() => {
-      switch (questionType) {
-        case "text":
-          return { maxLength: 500 };
-        case "textArea":
-          return { maxLength: 1000, rows: 5 };
-        case "number":
-          return { min: 0, max: 1000, step: 5 };
-        case "currency":
-          return { min: 0, max: 100000, step: 0.01 };
-        case "url":
-          return { maxLength: 2048, pattern: "https?://.+" };
-        default:
-          return {}; // No overrides for other types
-      }
-    })();
+    // Get any overrides for the question type json objects based on question type
+    const overrides = getOverrides(questionType);
 
+    // Assemble user input based on question type
     const userInput = getHandlerInput(questionType ? questionType : '', formState, overrides);
 
+    // Get updated json object for the question type
     const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](parsedQuestionJSON, userInput);
 
     if (!result.success) {

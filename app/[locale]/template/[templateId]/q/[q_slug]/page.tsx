@@ -44,10 +44,26 @@ import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 import { getHandlerInput } from '@/utils/defaultInputs';
-import { defaultInputs } from '@/utils/defaultInputs';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
+
+const getOverrides = (questionType: string | null | undefined) => {
+  switch (questionType) {
+    case "text":
+      return { maxLength: 500 };
+    case "textArea":
+      return { maxLength: 1000, rows: 5 };
+    case "number":
+      return { min: 0, max: 1000, step: 5 };
+    case "currency":
+      return { min: 0, max: 100000, step: 0.01 };
+    case "url":
+      return { maxLength: 2048, pattern: "https?://.+" };
+    default:
+      return {}; // No overrides for other types
+  }
+};
 
 
 const QuestionEdit = () => {
@@ -114,40 +130,19 @@ const QuestionEdit = () => {
     if (question) {
       const formState = hasOptions ? rows : getParsedQuestionJSON(question); // Use rows for "options" types, otherwise pass parsed question.json
 
-      // Determine overrides based on questionType
-      const overrides = (() => {
-        switch (questionType) {
-          case "text":
-            return {
-              attributes: {
-                maxLength: 500
-              }
-            };
-          case "textArea":
-            return {
-              attributes: {
-                maxLength: 1000,
-                rows: 5
-              }
-            };
-          case "number":
-            return { min: 0, max: 1000, step: 5 };
-          case "currency":
-            return { min: 0, max: 100000, step: 0.01 };
-          case "url":
-            return { maxLength: 2048, pattern: "https?://.+" };
-          default:
-            return {}; // No overrides for other types
-        }
-      })();
+      // Get any overrides for the question type json objects based on question type
+      const overrides = getOverrides(questionType);
 
+      // Assemble user input based on question type
       const userInput = getHandlerInput(questionType ? questionType : '', formState, overrides);
-      console.log("***QUESTION Type:", questionType);
-      console.log("User Input:", userInput);
+
+      console.log('userInput', userInput);
+      // Get updated json object for the question type
       const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](getParsedQuestionJSON(question), userInput);
-      console.log("***Result:", result);
+
       // Set formSubmitted to true to indicate the form has been submitted
       setFormSubmitted(true);
+
       // string all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
       try {

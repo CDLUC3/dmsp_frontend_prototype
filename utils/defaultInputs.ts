@@ -1,3 +1,5 @@
+import { QuestionOptions } from '@/app/types';
+
 export const defaultInputs: Record<string, any> = {
   text: (formState: any) => ({
     maxLength: formState?.maxLength ?? null,
@@ -11,21 +13,21 @@ export const defaultInputs: Record<string, any> = {
 
   }),
   radioButtons: (formState: any) => ({
-    options: formState.map((row) => ({
+    options: formState.map((row: QuestionOptions) => ({
       label: row.text,
       value: row.text,
       selected: row.isDefault,
     })),
   }),
   checkBoxes: (formState: any) => ({
-    options: formState.map((row) => ({
+    options: formState.map((row: QuestionOptions) => ({
       label: row.text,
       value: row.text,
       selected: row.isDefault,
     })),
   }),
   selectBox: (formState: any) => ({
-    options: formState.map((row) => ({
+    options: formState.map((row: QuestionOptions) => ({
       label: row.text,
       value: row.text,
       selected: row.isDefault,
@@ -110,6 +112,7 @@ export const defaultInputs: Record<string, any> = {
   }),
 };
 
+// Merge the formState with overrides, and update json schema accordingly for specified question type
 export function getHandlerInput(
   type: string,
   formState: any,
@@ -123,7 +126,6 @@ export function getHandlerInput(
       ? [...formState, ...(Array.isArray(overrides) ? overrides : [])]
       : { ...formState, ...overrides };
 
-    console.log("Merged Form State:", mergedFormState);
     return defaults(mergedFormState);
   }
 
