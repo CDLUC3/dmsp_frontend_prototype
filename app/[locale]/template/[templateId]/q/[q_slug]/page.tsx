@@ -88,8 +88,9 @@ const QuestionEdit = () => {
 
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>();
-  const [rows, setRows] = useState<QuestionOptions[]>([]);//Question options, initially set as an empty array
+  const [rows, setRows] = useState<QuestionOptions[]>([]);
   const [questionType, setQuestionType] = useState<string>('');
+  const [questionTypeName, setQuestionTypeName] = useState<string>(''); // Added to store friendly question name
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -192,11 +193,11 @@ const QuestionEdit = () => {
 
       const q = selectedQuestion?.question || null;
       const json = getParsedQuestionJSON(q);
-      const questionType = json.type;
-      // If user has the questionTypeId in the query param because they just selected a new question type
-      // then use that over the one in the data
+      const questionType = json.type ?? questionTypeIdQueryParam;
+      const questionTypeFriendlyName = Global(`questionTypes.${questionType}`) || '';
 
-      setQuestionType(questionTypeIdQueryParam ?? questionType);
+      setQuestionType(questionType);
+      setQuestionTypeName(questionTypeFriendlyName);
       const isOptionQuestion = Boolean(questionType && ["radioButtons", "checkBoxes", "selectBox"].includes(questionType)); // Ensure the result is a boolean
 
       // Set question and rows in state
@@ -207,7 +208,6 @@ const QuestionEdit = () => {
         };
 
         setQuestion(sanitizedQuestion);
-        console.log('sanitizedQuestion', sanitizedQuestion);
         setHasOptions(isOptionQuestion);
 
       }
@@ -284,7 +284,7 @@ const QuestionEdit = () => {
                   <Label
                     className={`${styles.searchLabel} react-aria-Label`}>{QuestionEdit('labels.type')}</Label>
                   <Input
-                    value={questionType}
+                    value={questionTypeName}
                     className={`${styles.searchInput} react-aria-Input`}
                     disabled />
                   <Button className={`${styles.searchButton} react-aria-Button`}
