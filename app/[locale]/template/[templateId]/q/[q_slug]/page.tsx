@@ -42,7 +42,6 @@ import { useToast } from '@/context/ToastContext';
 
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
-import { getHandlerInput } from '@/utils/defaultInputs';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
@@ -139,31 +138,43 @@ const QuestionEdit = () => {
     e.preventDefault();
 
     if (question) {
-      const formState = hasOptions ? rows : getParsedQuestionJSON(question); // Use rows for "options" types, otherwise pass parsed question.json
+      const formState = hasOptions
+        ? {
+          options: rows.map(row => ({
+            label: row.text,
+            value: row.text, // Use the text directly as the value
+            selected: row.isDefault,
+          })),
+        }
+        : getParsedQuestionJSON(question); // Use parsed JSON for non-option types
 
       // Get any overrides for the question type json objects based on question type
       const overrides = getOverrides(questionType);
 
-      // Assemble user input based on question type
-      const userInput = getHandlerInput(questionType ? questionType : '', formState, overrides);
+      // Merge formState with overrides for non-options questions
+      const userInput = hasOptions
+        ? formState
+        : { ...formState, attributes: { ...formState.attributes, ...overrides } };
 
-      // Get updated json object for the question type
-      const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](getParsedQuestionJSON(question), userInput);
+      // Pass the merged userInput to questionTypeHandlers for type and schema checks
+      const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+        getParsedQuestionJSON(question),
+        userInput
+      );
 
       // Set formSubmitted to true to indicate the form has been submitted
       setFormSubmitted(true);
 
-      // string all tags from questionText before sending to backend
+      // Strip all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
       try {
-        // Add mutation for question. If user has questionTypeId in query param because they just selected
-        // a new question type, then use that as the questionTypeId rather than what is currently in the db
+        // Add mutation for question
         const response = await updateQuestionMutation({
           variables: {
             input: {
               questionId: Number(questionId),
               displayOrder: question.displayOrder,
-              json: JSON.stringify(result.data),//updated json for question type
+              json: JSON.stringify(result.data), // Updated json for question type
               questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,

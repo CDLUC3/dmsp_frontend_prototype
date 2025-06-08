@@ -459,8 +459,8 @@ describe("QuestionEditPage", () => {
         type: "currency",
         attributes: {
           min: 0,
-          max: 100000,
-          step: 0.01
+          max: 10000000,
+          step: 1
         },
         meta: {
           schemaVersion: "1.0",

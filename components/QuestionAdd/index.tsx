@@ -40,10 +40,8 @@ import QuestionView from '@/components/QuestionView';
 
 //Other
 import { useToast } from '@/context/ToastContext';
-import logECS from '@/utils/clientLogger';
 import { stripHtmlTags } from '@/utils/general';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
-import { getHandlerInput } from '@/utils/defaultInputs';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
 
@@ -141,27 +139,33 @@ const QuestionAdd = ({
 
     const displayOrder = getDisplayOrder();
     const parsedQuestionJSON = JSON.parse(questionJSON);
-    const formState = hasOptions ? rows : parsedQuestionJSON; // Use rows for "options" types, otherwise pass parsed question.json
+
+    // Prepare input for the questionTypeHandler
+    const formState = hasOptions
+      ? {
+        options: rows.map(row => ({
+          label: row.text,
+          value: row.text, // Use the text directly as the value
+          selected: row.isDefault,
+        })),
+      }
+      : parsedQuestionJSON; // Use parsed JSON for non-option types
 
     // Get any overrides for the question type json objects based on question type
     const overrides = getOverrides(questionType);
 
-    // Assemble user input based on question type
-    const userInput = getHandlerInput(questionType ? questionType : '', formState, overrides);
+    // Merge formState with overrides for non-options questions
+    const userInput = hasOptions
+      ? formState
+      : { ...formState, attributes: { ...formState.attributes, ...overrides } };
 
-    // Get updated json object for the question type
-    const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](parsedQuestionJSON, userInput);
+    // Pass the merged userInput to questionTypeHandlers for type and schema checks
+    const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+      parsedQuestionJSON,
+      userInput
+    );
 
-    if (!result.success) {
-      setErrors(prevErrors => [
-        ...prevErrors,
-        QuestionAdd('messages.errors.questionValidationError', { error: result.error }),
-      ]);
-      logECS('error', 'handleAdd', { type: questionType, error: result.error });
-      return;
-    }
-
-    // string all tags from questionText before sending to backend
+    // Strip all tags from questionText before sending to backend
     const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
     const input = {
       templateId: Number(templateId),
@@ -182,8 +186,8 @@ const QuestionAdd = ({
 
       if (response?.data) {
         toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
-        //redirect user to the Edit Question view with their new question id after successfully adding the new question
-        router.push(`/template/${templateId}`)
+        // Redirect user to the Edit Question view with their new question id after successfully adding the new question
+        router.push(`/template/${templateId}`);
       }
     } catch (error) {
       if (!(error instanceof ApolloError)) {
