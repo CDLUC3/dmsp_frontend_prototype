@@ -56,6 +56,7 @@ const createAndValidateQuestion = (
     // If no schema available, return the data as-is (backward compatibility)
     return { success: true, data: jsonData };
   } catch (error) {
+    console.log("***ERROR***", error, type);
     if (error instanceof z.ZodError) {
       const errorMessage = `Validation failed for ${type}: ${error.errors
         .map(e => `${e.path.join('.')}: ${e.message}`)
@@ -97,7 +98,7 @@ export const questionTypeHandlers: Record<
   textArea: (json, input) => {
     const questionData: TextAreaQuestionType = {
       ...json,
-      type: "text",
+      type: "textArea",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -111,7 +112,7 @@ export const questionTypeHandlers: Record<
       },
     };
 
-    return createAndValidateQuestion("text", questionData, questionSchemas.text);
+    return createAndValidateQuestion("textArea", questionData, questionSchemas.textArea);
   },
 
   radioButtons: (json, input) => {

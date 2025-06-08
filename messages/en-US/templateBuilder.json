@@ -310,7 +310,8 @@
     "messages": {
       "errors": {
         "questionTextRequired": "Question text field is required.",
-        "questionAddingError": "Error when adding question."
+        "questionAddingError": "Error when adding question.",
+        "questionValidationError": "Invalid value"
       },
       "success": {
         "questionAdded": "Question was successfully added."

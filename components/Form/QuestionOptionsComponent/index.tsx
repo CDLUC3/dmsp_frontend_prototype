@@ -90,10 +90,6 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
 
   };
 
-  useEffect(() => {
-    console.log("Rows updated:", rows);
-  }, [rows])
-
   return (
     <>
       <div className={styles.tableContainer}>

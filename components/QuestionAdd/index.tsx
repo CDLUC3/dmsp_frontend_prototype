@@ -46,6 +46,7 @@ import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
 import { stripHtmlTags } from '@/utils/general';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
+import { getHandlerInput } from '@/utils/defaultInputs';
 import { routePath } from '@/utils/routes';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
@@ -58,46 +59,6 @@ const defaultQuestion = {
   required: false,
 };
 
-const defaultInputs: Record<string, any> = {
-  text: {
-    maxLength: 1000,
-    pattern: "^.+$",
-  },
-  textArea: {
-    maxLength: 1000,
-    minLength: 0,
-    rows: 2,
-    cols: 40,
-  },
-  radioButtons: (formState: any) => ({
-    options: formState.map(row => ({
-      label: row.text,
-      value: row.text,
-      selected: row.isDefault,
-    })),
-  }),
-  checkBoxes: (formState: any) => ({
-    options: formState.map(row => ({
-      label: row.text,
-      value: row.text,
-      selected: row.isDefault,
-    })),
-  }),
-  // Add more as needed
-};
-
-function getHandlerInput(type: string, formState: any) {
-  const defaults = defaultInputs[type];
-
-  if (typeof defaults === "function") {
-    return defaults(formState);
-  }
-
-  return {
-    ...defaults,
-    ...formState,
-  };
-}
 
 const QuestionAdd = ({
   questionType,
@@ -188,7 +149,28 @@ const QuestionAdd = ({
     const displayOrder = getDisplayOrder();
 
     const parsedQuestionJSON = JSON.parse(questionJSON);
-    const userInput = getHandlerInput(questionType ? questionType : '', rows);
+
+    const formState = hasOptions ? rows : parsedQuestionJSON; // Use rows for "options" types, otherwise pass parsed question.json
+
+    // Determine overrides based on questionType
+    const overrides = (() => {
+      switch (questionType) {
+        case "text":
+          return { maxLength: 500 };
+        case "textArea":
+          return { maxLength: 1000, rows: 5 };
+        case "number":
+          return { min: 0, max: 1000, step: 5 };
+        case "currency":
+          return { min: 0, max: 100000, step: 0.01 };
+        case "url":
+          return { maxLength: 2048, pattern: "https?://.+" };
+        default:
+          return {}; // No overrides for other types
+      }
+    })();
+
+    const userInput = getHandlerInput(questionType ? questionType : '', formState, overrides);
 
     const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](parsedQuestionJSON, userInput);
 

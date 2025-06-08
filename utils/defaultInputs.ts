@@ -6,25 +6,26 @@ export const defaultInputs: Record<string, any> = {
   textArea: (formState: any) => ({
     maxLength: formState?.maxLength ?? null,
     minLength: formState?.minLength ?? 0,
-    rows: formState?.rows ?? 2,
+    rows: formState?.rows ?? 2, // Override with formState.rows if provided
     cols: formState?.cols ?? 40,
+
   }),
   radioButtons: (formState: any) => ({
-    options: formState.map(row => ({
+    options: formState.map((row) => ({
       label: row.text,
       value: row.text,
       selected: row.isDefault,
     })),
   }),
   checkBoxes: (formState: any) => ({
-    options: formState.map(row => ({
+    options: formState.map((row) => ({
       label: row.text,
       value: row.text,
       selected: row.isDefault,
     })),
   }),
   selectBox: (formState: any) => ({
-    options: formState.map(row => ({
+    options: formState.map((row) => ({
       label: row.text,
       value: row.text,
       selected: row.isDefault,
@@ -109,15 +110,22 @@ export const defaultInputs: Record<string, any> = {
   }),
 };
 
-export function getHandlerInput(type: string, formState: any) {
+export function getHandlerInput(
+  type: string,
+  formState: any,
+  overrides: Partial<typeof defaultInputs[string]> = {}
+) {
   const defaults = defaultInputs[type];
 
   if (typeof defaults === "function") {
-    return defaults(formState);
+    // Handle arrays separately to avoid converting them into objects
+    const mergedFormState = Array.isArray(formState)
+      ? [...formState, ...(Array.isArray(overrides) ? overrides : [])]
+      : { ...formState, ...overrides };
+
+    console.log("Merged Form State:", mergedFormState);
+    return defaults(mergedFormState);
   }
 
-  return {
-    ...defaults,
-    ...formState,
-  };
+  throw new Error(`No default input handler found for type: ${type}`);
 }

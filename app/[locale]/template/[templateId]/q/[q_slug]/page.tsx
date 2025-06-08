@@ -112,9 +112,41 @@ const QuestionEdit = () => {
     e.preventDefault();
 
     if (question) {
-      const userInput = getHandlerInput(questionType ? questionType : '', rows);
-      const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](getParsedQuestionJSON(question), userInput);
+      const formState = hasOptions ? rows : getParsedQuestionJSON(question); // Use rows for "options" types, otherwise pass parsed question.json
 
+      // Determine overrides based on questionType
+      const overrides = (() => {
+        switch (questionType) {
+          case "text":
+            return {
+              attributes: {
+                maxLength: 500
+              }
+            };
+          case "textArea":
+            return {
+              attributes: {
+                maxLength: 1000,
+                rows: 5
+              }
+            };
+          case "number":
+            return { min: 0, max: 1000, step: 5 };
+          case "currency":
+            return { min: 0, max: 100000, step: 0.01 };
+          case "url":
+            return { maxLength: 2048, pattern: "https?://.+" };
+          default:
+            return {}; // No overrides for other types
+        }
+      })();
+
+      const userInput = getHandlerInput(questionType ? questionType : '', formState, overrides);
+      console.log("***QUESTION Type:", questionType);
+      console.log("User Input:", userInput);
+      const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](getParsedQuestionJSON(question), userInput);
+      console.log("***Result:", result);
+      // Set formSubmitted to true to indicate the form has been submitted
       setFormSubmitted(true);
       // string all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
@@ -186,7 +218,6 @@ const QuestionEdit = () => {
           }))
 
         setRows(optionRows);
-
       }
     }
   }, [selectedQuestion])
