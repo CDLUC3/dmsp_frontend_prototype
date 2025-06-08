@@ -72,7 +72,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
         isDefault: row.id === id,
       }))
     );
-    setAnnouncement(QuestionOptions('announcements.rowDefault', { id: id }));
+    setAnnouncement(QuestionOptions('announcements.rowDefault', { id }));
 
   };
 

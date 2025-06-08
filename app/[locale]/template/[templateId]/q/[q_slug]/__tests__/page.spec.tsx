@@ -10,7 +10,6 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-import { json } from "stream/consumers";
 
 expect.extend(toHaveNoViolations);
 

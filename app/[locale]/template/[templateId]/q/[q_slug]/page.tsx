@@ -42,7 +42,6 @@ import { useToast } from '@/context/ToastContext';
 
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
-import logECS from '@/utils/clientLogger';
 import { getHandlerInput } from '@/utils/defaultInputs';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
@@ -65,6 +64,15 @@ const getOverrides = (questionType: string | null | undefined) => {
   }
 };
 
+// Define the type for the options in json.options
+interface Option {
+  type: string;
+  attributes: {
+    label: string;
+    value: string;
+    selected?: boolean;
+  };
+}
 
 const QuestionEdit = () => {
   const params = useParams();
@@ -136,7 +144,6 @@ const QuestionEdit = () => {
       // Assemble user input based on question type
       const userInput = getHandlerInput(questionType ? questionType : '', formState, overrides);
 
-      console.log('userInput', userInput);
       // Get updated json object for the question type
       const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](getParsedQuestionJSON(question), userInput);
 
@@ -200,17 +207,18 @@ const QuestionEdit = () => {
         };
 
         setQuestion(sanitizedQuestion);
+        console.log('sanitizedQuestion', sanitizedQuestion);
         setHasOptions(isOptionQuestion);
 
       }
 
       if (isOptionQuestion) {
         const optionRows = json.options
-          .map((option, index) => ({
+          .map((option: Option, index: number) => ({
             id: index,
             text: option.attributes.label,
-            isDefault: option.attributes.selected || false
-          }))
+            isDefault: option.attributes.selected || false,
+          }));
 
         setRows(optionRows);
       }

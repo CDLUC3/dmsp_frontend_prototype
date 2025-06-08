@@ -69,7 +69,7 @@ const QuestionTypeSelectPage: React.FC = () => {
     } else {
       // redirect to the Question Edit page if a user is adding a new question
       if (questionType) {
-        setSelectedQuestionType({ questionType: questionType, questionName: questionTypeName, questionJSON: questionJSON });
+        setSelectedQuestionType({ questionType, questionName: questionTypeName, questionJSON });
         setStep(2);
         router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=2`)
       }

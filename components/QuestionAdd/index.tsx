@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { z } from "zod";
 
 import {
   Breadcrumb,
@@ -45,7 +44,6 @@ import logECS from '@/utils/clientLogger';
 import { stripHtmlTags } from '@/utils/general';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { getHandlerInput } from '@/utils/defaultInputs';
-import { routePath } from '@/utils/routes';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
 
@@ -339,7 +337,7 @@ const QuestionAdd = ({
                 )}
 
 
-                {questionType && ["text", "textarea"].includes(questionType) && (
+                {questionType && ["text", "textArea"].includes(questionType) && (
                   <Checkbox
                     onChange={() => handleInputChange('useSampleTextAsDefault', !question?.useSampleTextAsDefault)}
                     isSelected={question?.useSampleTextAsDefault || false}

@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { QuestionOptions } from '@/app/types';
+
 
 export const defaultInputs: Record<string, any> = {
   text: (formState: any) => ({
