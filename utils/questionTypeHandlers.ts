@@ -102,6 +102,13 @@ const createAndValidateQuestion = (
 };
 
 
+/**
+ * The function is a collection of handlers for generating and validating
+ * JSON objects for different question types. Each handler ensures the JSON conforms to the
+ * corresponding question type schema using Zod for validation. It also uses type definitions
+ * like `TextQuestionType` to enforce strong typing and enriches the JSON with default values
+ * and metadata, ensuring compatibility with the current schema version.
+ */
 export const questionTypeHandlers: Record<
   z.infer<typeof QuestionTypesEnum>,
   QuestionTypeHandler
