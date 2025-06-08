@@ -252,7 +252,6 @@ const QuestionAdd = ({
         ...question,
         questionType
       });
-      console.log("***QUESTION***", question);
     } else {
       setQuestion({ questionType });
     }
@@ -265,11 +264,6 @@ const QuestionAdd = ({
     setHasOptions(isOptionQuestion);
   }, [questionType])
 
-  useEffect(() => {
-    console.log("***ROWS***", rows);
-    console.log("***ROWS TYPE***", typeof rows);
-    console.log("***IS ARRAY***", Array.isArray(rows));
-  }, [rows])
 
   // Update state when input changes
   const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {

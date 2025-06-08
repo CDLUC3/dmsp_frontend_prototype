@@ -105,7 +105,6 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
             </span>
 
             <div className={styles.cell}>
-              <h2>{index}</h2>
               <FormInput
                 id={`order-${row.id}`}
                 name="orderNumber"
@@ -113,7 +112,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 disabled={true}
                 isRequired={true}
                 label={QuestionOptions('labels.order')}
-                value={row.id?.toString()}
+                value={(index + 1).toString()} // Changed to index + 1
                 placeholder={QuestionOptions('placeholder.orderNumber')}
                 ariaLabel={index === 0 ? undefined : "Order"}
               />

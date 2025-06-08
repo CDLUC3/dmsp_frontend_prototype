@@ -213,13 +213,206 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("url", questionData, questionSchemas.url);
   },
 
-  // For types without specific schemas yet, return success with data
-  currency: (json, _) => ({ success: true, data: json }),
-  datePicker: (json, _) => ({ success: true, data: json }),
-  dateRange: (json, _) => ({ success: true, data: json }),
-  email: (json, _) => ({ success: true, data: json }),
-  filteredSearch: (json, _) => ({ success: true, data: json }),
-  number: (json, _) => ({ success: true, data: json }),
-  table: (json, _) => ({ success: true, data: json }),
-  typeaheadSearch: (json, _) => ({ success: true, data: json }),
+  currency: (json, input) => {
+    const questionData = {
+      ...json,
+      type: "currency",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      attributes: {
+        ...json.attributes,
+        max: input?.max || null,
+        min: input?.min || null,
+        step: input?.step || 1,
+      },
+    };
+
+    return createAndValidateQuestion("currency", questionData, questionSchemas.currency);
+  },
+  datePicker: (json, input) => {
+    const questionData = {
+      ...json,
+      type: "datePicker",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      attributes: {
+        ...json.attributes,
+        max: input?.max || null, // Optional max date as a string
+        min: input?.min || null, // Optional min date as a string
+        step: input?.step || null, // Optional step as a number
+      },
+    };
+
+    return createAndValidateQuestion("datePicker", questionData, questionSchemas.datePicker);
+  },
+  dateRange: (json, input) => {
+    const questionData = {
+      ...json,
+      type: "dateRange",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      columns: [
+        {
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION,
+          },
+          type: "date",
+          attributes: {
+            max: input?.from?.max || null,
+            min: input?.from?.min || null,
+            step: input?.from?.step || 1,
+            label: input?.from?.label || "From",
+          },
+        },
+        {
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION,
+          },
+          type: "date",
+          attributes: {
+            max: input?.to?.max || null,
+            min: input?.to?.min || null,
+            step: input?.to?.step || 1,
+            label: input?.to?.label || "To",
+          },
+        },
+      ],
+    };
+
+    return createAndValidateQuestion("dateRange", questionData, questionSchemas.dateRange);
+  },
+  email: (json, input) => {
+    const questionData = {
+      ...json,
+      type: "email",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      attributes: {
+        ...json.attributes,
+        pattern: input?.pattern || null, // Optional regex pattern for email validation
+        multiple: input?.multiple || false, // Whether multiple emails are allowed
+        maxLength: input?.maxLength || null, // Optional maximum length
+        minLength: input?.minLength || 0, // Optional minimum length, defaults to 0
+      },
+    };
+
+    return createAndValidateQuestion("email", questionData, questionSchemas.email);
+  },
+  filteredSearch: (json, input) => {
+    const questionData = {
+      ...json,
+      type: "filteredSearch",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      graphQL: {
+        query: input?.query || "",
+        queryId: input?.queryId || "",
+        variables: input?.variables?.map(variable => ({
+          name: variable.name || "",
+          type: variable.type || "string",
+          label: variable.label || "",
+          minLength: variable.minLength || 0,
+          labelTranslationKey: variable.labelTranslationKey || null,
+        })) || [],
+        answerField: input?.answerField || "",
+        displayFields: input?.displayFields?.map(field => ({
+          label: field.label || "",
+          propertyName: field.propertyName || "",
+          labelTranslationKey: field.labelTranslationKey || null,
+        })) || [],
+        responseField: input?.responseField || "",
+      },
+    };
+
+    return createAndValidateQuestion("filteredSearch", questionData, questionSchemas.filteredSearch);
+  },
+  number: (json, input) => {
+    const questionData = {
+      ...json,
+      type: "number",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      attributes: {
+        ...json.attributes,
+        max: input?.max || null, // Optional maximum value
+        min: input?.min || 0, // Optional minimum value, defaults to 0
+        step: input?.step || 1, // Optional step value, defaults to 1
+      },
+    };
+
+    return createAndValidateQuestion("number", questionData, questionSchemas.number);
+  },
+  table: (json, input) => {
+    const questionData = {
+      ...json,
+      type: "table",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      columns: input?.columns?.map(column => ({
+        meta: {
+          label: column.meta?.label || "",
+          schemaVersion: CURRENT_SCHEMA_VERSION,
+        },
+        type: column.type || "text",
+        attributes: {
+          pattern: column.attributes?.pattern || null,
+          maxLength: column.attributes?.maxLength || null,
+          minLength: column.attributes?.minLength || 0,
+        },
+      })) || [],
+      attributes: {
+        maxRows: input?.attributes?.maxRows || null,
+        minRows: input?.attributes?.minRows || null,
+        canAddRows: input?.attributes?.canAddRows ?? true,
+        initialRows: input?.attributes?.initialRows || 1,
+        canRemoveRows: input?.attributes?.canRemoveRows ?? true,
+      },
+    };
+
+    return createAndValidateQuestion("table", questionData, questionSchemas.table);
+  },
+  typeaheadSearch: (json, input) => {
+    const questionData = {
+      ...json,
+      type: "typeaheadSearch",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      graphQL: {
+        query: input?.query || "",
+        localQueryId: input?.localQueryId || "",
+        responseField: input?.responseField || "",
+        variables: input?.variables?.map(variable => ({
+          name: variable.name || "",
+          type: variable.type || "string",
+          label: variable.label || "",
+          minLength: variable.minLength || 0,
+          defaultValue: variable.defaultValue || "",
+          labelTranslationKey: variable.labelTranslationKey || null,
+        })) || [],
+        displayFields: input?.displayFields?.map(field => ({
+          propertyName: field.propertyName || "",
+          label: field.label || "",
+          labelTranslationKey: field.labelTranslationKey || null,
+        })) || [],
+      },
+    };
+
+    return createAndValidateQuestion("typeaheadSearch", questionData, questionSchemas.typeaheadSearch);
+  },
 };

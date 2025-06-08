@@ -20,12 +20,10 @@ import {
   Text,
   TextField
 } from "react-aria-components";
-import { QuestionTypesEnum } from "@dmptool/types";
 
 // GraphQL queries and mutations
 import {
   useQuestionQuery,
-  useQuestionTypesQuery,
   useUpdateQuestionMutation
 } from '@/generated/graphql';
 
@@ -45,6 +43,8 @@ import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
+import { getHandlerInput } from '@/utils/defaultInputs';
+import { defaultInputs } from '@/utils/defaultInputs';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionEdit.module.scss';
@@ -93,11 +93,6 @@ const QuestionEdit = () => {
     },
   );
 
-  // Query for getting all question types
-  const { data: questionTypes } = useQuestionTypesQuery({
-    skip: !questionId
-  });
-
   const getParsedQuestionJSON = (question: Question | null) => {
     if (question) {
       const parsedJSON = question?.json ? JSON.parse(question.json) : null;
@@ -106,20 +101,6 @@ const QuestionEdit = () => {
     return null;
   }
 
-  const getQuestionTypeName = (json: string) => {
-    // if (questionTypes && questionTypes?.questionTypes) {
-    //   const questionType = questionTypes?.questionTypes?.find(qt => qt && qt.id === id);
-    //   return questionType ? questionType.name : null; // Return question type name if found, else null
-    // }
-    // return '';
-    if (json) {
-      const parsedJSON = JSON.parse(json);
-      const questionType = parsedJSON.type;
-      return questionType || '';
-    }
-
-  };
-
   // Return user back to the page to select a question type
   const redirectToQuestionTypes = () => {
     const sectionId = selectedQuestion?.question?.sectionId;
@@ -127,55 +108,12 @@ const QuestionEdit = () => {
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
-  const defaultInputs: Record<string, any> = {
-    text: {
-      maxLength: 1000,
-      pattern: "^.+$",
-    },
-    textArea: {
-      maxLength: 1000,
-      minLength: 0,
-      rows: 2,
-      cols: 40,
-    },
-    radioButtons: (formState: any) => ({
-      options: formState.map(row => ({
-        label: row.text,
-        value: row.text,
-        selected: row.isDefault,
-      })),
-    }),
-    checkBoxes: (formState: any) => ({
-      options: formState.map(row => ({
-        label: row.text,
-        value: row.text,
-        selected: row.isDefault,
-      })),
-    }),
-    // Add more as needed
-  };
-
-  function getHandlerInput(type: string, formState: any) {
-    const defaults = defaultInputs[type];
-
-    if (typeof defaults === "function") {
-      return defaults(formState);
-    }
-
-    return {
-      ...defaults,
-      ...formState,
-    };
-  }
-
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (question) {
-
       const userInput = getHandlerInput(questionType ? questionType : '', rows);
       const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](getParsedQuestionJSON(question), userInput);
-
 
       setFormSubmitted(true);
       // string all tags from questionText before sending to backend
@@ -235,6 +173,7 @@ const QuestionEdit = () => {
         };
 
         setQuestion(sanitizedQuestion);
+        setHasOptions(isOptionQuestion);
 
       }
 
@@ -258,20 +197,6 @@ const QuestionEdit = () => {
       setErrors(prev => [...prev, selectedQuestionQueryError.message])
     }
   }, [selectedQuestionQueryError])
-
-  useEffect(() => {
-    const selectedQuestionType = getQuestionTypeName(selectedQuestion?.question?.json || '');
-    // To determine if the question type selected is one that includes options fields
-    const questionTypeOptions = !!(
-      (questionTypeIdQueryParam && ["radioButtons", "checkBoxes", "selectBox"].includes(questionTypeIdQueryParam)) ??
-      (selectedQuestionType && ["radioButtons", "checkBoxes", "selectBox"].includes(selectedQuestionType))
-    );
-    setHasOptions(questionTypeOptions);
-  }, [questionTypeIdQueryParam, selectedQuestion])
-
-  useEffect(() => {
-    console.log(rows);
-  }, [rows])
 
   if (loading) {
     return <div>Loading...</div>;
