@@ -100,7 +100,7 @@ describe('PageHeaderWithTitleChange', () => {
   });
 
   it('should render without crashing', () => {
-    render(<PageHeaderWithTitleChange title="Test Title" />);
+    render(<PageHeaderWithTitleChange {...defaultProps} />);
   });
 
   it('should pass axe accessibility test', async () => {
