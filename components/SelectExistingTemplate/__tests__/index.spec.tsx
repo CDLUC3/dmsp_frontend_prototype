@@ -284,7 +284,7 @@ describe('TemplateSelectTemplatePage', () => {
     });
   });
 
-  it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
+  it('should handle errors when a user clicks a \'Select\' button', async () => {
     (useAddTemplateMutation as jest.Mock).mockReturnValue([
       jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
     ]);
@@ -313,6 +313,32 @@ describe('TemplateSelectTemplatePage', () => {
 
   it('should call useAddTemplateMuration when user clicks to start a new template', async () => {
     (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: null
+          }
+        }
+      })
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    const selectButton = screen.getByTestId('startNewButton');
+    fireEvent.click(selectButton);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
+
+  it('should handle errors when a user clicks on start a new template', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
       jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
     ]);
 
@@ -328,6 +354,15 @@ describe('TemplateSelectTemplatePage', () => {
     await waitFor(() => {
       expect(useAddTemplateMutation).toHaveBeenCalled();
     });
+
+    expect(logECS).toHaveBeenCalledWith(
+      'error',
+      'handleClick',
+      expect.objectContaining({
+        error: expect.anything(),
+        url: { path: '/template/create' },
+      })
+    )
   });
 
   it('should pass accessibility tests', async () => {
