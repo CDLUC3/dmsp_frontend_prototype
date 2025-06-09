@@ -11,6 +11,7 @@ const Home = () => {
         <ul>
           <li><Link href="/template">Create Template</Link>(Must be Admin to access)</li>
           <li><Link href="/projects">Create Project</Link></li>
+          <li><Link href="/account/profile">Account Profile</Link></li>
         </ul>
 
       </ContentContainer>

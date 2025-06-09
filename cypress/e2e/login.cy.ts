@@ -1,41 +1,46 @@
 // enable TypeScript and IntelliSense support for Cypress
 /// <reference types="cypress" />
 
+describe('Authentication flow tests', () => {
+  // Base configuration
+  const baseUrl = Cypress.env('BASE_URL') || 'http://localhost:3000';
 
-describe('Login', () => {
-  it('Should log in an existing user', () => {
+  beforeEach(() => {
+    // Clear cookies and local storage before each test
+    cy.clearCookies();
+    cy.clearLocalStorage();
+  });
 
-    // I need to run the test like this because Cypress wasn't picking up on the 
-    // CsrfContext adding the token to the header
-    cy.request('http://localhost:4000/apollo-csrf')
-      .then((response) => {
-        const csrfToken = response.headers['x-csrf-token'];
+  describe('Login functionality', () => {
+    it('logs in successfully with valid credentials', () => {
+      // Visit login page
+      cy.visit(`${baseUrl}/en-US/login`);
 
-        // Log the token (you can check it in Cypress's command log)
-        cy.log(`CSRF Token: ${csrfToken}`);
+      // Step 1: Enter email
+      cy.get('[data-testid="emailInput"]')
+        .should('be.visible')
+        .type(Cypress.env('TEST_USER_EMAIL'));
 
-        // Now use the token in your subsequent request
-        cy.request({
-          method: 'POST',
-          url: 'http://localhost:4000/apollo-signin',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken || '',
-          },
-          body: {
-            email: 'admin@colorado.edu',
-            password: 'Password123$9'
-          }
-        }).then((signinResponse) => {
-          // If you want to make the entire response object available in the Cypress command log
-          cy.wrap(signinResponse).as('signinResponse');
+      cy.get('[data-testid="actionContinue"]')
+        .should('be.enabled')
+        .click();
 
-          cy.wrap(signinResponse).its('status').should('equal', 200);
+      // Step 2: Enter password
+      cy.get('[data-testid="passInput"]')
+        .should('be.visible')
+        .type(Cypress.env('TEST_USER_PASSWORD'), { log: false }); // hide password in logs
 
-          // Check that cookies were added
-          cy.getCookie('dmspt').should('exist')
-          cy.getCookie('dmspr').should('exist')
-        });
-      });
-  })
-})
+      cy.get('[data-testid="actionSubmit"]')
+        .should('be.enabled')
+        .click();
+
+      // Expect to be redirected to homepage or dashboard
+      cy.url().should('eq', `${baseUrl}/en-US`);
+
+      // Verify authentication cookies are set
+      cy.getCookie('dmspt').should('exist'); // access token
+      cy.getCookie('dmspr').should('exist'); // refresh token
+    });
+  });
+});
+

@@ -39,8 +39,9 @@ import {
   PaginatedMyVersionedTemplatesInterface,
   PaginatedVersionedTemplateSearchResultsInterface
 } from '@/app/types';
-import {useFormatDate} from '@/hooks/useFormatDate';
-import {useToast} from '@/context/ToastContext';
+import { toSentenceCase } from '@/utils/general';
+import { useFormatDate } from '@/hooks/useFormatDate';
+import { useToast } from '@/context/ToastContext';
 
 
 // Step 2 of the Create Template start pages
@@ -80,7 +81,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     notifyOnNetworkStatusChange: true,
   });
 
-
   // Make graphql request for all public versionedTemplates
   const { data: publishedTemplatesData, loading: publishedTemplatesLoading, error: publishedTemplatesError } = usePublishedTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
@@ -109,15 +109,16 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
           copyFromTemplateId: versionedTemplateId
         },
       });
+
       if (response?.data) {
+        clearErrors();
         const responseData = response?.data?.addTemplate;
         //Set errors using the errors prop returned from the request
         if (responseData && responseData.errors) {
           // Extract error messages and convert them to an array of strings
           const errorMessages = Object.values(responseData.errors).filter((error) => error) as string[];
-          setErrors(errorMessages);
+          setErrors(prev => [...prev, ...errorMessages]);
         }
-        clearErrors();
 
         // Get templateId of new template so we know where to redirect
         newTemplateId = response?.data?.addTemplate?.id;
@@ -159,13 +160,14 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         ) : null, // Set to null if no description or last modified data
         funder: template?.template?.owner?.name || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
-        lastRevisedBy: template?.modifiedById || null,
+        lastRevisedBy: template?.modifiedByName || null,
         publishStatus: template?.versionType,
         hasAdditionalGuidance: false,
         defaultExpanded: false,
-        visibility: template?.visibility,
+        visibility: template?.visibility ? toSentenceCase(template.visibility) : ''
       }))
     );
+
     return transformedTemplates;
   };
 
@@ -217,7 +219,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
   }
 
   useEffect(() => {
-    // Transform templates into format expected by TemplateListItem component
+    // Transform templates into format expected by TemplateSelectListItem component
     const processTemplates = async () => {
       if (data && data?.myVersionedTemplates) {
         const templates = { items: data?.myVersionedTemplates ?? [] };
@@ -227,7 +229,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
       if (publishedTemplatesData && publishedTemplatesData?.publishedTemplates) {
         const templates = publishedTemplatesData?.publishedTemplates ?? { items: [] };
         const publicTemplates = await transformTemplates(templates as PaginatedVersionedTemplateSearchResultsInterface);
-        const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'PUBLIC');
+        const transformedPublicTemplates = publicTemplates.filter(template => template.visibility === 'Public');
         setPublicTemplatesList(transformedPublicTemplates);
       }
     }
@@ -252,6 +254,10 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }
   }, [templateName])
 
+
+  useEffect(() => {
+    console.log('Errors:', errors);
+  }, [errors])
   if (loading || publishedTemplatesLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
@@ -283,8 +289,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         <ContentContainer>
           <>
             <ErrorMessages errors={errors} ref={errorRef} />
-
-            <div className="Filters" role="search" ref={topRef}>
+            <div className="searchSection" role="search" ref={topRef}>
               <SearchField aria-label="Template search">
                 <Label>{Global('labels.searchByKeyword')}</Label>
                 <Input

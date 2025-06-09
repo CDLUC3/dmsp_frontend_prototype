@@ -1,17 +1,17 @@
 'use client';
 
-import React, {useState} from 'react';
-import {Breadcrumb, Breadcrumbs, Form, Link} from "react-aria-components";
+import React, { useState } from 'react';
+import { Breadcrumb, Breadcrumbs, Form, Link } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import styles from './PlanOverviewQuestionPage.module.scss';
-import {useTranslations} from "next-intl";
+import { useTranslations } from "next-intl";
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-import {DmpEditor} from "@/components/Editor";
-import {Card,} from "@/components/Card/card";
+import TinyMCEEditor from '@/components/TinyMCEEditor';
+import { Card, } from "@/components/Card/card";
 
 
 const PlanOverviewQuestionPage: React.FC = () => {
@@ -26,7 +26,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     title: "NSF Polar Programs",
     funder_name: "National Science Foundation"
   };
-
 
   return (
     <>
@@ -86,13 +85,15 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   etc. will be produced during your project?
                 </h2>
 
-                <DmpEditor aria-labelledby="question-title"
-                           content={editorContent}
-                           setContent={setEditorContent}/>
+                <TinyMCEEditor
+                  id="question-editor"
+                  content={editorContent}
+                  setContent={setEditorContent}
+                />
 
                 <div className="lastSaved mt-5"
-                     aria-live="polite"
-                     role="status">
+                  aria-live="polite"
+                  role="status">
                   Last saved X minutes ago
                 </div>
               </Form>
@@ -176,44 +177,44 @@ const PlanOverviewQuestionPage: React.FC = () => {
             <p>Most relevant best practice guide</p>
 
             <div role="navigation" aria-label="Best practices navigation"
-                 className={styles.bestPracticesLinks}>
+              className={styles.bestPracticesLinks}>
               <Link href="/best-practices/sharing">
                 Data sharing
                 <svg width="20" height="20" viewBox="0 0 20 20"
-                     fill="currentColor">
+                  fill="currentColor">
                   <path fillRule="evenodd"
-                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                        clipRule="evenodd"/>
+                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                    clipRule="evenodd" />
                 </svg>
               </Link>
 
               <Link href="/best-practices/preservation">
                 Data preservation
                 <svg width="20" height="20" viewBox="0 0 20 20"
-                     fill="currentColor">
+                  fill="currentColor">
                   <path fillRule="evenodd"
-                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                        clipRule="evenodd"/>
+                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                    clipRule="evenodd" />
                 </svg>
               </Link>
 
               <Link href="/best-practices/protection">
                 Data protection
                 <svg width="20" height="20" viewBox="0 0 20 20"
-                     fill="currentColor">
+                  fill="currentColor">
                   <path fillRule="evenodd"
-                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                        clipRule="evenodd"/>
+                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                    clipRule="evenodd" />
                 </svg>
               </Link>
 
               <Link href="/best-practices/all">
                 All topics
                 <svg width="20" height="20" viewBox="0 0 20 20"
-                     fill="currentColor">
+                  fill="currentColor">
                   <path fillRule="evenodd"
-                        d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                        clipRule="evenodd"/>
+                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                    clipRule="evenodd" />
                 </svg>
               </Link>
             </div>

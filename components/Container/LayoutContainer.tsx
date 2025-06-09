@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import classNames from 'classnames';
 
 
 /**
@@ -20,7 +21,7 @@ export const LayoutContainer: React.FC<LayoutContainerProps> = ({
     <>
       <div
         id={id}
-        className={`layout-container ${className}`}
+        className={classNames('layout-container', className)}
         data-testid="layout-container"
       >
         {children}

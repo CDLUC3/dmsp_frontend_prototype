@@ -1,6 +1,8 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -18,7 +20,9 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-import {OrcidIcon} from '@/components/Icons/orcid/';
+import { OrcidIcon } from '@/components/Icons/orcid/';
+import { routePath } from '@/utils/routes';
+
 import styles from './ProjectsProjectMembersSearch.module.scss';
 
 interface SearchResult {
@@ -29,6 +33,7 @@ interface SearchResult {
 }
 
 const ProjectsProjectMembersSearch = () => {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState<string>("Fred");
   const [hasSearched, setHasSearched] = useState<boolean>(false);
 
@@ -70,19 +75,20 @@ const ProjectsProjectMembersSearch = () => {
   const handleAdd = (result: SearchResult) => {
     console.log('Adding member:', result);
     // Handle adding member logic
-    window.location.href = '/projects/proj_2425/members';
+    router.push(routePath('projects.members.index', { projectId: 'proj_2425' }))
+
   };
 
-  const handleCreateCollaborator = () => {
-    console.log('Creating new collaborator');
-    // Navigate to create collaborator page
-    window.location.href = '/projects/proj_2425/members/edit';
+  const handleCreateMember = () => {
+    console.log('Creating new member');
+    // Navigate to create member page
+    router.push(routePath('projects.members.edit', { projectId: 'proj_2425', memberId: '123' }))
   };
 
   return (
     <>
       <PageHeader
-        title="Who are the collaborators?"
+        title="Who are the project members?"
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -117,7 +123,7 @@ const ProjectsProjectMembersSearch = () => {
 
           {hasSearched && (
             <section aria-labelledby="results-section">
-              <h3 id="results-section">Showing 1-3 of 124 results</h3>
+              <h2 id="results-section" className="heading-3">Showing 1-3 of 124 results</h2>
               <div className={styles.memberResultsList}>
                 {searchResults.map((result, index) => (
                   <div
@@ -133,10 +139,10 @@ const ProjectsProjectMembersSearch = () => {
                       <p className={styles.organization}>
                         {result.organization} {result.affiliation}
 
-                        <br/>
+                        <br />
                         {result.orcid && (
                           <span className={styles.orcid}>
-                            <OrcidIcon icon="orcid" classes={styles.orcidLogo}/>
+                            <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
                             {result.orcid}
                           </span>
                         )}
@@ -166,20 +172,20 @@ const ProjectsProjectMembersSearch = () => {
           )}
 
           <section aria-labelledby="manual-section"
-                   className={styles.createNew}>
-            <h3 id="manual-section">Not in the list?</h3>
+            className={styles.createNew}>
+            <h2 id="manual-section" className="heading-3">Not in the list?</h2>
             <p>If your collaborator isn&apos;t shown you can add their details
               manually</p>
             <Button
               className="secondary"
-              onPress={handleCreateCollaborator}
-              aria-label="Create collaborator"
+              onPress={handleCreateMember}
+              aria-label="Create member"
             >
-              Create collaborator
+              Create member
             </Button>
           </section>
         </ContentContainer>
-        <SidebarPanel/>
+        <SidebarPanel />
       </LayoutWithPanel>
     </>
   );

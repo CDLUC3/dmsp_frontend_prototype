@@ -1,7 +1,7 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
-import {useFormatter, useTranslations} from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { useFormatter, useTranslations } from 'next-intl';
 
 // Components
 import {
@@ -17,13 +17,13 @@ import {
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import ProjectListItem from "@/components/ProjectListItem";
-import {ContentContainer, LayoutContainer} from '@/components/Container';
+import { ContentContainer, LayoutContainer } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
-import {useMyProjectsQuery,} from '@/generated/graphql';
+import { useMyProjectsQuery, } from '@/generated/graphql';
 
-import {ProjectItemProps, ProjectSearchResultInterface, PaginatedProjectSearchResultsInterface} from '@/app/types';
+import { ProjectItemProps, ProjectSearchResultInterface, PaginatedProjectSearchResultsInterface } from '@/app/types';
 
 const ProjectsListPage: React.FC = () => {
   const formatter = useFormatter();
@@ -111,18 +111,18 @@ const ProjectsListPage: React.FC = () => {
             return {
               title: project?.title || "",
               link: `/projects/${project?.id}`,
-              funder: project?.funders ? project?.funders.map((fund) => fund?.name).join(', ') : '',
+              funding: project?.fundings ? project?.fundings.map((fund) => fund?.name).join(', ') : '',
               defaultExpanded: false,
               startDate: project?.startDate ? formatDate(project.startDate) : '',
               endDate: project?.endDate ? formatDate(project.endDate) : '',
-              members: (project?.contributors ? project.contributors.map((contributor) => {
+              members: (project?.members ? project.members.map((member) => {
                 return {
-                  name: contributor.name || '',
-                  roles: contributor.role || '',
-                  orcid: contributor.orcid || ''
+                  name: member.name || '',
+                  roles: member.role || '',
+                  orcid: member.orcid || ''
                 }
               }) : []),
-              grantId: project?.funders ? project?.funders.map((fund) => fund?.grantId).join(', ') : '',
+              grantId: project?.fundings ? project?.fundings.map((fund) => fund?.grantId).join(', ') : '',
             }
           }));
 
@@ -204,7 +204,7 @@ const ProjectsListPage: React.FC = () => {
 
       <LayoutContainer>
         <ContentContainer>
-          <div className="Filters">
+          <div className="searchSection" role="search">
             <SearchField
               onClear={() => { setFilteredProjects(null) }}
             >

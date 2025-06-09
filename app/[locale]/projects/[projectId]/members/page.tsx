@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
 
-import { useProjectContributorsQuery } from '@/generated/graphql';
+import { useProjectMembersQuery } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -15,7 +15,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 import styles from './ProjectsProjectMembers.module.scss';
 
-interface ProjectContributorInterface {
+interface ProjectMemberInterface {
   id: number | null;
   fullName: string;
   affiliation: string;
@@ -35,19 +35,19 @@ const ProjectsProjectMembers = () => {
   const ProjectMembers = useTranslations('ProjectsProjectMembers');
   const Global = useTranslations('Global');
 
-  const [projectContributors, setProjectContributors] = useState<ProjectContributorInterface[]>();
+  const [projectMembers, setProjectMembers] = useState<ProjectMemberInterface[]>();
   const [errors, setErrors] = useState<string[]>([]);
 
-  // Get project contributors using projectid
-  const { data, loading, error: queryError } = useProjectContributorsQuery(
+  // Get project members using projectid
+  const { data, loading, error: queryError } = useProjectMembersQuery(
     {
       variables: { projectId: Number(projectId) },
       notifyOnNetworkStatusChange: true
     }
   );
 
-  const handleAddCollaborator = (): void => {
-    // Handle adding new collaborator
+  const handleAddMember = (): void => {
+    // Handle adding new member
     router.push(`/projects/${projectId}/members/search`);
   };
 
@@ -63,22 +63,22 @@ const ProjectsProjectMembers = () => {
   };
 
   useEffect(() => {
-    // When data from backend changes, set project contributors data in state
-    if (data && data.projectContributors) {
-      const projectContributorData = data.projectContributors.map((contributor) => ({
-        id: contributor?.id ?? null,
-        fullName: `${contributor?.givenName} ${contributor?.surName}`,
-        affiliation: contributor?.affiliation?.displayName ?? '',
-        orcid: contributor?.orcid ?? '',
-        role: (contributor?.contributorRoles && contributor.contributorRoles.length > 0) ? contributor?.contributorRoles?.map((role) => role.label).join(', ') : '',
+    // When data from backend changes, set project members data in state
+    if (data && data.projectMembers) {
+      const projectMemberData = data.projectMembers.map((member) => ({
+        id: member?.id ?? null,
+        fullName: `${member?.givenName} ${member?.surName}`,
+        affiliation: member?.affiliation?.displayName ?? '',
+        orcid: member?.orcid ?? '',
+        role: (member?.memberRoles && member.memberRoles.length > 0) ? member?.memberRoles?.map((role) => role.label).join(', ') : '',
       }))
-      setProjectContributors(projectContributorData);
+      setProjectMembers(projectMemberData);
     }
   }, [data]);
 
   useEffect(() => {
     if (queryError) {
-      const errorMsg = ProjectMembers('messages.errors.errorGettingContributors');
+      const errorMsg = ProjectMembers('messages.errors.errorGettingMembers');
       setErrors(prev => [...prev, errorMsg]);
     }
     /*eslint-disable react-hooks/exhaustive-deps*/
@@ -107,10 +107,10 @@ const ProjectsProjectMembers = () => {
         actions={
           <>
             <Button
-              onPress={handleAddCollaborator}
+              onPress={handleAddMember}
               className="secondary"
             >
-              {ProjectMembers('buttons.addCollaborators')}
+              {ProjectMembers('buttons.addMembers')}
             </Button>
           </>
         }
@@ -123,11 +123,11 @@ const ProjectsProjectMembers = () => {
             aria-label="Project members list"
             role="region"
           >
-            {(!projectContributors || projectContributors?.length === 0) ? (
-              <p>{ProjectMembers('messages.noContributors')}</p>
+            {(!projectMembers || projectMembers?.length === 0) ? (
+              <p>{ProjectMembers('messages.noMembers')}</p>
             ) : (
               <div className={styles.membersList} role="list">
-                {projectContributors.map((member) => (
+                {projectMembers.map((member) => (
                   <div
                     key={member.id}
                     className={styles.membersListItem}

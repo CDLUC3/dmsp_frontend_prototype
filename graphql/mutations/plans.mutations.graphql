@@ -4,13 +4,13 @@ mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   }
 }
 
-mutation AddPlanContributor($planId: Int!, $projectContributorId: Int!) {
-  addPlanContributor(planId: $planId, projectContributorId: $projectContributorId) {
+mutation AddPlanMember($planId: Int!, $projectMemberId: Int!) {
+  addPlanMember(planId: $planId, projectMemberId: $projectMemberId) {
     errors {
       general
-      contributorRoleIds
+      memberRoleIds
       primaryContact
-      projectContributorId
+      projectMemberId
       projectId
     }
     id
@@ -18,30 +18,30 @@ mutation AddPlanContributor($planId: Int!, $projectContributorId: Int!) {
   }
 }
 
-mutation RemovePlanContributor($planContributorId: Int!) {
-  removePlanContributor(planContributorId: $planContributorId) {
+mutation RemovePlanMember($planMemberId: Int!) {
+  removePlanMember(planMemberId: $planMemberId) {
     errors {
       general
       primaryContact
-      projectContributorId
+      projectMemberId
       projectId
-      contributorRoleIds
+      memberRoleIds
     }
     id
     isPrimaryContact
   }
 }
 
-mutation UpdatePlanContributor(
-  $planId: Int!, 
-  $planContributorId: Int!, 
+mutation UpdatePlanMember(
+  $planId: Int!,
+  $planMemberId: Int!,
   $isPrimaryContact: Boolean
-  $contributorRoleIds: [Int!]
+  $memberRoleIds: [Int!]
   ) {
-  updatePlanContributor(
-    planId: $planId, 
-    planContributorId: $planContributorId, 
-    contributorRoleIds:$contributorRoleIds,
+  updatePlanMember(
+    planId: $planId,
+    planMemberId: $planMemberId,
+    memberRoleIds:$memberRoleIds,
     isPrimaryContact:$isPrimaryContact,
     ) {
     id

@@ -1,9 +1,9 @@
 'use client';
 
-import React, {useRef} from 'react';
-import {useToast as useAriaToast} from '@react-aria/toast';
-import type {ToastState} from '@react-stately/toast';
-import {Button} from 'react-aria-components';
+import React, { useRef } from 'react';
+import { useToast as useAriaToast } from '@react-aria/toast';
+import type { ToastState } from '@react-stately/toast';
+import { Button } from 'react-aria-components';
 
 import './toast.scss';
 
@@ -16,6 +16,7 @@ interface ToastData {
 
 interface ToastProps {
   toast: ToastData;
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   state: ToastState<any>;
 }
 
@@ -34,7 +35,7 @@ const Toast: React.FC<ToastProps> = ({ toast, state }) => {
     <div
       {...toastProps}
       ref={ref}
-      className={`toast toast-${toast.type}`}
+      className={`toast toast-${toast.type ? toast.type : 'info'}`}
     >
       <div {...contentProps}>
         <div {...titleProps}>{toast.content}</div>

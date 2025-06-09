@@ -1,0 +1,27 @@
+{
+  "projectMember": {
+    "email": "researcher@ucdavis.edu",
+    "memberRoles": [
+      {
+        "id": 2,
+        "label": "Principal Investigator (PI)",
+        "displayOrder": 1,
+        "uri": "https://credit.niso.org/contributor-roles/investigation/"
+      },
+      {
+        "id": 3,
+        "label": "Project Administrator",
+        "displayOrder": 2,
+        "uri": "https://credit.niso.org/contributor-roles/project-administration/"
+      }
+    ],
+    "givenName": "Jacques",
+    "surName": "Cousteau",
+    "affiliation": {
+      "id": 6,
+      "displayName": "University of California, Davis (ucdavis.edu)",
+      "uri": "https://ror.org/05rrcem69"
+    },
+    "orcid": "0000-JACQ-0000-0000"
+  }
+}

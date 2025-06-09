@@ -101,7 +101,7 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
             {isEditing && (
               <div className="button-container">
                 <Button type="submit" className="secondary" onPress={() => setIsEditing(false)}>{Global('buttons.cancel')}</Button>
-                <Button type="submit" className="primary">{Global('buttons.save')}</Button>
+                <Button type="submit" className="primary" data-testid="save-button">{Global('buttons.save')}</Button>
               </div>
             )}
             <p className="pageheader-intro">
