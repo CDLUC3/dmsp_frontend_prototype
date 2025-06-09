@@ -60,7 +60,6 @@ const TemplateEditPage: React.FC = () => {
     name: '',
     visibility: TemplateVisibility.Organization,
   });
-  const [newTitle, setNewTitle] = useState('');
   const formatDate = useFormatDate();
 
   // localization keys
@@ -207,7 +206,7 @@ const TemplateEditPage: React.FC = () => {
     // Don't need a try-catch block here, as the error is handled in the server action
     const response = await updateTemplateAction({
       templateId: templateInfo.templateId,
-      name: newTitle,
+      name: templateInfo.name,
       visibility: templateInfo.visibility,
     });
 
@@ -223,10 +222,11 @@ const TemplateEditPage: React.FC = () => {
     };
   }
 
-  const handleTitleChange = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const result = await updateTemplate(templateInfo);
+  const handleTitleChange = async (newTitle: string) => {
+    const result = await updateTemplate({
+      ...templateInfo,
+      name: newTitle,
+    });
 
     if (!result.success) {
       const errors = result.errors;
@@ -247,15 +247,6 @@ const TemplateEditPage: React.FC = () => {
       await refetch();
     }
   }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTitle(e.target.value)
-    setTemplateInfoState({
-      templateId: templateInfo.templateId,
-      name: e.target.value,
-      visibility: templateInfo.visibility
-    });
-  };
 
   useEffect(() => {
     if (pageErrors.length > 0 && pageErrorRef.current) {
@@ -306,7 +297,7 @@ const TemplateEditPage: React.FC = () => {
   return (
     <div>
       <PageHeaderWithTitleChange
-        title={newTitle || template.name}
+        title={template.name}
         description={description}
         showBackButton={false}
         breadcrumbs={
@@ -317,9 +308,7 @@ const TemplateEditPage: React.FC = () => {
           </Breadcrumbs>
         }
         className="page-template-overview"
-        handleTitleChange={handleTitleChange}
-        handleInputChange={handleInputChange}
-        newTitle={newTitle}
+        onTitleChange={handleTitleChange}
       />
 
       {pageErrors.length > 0 && (

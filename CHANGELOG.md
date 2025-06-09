@@ -113,6 +113,7 @@
 - Fixed wrong node image in `Dockerfile.prd`. Also fixed a number of linting issues.
 - Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
+- Fixed that didn't show the current title when editing a template name [#475]
 
 ### Chore
 - Updated and added unit tests to increase coverage in the app [#490]

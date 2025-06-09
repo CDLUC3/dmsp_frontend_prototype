@@ -23,12 +23,8 @@ interface PageHeaderProps {
   actions?: ReactNode;
   /** Additional CSS classes */
   className?: string;
-  /**Function to handle title change */
-  handleTitleChange?: ((event: FormEvent<HTMLFormElement>) => void) | undefined;
-  /**Function to handle input change */
-  handleInputChange?: ((event: React.ChangeEvent<HTMLInputElement>) => void) | undefined;
-  /**New title */
-  newTitle?: string;
+  /** Callback to notify the title changed */
+  onTitleChange: ((newTitle: string) => void);
 }
 
 const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
@@ -38,19 +34,24 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
   breadcrumbs,
   actions,
   className = '',
-  handleInputChange,
-  handleTitleChange,
-  newTitle = '',
+  onTitleChange,
 }: PageHeaderProps) => {
 
   const [isEditing, setIsEditing] = useState(false);
+  const [newTitle, setNewTitle] = useState<string>(title);
   const Global = useTranslations('Global');
 
+  function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
+    ev.preventDefault();
+    setNewTitle(ev.target.value);
+  }
 
-  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  function handleFormSubmit(ev: FormEvent<HTMLFormElement>) {
+    ev.preventDefault();
     setIsEditing(false);
-    handleTitleChange?.(event);
+    if (newTitle !== title) {
+      onTitleChange(newTitle);
+    }
   }
 
   useEffect(() => {
@@ -84,7 +85,7 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
                 value={newTitle}
                 inputClasses="titleChange-input"
                 placeholder="Enter new template title"
-                onChange={handleInputChange}
+                onChange={handleChange}
               />
             ) : (
               <div className="pageheader-title-container">
