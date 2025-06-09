@@ -370,6 +370,34 @@ describe('TemplateSelectTemplatePage', () => {
     });
   });
 
+  it('should handle response errors when user clicks start a new template', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: {
+              global: 'New Template, something went wrong...',
+            },
+          },
+        },
+      })
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    const selectButton = screen.getByTestId('startNewButton');
+    fireEvent.click(selectButton);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
+
   it('should handle errors when a user clicks on start a new template', async () => {
     (useAddTemplateMutation as jest.Mock).mockReturnValue([
       jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
