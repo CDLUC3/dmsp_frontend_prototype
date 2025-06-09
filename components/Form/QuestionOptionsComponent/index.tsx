@@ -1,10 +1,12 @@
+/* eslint-disable react/prop-types */
+
 'use client'
 
-import {useState} from "react";
-import {Checkbox,} from "react-aria-components";
+import { useState } from "react";
+import { Checkbox, } from "react-aria-components";
 
 import FormInput from '@/components/Form/FormInput';
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 import styles from './optionsComponent.module.scss';
 
 
@@ -60,7 +62,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   const deleteRow = (id: number) => {
     if (id && id !== 0) {
       setRows((prevRows) => prevRows.filter(row => row.id !== id));
-      setAnnouncement(QuestionOptions('announcements.rowRemoved', { id: id }));
+      setAnnouncement(QuestionOptions('announcements.rowRemoved', { id }));
     }
   };
 
@@ -74,7 +76,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
           isDefault: row.id === id,
         }))
       );
-      setAnnouncement(QuestionOptions('announcements.rowDefault', { id: id }));
+      setAnnouncement(QuestionOptions('announcements.rowDefault', { id }));
     }
   };
 

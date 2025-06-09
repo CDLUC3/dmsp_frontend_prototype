@@ -3,13 +3,9 @@ import { render, screen } from '@testing-library/react';
 import ButtonWithImage from '..';
 
 
-// Mock the Next.js Image component
-jest.mock('next/image', () => (props: any) => {
-  return <img {...props} />;
-});
-
 describe('ButtonWithImage', () => {
   const mockImageUrl = '/path/to/image.jpg';
+  const expectedImageUrl = '/_next/image?url=%2Fpath%2Fto%2Fimage.jpg&w=48&q=75'
   const mockButtonText = 'Click me';
 
   it('should render button with the correct text and image', () => {
@@ -21,7 +17,7 @@ describe('ButtonWithImage', () => {
 
     // Check if the image is rendered with the correct URL and alt attributes
     const image = screen.getByAltText('');
-    expect(image).toHaveAttribute('src', mockImageUrl);
+    expect(image).toHaveAttribute('src', expectedImageUrl);
     expect(image).toHaveAttribute('width', '20');
     expect(image).toHaveAttribute('height', '20');
   });

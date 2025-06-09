@@ -4,7 +4,6 @@ import "@testing-library/jest-dom";
 import {
   render,
   screen,
-  act,
   fireEvent,
 } from '@testing-library/react';
 
@@ -251,7 +250,6 @@ describe('LayoutWithPanel', () => {
     );
 
     const layout = screen.getByTestId('layout-with-panel');
-    const sidebar = screen.getByTestId('sidebar-panel');
 
     expect(layout).toHaveClass('with-sidebar');
     expect(layout).not.toHaveClass('with-drawer');
@@ -268,7 +266,6 @@ describe('LayoutWithPanel', () => {
     );
 
     const layout = screen.getByTestId('layout-with-panel');
-    const sidebar = screen.getByTestId('sidebar-panel');
 
     expect(layout).toHaveClass('with-sidebar');
     expect(layout).not.toHaveClass('with-drawer');
@@ -285,7 +282,6 @@ describe('LayoutWithPanel', () => {
     );
 
     const layout = screen.getByTestId('layout-with-panel');
-    const sidebar = screen.getByTestId('drawer-panel');
 
     expect(layout).toHaveClass('with-drawer');
     expect(layout).not.toHaveClass('with-sidebar');
@@ -302,7 +298,6 @@ describe('LayoutWithPanel', () => {
     );
 
     const layout = screen.getByTestId('layout-with-panel');
-    const sidebar = screen.getByTestId('drawer-panel');
 
     expect(layout).toHaveClass('with-drawer');
     expect(layout).not.toHaveClass('with-sidebar');

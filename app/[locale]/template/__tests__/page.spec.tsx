@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
 import TemplateListPage from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useTemplatesQuery, } from '@/generated/graphql';
@@ -27,19 +27,6 @@ jest.mock('@/lib/graphql/client/apollo-client', () => ({
   })),
 }));
 
-// Mock TemplateListItem component
-jest.mock('@/components/TemplateListItem', () => {
-  return {
-    __esModule: true,
-    default: ({ item }: TemplateListItemProps) => (
-      <div data-testid="template-list-item" role="listitem">
-        <h2>{item.title}</h2>
-        <div>{item.content}</div>
-      </div>
-    ),
-  };
-});
-
 // Will pass this mock data back when query is made for templates
 const mockTemplateData = {
   myTemplates: {
@@ -47,6 +34,10 @@ const mockTemplateData = {
       name: 'UCOP',
       description: 'University of California Office of the President',
       modified: '2024-11-20 00:00:00',
+      modifiedByName: 'Test User',
+      visibility: 'ORGANIZATION',
+      publishStatus: 'PUBLISHED',
+      publishDate: '2024-11-20 00:00:00',
       id: 1,
       owner: null
     }]
@@ -87,12 +78,6 @@ interface PageHeaderProps {
   description: string;
   actions: React.ReactNode;
   breadcrumbs: React.ReactNode;
-}
-interface TemplateListItemProps {
-  item: {
-    title: string;
-    content: React.ReactNode;
-  };
 }
 
 jest.mock('@/components/PageHeader', () => {
@@ -172,7 +157,15 @@ describe('TemplateListPage', () => {
     });
 
     expect(screen.getByText('UCOP')).toBeInTheDocument();
-    expect(screen.getByText('University of California Office of the President')).toBeInTheDocument();
+    const templateData = screen.getAllByTestId('template-metadata');
+    const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*Test User/);
+    const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus = within(templateData[0]).getByText(/published/);
+    const visibility = within(templateData[0]).getByText(/visibility.*Organization/);
+    expect(lastRevisedBy).toBeInTheDocument();
+    expect(publishStatus).toBeInTheDocument();
+    expect(lastUpdated).toBeInTheDocument();
+    expect(visibility).toBeInTheDocument();
   });
 
   it('should render the template list with correct ARIA role', async () => {

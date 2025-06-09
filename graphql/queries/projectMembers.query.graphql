@@ -1,0 +1,36 @@
+query ProjectMembers($projectId: Int!) {
+  projectMembers(projectId: $projectId) {
+    id
+    givenName
+    surName
+    orcid
+    memberRoles {
+      id
+      label
+      description
+    }
+    affiliation {
+      displayName
+    }
+  }
+}
+
+query ProjectMember($projectMemberId: Int!) {
+  projectMember(projectMemberId: $projectMemberId) {
+    email
+    memberRoles {
+      id
+      label
+      displayOrder
+      uri
+    }
+    givenName
+    surName
+    affiliation {
+      id
+      displayName
+      uri
+    }
+    orcid
+  }
+}

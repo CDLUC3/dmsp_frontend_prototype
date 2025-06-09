@@ -33,7 +33,7 @@ import {
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import { DmpEditor } from "@/components/Editor";
+import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
 import FormInput from '@/components/Form/FormInput';
 import {
@@ -114,7 +114,6 @@ const SectionUpdatePage: React.FC = () => {
   // Client-side validation of fields
   const validateField = (name: string, value: string | string[] | undefined): string => {
     switch (name) {
-
       case 'sectionName':
         if (!value || value.length <= 2) {
           return SectionUpdatePage('messages.fieldLengthValidation');
@@ -223,6 +222,10 @@ const SectionUpdatePage: React.FC = () => {
     toastState.add(successMessage, { type: 'success' });
   }
 
+  const handleSectionNameChange = (sectionData: SectionFormInterface) => {
+    setSectionData(sectionData);
+  };
+
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -270,7 +273,6 @@ const SectionUpdatePage: React.FC = () => {
     }
   }, [errorMessages]);
 
-
   // We need this so that the page waits to render until data is available
   if (loading) {
     return <div>Loading...</div>;
@@ -300,9 +302,6 @@ const SectionUpdatePage: React.FC = () => {
             <div className="main-content">
 
               <ErrorMessages errors={errorMessages} ref={errorRef} />
-
-
-
               <Tabs>
                 <TabList aria-label="Question editing">
                   <Tab id="edit">{Section('tabs.editSection')}</Tab>
@@ -320,7 +319,7 @@ const SectionUpdatePage: React.FC = () => {
                       aria-required={true}
                       label={Section('labels.sectionName')}
                       value={sectionData.sectionName ? sectionData.sectionName : ''}
-                      onChange={(e) => setSectionData({
+                      onChange={(e) => handleSectionNameChange({
                         ...sectionData,
                         sectionName: e.currentTarget.value
                       })}
@@ -328,7 +327,7 @@ const SectionUpdatePage: React.FC = () => {
                     />
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
-                    <DmpEditor
+                    <TinyMCEEditor
                       content={sectionData.sectionIntroduction}
                       setContent={(value) => updateSectionContent('sectionIntroduction', value)}
                       error={fieldErrors['sectionIntroduction']}
@@ -337,9 +336,8 @@ const SectionUpdatePage: React.FC = () => {
                       helpText={Section('helpText.sectionIntroduction')}
                     />
 
-
-                    <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionRequirements" id="sectionRequirementsLabel">{Section('labels.sectionRequirements')}</Label>
+                    <TinyMCEEditor
                       content={sectionData.sectionRequirements}
                       setContent={(value) => updateSectionContent('sectionRequirements', value)}
                       error={fieldErrors['sectionRequirements']}
@@ -348,8 +346,8 @@ const SectionUpdatePage: React.FC = () => {
                       helpText={Section('helpText.sectionRequirements')}
                     />
 
-                    <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionGuidance" id="sectionGuidanceLabel">{Section('labels.sectionGuidance')}</Label>
+                    <TinyMCEEditor
                       content={sectionData.sectionGuidance}
                       setContent={(value) => updateSectionContent('sectionGuidance', value)}
                       error={fieldErrors['sectionGuidance']}

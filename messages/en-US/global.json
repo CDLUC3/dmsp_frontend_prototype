@@ -4,20 +4,8 @@
     "linkText": "Go to the Connections page",
     "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
   },
-  "LocaleTest": {
-    "title": "Localization Test",
-    "content": "Hello {name}!",
-    "itemCount": "{count, plural, one {You have {count} item} other {You have {count} items}}",
-    "message": "Please refer to <guidelines>the guidelines</guidelines>.",
-    "markup": "This is <important>important</important>",
-    "raw": "&lt;script&gt;alert('Hacked!')&lt;/script&gt;",
-    "general": "This is new content"
-  },
   "About": {
     "title": "Welcome to the DMP Tool"
-  },
-  "Test": {
-    "info": "You can try again later."
   },
   "Header": {
     "menuDashboard": "Dashboard",
@@ -66,6 +54,7 @@
     "givenName": "First name",
     "surName": "Last name",
     "institution": "Institution",
+    "otherInstitution": "Other institution",
     "language": "Language",
     "headingPrimaryEmail": "Primary email address",
     "headingSSO": "Single sign on activated",
@@ -75,7 +64,7 @@
     "headingRelatedActions": "Related actions",
     "primaryEmailDesc": "This email will be used for your account login. It can also be used for password resets.",
     "SSODesc": "This email address is managed by cdl.edu and connected to the institution.",
-    "notificationsDesc": "This email address will be used for DMP notifications. &lt;manage&gt;Manage your notifications&lt;/manage&gt;.",
+    "notificationsDesc": "This email address will be used for DMP notifications. <manage>Manage your notifications</manage>.",
     "aliasEmailDesc": "Alias email addresses may be used to help others find you, for example if they‘d like to share a DMP with you.",
     "linkMakePrimary": "Make primary email address",
     "helpTextForAddAlias": "You will be sent an email to confirm this addition",
@@ -93,6 +82,31 @@
       "profileUpdateSuccess": "The profile form was successfully updated.",
       "emailAddressUpdateSuccess": "The email was successfully added to your profile."
     }
+  },
+  "UserConnections": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProfile": "User profile",
+    "breadcrumbConnections": "Connections",
+    "title": "Connections",
+    "orcidConnection": {
+      "title": "ORCID iD",
+      "content": "ORCID provides a persistent identifier — an ORCID iD — that distinguishes you from other users. Learn more at <link>ORCID.org</link>.",
+      "btnText": "Connect your ORCID iD"
+    },
+    "orcidConnectionConnected": {
+      "title": "ORCID iD",
+      "content": "You've successfully connected your ORCID iD. Learn more or manage your record at <link>ORCID.org</link>.",
+      "btnText": "View ORCID iD"
+    },
+    "ssoConnection": {
+      "title": "Single Sign On",
+      "content": "Connect your account so that you can log into DMP Tool via your institution.",
+      "btnText": "Connect institutional credentials"
+    },
+    "headingRelatedActions": "Related actions",
+    "linkUpdatePassword": "Update password",
+    "linkUpdateConnections": "Update connections",
+    "linkManageNotifications": "Manage notifications"
   },
   "TemplateHistory": {
     "title": "Template history",
@@ -130,7 +144,7 @@
       "project": "Project",
       "projects": "Projects",
       "projectOverview": "Project overview",
-      "projectFunder": "Project funder",
+      "projectFunding": "Project funding",
       "planOverview": "Plan overview",
       "feedback": "Feedback"
     },
@@ -140,6 +154,9 @@
     },
     "lastRevisedBy": "Last revised by",
     "lastUpdated": "Last updated",
+    "published": "Published",
+    "visibility": "Visibility",
+    "notPublished": "Not published",
     "buttons": {
       "search": "Search",
       "select": "Select",
@@ -172,7 +189,8 @@
     "links": {
       "clearFilter": "clear filter",
       "request": "Request",
-      "learnMore": "Learn more"
+      "learnMore": "Learn more",
+      "update": "Update"
     },
     "messaging": {
       "loading": "Loading",

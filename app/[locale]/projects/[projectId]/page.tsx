@@ -16,7 +16,7 @@ import {Card} from '@/components/Card/card';
 import {ContentContainer, LayoutContainer} from "@/components/Container";
 import ErrorMessages from '@/components/ErrorMessages';
 
-interface FunderInterface {
+interface FundingInterface {
   name: string;
   shortName: string;
   id: number;
@@ -37,7 +37,7 @@ interface ProjectOverviewInterface {
   title: string;
   startDate: string | null;
   endDate: string | null;
-  funders: FunderInterface[];
+  fundings: FundingInterface[];
   projectMembers: ProjectMemberInterface[];
   researchOutputs: ResearchOutputsInterface[];
   plans: PlanSearchResult[];
@@ -56,7 +56,7 @@ const ProjectOverviewPage: React.FC = () => {
     title: '',
     startDate: null,
     endDate: null,
-    funders: [],
+    fundings: [],
     plans: [],
     projectMembers: [],
     researchOutputs: []
@@ -103,20 +103,20 @@ const ProjectOverviewPage: React.FC = () => {
         startDate: data.project?.startDate ? data.project.startDate : '',
         endDate: data.project?.endDate ? data.project.endDate : '',
         plans: data.project?.plans ?? [],
-        funders: data.project.funders
-          ?.filter((funder) => funder !== null) // Filter out null
-          .map((funder) => ({
-            id: Number(funder.id),
-            name: funder.affiliation?.displayName ?? '',
-            shortName: funder.affiliation?.name ?? '',
-            grantId: funder.grantId ?? '',
+        fundings: data.project.fundings
+          ?.filter((funding) => funding !== null) // Filter out null
+          .map((funding) => ({
+            id: Number(funding.id),
+            name: funding.affiliation?.displayName ?? '',
+            shortName: funding.affiliation?.name ?? '',
+            grantId: funding.grantId ?? '',
           })) ?? [], // Provide a default empty array
-        projectMembers: data.project.contributors
+        projectMembers: data.project.members
           ?.filter((member) => member !== null) // Filter out null
           .map((member) => ({
             fullname: `${member.givenName} ${member.surName}`,
             email: member.email ?? '',
-            role: (member.contributorRoles ?? []).map((role) => role.label),
+            role: (member.memberRoles ?? []).map((role) => role.label),
           })) ?? [], // Provide a default empty array
         researchOutputs: data.project.outputs
           ?.filter((output) => output !== null) // Filter out null
@@ -172,26 +172,26 @@ const ProjectOverviewPage: React.FC = () => {
             </section>
 
 
-            <section className="project-overview-item project-funders"
-              aria-labelledby="funders-title">
-              <h2 id="funders-title">{ProjectOverview('funders')}</h2>
+            <section className="project-overview-item project-fundings"
+              aria-labelledby="fundings-title">
+              <h2 id="fundings-title">{ProjectOverview('fundings')}</h2>
               <p className="project-overview-item-heading">
                 <strong>
-                  {ProjectOverview('funderCount', { count: project.funders.length })}
+                  {ProjectOverview('fundingCount', { count: project.fundings.length })}
                 </strong>
               </p>
               <p>
-                {project.funders.map((funder, index) => (
-                  <span key={funder.id} data-index={index}>
-                    {funder.grantId ? (ProjectOverview('funderInfo', {
-                      name: funder.name,
-                      id: funder.grantId
-                    })) : funder.name}
+                {project.fundings.map((funding, index) => (
+                  <span key={funding.id} data-index={index}>
+                    {funding.grantId ? (ProjectOverview('fundingInfo', {
+                      name: funding.name,
+                      id: funding.grantId
+                    })) : funding.name}
                   </span>
                 ))}
               </p>
-              <Link href={`/projects/${projectId}/funder`} aria-label={ProjectOverview('editFunders')}>
-                {ProjectOverview('editFunderDetails')}
+              <Link href={`/projects/${projectId}/fundings`} aria-label={ProjectOverview('editFundings')}>
+                {ProjectOverview('editFundingDetails')}
               </Link>
             </section>
 
@@ -266,7 +266,7 @@ const ProjectOverviewPage: React.FC = () => {
               const sortedSections = sortSections(plan.sections ?? []);
               return (
                 <Card className="plan-item" key={plan.id}>
-                  <p className="mb-1">{ProjectOverview('funder')}: {plan.funder}</p>
+                  <p className="mb-1">{ProjectOverview('funding')}: {plan.funding}</p>
                   <h3 className="mt-0">{plan.templateTitle}</h3>
                   <div className="plan-sections mb-4">
                     <ul className="plan-sections-list"

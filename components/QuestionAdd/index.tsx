@@ -43,6 +43,14 @@ import { stripHtmlTags } from '@/utils/general';
 import { Question, QuestionOptions } from '@/app/types';
 import styles from './questionAdd.module.scss';
 
+const defaultQuestion = {
+  guidanceText: '',
+  requirementText: '',
+  sampleText: '',
+  useSampleTextAsDefault: false,
+  required: false,
+};
+
 const QuestionAdd = ({
   questionTypeId,
   questionTypeName,
@@ -62,7 +70,10 @@ const QuestionAdd = ({
   const step1Url = `/template/${templateId}/q/new?section_id=${sectionId}&step=1`;
 
   // State for managing form inputs
-  const [question, setQuestion] = useState<Question>();
+  const [question, setQuestion] = useState<Question>({
+    ...defaultQuestion,
+    questionTypeId,
+  });
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -84,7 +95,7 @@ const QuestionAdd = ({
   })
 
   const validateOptions = () => {
-    let newErrors: { [key: number]: string } = {};
+    const newErrors: { [key: number]: string } = {};
     rows.forEach((row) => {
       if (!row.text.trim()) {
         newErrors[row.id || 0] = "This field is required";
@@ -151,7 +162,6 @@ const QuestionAdd = ({
       if (response?.data) {
         toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
         //redirect user to the Edit Question view with their new question id after successfully adding the new question
-        const newQuestionId = response.data.addQuestion.id;
         router.push(`/template/${templateId}`)
       }
     } catch (error) {
@@ -176,22 +186,18 @@ const QuestionAdd = ({
   }, [])
 
   useEffect(() => {
-    // Make sure to add the questiontypeid to the question object
-    if (question) {
-      setQuestion({
-        ...question,
-        questionTypeId
-      });
-    } else {
-      setQuestion({ questionTypeId });
-    }
-  }, [questionTypeId]);
-
-  useEffect(() => {
     // To determine if the question type selected is one that includes options fields
     const isOptionQuestion = Boolean(questionTypeId && [3, 4, 5].includes(questionTypeId)); // Ensure the result is a boolean
     setHasOptions(isOptionQuestion);
   }, [questionTypeId])
+
+  // Update state when input changes
+  const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
+    setQuestion((prev) => ({
+      ...prev,
+      [field]: value === undefined ? '' : value, // Default to empty string if value is undefined
+    }));
+  };
 
   return (
     <>
@@ -244,10 +250,7 @@ const QuestionAdd = ({
                   isRequired={true}
                   label={QuestionAdd('labels.questionText')}
                   value={question?.questionText ? question.questionText : ''}
-                  onChange={(e) => setQuestion({
-                    ...question,
-                    questionText: e.currentTarget.value
-                  })}
+                  onChange={(e) => handleInputChange('questionText', e.currentTarget.value)}
                   helpMessage={QuestionAdd('helpText.questionText')}
                   isInvalid={!question?.questionText && formSubmitted}
                   errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
@@ -271,10 +274,7 @@ const QuestionAdd = ({
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
-                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
-                    ...prev,
-                    requirementText: newValue
-                  }))}
+                  onChange={(newValue) => handleInputChange('requirementText', newValue)}
                   helpMessage={QuestionAdd('helpText.requirementText')}
                 />
 
@@ -285,10 +285,7 @@ const QuestionAdd = ({
                   textAreaClasses={styles.questionFormField}
                   label={QuestionAdd('labels.guidanceText')}
                   value={question?.guidanceText ? question?.guidanceText : ''}
-                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
-                    ...prev,
-                    guidanceText: newValue
-                  }))}
+                  onChange={(newValue) => handleInputChange('guidanceText', newValue)}
                 />
 
                 {!hasOptions && (
@@ -300,11 +297,7 @@ const QuestionAdd = ({
                     textAreaClasses={styles.questionFormField}
                     label={QuestionAdd('labels.sampleText')}
                     value={question?.sampleText ? question.sampleText : ''}
-
-                    onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
-                      ...prev,
-                      sampleText: newValue
-                    }))}
+                    onChange={(newValue) => handleInputChange('sampleText', newValue)}
                     helpMessage={QuestionAdd('helpText.sampleText')}
                   />
                 )}
@@ -312,10 +305,7 @@ const QuestionAdd = ({
 
                 {questionTypeId && [1, 2].includes(questionTypeId) && (
                   <Checkbox
-                    onChange={() => setQuestion({
-                      ...question,
-                      useSampleTextAsDefault: !question?.useSampleTextAsDefault
-                    })}
+                    onChange={() => handleInputChange('useSampleTextAsDefault', !question?.useSampleTextAsDefault)}
                     isSelected={question?.useSampleTextAsDefault || false}
                   >
                     <div className="checkbox">
@@ -328,7 +318,7 @@ const QuestionAdd = ({
                 )}
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
-                <Button type="submit" onPress={e => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
+                <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
               </Form>
 
             </TabPanel>

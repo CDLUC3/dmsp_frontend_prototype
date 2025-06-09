@@ -46,4 +46,6 @@ const ErrorMessages = forwardRef<HTMLDivElement, ErrorMessagesProps>(
   }
 );
 
+ErrorMessages.displayName = "ErrorMessages";
+
 export default ErrorMessages;
