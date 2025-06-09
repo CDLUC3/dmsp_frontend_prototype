@@ -184,7 +184,7 @@ export const questionTypeHandlers: Record<
         type: 'option',
         attributes: {
           label: option.label ?? option.value,
-          selected: option.selected ?? false,
+          checked: option.selected ?? false,
           value: option.value,
         },
       })) || [],
@@ -271,7 +271,7 @@ export const questionTypeHandlers: Record<
   datePicker: (json, input) => {
     const questionData: DatePickerQuestionType = {
       ...json,
-      type: "datePicker",
+      type: "date",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -289,7 +289,7 @@ export const questionTypeHandlers: Record<
   dateRange: (json, input) => {
     const questionData: DateRangeQuestionType = {
       ...json,
-      type: "dateRange",
+      type: "date",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -334,9 +334,9 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        pattern: input?.pattern ?? null,
+        pattern: input?.pattern ?? "^.+$",
         multiple: input?.multiple ?? false,
-        maxLength: input?.maxLength ?? null,
+        maxLength: input?.maxLength ?? 100,
         minLength: input?.minLength ?? 0,
       },
     };

@@ -176,7 +176,7 @@ export interface QuestionTypesInterface {
 export interface QuestionOptions {
   id?: number | null;
   text: string;
-  isDefault?: boolean | null;
+  isSelected?: boolean | null;
 }
 
 export interface Question {

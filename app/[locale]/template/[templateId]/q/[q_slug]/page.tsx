@@ -44,6 +44,7 @@ import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
+import { OPTIONS_QUESTION_TYPES } from '@/lib/constants';
 import styles from './questionEdit.module.scss';
 
 // Configure what overrides you want to apply to the question type json objects
@@ -71,6 +72,7 @@ interface Option {
     label: string;
     value: string;
     selected?: boolean;
+    checked?: boolean;
   };
 }
 
@@ -144,7 +146,7 @@ const QuestionEdit = () => {
           options: rows.map(row => ({
             label: row.text,
             value: row.text,
-            selected: row.isDefault,
+            selected: row.isSelected,
           })),
         }
         : getParsedQuestionJSON(question); // Use parsed JSON for non-option types
@@ -213,7 +215,7 @@ const QuestionEdit = () => {
 
       setQuestionType(questionType);
       setQuestionTypeName(questionTypeFriendlyName);
-      const isOptionQuestion = Boolean(questionType && ["radioButtons", "checkBoxes", "selectBox"].includes(questionType)); // Ensure the result is a boolean
+      const isOptionQuestion = Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType)); // Ensure the result is a boolean
 
       // Set question and rows in state
       if (q) {
@@ -233,7 +235,7 @@ const QuestionEdit = () => {
           .map((option: Option, index: number) => ({
             id: index,
             text: option.attributes.label,
-            isDefault: option.attributes.selected || false,
+            isSelected: option.attributes.selected || option.attributes.checked || false,
           }));
 
         setRows(optionRows);
@@ -332,8 +334,10 @@ const QuestionEdit = () => {
                   <div className={styles.optionsWrapper}>
                     <p
                       className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows}
-                      questionId={Number(questionId)}
+                    <QuestionOptionsComponent
+                      rows={rows}
+                      setRows={setRows}
+                      questionType={questionType}
                       formSubmitted={formSubmitted}
                       setFormSubmitted={setFormSubmitted} />
                   </div>

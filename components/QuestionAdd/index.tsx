@@ -43,6 +43,7 @@ import { useToast } from '@/context/ToastContext';
 import { stripHtmlTags } from '@/utils/general';
 import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
+import { OPTIONS_QUESTION_TYPES } from '@/lib/constants';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -96,7 +97,7 @@ const QuestionAdd = ({
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>({
     ...defaultQuestion,
-  }); const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isDefault: false }]);
+  }); const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
@@ -148,7 +149,7 @@ const QuestionAdd = ({
         options: rows.map(row => ({
           label: row.text,
           value: row.text,
-          selected: row.isDefault,
+          selected: row.isSelected,
         })),
       }
       : parsedQuestionJSON; // Use parsed JSON for non-option types
@@ -225,7 +226,7 @@ const QuestionAdd = ({
 
   useEffect(() => {
     // To determine if the question type selected is one that includes options fields
-    const isOptionQuestion = Boolean(questionType && ["radioButtons", "checkBoxes", "selectBox"].includes(questionType)); // Ensure the result is a boolean
+    const isOptionQuestion = Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType)); // Ensure the result is a boolean
 
     setHasOptions(isOptionQuestion);
   }, [questionType])
@@ -297,11 +298,17 @@ const QuestionAdd = ({
                 />
 
 
-                {questionType && ["radioButtons", "checkBoxes", "selectBox"].includes(questionType) && (
+                {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
                   <>
                     <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionName })}</p>
                     <div className={styles.optionsWrapper}>
-                      <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
+                      <QuestionOptionsComponent
+                        rows={rows}
+                        setRows={setRows}
+                        questionType={questionType}
+                        formSubmitted={formSubmitted}
+                        setFormSubmitted={setFormSubmitted}
+                      />
                     </div>
                   </>
                 )}

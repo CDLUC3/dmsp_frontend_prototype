@@ -13,13 +13,13 @@ import styles from './optionsComponent.module.scss';
 interface Row {
   id?: number | null;
   text: string;
-  isDefault?: boolean | null;
+  isSelected?: boolean | null;
 }
 
 interface QuestionOptionsComponentProps {
   rows: Row[] | null;
   setRows: React.Dispatch<React.SetStateAction<Row[]>>;
-  questionId?: number;
+  questionType?: string;
   formSubmitted?: boolean;
   setFormSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -28,7 +28,7 @@ interface QuestionOptionsComponentProps {
 /**This component is used to add question type fields that use options
  * For example, radio buttons, check boxes and select drop-downs
  */
-const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, formSubmitted, setFormSubmitted }) => {
+const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionType, formSubmitted, setFormSubmitted }) => {
   const [announcement, setAnnouncement] = useState<string>("");
 
   // localization keys
@@ -45,7 +45,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
       const newRow = {
         id: nextNum, //if rows already has a set value, then increment from there
         text: "",
-        isDefault: false,
+        isSelected: false,
       };
 
       setRows((prevRows) => [...prevRows, newRow]);
@@ -63,17 +63,28 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   };
 
 
-  // Set one row as default (only one can be true)
-  const setDefault = (id: number) => {
-
-    setRows((prevRows) =>
-      prevRows.map((row) => ({
-        ...row,
-        isDefault: row.id === id,
-      }))
+  const toggleSelection = (id: number) => {
+    setRows(prevRows =>
+      prevRows.map(row =>
+        row.id === id
+          ? { ...row, isSelected: !row.isSelected } // toggle current one
+          : row
+      )
     );
-    setAnnouncement(QuestionOptions('announcements.rowDefault', { id }));
+  };
 
+  const setDefault = (id: number) => {
+    if (questionType === 'checkBoxes') {
+      toggleSelection(id); // allow multiple selections for checkboxes
+    } else {
+      setRows(prevRows =>
+        prevRows.map(row => ({
+          ...row,
+          isSelected: row.id === id, // only one selected
+        }))
+      );
+      setAnnouncement(QuestionOptions('announcements.rowDefault', { id }));
+    }
   };
 
   // Update rows state
@@ -132,11 +143,11 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
               <label htmlFor={`default-${row.id}`}>{QuestionOptions('labels.default')}</label>
               <Checkbox
                 id={`default-${row.id}`}
-                aria-checked={row.isDefault}
+                aria-checked={row.isSelected}
                 aria-label={`Set row ${index + 1} as default`}
                 onChange={() => setDefault(row.id || 0)}
                 className={`${styles.optionsCheckbox} react-aria-Checkbox`}
-                isSelected={row.isDefault ? row.isDefault : false}
+                isSelected={row.isSelected ? row.isSelected : false}
               >
                 <div className={`${styles.checkBox} checkbox`}>
                   <svg viewBox="0 0 18 18" aria-hidden="true">
