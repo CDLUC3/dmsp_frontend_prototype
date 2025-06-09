@@ -53,6 +53,7 @@ const defaultQuestion = {
   required: false,
 };
 
+// Configure what overrides you want to apply to the question type json objects
 const getOverrides = (questionType: string | null | undefined) => {
   switch (questionType) {
     case "text":
@@ -140,12 +141,13 @@ const QuestionAdd = ({
     const displayOrder = getDisplayOrder();
     const parsedQuestionJSON = JSON.parse(questionJSON);
 
-    // Prepare input for the questionTypeHandler
+    // Prepare input for the questionTypeHandler.For options questions,we update the 
+    // values with rows state. For non-options questions, we use the parsed JSON
     const formState = hasOptions
       ? {
         options: rows.map(row => ({
           label: row.text,
-          value: row.text, // Use the text directly as the value
+          value: row.text,
           selected: row.isDefault,
         })),
       }
@@ -154,13 +156,13 @@ const QuestionAdd = ({
     // Get any overrides for the question type json objects based on question type
     const overrides = getOverrides(questionType);
 
-    // Merge formState with overrides for non-options questions
+    // Merge formState with overrides for non-options questions, and use formState directly for options questions
     const userInput = hasOptions
       ? formState
       : { ...formState, attributes: { ...formState.attributes, ...overrides } };
 
-    // Pass the merged userInput to questionTypeHandlers for type and schema checks
-    const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+    // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
+    const updatedJSON = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsedQuestionJSON,
       userInput
     );
@@ -173,7 +175,7 @@ const QuestionAdd = ({
       displayOrder,
       isDirty: true,
       questionText: cleanedQuestionText,
-      json: JSON.stringify(result.data),
+      json: JSON.stringify(updatedJSON.data),
       requirementText: question?.requirementText,
       guidanceText: question?.guidanceText,
       sampleText: question?.sampleText,

@@ -138,11 +138,12 @@ const QuestionEdit = () => {
     e.preventDefault();
 
     if (question) {
+      // For options questions,we update the values with rows state. For non-options questions, we use the parsed JSON
       const formState = hasOptions
         ? {
           options: rows.map(row => ({
             label: row.text,
-            value: row.text, // Use the text directly as the value
+            value: row.text,
             selected: row.isDefault,
           })),
         }
@@ -151,13 +152,13 @@ const QuestionEdit = () => {
       // Get any overrides for the question type json objects based on question type
       const overrides = getOverrides(questionType);
 
-      // Merge formState with overrides for non-options questions
+      // Merge formState with overrides for non-options questions, and use formState directly for options questions
       const userInput = hasOptions
         ? formState
         : { ...formState, attributes: { ...formState.attributes, ...overrides } };
 
-      // Pass the merged userInput to questionTypeHandlers for type and schema checks
-      const result = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+      // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
+      const updatedJSON = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
         getParsedQuestionJSON(question),
         userInput
       );
@@ -167,6 +168,7 @@ const QuestionEdit = () => {
 
       // Strip all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
+
       try {
         // Add mutation for question
         const response = await updateQuestionMutation({
@@ -174,7 +176,7 @@ const QuestionEdit = () => {
             input: {
               questionId: Number(questionId),
               displayOrder: question.displayOrder,
-              json: JSON.stringify(result.data), // Updated json for question type
+              json: JSON.stringify(updatedJSON.data),
               questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
