@@ -217,6 +217,7 @@
       "selectBox": "Select",
       "boolean": "Boleano",
       "number": "Número",
+      "numberRange": "Intervalo numérico",
       "email": "E-mail",
       "url": "URL",
       "currency": "Moeda",

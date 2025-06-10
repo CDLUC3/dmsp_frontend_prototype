@@ -296,8 +296,8 @@ export const questionTypeHandlers: Record<
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
-      columns: [
-        {
+      columns: {
+        end: {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION,
           },
@@ -309,7 +309,7 @@ export const questionTypeHandlers: Record<
             label: input?.from?.label ?? "From",
           },
         },
-        {
+        start: {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION,
           },
@@ -321,7 +321,7 @@ export const questionTypeHandlers: Record<
             label: input?.to?.label ?? "To",
           },
         },
-      ],
+      },
     };
 
     return createAndValidateQuestion("dateRange", questionData, questionSchemas.dateRange);
@@ -408,8 +408,8 @@ export const questionTypeHandlers: Record<
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
-      columns: [
-        {
+      columns: {
+        end: {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION,
           },
@@ -421,7 +421,7 @@ export const questionTypeHandlers: Record<
             label: input?.from?.label ?? "From",
           },
         },
-        {
+        start: {
           meta: {
             schemaVersion: CURRENT_SCHEMA_VERSION,
           },
@@ -433,7 +433,7 @@ export const questionTypeHandlers: Record<
             label: input?.to?.label ?? "To",
           },
         },
-      ],
+      },
     };
 
     return createAndValidateQuestion("numberRange", questionData, questionSchemas.numberRange);

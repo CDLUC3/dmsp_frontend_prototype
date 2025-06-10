@@ -217,6 +217,7 @@
       "selectBox": "Select",
       "boolean": "Boolean",
       "number": "Number",
+      "numberRange": "Number range",
       "email": "Email",
       "url": "URL",
       "currency": "Currency",

@@ -22,7 +22,7 @@
   "dependencies": {
     "@apollo/client": "^3.10.8",
     "@apollo/experimental-nextjs-app-support": "^0.11.2",
-    "@dmptool/types": "^1.0.7",
+    "@dmptool/types": "^1.0.8",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@fontsource/material-symbols-outlined": "^5.1.4",
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
