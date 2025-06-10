@@ -217,6 +217,15 @@ describe('TemplateSelectTemplatePage', () => {
     HTMLElement.prototype.scrollIntoView = jest.fn();
   });
 
+  it('should redirect back to step 1 if template name is missing', async () => {
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage />
+      );
+    });
+    expect(pushMock).toHaveBeenCalledWith('/template/create?step1');
+  });
+
   it('should render the main content sections', async () => {
     await act(async () => {
       render(
@@ -299,6 +308,38 @@ describe('TemplateSelectTemplatePage', () => {
     expect(screen.getByText(/resultsText/i)).toBeInTheDocument();
     const linkElement = screen.getAllByRole('link', { name: /clear filter/i });
     expect(linkElement).toHaveLength(1);
+  });
+
+  it("Should show errors when no templates were found", async () => {
+    // We need to mock both of these with empty results
+    (useMyVersionedTemplatesQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: { myVersionedTemplates: [] },
+        loading: false,
+        error: null
+      })
+    ]);
+
+    (usePublishedTemplatesQuery as jest.Mock).mockReturnValue({
+      data: { publishedTemplates: [] },
+      loading: false,
+      error: null
+    });
+
+    render(<TemplateSelectTemplatePage templateName="test" />);
+
+    // Search input field
+    const input = screen.getByLabelText('labels.searchByKeyword');
+    const searchButton = screen.getByRole('button', { name: /search/i });
+
+    expect(searchButton).toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: 'none' } });
+    fireEvent.click(searchButton);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('messages.noItemsFound').length).toBeGreaterThan(0);
+    });
   });
 
   it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
