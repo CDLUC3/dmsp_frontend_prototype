@@ -1,0 +1,132 @@
+{
+  "questionTypes": [
+    {
+      "__typename": "QuestionType",
+      "id": 1,
+      "errors": null,
+      "name": "Text Area",
+      "usageDescription": "For questions that require longer answers, you can select formatting options too.",
+      "json": "{\"meta\":{\"asRichText\":true,\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"cols\":20,\"rows\":4,\"maxLength\":null,\"minLength\":0}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 2,
+      "errors": null,
+      "name": "Text Field",
+      "usageDescription": "For questions that require short, simple answers.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"pattern\":null,\"maxLength\":null,\"minLength\":0}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 3,
+      "errors": null,
+      "name": "Radio Buttons",
+      "usageDescription": "For multiple choice questions where users select just one option.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"radioButtons\",\"options\":[{\"attributes\":{\"label\":null,\"value\":null,\"selected\":false}}]}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 4,
+      "errors": null,
+      "name": "Check Boxes",
+      "usageDescription": "For multiple choice questions where users can select multiple options.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"checkBoxes\",\"options\":[{\"attributes\":{\"label\":null,\"value\":null,\"checked\":false}}]}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 5,
+      "errors": null,
+      "name": "Select Box",
+      "usageDescription": "For questions with a predefined set of options where users need to select one.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"selectBox\",\"options\":[{\"attributes\":{\"label\":null,\"value\":null,\"selected\":false}}]}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 6,
+      "errors": null,
+      "name": "Multi-select Box",
+      "usageDescription": "For questions where multiple answers are valid. Allows users to select several options from a predefined list, providing flexibility in responses.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"selectBox\",\"options\":[{\"attributes\":{\"label\":null,\"value\":null,\"selected\":false}}],\"attributes\":{\"multiple\":true}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 7,
+      "errors": null,
+      "name": "Number Field",
+      "usageDescription": "For questions that require a numeric value.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"number\",\"attributes\":{\"max\":null,\"min\":0,\"step\":1}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 8,
+      "errors": null,
+      "name": "Number Range",
+      "usageDescription": "For questions that require a numerical range (e.g. From/To, Min/Max).",
+      "json": "{\"type\":\"numberRange\",\"columns\":[{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"number\",\"attributes\":{\"max\":null,\"min\":0,\"step\":1,\"label\":\"From\"}},{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"number\",\"attributes\":{\"max\":null,\"min\":0,\"step\":1,\"label\":\"To\"}}]}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 9,
+      "errors": null,
+      "name": "Currency Field",
+      "usageDescription": "For questions that require a monetary amount (e.g. Cost or Budget).",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"currency\",\"attributes\":{\"max\":null,\"min\":0,\"step\":1,\"denomination\":\"USD\"}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 10,
+      "errors": null,
+      "name": "Email Field",
+      "usageDescription": "For questions that require requre email address(es).",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"email\",\"attributes\":{\"pattern\":null,\"multiple\":false,\"maxLength\":null,\"minLength\":0}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 11,
+      "errors": null,
+      "name": "URL Field",
+      "usageDescription": "For questions that require a website, DOI or other URL.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"url\",\"attributes\":{\"pattern\":null,\"maxLength\":null,\"minLength\":0}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 12,
+      "errors": null,
+      "name": "Yes/No Field",
+      "usageDescription": "For questions that require a simple Yes/No response.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"boolean\",\"attributes\":{\"checked\":false}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 13,
+      "errors": null,
+      "name": "Date Field",
+      "usageDescription": "For questions that require a date.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"date\",\"attributes\":{\"max\":null,\"min\":null,\"step\":1}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 14,
+      "errors": null,
+      "name": "Date Range",
+      "usageDescription": "For questions that require a date range (e.g. From/To, Start/End)",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"dateRange\",\"columns\":[{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"date\",\"attributes\":{\"max\":null,\"min\":null,\"step\":1,\"label\":\"From\"}},{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"date\",\"attributes\":{\"max\":null,\"min\":null,\"step\":1,\"label\":\"To\"}}]}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 15,
+      "errors": null,
+      "name": "Table",
+      "usageDescription": "For questions that require a tabular format.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"table\",\"columns\":[{\"meta\":{\"label\":\"Column A\",\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"pattern\":null,\"maxLength\":null,\"minLength\":0}},{\"meta\":{\"label\":\"Column B\",\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"pattern\":null,\"maxLength\":null,\"minLength\":0}}],\"attributes\":{\"maxRows\":null,\"minRows\":null,\"canAddRows\":true,\"initialRows\":1,\"canRemoveRows\":true}}"
+    },
+    {
+      "__typename": "QuestionType",
+      "id": 16,
+      "errors": null,
+      "name": "Affiliation Search",
+      "usageDescription": "For questions that require the user to select from a controlled list of institutions.",
+      "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"typeaheadSearch\",\"graphQL\":{\"query\":\"query Affiliations($name: String!){affiliations(name: $name) { totalCount nextCursor items {id displayName uri}}}\",\"queryId\":\"useAffiliationsQuery\",\"variables\":[{\"name\":\"term\",\"type\":\"string\",\"label\":\"Search for your institution\",\"minLength\":3,\"labelTranslationKey\":\"SignupPage.institutionHelp\"}],\"answerField\":\"uri\",\"displayFields\":[{\"label\":\"Institution\",\"propertyName\":\"displayName\",\"labelTranslationKey\":\"SignupPage.institution\"}],\"responseField\":\"affiliations.items\"}}"
+    }
+  ]
+}

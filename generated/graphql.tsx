@@ -124,12 +124,10 @@ export type AddQuestionInput = {
   guidanceText?: InputMaybe<Scalars['String']['input']>;
   /** Whether or not the Question has had any changes since it was last published */
   isDirty?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Add options for a question type, like radio buttons */
-  questionOptions?: InputMaybe<Array<InputMaybe<QuestionOptionInput>>>;
+  /** The JSON representation of the question type */
+  json?: InputMaybe<Scalars['String']['input']>;
   /** This will be used as a sort of title for the Question */
   questionText?: InputMaybe<Scalars['String']['input']>;
-  /** The type of question, such as text field, select box, radio buttons, etc */
-  questionTypeId?: InputMaybe<Scalars['Int']['input']>;
   /** To indicate whether the question is required to be completed */
   required?: InputMaybe<Scalars['Boolean']['input']>;
   /** Requirements associated with the Question */
@@ -142,17 +140,6 @@ export type AddQuestionInput = {
   templateId: Scalars['Int']['input'];
   /** Boolean indicating whether we should use content from sampleText as the default answer */
   useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type AddQuestionOptionInput = {
-  /** Whether the option is the default selected one */
-  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The option order number */
-  orderNumber: Scalars['Int']['input'];
-  /** The question id that the QuestionOption belongs to */
-  questionId: Scalars['Int']['input'];
-  /** The option text */
-  text: Scalars['String']['input'];
 };
 
 export type AddRepositoryInput = {
@@ -281,7 +268,6 @@ export type AffiliationErrors = {
   __typename?: 'AffiliationErrors';
   acronyms?: Maybe<Scalars['String']['output']>;
   aliases?: Maybe<Scalars['String']['output']>;
-  answerText?: Maybe<Scalars['String']['output']>;
   contactEmail?: Maybe<Scalars['String']['output']>;
   contactName?: Maybe<Scalars['String']['output']>;
   displayName?: Maybe<Scalars['String']['output']>;
@@ -291,6 +277,7 @@ export type AffiliationErrors = {
   /** General error messages such as affiliation already exists */
   general?: Maybe<Scalars['String']['output']>;
   homepage?: Maybe<Scalars['String']['output']>;
+  json?: Maybe<Scalars['String']['output']>;
   logoName?: Maybe<Scalars['String']['output']>;
   logoURI?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -434,8 +421,6 @@ export enum AffiliationType {
 /** An answer to a question on a Data Managament Plan (DMP) */
 export type Answer = {
   __typename?: 'Answer';
-  /** The answer to the question */
-  answerText?: Maybe<Scalars['String']['output']>;
   /** The comments associated with the answer */
   comments?: Maybe<Array<AnswerComment>>;
   /** The timestamp when the Object was created */
@@ -446,6 +431,8 @@ export type Answer = {
   errors?: Maybe<AffiliationErrors>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
+  /** The answer to the question */
+  json?: Maybe<Scalars['String']['output']>;
   /** The timestamp when the Object was last modifed */
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
@@ -768,8 +755,6 @@ export type Mutation = {
   addQuestion: Question;
   /** Create a new QuestionCondition associated with a question */
   addQuestionCondition: QuestionCondition;
-  /** Create a new QuestionOption */
-  addQuestionOption: QuestionOption;
   /** Add a new Repository */
   addRepository?: Maybe<Repository>;
   /** Create a new Section. Leave the 'copyFromVersionedSectionId' blank to create a new section from scratch */
@@ -834,8 +819,6 @@ export type Mutation = {
   removeQuestion?: Maybe<Question>;
   /** Remove a QuestionCondition using a specific QuestionCondition id */
   removeQuestionCondition?: Maybe<QuestionCondition>;
-  /** Delete a QuestionOption */
-  removeQuestionOption?: Maybe<QuestionOption>;
   /** Delete a Repository */
   removeRepository?: Maybe<Repository>;
   /** Delete a section */
@@ -890,8 +873,6 @@ export type Mutation = {
   updateQuestionCondition?: Maybe<QuestionCondition>;
   /** Change the question's display order */
   updateQuestionDisplayOrder: ReorderQuestionsResult;
-  /** Update a QuestionOption */
-  updateQuestionOption: QuestionOption;
   /** Update a Repository record */
   updateRepository?: Maybe<Repository>;
   /** Update a Section */
@@ -922,7 +903,7 @@ export type MutationAddAffiliationArgs = {
 
 
 export type MutationAddAnswerArgs = {
-  answerText?: InputMaybe<Scalars['String']['input']>;
+  json?: InputMaybe<Scalars['String']['input']>;
   planId: Scalars['Int']['input'];
   versionedQuestionId: Scalars['Int']['input'];
   versionedSectionId: Scalars['Int']['input'];
@@ -1011,11 +992,6 @@ export type MutationAddQuestionArgs = {
 
 export type MutationAddQuestionConditionArgs = {
   input: AddQuestionConditionInput;
-};
-
-
-export type MutationAddQuestionOptionArgs = {
-  input: AddQuestionOptionInput;
 };
 
 
@@ -1193,11 +1169,6 @@ export type MutationRemoveQuestionConditionArgs = {
 };
 
 
-export type MutationRemoveQuestionOptionArgs = {
-  id: Scalars['Int']['input'];
-};
-
-
 export type MutationRemoveRepositoryArgs = {
   repositoryId: Scalars['Int']['input'];
 };
@@ -1252,7 +1223,7 @@ export type MutationUpdateAffiliationArgs = {
 
 export type MutationUpdateAnswerArgs = {
   answerId: Scalars['Int']['input'];
-  answerText?: InputMaybe<Scalars['String']['input']>;
+  json?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1337,11 +1308,6 @@ export type MutationUpdateQuestionConditionArgs = {
 export type MutationUpdateQuestionDisplayOrderArgs = {
   newDisplayOrder: Scalars['Int']['input'];
   questionId: Scalars['Int']['input'];
-};
-
-
-export type MutationUpdateQuestionOptionArgs = {
-  input: UpdateQuestionOptionInput;
 };
 
 
@@ -2241,10 +2207,6 @@ export type Query = {
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
   questionConditions?: Maybe<Array<Maybe<QuestionCondition>>>;
-  /** Get the specific Question Option based on question option id */
-  questionOption?: Maybe<QuestionOption>;
-  /** Get the Question Options that belong to the associated questionId */
-  questionOptions?: Maybe<Array<Maybe<QuestionOption>>>;
   /** Get all the QuestionTypes */
   questionTypes?: Maybe<Array<Maybe<QuestionType>>>;
   /** Get the Questions that belong to the associated sectionId */
@@ -2475,16 +2437,6 @@ export type QueryQuestionConditionsArgs = {
 };
 
 
-export type QueryQuestionOptionArgs = {
-  id: Scalars['Int']['input'];
-};
-
-
-export type QueryQuestionOptionsArgs = {
-  questionId: Scalars['Int']['input'];
-};
-
-
 export type QueryQuestionsArgs = {
   sectionId: Scalars['Int']['input'];
 };
@@ -2582,18 +2534,16 @@ export type Question = {
   id?: Maybe<Scalars['Int']['output']>;
   /** Whether or not the Question has had any changes since the related template was last published */
   isDirty?: Maybe<Scalars['Boolean']['output']>;
+  /** The JSON representation of the question type */
+  json?: Maybe<Scalars['String']['output']>;
   /** The timestamp when the Object was last modifed */
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The conditional logic triggered by this question */
   questionConditions?: Maybe<Array<QuestionCondition>>;
-  /** The question options associated with this question */
-  questionOptions?: Maybe<Array<QuestionOption>>;
   /** This will be used as a sort of title for the Question */
   questionText?: Maybe<Scalars['String']['output']>;
-  /** The type of question, such as text field, select box, radio buttons, etc */
-  questionTypeId?: Maybe<Scalars['Int']['output']>;
   /** To indicate whether the question is required to be completed */
   required?: Maybe<Scalars['Boolean']['output']>;
   /** Requirements associated with the Question */
@@ -2681,60 +2631,14 @@ export type QuestionErrors = {
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   guidanceText?: Maybe<Scalars['String']['output']>;
+  json?: Maybe<Scalars['String']['output']>;
   questionConditionIds?: Maybe<Scalars['String']['output']>;
-  questionOptionIds?: Maybe<Scalars['String']['output']>;
   questionText?: Maybe<Scalars['String']['output']>;
-  questionTypeId?: Maybe<Scalars['String']['output']>;
   requirementText?: Maybe<Scalars['String']['output']>;
   sampleText?: Maybe<Scalars['String']['output']>;
   sectionId?: Maybe<Scalars['String']['output']>;
   sourceQestionId?: Maybe<Scalars['String']['output']>;
   templateId?: Maybe<Scalars['String']['output']>;
-};
-
-/** QuestionOption always belongs to a Question */
-export type QuestionOption = {
-  __typename?: 'QuestionOption';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<QuestionOptionErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** Whether the option is the default selected one */
-  isDefault?: Maybe<Scalars['Boolean']['output']>;
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The option order number */
-  orderNumber: Scalars['Int']['output'];
-  /** The question id that the QuestionOption belongs to */
-  questionId: Scalars['Int']['output'];
-  /** The option text */
-  text: Scalars['String']['output'];
-};
-
-/** A collection of errors related to the QuestionOption */
-export type QuestionOptionErrors = {
-  __typename?: 'QuestionOptionErrors';
-  /** General error messages such as the object already exists */
-  general?: Maybe<Scalars['String']['output']>;
-  orderNumber?: Maybe<Scalars['String']['output']>;
-  questionId?: Maybe<Scalars['String']['output']>;
-  text?: Maybe<Scalars['String']['output']>;
-};
-
-/** Input for Question options operations */
-export type QuestionOptionInput = {
-  /** Whether the question option is the default selected one */
-  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The order of the question option */
-  orderNumber?: InputMaybe<Scalars['Int']['input']>;
-  /** The text for the question option */
-  text?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** The type of Question, such as text field, radio buttons, etc */
@@ -2750,6 +2654,8 @@ export type QuestionType = {
   id?: Maybe<Scalars['Int']['output']>;
   /** Whether or not this is the default question type */
   isDefault: Scalars['Boolean']['output'];
+  /** The default JSON for the QuestionType */
+  json: Scalars['String']['output'];
   /** The timestamp when the Object was last modifed */
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
@@ -2765,6 +2671,7 @@ export type QuestionTypeErrors = {
   __typename?: 'QuestionTypeErrors';
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+  json?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   usageDescription?: Maybe<Scalars['String']['output']>;
 };
@@ -3308,14 +3215,12 @@ export type UpdateQuestionInput = {
   displayOrder?: InputMaybe<Scalars['Int']['input']>;
   /** Guidance to complete the question */
   guidanceText?: InputMaybe<Scalars['String']['input']>;
+  /** The JSON representation of the question type */
+  json?: InputMaybe<Scalars['String']['input']>;
   /** The unique identifier for the Question */
   questionId: Scalars['Int']['input'];
-  /** Update options for a question type like radio buttons */
-  questionOptions?: InputMaybe<Array<InputMaybe<UpdateQuestionOptionInput>>>;
   /** This will be used as a sort of title for the Question */
   questionText?: InputMaybe<Scalars['String']['input']>;
-  /** The type of question, such as text field, select box, radio buttons, etc */
-  questionTypeId?: InputMaybe<Scalars['Int']['input']>;
   /** To indicate whether the question is required to be completed */
   required?: InputMaybe<Scalars['Boolean']['input']>;
   /** Requirements associated with the Question */
@@ -3324,19 +3229,6 @@ export type UpdateQuestionInput = {
   sampleText?: InputMaybe<Scalars['String']['input']>;
   /** Boolean indicating whether we should use content from sampleText as the default answer */
   useSampleTextAsDefault?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type UpdateQuestionOptionInput = {
-  /** The id of the QuestionOption */
-  id?: InputMaybe<Scalars['Int']['input']>;
-  /** Whether the option is the default selected one */
-  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The option order number */
-  orderNumber: Scalars['Int']['input'];
-  /** id of parent question */
-  questionId?: InputMaybe<Scalars['Int']['input']>;
-  /** The option text */
-  text: Scalars['String']['input'];
 };
 
 export type UpdateRepositoryInput = {
@@ -3553,6 +3445,8 @@ export type VersionedQuestion = {
   guidanceText?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
+  /** The JSON representation of the question type */
+  json?: Maybe<Scalars['String']['output']>;
   /** The timestamp when the Object was last modifed */
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
@@ -3561,8 +3455,6 @@ export type VersionedQuestion = {
   questionId: Scalars['Int']['output'];
   /** This will be used as a sort of title for the Question */
   questionText?: Maybe<Scalars['String']['output']>;
-  /** The type of question, such as text field, select box, radio buttons, etc */
-  questionTypeId?: Maybe<Scalars['Int']['output']>;
   /** To indicate whether the question is required to be completed */
   required?: Maybe<Scalars['Boolean']['output']>;
   /** Requirements associated with the Question */
@@ -3647,9 +3539,9 @@ export type VersionedQuestionErrors = {
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   guidanceText?: Maybe<Scalars['String']['output']>;
+  json?: Maybe<Scalars['String']['output']>;
   questionId?: Maybe<Scalars['String']['output']>;
   questionText?: Maybe<Scalars['String']['output']>;
-  questionTypeId?: Maybe<Scalars['String']['output']>;
   requirementText?: Maybe<Scalars['String']['output']>;
   sampleText?: Maybe<Scalars['String']['output']>;
   versionedQuestionConditionIds?: Maybe<Scalars['String']['output']>;
@@ -3944,14 +3836,14 @@ export type AddQuestionMutationVariables = Exact<{
 }>;
 
 
-export type AddQuestionMutation = { __typename?: 'Mutation', addQuestion: { __typename?: 'Question', id?: number | null, displayOrder?: number | null, questionText?: string | null, questionTypeId?: number | null, requirementText?: string | null, guidanceText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, required?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', isDefault?: boolean | null, id?: number | null, questionId: number, orderNumber: number, text: string }> | null } };
+export type AddQuestionMutation = { __typename?: 'Mutation', addQuestion: { __typename?: 'Question', id?: number | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, guidanceText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, required?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null } };
 
 export type UpdateQuestionMutationVariables = Exact<{
   input: UpdateQuestionInput;
 }>;
 
 
-export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, questionTypeId?: number | null, guidanceText?: string | null, isDirty?: boolean | null, required?: boolean | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionText?: string | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, orderNumber: number, questionId: number, text: string, isDefault?: boolean | null }> | null } };
+export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, isDirty?: boolean | null, required?: boolean | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionText?: string | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null } };
 
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
@@ -4120,7 +4012,7 @@ export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Pro
 export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type QuestionTypesQuery = { __typename?: 'Query', questionTypes?: Array<{ __typename?: 'QuestionType', id?: number | null, name: string, usageDescription: string, errors?: { __typename?: 'QuestionTypeErrors', general?: string | null, name?: string | null, usageDescription?: string | null } | null } | null> | null };
+export type QuestionTypesQuery = { __typename?: 'Query', questionTypes?: Array<{ __typename?: 'QuestionType', id?: number | null, name: string, usageDescription: string, json: string, errors?: { __typename?: 'QuestionTypeErrors', general?: string | null, name?: string | null, usageDescription?: string | null } | null } | null> | null };
 
 export type QuestionsDisplayOrderQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
@@ -4134,7 +4026,7 @@ export type QuestionQueryVariables = Exact<{
 }>;
 
 
-export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionTypeId?: number | null, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, questionOptionIds?: string | null, questionTypeId?: string | null, sectionId?: string | null, sourceQestionId?: string | null, templateId?: string | null } | null, questionOptions?: Array<{ __typename?: 'QuestionOption', id?: number | null, isDefault?: boolean | null, orderNumber: number, text: string, questionId: number }> | null } | null };
+export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, sectionId?: string | null, sourceQestionId?: string | null, templateId?: string | null } | null } | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4726,19 +4618,12 @@ export const AddQuestionDocument = gql`
     id
     displayOrder
     questionText
-    questionTypeId
+    json
     requirementText
     guidanceText
     sampleText
     useSampleTextAsDefault
     required
-    questionOptions {
-      isDefault
-      id
-      questionId
-      orderNumber
-      text
-    }
   }
 }
     `;
@@ -4772,7 +4657,6 @@ export const UpdateQuestionDocument = gql`
     mutation UpdateQuestion($input: UpdateQuestionInput!) {
   updateQuestion(input: $input) {
     id
-    questionTypeId
     guidanceText
     errors {
       general
@@ -4780,19 +4664,13 @@ export const UpdateQuestionDocument = gql`
     }
     isDirty
     required
+    json
     requirementText
     sampleText
     useSampleTextAsDefault
     sectionId
     templateId
     questionText
-    questionOptions {
-      id
-      orderNumber
-      questionId
-      text
-      isDefault
-    }
   }
 }
     `;
@@ -5963,6 +5841,7 @@ export const QuestionTypesDocument = gql`
     }
     name
     usageDescription
+    json
   }
 }
     `;
@@ -6050,27 +5929,18 @@ export const QuestionDocument = gql`
       sampleText
       displayOrder
       questionConditionIds
-      questionOptionIds
-      questionTypeId
       sectionId
       sourceQestionId
       templateId
     }
     displayOrder
     questionText
+    json
     requirementText
     sampleText
     useSampleTextAsDefault
     sectionId
     templateId
-    questionTypeId
-    questionOptions {
-      id
-      isDefault
-      orderNumber
-      text
-      questionId
-    }
     isDirty
   }
 }

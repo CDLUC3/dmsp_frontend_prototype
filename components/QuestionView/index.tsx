@@ -42,6 +42,14 @@ interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
   templateId: number,
 }
 
+const getParsedQuestionJSON = (question: Question | null) => {
+  if (question) {
+    const parsedJSON = question?.json ? JSON.parse(question.json) : null;
+    return parsedJSON;
+  }
+  return null;
+}
+
 
 const QuestionView: React.FC<QuestionViewProps> = ({
   id = '',
@@ -62,17 +70,21 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const [questionType, setQuestionType] = useState<string>('');
 
   useEffect(() => {
-    if (!question) return;
-    if (!qtData) return;
+    if (!question || !qtData?.questionTypes) return;
 
-    if (questionType == '' && qtData.questionTypes) {
-      const qt = qtData.questionTypes
-        .find(qt => qt && qt.id === question.questionTypeId);
-      if (qt) {
-        setQuestionType(qt.name);
+    const parsedQuestion = getParsedQuestionJSON(question);
+    if (!parsedQuestion) return;
+    const type = parsedQuestion.type;
+
+    for (const qt of qtData.questionTypes) {
+      if (!qt || !qt.json) continue; // null check
+      const qtJson = JSON.parse(qt.json);
+      if (qtJson?.type === type) {
+        setQuestionType(type);
+        break;
       }
     }
-  }, [question]);
+  })
 
   if (!question) return null;
 
@@ -103,7 +115,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardEyebrow>{trans('cardType')}</CardEyebrow>
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
-            {(questionType == 'Text Area') && (
+            {questionType}
+            {(questionType == 'textArea') && (
               <TinyMCEEditor
                 id="question-text-editor"
                 content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
@@ -111,24 +124,20 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               />
             )}
 
-            {(questionType == 'Text Field') && (
+            {(questionType == 'text') && (
               <p>Plain text field</p>
             )}
 
-            {(questionType == 'Radio Buttons') && (
+            {(questionType == 'radioButtons') && (
               <p>Radios</p>
             )}
 
-            {(questionType == 'Check Boxes') && (
+            {(questionType == 'checkBoxes') && (
               <p>Checkboxes</p>
             )}
 
-            {(questionType == 'Select Box') && (
+            {(questionType == 'selectBox') && (
               <p>Select Box</p>
-            )}
-
-            {(questionType == 'Multi Select Box') && (
-              <p>Multi Select Box</p>
             )}
 
             <div id="_guidance" className={styles.Guidance}>

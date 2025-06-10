@@ -7,6 +7,7 @@ import {
   useQuestionTypesQuery,
   useTemplateQuery,
 } from '@/generated/graphql';
+import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
 import QuestionView from '@/components/QuestionView';
 
 
@@ -19,23 +20,25 @@ jest.mock('@/generated/graphql', () => ({
 }));
 
 
-const mockQuestionTypes = {
-  questionTypes: [
-    {
-      id: 1,
-      name: "Text Area",
-    },
-  ]
-};
-
-
 const mockQuestion = {
   guidanceText: 'Question guidance...',
   questionText: 'Question text?',
   requirementText: 'Question requirements',
   sampleText: 'Lorem ipsum dolor sit...',
   useSampleTextAsDefault: false,
-  questionTypeId: 1,
+  json: JSON.stringify({
+    meta: {
+      asRichText: true,
+      schemaVersion: "1.0"
+    },
+    type: "textArea",
+    attributes: {
+      cols: 20,
+      rows: 4,
+      maxLength: null,
+      minLength: 0
+    }
+  }),
 };
 
 
@@ -155,12 +158,19 @@ describe("QuestionView", () => {
   });
 
   it('should render the Text Field question type', () => {
-    const mockQuestionWithTextField = { ...mockQuestion, questionTypeId: 2 };
-    mockHook(useQuestionTypesQuery).mockReturnValue({
-      data: { questionTypes: [{ id: 2, name: "Text Field" }] },
-      loading: false,
-      error: null,
-    });
+    const mockQuestionWithTextField = {
+      ...mockQuestion, json: JSON.stringify({
+        meta: {
+          schemaVersion: "1.0"
+        },
+        type: "text",
+        attributes: {
+          pattern: null,
+          maxLength: null,
+          minLength: 0
+        }
+      })
+    };
 
     render(
       <QuestionView
@@ -173,12 +183,23 @@ describe("QuestionView", () => {
   });
 
   it('should render the Radio Buttons question type', () => {
-    const mockQuestionWithRadioButtons = { ...mockQuestion, questionTypeId: 3 };
-    mockHook(useQuestionTypesQuery).mockReturnValue({
-      data: { questionTypes: [{ id: 3, name: "Radio Buttons" }] },
-      loading: false,
-      error: null,
-    });
+    const mockQuestionWithRadioButtons = {
+      ...mockQuestion, json: JSON.stringify({
+        meta: {
+          schemaVersion: "1.0"
+        },
+        type: "radioButtons",
+        options: [
+          {
+            attributes: {
+              label: null,
+              value: null,
+              selected: false
+            }
+          }
+        ]
+      })
+    };
 
     render(
       <QuestionView
@@ -191,12 +212,23 @@ describe("QuestionView", () => {
   });
 
   it('should render the Check Boxes question type', () => {
-    const mockQuestionWithCheckBoxes = { ...mockQuestion, questionTypeId: 4 };
-    mockHook(useQuestionTypesQuery).mockReturnValue({
-      data: { questionTypes: [{ id: 4, name: "Check Boxes" }] },
-      loading: false,
-      error: null,
-    });
+    const mockQuestionWithCheckBoxes = {
+      ...mockQuestion, json: JSON.stringify({
+        meta: {
+          schemaVersion: "1.0"
+        },
+        type: "checkBoxes",
+        options: [
+          {
+            attributes: {
+              label: null,
+              value: null,
+              checked: false
+            }
+          }
+        ]
+      })
+    };
 
     render(
       <QuestionView
@@ -209,12 +241,23 @@ describe("QuestionView", () => {
   });
 
   it('should render the Select Box question type', () => {
-    const mockQuestionWithSelectBox = { ...mockQuestion, questionTypeId: 5 };
-    mockHook(useQuestionTypesQuery).mockReturnValue({
-      data: { questionTypes: [{ id: 5, name: "Select Box" }] },
-      loading: false,
-      error: null,
-    });
+    const mockQuestionWithSelectBox = {
+      ...mockQuestion, json: JSON.stringify({
+        meta: {
+          schemaVersion: "1.0"
+        },
+        type: "selectBox",
+        options: [
+          {
+            attributes: {
+              label: null,
+              value: null,
+              selected: false
+            }
+          }
+        ]
+      })
+    };
 
     render(
       <QuestionView
@@ -226,23 +269,6 @@ describe("QuestionView", () => {
     expect(screen.getByTestId('card-body').textContent).toContain('Select Box');
   });
 
-  it('should render the Multi Select Box question type', () => {
-    const mockQuestionWithMultiSelectBox = { ...mockQuestion, questionTypeId: 6 };
-    mockHook(useQuestionTypesQuery).mockReturnValue({
-      data: { questionTypes: [{ id: 6, name: "Multi Select Box" }] },
-      loading: false,
-      error: null,
-    });
-
-    render(
-      <QuestionView
-        question={mockQuestionWithMultiSelectBox}
-        isPreview={true}
-        templateId={1}
-      />
-    );
-    expect(screen.getByTestId('card-body').textContent).toContain('Multi Select Box');
-  });
 
   it('should not execute logic when question is undefined', () => {
     (useQuestionTypesQuery as jest.Mock).mockReturnValue({

@@ -8,5 +8,6 @@ query QuestionTypes {
     }
     name
     usageDescription
+    json
   }
 }

@@ -1,11 +1,12 @@
 import React from "react";
-import {act, fireEvent, render, screen} from '@/utils/test-utils';
-import {useQuestionTypesQuery} from '@/generated/graphql';
-import {axe, toHaveNoViolations} from 'jest-axe';
-import {useParams, useRouter, useSearchParams} from 'next/navigation';
-import {useQueryStep} from '@/app/[locale]/template/[templateId]/q/new/utils';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { useQuestionTypesQuery } from '@/generated/graphql';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
 import QuestionTypeSelectPage from "../page";
-import {mockScrollIntoView, mockScrollTo} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -46,28 +47,7 @@ jest.mock('@/components/QuestionAdd', () => {
   };
 });
 
-const mockQuestionTypes = {
-  questionTypes: [
-    {
-      errors: null,
-      id: 1,
-      name: "Rich Text Editor",
-      usageDescription: "For questions that allow you to format data using mark down."
-    },
-    {
-      errors: null,
-      id: 2,
-      name: "Text Area",
-      usageDescription: "For questions that require longer answers."
-    },
-    {
-      errors: null,
-      id: 3,
-      name: "Text Field",
-      usageDescription: "For questions that require short answers."
-    }
-  ]
-}
+
 
 describe("QuestionTypeSelectPage", () => {
   let pushMock: jest.Mock;
@@ -145,12 +125,12 @@ describe("QuestionTypeSelectPage", () => {
     expect(searchHelpText).toBeInTheDocument();
 
     //Question types
-    const questionTypeCard1 = screen.getByRole('heading', { level: 2, name: /Rich Text Editor/i });
-    const questionTypeCard1Description = screen.getByText('For questions that allow you to format data using mark down.');
-    const questionTypeCard2 = screen.getByRole('heading', { level: 2, name: /Text Area/i });
-    const questionTypeCard2Description = screen.getByText('For questions that require longer answers.');
-    const questionTypeCard3 = screen.getByRole('heading', { level: 2, name: /Text Field/i });
-    const questionTypeCard3Description = screen.getByText('For questions that require short answers.');
+    const questionTypeCard1 = screen.getByRole('heading', { level: 2, name: /Text Area/i });
+    const questionTypeCard1Description = screen.getByText('For questions that require longer answers, you can select formatting options too.');
+    const questionTypeCard2 = screen.getByRole('heading', { level: 2, name: /Text Field/i });
+    const questionTypeCard2Description = screen.getByText('For questions that require short, simple answers.');
+    const questionTypeCard3 = screen.getByRole('heading', { level: 2, name: /Radio Buttons/i });
+    const questionTypeCard3Description = screen.getByText('For multiple choice questions where users select just one option.');
     const selectButtons = screen.getAllByRole('button', { name: /buttons.select/i });
     expect(questionTypeCard1).toBeInTheDocument();
     expect(questionTypeCard1Description).toBeInTheDocument();
@@ -158,7 +138,7 @@ describe("QuestionTypeSelectPage", () => {
     expect(questionTypeCard2Description).toBeInTheDocument();
     expect(questionTypeCard3).toBeInTheDocument();
     expect(questionTypeCard3Description).toBeInTheDocument();
-    expect(selectButtons.length).toBe(3);
+    expect(selectButtons.length).toBe(16);
   });
 
   it('should show filtered list when user clicks Search button', async () => {
@@ -179,14 +159,14 @@ describe("QuestionTypeSelectPage", () => {
 
     // enter findable search term
     await act(async () => {
-      fireEvent.change(searchInput, { target: { value: 'Rich' } });
+      fireEvent.change(searchInput, { target: { value: 'Text' } });
     });
 
     const searchButton = screen.getByRole('button', { name: /clear search/i });
     fireEvent.click(searchButton);
 
     // Check that we can find section name that matches the search item
-    expect(screen.getByText('Rich Text Editor')).toBeInTheDocument();
+    expect(screen.getByText('Text Field')).toBeInTheDocument();
 
     // Question Type 'Text Area' should not display after filtering
     const textArea = screen.queryByRole('textbox', { name: /text area/i });
