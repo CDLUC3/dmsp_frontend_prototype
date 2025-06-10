@@ -198,7 +198,10 @@ const mockTemplates = {
 const mockHook = (hook: any) => hook as jest.Mock;
 
 const setupMocks = () => {
-  mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
+  mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), {
+    loading: false,
+    error: undefined
+  }]);
   mockHook(usePublishedTemplatesQuery).mockReturnValue({ data: mockPublicTemplates, loading: false, error: undefined });
   mockHook(useMyVersionedTemplatesQuery).mockReturnValue({ data: mockTemplates, loading: false, error: undefined });
 };
@@ -299,17 +302,53 @@ describe('TemplateSelectTemplatePage', () => {
   });
 
   it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: null
+          }
+        }
+      })
+    ]);
+
     await act(async () => {
       render(
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
-    //Search input field
+
     const selectButton = screen.getAllByRole('button', { name: /select/i });
+    fireEvent.click(selectButton[0]);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
+
+  it('should handle response errors when user clicks a \'Select\' button', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: {
+              global: 'New Template, something went wrong...',
+            },
+          }
+        }
+      })
+    ]);
 
     await act(async () => {
-      fireEvent.click(selectButton[0]);
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
     });
+
+    const selectButton = screen.getAllByRole('button', { name: /select/i });
+    fireEvent.click(selectButton[0]);
 
     // Wait for the mutation to be called
     await waitFor(() => {
