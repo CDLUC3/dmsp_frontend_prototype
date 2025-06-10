@@ -9,11 +9,12 @@ import {
   SelectBoxQuestionSchema,
   URLQuestionSchema,
   CurrencyQuestionSchema,
-  DatePickerQuestionSchema,
+  DateQuestionSchema,
   DateRangeQuestionSchema,
   EmailQuestionSchema,
   FilteredSearchQuestionSchema,
   NumberQuestionSchema,
+  NumberRangeQuestionSchema,
   TableQuestionSchema,
   TypeaheadSearchQuestionSchema,
   TextQuestionType,
@@ -24,7 +25,7 @@ import {
   URLQuestionType,
   BooleanQuestionType,
   CurrencyQuestionType,
-  DatePickerQuestionType,
+  DateQuestionType,
   DateRangeQuestionType,
   EmailQuestionType,
   FilteredSearchQuestionType,
@@ -62,7 +63,7 @@ const questionSchemas: Record<string, ZodSchema> = {
   selectBox: SelectBoxQuestionSchema,
   url: URLQuestionSchema,
   currency: CurrencyQuestionSchema,
-  datePicker: DatePickerQuestionSchema,
+  date: DateQuestionSchema,
   dateRange: DateRangeQuestionSchema,
   email: EmailQuestionSchema,
   filteredSearch: FilteredSearchQuestionSchema,
@@ -268,8 +269,8 @@ export const questionTypeHandlers: Record<
 
     return createAndValidateQuestion("currency", questionData, questionSchemas.currency);
   },
-  datePicker: (json, input) => {
-    const questionData: DatePickerQuestionType = {
+  date: (json, input) => {
+    const questionData: DateQuestionType = {
       ...json,
       type: "date",
       meta: {
@@ -278,9 +279,9 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        max: input?.max ?? null,
-        min: input?.min ?? null,
-        step: input?.step ?? null,
+        max: input?.max ?? new Date().toISOString().split('T')[0], // Default to today
+        min: input?.min ?? "1900-01-01",
+        step: input?.step ?? 1,
       },
     };
 
@@ -289,7 +290,7 @@ export const questionTypeHandlers: Record<
   dateRange: (json, input) => {
     const questionData: DateRangeQuestionType = {
       ...json,
-      type: "date",
+      type: "dateRange",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -398,6 +399,44 @@ export const questionTypeHandlers: Record<
 
     return createAndValidateQuestion("number", questionData, questionSchemas.number);
   },
+  numberRange: (json, input) => {
+    const questionData: NumberQuestionType = {
+      ...json,
+      type: "numberRange",
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+      columns: [
+        {
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION,
+          },
+          type: "number",
+          attributes: {
+            max: input?.from?.max ?? null,
+            min: input?.from?.min ?? 0,
+            step: input?.from?.step ?? 1,
+            label: input?.from?.label ?? "From",
+          },
+        },
+        {
+          meta: {
+            schemaVersion: CURRENT_SCHEMA_VERSION,
+          },
+          type: "number",
+          attributes: {
+            max: input?.to?.max ?? null,
+            min: input?.to?.min ?? 0,
+            step: input?.to?.step ?? 1,
+            label: input?.to?.label ?? "To",
+          },
+        },
+      ],
+    };
+
+    return createAndValidateQuestion("numberRange", questionData, questionSchemas.numberRange);
+  },
   table: (json, input: {
     columns?: TableQuestionType["columns"];
     attributes?: TableQuestionType["attributes"];
@@ -409,31 +448,26 @@ export const questionTypeHandlers: Record<
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
-      columns: input?.columns?.map(column => {
-        const baseColumn = {
+      columns: input?.columns?.map(column => ({
+        heading: column.heading,
+        content: {
           meta: {
-            ...column.meta,
-            label: "label" in column.meta ? column.meta.label ?? "" : "",
             schemaVersion: CURRENT_SCHEMA_VERSION,
           },
-          type: column.type ?? "text",
-        };
-
-        // Add `attributes` only if it exists
-        if ("attributes" in column && column.attributes) {
-          return { ...baseColumn, attributes: column.attributes };
-        }
-
-        // Handle `columns` property for `dateRange` type
-        if (column.type === "dateRange" && "columns" in column) {
-          return { ...baseColumn, columns: column.columns };
-        }
-
-        return baseColumn;
-      }) || [],
+          type: "text",
+          attributes: {
+            maxLength: column.content?.type === "text" && column.content.attributes?.maxLength !== undefined
+              ? column.content.attributes.maxLength
+              : 100, // Default to 100 if not defined
+            minLength: column.content?.type === "text" && column.content.attributes?.minLength !== undefined
+              ? column.content.attributes.minLength
+              : 1, // Default to 1 if not defined
+          },
+        },
+      })) || [],
       attributes: {
-        maxRows: input?.attributes?.maxRows ?? null,
-        minRows: input?.attributes?.minRows ?? null,
+        maxRows: input?.attributes?.maxRows ?? 10, // Use number, not null
+        minRows: input?.attributes?.minRows ?? 1,  // Use number, not null
         canAddRows: input?.attributes?.canAddRows ?? true,
         initialRows: input?.attributes?.initialRows ?? 1,
         canRemoveRows: input?.attributes?.canRemoveRows ?? true,

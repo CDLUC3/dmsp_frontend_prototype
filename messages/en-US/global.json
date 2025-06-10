@@ -220,7 +220,7 @@
       "email": "Email",
       "url": "URL",
       "currency": "Currency",
-      "datePicker": "Date picker",
+      "date": "Date field",
       "dateRange": "Date range",
       "filteredSearch": "Filtered search",
       "table": "Table",

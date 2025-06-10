@@ -220,7 +220,7 @@
       "email": "E-mail",
       "url": "URL",
       "currency": "Moeda",
-      "datePicker": "Seletor de datas",
+      "date": "Seletor de datas",
       "dateRange": "Intervalo de datas",
       "filteredSearch": "Pesquisa com filtros",
       "table": "Tabela",
