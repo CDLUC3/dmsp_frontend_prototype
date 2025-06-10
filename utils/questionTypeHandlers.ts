@@ -68,6 +68,7 @@ const questionSchemas: Record<string, ZodSchema> = {
   email: EmailQuestionSchema,
   filteredSearch: FilteredSearchQuestionSchema,
   number: NumberQuestionSchema,
+  numberRange: NumberRangeQuestionSchema,
   table: TableQuestionSchema,
   typeAheadSearch: TypeaheadSearchQuestionSchema,
 };
