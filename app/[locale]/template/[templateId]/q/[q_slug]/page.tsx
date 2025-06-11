@@ -24,7 +24,6 @@ import {
 // GraphQL queries and mutations
 import {
   useQuestionQuery,
-  useQuestionTypesQuery,
   useUpdateQuestionMutation
 } from '@/generated/graphql';
 
@@ -40,11 +39,42 @@ import QuestionView from '@/components/QuestionView';
 
 //Other
 import { useToast } from '@/context/ToastContext';
+
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
+import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
+import { OPTIONS_QUESTION_TYPES } from '@/lib/constants';
 import styles from './questionEdit.module.scss';
 
+// Configure what overrides you want to apply to the question type json objects
+const getOverrides = (questionType: string | null | undefined) => {
+  switch (questionType) {
+    case "text":
+      return { maxLength: null };
+    case "textArea":
+      return { maxLength: null, rows: 20 };
+    case "number":
+      return { min: 0, max: 10000000, step: 1 };
+    case "currency":
+      return { min: 0, max: 10000000, step: 0.01 };
+    case "url":
+      return { maxLength: 2048, minLength: 2, pattern: "https?://.+" };
+    default:
+      return {};
+  }
+};
+
+// Define the type for the options in json.options
+interface Option {
+  type: string;
+  attributes: {
+    label: string;
+    value: string;
+    selected?: boolean;
+    checked?: boolean;
+  };
+}
 
 const QuestionEdit = () => {
   const params = useParams();
@@ -53,15 +83,16 @@ const QuestionEdit = () => {
   const toastState = useToast(); // Access the toast state from context
   const templateId = Array.isArray(params.templateId) ? params.templateId[0] : params.templateId;
   const questionId = params.q_slug; //question id
-  const questionTypeIdQueryParam = searchParams.get('questionTypeId') || null;
+  const questionTypeIdQueryParam = searchParams.get('questionType') || null;
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>();
-  const [rows, setRows] = useState<QuestionOptions[]>([]);//Question options, initially set as an empty array
+  const [rows, setRows] = useState<QuestionOptions[]>([]);
   const [questionType, setQuestionType] = useState<string>('');
+  const [questionTypeName, setQuestionTypeName] = useState<string>(''); // Added to store friendly question name
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -89,18 +120,13 @@ const QuestionEdit = () => {
     },
   );
 
-  // Query for getting all question types
-  const { data: questionTypes } = useQuestionTypesQuery({
-    skip: !questionId
-  });
-
-  const getQuestionTypeName = (id: number) => {
-    if (questionTypes && questionTypes?.questionTypes) {
-      const questionType = questionTypes?.questionTypes?.find(qt => qt && qt.id === id);
-      return questionType ? questionType.name : null; // Return question type name if found, else null
+  const getParsedQuestionJSON = (question: Question | null) => {
+    if (question) {
+      const parsedJSON = question?.json ? JSON.parse(question.json) : null;
+      return parsedJSON;
     }
-    return '';
-  };
+    return null;
+  }
 
   // Return user back to the page to select a question type
   const redirectToQuestionTypes = () => {
@@ -109,28 +135,55 @@ const QuestionEdit = () => {
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
-
+  // Handle form submission to update the question
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (question) {
+      // For options questions,we update the values with rows state. For non-options questions, we use the parsed JSON
+      const formState = hasOptions
+        ? {
+          options: rows.map(row => ({
+            label: row.text,
+            value: row.text,
+            selected: row.isSelected,
+          })),
+        }
+        : getParsedQuestionJSON(question); // Use parsed JSON for non-option types
+
+      // Get any overrides for the question type json objects based on question type
+      const overrides = getOverrides(questionType);
+
+      // Merge formState with overrides for non-options questions, and use formState directly for options questions
+      const userInput = hasOptions
+        ? formState
+        : { ...formState, attributes: { ...formState.attributes, ...overrides } };
+
+      // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
+      const updatedJSON = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+        getParsedQuestionJSON(question),
+        userInput
+      );
+
+      // Set formSubmitted to true to indicate the form has been submitted
       setFormSubmitted(true);
-      // string all tags from questionText before sending to backend
+
+      // Strip all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
+
       try {
-        // Add mutation for question. If user has questionTypeId in query param because they just selected
-        // a new question type, then use that as the questionTypeId rather than what is currently in the db
+        // Add mutation for question
         const response = await updateQuestionMutation({
           variables: {
             input: {
               questionId: Number(questionId),
-              questionTypeId: questionTypeIdQueryParam ? Number(questionTypeIdQueryParam) : selectedQuestion?.question?.questionTypeId,
               displayOrder: question.displayOrder,
+              json: JSON.stringify(updatedJSON.data),
               questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
               sampleText: question.sampleText,
               useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-              questionOptions: rows || selectedQuestion?.question?.questionOptions
             }
           },
         });
@@ -152,52 +205,40 @@ const QuestionEdit = () => {
   }
 
   useEffect(() => {
-    // if the question with the given questionId exists, then set the data in state
+    // if the question with the given questionType exists, then set the data in state
     if (selectedQuestion) {
 
       const q = selectedQuestion?.question || null;
+      const json = getParsedQuestionJSON(q);
+      const questionType = json.type ?? questionTypeIdQueryParam;
+      const questionTypeFriendlyName = Global(`questionTypes.${questionType}`) || '';
+
+      setQuestionType(questionType);
+      setQuestionTypeName(questionTypeFriendlyName);
+      const isOptionQuestion = Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType)); // Ensure the result is a boolean
 
       // Set question and rows in state
-      if (q && q.questionOptions) {
+      if (q) {
         const sanitizedQuestion = {
           ...q,
           questionText: stripHtmlTags(q.questionText ?? ''), // Sanitize questionText
         };
 
         setQuestion(sanitizedQuestion);
-        const optionRows = q.questionOptions
-          .map(({ id, orderNumber, text, isDefault, questionId }) => ({
-            id: id ?? 0, // Ensure id is always a number
-            orderNumber,
-            text,
-            isDefault: isDefault || false,
-            questionId
-          }))
-          .sort((a, b) => a.orderNumber - b.orderNumber); // Sort in ascending order
-
-        setRows(optionRows);
-        // If user has the questionTypeId in the query param because they just selected a new question type
-        // then use that over the one in the data
-        const qt = getQuestionTypeName(Number(questionTypeIdQueryParam ?? selectedQuestion?.question?.questionTypeId))
-
-        if (qt) {
-          setQuestionType(qt);
-        }
+        setHasOptions(isOptionQuestion);
 
       }
-    }
 
-    if (questionTypeIdQueryParam && rows.length === 0) {
-      // If there is a questionTypeId query param, then that means that user switched to a new question type
-      // so we want to reset the rows to a fresh, empty row
-      if ([3, 4, 5].includes(Number(questionTypeIdQueryParam))) {
-        setRows([{
-          id: 1,
-          orderNumber: 1,
-          text: "",
-          isDefault: false,
-          questionId: Number(questionId)
-        }]);
+      // Set options info
+      if (isOptionQuestion) {
+        const optionRows = json.options
+          .map((option: Option, index: number) => ({
+            id: index,
+            text: option.attributes.label,
+            isSelected: option.attributes.selected || option.attributes.checked || false,
+          }));
+
+        setRows(optionRows);
       }
     }
   }, [selectedQuestion])
@@ -208,15 +249,6 @@ const QuestionEdit = () => {
       setErrors(prev => [...prev, selectedQuestionQueryError.message])
     }
   }, [selectedQuestionQueryError])
-
-  useEffect(() => {
-    // To determine if the question type selected is one that includes options fields
-    const questionTypeOptions = !!(
-      (questionTypeIdQueryParam && [3, 4, 5].includes(Number(questionTypeIdQueryParam))) ??
-      (selectedQuestion?.question?.questionTypeId && [3, 4, 5].includes(selectedQuestion?.question?.questionTypeId))
-    );
-    setHasOptions(questionTypeOptions);
-  }, [questionTypeIdQueryParam, selectedQuestion])
 
   if (loading) {
     return <div>Loading...</div>;
@@ -270,7 +302,7 @@ const QuestionEdit = () => {
                   <Label
                     className={`${styles.searchLabel} react-aria-Label`}>{QuestionEdit('labels.type')}</Label>
                   <Input
-                    value={questionType}
+                    value={questionTypeName}
                     className={`${styles.searchInput} react-aria-Input`}
                     disabled />
                   <Button className={`${styles.searchButton} react-aria-Button`}
@@ -302,8 +334,10 @@ const QuestionEdit = () => {
                   <div className={styles.optionsWrapper}>
                     <p
                       className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
-                    <QuestionOptionsComponent rows={rows} setRows={setRows}
-                      questionId={Number(questionId)}
+                    <QuestionOptionsComponent
+                      rows={rows}
+                      setRows={setRows}
+                      questionType={questionType}
                       formSubmitted={formSubmitted}
                       setFormSubmitted={setFormSubmitted} />
                   </div>
@@ -317,7 +351,7 @@ const QuestionEdit = () => {
                   textAreaClasses={styles.questionFormField}
                   label={QuestionEdit('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
-                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                  onChange={(newValue) => setQuestion(prev => ({
                     ...prev,
                     requirementText: newValue
                   }))}
@@ -330,7 +364,7 @@ const QuestionEdit = () => {
                   textAreaClasses={styles.questionFormField}
                   label={QuestionEdit('labels.guidanceText')}
                   value={question?.guidanceText ? question.guidanceText : ''}
-                  onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                  onChange={(newValue) => setQuestion(prev => ({
                     ...prev,
                     guidanceText: newValue
                   }))}
@@ -346,7 +380,7 @@ const QuestionEdit = () => {
                     textAreaClasses={styles.questionFormField}
                     label={QuestionEdit('labels.sampleText')}
                     value={question?.sampleText ? question?.sampleText : ''}
-                    onChange={(newValue) => setQuestion(prev => ({ // Use functional update for safety
+                    onChange={(newValue) => setQuestion(prev => ({
                       ...prev,
                       sampleText: newValue
                     }))}

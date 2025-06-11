@@ -12,6 +12,7 @@
 - Plan Downloads [#299]
 -
 ### Added
+- Added support for question type JSON objects [#535]
 - Added TinyMCE Editor component and added it to the styleguide [#462]
 - Added a Load more button to the Add new section page [#450]
 - PublishedSections graphQL query [#448]
@@ -113,6 +114,7 @@
 - Fixed wrong node image in `Dockerfile.prd`. Also fixed a number of linting issues.
 - Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
+- Fixed that didn't show the current title when editing a template name [#475]
 - Added the missing button to create a new template from scratch [#474]
 
 ### Chore

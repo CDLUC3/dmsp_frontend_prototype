@@ -268,7 +268,7 @@
     "announcements": {
       "rowDefault": "Row with ID {id} set as default.",
       "rowRemoved": "Row with ID {id} removed.",
-      "rowAdded": "Row {orderNumber} added."
+      "rowAdded": "Row {nextNum} added."
     },
     "placeholder": {
       "orderNumber": "Enter order #",
@@ -301,7 +301,7 @@
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
-      "questionOptions": "Please enter answer choices for the {questionTypeName}",
+      "questionOptions": "Please enter answer choices for the {questionName}",
       "questionText": "Keep the question text concise and clear. Use the requirements or guidance to provide additional explanation.",
       "requirementText": "Try to be precise and concise, so the plan writers won't miss any requirements. Question guidance is better for more general advice.",
       "sampleText": "Plan creators will be able to copy the sample text into the field as a starting point, to speed up content entry."
@@ -312,7 +312,8 @@
     "messages": {
       "errors": {
         "questionTextRequired": "Question text field is required.",
-        "questionAddingError": "Error when adding question."
+        "questionAddingError": "Error when adding question.",
+        "questionValidationError": "Invalid value"
       },
       "success": {
         "questionAdded": "Question was successfully added."

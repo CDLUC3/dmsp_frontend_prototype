@@ -29,10 +29,8 @@ jest.mock('next-intl', () => ({
 
 type Row = {
   id?: number | null;
-  orderNumber: number;
   text: string;
   isDefault?: boolean | null;
-  questionId: number;
 };
 
 describe('QuestionOptionsComponent', () => {
@@ -40,13 +38,13 @@ describe('QuestionOptionsComponent', () => {
 
   beforeEach(() => {
     rows = [
-      { id: 1, orderNumber: 1, text: 'Option 1', isDefault: false, questionId: 123 },
+      { id: 1, text: 'Option 1', isDefault: false },
     ];
     setRows = jest.fn();
   });
 
   it('should render initial rows correctly', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     expect(screen.getByLabelText('labels.order')).toBeInTheDocument();
     expect(screen.getByLabelText('labels.text')).toBeInTheDocument();
@@ -54,7 +52,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should add a new row when the add button is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
     fireEvent.click(addButton);
@@ -64,7 +62,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should update text field correctly', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     const textInput = screen.getByLabelText('labels.text');
     fireEvent.change(textInput, { target: { value: 'Updated Option' } });
@@ -73,7 +71,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should set a row as default when checkbox is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     const defaultCheckbox = screen.getByLabelText('labels.default');
     fireEvent.click(defaultCheckbox);
@@ -82,7 +80,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should add a row when the add button is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
     fireEvent.click(addButton);
@@ -91,7 +89,7 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should remove a row when delete button is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionId={123} formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
     const deleteButton = screen.getByRole('button', { name: /buttons.deleteRow/i });
     fireEvent.click(deleteButton);
@@ -102,15 +100,15 @@ describe('QuestionOptionsComponent', () => {
   it('should set the correct row as default and unset others', () => {
     const mockSetRows = jest.fn();
     const rows = [
-      { id: 1, orderNumber: 1, text: 'Option 1', isDefault: false, questionId: 1 },
-      { id: 2, orderNumber: 2, text: 'Option 2', isDefault: false, questionId: 1 },
+      { id: 1, orderNumber: 1, text: 'Option 1', isSelected: false, questionId: 1 },
+      { id: 2, orderNumber: 2, text: 'Option 2', isSelected: false, questionId: 1 },
     ];
 
     const { getByLabelText } = render(
       <QuestionOptionsComponent
         rows={rows}
         setRows={mockSetRows}
-        questionId={1}
+        questionType="radioButtons"
         setFormSubmitted={jest.fn()}
       />
     );
@@ -124,8 +122,8 @@ describe('QuestionOptionsComponent', () => {
     const updatedRows = updateFn(rows); // Simulate how React would call the updater with current state
 
     expect(updatedRows).toEqual([
-      { id: 1, orderNumber: 1, text: 'Option 1', isDefault: false, questionId: 1 },
-      { id: 2, orderNumber: 2, text: 'Option 2', isDefault: true, questionId: 1 }, // <== isDefault changed
+      { id: 1, orderNumber: 1, text: 'Option 1', isSelected: false, questionId: 1 },
+      { id: 2, orderNumber: 2, text: 'Option 2', isSelected: true, questionId: 1 }, // <== isDefault changed
     ]);
   });
 });

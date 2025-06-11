@@ -208,6 +208,24 @@
     "headings": {
       "preview": "Preview"
     },
-    "version": "Version"
+    "version": "Version",
+    "questionTypes": {
+      "text": "Text",
+      "textArea": "Text area",
+      "radioButtons": "Radio button",
+      "checkBoxes": "Checkbox",
+      "selectBox": "Select",
+      "boolean": "Boolean",
+      "number": "Number",
+      "numberRange": "Number range",
+      "email": "Email",
+      "url": "URL",
+      "currency": "Currency",
+      "date": "Date field",
+      "dateRange": "Date range",
+      "filteredSearch": "Filtered search",
+      "table": "Table",
+      "typeaheadSearch": "Typeahead search"
+    }
   }
 }

@@ -15,27 +15,18 @@ query Question($questionId: Int!) {
       sampleText
       displayOrder
       questionConditionIds
-      questionOptionIds
-      questionTypeId
       sectionId
       sourceQestionId
       templateId
     }
     displayOrder
     questionText
+    json
     requirementText
     sampleText
     useSampleTextAsDefault
     sectionId
     templateId
-    questionTypeId
-    questionOptions {
-      id
-      isDefault
-      orderNumber
-      text
-      questionId
-    }
     isDirty
   }
 }

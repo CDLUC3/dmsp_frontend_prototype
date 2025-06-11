@@ -8,8 +8,8 @@
     "page": {
       "pageDescription": "Visão geral dos detalhes do plano"
     },
-    "funder": {
-      "title": "Gordo para este plano",
+    "funding": {
+      "title": "Financiamento para este plano",
       "edit": "Ajustar para este plano"
     },
     "members": {
@@ -80,8 +80,8 @@
           "primaryContact": "ter um contato principal",
           "complete": "marcou seu plano como completo",
           "percentageAnswered": "respondeu a pelo menos 50% das perguntas (você respondeu {percentage}%",
-          "funderText": "identificaram seu",
-          "funder": "fina(s)",
+          "fundingText": "identificaram seu",
+          "funding": "fontes de financiamento",
           "requiredFields": "todos os campos marcados como 'obrigatórios'",
           "orcidText": "designou o ORCiD para pelo menos um dos",
           "projectMembers": "Membros de projeto"

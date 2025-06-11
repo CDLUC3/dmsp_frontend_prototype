@@ -170,20 +170,20 @@ export interface QuestionTypesInterface {
   id: number;
   name: string;
   usageDescription: string;
+  json: string;
 }
 
 export interface QuestionOptions {
   id?: number | null;
   text: string;
-  orderNumber: number;
-  isDefault?: boolean | null;
-  questionId: number;
+  isSelected?: boolean | null;
 }
 
 export interface Question {
   id?: number | null | undefined;
   displayOrder?: number | null;
-  questionTypeId?: number | null;
+  json?: string | null;
+  questionType?: string | null;
   questionText?: string | null;
   requirementText?: string | null;
   guidanceText?: string | null;
