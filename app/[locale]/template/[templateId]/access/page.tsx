@@ -268,7 +268,7 @@ const TemplateAccessPage: React.FC = () => {
             <div className="main-content">
               <ErrorMessages errors={errorMessages} ref={errorRef} />
               <p>
-                {AccessPage('intro', { orgName: organization?.name })}
+                {AccessPage('intro', { orgName: organization?.name ?? '' })}
               </p>
               <section className="sectionContainer"
                 aria-labelledby="org-access-heading">
@@ -276,7 +276,7 @@ const TemplateAccessPage: React.FC = () => {
                   <h3 id="org-access-heading">{AccessPage('headings.h3OrgAccess')}</h3>
                 </div>
                 <div className="sectionContent">
-                  <p>{AccessPage('paragraphs.orgAccessPara1', { name: organization?.name })}</p>
+                  <p>{AccessPage('paragraphs.orgAccessPara1', { name: organization?.name ?? '' })}</p>
                   <p>{AccessPage('paragraphs.orgAccessPara2', { count: organization?.admins?.length ?? '' })}</p>
                   {renderOrgAdmins}
                 </div>
@@ -288,7 +288,7 @@ const TemplateAccessPage: React.FC = () => {
                   <h3 id="external-access-heading">{AccessPage('headings.externalPeople')}</h3>
                 </div>
                 <div className="sectionContent">
-                  <p>{AccessPage('paragraphs.externalPara1', { orgName: organization?.name })}</p>
+                  <p>{AccessPage('paragraphs.externalPara1', { orgName: organization?.name || '' })}</p>
                   <div className={styles.externalPeopleList}>
                     {renderExternalPeople}
                   </div>

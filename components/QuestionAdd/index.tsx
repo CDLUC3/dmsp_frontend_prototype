@@ -300,7 +300,9 @@ const QuestionAdd = ({
 
                 {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
                   <>
-                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionName })}</p>
+                    <p className={styles.optionsDescription}>
+                      {QuestionAdd('helpText.questionOptions', { questionName: questionName ?? '' })}
+                    </p>
                     <div className={styles.optionsWrapper}>
                       <QuestionOptionsComponent
                         rows={rows}

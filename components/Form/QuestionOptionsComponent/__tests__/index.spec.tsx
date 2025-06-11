@@ -1,26 +1,24 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { fireEvent, render, screen } from '@/utils/test-utils';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import { RichTranslationValues } from 'next-intl';
 import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
 
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
+type MockUseTranslations = {
+  (key: string, ...args: unknown[]): string;
+  rich: (key: string, values?: RichTranslationValues) => ReactNode;
+};
 
-// Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
 
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
+    mockUseTranslations.rich = (key, values) => {
+      const p = values?.p;
+      if (typeof p === 'function') {
+        return p(key); // Can return JSX
       }
-      return key;
+      return key; // fallback
     };
 
     return mockUseTranslations;

@@ -8,6 +8,26 @@ import LocaleLayout from '@/app/[locale]/layout';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation'; // Replace require with import
 
+// Mock next-intl/middleware BEFORE importing middleware
+jest.mock('next-intl/middleware', () => ({
+  __esModule: true,
+  default: jest.fn(() => jest.fn(() => null)), // Return a function that returns null
+}));
+
+// Mock the routing configuration
+jest.mock('@/i18n/routing', () => ({
+  routing: {
+    locales: ['en-US', 'pt-BR'],
+    defaultLocale: 'en-US',
+  },
+}));
+
+// Mock the config
+jest.mock('@/config/i18nConfig', () => ({
+  locales: ['en-US', 'pt-BR'],
+  defaultLocale: 'en-US',
+}));
+
 
 // Mocks
 jest.mock('next-intl/server', () => ({

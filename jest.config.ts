@@ -5,7 +5,7 @@ const createJestConfig = nextJest({
   dir: "./",
 });
 
-const config: Config = {
+const config = {
   testEnvironment: "jest-environment-jsdom",
   moduleDirectories: ["node_modules", "<rootDir>/"],
   moduleNameMapper: {
@@ -40,11 +40,21 @@ const config: Config = {
     }
   },
   coverageDirectory: "coverage",
+  // Updated transformIgnorePatterns to handle next-intl and its dependencies
   transformIgnorePatterns: [
-    'node_modules/(?!(next-intl|other-esm-package)/)',
+    'node_modules/(?!(next-intl|@formatjs|intl-messageformat|.*\\.mjs$)/)',
   ],
-}
-
+  // Add extensionsToTreatAsEsm and globals for better ESM support
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
+  globals: {
+    'ts-jest': {
+      useESM: true,
+    },
+  },
+  transform: {
+    '^.+\\.(ts|tsx|js|jsx)$': 'babel-jest',
+  },
+} satisfies Config;
 
 // Use export default for TypeScript
 export default createJestConfig(config);

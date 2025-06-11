@@ -18,7 +18,6 @@ import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
-  SidebarPanel
 } from "@/components/Container";
 import { routePath } from '@/utils/routes';
 
@@ -97,7 +96,6 @@ const ProjectsProjectPlanAdjustFunding = () => {
 
 
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
       </LayoutWithPanel>
     </>
   );

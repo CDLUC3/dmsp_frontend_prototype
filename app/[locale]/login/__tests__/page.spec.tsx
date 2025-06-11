@@ -1,9 +1,9 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor, } from '@testing-library/react';
-import fetch from 'node-fetch';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+// REMOVE this import - it's causing the ESM error:
+// import fetch from 'node-fetch';
 
 import logECS from '@/utils/clientLogger';
-
 import LoginPage from '../page';
 
 //Need to import this useRouter after the jest.mock is in place
@@ -11,30 +11,25 @@ import { useRouter } from 'next/navigation';
 import { fetchCsrfToken } from "@/utils/authHelper";
 import { useCsrf } from '@/context/CsrfContext';
 
-
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn()
 }));
-
 
 jest.mock('@/utils/clientLogger', () => ({
   __esModule: true,
   default: jest.fn()
 }))
 
-
 jest.mock('@/utils/authHelper', () => ({
   refreshAuthTokens: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
   fetchCsrfToken: jest.fn(async () => Promise.resolve({ response: true, message: 'ok' })),
 }));
-
 
 jest.mock('@/context/AuthContext', () => ({
   useAuthContext: jest.fn(() => ({
     setIsAuthenticated: jest.fn(),
   })),
 }));
-
 
 jest.mock('@/context/CsrfContext', () => ({
   CsrfProvider: ({ children }: { children: React.ReactNode }) => (
@@ -43,17 +38,15 @@ jest.mock('@/context/CsrfContext', () => ({
   useCsrf: jest.fn(),
 }));
 
-
-
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
 const mockFocus = jest.fn();
 
 const mockUseRouter = useRouter as jest.Mock;
-
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 
-global.fetch = global.fetch || fetch;
+// Mock fetch globally instead of importing node-fetch
+global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 
 describe('LoginPage', () => {

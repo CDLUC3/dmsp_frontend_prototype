@@ -8,7 +8,6 @@ import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
-  SidebarPanel
 } from "@/components/Container";
 import { routePath } from '@/utils/routes';
 
@@ -149,7 +148,6 @@ const ProjectsProjectPlanAdjustResearchOutputs = () => {
             </div>
           </section>
         </ContentContainer>
-        <SidebarPanel />
       </LayoutWithPanel>
     </>
   );

@@ -32,12 +32,10 @@ jest.mock('@/context/ToastContext', () => ({
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
 
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
-
 // Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+    const mockUseTranslations = ((key: string, ..._args: string[]) => key) as any;
 
     /*eslint-disable @typescript-eslint/no-explicit-any */
     mockUseTranslations.rich = (

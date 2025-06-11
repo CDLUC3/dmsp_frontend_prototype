@@ -16,7 +16,7 @@ const sanitize = (dirty, options = defaultOptions) => ({
 });
 
 export const SanitizeHTML = ({ html, options }) => (
-  < div dangerouslySetInnerHTML={sanitize(html, options)} />
+  <div dangerouslySetInnerHTML={sanitize(html, options)} />
 );
 
 export function inDevMode() {

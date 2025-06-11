@@ -18,7 +18,6 @@ import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
-  SidebarPanel
 } from "@/components/Container";
 import { routePath } from '@/utils/routes';
 
@@ -192,7 +191,6 @@ const ProjectsProjectFundingSearch = () => {
             </section>
           )}
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
       </LayoutWithPanel>
     </>
   );

@@ -35,13 +35,7 @@ describe("GraphQL Errors", () => {
     // Reset all mocks
     jest.clearAllMocks();
 
-    // Mock window.location
-    Object.defineProperty(window, 'location', {
-      value: {
-        href: '',
-      },
-      writable: true,
-    });
+    window.location.href = '';
 
     // Setup operation mock with proper typing
     operation = {

@@ -14,7 +14,6 @@ import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
-  SidebarPanel
 } from "@/components/Container";
 import styles from './ProjectsProjectPlanFeedback.module.scss';
 
@@ -358,7 +357,6 @@ const ProjectsProjectPlanFeedback = () => {
             </div>
           </section>
         </ContentContainer>
-        <SidebarPanel />
       </LayoutWithPanel>
     </>
   );

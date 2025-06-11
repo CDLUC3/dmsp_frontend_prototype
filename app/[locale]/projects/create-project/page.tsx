@@ -1,9 +1,9 @@
 'use client';
 
-import {useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import { useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -13,14 +13,13 @@ import {
 } from "react-aria-components";
 
 //GraphQL
-import {ProjectErrors, useAddProjectMutation} from '@/generated/graphql';
+import { ProjectErrors, useAddProjectMutation } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
-  SidebarPanel
 } from "@/components/Container";
 import {
   CheckboxGroupComponent,
@@ -31,7 +30,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 interface CreateProjectResponse {
   id?: number | null;
@@ -294,7 +293,6 @@ const ProjectsCreateProject = () => {
           </Form>
 
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
       </LayoutWithPanel>
 
 

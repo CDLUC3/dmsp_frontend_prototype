@@ -26,7 +26,6 @@ import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutWithPanel,
-  SidebarPanel
 } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import { FormSelect } from '@/components/Form/FormSelect';
@@ -129,8 +128,8 @@ const ProjectsProjectPlanAdjustMembers = () => {
   // Get projectId and dmpId params from route /projects/:projectId/dmp/:dmpId
   const params = useParams();
   const router = useRouter();
-  const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
-  const dmpId = Array.isArray(params.dmpid) ? params.dmpid[0] : params.dmpid;
+  const projectId = String(params.projectId);
+  const dmpId = String(params.dmpid);
 
   // Set refs for error messages and scrolling
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -235,7 +234,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
         dispatch({ type: 'ADD_PLAN_MEMBER_ID', payload: memberId });
         await refetch(); //Need to refresh the primary contact dropdown after adding a new member
         const planMemberAdded = projectMembers?.find((member) => member.id === memberId);
-        const successMessage = PlanMembers('messaging.success.addedPlanMember', { fullName: planMemberAdded?.fullName });
+        const successMessage = PlanMembers('messaging.success.addedPlanMember', { fullName: planMemberAdded?.fullName || '' });
         toastState.add(successMessage, { type: 'success' });
 
         scrollToTop(topRef);
@@ -291,7 +290,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
         await refetch();
 
         const planMemberRemoved = projectMembers?.find((member) => member.id === memberId);
-        const successMessage = PlanMembers('messaging.success.removedPlanMember', { fullName: planMemberRemoved?.fullName });
+        const successMessage = PlanMembers('messaging.success.removedPlanMember', { fullName: planMemberRemoved?.fullName || '' });
         toastState.add(successMessage, { type: 'success' });
 
         scrollToTop(topRef);
@@ -371,7 +370,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
         dispatch({ type: 'SET_IS_EDITING', payload: false });
 
         const planMemberUpdated = projectMembers?.find((member) => member.id === projectMemberId);
-        const successMessage = PlanMembers('messaging.success.updatedPlanMember', { fullName: planMemberUpdated?.fullName });
+        const successMessage = PlanMembers('messaging.success.updatedPlanMember', { fullName: planMemberUpdated?.fullName || '' });
         toastState.add(successMessage, { type: 'success' });
 
         scrollToTop(topRef);
@@ -705,7 +704,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
           </section>
 
         </ContentContainer>
-        <SidebarPanel />
       </LayoutWithPanel >
     </>
   );

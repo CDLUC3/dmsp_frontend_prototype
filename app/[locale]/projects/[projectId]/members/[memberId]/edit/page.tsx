@@ -65,8 +65,8 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
   // Get projectId and memberId params
   const params = useParams();
-  const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
-  const memberId = Array.isArray(params.memberId) ? params.memberId[0] : params.memberId;
+  const projectId = String(params.projectId);
+  const memberId = String(params.memberId);
 
   //Routes
   const EDIT_MEMBER_ROUTE = routePath('projects.members.edit', { projectId, memberId });

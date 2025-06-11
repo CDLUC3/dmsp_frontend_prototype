@@ -85,7 +85,7 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
               }
 
               // Extract and store cookies from response
-              const nextCookies = cookies();
+              const nextCookies = await cookies();
               const setCookieHeader = refreshResult?.response?.headers?.get("set-cookie");
 
               if (!setCookieHeader) {

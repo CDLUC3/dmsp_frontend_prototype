@@ -24,7 +24,6 @@ import PageHeader from '@/components/PageHeader';
 import {
   ContentContainer,
   LayoutWithPanel,
-  SidebarPanel
 } from '@/components/Container';
 
 const ResearchOutputEdit = () => {
@@ -251,7 +250,6 @@ const ResearchOutputEdit = () => {
             </div>
           </form>
         </ContentContainer>
-        <SidebarPanel />
       </LayoutWithPanel>
     </>
   );

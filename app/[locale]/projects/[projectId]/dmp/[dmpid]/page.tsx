@@ -123,8 +123,8 @@ const PlanOverviewPage: React.FC = () => {
   // Get projectId and planId params
   const params = useParams();
   const router = useRouter();
-  const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
-  const dmpId = Array.isArray(params.dmpid) ? params.dmpid[0] : params.dmpid;
+  const projectId = String(params.projectId);
+  const dmpId = String(params.dmpid);
   const planId = Number(dmpId);
   const errorRef = useRef<HTMLDivElement | null>(null);
 

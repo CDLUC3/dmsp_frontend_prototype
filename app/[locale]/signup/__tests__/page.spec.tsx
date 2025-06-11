@@ -1,5 +1,4 @@
 import React from 'react';
-import fetch from 'node-fetch';
 
 import { act, fireEvent, render, screen, waitFor, } from '@/utils/test-utils';
 import SignUpPage from '../page';
@@ -75,7 +74,8 @@ const mockUseRouter = useRouter as jest.Mock;
 
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 
-global.fetch = global.fetch || fetch;
+// Mock fetch globally instead of importing node-fetch
+global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 describe('SignUpPage', () => {
   const signupData = {
