@@ -16,22 +16,21 @@ import {
 const ConfirmModal: React.FC<{
   title: string,
   email: string,
-  isOpenProp?: boolean
   onConfirm: (email: string) => void
 }
-> = ({ title, email, isOpenProp, onConfirm }) => {
+> = ({ title, email, onConfirm }) => {
   const [isOpen, setOpen] = useState(false);
   //Localization keys
   const Global = useTranslations('Global');
   const AccessPage = useTranslations('TemplateAccessPage');
 
   return (
-    <DialogTrigger isOpen={isOpen ?? isOpenProp} onOpenChange={setOpen}>
+    <DialogTrigger isOpen={isOpen} onOpenChange={setOpen}>
       <Button onPress={() => setOpen(true)}>{Global('buttons.remove')}</Button>
       <ModalOverlay>
         <Modal>
           <Dialog>
-            <h3>{title ?? AccessPage('headings.confirmCheckout')}</h3>
+            <h3>{title}</h3>
             <p>{AccessPage('paragraphs.modalPara1', { email })}</p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <Button onPress={() => setOpen(false)}>{Global('buttons.cancel')}</Button>
