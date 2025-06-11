@@ -97,43 +97,61 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     setErrors([]);
   }
 
-  /*When user selects a pre-existing template, we will create the new template using a copy
-  of the pre-existing template*/
+  // When user selects a pre-existing template, we will create the new template
+  // using a copy of the pre-existing template
   const onSelect = async (versionedTemplateId: number) => {
-    let newTemplateId;
-    //Add the new template
-    try {
-      const response = await addTemplateMutation({
-        variables: {
-          name: templateName,
-          copyFromTemplateId: versionedTemplateId
-        },
-      });
-
+    addTemplateMutation({
+      variables: {
+        name: templateName,
+        copyFromTemplateId: versionedTemplateId,
+      },
+    }).then(response => {
       if (response?.data) {
-        clearErrors();
         const responseData = response?.data?.addTemplate;
-        //Set errors using the errors prop returned from the request
         if (responseData && responseData.errors) {
-          // Extract error messages and convert them to an array of strings
-          const errorMessages = Object.values(responseData.errors).filter((error) => error) as string[];
-          setErrors(prev => [...prev, ...errorMessages]);
+          const errorMessages = Object.values(responseData.errors)
+                                      .filter((error) => error) as string[];
+          setErrors(errorMessages);
         }
+        clearErrors();
 
-        // Get templateId of new template so we know where to redirect
-        newTemplateId = response?.data?.addTemplate?.id;
+        const newTemplateId = response?.data?.addTemplate?.id;
+        if (newTemplateId) {
+          router.push(`/template/${newTemplateId}`)
+        }
       }
-    } catch (err) {
+    }).catch(err => {
       logECS('error', 'handleClick', {
         error: err,
         url: { path: '/template/create' }
       });
-    }
+    });
+  }
 
-    // Redirect to the newly created template
-    if (newTemplateId) {
-      router.push(`/template/${newTemplateId}`)
-    }
+  async function handleStartNew() {
+    addTemplateMutation({
+      variables: { name: templateName },
+    }).then(response => {
+      if (response?.data) {
+        const responseData = response?.data?.addTemplate;
+        if (responseData && responseData.errors) {
+          const errorMessages = Object.values(responseData.errors)
+                                      .filter((error) => error) as string[];
+          setErrors(errorMessages);
+        }
+        clearErrors();
+
+        const newTemplateId = response?.data?.addTemplate?.id;
+        if (newTemplateId) {
+          router.push(`/template/${newTemplateId}`)
+        }
+      }
+    }).catch(err => {
+      logECS('error', 'handleStartNew', {
+        error: err,
+        url: { path: '/template/create' }
+      });
+    });
   }
 
   // Transform data into more easier to use properties
@@ -402,6 +420,19 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
                 </div>
               </section>
             )}
+
+            <section className="mb-8" aria-labelledby="create-new">
+              <h2 id="create-new">
+                {SelectTemplate('headings.createNew')}
+              </h2>
+              <Button
+                className="tertiary"
+                onPress={handleStartNew}
+                data-testid="startNewButton"
+              >
+                {SelectTemplate('buttons.startNew')}
+              </Button>
+            </section>
 
           </>
         </ContentContainer>
