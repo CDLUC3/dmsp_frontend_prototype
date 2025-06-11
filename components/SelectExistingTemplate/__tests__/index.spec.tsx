@@ -220,7 +220,7 @@ describe('TemplateSelectTemplatePage', () => {
   it('should redirect back to step 1 if template name is missing', async () => {
     await act(async () => {
       render(
-        <TemplateSelectTemplatePage />
+        <TemplateSelectTemplatePage templateName="" />
       );
     });
     expect(pushMock).toHaveBeenCalledWith('/template/create?step1');
