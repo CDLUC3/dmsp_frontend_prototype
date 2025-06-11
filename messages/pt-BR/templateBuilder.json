@@ -21,7 +21,7 @@
     "titleStatus": "Status",
     "draft": "Rascunho",
     "notPublished": "Não publicado",
-    "published": "Publicado",
+    "published": "Publicada",
     "allowAccess": "Permitir que as pessoas acessem, editem ou comentem este plano",
     "description": {
       "archiveTemplate": "Este modelo não será mais visível para os criadores de planos. Os planos pré-existentes que usam este modelo não serão afetados. Isto não é reversível."
@@ -266,7 +266,7 @@
     "announcements": {
       "rowDefault": "Linha com ID {id} definida como padrão.",
       "rowRemoved": "Linha com ID {id} removida.",
-      "rowAdded": "Linha {orderNumber} adicionada."
+      "rowAdded": "Linha {nextNum} adicionada."
     },
     "placeholder": {
       "orderNumber": "Insira o pedido #",
@@ -299,7 +299,7 @@
     },
     "helpText": {
       "textField": "Alterar o tipo de questão, por exemplo, da pergunta curta para o botão Rádio, pode resultar na perda de alguns dados.",
-      "questionOptions": "Por favor, insira as opções de resposta para o {questionTypeName}",
+      "questionOptions": "Por favor, insira as opções de resposta para o {questionName}",
       "questionText": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
       "requirementText": "Tente ser preciso e conciso, para que os autores do plano não faltem a quaisquer requisitos. Orientação às perguntas é melhor para conselhos mais gerais.",
       "sampleText": "Os criadores de planos poderão copiar o texto da amostra para o campo como ponto de partida, para acelerar a entrada de conteúdo."
@@ -310,7 +310,8 @@
     "messages": {
       "errors": {
         "questionTextRequired": "Campo texto da pergunta é obrigatório.",
-        "questionAddingError": "Erro ao adicionar pergunta."
+        "questionAddingError": "Erro ao adicionar pergunta.",
+        "questionValidationError": "Valor inválido"
       },
       "success": {
         "questionAdded": "A pergunta foi adicionada com sucesso."

@@ -22,13 +22,11 @@ type TypeAheadInputProps = {
   label: string;
   placeholder?: string;
   helpText?: string;
-  /* eslint-disable @typescript-eslint/ban-types*/
-  setOtherField: Function;
+  setOtherField: (value: boolean) => void; // Update type to reflect React state setter for boolean
   fieldName: string;
   required: boolean;
   error?: string;
-  /* eslint-disable @typescript-eslint/ban-types*/
-  updateFormData: Function; //Function to update the typeahead field value in the parent form data
+  updateFormData: (id: string, value: string) => void; //Function to update the typeahead field value in the parent form data
   value?: string;
   className?: string;
   otherText?: string;
@@ -93,7 +91,7 @@ const TypeAheadWithOther = ({
     //set previous error to empty string
     error = '';
     const value = e.target.value;
-    const dataId = (e.target as HTMLElement).dataset.id;
+    const dataId = (e.target as HTMLElement).dataset.id || '';
     setInputValue(value);
 
     if (value) {
@@ -101,7 +99,7 @@ const TypeAheadWithOther = ({
       await updateFormData(dataId, value);
     } else {
       setErrorMessage('');
-      await updateFormData({});
+      await updateFormData('', '');
     }
   }
 
@@ -110,7 +108,7 @@ const TypeAheadWithOther = ({
     setOtherField(false);
     setInputValue('');
     setInitialInputValue('');
-    updateFormData({});
+    updateFormData('', ''); // Clear the form data when input is clicked
   }
 
   const handleSelection = async (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
@@ -119,9 +117,9 @@ const TypeAheadWithOther = ({
       (e.target as HTMLLIElement | HTMLInputElement).value?.toString();
     const activeDescendentId = (e.target as HTMLLIElement | HTMLInputElement).id;
 
-    const dataId = (e.target as HTMLElement).dataset.id;
+    const dataId = (e.target as HTMLElement).dataset.id || '';
     const dataValue = (e.target as HTMLElement).dataset.value;
-    await updateFormData(dataId, item);
+    updateFormData(dataId, item);
 
     setInputValue(item);
     setCurrentListItemFocused(-1);

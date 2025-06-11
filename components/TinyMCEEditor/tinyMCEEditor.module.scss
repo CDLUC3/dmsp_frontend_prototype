@@ -35,6 +35,10 @@
   :global(.tox-toolbar__overflow) {
     z-index: 100 !important; // Ensure the overflow menu is above other elements
   }
+
+  :global(.tox .tox-edit-area::before){
+    border-radius: 0 0 4px 4px !important; // Remove border radius when focused
+  }
 }
 
 .editor-help-text {

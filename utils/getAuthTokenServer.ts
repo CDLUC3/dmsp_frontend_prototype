@@ -7,7 +7,7 @@ import { cookies } from 'next/headers';
  * @returns 
  */
 export const getAuthTokenServer = async (): Promise<string | null> => {
-    const cookieStore = cookies();
-    const authToken = await cookieStore.get('dmspt');
-    return authToken ? authToken?.value : null;
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get('dmspt');
+  return authToken ? authToken?.value : null;
 }

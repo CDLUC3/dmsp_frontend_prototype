@@ -153,8 +153,6 @@ describe("CreateSectionPage", () => {
       );
     });
 
-    screen.debug(undefined, 1000000);
-
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('title');
     const editQuestionTab = screen.getByRole('tab', { name: 'tabs.editSection' });

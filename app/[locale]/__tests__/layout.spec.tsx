@@ -55,7 +55,7 @@ describe('LocaleLayout', () => {
   it('renders layout with valid locale', async () => {
     const TestComponent = await LocaleLayout({
       children: <>Main Content</>,
-      params: { locale: routing.locales[0] }, // valid locale
+      params: Promise.resolve({ locale: routing.locales[0] }), // Wrap params in a Promise
     });
 
     // Wrap with empty fragment to match expected DOM structure
@@ -71,7 +71,7 @@ describe('LocaleLayout', () => {
 
     await LocaleLayout({
       children: <div>Main Content</div>,
-      params: { locale: invalidLocale },
+      params: Promise.resolve({ locale: invalidLocale }), // Wrap params in a Promise
     });
 
     expect(notFound).toHaveBeenCalled();

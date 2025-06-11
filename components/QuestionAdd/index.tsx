@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -40,7 +41,9 @@ import QuestionView from '@/components/QuestionView';
 //Other
 import { useToast } from '@/context/ToastContext';
 import { stripHtmlTags } from '@/utils/general';
+import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { Question, QuestionOptions } from '@/app/types';
+import { OPTIONS_QUESTION_TYPES } from '@/lib/constants';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -51,15 +54,37 @@ const defaultQuestion = {
   required: false,
 };
 
+// Configure what overrides you want to apply to the question type json objects
+const getOverrides = (questionType: string | null | undefined) => {
+  switch (questionType) {
+    case "text":
+      return { maxLength: null };
+    case "textArea":
+      return { maxLength: null, rows: 20 };
+    case "number":
+      return { min: 0, max: 10000000, step: 1 };
+    case "currency":
+      return { min: 0, max: 10000000, step: 0.01 };
+    case "url":
+      return { maxLength: 2048, minLength: 2, pattern: "https?://.+" };
+    default:
+      return {};
+  }
+};
+
+
 const QuestionAdd = ({
-  questionTypeId,
-  questionTypeName,
+  questionType,
+  questionName,
+  questionJSON,
   sectionId }:
   {
-    questionTypeId?: number | null,
-    questionTypeName?: string | null,
+    questionType?: string | null,
+    questionName?: string | null,
+    questionJSON: string,
     sectionId?: string
   }) => {
+
   const params = useParams();
   const router = useRouter();
   const toastState = useToast();
@@ -72,9 +97,7 @@ const QuestionAdd = ({
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>({
     ...defaultQuestion,
-    questionTypeId,
-  });
-  const [rows, setRows] = useState<QuestionOptions[]>([{ id: 1, orderNumber: 1, text: "", isDefault: false, questionId: 0, }]);
+  }); const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
@@ -94,28 +117,8 @@ const QuestionAdd = ({
     skip: !sectionId
   })
 
-  const validateOptions = () => {
-    const newErrors: { [key: number]: string } = {};
-    rows.forEach((row) => {
-      if (!row.text.trim()) {
-        newErrors[row.id || 0] = "This field is required";
-      }
-    });
-
-    return Object.keys(newErrors).length === 0; // Returns true if no errors
-  };
-
   const redirectToQuestionTypes = () => {
     router.push(step1Url)
-  }
-
-  const transformOptions = () => {
-    // If duplicate order numbers or text, do we want to give the user an error message?
-    const transformedRows = rows.map(option => {
-      return { text: option.text, orderNumber: option.orderNumber, isDefault: option.isDefault }
-    })
-
-    return transformedRows;
   }
 
   const getDisplayOrder = () => {
@@ -137,23 +140,48 @@ const QuestionAdd = ({
     setFormSubmitted(true);
 
     const displayOrder = getDisplayOrder();
-    const isOptionQuestion = questionTypeId && [3, 4, 5].includes(questionTypeId) && validateOptions();
-    const transformedQuestionOptions = isOptionQuestion ? transformOptions() : undefined;
-    // string all tags from questionText before sending to backend
+    const parsedQuestionJSON = JSON.parse(questionJSON);
+
+    // Prepare input for the questionTypeHandler.For options questions,we update the 
+    // values with rows state. For non-options questions, we use the parsed JSON
+    const formState = hasOptions
+      ? {
+        options: rows.map(row => ({
+          label: row.text,
+          value: row.text,
+          selected: row.isSelected,
+        })),
+      }
+      : parsedQuestionJSON; // Use parsed JSON for non-option types
+
+    // Get any overrides for the question type json objects based on question type
+    const overrides = getOverrides(questionType);
+
+    // Merge formState with overrides for non-options questions, and use formState directly for options questions
+    const userInput = hasOptions
+      ? formState
+      : { ...formState, attributes: { ...formState.attributes, ...overrides } };
+
+    // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
+    const updatedJSON = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+      parsedQuestionJSON,
+      userInput
+    );
+
+    // Strip all tags from questionText before sending to backend
     const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
     const input = {
       templateId: Number(templateId),
       sectionId: Number(sectionId),
       displayOrder,
       isDirty: true,
-      questionTypeId,
       questionText: cleanedQuestionText,
+      json: JSON.stringify(updatedJSON.data),
       requirementText: question?.requirementText,
       guidanceText: question?.guidanceText,
       sampleText: question?.sampleText,
       useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
       required: false,
-      ...(isOptionQuestion && { questionOptions: transformedQuestionOptions }),
     };
 
     try {
@@ -161,8 +189,8 @@ const QuestionAdd = ({
 
       if (response?.data) {
         toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
-        //redirect user to the Edit Question view with their new question id after successfully adding the new question
-        router.push(`/template/${templateId}`)
+        // Redirect user to the Edit Question view with their new question id after successfully adding the new question
+        router.push(`/template/${templateId}`);
       }
     } catch (error) {
       if (!(error instanceof ApolloError)) {
@@ -173,10 +201,9 @@ const QuestionAdd = ({
       }
     }
   };
-
   useEffect(() => {
-    if (!questionTypeId) {
-      // If questionTypeId is missing, return user to the Question Types selection page
+    if (!questionType) {
+      // If questionId is missing, return user to the Question Types selection page
       toastState.add(Global('messaging.somethingWentWrong'), { type: 'error' });
       router.push(step1Url);
 
@@ -186,10 +213,24 @@ const QuestionAdd = ({
   }, [])
 
   useEffect(() => {
+    // Make sure to add the questionType to the question object so it can be used in the QuestionView component
+    if (question) {
+      setQuestion({
+        ...question,
+        questionType
+      });
+    } else {
+      setQuestion({ questionType });
+    }
+  }, [questionType]);
+
+  useEffect(() => {
     // To determine if the question type selected is one that includes options fields
-    const isOptionQuestion = Boolean(questionTypeId && [3, 4, 5].includes(questionTypeId)); // Ensure the result is a boolean
+    const isOptionQuestion = Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType)); // Ensure the result is a boolean
+
     setHasOptions(isOptionQuestion);
-  }, [questionTypeId])
+  }, [questionType])
+
 
   // Update state when input changes
   const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
@@ -234,7 +275,7 @@ const QuestionAdd = ({
                   type="text"
                   className={`${styles.searchField} react-aria-TextField`}
                   isRequired
-                  value={questionTypeName ? questionTypeName : ''}
+                  value={questionName ? questionName : ''}
                 >
                   <Label className={`${styles.searchLabel} react-aria-Label`}>{QuestionAdd('labels.type')}</Label>
                   <Input className={`${styles.searchInput} react-aria-Input`} disabled />
@@ -257,11 +298,17 @@ const QuestionAdd = ({
                 />
 
 
-                {questionTypeId && [3, 4, 5].includes(questionTypeId) && (
+                {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
                   <>
-                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionTypeName })}</p>
+                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionName })}</p>
                     <div className={styles.optionsWrapper}>
-                      <QuestionOptionsComponent rows={rows} setRows={setRows} formSubmitted={formSubmitted} setFormSubmitted={setFormSubmitted} />
+                      <QuestionOptionsComponent
+                        rows={rows}
+                        setRows={setRows}
+                        questionType={questionType}
+                        formSubmitted={formSubmitted}
+                        setFormSubmitted={setFormSubmitted}
+                      />
                     </div>
                   </>
                 )}
@@ -303,7 +350,7 @@ const QuestionAdd = ({
                 )}
 
 
-                {questionTypeId && [1, 2].includes(questionTypeId) && (
+                {questionType && ["text", "textArea"].includes(questionType) && (
                   <Checkbox
                     onChange={() => handleInputChange('useSampleTextAsDefault', !question?.useSampleTextAsDefault)}
                     isSelected={question?.useSampleTextAsDefault || false}
@@ -358,3 +405,4 @@ const QuestionAdd = ({
 }
 
 export default QuestionAdd;
+

@@ -12,16 +12,14 @@ import styles from './optionsComponent.module.scss';
 
 interface Row {
   id?: number | null;
-  orderNumber: number;
   text: string;
-  isDefault?: boolean | null;
-  questionId: number;
+  isSelected?: boolean | null;
 }
 
 interface QuestionOptionsComponentProps {
   rows: Row[] | null;
   setRows: React.Dispatch<React.SetStateAction<Row[]>>;
-  questionId?: number;
+  questionType?: string;
   formSubmitted?: boolean;
   setFormSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -30,7 +28,7 @@ interface QuestionOptionsComponentProps {
 /**This component is used to add question type fields that use options
  * For example, radio buttons, check boxes and select drop-downs
  */
-const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionId, formSubmitted, setFormSubmitted }) => {
+const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionType, formSubmitted, setFormSubmitted }) => {
   const [announcement, setAnnouncement] = useState<string>("");
 
   // localization keys
@@ -41,19 +39,17 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   const addRow = () => {
     if (rows) {
       // Either calculate next order number off of last orderNumber, if present, or just use the row.length to increment
-      const length = rows.length - 1;
-      const nextNum = rows[length] ? (rows[length].orderNumber + 1) : (length + 1)
+      const length = rows.length;
+      const nextNum = (length + 1);
 
       const newRow = {
         id: nextNum, //if rows already has a set value, then increment from there
-        orderNumber: nextNum, //if rows already has a set value, then increment from there
         text: "",
-        isDefault: false,
-        questionId: questionId || 0 //If there is no questionId, then it won't update the question when set to 0
-
+        isSelected: false,
       };
+
       setRows((prevRows) => [...prevRows, newRow]);
-      setAnnouncement(QuestionOptions('announcements.rowAdded', { orderNumber: newRow.orderNumber }));
+      setAnnouncement(QuestionOptions('announcements.rowAdded', { nextNum }));
       setFormSubmitted(false);
     }
   };
@@ -67,13 +63,24 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   };
 
 
-  // Set one row as default (only one can be true)
+  const toggleSelection = (id: number) => {
+    setRows(prevRows =>
+      prevRows.map(row =>
+        row.id === id
+          ? { ...row, isSelected: !row.isSelected } // toggle current one
+          : row
+      )
+    );
+  };
+
   const setDefault = (id: number) => {
-    if (id && id !== 0) {
-      setRows((prevRows) =>
-        prevRows.map((row) => ({
+    if (questionType === 'checkBoxes') {
+      toggleSelection(id); // allow multiple selections for checkboxes
+    } else {
+      setRows(prevRows =>
+        prevRows.map(row => ({
           ...row,
-          isDefault: row.id === id,
+          isSelected: row.id === id, // only one selected
         }))
       );
       setAnnouncement(QuestionOptions('announcements.rowDefault', { id }));
@@ -81,16 +88,16 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   };
 
   // Update rows state
-  const handleChange = (id: number | string, field: string, value: string | number) => {
-    if (id && Number(id) !== 0) {
-      setRows((prevRows) => {
-
-        // Update the specific field for the matching row
-        return prevRows.map((row) =>
-          row.id === Number(id) ? { ...row, [field]: value } : row
-        );
+  const handleChange = (id: number | string | null, field: string, value: string | number) => {
+    setRows((prevRows) => {
+      return prevRows.map((row) => {
+        if (row.id === id) {
+          return { ...row, [field]: value }; // Update only the matching row
+        }
+        return row; // Leave other rows unchanged
       });
-    }
+    });
+
   };
 
   return (
@@ -111,7 +118,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 disabled={true}
                 isRequired={true}
                 label={QuestionOptions('labels.order')}
-                value={row.orderNumber}
+                value={(index + 1).toString()}
                 placeholder={QuestionOptions('placeholder.orderNumber')}
                 ariaLabel={index === 0 ? undefined : "Order"}
               />
@@ -125,7 +132,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
                 label={QuestionOptions('labels.text')}
                 labelClasses={styles.textFieldLabel}
                 value={row.text}
-                onChange={(e) => handleChange(row.id || '', "text", e.target.value)}
+                onChange={(e) => handleChange(row.id ?? null, "text", e.target.value)}
                 placeholder={QuestionOptions('placeholder.text')}
                 ariaLabel={index === 0 ? undefined : "Text"}
                 isInvalid={!row.text && formSubmitted}
@@ -136,11 +143,11 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
               <label htmlFor={`default-${row.id}`}>{QuestionOptions('labels.default')}</label>
               <Checkbox
                 id={`default-${row.id}`}
-                aria-checked={row.isDefault}
+                aria-checked={row.isSelected}
                 aria-label={`Set row ${index + 1} as default`}
                 onChange={() => setDefault(row.id || 0)}
                 className={`${styles.optionsCheckbox} react-aria-Checkbox`}
-                isSelected={row.isDefault ? row.isDefault : false}
+                isSelected={row.isSelected ? row.isSelected : false}
               >
                 <div className={`${styles.checkBox} checkbox`}>
                   <svg viewBox="0 0 18 18" aria-hidden="true">

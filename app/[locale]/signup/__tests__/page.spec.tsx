@@ -1,7 +1,10 @@
 import React from 'react';
+import fetch from 'node-fetch';
+
 import { act, fireEvent, render, screen, waitFor, } from '@/utils/test-utils';
 import SignUpPage from '../page';
 import logECS from '@/utils/clientLogger';
+import { useCsrf } from '@/context/CsrfContext';
 
 //Need to import this useRouter after the jest.mock is in place
 import { useRouter } from 'next/navigation';
@@ -72,8 +75,7 @@ const mockUseRouter = useRouter as jest.Mock;
 
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 
-global.fetch = global.fetch || require('node-fetch');
-
+global.fetch = global.fetch || fetch;
 
 describe('SignUpPage', () => {
   const signupData = {
@@ -128,8 +130,6 @@ describe('SignUpPage', () => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     HTMLElement.prototype.focus = mockFocus;
 
-    /*eslint-disable @typescript-eslint/no-var-requires */
-    const { useCsrf } = require('@/context/CsrfContext');
     (useCsrf as jest.Mock).mockReturnValue({ csrfToken: 'mocked-csrf-token' });
 
     mockUseRouter.mockReturnValue({

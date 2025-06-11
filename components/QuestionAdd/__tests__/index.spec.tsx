@@ -117,10 +117,25 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "text",
+      attributes: {
+        pattern: null,
+        maxLength: null,
+        minLength: 0
+      }
+    })
     await act(async () => {
       render(
-        <QuestionAdd />
-      );
+        <QuestionAdd
+          questionType="text"
+          questionName="Text"
+          questionJSON={json}
+          sectionId="1"
+        />);
     });
 
     const heading = screen.getByRole('heading', { level: 1 });
@@ -161,10 +176,29 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: null,
+            value: null,
+            selected: false
+          }
+        }
+      ]
+    })
     await act(async () => {
       render(
-        <QuestionAdd />
-      );
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+          sectionId="1"
+        />);
     });
 
     // Get the input
@@ -190,14 +224,29 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: null,
+            value: null,
+            selected: false
+          }
+        }
+      ]
+    })
     await act(async () => {
       render(
         <QuestionAdd
-          questionTypeId={1}
-          questionTypeName="Text field"
-          sectionId="5"
-        />
-      );
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+          sectionId="1"
+        />);
     });
 
     // Get the input
@@ -215,11 +264,11 @@ describe("QuestionAdd", () => {
         variables: {
           input: {
             templateId: 123,
-            sectionId: 5,
+            sectionId: 1,
             displayOrder: 5,
             isDirty: true,
-            questionTypeId: 1,
             questionText: 'New Question',
+            json: "{\"type\":\"radioButtons\",\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"\",\"value\":\"\",\"selected\":false}}]}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -238,11 +287,28 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: null,
+            value: null,
+            selected: false
+          }
+        }
+      ]
+    })
     await act(async () => {
       render(
         <QuestionAdd
-          questionTypeId={3}
-          questionTypeName="Radio buttons"
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+          sectionId="1"
         />);
     });
 
@@ -255,10 +321,29 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: null,
+            value: null,
+            selected: false
+          }
+        }
+      ]
+    })
     await act(async () => {
       render(
-        <QuestionAdd />
-      );
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+          sectionId="1"
+        />);
     });
 
     const saveButton = screen.getByText('buttons.saveAndAdd');
@@ -277,12 +362,30 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
-    render(
-      <QuestionAdd
-        questionTypeId={3}
-        questionTypeName="Radio buttons"
-      />
-    );
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: null,
+            value: null,
+            selected: false
+          }
+        }
+      ]
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
 
     const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
     expect(checkboxText).not.toBeInTheDocument();
@@ -294,12 +397,26 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
-    render(
-      <QuestionAdd
-        questionTypeId={1}
-        questionTypeName="Radio buttons"
-      />
-    );
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "text",
+      attributes: {
+        pattern: null,
+        maxLength: null,
+        minLength: 0
+      }
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="text"
+          questionName="Text"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
 
     const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
     expect(checkboxText).toBeInTheDocument();
@@ -311,12 +428,30 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: null,
+            value: null,
+            selected: false
+          }
+        }
+      ]
+    })
+
     const { container } = render(
       <QuestionAdd
-        questionTypeId={3}
-        questionTypeName="Radio buttons"
-      />
-    );
+        questionType="radioButtons"
+        questionName="Radio buttons"
+        questionJSON={json}
+        sectionId="1"
+      />);
+
     await act(async () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();

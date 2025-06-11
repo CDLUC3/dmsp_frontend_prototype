@@ -32,14 +32,6 @@
             "assertionStyle": "as",
             "objectLiteralTypeAssertions": "never"
         }
-    ],
-    "@typescript-eslint/ban-types": [
-        "error",
-        {
-            "types": {
-                "{}": false
-            }
-        }
     ]
 },
 "overrides": [

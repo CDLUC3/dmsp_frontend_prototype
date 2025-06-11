@@ -1,5 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor, } from '@testing-library/react';
+import fetch from 'node-fetch';
+
 import logECS from '@/utils/clientLogger';
 
 import LoginPage from '../page';
@@ -7,6 +9,7 @@ import LoginPage from '../page';
 //Need to import this useRouter after the jest.mock is in place
 import { useRouter } from 'next/navigation';
 import { fetchCsrfToken } from "@/utils/authHelper";
+import { useCsrf } from '@/context/CsrfContext';
 
 
 jest.mock('next/navigation', () => ({
@@ -50,7 +53,7 @@ const mockUseRouter = useRouter as jest.Mock;
 
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 
-global.fetch = global.fetch || require('node-fetch');
+global.fetch = global.fetch || fetch;
 
 
 describe('LoginPage', () => {
@@ -74,10 +77,8 @@ describe('LoginPage', () => {
     HTMLElement.prototype.focus = mockFocus;
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
-    })
+    });
 
-    /*eslint-disable @typescript-eslint/no-var-requires */
-    const { useCsrf } = require('@/context/CsrfContext');
     (useCsrf as jest.Mock).mockReturnValue({ csrfToken: 'mocked-csrf-token' });
 
     jest.spyOn(console, 'error').mockImplementation(() => { });

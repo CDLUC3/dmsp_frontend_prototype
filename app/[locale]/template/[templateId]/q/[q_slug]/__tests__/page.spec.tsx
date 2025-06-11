@@ -10,6 +10,14 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import mockQuestionData from '../__mocks__/mockQuestionData.json';
+import mockRadioQuestion from '@/__mocks__/common/mockRadioQuestion.json';
+import mockQuestionDataForTextField from '@/__mocks__/common/mockQuestionDataForTextField.json';
+import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
+import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.json';
+import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNumber.json';
+import mockQuestionDataForCurrency from '@/__mocks__/common/mockQuestionDataForCurrency.json';
+import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -33,93 +41,6 @@ jest.mock('@/components/Form/QuestionOptionsComponent', () => {
     default: () => <div>Mocked Question Options Component</div>,
   };
 });
-
-const mockQuestionData = {
-  question: {
-    displayOrder: 17,
-    errors: null,
-    guidanceText: "This is the guidance text",
-    id: 2271,
-    isDirty: true,
-    questionOptions:
-      [
-        {
-          id: 63,
-          orderNumber: 1,
-          questionId: 2271,
-          Text: "Alpha"
-        },
-        {
-          id: 66,
-          orderNumber: 2,
-          questionId: 2271,
-          Text: "Bravo"
-        }
-      ],
-    questionText: "Testing",
-    questionTypeId: 3,
-    requirementText: "This is requirement text",
-    sampleText: "This is sample text",
-    sectionId: 67,
-    templateId: 15
-  }
-}
-
-const mockQuestionDataForTextField = {
-  question: {
-    displayOrder: 17,
-    errors: null,
-    guidanceText: "This is the guidance text",
-    id: 2271,
-    isDirty: true,
-    questionOptions:
-      [
-        {
-          id: 63,
-          orderNumber: 1,
-          questionId: 2271,
-          Text: "Alpha"
-        },
-        {
-          id: 66,
-          orderNumber: 2,
-          questionId: 2271,
-          Text: "Bravo"
-        }
-      ],
-    questionText: "Testing",
-    questionTypeId: 1,
-    requirementText: "This is requirement text",
-    sampleText: "This is sample text",
-    sectionId: 67,
-    templateId: 15
-  }
-}
-
-const mockQuestionTypesData = {
-  questionTypes: [
-    {
-      id: 1,
-      name: "Text Area",
-      usageDescription: "For questions that require longer answers, you can select formatting options too."
-    },
-    {
-      id: 2,
-      name: "Text Field",
-      usageDescription: "For questions that require short, simple answers."
-    },
-    {
-      id: 3,
-      name: "Radio Buttons",
-      usageDescription: "For multiple choice questions where users select just one option."
-    },
-    {
-      id: 4,
-      name: "Check Boxes",
-      usageDescription: "For multiple choice questions where users can select multiple options."
-    }
-  ]
-}
 
 
 describe("QuestionEditPage", () => {
@@ -151,7 +72,7 @@ describe("QuestionEditPage", () => {
     });
 
     (useQuestionTypesQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockQuestionTypesData }),
+      jest.fn().mockResolvedValueOnce({ data: mockQuestionTypes }),
       { loading: false, error: undefined },
     ]);
   });
@@ -297,6 +218,12 @@ describe("QuestionEditPage", () => {
 
   // QuestionOptionsComponent has it's own separate unit test, so we are just testing that it loads here
   it('should load QuestionOptionsComponent', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockRadioQuestion,
+      loading: false,
+      error: undefined,
+    });
+
     (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -370,6 +297,12 @@ describe("QuestionEditPage", () => {
   })
 
   it('should not display the useSampleTextAsDefault checkbox if the questionTypeId is Radio Button field', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockRadioQuestion,
+      loading: false,
+      error: undefined,
+    });
+
     (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -472,4 +405,135 @@ describe("QuestionEditPage", () => {
       expect(results).toHaveNoViolations();
     });
   });
+
+  describe.each([
+    {
+      questionType: "text",
+      mockData: mockQuestionDataForTextField,
+      expectedJson: {
+        type: "text",
+        meta: { schemaVersion: "1.0" },
+        attributes: {
+          maxLength: 1000,
+          minLength: 0,
+          pattern: "^.+$",
+        }
+      }
+    },
+    {
+      questionType: "textArea",
+      mockData: mockQuestionDataForTextArea,
+      expectedJson: {
+        type: "textArea",
+        meta: {
+          asRichText: true,
+          schemaVersion: "1.0",
+        },
+        attributes: {
+          cols: 20,
+          rows: 20,
+          maxLength: 1000,
+          minLength: 0,
+        },
+      },
+    },
+    {
+      questionType: "number",
+      mockData: mockQuestionDataForNumber,
+      expectedJson: {
+        type: "number",
+        meta: {
+          schemaVersion: "1.0",
+        },
+        attributes: {
+          min: 0,
+          max: 10000000,
+          step: 1,
+        },
+      },
+    },
+    {
+      questionType: "currency",
+      mockData: mockQuestionDataForCurrency,
+      expectedJson: {
+        type: "currency",
+        attributes: {
+          min: 0,
+          max: 10000000,
+          step: 0.01
+        },
+        meta: {
+          schemaVersion: "1.0",
+        }
+
+      },
+    },
+    {
+      questionType: "url",
+      mockData: mockQuestionDataForURL,
+      expectedJson: {
+        type: "url",
+        meta: {
+          schemaVersion: "1.0",
+        },
+        attributes: {
+          maxLength: 2048,
+          minLength: 2,
+          pattern: "https?://.+",
+        },
+      },
+    },
+  ])("QuestionEditPage - $questionType", ({ questionType, mockData, expectedJson }) => {
+    it(`should call updateQuestionMutation with correct JSON for ${questionType}`, async () => {
+      (useQuestionQuery as jest.Mock).mockReturnValue({
+        data: mockData,
+        loading: false,
+        error: undefined,
+      });
+      const mockUpdateQuestion = jest.fn().mockResolvedValue({
+        data: {
+          key: "value"
+        },
+      });
+
+      (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+        mockUpdateQuestion,
+        { loading: false, error: undefined },
+      ]);
+
+      (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+        return {
+          get: (key: string) => {
+            const params: Record<string, string> = { questionType };
+            return params[key] || null;
+          },
+          getAll: () => [],
+          has: (key: string) => key in { questionType },
+          keys() { },
+          values() { },
+          entries() { },
+          forEach() { },
+          toString() {
+            return "";
+          },
+        } as unknown as ReturnType<typeof useSearchParams>;
+      });
+
+      await act(async () => {
+        render(<QuestionEdit />);
+      });
+
+      const saveButton = screen.getByText("buttons.saveAndUpdate");
+      expect(saveButton).toBeInTheDocument();
+
+      fireEvent.click(saveButton);
+      await waitFor(() => {
+        const [[callArgs]] = mockUpdateQuestion.mock.calls;
+        const actualJson = JSON.parse(callArgs.variables.input.json);
+        expect(actualJson).toEqual(expectedJson);
+      });
+
+    });
+  });
 });
+
