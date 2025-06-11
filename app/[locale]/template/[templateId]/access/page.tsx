@@ -211,6 +211,7 @@ const TemplateAccessPage: React.FC = () => {
             <ConfirmModal
               title={AccessPage('headings.confirmRemoval')}
               email={person.email}
+              isOpenProp={true}
               onConfirm={handleRevokeAccess}
             />
           </li>
