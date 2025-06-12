@@ -254,10 +254,6 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
     }
   }, [templateName])
 
-
-  useEffect(() => {
-    console.log('Errors:', errors);
-  }, [errors])
   if (loading || publishedTemplatesLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }

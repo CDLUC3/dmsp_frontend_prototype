@@ -1,13 +1,9 @@
-@import '@/styles/responsive';
-
-.outputsList {
-  // Optional styles for the main list container
-}
+@use '@/styles/responsive' as r;
 
 .outputsListItem {
   display: grid;
 
-  @include device(xl) {
+  @include r.device(xl) {
     grid-template-columns: 3fr 2fr 2fr 2fr 1fr; // Adjusted for the new columns
   }
 
@@ -47,7 +43,7 @@
   display: flex;
   gap: 0.5rem;
 
-  @include device(xl) {
+  @include r.device(xl) {
     justify-content: flex-end; // Align actions (Edit/Delete buttons) to the right
   }
 

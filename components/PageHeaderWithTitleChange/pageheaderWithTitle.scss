@@ -1,4 +1,4 @@
-@import '@/styles/responsive.scss';
+@use '@/styles/responsive.scss' as r;
 
 .template-editor-header {
   // This is to match the left padding for content container
@@ -10,7 +10,7 @@
   margin-top: 1rem;
   margin-bottom: 2rem;
   
-  @include device(lg) {
+  @include r.device(lg) {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -21,7 +21,7 @@
     align-items: baseline;
     gap: var(--brand-space2);
     
-    @include device(md) {
+    @include r.device(md) {
       flex-direction: row;
     }
     
@@ -29,7 +29,7 @@
     flex-direction: column;
     gap: 0;
 
-    @include device(md) {
+    @include r.device(md) {
       gap: var(--brand-space2);
     }
     
@@ -72,7 +72,7 @@
   // Mobile first approach - column layout by default
   flex-direction: column;
   
-  @include device(md) {
+  @include r.device(md) {
     flex-direction: row;
   }
   
@@ -97,7 +97,7 @@
     width: 100%;
     flex-basis: auto; // Remove any flex-basis influence
     
-    @include device(md) {
+    @include r.device(md) {
       width: auto;
       flex-basis: 300px;
     }
@@ -113,7 +113,7 @@
     margin-top: 8px;
     align-self: flex-end; // Right-align on mobile
     
-    @include device(md) {
+    @include r.device(md) {
       margin-top: 24px; // Align with the input field's bottom
       margin-left: var(--brand-space2);
     }

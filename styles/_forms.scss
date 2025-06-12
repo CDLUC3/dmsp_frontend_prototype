@@ -1,3 +1,4 @@
+@use "responsive" as r;
 .error-message{
   font-size: var(--fs-small);
   color: red;
@@ -23,7 +24,7 @@
 }
 
 .two-item-row {
-  @include device(sm) {
+  @include r.device(sm) {
     flex-direction: row;
   }
   display: flex;

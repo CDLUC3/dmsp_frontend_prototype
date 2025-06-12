@@ -1,7 +1,7 @@
-@import '@/styles/responsive.scss';
+@use '@/styles/responsive.scss' as r;
 
 .imageButton {
-  @include device(md) {
+  @include r.device(md) {
   }
 
   justify-content: center;

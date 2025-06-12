@@ -1,4 +1,4 @@
-@import '@/styles/responsive';
+@use '@/styles/responsive' as r;
 
 
 .readOnlyField {
@@ -54,7 +54,7 @@
 }
 
 .btnEdit {
-  @include device(sm) {
+  @include r.device(sm) {
     margin-left: auto;
     margin-right: 0;
   }
@@ -69,7 +69,7 @@
 }
 
 .twoItemRow {
-  @include device(sm) {
+  @include r.device(sm) {
     flex-direction: row;
   }
   display: flex;
@@ -94,7 +94,7 @@
 }
 
 .twoItemRowIsEditing {
-  @include device(sm) {
+  @include r.device(sm) {
     flex-direction: row;
     gap: 20px;
   }
