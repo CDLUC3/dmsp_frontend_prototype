@@ -3,15 +3,15 @@
 .outputsListItem {
   display: grid;
 
-  @include r.device(xl) {
-    grid-template-columns: 3fr 2fr 2fr 2fr 1fr; // Adjusted for the new columns
-  }
-
   gap: 1rem;
   align-items: flex-start;
   padding: 1rem 0;
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--border-color-light); // Optional divider between rows
+
+  @include r.device(xl) {
+    grid-template-columns: 3fr 2fr 2fr 2fr 1fr; // Adjusted for the new columns
+  }
 }
 
 .outputInfo {

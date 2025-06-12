@@ -114,7 +114,7 @@
 }
 
 .section {
-  @include device(md) {
+    @include device(md) {
     flex: 1 1 calc(50% - 8px); // Two sections per row, accounting for gap
     padding: 20px;
   }

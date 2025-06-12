@@ -2,16 +2,14 @@
 
 .membersListItem {
   display: grid;
-
-
-  @include r.device(xl) {
-    grid-template-columns: 3fr 2fr 2fr 1fr;
-  }
-
   gap: 1rem;
   align-items: flex-start;
   padding: 1rem 0;
   margin-bottom: 1rem;
+
+  @include r.device(xl) {
+    grid-template-columns: 3fr 2fr 2fr 1fr;
+  }
 }
 
 .memberInfo {
@@ -53,8 +51,6 @@
 .memberActions {
   display: flex;
   gap: 0.5rem;
-
-
   @include r.device(xl) {
     justify-content: flex-end; // Aligns buttons to the right
   }

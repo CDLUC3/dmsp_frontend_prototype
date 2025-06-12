@@ -1,9 +1,6 @@
 @use '@/styles/responsive.scss' as r;
 
 .imageButton {
-  @include r.device(md) {
-  }
-
   justify-content: center;
   display: inline-flex;
   align-items: center;
@@ -11,6 +8,8 @@
   padding: 1rem 1rem;
   background-color: var(--gray-75);
   color: black;
+  @include r.device(md) {
+  }
 }
 
 .imageButton:visited {

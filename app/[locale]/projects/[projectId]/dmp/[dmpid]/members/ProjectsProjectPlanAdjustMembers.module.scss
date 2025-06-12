@@ -112,6 +112,7 @@
   }
   
 }
+
 @include r.device('lg') {
   .membersList {
     /* Four columns: auto-width for checkbox, remaining space divided among the other three */
