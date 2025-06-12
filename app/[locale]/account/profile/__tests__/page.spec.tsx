@@ -158,7 +158,7 @@ describe('ProfilePage', () => {
     fireEvent.click(submitButton);
 
     // Check if error message is present when fields empty
-    within(screen.getByRole('alert')).getByText('Name must be at least 2 characters');
+    within(screen.getByRole('alert')).getByText('messages.errors.givenNameValidation');
   })
 
   it('should display validation error when last name field does not pass validation', async () => {
@@ -182,7 +182,7 @@ describe('ProfilePage', () => {
     fireEvent.click(submitButton);
 
     // Check if error message is present when fields empty
-    within(screen.getByRole('alert')).getByText('Name must be at least 2 characters');
+    within(screen.getByRole('alert')).getByText('messages.errors.surNameValidation');
   })
 
   it('should display validation error when affiliationName field does not pass validation', async () => {
@@ -210,7 +210,7 @@ describe('ProfilePage', () => {
     fireEvent.click(submitButton);
 
     // Check if error message is present when fields empty
-    within(screen.getByRole('alert')).getByText('Institution name cannot be blank and must be at least 2 characters long');
+    within(screen.getByRole('alert')).getByText('messages.errors.affiliationValidation');
   })
 
   it('should render correct language Select dropdown and display options when user clicks it', async () => {
