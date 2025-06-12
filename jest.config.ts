@@ -26,6 +26,8 @@ const config = {
     "/app/actions/",         // Exclude server actions in app/actions
     "/actions/",             // Exclude server actions if in root actions folder
     "<rootDir>/app/\\[locale\\]/styleguide/sg-components.tsx", // Exclude style guide
+    "<rootDir>/components/Header", // Exclude Header component for now until we implement a new one
+    "<rootDir>/components/Footer", // Exclude Footer component for now until we implement a new one
     "<rootDir>/app/\\[locale\\]/styleguide/page.tsx", // Exclude style guide
     "<rootDir>/app/types/index.ts", // Exclude types
     "<rootDir>/app/\\[locale\\]/healthcheck/page.tsx", // Exclude health check

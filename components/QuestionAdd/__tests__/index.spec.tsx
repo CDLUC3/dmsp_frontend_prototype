@@ -7,7 +7,6 @@ import {
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
 import QuestionAdd from '@/components/QuestionAdd';
 
 expect.extend(toHaveNoViolations);
@@ -168,6 +167,71 @@ describe("QuestionAdd", () => {
     expect(bestPracticePara3).toBeInTheDocument();
   });
 
+  it("should return user to the template edit page if questionType is missing", async () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "text",
+      attributes: {
+        pattern: null,
+        maxLength: null,
+        minLength: 0
+      }
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionName="Text"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    await waitFor(() => {
+      expect(mockRouter.push).toHaveBeenCalledTimes(2);
+      expect(mockRouter.push).toHaveBeenNthCalledWith(1, '/template/123/q/new?section_id=1&step=1');
+      expect(mockRouter.push).toHaveBeenNthCalledWith(2, '/template/123');
+    });
+  });
+
+  it('should call router.push with correct url when user clicks on Change type button', async () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "text",
+      attributes: {
+        pattern: null,
+        maxLength: null,
+        minLength: 0
+      }
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="text"
+          questionName="Text"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+    const changeTypeButton = screen.getByRole('button', { name: 'buttons.changeType' });
+    fireEvent.click(changeTypeButton);
+    await waitFor(() => {
+      expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=1&step=1');
+    });
+  });
+
   it('should display error when no value is entered in question Text field', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
@@ -267,6 +331,370 @@ describe("QuestionAdd", () => {
             isDirty: true,
             questionText: 'New Question',
             json: "{\"type\":\"radioButtons\",\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"\",\"value\":\"\",\"selected\":false}}]}",
+            requirementText: '',
+            guidanceText: '',
+            sampleText: '',
+            useSampleTextAsDefault: false,
+            required: false,
+          },
+        },
+      });
+    });
+  })
+
+  it('should display error when addQuestionMutation returns an error', async () => {
+    const mockAddQuestionMutation = jest.fn().mockRejectedValueOnce(new Error("Error"));
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: null,
+            value: null,
+            selected: false
+          }
+        }
+      ]
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // Replace with the actual error message shown on mutation failure
+    expect(screen.getByText('messages.errors.questionAddingError')).toBeInTheDocument();
+  })
+
+  it('should call addQuestionMutation with correct data for \'text\' question type ', async () => {
+    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
+      data: { addQuestion: { id: 1 } },
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        asRichText: true,
+        schemaVersion: "1.0"
+      },
+      type: "text",
+      attributes: {
+        pattern: null,
+        maxLength: null,
+        minLength: 0
+      }
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="text"
+          questionName="Text Field"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+    fireEvent.click(saveButton);
+
+    // Check if the addQuestionMutation was called
+    await waitFor(() => {
+      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            templateId: 123,
+            sectionId: 1,
+            displayOrder: 5,
+            isDirty: true,
+            questionText: 'New Question',
+            json: "{\"type\":\"text\",\"meta\":{\"schemaVersion\":\"1.0\"},\"attributes\":{\"maxLength\":1000,\"minLength\":0,\"pattern\":\"^.+$\"}}",
+            requirementText: '',
+            guidanceText: '',
+            sampleText: '',
+            useSampleTextAsDefault: false,
+            required: false,
+          },
+        },
+      });
+    });
+  })
+
+  it('should call addQuestionMutation with correct data for \'textArea\' question type ', async () => {
+    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
+      data: { addQuestion: { id: 1 } },
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        asRichText: true,
+        schemaVersion: "1.0"
+      },
+      type: "textArea",
+      attributes: {
+        pattern: null,
+        rows: null,
+        cols: null,
+        maxLength: null,
+        minLength: 0
+      }
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="textArea"
+          questionName="Text Area"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+    fireEvent.click(saveButton);
+
+    // Check if the addQuestionMutation was called
+    await waitFor(() => {
+      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            templateId: 123,
+            sectionId: 1,
+            displayOrder: 5,
+            isDirty: true,
+            questionText: 'New Question',
+            json: "{\"type\":\"textArea\",\"meta\":{\"schemaVersion\":\"1.0\",\"asRichText\":true},\"attributes\":{\"cols\":40,\"maxLength\":1000,\"minLength\":0,\"rows\":20}}",
+            requirementText: '',
+            guidanceText: '',
+            sampleText: '',
+            useSampleTextAsDefault: false,
+            required: false,
+          },
+        },
+      });
+    });
+  })
+
+  it('should call addQuestionMutation with correct data for \'number\' question type ', async () => {
+    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
+      data: { addQuestion: { id: 1 } },
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "number",
+      attributes: {
+        max: null,
+        min: 0,
+        step: 1
+      }
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="number"
+          questionName="Number Field"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+    fireEvent.click(saveButton);
+
+    // Check if the addQuestionMutation was called
+    await waitFor(() => {
+      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            templateId: 123,
+            sectionId: 1,
+            displayOrder: 5,
+            isDirty: true,
+            questionText: 'New Question',
+            json: "{\"type\":\"number\",\"meta\":{\"schemaVersion\":\"1.0\"},\"attributes\":{\"max\":10000000,\"min\":0,\"step\":1}}",
+            requirementText: '',
+            guidanceText: '',
+            sampleText: '',
+            useSampleTextAsDefault: false,
+            required: false,
+          },
+        },
+      });
+    });
+  })
+
+  it('should call addQuestionMutation with correct data for \'currency\' question type ', async () => {
+    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
+      data: { addQuestion: { id: 1 } },
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "currency",
+      attributes: {
+        max: null,
+        min: 0,
+        step: 1,
+        denomination: "GBP"
+      }
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="currency"
+          questionName="Currency Field"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+    fireEvent.click(saveButton);
+
+    // Check if the addQuestionMutation was called
+    await waitFor(() => {
+      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            templateId: 123,
+            sectionId: 1,
+            displayOrder: 5,
+            isDirty: true,
+            questionText: 'New Question',
+            json: "{\"type\":\"currency\",\"meta\":{\"schemaVersion\":\"1.0\"},\"attributes\":{\"max\":10000000,\"min\":0,\"step\":0.01}}",
+            requirementText: '',
+            guidanceText: '',
+            sampleText: '',
+            useSampleTextAsDefault: false,
+            required: false,
+          },
+        },
+      });
+    });
+  })
+
+  it('should call addQuestionMutation with correct data for \'url\' question type ', async () => {
+    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
+      data: { addQuestion: { id: 1 } },
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "url",
+      attributes: {
+        maxLength: null,
+        minLength: 0,
+        pattern: null
+      }
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="url"
+          questionName="Url Field"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+    fireEvent.click(saveButton);
+
+    // Check if the addQuestionMutation was called
+    await waitFor(() => {
+      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            templateId: 123,
+            sectionId: 1,
+            displayOrder: 5,
+            isDirty: true,
+            questionText: 'New Question',
+            json: "{\"type\":\"url\",\"meta\":{\"schemaVersion\":\"1.0\"},\"attributes\":{\"maxLength\":2048,\"minLength\":2,\"pattern\":\"https?://.+\"}}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',

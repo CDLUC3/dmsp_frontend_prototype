@@ -194,6 +194,7 @@ const QuestionAdd = ({
       }
     } catch (error) {
       if (!(error instanceof ApolloError)) {
+        console.log("***ERROR ADDING QUESTION***", error);
         setErrors(prevErrors => [
           ...prevErrors,
           QuestionAdd('messages.errors.questionAddingError'),
@@ -203,7 +204,7 @@ const QuestionAdd = ({
   };
   useEffect(() => {
     if (!questionType) {
-      // If questionId is missing, return user to the Question Types selection page
+      // If questionType is missing, return user to the Question Types selection page
       toastState.add(Global('messaging.somethingWentWrong'), { type: 'error' });
       router.push(step1Url);
 
@@ -219,8 +220,6 @@ const QuestionAdd = ({
         ...question,
         questionType
       });
-    } else {
-      setQuestion({ questionType });
     }
   }, [questionType]);
 
@@ -279,7 +278,7 @@ const QuestionAdd = ({
                 >
                   <Label className={`${styles.searchLabel} react-aria-Label`}>{QuestionAdd('labels.type')}</Label>
                   <Input className={`${styles.searchInput} react-aria-Input`} disabled />
-                  <Button className={`${styles.searchButton} react-aria-Button`} type="button" onPress={redirectToQuestionTypes}>Change type</Button>
+                  <Button className={`${styles.searchButton} react-aria-Button`} type="button" onPress={redirectToQuestionTypes}>{QuestionAdd('buttons.changeType')}</Button>
                   <Text slot="description" className={`${styles.searchHelpText} help-text`}>
                     {QuestionAdd('helpText.textField')}
                   </Text>
