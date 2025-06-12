@@ -194,7 +194,6 @@ const QuestionAdd = ({
       }
     } catch (error) {
       if (!(error instanceof ApolloError)) {
-        console.log("***ERROR ADDING QUESTION***", error);
         setErrors(prevErrors => [
           ...prevErrors,
           QuestionAdd('messages.errors.questionAddingError'),

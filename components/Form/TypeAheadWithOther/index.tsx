@@ -275,10 +275,6 @@ const TypeAheadWithOther = ({
     };
   }, []);
 
-  useEffect(() => {
-    console.log("***INPUT VALUE CHANGED***", inputValue);
-  }, [inputValue])
-
   // Ensure the component always renders
   if (!client) {
     return (
