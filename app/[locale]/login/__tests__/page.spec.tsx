@@ -1,8 +1,5 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-// REMOVE this import - it's causing the ESM error:
-// import fetch from 'node-fetch';
-
 import logECS from '@/utils/clientLogger';
 import LoginPage from '../page';
 
@@ -45,7 +42,7 @@ const mockFocus = jest.fn();
 const mockUseRouter = useRouter as jest.Mock;
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 
-// Mock fetch globally instead of importing node-fetch
+// Mock fetch globally
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 

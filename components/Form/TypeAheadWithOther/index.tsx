@@ -23,7 +23,7 @@ type TypeAheadInputProps = {
   label: string;
   placeholder?: string;
   helpText?: string;
-  setOtherField: (value: boolean) => void; // Update type to reflect React state setter for boolean
+  setOtherField: (value: boolean) => void;
   fieldName: string;
   required: boolean;
   error?: string;

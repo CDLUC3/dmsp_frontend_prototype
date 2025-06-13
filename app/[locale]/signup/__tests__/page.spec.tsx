@@ -74,7 +74,7 @@ const mockUseRouter = useRouter as jest.Mock;
 
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 
-// Mock fetch globally instead of importing node-fetch
+// Mock fetch globally
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 describe('SignUpPage', () => {

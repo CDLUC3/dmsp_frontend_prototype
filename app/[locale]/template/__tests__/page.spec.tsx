@@ -309,7 +309,7 @@ describe('TemplateListPage', () => {
   });
 
   it('should display correct load more and remaining text', async () => {
-    // Arrange: mock data with 5 items
+    // Five templates in mock
     const mockTemplates = [
       { name: 'A', id: 1 }, { name: 'B', id: 2 }, { name: 'C', id: 3 },
       { name: 'D', id: 4 }, { name: 'E', id: 5 }

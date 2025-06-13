@@ -127,10 +127,8 @@ const TemplateListPage: React.FC = () => {
 
   useEffect(() => {
     if (queryError) {
-      // Safely access queryError.message
       setErrors(prev => [...prev, t('somethingWentWrong')]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryError]);
 
 
