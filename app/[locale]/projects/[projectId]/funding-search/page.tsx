@@ -9,8 +9,8 @@ import { LoggedError } from "@/utils/exceptions";
 
 import {
   AffiliationSearch,
-  useAddProjectFunderMutation,
-  ProjectFunderErrors,
+  useAddProjectFundingMutation,
+  ProjectFundingErrors,
 } from '@/generated/graphql';
 import { FunderSearchResults } from '@/app/types';
 
@@ -45,7 +45,7 @@ const CreateProjectSearchFunder = () => {
   const [funders, setFunders] = useState<AffiliationSearch[]>([]);
   const [nextCursor, setNextCursor] = useState<string|null>(null);
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [addProjectFunder] = useAddProjectFunderMutation({});
+  const [addProjectFunding] = useAddProjectFundingMutation({});
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
 
@@ -53,10 +53,10 @@ const CreateProjectSearchFunder = () => {
    * Handle specific errors that we care about in this component.
    * @param {ProjectFunderErrors} errs - The errors from the graphql response
    */
-  function checkErrors(errs: ProjectFunderErrors): string[] {
+  function checkErrors(errs: ProjectFundingErrors): string[] {
     if (!errs) return [];
 
-    const typedKeys: (keyof ProjectFunderErrors)[] = [
+    const typedKeys: (keyof ProjectFundingErrors)[] = [
       "affiliationId",
       "general",
       "projectId",
@@ -75,7 +75,7 @@ const CreateProjectSearchFunder = () => {
   }
 
   async function handleSelectFunder(funder: AffiliationSearch) {
-    const NEXT_URL = routePath('projects.create.projectSearch', {
+    const NEXT_URL = routePath('projects.create.projects.search', {
       projectId: projectId as string,
     });
     const input = {
@@ -83,9 +83,9 @@ const CreateProjectSearchFunder = () => {
       affiliationId: funder.uri
     }
 
-    addProjectFunder({variables: { input }})
+    addProjectFunding({variables: { input }})
       .then((result) => {
-        const errs = checkErrors(result?.data?.addProjectFunder?.errors as ProjectFunderErrors);
+        const errs = checkErrors(result?.data?.addProjectFunding?.errors as ProjectFundingErrors);
         if (errs.length > 0) {
           setErrors(errs);
         } else {
@@ -99,7 +99,10 @@ const CreateProjectSearchFunder = () => {
 
   async function handleAddFunderManually() {
     // TODO:: Handle manual addition of funders
-    // FIXME:: What should this do? There is no indication in the wireframes
+    // NOTE:: Reason we didn't implement this is because the template for the
+    // target // URL doesn't exist. There is a separate ticket tracking this.
+    // TODO:: Remember to update the test when this is finally updated
+    console.log('TODO: Navigate to create funder page.');
   };
 
   function onResults(results: FunderSearchResults) {
@@ -107,12 +110,7 @@ const CreateProjectSearchFunder = () => {
       const items = (results.items ?? [])
         .filter((f): f is AffiliationSearch => f != null);
 
-      if (!funders) {
-        setFunders(items);
-      } else {
-        setFunders(funders.concat(items));
-      }
-
+      setFunders(funders.concat(items));
       setTotalCount(results.totalCount as number);
 
       if (results.nextCursor) {
@@ -189,6 +187,12 @@ const CreateProjectSearchFunder = () => {
                   </div>
                 )}
               </div>
+            </section>
+          )}
+
+          {funders.length > 0 && hasSearched && (
+            <section>
+              <p>No results found</p>
             </section>
           )}
 

@@ -4,6 +4,10 @@ import { render, screen, fireEvent, waitFor } from '@/utils/test-utils';
 import { toHaveNoViolations } from 'jest-axe';
 import { MockedProvider } from '@apollo/client/testing';
 import { AffiliationFundersDocument } from '@/generated/graphql';
+import {
+  FunderSearchResults,
+  FunderSearchItem,
+} from '@/app/types';
 
 import FunderSearch from '@/components/FunderSearch';
 
@@ -106,11 +110,11 @@ describe("FunderSearch", () => {
     */
   function WrappedSearch() {
     const [moreCounter, setMoreCounter] = useState(0);
-    const [funders, setFunders] = useState([])
+    const [funders, setFunders] = useState<FunderSearchItem[]>([]);
 
-    function handleResults(resp) {
-      if (resp) {
-        setFunders(resp.items);
+    function handleResults(resp: FunderSearchResults) {
+      if (resp && resp.items) {
+        setFunders(resp.items.filter(Boolean) as FunderSearchItem[]);
       }
     }
 
@@ -162,7 +166,7 @@ describe("FunderSearch", () => {
 
     // We must set the search term before we can search
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input');
+                              .querySelector('input')!;
     fireEvent.change(searchInput, {target: {value: "nih" }});
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -189,7 +193,7 @@ describe("FunderSearch", () => {
 
     // We must set the search term before we can search
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input');
+                              .querySelector('input')!;
     fireEvent.change(searchInput, {target: {value: "nih" }});
 
     const searchBtn = screen.getByTestId('search-btn');

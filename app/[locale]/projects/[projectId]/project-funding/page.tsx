@@ -25,7 +25,7 @@ const ProjectsCreateProjectFunding = () => {
   const params = useParams();
 
   const { projectId } = params;
-  const FUNDING_SEARCH_URL = routePath('projects.create.fundingSearch', {
+  const FUNDING_SEARCH_URL = routePath('projects.create.funding.search', {
     projectId: projectId as string,
   });
   const PROJECT_DETAIL_URL = routePath('projects.show', {

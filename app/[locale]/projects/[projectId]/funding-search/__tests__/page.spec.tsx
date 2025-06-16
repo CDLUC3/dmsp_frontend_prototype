@@ -12,14 +12,14 @@ import { useParams, useRouter } from 'next/navigation';
 import { MockedProvider } from '@apollo/client/testing';
 import {
   AffiliationFundersDocument,
-  AddProjectFunderDocument,
+  AddProjectFundingDocument,
 } from '@/generated/graphql';
 
 // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 import { stripHtml, scrollToTop } from '@/utils/general';
 
 import CreateProjectSearchFunder from '../page';
-import { toHaveNoViolations } from 'jest-axe';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
 
 expect.extend(toHaveNoViolations);
@@ -61,6 +61,37 @@ const mocks = [
       }
     },
   },
+
+  // Empty results
+  {
+    request: {
+      query: AffiliationFundersDocument,
+      variables: {
+        name: "empty",
+        funderOnly: true,
+        paginationOptions: {
+          type: "CURSOR",
+          limit: 50,
+        },
+      },
+    },
+
+    result: {
+      data: {
+        affiliations: {
+          items: [],
+          totalCount: 0,
+          limit: 0,
+          nextCursor: null,
+          currentOffset: null,
+          hasNextPage: false,
+          hasPreviousPage: null,
+          availableSortFields: []
+        }
+      }
+    },
+  },
+
 
   // Paginated Mocks
   {
@@ -140,7 +171,7 @@ const mocks = [
   // This is for when we select a funder
   {
     request: {
-      query: AddProjectFunderDocument,
+      query: AddProjectFundingDocument,
       variables: {
         input: {
           projectId: 123,
@@ -151,7 +182,7 @@ const mocks = [
 
     result: {
       data: {
-        addProjectFunder: {
+        addProjectFunding: {
           errors: {
               affiliationId: null,
               funderOpportunityNumber: null,
@@ -166,10 +197,10 @@ const mocks = [
     },
   },
 
-  // Mocked error response for addProjectFunder
+  // Mocked error response for addProjectFunding
   {
     request: {
-      query: AddProjectFunderDocument,
+      query: AddProjectFundingDocument,
       variables: {
         input: {
           projectId: 123,
@@ -181,7 +212,7 @@ const mocks = [
 
     result: {
       data: {
-        addProjectFunder: {
+        addProjectFunding: {
           errors: {
             affiliationId: null,
             funderOpportunityNumber: null,
@@ -198,19 +229,17 @@ const mocks = [
 ];
 
 
-// Mock next/navigation hooks
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
-  useParams: jest.fn(),
-}));
-
-
 // Needed for the errormessages component
 jest.mock('@/utils/general', () => ({
   scrollToTop: jest.fn(),
   stripHtml: jest.fn(),
 }));
 
+
+jest.mock('@/components/PageHeader', () => ({
+  __esModule: true,
+  default: () => <div data-testid="mock-page-header" />
+}));
 
 describe("CreateProjectSearchFunder", () => {
 
@@ -241,7 +270,7 @@ describe("CreateProjectSearchFunder", () => {
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input');
+                              .querySelector('input')!;
     fireEvent.change(searchInput, {target: {value: "nih" }});
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -254,7 +283,7 @@ describe("CreateProjectSearchFunder", () => {
       ]
       resultSet.forEach((funder) => {
         const funderTitle = screen.getByText(funder[0]);
-        const funderContainer = funderTitle.closest('div');
+        const funderContainer = funderTitle.closest('div')!;
         const funderContent = within(funderContainer);
         const selectBtn = funderContent.getByRole('button', {
           name: /select/i,
@@ -276,7 +305,7 @@ describe("CreateProjectSearchFunder", () => {
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input');
+                              .querySelector('input')!;
     fireEvent.change(searchInput, {target: {value: "paginated" }});
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -284,7 +313,7 @@ describe("CreateProjectSearchFunder", () => {
 
     await waitFor(() => {
       const funderTitle = screen.getByText("Funder 50");
-      const funderContainer = funderTitle.closest('div');
+      const funderContainer = funderTitle.closest('div')!;
       const funderContent = within(funderContainer);
       const selectBtn = funderContent.getByRole('button', {
         name: /select/i,
@@ -307,7 +336,7 @@ describe("CreateProjectSearchFunder", () => {
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input');
+                              .querySelector('input')!;
     fireEvent.change(searchInput, {target: {value: "paginated" }});
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -315,7 +344,7 @@ describe("CreateProjectSearchFunder", () => {
 
     await waitFor(() => {
       const funderTitle = screen.getByText("Funder 50");
-      const funderContainer = funderTitle.closest('div');
+      const funderContainer = funderTitle.closest('div')!;
       const funderContent = within(funderContainer);
       const selectBtn = funderContent.getByRole('button', {
         name: /select/i,
@@ -347,7 +376,7 @@ describe("CreateProjectSearchFunder", () => {
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input');
+                              .querySelector('input')!;
     fireEvent.change(searchInput, {target: {value: "nih" }});
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -357,7 +386,7 @@ describe("CreateProjectSearchFunder", () => {
       expect(screen.getByText("Funder 1")).toBeInTheDocument();
     });
 
-    const firstFunder = screen.getByText("Funder 1").closest('div');
+    const firstFunder = screen.getByText("Funder 1").closest('div')!;
     const funderContent = within(firstFunder);
     const selectBtn = funderContent.getByRole('button', {
       name: /select/i,
@@ -383,17 +412,17 @@ describe("CreateProjectSearchFunder", () => {
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input');
+                              .querySelector('input')!;
     fireEvent.change(searchInput, {target: {value: "nih" }});
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
 
     await waitFor(() => {
-      expect(screen.getByText("Funder 30")).toBeInTheDocument();
+      expect(screen.getByText("Funder 3")).toBeInTheDocument();
     });
 
-    const firstFunder = screen.getByText("Funder 3").closest('div');
+    const firstFunder = screen.getByText("Funder 3").closest('div')!;
     const funderContent = within(firstFunder);
     const selectBtn = funderContent.getByRole('button', {
       name: /select/i,
@@ -407,4 +436,44 @@ describe("CreateProjectSearchFunder", () => {
     });
   });
 
+  it("Should allow adding a funder manually", async () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    // NOTE: search-field and search-input are testID's provided by elements
+    // inside the FunderSearch component.
+    const searchInput = screen.getByTestId('search-field')
+                              .querySelector('input')!;
+    fireEvent.change(searchInput, {target: {value: "nih" }});
+
+    const searchBtn = screen.getByTestId('search-btn');
+    fireEvent.click(searchBtn);
+
+    await waitFor(() => {
+      const addBtn = screen.getByText('addManuallyLabel');
+      expect(addBtn).toBeInTheDocument();
+      fireEvent.click(addBtn);
+    });
+
+    expect(logSpy).toHaveBeenCalledWith('TODO: Navigate to create funder page.');
+
+    // Cleanup
+    logSpy.mockRestore();
+  });
+
+  it('should pass accessibility tests', async () => {
+    const { container } = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
 });

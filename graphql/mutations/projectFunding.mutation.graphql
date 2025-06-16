@@ -1,5 +1,5 @@
-mutation AddProjectFunding($input: AddProjectFunderInput!) {
-  addProjectFunder(input: $input) {
+mutation AddProjectFunding($input: AddProjectFundingInput!) {
+  addProjectFunding(input: $input) {
     errors {
       affiliationId
       funderOpportunityNumber
@@ -12,7 +12,7 @@ mutation AddProjectFunding($input: AddProjectFunderInput!) {
   }
 }
 
-mutation UpdateProjectFunding($input: UpdateProjectFunderInput!) {
+mutation UpdateProjectFunding($input: UpdateProjectFundingInput!) {
   updateProjectFunding(input: $input) {
     errors {
       affiliationId
