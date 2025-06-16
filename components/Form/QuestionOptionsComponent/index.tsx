@@ -31,7 +31,7 @@ interface QuestionOptionsComponentProps {
  */
 const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionJSON, formSubmitted, setFormSubmitted }) => {
   const [announcement, setAnnouncement] = useState<string>("");
-  const parsedQuestionJSON = JSON.parse(questionJSON || '{}');
+  const parsedQuestionJSON = (typeof questionJSON === 'string') ? JSON.parse(questionJSON) : questionJSON || {};
   const Global = useTranslations('Global');
   const QuestionOptions = useTranslations('QuestionOptionsComponent');
 
@@ -73,7 +73,6 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
         : row
     );
 
-    console.log("***Updated Rows***", updatedRows);
     setRows(updatedRows); // this calls updateRows()
   };
 

@@ -139,7 +139,6 @@ const QuestionAdd = ({
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
 
-    console.log("***NEW ROWS***", newRows);
     // Only update `question.json` if it's an options question
     if (hasOptions && questionType && questionJSON) {
       const parsedQuestionJSON = JSON.parse(questionJSON);
@@ -156,7 +155,6 @@ const QuestionAdd = ({
         formState
       );
 
-      console.log("***UPDATED JSON***", updatedJSON);
       // Store the updated JSON string in question.json
       setQuestion((prev) => ({
         ...prev,
@@ -195,7 +193,6 @@ const QuestionAdd = ({
     const currentQuestionJSON = question.json || questionJSON;
     const parsedQuestionJSON = JSON.parse(currentQuestionJSON);
 
-    console.log("***CURRENT QUESTION JSON***", parsedQuestionJSON);
     // Prepare input for the questionTypeHandler. For options questions, we update the 
     // values with rows state. For non-options questions, we use the parsed JSON
     const formState = hasOptions
@@ -208,7 +205,6 @@ const QuestionAdd = ({
       }
       : parsedQuestionJSON; // Use parsed JSON for non-option types
 
-    console.log("***FORM STATE***", formState);
     // Get any overrides for the question type json objects based on question type
     const overrides = getOverrides(questionType);
 

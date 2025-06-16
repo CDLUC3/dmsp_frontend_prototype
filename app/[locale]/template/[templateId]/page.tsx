@@ -89,7 +89,8 @@ const TemplateEditPage: React.FC = () => {
   const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
     {
       variables: { templateId: Number(templateId) },
-      notifyOnNetworkStatusChange: true
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: "network-only",// Ensures we always fetch the latest data
     }
   );
 

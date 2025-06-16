@@ -60,6 +60,13 @@ type Option = {
   };
 };
 
+type SelectItem = {
+  id: string;
+  name: string;
+  selected?: boolean;
+  icon?: string;
+};
+
 interface MultiOption {
   key: string;
   label: string;
@@ -85,15 +92,6 @@ const getParsedQuestionJSON = (question: Question | null) => {
   }
   return null;
 }
-
-const foodOptions: MultiOption[] = [
-  { key: 'lettuce', label: 'Lettuce', icon: '🥬' },
-  { key: 'tomato', label: 'Tomato', icon: '🍅' },
-  { key: 'cheese', label: 'Cheese', icon: '🧀' },
-  { key: 'tuna', label: 'Tuna Salad', icon: '🐟' },
-  { key: 'egg', label: 'Egg Salad', icon: '🥚' },
-  { key: 'ham', label: 'Ham', icon: '🥓' }
-];
 
 const QuestionView: React.FC<QuestionViewProps> = ({
   id = '',
@@ -136,6 +134,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const handleCheckboxGroupChange = (values: string[]) => {
     console.log('Checkbox values changed:', values);
     setSelectedCheckboxValues(values);
+  };
+
+  // Add local state for multiSelect values
+  const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
+
+  // Add local state to track if user has interacted with MultiSelect
+  const [multiSelectTouched, setMultiSelectTouched] = useState(false);
+
+  // Handler for MultiSelect changes
+  const handleMultiSelectChange = (values: Set<string>) => {
+    setSelectedMultiSelectValues(values);
+    setMultiSelectTouched(true);
   };
 
   // Add local state for selected select value
@@ -226,6 +236,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         const items = parsedQuestion.options?.map((opt: Option) => ({
           id: opt.attributes.value,
           name: opt.attributes.label,
+          selected: opt.attributes.selected || false,
         })) || [];
         // Find initial selected value(s)
         const selectedOption = parsedQuestion.options?.find((opt: Option) => opt.attributes.selected);
@@ -244,7 +255,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             {isMultiSelect ? (
               <MultiSelect
                 options={items}
-                defaultSelected={defaultSelected}
+                selectedKeys={multiSelectTouched ? selectedMultiSelectValues : new Set(defaultSelected)}
+                onSelectionChange={handleMultiSelectChange}
                 label="Choose Options"
                 maxWidth="250px"
               />

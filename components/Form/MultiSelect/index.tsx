@@ -12,7 +12,8 @@ interface Option {
 interface MultiSelectProps {
   options: Option[];
   defaultSelected?: string[];
-  onSelectionChange?: (selected: Selection) => void;
+  selectedKeys?: Set<string>;
+  onSelectionChange?: (selected: Set<string>) => void;
   label?: string;
   maxWidth?: string;
   maxHeight?: string;
@@ -22,17 +23,21 @@ interface MultiSelectProps {
 function MultiSelect({
   options,
   defaultSelected = [],
+  selectedKeys,
   onSelectionChange,
   label = "Select Items (Multiple)",
   maxWidth = "300px",
   maxHeight = "200px",
   minHeight = "120px"
 }: MultiSelectProps) {
-  const [selected, setSelected] = React.useState<Selection>(new Set(defaultSelected));
+  const isControlled = selectedKeys !== undefined;
+  const [internalSelected, setInternalSelected] = React.useState<Set<string>>(new Set(defaultSelected));
+  const selected = isControlled ? selectedKeys! : internalSelected;
 
-  const handleSelectionChange = (newSelection: Selection) => {
-    setSelected(newSelection);
-    onSelectionChange?.(newSelection);
+  const handleSelectionChange = (newSelection: any) => {
+    // react-aria-components passes a Set<Key> for multiple selection
+    if (!isControlled) setInternalSelected(newSelection as Set<string>);
+    onSelectionChange?.(newSelection as Set<string>);
   };
 
   const containerStyle = {
@@ -94,11 +99,12 @@ function MultiSelect({
 
   return (
     <div style={containerStyle}>
-      <label style={labelStyle}>
+      <label htmlFor="multiSelectBox" style={labelStyle}>
         {label}
       </label>
 
       <ListBox
+        id="multiSelectBox"
         selectionMode="multiple"
         selectedKeys={selected}
         onSelectionChange={handleSelectionChange}
@@ -108,6 +114,7 @@ function MultiSelect({
         {options.map((option) => (
           <ListBoxItem
             key={option.id}
+            id={option.name}
             className="multiselect-item"
             textValue={option.name}
           >
@@ -124,12 +131,11 @@ function MultiSelect({
       </ListBox>
 
       <div style={selectedCountStyle}>
-        Selected: {selected === 'all' ? 'All items' : `${[...selected].length} item(s)`}
-        {selected !== 'all' && [...selected].length > 0 && (
-          <span style={{ marginLeft: '8px', color: '#3b82f6' }}>
-            ({[...selected].join(', ')})
-          </span>
-        )}
+
+        <span style={{ marginLeft: '8px', color: '#3b82f6' }}>
+          ({[...selected].join(', ')})
+        </span>
+
       </div>
     </div>
   );

@@ -373,7 +373,7 @@ const QuestionEdit = () => {
                     <QuestionOptionsComponent
                       rows={rows}
                       setRows={setRows}
-                      questionType={questionType}
+                      questionJSON={question ? getParsedQuestionJSON(question) : {}}
                       formSubmitted={formSubmitted}
                       setFormSubmitted={setFormSubmitted} />
                   </div>
