@@ -1,23 +1,53 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { useRouter } from 'next/navigation';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { useRouter, useParams } from 'next/navigation';
 import '@testing-library/jest-dom';
+import { MockedProvider } from '@apollo/client/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
+
+import { ProjectFundingsDocument } from '@/generated/graphql';
+
 import ProjectsProjectFunding from '../page';
+
+
 expect.extend(toHaveNoViolations);
 
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
-}));
+const mockPush = jest.fn();
 
-const mockUseRouter = useRouter as jest.Mock;
+const mocks = [
+  {
+    request: {
+      query: ProjectFundingsDocument,
+      variables: {
+        projectId: 123,
+      },
+    },
+
+    result: {
+      data: {
+        projectFundings: [
+          {
+            "id": 1,
+            "affiliation": {
+              "displayName": "Test Funder 1",
+              "uri": "https://funder-1",
+            },
+          }
+        ],
+      },
+    }
+  },
+];
+
 
 describe('ProjectsProjectFunding', () => {
   beforeEach(() => {
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
-    mockUseRouter.mockReturnValue({
-      push: jest.fn(),
-    })
+
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+
+    const mockParams = useParams as jest.Mock;
+    mockParams.mockReturnValue({ projectId: '123' });
   })
 
   afterEach(() => {
@@ -25,43 +55,70 @@ describe('ProjectsProjectFunding', () => {
   });
 
   it('should render the page header with title and description', () => {
-    render(<ProjectsProjectFunding />);
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <ProjectsProjectFunding />
+      </MockedProvider>
+    );
+
     expect(screen.getByText('Project Funding')).toBeInTheDocument();
     expect(screen.getByText('Manage funding sources for your project')).toBeInTheDocument();
   });
 
   it('should render breadcrumbs correctly', () => {
-    render(<ProjectsProjectFunding />);
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <ProjectsProjectFunding />
+      </MockedProvider>
+    );
+
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Projects')).toBeInTheDocument();
   });
 
   it('should render the "Add funding" button and handles click', async () => {
-    render(<ProjectsProjectFunding />);
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <ProjectsProjectFunding />
+      </MockedProvider>
+    );
+
     const addButton = screen.getByRole('button', { name: 'Add funding' });
     expect(addButton).toBeInTheDocument();
 
     fireEvent.click(addButton);
     await waitFor(() => {
       // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/fundings/search');
+      expect(mockPush).toHaveBeenCalledWith('/en-US/projects/123/fundings/search');
     });
   });
 
   it('should render the fundings list and handles "Edit" button click', async () => {
-    render(<ProjectsProjectFunding />);
-    const editButton = screen.getByRole('button', { name: 'Edit National Science Foundation details' });
-    expect(editButton).toBeInTheDocument();
+    act(() => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <ProjectsProjectFunding />
+        </MockedProvider>
+      );
+    });
 
-    fireEvent.click(editButton);
     await waitFor(() => {
-      // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/fundings/projFund_6902/edit');
+      const editButton = screen.getByLabelText('Edit Test Funder 1 details');
+      expect(editButton).toBeInTheDocument();
+      fireEvent.click(editButton);
+    });
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/en-US/projects/123/fundings/projFund_6902/edit');
     });
   });
 
   it('should pass accessibility tests', async () => {
-    const { container } = render(<ProjectsProjectFunding />);
+    const { container } = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <ProjectsProjectFunding />
+      </MockedProvider>
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

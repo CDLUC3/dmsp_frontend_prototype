@@ -18,30 +18,31 @@ import {
 } from "@/components/Container";
 import styles from './ProjectsProjectFunding.module.scss';
 
-import {
-  useProjectFundersQuery,
-} from '@/generated/graphql';
+import { useProjectFundingsQuery } from '@/generated/graphql';
+
 
 const ProjectsProjectFunding = () => {
   const router = useRouter();
   const params = useParams();
   const { projectId } = params;
 
-  const {data: funders} = useProjectFundersQuery({
+  const {data: funders} = useProjectFundingsQuery({
     variables: {
       projectId: Number(projectId),
     }
   });
 
   const handleAddFunding = () => {
-    const NEXT_URL = routePath('projects.funder.search', {
+    router.push(routePath('projects.fundings.search', {
       projectId: projectId as string,
-    });
-    router.push(NEXT_URL);
+    }));
   };
 
-  const handleEditFunder = () => {
-    window.location.href = '/projects/proj_2425/funder/edit';
+  const handleEditFunding = () => {
+    router.push(routePath('projects.fundings.edit', {
+      projectId: projectId as string,
+      projectFundingId: 'projFund_6902', // TODO:: Correct funder ID
+    }));
   };
 
   return (
@@ -72,19 +73,19 @@ const ProjectsProjectFunding = () => {
       <LayoutWithPanel>
         <ContentContainer>
           <section aria-label="Current fundings">
-            {funders?.projectFunders && funders.projectFunders.map((funder, index) => (
+            {funders?.projectFundings && funders.projectFundings.map((funder, index) => (
               <div
                 key={index}
-                className={styles.funderResultsList}
+                className={styles.fundingResultsList}
               >
                 <div
-                  className={styles.funderResultsListItem}
+                  className={styles.fundingResultsListItem}
                   role="group"
                   aria-label="{funder?.affiliation?.displayName}"
                 >
                   <p className="funder-name">{funder?.affiliation?.displayName}</p>
                   <Button
-                    onPress={handleEditFunder}
+                    onPress={handleEditFunding}
                     className="secondary"
                     aria-label={`Edit ${funder?.affiliation?.displayName} details`}
                   >
@@ -92,8 +93,7 @@ const ProjectsProjectFunding = () => {
                   </Button>
                 </div>
               </div>
-            )
-            )}
+            ))}
           </section>
         </ContentContainer>
         <SidebarPanel></SidebarPanel>
