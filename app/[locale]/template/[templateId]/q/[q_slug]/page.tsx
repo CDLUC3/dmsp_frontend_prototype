@@ -96,6 +96,8 @@ const QuestionEdit = () => {
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
+
 
   // Initialize update question mutation
   const [updateQuestionMutation] = useUpdateQuestionMutation();
@@ -134,6 +136,26 @@ const QuestionEdit = () => {
     // questionId as query param included to let page know that user is updating an existing question
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
+
+  // Handler for date range label changes
+  const handleDateRangeLabelChange = (field: 'start' | 'end', value: string) => {
+    setDateRangeLabels(prev => ({ ...prev, [field]: value }));
+
+    // Update the label in the question JSON and sync to question state
+    if (questionType === 'dateRange' && question?.json) {
+
+      // Deep clone to avoid mutating the original object
+      const parsed = JSON.parse(question.json);
+      const updated = JSON.parse(JSON.stringify(parsed));
+      if (updated?.columns?.[field]?.attributes) {
+        updated.columns[field].attributes.label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updated),
+        }));
+      }
+    }
+  };
 
   // Handle form submission to update the question
   const handleUpdate = async (e: React.FormEvent) => {
@@ -250,6 +272,20 @@ const QuestionEdit = () => {
     }
   }, [selectedQuestionQueryError])
 
+  useEffect(() => {
+    if (questionType === 'dateRange' && question?.json) {
+      try {
+        const parsed = JSON.parse(question.json);
+        setDateRangeLabels({
+          start: parsed?.columns?.start?.attributes?.label || '',
+          end: parsed?.columns?.end?.attributes?.label || '',
+        });
+      } catch {
+        setDateRangeLabels({ start: '', end: '' });
+      }
+    }
+  }, [questionType, question?.json])
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -340,6 +376,34 @@ const QuestionEdit = () => {
                       questionType={questionType}
                       formSubmitted={formSubmitted}
                       setFormSubmitted={setFormSubmitted} />
+                  </div>
+                )}
+
+                {/**Date Range */}
+                {questionType && (questionType === 'dateRange') && (
+                  <div className={`${styles.dateRangeLabels} date-range-group`}>
+                    <div className={styles.dateRangeInput}>
+                      <Label htmlFor="dateRangeStart">Start Label</Label>
+                      <Input
+                        type="text"
+                        id="dateRangeStart"
+                        value={dateRangeLabels.start}
+                        onChange={e => handleDateRangeLabelChange('start', e.currentTarget.value)}
+                        className={styles.dateRangeInput}
+                        placeholder="From"
+                      />
+                    </div>
+                    <div className={styles.dateRangeInput}>
+                      <Label htmlFor="dateRangeEnd">End Label</Label>
+                      <Input
+                        type="text"
+                        id="dateRangeEnd"
+                        value={dateRangeLabels.end}
+                        onChange={e => handleDateRangeLabelChange('end', e.currentTarget.value)}
+                        className={styles.dateRangeInput}
+                        placeholder="To"
+                      />
+                    </div>
                   </div>
                 )}
 

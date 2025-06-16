@@ -104,7 +104,6 @@ const QuestionAdd = ({
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
-  const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
   // localization keys
   const Global = useTranslations('Global');
@@ -141,6 +140,7 @@ const QuestionAdd = ({
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
 
+    console.log("***NEW ROWS***", newRows);
     // Only update `question.json` if it's an options question
     if (hasOptions && questionType && questionJSON) {
       const parsedQuestionJSON = JSON.parse(questionJSON);
@@ -157,6 +157,7 @@ const QuestionAdd = ({
         formState
       );
 
+      console.log("***UPDATED JSON***", updatedJSON);
       // Store the updated JSON string in question.json
       setQuestion((prev) => ({
         ...prev,
@@ -195,6 +196,7 @@ const QuestionAdd = ({
     const currentQuestionJSON = question.json || questionJSON;
     const parsedQuestionJSON = JSON.parse(currentQuestionJSON);
 
+    console.log("***CURRENT QUESTION JSON***", parsedQuestionJSON);
     // Prepare input for the questionTypeHandler. For options questions, we update the 
     // values with rows state. For non-options questions, we use the parsed JSON
     const formState = hasOptions
@@ -207,6 +209,7 @@ const QuestionAdd = ({
       }
       : parsedQuestionJSON; // Use parsed JSON for non-option types
 
+    console.log("***FORM STATE***", formState);
     // Get any overrides for the question type json objects based on question type
     const overrides = getOverrides(questionType);
 
@@ -215,14 +218,12 @@ const QuestionAdd = ({
       ? formState
       : { ...formState, attributes: { ...formState.attributes, ...overrides } };
 
-    console.log("***USER INPUT", userInput);
     // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
     const updatedJSON = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsedQuestionJSON,
       userInput
     );
 
-    console.log("***UPDATED JSON", updatedJSON);
     // Strip all tags from questionText before sending to backend
     const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
     const input = {
@@ -309,7 +310,22 @@ const QuestionAdd = ({
     }
   }, [questionType, questionJSON]);
 
+  const getInitialDateRangeLabels = () => {
+    if (questionType === 'dateRange' && questionJSON) {
+      try {
+        const parsed = JSON.parse(questionJSON);
+        return {
+          start: parsed?.columns?.start?.attributes?.label || '',
+          end: parsed?.columns?.end?.attributes?.label || '',
+        };
+      } catch {
+        return { start: '', end: '' };
+      }
+    }
+    return { start: '', end: '' };
+  };
 
+  const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>(getInitialDateRangeLabels());
 
   return (
     <>
@@ -383,7 +399,7 @@ const QuestionAdd = ({
                       <QuestionOptionsComponent
                         rows={rows}
                         setRows={updateRows}
-                        questionType={questionType}
+                        questionJSON={questionJSON}
                         formSubmitted={formSubmitted}
                         setFormSubmitted={setFormSubmitted}
                       />

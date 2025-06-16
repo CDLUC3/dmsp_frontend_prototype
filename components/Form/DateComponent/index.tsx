@@ -14,7 +14,7 @@ import {
   CalendarCell,
 } from "react-aria-components";
 
-interface DateRangeProps {
+interface DateComponentProps {
   name: string;
   value: any;
   onChange: (value: any) => void;
@@ -22,7 +22,7 @@ interface DateRangeProps {
   headingClassName?: string;
 }
 
-const DateRange: React.FC<DateRangeProps> = ({
+const DateComponent: React.FC<DateComponentProps> = ({
   name,
   value,
   onChange,
@@ -58,4 +58,4 @@ const DateRange: React.FC<DateRangeProps> = ({
   </DatePicker>
 );
 
-export default DateRange;
+export default DateComponent;

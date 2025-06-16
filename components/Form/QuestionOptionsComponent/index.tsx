@@ -7,6 +7,7 @@ import { Checkbox, } from "react-aria-components";
 
 import FormInput from '@/components/Form/FormInput';
 import { useTranslations } from 'next-intl';
+import { Question } from '@/app/types';
 import styles from './optionsComponent.module.scss';
 
 
@@ -19,7 +20,7 @@ interface Row {
 interface QuestionOptionsComponentProps {
   rows: Row[] | null;
   setRows: (rows: Row[]) => void;
-  questionType?: string;
+  questionJSON?: string;
   formSubmitted?: boolean;
   setFormSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -28,10 +29,9 @@ interface QuestionOptionsComponentProps {
 /**This component is used to add question type fields that use options
  * For example, radio buttons, check boxes and select drop-downs
  */
-const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionType, formSubmitted, setFormSubmitted }) => {
+const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionJSON, formSubmitted, setFormSubmitted }) => {
   const [announcement, setAnnouncement] = useState<string>("");
-
-  // localization keys
+  const parsedQuestionJSON = JSON.parse(questionJSON || '{}');
   const Global = useTranslations('Global');
   const QuestionOptions = useTranslations('QuestionOptionsComponent');
 
@@ -73,14 +73,16 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
         : row
     );
 
+    console.log("***Updated Rows***", updatedRows);
     setRows(updatedRows); // this calls updateRows()
   };
 
   const setDefault = (id: number) => {
     if (!rows) return;
 
-    if (questionType === 'checkBoxes') {
-      toggleSelection(id); // allow multiple selections for checkboxes
+    // allow multiple selections for checkboxes or multiSelect
+    if (parsedQuestionJSON.type === 'checkBoxes' || parsedQuestionJSON.attributes?.multiple === true) {
+      toggleSelection(id);
     } else {
       const updatedRows = rows.map(row => ({
         ...row,

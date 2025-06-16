@@ -15,7 +15,9 @@ import {
   Dialog,
   Group,
   Heading,
+  Key,
   Label,
+  ListBox,
   ListBoxItem,
   Popover,
 } from "react-aria-components";
@@ -42,7 +44,8 @@ import {
 
 import TinyMCEEditor from '@/components/TinyMCEEditor';
 import { RadioGroupComponent, CheckboxGroupComponent, FormSelect } from '@/components/Form';
-import DateRange from '@/components/Form/DateRange';
+import DateComponent from '@/components/Form/DateComponent';
+import MultiSelect from '@/components/Form/MultiSelect';
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import styles from './QuestionView.module.scss';
 
@@ -56,6 +59,14 @@ type Option = {
     description?: string;
   };
 };
+
+interface MultiOption {
+  key: string;
+  label: string;
+  icon?: string;
+}
+
+
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
   isPreview: boolean,
   question: Question | null | undefined,
@@ -75,6 +86,14 @@ const getParsedQuestionJSON = (question: Question | null) => {
   return null;
 }
 
+const foodOptions: MultiOption[] = [
+  { key: 'lettuce', label: 'Lettuce', icon: '🥬' },
+  { key: 'tomato', label: 'Tomato', icon: '🍅' },
+  { key: 'cheese', label: 'Cheese', icon: '🧀' },
+  { key: 'tuna', label: 'Tuna Salad', icon: '🐟' },
+  { key: 'egg', label: 'Egg Salad', icon: '🥚' },
+  { key: 'ham', label: 'Ham', icon: '🥓' }
+];
 
 const QuestionView: React.FC<QuestionViewProps> = ({
   id = '',
@@ -98,11 +117,17 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   // selected radio value
   const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
+  const [selectedKeys, setSelectedKeys] = useState<Set<Key>>(new Set(['apple']));
 
   // Update the selected radio value when user selects different option
   const handleRadioChange = (value: string) => {
     setSelectedRadioValue(value);
   };
+
+  const handleSelectionChange = (selected: Selection) => {
+    console.log('Selection changed:', selected);
+  };
+
 
   // Add local state for selected checkboxes
   const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
@@ -197,36 +222,52 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         );
       }
       case 'selectBox': {
-        // Transform options to items for FormSelect
+        // Transform options to items for FormSelect/MultiSelect
         const items = parsedQuestion.options?.map((opt: Option) => ({
           id: opt.attributes.value,
           name: opt.attributes.label,
         })) || [];
-        // Find initial selected value
+        // Find initial selected value(s)
         const selectedOption = parsedQuestion.options?.find((opt: Option) => opt.attributes.selected);
         const initialValue = selectedOption ? selectedOption.attributes.value : '';
         const value = selectedSelectValue !== undefined ? selectedSelectValue : initialValue;
 
+        const isMultiSelect = parsedQuestion.attributes?.multiple || false;
+
+        // Extract selected values for MultiSelect
+        const defaultSelected = parsedQuestion.options
+          ?.filter((opt: Option) => opt.attributes.selected)
+          .map((opt: Option) => opt.attributes.value) || [];
+
         return (
-          <FormSelect
-            label=""
-            name="select"
-            items={items}
-            selectedKey={value}
-            onSelectionChange={selected => setSelectedSelectValue(selected as string)}
-            errorMessage=""
-            helpMessage=""
-          >
-            {items.map((item: { id: string; name: string }) => (
-              <ListBoxItem key={item.id}>{item.name}</ListBoxItem>
-            ))}
-          </FormSelect>
+          <>
+            {isMultiSelect ? (
+              <MultiSelect
+                options={items}
+                defaultSelected={defaultSelected}
+                label="Choose Options"
+                maxWidth="250px"
+              />
+            ) : (
+              <FormSelect
+                label=""
+                name="select"
+                items={items}
+                selectedKey={value}
+                onSelectionChange={selected => setSelectedSelectValue(selected as string)}
+                errorMessage=""
+                helpMessage=""
+              >
+                {items.map((item: { id: string; name: string }) => (
+                  <ListBoxItem key={item.id}>{item.name}</ListBoxItem>
+                ))}
+              </FormSelect>
+            )}
+
+          </>
         );
       }
-      case 'multiSelect': {
-        // Render your MultiSelectComponent here
-        return <p>MultiSelect (implement MultiSelectComponent)</p>;
-      }
+
       case 'text':
         return <input type="text" />;
       case 'textArea':
@@ -238,21 +279,29 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         );
       case 'date':
-        return <input type="date" />;
+        return (
+          <DateComponent
+            name="startDate"
+            value={getCalendarDateValue(dateRange.startDate)}
+            onChange={newDate => handleDateChange('startDate', newDate)}
+            label="Date"
+            headingClassName=""
+          />
+        )
       case 'dateRange':
         // Extract labels from JSON if available
         const startLabel = parsedQuestion?.columns?.start?.attributes?.label || Global('labels.startDate');
         const endLabel = parsedQuestion?.columns?.end?.attributes?.label || Global('labels.endDate');
         return (
           <div className="date-range-group">
-            <DateRange
+            <DateComponent
               name="startDate"
               value={getCalendarDateValue(dateRange.startDate)}
               onChange={newDate => handleDateChange('startDate', newDate)}
               label={startLabel}
               headingClassName=""
             />
-            <DateRange
+            <DateComponent
               name="endDate"
               value={getCalendarDateValue(dateRange.endDate)}
               onChange={newDate => handleDateChange('endDate', newDate)}
