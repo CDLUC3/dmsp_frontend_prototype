@@ -86,6 +86,8 @@ const QuestionAdd = ({
     sectionId?: string
   }) => {
 
+
+  console.log("***questionJSON", questionJSON);
   const params = useParams();
   const router = useRouter();
   const toastState = useToast();
@@ -260,6 +262,9 @@ const QuestionAdd = ({
   }, [questionType])
 
 
+  useEffect(() => {
+    console.log("***QUESTION", question);
+  }, [question])
   // Update state when input changes
   const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
     setQuestion((prev) => ({

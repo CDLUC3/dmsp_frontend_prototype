@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-
+import {
+  ListBoxItem,
+} from "react-aria-components";
 import {
   useQuestionTypesQuery,
   useTemplateQuery,
@@ -26,7 +28,7 @@ import {
 
 
 import TinyMCEEditor from '@/components/TinyMCEEditor';
-import { RadioGroupComponent } from '@/components/Form';
+import { RadioGroupComponent, CheckboxGroupComponent, FormSelect } from '@/components/Form';
 import { Button } from "react-aria-components";
 
 import styles from './QuestionView.module.scss';
@@ -37,6 +39,7 @@ type Option = {
     label: string;
     value: string;
     selected?: boolean;
+    checked?: boolean;
     description?: string;
   };
 };
@@ -86,6 +89,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setSelectedRadioValue(value);
   };
 
+  // Add local state for selected checkboxes
+  const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
+
+  // Handler for checkbox group changes
+  const handleCheckboxGroupChange = (values: string[]) => {
+    console.log('Checkbox values changed:', values);
+    setSelectedCheckboxValues(values);
+  };
+
+  // Add local state for selected select value
+  const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
+
   useEffect(() => {
     if (!question || !qtData?.questionTypes) return;
 
@@ -124,19 +139,59 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <RadioGroupComponent
             name="visibility"
             value={value}
-            radioGroupLabel={"Your question label here"}
+            radioGroupLabel=""
             radioButtonData={radioButtonData}
             onChange={handleRadioChange}
           />
         );
       }
       case 'checkBoxes': {
-        // Render your CheckboxGroupComponent here
-        return <p>Checkboxes (implement CheckboxGroupComponent)</p>;
+        const checkboxData = parsedQuestion.options?.map((opt: Option) => ({
+          label: opt.attributes.label,
+          value: opt.attributes.value,
+          description: opt.attributes.description || "",
+        })) || [];
+        const initialChecked = parsedQuestion.options
+          ?.filter((opt: Option) => opt.attributes.checked)
+          .map((opt: Option) => opt.attributes.value) || [];
+        const value = selectedCheckboxValues.length >= 0 ? selectedCheckboxValues : initialChecked;
+        return (
+          <CheckboxGroupComponent
+            name="checkboxes"
+            value={value}
+            onChange={handleCheckboxGroupChange}
+            checkboxGroupLabel=""
+            checkboxGroupDescription={""}
+            checkboxData={checkboxData}
+          />
+        );
       }
       case 'selectBox': {
-        // Render your SelectBoxComponent here
-        return <p>Select Box (implement SelectBoxComponent)</p>;
+        // Transform options to items for FormSelect
+        const items = parsedQuestion.options?.map((opt: Option) => ({
+          id: opt.attributes.value,
+          name: opt.attributes.label,
+        })) || [];
+        // Find initial selected value
+        const selectedOption = parsedQuestion.options?.find((opt: Option) => opt.attributes.selected);
+        const initialValue = selectedOption ? selectedOption.attributes.value : '';
+        const value = selectedSelectValue !== undefined ? selectedSelectValue : initialValue;
+
+        return (
+          <FormSelect
+            label=""
+            name="select"
+            items={items}
+            selectedKey={value}
+            onSelectionChange={selected => setSelectedSelectValue(selected as string)}
+            errorMessage=""
+            helpMessage=""
+          >
+            {items.map((item: { id: string; name: string }) => (
+              <ListBoxItem key={item.id}>{item.name}</ListBoxItem>
+            ))}
+          </FormSelect>
+        );
       }
       case 'multiSelect': {
         // Render your MultiSelectComponent here
@@ -190,7 +245,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardEyebrow>{trans('cardType')}</CardEyebrow>
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
-            {questionType}
+            {/* {questionType} */}
             {renderQuestionInput()}
           </CardBody>
         </Card>
