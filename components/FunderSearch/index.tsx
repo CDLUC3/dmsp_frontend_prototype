@@ -3,10 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-import {
-  AffiliationSearch,
-  useAffiliationFundersLazyQuery,
-} from '@/generated/graphql';
+import { useAffiliationFundersLazyQuery } from '@/generated/graphql';
 import { FunderSearchResults } from '@/app/types';
 
 import {
