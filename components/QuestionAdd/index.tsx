@@ -37,7 +37,6 @@ import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
-import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -383,14 +382,6 @@ const QuestionAdd = ({
                   isInvalid={!question?.questionText && formSubmitted}
                   errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
                 />
-
-                {questionType && (questionType === 'textArea') && (
-                  <TinyMCEEditor
-                    id="question-text-area"
-                    content=""
-                    setContent={() => { }} // Pass an empty function
-                  />
-                )}
 
                 {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
                   <>
