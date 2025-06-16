@@ -154,11 +154,11 @@ const CreateProjectSearchFunder = () => {
           {funders.length > 0 && (
             <section aria-labelledby="funders-section">
               <h3 id="funders-section">{totalCount} {trans('found')}</h3>
-              <div className={styles.funderResultsList}>
+              <div className={styles.fundingResultsList}>
                 {funders.map((funder, index) => (
                   <div
                     key={index}
-                    className={styles.funderResultsListItem}
+                    className={styles.fundingResultsListItem}
                     role="group"
                     aria-label={`${trans('funder')}: ${funder.displayName}`}
                   >
@@ -175,7 +175,7 @@ const CreateProjectSearchFunder = () => {
                 ))}
 
                 {(hasMore()) && (
-                  <div className={styles.funderResultsListMore}>
+                  <div className={styles.fundingResultsListMore}>
                     <Button
                       data-testid="load-more-btn"
                       onPress={() => setMoreCounter(moreCounter + 1)}
