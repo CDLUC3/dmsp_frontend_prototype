@@ -289,6 +289,9 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("datePicker", questionData, questionSchemas.datePicker);
   },
   dateRange: (json, input) => {
+    const startCol = input?.columns?.start?.attributes || {};
+    const endCol = input?.columns?.end?.attributes || {};
+
     const questionData: DateRangeQuestionType = {
       ...json,
       type: "dateRange",
@@ -303,10 +306,10 @@ export const questionTypeHandlers: Record<
           },
           type: "date",
           attributes: {
-            max: input?.from?.max ?? null,
-            min: input?.from?.min ?? null,
-            step: input?.from?.step ?? 1,
-            label: input?.from?.label ?? "From",
+            max: endCol.max ?? null,
+            min: endCol.min ?? null,
+            step: endCol.step ?? 1,
+            label: endCol.label ?? "From",
           },
         },
         start: {
@@ -315,10 +318,10 @@ export const questionTypeHandlers: Record<
           },
           type: "date",
           attributes: {
-            max: input?.to?.max ?? null,
-            min: input?.to?.min ?? null,
-            step: input?.to?.step ?? 1,
-            label: input?.to?.label ?? "To",
+            max: startCol.max ?? null,
+            min: startCol.min ?? null,
+            step: startCol.step ?? 1,
+            label: startCol.label ?? "To",
           },
         },
       },

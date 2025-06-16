@@ -1,0 +1,61 @@
+import React from 'react';
+import {
+  DatePicker,
+  Label,
+  Group,
+  DateInput,
+  DateSegment,
+  Button,
+  Popover,
+  Dialog,
+  Calendar,
+  Heading,
+  CalendarGrid,
+  CalendarCell,
+} from "react-aria-components";
+
+interface DateRangeProps {
+  name: string;
+  value: any;
+  onChange: (value: any) => void;
+  label: string;
+  headingClassName?: string;
+}
+
+const DateRange: React.FC<DateRangeProps> = ({
+  name,
+  value,
+  onChange,
+  label,
+  headingClassName = "",
+}) => (
+  <DatePicker
+    name={name}
+    value={value}
+    onChange={onChange}
+  >
+    <Label>{label}</Label>
+    <Group>
+      <DateInput>
+        {(segment) => <DateSegment segment={segment} />}
+      </DateInput>
+      <Button>▼</Button>
+    </Group>
+    <Popover>
+      <Dialog>
+        <Calendar>
+          <header>
+            <Button slot="previous">◀</Button>
+            <Heading className={headingClassName} />
+            <Button slot="next">▶</Button>
+          </header>
+          <CalendarGrid>
+            {(date) => <CalendarCell date={date} />}
+          </CalendarGrid>
+        </Calendar>
+      </Dialog>
+    </Popover>
+  </DatePicker>
+);
+
+export default DateRange;

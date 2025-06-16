@@ -87,7 +87,6 @@ const QuestionAdd = ({
   }) => {
 
 
-  console.log("***questionJSON", questionJSON);
   const params = useParams();
   const router = useRouter();
   const toastState = useToast();
@@ -105,6 +104,7 @@ const QuestionAdd = ({
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
+  const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
   // localization keys
   const Global = useTranslations('Global');
@@ -165,15 +165,37 @@ const QuestionAdd = ({
     }
   };
 
+  // Handler for date range label changes
+  const handleDateRangeLabelChange = (field: 'start' | 'end', value: string) => {
+    setDateRangeLabels(prev => ({ ...prev, [field]: value }));
+
+    // Update the label in the question JSON and sync to question state
+    if (questionType === 'dateRange' && questionJSON) {
+
+      // Deep clone to avoid mutating the original object
+      const parsed = JSON.parse(question.json || questionJSON);
+      const updated = JSON.parse(JSON.stringify(parsed));
+      if (updated?.columns?.[field]?.attributes) {
+        updated.columns[field].attributes.label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updated),
+        }));
+      }
+    }
+  };
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setFormSubmitted(true);
 
     const displayOrder = getDisplayOrder();
-    const parsedQuestionJSON = JSON.parse(questionJSON);
+    // Use the latest question.json from state, fallback to questionJSON prop
+    const currentQuestionJSON = question.json || questionJSON;
+    const parsedQuestionJSON = JSON.parse(currentQuestionJSON);
 
-    // Prepare input for the questionTypeHandler.For options questions,we update the 
+    // Prepare input for the questionTypeHandler. For options questions, we update the 
     // values with rows state. For non-options questions, we use the parsed JSON
     const formState = hasOptions
       ? {
@@ -193,12 +215,14 @@ const QuestionAdd = ({
       ? formState
       : { ...formState, attributes: { ...formState.attributes, ...overrides } };
 
+    console.log("***USER INPUT", userInput);
     // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
     const updatedJSON = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsedQuestionJSON,
       userInput
     );
 
+    console.log("***UPDATED JSON", updatedJSON);
     // Strip all tags from questionText before sending to backend
     const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
     const input = {
@@ -262,9 +286,6 @@ const QuestionAdd = ({
   }, [questionType])
 
 
-  useEffect(() => {
-    console.log("***QUESTION", question);
-  }, [question])
   // Update state when input changes
   const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
     setQuestion((prev) => ({
@@ -272,6 +293,23 @@ const QuestionAdd = ({
       [field]: value === undefined ? '' : value, // Default to empty string if value is undefined
     }));
   };
+
+  // Sync dateRangeLabels with question.json when question changes
+  useEffect(() => {
+    if (questionType === 'dateRange' && questionJSON) {
+      try {
+        const parsed = JSON.parse(questionJSON);
+        setDateRangeLabels({
+          start: parsed?.columns?.start?.attributes?.label || '',
+          end: parsed?.columns?.end?.attributes?.label || '',
+        });
+      } catch {
+        setDateRangeLabels({ start: '', end: '' });
+      }
+    }
+  }, [questionType, questionJSON]);
+
+
 
   return (
     <>
@@ -351,6 +389,33 @@ const QuestionAdd = ({
                       />
                     </div>
                   </>
+                )}
+
+                {questionType && (questionType === 'dateRange') && (
+                  <div className={`${styles.dateRangeLabels} date-range-group`}>
+                    <div className={styles.dateRangeInput}>
+                      <Label htmlFor="dateRangeStart">Start Label</Label>
+                      <Input
+                        type="text"
+                        id="dateRangeStart"
+                        value={dateRangeLabels.start}
+                        onChange={e => handleDateRangeLabelChange('start', e.currentTarget.value)}
+                        className={styles.dateRangeInput}
+                        placeholder="From"
+                      />
+                    </div>
+                    <div className={styles.dateRangeInput}>
+                      <Label htmlFor="dateRangeEnd">End Label</Label>
+                      <Input
+                        type="text"
+                        id="dateRangeEnd"
+                        value={dateRangeLabels.end}
+                        onChange={e => handleDateRangeLabelChange('end', e.currentTarget.value)}
+                        className={styles.dateRangeInput}
+                        placeholder="To"
+                      />
+                    </div>
+                  </div>
                 )}
 
                 <FormTextArea

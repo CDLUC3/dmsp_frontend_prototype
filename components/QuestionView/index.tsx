@@ -2,8 +2,22 @@ import React, { useEffect, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { CalendarDate, DateValue, parseDate } from "@internationalized/date";
+
 import {
+  Button,
+  Calendar,
+  CalendarCell,
+  CalendarGrid,
+  DateInput,
+  DatePicker,
+  DateSegment,
+  Dialog,
+  Group,
+  Heading,
+  Label,
   ListBoxItem,
+  Popover,
 } from "react-aria-components";
 import {
   useQuestionTypesQuery,
@@ -26,11 +40,10 @@ import {
   CardHeading,
 } from "@/components/Card/card";
 
-
 import TinyMCEEditor from '@/components/TinyMCEEditor';
 import { RadioGroupComponent, CheckboxGroupComponent, FormSelect } from '@/components/Form';
-import { Button } from "react-aria-components";
-
+import DateRange from '@/components/Form/DateRange';
+import { getCalendarDateValue } from "@/utils/dateUtils";
 import styles from './QuestionView.module.scss';
 
 type Option = {
@@ -72,6 +85,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 }) => {
 
   const trans = useTranslations('QuestionView');
+  const Global = useTranslations('Global');
+
   const { data: qtData } = useQuestionTypesQuery();
   const { data: templateData } = useTemplateQuery({
     variables: {
@@ -101,6 +116,21 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Add local state for selected select value
   const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
 
+  const [dateRange, setDateRange] = useState<{ startDate: string | CalendarDate | null, endDate: string | CalendarDate | null }>({
+    startDate: '',
+    endDate: '',
+  });
+
+  // Handler for datePicker changes
+  const handleDateChange = (
+    key: string,
+    value: string | DateValue | boolean | number | CalendarDate | null
+  ) => {
+    setDateRange(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
   useEffect(() => {
     if (!question || !qtData?.questionTypes) return;
 
@@ -207,8 +237,30 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             setContent={() => { }}
           />
         );
-      case 'dateField':
+      case 'date':
         return <input type="date" />;
+      case 'dateRange':
+        // Extract labels from JSON if available
+        const startLabel = parsedQuestion?.columns?.start?.attributes?.label || Global('labels.startDate');
+        const endLabel = parsedQuestion?.columns?.end?.attributes?.label || Global('labels.endDate');
+        return (
+          <div className="date-range-group">
+            <DateRange
+              name="startDate"
+              value={getCalendarDateValue(dateRange.startDate)}
+              onChange={newDate => handleDateChange('startDate', newDate)}
+              label={startLabel}
+              headingClassName=""
+            />
+            <DateRange
+              name="endDate"
+              value={getCalendarDateValue(dateRange.endDate)}
+              onChange={newDate => handleDateChange('endDate', newDate)}
+              label={endLabel}
+              headingClassName="text-sm"
+            />
+          </div>
+        )
       case 'url':
         return <input type="url" />;
       case 'email':
