@@ -26,11 +26,20 @@ import {
 
 
 import TinyMCEEditor from '@/components/TinyMCEEditor';
+import { RadioGroupComponent } from '@/components/Form';
 import { Button } from "react-aria-components";
 
 import styles from './QuestionView.module.scss';
 
-
+type Option = {
+  type: "option";
+  attributes: {
+    label: string;
+    value: string;
+    selected?: boolean;
+    description?: string;
+  };
+};
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
   isPreview: boolean,
   question: Question | null | undefined,
@@ -69,6 +78,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   });
   const [questionType, setQuestionType] = useState<string>('');
 
+  // selected radio value
+  const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
+
+  // Update the selected radio value when user selects different option
+  const handleRadioChange = (value: string) => {
+    setSelectedRadioValue(value);
+  };
+
   useEffect(() => {
     if (!question || !qtData?.questionTypes) return;
 
@@ -87,6 +104,64 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   })
 
   if (!question) return null;
+
+  const parsedQuestion = getParsedQuestionJSON(question);
+
+  // Add this function inside your component, before the return statement
+  const renderQuestionInput = () => {
+    if (!parsedQuestion) return null;
+
+    switch (questionType) {
+      case 'radioButtons': {
+        const radioButtonData = parsedQuestion.options?.map((opt: Option) => ({
+          label: opt.attributes.label,
+          value: opt.attributes.value,
+        }));
+        const selectedOption = parsedQuestion.options?.find((opt: Option) => opt.attributes.selected);
+        const initialValue = selectedOption ? selectedOption.attributes.value : undefined;
+        const value = selectedRadioValue !== undefined ? selectedRadioValue : initialValue;
+        return (
+          <RadioGroupComponent
+            name="visibility"
+            value={value}
+            radioGroupLabel={"Your question label here"}
+            radioButtonData={radioButtonData}
+            onChange={handleRadioChange}
+          />
+        );
+      }
+      case 'checkBoxes': {
+        // Render your CheckboxGroupComponent here
+        return <p>Checkboxes (implement CheckboxGroupComponent)</p>;
+      }
+      case 'selectBox': {
+        // Render your SelectBoxComponent here
+        return <p>Select Box (implement SelectBoxComponent)</p>;
+      }
+      case 'multiSelect': {
+        // Render your MultiSelectComponent here
+        return <p>MultiSelect (implement MultiSelectComponent)</p>;
+      }
+      case 'text':
+        return <input type="text" />;
+      case 'textArea':
+        return (
+          <TinyMCEEditor
+            id="question-text-editor"
+            content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
+            setContent={() => { }}
+          />
+        );
+      case 'dateField':
+        return <input type="date" />;
+      case 'url':
+        return <input type="url" />;
+      case 'email':
+        return <input type="email" />;
+      default:
+        return <p>Unsupported question type</p>;
+    }
+  };
 
   return (
     <LayoutWithPanel
@@ -116,32 +191,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
             {questionType}
-            {(questionType == 'textArea') && (
-              <TinyMCEEditor
-                id="question-text-editor"
-                content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
-                setContent={() => { }} // Pass an empty function
-              />
-            )}
-
-            {(questionType == 'text') && (
-              <p>Plain text field</p>
-            )}
-
-            {(questionType == 'radioButtons') && (
-              <p>Radios</p>
-            )}
-
-            {(questionType == 'checkBoxes') && (
-              <p>Checkboxes</p>
-            )}
-
-            {(questionType == 'selectBox') && (
-              <p>Select Box</p>
-            )}
-
-            <div id="_guidance" className={styles.Guidance}>
-            </div>
+            {renderQuestionInput()}
           </CardBody>
         </Card>
 

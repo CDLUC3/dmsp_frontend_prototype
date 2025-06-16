@@ -37,6 +37,7 @@ import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
+import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -97,7 +98,8 @@ const QuestionAdd = ({
   // State for managing form inputs
   const [question, setQuestion] = useState<Question>({
     ...defaultQuestion,
-  }); const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
+  });
+  const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
@@ -133,6 +135,33 @@ const QuestionAdd = ({
     }
     return maxQuestionDisplayOrder ? maxQuestionDisplayOrder + 1 : 1;
   }
+
+  const updateRows = (newRows: QuestionOptions[]) => {
+    setRows(newRows);
+
+    // Only update `question.json` if it's an options question
+    if (hasOptions && questionType && questionJSON) {
+      const parsedQuestionJSON = JSON.parse(questionJSON);
+      const formState = {
+        options: newRows.map(row => ({
+          label: row.text,
+          value: row.text,
+          selected: row.isSelected,
+        })),
+      };
+
+      const updatedJSON = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+        parsedQuestionJSON,
+        formState
+      );
+
+      // Store the updated JSON string in question.json
+      setQuestion((prev) => ({
+        ...prev,
+        json: JSON.stringify(updatedJSON.data),
+      }));
+    }
+  };
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,16 +242,15 @@ const QuestionAdd = ({
   }, [])
 
   useEffect(() => {
-    // Make sure to add the questionType to the question object so it can be used in the QuestionView component
+    // Make sure to add questionJSON and questionType to the question object so it can be used in the QuestionView component
     if (question) {
       setQuestion({
         ...question,
-        questionType
+        questionType,
+        json: questionJSON
       });
-    } else {
-      setQuestion({ questionType });
     }
-  }, [questionType]);
+  }, [questionType, questionJSON]);
 
   useEffect(() => {
     // To determine if the question type selected is one that includes options fields
@@ -297,6 +325,13 @@ const QuestionAdd = ({
                   errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
                 />
 
+                {questionType && (questionType === 'textArea') && (
+                  <TinyMCEEditor
+                    id="question-text-area"
+                    content=""
+                    setContent={() => { }} // Pass an empty function
+                  />
+                )}
 
                 {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
                   <>
@@ -304,7 +339,7 @@ const QuestionAdd = ({
                     <div className={styles.optionsWrapper}>
                       <QuestionOptionsComponent
                         rows={rows}
-                        setRows={setRows}
+                        setRows={updateRows}
                         questionType={questionType}
                         formSubmitted={formSubmitted}
                         setFormSubmitted={setFormSubmitted}

@@ -18,7 +18,7 @@ interface Row {
 
 interface QuestionOptionsComponentProps {
   rows: Row[] | null;
-  setRows: React.Dispatch<React.SetStateAction<Row[]>>;
+  setRows: (rows: Row[]) => void;
   questionType?: string;
   formSubmitted?: boolean;
   setFormSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -48,7 +48,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
         isSelected: false,
       };
 
-      setRows((prevRows) => [...prevRows, newRow]);
+      setRows([...rows, newRow]);
       setAnnouncement(QuestionOptions('announcements.rowAdded', { nextNum }));
       setFormSubmitted(false);
     }
@@ -57,47 +57,53 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   // Delete options row
   const deleteRow = (id: number) => {
     if (id && id !== 0) {
-      setRows((prevRows) => prevRows.filter(row => row.id !== id));
+      const updatedRows = rows?.filter(row => row.id !== id);
+      setRows(updatedRows || []);
       setAnnouncement(QuestionOptions('announcements.rowRemoved', { id }));
     }
   };
 
 
   const toggleSelection = (id: number) => {
-    setRows(prevRows =>
-      prevRows.map(row =>
-        row.id === id
-          ? { ...row, isSelected: !row.isSelected } // toggle current one
-          : row
-      )
+    if (!rows) return;
+
+    const updatedRows = rows.map(row =>
+      row.id === id
+        ? { ...row, isSelected: !row.isSelected }
+        : row
     );
+
+    setRows(updatedRows); // this calls updateRows()
   };
 
   const setDefault = (id: number) => {
+    if (!rows) return;
+
     if (questionType === 'checkBoxes') {
       toggleSelection(id); // allow multiple selections for checkboxes
     } else {
-      setRows(prevRows =>
-        prevRows.map(row => ({
-          ...row,
-          isSelected: row.id === id, // only one selected
-        }))
-      );
+      const updatedRows = rows.map(row => ({
+        ...row,
+        isSelected: row.id === id, // only one selected
+      }));
+
+      setRows(updatedRows);
       setAnnouncement(QuestionOptions('announcements.rowDefault', { id }));
     }
   };
 
   // Update rows state
   const handleChange = (id: number | string | null, field: string, value: string | number) => {
-    setRows((prevRows) => {
-      return prevRows.map((row) => {
-        if (row.id === id) {
-          return { ...row, [field]: value }; // Update only the matching row
-        }
-        return row; // Leave other rows unchanged
-      });
+    if (!rows) return;
+
+    const updatedRows = rows.map((row) => {
+      if (row.id === id) {
+        return { ...row, [field]: value };
+      }
+      return row;
     });
 
+    setRows(updatedRows);
   };
 
   return (
