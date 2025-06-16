@@ -164,11 +164,15 @@ const QuestionAdd = ({
   };
 
   // Handler for date range label changes
-  const handleDateRangeLabelChange = (field: 'start' | 'end', value: string) => {
+  const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
 
     // Update the label in the question JSON and sync to question state
-    if (questionType === 'dateRange' && questionJSON) {
+    if (
+      typeof questionType === 'string' &&
+      ['dateRange', 'numberRange'].includes(questionType) &&
+      questionJSON
+    ) {
 
       // Deep clone to avoid mutating the original object
       const parsed = JSON.parse(question.json || questionJSON);
@@ -394,26 +398,26 @@ const QuestionAdd = ({
                   </>
                 )}
 
-                {questionType && (questionType === 'dateRange') && (
+                {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
                   <div className={`${styles.dateRangeLabels} date-range-group`}>
                     <div className={styles.dateRangeInput}>
-                      <Label htmlFor="dateRangeStart">Start Label</Label>
+                      <Label htmlFor="rangeStart">Start Label</Label>
                       <Input
                         type="text"
-                        id="dateRangeStart"
+                        id="rangeStart"
                         value={dateRangeLabels.start}
-                        onChange={e => handleDateRangeLabelChange('start', e.currentTarget.value)}
+                        onChange={e => handleRangeLabelChange('start', e.currentTarget.value)}
                         className={styles.dateRangeInput}
                         placeholder="From"
                       />
                     </div>
                     <div className={styles.dateRangeInput}>
-                      <Label htmlFor="dateRangeEnd">End Label</Label>
+                      <Label htmlFor="rangeEnd">End Label</Label>
                       <Input
                         type="text"
-                        id="dateRangeEnd"
+                        id="rangeEnd"
                         value={dateRangeLabels.end}
-                        onChange={e => handleDateRangeLabelChange('end', e.currentTarget.value)}
+                        onChange={e => handleRangeLabelChange('end', e.currentTarget.value)}
                         className={styles.dateRangeInput}
                         placeholder="To"
                       />

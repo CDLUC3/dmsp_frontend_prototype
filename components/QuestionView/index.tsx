@@ -15,6 +15,7 @@ import {
   Dialog,
   Group,
   Heading,
+
   Key,
   Label,
   ListBox,
@@ -44,8 +45,11 @@ import {
 
 import TinyMCEEditor from '@/components/TinyMCEEditor';
 import { RadioGroupComponent, CheckboxGroupComponent, FormSelect } from '@/components/Form';
-import DateComponent from '@/components/Form/DateComponent';
-import MultiSelect from '@/components/Form/MultiSelect';
+import {
+  DateComponent,
+  FormInput,
+  MultiSelect
+} from '@/components/Form';
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import styles from './QuestionView.module.scss';
 
@@ -59,20 +63,6 @@ type Option = {
     description?: string;
   };
 };
-
-type SelectItem = {
-  id: string;
-  name: string;
-  selected?: boolean;
-  icon?: string;
-};
-
-interface MultiOption {
-  key: string;
-  label: string;
-  icon?: string;
-}
-
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
   isPreview: boolean,
@@ -115,17 +105,17 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   // selected radio value
   const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
-  const [selectedKeys, setSelectedKeys] = useState<Set<Key>>(new Set(['apple']));
 
   // Update the selected radio value when user selects different option
   const handleRadioChange = (value: string) => {
     setSelectedRadioValue(value);
   };
 
-  const handleSelectionChange = (selected: Selection) => {
-    console.log('Selection changed:', selected);
+  const [inputValue, setInputValue] = useState<string | number | null>(null);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
   };
-
 
   // Add local state for selected checkboxes
   const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
@@ -322,10 +312,63 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             />
           </div>
         )
+      case 'number':
+        return (
+          <FormInput
+            name="numberInput"
+            type="number"
+            label="number"
+            placeholder="number"
+            value={inputValue === null ? undefined : inputValue}
+            onChange={e => handleInputChange(e)}
+          />
+        )
+
+      case 'numberRange':
+        const startNumberLabel = parsedQuestion?.columns?.start?.attributes?.label || "start";
+        const endNumberLabel = parsedQuestion?.columns?.end?.attributes?.label || "end";
+        return (
+          <div className="date-range-group">
+            <FormInput
+              name="numberInput"
+              type="number"
+              label={startNumberLabel}
+              placeholder="number"
+              value={inputValue === null ? undefined : inputValue}
+              onChange={e => handleInputChange(e)}
+            />
+            <FormInput
+              name="numberInput"
+              type="number"
+              label={endNumberLabel}
+              placeholder="number"
+              value={inputValue === null ? undefined : inputValue}
+              onChange={e => handleInputChange(e)}
+            />
+          </div>
+        )
       case 'url':
-        return <input type="url" />;
+        return (
+          <FormInput
+            name="urlInput"
+            type="url"
+            label="url"
+            placeholder="url"
+            value={inputValue === null ? undefined : inputValue}
+            onChange={e => handleInputChange(e)}
+          />
+        )
       case 'email':
-        return <input type="email" />;
+        return (
+          <FormInput
+            name="emailInput"
+            type="email"
+            label="email"
+            placeholder="email"
+            value={inputValue === null ? undefined : inputValue}
+            onChange={e => handleInputChange(e)}
+          />
+        )
       default:
         return <p>Unsupported question type</p>;
     }

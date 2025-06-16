@@ -138,11 +138,11 @@ const QuestionEdit = () => {
   }
 
   // Handler for date range label changes
-  const handleDateRangeLabelChange = (field: 'start' | 'end', value: string) => {
+  const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
 
     // Update the label in the question JSON and sync to question state
-    if (questionType === 'dateRange' && question?.json) {
+    if ((questionType === 'dateRange' || questionType === 'numberRange') && question?.json) {
 
       // Deep clone to avoid mutating the original object
       const parsed = JSON.parse(question.json);
@@ -380,7 +380,7 @@ const QuestionEdit = () => {
                 )}
 
                 {/**Date Range */}
-                {questionType && (questionType === 'dateRange') && (
+                {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
                   <div className={`${styles.dateRangeLabels} date-range-group`}>
                     <div className={styles.dateRangeInput}>
                       <Label htmlFor="dateRangeStart">Start Label</Label>
@@ -388,7 +388,7 @@ const QuestionEdit = () => {
                         type="text"
                         id="dateRangeStart"
                         value={dateRangeLabels.start}
-                        onChange={e => handleDateRangeLabelChange('start', e.currentTarget.value)}
+                        onChange={e => handleRangeLabelChange('start', e.currentTarget.value)}
                         className={styles.dateRangeInput}
                         placeholder="From"
                       />
@@ -399,7 +399,7 @@ const QuestionEdit = () => {
                         type="text"
                         id="dateRangeEnd"
                         value={dateRangeLabels.end}
-                        onChange={e => handleDateRangeLabelChange('end', e.currentTarget.value)}
+                        onChange={e => handleRangeLabelChange('end', e.currentTarget.value)}
                         className={styles.dateRangeInput}
                         placeholder="To"
                       />
