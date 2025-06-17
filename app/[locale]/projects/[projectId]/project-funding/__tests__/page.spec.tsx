@@ -8,18 +8,13 @@ import { useTranslations as OriginalUseTranslations } from 'next-intl';
 expect.extend(toHaveNoViolations);
 
 
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(),
-}));
-
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
-  useParams: jest.fn()
+  useParams: jest.fn(),
 }));
 
 type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
 
-// Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => {
     const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
@@ -52,10 +47,7 @@ describe('ProjectsCreateProjectFunding', () => {
     })
 
     const mockUseParams = useParams as jest.Mock;
-
-    // Mock the return value of useParams
     mockUseParams.mockReturnValue({ projectId: '123' });
-
   });
 
   it('should render the component', async () => {
@@ -79,7 +71,7 @@ describe('ProjectsCreateProjectFunding', () => {
     fireEvent.click(screen.getByLabelText('form.yesLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/projects/create-project/funder-search')
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/funding-search');
     })
   });
 
@@ -88,7 +80,7 @@ describe('ProjectsCreateProjectFunding', () => {
     fireEvent.click(screen.getByLabelText('form.noLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/projects/123')
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123')
     })
   });
 

@@ -36,3 +36,4 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
   useRouter: jest.fn()
 }))
+

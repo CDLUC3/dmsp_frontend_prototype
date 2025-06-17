@@ -90,6 +90,14 @@
 - Added the `QuestionView` component which will render the question fields based on the question type. [#379]
 - Integrated the `QuestionPreview` and `QuestionView` components on the add and edit question pages. [#379]
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
+- Added a FunderSearch component that performs a funder search, and returns the
+  results. [#335]
+- Added a the `LoggedError` custom error type to simplify logging of errors by. [#335]
+- Updated the funding-search page under create project to use the new funder
+  search component. Also hooked up the capability to select a funder and
+  associate it with the project. [#335]
+- Updated some of the other Funder pages under create project so that they link
+  and redirect to the correct named urls for the funder search page. [#335]
 
 ### Fixed
 - Fixed issue with search fields not looking good on smaller devices. Made updates to get the `Search` button to wrap for mobile [#488]
