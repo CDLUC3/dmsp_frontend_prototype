@@ -17,7 +17,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
+  LayoutContainer,
 } from "@/components/Container";
 import { routePath } from '@/utils/routes';
 
@@ -94,7 +94,7 @@ const ProjectsProjectFundingSearch = () => {
         }
         className="page-project-create-project-funding"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           {/* Search Field */}
           <Form onSubmit={handleSearch} aria-labelledby="search-section">
@@ -191,7 +191,7 @@ const ProjectsProjectFundingSearch = () => {
             </section>
           )}
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

@@ -17,7 +17,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
+  LayoutContainer,
 } from "@/components/Container";
 import { routePath } from '@/utils/routes';
 
@@ -55,7 +55,7 @@ const ProjectsCreateProjectFunding = () => {
         }
         className="page-project-create-project-funding"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <Form onSubmit={handleSubmit}>
 
@@ -83,7 +83,7 @@ const ProjectsCreateProjectFunding = () => {
           </Form>
 
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer>
 
 
     </>

@@ -19,7 +19,7 @@ import { ProjectErrors, useAddProjectMutation } from '@/generated/graphql';
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
+  LayoutContainer,
 } from "@/components/Container";
 import {
   CheckboxGroupComponent,
@@ -248,7 +248,7 @@ const ProjectsCreateProject = () => {
         }
         className="page-project-create-project"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <ErrorMessages errors={errors} ref={errorRef} />
           <Form onSubmit={handleFormSubmit}>
@@ -293,7 +293,7 @@ const ProjectsCreateProject = () => {
           </Form>
 
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer>
 
 
     </>

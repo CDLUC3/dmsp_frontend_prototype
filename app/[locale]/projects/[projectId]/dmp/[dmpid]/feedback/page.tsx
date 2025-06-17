@@ -13,7 +13,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
+  LayoutContainer,
 } from "@/components/Container";
 import styles from './ProjectsProjectPlanFeedback.module.scss';
 
@@ -145,7 +145,7 @@ const ProjectsProjectPlanFeedback = () => {
         className="page-project-members"
       />
 
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer className="layout-content-container-full">
           <p>
             When you invite a person, we&#39;ll send an email to this person
@@ -357,7 +357,7 @@ const ProjectsProjectPlanFeedback = () => {
             </div>
           </section>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

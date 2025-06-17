@@ -14,7 +14,10 @@ import {
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import { ContentContainer, LayoutWithPanel } from "@/components/Container";
+import {
+  ContentContainer,
+  LayoutContainer
+} from "@/components/Container";
 import { FormInput, CheckboxGroupComponent } from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
 
@@ -381,7 +384,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
       <ErrorMessages errors={errorMessages} ref={errorRef} />
 
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <div ref={topRef}>
             <h2>Test{fieldErrors.givenName}</h2>
@@ -492,7 +495,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
             </Button>
           </section>
         </ContentContainer>
-      </LayoutWithPanel >
+      </LayoutContainer>
     </>
   );
 };

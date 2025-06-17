@@ -25,7 +25,7 @@ import classNames from 'classnames';
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
+  LayoutContainer,
 } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import { FormSelect } from '@/components/Form/FormSelect';
@@ -503,7 +503,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
         className="page-project-members"
       />
       <ErrorMessages errors={errorMessages} ref={errorRef} />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer className="layout-content-container-full">
           <p>
             {PlanMembers.rich('description', {
@@ -704,7 +704,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
           </section>
 
         </ContentContainer>
-      </LayoutWithPanel >
+      </LayoutContainer>
     </>
   );
 };

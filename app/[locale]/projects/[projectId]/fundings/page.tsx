@@ -7,7 +7,7 @@ import { Breadcrumb, Breadcrumbs, Button, Link, } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
+  LayoutContainer,
 } from "@/components/Container";
 import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectFunding.module.scss';
@@ -49,7 +49,7 @@ const ProjectsProjectFunding = () => {
         }
         className="page-project-fundings"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <section aria-label="Current fundings">
             <div className={styles.fundingResultsList}>
@@ -72,7 +72,7 @@ const ProjectsProjectFunding = () => {
 
           </section>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

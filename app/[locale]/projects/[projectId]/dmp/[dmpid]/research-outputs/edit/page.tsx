@@ -24,7 +24,7 @@ import {
 import PageHeader from '@/components/PageHeader';
 import {
   ContentContainer,
-  LayoutWithPanel,
+  LayoutContainer,
 } from '@/components/Container';
 import { routePath } from '@/utils/routes';
 
@@ -104,7 +104,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
         }
       />
 
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer className="layout-content-container-full">
           <form onSubmit={(e) => e.preventDefault()}>
             <Select name="type"
@@ -239,7 +239,7 @@ const ProjectsProjectPlanAdjustResearchOutputsEdit = () => {
             </div>
           </form>
         </ContentContainer>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };
