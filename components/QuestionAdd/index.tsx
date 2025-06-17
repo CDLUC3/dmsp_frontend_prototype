@@ -399,7 +399,7 @@ const QuestionAdd = ({
                 )}
 
                 {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
-                  <div className={`${styles.dateRangeLabels} date-range-group`}>
+                  <div className={`${styles.dateRangeLabels} input-range-group`}>
                     <div className={styles.dateRangeInput}>
                       <Label htmlFor="rangeStart">Start Label</Label>
                       <Input

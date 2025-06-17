@@ -48,7 +48,8 @@ import { RadioGroupComponent, CheckboxGroupComponent, FormSelect } from '@/compo
 import {
   DateComponent,
   FormInput,
-  MultiSelect
+  MultiSelect,
+  NumberComponent
 } from '@/components/Form';
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import styles from './QuestionView.module.scss';
@@ -117,6 +118,12 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setInputValue(value);
   };
 
+  const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
+  const handleInputCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputCurrencyValue(Number(value));
+  };
+
   // Add local state for selected checkboxes
   const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
 
@@ -146,7 +153,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     endDate: '',
   });
 
-  // Handler for datePicker changes
+  // Handler for date range changes
   const handleDateChange = (
     key: string,
     value: string | DateValue | boolean | number | CalendarDate | null
@@ -156,6 +163,23 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       [key]: value,
     }));
   };
+
+  const [numberRange, setNumberRange] = useState<{ startDate: string | number | null, endDate: string | number | null }>({
+    startDate: '',
+    endDate: '',
+  });
+
+  // Handler for number range changes
+  const handleNumberChange = (
+    key: string,
+    value: string | number | null
+  ) => {
+    setNumberRange(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   useEffect(() => {
     if (!question || !qtData?.questionTypes) return;
 
@@ -295,7 +319,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         const startLabel = parsedQuestion?.columns?.start?.attributes?.label || Global('labels.startDate');
         const endLabel = parsedQuestion?.columns?.end?.attributes?.label || Global('labels.endDate');
         return (
-          <div className="date-range-group">
+          <div className="input-range-group">
             <DateComponent
               name="startDate"
               value={getCalendarDateValue(dateRange.startDate)}
@@ -314,13 +338,15 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         )
       case 'number':
         return (
-          <FormInput
-            name="numberInput"
-            type="number"
+          <NumberComponent
             label="number"
-            placeholder="number"
             value={inputValue === null ? undefined : inputValue}
-            onChange={e => handleInputChange(e)}
+            onChange={value => setInputValue(value)}
+            placeholder="number"
+            minValue={parsedQuestion?.attributes?.minValue}
+            maxValue={parsedQuestion?.attributes?.maxValue}
+            step={parsedQuestion?.attributes?.step}
+            disabled={parsedQuestion?.attributes?.disabled || false}
           />
         )
 
@@ -328,24 +354,49 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         const startNumberLabel = parsedQuestion?.columns?.start?.attributes?.label || "start";
         const endNumberLabel = parsedQuestion?.columns?.end?.attributes?.label || "end";
         return (
-          <div className="date-range-group">
-            <FormInput
-              name="numberInput"
-              type="number"
+          <div className="input-range-group">
+            <NumberComponent
               label={startNumberLabel}
-              placeholder="number"
-              value={inputValue === null ? undefined : inputValue}
-              onChange={e => handleInputChange(e)}
+              value={numberRange.startDate ? numberRange.startDate : undefined}
+              onChange={num => handleNumberChange('startDate', num)}
+              placeholder="start"
+              minValue={parsedQuestion?.attributes?.minValue}
+              maxValue={parsedQuestion?.attributes?.maxValue}
+              step={parsedQuestion?.attributes?.step}
+              disabled={parsedQuestion?.attributes?.disabled || false}
             />
-            <FormInput
-              name="numberInput"
-              type="number"
+
+            <NumberComponent
               label={endNumberLabel}
-              placeholder="number"
-              value={inputValue === null ? undefined : inputValue}
-              onChange={e => handleInputChange(e)}
+              value={numberRange.endDate ? numberRange.endDate : undefined}
+              onChange={num => handleNumberChange('endDate', num)}
+              placeholder="end"
+              minValue={parsedQuestion?.attributes?.minValue}
+              maxValue={parsedQuestion?.attributes?.maxValue}
+              step={parsedQuestion?.attributes?.step}
+              disabled={parsedQuestion?.attributes?.disabled || false}
             />
           </div>
+        )
+      case 'currency':
+        return (
+          <NumberComponent
+            label="amount"
+            value={inputCurrencyValue === null ? undefined : inputCurrencyValue}
+            onChange={value => setInputCurrencyValue(value)}
+            placeholder="number"
+            minValue={parsedQuestion?.attributes?.minValue}
+            maxValue={parsedQuestion?.attributes?.maxValue}
+            step={parsedQuestion?.attributes?.step}
+            disabled={parsedQuestion?.attributes?.disabled || false}
+            formatOptions={{
+              style: 'currency',
+              currency: parsedQuestion?.attributes?.denomiation || 'USD',
+              currencyDisplay: 'symbol',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }}
+          />
         )
       case 'url':
         return (

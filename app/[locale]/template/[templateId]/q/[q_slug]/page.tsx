@@ -273,7 +273,7 @@ const QuestionEdit = () => {
   }, [selectedQuestionQueryError])
 
   useEffect(() => {
-    if (questionType === 'dateRange' && question?.json) {
+    if ((questionType === 'dateRange' || questionType === 'numberRange') && question?.json) {
       try {
         const parsed = JSON.parse(question.json);
         setDateRangeLabels({
@@ -381,7 +381,7 @@ const QuestionEdit = () => {
 
                 {/**Date Range */}
                 {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
-                  <div className={`${styles.dateRangeLabels} date-range-group`}>
+                  <div className={`${styles.dateRangeLabels} input-range-group`}>
                     <div className={styles.dateRangeInput}>
                       <Label htmlFor="dateRangeStart">Start Label</Label>
                       <Input
