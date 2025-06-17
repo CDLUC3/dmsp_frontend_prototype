@@ -19,20 +19,15 @@
   .pageheader-title-container {
     display: flex;
     align-items: baseline;
-    gap: var(--brand-space2);
-    
-    @include r.device(md) {
-      flex-direction: row;
-    }
-    
     // Mobile default (outside of any device mixin)
     flex-direction: column;
     gap: 0;
 
     @include r.device(md) {
+      flex-direction: row;
       gap: var(--brand-space2);
     }
-    
+  
     .pageheader-title {
       margin-bottom: 0;
       max-width: 70%;
