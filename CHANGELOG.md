@@ -126,6 +126,9 @@
 - Added the missing button to create a new template from scratch [#474]
 
 ### Chore
+- Updated a number of packages, such as next, react-aria-components, eslint, next-intl, etc [#529]
+- Updated a number of unit tests to address the reduced coverage of branch tests [#529]
+- Fixed sass warnings and errors introduced with latest updates to packages [#529]
 - Updated and added unit tests to increase coverage in the app [#490]
 - Updated and improved the cypress functional tests to fix them and updated some cypress documentation in the README.md file [#490]
 - Updated NodeJS version to v22 [#144]

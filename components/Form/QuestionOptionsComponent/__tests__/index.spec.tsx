@@ -1,26 +1,24 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { fireEvent, render, screen } from '@/utils/test-utils';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import { RichTranslationValues } from 'next-intl';
 import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
 
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
+type MockUseTranslations = {
+  (key: string, ...args: unknown[]): string;
+  rich: (key: string, values?: RichTranslationValues) => ReactNode;
+};
 
-// Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
 
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
+    mockUseTranslations.rich = (key, values) => {
+      const p = values?.p;
+      if (typeof p === 'function') {
+        return p(key); // Can return JSX
       }
-      return key;
+      return key; // fallback
     };
 
     return mockUseTranslations;
@@ -30,7 +28,7 @@ jest.mock('next-intl', () => ({
 type Row = {
   id?: number | null;
   text: string;
-  isDefault?: boolean | null;
+  isSelected?: boolean | null;
 };
 
 describe('QuestionOptionsComponent', () => {
@@ -38,7 +36,7 @@ describe('QuestionOptionsComponent', () => {
 
   beforeEach(() => {
     rows = [
-      { id: 1, text: 'Option 1', isDefault: false },
+      { id: 1, text: 'Option 1', isSelected: false },
     ];
     setRows = jest.fn();
   });
@@ -68,6 +66,17 @@ describe('QuestionOptionsComponent', () => {
     fireEvent.change(textInput, { target: { value: 'Updated Option' } });
 
     expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+
+    // Execute the updater function to cover the map logic
+    const updater = setRows.mock.calls[0][0];
+    const updatedRows = updater([
+      { id: 1, text: 'Option 1', isDefault: false },
+      { id: 2, text: 'Option 2', isDefault: false }
+    ]);
+    expect(updatedRows).toEqual([
+      { id: 1, text: 'Updated Option', isDefault: false },
+      { id: 2, text: 'Option 2', isDefault: false }
+    ]);
   });
 
   it('should set a row as default when checkbox is clicked', () => {
@@ -76,7 +85,52 @@ describe('QuestionOptionsComponent', () => {
     const defaultCheckbox = screen.getByLabelText('labels.default');
     fireEvent.click(defaultCheckbox);
 
+
     expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it('should allow checking of multiple checkboxes', () => {
+    // Use a stateful wrapper so setRows updates the UI
+    function Wrapper() {
+      const [rows, setRows] = React.useState<Row[]>([
+        { id: 1, text: 'Option 1', isSelected: false }
+      ]);
+      return (
+        <QuestionOptionsComponent
+          rows={rows}
+          setRows={setRows}
+          questionType="checkBoxes"
+          formSubmitted={true}
+          setFormSubmitted={jest.fn()}
+        />
+      );
+    }
+
+    render(<Wrapper />);
+
+    const textInput = screen.getByLabelText('labels.text');
+    fireEvent.change(textInput, { target: { value: 'Option 1' } });
+
+    const defaultCheckbox = screen.getByTestId('default-1');
+    fireEvent.click(defaultCheckbox);
+
+
+    const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
+    fireEvent.click(addButton);
+
+    const defaultCheckbox2 = screen.getByTestId('default-2');
+    fireEvent.click(defaultCheckbox2);
+
+    // Assert that there are now two checkboxes
+    expect(screen.getAllByTestId(/^default-/)).toHaveLength(2);
+
+    //Delete the second row
+    const removeButtons = screen.getAllByLabelText('buttons.deleteRow');
+    fireEvent.click(removeButtons[1]); // Click the first one
+
+    expect(rows).toEqual([
+      { id: 1, text: 'Option 1', isSelected: false }
+    ]);
   });
 
   it('should add a row when the add button is clicked', () => {

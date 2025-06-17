@@ -1,8 +1,8 @@
-@import '@/styles/responsive.scss';
+@use '@/styles/responsive.scss' as r;
 
 /*mobile first*/
 .toast-region {
-  @include device(sm) {
+  @include r.device(sm) {
     top: var(--space-12);
     left: 50%;
   }

@@ -31,15 +31,15 @@ const ConnectionsPage: React.FC = () => {
 
 
 
-  const orcidContentString = t.markup(
-    isOrcidConnected
-      ? 'orcidConnectionConnected.content'
-      : 'orcidConnection.content',
-    {
-      link: (chunks) =>
-        `<a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">${chunks}</a>`
-    }
-  );
+  // const orcidContentString = t.markup(
+  //   isOrcidConnected
+  //     ? 'orcidConnectionConnected.content'
+  //     : 'orcidConnection.content',
+  //   {
+  //     link: (chunks) =>
+  //       `<a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">${chunks}</a>`
+  //   }
+  // );
 
   return (
     <>
@@ -61,25 +61,16 @@ const ConnectionsPage: React.FC = () => {
         <ContentContainer>
           <div className="sectionContainer">
             <div className="sectionContent">
-              {!isOrcidConnected ? (
-                <ConnectionSection
-                  type='orcid'
-                  title={t('orcidConnection.title')}
-                  content={orcidContentString}
-                  btnUrl={orcidUri}
-                  btnImageUrl='/images/orcid.svg'
-                  btnText={t('orcidConnection.btnText')}
-                />
-              ) : (
-                <ConnectionSection
-                  type='orcidconnected'
-                  title={t('orcidConnectionConnected.title')}
-                  content={orcidContentString}
-                  btnUrl='/users/auth/orcid/test'
-                  btnImageUrl='/images/orcid.svg'
-                  btnText={t('orcidConnectionConnected.btnText')}
-                />
-              )}
+
+              <ConnectionSection
+                type='orcidconnected'
+                title={t('orcidConnectionConnected.title')}
+                content={'orcidConnectionConnected.content'}
+                btnUrl='/users/auth/orcid/test'
+                btnImageUrl='/images/orcid.svg'
+                btnText={t('orcidConnectionConnected.btnText')}
+              />
+
               <ConnectionSection
                 type='sso'
                 title={t('ssoConnection.title')}

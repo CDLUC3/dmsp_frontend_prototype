@@ -66,7 +66,7 @@ const TemplateListPage: React.FC = () => {
 
 
   // Make graphql request for templates under the user's affiliation
-  const { data = {}, loading, error: queryError } = useTemplatesQuery({
+  const { data, loading, error: queryError } = useTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
@@ -89,29 +89,12 @@ const TemplateListPage: React.FC = () => {
     setSearchTerm(value);
   }
 
-  // Extract text content because sometimes `content` can be a JSX Element
-  const extractTextFromJSX = (element: React.ReactNode): string => {
-    if (typeof element === 'string') {
-      return element;
-    }
-    if (React.isValidElement(element)) {
-      const children = element.props.children;
-      if (Array.isArray(children)) {
-        return children.map(extractTextFromJSX).join(' ');
-      }
-      return extractTextFromJSX(children);
-    }
-    return '';
-  }
-
   // Find title, funder, content and publishStatus fields that include search term
   const handleFiltering = (term: string) => {
     setErrors([]);
     const lowerCaseTerm = term.toLowerCase();
     const filteredList = templates.filter(item => {
-      const contentText = extractTextFromJSX(item.content);
       return [item.title,
-        contentText,
       item.funder,
       item.publishStatus,
       item.visibility,
@@ -144,24 +127,14 @@ const TemplateListPage: React.FC = () => {
 
   useEffect(() => {
     if (queryError) {
-      if (queryError instanceof ApolloError) {
-        setErrors(prevErrors => [...prevErrors, queryError.message]);
-        logECS('error', 'queryError', {
-          error: queryError,
-          url: { path: TEMPLATE_URL }
-        });
-      } else {
-        // Safely access queryError.message
-        setErrors(prev => [...prev, t('somethingWentWrong')]);
-      }
+      setErrors(prev => [...prev, t('somethingWentWrong')]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryError]);
 
 
   useEffect(() => {
-    // Transform templates into format expected by TemplateSelectListItem component
-    if (data && data?.myTemplates) {
+    (async () => {
+      // Transform templates into format expected by TemplateSelectListItem component
       const fetchAllTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
         const items = templates?.items ?? [];
         const transformedTemplates = await Promise.all(
@@ -181,15 +154,15 @@ const TemplateListPage: React.FC = () => {
 
         setTemplates(transformedTemplates);
       }
-      if (data?.myTemplates) {
-        fetchAllTemplates({
+      if (data && data.myTemplates) {
+        await fetchAllTemplates({
           ...data.myTemplates,
           items: (data.myTemplates.items ?? []).filter((item): item is TemplateSearchResultInterface => item !== null),
         });
       } else {
-        fetchAllTemplates({ items: [] });
+        setTemplates([]);
       }
-    }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 

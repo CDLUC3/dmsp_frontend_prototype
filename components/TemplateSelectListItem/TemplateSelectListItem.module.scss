@@ -1,4 +1,4 @@
-@import '@/styles/responsive.scss';
+@use '@/styles/responsive.scss' as r;
 
 
 .templateItem {
@@ -17,7 +17,7 @@
   gap: var(--space-4);
   align-items: flex-start;
 
-  @include device(sm) {
+  @include r.device(sm) {
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
@@ -58,7 +58,7 @@
   }
 
 
-  @include device(sm) {
+  @include r.device(sm) {
     span {
       display: inline-block;
       margin-bottom: 0rem;

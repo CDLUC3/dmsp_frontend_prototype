@@ -17,8 +17,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import { routePath } from '@/utils/routes';
@@ -99,7 +98,7 @@ const ProjectsProjectMembersSearch = () => {
         }
         className="page-project-members-search"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <Form onSubmit={handleSearch} aria-labelledby="search-section">
             <section id="search-section" className={styles.searchSection}>
@@ -185,8 +184,7 @@ const ProjectsProjectMembersSearch = () => {
             </Button>
           </section>
         </ContentContainer>
-        <SidebarPanel />
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

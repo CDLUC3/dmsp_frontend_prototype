@@ -6,12 +6,11 @@ describe('ConfirmModal', () => {
   const mockTitle = 'Confirm Action';
   const mockEmail = 'test@example.com';
 
-  it('renders the modal trigger button', () => {
+  it('should render the modal trigger button', () => {
     render(
       <ConfirmModal
         title={mockTitle}
         email={mockEmail}
-        isOpenProp={true}
         onConfirm={mockOnConfirm}
       />
     );
@@ -24,7 +23,6 @@ describe('ConfirmModal', () => {
       <ConfirmModal
         title={mockTitle}
         email={mockEmail}
-        isOpenProp={true}
         onConfirm={mockOnConfirm}
       />
     );
@@ -39,7 +37,6 @@ describe('ConfirmModal', () => {
       <ConfirmModal
         title={mockTitle}
         email={mockEmail}
-        isOpenProp={true}
         onConfirm={mockOnConfirm}
       />
     );
@@ -54,7 +51,6 @@ describe('ConfirmModal', () => {
       <ConfirmModal
         title={mockTitle}
         email={mockEmail}
-        isOpenProp={true}
         onConfirm={mockOnConfirm}
       />
     );

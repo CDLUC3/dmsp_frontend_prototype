@@ -24,8 +24,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
 import FunderSearch from '@/components/FunderSearch';
 import ErrorMessages from "@/components/ErrorMessages";
@@ -43,7 +42,7 @@ const CreateProjectSearchFunder = () => {
   const [hasSearched, setHasSearched] = useState<boolean>(false);
   const [moreCounter, setMoreCounter] = useState<number>(0);
   const [funders, setFunders] = useState<AffiliationSearch[]>([]);
-  const [nextCursor, setNextCursor] = useState<string|null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [addProjectFunding] = useAddProjectFundingMutation({});
   const [errors, setErrors] = useState<string[]>([]);
@@ -83,7 +82,7 @@ const CreateProjectSearchFunder = () => {
       affiliationId: funder.uri
     }
 
-    addProjectFunding({variables: { input }})
+    addProjectFunding({ variables: { input } })
       .then((result) => {
         const errs = checkErrors(result?.data?.addProjectFunding?.errors as ProjectFundingErrors);
         if (errs.length > 0) {
@@ -148,7 +147,7 @@ const CreateProjectSearchFunder = () => {
         className="page-project-create-project-funding"
       />
 
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <ErrorMessages errors={errors} ref={errorRef} />
           <FunderSearch
@@ -158,7 +157,7 @@ const CreateProjectSearchFunder = () => {
 
           {funders.length > 0 && (
             <section aria-labelledby="funders-section">
-              <h3 id="funders-section">{trans('found', {count: totalCount})}</h3>
+              <h3 id="funders-section">{trans('found', { count: totalCount })}</h3>
               <div className={styles.fundingResultsList}>
                 {funders.map((funder, index) => (
                   <div
@@ -222,8 +221,7 @@ const CreateProjectSearchFunder = () => {
           )}
 
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

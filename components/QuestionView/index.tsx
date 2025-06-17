@@ -99,7 +99,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         {(question?.requirementText) && (
           <div className={styles.Requirements}>
             <p className={styles.ByLine}>
-              {trans('requirements', { orgName: templateData?.template?.owner?.displayName })}
+              {trans('requirements', { orgName: templateData?.template?.owner?.displayName || '' })}
             </p>
             <div dangerouslySetInnerHTML={{ __html: question.requirementText || '' }}></div>
           </div>
@@ -148,7 +148,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         {(question?.guidanceText) && (
           <div className="guidance">
             <p className={styles.ByLine}>
-              {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName })}
+              {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName ?? '' })}
             </p>
             <div dangerouslySetInnerHTML={{ __html: question.guidanceText }}></div>
           </div>

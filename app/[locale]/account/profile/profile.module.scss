@@ -1,4 +1,4 @@
-@import '@/styles/responsive';
+@use '@/styles/responsive' as r;
 
 
 .readOnlyField {
@@ -54,12 +54,12 @@
 }
 
 .btnEdit {
-  @include device(sm) {
+  margin-right: auto;
+  margin-left: 0;
+  @include r.device(sm) {
     margin-left: auto;
     margin-right: 0;
   }
-  margin-right: auto;
-  margin-left: 0;
 }
 
 // Form spacing styles
@@ -69,15 +69,16 @@
 }
 
 .twoItemRow {
-  @include device(sm) {
-    flex-direction: row;
-  }
   display: flex;
   flex-direction: column;
   gap: 20px;
 
   > div {
     flex: 1; /* Make both fields take equal width */
+  }
+
+  @include r.device(sm) {
+    flex-direction: row;
   }
 }
 
@@ -94,10 +95,6 @@
 }
 
 .twoItemRowIsEditing {
-  @include device(sm) {
-    flex-direction: row;
-    gap: 20px;
-  }
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -105,5 +102,10 @@
   > div {
     flex: 1; /* Make both fields take equal width */
     margin-bottom: var(--space-4);
+  }
+
+  @include r.device(sm) {
+    flex-direction: row;
+    gap: 20px;
   }
 }

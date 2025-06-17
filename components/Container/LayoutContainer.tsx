@@ -9,9 +9,12 @@ import classNames from 'classnames';
  * inherrit from this one. So that we have some common functionality for all
  * layout containers.
  */
-export interface LayoutContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-}
 
+export type LayoutContainerProps = React.HTMLAttributes<HTMLDivElement> & {
+  id?: string;
+  className?: string;
+  children: React.ReactNode;
+};
 export const LayoutContainer: React.FC<LayoutContainerProps> = ({
   id,
   className,

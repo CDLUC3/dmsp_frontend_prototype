@@ -119,6 +119,163 @@ describe('TypeAheadWithOther', () => {
     })
   });
 
+  it('should display error message when passed in', async () => {
+    mockClient.query.mockResolvedValueOnce({
+      data: {
+        affiliations: [
+          { id: '1', displayName: 'Test University' },
+          { id: '2', displayName: 'Test Institution' }
+        ]
+      }
+    });
+
+    render(
+      <TypeAheadWithOther
+        graphqlQuery={GET_AFFILIATIONS}
+        resultsKey="affiliations"
+        label="Institution"
+        helpText="Search for an institution"
+        setOtherField={mockSetOtherField}
+        fieldName="test"
+        required={false}
+        error="Institution field is required"
+        updateFormData={() => true}
+        value="input value"
+      />
+    );
+
+    await waitFor(() => {
+      expect(apolloClientModule.createApolloClient).toHaveBeenCalled();
+    });
+
+    const input = screen.getByLabelText('Institution');
+
+    act(() => { //make sure all updates related to React are completed
+      fireEvent.change(input, { target: { value: '  ' } });
+      jest.advanceTimersByTime(1000);// This is to take the debounce into consideration
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Institution field is required')).toBeInTheDocument();
+    })
+  });
+
+  it('should clear input value and call updateFormData when user clicks input', async () => {
+    const mockUpdateFormData = jest.fn();
+
+    render(
+      <TypeAheadWithOther
+        graphqlQuery={GET_AFFILIATIONS}
+        resultsKey="affiliations"
+        label="Institution"
+        helpText="Search for an institution"
+        setOtherField={mockSetOtherField}
+        fieldName="test"
+        required={false}
+        error=""
+        updateFormData={mockUpdateFormData}
+        value="Initial Value" // Start with a value
+      />
+    );
+
+    const input = screen.getByLabelText('Institution');
+
+    // Verify initial value is set
+    expect(input).toHaveValue('Initial Value');
+
+    // Click the input
+    fireEvent.click(input);
+
+    // Verify the input is cleared
+    expect(input).toHaveValue('');
+
+    // Verify updateFormData was called with empty values
+    expect(mockUpdateFormData).toHaveBeenCalledWith('', '');
+
+    // Verify setOtherField was called with false
+    expect(mockSetOtherField).toHaveBeenCalledWith(false);
+  });
+
+
+  it('should update input value and call updateFormData when user types', async () => {
+    const mockUpdateFormData = jest.fn();
+
+    render(
+      <TypeAheadWithOther
+        graphqlQuery={GET_AFFILIATIONS}
+        resultsKey="affiliations"
+        label="Institution"
+        setOtherField={mockSetOtherField}
+        fieldName="test"
+        required={false}
+        updateFormData={mockUpdateFormData}
+      />
+    );
+
+    const input = screen.getByLabelText('Institution');
+
+    // Type in the input
+    fireEvent.change(input, { target: { value: 'Test University' } });
+
+    // Verify input value is updated
+    expect(input).toHaveValue('Test University');
+
+    // Verify updateFormData was called with correct arguments
+    expect(mockUpdateFormData).toHaveBeenCalledWith('', 'Test University');
+  });
+
+  it('should focus input when alphanumeric key is pressed', async () => {
+    const mockUpdateFormData = jest.fn();
+
+    // Mock GraphQL response to show suggestions
+    mockClient.query.mockResolvedValueOnce({
+      data: {
+        affiliations: [
+          { id: '1', displayName: 'Test University', uri: 'test-uri-1' }
+        ]
+      }
+    });
+
+    render(
+      <TypeAheadWithOther
+        graphqlQuery={GET_AFFILIATIONS}
+        resultsKey="affiliations"
+        label="Institution"
+        setOtherField={mockSetOtherField}
+        fieldName="test"
+        required={false}
+        updateFormData={mockUpdateFormData}
+      />
+    );
+
+    const input = screen.getByLabelText('Institution');
+
+    // Type to show suggestions
+    fireEvent.change(input, { target: { value: 'Test' } });
+
+    act(() => {
+      jest.advanceTimersByTime(350);
+    });
+
+    // Wait for suggestions to appear
+    await waitFor(() => {
+      expect(screen.getByText('Test University')).toBeInTheDocument();
+    });
+
+    const suggestionsList = screen.getByRole('listbox');
+
+    // Create a spy on the input's focus method
+    const focusSpy = jest.spyOn(input, 'focus');
+
+    // Press an alphanumeric key on the suggestions list
+    fireEvent.keyDown(suggestionsList, { key: 'a' });
+
+    // Verify input was focused
+    expect(focusSpy).toHaveBeenCalled();
+
+    focusSpy.mockRestore();
+  });
+
   it('should not display suggestions when there are no matching results', async () => {
     mockClient.query.mockResolvedValueOnce({
       data: {

@@ -1,4 +1,0 @@
-app/dmps/*
-generated/graphql.tsx
-cypress.config.ts
-public/tinymce/*

@@ -80,7 +80,13 @@
     "linkManageNotifications": "Manage notifications",
     "messages": {
       "profileUpdateSuccess": "The profile form was successfully updated.",
-      "emailAddressUpdateSuccess": "The email was successfully added to your profile."
+      "emailAddressUpdateSuccess": "The email was successfully added to your profile.",
+      "errors": {
+        "givenNameValidation": "Name must be at least 2 characters",
+        "surNameValidation": "Surname must be at least 2 characters",
+        "affiliationValidation": "Institution name cannot be blank and must be at least 2 characters long",
+        "otherAffiliationValidation": "Other institution name cannot be blank and must be at least 2 characters long"
+      }
     }
   },
   "UserConnections": {

@@ -13,8 +13,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
 import styles from './ProjectsProjectFunding.module.scss';
 
@@ -70,7 +69,7 @@ const ProjectsProjectFunding = () => {
         }
         className="page-project-fundings"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <section aria-label="Current fundings">
             {funders?.projectFundings && funders.projectFundings.map((funder, index) => (
@@ -96,8 +95,7 @@ const ProjectsProjectFunding = () => {
             ))}
           </section>
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

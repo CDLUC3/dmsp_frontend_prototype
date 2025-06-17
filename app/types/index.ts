@@ -348,7 +348,7 @@ export interface ListItemsInterface {
   id: number;
   content: JSX.Element;
   completed: boolean;
-}[]
+}
 
 export interface PlanOverviewInterface {
   id: number | null;

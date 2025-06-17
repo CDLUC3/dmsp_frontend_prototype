@@ -17,8 +17,7 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
 import { routePath } from '@/utils/routes';
 
@@ -49,7 +48,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
         }
         className="page-project-fundings"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <Form onSubmit={handleSubmit}>
             <RadioGroup>
@@ -97,8 +96,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
 
 
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

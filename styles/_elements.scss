@@ -1,12 +1,13 @@
-@import "form/text";
-@import "form/button";
-@import "form/label";
-@import "form/select";
-@import "form/radio";
-@import "form/checkbox";
-@import "form/switch";
-@import "form/tabs";
-@import "form/fileupload";
+@use "form/text";
+@use "form/button";
+@use "form/label";
+@use "form/select";
+@use "form/radio";
+@use "form/checkbox";
+@use "form/switch";
+@use "form/tabs";
+@use "form/fileupload";
+@use "responsive" as r;
 
 
 // Link
@@ -454,7 +455,7 @@
     gap: 1rem;
     margin-top: 1rem;
 
-    @include device(xl) {
+    @include r.device(xl) {
       flex-direction: row-reverse;
     }
 
@@ -626,7 +627,7 @@
 
 
 /* Desktop layout */
-@include device('md') {
+@include r.device('md') {
   .searchSection {
     grid-template-columns: 1fr auto;
     grid-template-areas: "search filters";
@@ -656,11 +657,11 @@
   margin-bottom: var(--space-8);
   display: grid;
   gap: var(--space-5);
-  @include device(md) {
+  @include r.device(md) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @include device(xl) {
+  @include r.device(xl) {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -742,13 +743,13 @@
     margin-bottom: var(--space-2);
     flex-direction: column;
     gap: var(--space-2);
-    @include device(sm) {
+    @include r.device(sm) {
       flex-direction: row;
       align-items: center;
       margin-bottom: var(--space-2);
     }
     .actions {
-      @include device(sm) {
+      @include r.device(sm) {
         flex-direction: row;
         align-items: center;
       }
@@ -778,7 +779,7 @@
 
     .plan-sections-list-item-progress {
       display: block;
-      @include device(sm) {
+      @include r.device(sm) {
         display: inline-block;
         margin-left: var(--space-3);
       }
@@ -798,7 +799,7 @@
   .plan-links {
     display: flex;
     flex-direction: column;
-    @include device(md) {
+    @include r.device(md) {
       flex-direction: row;
       gap: var(--space-4);
     }
@@ -829,7 +830,7 @@
     align-items: flex-start;
     gap: var(--space-4);
     flex-direction: column;
-    @include device(md) {
+    @include r.device(md) {
       flex-direction: row;
       align-items: center;
     }

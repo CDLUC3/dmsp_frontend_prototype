@@ -6,8 +6,7 @@ import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
 import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectResearchOutputs.module.scss';
@@ -87,7 +86,7 @@ const ProjectsProjectResearchOutputs = () => {
         }
         className="page-project-research-outputs"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer className="layout-content-container-full">
           <section
             aria-label="Research outputs list"
@@ -144,8 +143,7 @@ const ProjectsProjectResearchOutputs = () => {
             </div>
           </section>
         </ContentContainer>
-        <SidebarPanel />
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

@@ -1,9 +1,9 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
-import {useParams} from 'next/navigation';
-import {useFormatter, useTranslations} from 'next-intl';
-import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
+import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useFormatter, useTranslations } from 'next-intl';
+import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import {
   PlanSearchResult,
   PlanSectionProgress,
@@ -12,8 +12,8 @@ import {
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import {Card} from '@/components/Card/card';
-import {ContentContainer, LayoutContainer} from "@/components/Container";
+import { Card } from '@/components/Card/card';
+import { ContentContainer, LayoutContainer } from "@/components/Container";
 import ErrorMessages from '@/components/ErrorMessages';
 
 interface FundingInterface {
@@ -162,8 +162,8 @@ const ProjectOverviewPage: React.FC = () => {
               </p>
               <p>
                 {ProjectOverview('dateRange', {
-                  startDate: (project.startDate),
-                  endDate: (project.endDate)
+                  startDate: (project.startDate ?? ''),
+                  endDate: (project.endDate ?? '')
                 })}
               </p>
               <Link href={`/projects/${projectId}/project`} aria-label={ProjectOverview('editProject')}>

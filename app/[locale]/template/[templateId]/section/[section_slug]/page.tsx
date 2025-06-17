@@ -56,8 +56,8 @@ const SectionUpdatePage: React.FC = () => {
   const router = useRouter();
 
   // Get templateId and sectionId params
-  const templateId = Array.isArray(params.templateId) ? params.templateId[0] : params.templateId;
-  const sectionId = Array.isArray(params.section_slug) ? params.section_slug[0] : params.section_slug;
+  const templateId = String(params.templateId);
+  const sectionId = String(params.section_slug);
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);

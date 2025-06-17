@@ -7,8 +7,11 @@ import React from 'react';
  * ContentContainer is the base component that is meant to hold content
  * inside a LayoutContainer.
  */
-export interface ContentContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-}
+export type ContentContainerProps = React.HTMLAttributes<HTMLDivElement> & {
+  id?: string;
+  className?: string;
+  children: React.ReactNode;
+};
 
 export const ContentContainer: React.FC<ContentContainerProps> = ({
   children,

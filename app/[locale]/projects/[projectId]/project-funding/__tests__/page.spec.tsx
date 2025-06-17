@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProjectsCreateProjectFunding from '../page';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import { RichTranslationValues } from 'next-intl';
 
 expect.extend(toHaveNoViolations);
 
@@ -12,23 +12,21 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
   useParams: jest.fn(),
 }));
-
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
+type MockUseTranslations = {
+  (key: string, ...args: unknown[]): string;
+  rich: (key: string, values?: RichTranslationValues) => ReactNode;
+};
 
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
 
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
+    mockUseTranslations.rich = (key, values) => {
+      const p = values?.p;
+      if (typeof p === 'function') {
+        return p(key); // Can return JSX
       }
-      return key;
+      return key; // fallback
     };
 
     return mockUseTranslations;

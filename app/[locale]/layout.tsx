@@ -37,11 +37,13 @@ export const metadata: Metadata = {
 
 export default async function LocaleLayout({
   children,
-  params: { locale }
+  params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>; // Wrap params in a Promise to match the expected type
 }) {
+  const resolvedParams = await params; // Resolve the promise to access the locale
+  const { locale } = resolvedParams;
 
   // Ensure that the incoming `locale` is valid
   /*eslint-disable @typescript-eslint/no-explicit-any */
