@@ -23,8 +23,7 @@ import {
 import PageHeader from '@/components/PageHeader';
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from '@/components/Container';
 
 const ResearchOutputEdit = () => {
@@ -117,7 +116,7 @@ const ResearchOutputEdit = () => {
         }
       />
 
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer className="layout-content-container-full">
           <form onSubmit={(e) => e.preventDefault()}>
             <Select name="type"
@@ -251,8 +250,7 @@ const ResearchOutputEdit = () => {
             </div>
           </form>
         </ContentContainer>
-        <SidebarPanel />
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

@@ -63,7 +63,11 @@ import { BrandColor, Example, handleDelete } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import { AffiliationsDocument } from '@/generated/graphql';
+import {
+  AffiliationsDocument,
+  AffiliationSearch,
+  AffiliationSearchResults,
+} from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
@@ -75,6 +79,7 @@ import ButtonWithImage from '@/components/ButtonWithImage';
 import { useToast } from '@/context/ToastContext';
 
 import QuestionPreview from '@/components/QuestionPreview';
+import FunderSearch from '@/components/FunderSearch';
 
 
 function Page() {
@@ -359,6 +364,17 @@ function Page() {
     router.push('/');
   }
 
+  // To test the funder search results
+  const [funders, setFunders] = useState<AffiliationSearch[]>([]);
+
+  function onFunderResults(results: AffiliationSearchResults) {
+    if (results) {
+      const items = (results.items ?? [])
+        .filter((f): f is AffiliationSearch => f != null);
+      setFunders(items);
+    }
+  }
+
   return (
     <>
       <LayoutWithPanel id="sgLayout">
@@ -383,6 +399,7 @@ function Page() {
           <a href="#_tinymce">TinyMCE Editor</a>
           <a href="#_toast">Toast Messages</a>
           <a href="#_questionpreview">QuestionPreview Bottomsheet</a>
+          <a href="#_fundersearch">Funder Search</a>
         </SidebarPanel>
 
         <ContentContainer id="sgContent">
@@ -2040,6 +2057,24 @@ function Page() {
             </QuestionPreview>
           </div>
 
+          <div id="_fundersearch">
+            <h3>Funder Search</h3>
+            <FunderSearch onResults={onFunderResults} />
+
+            <div id="_fundersearchResults">
+              <h4>Results</h4>
+              <ul>
+                {funders.length === 0 && <li>No results</li>}
+                {funders.map((res) => (
+                  <li key={res.id}>
+                    <strong>{res.displayName}</strong><br />
+                    <small>{res.uri}</small>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+          </div>
         </ContentContainer>
       </LayoutWithPanel >
     </>

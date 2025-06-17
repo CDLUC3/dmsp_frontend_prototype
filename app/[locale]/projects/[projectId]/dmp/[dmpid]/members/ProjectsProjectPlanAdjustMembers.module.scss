@@ -1,4 +1,4 @@
-@import '@/styles/responsive';
+@use '@/styles/responsive' as r;
 
 .membersList {
   display: grid;
@@ -112,7 +112,8 @@
   }
   
 }
-@include device('lg') {
+
+@include r.device('lg') {
   .membersList {
     /* Four columns: auto-width for checkbox, remaining space divided among the other three */
     grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);

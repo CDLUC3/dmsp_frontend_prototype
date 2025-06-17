@@ -1,8 +1,8 @@
 import React from 'react';
 
-import {act, fireEvent, render, screen, waitFor,} from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor, } from '@/utils/test-utils';
 
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
 import QuestionPreview from '@/components/QuestionPreview';
 
@@ -24,7 +24,7 @@ describe("QuestionPreview", () => {
     expect(button).toBeInTheDocument();
   });
 
-  it("should have a modal overlay, hidden initially", async() => {
+  it("should have a modal overlay, hidden initially", async () => {
     render(
       <QuestionPreview previewDisabled={false}>
         <h2>Preview Content</h2>
@@ -145,5 +145,57 @@ describe("QuestionPreview", () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
+  });
+
+  it('should open the modal when popstate event with matching hash is fired', () => {
+    render(<QuestionPreview id="my-preview" previewDisabled={false}>Preview Content</QuestionPreview>);
+
+    // Wrap state-changing actions in act()
+    act(() => {
+      window.location.hash = '#my-preview_modal';
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    // Assert that the modal is open
+    expect(screen.getByTestId('modal-overlay')).toBeInTheDocument();
+  });
+
+  it('should not open the modal if window.location.hash not equal to id_modal', () => {
+    render(<QuestionPreview id="my-preview" previewDisabled={false}>Preview Content</QuestionPreview>);
+
+    // Wrap state-changing actions in act()
+    act(() => {
+      window.location.hash = '#';
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    // Assert that the modal is open
+    expect(screen.queryByTestId('modal-overlay')).not.toBeInTheDocument();
+  });
+
+  it('should open the modal on mount if window.location.hash matches id_modal', () => {
+    window.location.hash = '#my-preview_modal';
+    render(<QuestionPreview id="my-preview" previewDisabled={false}>Preview Content</QuestionPreview>);
+    expect(screen.getByTestId('modal-overlay')).toBeInTheDocument();
+  });
+
+  it('should close the modal when Escape key is pressed', () => {
+    render(<QuestionPreview id="my-preview" previewDisabled={false}>Preview Content</QuestionPreview>);
+
+    // Open the modal
+    act(() => {
+      window.location.hash = '#my-preview_modal';
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    expect(screen.getByTestId('modal-overlay')).toBeInTheDocument();
+
+    // Press Escape key
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    });
+
+    // Modal should be closed
+    expect(screen.queryByTestId('modal-overlay')).not.toBeInTheDocument();
   });
 });

@@ -1,4 +1,4 @@
-@import '@/styles/responsive.scss';
+@use '@/styles/responsive.scss' as *;
 
 .projectItem {
 
@@ -114,17 +114,17 @@
 }
 
 .section {
-  @include device(md) {
-    flex: 1 1 calc(50% - 8px); // Two sections per row, accounting for gap
-    padding: 20px;
-  }
   flex: 1 1 100%; // Full width on small screens
+  @include device(md) {
+  flex: 1 1 calc(50% - 8px); // Two sections per row, accounting for gap
+  padding: 20px;
+  }
 }
 
 .overview h2.projectDetails {
+  margin-bottom: var(--space-5);
   @include device(md) {
     margin-bottom: var(--space-1);
   }
-  margin-bottom: var(--space-5);
 }
 

@@ -1,39 +1,32 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import ProjectsCreateProjectFunding from '../page';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import { RichTranslationValues } from 'next-intl';
 
 expect.extend(toHaveNoViolations);
 
 
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(),
-}));
-
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
-  useParams: jest.fn()
+  useParams: jest.fn(),
 }));
+type MockUseTranslations = {
+  (key: string, ...args: unknown[]): string;
+  rich: (key: string, values?: RichTranslationValues) => ReactNode;
+};
 
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
-
-// Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
 
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
+    mockUseTranslations.rich = (key, values) => {
+      const p = values?.p;
+      if (typeof p === 'function') {
+        return p(key); // Can return JSX
       }
-      return key;
+      return key; // fallback
     };
 
     return mockUseTranslations;
@@ -52,10 +45,7 @@ describe('ProjectsCreateProjectFunding', () => {
     })
 
     const mockUseParams = useParams as jest.Mock;
-
-    // Mock the return value of useParams
     mockUseParams.mockReturnValue({ projectId: '123' });
-
   });
 
   it('should render the component', async () => {
@@ -79,7 +69,7 @@ describe('ProjectsCreateProjectFunding', () => {
     fireEvent.click(screen.getByLabelText('form.yesLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/projects/create-project/funder-search')
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/funding-search');
     })
   });
 
@@ -88,7 +78,7 @@ describe('ProjectsCreateProjectFunding', () => {
     fireEvent.click(screen.getByLabelText('form.noLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/projects/123')
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123')
     })
   });
 

@@ -1,4 +1,4 @@
-@import '@/styles/responsive.scss';
+@use '@/styles/responsive.scss' as r;
 
 .template-editor-header {
   // This is to match the left padding for content container
@@ -9,7 +9,7 @@
   padding: 0;
   margin-top: 1rem;
 
-  @include device(lg) {
+  @include r.device(lg) {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -30,7 +30,7 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    @include device(lg) {
+    @include r.device(lg) {
 
     }
 

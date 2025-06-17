@@ -297,7 +297,8 @@
     },
     "buttons": {
       "addRow": "Add Row",
-      "previewQuestion": "Preview question"
+      "previewQuestion": "Preview question",
+      "changeType": "Change type"
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",

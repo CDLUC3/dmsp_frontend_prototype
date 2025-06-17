@@ -3707,8 +3707,6 @@ export type VersionedTemplateSearchResult = {
   __typename?: 'VersionedTemplateSearchResult';
   /** Whether or not this Template is designated as a 'Best Practice' template */
   bestPractice?: Maybe<Scalars['Boolean']['output']>;
-  /** The id of the last VersionedTemplate in the results */
-  cursor?: Maybe<Scalars['String']['output']>;
   /** A description of the purpose of the template */
   description?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
@@ -3794,6 +3792,13 @@ export type AddProjectCollaboratorMutationVariables = Exact<{
 
 
 export type AddProjectCollaboratorMutation = { __typename?: 'Mutation', addProjectCollaborator?: { __typename?: 'ProjectCollaborator', id?: number | null, email: string, errors?: { __typename?: 'ProjectCollaboratorErrors', general?: string | null, email?: string | null } | null, user?: { __typename?: 'User', givenName?: string | null, surName?: string | null, orcid?: any | null, affiliation?: { __typename?: 'Affiliation', uri: string } | null } | null } | null };
+
+export type AddProjectFundingMutationVariables = Exact<{
+  input: AddProjectFundingInput;
+}>;
+
+
+export type AddProjectFundingMutation = { __typename?: 'Mutation', addProjectFunding?: { __typename?: 'ProjectFunding', errors?: { __typename?: 'ProjectFundingErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
 
 export type UpdateProjectFundingMutationVariables = Exact<{
   input: UpdateProjectFundingInput;
@@ -3944,6 +3949,15 @@ export type AffiliationsQueryVariables = Exact<{
 
 
 export type AffiliationsQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
+
+export type AffiliationFundersQueryVariables = Exact<{
+  name: Scalars['String']['input'];
+  funderOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+}>;
+
+
+export type AffiliationFundersQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
 
 export type ProjectFundingsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4403,6 +4417,47 @@ export function useAddProjectCollaboratorMutation(baseOptions?: Apollo.MutationH
 export type AddProjectCollaboratorMutationHookResult = ReturnType<typeof useAddProjectCollaboratorMutation>;
 export type AddProjectCollaboratorMutationResult = Apollo.MutationResult<AddProjectCollaboratorMutation>;
 export type AddProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<AddProjectCollaboratorMutation, AddProjectCollaboratorMutationVariables>;
+export const AddProjectFundingDocument = gql`
+    mutation AddProjectFunding($input: AddProjectFundingInput!) {
+  addProjectFunding(input: $input) {
+    errors {
+      affiliationId
+      funderOpportunityNumber
+      funderProjectNumber
+      general
+      grantId
+      projectId
+      status
+    }
+  }
+}
+    `;
+export type AddProjectFundingMutationFn = Apollo.MutationFunction<AddProjectFundingMutation, AddProjectFundingMutationVariables>;
+
+/**
+ * __useAddProjectFundingMutation__
+ *
+ * To run a mutation, you first call `useAddProjectFundingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddProjectFundingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addProjectFundingMutation, { data, loading, error }] = useAddProjectFundingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddProjectFundingMutation(baseOptions?: Apollo.MutationHookOptions<AddProjectFundingMutation, AddProjectFundingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddProjectFundingMutation, AddProjectFundingMutationVariables>(AddProjectFundingDocument, options);
+      }
+export type AddProjectFundingMutationHookResult = ReturnType<typeof useAddProjectFundingMutation>;
+export type AddProjectFundingMutationResult = Apollo.MutationResult<AddProjectFundingMutation>;
+export type AddProjectFundingMutationOptions = Apollo.BaseMutationOptions<AddProjectFundingMutation, AddProjectFundingMutationVariables>;
 export const UpdateProjectFundingDocument = gql`
     mutation UpdateProjectFunding($input: UpdateProjectFundingInput!) {
   updateProjectFunding(input: $input) {
@@ -5264,6 +5319,58 @@ export type AffiliationsQueryHookResult = ReturnType<typeof useAffiliationsQuery
 export type AffiliationsLazyQueryHookResult = ReturnType<typeof useAffiliationsLazyQuery>;
 export type AffiliationsSuspenseQueryHookResult = ReturnType<typeof useAffiliationsSuspenseQuery>;
 export type AffiliationsQueryResult = Apollo.QueryResult<AffiliationsQuery, AffiliationsQueryVariables>;
+export const AffiliationFundersDocument = gql`
+    query AffiliationFunders($name: String!, $funderOnly: Boolean, $paginationOptions: PaginationOptions) {
+  affiliations(
+    name: $name
+    funderOnly: $funderOnly
+    paginationOptions: $paginationOptions
+  ) {
+    totalCount
+    nextCursor
+    items {
+      id
+      displayName
+      uri
+    }
+  }
+}
+    `;
+
+/**
+ * __useAffiliationFundersQuery__
+ *
+ * To run a query within a React component, call `useAffiliationFundersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAffiliationFundersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAffiliationFundersQuery({
+ *   variables: {
+ *      name: // value for 'name'
+ *      funderOnly: // value for 'funderOnly'
+ *      paginationOptions: // value for 'paginationOptions'
+ *   },
+ * });
+ */
+export function useAffiliationFundersQuery(baseOptions: Apollo.QueryHookOptions<AffiliationFundersQuery, AffiliationFundersQueryVariables> & ({ variables: AffiliationFundersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AffiliationFundersQuery, AffiliationFundersQueryVariables>(AffiliationFundersDocument, options);
+      }
+export function useAffiliationFundersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AffiliationFundersQuery, AffiliationFundersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AffiliationFundersQuery, AffiliationFundersQueryVariables>(AffiliationFundersDocument, options);
+        }
+export function useAffiliationFundersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AffiliationFundersQuery, AffiliationFundersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AffiliationFundersQuery, AffiliationFundersQueryVariables>(AffiliationFundersDocument, options);
+        }
+export type AffiliationFundersQueryHookResult = ReturnType<typeof useAffiliationFundersQuery>;
+export type AffiliationFundersLazyQueryHookResult = ReturnType<typeof useAffiliationFundersLazyQuery>;
+export type AffiliationFundersSuspenseQueryHookResult = ReturnType<typeof useAffiliationFundersSuspenseQuery>;
+export type AffiliationFundersQueryResult = Apollo.QueryResult<AffiliationFundersQuery, AffiliationFundersQueryVariables>;
 export const ProjectFundingsDocument = gql`
     query ProjectFundings($projectId: Int!) {
   projectFundings(projectId: $projectId) {

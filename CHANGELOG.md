@@ -90,8 +90,17 @@
 - Added the `QuestionView` component which will render the question fields based on the question type. [#379]
 - Integrated the `QuestionPreview` and `QuestionView` components on the add and edit question pages. [#379]
 - Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
+- Added a FunderSearch component that performs a funder search, and returns the
+  results. [#335]
+- Added a the `LoggedError` custom error type to simplify logging of errors by. [#335]
+- Updated the funding-search page under create project to use the new funder
+  search component. Also hooked up the capability to select a funder and
+  associate it with the project. [#335]
+- Updated some of the other Funder pages under create project so that they link
+  and redirect to the correct named urls for the funder search page. [#335]
 
 ### Fixed
+- Fixed type error related to `confirm-email` page that was breaking build
 - Fixed issue with search fields not looking good on smaller devices. Made updates to get the `Search` button to wrap for mobile [#488]
 - Fixed breaking build by addressing a type error
 - Fixed missing translations on User Profile page [#488]
@@ -118,6 +127,9 @@
 - Added the missing button to create a new template from scratch [#474]
 
 ### Chore
+- Updated a number of packages, such as next, react-aria-components, eslint, next-intl, etc [#529]
+- Updated a number of unit tests to address the reduced coverage of branch tests [#529]
+- Fixed sass warnings and errors introduced with latest updates to packages [#529]
 - Updated and added unit tests to increase coverage in the app [#490]
 - Updated and improved the cypress functional tests to fix them and updated some cypress documentation in the README.md file [#490]
 - Updated NodeJS version to v22 [#144]

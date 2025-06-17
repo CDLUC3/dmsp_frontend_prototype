@@ -1,4 +1,4 @@
-import {redirect} from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic'
 
@@ -12,17 +12,15 @@ async function verifyEmail(userId: string, token: string) {
   return response.ok;
 }
 
-export default async function ConfirmEmailPage({
-  params,
-}: {
-  params: { userId: string; token: string };
-}) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function ConfirmEmailPage({ params }: any) {
   const { userId, token } = params;
   const isVerified = await verifyEmail(userId, token);
+
 
   if (isVerified) {
     redirect('/email-confirmed');
   } else {
     redirect('/verification-failed');
   }
-}
+}  

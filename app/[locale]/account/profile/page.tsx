@@ -109,24 +109,24 @@ const ProfilePage: React.FC = () => {
     switch (name) {
       case 'givenName':
         if (!value || value.length <= 2) {
-          error = 'Name must be at least 2 characters';
+          error = t('messages.errors.givenNameValidation');
         }
         break;
       case 'surName':
         if (!value || value.length <= 2) {
-          error = 'Name must be at least 2 characters';
+          error = t('messages.errors.surNameValidation');
         }
         break;
-      case 'affiliationName':
+      case 'affiliationId':
         if (!value || value.length <= 2) {
-          error = 'Institution name cannot be blank and must be at least 2 characters long';
+          error = t('messages.errors.affiliationValidation');
         }
         break;
       case 'otherAffiliationName':
         // We only want to validate this field if the user specifically selected this 'Other' option
         if (formData['affiliationName'] === 'Other') {
           if (!value || value.length <= 2) {
-            error = 'Institution name cannot be blank and must be at least 2 characters long';
+            error = t('messages.errors.otherAffiliationValidation');
           }
           break;
         }
@@ -249,7 +249,7 @@ const ProfilePage: React.FC = () => {
   /* This function is called by the child component, UpdateEmailAddress
   when affiliation/institution is changed */
   const updateAffiliationFormData = async (id: string, value: string) => {
-    clearActiveFieldError('affiliationName');
+    clearActiveFieldError('affiliationId');
     return setFormData({
       ...formData,
       affiliationName: value,

@@ -1,4 +1,4 @@
-@import '@/styles/responsive';
+@use '@/styles/responsive' as r;
 
 @mixin layoutContainer {
   position: relative;
@@ -101,7 +101,7 @@
     flex-grow: 1;
   }
 
-  @include device(md) {
+  @include r.device(md) {
     flex-direction: row;
 
     > {
@@ -136,7 +136,7 @@
         &.state-closed .drawer-content { left: calc(var(--_sidebar-width) * -1); }
       }
 
-      @include device(md) {
+      @include r.device(md) {
         .layout-sidebar-panel {
           &.state-open { right: 0; }
           &.state-closed { right: var(--_sidebar-width); }
@@ -157,7 +157,7 @@
         &.state-closed .drawer-content { right: calc(var(--_sidebar-width) * -1); }
       }
 
-      @include device(md) {
+      @include r.device(md) {
         .layout-sidebar-panel {
           &.state-open { left: 0; }
           &.state-closed { left: var(--_sidebar-width); }

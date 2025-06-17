@@ -81,7 +81,7 @@ const QuestionEdit = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toastState = useToast(); // Access the toast state from context
-  const templateId = Array.isArray(params.templateId) ? params.templateId[0] : params.templateId;
+  const templateId = String(params.templateId);
   const questionId = params.q_slug; //question id
   const questionTypeIdQueryParam = searchParams.get('questionType') || null;
 
@@ -293,7 +293,7 @@ const QuestionEdit = () => {
   return (
     <>
       <PageHeader
-        title={QuestionEdit('title', { title: selectedQuestion?.question?.questionText })}
+        title={QuestionEdit('title', { title: selectedQuestion?.question?.questionText ?? '' })}
         description=""
         showBackButton={false}
         breadcrumbs={

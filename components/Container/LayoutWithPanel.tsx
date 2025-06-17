@@ -30,8 +30,7 @@ type DirectionType =
 /**
  * Layout with a dynamic sidebar
  */
-interface LayoutWithPanelProps extends LayoutContainerProps {
-}
+export type LayoutWithPanelProps = LayoutContainerProps;
 
 export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
   children,

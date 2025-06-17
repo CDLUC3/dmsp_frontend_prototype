@@ -150,6 +150,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
               <label htmlFor={`default-${row.id}`}>{QuestionOptions('labels.default')}</label>
               <Checkbox
                 id={`default-${row.id}`}
+                data-testid={`default-${row.id}`}
                 aria-checked={row.isSelected}
                 aria-label={`Set row ${index + 1} as default`}
                 onChange={() => setDefault(row.id || 0)}

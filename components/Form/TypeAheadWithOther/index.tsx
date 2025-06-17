@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DocumentNode } from '@apollo/client';
 import {
   Input,
+  FieldError,
   Label,
   Text,
   TextField,
@@ -22,13 +23,11 @@ type TypeAheadInputProps = {
   label: string;
   placeholder?: string;
   helpText?: string;
-  /* eslint-disable @typescript-eslint/ban-types*/
-  setOtherField: Function;
+  setOtherField: (value: boolean) => void;
   fieldName: string;
   required: boolean;
   error?: string;
-  /* eslint-disable @typescript-eslint/ban-types*/
-  updateFormData: Function; //Function to update the typeahead field value in the parent form data
+  updateFormData: (id: string, value: string) => void; //Function to update the typeahead field value in the parent form data
   value?: string;
   className?: string;
   otherText?: string;
@@ -47,7 +46,6 @@ const TypeAheadWithOther = ({
   helpText,
   setOtherField,
   fieldName,
-  required,
   error,
   updateFormData,
   value,
@@ -57,7 +55,6 @@ const TypeAheadWithOther = ({
 }: TypeAheadInputProps) => {
   const [initialInputValue, setInitialInputValue] = useState<string>(''); // Needed to set initial input value without triggering search
   const [inputValue, setInputValue] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string>('');
   const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
   const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
   const [debouncedValue, setDebouncedValue] = useState(inputValue);
@@ -80,29 +77,15 @@ const TypeAheadWithOther = ({
     }
   }, [client]);
 
-  const validateField = (value: string) => {
-    if (!/^[A-Za-z.\?_\(\)\s-]+$/.test(value)) {
-      setErrorMessage('Please enter a valid institution(only letters allowed).');
-      return false;
-    }
-    setErrorMessage('');
-    return true;
-  };
-
   const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
     //set previous error to empty string
     error = '';
     const value = e.target.value;
-    const dataId = (e.target as HTMLElement).dataset.id;
+    const dataId = (e.target as HTMLElement).dataset.id || '';
     setInputValue(value);
 
-    if (value) {
-      validateField(value);
-      await updateFormData(dataId, value);
-    } else {
-      setErrorMessage('');
-      await updateFormData({});
-    }
+    updateFormData(dataId, value);
+
   }
 
   const handleInputClick = () => {
@@ -110,7 +93,7 @@ const TypeAheadWithOther = ({
     setOtherField(false);
     setInputValue('');
     setInitialInputValue('');
-    updateFormData({});
+    updateFormData('', ''); // Clear the form data when input is clicked
   }
 
   const handleSelection = async (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
@@ -119,9 +102,9 @@ const TypeAheadWithOther = ({
       (e.target as HTMLLIElement | HTMLInputElement).value?.toString();
     const activeDescendentId = (e.target as HTMLLIElement | HTMLInputElement).id;
 
-    const dataId = (e.target as HTMLElement).dataset.id;
+    const dataId = (e.target as HTMLElement).dataset.id || '';
     const dataValue = (e.target as HTMLElement).dataset.value;
-    await updateFormData(dataId, item);
+    updateFormData(dataId, item);
 
     setInputValue(item);
     setCurrentListItemFocused(-1);
@@ -211,10 +194,10 @@ const TypeAheadWithOther = ({
   }, [])
 
   useEffect(() => {
-    if (!errorMessage) {
+    if (!error) {
       const handler = setTimeout(() => {
         setDebouncedValue(inputValue);
-      }, 700);
+      }, 300);
       return () => {
         clearTimeout(handler);
       };
@@ -305,9 +288,8 @@ const TypeAheadWithOther = ({
     <div className={`${styles.autocompleteContainer} ${styles.expanded} ${className}`} aria-expanded={open} role="combobox" aria-controls="results">
       <TextField
         type="text"
-        className={(!!errorMessage || !!error) ? styles.fieldError : ''}
-        isInvalid={!!errorMessage}
-        isRequired={required}
+        className={(!!error) ? styles.fieldError : ''}
+        isInvalid={!!error}
       >
         <Label>{label}</Label>
         <Input
@@ -325,10 +307,14 @@ const TypeAheadWithOther = ({
           ref={inputRef}
           autoComplete="off"
         />
-        {/*<FieldError className={`${styles.errorMessage} react-aria-FieldError`}>{errorMessage}</FieldError>*/}
-        {helpText && (
+        {(helpText && !error) && (
           <Text slot="description" className={styles.helpText}>
             {helpText}
+          </Text>
+        )}
+        {error && (
+          <Text slot="description" className={styles.errorMessage}>
+            {error}
           </Text>
         )}
         <Spinner className={`${styles.searchSpinner} ${showSuggestionSpinner ? styles.show : ''}`}

@@ -258,7 +258,7 @@ const QuestionAdd = ({
   };
   useEffect(() => {
     if (!questionType) {
-      // If questionId is missing, return user to the Question Types selection page
+      // If questionType is missing, return user to the Question Types selection page
       toastState.add(Global('messaging.somethingWentWrong'), { type: 'error' });
       router.push(step1Url);
 
@@ -365,7 +365,7 @@ const QuestionAdd = ({
                 >
                   <Label className={`${styles.searchLabel} react-aria-Label`}>{QuestionAdd('labels.type')}</Label>
                   <Input className={`${styles.searchInput} react-aria-Input`} disabled />
-                  <Button className={`${styles.searchButton} react-aria-Button`} type="button" onPress={redirectToQuestionTypes}>Change type</Button>
+                  <Button className={`${styles.searchButton} react-aria-Button`} type="button" onPress={redirectToQuestionTypes}>{QuestionAdd('buttons.changeType')}</Button>
                   <Text slot="description" className={`${styles.searchHelpText} help-text`}>
                     {QuestionAdd('helpText.textField')}
                   </Text>
@@ -385,7 +385,9 @@ const QuestionAdd = ({
 
                 {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
                   <>
-                    <p className={styles.optionsDescription}>{QuestionAdd('helpText.questionOptions', { questionName })}</p>
+                    <p className={styles.optionsDescription}>
+                      {QuestionAdd('helpText.questionOptions', { questionName: questionName ?? '' })}
+                    </p>
                     <div className={styles.optionsWrapper}>
                       <QuestionOptionsComponent
                         rows={rows}

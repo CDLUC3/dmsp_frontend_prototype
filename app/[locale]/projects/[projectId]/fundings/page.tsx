@@ -1,28 +1,47 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
+import { routePath } from '@/utils/routes';
 
-import { Breadcrumb, Breadcrumbs, Button, Link, } from "react-aria-components";
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  Link,
+} from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
-import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectFunding.module.scss';
+
+import { useProjectFundingsQuery } from '@/generated/graphql';
+
 
 const ProjectsProjectFunding = () => {
   const router = useRouter();
+  const params = useParams();
+  const { projectId } = params;
+
+  const {data: funders} = useProjectFundingsQuery({
+    variables: {
+      projectId: Number(projectId),
+    }
+  });
 
   const handleAddFunding = () => {
-    router.push(routePath('projects.fundings.search', { projectId: 'proj_2425' }))
+    router.push(routePath('projects.fundings.search', {
+      projectId: projectId as string,
+    }));
   };
 
   const handleEditFunding = () => {
-    // Navigate to edit page or open modal
-    router.push(routePath('projects.fundings.edit', { projectId: 'proj_2425', projectFundingId: 'projFund_6902' }))
+    router.push(routePath('projects.fundings.edit', {
+      projectId: projectId as string,
+      projectFundingId: 'projFund_6902', // TODO:: Correct funder ID
+    }));
   };
 
   return (
@@ -50,31 +69,33 @@ const ProjectsProjectFunding = () => {
         }
         className="page-project-fundings"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <section aria-label="Current fundings">
-            <div className={styles.fundingResultsList}>
+            {funders?.projectFundings && funders.projectFundings.map((funder, index) => (
               <div
-                className={styles.fundingResultsListItem}
-                role="group"
-                aria-label="Current funding"
+                key={index}
+                className={styles.fundingResultsList}
               >
-                <p className="funding-name">National Science Foundation (NSF)</p>
-                <Button
-                  onPress={handleEditFunding}
-                  className="secondary"
-                  aria-label="Edit National Science Foundation details"
+                <div
+                  className={styles.fundingResultsListItem}
+                  role="group"
+                  aria-label="{funder?.affiliation?.displayName}"
                 >
-                  Edit
-                </Button>
+                  <p className="funder-name">{funder?.affiliation?.displayName}</p>
+                  <Button
+                    onPress={handleEditFunding}
+                    className="secondary"
+                    aria-label={`Edit ${funder?.affiliation?.displayName} details`}
+                  >
+                    Edit
+                  </Button>
+                </div>
               </div>
-            </div>
-
-
+            ))}
           </section>
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };
