@@ -484,12 +484,14 @@ export const questionTypeHandlers: Record<
   },
   typeaheadSearch: (json, input: {
     query?: string;
-    localQueryId?: string;
+    queryId?: string;
     variables?: TypeaheadSearchQuestionType["graphQL"]["variables"];
     answerField?: string;
     displayFields?: FilteredSearchQuestionType["graphQL"]["displayFields"];
     responseField?: string;
   }) => {
+    const existingGraphQL = json.graphQL || {};
+
     const questionData: TypeaheadSearchQuestionType = {
       ...json,
       type: "typeaheadSearch",
@@ -498,22 +500,27 @@ export const questionTypeHandlers: Record<
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
       graphQL: {
-        query: input?.query ?? "",
-        localQueryId: input?.localQueryId ?? "",
-        responseField: input?.responseField ?? "",
-        variables: input?.variables?.map(variable => ({
-          name: variable.name ?? "",
-          type: variable.type ?? "string",
-          label: variable.label ?? "",
-          minLength: variable.minLength ?? 0,
-          defaultValue: variable.defaultValue ?? "",
-          labelTranslationKey: variable.labelTranslationKey ?? null,
-        })) ?? [],
-        displayFields: input?.displayFields?.map(field => ({
-          propertyName: field.propertyName ?? "",
-          label: field.label ?? "",
-          labelTranslationKey: field.labelTranslationKey ?? null,
-        })) ?? [],
+        query: input?.query ?? existingGraphQL.query ?? "",
+        queryId: input?.queryId ?? existingGraphQL.queryId ?? "",
+        responseField: input?.responseField ?? existingGraphQL.responseField ?? "",
+        answerField: input?.answerField ?? existingGraphQL.answerField ?? "",
+        variables: input?.variables
+          ? input.variables.map(variable => ({
+            name: variable.name ?? "",
+            type: variable.type ?? "string",
+            label: variable.label ?? "",
+            minLength: variable.minLength ?? 0,
+            defaultValue: variable.defaultValue ?? "",
+            labelTranslationKey: variable.labelTranslationKey ?? null,
+          }))
+          : existingGraphQL.variables ?? [],
+        displayFields: input?.displayFields
+          ? input.displayFields.map(field => ({
+            propertyName: field.propertyName ?? "",
+            label: field.label ?? "",
+            labelTranslationKey: field.labelTranslationKey ?? null,
+          }))
+          : existingGraphQL.displayFields ?? [],
       },
     };
 

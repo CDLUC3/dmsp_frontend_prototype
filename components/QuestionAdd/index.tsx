@@ -187,6 +187,50 @@ const QuestionAdd = ({
     }
   };
 
+  const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
+  const handleTypeAheadSearchLabelChange = (value: string) => {
+    setTypeaheadSearchLabel(value);
+
+    // Update the label in the question JSON and sync to question state
+    if (questionType === 'typeaheadSearch' && questionJSON) {
+      try {
+        const parsed = JSON.parse(question.json || questionJSON);
+        const updated = JSON.parse(JSON.stringify(parsed));
+        if (updated?.graphQL?.displayFields?.[0]) {
+          updated.graphQL.displayFields[0].label = value;
+          setQuestion(prev => ({
+            ...prev,
+            json: JSON.stringify(updated),
+          }));
+        }
+      } catch {
+        // ignore JSON parse errors
+      }
+    }
+  }
+
+  const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
+  const handleTypeAheadHelpTextChange = (value: string) => {
+    setTypeAheadHelpText(value);
+
+    // Update the help text in the question JSON and sync to question state
+    if (questionType === 'typeaheadSearch' && questionJSON) {
+      try {
+        const parsed = JSON.parse(question.json || questionJSON);
+        const updated = JSON.parse(JSON.stringify(parsed));
+        if (updated?.graphQL?.variables?.[0]) {
+          updated.graphQL.variables[0].label = value;
+          setQuestion(prev => ({
+            ...prev,
+            json: JSON.stringify(updated),
+          }));
+        }
+      } catch {
+        // ignore JSON parse errors
+      }
+    }
+  }
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -401,8 +445,8 @@ const QuestionAdd = ({
                 )}
 
                 {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
-                  <div className={`${styles.dateRangeLabels} input-range-group`}>
-                    <div className={styles.dateRangeInput}>
+                  <div className={`${styles.dateRangeLabels} two-item-row`}>
+                    <div >
                       <Label htmlFor="rangeStart">Start Label</Label>
                       <Input
                         type="text"
@@ -413,7 +457,7 @@ const QuestionAdd = ({
                         placeholder="From"
                       />
                     </div>
-                    <div className={styles.dateRangeInput}>
+                    <div>
                       <Label htmlFor="rangeEnd">End Label</Label>
                       <Input
                         type="text"
@@ -422,6 +466,32 @@ const QuestionAdd = ({
                         onChange={e => handleRangeLabelChange('end', e.currentTarget.value)}
                         className={styles.dateRangeInput}
                         placeholder="To"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {questionType && (questionType === 'typeaheadSearch') && (
+                  <div>
+                    <div>
+                      <Label htmlFor="searchLabel">Search label</Label>
+                      <Input
+                        type="text"
+                        id="searchLabel"
+                        value={typeaheadSearchLabel}
+                        onChange={(e) => handleTypeAheadSearchLabelChange(e.currentTarget.value)}
+                        placeholder="Enter search label"
+                      />
+                    </div>
+                    <div className={styles.dateRangeInput}>
+                      <Label htmlFor="helpText">Help text</Label>
+                      <Input
+                        type="text"
+                        id="helpText"
+                        value={typeaheadHelpText}
+                        onChange={e => handleTypeAheadHelpTextChange(e.currentTarget.value)}
+                        className={styles.dateRangeInput}
+                        placeholder="Enter the help text you want to display"
                       />
                     </div>
                   </div>

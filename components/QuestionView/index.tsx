@@ -1,28 +1,18 @@
+'use client'
+
 import React, { useEffect, useState } from 'react';
+import { gql } from 'graphql-tag'; // or from '@apollo/client' if using Apollo
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { CalendarDate, DateValue, parseDate } from "@internationalized/date";
+import { CalendarDate, DateValue } from "@internationalized/date";
 
 import {
   Button,
-  Calendar,
-  CalendarCell,
-  CalendarGrid,
-  DateInput,
-  DatePicker,
-  DateSegment,
-  Dialog,
-  Group,
-  Heading,
-
-  Key,
-  Label,
-  ListBox,
   ListBoxItem,
-  Popover,
 } from "react-aria-components";
 import {
+  AffiliationsDocument,
   useQuestionTypesQuery,
   useTemplateQuery,
 } from '@/generated/graphql';
@@ -44,12 +34,15 @@ import {
 } from "@/components/Card/card";
 
 import TinyMCEEditor from '@/components/TinyMCEEditor';
-import { RadioGroupComponent, CheckboxGroupComponent, FormSelect } from '@/components/Form';
 import {
+  CheckboxGroupComponent,
   DateComponent,
   FormInput,
+  FormSelect,
   MultiSelect,
-  NumberComponent
+  NumberComponent,
+  RadioGroupComponent,
+  TypeAheadWithOther
 } from '@/components/Form';
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import styles from './QuestionView.module.scss';
@@ -93,6 +86,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 }) => {
 
   const trans = useTranslations('QuestionView');
+  const Signup = useTranslations('SignupPage');
   const Global = useTranslations('Global');
 
   const { data: qtData } = useQuestionTypesQuery();
@@ -103,7 +97,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     notifyOnNetworkStatusChange: true
   });
   const [questionType, setQuestionType] = useState<string>('');
+  const [otherField, setOtherField] = useState(false);
+  const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({ affiliationName: '', affiliationId: '' });
+  const [otherAffiliationName, setOtherAffiliationName] = useState<string>('');
 
+  const handleAffiliationChange = async (id: string, value: string) => {
+    return setAffiliationData({ affiliationName: value, affiliationId: id })
+  }
+
+  const handleOtherAffiliationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setOtherAffiliationName(value);
+  };
   // selected radio value
   const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
 
@@ -174,11 +179,16 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     key: string,
     value: string | number | null
   ) => {
+    console.log("***VALUE", value);
     setNumberRange(prev => ({
       ...prev,
       [key]: value,
     }));
   };
+
+  useEffect(() => {
+    console.log("Number range", numberRange);
+  }, [numberRange]);
 
   useEffect(() => {
     if (!question || !qtData?.questionTypes) return;
@@ -357,7 +367,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <div className="input-range-group">
             <NumberComponent
               label={startNumberLabel}
-              value={numberRange.startDate ? numberRange.startDate : undefined}
+              value={numberRange.startDate ?? undefined}
               onChange={num => handleNumberChange('startDate', num)}
               placeholder="start"
               minValue={parsedQuestion?.attributes?.minValue}
@@ -368,7 +378,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
             <NumberComponent
               label={endNumberLabel}
-              value={numberRange.endDate ? numberRange.endDate : undefined}
+              value={numberRange.endDate ?? undefined}
               onChange={num => handleNumberChange('endDate', num)}
               placeholder="end"
               minValue={parsedQuestion?.attributes?.minValue}
@@ -391,7 +401,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             disabled={parsedQuestion?.attributes?.disabled || false}
             formatOptions={{
               style: 'currency',
-              currency: parsedQuestion?.attributes?.denomiation || 'USD',
+              currency: parsedQuestion?.attributes?.denomination || 'USD',
               currencyDisplay: 'symbol',
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
@@ -419,6 +429,40 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             value={inputValue === null ? undefined : inputValue}
             onChange={e => handleInputChange(e)}
           />
+        )
+
+      case 'typeaheadSearch':
+        return (
+          <>
+            <TypeAheadWithOther
+              label={parsedQuestion?.graphQL?.displayFields?.[0].label || Signup('institution')}
+              fieldName="institution"
+              graphqlQuery={
+                typeof parsedQuestion?.graphQL?.query === 'string'
+                  ? gql`${parsedQuestion.graphQL.query}`
+                  : AffiliationsDocument
+              }
+              resultsKey={parsedQuestion?.graphQL?.responseField}
+              setOtherField={setOtherField}
+              required={true}
+              error=""
+              helpText={parsedQuestion?.graphQL?.variables?.label || Signup('institutionHelp')}
+              updateFormData={handleAffiliationChange}
+              value={affiliationData?.affiliationName || ''}
+            />
+            {otherField && (
+              <div className={`${styles.formRow} ${styles.oneItemRow}`}>
+                <FormInput
+                  name="otherAffiliationName"
+                  type="text"
+                  label="Other institution"
+                  placeholder="Enter other institution name"
+                  value={otherAffiliationName}
+                  onChange={handleOtherAffiliationChange}
+                />
+              </div >
+            )}
+          </>
         )
       default:
         return <p>Unsupported question type</p>;

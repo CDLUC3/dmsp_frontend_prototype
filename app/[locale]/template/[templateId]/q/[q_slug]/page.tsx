@@ -137,6 +137,50 @@ const QuestionEdit = () => {
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
+  const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
+  const handleTypeAheadSearchLabelChange = (value: string) => {
+    setTypeaheadSearchLabel(value);
+
+    // Update the label in the question JSON and sync to question state
+    if (questionType === 'typeaheadSearch' && question?.json) {
+      try {
+        const parsed = JSON.parse(question.json);
+        const updated = JSON.parse(JSON.stringify(parsed));
+        if (updated?.graphQL?.displayFields?.[0]) {
+          updated.graphQL.displayFields[0].label = value;
+          setQuestion(prev => ({
+            ...prev,
+            json: JSON.stringify(updated),
+          }));
+        }
+      } catch {
+        // ignore JSON parse errors
+      }
+    }
+  }
+
+  const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
+  const handleTypeAheadHelpTextChange = (value: string) => {
+    setTypeAheadHelpText(value);
+
+    // Update the help text in the question JSON and sync to question state
+    if (questionType === 'typeaheadSearch' && question?.json) {
+      try {
+        const parsed = JSON.parse(question.json);
+        const updated = JSON.parse(JSON.stringify(parsed));
+        if (updated?.graphQL?.variables?.[0]) {
+          updated.graphQL.variables[0].label = value;
+          setQuestion(prev => ({
+            ...prev,
+            json: JSON.stringify(updated),
+          }));
+        }
+      } catch {
+        // ignore JSON parse errors
+      }
+    }
+  }
+
   // Handler for date range label changes
   const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
@@ -286,6 +330,20 @@ const QuestionEdit = () => {
     }
   }, [questionType, question?.json])
 
+  useEffect(() => {
+    if ((questionType === 'typeaheadSearch') && question?.json) {
+      try {
+        const parsed = JSON.parse(question.json);
+        setDateRangeLabels({
+          start: parsed?.columns?.start?.attributes?.label || '',
+          end: parsed?.columns?.end?.attributes?.label || '',
+        });
+      } catch {
+        setDateRangeLabels({ start: '', end: '' });
+      }
+    }
+  }, [questionType, question?.json])
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -402,6 +460,32 @@ const QuestionEdit = () => {
                         onChange={e => handleRangeLabelChange('end', e.currentTarget.value)}
                         className={styles.dateRangeInput}
                         placeholder="To"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {questionType && (questionType === 'typeaheadSearch') && (
+                  <div>
+                    <div className="form-row">
+                      <Label htmlFor="searchLabel">Search label</Label>
+                      <Input
+                        type="text"
+                        id="searchLabel"
+                        value={typeaheadSearchLabel}
+                        onChange={(e) => handleTypeAheadSearchLabelChange(e.currentTarget.value)}
+                        placeholder="Enter search label"
+                      />
+                    </div>
+                    <div className="form-row">
+                      <Label htmlFor="helpText">Help text</Label>
+                      <Input
+                        type="text"
+                        id="helpText"
+                        value={typeaheadHelpText}
+                        onChange={e => handleTypeAheadHelpTextChange(e.currentTarget.value)}
+                        className={styles.dateRangeInput}
+                        placeholder="Enter the help text you want to display"
                       />
                     </div>
                   </div>

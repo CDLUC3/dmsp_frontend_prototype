@@ -19,7 +19,6 @@ interface NumberFieldProps {
   placeholder?: string;
   disabled?: boolean;
   formatOptions?: Intl.NumberFormatOptions;
-  locales?: string | string[];
 }
 
 const NumberComponent: React.FC<NumberFieldProps> = ({
@@ -33,7 +32,6 @@ const NumberComponent: React.FC<NumberFieldProps> = ({
   placeholder,
   disabled,
   formatOptions,
-  locales = 'en-US',
   ...props
 }) => {
   return (
