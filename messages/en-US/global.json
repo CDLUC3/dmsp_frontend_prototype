@@ -114,6 +114,16 @@
     "linkUpdateConnections": "Update connections",
     "linkManageNotifications": "Manage notifications"
   },
+  "FunderSearch": {
+    "headerTitle": "Search for Funders",
+    "funder": "Funder",
+    "found": "{count} funders found",
+    "noResults": "No results found",
+    "showCount": "Showing {count} of {total}",
+    "addManuallyHeading": "Not in this list?",
+    "addManuallyText": "If your project isn’t shown, you can add the details manually.",
+    "addManuallyLabel": "Add funder manually"
+  },
   "TemplateHistory": {
     "title": "Template history",
     "subHeading": "History",
@@ -182,15 +192,21 @@
       "edit": "Edit",
       "preview": "Preview",
       "publish": "Publish",
-      "close": "Close"
+      "close": "Close",
+      "loadMore": "Load More"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
-      "endDate": "End date"
+      "endDate": "End date",
+      "funderSearch": "Search by funder name"
     },
     "helpText": {
-      "searchHelpText": "Search by research organization, field station or lab, template description, etc."
+      "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
+      "funderSearch": "Search by research organization, funder name, or related keywords."
+    },
+    "placeholders": {
+      "funderSearch": "Enter funder name..."
     },
     "links": {
       "clearFilter": "clear filter",

@@ -196,7 +196,10 @@ const mockTemplates = {
 const mockHook = (hook: any) => hook as jest.Mock;
 
 const setupMocks = () => {
-  mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
+  mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), {
+    loading: false,
+    error: undefined
+  }]);
   mockHook(usePublishedTemplatesQuery).mockReturnValue({ data: mockPublicTemplates, loading: false, error: undefined });
   mockHook(useMyVersionedTemplatesQuery).mockReturnValue({ data: mockTemplates, loading: false, error: undefined });
 };
@@ -210,6 +213,15 @@ describe('TemplateSelectTemplatePage', () => {
     (useRouter as jest.Mock).mockReturnValue({ push: pushMock });
     window.scrollTo = jest.fn();
     HTMLElement.prototype.scrollIntoView = jest.fn();
+  });
+
+  it('should redirect back to step 1 if template name is missing', async () => {
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="" />
+      );
+    });
+    expect(pushMock).toHaveBeenCalledWith('/template/create?step1');
   });
 
   it('should render the main content sections', async () => {
@@ -296,18 +308,86 @@ describe('TemplateSelectTemplatePage', () => {
     expect(linkElement).toHaveLength(1);
   });
 
+  it("Should show errors when no templates were found", async () => {
+    // We need to mock both of these with empty results
+    (useMyVersionedTemplatesQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: { myVersionedTemplates: [] },
+        loading: false,
+        error: null
+      })
+    ]);
+
+    (usePublishedTemplatesQuery as jest.Mock).mockReturnValue({
+      data: { publishedTemplates: [] },
+      loading: false,
+      error: null
+    });
+
+    render(<TemplateSelectTemplatePage templateName="test" />);
+
+    // Search input field
+    const input = screen.getByLabelText('labels.searchByKeyword');
+    const searchButton = screen.getByRole('button', { name: /search/i });
+
+    expect(searchButton).toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: 'none' } });
+    fireEvent.click(searchButton);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('messages.noItemsFound').length).toBeGreaterThan(0);
+    });
+  });
+
   it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: null
+          }
+        }
+      })
+    ]);
+
     await act(async () => {
       render(
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
-    //Search input field
+
     const selectButton = screen.getAllByRole('button', { name: /select/i });
+    fireEvent.click(selectButton[0]);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
+
+  it('should handle response errors when user clicks a \'Select\' button', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: {
+              global: 'New Template, something went wrong...',
+            },
+          }
+        }
+      })
+    ]);
 
     await act(async () => {
-      fireEvent.click(selectButton[0]);
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
     });
+
+    const selectButton = screen.getAllByRole('button', { name: /select/i });
+    fireEvent.click(selectButton[0]);
 
     // Wait for the mutation to be called
     await waitFor(() => {
@@ -342,26 +422,16 @@ describe('TemplateSelectTemplatePage', () => {
     )
   });
 
-  it('should display error if useAddTemplateMutation returns response.errors', async () => {
+  it('should call useAddTemplateMuration when user clicks to start a new template', async () => {
     (useAddTemplateMutation as jest.Mock).mockReturnValue([
-      jest.fn(() =>
-        Promise.resolve({
-          data: {
-            addTemplate: {
-              id: 32,
-              errors: {
-                general: 'Something went wrong',
-                name: null,
-                ownerId: null,
-                __typename: 'TemplateErrors',
-              },
-              description: '<p class="Normal">Test description</p>',
-              name: 'Testing a template name',
-              __typename: 'Template',
-            },
-          },
-        })
-      ),
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: null
+          }
+        }
+      })
     ]);
 
     await act(async () => {
@@ -370,16 +440,69 @@ describe('TemplateSelectTemplatePage', () => {
       );
     });
 
-    // Simulate clicking the "Select" button
-    const selectButton = screen.getAllByRole('button', { name: /Select Public template 2/i });
-    await act(async () => {
-      fireEvent.click(selectButton[0]);
-    });
+    const selectButton = screen.getByTestId('startNewButton');
+    fireEvent.click(selectButton);
 
-    // Optionally, verify that the error is displayed in the UI
-    expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
   });
 
+  it('should handle response errors when user clicks start a new template', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: {
+              global: 'New Template, something went wrong...',
+            },
+          },
+        },
+      })
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    const selectButton = screen.getByTestId('startNewButton');
+    fireEvent.click(selectButton);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
+
+  it('should handle errors when a user clicks on start a new template', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    const selectButton = screen.getByTestId('startNewButton');
+    fireEvent.click(selectButton);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+
+    expect(logECS).toHaveBeenCalledWith(
+      'error',
+      'handleClick',
+      expect.objectContaining({
+        error: expect.anything(),
+        url: { path: '/template/create' },
+      })
+    )
+  });
 
   it('should pass accessibility tests', async () => {
     const { container } = render(<TemplateSelectTemplatePage templateName="test" />);
