@@ -100,6 +100,7 @@
   and redirect to the correct named urls for the funder search page. [#335]
 
 ### Fixed
+- Fixed type error related to `confirm-email` page that was breaking build
 - Fixed issue with search fields not looking good on smaller devices. Made updates to get the `Search` button to wrap for mobile [#488]
 - Fixed breaking build by addressing a type error
 - Fixed missing translations on User Profile page [#488]
