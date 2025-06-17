@@ -111,7 +111,9 @@
   "FunderSearch": {
     "headerTitle": "Search for Funders",
     "funder": "Funder",
-    "found": "funders found",
+    "found": "{count} funders found",
+    "noResults": "No results found",
+    "showCount": "Showing {count} of {total}",
     "addManuallyHeading": "Not in this list?",
     "addManuallyText": "If your project isn’t shown, you can add the details manually.",
     "addManuallyLabel": "Add funder manually"

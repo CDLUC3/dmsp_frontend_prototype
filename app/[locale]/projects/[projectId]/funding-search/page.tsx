@@ -105,12 +105,17 @@ const CreateProjectSearchFunder = () => {
     console.log('TODO: Navigate to create funder page.');
   };
 
-  function onResults(results: FunderSearchResults) {
+  function onResults(results: FunderSearchResults, isNew: boolean) {
     if (results) {
       const items = (results.items ?? [])
         .filter((f): f is AffiliationSearch => f != null);
 
-      setFunders(funders.concat(items));
+      if (isNew) {
+        setFunders(items);
+      } else {
+        setFunders(funders.concat(items));
+      }
+
       setTotalCount(results.totalCount as number);
 
       if (results.nextCursor) {
@@ -153,7 +158,7 @@ const CreateProjectSearchFunder = () => {
 
           {funders.length > 0 && (
             <section aria-labelledby="funders-section">
-              <h3 id="funders-section">{totalCount} {trans('found')}</h3>
+              <h3 id="funders-section">{trans('found', {count: totalCount})}</h3>
               <div className={styles.fundingResultsList}>
                 {funders.map((funder, index) => (
                   <div
@@ -183,16 +188,21 @@ const CreateProjectSearchFunder = () => {
                     >
                       {globalTrans('buttons.loadMore')}
                     </Button>
-                    <p>Showing {funders.length} of {totalCount}</p>
+                    <p>
+                      {trans('showCount', {
+                        count: funders.length,
+                        total: totalCount,
+                      })}
+                    </p>
                   </div>
                 )}
               </div>
             </section>
           )}
 
-          {funders.length > 0 && hasSearched && (
+          {funders.length === 0 && hasSearched && (
             <section>
-              <p>No results found</p>
+              <p>{trans('noResults')}</p>
             </section>
           )}
 

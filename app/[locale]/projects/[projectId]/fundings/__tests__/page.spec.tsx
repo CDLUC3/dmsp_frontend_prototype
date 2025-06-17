@@ -27,10 +27,10 @@ const mocks = [
       data: {
         projectFundings: [
           {
-            "id": 1,
-            "affiliation": {
-              "displayName": "Test Funder 1",
-              "uri": "https://funder-1",
+            id: 1,
+            affiliation: {
+              displayName: "Test Funder 1",
+              uri: "https://funder-1",
             },
           }
         ],

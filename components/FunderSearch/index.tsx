@@ -18,7 +18,7 @@ import {
 
 interface FunderSearchProps extends React.HTMLAttributes<HTMLDivElement> {
   // Call back to return the results
-  onResults(results: FunderSearchResults): void;
+  onResults(results: FunderSearchResults, newSearch: boolean): void;
 
   // A simple counter to trigger fetching more results
   moreTrigger?: number;
@@ -38,19 +38,21 @@ const FunderSearch = ({
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [fetchAffiliations, {data}] = useAffiliationFundersLazyQuery({});
   const [nextCursor, setNextCursor] = useState<string|null>(null);
+  const [newSearch, setNewSearch] = useState<boolean>(true);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Don't perform any lookup if the search term is empty.
     if (!searchTerm.trim()) return;
+    setNewSearch(true);
 
     // Now perform the affiliation search with our search term
     fetchAffiliations({
       variables: {
         paginationOptions: {
           type: "CURSOR",
-          limit: limit,
+          limit,
         },
         name: searchTerm.toLowerCase(),
         funderOnly: true,
@@ -62,7 +64,7 @@ const FunderSearch = ({
     if (data?.affiliations) {
       setNextCursor(data.affiliations.nextCursor ?? null);
       if (onResults) {
-        onResults(data.affiliations as FunderSearchResults);
+        onResults(data.affiliations as FunderSearchResults, newSearch);
       }
     }
   }, [data]);
@@ -70,12 +72,13 @@ const FunderSearch = ({
   useEffect(() => {
     if (!moreTrigger) return;
     if (moreTrigger > moreCounter) {
+      setNewSearch(false);
       fetchAffiliations({
         variables: {
           paginationOptions: {
             type: "CURSOR",
             cursor: nextCursor,
-            limit: limit,
+            limit,
           },
           name: searchTerm.toLowerCase(),
           funderOnly: true,
