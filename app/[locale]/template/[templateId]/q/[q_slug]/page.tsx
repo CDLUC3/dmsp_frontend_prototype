@@ -32,7 +32,11 @@ import PageHeader from "@/components/PageHeader";
 import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
 import QuestionPreview from '@/components/QuestionPreview';
-import FormInput from '@/components/Form/FormInput';
+import {
+  FormInput,
+  RangeComponent,
+  TypeAheadSearch
+} from '@/components/Form';
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
@@ -332,15 +336,9 @@ const QuestionEdit = () => {
 
   useEffect(() => {
     if ((questionType === 'typeaheadSearch') && question?.json) {
-      try {
-        const parsed = JSON.parse(question.json);
-        setDateRangeLabels({
-          start: parsed?.columns?.start?.attributes?.label || '',
-          end: parsed?.columns?.end?.attributes?.label || '',
-        });
-      } catch {
-        setDateRangeLabels({ start: '', end: '' });
-      }
+      const parsed = JSON.parse(question.json);
+      setTypeaheadSearchLabel(parsed?.graphQL?.displayFields[0]?.label || '');
+      setTypeAheadHelpText(parsed?.graphQL?.variables[0]?.label || '');
     }
   }, [questionType, question?.json])
 
@@ -437,58 +435,23 @@ const QuestionEdit = () => {
                   </div>
                 )}
 
-                {/**Date Range */}
+                {/**Date and Number range question types */}
                 {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
-                  <div className='two-item-row form-row'>
-                    <div>
-                      <Label htmlFor="dateRangeStart">Start Label</Label>
-                      <Input
-                        type="text"
-                        id="dateRangeStart"
-                        value={dateRangeLabels.start}
-                        onChange={e => handleRangeLabelChange('start', e.currentTarget.value)}
-                        className={styles.dateRangeInput}
-                        placeholder="From"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="dateRangeEnd">End Label</Label>
-                      <Input
-                        type="text"
-                        id="dateRangeEnd"
-                        value={dateRangeLabels.end}
-                        onChange={e => handleRangeLabelChange('end', e.currentTarget.value)}
-                        className={styles.dateRangeInput}
-                        placeholder="To"
-                      />
-                    </div>
-                  </div>
+                  <RangeComponent
+                    startLabel={dateRangeLabels.start}
+                    endLabel={dateRangeLabels.end}
+                    handleRangeLabelChange={handleRangeLabelChange}
+                  />
                 )}
 
+                {/**Typeahead search question type */}
                 {questionType && (questionType === 'typeaheadSearch') && (
-                  <div>
-                    <div className="form-row">
-                      <Label htmlFor="searchLabel">Search label</Label>
-                      <Input
-                        type="text"
-                        id="searchLabel"
-                        value={typeaheadSearchLabel}
-                        onChange={(e) => handleTypeAheadSearchLabelChange(e.currentTarget.value)}
-                        placeholder="Enter search label"
-                      />
-                    </div>
-                    <div className="form-row">
-                      <Label htmlFor="helpText">Help text</Label>
-                      <Input
-                        type="text"
-                        id="helpText"
-                        value={typeaheadHelpText}
-                        onChange={e => handleTypeAheadHelpTextChange(e.currentTarget.value)}
-                        className={styles.dateRangeInput}
-                        placeholder="Enter the help text you want to display"
-                      />
-                    </div>
-                  </div>
+                  <TypeAheadSearch
+                    typeaheadSearchLabel={typeaheadSearchLabel}
+                    typeaheadHelpText={typeaheadHelpText}
+                    handleTypeAheadSearchLabelChange={handleTypeAheadSearchLabelChange}
+                    handleTypeAheadHelpTextChange={handleTypeAheadHelpTextChange}
+                  />
                 )}
 
                 <FormTextArea

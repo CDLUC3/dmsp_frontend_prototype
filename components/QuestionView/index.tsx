@@ -35,14 +35,16 @@ import {
 
 import TinyMCEEditor from '@/components/TinyMCEEditor';
 import {
-  CheckboxGroupComponent,
   DateComponent,
   FormInput,
   FormSelect,
   MultiSelect,
   NumberComponent,
-  RadioGroupComponent,
-  TypeAheadWithOther
+  TypeAheadWithOther,
+  RadioButtonsQuestionComponent,
+  CheckboxesQuestionComponent,
+  SelectboxQuestionComponent,
+  MultiSelectQuestionComponent
 } from '@/components/Form';
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import styles from './QuestionView.module.scss';
@@ -124,10 +126,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   };
 
   const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
-  const handleInputCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputCurrencyValue(Number(value));
-  };
 
   // Add local state for selected checkboxes
   const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
@@ -212,93 +210,46 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
     switch (questionType) {
       case 'radioButtons': {
-        const radioButtonData = parsedQuestion.options?.map((opt: Option) => ({
-          label: opt.attributes.label,
-          value: opt.attributes.value,
-        }));
-        const selectedOption = parsedQuestion.options?.find((opt: Option) => opt.attributes.selected);
-        const initialValue = selectedOption ? selectedOption.attributes.value : undefined;
-        const value = selectedRadioValue !== undefined ? selectedRadioValue : initialValue;
         return (
-          <RadioGroupComponent
-            name="visibility"
-            value={value}
-            radioGroupLabel=""
-            radioButtonData={radioButtonData}
-            onChange={handleRadioChange}
+          <RadioButtonsQuestionComponent
+            parsedQuestion={parsedQuestion}
+            selectedRadioValue={selectedRadioValue}
+            handleRadioChange={handleRadioChange}
           />
-        );
+        )
       }
       case 'checkBoxes': {
-        const checkboxData = parsedQuestion.options?.map((opt: Option) => ({
-          label: opt.attributes.label,
-          value: opt.attributes.value,
-          description: opt.attributes.description || "",
-        })) || [];
-        const initialChecked = parsedQuestion.options
-          ?.filter((opt: Option) => opt.attributes.checked)
-          .map((opt: Option) => opt.attributes.value) || [];
-        const value = selectedCheckboxValues.length >= 0 ? selectedCheckboxValues : initialChecked;
         return (
-          <CheckboxGroupComponent
-            name="checkboxes"
-            value={value}
-            onChange={handleCheckboxGroupChange}
-            checkboxGroupLabel=""
-            checkboxGroupDescription={""}
-            checkboxData={checkboxData}
+          <CheckboxesQuestionComponent
+            parsedQuestion={parsedQuestion}
+            selectedCheckboxValues={selectedCheckboxValues}
+            handleCheckboxGroupChange={handleCheckboxGroupChange}
           />
-        );
+        )
       }
       case 'selectBox': {
-        // Transform options to items for FormSelect/MultiSelect
-        const items = parsedQuestion.options?.map((opt: Option) => ({
-          id: opt.attributes.value,
-          name: opt.attributes.label,
-          selected: opt.attributes.selected || false,
-        })) || [];
-        // Find initial selected value(s)
-        const selectedOption = parsedQuestion.options?.find((opt: Option) => opt.attributes.selected);
-        const initialValue = selectedOption ? selectedOption.attributes.value : '';
-        const value = selectedSelectValue !== undefined ? selectedSelectValue : initialValue;
-
         const isMultiSelect = parsedQuestion.attributes?.multiple || false;
-
-        // Extract selected values for MultiSelect
-        const defaultSelected = parsedQuestion.options
-          ?.filter((opt: Option) => opt.attributes.selected)
-          .map((opt: Option) => opt.attributes.value) || [];
 
         return (
           <>
             {isMultiSelect ? (
-              <MultiSelect
-                options={items}
-                selectedKeys={multiSelectTouched ? selectedMultiSelectValues : new Set(defaultSelected)}
-                onSelectionChange={handleMultiSelectChange}
-                label="Choose Options"
-                maxWidth="250px"
+              <MultiSelectQuestionComponent
+                parsedQuestion={parsedQuestion}
+                multiSelectTouched={multiSelectTouched}
+                selectedMultiSelectValues={selectedMultiSelectValues}
+                handleMultiSelectChange={handleMultiSelectChange}
               />
             ) : (
-              <FormSelect
-                label=""
-                name="select"
-                items={items}
-                selectedKey={value}
-                onSelectionChange={selected => setSelectedSelectValue(selected as string)}
-                errorMessage=""
-                helpMessage=""
-              >
-                {items.map((item: { id: string; name: string }) => (
-                  <ListBoxItem key={item.id}>{item.name}</ListBoxItem>
-                ))}
-              </FormSelect>
+              <SelectboxQuestionComponent
+                parsedQuestion={parsedQuestion}
+                selectedSelectValue={selectedSelectValue}
+                setSelectedSelectValue={setSelectedSelectValue}
+              />
             )}
 
           </>
         );
       }
-
       case 'text':
         return <input type="text" />;
       case 'textArea':
@@ -446,7 +397,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               value={affiliationData?.affiliationName || ''}
             />
             {otherField && (
-              <div className={`${styles.formRow} ${styles.oneItemRow}`}>
+              <div className="form-row">
                 <FormInput
                   name="otherAffiliationName"
                   type="text"
@@ -456,7 +407,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
                   onChange={handleOtherAffiliationChange}
                 />
               </div >
-            )}
+            )
+            }
           </>
         )
       default:

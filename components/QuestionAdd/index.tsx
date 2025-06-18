@@ -32,7 +32,11 @@ import {
 import PageHeader from "@/components/PageHeader";
 import QuestionOptionsComponent
   from '@/components/Form/QuestionOptionsComponent';
-import FormInput from '@/components/Form/FormInput';
+import {
+  FormInput,
+  RangeComponent,
+  TypeAheadSearch
+} from '@/components/Form';
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
@@ -427,6 +431,7 @@ const QuestionAdd = ({
                   errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
                 />
 
+                {/**Options question types*/}
                 {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
                   <>
                     <p className={styles.optionsDescription}>
@@ -444,57 +449,22 @@ const QuestionAdd = ({
                   </>
                 )}
 
+                {/**Date and Number range question types */}
                 {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
-                  <div className={`${styles.dateRangeLabels} two-item-row`}>
-                    <div>
-                      <Label htmlFor="rangeStart">Start Label</Label>
-                      <Input
-                        type="text"
-                        id="rangeStart"
-                        value={dateRangeLabels.start}
-                        onChange={e => handleRangeLabelChange('start', e.currentTarget.value)}
-                        className={styles.dateRangeInput}
-                        placeholder="From"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="rangeEnd">End Label</Label>
-                      <Input
-                        type="text"
-                        id="rangeEnd"
-                        value={dateRangeLabels.end}
-                        onChange={e => handleRangeLabelChange('end', e.currentTarget.value)}
-                        className={styles.dateRangeInput}
-                        placeholder="To"
-                      />
-                    </div>
-                  </div>
+                  <RangeComponent
+                    startLabel={dateRangeLabels.start}
+                    endLabel={dateRangeLabels.end}
+                    handleRangeLabelChange={handleRangeLabelChange}
+                  />
                 )}
 
                 {questionType && (questionType === 'typeaheadSearch') && (
-                  <div>
-                    <div className='form-row'>
-                      <Label htmlFor="searchLabel">Search label</Label>
-                      <Input
-                        type="text"
-                        id="searchLabel"
-                        value={typeaheadSearchLabel}
-                        onChange={(e) => handleTypeAheadSearchLabelChange(e.currentTarget.value)}
-                        placeholder="Enter search label"
-                      />
-                    </div>
-                    <div className='form-row'>
-                      <Label htmlFor="helpText">Help text</Label>
-                      <Input
-                        type="text"
-                        id="helpText"
-                        value={typeaheadHelpText}
-                        onChange={e => handleTypeAheadHelpTextChange(e.currentTarget.value)}
-                        className={styles.dateRangeInput}
-                        placeholder="Enter the help text you want to display"
-                      />
-                    </div>
-                  </div>
+                  <TypeAheadSearch
+                    typeaheadSearchLabel={typeaheadSearchLabel}
+                    typeaheadHelpText={typeaheadHelpText}
+                    handleTypeAheadSearchLabelChange={handleTypeAheadSearchLabelChange}
+                    handleTypeAheadHelpTextChange={handleTypeAheadHelpTextChange}
+                  />
                 )}
 
                 <FormTextArea
