@@ -20,8 +20,6 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
   onChange,
   isRequired = false,
 }) => {
-  console.log("Checked value", value);
-  console.log("Checkbox data", checkboxData);
   return (
     <>
       <CheckboxGroup

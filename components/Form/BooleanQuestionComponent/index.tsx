@@ -1,43 +1,42 @@
 import React from 'react';
 import { BooleanQuestionType } from '@dmptool/types';
-import { CheckboxGroupComponent } from '@/components/Form';
+import { RadioGroupComponent } from '@/components/Form';
 
 interface BooleanQuestionProps {
   parsedQuestion: BooleanQuestionType;
-  yesNoValue?: string[];
-  handleBooleanChange?: (value: string[]) => void;
-  checkboxGroupLabel?: string;
-  checkboxGroupDescription?: string;
+  selectedValue?: string;
+  handleRadioChange: (value: string) => void;
 }
 
 const BooleanQuestionComponent: React.FC<BooleanQuestionProps> = ({
   parsedQuestion,
-  yesNoValue = [],
-  handleBooleanChange = () => { },
-  checkboxGroupLabel = '',
-  checkboxGroupDescription = ''
+  selectedValue,
+  handleRadioChange = () => { },
 }) => {
-  // Prepare checkbox data for Yes/No
-  const checkboxData = [
-    { label: 'Yes', value: 'yes' },
-    { label: 'No', value: 'no' }
+  // Prepare radioButton data for Yes/No
+  const radioButtonData = [
+    {
+      value: 'yes',
+      label: 'Yes'
+    },
+    {
+      value: 'no',
+      label: 'No'
+    },
   ];
-
   // Set checked value based on parsedQuestion.attributes.checked
-  const initialChecked = parsedQuestion.attributes?.checked ? ['yes'] : ['no'];
+  const initialChecked = parsedQuestion?.attributes?.checked ? 'yes' : 'no';
 
   // You may want to manage selectedCheckboxValues in state if you want to make it controlled
-  const value = yesNoValue ?? initialChecked;
-  console.log("Yes no value", yesNoValue);
-  console.log("Initially checked", initialChecked);
+  const value = selectedValue ?? initialChecked;
+
   return (
-    <CheckboxGroupComponent
-      name="checkboxes"
+    <RadioGroupComponent
+      name="visibility"
       value={value}
-      onChange={handleBooleanChange}
-      checkboxGroupLabel={checkboxGroupLabel}
-      checkboxGroupDescription={checkboxGroupDescription}
-      checkboxData={checkboxData}
+      radioGroupLabel=""
+      radioButtonData={radioButtonData}
+      onChange={handleRadioChange}
     />
   );
 };

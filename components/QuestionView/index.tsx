@@ -142,8 +142,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setSelectedCheckboxValues(values);
   };
 
-  const [yesNoValue, setYesNoValue] = useState<string[]>([]);
-  const handleBooleanChange = (values: string[]) => {
+  const [yesNoValue, setYesNoValue] = useState<string>('');
+  const handleBooleanChange = (values: string) => {
     console.log("handleBooleanChange called")
     setYesNoValue(values);
   };
@@ -355,11 +355,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         return (
           <BooleanQuestionComponent
             parsedQuestion={parsedQuestion}
-            yesNoValue={yesNoValue}
-            handleBooleanChange={handleBooleanChange}
+            selectedValue={yesNoValue}
+            handleRadioChange={handleBooleanChange}
           />
         )
-
 
       case 'typeaheadSearch':
         return (
