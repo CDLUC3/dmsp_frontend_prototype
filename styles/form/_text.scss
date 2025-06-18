@@ -95,6 +95,10 @@ select {
   margin-bottom: 8px;
   color: var(--text-color);
 
+  .react-aria-Input:focus:not(:disabled) {
+    box-shadow: none !important;
+    outline: none !important;
+  }
   .react-aria-Group {
     display: flex;
     width: fit-content;

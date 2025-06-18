@@ -11,6 +11,10 @@
     margin:0;
 }
 
+.card .card-body .numberInput:focus:not(:disabled) {
+  box-shadow: none !important;
+  outline: none !important;
+}
 .numberInput {
     color: var(--slate-900) !important;
     border: 1px solid var(--border-color) !important;
