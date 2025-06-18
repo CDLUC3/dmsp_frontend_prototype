@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { gql } from 'graphql-tag';
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -36,6 +35,8 @@ import {
   DateComponent,
   FormInput,
   NumberComponent,
+} from '@/components/Form';
+import {
   RadioButtonsQuestionComponent,
   CheckboxesQuestionComponent,
   SelectboxQuestionComponent,
@@ -45,21 +46,10 @@ import {
   CurrencyQuestionComponent,
   AffiliationSearchQuestionComponent,
   BooleanQuestionComponent
-} from '@/components/Form';
+} from '@/components/Form/QuestionComponents';
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import styles from './QuestionView.module.scss';
-import { P } from 'pino';
 
-type Option = {
-  type: "option";
-  attributes: {
-    label: string;
-    value: string;
-    selected?: boolean;
-    checked?: boolean;
-    description?: string;
-  };
-};
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
   isPreview: boolean,
@@ -89,8 +79,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 }) => {
 
   const trans = useTranslations('QuestionView');
-  const Signup = useTranslations('SignupPage');
-  const Global = useTranslations('Global');
 
   const { data: qtData } = useQuestionTypesQuery();
   const { data: templateData } = useTemplateQuery({
@@ -142,9 +130,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setSelectedCheckboxValues(values);
   };
 
-  const [yesNoValue, setYesNoValue] = useState<string>('');
+  const [yesNoValue, setYesNoValue] = useState<string>('no');
   const handleBooleanChange = (values: string) => {
-    console.log("handleBooleanChange called")
     setYesNoValue(values);
   };
 
@@ -216,8 +203,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   const parsedQuestion = getParsedQuestionJSON(question);
 
-  // Add this function inside your component, before the return statement
-  const renderQuestionInput = () => {
+  const renderQuestionField = () => {
     if (!parsedQuestion) return null;
 
     switch (questionType) {
@@ -404,8 +390,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardEyebrow>{trans('cardType')}</CardEyebrow>
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
-            {/* {questionType} */}
-            {renderQuestionInput()}
+            {renderQuestionField()}
           </CardBody>
         </Card>
 

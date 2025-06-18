@@ -4,7 +4,8 @@ import { gql } from 'graphql-tag';
 
 
 import { TypeaheadSearchQuestionType } from '@dmptool/types';
-import { FormInput, TypeAheadWithOther } from '@/components/Form';
+import { FormInput } from '@/components/Form';
+import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 import {
   AffiliationsDocument,
 } from '@/generated/graphql';

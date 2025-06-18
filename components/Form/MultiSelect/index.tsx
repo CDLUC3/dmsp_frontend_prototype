@@ -50,6 +50,7 @@ function MultiSelect({
         selectedKeys={selected}
         onSelectionChange={handleSelectionChange}
         className={`${styles.listBox}`}
+        aria-label={label}
       >
         {options.map((option) => (
           <ListBoxItem

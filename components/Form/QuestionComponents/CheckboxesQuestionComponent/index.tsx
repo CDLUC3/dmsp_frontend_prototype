@@ -20,7 +20,8 @@ const CheckboxesQuestionComponent: React.FC<CheckboxesQuestionProps> = ({
   const initialChecked = parsedQuestion.options
     ?.filter((opt: CheckboxesQuestionType['options'][number]) => opt.attributes.checked)
     .map((opt: CheckboxesQuestionType['options'][number]) => opt.attributes.value) || [];
-  const value = selectedCheckboxValues.length >= 0 ? selectedCheckboxValues : initialChecked;
+  const value = selectedCheckboxValues.length > 0 ? selectedCheckboxValues : initialChecked;
+
   return (
     <CheckboxGroupComponent
       name="checkboxes"

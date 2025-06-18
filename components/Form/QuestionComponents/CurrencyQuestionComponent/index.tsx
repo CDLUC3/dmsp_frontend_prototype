@@ -17,7 +17,7 @@ const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
       label="amount"
       value={inputCurrencyValue === null ? undefined : inputCurrencyValue}
       onChange={value => setInputCurrencyValue(value)}
-      placeholder="number"
+      placeholder="amount"
       formatOptions={{
         style: 'currency',
         currency: parsedQuestion?.meta?.denomination || 'USD', // TODO: Need to eventually get denomination from under attributes
