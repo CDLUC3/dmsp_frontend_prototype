@@ -439,8 +439,8 @@ const QuestionEdit = () => {
 
                 {/**Date Range */}
                 {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
-                  <div className={`${styles.dateRangeLabels} input-range-group`}>
-                    <div className={styles.dateRangeInput}>
+                  <div className='two-item-row form-row'>
+                    <div>
                       <Label htmlFor="dateRangeStart">Start Label</Label>
                       <Input
                         type="text"
@@ -451,7 +451,7 @@ const QuestionEdit = () => {
                         placeholder="From"
                       />
                     </div>
-                    <div className={styles.dateRangeInput}>
+                    <div>
                       <Label htmlFor="dateRangeEnd">End Label</Label>
                       <Input
                         type="text"

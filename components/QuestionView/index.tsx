@@ -179,16 +179,11 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     key: string,
     value: string | number | null
   ) => {
-    console.log("***VALUE", value);
     setNumberRange(prev => ({
       ...prev,
       [key]: value,
     }));
   };
-
-  useEffect(() => {
-    console.log("Number range", numberRange);
-  }, [numberRange]);
 
   useEffect(() => {
     if (!question || !qtData?.questionTypes) return;
@@ -329,7 +324,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         const startLabel = parsedQuestion?.columns?.start?.attributes?.label || Global('labels.startDate');
         const endLabel = parsedQuestion?.columns?.end?.attributes?.label || Global('labels.endDate');
         return (
-          <div className="input-range-group">
+          <div className='two-item-row'>
             <DateComponent
               name="startDate"
               value={getCalendarDateValue(dateRange.startDate)}
@@ -344,7 +339,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               label={endLabel}
               headingClassName="text-sm"
             />
-          </div>
+          </div >
         )
       case 'number':
         return (
@@ -364,7 +359,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         const startNumberLabel = parsedQuestion?.columns?.start?.attributes?.label || "start";
         const endNumberLabel = parsedQuestion?.columns?.end?.attributes?.label || "end";
         return (
-          <div className="input-range-group">
+          <div className={`${styles.numberRange} two-item-row`}>
             <NumberComponent
               label={startNumberLabel}
               value={numberRange.startDate ?? undefined}
@@ -446,7 +441,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               setOtherField={setOtherField}
               required={true}
               error=""
-              helpText={parsedQuestion?.graphQL?.variables?.label || Signup('institutionHelp')}
+              helpText={parsedQuestion?.graphQL?.variables[0]?.label || Signup('institutionHelp')}
               updateFormData={handleAffiliationChange}
               value={affiliationData?.affiliationName || ''}
             />

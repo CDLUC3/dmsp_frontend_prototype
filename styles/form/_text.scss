@@ -26,6 +26,7 @@
 
   &:hover:not(:disabled) {
     border-color: var(--slate-400);
+    color: var(--slate-600);
     background-color: var(--slate-100);
   }
 

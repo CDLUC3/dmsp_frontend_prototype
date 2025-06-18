@@ -446,7 +446,7 @@ const QuestionAdd = ({
 
                 {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
                   <div className={`${styles.dateRangeLabels} two-item-row`}>
-                    <div >
+                    <div>
                       <Label htmlFor="rangeStart">Start Label</Label>
                       <Input
                         type="text"
@@ -473,7 +473,7 @@ const QuestionAdd = ({
 
                 {questionType && (questionType === 'typeaheadSearch') && (
                   <div>
-                    <div>
+                    <div className='form-row'>
                       <Label htmlFor="searchLabel">Search label</Label>
                       <Input
                         type="text"
@@ -483,7 +483,7 @@ const QuestionAdd = ({
                         placeholder="Enter search label"
                       />
                     </div>
-                    <div className={styles.dateRangeInput}>
+                    <div className='form-row'>
                       <Label htmlFor="helpText">Help text</Label>
                       <Input
                         type="text"
