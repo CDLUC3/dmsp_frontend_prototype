@@ -47,10 +47,10 @@ const NumberComponent: React.FC<NumberFieldProps> = ({
       {...props}
     >
       <Label>{label}</Label>
-      <Group>
-        <Button slot="decrement" className={`${styles.leftButton} react-aria-Button`}>-</Button>
-        <Input placeholder={placeholder} />
-        <Button slot="increment">+</Button>
+      <Group className={`${styles.numberWrapper} react-aria-Group`}>
+        <Button slot="decrement" className={`${styles.leftButton} ${styles.numberButton} react-aria-Button`}>-</Button>
+        <Input placeholder={placeholder} className={`${styles.numberInput} react-aria-Input`} />
+        <Button slot="increment" className={`${styles.rightButton} ${styles.numberButton} react-aria-Button`}>+</Button>
       </Group>
     </NumberField>
   );
