@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { gql } from 'graphql-tag'; // or from '@apollo/client' if using Apollo
+import { gql } from 'graphql-tag';
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -9,10 +9,8 @@ import { CalendarDate, DateValue } from "@internationalized/date";
 
 import {
   Button,
-  ListBoxItem,
 } from "react-aria-components";
 import {
-  AffiliationsDocument,
   useQuestionTypesQuery,
   useTemplateQuery,
 } from '@/generated/graphql';
@@ -37,17 +35,20 @@ import TinyMCEEditor from '@/components/TinyMCEEditor';
 import {
   DateComponent,
   FormInput,
-  FormSelect,
-  MultiSelect,
   NumberComponent,
-  TypeAheadWithOther,
   RadioButtonsQuestionComponent,
   CheckboxesQuestionComponent,
   SelectboxQuestionComponent,
-  MultiSelectQuestionComponent
+  MultiSelectQuestionComponent,
+  DateRangeQuestionComponent,
+  NumberRangeQuestionComponent,
+  CurrencyQuestionComponent,
+  AffiliationSearchQuestionComponent,
+  BooleanQuestionComponent
 } from '@/components/Form';
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import styles from './QuestionView.module.scss';
+import { P } from 'pino';
 
 type Option = {
   type: "option";
@@ -125,6 +126,12 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setInputValue(value);
   };
 
+  const [textValue, setTextValue] = useState<string | number | null>(null);
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+  };
+
   const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
 
   // Add local state for selected checkboxes
@@ -132,8 +139,13 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   // Handler for checkbox group changes
   const handleCheckboxGroupChange = (values: string[]) => {
-    console.log('Checkbox values changed:', values);
     setSelectedCheckboxValues(values);
+  };
+
+  const [yesNoValue, setYesNoValue] = useState<string[]>([]);
+  const handleBooleanChange = (values: string[]) => {
+    console.log("handleBooleanChange called")
+    setYesNoValue(values);
   };
 
   // Add local state for multiSelect values
@@ -151,7 +163,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Add local state for selected select value
   const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
 
-  const [dateRange, setDateRange] = useState<{ startDate: string | CalendarDate | null, endDate: string | CalendarDate | null }>({
+  const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
     startDate: '',
     endDate: '',
   });
@@ -159,7 +171,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Handler for date range changes
   const handleDateChange = (
     key: string,
-    value: string | DateValue | boolean | number | CalendarDate | null
+    value: string | DateValue | CalendarDate | null
   ) => {
     setDateRange(prev => ({
       ...prev,
@@ -251,7 +263,16 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         );
       }
       case 'text':
-        return <input type="text" />;
+        return (
+          <FormInput
+            name="textField"
+            type="text"
+            label="text"
+            placeholder="Enter text"
+            value={textValue === null ? undefined : textValue}
+            onChange={e => handleTextChange(e)}
+          />
+        )
       case 'textArea':
         return (
           <TinyMCEEditor
@@ -271,26 +292,13 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         )
       case 'dateRange':
-        // Extract labels from JSON if available
-        const startLabel = parsedQuestion?.columns?.start?.attributes?.label || Global('labels.startDate');
-        const endLabel = parsedQuestion?.columns?.end?.attributes?.label || Global('labels.endDate');
         return (
-          <div className='two-item-row'>
-            <DateComponent
-              name="startDate"
-              value={getCalendarDateValue(dateRange.startDate)}
-              onChange={newDate => handleDateChange('startDate', newDate)}
-              label={startLabel}
-              headingClassName=""
-            />
-            <DateComponent
-              name="endDate"
-              value={getCalendarDateValue(dateRange.endDate)}
-              onChange={newDate => handleDateChange('endDate', newDate)}
-              label={endLabel}
-              headingClassName="text-sm"
-            />
-          </div >
+          <DateRangeQuestionComponent
+            parsedQuestion={parsedQuestion}
+            dateRange={dateRange}
+            handleDateChange={handleDateChange}
+            headingClassName=""
+          />
         )
       case 'number':
         return (
@@ -299,59 +307,25 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             value={inputValue === null ? undefined : inputValue}
             onChange={value => setInputValue(value)}
             placeholder="number"
-            minValue={parsedQuestion?.attributes?.minValue}
-            maxValue={parsedQuestion?.attributes?.maxValue}
-            step={parsedQuestion?.attributes?.step}
-            disabled={parsedQuestion?.attributes?.disabled || false}
           />
         )
 
       case 'numberRange':
-        const startNumberLabel = parsedQuestion?.columns?.start?.attributes?.label || "start";
-        const endNumberLabel = parsedQuestion?.columns?.end?.attributes?.label || "end";
         return (
-          <div className={`${styles.numberRange} two-item-row`}>
-            <NumberComponent
-              label={startNumberLabel}
-              value={numberRange.startDate ?? undefined}
-              onChange={num => handleNumberChange('startDate', num)}
-              placeholder="start"
-              minValue={parsedQuestion?.attributes?.minValue}
-              maxValue={parsedQuestion?.attributes?.maxValue}
-              step={parsedQuestion?.attributes?.step}
-              disabled={parsedQuestion?.attributes?.disabled || false}
-            />
-
-            <NumberComponent
-              label={endNumberLabel}
-              value={numberRange.endDate ?? undefined}
-              onChange={num => handleNumberChange('endDate', num)}
-              placeholder="end"
-              minValue={parsedQuestion?.attributes?.minValue}
-              maxValue={parsedQuestion?.attributes?.maxValue}
-              step={parsedQuestion?.attributes?.step}
-              disabled={parsedQuestion?.attributes?.disabled || false}
-            />
-          </div>
+          <NumberRangeQuestionComponent
+            parsedQuestion={parsedQuestion}
+            numberRange={numberRange}
+            handleNumberChange={handleNumberChange}
+            startPlaceholder="start"
+            endPlaceholder="end"
+          />
         )
       case 'currency':
         return (
-          <NumberComponent
-            label="amount"
-            value={inputCurrencyValue === null ? undefined : inputCurrencyValue}
-            onChange={value => setInputCurrencyValue(value)}
-            placeholder="number"
-            minValue={parsedQuestion?.attributes?.minValue}
-            maxValue={parsedQuestion?.attributes?.maxValue}
-            step={parsedQuestion?.attributes?.step}
-            disabled={parsedQuestion?.attributes?.disabled || false}
-            formatOptions={{
-              style: 'currency',
-              currency: parsedQuestion?.attributes?.denomination || 'USD',
-              currencyDisplay: 'symbol',
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }}
+          <CurrencyQuestionComponent
+            parsedQuestion={parsedQuestion}
+            inputCurrencyValue={inputCurrencyValue}
+            setInputCurrencyValue={setInputCurrencyValue}
           />
         )
       case 'url':
@@ -377,39 +351,27 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         )
 
+      case 'boolean':
+        return (
+          <BooleanQuestionComponent
+            parsedQuestion={parsedQuestion}
+            yesNoValue={yesNoValue}
+            handleBooleanChange={handleBooleanChange}
+          />
+        )
+
+
       case 'typeaheadSearch':
         return (
-          <>
-            <TypeAheadWithOther
-              label={parsedQuestion?.graphQL?.displayFields?.[0].label || Signup('institution')}
-              fieldName="institution"
-              graphqlQuery={
-                typeof parsedQuestion?.graphQL?.query === 'string'
-                  ? gql`${parsedQuestion.graphQL.query}`
-                  : AffiliationsDocument
-              }
-              resultsKey={parsedQuestion?.graphQL?.responseField}
-              setOtherField={setOtherField}
-              required={true}
-              error=""
-              helpText={parsedQuestion?.graphQL?.variables[0]?.label || Signup('institutionHelp')}
-              updateFormData={handleAffiliationChange}
-              value={affiliationData?.affiliationName || ''}
-            />
-            {otherField && (
-              <div className="form-row">
-                <FormInput
-                  name="otherAffiliationName"
-                  type="text"
-                  label="Other institution"
-                  placeholder="Enter other institution name"
-                  value={otherAffiliationName}
-                  onChange={handleOtherAffiliationChange}
-                />
-              </div >
-            )
-            }
-          </>
+          <AffiliationSearchQuestionComponent
+            parsedQuestion={parsedQuestion}
+            affiliationData={affiliationData}
+            otherAffiliationName={otherAffiliationName}
+            otherField={otherField}
+            setOtherField={setOtherField}
+            handleAffiliationChange={handleAffiliationChange}
+            handleOtherAffiliationChange={handleOtherAffiliationChange}
+          />
         )
       default:
         return <p>Unsupported question type</p>;
