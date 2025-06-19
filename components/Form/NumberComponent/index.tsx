@@ -11,7 +11,6 @@ import styles from './numberComponent.module.scss';
 interface NumberFieldProps {
   label: string;
   value?: number | string;
-  defaultValue?: number;
   minValue?: number;
   maxValue?: number;
   step?: number;
@@ -23,8 +22,7 @@ interface NumberFieldProps {
 
 const NumberComponent: React.FC<NumberFieldProps> = ({
   label,
-  value,
-  defaultValue,
+  value = 0, // Default value to 0 if not provided
   minValue,
   maxValue,
   step,
@@ -34,10 +32,10 @@ const NumberComponent: React.FC<NumberFieldProps> = ({
   formatOptions,
   ...props
 }) => {
+
   return (
     <NumberField
       value={Number(value)}
-      defaultValue={defaultValue}
       minValue={minValue}
       maxValue={maxValue}
       step={step}
@@ -49,7 +47,11 @@ const NumberComponent: React.FC<NumberFieldProps> = ({
       <Label>{label}</Label>
       <Group className={`${styles.numberWrapper} react-aria-Group`}>
         <Button slot="decrement" className={`${styles.leftButton} ${styles.numberButton} react-aria-Button`}>-</Button>
-        <Input placeholder={placeholder} className={`${styles.numberInput} react-aria-Input`} />
+        <Input
+          placeholder={placeholder}
+          className={`${styles.numberInput} 
+        react-aria-Input`}
+        />
         <Button slot="increment" className={`${styles.rightButton} ${styles.numberButton} react-aria-Button`}>+</Button>
       </Group>
     </NumberField>

@@ -5,8 +5,8 @@ import { NumberComponent, } from '@/components/Form';
 interface NumberRangeQuestionProps {
   parsedQuestion: NumberRangeQuestionType;
   numberRange: {
-    startDate: string | number | null;
-    endDate: string | number | null;
+    startNumber: string | number | null;
+    endNumber: string | number | null;
   };
   handleNumberChange: (
     key: string,
@@ -23,6 +23,7 @@ const NumberRangeQuestionComponent: React.FC<NumberRangeQuestionProps> = ({
   startPlaceholder = "start",
   endPlaceholder = "end",
 }) => {
+
   // Extract labels from JSON
   const startNumberLabel = parsedQuestion?.columns?.start?.attributes?.label;
   const endNumberLabel = parsedQuestion?.columns?.end?.attributes?.label;
@@ -30,15 +31,15 @@ const NumberRangeQuestionComponent: React.FC<NumberRangeQuestionProps> = ({
     <div className='form-row two-item-row'>
       <NumberComponent
         label={startNumberLabel}
-        value={numberRange.startDate ?? undefined}
-        onChange={num => handleNumberChange('startDate', num)}
+        value={numberRange.startNumber ?? undefined}
+        onChange={num => handleNumberChange('startNumber', num)}
         placeholder={startPlaceholder}
       />
 
       <NumberComponent
         label={endNumberLabel}
-        value={numberRange.endDate ?? undefined}
-        onChange={num => handleNumberChange('endDate', num)}
+        value={numberRange.endNumber ?? undefined}
+        onChange={num => handleNumberChange('endNumber', num)}
         placeholder={endPlaceholder}
       />
     </div>

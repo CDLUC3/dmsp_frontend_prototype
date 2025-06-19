@@ -166,9 +166,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     }));
   };
 
-  const [numberRange, setNumberRange] = useState<{ startDate: string | number | null, endDate: string | number | null }>({
-    startDate: '',
-    endDate: '',
+  const [numberRange, setNumberRange] = useState<{ startNumber: string | number | null, endNumber: string | number | null }>({
+    startNumber: 0,
+    endNumber: 0,
   });
 
   // Handler for number range changes
@@ -212,6 +212,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <RadioButtonsQuestionComponent
             parsedQuestion={parsedQuestion}
             selectedRadioValue={selectedRadioValue}
+            name='radio-buttons'
             handleRadioChange={handleRadioChange}
           />
         )

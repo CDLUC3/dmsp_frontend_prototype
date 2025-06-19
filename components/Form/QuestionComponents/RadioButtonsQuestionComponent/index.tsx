@@ -5,12 +5,16 @@ import { RadioGroupComponent } from '@/components/Form';
 interface RadioButtonQuestionTypeProps {
   parsedQuestion: RadioButtonsQuestionType;
   selectedRadioValue: string | undefined;
+  name?: string;
+  radioGroupLabel?: string;
   handleRadioChange: (value: string) => void;
 }
 
 const RadioButtonsQuestionComponent: React.FC<RadioButtonQuestionTypeProps> = ({
   parsedQuestion,
   selectedRadioValue,
+  name = 'radio-buttons-question',
+  radioGroupLabel = '',
   handleRadioChange
 }) => {
   const radioButtonData = parsedQuestion.options?.map((opt: RadioButtonsQuestionType['options'][number]) => ({
@@ -23,9 +27,9 @@ const RadioButtonsQuestionComponent: React.FC<RadioButtonQuestionTypeProps> = ({
 
   return (
     <RadioGroupComponent
-      name="visibility"
+      name={name}
       value={value ?? ''}
-      radioGroupLabel=""
+      radioGroupLabel={radioGroupLabel}
       radioButtonData={radioButtonData}
       onChange={handleRadioChange}
     />
