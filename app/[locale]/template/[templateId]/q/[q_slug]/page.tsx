@@ -101,6 +101,8 @@ const QuestionEdit = () => {
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
+  const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
+  const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
 
 
   // Initialize update question mutation
@@ -141,62 +143,66 @@ const QuestionEdit = () => {
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
-  const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
+  // Handler for date range label changes
+  const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
+    setDateRangeLabels(prev => ({ ...prev, [field]: value }));
+
+    if (
+      typeof questionType === 'string' &&
+      ['dateRange', 'numberRange'].includes(questionType) &&
+      question?.json
+    ) {
+      // Handle both string and object cases
+      const source = question.json;
+      const parsed = typeof source === 'string' ? JSON.parse(source) : source;
+
+      // Deep clone to prevent mutation (keep your original)
+      const updated = JSON.parse(JSON.stringify(parsed));
+
+      if (updated?.columns?.[field]?.attributes) {
+        updated.columns[field].attributes.label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updated),
+        }));
+      }
+    }
+  };
+
+  // Handler for typeahead search label changes
   const handleTypeAheadSearchLabelChange = (value: string) => {
     setTypeaheadSearchLabel(value);
 
     // Update the label in the question JSON and sync to question state
     if (questionType === 'typeaheadSearch' && question?.json) {
-      try {
-        const parsed = JSON.parse(question.json);
-        const updated = JSON.parse(JSON.stringify(parsed));
-        if (updated?.graphQL?.displayFields?.[0]) {
-          updated.graphQL.displayFields[0].label = value;
-          setQuestion(prev => ({
-            ...prev,
-            json: JSON.stringify(updated),
-          }));
-        }
-      } catch {
-        // ignore JSON parse errors
+      // Handle both string and object cases
+      const source = question.json;
+      const parsed = typeof source === 'string' ? JSON.parse(source) : source;
+
+      // Deep clone to prevent mutation
+      const updated = JSON.parse(JSON.stringify(parsed));
+
+      if (updated?.graphQL?.displayFields?.[0]) {
+        updated.graphQL.displayFields[0].label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updated),
+        }));
       }
     }
-  }
+  };
 
-  const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
+  // Handler for typeahead help text changes
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
 
-    // Update the help text in the question JSON and sync to question state
     if (questionType === 'typeaheadSearch' && question?.json) {
-      try {
-        const parsed = JSON.parse(question.json);
-        const updated = JSON.parse(JSON.stringify(parsed));
-        if (updated?.graphQL?.variables?.[0]) {
-          updated.graphQL.variables[0].label = value;
-          setQuestion(prev => ({
-            ...prev,
-            json: JSON.stringify(updated),
-          }));
-        }
-      } catch {
-        // ignore JSON parse errors
-      }
-    }
-  }
-
-  // Handler for date range label changes
-  const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
-    setDateRangeLabels(prev => ({ ...prev, [field]: value }));
-
-    // Update the label in the question JSON and sync to question state
-    if ((questionType === 'dateRange' || questionType === 'numberRange') && question?.json) {
-
-      // Deep clone to avoid mutating the original object
-      const parsed = JSON.parse(question.json);
+      const source = question.json;
+      const parsed = typeof source === 'string' ? JSON.parse(source) : source;
       const updated = JSON.parse(JSON.stringify(parsed));
-      if (updated?.columns?.[field]?.attributes) {
-        updated.columns[field].attributes.label = value;
+
+      if (updated?.graphQL?.variables?.[0]) {
+        updated.graphQL.variables[0].label = value;
         setQuestion(prev => ({
           ...prev,
           json: JSON.stringify(updated),
@@ -281,7 +287,7 @@ const QuestionEdit = () => {
       const q = selectedQuestion?.question || null;
       const json = getParsedQuestionJSON(q);
       const questionType = json.type ?? questionTypeIdQueryParam;
-      const questionTypeFriendlyName = Global(`questionTypes.${questionType}`) || '';
+      const questionTypeFriendlyName = Global(`questionTypes.${questionType}`);
 
       setQuestionType(questionType);
       setQuestionTypeName(questionTypeFriendlyName);
@@ -289,12 +295,7 @@ const QuestionEdit = () => {
 
       // Set question and rows in state
       if (q) {
-        const sanitizedQuestion = {
-          ...q,
-          questionText: stripHtmlTags(q.questionText ?? ''), // Sanitize questionText
-        };
-
-        setQuestion(sanitizedQuestion);
+        setQuestion(q);
         setHasOptions(isOptionQuestion);
 
       }
@@ -325,8 +326,8 @@ const QuestionEdit = () => {
       try {
         const parsed = JSON.parse(question.json);
         setDateRangeLabels({
-          start: parsed?.columns?.start?.attributes?.label || '',
-          end: parsed?.columns?.end?.attributes?.label || '',
+          start: parsed?.columns?.start?.attributes?.label,
+          end: parsed?.columns?.end?.attributes?.label,
         });
       } catch {
         setDateRangeLabels({ start: '', end: '' });
@@ -337,8 +338,8 @@ const QuestionEdit = () => {
   useEffect(() => {
     if ((questionType === 'typeaheadSearch') && question?.json) {
       const parsed = JSON.parse(question.json);
-      setTypeaheadSearchLabel(parsed?.graphQL?.displayFields[0]?.label || '');
-      setTypeAheadHelpText(parsed?.graphQL?.variables[0]?.label || '');
+      setTypeaheadSearchLabel(parsed?.graphQL?.displayFields[0]?.label);
+      setTypeAheadHelpText(parsed?.graphQL?.variables[0]?.label);
     }
   }, [questionType, question?.json])
 
@@ -368,14 +369,6 @@ const QuestionEdit = () => {
 
       <div className="template-editor-container">
         <div className="main-content">
-          {errors && errors.length > 0 &&
-            <div className="messages error" role="alert" aria-live="assertive"
-              ref={errorRef}>
-              {errors.map((error, index) => (
-                <p key={index}>{error}</p>
-              ))}
-            </div>
-          }
           <Tabs>
             <TabList aria-label="Question editing">
               <Tab id="edit">{Global('tabs.editQuestion')}</Tab>

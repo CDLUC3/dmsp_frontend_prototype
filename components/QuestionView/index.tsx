@@ -166,7 +166,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     }));
   };
 
-  const [numberRange, setNumberRange] = useState<{ startNumber: string | number | null, endNumber: string | number | null }>({
+  const [numberRange, setNumberRange] = useState<{ startNumber: number | null, endNumber: number | null }>({
     startNumber: 0,
     endNumber: 0,
   });

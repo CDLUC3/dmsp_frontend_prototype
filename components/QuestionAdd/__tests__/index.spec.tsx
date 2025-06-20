@@ -350,7 +350,6 @@ describe("QuestionAdd", () => {
       { loading: false, error: undefined },
     ]);
 
-
     const json = JSON.stringify({
       meta: {
         schemaVersion: "1.0"
@@ -387,7 +386,6 @@ describe("QuestionAdd", () => {
       fireEvent.click(saveButton);
     });
 
-    // Replace with the actual error message shown on mutation failure
     expect(screen.getByText('messages.errors.questionAddingError')).toBeInTheDocument();
   })
 
@@ -847,6 +845,156 @@ describe("QuestionAdd", () => {
     const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
     expect(checkboxText).toBeInTheDocument();
   })
+
+  it('should call handleRangeLabelChange when RangeComponent input changes', () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+    const mockDateRangeJSON = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "dateRange",
+      columns: {
+        end: {
+          meta: {
+            schemaVersion: "1.0"
+          },
+          type: "date",
+          attributes: {
+            label: "Ending"
+          }
+        },
+        start: {
+          meta: {
+            schemaVersion: "1.0"
+          },
+          type: "date",
+          attributes: {
+            label: "Beginning"
+          }
+        }
+      }
+    });
+    render(
+      <QuestionAdd
+        questionType="dateRange"
+        questionName="Range label"
+        questionJSON={mockDateRangeJSON}
+        sectionId="1"
+      />);
+
+    // Find the input rendered by RangeComponent
+    const rangeStartInput = screen.getByLabelText('range start');
+
+    // Simulate user typing
+    fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
+
+    expect(rangeStartInput).toHaveValue('New Range Label');
+  });
+
+  it('should call handleTypeAheadSearchLabelChange when typeaheadSearch label value changes', () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+    const mockTypeAheadJSON = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "typeaheadSearch",
+      graphQL: {
+        query: "query Affiliations($name: String!){affiliations(name: $name) { totalCount nextCursor items {id displayName uri}}}",
+        queryId: "useAffiliationsQuery",
+        variables: [
+          {
+            name: "term",
+            type: "string",
+            label: "Enter the search term to find your affiliation",
+            minLength: 3,
+            labelTranslationKey: "SignupPage.institutionHelp"
+          }
+        ],
+        answerField: "uri",
+        displayFields: [
+          {
+            label: "Affiliation",
+            propertyName: "displayName",
+            labelTranslationKey: "SignupPage.institution"
+          }
+        ],
+        responseField: "affiliations.items"
+      }
+    });
+
+    render(
+      <QuestionAdd
+        questionType="typeaheadSearch"
+        questionName="Typeahead Search"
+        questionJSON={mockTypeAheadJSON}
+        sectionId="1"
+      />);
+
+    // Find the label input rendered by TypeAheadSearch
+    const labelInput = screen.getByPlaceholderText('Enter search label');
+
+    // Simulate user typing
+    fireEvent.change(labelInput, { target: { value: 'New Institution Label' } });
+
+    expect(labelInput).toHaveValue('New Institution Label');
+  });
+
+  it('should call handleTypeAheadHelpTextChange when typeaheadSearch help text value changes', () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+    const mockTypeAheadJSON = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "typeaheadSearch",
+      graphQL: {
+        query: "query Affiliations($name: String!){affiliations(name: $name) { totalCount nextCursor items {id displayName uri}}}",
+        queryId: "useAffiliationsQuery",
+        variables: [
+          {
+            name: "term",
+            type: "string",
+            label: "Enter the search term to find your affiliation",
+            minLength: 3,
+            labelTranslationKey: "SignupPage.institutionHelp"
+          }
+        ],
+        answerField: "uri",
+        displayFields: [
+          {
+            label: "Affiliation",
+            propertyName: "displayName",
+            labelTranslationKey: "SignupPage.institution"
+          }
+        ],
+        responseField: "affiliations.items"
+      }
+    });
+
+    render(
+      <QuestionAdd
+        questionType="typeaheadSearch"
+        questionName="Typeahead Search"
+        questionJSON={mockTypeAheadJSON}
+        sectionId="1"
+      />);
+
+    // Find the label input rendered by TypeAheadSearch
+    const helpTextInput = screen.getByPlaceholderText('Enter the help text you want to display');
+
+    // Simulate user typing
+    fireEvent.change(helpTextInput, { target: { value: 'Enter a search term' } });
+
+    expect(helpTextInput).toHaveValue('Enter a search term');
+  });
 
   it('should pass axe accessibility test', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([

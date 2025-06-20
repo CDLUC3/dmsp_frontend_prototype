@@ -1,16 +1,24 @@
 import React from 'react';
 import { FormInput } from '@/components/Form';
 
-interface RangeComponentProps {
+interface TypeAheadSearchProps {
   typeaheadSearchLabel: string;
   typeaheadHelpText: string;
+  labelText?: string;
+  labelTextPlaceholder?: string;
+  helpText?: string;
+  helpTextPlaceholder?: string;
   handleTypeAheadSearchLabelChange: (value: string) => void;
   handleTypeAheadHelpTextChange: (value: string) => void;
 }
 
-const RangeComponent: React.FC<RangeComponentProps> = ({
+const TypeAheadSearch: React.FC<TypeAheadSearchProps> = ({
   typeaheadSearchLabel,
   typeaheadHelpText,
+  labelText,
+  labelTextPlaceholder,
+  helpText,
+  helpTextPlaceholder,
   handleTypeAheadSearchLabelChange,
   handleTypeAheadHelpTextChange
 }) => {
@@ -22,10 +30,10 @@ const RangeComponent: React.FC<RangeComponentProps> = ({
           id="search-label"
           type="text"
           isRequired={true}
-          label="Search label"
+          label={labelText || "Search label"}
           value={typeaheadSearchLabel}
           onChange={(e) => handleTypeAheadSearchLabelChange(e.currentTarget.value)}
-          placeholder="Enter search label"
+          placeholder={labelTextPlaceholder || "Enter search label"}
         />
       </div>
       <div className='form-row'>
@@ -34,14 +42,14 @@ const RangeComponent: React.FC<RangeComponentProps> = ({
           id="search-help-text"
           type="text"
           isRequired={true}
-          label="Help text"
+          label={helpText || "Help text"}
           value={typeaheadHelpText}
           onChange={e => handleTypeAheadHelpTextChange(e.currentTarget.value)}
-          placeholder="Enter the help text you want to display"
+          placeholder={helpTextPlaceholder || "Enter the help text you want to display"}
         />
       </div>
     </div>
   );
 };
 
-export default RangeComponent;
+export default TypeAheadSearch;

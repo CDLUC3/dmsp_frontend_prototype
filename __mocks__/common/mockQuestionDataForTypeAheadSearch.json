@@ -1,0 +1,15 @@
+{
+  "question": {
+    "displayOrder": 17,
+    "errors": null,
+    "guidanceText": "This is the guidance text",
+    "id": 2271,
+    "isDirty": true,
+    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"typeaheadSearch\",\"graphQL\":{\"query\":\"query Affiliations($name: String!){affiliations(name: $name) { totalCount nextCursor items {id displayName uri}}}\",\"queryId\":\"useAffiliationsQuery\",\"variables\":[{\"name\":\"term\",\"type\":\"string\",\"label\":\"Enter the search term to find your affiliation\",\"minLength\":3,\"labelTranslationKey\":\"SignupPage.institutionHelp\"}],\"answerField\":\"uri\",\"displayFields\":[{\"label\":\"Affiliation\",\"propertyName\":\"displayName\",\"labelTranslationKey\":\"SignupPage.institution\"}],\"responseField\":\"affiliations.items\"}}",
+    "questionText": "Testing",
+    "requirementText": "This is requirement text",
+    "sampleText": "This is sample text",
+    "sectionId": 67,
+    "templateId": 15
+  }
+}

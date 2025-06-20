@@ -89,7 +89,7 @@ describe('QuestionOptionsComponent', () => {
     expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": false, "text": "Updated Option" }]);
   });
 
-  it('should handle case where questionJSON is passed as an o bject', () => {
+  it('should handle case where questionJSON is passed as an object', () => {
     const questionJSONObj = JSON.parse(mockQuestionJSON);
     render(<QuestionOptionsComponent
       rows={rows}

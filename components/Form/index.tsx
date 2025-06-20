@@ -7,4 +7,3 @@ export { default as MultiSelect } from './MultiSelect';
 export { default as NumberComponent } from './NumberComponent';
 export { default as RangeComponent } from './RangeComponent';
 export { default as TypeAheadSearch } from './TypeAheadSearch';
-import { default as BooleanQuestionComponent } from './BooleanQuestionComponent';

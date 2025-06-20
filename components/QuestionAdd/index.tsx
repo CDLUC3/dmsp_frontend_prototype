@@ -89,7 +89,6 @@ const QuestionAdd = ({
     sectionId?: string
   }) => {
 
-
   const params = useParams();
   const router = useRouter();
   const toastState = useToast();
@@ -107,10 +106,30 @@ const QuestionAdd = ({
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
+  const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
+  const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
+
 
   // localization keys
   const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
+
+  const getInitialDateRangeLabels = () => {
+    if (questionType === 'dateRange' && questionJSON) {
+      try {
+        const parsed = JSON.parse(questionJSON);
+        return {
+          start: parsed?.columns?.start?.attributes?.label || '',
+          end: parsed?.columns?.end?.attributes?.label || '',
+        };
+      } catch {
+        return { start: '', end: '' };
+      }
+    }
+    return { start: '', end: '' };
+  };
+  const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>(getInitialDateRangeLabels());
+
 
   // Initialize add and update question mutations
   const [addQuestionMutation] = useAddQuestionMutation();
@@ -140,6 +159,7 @@ const QuestionAdd = ({
     return maxQuestionDisplayOrder ? maxQuestionDisplayOrder + 1 : 1;
   }
 
+  // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
 
@@ -171,16 +191,18 @@ const QuestionAdd = ({
   const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
 
-    // Update the label in the question JSON and sync to question state
     if (
       typeof questionType === 'string' &&
       ['dateRange', 'numberRange'].includes(questionType) &&
       questionJSON
     ) {
+      // Handle both string and object cases
+      const source = question.json || questionJSON;
+      const parsed = typeof source === 'string' ? JSON.parse(source) : source;
 
-      // Deep clone to avoid mutating the original object
-      const parsed = JSON.parse(question.json || questionJSON);
+      // Deep clone to prevent mutation (keep your original)
       const updated = JSON.parse(JSON.stringify(parsed));
+
       if (updated?.columns?.[field]?.attributes) {
         updated.columns[field].attributes.label = value;
         setQuestion(prev => ({
@@ -191,53 +213,51 @@ const QuestionAdd = ({
     }
   };
 
-  const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
+  // Handler for typeahead search label changes
   const handleTypeAheadSearchLabelChange = (value: string) => {
     setTypeaheadSearchLabel(value);
 
     // Update the label in the question JSON and sync to question state
     if (questionType === 'typeaheadSearch' && questionJSON) {
-      try {
-        const parsed = JSON.parse(question.json || questionJSON);
-        const updated = JSON.parse(JSON.stringify(parsed));
-        if (updated?.graphQL?.displayFields?.[0]) {
-          updated.graphQL.displayFields[0].label = value;
-          setQuestion(prev => ({
-            ...prev,
-            json: JSON.stringify(updated),
-          }));
-        }
-      } catch {
-        // ignore JSON parse errors
+      // Handle both string and object cases
+      const source = question.json || questionJSON;
+      const parsed = typeof source === 'string' ? JSON.parse(source) : source;
+
+      // Deep clone to prevent mutation
+      const updated = JSON.parse(JSON.stringify(parsed));
+
+      if (updated?.graphQL?.displayFields?.[0]) {
+        updated.graphQL.displayFields[0].label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updated),
+        }));
       }
     }
-  }
+  };
 
-  const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
+  // Handler for typeahead help text changes
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
 
-    // Update the help text in the question JSON and sync to question state
     if (questionType === 'typeaheadSearch' && questionJSON) {
-      try {
-        const parsed = JSON.parse(question.json || questionJSON);
-        const updated = JSON.parse(JSON.stringify(parsed));
-        if (updated?.graphQL?.variables?.[0]) {
-          updated.graphQL.variables[0].label = value;
-          setQuestion(prev => ({
-            ...prev,
-            json: JSON.stringify(updated),
-          }));
-        }
-      } catch {
-        // ignore JSON parse errors
+      const source = question.json || questionJSON;
+      const parsed = typeof source === 'string' ? JSON.parse(source) : source;
+      const updated = JSON.parse(JSON.stringify(parsed));
+
+      if (updated?.graphQL?.variables?.[0]) {
+        updated.graphQL.variables[0].label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updated),
+        }));
       }
     }
-  }
+  };
 
+  // Function to add and save the new question
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setFormSubmitted(true);
 
     const displayOrder = getDisplayOrder();
@@ -304,6 +324,11 @@ const QuestionAdd = ({
       }
     }
   };
+
+  // If questionType is missing, return user to the Question Types selection page
+  // If sectionId is missing, return user back to the Edit Template page
+  // This is to ensure that the user has selected a question type before proceeding
+  // to the QuestionAdd page, and that they are in a valid section of the template
   useEffect(() => {
     if (!questionType) {
       // If questionType is missing, return user to the Question Types selection page
@@ -327,7 +352,7 @@ const QuestionAdd = ({
   }, [questionType, questionJSON]);
 
   useEffect(() => {
-    // To determine if the question type selected is one that includes options fields
+    // To determine if we have an options question type
     const isOptionQuestion = Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType)); // Ensure the result is a boolean
 
     setHasOptions(isOptionQuestion);
@@ -356,23 +381,6 @@ const QuestionAdd = ({
       }
     }
   }, [questionType, questionJSON]);
-
-  const getInitialDateRangeLabels = () => {
-    if (questionType === 'dateRange' && questionJSON) {
-      try {
-        const parsed = JSON.parse(questionJSON);
-        return {
-          start: parsed?.columns?.start?.attributes?.label || '',
-          end: parsed?.columns?.end?.attributes?.label || '',
-        };
-      } catch {
-        return { start: '', end: '' };
-      }
-    }
-    return { start: '', end: '' };
-  };
-
-  const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>(getInitialDateRangeLabels());
 
   return (
     <>

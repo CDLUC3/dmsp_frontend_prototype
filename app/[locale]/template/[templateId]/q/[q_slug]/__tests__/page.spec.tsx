@@ -12,6 +12,8 @@ import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import mockQuestionData from '../__mocks__/mockQuestionData.json';
 import mockRadioQuestion from '@/__mocks__/common/mockRadioQuestion.json';
+import mockQuestionDataForDateRange from '@/__mocks__/common/mockQuestionDataForDateRange.json';
+import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockQuestionDataForTypeAheadSearch.json';
 import mockQuestionDataForTextField from '@/__mocks__/common/mockQuestionDataForTextField.json';
 import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
 import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.json';
@@ -373,6 +375,188 @@ describe("QuestionEditPage", () => {
     const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
     expect(checkboxText).toBeInTheDocument();
   })
+
+  it("should call handleRangeLabelChange for dateRange question type", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForDateRange,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Find the input rendered by RangeComponent
+    const rangeStartInput = screen.getByLabelText('range start');
+
+    // Simulate user typing
+    fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
+
+    expect(rangeStartInput).toHaveValue('New Range Label');
+
+  });
+
+  it("should call handleTypeAheadSearchLabelChange for typeaheadsearch question type", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Find the label input rendered by TypeAheadSearch
+    const labelInput = screen.getByPlaceholderText('Enter search label');
+
+    // Simulate user typing
+    fireEvent.change(labelInput, { target: { value: 'New Institution Label' } });
+
+    expect(labelInput).toHaveValue('New Institution Label');
+
+  });
+
+  it("should call handleTypeAheadHelpTextChange for typeaheadsearch question type", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Find the label input rendered by TypeAheadSearch
+    const helpTextInput = screen.getByPlaceholderText('Enter the help text you want to display');
+
+    // Simulate user typing
+    fireEvent.change(helpTextInput, { target: { value: 'Enter a search term' } });
+
+    expect(helpTextInput).toHaveValue('Enter a search term');
+
+  });
+
+  it("should display error fi useUpdateQuestionMutation rejects", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockRejectedValueOnce(new Error("Error updating question")),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndUpdate/i });
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    const alert = screen.queryByRole('alert');
+    expect(alert).toHaveTextContent('messages.errors.questionUpdateError');
+  });
+
 
   it('should pass axe accessibility test', async () => {
     // Render with text question type
