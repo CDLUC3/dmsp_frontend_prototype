@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { CalendarDate } from '@internationalized/date';
 
-import DateRangeQuestionComponent from '../index';
+import { DateRangeQuestionComponent } from '@/components/Form/QuestionComponents';
 
 expect.extend(toHaveNoViolations);
 

@@ -12,9 +12,9 @@ interface SelectboxQuestionProps {
 
 const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
   parsedQuestion,
-  multiSelectTouched = false,
-  selectedMultiSelectValues = new Set(),
-  selectBoxLabel = 'Select options',
+  multiSelectTouched,
+  selectedMultiSelectValues,
+  selectBoxLabel,
   handleMultiSelectChange
 }) => {
   // Transform options to items for FormSelect/MultiSelect
@@ -22,12 +22,12 @@ const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
     id: opt.attributes.value,
     name: opt.attributes.label,
     selected: opt.attributes.selected || false,
-  })) || [];
+  }));
 
   // Extract selected values for MultiSelect
   const defaultSelected = parsedQuestion.options
     ?.filter((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.selected)
-    .map((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.value) || [];
+    .map((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.value);
 
   return (
     <MultiSelect

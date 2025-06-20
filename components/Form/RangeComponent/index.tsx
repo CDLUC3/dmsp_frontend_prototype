@@ -17,6 +17,7 @@ const RangeComponent: React.FC<RangeComponentProps> = ({
       <div>
         <FormInput
           name="range-start"
+          ariaLabel="range start"
           type="text"
           id="rangeStart"
           isRequired={true}
@@ -28,6 +29,7 @@ const RangeComponent: React.FC<RangeComponentProps> = ({
       <div>
         <FormInput
           name="range-end"
+          ariaLabel="range end"
           type="text"
           id="rangeEnd"
           isRequired={true}

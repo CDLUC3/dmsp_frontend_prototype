@@ -2,7 +2,7 @@ import React from 'react';
 import type { BooleanQuestionType } from '@dmptool/types';
 import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import BooleanQuestionComponent from '../index';
+import { BooleanQuestionComponent } from '@/components/Form/QuestionComponents';
 
 expect.extend(toHaveNoViolations);
 

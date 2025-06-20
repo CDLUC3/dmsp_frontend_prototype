@@ -2,7 +2,7 @@ import React from 'react';
 import type { RadioButtonsQuestionType } from '@dmptool/types';
 import { act, fireEvent, render } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import RadioButtonsQuestionComponent from '../index';
+import { RadioButtonsQuestionComponent } from '@/components/Form/QuestionComponents';
 
 expect.extend(toHaveNoViolations);
 

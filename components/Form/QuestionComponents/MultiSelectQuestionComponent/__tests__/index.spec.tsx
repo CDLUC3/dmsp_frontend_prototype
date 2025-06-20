@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { SelectBoxQuestionType } from '@dmptool/types';
-import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
-import userEvent from '@testing-library/user-event';
+import { act, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import MultiSelectQuestionComponent from '../index';
+import { MultiSelectQuestionComponent } from '@/components/Form/QuestionComponents';
 
 expect.extend(toHaveNoViolations);
 
@@ -71,6 +70,25 @@ describe('MultiSelectQuestionComponent', () => {
     expect(options[0]).toHaveAttribute('aria-selected', 'true');
     expect(options[1]).toHaveAttribute('aria-selected', 'true');
     expect(options[2]).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('should fall back to selectedMultiSelectValues when multiSelectTouched is true', async () => {
+    render(
+      <MultiSelectQuestionComponent
+        parsedQuestion={mockSelectBoxQuestion}
+        multiSelectTouched={true}
+        selectedMultiSelectValues={new Set(['Option B'])}
+        handleMultiSelectChange={mockSelectChange}
+        selectBoxLabel='Select all that apply'
+      />
+    );
+
+    expect(screen.getByText('Select all that apply')).toBeInTheDocument();
+    expect(screen.getByText('Option A')).toBeInTheDocument();
+
+    // Find the checkbox for Option B by label text
+    const optionB = screen.getByRole('option', { name: /Option B/i });
+    expect(optionB).toHaveAttribute('aria-selected', 'true');
   });
 
   it('should pass axe accessibility test', async () => {

@@ -2,11 +2,8 @@ import React from 'react';
 import type { TypeaheadSearchQuestionType } from '@dmptool/types';
 import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { MockedProvider } from '@apollo/client/testing';
-import { AffiliationsDocument } from '@/generated/graphql';
 
-import AffiliationSearchQuestionComponent from '../index';
-
+import { AffiliationSearchQuestionComponent } from '@/components/Form/QuestionComponents';
 expect.extend(toHaveNoViolations);
 
 describe('TypeaheadSearchQuestionComponent', () => {

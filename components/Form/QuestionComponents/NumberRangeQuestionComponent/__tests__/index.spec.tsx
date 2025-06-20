@@ -3,7 +3,7 @@ import type { NumberRangeQuestionType } from '@dmptool/types';
 import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import NumberRangeQuestionComponent from '../index';
+import { NumberRangeQuestionComponent } from '@/components/Form/QuestionComponents';
 
 expect.extend(toHaveNoViolations);
 

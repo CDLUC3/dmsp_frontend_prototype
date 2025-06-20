@@ -2,7 +2,7 @@ import React from 'react';
 import type { SelectBoxQuestionType } from '@dmptool/types';
 import { act, fireEvent, render, screen, within } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import SelectboxQuestionComponent from '../index';
+import { SelectboxQuestionComponent } from '@/components/Form/QuestionComponents';
 
 expect.extend(toHaveNoViolations);
 

@@ -2,8 +2,7 @@ import React from 'react';
 import type { CheckboxesQuestionType } from '@dmptool/types';
 import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import CheckboxesQuestionComponent from '../index';
-
+import { CheckboxesQuestionComponent } from '@/components/Form/QuestionComponents';
 expect.extend(toHaveNoViolations);
 
 
