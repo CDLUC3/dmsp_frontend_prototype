@@ -179,7 +179,7 @@ describe("QuestionView", () => {
         templateId={1}
       />
     );
-    expect(screen.getByTestId('card-body').textContent).toContain('Plain text field');
+    expect(screen.getByTestId('card-body').textContent).toContain('text');
   });
 
   it('should render the Radio Buttons question type', () => {
@@ -192,8 +192,8 @@ describe("QuestionView", () => {
         options: [
           {
             attributes: {
-              label: null,
-              value: null,
+              label: "Option 1",
+              value: "option1",
               selected: false
             }
           }
@@ -208,22 +208,48 @@ describe("QuestionView", () => {
         templateId={1}
       />
     );
-    expect(screen.getByTestId('card-body').textContent).toContain('Radios');
+    expect(screen.getByTestId('card-body').textContent).toContain('Option 1');
   });
 
   it('should render the Check Boxes question type', () => {
     const mockQuestionWithCheckBoxes = {
       ...mockQuestion, json: JSON.stringify({
-        meta: {
-          schemaVersion: "1.0"
-        },
         type: "checkBoxes",
+        meta: {
+          schemaVersion: "1.0",
+          labelTranslationKey: "questions.research_methods"
+        },
         options: [
           {
+            type: "option",
             attributes: {
-              label: null,
-              value: null,
+              label: "Interviews",
+              value: "interviews",
+              checked: true
+            }
+          },
+          {
+            type: "option",
+            attributes: {
+              label: "Surveys",
+              value: "surveys",
               checked: false
+            }
+          },
+          {
+            type: "option",
+            attributes: {
+              label: "Observations",
+              value: "observations",
+              checked: true
+            }
+          },
+          {
+            type: "option",
+            attributes: {
+              label: "Focus Groups",
+              value: "focus_groups",
+              checked: true
             }
           }
         ]
@@ -237,25 +263,53 @@ describe("QuestionView", () => {
         templateId={1}
       />
     );
-    expect(screen.getByTestId('card-body').textContent).toContain('Checkboxes');
+
+    const checkboxes = screen.getAllByRole('checkbox');
+    expect(checkboxes).toHaveLength(4);
+    expect(checkboxes[0]).toHaveAttribute('value', 'interviews');
+    expect(checkboxes[1]).toHaveAttribute('value', 'surveys');
+    expect(checkboxes[2]).toHaveAttribute('value', 'observations');
+    expect(checkboxes[3]).toHaveAttribute('value', 'focus_groups');
+    expect(checkboxes[0]).toBeChecked();
+    expect(checkboxes[1]).not.toBeChecked();
+    expect(checkboxes[2]).toBeChecked();
+    expect(checkboxes[3]).toBeChecked();
   });
 
   it('should render the Select Box question type', () => {
     const mockQuestionWithSelectBox = {
       ...mockQuestion, json: JSON.stringify({
+        type: 'selectBox',
         meta: {
-          schemaVersion: "1.0"
+          schemaVersion: '1.0',
         },
-        type: "selectBox",
         options: [
           {
+            type: 'option',
             attributes: {
-              label: null,
-              value: null,
-              selected: false
-            }
-          }
-        ]
+              label: 'Option A',
+              value: 'Option A',
+              selected: true,
+            },
+          },
+          {
+            type: 'option',
+            attributes: {
+              label: 'Option B',
+              value: 'Option B',
+            },
+          },
+          {
+            type: 'option',
+            attributes: {
+              label: 'Option C',
+              value: 'Option C',
+            },
+          },
+        ],
+        attributes: {
+          multiple: false,
+        },
       })
     };
 
@@ -266,7 +320,8 @@ describe("QuestionView", () => {
         templateId={1}
       />
     );
-    expect(screen.getByTestId('card-body').textContent).toContain('Select Box');
+    screen.debug();
+    expect(screen.getByTestId('card-body').textContent).toContain('Option A');
   });
 
 

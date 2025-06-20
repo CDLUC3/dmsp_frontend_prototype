@@ -7,7 +7,6 @@ import { Checkbox, } from "react-aria-components";
 
 import FormInput from '@/components/Form/FormInput';
 import { useTranslations } from 'next-intl';
-import { Question } from '@/app/types';
 import styles from './optionsComponent.module.scss';
 
 
