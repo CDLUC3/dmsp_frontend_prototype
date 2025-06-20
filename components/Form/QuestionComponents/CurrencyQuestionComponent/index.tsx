@@ -4,22 +4,24 @@ import { NumberComponent } from '@/components/Form';
 interface CurrencyQuestionProps {
   parsedQuestion: CurrencyQuestionType;
   inputCurrencyValue: number | null;
-  numberLabel?: string;
+  currencyLabel?: string;
+  placeholder?: string;
   setInputCurrencyValue: (value: number | null) => void;
 }
 
 const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
   parsedQuestion,
   inputCurrencyValue,
-  numberLabel,
+  currencyLabel,
+  placeholder,
   setInputCurrencyValue,
 }) => {
   return (
     <NumberComponent
-      label={numberLabel || ''}
-      value={inputCurrencyValue === null ? undefined : inputCurrencyValue}
+      label={currencyLabel || ''}
+      value={inputCurrencyValue}
       onChange={value => setInputCurrencyValue(value)}
-      placeholder="amount"
+      placeholder={placeholder || ''}
       formatOptions={{
         style: 'currency',
         currency: parsedQuestion?.meta?.denomination || 'USD', // TODO: Need to eventually get denomination from under attributes

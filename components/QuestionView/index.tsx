@@ -108,16 +108,16 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setSelectedRadioValue(value);
   };
 
-  const [inputValue, setInputValue] = useState<string | number | null>(null);
+  const [inputValue, setInputValue] = useState<number | null>(null);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const value = Number(e.target.value);
     setInputValue(value);
   };
 
   const [textValue, setTextValue] = useState<string | number | null>(null);
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setInputValue(value);
+    setTextValue(value);
   };
 
   const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);

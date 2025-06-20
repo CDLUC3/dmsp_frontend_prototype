@@ -97,7 +97,7 @@ describe('RadioButtonsQuestionComponent', () => {
           type: "option",
           attributes: {
             label: "Option 1",
-            value: "1",
+            value: "option1",
             selected: false,
           },
         },
@@ -110,9 +110,9 @@ describe('RadioButtonsQuestionComponent', () => {
         handleRadioChange={mockHandleRadioChange}
       />
     );
-    expect(getByLabelText('Option 1')).not.toBeChecked();
-    fireEvent.click(getByLabelText('Option 1'));
-    expect(mockHandleRadioChange).toHaveBeenCalledWith('1');
+    expect(getByLabelText('option1')).not.toBeChecked();
+    fireEvent.click(getByLabelText('option1'));
+    expect(mockHandleRadioChange).toHaveBeenCalledWith('option1');
   });
 
   it('should pass axe accessibility test', async () => {

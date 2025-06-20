@@ -10,7 +10,7 @@ import styles from './numberComponent.module.scss';
 
 interface NumberFieldProps {
   label: string;
-  value?: number | string;
+  value?: number | null;
   minValue?: number;
   maxValue?: number;
   step?: number;

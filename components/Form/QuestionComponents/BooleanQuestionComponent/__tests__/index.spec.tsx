@@ -7,15 +7,16 @@ import BooleanQuestionComponent from '../index';
 expect.extend(toHaveNoViolations);
 
 
-describe('CurrencyQuestionComponent', () => {
+describe('RadioButtonsQuestionComponent', () => {
   const mockHandleBooleanChange = jest.fn();
   const mockParsedQuestion: BooleanQuestionType = {
-    meta: {
-      schemaVersion: "1.0"
-    },
     type: "boolean",
+    meta: {
+      schemaVersion: "1.0",
+      labelTranslationKey: "questions.use_existing_data"
+    },
     attributes: {
-      checked: false
+      checked: true
     }
   };
 
@@ -23,52 +24,74 @@ describe('CurrencyQuestionComponent', () => {
     jest.clearAllMocks();
   });
 
-
-  it('should check the correct radio button based on selectedValue', () => {
+  it('should render radio buttons with correct labels and values', () => {
     render(
       <BooleanQuestionComponent
         parsedQuestion={mockParsedQuestion}
-        selectedValue="no"
+        selectedValue='no'
         handleRadioChange={mockHandleBooleanChange}
       />
     );
-    expect(screen.getByLabelText('no')).toBeChecked();
-    expect(screen.getByLabelText('yes')).not.toBeChecked();
+
+    const yesRadio = screen.getByLabelText('Yes') as HTMLInputElement;
+    const noRadio = screen.getByLabelText('No') as HTMLInputElement;
+
+    // Check that the radios exist
+    expect(yesRadio).toBeInTheDocument();
+    expect(noRadio).toBeInTheDocument();
+
+    // Check their values
+    expect(yesRadio.value).toBe('yes');
+    expect(noRadio.value).toBe('no');
+
+    // Check which one is initially selected
+    expect(noRadio.checked).toBe(true);
+    expect(yesRadio.checked).toBe(false);
   });
 
-  it('should check the correct radio button based on parsedQuestion.attributes.checked if selectedValue is not provided', () => {
-    render(
-      <BooleanQuestionComponent
-        parsedQuestion={{
-          ...mockParsedQuestion,
-          attributes: { checked: true }
-        }}
-        handleRadioChange={mockHandleBooleanChange}
-      />
-    );
-    expect(screen.getByLabelText('yes')).toBeChecked();
-    expect(screen.getByLabelText('no')).not.toBeChecked();
-  });
-
-  it('should call handleRadioChange with correct value when a checkbox is clicked', async () => {
+  it('should call handleRadioChange when a radio button is clicked', () => {
     render(
       <BooleanQuestionComponent
         parsedQuestion={mockParsedQuestion}
-        selectedValue="no"
+        selectedValue='no'
         handleRadioChange={mockHandleBooleanChange}
       />
     );
-    act(() => {
-      fireEvent.click(screen.getByLabelText('yes'));
-    })
+
+    const yesRadio = screen.getByLabelText('Yes') as HTMLInputElement;
+    fireEvent.click(yesRadio);
     expect(mockHandleBooleanChange).toHaveBeenCalledWith('yes');
+  });
+
+  it('should have no option selected if json says boolean is not checked', () => {
+    const mockBooleanQuestion: BooleanQuestionType = {
+      type: "boolean",
+      meta: {
+        schemaVersion: "1.0",
+        labelTranslationKey: "questions.use_existing_data"
+      },
+      attributes: {
+        checked: false
+      }
+    };
+
+    render(
+      <BooleanQuestionComponent
+        parsedQuestion={mockBooleanQuestion}
+        handleRadioChange={mockHandleBooleanChange}
+      />
+    );
+
+    const noRadio = screen.getByLabelText('No') as HTMLInputElement;
+    // no option should be selected by default when no selectedValue is provided
+    expect(noRadio.checked).toBe(true);
   });
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(
       <BooleanQuestionComponent
         parsedQuestion={mockParsedQuestion}
-        selectedValue="no"
+        selectedValue='no'
         handleRadioChange={mockHandleBooleanChange}
       />
     );

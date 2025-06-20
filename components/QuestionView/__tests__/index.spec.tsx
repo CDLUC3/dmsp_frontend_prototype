@@ -320,7 +320,6 @@ describe("QuestionView", () => {
         templateId={1}
       />
     );
-    screen.debug();
     expect(screen.getByTestId('card-body').textContent).toContain('Option A');
   });
 

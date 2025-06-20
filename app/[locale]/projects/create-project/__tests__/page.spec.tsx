@@ -113,7 +113,7 @@ describe('ProjectsCreateProject', () => {
     });
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Test Project' } });
-    fireEvent.click(screen.getByLabelText(/form.radioNewLabel/i));
+    fireEvent.click(screen.getByLabelText('new'));
     fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
@@ -165,7 +165,7 @@ describe('ProjectsCreateProject', () => {
 
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Test Project' } });
-    fireEvent.click(screen.getByLabelText(/form.radioNewLabel/i));
+    fireEvent.click(screen.getByLabelText('new'));
     fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
