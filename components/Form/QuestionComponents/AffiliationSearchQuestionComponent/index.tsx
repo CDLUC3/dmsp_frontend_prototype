@@ -33,7 +33,7 @@ const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProp
   return (
     <>
       <TypeAheadWithOther
-        label={parsedQuestion?.graphQL?.displayFields?.[0].label || Signup('institution')}
+        label={parsedQuestion?.graphQL?.displayFields?.[0]?.label || Signup('institution')}
         fieldName="institution"
         graphqlQuery={
           typeof parsedQuestion?.graphQL?.query === 'string'

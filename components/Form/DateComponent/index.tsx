@@ -19,7 +19,6 @@ interface DateComponentProps {
   value: any;
   onChange: (value: any) => void;
   label: string;
-  headingClassName?: string;
 }
 
 const DateComponent: React.FC<DateComponentProps> = ({
@@ -27,7 +26,6 @@ const DateComponent: React.FC<DateComponentProps> = ({
   value,
   onChange,
   label,
-  headingClassName = "",
 }) => (
   <DatePicker
     name={name}
@@ -46,7 +44,7 @@ const DateComponent: React.FC<DateComponentProps> = ({
         <Calendar>
           <header>
             <Button slot="previous">◀</Button>
-            <Heading className={headingClassName} />
+            <Heading />
             <Button slot="next">▶</Button>
           </header>
           <CalendarGrid>

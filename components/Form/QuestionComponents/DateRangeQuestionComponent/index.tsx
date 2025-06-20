@@ -14,14 +14,12 @@ interface DateRangeQuestionProps {
     key: string,
     value: string | DateValue | CalendarDate | null
   ) => void;
-  headingClassName?: string;
 }
 
 const DateRangeQuestionComponent: React.FC<DateRangeQuestionProps> = ({
   parsedQuestion,
   dateRange,
   handleDateChange,
-  headingClassName = "",
 }) => {
   // Extract labels from JSON if available
   const startLabel = parsedQuestion?.columns?.start?.attributes?.label;
@@ -33,14 +31,12 @@ const DateRangeQuestionComponent: React.FC<DateRangeQuestionProps> = ({
         value={getCalendarDateValue(dateRange.startDate)}
         onChange={newDate => handleDateChange('startDate', newDate)}
         label={startLabel}
-        headingClassName={headingClassName}
       />
       <DateComponent
         name="endDate"
         value={getCalendarDateValue(dateRange.endDate)}
         onChange={newDate => handleDateChange('endDate', newDate)}
         label={endLabel}
-        headingClassName={headingClassName}
       />
     </div >
   )

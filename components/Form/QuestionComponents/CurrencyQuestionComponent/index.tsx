@@ -4,17 +4,19 @@ import { NumberComponent } from '@/components/Form';
 interface CurrencyQuestionProps {
   parsedQuestion: CurrencyQuestionType;
   inputCurrencyValue: number | null;
+  numberLabel?: string;
   setInputCurrencyValue: (value: number | null) => void;
 }
 
 const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
   parsedQuestion,
   inputCurrencyValue,
+  numberLabel,
   setInputCurrencyValue,
 }) => {
   return (
     <NumberComponent
-      label="amount"
+      label={numberLabel || ''}
       value={inputCurrencyValue === null ? undefined : inputCurrencyValue}
       onChange={value => setInputCurrencyValue(value)}
       placeholder="amount"

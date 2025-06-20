@@ -16,10 +16,10 @@ const CheckboxesQuestionComponent: React.FC<CheckboxesQuestionProps> = ({
   const checkboxData = parsedQuestion.options?.map((opt: CheckboxesQuestionType['options'][number]) => ({
     label: opt.attributes.label,
     value: opt.attributes.value,
-  })) || [];
+  }));
   const initialChecked = parsedQuestion.options
     ?.filter((opt: CheckboxesQuestionType['options'][number]) => opt.attributes.checked)
-    .map((opt: CheckboxesQuestionType['options'][number]) => opt.attributes.value) || [];
+    .map((opt: CheckboxesQuestionType['options'][number]) => opt.attributes.value);
   const value = selectedCheckboxValues.length > 0 ? selectedCheckboxValues : initialChecked;
 
   return (

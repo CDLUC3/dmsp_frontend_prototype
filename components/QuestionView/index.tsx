@@ -275,7 +275,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             value={getCalendarDateValue(dateRange.startDate)}
             onChange={newDate => handleDateChange('startDate', newDate)}
             label="Date"
-            headingClassName=""
           />
         )
       case 'dateRange':
@@ -284,7 +283,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             parsedQuestion={parsedQuestion}
             dateRange={dateRange}
             handleDateChange={handleDateChange}
-            headingClassName=""
           />
         )
       case 'number':

@@ -6,6 +6,7 @@ interface SelectboxQuestionProps {
   parsedQuestion: SelectBoxQuestionType;
   multiSelectTouched?: boolean;
   selectedMultiSelectValues?: Set<string>;
+  selectBoxLabel?: string;
   handleMultiSelectChange: (values: Set<string>) => void;
 }
 
@@ -13,6 +14,7 @@ const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
   parsedQuestion,
   multiSelectTouched = false,
   selectedMultiSelectValues = new Set(),
+  selectBoxLabel = 'Select options',
   handleMultiSelectChange
 }) => {
   // Transform options to items for FormSelect/MultiSelect
@@ -28,16 +30,14 @@ const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
     .map((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.value) || [];
 
   return (
-
     <MultiSelect
       options={items}
       selectedKeys={multiSelectTouched ? selectedMultiSelectValues : new Set(defaultSelected)}
       onSelectionChange={handleMultiSelectChange}
-      label="Choose Options"
-      maxWidth="250px"
+      label={selectBoxLabel}
+      aria-label={selectBoxLabel}
+      defaultSelected={defaultSelected}
     />
-
-
   );
 };
 

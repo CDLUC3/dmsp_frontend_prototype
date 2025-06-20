@@ -11,7 +11,7 @@ interface BooleanQuestionProps {
 const BooleanQuestionComponent: React.FC<BooleanQuestionProps> = ({
   parsedQuestion,
   selectedValue,
-  handleRadioChange = () => { },
+  handleRadioChange,
 }) => {
   // Prepare radioButton data for Yes/No
   const radioButtonData = [

@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
 import { ListBox, ListBoxItem } from 'react-aria-components';
-import type { Selection } from '@react-types/shared';
 import styles from './multiSelect.module.scss';
 interface Option {
   id: string;
@@ -15,9 +14,6 @@ interface MultiSelectProps {
   selectedKeys?: Set<string>;
   onSelectionChange?: (selected: Set<string>) => void;
   label?: string;
-  maxWidth?: string;
-  maxHeight?: string;
-  minHeight?: string;
 }
 
 function MultiSelect({
