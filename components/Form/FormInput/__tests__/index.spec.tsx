@@ -78,5 +78,32 @@ describe('FormInput', () => {
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-  })
+  });
+
+  it('should display "(required)" text when field is required', () => {
+    render(
+      <FormInput
+        name="email"
+        type="email"
+        label="Email"
+        isRequired={true}
+      />
+    );
+
+    expect(screen.getByText('Email (required)')).toBeInTheDocument();
+  });
+
+  it('should not display "(required)" text when field is not required', () => {
+    render(
+      <FormInput
+        name="email"
+        type="email"
+        label="Email"
+        isRequired={false}
+      />
+    );
+
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.queryByText('Email (required)')).not.toBeInTheDocument();
+  });
 });
