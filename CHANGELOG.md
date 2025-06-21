@@ -1,6 +1,13 @@
 ### Updated
-- FormInput now adds required automatically [#552]
-- Added an example of FormInput to the style guide
+- Added an example of Form components to the style guide
+- QuestionOptionsComponent tests to work with new required field indicators
+
+### Added
+- Required field indicators to FormInput, FormTextArea, FormSelect, RadioGroup, CheckboxGroup, and TypeAheadWithOther components [#552]
+- Added test suites for CheckboxGroup and RadioGroup components that seemed to be missing
+- Interactive form examples to the styleguide showing required and non-required states
+
+
 
 ### Updated
 - Clean up connections page and buttons [#516]
