@@ -61,7 +61,7 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
         data-testid="field-wrapper"
       >
         <Label htmlFor={id} className={labelClasses}>
-          {label}{isRequired && <span className="is-required"> (required)</span>}
+          {label}{isRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
         </Label>
         <Text slot="description" className="help">
           {description}
