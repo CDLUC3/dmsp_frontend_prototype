@@ -72,4 +72,37 @@ describe('FormSelect', () => {
     const helpText = screen.getAllByText('Choose from the available options');
     expect(helpText).toHaveLength(2);
   });
+
+  it('should display "(required)" text when field is required', () => {
+    render(
+      <FormSelect
+        label="Select an option"
+        items={sampleItems}
+        selectedKey="1"
+        isRequired={true}
+      >
+        {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
+      </FormSelect>
+    );
+
+    expect(screen.getByText('Select an option')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+  });
+
+  it('should not display "(required)" text when field is not required', () => {
+    render(
+      <FormSelect
+        label="Select an option"
+        items={sampleItems}
+        selectedKey="1"
+        isRequired={false}
+      >
+        {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
+      </FormSelect>
+    );
+
+    expect(screen.getByText('Select an option')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
+  });
 });

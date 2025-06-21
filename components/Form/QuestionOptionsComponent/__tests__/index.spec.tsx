@@ -44,8 +44,8 @@ describe('QuestionOptionsComponent', () => {
   it('should render initial rows correctly', () => {
     render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
-    expect(screen.getByLabelText('labels.order')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.text')).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels\.order/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/labels\.text/)).toBeInTheDocument();
     expect(screen.getByLabelText('labels.default')).toBeInTheDocument();
   });
 
@@ -62,7 +62,7 @@ describe('QuestionOptionsComponent', () => {
   it('should update text field correctly', () => {
     render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
 
-    const textInput = screen.getByLabelText('labels.text');
+    const textInput = screen.getByLabelText(/labels\.text/);
     fireEvent.change(textInput, { target: { value: 'Updated Option' } });
 
     expect(setRows).toHaveBeenCalledWith(expect.any(Function));
@@ -108,7 +108,7 @@ describe('QuestionOptionsComponent', () => {
 
     render(<Wrapper />);
 
-    const textInput = screen.getByLabelText('labels.text');
+    const textInput = screen.getByLabelText(/labels\.text/);
     fireEvent.change(textInput, { target: { value: 'Option 1' } });
 
     const defaultCheckbox = screen.getByTestId('default-1');

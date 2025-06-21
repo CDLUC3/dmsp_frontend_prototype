@@ -1,4 +1,8 @@
 ### Updated
+- FormInput now adds required automatically [#552]
+- Added an example of FormInput to the style guide
+
+### Updated
 - Clean up connections page and buttons [#516]
 
 ### Updated

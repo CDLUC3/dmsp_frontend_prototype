@@ -52,6 +52,7 @@ const TypeAheadWithOther = ({
   className,
   resultsKey,
   otherText = "Other",
+  required,
 }: TypeAheadInputProps) => {
   const [initialInputValue, setInitialInputValue] = useState<string>(''); // Needed to set initial input value without triggering search
   const [inputValue, setInputValue] = useState<string>('');
@@ -291,7 +292,9 @@ const TypeAheadWithOther = ({
         className={(!!error) ? styles.fieldError : ''}
         isInvalid={!!error}
       >
-        <Label>{label}</Label>
+        <Label>
+          {label}{required && <span className="is-required" aria-hidden="true"> (required)</span>}
+        </Label>
         <Input
           name={fieldName}
           type="text"

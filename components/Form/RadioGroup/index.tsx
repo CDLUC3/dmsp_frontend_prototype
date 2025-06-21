@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { RadioButtonProps } from '@/app/types';
 import styles from './radioGroup.module.scss';
 
-const RadioGroupComponent: React.FC<RadioButtonProps> = ({
+const RadioGroupComponent: React.FC<RadioButtonProps & { isRequired?: boolean }> = ({
   name,
   value,
   classes,
@@ -20,7 +20,8 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
   radioButtonData,
   isInvalid,
   errorMessage,
-  onChange
+  onChange,
+  isRequired = false,
 }) => {
 
   const renderDescription = (desc: string | ReactNode) => {
@@ -35,8 +36,11 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
         value={value}
         className={classes}
         onChange={onChange}
+        isInvalid={isInvalid}
       >
-        <Label>{radioGroupLabel}</Label>
+        <Label>
+          {radioGroupLabel}{isRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+        </Label>
         <Text slot="description" className="help">
           {description}
         </Text>
@@ -54,6 +58,7 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
           </div>
         ))}
         {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
+        <FieldError />
       </RadioGroup>
     </>
   );

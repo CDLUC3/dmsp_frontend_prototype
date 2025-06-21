@@ -83,7 +83,9 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
       isDisabled={disabled}
       data-testid="field-wrapper"
     >
-      <Label id={labelId} className={labelClasses}>{label}</Label>
+      <Label id={labelId} className={labelClasses}>
+        {label}{isRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+      </Label>
 
       {description && (
         <Text slot="description" className="help-text">

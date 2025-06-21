@@ -74,5 +74,32 @@ describe('FormTextArea', () => {
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-  })
+  });
+
+  it('should display "(required)" text when field is required', () => {
+    render(
+      <FormTextArea
+        name="email"
+        label="Email"
+        isRequired={true}
+      />
+    );
+
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+  });
+
+  it('should not display "(required)" text when field is not required', () => {
+    render(
+      <FormTextArea
+        name="email"
+        label="Email"
+        isRequired={false}
+      />
+    );
+
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
+  });
 });

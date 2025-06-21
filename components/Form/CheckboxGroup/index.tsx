@@ -28,9 +28,11 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
         className="checkbox-group"
         onChange={onChange}
         isRequired={isRequired}
+        isInvalid={isInvalid}
       >
-        <Label>{checkboxGroupLabel}</Label>
-        {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
+        <Label>
+          {checkboxGroupLabel}{isRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+        </Label>
 
         {checkboxGroupDescription && (
           <Text slot="description" className="help">
@@ -57,6 +59,8 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
             </Checkbox>
           </div>
         ))}
+        {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
+        <FieldError />
       </CheckboxGroup>
     </>
   );
