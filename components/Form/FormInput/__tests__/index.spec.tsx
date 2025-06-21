@@ -90,7 +90,9 @@ describe('FormInput', () => {
       />
     );
 
-    expect(screen.getByText('Email (required)')).toBeInTheDocument();
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
   });
 
   it('should not display "(required)" text when field is not required', () => {
@@ -104,6 +106,6 @@ describe('FormInput', () => {
     );
 
     expect(screen.getByText('Email')).toBeInTheDocument();
-    expect(screen.queryByText('Email (required)')).not.toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
   });
 });
