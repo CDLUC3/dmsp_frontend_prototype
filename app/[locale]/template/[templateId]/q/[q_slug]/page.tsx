@@ -9,10 +9,14 @@ import {
   Breadcrumbs,
   Button,
   Checkbox,
+  Dialog,
+  DialogTrigger,
   Form,
   Input,
   Label,
   Link,
+  Modal,
+  ModalOverlay,
   Tab,
   TabList,
   TabPanel,
@@ -24,7 +28,8 @@ import {
 // GraphQL queries and mutations
 import {
   useQuestionQuery,
-  useUpdateQuestionMutation
+  useUpdateQuestionMutation,
+  useRemoveQuestionMutation,
 } from '@/generated/graphql';
 
 // Components
@@ -96,9 +101,11 @@ const QuestionEdit = () => {
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
   const [errors, setErrors] = useState<string[]>([]);
+  const [isConfirmOpen, setConfirmOpen] = useState(false);
 
   // Initialize update question mutation
   const [updateQuestionMutation] = useUpdateQuestionMutation();
+  const [removeQuestionMutation] = useRemoveQuestionMutation();
 
   // localization keys
   const Global = useTranslations('Global');
@@ -203,6 +210,30 @@ const QuestionEdit = () => {
       }
     }
   }
+
+  // Handle form submission to delete the question
+  const handleDelete = async () => {
+    try {
+      const response = await removeQuestionMutation({
+        variables: {
+          questionId: Number(questionId),
+        }
+      });
+
+      if (response?.data) {
+        // Show success message and redirect to Edit Template page
+        toastState.add(QuestionEdit('messages.success.questionRemoved'), { type: 'success' });
+        router.push(TEMPLATE_URL);
+      }
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        //
+      } else {
+        // Handle other types of errors
+        setErrors(prevErrors => [...prevErrors, QuestionEdit('messages.errors.questionRemoveError')]);
+      }
+    }
+  };
 
   useEffect(() => {
     // if the question with the given questionType exists, then set the data in state
@@ -418,6 +449,33 @@ const QuestionEdit = () => {
               <h2>{Global('tabs.logic')}</h2>
             </TabPanel>
           </Tabs>
+
+          <div className={styles.deleteZone}>
+            <h2>{QuestionEdit('headings.deleteQuestion')}</h2>
+            <p>{QuestionEdit('descriptions.deleteWarning')}</p>
+            <DialogTrigger isOpen={isConfirmOpen} onOpenChange={setConfirmOpen}>
+              <Button className={`danger`}>{QuestionEdit('buttons.deleteQuestion')}</Button>
+              <ModalOverlay>
+                <Modal>
+                  <Dialog>
+                    {({ close }) => (
+                      <>
+                        <h3>{QuestionEdit('headings.confirmDelete')}</h3>
+                        <p>{QuestionEdit('descriptions.deleteWarning')}</p>
+                        <div className={styles.deleteConfirmButtons}>
+                          <Button className='react-aria-Button' autoFocus onPress={close}>{Global('buttons.cancel')}</Button>
+                          <Button className={`danger `} onPress={() => {
+                            handleDelete();
+                            close();
+                          }}>{Global('buttons.confirm')}</Button>
+                        </div>
+                      </>
+                    )}
+                  </Dialog>
+                </Modal>
+              </ModalOverlay>
+            </DialogTrigger>
+          </div>
 
         </div>
 

@@ -1,10 +1,13 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { routePath } from '@/utils/routes';
 import {
   useQuestionQuery,
   useQuestionTypesQuery,
-  useUpdateQuestionMutation
+  useUpdateQuestionMutation,
+  useRemoveQuestionMutation
 } from '@/generated/graphql';
+import { useToast } from '@/context/ToastContext';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -25,7 +28,8 @@ expect.extend(toHaveNoViolations);
 jest.mock("@/generated/graphql", () => ({
   useQuestionQuery: jest.fn(),
   useUpdateQuestionMutation: jest.fn(),
-  useQuestionTypesQuery: jest.fn()
+  useQuestionTypesQuery: jest.fn(),
+  useRemoveQuestionMutation: jest.fn()
 }));
 
 jest.mock('next/navigation', () => ({
@@ -42,6 +46,9 @@ jest.mock('@/components/Form/QuestionOptionsComponent', () => {
   };
 });
 
+jest.mock('@/context/ToastContext', () => ({
+  useToast: jest.fn(),
+}));
 
 describe("QuestionEditPage", () => {
   let mockRouter;
@@ -75,6 +82,8 @@ describe("QuestionEditPage", () => {
       jest.fn().mockResolvedValueOnce({ data: mockQuestionTypes }),
       { loading: false, error: undefined },
     ]);
+    (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
+    (useRemoveQuestionMutation as jest.Mock).mockReturnValue([jest.fn(), { loading: false }]);
   });
 
   it("should render correct fields and content", async () => {
@@ -124,7 +133,8 @@ describe("QuestionEditPage", () => {
     expect(questionGuidanceTextLabel).toBeInTheDocument();
     const questionSampleTextLabel = screen.getByText(/labels.sampleText/i);
     expect(questionSampleTextLabel).toBeInTheDocument();
-    const sidebarHeading = screen.getByRole('heading', { level: 2 });
+    const sidebarHeading = screen.getByRole('heading', { name: /headings.preview/i });
+    expect(sidebarHeading).toBeInTheDocument();
     expect(sidebarHeading).toHaveTextContent('headings.preview');
     const bestPracticeHeading = screen.getByRole('heading', { level: 3 });
     expect(bestPracticeHeading).toHaveTextContent('headings.bestPractice');
@@ -256,8 +266,11 @@ describe("QuestionEditPage", () => {
   })
 
   it('should call the useUpdateQuestionMutation when user clicks \'save\' button', async () => {
+    const mockUpdateFn = jest.fn().mockResolvedValue({
+      data: { updateQuestion: { id: 67 } }
+    });
     (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      mockUpdateFn,
       { loading: false, error: undefined },
     ]);
 
@@ -290,9 +303,9 @@ describe("QuestionEditPage", () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(useUpdateQuestionMutation).toHaveBeenCalled();
+      expect(mockUpdateFn).toHaveBeenCalled();
       // Should redirect to Edit Template page
-      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123');
+      expect(mockRouter.push).toHaveBeenCalledWith(routePath('template.show', { templateId: '123' }));
     });
   })
 
@@ -533,6 +546,105 @@ describe("QuestionEditPage", () => {
         expect(actualJson).toEqual(expectedJson);
       });
 
+    });
+  });
+});
+
+describe('QuestionEditPage Delete Functionality', () => {
+  const setupMocks = () => {
+    const mockRemoveQuestionMutation = jest.fn();
+    const mockUpdateQuestionMutation = jest.fn();
+    const mockRouter = { push: jest.fn() };
+
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      mockUpdateQuestionMutation,
+      { loading: false },
+    ]);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: {
+        question: {
+          id: 67,
+          questionText: 'Test Question for Deletion',
+          json: JSON.stringify({ type: 'text' }),
+          sectionId: 1,
+        },
+      },
+      loading: false,
+      error: null,
+    });
+
+    (useRemoveQuestionMutation as jest.Mock).mockReturnValue([
+      mockRemoveQuestionMutation,
+      { loading: false },
+    ]);
+
+    (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
+    
+    (useParams as jest.Mock).mockReturnValue({ templateId: '123', q_slug: '67' });
+
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    
+    return { mockRemoveQuestionMutation, mockRouter };
+  };
+
+  it('should render the delete button', () => {
+    setupMocks();
+    render(<QuestionEdit />);
+    expect(screen.getByText('buttons.deleteQuestion')).toBeInTheDocument();
+  });
+
+  it('should open the confirmation dialog on delete button click', async () => {
+    setupMocks();
+    render(<QuestionEdit />);
+    const deleteButton = screen.getByText('buttons.deleteQuestion');
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('headings.confirmDelete')).toBeInTheDocument();
+    });
+    expect(screen.getByText('buttons.confirm')).toBeInTheDocument();
+    expect(screen.getByText('buttons.cancel')).toBeInTheDocument();
+  });
+
+  it('should call the remove mutation and redirect when confirm is clicked', async () => {
+    const { mockRemoveQuestionMutation, mockRouter } = setupMocks();
+    mockRemoveQuestionMutation.mockResolvedValueOnce({ data: { removeQuestion: { id: 67 } } });
+    
+    render(<QuestionEdit />);
+    fireEvent.click(screen.getByText('buttons.deleteQuestion'));
+
+    await waitFor(() => {
+      expect(screen.getByText('headings.confirmDelete')).toBeInTheDocument();
+    });
+
+    const confirmButton = screen.getByText('buttons.confirm');
+    fireEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(mockRemoveQuestionMutation).toHaveBeenCalledWith({
+        variables: {
+          questionId: 67,
+        },
+      });
+      expect(mockRouter.push).toHaveBeenCalledWith(routePath('template.show', { templateId: '123' }));
+    });
+  });
+
+  it('should close the dialog when cancel is clicked', async () => {
+    setupMocks();
+    render(<QuestionEdit />);
+    fireEvent.click(screen.getByText('buttons.deleteQuestion'));
+
+    await waitFor(() => {
+      expect(screen.getByText('headings.confirmDelete')).toBeInTheDocument();
+    });
+
+    const cancelButton = screen.getByText('buttons.cancel');
+    fireEvent.click(cancelButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText('headings.confirmDelete')).not.toBeInTheDocument();
     });
   });
 });

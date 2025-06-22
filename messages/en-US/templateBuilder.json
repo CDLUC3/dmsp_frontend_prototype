@@ -214,7 +214,8 @@
     "title": "Edit: {title}",
     "buttons": {
       "changeType": "Change type",
-      "previewQuestion": "Preview question"
+      "previewQuestion": "Preview question",
+      "deleteQuestion": "Delete question"
     },
     "descriptions": {
       "sampleText": "Provide an example or template of expected answer (optional but recommended)",
@@ -222,7 +223,8 @@
       "previewText": "See how this question will look to users.",
       "bestPracticePara1": "Keep the question concise and clear. Use the requirements or guidance to provide additional explanation.",
       "bestPracticePara2": "Outline the requirements that a user must consider for this question.",
-      "bestPracticePara3": "Researchers will be able to copy the sample text into the field as a starting point, as a way to speed up content entry."
+      "bestPracticePara3": "Researchers will be able to copy the sample text into the field as a starting point, as a way to speed up content entry.",
+      "deleteWarning": "This question will be removed from the template. This is not reversible."
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
@@ -241,14 +243,18 @@
     "messages": {
       "errors": {
         "questionTextRequired": "Question text field is required.",
-        "questionUpdateError": "Error when updating question"
+        "questionUpdateError": "Error when updating question",
+        "questionRemoveError": "Error when removing question"
       },
       "success": {
-        "questionUpdated": "Question was successfully updated"
+        "questionUpdated": "Question was successfully updated",
+        "questionRemoved": "Question was successfully removed"
       }
     },
     "headings": {
-      "bestPractice": "Best practice by DMP Tool"
+      "bestPractice": "Best practice by DMP Tool",
+      "deleteQuestion": "Delete question",
+      "confirmDelete": "Confirm delete"
     }
   },
   "QuestionOptionsComponent": {
