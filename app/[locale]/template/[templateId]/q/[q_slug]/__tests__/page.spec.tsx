@@ -2,7 +2,7 @@ import React from "react";
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useQuestionQuery,
-  useQuestionTypesQuery,
+  useQuestionTypesLazyQuery,
   useUpdateQuestionMutation
 } from '@/generated/graphql';
 
@@ -27,7 +27,7 @@ expect.extend(toHaveNoViolations);
 jest.mock("@/generated/graphql", () => ({
   useQuestionQuery: jest.fn(),
   useUpdateQuestionMutation: jest.fn(),
-  useQuestionTypesQuery: jest.fn()
+  useQuestionTypesLazyQuery: jest.fn()
 }));
 
 jest.mock('next/navigation', () => ({
@@ -73,7 +73,7 @@ describe("QuestionEditPage", () => {
       error: undefined,
     });
 
-    (useQuestionTypesQuery as jest.Mock).mockReturnValue([
+    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: mockQuestionTypes }),
       { loading: false, error: undefined },
     ]);
