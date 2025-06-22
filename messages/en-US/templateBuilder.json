@@ -163,10 +163,25 @@
   },
   "SectionUpdatePage": {
     "title": "Update section",
+    "buttons": {
+      "deleteSection": "Delete section"
+    },
     "messages": {
       "fieldLengthValidation": "Name must be at least 2 characters.",
       "errorUpdatingSection": "Error when updating section.",
-      "success": "Section updated successfully."
+      "success": "Section updated successfully.",
+      "errorDeletingSection": "Error when deleting section.",
+      "successDeletingSection": "Section deleted successfully."
+    },
+    "deleteModal": {
+      "title": "Delete section",
+      "content": "Deleting this section will also permanently remove all associated questions. Deletion is not reversible.",
+      "cancelButton": "Cancel",
+      "deleteButton": "Delete section"
+    },
+    "deleteSection": {
+      "heading": "Delete this section",
+      "description": "Deleting this section will also permanently remove all associated questions. Deletion is not reversible."
     }
   },
   "QuestionTypeSelectPage": {

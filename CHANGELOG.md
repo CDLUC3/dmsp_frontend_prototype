@@ -1,3 +1,6 @@
+### Added
+- Added delete section functionality to template builder with confirmation modal, including translations, and tests
+
 ### Updated
 - Clean up connections page and buttons [#516]
 
