@@ -30,14 +30,13 @@ import {
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import QuestionOptionsComponent
-  from '@/components/Form/QuestionOptionsComponent';
 import {
   FormInput,
+  FormTextArea,
   RangeComponent,
+  QuestionOptionsComponent,
   TypeAheadSearch
 } from '@/components/Form';
-import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';

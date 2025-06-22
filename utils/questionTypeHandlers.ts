@@ -30,6 +30,7 @@ import {
   EmailQuestionType,
   FilteredSearchQuestionType,
   NumberQuestionType,
+  NumberRangeQuestionType,
   TableQuestionType,
   TypeaheadSearchQuestionType,
 } from "@dmptool/types";
@@ -52,6 +53,28 @@ type Option = {
   value: string; // The value associated with the option
   selected?: boolean; // Whether the option is selected (optional)
 };
+
+
+export type QuestionTypeMap = {
+  text: TextQuestionType;
+  textArea: TextAreaQuestionType;
+  radioButtons: RadioButtonsQuestionType;
+  checkBoxes: CheckboxesQuestionType;
+  selectBox: SelectBoxQuestionType;
+  boolean: BooleanQuestionType;
+  url: URLQuestionType;
+  currency: CurrencyQuestionType;
+  date: DateQuestionType;
+  dateRange: DateRangeQuestionType;
+  email: EmailQuestionType;
+  filteredSearch: FilteredSearchQuestionType;
+  number: NumberQuestionType;
+  numberRange: NumberRangeQuestionType;
+  table: TableQuestionType;
+  typeaheadSearch: TypeaheadSearchQuestionType;
+};
+
+
 
 // Map question types to their corresponding Zod schemas
 const questionSchemas: Record<string, ZodSchema> = {
