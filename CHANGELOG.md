@@ -1,4 +1,8 @@
 ### Updated
+- Implement GraphQL integration for plan section questions page [#366]
+- Add `PlanSectionQuestions` query to fetch questions by section ID
+
+### Updated
 - Clean up connections page and buttons [#516]
 
 ### Updated

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import {Breadcrumb, Breadcrumbs, Link} from "react-aria-components";
+import { useParams, notFound } from 'next/navigation';
 import PageHeader from "@/components/PageHeader";
 import styles from './PlanOverviewSectionPage.module.scss';
 import {useTranslations} from "next-intl";
@@ -10,6 +11,9 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { usePlanSectionQuestionsQuery, useSectionQuery, usePlanQuery } from '@/generated/graphql';
+import { stripHtml } from '@/utils/general';
+import { routePath } from '@/utils/routes';
 
 interface Question {
   id: string;
@@ -20,52 +24,89 @@ interface Question {
 
 const PlanOverviewSectionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
+  
+  const params = useParams();
+  const sectionId = Number(params.sid);
+  const dmpId = params.dmpid as string;
+  const projectId = params.projectId as string;
+
+  // Validate that dmpId is a valid number, redirect to 404 if not
+  const planId = parseInt(dmpId);
+  if (isNaN(planId)) {
+    notFound();
+  }
+
+  const { data: questionsData, loading: questionsLoading, error: questionsError } = usePlanSectionQuestionsQuery({
+    variables: { sectionId },
+    skip: !sectionId
+  });
+
+  const { data: sectionData, loading: sectionLoading } = useSectionQuery({
+    variables: { sectionId },
+    skip: !sectionId
+  });
+
+  const { data: planData, loading: planLoading } = usePlanQuery({
+    variables: { planId },
+    skip: !planId
+  });
 
   const plan = {
-    id: "plan_123",
-    template_name: "NSF Polar Programs",
-    title: "NSF Polar Programs",
-    funder_name: "National Science Foundation"
+    id: planData?.plan?.id?.toString() || '',
+    template_name: planData?.plan?.versionedTemplate?.template?.name || '',
+    title: planData?.plan?.versionedTemplate?.template?.name || '',
+    funder_name: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName || ''
   };
 
-  const questions: Question[] = [
-    {
-      id: "q1",
-      title: "What types of data, samples, collections, software, materials, etc. will be produced during your project?",
-      link: "/en-US/projects/proj_2425/dmp/xxx/q/2544",
-      isAnswered: true
-    },
-    {
-      id: "q2",
-      title: "What type of metadata (information others might need to use your data) will be collected during...",
-      link: "/en-US/projects/proj_2425/dmp/xxx/q/2545",
-      isAnswered: false
-    },
-    {
-      id: "q3",
-      title: "Will all data collected be converted to open source formats?",
-      link: "/en-US/projects/proj_2425/dmp/xxx/q/2546",
-      isAnswered: false
-    }
-  ];
+  const questions: Question[] = questionsData?.questions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
+    id: question.id?.toString() || '',
+    title: question.questionText || '',
+    link: `/en-US/projects/${projectId}/dmp/${dmpId}/q/${question.id}`,
+    isAnswered: false
+  })) || [];
+
+  if (questionsLoading || sectionLoading || planLoading) {
+    return <div>Loading questions...</div>;
+  }
+
+  if (questionsError) {
+    return <div>Error loading questions: {questionsError.message}</div>;
+  }
 
   return (
     <>
       <PageHeader
-        title="Data and Metadata Formats"
+        title={sectionData?.section?.name || "Data and Metadata Formats"}
         description=""
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs aria-label={t('navigation.navigation')}>
-            <Breadcrumb><Link
-              href="/en-US">{t('navigation.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href="/en-US/projects">{t('navigation.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/en-US/projects/proj_2425/">Project
-              name</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href="/en-US/projects/proj_2425/dmp/xxx/">{plan.title}</Link></Breadcrumb>
-            <Breadcrumb>Data and Metadata Formats</Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath('app.home')}>
+                {t('navigation.home')}
+              </Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath('projects.index')}>
+                {t('navigation.projects')}
+              </Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath('projects.show', { projectId })}>
+                {planData?.plan?.project?.title || 'Project'}
+              </Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              <Link href={routePath('projects.dmp.show', { 
+                projectId, 
+                dmpId 
+              })}>
+                {plan.title}
+              </Link>
+            </Breadcrumb>
+            <Breadcrumb>
+              {sectionData?.section?.name || "Data and Metadata Formats"}
+            </Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
@@ -78,7 +119,7 @@ const PlanOverviewSectionPage: React.FC = () => {
             <section aria-label={"Requirements"}>
               <h4>Requirements by {plan.funder_name}</h4>
               <p>
-                The Arctic Data Center requires when submitting to the Center,
+                (DUMMY DATA)he Arctic Data Center requires when submitting to the Center,
                 include methods to create these types of data.
               </p>
               <p>
@@ -89,7 +130,7 @@ const PlanOverviewSectionPage: React.FC = () => {
 
               <h4>Requirements by University of California</h4>
               <p>
-                The management of data and metadata is essential for supporting
+              (DUMMY DATA) The management of data and metadata is essential for supporting
                 research integrity, reproducibility and collaboration. This
                 section seeks to document the types and formats of data and
                 metadata that will be generated in your project. Properly
@@ -108,7 +149,7 @@ const PlanOverviewSectionPage: React.FC = () => {
                 <div className={styles.questionHeader}>
                   <div className={styles.questionTitle}>
                     <h3 id={`question-title-${question.id}`}>
-                      {question.title}
+                    {stripHtml(question.title)}
                     </h3>
                     <p aria-live="polite">
                       <span
