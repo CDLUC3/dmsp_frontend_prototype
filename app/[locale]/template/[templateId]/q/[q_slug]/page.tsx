@@ -47,12 +47,20 @@ import { useToast } from '@/context/ToastContext';
 
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
+import logECS from '@/utils/clientLogger';
 import { questionTypeHandlers, QuestionTypeMap } from '@/utils/questionTypeHandlers';
 import {
   Question,
   QuestionOptions,
   QuestionTypesInterface
 } from '@/app/types';
+import {
+  TEXT_QUESTION_TYPE,
+  RANGE_QUESTION_TYPE,
+  TYPEAHEAD_QUESTION_TYPE,
+  DATE_RANGE_QUESTION_TYPE,
+  NUMBER_RANGE_QUESTION_TYPE
+} from '@/lib/constants';
 import {
   isOptionsType,
   getOverrides,
@@ -136,28 +144,13 @@ const QuestionEdit = () => {
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
 
-    // Only update `question.json` if it's an options question
     if (hasOptions && questionType && question?.json) {
-      if (parsedQuestionJSON) {
-        const formState = {
-          options: newRows.map(row => ({
-            label: row.text,
-            value: row.text,
-            selected: row.isSelected,
-          })),
-        };
+      const updatedJSON = buildUpdatedJSON(question, newRows);
 
-        const updatedJSON = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-          parsedQuestionJSON,
-          formState
-        );
-
-        // Store the updated JSON string in question.json
-        setQuestion((prev) => ({
-          ...prev,
-          json: JSON.stringify(updatedJSON.data),
-        }));
-      }
+      setQuestion((prev) => ({
+        ...prev,
+        json: JSON.stringify(updatedJSON.data),
+      }));
     }
   };
 
@@ -172,23 +165,13 @@ const QuestionEdit = () => {
   const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
 
-    if (
-      typeof questionType === 'string' &&
-      ['dateRange', 'numberRange'].includes(questionType) &&
-      question?.json
-    ) {
-      // Handle both string and object cases
-      const source = question.json;
-      const parsed = typeof source === 'string' ? JSON.parse(source) : source;
-
-      // Deep clone to prevent mutation (keep your original)
-      const updated = JSON.parse(JSON.stringify(parsed));
-
-      if (updated?.columns?.[field]?.attributes) {
-        updated.columns[field].attributes.label = value;
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "dateRange" || parsedQuestionJSON?.type === "numberRange")) {
+      if (parsedQuestionJSON?.columns?.[field]?.attributes) {
+        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+        updatedParsed.columns[field].attributes.label = value;
         setQuestion(prev => ({
           ...prev,
-          json: JSON.stringify(updated),
+          json: JSON.stringify(updatedParsed),
         }));
       }
     }
@@ -201,10 +184,11 @@ const QuestionEdit = () => {
     // Update the label in the question JSON and sync to question state
     if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
       if (parsedQuestionJSON?.graphQL?.displayFields?.[0]) {
-        parsedQuestionJSON.graphQL.displayFields[0].label = value;
+        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+        updatedParsed.graphQL.displayFields[0].label = value;
         setQuestion(prev => ({
           ...prev,
-          json: JSON.stringify(parsedQuestionJSON),
+          json: JSON.stringify(updatedParsed),
         }));
       }
     }
@@ -215,20 +199,26 @@ const QuestionEdit = () => {
     setTypeAheadHelpText(value);
 
     if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
-      if (parsedQuestionJSON?.graphQL?.variables?.[0]) {
-        parsedQuestionJSON.graphQL.variables[0].label = value;
+      const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+
+      if (updatedParsed.graphQL &&
+        updatedParsed?.graphQL?.variables?.[0]) {
+        updatedParsed.graphQL.variables[0].label = value;
         setQuestion(prev => ({
           ...prev,
-          json: JSON.stringify(parsedQuestionJSON),
+          json: JSON.stringify(updatedParsed),
         }));
       }
     }
   };
 
-  const getFormState = (question: Question) => {
+  // Prepare input for the questionTypeHandler. For options questions, we update the 
+  // values with rows state. For non-options questions, we use the parsed JSON
+  const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
     if (hasOptions) {
+      const useRows = rowsOverride ?? rows;
       return {
-        options: rows.map(row => ({
+        options: useRows.map(row => ({
           label: row.text,
           value: row.text,
           selected: row.isSelected,
@@ -239,11 +229,14 @@ const QuestionEdit = () => {
     return { ...formState, attributes: { ...formState?.attributes, ...getOverrides(questionType) } };
   };
 
-  const buildUpdatedJSON = (question: Question) => {
-    const userInput = getFormState(question);
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](getParsedQuestionJSON(question), userInput);
+  // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
+  const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
+    const userInput = getFormState(question, rowsOverride);
+    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+      getParsedQuestionJSON(question),
+      userInput
+    );
   };
-
 
   // Handle form submission to update the question
   const handleUpdate = async (e: React.FormEvent) => {
@@ -253,7 +246,6 @@ const QuestionEdit = () => {
     setFormSubmitted(true);
 
     if (question) {
-      // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
       const updatedJSON = buildUpdatedJSON(question);
 
       // Strip all tags from questionText before sending to backend
@@ -293,42 +285,49 @@ const QuestionEdit = () => {
   }
 
   useEffect(() => {
-    // if the question with the given questionType exists, then set the data in state
-    if (selectedQuestion) {
+    if (selectedQuestion?.question) {
+      const q = selectedQuestion.question;
 
-      const q = selectedQuestion?.question || null;
-      const parsed = getParsedQuestionJSON(q);
-      const questionType = parsed.type;
-      const questionTypeFriendlyName = Global(`questionTypes.${questionType}`);
+      try {
+        const parsed = getParsedQuestionJSON(q);
+        if (!parsed?.type) {
+          logECS('error', 'Parsing error', {
+            error: 'Invalid question type in parsed JSON',
+            url: { path: routePath('template.q.slug') }
+          });
+          return;
+        }
 
-      setQuestionType(questionType);
-      setQuestionTypeName(questionTypeFriendlyName);
-      if (parsed) {
+        const questionType = parsed.type;
+        const questionTypeFriendlyName = Global(`questionTypes.${questionType}`);
+
+        setQuestionType(questionType);
+        setQuestionTypeName(questionTypeFriendlyName);
         setParsedQuestionJSON(parsed);
-      }
-      const isOptionsQuestion = isOptionsType(questionType)
 
-      // Set question and rows in state
-      if (q) {
+        const isOptionsQuestion = isOptionsType(questionType);
         setQuestion(q);
         setHasOptions(isOptionsQuestion);
 
-      }
-
-      // Set options info
-      if (isOptionsQuestion && parsed.options) {
-        const optionRows = parsed.options
-          .map((option: Option, index: number) => ({
-            id: index,
-            text: option.attributes.label,
-            isSelected: option.attributes.selected || option.attributes.checked || false,
-          }));
-
-        setRows(optionRows);
+        // Set options info with proper type checking
+        if (isOptionsQuestion && parsed.options && Array.isArray(parsed.options)) {
+          const optionRows = parsed.options
+            .map((option: Option, index: number) => ({
+              id: index,
+              text: option?.attributes?.label || '',
+              isSelected: option?.attributes?.selected || option?.attributes?.checked || false,
+            }));
+          setRows(optionRows);
+        }
+      } catch (error) {
+        logECS('error', 'Parsing error', {
+          error,
+          url: { path: routePath('template.q.slug') }
+        });
+        setErrors(prev => [...prev, 'Error parsing question data']);
       }
     }
-  }, [selectedQuestion])
-
+  }, [selectedQuestion]);
 
   // Saves any query errors to errors state
   useEffect(() => {
@@ -346,9 +345,9 @@ const QuestionEdit = () => {
   }, [selectedQuestionQueryError, questionTypesError]);
 
 
+  // Set labels for dateRange and numberRange
   useEffect(() => {
-
-    if ((parsedQuestionJSON?.type === 'dateRange' || parsedQuestionJSON?.type === 'numberRange')) {
+    if ((parsedQuestionJSON?.type === DATE_RANGE_QUESTION_TYPE || parsedQuestionJSON?.type === NUMBER_RANGE_QUESTION_TYPE)) {
       try {
 
         setDateRangeLabels({
@@ -361,12 +360,13 @@ const QuestionEdit = () => {
     }
   }, [parsedQuestionJSON])
 
+  // Set labels for typeahead search
   useEffect(() => {
-    if ((parsedQuestionJSON?.type === 'typeaheadSearch')) {
+    if ((parsedQuestionJSON?.type === TYPEAHEAD_QUESTION_TYPE)) {
       setTypeaheadSearchLabel(parsedQuestionJSON?.graphQL?.displayFields[0]?.label);
       setTypeAheadHelpText(parsedQuestionJSON?.graphQL?.variables?.[0]?.label ?? '');
     }
-  }, [questionType, question?.json])
+  }, [questionType])
 
 
   // If a user changes their question type, then we need to fetch the question types to set the new json schema
@@ -378,6 +378,7 @@ const QuestionEdit = () => {
   }, [questionTypeIdQueryParam]);
 
 
+  // Return the question type schema that matches the one in the questionType query param
   function getMatchingQuestionType(qTypes: QuestionTypesInterface[], questionTypeIdQueryParam: string) {
     return qTypes.find((q) => {
       try {
@@ -419,7 +420,6 @@ const QuestionEdit = () => {
       }
     }
   }, [questionTypesData, questionTypeIdQueryParam]);
-
 
   useEffect(() => {
     if (question) {
@@ -514,7 +514,7 @@ const QuestionEdit = () => {
                 )}
 
                 {/**Date and Number range question types */}
-                {questionType && (questionType === 'dateRange' || questionType === 'numberRange') && (
+                {questionType && RANGE_QUESTION_TYPE.includes(questionType) && (
                   <RangeComponent
                     startLabel={dateRangeLabels.start}
                     endLabel={dateRangeLabels.end}
@@ -523,7 +523,7 @@ const QuestionEdit = () => {
                 )}
 
                 {/**Typeahead search question type */}
-                {questionType && (questionType === 'typeaheadSearch') && (
+                {questionType && (questionType === TYPEAHEAD_QUESTION_TYPE) && (
                   <TypeAheadSearch
                     typeaheadSearchLabel={typeaheadSearchLabel}
                     typeaheadHelpText={typeaheadHelpText}
@@ -576,7 +576,7 @@ const QuestionEdit = () => {
                   />
                 )}
 
-                {!hasOptions && (
+                {questionType && TEXT_QUESTION_TYPE.includes(questionType) && (
                   <Checkbox
                     onChange={() => setQuestion({
                       ...question,

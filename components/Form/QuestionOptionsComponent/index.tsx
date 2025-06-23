@@ -7,6 +7,9 @@ import { Checkbox, } from "react-aria-components";
 
 import FormInput from '@/components/Form/FormInput';
 import { useTranslations } from 'next-intl';
+import {
+  CHECKBOXES_QUESTION_TYPE
+} from '@/lib/constants';
 import styles from './optionsComponent.module.scss';
 
 
@@ -79,7 +82,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
     if (!rows) return;
 
     // allow multiple selections for checkboxes or multiSelect
-    if (parsedQuestionJSON.type === 'checkBoxes' || parsedQuestionJSON.attributes?.multiple === true) {
+    if (parsedQuestionJSON.type === CHECKBOXES_QUESTION_TYPE || parsedQuestionJSON.attributes?.multiple === true) {
       toggleSelection(id);
     } else {
       const updatedRows = rows.map(row => ({

@@ -44,6 +44,9 @@ jest.mock('@/components/Form/QuestionOptionsComponent', () => {
   };
 });
 
+if (typeof global.structuredClone !== 'function') {
+  global.structuredClone = (val) => JSON.parse(JSON.stringify(val));
+}
 
 describe("QuestionEditPage", () => {
   let mockRouter;

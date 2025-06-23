@@ -28,6 +28,10 @@ jest.mock('@/context/ToastContext', () => ({
   })),
 }));
 
+if (typeof global.structuredClone !== 'function') {
+  global.structuredClone = (val) => JSON.parse(JSON.stringify(val));
+}
+
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
 
@@ -194,9 +198,8 @@ describe("QuestionAdd", () => {
     });
 
     await waitFor(() => {
-      expect(mockRouter.push).toHaveBeenCalledTimes(2);
-      expect(mockRouter.push).toHaveBeenNthCalledWith(1, '/template/123/q/new?section_id=1&step=1');
-      expect(mockRouter.push).toHaveBeenNthCalledWith(2, '/template/123');
+      expect(mockRouter.push).toHaveBeenCalledTimes(1);
+      expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=1&step=1');
     });
   });
 

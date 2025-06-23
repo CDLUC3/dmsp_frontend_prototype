@@ -70,6 +70,8 @@ const getParsedQuestionJSON = (question: Question | null) => {
   return null;
 }
 
+//This component is meant to work with the QuestionAdd and QuestionEdit components, to display
+// just a preview of the one question type being edited or added
 const QuestionView: React.FC<QuestionViewProps> = ({
   id = '',
   className = '',
@@ -87,11 +89,37 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     },
     notifyOnNetworkStatusChange: true
   });
+
+  // State was added so that users can change or interact with the question types in the Question Preview
   const [questionType, setQuestionType] = useState<string>('');
   const [otherField, setOtherField] = useState(false);
   const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({ affiliationName: '', affiliationId: '' });
   const [otherAffiliationName, setOtherAffiliationName] = useState<string>('');
+  const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
+  const [inputValue, setInputValue] = useState<number | null>(null);
+  const [textValue, setTextValue] = useState<string | number | null>(null);
+  const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
+  const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
+  const [yesNoValue, setYesNoValue] = useState<string>('no');
+  // Add local state for multiSelect values
+  const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
 
+  // Add local state to track if user has interacted with MultiSelect
+  const [multiSelectTouched, setMultiSelectTouched] = useState(false);
+
+  // Add local state for selected select value
+  const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
+    startDate: '',
+    endDate: '',
+  });
+  const [numberRange, setNumberRange] = useState<{ startNumber: number | null, endNumber: number | null }>({
+    startNumber: 0,
+    endNumber: 0,
+  });
+
+  // These handlers are here so that users can interact with the different question types in the Question Preview
+  // However, their changes are not saved anywhere. It's just so they can see how the questions will look and behave
   const handleAffiliationChange = async (id: string, value: string) => {
     return setAffiliationData({ affiliationName: value, affiliationId: id })
   }
@@ -100,60 +128,36 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     const value = e.target.value;
     setOtherAffiliationName(value);
   };
-  // selected radio value
-  const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
 
   // Update the selected radio value when user selects different option
   const handleRadioChange = (value: string) => {
     setSelectedRadioValue(value);
   };
 
-  const [inputValue, setInputValue] = useState<number | null>(null);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
     setInputValue(value);
   };
 
-  const [textValue, setTextValue] = useState<string | number | null>(null);
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setTextValue(value);
   };
-
-  const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
-
-  // Add local state for selected checkboxes
-  const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
 
   // Handler for checkbox group changes
   const handleCheckboxGroupChange = (values: string[]) => {
     setSelectedCheckboxValues(values);
   };
 
-  const [yesNoValue, setYesNoValue] = useState<string>('no');
   const handleBooleanChange = (values: string) => {
     setYesNoValue(values);
   };
-
-  // Add local state for multiSelect values
-  const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
-
-  // Add local state to track if user has interacted with MultiSelect
-  const [multiSelectTouched, setMultiSelectTouched] = useState(false);
 
   // Handler for MultiSelect changes
   const handleMultiSelectChange = (values: Set<string>) => {
     setSelectedMultiSelectValues(values);
     setMultiSelectTouched(true);
   };
-
-  // Add local state for selected select value
-  const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
-
-  const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
-    startDate: '',
-    endDate: '',
-  });
 
   // Handler for date range changes
   const handleDateChange = (
@@ -165,11 +169,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       [key]: value,
     }));
   };
-
-  const [numberRange, setNumberRange] = useState<{ startNumber: number | null, endNumber: number | null }>({
-    startNumber: 0,
-    endNumber: 0,
-  });
 
   // Handler for number range changes
   const handleNumberChange = (
