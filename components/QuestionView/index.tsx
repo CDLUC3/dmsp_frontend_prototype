@@ -48,6 +48,22 @@ import {
   BooleanQuestionComponent
 } from '@/components/Form/QuestionComponents';
 import { getCalendarDateValue } from "@/utils/dateUtils";
+import {
+  BOOLEAN_QUESTION_TYPE,
+  CHECKBOXES_QUESTION_TYPE,
+  CURRENCY_QUESTION_TYPE,
+  DATE_QUESTION_TYPE,
+  DATE_RANGE_QUESTION_TYPE,
+  EMAIL_QUESTION_TYPE,
+  NUMBER_QUESTION_TYPE,
+  NUMBER_RANGE_QUESTION_TYPE,
+  RADIOBUTTONS_QUESTION_TYPE,
+  SELECTBOX_QUESTION_TYPE,
+  TEXT_AREA_QUESTION_TYPE,
+  TEXT_FIELD_QUESTION_TYPE,
+  TYPEAHEAD_QUESTION_TYPE,
+  URL_QUESTION_TYPE,
+} from '@/lib/constants';
 import styles from './QuestionView.module.scss';
 
 
@@ -206,7 +222,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     if (!parsedQuestion) return null;
 
     switch (questionType) {
-      case 'radioButtons': {
+      case RADIOBUTTONS_QUESTION_TYPE: {
         return (
           <RadioButtonsQuestionComponent
             parsedQuestion={parsedQuestion}
@@ -216,7 +232,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         )
       }
-      case 'checkBoxes': {
+      case CHECKBOXES_QUESTION_TYPE: {
         return (
           <CheckboxesQuestionComponent
             parsedQuestion={parsedQuestion}
@@ -225,7 +241,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         )
       }
-      case 'selectBox': {
+      case SELECTBOX_QUESTION_TYPE: {
         const isMultiSelect = parsedQuestion.attributes?.multiple || false;
 
         return (
@@ -248,7 +264,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           </>
         );
       }
-      case 'text':
+      case TEXT_FIELD_QUESTION_TYPE:
         return (
           <FormInput
             name="textField"
@@ -259,7 +275,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             onChange={e => handleTextChange(e)}
           />
         )
-      case 'textArea':
+      case TEXT_AREA_QUESTION_TYPE:
         return (
           <TinyMCEEditor
             id="question-text-editor"
@@ -267,7 +283,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             setContent={() => { }}
           />
         );
-      case 'date':
+      case DATE_QUESTION_TYPE:
         return (
           <DateComponent
             name="startDate"
@@ -276,7 +292,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             label="Date"
           />
         )
-      case 'dateRange':
+      case DATE_RANGE_QUESTION_TYPE:
         return (
           <DateRangeQuestionComponent
             parsedQuestion={parsedQuestion}
@@ -284,7 +300,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             handleDateChange={handleDateChange}
           />
         )
-      case 'number':
+      case NUMBER_QUESTION_TYPE:
         return (
           <NumberComponent
             label="number"
@@ -294,7 +310,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         )
 
-      case 'numberRange':
+      case NUMBER_RANGE_QUESTION_TYPE:
         return (
           <NumberRangeQuestionComponent
             parsedQuestion={parsedQuestion}
@@ -304,7 +320,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             endPlaceholder="end"
           />
         )
-      case 'currency':
+      case CURRENCY_QUESTION_TYPE:
         return (
           <CurrencyQuestionComponent
             parsedQuestion={parsedQuestion}
@@ -312,7 +328,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             setInputCurrencyValue={setInputCurrencyValue}
           />
         )
-      case 'url':
+      case URL_QUESTION_TYPE:
         return (
           <FormInput
             name="urlInput"
@@ -323,7 +339,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             onChange={e => handleInputChange(e)}
           />
         )
-      case 'email':
+      case EMAIL_QUESTION_TYPE:
         return (
           <FormInput
             name="emailInput"
@@ -335,7 +351,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         )
 
-      case 'boolean':
+      case BOOLEAN_QUESTION_TYPE:
         return (
           <BooleanQuestionComponent
             parsedQuestion={parsedQuestion}
@@ -344,7 +360,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         )
 
-      case 'typeaheadSearch':
+      case TYPEAHEAD_QUESTION_TYPE:
         return (
           <AffiliationSearchQuestionComponent
             parsedQuestion={parsedQuestion}

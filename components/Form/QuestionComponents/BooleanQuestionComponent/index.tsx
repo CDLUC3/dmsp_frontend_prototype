@@ -27,7 +27,6 @@ const BooleanQuestionComponent: React.FC<BooleanQuestionProps> = ({
   // Set checked value based on parsedQuestion.attributes.checked
   const initialChecked = parsedQuestion?.attributes?.checked ? 'yes' : 'no';
 
-  // You may want to manage selectedCheckboxValues in state if you want to make it controlled
   const value = selectedValue ?? initialChecked;
 
   return (
