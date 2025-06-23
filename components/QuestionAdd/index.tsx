@@ -91,10 +91,14 @@ const QuestionAdd = ({
   const errorRef = useRef<HTMLDivElement | null>(null);
   const step1Url = `/template/${templateId}/q/new?section_id=${sectionId}&step=1`;
 
-  // State for managing form inputs
-  const [question, setQuestion] = useState<Question>({
+  // Make sure to add questionJSON and questionType to the question object so it can be used in the QuestionView component
+  const [question, setQuestion] = useState<Question>(() => ({
     ...defaultQuestion,
-  });
+    // If questionType is non-null/undefined, use it, otherwise empty string
+    questionType: questionType ?? '',
+    // questionJSON is a string, so store it here
+    json: questionJSON,
+  }));
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -203,7 +207,7 @@ const QuestionAdd = ({
         updatedParsed.graphQL.variables[0].label = value;
         setQuestion(prev => ({
           ...prev,
-          json: JSON.stringify(parsedQuestionJSON),
+          json: JSON.stringify(updatedParsed),
         }));
       }
     }
@@ -301,17 +305,6 @@ const QuestionAdd = ({
       return;
     }
   }, [])
-
-  useEffect(() => {
-    // Make sure to add questionJSON and questionType to the question object so it can be used in the QuestionView component
-    if (question) {
-      setQuestion({
-        ...question,
-        questionType,
-        json: questionJSON
-      });
-    }
-  }, [questionType, questionJSON]);
 
   useEffect(() => {
     if (questionType) {

@@ -115,7 +115,7 @@ const QuestionEdit = () => {
 
   // localization keys
   const Global = useTranslations('Global');
-  const QuestionEdit = useTranslations('QuestionEdit');
+  const t = useTranslations('QuestionEdit');
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.show', { templateId });
@@ -270,15 +270,12 @@ const QuestionEdit = () => {
 
         if (response?.data) {
           // Show success message and redirect to Edit Template page
-          toastState.add(QuestionEdit('messages.success.questionUpdated'), { type: 'success' });
+          toastState.add(t('messages.success.questionUpdated'), { type: 'success' });
           router.push(TEMPLATE_URL);
         }
       } catch (error) {
-        if (error instanceof ApolloError) {
-          //
-        } else {
-          // Handle other types of errors
-          setErrors(prevErrors => [...prevErrors, QuestionEdit('messages.errors.questionUpdateError')]);
+        if (!(error instanceof ApolloError)) {
+          setErrors(prevErrors => [...prevErrors, t('messages.errors.questionUpdateError')]);
         }
       }
     }
@@ -435,7 +432,7 @@ const QuestionEdit = () => {
   return (
     <>
       <PageHeader
-        title={QuestionEdit('title', { title: selectedQuestion?.question?.questionText ?? '' })}
+        title={t('title', { title: selectedQuestion?.question?.questionText ?? '' })}
         description=""
         showBackButton={false}
         breadcrumbs={
@@ -470,17 +467,17 @@ const QuestionEdit = () => {
                   isRequired
                 >
                   <Label
-                    className={`${styles.searchLabel} react-aria-Label`}>{QuestionEdit('labels.type')}</Label>
+                    className={`${styles.searchLabel} react-aria-Label`}>{t('labels.type')}</Label>
                   <Input
                     value={questionTypeName}
                     className={`${styles.searchInput} react-aria-Input`}
                     disabled />
                   <Button className={`${styles.searchButton} react-aria-Button`}
                     type="button"
-                    onPress={redirectToQuestionTypes}>{QuestionEdit('buttons.changeType')}</Button>
+                    onPress={redirectToQuestionTypes}>{t('buttons.changeType')}</Button>
                   <Text slot="description"
                     className={`${styles.searchHelpText} help-text`}>
-                    {QuestionEdit('helpText.textField')}
+                    {t('helpText.textField')}
                   </Text>
                 </TextField>
 
@@ -488,22 +485,22 @@ const QuestionEdit = () => {
                   name="question_text"
                   type="text"
                   isRequired={true}
-                  label={QuestionEdit('labels.questionText')}
+                  label={t('labels.questionText')}
                   value={question?.questionText ? question.questionText : ''}
                   onChange={(e) => setQuestion({
                     ...question,
                     questionText: e.currentTarget.value
                   })}
-                  helpMessage={QuestionEdit('helpText.questionText')}
+                  helpMessage={t('helpText.questionText')}
                   isInvalid={!question?.questionText}
-                  errorMessage={QuestionEdit('messages.errors.questionTextRequired')}
+                  errorMessage={t('messages.errors.questionTextRequired')}
                 />
 
                 {/**Question type fields here */}
                 {hasOptions && (
                   <div className={styles.optionsWrapper}>
                     <p
-                      className={styles.optionsDescription}>{QuestionEdit('helpText.questionOptions', { questionType })}</p>
+                      className={styles.optionsDescription}>{t('helpText.questionOptions', { questionType })}</p>
                     <QuestionOptionsComponent
                       rows={rows}
                       setRows={updateRows}
@@ -536,9 +533,9 @@ const QuestionEdit = () => {
                   name="question_requirements"
                   isRequired={false}
                   richText={true}
-                  description={QuestionEdit('helpText.requirementText')}
+                  description={t('helpText.requirementText')}
                   textAreaClasses={styles.questionFormField}
-                  label={QuestionEdit('labels.requirementText')}
+                  label={t('labels.requirementText')}
                   value={question?.requirementText ? question.requirementText : ''}
                   onChange={(newValue) => setQuestion(prev => ({
                     ...prev,
@@ -551,7 +548,7 @@ const QuestionEdit = () => {
                   isRequired={false}
                   richText={true}
                   textAreaClasses={styles.questionFormField}
-                  label={QuestionEdit('labels.guidanceText')}
+                  label={t('labels.guidanceText')}
                   value={question?.guidanceText ? question.guidanceText : ''}
                   onChange={(newValue) => setQuestion(prev => ({
                     ...prev,
@@ -565,9 +562,9 @@ const QuestionEdit = () => {
                     name="sample_text"
                     isRequired={false}
                     richText={true}
-                    description={QuestionEdit('descriptions.sampleText')}
+                    description={t('descriptions.sampleText')}
                     textAreaClasses={styles.questionFormField}
-                    label={QuestionEdit('labels.sampleText')}
+                    label={t('labels.sampleText')}
                     value={question?.sampleText ? question?.sampleText : ''}
                     onChange={(newValue) => setQuestion(prev => ({
                       ...prev,
@@ -589,7 +586,7 @@ const QuestionEdit = () => {
                         <polyline points="1 9 7 14 15 4" />
                       </svg>
                     </div>
-                    {QuestionEdit('descriptions.sampleTextAsDefault')}
+                    {t('descriptions.sampleTextAsDefault')}
 
                   </Checkbox>
                 )}
@@ -614,9 +611,9 @@ const QuestionEdit = () => {
 
         <div className="sidebar">
           <h2>{Global('headings.preview')}</h2>
-          <p>{QuestionEdit('descriptions.previewText')}</p>
+          <p>{t('descriptions.previewText')}</p>
           <QuestionPreview
-            buttonLabel={QuestionEdit('buttons.previewQuestion')}
+            buttonLabel={t('buttons.previewQuestion')}
             previewDisabled={question ? false : true}
           >
             <QuestionView
@@ -626,10 +623,10 @@ const QuestionEdit = () => {
             />
           </QuestionPreview>
 
-          <h3>{QuestionEdit('headings.bestPractice')}</h3>
-          <p>{QuestionEdit('descriptions.bestPracticePara1')}</p>
-          <p>{QuestionEdit('descriptions.bestPracticePara2')}</p>
-          <p>{QuestionEdit('descriptions.bestPracticePara3')}</p>
+          <h3>{t('headings.bestPractice')}</h3>
+          <p>{t('descriptions.bestPracticePara1')}</p>
+          <p>{t('descriptions.bestPracticePara2')}</p>
+          <p>{t('descriptions.bestPracticePara3')}</p>
         </div>
       </div>
     </>
