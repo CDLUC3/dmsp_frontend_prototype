@@ -12,12 +12,16 @@ interface SectionEditContainerProps {
   sectionId: number;
   templateId: string | number;
   setErrorMessages: React.Dispatch<React.SetStateAction<string[]>>;
+  onMoveUp: (() => void) | undefined;
+  onMoveDown: (() => void) | undefined
 }
 
 const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   sectionId,
   templateId,
   setErrorMessages,
+  onMoveUp,
+  onMoveDown
 }) => {
   const { data, loading, error, refetch } = useSectionQuery({
     variables: { sectionId: Number(sectionId) },
@@ -30,30 +34,36 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
 
   const section: Section = data.section;
   const sortedQuestions = section.questions
-    ? [...section.questions].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    ? [...section.questions].sort((a, b) => a.displayOrder! - b.displayOrder!)
     : [];
-
   return (
-    <div key={section.id} role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
-      <SectionHeaderEdit
-        sectionNumber={section.displayOrder ?? 0}
-        title={section.name}
-        editUrl={`/template/${templateId}/section/${section.id}`}
-        onMoveUp={() => null}
-        onMoveDown={() => null}
-      />
-      {sortedQuestions.map((question: Question) => (
-        <QuestionEditCard
-          key={question.id}
-          id={question.id ? question.id.toString() : ''}
-          text={question.questionText || ''}
-          link={`/template/${templateId}/q/${question.id}`}
-          displayOrder={Number(question.displayOrder)}
-          setErrorMessages={setErrorMessages}
-          refetchSection={refetch} // Pass section-specific refetch
+    <div role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
+      <div role="listitem">
+        <SectionHeaderEdit
+          key={section.id}
+          sectionNumber={section.displayOrder!}
+          title={section.name}
+          editUrl={`/template/${templateId}/section/${section.id}`}
+          onMoveUp={onMoveUp}
+          onMoveDown={onMoveDown}
         />
-      ))}
-      <AddQuestionButton href={`/template/${templateId}/q/new?section_id=${section.id}`} />
+      </div>
+      <div role="listitem">
+        {sortedQuestions.map((question: Question) => (
+          <QuestionEditCard
+            key={question.id}
+            id={question.id ? question.id.toString() : ''}
+            text={question.questionText || ''}
+            link={`/template/${templateId}/q/${question.id}`}
+            displayOrder={Number(question.displayOrder)}
+            setErrorMessages={setErrorMessages}
+            refetchSection={refetch} // Pass section-specific refetch
+          />
+        ))}
+      </div>
+      <div role="listitem">
+        <AddQuestionButton href={`/template/${templateId}/q/new?section_id=${section.id}`} />
+      </div>
     </div>
   );
 };

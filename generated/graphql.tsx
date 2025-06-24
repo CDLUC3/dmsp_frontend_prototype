@@ -3872,6 +3872,14 @@ export type UpdateSectionMutationVariables = Exact<{
 
 export type UpdateSectionMutation = { __typename?: 'Mutation', updateSection: { __typename?: 'Section', id?: number | null, name: string, introduction?: string | null, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, introduction?: string | null, requirements?: string | null, guidance?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null } };
 
+export type UpdateSectionDisplayOrderMutationVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+  newDisplayOrder: Scalars['Int']['input'];
+}>;
+
+
+export type UpdateSectionDisplayOrderMutation = { __typename?: 'Mutation', updateSectionDisplayOrder: { __typename?: 'ReorderSectionsResult', sections?: Array<{ __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, visibility: TemplateVisibility } | null }> | null } };
+
 export type AddTemplateCollaboratorMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
   email: Scalars['String']['input'];
@@ -4920,6 +4928,85 @@ export function useUpdateSectionMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateSectionMutationHookResult = ReturnType<typeof useUpdateSectionMutation>;
 export type UpdateSectionMutationResult = Apollo.MutationResult<UpdateSectionMutation>;
 export type UpdateSectionMutationOptions = Apollo.BaseMutationOptions<UpdateSectionMutation, UpdateSectionMutationVariables>;
+export const UpdateSectionDisplayOrderDocument = gql`
+    mutation UpdateSectionDisplayOrder($sectionId: Int!, $newDisplayOrder: Int!) {
+  updateSectionDisplayOrder(
+    sectionId: $sectionId
+    newDisplayOrder: $newDisplayOrder
+  ) {
+    sections {
+      id
+      introduction
+      name
+      requirements
+      guidance
+      displayOrder
+      bestPractice
+      isDirty
+      questions {
+        errors {
+          general
+          templateId
+          sectionId
+          questionText
+          displayOrder
+        }
+        displayOrder
+        guidanceText
+        id
+        questionText
+        sectionId
+        templateId
+      }
+      tags {
+        id
+        description
+        name
+      }
+      errors {
+        general
+        name
+        displayOrder
+      }
+      template {
+        id
+        bestPractice
+        isDirty
+        languageId
+        name
+        visibility
+      }
+    }
+  }
+}
+    `;
+export type UpdateSectionDisplayOrderMutationFn = Apollo.MutationFunction<UpdateSectionDisplayOrderMutation, UpdateSectionDisplayOrderMutationVariables>;
+
+/**
+ * __useUpdateSectionDisplayOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateSectionDisplayOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSectionDisplayOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSectionDisplayOrderMutation, { data, loading, error }] = useUpdateSectionDisplayOrderMutation({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *      newDisplayOrder: // value for 'newDisplayOrder'
+ *   },
+ * });
+ */
+export function useUpdateSectionDisplayOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSectionDisplayOrderMutation, UpdateSectionDisplayOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateSectionDisplayOrderMutation, UpdateSectionDisplayOrderMutationVariables>(UpdateSectionDisplayOrderDocument, options);
+      }
+export type UpdateSectionDisplayOrderMutationHookResult = ReturnType<typeof useUpdateSectionDisplayOrderMutation>;
+export type UpdateSectionDisplayOrderMutationResult = Apollo.MutationResult<UpdateSectionDisplayOrderMutation>;
+export type UpdateSectionDisplayOrderMutationOptions = Apollo.BaseMutationOptions<UpdateSectionDisplayOrderMutation, UpdateSectionDisplayOrderMutationVariables>;
 export const AddTemplateCollaboratorDocument = gql`
     mutation AddTemplateCollaborator($templateId: Int!, $email: String!) {
   addTemplateCollaborator(templateId: $templateId, email: $email) {

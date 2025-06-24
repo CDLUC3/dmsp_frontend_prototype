@@ -4,15 +4,32 @@ import {
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
   useTemplateQuery,
+  useSectionQuery
 } from '@/generated/graphql';
 import { useParams } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
 import TemplateEditPage from '../page';
-import { updateTemplateAction } from '../actions';
+import { updateTemplateAction, updateSectionDisplayOrderAction } from '../actions';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
+import { axe, toHaveNoViolations } from 'jest-axe';
+
+expect.extend(toHaveNoViolations);
+
+jest.mock('next/link', () => {
+  return ({ children, href }: any) => <a href={href}>{children}</a>;
+});
+
+// Mock useFormatter and useTranslations from next-intl
+jest.mock('next-intl', () => ({
+  useFormatter: jest.fn(() => ({
+    dateTime: jest.fn(() => '01-01-2023'),
+  })),
+  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
+}));
 
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
+  useSectionQuery: jest.fn(),
   useTemplateQuery: jest.fn(),
   useArchiveTemplateMutation: jest.fn(),
   useCreateTemplateVersionMutation: jest.fn(),
@@ -22,6 +39,7 @@ jest.mock("@/generated/graphql", () => ({
 
 jest.mock('../actions/index', () => ({
   updateTemplateAction: jest.fn(),
+  updateSectionDisplayOrderAction: jest.fn()
 }));
 
 jest.mock('next/navigation', () => ({
@@ -29,13 +47,6 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }))
 
-// Mock useFormatter and useTranslations from next-intl
-jest.mock('next-intl', () => ({
-  useFormatter: jest.fn(() => ({
-    dateTime: jest.fn(() => '01-01-2023'),
-  })),
-  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`
-}));
 
 jest.mock('@/components/BackButton', () => {
   return {
@@ -56,6 +67,25 @@ const mockArchiveTemplateData = {
       },
     },
   },
+}
+
+const mockSectionData = {
+  id: 79,
+  name: 'Data Description',
+  displayOrder: 1,
+  questions: [
+    {
+      id: 1,
+      displayOrder: 1,
+      questionText: "Email field",
+
+    },
+    {
+      id: 2,
+      displayOrder: 2,
+      questionText: "Process and Procedures"
+    }
+  ]
 }
 
 const mockTemplateData: {
@@ -108,6 +138,7 @@ const mockTemplateData: {
 
 describe("TemplateEditPage", () => {
   beforeEach(() => {
+    jest.clearAllMocks();
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     const mockTemplateId = 123;
@@ -120,7 +151,23 @@ describe("TemplateEditPage", () => {
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
+
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    (useSectionQuery as jest.Mock).mockReturnValue({
+      data: {
+        section: mockSectionData
+      },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
   });
+
 
   it("should render loading state", async () => {
     // Mock graphql requests
@@ -129,11 +176,6 @@ describe("TemplateEditPage", () => {
       loading: true,
       error: null,
     });
-
-    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
 
     await act(async () => {
       render(
@@ -162,14 +204,10 @@ describe("TemplateEditPage", () => {
     const versionText = screen.getByText(/version: v1/i);
     expect(versionText).toBeInTheDocument();
 
-    const heading2 = screen.getByRole('heading', {
-      level: 2,
-      name: 'labels.section 1 Data description',
-    });
-    expect(heading2).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /data description/i })).toBeInTheDocument();
 
     const questionText = screen.getByText(
-      (content) => content.includes('Briefly describe nature'),
+      (content) => content.includes('Process and Procedures'),
       { selector: 'p' }
     );
 
@@ -492,5 +530,74 @@ describe("TemplateEditPage", () => {
       )
     })
   });
-});
 
+
+  it('should call updateSectionDisplayOrderAction when a section is moved', async () => {
+    const mockTemplateId = 123;
+    const mockUseParams = useParams as jest.Mock;
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+
+
+    // Arrange: mock template with two sections
+    const mockTemplateWithSections = {
+      ...mockTemplateData,
+      sections: [mockSectionData],
+    };
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateWithSections },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    // Mock updateSectionDisplayOrderAction to resolve successfully
+    (updateSectionDisplayOrderAction as jest.Mock).mockResolvedValue({
+      success: true,
+      errors: [],
+      data: {},
+    });
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    // Find the "Move Down" button for the first section
+    // SectionEditContainer should render a button for moving down
+    const moveDownButtons = screen.getAllByLabelText('buttons.moveDown');
+    expect(moveDownButtons.length).toBeGreaterThan(0);
+
+    // Act: Click the first "Move Down" button
+    await act(async () => {
+      fireEvent.click(moveDownButtons[0]);
+    });
+
+    // Assert: updateSectionDisplayOrderAction called with correct args
+    await waitFor(() => {
+      expect(updateSectionDisplayOrderAction).toHaveBeenCalledWith({
+        sectionId: 79,
+        newDisplayOrder: 2,
+      });
+    });
+  });
+
+  it('should pass accessibility tests', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+
+    let container: HTMLElement;
+    await act(async () => {
+      const renderResult = render(<TemplateEditPage />);
+      container = renderResult.container;
+    });
+
+    const results = await axe(container!);
+    expect(results).toHaveNoViolations();
+  });
+
+});

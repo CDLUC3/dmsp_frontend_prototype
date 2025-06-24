@@ -32,10 +32,7 @@ import {
 } from '@/generated/graphql';
 
 // Components
-import SectionHeaderEdit from "@/components/SectionHeaderEdit";
-import QuestionEditCard from "@/components/QuestionEditCard";
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
-import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from '@/components/ErrorMessages';
 import SectionEditContainer from '@/components/SectionEditContainer';
@@ -44,7 +41,10 @@ import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
-import { updateTemplateAction } from './actions';
+import {
+  updateTemplateAction,
+  updateSectionDisplayOrderAction
+} from './actions';
 import styles from './templateEditPage.module.scss';
 interface TemplateInfoInterface {
   templateId: number | null;
@@ -82,6 +82,8 @@ const TemplateEditPage: React.FC = () => {
   //For scrolling up to page level error
   const pageErrorRef = useRef<HTMLDivElement | null>(null);
 
+  const generalErrorMessage = "Something went wrong";
+
   // Initialize publish mutation
   const [createTemplateVersionMutation] = useCreateTemplateVersionMutation();
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
@@ -94,7 +96,6 @@ const TemplateEditPage: React.FC = () => {
       fetchPolicy: "network-only",// Fetch latest data instead of cache so we get the latest sections and questions
     }
   );
-
 
   const sortSections = (sections: Section[]) => {
     // Create a new array with the spread operator before sorting
@@ -201,7 +202,7 @@ const TemplateEditPage: React.FC = () => {
       });
       return {
         success: false,
-        errors: [Global('messaging.somethingWentWrong')],
+        errors: [generalErrorMessage],
         data: null,
       };
     }
@@ -236,7 +237,7 @@ const TemplateEditPage: React.FC = () => {
 
       //Check if errors is an array or an object
       if (Array.isArray(errors)) {
-        setErrorMessages(errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')])
+        setErrorMessages(errors.length > 0 ? errors : [generalErrorMessage])
       }
     } else {
       if (
@@ -244,10 +245,84 @@ const TemplateEditPage: React.FC = () => {
         typeof result.data.errors === 'object' &&
         typeof result.data.errors.general === 'string') {
         // Handle errors as an object with general or field-level errors
-        setErrorMessages(prev => [...prev, result.data?.errors?.general || Global('messaging.somethingWentWrong')]);
+        setErrorMessages(prev => [...prev, result.data?.errors?.general || generalErrorMessage]);
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
+    }
+  }
+
+  // Call Server Action updateSectionDisplayOrderAction
+  const updateSectionDisplayOrder = async (sectionId: number, newDisplayOrder: number) => {
+
+    if (!sectionId) {
+      logECS('error', 'updateSectionDisplayOrder', {
+        error: 'No sectionId',
+        url: {
+          path: routePath('template.show', { templateId: templateId }),
+        },
+      });
+      return {
+        success: false,
+        errors: [generalErrorMessage],
+        data: null,
+      };
+    }
+
+    // Don't need a try-catch block here, as the error is handled in the server action
+    const response = await updateSectionDisplayOrderAction({
+      sectionId: sectionId,
+      newDisplayOrder: newDisplayOrder
+    });
+
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data,
+    };
+  }
+
+  const handleSectionMove = async (sectionId: number, newDisplayOrder: number) => {
+    // If new display order is less than 1 then just return
+    if (newDisplayOrder < 1) {
+      if (setErrorMessages) {
+        setErrorMessages(prev => [...prev, generalErrorMessage]);
+      }
+      return;
+    }
+
+    const result = await updateSectionDisplayOrder(
+      sectionId,
+      newDisplayOrder
+    );
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        if (setErrorMessages) {
+          setErrorMessages(errors.length > 0 ? errors : [generalErrorMessage])
+        }
+      }
+    } else {
+      if (refetch) {
+        await refetch(); //Need to refresh list of sections after reordering
+      }
+      if (
+        result.data?.errors &&
+        typeof result.data.errors === 'object' &&
+        typeof result.data.errors.general === 'string') {
+        if (setErrorMessages) {
+          // Handle errors as an object with general or field-level errors
+          setErrorMessages(prev => [...prev, result.data?.errors?.general || generalErrorMessage]);
+        }
+      }
     }
   }
 
@@ -334,6 +409,16 @@ const TemplateEditPage: React.FC = () => {
                     sectionId={section.id as number}
                     templateId={templateId}
                     setErrorMessages={setErrorMessages}
+                    onMoveUp={
+                      section.displayOrder != null
+                        ? () => handleSectionMove(section.id!, section.displayOrder! - 1)
+                        : undefined
+                    }
+                    onMoveDown={
+                      section.displayOrder != null
+                        ? () => handleSectionMove(section.id!, section.displayOrder! + 1)
+                        : undefined
+                    }
                   />
                 ))}
             </div>
@@ -357,7 +442,7 @@ const TemplateEditPage: React.FC = () => {
 
             {template.isDirty && (
               <div className="sidebar-section">
-                <h5 className="sidebar-section-title">{EditTemplate('button.publishTemplate')}</h5>
+                <h3 className="h5 sidebar-section-title">{EditTemplate('button.publishTemplate')}</h3>
                 <div className="status">
                   <p>
                     {EditTemplate('draft')} <Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
@@ -367,7 +452,7 @@ const TemplateEditPage: React.FC = () => {
             )}
 
             <div className="sidebar-section">
-              <h5 className="sidebar-section-title">{EditTemplate('heading.visibilitySettings')}</h5>
+              <h3 className="h5 sidebar-section-title">{EditTemplate('heading.visibilitySettings')}</h3>
               <div className="status">
                 <p>
                   {template.isDirty ? EditTemplate('notPublished') : EditTemplate('published')}{' '}<Link href='#' onPress={() => setPublishModalOpen(true)}>{EditTemplate('links.edit')}</Link>
@@ -377,7 +462,7 @@ const TemplateEditPage: React.FC = () => {
 
 
             <div className="sidebar-section">
-              <h5 className="sidebar-section-title">{EditTemplate('heading.feedbackAndCollaboration')}</h5>
+              <h3 className="h5 sidebar-section-title">{EditTemplate('heading.feedbackAndCollaboration')}</h3>
               <div className="description">
                 <p>
                   {EditTemplate('allowAccess')}
@@ -399,7 +484,7 @@ const TemplateEditPage: React.FC = () => {
               >
                 {EditTemplate('button.publishTemplate')}
               </Button>
-              <h5 className="sidebar-section-title">{EditTemplate('heading.history')}</h5>
+              <h3 className="h5 sidebar-section-title">{EditTemplate('heading.history')}</h3>
               <p>
                 <Link className="learn-more"
                   href={`/template/${templateId}/history`}>

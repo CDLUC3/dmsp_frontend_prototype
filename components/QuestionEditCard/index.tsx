@@ -175,7 +175,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   }
 
   return (
-    <div className={styles.questionEditCard} key={id} role="listitem">
+    <div className={styles.questionEditCard} key={id}>
       <div className={styles.questionEditCard__content}
         aria-labelledby={`question-${id}`}>
         <p className={styles.questionEditCard__label}

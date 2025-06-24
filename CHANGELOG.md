@@ -12,6 +12,8 @@
 - Plan Downloads [#299]
 -
 ### Added
+- Added new `SectionEditContainer` component, for use in `QuestionEditCard`, to make reordering of questions more smooth [#207]
+- Added new `updateQuestionDisplayorder` and `updateSectionDisplayOrder` server actions to update question and section order when users click the `onMoveUp` and `onMoveDown` arrows [#207]
 - Added support for question type JSON objects [#535]
 - Added TinyMCE Editor component and added it to the styleguide [#462]
 - Added a Load more button to the Add new section page [#450]
