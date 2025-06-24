@@ -13,12 +13,16 @@ import {
   CalendarGrid,
   CalendarCell,
 } from "react-aria-components";
+import { CalendarDate } from "@internationalized/date";
+
 
 interface DateComponentProps {
   name: string;
   value: any;
   onChange: (value: any) => void;
   label: string;
+  minValue?: CalendarDate;
+  maxValue?: CalendarDate;
 }
 
 const DateComponent: React.FC<DateComponentProps> = ({
@@ -26,11 +30,16 @@ const DateComponent: React.FC<DateComponentProps> = ({
   value,
   onChange,
   label,
+  minValue,
+  maxValue,
 }) => (
   <DatePicker
     name={name}
     value={value}
     onChange={onChange}
+    minValue={minValue}
+    maxValue={maxValue}
+
   >
     <Label>{label}</Label>
     <Group>

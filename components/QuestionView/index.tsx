@@ -113,6 +113,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const [otherAffiliationName, setOtherAffiliationName] = useState<string>('');
   const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState<number | null>(null);
+  const [urlValue, setUrlValue] = useState<string | null>(null);
+  const [emailValue, setEmailValue] = useState<string | null>(null);
   const [textValue, setTextValue] = useState<string | number | null>(null);
   const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
   const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
@@ -150,9 +152,22 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setSelectedRadioValue(value);
   };
 
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
     setInputValue(value);
+  };
+
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUrlValue(value);
+  };
+
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmailValue(value);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -265,14 +280,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         );
       }
       case TEXT_FIELD_QUESTION_TYPE:
+        const minLength = parsedQuestion?.attributes?.minLength;
+        const maxLength = parsedQuestion?.attributes?.maxLength;
         return (
           <FormInput
             name="textField"
             type="text"
             label="text"
             placeholder="Enter text"
-            value={textValue === null ? undefined : textValue}
+            value={textValue ?? ''}
             onChange={e => handleTextChange(e)}
+            minLength={minLength}
+            maxLength={maxLength}
           />
         )
       case TEXT_AREA_QUESTION_TYPE:
@@ -284,12 +303,17 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         );
       case DATE_QUESTION_TYPE:
+        const dateMinValue = parsedQuestion?.attributes?.min;
+        const dateMaxValue = parsedQuestion?.attributes?.max;
         return (
           <DateComponent
             name="startDate"
             value={getCalendarDateValue(dateRange.startDate)}
             onChange={newDate => handleDateChange('startDate', newDate)}
             label="Date"
+            minValue={dateMinValue}
+            maxValue={dateMaxValue}
+
           />
         )
       case DATE_RANGE_QUESTION_TYPE:
@@ -301,12 +325,18 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         )
       case NUMBER_QUESTION_TYPE:
+        const minValue = parsedQuestion?.attributes?.min;
+        const maxValue = parsedQuestion?.attributes?.max;
+        const step = parsedQuestion?.attributes?.step;
         return (
           <NumberComponent
             label="number"
             value={inputValue === null ? undefined : inputValue}
             onChange={value => setInputValue(value)}
             placeholder="number"
+            minValue={minValue}
+            {...(typeof maxValue === 'number' ? { maxValue } : {})} //if maxValue is null, we don't want to set it
+            step={step}
           />
         )
 
@@ -329,25 +359,37 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         )
       case URL_QUESTION_TYPE:
+        const urlMinLength = parsedQuestion?.attributes?.minLength;
+        const urlMaxLength = parsedQuestion?.attributes?.maxLength;
+        const urlPattern = parsedQuestion?.attributes?.pattern;
         return (
           <FormInput
             name="urlInput"
             type="url"
             label="url"
             placeholder="url"
-            value={inputValue === null ? undefined : inputValue}
-            onChange={e => handleInputChange(e)}
+            value={urlValue ?? ''}
+            onChange={e => handleUrlChange(e)}
+            minLength={urlMinLength}
+            maxLength={urlMaxLength}
+            pattern={urlPattern}
           />
         )
       case EMAIL_QUESTION_TYPE:
+        const emailMinLength = parsedQuestion?.attributes?.minLength;
+        const emailMaxLength = parsedQuestion?.attributes?.maxLength;
+        const emailPattern = parsedQuestion?.attributes?.pattern;
         return (
           <FormInput
             name="emailInput"
             type="email"
             label="email"
             placeholder="email"
-            value={inputValue === null ? undefined : inputValue}
-            onChange={e => handleInputChange(e)}
+            value={emailValue ?? ''}
+            onChange={e => handleEmailChange(e)}
+            minLength={emailMinLength}
+            maxLength={emailMaxLength}
+            pattern={emailPattern}
           />
         )
 

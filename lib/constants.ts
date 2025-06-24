@@ -1,9 +1,9 @@
 export const BOOLEAN_QUESTION_TYPE = "boolean";
 export const CHECKBOXES_QUESTION_TYPE = "checkBoxes";
 export const CURRENCY_QUESTION_TYPE = "currency";
-export const DATE_QUESTION_TYPE = "text";
+export const DATE_QUESTION_TYPE = "date";
 export const DATE_RANGE_QUESTION_TYPE = "dateRange";
-export const EMAIL_QUESTION_TYPE = "number";
+export const EMAIL_QUESTION_TYPE = "email";
 export const NUMBER_QUESTION_TYPE = "number";
 export const NUMBER_RANGE_QUESTION_TYPE = "numberRange";
 export const OPTIONS_QUESTION_TYPES = ["radioButtons", "checkBoxes", "selectBox"];
