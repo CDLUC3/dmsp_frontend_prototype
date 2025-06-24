@@ -38,6 +38,7 @@ import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 import AddQuestionButton from "@/components/AddQuestionButton";
 import AddSectionButton from "@/components/AddSectionButton";
 import ErrorMessages from '@/components/ErrorMessages';
+import SectionEditContainer from '@/components/SectionEditContainer';
 
 import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
@@ -85,13 +86,15 @@ const TemplateEditPage: React.FC = () => {
   const [createTemplateVersionMutation] = useCreateTemplateVersionMutation();
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
 
-  // Run template query to get all templates under the given templateId
+  // Run template query to get all templates under the given templateIdx
   const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
     {
       variables: { templateId: Number(templateId) },
-      notifyOnNetworkStatusChange: true
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: "network-only",// Fetch latest data instead of cache so we get the latest sections and questions
     }
   );
+
 
   const sortSections = (sections: Section[]) => {
     // Create a new array with the spread operator before sorting
@@ -323,27 +326,16 @@ const TemplateEditPage: React.FC = () => {
         <div className="main-content">
           {sortedSections.length > 0 && (
             <div>
-              {sortedSections.map((section, index) => (
-                <div key={section.id} role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
-                  <SectionHeaderEdit
+              {sortedSections
+                .filter(section => section.id != null)
+                .map(section => (
+                  <SectionEditContainer
                     key={section.id}
-                    sectionNumber={index + 1}
-                    title={section.name}
-                    editUrl={`/template/${templateId}/section/${section.id}`}
-                    onMoveUp={() => null}
-                    onMoveDown={() => null}
+                    sectionId={section.id as number}
+                    templateId={templateId}
+                    setErrorMessages={setErrorMessages}
                   />
-                  {section.questions?.map((question) => (
-                    <QuestionEditCard
-                      key={question.id}
-                      id={question.id ? question.id.toString() : ''}
-                      text={question.questionText || ''}
-                      link={`/template/${templateId}/q/${question.id}`}
-                    />
-                  ))}
-                  <AddQuestionButton href={`/template/${templateId}/q/new?section_id=${section.id}`} />
-                </div>
-              ))}
+                ))}
             </div>
           )}
           <AddSectionButton href={`/template/${templateId}/section/new`} />

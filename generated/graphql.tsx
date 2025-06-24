@@ -3850,6 +3850,14 @@ export type UpdateQuestionMutationVariables = Exact<{
 
 export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, isDirty?: boolean | null, required?: boolean | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionText?: string | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null } };
 
+export type UpdateQuestionDisplayOrderMutationVariables = Exact<{
+  questionId: Scalars['Int']['input'];
+  newDisplayOrder: Scalars['Int']['input'];
+}>;
+
+
+export type UpdateQuestionDisplayOrderMutation = { __typename?: 'Mutation', updateQuestionDisplayOrder: { __typename?: 'ReorderQuestionsResult', questions?: Array<{ __typename?: 'Question', id?: number | null, displayOrder?: number | null, questionText?: string | null, sampleText?: string | null, requirementText?: string | null, guidanceText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null } | null }> | null } };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
@@ -4073,7 +4081,7 @@ export type SectionQueryVariables = Exact<{
 }>;
 
 
-export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null } | null } | null };
+export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, visibility: TemplateVisibility } | null } | null };
 
 export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4755,6 +4763,55 @@ export function useUpdateQuestionMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateQuestionMutationHookResult = ReturnType<typeof useUpdateQuestionMutation>;
 export type UpdateQuestionMutationResult = Apollo.MutationResult<UpdateQuestionMutation>;
 export type UpdateQuestionMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
+export const UpdateQuestionDisplayOrderDocument = gql`
+    mutation UpdateQuestionDisplayOrder($questionId: Int!, $newDisplayOrder: Int!) {
+  updateQuestionDisplayOrder(
+    questionId: $questionId
+    newDisplayOrder: $newDisplayOrder
+  ) {
+    questions {
+      id
+      displayOrder
+      questionText
+      sampleText
+      requirementText
+      guidanceText
+      sectionId
+      templateId
+      errors {
+        general
+      }
+    }
+  }
+}
+    `;
+export type UpdateQuestionDisplayOrderMutationFn = Apollo.MutationFunction<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>;
+
+/**
+ * __useUpdateQuestionDisplayOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuestionDisplayOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuestionDisplayOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuestionDisplayOrderMutation, { data, loading, error }] = useUpdateQuestionDisplayOrderMutation({
+ *   variables: {
+ *      questionId: // value for 'questionId'
+ *      newDisplayOrder: // value for 'newDisplayOrder'
+ *   },
+ * });
+ */
+export function useUpdateQuestionDisplayOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>(UpdateQuestionDisplayOrderDocument, options);
+      }
+export type UpdateQuestionDisplayOrderMutationHookResult = ReturnType<typeof useUpdateQuestionDisplayOrderMutation>;
+export type UpdateQuestionDisplayOrderMutationResult = Apollo.MutationResult<UpdateQuestionDisplayOrderMutation>;
+export type UpdateQuestionDisplayOrderMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {
@@ -6268,6 +6325,22 @@ export const SectionDocument = gql`
     guidance
     displayOrder
     bestPractice
+    isDirty
+    questions {
+      errors {
+        general
+        templateId
+        sectionId
+        questionText
+        displayOrder
+      }
+      displayOrder
+      guidanceText
+      id
+      questionText
+      sectionId
+      templateId
+    }
     tags {
       id
       description
@@ -6280,6 +6353,11 @@ export const SectionDocument = gql`
     }
     template {
       id
+      bestPractice
+      isDirty
+      languageId
+      name
+      visibility
     }
   }
 }
