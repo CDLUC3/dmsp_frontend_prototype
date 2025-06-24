@@ -1,5 +1,5 @@
 import React from 'react';
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 import styles from './AddQuestionButton.module.scss';
 
 interface AddQuestionButtonProps {
@@ -21,7 +21,7 @@ const AddQuestionButton: React.FC<AddQuestionButtonProps> = ({
   };
 
   return (
-    <div className={`${styles.container} ${className}`.trim()} role="listitem">
+    <div className={`${styles.container} ${className}`.trim()}>
       <a
         href={href}
         className={styles.link}
