@@ -71,7 +71,8 @@
     "bullet": {
       "publishingTemplate": "After publication, all new plans will use this version.",
       "publishingTemplate2": "In-progress or existing plans will not be updated.",
-      "publishingTemplate3": "You have configured Visibility as Public in Template options. All DMP Tool users will be able to see and use this template."
+      "publishingTemplate3": "You have configured Visibility as Public in Template options. All DMP Tool users will be able to see and use this template.",
+      "publishingTemplate3Private": "You have configured Visibility as Private in Template options. Only DMP Tool users within your organization will be able to see and use this template."
     },
     "descChangeLog": "Enter a short description of what has been changed. This will only be visible to people in your organization.",
     "button": {
