@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RadioButtonsQuestionType } from '@dmptool/types';
-import { act, fireEvent, render } from '@/utils/test-utils';
+import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { RadioButtonsQuestionComponent } from '@/components/Form/QuestionComponents';
 
@@ -42,11 +42,20 @@ describe('RadioButtonsQuestionComponent', () => {
       <RadioButtonsQuestionComponent
         parsedQuestion={mockParsedQuestion}
         selectedRadioValue={undefined}
+        name="radio-options"
+        radioGroupLabel="My Radio Button Question"
         handleRadioChange={mockHandleRadioChange}
       />
     );
+    screen.debug(undefined, Infinity);
     expect(getByLabelText('Option 1')).toBeInTheDocument();
     expect(getByLabelText('Option 2')).toBeInTheDocument();
+    expect(screen.getByText('My Radio Button Question')).toBeInTheDocument();
+    // Find the radio input by its accessible name (from aria-label)
+    const radio = screen.getByRole('radio', { name: '2' });
+
+    // Assert the name attribute
+    expect(radio).toHaveAttribute('name', 'radio-options');
   });
 
   it('should select the radio button based on selectedRadioValue prop', () => {
