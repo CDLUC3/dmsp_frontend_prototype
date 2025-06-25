@@ -48,7 +48,10 @@
     "errors": {
       "archiveTemplateError": "Error when archiving template",
       "saveTemplateError": "Error when saving template",
-      "getTemplatesError": "Error getting templates"
+      "getTemplatesError": "Error getting templates",
+      "updateTemplateError": "Error updating template",
+      "updateTitleError": "Error updating template title",
+      "updateDisplayOrderError": "Error updating display order"
     },
     "messages": {
       "successfullyArchived": "Successfully archived the template"

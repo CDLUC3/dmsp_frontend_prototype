@@ -82,8 +82,6 @@ const TemplateEditPage: React.FC = () => {
   //For scrolling up to page level error
   const pageErrorRef = useRef<HTMLDivElement | null>(null);
 
-  const generalErrorMessage = "Something went wrong";
-
   // Initialize publish mutation
   const [createTemplateVersionMutation] = useCreateTemplateVersionMutation();
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
@@ -220,7 +218,7 @@ const TemplateEditPage: React.FC = () => {
       });
       return {
         success: false,
-        errors: [generalErrorMessage],
+        errors: [EditTemplate('errors.updateTemplateError')],
         data: null,
       };
     }
@@ -255,7 +253,7 @@ const TemplateEditPage: React.FC = () => {
 
       //Check if errors is an array or an object
       if (Array.isArray(errors)) {
-        setErrorMessages(errors.length > 0 ? errors : [generalErrorMessage])
+        setErrorMessages(errors.length > 0 ? errors : [EditTemplate('errors.updateTitleError')])
       }
     } else {
       if (
@@ -263,7 +261,7 @@ const TemplateEditPage: React.FC = () => {
         typeof result.data.errors === 'object' &&
         typeof result.data.errors.general === 'string') {
         // Handle errors as an object with general or field-level errors
-        setErrorMessages(prev => [...prev, result.data?.errors?.general || generalErrorMessage]);
+        setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateTitleError')]);
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
@@ -282,7 +280,7 @@ const TemplateEditPage: React.FC = () => {
       });
       return {
         success: false,
-        errors: [generalErrorMessage],
+        errors: [EditTemplate('errors.updateDisplayOrderError')],
         data: null,
       };
     }
@@ -309,7 +307,7 @@ const TemplateEditPage: React.FC = () => {
     // If new display order is less than 1 then just return
     if (newDisplayOrder < 1) {
       if (setErrorMessages) {
-        setErrorMessages(prev => [...prev, generalErrorMessage]);
+        setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
       }
       return;
     }
@@ -325,7 +323,7 @@ const TemplateEditPage: React.FC = () => {
       //Check if errors is an array or an object
       if (Array.isArray(errors)) {
         if (setErrorMessages) {
-          setErrorMessages(errors.length > 0 ? errors : [generalErrorMessage])
+          setErrorMessages(errors.length > 0 ? errors : [EditTemplate('errors.updateDisplayOrderError')])
         }
       }
     } else {
@@ -338,7 +336,7 @@ const TemplateEditPage: React.FC = () => {
         typeof result.data.errors.general === 'string') {
         if (setErrorMessages) {
           // Handle errors as an object with general or field-level errors
-          setErrorMessages(prev => [...prev, result.data?.errors?.general || generalErrorMessage]);
+          setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateDisplayOrderError')]);
         }
       }
     }

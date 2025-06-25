@@ -48,7 +48,10 @@
     "errors": {
       "archiveTemplateError": "Erro ao arquivar template",
       "saveTemplateError": "Erro ao salvar modelo",
-      "getTemplatesError": "Erro ao obter modelos"
+      "getTemplatesError": "Erro ao obter modelos",
+      "updateTemplateError": "Error updating template",
+      "updateTitleError": "Error updating template title",
+      "updateDisplayOrderError": "Error updating display order"
     },
     "messages": {
       "successfullyArchived": "Modelo arquivado com sucesso"
@@ -191,11 +194,13 @@
     "clearFilter": "filtros transparentes",
     "buttons": {
       "loadMore": "Carregue mais {name}",
-      "load3More": "Carregue mais 3"
+      "load3More": "Carregue mais 3",
+      "startNew": "Start"
     },
     "headings": {
       "previouslyCreatedTemplates": "Use uma de suas seções criadas anteriormente",
-      "publicTemplates": "Use um dos modelos públicos"
+      "publicTemplates": "Use um dos modelos públicos",
+      "createNew": "Build a new template"
     },
     "messages": {
       "noItemsFound": "Nenhum “item” encontrado",
@@ -295,7 +300,8 @@
     },
     "buttons": {
       "addRow": "Adicionar linha",
-      "previewQuestion": "Pergunta de visualização"
+      "previewQuestion": "Pergunta de visualização",
+      "changeType": "Change type"
     },
     "helpText": {
       "textField": "Alterar o tipo de questão, por exemplo, da pergunta curta para o botão Rádio, pode resultar na perda de alguns dados.",
