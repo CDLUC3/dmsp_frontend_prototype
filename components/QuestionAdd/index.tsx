@@ -246,15 +246,6 @@ const QuestionAdd = ({
       }
       return;
     }
-
-    const merged = {
-      ...parsed,
-      attributes: {
-        ...('attributes' in parsed ? parsed.attributes : {}),
-        ...getOverrides(questionType),
-      },
-    };
-
     return {
       ...parsed,
       attributes: {
