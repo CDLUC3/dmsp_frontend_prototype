@@ -45,6 +45,7 @@ import QuestionView from '@/components/QuestionView';
 import { useToast } from '@/context/ToastContext';
 import { stripHtmlTags } from '@/utils/general';
 import { questionTypeHandlers, QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { routePath } from '@/utils/routes';
 import { Question, QuestionOptions } from '@/app/types';
 import {
   OPTIONS_QUESTION_TYPES,
@@ -55,8 +56,8 @@ import {
 import {
   isOptionsType,
   getOverrides,
-  getParsedQuestionJSON
 } from './hooks/useAddQuestion';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -85,7 +86,7 @@ const QuestionAdd = ({
   const params = useParams();
   const router = useRouter();
   const toastState = useToast();
-  const { templateId } = params; // From route /template/:templateId
+  const templateId = String(params.templateId);
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -154,10 +155,13 @@ const QuestionAdd = ({
     if (hasOptions && questionType && question?.json) {
       const updatedJSON = buildUpdatedJSON(question, newRows);
 
-      setQuestion((prev) => ({
-        ...prev,
-        json: JSON.stringify(updatedJSON.data),
-      }));
+      if (updatedJSON) {
+        setQuestion((prev) => ({
+          ...prev,
+          json: JSON.stringify(updatedJSON.data),
+        }));
+      }
+
     }
   };
 
@@ -224,6 +228,8 @@ const QuestionAdd = ({
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
   const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
+
+    console.log("QUESTION", question)
     if (hasOptions) {
       const useRows = rowsOverride ?? rows;
       return {
@@ -234,17 +240,53 @@ const QuestionAdd = ({
         })),
       };
     }
-    const formState = getParsedQuestionJSON(question);
-    return { ...formState, attributes: { ...formState?.attributes, ...getOverrides(questionType) } };
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }));
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
+      }
+      return;
+    }
+
+    console.log("PARSED", parsed);
+    console.log("GET OVERRIDES", getOverrides(questionType));
+    const merged = {
+      ...parsed,
+      attributes: {
+        ...('attributes' in parsed ? parsed.attributes : {}),
+        ...getOverrides(questionType),
+      },
+    };
+
+    console.log("MERGED", merged);
+    return {
+      ...parsed,
+      attributes: {
+        ...('attributes' in parsed ? parsed.attributes : {}),
+        ...getOverrides(questionType),
+      },
+    };
   };
 
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-      getParsedQuestionJSON(question),
+    console.log("USER INPUT", userInput);
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }));
+
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
+      }
+      return;
+    }
+    const temp = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+      parsed,
       userInput
     );
+
+    console.log("FINAL FROM QUESTIONTYPE HANDLERS", temp);
+    return temp;
   };
 
   // Function to add and save the new question
@@ -262,7 +304,7 @@ const QuestionAdd = ({
       displayOrder,
       isDirty: true,
       questionText: cleanedQuestionText,
-      json: JSON.stringify(updatedJSON.data),
+      json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
       requirementText: question?.requirementText,
       guidanceText: question?.guidanceText,
       sampleText: question?.sampleText,
@@ -334,7 +376,13 @@ const QuestionAdd = ({
 
   useEffect(() => {
     if (question) {
-      const parsed = getParsedQuestionJSON(question);
+      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }));
+      if (!parsed) {
+        if (error) {
+          setErrors(prev => [...prev, error])
+        }
+        return;
+      }
       setParsedQuestionJSON(parsed);
     }
   }, [question])
@@ -509,6 +557,7 @@ const QuestionAdd = ({
               isPreview={true}
               question={question}
               templateId={Number(templateId)}
+              path={routePath('template.q.new', { templateId: templateId })}
             />
           </QuestionPreview>
 

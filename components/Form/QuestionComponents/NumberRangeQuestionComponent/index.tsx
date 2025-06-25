@@ -27,6 +27,11 @@ const NumberRangeQuestionComponent: React.FC<NumberRangeQuestionProps> = ({
   // Extract labels from JSON
   const startNumberLabel = parsedQuestion?.columns?.start?.attributes?.label;
   const endNumberLabel = parsedQuestion?.columns?.end?.attributes?.label;
+  const startNumberMin = (parsedQuestion?.columns?.start?.attributes as { min?: number }).min;
+  const startNumberMax = (parsedQuestion?.columns?.start?.attributes as { max?: number }).max;
+
+  const endNumberMin = (parsedQuestion?.columns?.end.attributes as { min?: number }).min;
+  const endNumberMax = (parsedQuestion?.columns?.end?.attributes as { max?: number }).max;
   return (
     <div className='form-row two-item-row'>
       <NumberComponent
@@ -34,6 +39,8 @@ const NumberRangeQuestionComponent: React.FC<NumberRangeQuestionProps> = ({
         value={numberRange.startNumber}
         onChange={num => handleNumberChange('startNumber', num)}
         placeholder={startPlaceholder}
+        minValue={startNumberMin}
+        maxValue={startNumberMax ?? undefined}
       />
 
       <NumberComponent
@@ -41,6 +48,8 @@ const NumberRangeQuestionComponent: React.FC<NumberRangeQuestionProps> = ({
         value={numberRange.endNumber}
         onChange={num => handleNumberChange('endNumber', num)}
         placeholder={endPlaceholder}
+        minValue={endNumberMin}
+        maxValue={endNumberMax ?? undefined}
       />
     </div>
   )

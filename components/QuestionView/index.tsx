@@ -64,26 +64,21 @@ import {
   TYPEAHEAD_QUESTION_TYPE,
   URL_QUESTION_TYPE,
 } from '@/lib/constants';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './QuestionView.module.scss';
 
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
+  id?: string;
+  className?: string;
   isPreview: boolean,
   question: Question | null | undefined,
-
+  path: string;
   /**
    * NOTE: We pass this explicitly, as we cannot predict or infer if the
    * templateId will be available in the question object.
    */
   templateId: number,
-}
-
-const getParsedQuestionJSON = (question: Question | null) => {
-  if (question) {
-    const parsedJSON = question?.json ? JSON.parse(question.json) : null;
-    return parsedJSON;
-  }
-  return null;
 }
 
 //This component is meant to work with the QuestionAdd and QuestionEdit components, to display
@@ -94,6 +89,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   isPreview = false,
   question,
   templateId,
+  path = ''
 }) => {
 
   const trans = useTranslations('QuestionView');
@@ -139,6 +135,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // These handlers are here so that users can interact with the different question types in the Question Preview
   // However, their changes are not saved anywhere. It's just so they can see how the questions will look and behave
   const handleAffiliationChange = async (id: string, value: string) => {
+    console.log("handle affiliation called")
     return setAffiliationData({ affiliationName: value, affiliationId: id })
   }
 
@@ -151,13 +148,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const handleRadioChange = (value: string) => {
     setSelectedRadioValue(value);
   };
-
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    setInputValue(value);
-  };
-
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -215,9 +205,11 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   useEffect(() => {
     if (!question || !qtData?.questionTypes) return;
 
-    const parsedQuestion = getParsedQuestionJSON(question);
-    if (!parsedQuestion) return;
-    const type = parsedQuestion.type;
+    const { parsed } = getParsedQuestionJSON(question, path);
+    if (!parsed) {
+      return;
+    }
+    const type = parsed.type;
 
     for (const qt of qtData.questionTypes) {
       if (!qt || !qt.json) continue; // null check
@@ -231,189 +223,222 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   if (!question) return null;
 
-  const parsedQuestion = getParsedQuestionJSON(question);
+  const { parsed } = getParsedQuestionJSON(question, path);
 
   const renderQuestionField = () => {
-    if (!parsedQuestion) return null;
+    if (!parsed) {
+      return;
+    }
+    console.log("PARSED", parsed);
 
     switch (questionType) {
       case RADIOBUTTONS_QUESTION_TYPE: {
-        return (
-          <RadioButtonsQuestionComponent
-            parsedQuestion={parsedQuestion}
-            selectedRadioValue={selectedRadioValue}
-            name='radio-buttons'
-            handleRadioChange={handleRadioChange}
-          />
-        )
+        // Type guard to ensure this is actually a radioButtons question
+        if (parsed.type === 'radioButtons' && 'options' in parsed) {
+          return (
+            <RadioButtonsQuestionComponent
+              parsedQuestion={parsed}
+              selectedRadioValue={selectedRadioValue}
+              name='radio-buttons'
+              handleRadioChange={handleRadioChange}
+            />
+          )
+        }
       }
       case CHECKBOXES_QUESTION_TYPE: {
-        return (
-          <CheckboxesQuestionComponent
-            parsedQuestion={parsedQuestion}
-            selectedCheckboxValues={selectedCheckboxValues}
-            handleCheckboxGroupChange={handleCheckboxGroupChange}
-          />
-        )
+        if (parsed.type === 'checkBoxes' && 'options' in parsed) {
+          return (
+            <CheckboxesQuestionComponent
+              parsedQuestion={parsed}
+              selectedCheckboxValues={selectedCheckboxValues}
+              handleCheckboxGroupChange={handleCheckboxGroupChange}
+            />
+          )
+        }
       }
       case SELECTBOX_QUESTION_TYPE: {
-        const isMultiSelect = parsedQuestion.attributes?.multiple || false;
+        if (parsed.type === 'selectBox' && 'options' in parsed) {
+          const isMultiSelect = parsed.attributes?.multiple || false;
 
-        return (
-          <>
-            {isMultiSelect ? (
-              <MultiSelectQuestionComponent
-                parsedQuestion={parsedQuestion}
-                multiSelectTouched={multiSelectTouched}
-                selectedMultiSelectValues={selectedMultiSelectValues}
-                handleMultiSelectChange={handleMultiSelectChange}
-              />
-            ) : (
-              <SelectboxQuestionComponent
-                parsedQuestion={parsedQuestion}
-                selectedSelectValue={selectedSelectValue}
-                setSelectedSelectValue={setSelectedSelectValue}
-              />
-            )}
+          return (
+            <>
+              {isMultiSelect ? (
+                <MultiSelectQuestionComponent
+                  parsedQuestion={parsed}
+                  multiSelectTouched={multiSelectTouched}
+                  selectedMultiSelectValues={selectedMultiSelectValues}
+                  handleMultiSelectChange={handleMultiSelectChange}
+                />
+              ) : (
+                <SelectboxQuestionComponent
+                  parsedQuestion={parsed}
+                  selectedSelectValue={selectedSelectValue}
+                  setSelectedSelectValue={setSelectedSelectValue}
+                />
+              )}
 
-          </>
-        );
+            </>
+          );
+        }
       }
       case TEXT_FIELD_QUESTION_TYPE:
-        const minLength = parsedQuestion?.attributes?.minLength;
-        const maxLength = parsedQuestion?.attributes?.maxLength;
-        return (
-          <FormInput
-            name="textField"
-            type="text"
-            label="text"
-            placeholder="Enter text"
-            value={textValue ?? ''}
-            onChange={e => handleTextChange(e)}
-            minLength={minLength}
-            maxLength={maxLength}
-          />
-        )
-      case TEXT_AREA_QUESTION_TYPE:
-        return (
-          <TinyMCEEditor
-            id="question-text-editor"
-            content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
-            setContent={() => { }}
-          />
-        );
-      case DATE_QUESTION_TYPE:
-        const dateMinValue = parsedQuestion?.attributes?.min;
-        const dateMaxValue = parsedQuestion?.attributes?.max;
-        return (
-          <DateComponent
-            name="startDate"
-            value={getCalendarDateValue(dateRange.startDate)}
-            onChange={newDate => handleDateChange('startDate', newDate)}
-            label="Date"
-            minValue={dateMinValue}
-            maxValue={dateMaxValue}
+        if (parsed.type === 'text') {
 
-          />
-        )
+          const minLength = parsed?.attributes?.minLength;
+          const maxLength = parsed?.attributes?.maxLength;
+          return (
+            <FormInput
+              name="textField"
+              type="text"
+              label="text"
+              placeholder="Enter text"
+              value={textValue ?? ''}
+              onChange={e => handleTextChange(e)}
+              minLength={minLength}
+              maxLength={maxLength}
+            />
+          )
+        }
+      case TEXT_AREA_QUESTION_TYPE:
+        if (parsed.type === 'textArea') {
+          return (
+            <TinyMCEEditor
+              id="question-text-editor"
+              content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
+              setContent={() => { }}
+            />
+          );
+        }
+      case DATE_QUESTION_TYPE:
+        if (parsed.type === 'date') {
+          const dateMinValue = parsed?.attributes?.min;
+          const dateMaxValue = parsed?.attributes?.max;
+          return (
+            <DateComponent
+              name="startDate"
+              value={getCalendarDateValue(dateRange.startDate)}
+              onChange={newDate => handleDateChange('startDate', newDate)}
+              label="Date"
+              minValue={dateMinValue}
+              maxValue={dateMaxValue}
+
+            />
+          )
+        }
       case DATE_RANGE_QUESTION_TYPE:
-        return (
-          <DateRangeQuestionComponent
-            parsedQuestion={parsedQuestion}
-            dateRange={dateRange}
-            handleDateChange={handleDateChange}
-          />
-        )
+        if (parsed.type === 'dateRange') {
+          return (
+            <DateRangeQuestionComponent
+              parsedQuestion={parsed}
+              dateRange={dateRange}
+              handleDateChange={handleDateChange}
+            />
+          )
+        }
       case NUMBER_QUESTION_TYPE:
-        const minValue = parsedQuestion?.attributes?.min;
-        const maxValue = parsedQuestion?.attributes?.max;
-        const step = parsedQuestion?.attributes?.step;
-        return (
-          <NumberComponent
-            label="number"
-            value={inputValue === null ? undefined : inputValue}
-            onChange={value => setInputValue(value)}
-            placeholder="number"
-            minValue={minValue}
-            {...(typeof maxValue === 'number' ? { maxValue } : {})} //if maxValue is null, we don't want to set it
-            step={step}
-          />
-        )
+        if (parsed.type === 'number') {
+          const minValue = parsed?.attributes?.min;
+          const maxValue = parsed?.attributes?.max;
+          const step = parsed?.attributes?.step;
+          return (
+            <NumberComponent
+              label="number"
+              value={inputValue === null ? undefined : inputValue}
+              onChange={value => setInputValue(value)}
+              placeholder="number"
+              minValue={minValue}
+              {...(typeof maxValue === 'number' ? { maxValue } : {})} //if maxValue is null, we don't want to set it
+              step={step}
+            />
+          )
+        }
 
       case NUMBER_RANGE_QUESTION_TYPE:
-        return (
-          <NumberRangeQuestionComponent
-            parsedQuestion={parsedQuestion}
-            numberRange={numberRange}
-            handleNumberChange={handleNumberChange}
-            startPlaceholder="start"
-            endPlaceholder="end"
-          />
-        )
+        if (parsed.type === 'numberRange') {
+          return (
+            <NumberRangeQuestionComponent
+              parsedQuestion={parsed}
+              numberRange={numberRange}
+              handleNumberChange={handleNumberChange}
+              startPlaceholder="start"
+              endPlaceholder="end"
+            />
+          )
+        }
       case CURRENCY_QUESTION_TYPE:
-        return (
-          <CurrencyQuestionComponent
-            parsedQuestion={parsedQuestion}
-            inputCurrencyValue={inputCurrencyValue}
-            setInputCurrencyValue={setInputCurrencyValue}
-          />
-        )
+        if (parsed.type === 'currency') {
+          return (
+            <CurrencyQuestionComponent
+              parsedQuestion={parsed}
+              inputCurrencyValue={inputCurrencyValue}
+              setInputCurrencyValue={setInputCurrencyValue}
+            />
+          )
+        }
       case URL_QUESTION_TYPE:
-        const urlMinLength = parsedQuestion?.attributes?.minLength;
-        const urlMaxLength = parsedQuestion?.attributes?.maxLength;
-        const urlPattern = parsedQuestion?.attributes?.pattern;
-        return (
-          <FormInput
-            name="urlInput"
-            type="url"
-            label="url"
-            placeholder="url"
-            value={urlValue ?? ''}
-            onChange={e => handleUrlChange(e)}
-            minLength={urlMinLength}
-            maxLength={urlMaxLength}
-            pattern={urlPattern}
-          />
-        )
+        if (parsed.type === 'url') {
+          const urlMinLength = parsed?.attributes?.minLength;
+          const urlMaxLength = parsed?.attributes?.maxLength;
+          const urlPattern = parsed?.attributes?.pattern;
+          return (
+            <FormInput
+              name="urlInput"
+              type="url"
+              label="url"
+              placeholder="url"
+              value={urlValue ?? ''}
+              onChange={e => handleUrlChange(e)}
+              minLength={urlMinLength}
+              maxLength={urlMaxLength}
+              pattern={urlPattern}
+            />
+          )
+        }
       case EMAIL_QUESTION_TYPE:
-        const emailMinLength = parsedQuestion?.attributes?.minLength;
-        const emailMaxLength = parsedQuestion?.attributes?.maxLength;
-        const emailPattern = parsedQuestion?.attributes?.pattern;
-        return (
-          <FormInput
-            name="emailInput"
-            type="email"
-            label="email"
-            placeholder="email"
-            value={emailValue ?? ''}
-            onChange={e => handleEmailChange(e)}
-            minLength={emailMinLength}
-            maxLength={emailMaxLength}
-            pattern={emailPattern}
-          />
-        )
+        if (parsed.type === 'email') {
+          const emailMinLength = parsed?.attributes?.minLength;
+          const emailMaxLength = parsed?.attributes?.maxLength;
+          const emailPattern = parsed?.attributes?.pattern;
+          return (
+            <FormInput
+              name="emailInput"
+              type="email"
+              label="email"
+              placeholder="email"
+              value={emailValue ?? ''}
+              onChange={e => handleEmailChange(e)}
+              minLength={emailMinLength}
+              maxLength={emailMaxLength}
+              pattern={emailPattern}
+            />
+          )
+        }
 
       case BOOLEAN_QUESTION_TYPE:
-        return (
-          <BooleanQuestionComponent
-            parsedQuestion={parsedQuestion}
-            selectedValue={yesNoValue}
-            handleRadioChange={handleBooleanChange}
-          />
-        )
+        if (parsed.type === 'boolean') {
+          return (
+            <BooleanQuestionComponent
+              parsedQuestion={parsed}
+              selectedValue={yesNoValue}
+              handleRadioChange={handleBooleanChange}
+            />
+          )
+        }
 
       case TYPEAHEAD_QUESTION_TYPE:
-        return (
-          <AffiliationSearchQuestionComponent
-            parsedQuestion={parsedQuestion}
-            affiliationData={affiliationData}
-            otherAffiliationName={otherAffiliationName}
-            otherField={otherField}
-            setOtherField={setOtherField}
-            handleAffiliationChange={handleAffiliationChange}
-            handleOtherAffiliationChange={handleOtherAffiliationChange}
-          />
-        )
+        if (parsed.type === 'typeaheadSearch') {
+          return (
+            <AffiliationSearchQuestionComponent
+              parsedQuestion={parsed}
+              affiliationData={affiliationData}
+              otherAffiliationName={otherAffiliationName}
+              otherField={otherField}
+              setOtherField={setOtherField}
+              handleAffiliationChange={(handleAffiliationChange)}
+              handleOtherAffiliationChange={handleOtherAffiliationChange}
+            />
+          )
+        }
       default:
         return <p>Unsupported question type</p>;
     }

@@ -16,12 +16,16 @@ const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
   placeholder,
   setInputCurrencyValue,
 }) => {
+  const minValue = (parsedQuestion?.attributes as { min?: number }).min;
+  const maxValue = (parsedQuestion?.attributes as { max?: number }).max;
   return (
     <NumberComponent
       label={currencyLabel || ''}
       value={inputCurrencyValue}
       onChange={value => setInputCurrencyValue(value)}
       placeholder={placeholder || ''}
+      minValue={minValue ?? undefined}
+      maxValue={maxValue ?? undefined}
       formatOptions={{
         style: 'currency',
         currency: parsedQuestion?.meta?.denomination || 'USD', // TODO: Need to eventually get denomination from under attributes

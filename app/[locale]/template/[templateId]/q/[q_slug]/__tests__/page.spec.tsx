@@ -511,7 +511,7 @@ describe("QuestionEditPage", () => {
 
   });
 
-  it("should display error fi useUpdateQuestionMutation rejects", async () => {
+  it("should display error if useUpdateQuestionMutation rejects", async () => {
 
     (useQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTypeAheadSearch,

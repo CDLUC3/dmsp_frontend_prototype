@@ -64,8 +64,8 @@ import {
 import {
   isOptionsType,
   getOverrides,
-  getParsedQuestionJSON
 } from './hooks/useEditQuestion';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 
 import styles from './questionEdit.module.scss';
 
@@ -89,7 +89,7 @@ const QuestionEdit = () => {
   const searchParams = useSearchParams();
   const toastState = useToast(); // Access the toast state from context
   const templateId = String(params.templateId);
-  const questionId = params.q_slug; //question id
+  const questionId = String(params.q_slug); //question id
   const questionTypeIdQueryParam = searchParams.get('questionType') || null;
 
   //For scrolling to error in page
@@ -147,10 +147,13 @@ const QuestionEdit = () => {
     if (hasOptions && questionType && question?.json) {
       const updatedJSON = buildUpdatedJSON(question, newRows);
 
-      setQuestion((prev) => ({
-        ...prev,
-        json: JSON.stringify(updatedJSON.data),
-      }));
+      if (updatedJSON) {
+        setQuestion((prev) => ({
+          ...prev,
+          json: JSON.stringify(updatedJSON.data),
+        }));
+      }
+
     }
   };
 
@@ -201,8 +204,7 @@ const QuestionEdit = () => {
     if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
       const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
 
-      if (updatedParsed.graphQL &&
-        updatedParsed?.graphQL?.variables?.[0]) {
+      if (updatedParsed?.graphQL?.variables?.[0]) {
         updatedParsed.graphQL.variables[0].label = value;
         setQuestion(prev => ({
           ...prev,
@@ -225,15 +227,34 @@ const QuestionEdit = () => {
         })),
       };
     }
-    const formState = getParsedQuestionJSON(question);
-    return { ...formState, attributes: { ...formState?.attributes, ...getOverrides(questionType) } };
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }));
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
+      }
+      return;
+    }
+    return {
+      ...parsed,
+      attributes: {
+        ...('attributes' in parsed ? parsed.attributes : {}),
+        ...getOverrides(questionType),
+      },
+    };
   };
 
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }));
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
+      }
+      return;
+    }
     return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-      getParsedQuestionJSON(question),
+      parsed,
       userInput
     );
   };
@@ -258,7 +279,7 @@ const QuestionEdit = () => {
             input: {
               questionId: Number(questionId),
               displayOrder: question.displayOrder,
-              json: JSON.stringify(updatedJSON.data),
+              json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
               questionText: cleanedQuestionText,
               requirementText: question.requirementText,
               guidanceText: question.guidanceText,
@@ -286,12 +307,16 @@ const QuestionEdit = () => {
       const q = selectedQuestion.question;
 
       try {
-        const parsed = getParsedQuestionJSON(q);
+        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }));
         if (!parsed?.type) {
-          logECS('error', 'Parsing error', {
-            error: 'Invalid question type in parsed JSON',
-            url: { path: routePath('template.q.slug') }
-          });
+          if (error) {
+            logECS('error', 'Parsing error', {
+              error: 'Invalid question type in parsed JSON',
+              url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
+            });
+
+            setErrors(prev => [...prev, error])
+          }
           return;
         }
 
@@ -307,7 +332,7 @@ const QuestionEdit = () => {
         setHasOptions(isOptionsQuestion);
 
         // Set options info with proper type checking
-        if (isOptionsQuestion && parsed.options && Array.isArray(parsed.options)) {
+        if (isOptionsQuestion && 'options' in parsed && parsed.options && Array.isArray(parsed.options)) {
           const optionRows = parsed.options
             .map((option: Option, index: number) => ({
               id: index,
@@ -319,7 +344,7 @@ const QuestionEdit = () => {
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
-          url: { path: routePath('template.q.slug') }
+          url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
         });
         setErrors(prev => [...prev, 'Error parsing question data']);
       }
@@ -379,7 +404,13 @@ const QuestionEdit = () => {
   function getMatchingQuestionType(qTypes: QuestionTypesInterface[], questionTypeIdQueryParam: string) {
     return qTypes.find((q) => {
       try {
-        const parsed = getParsedQuestionJSON(q);
+        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }));
+        if (!parsed) {
+          if (error) {
+            setErrors(prev => [...prev, error])
+          }
+          return;
+        }
         return parsed.type === questionTypeIdQueryParam;
       } catch {
         return false;
@@ -420,7 +451,13 @@ const QuestionEdit = () => {
 
   useEffect(() => {
     if (question) {
-      const parsed = getParsedQuestionJSON(question);
+      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.show', { templateId }));
+      if (!parsed) {
+        if (error) {
+          setErrors(prev => [...prev, error])
+        }
+        return;
+      }
       setParsedQuestionJSON(parsed);
     }
   }, [question])
@@ -504,8 +541,11 @@ const QuestionEdit = () => {
                     <QuestionOptionsComponent
                       rows={rows}
                       setRows={updateRows}
-                      questionJSON={question ? getParsedQuestionJSON(question) : {}}
-                      formSubmitted={formSubmitted}
+                      questionJSON={(() => {
+                        if (!question) return undefined;
+                        const result = getParsedQuestionJSON(question, routePath('template.show', { templateId }));
+                        return result.parsed ? JSON.stringify(result.parsed) : undefined;
+                      })()} formSubmitted={formSubmitted}
                       setFormSubmitted={setFormSubmitted} />
                   </div>
                 )}
@@ -620,6 +660,7 @@ const QuestionEdit = () => {
               isPreview={true}
               question={question}
               templateId={Number(templateId)}
+              path={routePath('template.q.slug', { templateId, q_slug: questionId })}
             />
           </QuestionPreview>
 

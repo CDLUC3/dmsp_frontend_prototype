@@ -56,6 +56,8 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
   ...rest
 }) => {
 
+  console.log("MIN LENGTH", minLength);
+  console.log("MAX LENGTH", maxLength);
   return (
     <>
       <TextField

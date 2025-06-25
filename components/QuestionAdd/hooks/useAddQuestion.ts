@@ -27,33 +27,3 @@ export const getOverrides = (questionType: string | null | undefined) => {
 export const isOptionsType = (questionType: string) => {
   return Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType));
 }
-
-// Get parsed question
-export const getParsedQuestionJSON = (question: Question | null): any | null => {
-  if (!question || !question.json) return null;
-
-  const source = question.json;
-
-  if (typeof source === 'string') {
-    try {
-      return JSON.parse(source);
-    } catch (err) {
-      logECS('error', 'getParsedQuestionJSON error', {
-        error: err,
-        url: { path: routePath('template.q.slug') }
-      });
-      return null;
-    }
-  }
-
-  // If already an object, do a light structure check
-  if (typeof source === 'object' && source !== null && 'type' in source) {
-    return source;
-  }
-
-  logECS('error', 'getParsedQuestionJSON error', {
-    error: `Unexpected format for question.json: ${source}`,
-    url: { path: routePath('template.q.slug') }
-  });
-  return null;
-};

@@ -13,7 +13,7 @@ import {
   CalendarGrid,
   CalendarCell,
 } from "react-aria-components";
-import { CalendarDate } from "@internationalized/date";
+import { parseDate, DateValue } from "@internationalized/date";
 
 
 interface DateComponentProps {
@@ -21,9 +21,16 @@ interface DateComponentProps {
   value: any;
   onChange: (value: any) => void;
   label: string;
-  minValue?: CalendarDate;
-  maxValue?: CalendarDate;
+  minValue?: DateValue | string;
+  maxValue?: DateValue | string;
 }
+
+function toDateValue(value?: string | DateValue) {
+  if (!value) return undefined;
+  if (typeof value === 'string') return parseDate(value);
+  return value;
+}
+
 
 const DateComponent: React.FC<DateComponentProps> = ({
   name,
@@ -37,8 +44,8 @@ const DateComponent: React.FC<DateComponentProps> = ({
     name={name}
     value={value}
     onChange={onChange}
-    minValue={minValue}
-    maxValue={maxValue}
+    minValue={toDateValue(minValue)}
+    maxValue={toDateValue(maxValue)}
 
   >
     <Label>{label}</Label>
