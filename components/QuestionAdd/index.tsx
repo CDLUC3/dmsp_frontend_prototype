@@ -275,13 +275,11 @@ const QuestionAdd = ({
       }
       return;
     }
-    const temp = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
       parsed,
       userInput
     );
 
-    console.log("FINAL FROM QUESTIONTYPE HANDLERS", temp);
-    return temp;
   };
 
   // Function to add and save the new question
