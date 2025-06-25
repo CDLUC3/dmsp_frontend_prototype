@@ -131,6 +131,56 @@ describe('SectionEditContainer', () => {
     expect(screen.getByTestId('add-question-btn')).toBeInTheDocument();
   });
 
+  it('should handle section.questions as undefined and render gracefully', () => {
+    (useSectionQuery as jest.Mock).mockReturnValue({
+      loading: false,
+      data: { section: { ...sectionData.section, questions: undefined } },
+      error: undefined,
+      refetch: jest.fn(),
+    });
+
+    render(
+      <SectionEditContainer
+        sectionId={1}
+        templateId={123}
+        setErrorMessages={mockSetErrorMessages}
+        onMoveUp={jest.fn()}
+        onMoveDown={jest.fn()}
+      />
+    );
+
+    expect(screen.queryByTestId('question-edit-card')).not.toBeInTheDocument();
+    expect(screen.getByTestId('add-question-btn')).toBeInTheDocument();
+  });
+
+  it('should handle missing question.id and question.questionText gracefully', () => {
+    const questions = [
+      { id: null, questionText: null, displayOrder: 2 },
+      { id: 11, questionText: 'Q2', displayOrder: 1 },
+    ];
+
+
+    (useSectionQuery as jest.Mock).mockReturnValue({
+      loading: false,
+      data: { section: { ...sectionData.section, questions } },
+      error: undefined,
+      refetch: jest.fn(),
+    });
+
+    render(
+      <SectionEditContainer
+        sectionId={1}
+        templateId={123}
+        setErrorMessages={mockSetErrorMessages}
+        onMoveUp={jest.fn()}
+        onMoveDown={jest.fn()}
+      />
+    );
+
+    const questionEditCards = screen.queryAllByTestId('question-edit-card');
+    expect(questionEditCards).toHaveLength(2);
+  });
+
   it('should pass axe accessibility test', async () => {
     const { container } = render(
       <SectionEditContainer

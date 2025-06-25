@@ -141,6 +141,10 @@ const TemplateEditPage: React.FC = () => {
 
   // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
   const saveTemplate = async (versionType: TemplateVersionType, comment: string | undefined, visibility: TemplateVisibility) => {
+    if (!visibility) {
+      setErrorMessages(prevErrors => [...prevErrors, EditTemplate('errors.saveTemplateError')]);
+      return;
+    }
     try {
       const response = await createTemplateVersionMutation({
         variables: {
@@ -345,6 +349,10 @@ const TemplateEditPage: React.FC = () => {
       });
     }
   }, [data]);
+
+  useEffect(() => {
+    console.log("PAGE ERRORS", pageErrors);
+  }, [pageErrors])
 
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;

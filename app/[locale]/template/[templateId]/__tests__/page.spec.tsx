@@ -583,6 +583,52 @@ describe("TemplateEditPage", () => {
     });
   });
 
+  it.only('should set pageErrors when createTemplateVersionMutation returns a general error', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({
+        data: {
+          createTemplateVersion: {
+            errors: { general: 'General publish error' }
+          }
+        }
+      }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    // Open publish modal
+    const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
+    act(async () => {
+      fireEvent.click(publishTemplateButton);
+    });
+
+    // Fill in change log
+    const textarea = screen.getByTestId('changeLog');
+    act(async () => {
+      fireEvent.change(textarea, { target: { value: 'Some change log' } });
+    })
+
+    // Submit the publish form
+    const saveAndPublishButton = screen.getByRole('button', { name: 'button.saveAndPublish' });
+    act(async () => {
+      fireEvent.click(saveAndPublishButton);
+    })
+
+    // Wait for the general error to appear in the page error area
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('General publish error');
+  });
+
   it('should pass accessibility tests', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
