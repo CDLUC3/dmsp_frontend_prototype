@@ -6,7 +6,7 @@ import {
   useTemplateQuery,
   useSectionQuery
 } from '@/generated/graphql';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
 import TemplateEditPage from '../page';
 import { updateTemplateAction, updateSectionDisplayOrderAction } from '../actions';
@@ -46,6 +46,8 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
   useRouter: jest.fn(),
 }))
+
+const mockUseRouter = useRouter as jest.Mock;
 
 
 jest.mock('@/components/BackButton', () => {
@@ -147,6 +149,9 @@ describe("TemplateEditPage", () => {
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
 
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
     (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -222,7 +227,15 @@ describe("TemplateEditPage", () => {
       error: null,
     });
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      jest.fn().mockResolvedValueOnce({
+        data: {
+          createTemplateVersion: {
+            errors: {
+              general: null
+            }
+          }
+        }
+      }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
     ]);
 
@@ -232,24 +245,88 @@ describe("TemplateEditPage", () => {
       );
     });
 
-    // Simulate the user triggering the publishTemplate button
-    const publishTemplateButton = screen.getByRole('button', { name: /button.publishtemplate/i });
-    fireEvent.click(publishTemplateButton);
+    // Open publish modal
+    const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
+    await act(async () => {
+      fireEvent.click(publishTemplateButton);
+    });
 
-    // Locate the textarea using data-testid
+
+    // Fill in change log
     const textarea = screen.getByTestId('changeLog');
+    await act(async () => {
+      fireEvent.change(textarea, { target: { value: 'Some change log' } });
+    })
 
-    // Simulate user typing into the textarea
-    fireEvent.change(textarea, { target: { value: 'This is a test comment.' } });
+    // To select the "public" radio button:
+    const publicRadio = screen.getByDisplayValue('public');
 
-    const saveAndPublishButton = screen.getByRole('button', { name: /button.saveandpublish/i });
-    fireEvent.click(saveAndPublishButton);
+    await act(async () => {
+      fireEvent.click(publicRadio);
+    })
+
+    // Submit the publish form
+    const saveAndPublishButton = screen.getByRole('button', { name: 'button.saveAndPublish' });
+    await act(async () => {
+      fireEvent.click(saveAndPublishButton);
+    })
 
     // Wait for mutation response
     await waitFor(() => {
       //Should have hidden the dialog window again
       const modalElement = screen.queryByTestId('modal');
       expect(modalElement).toBeNull();
+    });
+  })
+
+  it('should display errors.saveTemplate error message if no result when calling saveTemplate', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({
+        data: null
+      }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateEditPage />
+      );
+    });
+
+    // Open publish modal
+    const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
+    await act(async () => {
+      fireEvent.click(publishTemplateButton);
+    });
+
+
+    // Fill in change log
+    const textarea = screen.getByTestId('changeLog');
+    await act(async () => {
+      fireEvent.change(textarea, { target: { value: 'Some change log' } });
+    })
+
+    // To select the "public" radio button:
+    const publicRadio = screen.getByDisplayValue('public');
+
+    await act(async () => {
+      fireEvent.click(publicRadio);
+    })
+
+    // Submit the publish form
+    const saveAndPublishButton = screen.getByRole('button', { name: 'button.saveAndPublish' });
+    await act(async () => {
+      fireEvent.click(saveAndPublishButton);
+    })
+
+    // Wait for the error to be added to the page
+    await waitFor(() => {
+      expect(screen.getByText('errors.saveTemplateError')).toBeInTheDocument();
     });
   })
 
@@ -294,6 +371,12 @@ describe("TemplateEditPage", () => {
       loading: false,
       error: null,
     });
+
+    (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { archiveTemplate: { errors: null } } }),
+      { loading: false, error: undefined },
+    ]);
+
     (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
       { loading: false, error: undefined },
@@ -313,6 +396,10 @@ describe("TemplateEditPage", () => {
     // Wait for the mutation to be called
     await waitFor(() => {
       expect(useArchiveTemplateMutation).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
     });
   })
 
@@ -583,7 +670,7 @@ describe("TemplateEditPage", () => {
     });
   });
 
-  it.only('should set pageErrors when createTemplateVersionMutation returns a general error', async () => {
+  it('should set pageErrors when createTemplateVersionMutation returns a general error', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
       loading: false,
@@ -608,25 +695,87 @@ describe("TemplateEditPage", () => {
 
     // Open publish modal
     const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
-    act(async () => {
+    await act(async () => {
       fireEvent.click(publishTemplateButton);
     });
 
+
     // Fill in change log
     const textarea = screen.getByTestId('changeLog');
-    act(async () => {
+    await act(async () => {
       fireEvent.change(textarea, { target: { value: 'Some change log' } });
     })
 
+    // To select the "public" radio button:
+    const publicRadio = screen.getByDisplayValue('public');
+
+    await act(async () => {
+      fireEvent.click(publicRadio);
+    })
+
+
     // Submit the publish form
     const saveAndPublishButton = screen.getByRole('button', { name: 'button.saveAndPublish' });
-    act(async () => {
+    await act(async () => {
       fireEvent.click(saveAndPublishButton);
     })
 
     // Wait for the general error to appear in the page error area
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('General publish error');
+  });
+
+  it('should set no errors if createTemplateVersionMutation does not return errors.general', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({
+        data: {
+          createTemplateVersion: {
+            errors: { general: null }
+          }
+        }
+      }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    // Open publish modal
+    const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
+    await act(async () => {
+      fireEvent.click(publishTemplateButton);
+    });
+
+
+    // Fill in change log
+    const textarea = screen.getByTestId('changeLog');
+    await act(async () => {
+      fireEvent.change(textarea, { target: { value: 'Some change log' } });
+    })
+
+    // To select the "public" radio button:
+    const publicRadio = screen.getByDisplayValue('public');
+
+    await act(async () => {
+      fireEvent.click(publicRadio);
+    })
+
+
+    // Submit the publish form
+    const saveAndPublishButton = screen.getByRole('button', { name: 'button.saveAndPublish' });
+    await act(async () => {
+      fireEvent.click(saveAndPublishButton);
+    })
+
+    expect(screen.queryByText('General publish error')).not.toBeInTheDocument();
   });
 
   it('should pass accessibility tests', async () => {

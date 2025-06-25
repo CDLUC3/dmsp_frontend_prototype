@@ -123,12 +123,13 @@ const TemplateEditPage: React.FC = () => {
 
       const responseErrors = response.data?.archiveTemplate?.errors
       if (responseErrors) {
-        if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'TemplateErrors').length > 0) {
-          setPageErrors(prev => [...prev, responseErrors?.general ?? '']);
-        } else {
-          showSuccessArchiveToast();
-          router.push(routePath('template.show', { templateId }));
-        }
+        setPageErrors(prev => [
+          ...prev,
+          ...(responseErrors.general ? [responseErrors.general] : [])
+        ]);
+      } else {
+        showSuccessArchiveToast();
+        router.push(routePath('template.show', { templateId }));
       }
     } catch (err) {
       setPageErrors(prevErrors => [...prevErrors, EditTemplate('errors.archiveTemplateError')]);
@@ -140,43 +141,52 @@ const TemplateEditPage: React.FC = () => {
   };
 
   // Save either 'DRAFT' or 'PUBLISHED' based on versionType passed into function
-  const saveTemplate = async (versionType: TemplateVersionType, comment: string | undefined, visibility: TemplateVisibility) => {
+  const saveTemplate = async (
+    versionType: TemplateVersionType,
+    comment: string | undefined,
+    visibility: TemplateVisibility
+  ) => {
+
+    setErrorMessages([]); // Clear previous errors
+
     if (!visibility) {
-      setErrorMessages(prevErrors => [...prevErrors, EditTemplate('errors.saveTemplateError')]);
+      setErrorMessages([EditTemplate('errors.saveTemplateError')]);
       return;
     }
+
     try {
       const response = await createTemplateVersionMutation({
         variables: {
           templateId: Number(templateId),
-          comment: (comment && comment.length > 0) ? comment : null,
+          comment: comment?.length ? comment : null,
           versionType,
-          visibility
+          visibility,
         },
       });
 
-      if (response) {
-        const responseErrors = response.data?.createTemplateVersion?.errors;
-        // If there is a general error, set it in the pageErrors state
-        if (responseErrors?.general) {
-          setPageErrors([responseErrors.general]);
-        } else {
-          setPublishModalOpen(false);
-          showSuccessToast();
-          await refetch();
-        }
+      const result = response?.data?.createTemplateVersion;
+
+      if (!result) {
+        setErrorMessages([EditTemplate('errors.saveTemplateError')]);
+        return;
       }
+
+      if (result.errors?.general) {
+        setErrorMessages([result.errors.general]);
+        return;
+      }
+
+      // ✅ Success: Close modal and show toast
+      setPublishModalOpen(false);
+      showSuccessToast();
+      await refetch();
     } catch (err) {
-      if (err instanceof ApolloError) {
-        //close modal
-        setPublishModalOpen(false);
-      } else {
-        setErrorMessages(prevErrors => [...prevErrors, EditTemplate('errors.saveTemplateError')]);
-        logECS('error', 'saveTemplate', {
-          error: err,
-          url: { path: '/template/[templateId]' }
-        });
-      }
+      setErrorMessages([EditTemplate('errors.saveTemplateError')]);
+
+      logECS('error', 'saveTemplate', {
+        error: err,
+        url: { path: '/template/[templateId]' },
+      });
     }
   };
 
@@ -192,6 +202,10 @@ const TemplateEditPage: React.FC = () => {
 
     await saveTemplate(TemplateVersionType.Published, changeLog, visibility);
   };
+
+  const handlePressPublishTemplate = () => {
+    setPublishModalOpen(true);
+  }
 
   // Call Server Action updateTemplateAction
   const updateTemplate = async (templateInfo: TemplateInfoInterface) => {
@@ -350,10 +364,6 @@ const TemplateEditPage: React.FC = () => {
     }
   }, [data]);
 
-  useEffect(() => {
-    console.log("PAGE ERRORS", pageErrors);
-  }, [pageErrors])
-
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
@@ -488,7 +498,7 @@ const TemplateEditPage: React.FC = () => {
             <div className="sidebar-section">
               <Button
                 className="my-3"
-                onPress={() => setPublishModalOpen(true)}
+                onPress={() => handlePressPublishTemplate()}
               >
                 {EditTemplate('button.publishTemplate')}
               </Button>
