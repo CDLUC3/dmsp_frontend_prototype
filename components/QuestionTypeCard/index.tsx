@@ -17,7 +17,7 @@ const QuestionTypeCard: React.FC<QuestionTypeCardProps> = ({ questionType, handl
 
   const json = JSON.parse(questionType.json);
   const questionTypeId = json.type;
-  let qType = JSON.stringify(questionTypeId)?.trim().replace(/^"|"$/g, '');//Since the question type was taken from the JSON string, it could have quotes or slashes that need to be removed.
+  const qType = JSON.stringify(questionTypeId)?.trim().replace(/^"|"$/g, '');//Since the question type was taken from the JSON string, it could have quotes or slashes that need to be removed.
 
   return (
     <Card key={questionType.id}>

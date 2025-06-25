@@ -205,7 +205,7 @@ const QuestionTypeSelectPage: React.FC = () => {
               <div>
                 {/*Show # of results with clear filter link*/}
                 {(searchTerm.length > 0 && searchButtonClicked) && (
-                  <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length || 0 })} - <Link onPress={resetSearch} href="#" className={styles.searchMatchText}>{QuestionTypeSelect('links.clearFilter')}</Link></div>
+                  <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length || 0 })} - <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}>{QuestionTypeSelect('links.clearFilter')}</Button></div>
                 )}
                 <div className="card-grid-list">
                   {filteredQuestionTypes && filteredQuestionTypes.length > 0 ? (
@@ -247,7 +247,7 @@ const QuestionTypeSelectPage: React.FC = () => {
                 {/*Show # of results with clear filter link*/}
                 {((filteredQuestionTypes && filteredQuestionTypes.length > 0) && searchButtonClicked) && (
                   <div className={styles.clearFilter}>
-                    <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length || 0 })} - <Link onPress={resetSearch} href="#" className={styles.searchMatchText}>{QuestionTypeSelect('links.clearFilter')}</Link></div>
+                    <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length || 0 })} - <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}>{QuestionTypeSelect('links.clearFilter')}</Button></div>
                   </div>
                 )}
               </div>
