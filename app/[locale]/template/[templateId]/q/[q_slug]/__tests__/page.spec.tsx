@@ -1,5 +1,6 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import userEvent from "@testing-library/user-event";
 import {
   useQuestionQuery,
   useQuestionTypesLazyQuery,
@@ -13,6 +14,7 @@ import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import mockQuestionData from '../__mocks__/mockQuestionData.json';
 import mockRadioQuestion from '@/__mocks__/common/mockRadioQuestion.json';
 import mockQuestionDataForDateRange from '@/__mocks__/common/mockQuestionDataForDateRange.json';
+import mockQuestionDataForNumberRange from '@/__mocks__/common/mockQuestionDataForNumberRange.json';
 import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockQuestionDataForTypeAheadSearch.json';
 import mockQuestionDataForTextField from '@/__mocks__/common/mockQuestionDataForTextField.json';
 import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
@@ -36,13 +38,7 @@ jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn()
 }))
 
-// Mock QuestionOptionsComponent since it has it's own separate unit test
-jest.mock('@/components/Form/QuestionOptionsComponent', () => {
-  return {
-    __esModule: true,
-    default: () => <div>Mocked Question Options Component</div>,
-  };
-});
+const mockUseRouter = useRouter as jest.Mock;
 
 if (typeof global.structuredClone !== 'function') {
   global.structuredClone = (val) => JSON.parse(JSON.stringify(val));
@@ -58,6 +54,10 @@ describe("QuestionEditPage", () => {
 
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}`, q_slug: 67 });
+
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
 
     // Mock window.tinymce
     window.tinymce = {
@@ -251,13 +251,25 @@ describe("QuestionEditPage", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
-    await act(async () => {
-      render(
-        <QuestionEdit />
-      );
-    });
+    const { getByDisplayValue } = render(
+      <QuestionEdit />
+    );
 
-    expect(screen.getByText('Mocked Question Options Component')).toBeInTheDocument();
+
+    // Find the input by its current value
+    const input = getByDisplayValue('Yes');
+
+    // Change the value to 'No'
+    fireEvent.change(input, { target: { value: 'Something else' } });
+
+    const buttonSubmit = screen.getByRole('button', { name: 'buttons.saveAndUpdate' });
+    act(() => {
+      fireEvent.click(buttonSubmit);
+    })
+
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
+    })
   })
 
   it('should call the useUpdateQuestionMutation when user clicks \'save\' button', async () => {
@@ -420,6 +432,50 @@ describe("QuestionEditPage", () => {
     fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
 
     expect(rangeStartInput).toHaveValue('New Range Label');
+
+  });
+
+  it("should call handleRangeLabelChange for number range question type", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForNumberRange,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Find the input rendered by RangeComponent
+    const rangeStartInput = screen.getByLabelText('range start');
+
+    // Simulate user typing
+    fireEvent.change(rangeStartInput, { target: { value: '2' } });
+
+    expect(rangeStartInput).toHaveValue('2');
 
   });
 

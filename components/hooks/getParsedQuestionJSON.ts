@@ -1,6 +1,5 @@
 'use client'
 
-//import { useTranslations } from 'next-intl';
 import {
   Question,
 } from '@/app/types';
@@ -41,12 +40,13 @@ const isValidQuestionType = (obj: any): obj is QuestionTypeMap[keyof QuestionTyp
 
 export const getParsedQuestionJSON = (
   question: Question | null,
-  path: string
+  path: string,
+  t: any
 ): ParsedQuestionResult => {
-  // const Global = useTranslations('Global');
 
   if (!question?.json) {
-    return { parsed: null, error: "error" };
+    return { parsed: null, error: t('messaging.errors.invalidQuestionType') };
+
   }
 
   const { json: source } = question;
@@ -60,7 +60,7 @@ export const getParsedQuestionJSON = (
           questionType: parsed?.type,
           url: { path }
         });
-        return { parsed: null, error: "error" };
+        return { parsed: null, error: t('messaging.errors.questionUnexpectedFormat') };
       }
       return { parsed };
     } catch (err) {
@@ -68,7 +68,7 @@ export const getParsedQuestionJSON = (
         error: err,
         url: { path }
       });
-      return { parsed: null, error: "error" };
+      return { parsed: null, error: t('messaging.errors.questionJSONFParseFailed') };
     }
   }
 

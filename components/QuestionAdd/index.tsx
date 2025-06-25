@@ -229,7 +229,6 @@ const QuestionAdd = ({
   // values with rows state. For non-options questions, we use the parsed JSON
   const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
 
-    console.log("QUESTION", question)
     if (hasOptions) {
       const useRows = rowsOverride ?? rows;
       return {
@@ -240,7 +239,7 @@ const QuestionAdd = ({
         })),
       };
     }
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }));
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }), Global);
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
@@ -248,8 +247,6 @@ const QuestionAdd = ({
       return;
     }
 
-    console.log("PARSED", parsed);
-    console.log("GET OVERRIDES", getOverrides(questionType));
     const merged = {
       ...parsed,
       attributes: {
@@ -258,7 +255,6 @@ const QuestionAdd = ({
       },
     };
 
-    console.log("MERGED", merged);
     return {
       ...parsed,
       attributes: {
@@ -271,8 +267,7 @@ const QuestionAdd = ({
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
-    console.log("USER INPUT", userInput);
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }));
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }), Global);
 
     if (!parsed) {
       if (error) {
@@ -376,7 +371,7 @@ const QuestionAdd = ({
 
   useEffect(() => {
     if (question) {
-      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }));
+      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }), Global);
       if (!parsed) {
         if (error) {
           setErrors(prev => [...prev, error])

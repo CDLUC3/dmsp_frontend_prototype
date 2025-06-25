@@ -227,7 +227,7 @@ const QuestionEdit = () => {
         })),
       };
     }
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }));
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
@@ -246,7 +246,7 @@ const QuestionEdit = () => {
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }));
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
@@ -307,7 +307,7 @@ const QuestionEdit = () => {
       const q = selectedQuestion.question;
 
       try {
-        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }));
+        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
         if (!parsed?.type) {
           if (error) {
             logECS('error', 'Parsing error', {
@@ -404,7 +404,7 @@ const QuestionEdit = () => {
   function getMatchingQuestionType(qTypes: QuestionTypesInterface[], questionTypeIdQueryParam: string) {
     return qTypes.find((q) => {
       try {
-        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }));
+        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
         if (!parsed) {
           if (error) {
             setErrors(prev => [...prev, error])
@@ -451,7 +451,7 @@ const QuestionEdit = () => {
 
   useEffect(() => {
     if (question) {
-      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.show', { templateId }));
+      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.show', { templateId }), Global);
       if (!parsed) {
         if (error) {
           setErrors(prev => [...prev, error])
@@ -543,7 +543,7 @@ const QuestionEdit = () => {
                       setRows={updateRows}
                       questionJSON={(() => {
                         if (!question) return undefined;
-                        const result = getParsedQuestionJSON(question, routePath('template.show', { templateId }));
+                        const result = getParsedQuestionJSON(question, routePath('template.show', { templateId }), Global);
                         return result.parsed ? JSON.stringify(result.parsed) : undefined;
                       })()} formSubmitted={formSubmitted}
                       setFormSubmitted={setFormSubmitted} />

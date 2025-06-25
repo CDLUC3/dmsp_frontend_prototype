@@ -6,7 +6,7 @@
     "id": 2271,
     "isDirty": true,
     "questionText": "Testing",
-    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"radioButtons\",\"options\":[{\"attributes\":{\"label\":null,\"value\":null,\"selected\":false}}]}",
+    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"radioButtons\",\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":true}},{\"type\":\"option\",\"attributes\":{\"label\":\"No\",\"value\":\"No\",\"selected\":false}},{\"type\":\"option\",\"attributes\":{\"label\":\"Maybe\",\"value\":\"Maybe\",\"selected\":false}}]}",
     "requirementText": "This is requirement text",
     "sampleText": "This is sample text",
     "sectionId": 67,

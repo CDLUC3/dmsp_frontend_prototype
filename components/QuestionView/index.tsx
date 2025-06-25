@@ -132,6 +132,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     endNumber: 0,
   });
 
+  // localization keys
+  const Global = useTranslations('Global');
+
   // These handlers are here so that users can interact with the different question types in the Question Preview
   // However, their changes are not saved anywhere. It's just so they can see how the questions will look and behave
   const handleAffiliationChange = async (id: string, value: string) => {
@@ -205,7 +208,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   useEffect(() => {
     if (!question || !qtData?.questionTypes) return;
 
-    const { parsed } = getParsedQuestionJSON(question, path);
+    const { parsed } = getParsedQuestionJSON(question, path, Global);
     if (!parsed) {
       return;
     }
@@ -223,13 +226,12 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   if (!question) return null;
 
-  const { parsed } = getParsedQuestionJSON(question, path);
+  const { parsed } = getParsedQuestionJSON(question, path, Global);
 
   const renderQuestionField = () => {
     if (!parsed) {
       return;
     }
-    console.log("PARSED", parsed);
 
     switch (questionType) {
       case RADIOBUTTONS_QUESTION_TYPE: {
