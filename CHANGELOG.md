@@ -127,6 +127,8 @@
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
 - Fixed that didn't show the current title when editing a template name [#475]
 - Added the missing button to create a new template from scratch [#474]
+- Fixed typo and ensure that correct visibility text displays when changing the
+  Private/Public status in the Template Publish Modal [#483]
 
 ### Chore
 - Updated a number of packages, such as next, react-aria-components, eslint, next-intl, etc [#529]

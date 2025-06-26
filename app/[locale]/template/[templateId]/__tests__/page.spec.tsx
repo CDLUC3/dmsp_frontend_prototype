@@ -279,6 +279,53 @@ describe("TemplateEditPage", () => {
     });
   })
 
+  it('should update the visibility text when publish visibility changes', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateEditPage />
+      );
+    });
+
+    // Simulate the user triggering the publishTemplate button
+    const publishTemplateButton = screen.getByRole('button', { name: /button.publishtemplate/i });
+    fireEvent.click(publishTemplateButton);
+    await waitFor(() => {
+      expect(screen.getByTestId('visPublic')).toBeInTheDocument();
+    });
+
+    const publicOption = screen.getByTestId('visPublic');
+    const privateOption = screen.getByTestId('visPrivate');
+
+    expect(publicOption).toBeInTheDocument();
+    expect(privateOption).toBeInTheDocument();
+
+    // Test the public option
+    fireEvent.click(publicOption);
+    await waitFor(() => {
+      const visBullet = screen.getByTestId('visText');
+      expect(visBullet).toBeInTheDocument();
+      expect(visBullet).toHaveTextContent('bullet.publishingTemplate3');
+    });
+
+    // Test the Private Option
+    fireEvent.click(privateOption);
+    await waitFor(() => {
+      const visBullet = screen.getByTestId('visText');
+      expect(visBullet).toBeInTheDocument();
+      expect(visBullet).toHaveTextContent('bullet.publishingTemplate3Private');
+    });
+  });
+
   it('should display errors.saveTemplate error message if no result when calling saveTemplate', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
