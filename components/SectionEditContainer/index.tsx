@@ -11,6 +11,7 @@ import AddQuestionButton from '@/components/AddQuestionButton';
 interface SectionEditContainerProps {
   sectionId: number;
   templateId: string | number;
+  displayOrder: number;
   setErrorMessages: React.Dispatch<React.SetStateAction<string[]>>;
   onMoveUp: (() => void) | undefined;
   onMoveDown: (() => void) | undefined;
@@ -19,6 +20,7 @@ interface SectionEditContainerProps {
 const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   sectionId,
   templateId,
+  displayOrder,
   setErrorMessages,
   onMoveUp,
   onMoveDown
@@ -90,7 +92,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
       <div role="listitem">
         <SectionHeaderEdit
           key={section.id}
-          sectionNumber={section.displayOrder!}
+          sectionNumber={displayOrder}
           title={section.name}
           editUrl={`/template/${templateId}/section/${section.id}`}
           onMoveUp={onMoveUp}

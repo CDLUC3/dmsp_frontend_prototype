@@ -848,8 +848,8 @@ describe("TemplateEditPage", () => {
 
     // After click, order should be: Section B, Section A (optimistic update)
     expect(getSectionHeadings()).toEqual(expect.arrayContaining([
-      'labels.section 2 Section B',
-      'labels.section 1 Section A',
+      'labels.section 1 Section B',
+      'labels.section 2 Section A',
       'titleStatus',
       'heading.archiveTemplate',
     ]));

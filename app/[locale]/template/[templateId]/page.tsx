@@ -322,27 +322,33 @@ const TemplateEditPage: React.FC = () => {
   // Optimistic update function
   const updateLocalSectionOrder = (sectionId: number, newDisplayOrder: number) => {
     setLocalSections(prevSections => {
-      const updatedSections = prevSections.map(section => {
+      const oldSections = [...prevSections];
+      const movedSection = oldSections.find(s => s.id === sectionId);
+      if (!movedSection || movedSection.displayOrder == null) return prevSections;
+
+      const oldOrder = movedSection.displayOrder;
+
+      const updatedSections = oldSections.map(section => {
         if (section.id === sectionId) {
+          // The moved section gets the new displayOrder
           return { ...section, displayOrder: newDisplayOrder };
         }
-        // Adjust other sections' display orders
-        if (section.displayOrder != null) {
-          const currentOrder = section.displayOrder;
-          const oldOrder = prevSections.find(s => s.id === sectionId)?.displayOrder || 0;
 
-          if (newDisplayOrder > oldOrder) {
-            // Moving down: shift sections up
-            if (currentOrder > oldOrder && currentOrder <= newDisplayOrder) {
-              return { ...section, displayOrder: currentOrder - 1 };
-            }
-          } else {
-            // Moving up: shift sections down  
-            if (currentOrder >= newDisplayOrder && currentOrder < oldOrder) {
-              return { ...section, displayOrder: currentOrder + 1 };
-            }
+        if (section.displayOrder == null) return section;
+
+        // Shift other sections' displayOrders based on direction
+        if (newDisplayOrder > oldOrder) {
+          // Moving down: shift up sections in between
+          if (section.displayOrder > oldOrder && section.displayOrder <= newDisplayOrder) {
+            return { ...section, displayOrder: section.displayOrder - 1 };
+          }
+        } else if (newDisplayOrder < oldOrder) {
+          // Moving up: shift down sections in between
+          if (section.displayOrder >= newDisplayOrder && section.displayOrder < oldOrder) {
+            return { ...section, displayOrder: section.displayOrder + 1 };
           }
         }
+
         return section;
       });
 
@@ -401,12 +407,12 @@ const TemplateEditPage: React.FC = () => {
       });
     }
 
-    // if (data?.template?.sections) {
-    //   const sorted = sortSections(
-    //     data.template.sections.filter((section): section is Section => section !== null)
-    //   );
-    //   setLocalSections(sorted);//for optimistic update
-    // }
+    if (data?.template?.sections) {
+      const sorted = sortSections(
+        data.template.sections.filter((section): section is Section => section !== null)
+      );
+      setLocalSections(sorted);
+    }
   }, [data]);
 
   if (loading) {
@@ -471,6 +477,7 @@ const TemplateEditPage: React.FC = () => {
                   <SectionEditContainer
                     key={section.id}
                     sectionId={section.id as number}
+                    displayOrder={section.displayOrder!}
                     templateId={templateId}
                     setErrorMessages={setErrorMessages}
                     onMoveUp={
