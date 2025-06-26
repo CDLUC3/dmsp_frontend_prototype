@@ -49,6 +49,8 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   // Added for accessibility
   const [announcement, setAnnouncement] = useState('');
 
+
+
   // Call Server Action updateQuestionDisplayOrder
   const updateDisplayOrder = async (questionId: number, newDisplayOrder: number) => {
 
@@ -72,7 +74,6 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   const handleDisplayOrderChange = async (newDisplayOrder: number) => {
     // If new display order is less than 1 then just return
     if (newDisplayOrder < 1) {
-      console.log("Will call setErrorMessages")
       if (setErrorMessages) {
         setErrorMessages(prev => [...prev, generalErrorMessage]);
       }
