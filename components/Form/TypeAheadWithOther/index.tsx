@@ -285,7 +285,7 @@ const TypeAheadWithOther = ({
   }
 
   return (
-    <div className={`${styles.autocompleteContainer} ${styles.expanded} ${className}`} aria-expanded={open} role="combobox" aria-controls="results">
+    <div className={`${styles.autocompleteContainer} ${styles.expanded} ${className} form-row`} aria-expanded={open} role="combobox" aria-controls="results">
       <TextField
         type="text"
         className={(!!error) ? styles.fieldError : ''}

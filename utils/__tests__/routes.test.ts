@@ -1,4 +1,4 @@
-import {RouteName, routePath} from '@/utils/routes';
+import { RouteName, routePath } from '@/utils/routes';
 
 describe('routePath utility', () => {
   // Basic route generation

@@ -93,7 +93,8 @@ const TemplateEditPage: React.FC = () => {
   const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
     {
       variables: { templateId: Number(templateId) },
-      notifyOnNetworkStatusChange: true
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: "network-only",// Fetch latest data instead of cache so we get the latest sections and questions after adding new ones
     }
   );
 
