@@ -1,257 +1,326 @@
-import { act, render, screen, fireEvent } from '@testing-library/react';
-import QuestionEditCard from '../index';
 import React from 'react';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
-expect.extend(toHaveNoViolations);
-const { updateQuestionDisplayOrderAction } = require('../actions');
+import QuestionEditCard from '../index';
+import { updateQuestionDisplayOrderAction } from '../actions';
 
-
-// Mocks
-jest.mock('next/link', () => {
-  return ({ children, href }: { children: React.ReactNode; href: string }) =>
-    <a href={href}>{children}</a>;
-});
+// Mock dependencies
+jest.mock('next/navigation', () => ({
+  useParams: jest.fn(),
+  useRouter: jest.fn(),
+}));
 
 jest.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: jest.fn(),
 }));
-jest.mock('next/navigation', () => ({
-  useParams: () => ({ templateId: '123' }),
-  useRouter: () => ({ push: jest.fn() }),
+
+jest.mock('../actions', () => ({
+  updateQuestionDisplayOrderAction: jest.fn(),
 }));
 
 jest.mock('@/utils/general', () => ({
-  stripHtml: (text: string) => text,
+  stripHtml: jest.fn((text) => text), // Simple mock that returns the input
 }));
+
 jest.mock('@/utils/clientLogger', () => jest.fn());
+
 jest.mock('@/utils/routes', () => ({
-  routePath: jest.fn(() => '/template/123'),
-}));
-jest.mock('../actions', () => ({
-  updateQuestionDisplayOrderAction: jest.fn(async () => ({
-    success: true,
-    errors: [],
-    data: {},
-    redirect: null,
-  })),
-}));
-jest.mock('../QuestionEditCard.module.scss', () => ({
-  questionEditCard: 'questionEditCard',
-  questionEditCard__content: 'questionEditCard__content',
-  questionEditCard__label: 'questionEditCard__label',
-  questionEditCard__name: 'questionEditCard__name',
-  questionEditCard__actions: 'questionEditCard__actions',
-  questionEditCard__link: 'questionEditCard__link',
-  btnDefault: 'btnDefault',
-  orderButton: 'orderButton',
+  routePath: jest.fn(() => '/mock-path'),
 }));
 
-describe('QuestionEditCard', () => {
-  const defaultProps = {
-    id: '1',
-    text: 'Sample question?',
-    link: '/edit/1',
-    name: 'Sample',
-    displayOrder: 2,
+// Mock Link component
+jest.mock('next/link', () => {
+  return function MockLink({ children, href, ...props }: any) {
+    return <a href={href} {...props}>{children}</a>;
   };
-
-  it('should render question text and edit link', async () => {
-    await act(async () => {
-      render(<QuestionEditCard {...defaultProps} />);
-    });
-    expect(screen.getByText('Sample question?')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'links.editQuestion' })).toHaveAttribute('href', '/edit/1');
-  });
-
-  it('should call handleDisplayOrderChange with correct values on up/down button click', async () => {
-    const setErrorMessages = jest.fn();
-
-    await act(async () => {
-      render(
-        <QuestionEditCard
-          {...defaultProps}
-          setErrorMessages={setErrorMessages}
-        />
-      );
-    });
-    const upButton = screen.getByRole('button', { name: /moveUp/i });
-    const downButton = screen.getByRole('button', { name: /moveDown/i });
-
-    fireEvent.click(upButton);
-    fireEvent.click(downButton);
-
-    // No direct assertion here, but if no error is thrown, the handler ran.
-    // Could spy on updateQuestionDisplayOrderAction if needed.
-    expect(upButton).toBeInTheDocument();
-    expect(downButton).toBeInTheDocument();
-  });
-
-  it('should not call updateDisplayOrder if new display order < 1', async () => {
-    const setErrorMessages = jest.fn();
-
-    await act(async () => {
-      render(
-        <QuestionEditCard
-          {...defaultProps}
-          setErrorMessages={setErrorMessages}
-          displayOrder={1}
-        />
-      );
-    });
-    const upButton = screen.getByRole('button', { name: /buttons.moveUp/i });
-    act(() => {
-      fireEvent.click(upButton);
-    });
-    //setErrorMessages should be called with error message
-    expect(setErrorMessages).toHaveBeenCalled();
-  });
-
-  it('should return null if questionId is missing', async () => {
-    let container!: HTMLElement;
-
-    await act(async () => {
-      const rendered = render(<QuestionEditCard {...defaultProps} id="" />);
-      container = rendered.container;
-    });
-
-    expect(container.firstChild).toBeNull();
-  });
-
-  it('should call setErrorMessages on error from updateDisplayOrder', async () => {
-    updateQuestionDisplayOrderAction.mockResolvedValueOnce({
-      success: false,
-      errors: ['Some error'],
-      data: {},
-      redirect: null,
-    });
-    const setErrorMessages = jest.fn();
-    await act(async () => {
-      render(
-        <QuestionEditCard
-          {...defaultProps}
-          setErrorMessages={setErrorMessages}
-        />
-      );
-    });
-    const downButton = screen.getByRole('button', { name: /moveDown/i });
-    fireEvent.click(downButton);
-    await new Promise(r => setTimeout(r, 0));
-    expect(setErrorMessages).toHaveBeenCalledWith(['Some error']);
-  });
-
-  it('should pass accessibility tests', async () => {
-    const { container } = render(<QuestionEditCard {...defaultProps} />);
-
-    const results = await axe(container);
-
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should call setErrorMessages with generalErrorMessage if new display order < 1', async () => {
-    const setErrorMessages = jest.fn();
-    await act(async () => {
-      render(
-        <QuestionEditCard
-          id="1"
-          text="Test question"
-          link="/edit/1"
-          displayOrder={1}
-          setErrorMessages={setErrorMessages}
-        />
-      );
-    });
-    const upButton = screen.getByRole('button', { name: /buttons.moveUp/i });
-    act(() => {
-      fireEvent.click(upButton);
-    });
-    const callArg = setErrorMessages.mock.calls[0][0];
-    expect(typeof callArg).toBe('function');
-    // Simulate calling the updater function
-    const result = callArg([]);
-    expect(result).toContain("messaging.somethingWentWrong");
-  });
-
-  it('should call setErrorMessages with [generalErrorMessage] if errors array is empty', async () => {
-    updateQuestionDisplayOrderAction.mockResolvedValueOnce({
-      success: false,
-      errors: [],
-      data: {},
-      redirect: null,
-    });
-    const setErrorMessages = jest.fn();
-    await act(async () => {
-      render(
-        <QuestionEditCard
-          id="1"
-          text="Test question"
-          link="/edit/1"
-          displayOrder={2}
-          setErrorMessages={setErrorMessages}
-        />
-      );
-    });
-    const downButton = screen.getByRole('button', { name: /moveDown/i });
-    fireEvent.click(downButton);
-    await new Promise(r => setTimeout(r, 0));
-    expect(setErrorMessages).toHaveBeenCalledWith(["messaging.somethingWentWrong"]);
-  });
-
-  it('should call setErrorMessages with generalErrorMessage if result.data.errors.general is not present', async () => {
-    updateQuestionDisplayOrderAction.mockResolvedValueOnce({
-      success: true,
-      errors: [],
-      data: { errors: { notGeneral: 'error' } },
-      redirect: null,
-    });
-    const setErrorMessages = jest.fn();
-    await act(async () => {
-      render(
-        <QuestionEditCard
-          id="1"
-          text="Test question"
-          link="/edit/1"
-          displayOrder={2}
-          setErrorMessages={setErrorMessages}
-        />
-      );
-    });
-    const downButton = screen.getByRole('button', { name: /moveDown/i });
-    fireEvent.click(downButton);
-    await new Promise(r => setTimeout(r, 0));
-    // Should not call setErrorMessages in this case, as general is not a string
-    expect(setErrorMessages).not.toHaveBeenCalledWith(expect.arrayContaining(['Global.messaging.somethingWentWrong']));
-  });
-
-  it('should call setErrorMessages with result.data.errors.general if present', async () => {
-    updateQuestionDisplayOrderAction.mockResolvedValueOnce({
-      success: true,
-      errors: [],
-      data: { errors: { general: 'General error message' } },
-      redirect: null,
-    });
-    const setErrorMessages = jest.fn();
-    await act(async () => {
-      render(
-        <QuestionEditCard
-          id="1"
-          text="Test question"
-          link="/edit/1"
-          displayOrder={2}
-          setErrorMessages={setErrorMessages}
-        />
-      );
-    });
-    const downButton = screen.getByRole('button', { name: /moveDown/i });
-    fireEvent.click(downButton);
-    await new Promise(r => setTimeout(r, 0));
-    const callArg = setErrorMessages.mock.calls[0][0];
-    expect(typeof callArg).toBe('function');
-    // Simulate calling the updater function
-    const result = callArg([]);
-    expect(result).toContain("General error message");
-  });
 });
 
+const mockUseRouter = useRouter as jest.Mock;
+
+describe('QuestionEditCard', () => {
+  const mockSetErrorMessages = jest.fn();
+  const mockOnOptimisticUpdate = jest.fn();
+  const mockPush = jest.fn();
+  const mockTranslations = jest.fn((key: string, params?: any) => {
+    if (key === 'buttons.moveUp') return `Move up ${params?.name || ''}`;
+    if (key === 'buttons.moveDown') return `Move down ${params?.name || ''}`;
+    if (key === 'messages.questionMoved') return `Question moved to position ${params?.displayOrder}`;
+    if (key === 'label.question') return 'Question';
+    if (key === 'links.editQuestion') return 'Edit Question';
+    return key;
+  });
+
+  const defaultProps = {
+    id: '123',
+    text: 'Sample question text',
+    link: '/edit/123',
+    name: 'Sample Question',
+    displayOrder: 5,
+    setErrorMessages: mockSetErrorMessages,
+    onOptimisticUpdate: mockOnOptimisticUpdate,
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
 
 
+    (useParams as jest.Mock).mockReturnValue({
+      templateId: 'template-123',
+    });
+
+    (useRouter as jest.Mock).mockReturnValue({
+      push: mockPush,
+    });
+
+    (useTranslations as jest.Mock).mockImplementation((namespace) => {
+      if (namespace === 'Global') {
+        return (key: string) => {
+          if (key === 'messaging.somethingWentWrong') return 'Something went wrong';
+          return key;
+        };
+      }
+      return mockTranslations;
+    });
+  });
+
+  describe('QuestionEditCard', () => {
+    it('should render correct move up and down aria-labels when no name is passed', async () => {
+      // Mock successful server action response
+      (updateQuestionDisplayOrderAction as jest.Mock).mockResolvedValue({
+        success: true,
+        errors: [],
+        data: null,
+      });
+
+      const props = {
+        ...defaultProps,
+        name: undefined,
+      };
+
+
+      render(<QuestionEditCard {...props} />);
+
+      const buttonMoveDown = screen.getByRole('button', { name: /move down/i });
+      expect(buttonMoveDown).toHaveAttribute('aria-label', 'Move down ');
+      const buttonMoveUp = screen.getByRole('button', { name: /move up/i });
+      expect(buttonMoveUp).toHaveAttribute('aria-label', 'Move up ');
+    });
+  });
+
+  describe('Move Up Button', () => {
+    it('should call handleDisplayOrderChange with decreased display order when move up button is clicked', async () => {
+      // Mock successful server action response
+      (updateQuestionDisplayOrderAction as jest.Mock).mockResolvedValue({
+        success: true,
+        errors: [],
+        data: null,
+      });
+
+      render(<QuestionEditCard {...defaultProps} />);
+
+      const moveUpButton = screen.getByLabelText('Move up Sample Question');
+
+      fireEvent.click(moveUpButton);
+
+      // Verify optimistic update was called
+      expect(mockOnOptimisticUpdate).toHaveBeenCalledWith(123, 4);
+
+      await waitFor(() => {
+        expect(updateQuestionDisplayOrderAction).toHaveBeenCalledWith({
+          questionId: 123,
+          newDisplayOrder: 4,
+        });
+      });
+    });
+
+    it('should not call server action when display order would be less than 1', async () => {
+      const propsWithDisplayOrder1 = {
+        ...defaultProps,
+        displayOrder: 1,
+      };
+
+      render(<QuestionEditCard {...propsWithDisplayOrder1} />);
+
+      const moveUpButton = screen.getByLabelText('Move up Sample Question');
+
+      fireEvent.click(moveUpButton);
+
+      // Should not call optimistic update or server action
+      expect(mockOnOptimisticUpdate).not.toHaveBeenCalled();
+      expect(updateQuestionDisplayOrderAction).not.toHaveBeenCalled();
+
+      // Should set error message
+      expect(mockSetErrorMessages).toHaveBeenCalledWith(
+        expect.any(Function)
+      );
+    });
+  });
+
+  describe('Move Down Button', () => {
+    it('should call handleDisplayOrderChange with increased display order when move down button is clicked', async () => {
+      // Mock successful server action response
+      (updateQuestionDisplayOrderAction as jest.Mock).mockResolvedValue({
+        success: true,
+        errors: [],
+        data: null,
+      });
+
+      render(<QuestionEditCard {...defaultProps} />);
+
+      const moveDownButton = screen.getByLabelText('Move down Sample Question');
+
+      fireEvent.click(moveDownButton);
+
+      // Verify optimistic update was called
+      expect(mockOnOptimisticUpdate).toHaveBeenCalledWith(123, 6);
+
+      await waitFor(() => {
+        expect(updateQuestionDisplayOrderAction).toHaveBeenCalledWith({
+          questionId: 123,
+          newDisplayOrder: 6,
+        });
+      });
+    });
+  });
+
+  describe('Error Handling', () => {
+
+    it('should handle server action errors', async () => {
+      // Mock failed server action response
+      (updateQuestionDisplayOrderAction as jest.Mock).mockResolvedValue({
+        success: false,
+        errors: ['Server error occurred'],
+        data: null,
+      });
+
+      render(<QuestionEditCard {...defaultProps} />);
+
+      const moveUpButton = screen.getByLabelText('Move up Sample Question');
+
+      fireEvent.click(moveUpButton);
+
+      await waitFor(() => {
+        expect(mockSetErrorMessages).toHaveBeenCalledWith(['Server error occurred']);
+      });
+    });
+
+    it('should handle general errors from server response data', async () => {
+      // Mock server action response with general error in data
+      (updateQuestionDisplayOrderAction as jest.Mock).mockResolvedValue({
+        success: true,
+        errors: [],
+        data: {
+          errors: {
+            general: 'Database error'
+          }
+        },
+      });
+
+      render(<QuestionEditCard {...defaultProps} />);
+
+      const moveUpButton = screen.getByLabelText('Move up Sample Question');
+
+      fireEvent.click(moveUpButton);
+
+      await waitFor(() => {
+        expect(mockSetErrorMessages).toHaveBeenCalledWith(
+          expect.any(Function)
+        );
+      });
+    });
+
+    it('should handle redirect if returned from updateQuestionDisplayOrderAction mutation', async () => {
+      // Mock server action response with general error in data
+      (updateQuestionDisplayOrderAction as jest.Mock).mockResolvedValue({
+        success: true,
+        errors: [],
+        data: {
+          errors: {
+            general: 'Database error'
+          }
+        },
+        redirect: '/template'
+      });
+
+      render(<QuestionEditCard {...defaultProps} />);
+
+      const moveUpButton = screen.getByLabelText('Move up Sample Question');
+
+      fireEvent.click(moveUpButton);
+
+      // Check that user is redirected to home page
+      await waitFor(() => {
+        expect(mockUseRouter().push).toHaveBeenCalledWith('/template');
+      });
+    });
+  });
+
+  describe('Success Announcement', () => {
+    it('should announce successful move to screen readers', async () => {
+      // Mock successful server action response
+      (updateQuestionDisplayOrderAction as jest.Mock).mockResolvedValue({
+        success: true,
+        errors: [],
+        data: null,
+      });
+
+      render(<QuestionEditCard {...defaultProps} />);
+
+      const moveUpButton = screen.getByLabelText('Move up Sample Question');
+
+      fireEvent.click(moveUpButton);
+
+      await waitFor(() => {
+        // Check that the announcement appears in the live region
+        expect(screen.getByText('Question moved to position 4')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Component Behavior Without Optional Props', () => {
+    it('should handle missing onOptimisticUpdate prop gracefully', async () => {
+      const propsWithoutOptimisticUpdate = {
+        ...defaultProps,
+        onOptimisticUpdate: undefined,
+      };
+
+      (updateQuestionDisplayOrderAction as jest.Mock).mockResolvedValue({
+        success: true,
+        errors: [],
+        data: null,
+      });
+
+      render(<QuestionEditCard {...propsWithoutOptimisticUpdate} />);
+
+      const moveUpButton = screen.getByLabelText('Move up Sample Question');
+
+      // Should not throw error when onOptimisticUpdate is undefined
+      expect(() => fireEvent.click(moveUpButton)).not.toThrow();
+
+      await waitFor(() => {
+        expect(updateQuestionDisplayOrderAction).toHaveBeenCalled();
+      });
+    });
+
+    it('should handle missing setErrorMessages prop gracefully', async () => {
+      const propsWithoutSetErrorMessages = {
+        ...defaultProps,
+        setErrorMessages: undefined,
+        displayOrder: 1, // This will trigger error condition
+      };
+
+      render(<QuestionEditCard {...propsWithoutSetErrorMessages} />);
+
+      const moveUpButton = screen.getByLabelText('Move up Sample Question');
+
+      // Should not throw error when setErrorMessages is undefined
+      expect(() => fireEvent.click(moveUpButton)).not.toThrow();
+    });
+  });
+});

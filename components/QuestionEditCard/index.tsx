@@ -49,23 +49,8 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   // Added for accessibility
   const [announcement, setAnnouncement] = useState('');
 
-
-
   // Call Server Action updateQuestionDisplayOrder
   const updateDisplayOrder = async (questionId: number, newDisplayOrder: number) => {
-    if (!questionId) {
-      logECS('error', 'updateDisplayOrder', {
-        error: 'No questionId',
-        url: {
-          path: routePath('template.show', { templateId: templateId }),
-        },
-      });
-      return {
-        success: false,
-        errors: [Global('messaging.somethingWentWrong')],
-        data: null,
-      };
-    }
 
     // Don't need a try-catch block here, as the error is handled in the server action
     const response = await updateQuestionDisplayOrderAction({
@@ -87,6 +72,7 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   const handleDisplayOrderChange = async (newDisplayOrder: number) => {
     // If new display order is less than 1 then just return
     if (newDisplayOrder < 1) {
+      console.log("Will call setErrorMessages")
       if (setErrorMessages) {
         setErrorMessages(prev => [...prev, generalErrorMessage]);
       }
@@ -165,18 +151,8 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
     </svg>
   );
 
-  if (!questionId) {
-    logECS('error', 'updateDisplayOrder', {
-      error: 'No questionId',
-      url: {
-        path: routePath('template.show', { templateId: templateId }),
-      },
-    });
-    return null;
-  }
-
   return (
-    <div className={styles.questionEditCard} key={id}>
+    <div className={styles.questionEditCard} key={id} data-testid="question-edit-card">
       <div className={styles.questionEditCard__content}
         aria-labelledby={`question-${id}`}>
         <p className={styles.questionEditCard__label}

@@ -1,6 +1,7 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { useParams } from 'next/navigation';
+
 import { axe, toHaveNoViolations } from 'jest-axe';
 import SectionEditContainer from '../index';
 import { useSectionQuery } from '@/generated/graphql';
@@ -10,12 +11,15 @@ expect.extend(toHaveNoViolations);
 jest.mock('@/components/SectionHeaderEdit', () => (props: any) => (
   <div data-testid="section-header-edit">{props.title}</div>
 ));
-jest.mock('@/components/QuestionEditCard', () => (props: any) => (
-  <div data-testid="question-edit-card">{props.text}</div>
-));
+
 jest.mock('@/components/AddQuestionButton', () => (props: any) => (
   <button data-testid="add-question-btn">{props.href}</button>
 ));
+
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  useParams: jest.fn()
+}));
 
 // Mock useSectionQuery
 jest.mock('@/generated/graphql', () => ({
@@ -39,6 +43,9 @@ const sectionData = {
 
 describe('SectionEditContainer', () => {
   beforeEach(() => {
+    const mockUseParams = useParams as jest.Mock;
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ templateId: '123' });
     jest.clearAllMocks();
   });
 
@@ -110,6 +117,48 @@ describe('SectionEditContainer', () => {
       'data-testid',
       'add-question-btn'
     );
+  });
+
+  it('should update order when user clicks move up/move down buttons', async () => {
+    (useSectionQuery as jest.Mock).mockReturnValue({
+      loading: false,
+      data: sectionData,
+      error: undefined,
+      refetch: jest.fn(),
+    });
+
+    render(
+      <SectionEditContainer
+        sectionId={1}
+        templateId={123}
+        displayOrder={1}
+        setErrorMessages={mockSetErrorMessages}
+        onMoveUp={jest.fn()}
+        onMoveDown={jest.fn()}
+      />
+    );
+
+
+    // Get all question cards (in DOM/rendered order)
+    let questionCards = screen.getAllByTestId('question-edit-card');
+
+    // Find the card that contains Q1
+    const q1Card = questionCards.find(card =>
+      within(card).queryByText(/^Q1$/)
+    );
+
+    // Get the "Move Up" button inside Q1's card
+    const moveUpButton = within(q1Card!).getByRole('button', { name: 'buttons.moveUp' });
+
+    // Click the "Move Up" button
+    fireEvent.click(moveUpButton);
+
+    // Re-query the question cards (they should re-render in new order)
+    questionCards = screen.getAllByTestId('question-edit-card');
+
+    // Check that the first question card now contains Q1
+    expect(questionCards[0]).toHaveTextContent('Q1');
+
   });
 
   it('should renders empty questions array gracefully', () => {
