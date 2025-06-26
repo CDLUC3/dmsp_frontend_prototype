@@ -67,7 +67,7 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
         {onMoveUp && (
           <Button className={`${styles.btnDefault} ${styles.orderButton}`}
             onPress={onMoveUp}
-            aria-label={Sections('buttons.moveUp')}>
+            aria-label={Sections('buttons.moveUp', { title: title })}>
             <UpArrowIcon />
           </Button>
         )}
@@ -75,7 +75,7 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
         {onMoveDown && (
           <Button className={`${styles.btnDefault} ${styles.orderButton}`}
             onPress={onMoveDown}
-            aria-label={Sections('buttons.moveDown')}>
+            aria-label={Sections('buttons.moveDown', { title: title })}>
             <DownArrowIcon />
           </Button>
         )}

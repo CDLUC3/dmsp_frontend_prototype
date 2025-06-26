@@ -53,6 +53,7 @@ describe('SectionEditContainer', () => {
       <SectionEditContainer
         sectionId={1}
         templateId={123}
+        displayOrder={1}
         setErrorMessages={mockSetErrorMessages}
         onMoveUp={jest.fn()}
         onMoveDown={jest.fn()}
@@ -72,6 +73,7 @@ describe('SectionEditContainer', () => {
       <SectionEditContainer
         sectionId={1}
         templateId={123}
+        displayOrder={2}
         setErrorMessages={mockSetErrorMessages}
         onMoveUp={jest.fn()}
         onMoveDown={jest.fn()}
@@ -92,6 +94,7 @@ describe('SectionEditContainer', () => {
       <SectionEditContainer
         sectionId={1}
         templateId={123}
+        displayOrder={1}
         setErrorMessages={mockSetErrorMessages}
         onMoveUp={jest.fn()}
         onMoveDown={jest.fn()}
@@ -121,6 +124,7 @@ describe('SectionEditContainer', () => {
       <SectionEditContainer
         sectionId={1}
         templateId={123}
+        displayOrder={2}
         setErrorMessages={mockSetErrorMessages}
         onMoveUp={jest.fn()}
         onMoveDown={jest.fn()}
@@ -143,6 +147,7 @@ describe('SectionEditContainer', () => {
       <SectionEditContainer
         sectionId={1}
         templateId={123}
+        displayOrder={1}
         setErrorMessages={mockSetErrorMessages}
         onMoveUp={jest.fn()}
         onMoveDown={jest.fn()}
@@ -171,6 +176,7 @@ describe('SectionEditContainer', () => {
       <SectionEditContainer
         sectionId={1}
         templateId={123}
+        displayOrder={2}
         setErrorMessages={mockSetErrorMessages}
         onMoveUp={jest.fn()}
         onMoveDown={jest.fn()}
@@ -186,6 +192,7 @@ describe('SectionEditContainer', () => {
       <SectionEditContainer
         sectionId={1}
         templateId={123}
+        displayOrder={1}
         setErrorMessages={mockSetErrorMessages}
         onMoveUp={jest.fn()}
         onMoveDown={jest.fn()}

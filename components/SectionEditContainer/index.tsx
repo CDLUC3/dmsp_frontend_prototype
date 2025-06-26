@@ -99,8 +99,8 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
           onMoveDown={onMoveDown}
         />
       </div>
-      <div role="listitem">
-        {localQuestions.map((question: Question) => (
+      {localQuestions.map((question: Question) => (
+        <div key={question.id} role="listitem">
           <QuestionEditCard
             key={question.id}
             id={question.id ? question.id.toString() : ''}
@@ -110,8 +110,8 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
             setErrorMessages={setErrorMessages}
             onOptimisticUpdate={updateLocalQuestionOrder}
           />
-        ))}
-      </div>
+        </div>
+      ))}
       <div role="listitem">
         <AddQuestionButton href={`/template/${templateId}/q/new?section_id=${section.id}`} />
       </div>

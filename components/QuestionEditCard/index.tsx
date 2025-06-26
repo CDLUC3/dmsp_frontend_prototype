@@ -1,12 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from "react-aria-components";
-import { ApolloQueryResult } from '@apollo/client';
-import {
-  TemplateQuery
-} from '@/generated/graphql';
 
 // Utils
 import { stripHtml } from "@/utils/general";
@@ -23,7 +19,6 @@ interface QuestionEditCardProps {
   name?: string;
   displayOrder?: number;
   setErrorMessages?: React.Dispatch<React.SetStateAction<string[]>>;
-  refetchSection?: (variables?: Partial<{ sectionId: number }>) => Promise<ApolloQueryResult<TemplateQuery>>;
   onOptimisticUpdate?: (questionId: number, newDisplayOrder: number) => void; // New prop
 }
 
@@ -34,7 +29,6 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   name,
   displayOrder,
   setErrorMessages,
-  refetchSection,
   onOptimisticUpdate
 }) => {
 
@@ -51,6 +45,11 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   const Global = useTranslations('Global');
 
   const generalErrorMessage = Global('messaging.somethingWentWrong');
+
+  // Added for accessibility
+  const [announcement, setAnnouncement] = useState('');
+
+
 
   // Call Server Action updateQuestionDisplayOrder
   const updateDisplayOrder = async (questionId: number, newDisplayOrder: number) => {
@@ -124,6 +123,9 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
           setErrorMessages(prev => [...prev, result.data?.errors?.general || generalErrorMessage]);
         }
       }
+      // After successful update
+      const message = EditQuestion('messages.questionMoved', { displayOrder: newDisplayOrder })
+      setAnnouncement(message);
     }
   }
 
@@ -195,20 +197,24 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
         </Link>
         <Button
           className={`${styles.btnDefault} ${styles.orderButton}`}
-          aria-label={EditQuestion('buttons.moveUp')}
+          aria-label={EditQuestion('buttons.moveUp', { name: name ?? '' })}
           onPress={() => handleDisplayOrderChange(questionDisplayOrder - 1)}
         >
           <UpArrowIcon />
         </Button>
         <Button
           className={`${styles.btnDefault} ${styles.orderButton}`}
-          aria-label={EditQuestion('buttons.moveDown')}
+          aria-label={EditQuestion('buttons.moveDown', { name: name ?? '' })}
           onPress={() => handleDisplayOrderChange(questionDisplayOrder + 1)}
         >
           <DownArrowIcon />
         </Button>
       </div>
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
+      </div>
     </div>
+
   );
 };
 

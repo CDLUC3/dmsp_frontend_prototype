@@ -65,6 +65,8 @@ const TemplateEditPage: React.FC = () => {
   //Track local section order - using optimistic rendering
   const [localSections, setLocalSections] = useState<Section[]>([]);
 
+  // Added for accessibility
+  const [announcement, setAnnouncement] = useState('');
 
   // localization keys
   const BreadCrumbs = useTranslations('Breadcrumbs');
@@ -380,7 +382,9 @@ const TemplateEditPage: React.FC = () => {
         await refetch();
         setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateDisplayOrderError')]);
       }
-      // On success, don't refetch - the optimistic update is already correct
+      // After successful update
+      const message = EditTemplate('messages.sectionMoved', { displayOrder: newDisplayOrder })
+      setAnnouncement(message);
     } catch (error) {
       // Revert optimistic update on network error
       await refetch();
@@ -683,8 +687,9 @@ const TemplateEditPage: React.FC = () => {
           </div>
         </Dialog>
       </Modal>
-
-
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
+      </div>
     </div >
   );
 };
