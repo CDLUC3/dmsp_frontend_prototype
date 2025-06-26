@@ -18,7 +18,6 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
   onMoveUp,
   onMoveDown
 }) => {
-
   const Sections = useTranslations('Sections');
   const UpArrowIcon = () => (
     <svg

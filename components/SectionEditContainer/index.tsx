@@ -36,6 +36,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   const sortedQuestions = section.questions
     ? [...section.questions].sort((a, b) => a.displayOrder! - b.displayOrder!)
     : [];
+
   return (
     <div role="list" aria-label="Questions list" style={{ marginBottom: '40px' }}>
       <div role="listitem">

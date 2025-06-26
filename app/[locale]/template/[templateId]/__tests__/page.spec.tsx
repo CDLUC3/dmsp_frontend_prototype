@@ -519,6 +519,56 @@ describe("TemplateEditPage", () => {
     });
   })
 
+  it('should not display error if there are response errors, but no error.general error from calling archiveTemplateMutation', async () => {
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+    });
+    (useCreateTemplateVersionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }), // Correct way to mock a resolved promise
+      { loading: false, error: undefined },
+    ]);
+
+    const mockWithNoGeneralError = {
+      data: {
+        archiveTemplate: {
+          id: 15,
+          name: "Test template",
+          errors: {
+            general: null,
+            name: "Name not in correct format",
+            owner: null,
+          },
+        },
+      },
+    }
+    const mockArchiveTemplate = jest.fn().mockResolvedValue(mockWithNoGeneralError);
+
+    // Use it in your test:
+    (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
+      mockArchiveTemplate,
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateEditPage />
+      );
+    });
+
+    // Locate the Archive Template button
+    const archiveTemplateBtn = screen.getByTestId('archive-template');
+    //Click the button
+    fireEvent.click(archiveTemplateBtn);
+
+    // Wait until error is displayed
+    await waitFor(() => {
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+  })
+
   it('should display Template Title input field when user clicks on Edit Template', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
@@ -717,6 +767,94 @@ describe("TemplateEditPage", () => {
     });
   });
 
+  it('should optimistically update section order when a section is moved (updateLocalSectionOrder)', async () => {
+    const mockTemplateId = 123;
+    const mockUseParams = useParams as jest.Mock;
+
+    const sectionA = {
+      id: 1,
+      name: 'Section A',
+      displayOrder: 1,
+      questions: [],
+    };
+    const sectionB = {
+      id: 2,
+      name: 'Section B',
+      displayOrder: 2,
+      questions: [],
+    };
+
+    const mockTemplateWithSections = {
+      ...mockTemplateData,
+      sections: [sectionA, sectionB],
+    };
+
+
+    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateWithSections },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    (useSectionQuery as jest.Mock).mockImplementation(({ variables }) => {
+      if (variables.sectionId === 1) {
+        return {
+          data: { section: sectionA },
+          loading: false,
+          error: null,
+          refetch: jest.fn(),
+        };
+      }
+      if (variables.sectionId === 2) {
+        return {
+          data: { section: sectionB },
+          loading: false,
+          error: null,
+          refetch: jest.fn(),
+        };
+      }
+      return { data: null, loading: false, error: null, refetch: jest.fn() };
+    });
+
+    (updateSectionDisplayOrderAction as jest.Mock).mockResolvedValue({
+      success: true,
+      errors: [],
+      data: {},
+    });
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    // Find all section headings in order
+    const getSectionHeadings = () =>
+      screen.getAllByRole('heading', { level: 2 }).map(h => h.textContent);
+
+    // Check that both "Section A" and "Section B" are present in the headings
+    expect(getSectionHeadings()).toEqual(expect.arrayContaining([
+      'labels.section 1 Section A',
+      'labels.section 2 Section B',
+      'titleStatus',
+      'heading.archiveTemplate',
+    ]));
+    // Find the "Move Down" button for Section A and click it
+    const moveDownButtons = screen.getAllByLabelText('buttons.moveDown');
+    await act(async () => {
+      fireEvent.click(moveDownButtons[0]);
+    });
+
+    // After click, order should be: Section B, Section A (optimistic update)
+    expect(getSectionHeadings()).toEqual(expect.arrayContaining([
+      'labels.section 2 Section B',
+      'labels.section 1 Section A',
+      'titleStatus',
+      'heading.archiveTemplate',
+    ]));
+  });
+
   it('should set pageErrors when createTemplateVersionMutation returns a general error', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
@@ -841,5 +979,4 @@ describe("TemplateEditPage", () => {
     const results = await axe(container!);
     expect(results).toHaveNoViolations();
   });
-
 });

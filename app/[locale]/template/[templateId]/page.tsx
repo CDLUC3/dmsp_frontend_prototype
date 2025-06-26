@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
-import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -52,6 +51,8 @@ interface TemplateInfoInterface {
   visibility: TemplateVisibility;
 }
 const TemplateEditPage: React.FC = () => {
+  const formatDate = useFormatDate();
+
   const [isPublishModalOpen, setPublishModalOpen] = useState(false);
   const toastState = useToast();
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
@@ -61,7 +62,10 @@ const TemplateEditPage: React.FC = () => {
     name: '',
     visibility: TemplateVisibility.Organization,
   });
-  const formatDate = useFormatDate();
+  //Track local section order - using optimistic rendering
+  const [localSections, setLocalSections] = useState<Section[]>([]);
+  const [isReordering, setIsReordering] = useState(false);
+
 
   // localization keys
   const BreadCrumbs = useTranslations('Breadcrumbs');
@@ -101,7 +105,7 @@ const TemplateEditPage: React.FC = () => {
 
   const sortSections = (sections: Section[]) => {
     // Create a new array with the spread operator before sorting
-    return [...sections].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+    return [...sections].sort((a, b) => (a.displayOrder!) - (b.displayOrder!));
   };
 
   const showSuccessToast = () => {
@@ -316,44 +320,71 @@ const TemplateEditPage: React.FC = () => {
     };
   }
 
+  // Optimistic update function
+  const updateLocalSectionOrder = (sectionId: number, newDisplayOrder: number) => {
+    setLocalSections(prevSections => {
+      const updatedSections = prevSections.map(section => {
+        if (section.id === sectionId) {
+          return { ...section, displayOrder: newDisplayOrder };
+        }
+        // Adjust other sections' display orders
+        if (section.displayOrder != null) {
+          const currentOrder = section.displayOrder;
+          const oldOrder = prevSections.find(s => s.id === sectionId)?.displayOrder || 0;
+
+          if (newDisplayOrder > oldOrder) {
+            // Moving down: shift sections up
+            if (currentOrder > oldOrder && currentOrder <= newDisplayOrder) {
+              return { ...section, displayOrder: currentOrder - 1 };
+            }
+          } else {
+            // Moving up: shift sections down  
+            if (currentOrder >= newDisplayOrder && currentOrder < oldOrder) {
+              return { ...section, displayOrder: currentOrder + 1 };
+            }
+          }
+        }
+        return section;
+      });
+
+      return sortSections(updatedSections);
+    });
+  };
+
   const handleSectionMove = async (sectionId: number, newDisplayOrder: number) => {
-    // If new display order is less than 1 then just return
     if (newDisplayOrder < 1) {
-      if (setErrorMessages) {
-        setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
-      }
+      setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
       return;
     }
 
-    const result = await updateSectionDisplayOrder(
-      sectionId,
-      newDisplayOrder
-    );
+    // First, optimistically update the UI immediately for smoother reshuffling
+    updateLocalSectionOrder(sectionId, newDisplayOrder);
+    setIsReordering(true);
 
-    if (!result.success) {
-      const errors = result.errors;
+    try {
+      const result = await updateSectionDisplayOrder(sectionId, newDisplayOrder);
 
-      //Check if errors is an array or an object
-      if (Array.isArray(errors)) {
-        if (setErrorMessages) {
-          setErrorMessages(errors.length > 0 ? errors : [EditTemplate('errors.updateDisplayOrderError')])
+      if (!result.success) {
+        // Revert optimistic update on failure
+        await refetch();
+        const errors = result.errors;
+        if (Array.isArray(errors)) {
+          setErrorMessages(errors.length > 0 ? errors : [EditTemplate('errors.updateDisplayOrderError')]);
         }
+      } else if (result.data?.errors?.general) {
+        // Revert on server errors
+        await refetch();
+        setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateDisplayOrderError')]);
       }
-    } else {
-      if (refetch) {
-        await refetch(); //Need to refresh list of sections after reordering
-      }
-      if (
-        result.data?.errors &&
-        typeof result.data.errors === 'object' &&
-        typeof result.data.errors.general === 'string') {
-        if (setErrorMessages) {
-          // Handle errors as an object with general or field-level errors
-          setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateDisplayOrderError')]);
-        }
-      }
+      // On success, don't refetch - the optimistic update is already correct
+    } catch (error) {
+      // Revert optimistic update on network error
+      await refetch();
+      setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
+    } finally {
+      setIsReordering(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (pageErrors.length > 0 && pageErrorRef.current) {
@@ -372,6 +403,13 @@ const TemplateEditPage: React.FC = () => {
         name: data.template.name || '',
         visibility: data.template.visibility || null,
       });
+    }
+
+    if (data?.template?.sections) {
+      const sorted = sortSections(
+        data.template.sections.filter((section): section is Section => section !== null)
+      );
+      setLocalSections(sorted);//for optimistic update
     }
   }, [data]);
 
@@ -393,9 +431,10 @@ const TemplateEditPage: React.FC = () => {
   const formattedPublishDate = template.latestPublishDate ? formatDate(template.latestPublishDate) : null;
 
 
-  const sortedSections = template.sections
-    ? sortSections(template.sections.filter((section): section is Section => section !== null))
-    : [];
+
+  // Use localSections instead of sortedSections in render
+  const sectionsToRender = localSections.length > 0 ? localSections :
+    (template.sections ? sortSections(template.sections.filter((section): section is Section => section !== null)) : []);
 
   const description = `by ${template?.name}` +
     (template?.latestPublishVersion ? ` - ${Global('version')}: ${template.latestPublishVersion}` : '') +
@@ -428,9 +467,9 @@ const TemplateEditPage: React.FC = () => {
 
       <div className="template-editor-container">
         <div className="main-content">
-          {sortedSections.length > 0 && (
+          {sectionsToRender.length > 0 && (
             <div>
-              {sortedSections
+              {sectionsToRender
                 .filter(section => section.id != null)
                 .map(section => (
                   <SectionEditContainer
