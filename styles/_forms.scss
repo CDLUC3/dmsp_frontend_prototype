@@ -24,15 +24,18 @@
 }
 
 .two-item-row {
-  @include r.device(sm) {
-    flex-direction: row;
-  }
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  width: 100%;
+  gap: 1rem;
+  max-width: 600px;
 
   > div {
-    flex: 1; /* Make both fields take equal width */
+    flex: 1;
+  }
+
+  @include r.device(lg) {
+    flex-direction: row;
   }
 }
 

@@ -220,7 +220,12 @@
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search",
       "fixBelow": "Please fix the errors below",
-      "error": "Something went wrong. Please try again."
+      "error": "Something went wrong. Please try again.",
+      "errors": {
+        "invalidQuestionType": "Invalid question type found.",
+        "questionUnexpectedFormat": "Unexpected format for question.json.",
+        "questionJSONFParseFailed": "JSON.parse failed."
+      }
     },
     "tabs": {
       "editQuestion": "Edit question",

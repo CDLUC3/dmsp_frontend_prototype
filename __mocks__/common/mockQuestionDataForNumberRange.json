@@ -1,0 +1,15 @@
+{
+  "question": {
+    "displayOrder": 17,
+    "errors": null,
+    "guidanceText": "This is the guidance text",
+    "id": 2271,
+    "isDirty": true,
+    "questionText": "Testing",
+    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"numberRange\",\"columns\":{\"end\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"number\",\"attributes\":{\"label\":\"Ending\"}},\"start\":{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"number\",\"attributes\":{\"label\":\"Beginning\"}}}}",
+    "requirementText": "This is requirement text",
+    "sampleText": "This is sample text",
+    "sectionId": 67,
+    "templateId": 15
+  }
+}

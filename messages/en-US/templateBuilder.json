@@ -249,7 +249,8 @@
     "messages": {
       "errors": {
         "questionTextRequired": "Question text field is required.",
-        "questionUpdateError": "Error when updating question"
+        "questionUpdateError": "Error when updating question",
+        "invalidQuestionType": "Invalid question type found"
       },
       "success": {
         "questionUpdated": "Question was successfully updated"
@@ -322,7 +323,8 @@
       "errors": {
         "questionTextRequired": "Question text field is required.",
         "questionAddingError": "Error when adding question.",
-        "questionValidationError": "Invalid value"
+        "questionValidationError": "Invalid value",
+        "invalidQuestionType": "Invalid question type found"
       },
       "success": {
         "questionAdded": "Question was successfully added."
