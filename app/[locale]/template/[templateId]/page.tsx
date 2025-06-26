@@ -64,7 +64,6 @@ const TemplateEditPage: React.FC = () => {
   });
   //Track local section order - using optimistic rendering
   const [localSections, setLocalSections] = useState<Section[]>([]);
-  const [isReordering, setIsReordering] = useState(false);
 
 
   // localization keys
@@ -182,7 +181,7 @@ const TemplateEditPage: React.FC = () => {
         return;
       }
 
-      // ✅ Success: Close modal and show toast
+      // Success: Close modal and show toast
       setPublishModalOpen(false);
       showSuccessToast();
       await refetch();
@@ -359,7 +358,6 @@ const TemplateEditPage: React.FC = () => {
 
     // First, optimistically update the UI immediately for smoother reshuffling
     updateLocalSectionOrder(sectionId, newDisplayOrder);
-    setIsReordering(true);
 
     try {
       const result = await updateSectionDisplayOrder(sectionId, newDisplayOrder);
@@ -381,8 +379,6 @@ const TemplateEditPage: React.FC = () => {
       // Revert optimistic update on network error
       await refetch();
       setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
-    } finally {
-      setIsReordering(false);
     }
   };
 
@@ -405,12 +401,12 @@ const TemplateEditPage: React.FC = () => {
       });
     }
 
-    if (data?.template?.sections) {
-      const sorted = sortSections(
-        data.template.sections.filter((section): section is Section => section !== null)
-      );
-      setLocalSections(sorted);//for optimistic update
-    }
+    // if (data?.template?.sections) {
+    //   const sorted = sortSections(
+    //     data.template.sections.filter((section): section is Section => section !== null)
+    //   );
+    //   setLocalSections(sorted);//for optimistic update
+    // }
   }, [data]);
 
   if (loading) {

@@ -16,7 +16,6 @@ import { routePath } from '@/utils/routes';
 import { updateQuestionDisplayOrderAction } from './actions';
 import styles from './QuestionEditCard.module.scss';
 
-
 interface QuestionEditCardProps {
   id: string;
   text: string;
@@ -25,7 +24,7 @@ interface QuestionEditCardProps {
   displayOrder?: number;
   setErrorMessages?: React.Dispatch<React.SetStateAction<string[]>>;
   refetchSection?: (variables?: Partial<{ sectionId: number }>) => Promise<ApolloQueryResult<TemplateQuery>>;
-
+  onOptimisticUpdate?: (questionId: number, newDisplayOrder: number) => void; // New prop
 }
 
 const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
@@ -35,7 +34,8 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   name,
   displayOrder,
   setErrorMessages,
-  refetchSection
+  refetchSection,
+  onOptimisticUpdate
 }) => {
 
   const questionText = stripHtml(text);
@@ -44,7 +44,6 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   // Get templateId param
   const params = useParams();
   const router = useRouter();
-  //const { templateId } = params; // From route /template/:templateId
   const templateId = String(params.templateId);
 
   // Localization
@@ -55,7 +54,6 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
 
   // Call Server Action updateQuestionDisplayOrder
   const updateDisplayOrder = async (questionId: number, newDisplayOrder: number) => {
-
     if (!questionId) {
       logECS('error', 'updateDisplayOrder', {
         error: 'No questionId',
@@ -76,7 +74,6 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
       newDisplayOrder: newDisplayOrder
     });
 
-
     if (response.redirect) {
       router.push(response.redirect);
     }
@@ -89,13 +86,17 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   }
 
   const handleDisplayOrderChange = async (newDisplayOrder: number) => {
-
     // If new display order is less than 1 then just return
     if (newDisplayOrder < 1) {
       if (setErrorMessages) {
         setErrorMessages(prev => [...prev, generalErrorMessage]);
       }
       return;
+    }
+
+    // First, optimistically update the UI immediately for smoother reshuffling
+    if (onOptimisticUpdate) {
+      onOptimisticUpdate(questionId, newDisplayOrder);
     }
 
     const result = await updateDisplayOrder(
@@ -112,10 +113,8 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
           setErrorMessages(errors.length > 0 ? errors : [generalErrorMessage])
         }
       }
+
     } else {
-      if (refetchSection) {
-        await refetchSection(); //Need to refresh list of questions after reordering
-      }
       if (
         result.data?.errors &&
         typeof result.data.errors === 'object' &&
@@ -187,7 +186,6 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
             {questionText}
           </p>
         </div>
-
       </div>
       <div className={styles.questionEditCard__actions} role="group"
         aria-label="Question actions">

@@ -118,23 +118,6 @@ describe('QuestionEditCard', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('should call refetchSection on successful reorder', async () => {
-    const refetchSection = jest.fn().mockResolvedValue({});
-    await act(async () => {
-      render(
-        <QuestionEditCard
-          {...defaultProps}
-          refetchSection={refetchSection}
-        />
-      );
-    });
-    const downButton = screen.getByRole('button', { name: /moveDown/i });
-    fireEvent.click(downButton);
-    // Wait for async
-    await new Promise(r => setTimeout(r, 0));
-    expect(refetchSection).toHaveBeenCalled();
-  });
-
   it('should call setErrorMessages on error from updateDisplayOrder', async () => {
     updateQuestionDisplayOrderAction.mockResolvedValueOnce({
       success: false,
