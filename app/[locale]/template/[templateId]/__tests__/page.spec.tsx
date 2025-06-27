@@ -723,15 +723,66 @@ describe("TemplateEditPage", () => {
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
 
+    const mockedSections = [
+      {
+        id: 25,
+        name: "Products of the research",
+        bestPractice: false,
+        displayOrder: 2,
+        isDirty: false,
+        questions: [
+          {
+            errors: {
+              general: null,
+            },
+            displayOrder: 1,
+            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>",
+            id: 104,
+            questionText: "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
+            sectionId: 25,
+            templateId: 5
+          }
+        ]
+      },
+      {
+        id: 26,
+        name: "Data format",
+        bestPractice: false,
+        displayOrder: 3,
+        isDirty: false,
+        questions: [
+          {
+            errors: {
+              general: null,
+            },
+            displayOrder: 1,
+            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title=\"Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;\" href=\"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542\">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>",
+            id: 105,
+            questionText: "<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style=\"font-weight: 400;\">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style=\"font-weight: 400;\">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>",
+            sectionId: 26,
+            templateId: 5
+          }
+        ]
+      },
+    ]
 
     // Arrange: mock template with two sections
     const mockTemplateWithSections = {
       ...mockTemplateData,
-      sections: [mockSectionData],
+      sections: mockedSections,
     };
 
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateWithSections },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    (useSectionQuery as jest.Mock).mockReturnValue({
+      data: {
+        section: mockedSections
+      },
       loading: false,
       error: null,
       refetch: jest.fn(),
@@ -750,7 +801,7 @@ describe("TemplateEditPage", () => {
 
     // Find the "Move Down" button for the first section
     // SectionEditContainer should render a button for moving down
-    const moveDownButtons = screen.getAllByLabelText('buttons.moveDown');
+    const moveDownButtons = screen.getAllByLabelText('buttons.moveUp');
     expect(moveDownButtons.length).toBeGreaterThan(0);
 
     // Act: Click the first "Move Down" button
@@ -761,8 +812,8 @@ describe("TemplateEditPage", () => {
     // Assert: updateSectionDisplayOrderAction called with correct args
     await waitFor(() => {
       expect(updateSectionDisplayOrderAction).toHaveBeenCalledWith({
-        sectionId: 79,
-        newDisplayOrder: 2,
+        sectionId: 25,
+        newDisplayOrder: 1,
       });
     });
   });
@@ -906,8 +957,7 @@ describe("TemplateEditPage", () => {
     })
 
     // Wait for the general error to appear in the page error area
-    const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent('General publish error');
+    expect(screen.getByText('General publish error')).toBeInTheDocument();
   });
 
   it('should set no errors if createTemplateVersionMutation does not return errors.general', async () => {

@@ -56,7 +56,6 @@ const TemplateEditPage: React.FC = () => {
   const [isPublishModalOpen, setPublishModalOpen] = useState(false);
   const toastState = useToast();
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  const [pageErrors, setPageErrors] = useState<string[]>([]);
   const [templateInfo, setTemplateInfoState] = useState<TemplateInfoInterface>({
     templateId: null,
     name: '',
@@ -64,6 +63,7 @@ const TemplateEditPage: React.FC = () => {
   });
   //Track local section order - using optimistic rendering
   const [localSections, setLocalSections] = useState<Section[]>([]);
+  const [isReordering, setIsReordering] = useState(false);
 
   // Added for accessibility
   const [announcement, setAnnouncement] = useState('');
@@ -130,7 +130,7 @@ const TemplateEditPage: React.FC = () => {
 
       const responseErrors = response.data?.archiveTemplate?.errors
       if (responseErrors) {
-        setPageErrors(prev => [
+        setErrorMessages(prev => [
           ...prev,
           ...(responseErrors.general ? [responseErrors.general] : [])
         ]);
@@ -139,7 +139,7 @@ const TemplateEditPage: React.FC = () => {
         router.push(routePath('template.show', { templateId }));
       }
     } catch (err) {
-      setPageErrors(prevErrors => [...prevErrors, EditTemplate('errors.archiveTemplateError')]);
+      setErrorMessages(prevErrors => [...prevErrors, EditTemplate('errors.archiveTemplateError')]);
       logECS('error', 'handleArchiveTemplate', {
         error: err,
         url: { path: '/template/[templateId]' }
@@ -358,14 +358,35 @@ const TemplateEditPage: React.FC = () => {
     });
   };
 
+  const validateSectionMove = (sectionId: number, newDisplayOrder: number): boolean => {
+    const currentSection = localSections.find(s => s.id === sectionId);
+    if (!currentSection || currentSection.displayOrder == null) {
+      return false; // Invalid operation
+    }
+
+    const maxDisplayOrder = Math.max(...localSections.map(s => s.displayOrder || 0));
+    if (newDisplayOrder < 1 || newDisplayOrder > maxDisplayOrder) {
+      return false; // Invalid target position
+    }
+
+    if (currentSection.displayOrder === newDisplayOrder) {
+      return false; // No change needed
+    }
+
+    return true;
+  };
+
   const handleSectionMove = async (sectionId: number, newDisplayOrder: number) => {
-    if (newDisplayOrder < 1) {
+    if (isReordering) return; // Prevent concurrent operations
+
+    if (!validateSectionMove(sectionId, newDisplayOrder)) {
       setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
       return;
     }
 
     // First, optimistically update the UI immediately for smoother reshuffling
     updateLocalSectionOrder(sectionId, newDisplayOrder);
+    setIsReordering(true);
 
     try {
       const result = await updateSectionDisplayOrder(sectionId, newDisplayOrder);
@@ -389,17 +410,10 @@ const TemplateEditPage: React.FC = () => {
       // Revert optimistic update on network error
       await refetch();
       setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
+    } finally {
+      setIsReordering(false);
     }
   };
-
-  useEffect(() => {
-    if (pageErrors.length > 0 && pageErrorRef.current) {
-      pageErrorRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }, [pageErrors]);
 
   // Need to set this info to update template title
   useEffect(() => {
@@ -446,6 +460,7 @@ const TemplateEditPage: React.FC = () => {
     (template?.latestPublishVersion ? ` - ${Global('version')}: ${template.latestPublishVersion}` : '') +
     (template?.latestPublishDate || formattedPublishDate ? ` - ${Global('lastUpdated')}: ${formattedPublishDate || template.latestPublishDate}` : '');
 
+
   return (
     <div>
       <PageHeaderWithTitleChange
@@ -463,13 +478,7 @@ const TemplateEditPage: React.FC = () => {
         onTitleChange={handleTitleChange}
       />
 
-      {pageErrors.length > 0 && (
-        <div className="error" role="alert" aria-live="assertive" ref={pageErrorRef}>
-          {pageErrors.map((error, index) => (
-            <p key={index}>{error}</p>
-          ))}
-        </div>
-      )}
+      <ErrorMessages errors={errorMessages} ref={errorRef} />
 
       <div className="template-editor-container">
         <div className="main-content">
@@ -601,8 +610,6 @@ const TemplateEditPage: React.FC = () => {
         <Dialog>
           <div>
             <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
-
-              <ErrorMessages errors={errorMessages} ref={errorRef} />
               <Heading slot="title">{PublishTemplate('heading.publish')}</Heading>
 
               <RadioGroup
