@@ -511,7 +511,9 @@ describe("TemplateEditPage", () => {
     // Locate the Archive Template button
     const archiveTemplateBtn = screen.getByTestId('archive-template');
     //Click the button
-    fireEvent.click(archiveTemplateBtn);
+    await act(async () => {
+      fireEvent.click(archiveTemplateBtn);
+    })
 
     // Wait until error is displayed
     await waitFor(() => {

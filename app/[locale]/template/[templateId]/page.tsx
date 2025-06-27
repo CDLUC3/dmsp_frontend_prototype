@@ -126,7 +126,9 @@ const TemplateEditPage: React.FC = () => {
       });
 
       const responseErrors = response.data?.archiveTemplate?.errors
-      if (responseErrors) {
+      if (
+        responseErrors &&
+        typeof responseErrors.general === 'string') {
         setErrorMessages(prev => [
           ...prev,
           ...(responseErrors.general ? [responseErrors.general] : [])
