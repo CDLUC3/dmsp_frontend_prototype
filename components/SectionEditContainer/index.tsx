@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+
 import {
   useSectionQuery,
   Section,
@@ -7,6 +10,7 @@ import {
 import SectionHeaderEdit from '@/components/SectionHeaderEdit';
 import QuestionEditCard from '@/components/QuestionEditCard';
 import AddQuestionButton from '@/components/AddQuestionButton';
+import { updateQuestionDisplayOrderAction } from './actions';
 
 interface SectionEditContainerProps {
   sectionId: number;
@@ -25,7 +29,11 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   onMoveUp,
   onMoveDown
 }) => {
-  const { data, loading, error } = useSectionQuery({
+  const router = useRouter();
+  const t = useTranslations('Sections');
+  const Global = useTranslations('Global');
+
+  const { data, loading, error, refetch } = useSectionQuery({
     variables: { sectionId: Number(sectionId) },
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
@@ -33,6 +41,10 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
 
   // Local state for optimistic updates
   const [localQuestions, setLocalQuestions] = useState<Question[]>([]);
+  const [isReordering, setIsReordering] = useState(false);
+
+  // Added for accessibility
+  const [announcement, setAnnouncement] = useState('');
 
   // Memoize the sorted questions to prevent unnecessary re-renders
   const sortedQuestionsFromData = useMemo(() => {
@@ -49,6 +61,24 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
 
   const sortQuestions = (questions: Question[]) => {
     return [...questions].sort((a, b) => (a.displayOrder!) - (b.displayOrder!));
+  };
+
+  const validateQuestionMove = (questionId: number, newDisplayOrder: number): boolean => {
+    const currentQuestion = localQuestions.find(q => q.id === questionId);
+    if (!currentQuestion || currentQuestion.displayOrder == null) {
+      return false; // Invalid operation
+    }
+
+    const maxDisplayOrder = Math.max(...localQuestions.map(s => s.displayOrder || 0));
+    if (newDisplayOrder < 1 || newDisplayOrder > maxDisplayOrder) {
+      return false; // Invalid target position
+    }
+
+    if (currentQuestion.displayOrder === newDisplayOrder) {
+      return false; // No change needed
+    }
+
+    return true;
   };
 
   // Optimistic update function
@@ -82,8 +112,89 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
     });
   };
 
+
+  // Call Server Action updateQuestionDisplayOrder
+  const updateDisplayOrder = async (questionId: number, newDisplayOrder: number) => {
+
+    // Don't need a try-catch block here, as the error is handled in the server action
+    const response = await updateQuestionDisplayOrderAction({
+      questionId: questionId,
+      newDisplayOrder: newDisplayOrder
+    });
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data,
+    };
+  }
+
+  const handleDisplayOrderChange = async (questionId: number, newDisplayOrder: number) => {
+    if (isReordering) return; // Prevent concurrent operations
+
+    if (!validateQuestionMove(questionId, newDisplayOrder)) {
+      setErrorMessages(prev => [...prev, t('messages.errors.updateQuestionOrder')]);
+      return;
+    }
+
+    // First, optimistically update the UI immediately for smoother reshuffling
+    updateLocalQuestionOrder(questionId, newDisplayOrder);
+    setIsReordering(true);
+
+    try {
+      const result = await updateDisplayOrder(
+        questionId,
+        newDisplayOrder
+      );
+
+      if (!result.success) {
+        // Revert optimistic update on failure
+        await refetch();
+        const errors = result.errors;
+
+        //Check if errors is an array or an object
+        if (Array.isArray(errors)) {
+          if (setErrorMessages) {
+            setErrorMessages(errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')])
+          }
+        }
+      } else if (result.data?.errors?.general) {
+        // Revert on server errors
+        await refetch();
+        setErrorMessages(prev => [...prev, result.data?.errors?.general || t('messages.errors.updateQuestionOrder')]);
+      }
+
+      // Scroll user to the reordered section
+      const focusedElement = document.activeElement;
+
+      // Check if an element is actually focused
+      if (focusedElement) {
+        // Scroll the focused element into view
+        focusedElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+
+      // After successful update
+      const message = t('messages.questionMoved', { displayOrder: newDisplayOrder })
+      setAnnouncement(message);
+    } catch (error) {
+      // Revert optimistic update on network error
+      await refetch();
+      setErrorMessages(prev => [...prev, t('messages.errors.updateQuestionOrder')]);
+    } finally {
+      setIsReordering(false);
+    }
+  }
+
   if (loading) return <div>Loading section...</div>;
-  if (error || !data?.section) return <div>Failed to load section.</div>;
+  if (error || !data?.section) return <div>{t('messages.errors.failedToLoadSection')}</div>;
 
   const section: Section = data.section;
 
@@ -107,13 +218,15 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
             text={question.questionText || ''}
             link={`/template/${templateId}/q/${question.id}`}
             displayOrder={Number(question.displayOrder)}
-            setErrorMessages={setErrorMessages}
-            onOptimisticUpdate={updateLocalQuestionOrder}
+            handleDisplayOrderChange={handleDisplayOrderChange}
           />
         </div>
       ))}
       <div role="listitem">
         <AddQuestionButton href={`/template/${templateId}/q/new?section_id=${section.id}`} />
+      </div>
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {announcement}
       </div>
     </div>
   );

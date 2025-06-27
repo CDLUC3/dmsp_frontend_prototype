@@ -88,9 +88,6 @@ const TemplateEditPage: React.FC = () => {
   //For scrolling to error in modal window
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  //For scrolling up to page level error
-  const pageErrorRef = useRef<HTMLDivElement | null>(null);
-
   // Initialize publish mutation
   const [createTemplateVersionMutation] = useCreateTemplateVersionMutation();
   const [archiveTemplateMutation] = useArchiveTemplateMutation();
@@ -404,6 +401,20 @@ const TemplateEditPage: React.FC = () => {
         setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateDisplayOrderError')]);
       }
       // After successful update
+
+      // Scroll user to the reordered section
+      const focusedElement = document.activeElement;
+
+      // Check if an element is actually focused
+      if (focusedElement) {
+        // Scroll the focused element into view
+        focusedElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+      // Set accessible announcement
       const message = EditTemplate('messages.sectionMoved', { displayOrder: newDisplayOrder })
       setAnnouncement(message);
     } catch (error) {

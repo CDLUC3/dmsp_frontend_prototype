@@ -1022,11 +1022,12 @@ describe("TemplateEditPage", () => {
 
     let container: HTMLElement;
     await act(async () => {
-      const renderResult = render(<TemplateEditPage />);
+      const renderResult = render(
+        <TemplateEditPage />
+      );
       container = renderResult.container;
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
-
-    const results = await axe(container!);
-    expect(results).toHaveNoViolations();
   });
 });

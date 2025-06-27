@@ -115,6 +115,14 @@
     "buttons": {
       "moveUp": "Mover pergunta para cima {title}",
       "moveDown": "Mover pergunta para baixo"
+    },
+    "messages": {
+      "errors": {
+        "failedToLoadSection": "Falha ao carregar a seção",
+        "updateQuestionOrder": "Falha ao carregar a pergunta"
+      },
+      "questionMoved": "Pergunta movida para a posição {displayOrder}",
+      "sectionMoved": "Seção movida para a posição {displayOrder}"
     }
   },
   "SectionTypeSelectPage": {

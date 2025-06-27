@@ -115,6 +115,14 @@
     "buttons": {
       "moveUp": "Move section up {title}",
       "moveDown": "Move section down {title}"
+    },
+    "messages": {
+      "errors": {
+        "failedToLoadSection": "Failed to load section",
+        "updateQuestionOrder": "Failed to reorder question"
+      },
+      "questionMoved": "Question moved to position {displayOrder}",
+      "sectionMoved": "Question moved to position {displayOrder}"
     }
   },
   "SectionTypeSelectPage": {
