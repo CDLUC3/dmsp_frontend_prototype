@@ -69,7 +69,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
       return false; // Invalid operation
     }
 
-    const maxDisplayOrder = Math.max(...localQuestions.map(s => s.displayOrder || 0));
+    const maxDisplayOrder = Math.max(...localQuestions.map(s => s.displayOrder!));
     if (newDisplayOrder < 1 || newDisplayOrder > maxDisplayOrder) {
       return false; // Invalid target position
     }

@@ -122,7 +122,7 @@
         "updateQuestionOrder": "Failed to reorder question"
       },
       "questionMoved": "Question moved to position {displayOrder}",
-      "sectionMoved": "Question moved to position {displayOrder}"
+      "sectionMoved": "Section moved to position {displayOrder}"
     }
   },
   "SectionTypeSelectPage": {
