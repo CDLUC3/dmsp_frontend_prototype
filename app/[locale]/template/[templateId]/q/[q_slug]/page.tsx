@@ -320,7 +320,7 @@ const QuestionEdit = () => {
 
       if (response?.data) {
         // Show success message and redirect to Edit Template page
-        toastState.add(QuestionEdit('messages.success.questionRemoved'), { type: 'success' });
+        toastState.add(t('messages.success.questionRemoved'), { type: 'success' });
         router.push(TEMPLATE_URL);
       }
     } catch (error) {
@@ -328,7 +328,7 @@ const QuestionEdit = () => {
         //
       } else {
         // Handle other types of errors
-        setErrors(prevErrors => [...prevErrors, QuestionEdit('messages.errors.questionRemoveError')]);
+        setErrors(prevErrors => [...prevErrors, t('messages.errors.questionRemoveError')]);
       }
     }
   };
@@ -677,17 +677,17 @@ const QuestionEdit = () => {
           </Tabs>
 
           <div className={styles.deleteZone}>
-            <h2>{QuestionEdit('headings.deleteQuestion')}</h2>
-            <p>{QuestionEdit('descriptions.deleteWarning')}</p>
+            <h2>{t('headings.deleteQuestion')}</h2>
+            <p>{t('descriptions.deleteWarning')}</p>
             <DialogTrigger isOpen={isConfirmOpen} onOpenChange={setConfirmOpen}>
-              <Button className={`danger`}>{QuestionEdit('buttons.deleteQuestion')}</Button>
+              <Button className={`danger`}>{t('buttons.deleteQuestion')}</Button>
               <ModalOverlay>
                 <Modal>
                   <Dialog>
                     {({ close }) => (
                       <>
-                        <h3>{QuestionEdit('headings.confirmDelete')}</h3>
-                        <p>{QuestionEdit('descriptions.deleteWarning')}</p>
+                        <h3>{t('headings.confirmDelete')}</h3>
+                        <p>{t('descriptions.deleteWarning')}</p>
                         <div className={styles.deleteConfirmButtons}>
                           <Button className='react-aria-Button' autoFocus onPress={close}>{Global('buttons.cancel')}</Button>
                           <Button className={`danger `} onPress={() => {
