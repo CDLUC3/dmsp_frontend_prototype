@@ -163,10 +163,25 @@
   },
   "SectionUpdatePage": {
     "title": "Seção de atualização",
+    "buttons": {
+      "deleteSection": "Excluir seção"
+    },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
       "errorUpdatingSection": "Erro ao criar a seção.",
-      "success": "Seção criada com sucesso."
+      "success": "Seção criada com sucesso.",
+      "errorDeletingSection": "Erro ao excluir a seção.",
+      "successDeletingSection": "Seção excluída com sucesso."
+    },
+    "deleteModal": {
+      "title": "Excluir seção",
+      "content": "Excluir esta seção também removerá permanentemente todas as perguntas associadas. A exclusão não é reversível.",
+      "cancelButton": "Cancelar",
+      "deleteButton": "Excluir seção"
+    },
+    "deleteSection": {
+      "heading": "Excluir esta seção",
+      "description": "Excluir esta seção também removerá permanentemente todas as perguntas associadas. A exclusão não é reversível."
     }
   },
   "QuestionTypeSelectPage": {
@@ -201,10 +216,11 @@
     },
     "messages": {
       "noItemsFound": "Nenhum \"item\" encontrado",
+      "createNew": "Criar novo modelo",
       "missingTemplateName": "Nome do modelo não pode ser vazio.",
       "loadingError": "Erro ao carregar modelos. Tente novamente mais tarde."
     }
-  },
+  },  
   "TemplateSelectListItem": {
     "messages": {
       "additionalGuidance": "Sua organização de pesquisa tem orientação adicional."
