@@ -88,6 +88,100 @@ describe('RadioGroupComponent', () => {
     expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
   });
 
+  it('should display "(required)" text and set aria-required when isRequiredVisualOnly is true', () => {
+    render(
+      <RadioGroupComponent
+        {...defaultProps}
+        isRequiredVisualOnly={true}
+      />
+    );
+
+    expect(screen.getByText('Test Radio Group')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).toHaveAttribute('aria-required', 'true');
+  });
+
+  it('should not display "(required)" text or set aria-required when isRequiredVisualOnly is false', () => {
+    render(
+      <RadioGroupComponent
+        {...defaultProps}
+        isRequiredVisualOnly={false}
+      />
+    );
+
+    expect(screen.getByText('Test Radio Group')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
+
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).not.toHaveAttribute('aria-required');
+  });
+
+  it('should display "(required)" text when aria-required attribute is passed', () => {
+    render(
+      <RadioGroupComponent
+        {...defaultProps}
+        aria-required="true"
+      />
+    );
+
+    expect(screen.getByText('Test Radio Group')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).toHaveAttribute('aria-required', 'true');
+  });
+
+  it('should display "(required)" text when multiple required props are set', () => {
+    render(
+      <RadioGroupComponent
+        {...defaultProps}
+        isRequired={true}
+        isRequiredVisualOnly={true}
+        aria-required="true"
+      />
+    );
+
+    expect(screen.getByText('Test Radio Group')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).toHaveAttribute('aria-required', 'true');
+  });
+
+  it('should handle aria-required as boolean true', () => {
+    render(
+      <RadioGroupComponent
+        {...defaultProps}
+        // @ts-ignore - testing runtime behavior
+        aria-required={true}
+      />
+    );
+
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).toHaveAttribute('aria-required', 'true');
+  });
+
+  it('should not show required when neither isRequired, isRequiredVisualOnly, nor aria-required are set', () => {
+    render(
+      <RadioGroupComponent
+        {...defaultProps}
+      />
+    );
+
+    expect(screen.getByText('Test Radio Group')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
+
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).not.toHaveAttribute('aria-required');
+  });
+
   it('should pass axe accessibility test', async () => {
     const { container } = render(
       <RadioGroupComponent

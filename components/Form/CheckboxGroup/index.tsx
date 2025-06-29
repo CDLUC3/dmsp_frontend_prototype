@@ -9,7 +9,7 @@ import {
 
 import { CheckboxGroupProps } from '@/app/types';
 
-const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
+const CheckboxGroupComponent: React.FC<CheckboxGroupProps & { 'aria-required'?: string | boolean }> = ({
   name,
   value,
   checkboxGroupLabel,
@@ -19,7 +19,18 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
   errorMessage,
   onChange,
   isRequired = false,
+  isRequiredVisualOnly = false,
+  'aria-required': ariaRequired,
 }) => {
+  // Check if aria-required is passed as a prop
+  const ariaRequiredFromProps = ariaRequired === 'true' || ariaRequired === true;
+
+  // Show "(required)" if isRequired OR aria-required attribute is present OR isRequiredVisualOnly is true
+  const shouldShowRequired = isRequired || ariaRequiredFromProps || isRequiredVisualOnly;
+
+  // Determine aria-required value for the CheckboxGroup
+  const groupAriaRequired = ariaRequiredFromProps || isRequiredVisualOnly;
+
   return (
     <>
       <CheckboxGroup
@@ -29,9 +40,10 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
         onChange={onChange}
         isRequired={isRequired}
         isInvalid={isInvalid}
+        {...(groupAriaRequired && { 'aria-required': true })}
       >
         <Label>
-          {checkboxGroupLabel}{isRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+          {checkboxGroupLabel}{shouldShowRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
         </Label>
 
         {checkboxGroupDescription && (
@@ -59,7 +71,7 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
             </Checkbox>
           </div>
         ))}
-        {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
+        {isInvalid && errorMessage && <FieldError className='error-message'>{errorMessage}</FieldError>}
         <FieldError />
       </CheckboxGroup>
     </>
