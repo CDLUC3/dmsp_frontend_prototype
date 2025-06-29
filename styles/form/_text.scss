@@ -26,6 +26,7 @@
 
   &:hover:not(:disabled) {
     border-color: var(--slate-400);
+    color: var(--slate-600);
     background-color: var(--slate-100);
   }
 
@@ -94,6 +95,10 @@ select {
   margin-bottom: 8px;
   color: var(--text-color);
 
+  .react-aria-Input:focus:not(:disabled) {
+    box-shadow: none !important;
+    outline: none !important;
+  }
   .react-aria-Group {
     display: flex;
     width: fit-content;
@@ -181,13 +186,6 @@ select {
     border-radius: 4px;
     caret-color: transparent;
   }
-}
-
-.date-range-group{
-  display: flex;
-  width: 100%;
-  gap: 1rem;
-  max-width: 600px;
 }
 
 .react-aria-DatePicker {
