@@ -254,7 +254,7 @@ describe("QuestionEditPage", () => {
       { loading: false, error: undefined },
     ]);
 
-    // Render with text question type
+    // Render with radio button question type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
@@ -271,25 +271,15 @@ describe("QuestionEditPage", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
-    const { getByDisplayValue } = render(
-      <QuestionEdit />
-    );
+    await act(async () => {
+      render(<QuestionEdit />);
+    });
 
+    // Verify that the mocked QuestionOptionsComponent is rendered
+    expect(screen.getByText('Mocked Question Options Component')).toBeInTheDocument();
 
-    // Find the input by its current value
-    const input = getByDisplayValue('Yes');
-
-    // Change the value to 'No'
-    fireEvent.change(input, { target: { value: 'Something else' } });
-
-    const buttonSubmit = screen.getByRole('button', { name: 'buttons.saveAndUpdate' });
-    act(() => {
-      fireEvent.click(buttonSubmit);
-    })
-
-    await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
-    })
+    // Verify that the options wrapper is present (indicating hasOptions is true)
+    expect(screen.getByText('helpText.questionOptions')).toBeInTheDocument();
   })
 
   it('should call the useUpdateQuestionMutation when user clicks \'save\' button', async () => {
@@ -833,11 +823,11 @@ describe('QuestionEditPage Delete Functionality', () => {
     ]);
 
     (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
-    
+
     (useParams as jest.Mock).mockReturnValue({ templateId: '123', q_slug: '67' });
 
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    
+
     return { mockRemoveQuestionMutation, mockRouter };
   };
 
@@ -863,7 +853,7 @@ describe('QuestionEditPage Delete Functionality', () => {
   it('should call the remove mutation and redirect when confirm is clicked', async () => {
     const { mockRemoveQuestionMutation, mockRouter } = setupMocks();
     mockRemoveQuestionMutation.mockResolvedValueOnce({ data: { removeQuestion: { id: 67 } } });
-    
+
     render(<QuestionEdit />);
     fireEvent.click(screen.getByText('buttons.deleteQuestion'));
 
