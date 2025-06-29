@@ -30,6 +30,7 @@ import {
   EmailQuestionType,
   FilteredSearchQuestionType,
   NumberQuestionType,
+  NumberRangeQuestionType,
   TableQuestionType,
   TypeaheadSearchQuestionType,
 } from "@dmptool/types";
@@ -52,6 +53,28 @@ type Option = {
   value: string; // The value associated with the option
   selected?: boolean; // Whether the option is selected (optional)
 };
+
+
+export type QuestionTypeMap = {
+  text: TextQuestionType;
+  textArea: TextAreaQuestionType;
+  radioButtons: RadioButtonsQuestionType;
+  checkBoxes: CheckboxesQuestionType;
+  selectBox: SelectBoxQuestionType;
+  boolean: BooleanQuestionType;
+  url: URLQuestionType;
+  currency: CurrencyQuestionType;
+  date: DateQuestionType;
+  dateRange: DateRangeQuestionType;
+  email: EmailQuestionType;
+  filteredSearch: FilteredSearchQuestionType;
+  number: NumberQuestionType;
+  numberRange: NumberRangeQuestionType;
+  table: TableQuestionType;
+  typeaheadSearch: TypeaheadSearchQuestionType;
+};
+
+
 
 // Map question types to their corresponding Zod schemas
 const questionSchemas: Record<string, ZodSchema> = {
@@ -289,6 +312,9 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("datePicker", questionData, questionSchemas.datePicker);
   },
   dateRange: (json, input) => {
+    const startCol = input?.columns?.start?.attributes || {};
+    const endCol = input?.columns?.end?.attributes || {};
+
     const questionData: DateRangeQuestionType = {
       ...json,
       type: "dateRange",
@@ -303,10 +329,10 @@ export const questionTypeHandlers: Record<
           },
           type: "date",
           attributes: {
-            max: input?.from?.max ?? null,
-            min: input?.from?.min ?? null,
-            step: input?.from?.step ?? 1,
-            label: input?.from?.label ?? "From",
+            max: endCol.max ?? null,
+            min: endCol.min ?? null,
+            step: endCol.step ?? 1,
+            label: endCol.label ?? "From",
           },
         },
         start: {
@@ -315,10 +341,10 @@ export const questionTypeHandlers: Record<
           },
           type: "date",
           attributes: {
-            max: input?.to?.max ?? null,
-            min: input?.to?.min ?? null,
-            step: input?.to?.step ?? 1,
-            label: input?.to?.label ?? "To",
+            max: startCol.max ?? null,
+            min: startCol.min ?? null,
+            step: startCol.step ?? 1,
+            label: startCol.label ?? "To",
           },
         },
       },
@@ -401,6 +427,8 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("number", questionData, questionSchemas.number);
   },
   numberRange: (json, input) => {
+    const startCol = input?.columns?.start?.attributes || {};
+    const endCol = input?.columns?.end?.attributes || {};
     const questionData: NumberQuestionType = {
       ...json,
       type: "numberRange",
@@ -415,10 +443,10 @@ export const questionTypeHandlers: Record<
           },
           type: "number",
           attributes: {
-            max: input?.from?.max ?? null,
-            min: input?.from?.min ?? 0,
-            step: input?.from?.step ?? 1,
-            label: input?.from?.label ?? "From",
+            max: endCol.max ?? null,
+            min: endCol.min ?? null,
+            step: endCol.step ?? 1,
+            label: endCol.label ?? "From",
           },
         },
         start: {
@@ -427,10 +455,10 @@ export const questionTypeHandlers: Record<
           },
           type: "number",
           attributes: {
-            max: input?.to?.max ?? null,
-            min: input?.to?.min ?? 0,
-            step: input?.to?.step ?? 1,
-            label: input?.to?.label ?? "To",
+            max: startCol.max ?? null,
+            min: startCol.min ?? null,
+            step: startCol.step ?? 1,
+            label: startCol.label ?? "To"
           },
         },
       },
@@ -479,12 +507,14 @@ export const questionTypeHandlers: Record<
   },
   typeaheadSearch: (json, input: {
     query?: string;
-    localQueryId?: string;
+    queryId?: string;
     variables?: TypeaheadSearchQuestionType["graphQL"]["variables"];
     answerField?: string;
     displayFields?: FilteredSearchQuestionType["graphQL"]["displayFields"];
     responseField?: string;
   }) => {
+    const existingGraphQL = json.graphQL || {};
+
     const questionData: TypeaheadSearchQuestionType = {
       ...json,
       type: "typeaheadSearch",
@@ -493,22 +523,27 @@ export const questionTypeHandlers: Record<
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
       graphQL: {
-        query: input?.query ?? "",
-        localQueryId: input?.localQueryId ?? "",
-        responseField: input?.responseField ?? "",
-        variables: input?.variables?.map(variable => ({
-          name: variable.name ?? "",
-          type: variable.type ?? "string",
-          label: variable.label ?? "",
-          minLength: variable.minLength ?? 0,
-          defaultValue: variable.defaultValue ?? "",
-          labelTranslationKey: variable.labelTranslationKey ?? null,
-        })) ?? [],
-        displayFields: input?.displayFields?.map(field => ({
-          propertyName: field.propertyName ?? "",
-          label: field.label ?? "",
-          labelTranslationKey: field.labelTranslationKey ?? null,
-        })) ?? [],
+        query: input?.query ?? existingGraphQL.query ?? "",
+        queryId: input?.queryId ?? existingGraphQL.queryId ?? "",
+        responseField: input?.responseField ?? existingGraphQL.responseField ?? "",
+        answerField: input?.answerField ?? existingGraphQL.answerField ?? "",
+        variables: input?.variables
+          ? input.variables.map(variable => ({
+            name: variable.name ?? "",
+            type: variable.type ?? "string",
+            label: variable.label ?? "",
+            minLength: variable.minLength ?? 0,
+            defaultValue: variable.defaultValue ?? "",
+            labelTranslationKey: variable.labelTranslationKey ?? null,
+          }))
+          : existingGraphQL.variables ?? [],
+        displayFields: input?.displayFields
+          ? input.displayFields.map(field => ({
+            propertyName: field.propertyName ?? "",
+            label: field.label ?? "",
+            labelTranslationKey: field.labelTranslationKey ?? null,
+          }))
+          : existingGraphQL.displayFields ?? [],
       },
     };
 

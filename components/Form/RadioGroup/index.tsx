@@ -35,6 +35,7 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
         value={value}
         className={classes}
         onChange={onChange}
+        aria-label={radioGroupLabel || 'Radio Group'}
       >
         <Label>{radioGroupLabel}</Label>
         <Text slot="description" className="help">

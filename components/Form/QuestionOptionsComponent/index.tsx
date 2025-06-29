@@ -7,6 +7,9 @@ import { Checkbox, } from "react-aria-components";
 
 import FormInput from '@/components/Form/FormInput';
 import { useTranslations } from 'next-intl';
+import {
+  CHECKBOXES_QUESTION_TYPE
+} from '@/lib/constants';
 import styles from './optionsComponent.module.scss';
 
 
@@ -18,8 +21,8 @@ interface Row {
 
 interface QuestionOptionsComponentProps {
   rows: Row[] | null;
-  setRows: React.Dispatch<React.SetStateAction<Row[]>>;
-  questionType?: string;
+  setRows: (rows: Row[]) => void;
+  questionJSON?: string;
   formSubmitted?: boolean;
   setFormSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -28,10 +31,9 @@ interface QuestionOptionsComponentProps {
 /**This component is used to add question type fields that use options
  * For example, radio buttons, check boxes and select drop-downs
  */
-const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionType, formSubmitted, setFormSubmitted }) => {
+const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ rows, setRows, questionJSON, formSubmitted, setFormSubmitted }) => {
   const [announcement, setAnnouncement] = useState<string>("");
-
-  // localization keys
+  const parsedQuestionJSON = (typeof questionJSON === 'string') ? JSON.parse(questionJSON) : questionJSON || {};
   const Global = useTranslations('Global');
   const QuestionOptions = useTranslations('QuestionOptionsComponent');
 
@@ -48,7 +50,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
         isSelected: false,
       };
 
-      setRows((prevRows) => [...prevRows, newRow]);
+      setRows([...rows, newRow]);
       setAnnouncement(QuestionOptions('announcements.rowAdded', { nextNum }));
       setFormSubmitted(false);
     }
@@ -57,47 +59,54 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
   // Delete options row
   const deleteRow = (id: number) => {
     if (id && id !== 0) {
-      setRows((prevRows) => prevRows.filter(row => row.id !== id));
+      const updatedRows = rows?.filter(row => row.id !== id);
+      setRows(updatedRows || []);
       setAnnouncement(QuestionOptions('announcements.rowRemoved', { id }));
     }
   };
 
 
   const toggleSelection = (id: number) => {
-    setRows(prevRows =>
-      prevRows.map(row =>
-        row.id === id
-          ? { ...row, isSelected: !row.isSelected } // toggle current one
-          : row
-      )
+    if (!rows) return;
+
+    const updatedRows = rows.map(row =>
+      row.id === id
+        ? { ...row, isSelected: !row.isSelected }
+        : row
     );
+
+    setRows(updatedRows); // this calls updateRows()
   };
 
   const setDefault = (id: number) => {
-    if (questionType === 'checkBoxes') {
-      toggleSelection(id); // allow multiple selections for checkboxes
+    if (!rows) return;
+
+    // allow multiple selections for checkboxes or multiSelect
+    if (parsedQuestionJSON.type === CHECKBOXES_QUESTION_TYPE || parsedQuestionJSON.attributes?.multiple === true) {
+      toggleSelection(id);
     } else {
-      setRows(prevRows =>
-        prevRows.map(row => ({
-          ...row,
-          isSelected: row.id === id, // only one selected
-        }))
-      );
+      const updatedRows = rows.map(row => ({
+        ...row,
+        isSelected: row.id === id, // only one selected
+      }));
+
+      setRows(updatedRows);
       setAnnouncement(QuestionOptions('announcements.rowDefault', { id }));
     }
   };
 
   // Update rows state
   const handleChange = (id: number | string | null, field: string, value: string | number) => {
-    setRows((prevRows) => {
-      return prevRows.map((row) => {
-        if (row.id === id) {
-          return { ...row, [field]: value }; // Update only the matching row
-        }
-        return row; // Leave other rows unchanged
-      });
+    if (!rows) return;
+
+    const updatedRows = rows.map((row) => {
+      if (row.id === id) {
+        return { ...row, [field]: value };
+      }
+      return row;
     });
 
+    setRows(updatedRows);
   };
 
   return (

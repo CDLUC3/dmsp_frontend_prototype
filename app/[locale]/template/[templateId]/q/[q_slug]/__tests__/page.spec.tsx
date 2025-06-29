@@ -1,9 +1,10 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import userEvent from "@testing-library/user-event";
 import { routePath } from '@/utils/routes';
 import {
   useQuestionQuery,
-  useQuestionTypesQuery,
+  useQuestionTypesLazyQuery,
   useUpdateQuestionMutation,
   useRemoveQuestionMutation
 } from '@/generated/graphql';
@@ -15,6 +16,9 @@ import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import mockQuestionData from '../__mocks__/mockQuestionData.json';
 import mockRadioQuestion from '@/__mocks__/common/mockRadioQuestion.json';
+import mockQuestionDataForDateRange from '@/__mocks__/common/mockQuestionDataForDateRange.json';
+import mockQuestionDataForNumberRange from '@/__mocks__/common/mockQuestionDataForNumberRange.json';
+import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockQuestionDataForTypeAheadSearch.json';
 import mockQuestionDataForTextField from '@/__mocks__/common/mockQuestionDataForTextField.json';
 import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
 import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.json';
@@ -28,7 +32,7 @@ expect.extend(toHaveNoViolations);
 jest.mock("@/generated/graphql", () => ({
   useQuestionQuery: jest.fn(),
   useUpdateQuestionMutation: jest.fn(),
-  useQuestionTypesQuery: jest.fn(),
+  useQuestionTypesLazyQuery: jest.fn(),
   useRemoveQuestionMutation: jest.fn()
 }));
 
@@ -38,6 +42,12 @@ jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn()
 }))
 
+const mockUseRouter = useRouter as jest.Mock;
+
+if (typeof global.structuredClone !== 'function') {
+  global.structuredClone = (val) => JSON.parse(JSON.stringify(val));
+}
+
 // Mock QuestionOptionsComponent since it has it's own separate unit test
 jest.mock('@/components/Form/QuestionOptionsComponent', () => {
   return {
@@ -45,6 +55,7 @@ jest.mock('@/components/Form/QuestionOptionsComponent', () => {
     default: () => <div>Mocked Question Options Component</div>,
   };
 });
+
 
 jest.mock('@/context/ToastContext', () => ({
   useToast: jest.fn(),
@@ -60,6 +71,10 @@ describe("QuestionEditPage", () => {
 
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}`, q_slug: 67 });
+
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
 
     // Mock window.tinymce
     window.tinymce = {
@@ -78,7 +93,7 @@ describe("QuestionEditPage", () => {
       error: undefined,
     });
 
-    (useQuestionTypesQuery as jest.Mock).mockReturnValue([
+    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: mockQuestionTypes }),
       { loading: false, error: undefined },
     ]);
@@ -256,13 +271,25 @@ describe("QuestionEditPage", () => {
       } as unknown as ReturnType<typeof useSearchParams>;
     });
 
-    await act(async () => {
-      render(
-        <QuestionEdit />
-      );
-    });
+    const { getByDisplayValue } = render(
+      <QuestionEdit />
+    );
 
-    expect(screen.getByText('Mocked Question Options Component')).toBeInTheDocument();
+
+    // Find the input by its current value
+    const input = getByDisplayValue('Yes');
+
+    // Change the value to 'No'
+    fireEvent.change(input, { target: { value: 'Something else' } });
+
+    const buttonSubmit = screen.getByRole('button', { name: 'buttons.saveAndUpdate' });
+    act(() => {
+      fireEvent.click(buttonSubmit);
+    })
+
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
+    })
   })
 
   it('should call the useUpdateQuestionMutation when user clicks \'save\' button', async () => {
@@ -386,6 +413,232 @@ describe("QuestionEditPage", () => {
     const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
     expect(checkboxText).toBeInTheDocument();
   })
+
+  it("should call handleRangeLabelChange for dateRange question type", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForDateRange,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Find the input rendered by RangeComponent
+    const rangeStartInput = screen.getByLabelText('range start');
+
+    // Simulate user typing
+    fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
+
+    expect(rangeStartInput).toHaveValue('New Range Label');
+
+  });
+
+  it("should call handleRangeLabelChange for number range question type", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForNumberRange,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Find the input rendered by RangeComponent
+    const rangeStartInput = screen.getByLabelText('range start');
+
+    // Simulate user typing
+    fireEvent.change(rangeStartInput, { target: { value: '2' } });
+
+    expect(rangeStartInput).toHaveValue('2');
+
+  });
+
+  it("should call handleTypeAheadSearchLabelChange for typeaheadsearch question type", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Find the label input rendered by TypeAheadSearch
+    const labelInput = screen.getByPlaceholderText('Enter search label');
+
+    // Simulate user typing
+    fireEvent.change(labelInput, { target: { value: 'New Institution Label' } });
+
+    expect(labelInput).toHaveValue('New Institution Label');
+
+  });
+
+  it("should call handleTypeAheadHelpTextChange for typeaheadsearch question type", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Find the label input rendered by TypeAheadSearch
+    const helpTextInput = screen.getByPlaceholderText('Enter the help text you want to display');
+
+    // Simulate user typing
+    fireEvent.change(helpTextInput, { target: { value: 'Enter a search term' } });
+
+    expect(helpTextInput).toHaveValue('Enter a search term');
+
+  });
+
+  it("should display error if useUpdateQuestionMutation rejects", async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockRejectedValueOnce(new Error("Error updating question")),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndUpdate/i });
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    const alert = screen.queryByRole('alert');
+    expect(alert).toHaveTextContent('messages.errors.questionUpdateError');
+  });
+
 
   it('should pass axe accessibility test', async () => {
     // Render with text question type

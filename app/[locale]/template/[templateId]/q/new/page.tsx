@@ -26,6 +26,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { useQuestionTypesQuery } from '@/generated/graphql';
 
 //Other
+import { scrollToTop } from '@/utils/general';
 import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
 import { QuestionTypesInterface } from '@/app/types';
 import styles from './newQuestion.module.scss';
@@ -61,7 +62,18 @@ const QuestionTypeSelectPage: React.FC = () => {
   // Make graphql request for question types
   const { data, loading, error: queryError } = useQuestionTypesQuery();
 
-  const handleSelect = ({ questionJSON, questionType, questionTypeName }: { questionJSON: string; questionType: string; questionTypeName: string; }) => {
+
+  // Handle the selection of a question type
+  const handleSelect = (
+    {
+      questionJSON,
+      questionType,
+      questionTypeName
+    }: {
+      questionJSON: string;
+      questionType: string;
+      questionTypeName: string;
+    }) => {
 
     if (questionId) {
       //If the user came from editing an existing question, we want to return them to that page with the new questionTypeId
@@ -76,30 +88,27 @@ const QuestionTypeSelectPage: React.FC = () => {
     }
   }
 
-  const scrollToTop = useCallback(() => {
-    if (topRef.current) {
-      topRef.current.scrollIntoView({ behavior: 'smooth' });
-      topRef.current.focus();
-    }
-  }, []);
-
-
+  // Clear search term and filters
   const resetSearch = useCallback(() => {
     setSearchTerm('');
     setFilteredQuestionTypes(null);
-    scrollToTop();
+    scrollToTop(topRef);
   }, [scrollToTop]);
 
 
+  // Filter through questionTypes and find the question type whose info includes the search term
   const filterQuestionTypes = (
     questionTypes: QuestionTypesInterface[],
     term: string
   ): QuestionTypesInterface[] =>
-    questionTypes.filter(qt =>
-      [qt.name, qt.usageDescription].some(field =>
-        field?.toLowerCase().includes(term.toLowerCase())
-      )
-    );
+    questionTypes.filter(qt => {
+      const lowerTerm = term.toLowerCase();
+      const nameMatch = qt.name?.toLowerCase().includes(lowerTerm);
+      const usageDescriptionMatch = qt.usageDescription?.toLowerCase().includes(lowerTerm);
+      const jsonMatch = qt.json?.toLowerCase().includes(lowerTerm);
+
+      return nameMatch || jsonMatch || usageDescriptionMatch;
+    });
 
   // Filter results when a user enters a search term and clicks "Search" button
   const handleFiltering = (term: string) => {
@@ -115,7 +124,6 @@ const QuestionTypeSelectPage: React.FC = () => {
   }
 
   useEffect(() => {
-    // When data from backend changes, set template data in state
     if (data?.questionTypes) {
       // filter out any null values
       const filteredQuestionTypes = data.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
@@ -197,7 +205,7 @@ const QuestionTypeSelectPage: React.FC = () => {
               <div>
                 {/*Show # of results with clear filter link*/}
                 {(searchTerm.length > 0 && searchButtonClicked) && (
-                  <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length || 0 })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>{QuestionTypeSelect('links.clearFilter')}</Link></div>
+                  <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length || 0 })} - <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}>{QuestionTypeSelect('links.clearFilter')}</Button></div>
                 )}
                 <div className="card-grid-list">
                   {filteredQuestionTypes && filteredQuestionTypes.length > 0 ? (
@@ -237,9 +245,9 @@ const QuestionTypeSelectPage: React.FC = () => {
                   }
                 </div>
                 {/*Show # of results with clear filter link*/}
-                {(searchTerm.length > 0 && searchButtonClicked) && (
+                {((filteredQuestionTypes && filteredQuestionTypes.length > 0) && searchButtonClicked) && (
                   <div className={styles.clearFilter}>
-                    <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length || 0 })} - <Link onPress={resetSearch} href="/" className={styles.searchMatchText}>{QuestionTypeSelect('links.clearFilter')}</Link></div>
+                    <div className={styles.searchMatchText}> {Global('messaging.resultsText', { name: filteredQuestionTypes?.length || 0 })} - <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}>{QuestionTypeSelect('links.clearFilter')}</Button></div>
                   </div>
                 )}
               </div>

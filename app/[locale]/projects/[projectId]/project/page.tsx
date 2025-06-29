@@ -355,7 +355,7 @@ const ProjectsProjectDetail = () => {
               errorMessage={fieldErrors.projectAbstract.length > 0 ? fieldErrors.projectAbstract : ProjectDetail('messages.errors.projectAbstract')}
             />
 
-            <div className="date-range-group">
+            <div className="input-range-group">
               <DatePicker
                 name="startDate"
                 value={getCalendarDateValue(projectData.startDate)}
