@@ -22,7 +22,7 @@ jest.mock('next-intl', () => ({
 // Mock the PageHeader component
 jest.mock('@/components/PageHeader', () => ({
   __esModule: true,
-  default: () => <div data-testid="mock-page-header"/>,
+  default: () => <div data-testid="mock-page-header" />,
 }));
 
 // Mock stripHtml utility
@@ -33,6 +33,22 @@ jest.mock('@/utils/general', () => ({
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
+  notFound: jest.fn(),
+}));
+
+// Mock routePath utility
+jest.mock('@/utils/routes', () => ({
+  routePath: jest.fn((name, params = {}) => {
+    const routeMap = {
+      'app.home': '/en-US',
+      'projects.index': '/en-US/projects',
+      'projects.show': `/en-US/projects/${params.projectId}`,
+      'projects.dmp.show': `/en-US/projects/${params.projectId}/dmp/${params.dmpId}`,
+      'projects.dmp.question': `/en-US/projects/${params.projectId}/dmp/${params.dmpId}/q`,
+      'projects.dmp.section': `/en-US/projects/${params.projectId}/dmp/${params.dmpId}/s/${params.sectionId}`,
+    };
+    return routeMap[name] || `/en-US/${name}`;
+  }),
 }));
 
 const mockParams = {
@@ -122,7 +138,12 @@ const planMock = {
     title: 'Test Project',
   },
   members: [],
-  sections: [],
+  sections: [
+    {
+      sectionId: 456,
+      sectionTitle: 'Data and Metadata Formats',
+    },
+  ],
   created: '2024-01-01',
   modified: '2024-01-01',
   dmpId: 'doi-456',
@@ -336,7 +357,7 @@ describe('PlanOverviewSectionPage', () => {
     // Check first question card structure
     const firstCard = questionCards[0];
     expect(firstCard).toHaveAttribute('aria-labelledby', 'question-title-1');
-    
+
     // Check question title
     const title = firstCard.querySelector('h3');
     expect(title).toHaveTextContent('What types of data will be produced during your project?');
@@ -366,7 +387,7 @@ describe('PlanOverviewSectionPage', () => {
     // Check that links are generated correctly
     const questionLinks = screen.getAllByText('sections.start');
     expect(questionLinks).toHaveLength(3);
-    
+
     expect(questionLinks[0]).toHaveAttribute(
       'href',
       '/en-US/projects/123/dmp/456/q/1'

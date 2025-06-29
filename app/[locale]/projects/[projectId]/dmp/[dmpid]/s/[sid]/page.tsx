@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import { useParams, notFound } from 'next/navigation';
 import PageHeader from "@/components/PageHeader";
@@ -29,6 +29,9 @@ const PlanOverviewSectionPage: React.FC = () => {
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
 
+  // State for navigation visibility
+  const [showNavigation, setShowNavigation] = useState(true);
+
   // Validate that dmpId is a valid number, redirect to 404 if not
   const planId = parseInt(dmpId);
   if (isNaN(planId)) {
@@ -50,20 +53,29 @@ const PlanOverviewSectionPage: React.FC = () => {
     skip: !planId
   });
 
-  const plan = {
-    id: planData?.plan?.id?.toString() || '',
-    template_name: planData?.plan?.versionedTemplate?.template?.name || '',
-    title: planData?.plan?.versionedTemplate?.template?.name || '',
-    funder_name: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName || ''
-  };
+  // Hide navigation when close to footer
+  useEffect(() => {
+    const handleScroll = () => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY;
+      const navHeight = 300; // Approximate height of navigation
 
-  const questions: Question[] = questionsData?.questions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
-    id: question.id?.toString() || '',
-    title: question.questionText || '',
-    link: `/en-US/projects/${projectId}/dmp/${dmpId}/q/${question.id}`,
-    isAnswered: false
-  })) || [];
+      // Calculate if navigation bottom would be close to footer
+      const navBottom = windowHeight * 0.2 + navHeight; // 20% from top + nav height
+      const distanceToBottom = documentHeight - scrollTop - windowHeight;
 
+      // Hide if we're within 200px of the bottom
+      setShowNavigation(distanceToBottom > 200);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check initial state
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Loading states
   if (questionsLoading || sectionLoading || planLoading) {
     return <div>Loading questions...</div>;
   }
@@ -71,6 +83,32 @@ const PlanOverviewSectionPage: React.FC = () => {
   if (questionsError) {
     return <div>Error loading questions: {questionsError.message}</div>;
   }
+
+  // Validate section belongs to plan - 404 if not
+  const planSections = planData?.plan?.sections || [];
+  const sectionBelongsToPlan = planSections.some(section => section.sectionId === sectionId);
+
+  if (!sectionBelongsToPlan) {
+    notFound();
+  }
+
+  // Check for questions - show message if none
+  const questions: Question[] = questionsData?.questions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
+    id: question.id?.toString() || '',
+    title: question.questionText || '',
+    link: routePath('projects.dmp.question', {
+      projectId,
+      dmpId,
+    }) + `/${question.id}`,
+    isAnswered: false
+  })) || [];
+
+  const plan = {
+    id: planData?.plan?.id?.toString() || '',
+    template_name: planData?.plan?.versionedTemplate?.template?.name || '',
+    title: planData?.plan?.versionedTemplate?.template?.name || '',
+    funder_name: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName || ''
+  };
 
   return (
     <>
@@ -114,76 +152,124 @@ const PlanOverviewSectionPage: React.FC = () => {
 
       <LayoutWithPanel>
         <ContentContainer>
-          <div className="container">
-            <section aria-label={"Requirements"}>
-              <h4>Requirements by {plan.funder_name}</h4>
-              <p>
-                (DUMMY DATA) The Arctic Data Center requires when submitting to the Center,
-                include methods to create these types of data.
-              </p>
-              <p>
-                If using proprietary formats like Excel or MATLAB, plan to
-                convert them to open-source formats before submission. If
-                conversion isn&apos;t possible, explain why
-              </p>
+          <div className={styles.contentWrapper}>
+            {/* Subtle plan navigation for very large screens */}
+            <nav
+              className={styles.planNavigation}
+              style={{ display: showNavigation ? 'block' : 'none' }}
+              aria-labelledby="plan-nav-title"
+            >
+              <h2 id="plan-nav-title" className={styles.srOnly}>Plan Navigation</h2>
 
-              <h4>Requirements by University of California</h4>
-              <p>
-                (DUMMY DATA) The management of data and metadata is essential for supporting
-                research integrity, reproducibility and collaboration. This
-                section seeks to document the types and formats of data and
-                metadata that will be generated in your project. Properly
-                formatted and well-documented data enhance the visibility of
-                your research, promote collaboration among users and ensure
-                compliance with institutional policies and guidelines.
-              </p>
-            </section>
-
-            {questions.map((question) => (
-              <section
-                key={question.id}
-                className={styles.questionCard}
-                aria-labelledby={`question-title-${question.id}`}
+              <Link
+                href={routePath('projects.dmp.show', { projectId, dmpId })}
+                className={styles.planOverviewLink}
+                aria-label="Go to plan overview"
               >
-                <div className={styles.questionHeader}>
-                  <div className={styles.questionTitle}>
-                    <h3 id={`question-title-${question.id}`}>
-                      {stripHtml(question.title)}
-                    </h3>
-                    <p aria-live="polite">
-                      <span
-                        className={styles.progressIndicator}
-                        aria-label={`Question status: ${question.isAnswered ? 'Completed' : 'Not started'}`}
+                Plan Overview
+              </Link>
+
+              {planSections.length > 0 && (
+                <ul className={styles.sectionsList} role="list" aria-label="Plan sections">
+                  {planSections.map((section) => (
+                    <li key={section.sectionId}>
+                      <Link
+                        href={routePath('projects.dmp.section', {
+                          projectId,
+                          dmpId,
+                          sectionId: section.sectionId
+                        })}
+                        className={`${styles.sectionLink} ${section.sectionId === sectionId ? styles.currentSection : ''
+                          }`}
+                        aria-label={`Go to ${section.sectionTitle} section`}
+                        aria-current={section.sectionId === sectionId ? 'page' : undefined}
                       >
-                        <svg
-                          className={`${styles.progressIcon} ${!question.isAnswered ? styles.progressIconInactive : ''}`}
-                          width="18"
-                          height="18"
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 -960 960 960"
-                          fill="currentColor"
-                          aria-hidden="true"
-                        >
-                          <path
-                            d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
-                        </svg>
-                        {question.isAnswered ? t('question.answered') : t('question.notAnswered')}
-                      </span>
-                    </p>
-                  </div>
-                  <Link
-                    href={question.link}
-                    aria-label={t('sections.ariaLabel', {
-                      action: question.isAnswered ? t('sections.update') : t('sections.start'),
-                      title: question.title
-                    })}
-                    className="react-aria-Button react-aria-Button--secondary"
-                  >
-                    {question.isAnswered ? t('sections.update') : t('sections.start')}
-                  </Link>
-                </div>
+                        {section.sectionTitle}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </nav>
+
+            <div className="container">
+              <section aria-label={"Requirements"}>
+                <h4>Requirements by {plan.funder_name}</h4>
+                <p>
+                  (DUMMY DATA) The Arctic Data Center requires when submitting to the Center,
+                  include methods to create these types of data.
+                </p>
+                <p>
+                  If using proprietary formats like Excel or MATLAB, plan to
+                  convert them to open-source formats before submission. If
+                  conversion isn&apos;t possible, explain why
+                </p>
+
+                <h4>Requirements by University of California</h4>
+                <p>
+                  (DUMMY DATA) The management of data and metadata is essential for supporting
+                  research integrity, reproducibility and collaboration. This
+                  section seeks to document the types and formats of data and
+                  metadata that will be generated in your project. Properly
+                  formatted and well-documented data enhance the visibility of
+                  your research, promote collaboration among users and ensure
+                  compliance with institutional policies and guidelines.
+                </p>
               </section>
-            ))}
+
+              {questions.length === 0 ? (
+                <section className={styles.noQuestionsMessage}>
+                  <h3>No Questions Available</h3>
+                  <p>There are currently no questions in this section.</p>
+                </section>
+              ) : (
+                questions.map((question) => (
+                  <section
+                    key={question.id}
+                    className={styles.questionCard}
+                    aria-labelledby={`question-title-${question.id}`}
+                  >
+                    <div className={styles.questionHeader}>
+                      <div className={styles.questionTitle}>
+                        <h3 id={`question-title-${question.id}`}>
+                          {stripHtml(question.title)}
+                        </h3>
+                        <p aria-live="polite">
+                          <span
+                            className={styles.progressIndicator}
+                            aria-label={`Question status: ${question.isAnswered ? 'Completed' : 'Not started'}`}
+                          >
+                            <svg
+                              className={`${styles.progressIcon} ${!question.isAnswered ? styles.progressIconInactive : ''}`}
+                              width="18"
+                              height="18"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 -960 960 960"
+                              fill="currentColor"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
+                            </svg>
+                            {question.isAnswered ? t('question.answered') : t('question.notAnswered')}
+                          </span>
+                        </p>
+                      </div>
+                      <Link
+                        href={question.link}
+                        aria-label={t('sections.ariaLabel', {
+                          action: question.isAnswered ? t('sections.update') : t('sections.start'),
+                          title: question.title
+                        })}
+                        className="react-aria-Button react-aria-Button--secondary"
+                      >
+                        {question.isAnswered ? t('sections.update') : t('sections.start')}
+                      </Link>
+                    </div>
+                  </section>
+                ))
+              )}
+            </div>
           </div>
         </ContentContainer>
 
