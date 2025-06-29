@@ -27,6 +27,9 @@ interface InputProps {
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
 }
 
 const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
@@ -49,6 +52,9 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
+  minLength = undefined,
+  maxLength = undefined,
+  pattern,
   ...rest
 }) => {
   // Check if aria-required is passed as a regular HTML attribute
@@ -88,6 +94,9 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
           aria-describedby={ariaDescribedBy}
           aria-label={ariaLabel}
           {...(inputAriaRequired && { 'aria-required': true })}
+          minLength={minLength}
+          maxLength={maxLength}
+          pattern={pattern}
           {...rest}
         />
 

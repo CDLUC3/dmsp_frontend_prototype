@@ -36,6 +36,7 @@ const RadioGroupComponent: React.FC<RadioButtonProps & { isRequired?: boolean }>
         value={value}
         className={classes}
         onChange={onChange}
+        aria-label={radioGroupLabel || 'Radio Group'}
         isInvalid={isInvalid}
       >
         <Label>

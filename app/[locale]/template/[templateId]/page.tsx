@@ -69,6 +69,10 @@ const TemplateEditPage: React.FC = () => {
   const Messaging = useTranslations('Messaging');
   const Global = useTranslations('Global');
 
+  // Used to set the translated visibility text, based on the
+  // public/private choice.
+  const [visibilityText, setVisibilityText] = useState<string>("");
+
   // Get templateId param
   const params = useParams();
   const router = useRouter();
@@ -89,7 +93,8 @@ const TemplateEditPage: React.FC = () => {
   const { data, loading, error: templateQueryErrors, refetch } = useTemplateQuery(
     {
       variables: { templateId: Number(templateId) },
-      notifyOnNetworkStatusChange: true
+      notifyOnNetworkStatusChange: true,
+      fetchPolicy: "network-only",// Fetch latest data instead of cache so we get the latest sections and questions after adding new ones
     }
   );
 
@@ -245,6 +250,14 @@ const TemplateEditPage: React.FC = () => {
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
+    }
+  }
+
+  function handleVisibilityChange(value: string) {
+    if (value == "public") {
+      setVisibilityText(PublishTemplate('bullet.publishingTemplate3'));
+    } else if (value == "private") {
+      setVisibilityText(PublishTemplate('bullet.publishingTemplate3Private'));
     }
   }
 
@@ -453,18 +466,29 @@ const TemplateEditPage: React.FC = () => {
               <ErrorMessages errors={errorMessages} ref={errorRef} />
               <Heading slot="title">{PublishTemplate('heading.publish')}</Heading>
 
-              <RadioGroup name="visibility">
+              <RadioGroup
+                name="visibility"
+                onChange={handleVisibilityChange}
+              >
                 <Label>{PublishTemplate('heading.visibilitySettings')}</Label>
                 <Text slot="description" className="help">
                   {PublishTemplate('descPublishedTemplate')}
                 </Text>
-                <Radio value="public" className={`${styles.radioBtn} react-aria-Radio`}>
+                <Radio
+                  data-testid="visPublic"
+                  value="public"
+                  className={`${styles.radioBtn} react-aria-Radio`}
+                >
                   <div>
                     <span>{PublishTemplate('radioBtn.public')}</span>
-                    <p className="text-gray-600 text-sm">{PublishTemplate('radioBtn.publicHelpText')}.</p>
+                    <p className="text-gray-600 text-sm">{PublishTemplate('radioBtn.publicHelpText')}</p>
                   </div>
                 </Radio>
-                <Radio value="private" className={`${styles.radioBtn} react-aria-Radio`}>
+                <Radio
+                  data-testid="visPrivate"
+                  value="private"
+                  className={`${styles.radioBtn} react-aria-Radio`}
+                >
                   <div>
                     <span>{PublishTemplate('radioBtn.organizationOnly')}</span>
                     <p className="text-gray-600 text-sm">{PublishTemplate('radioBtn.orgOnlyHelpText')}</p>
@@ -485,9 +509,11 @@ const TemplateEditPage: React.FC = () => {
                 <li>
                   {PublishTemplate('bullet.publishingTemplate2')}
                 </li>
-                <li>
-                  {PublishTemplate('bullet.publishingTemplate3')}
-                </li>
+                {visibilityText && (
+                  <li data-testid="visText">
+                    {visibilityText}
+                  </li>
+                )}
               </ul>
               <div className="">
 

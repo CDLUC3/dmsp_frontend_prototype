@@ -25,6 +25,9 @@ jest.mock('next-intl', () => ({
   }),
 }));
 
+const mockQuestionJSON = "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"radioButtons\",\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Option 1\",\"value\":\"1\",\"selected\":false}},{\"type\":\"option\",\"attributes\":{\"label\":\"Option 2\",\"value\":\"2\",\"selected\":true}}]}"
+
+
 type Row = {
   id?: number | null;
   text: string;
@@ -42,7 +45,13 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should render initial rows correctly', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent
+      rows={rows}
+      setRows={setRows}
+      questionJSON={mockQuestionJSON}
+      formSubmitted={true}
+      setFormSubmitted={jest.fn()}
+    />);
 
     expect(screen.getByLabelText(/labels\.order/)).toBeInTheDocument();
     expect(screen.getByLabelText(/labels\.text/)).toBeInTheDocument();
@@ -50,46 +59,71 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should add a new row when the add button is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent
+      rows={rows}
+      setRows={setRows}
+      questionJSON={mockQuestionJSON}
+      formSubmitted={true}
+      setFormSubmitted={jest.fn()}
+    />);
 
     const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
     fireEvent.click(addButton);
 
-    expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": false, "text": "Option 1" }, { "id": 2, "isSelected": false, "text": "" }]);
     expect(screen.getByText('announcements.rowAdded')).toBeInTheDocument();
   });
 
   it('should update text field correctly', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent
+      rows={rows}
+      setRows={setRows}
+      questionJSON={mockQuestionJSON}
+      formSubmitted={true}
+      setFormSubmitted={jest.fn()}
+    />);
 
     const textInput = screen.getByLabelText(/labels\.text/);
     fireEvent.change(textInput, { target: { value: 'Updated Option' } });
 
-    expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": false, "text": "Updated Option" }]);
+  });
 
-    // Execute the updater function to cover the map logic
-    const updater = setRows.mock.calls[0][0];
-    const updatedRows = updater([
-      { id: 1, text: 'Option 1', isDefault: false },
-      { id: 2, text: 'Option 2', isDefault: false }
-    ]);
-    expect(updatedRows).toEqual([
-      { id: 1, text: 'Updated Option', isDefault: false },
-      { id: 2, text: 'Option 2', isDefault: false }
-    ]);
+  it('should handle case where questionJSON is passed as an object', () => {
+    const questionJSONObj = JSON.parse(mockQuestionJSON);
+    render(<QuestionOptionsComponent
+      rows={rows}
+      setRows={setRows}
+      questionJSON={questionJSONObj}
+      formSubmitted={true}
+      setFormSubmitted={jest.fn()}
+    />);
+
+    const textInput = screen.getByLabelText('labels.text');
+    fireEvent.change(textInput, { target: { value: 'Updated Option' } });
+
+    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": false, "text": "Updated Option" }]);
   });
 
   it('should set a row as default when checkbox is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent
+      rows={rows}
+      setRows={setRows}
+      questionJSON={mockQuestionJSON}
+      formSubmitted={true}
+      setFormSubmitted={jest.fn()}
+    />);
 
     const defaultCheckbox = screen.getByLabelText('labels.default');
     fireEvent.click(defaultCheckbox);
 
 
-    expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": true, "text": "Option 1" }]);
   });
 
   it('should allow checking of multiple checkboxes', () => {
+    const mockCheckboxJSON = "{\"type\":\"checkBoxes\",\"meta\":{\"schemaVersion\":\"1.0\",\"labelTranslationKey\":\"questions.research_methods\"},\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Interviews\",\"value\":\"interviews\",\"checked\":true}},{\"type\":\"option\",\"attributes\":{\"label\":\"Surveys\",\"value\":\"surveys\",\"checked\":false}},{\"type\":\"option\",\"attributes\":{\"label\":\"Observations\",\"value\":\"observations\",\"checked\":true}},{\"type\":\"option\",\"attributes\":{\"label\":\"Focus Groups\",\"value\":\"focus_groups\",\"checked\":true}}]}"
+
     // Use a stateful wrapper so setRows updates the UI
     function Wrapper() {
       const [rows, setRows] = React.useState<Row[]>([
@@ -99,7 +133,7 @@ describe('QuestionOptionsComponent', () => {
         <QuestionOptionsComponent
           rows={rows}
           setRows={setRows}
-          questionType="checkBoxes"
+          questionJSON={mockCheckboxJSON}
           formSubmitted={true}
           setFormSubmitted={jest.fn()}
         />
@@ -134,21 +168,33 @@ describe('QuestionOptionsComponent', () => {
   });
 
   it('should add a row when the add button is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent
+      rows={rows}
+      setRows={setRows}
+      questionJSON={mockQuestionJSON}
+      formSubmitted={true}
+      setFormSubmitted={jest.fn()}
+    />);
 
     const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
     fireEvent.click(addButton);
 
-    expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": false, "text": "Option 1" }, { "id": 2, "isSelected": false, "text": "" }]);
   });
 
   it('should remove a row when delete button is clicked', () => {
-    render(<QuestionOptionsComponent rows={rows} setRows={setRows} questionType="radioButtons" formSubmitted={true} setFormSubmitted={jest.fn()} />);
+    render(<QuestionOptionsComponent
+      rows={rows}
+      setRows={setRows}
+      questionJSON={mockQuestionJSON}
+      formSubmitted={true}
+      setFormSubmitted={jest.fn()}
+    />);
 
     const deleteButton = screen.getByRole('button', { name: /buttons.deleteRow/i });
     fireEvent.click(deleteButton);
 
-    expect(setRows).toHaveBeenCalledWith(expect.any(Function));
+    expect(setRows).toHaveBeenCalledWith([]);
   });
 
   it('should set the correct row as default and unset others', () => {
@@ -162,7 +208,7 @@ describe('QuestionOptionsComponent', () => {
       <QuestionOptionsComponent
         rows={rows}
         setRows={mockSetRows}
-        questionType="radioButtons"
+        questionJSON={mockQuestionJSON}
         setFormSubmitted={jest.fn()}
       />
     );
@@ -172,9 +218,11 @@ describe('QuestionOptionsComponent', () => {
 
     expect(mockSetRows).toHaveBeenCalledTimes(1);
 
-    const updateFn = mockSetRows.mock.calls[0][0]; // This is the function passed to setRows
-    const updatedRows = updateFn(rows); // Simulate how React would call the updater with current state
-
+    const updatedRows = mockSetRows.mock.calls[0][0];
+    expect(updatedRows).toEqual([
+      { id: 1, orderNumber: 1, text: 'Option 1', isSelected: false, questionId: 1 },
+      { id: 2, orderNumber: 2, text: 'Option 2', isSelected: true, questionId: 1 },
+    ]);
     expect(updatedRows).toEqual([
       { id: 1, orderNumber: 1, text: 'Option 1', isSelected: false, questionId: 1 },
       { id: 2, orderNumber: 2, text: 'Option 2', isSelected: true, questionId: 1 }, // <== isDefault changed

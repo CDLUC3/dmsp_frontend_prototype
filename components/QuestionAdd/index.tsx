@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -30,10 +30,13 @@ import {
 
 // Components
 import PageHeader from "@/components/PageHeader";
-import QuestionOptionsComponent
-  from '@/components/Form/QuestionOptionsComponent';
-import FormInput from '@/components/Form/FormInput';
-import FormTextArea from '@/components/Form/FormTextArea';
+import {
+  FormInput,
+  FormTextArea,
+  RangeComponent,
+  QuestionOptionsComponent,
+  TypeAheadSearch
+} from '@/components/Form';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
@@ -41,9 +44,20 @@ import QuestionView from '@/components/QuestionView';
 //Other
 import { useToast } from '@/context/ToastContext';
 import { stripHtmlTags } from '@/utils/general';
-import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
+import { questionTypeHandlers, QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { routePath } from '@/utils/routes';
 import { Question, QuestionOptions } from '@/app/types';
-import { OPTIONS_QUESTION_TYPES } from '@/lib/constants';
+import {
+  OPTIONS_QUESTION_TYPES,
+  TEXT_QUESTION_TYPE,
+  RANGE_QUESTION_TYPE,
+  TYPEAHEAD_QUESTION_TYPE
+} from '@/lib/constants';
+import {
+  isOptionsType,
+  getOverrides,
+} from './hooks/useAddQuestion';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -54,23 +68,7 @@ const defaultQuestion = {
   required: false,
 };
 
-// Configure what overrides you want to apply to the question type json objects
-const getOverrides = (questionType: string | null | undefined) => {
-  switch (questionType) {
-    case "text":
-      return { maxLength: null };
-    case "textArea":
-      return { maxLength: null, rows: 20 };
-    case "number":
-      return { min: 0, max: 10000000, step: 1 };
-    case "currency":
-      return { min: 0, max: 10000000, step: 0.01 };
-    case "url":
-      return { maxLength: 2048, minLength: 2, pattern: "https?://.+" };
-    default:
-      return {};
-  }
-};
+type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 
 
 const QuestionAdd = ({
@@ -88,19 +86,28 @@ const QuestionAdd = ({
   const params = useParams();
   const router = useRouter();
   const toastState = useToast();
-  const { templateId } = params; // From route /template/:templateId
+  const templateId = String(params.templateId);
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   const step1Url = `/template/${templateId}/q/new?section_id=${sectionId}&step=1`;
 
-  // State for managing form inputs
-  const [question, setQuestion] = useState<Question>({
+  // Make sure to add questionJSON and questionType to the question object so it can be used in the QuestionView component
+  const [question, setQuestion] = useState<Question>(() => ({
     ...defaultQuestion,
-  }); const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
+    // If questionType is non-null/undefined, use it, otherwise empty string
+    questionType: questionType ?? '',
+    // questionJSON is a string, so store it here
+    json: questionJSON,
+  }));
+  const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
+  const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
+  const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
+  const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
+  const [dateRangeLabels, setDateRangeLabels] = useState<{ start: string; end: string }>({ start: '', end: '' });
 
   // localization keys
   const Global = useTranslations('Global');
@@ -117,56 +124,161 @@ const QuestionAdd = ({
     skip: !sectionId
   })
 
+  // Send user back to the selection of question types
   const redirectToQuestionTypes = () => {
     router.push(step1Url)
   }
 
-  const getDisplayOrder = () => {
-    // Calculate max displayOrder
-    let maxQuestionDisplayOrder = null;
-    if (questionDisplayOrders?.questions && questionDisplayOrders.questions.length > 0) {
-      // Find the maximum displayOrder
-      maxQuestionDisplayOrder = questionDisplayOrders.questions.reduce(
-        (max, question) => (question?.displayOrder ?? -Infinity) > max ? question?.displayOrder ?? max : max,
-        0
-      );
+  // Calculate the display order of the new question based on the last displayOrder number
+  const getDisplayOrder = useCallback(() => {
+    if (!questionDisplayOrders?.questions?.length) {
+      return 1;
     }
-    return maxQuestionDisplayOrder ? maxQuestionDisplayOrder + 1 : 1;
-  }
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
+    // Filter out null/undefined questions and handle missing displayOrder
+    const validDisplayOrders = (questionDisplayOrders.questions ?? [])
+      .map(q => q?.displayOrder)
+      .filter((order): order is number => typeof order === 'number');
 
-    setFormSubmitted(true);
+    if (validDisplayOrders.length === 0) {
+      return 1;
+    }
 
-    const displayOrder = getDisplayOrder();
-    const parsedQuestionJSON = JSON.parse(questionJSON);
+    const maxDisplayOrder = Math.max(...validDisplayOrders);
+    return maxDisplayOrder + 1;
+  }, [questionDisplayOrders]);
 
-    // Prepare input for the questionTypeHandler.For options questions,we update the 
-    // values with rows state. For non-options questions, we use the parsed JSON
-    const formState = hasOptions
-      ? {
-        options: rows.map(row => ({
+  // Update rows state and question.json when options change
+  const updateRows = (newRows: QuestionOptions[]) => {
+    setRows(newRows);
+
+    if (hasOptions && questionType && question?.json) {
+      const updatedJSON = buildUpdatedJSON(question, newRows);
+
+      if (updatedJSON) {
+        setQuestion((prev) => ({
+          ...prev,
+          json: JSON.stringify(updatedJSON.data),
+        }));
+      }
+
+    }
+  };
+
+  // Handler for date range label changes
+  const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
+    setDateRangeLabels(prev => ({ ...prev, [field]: value }));
+
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "dateRange" || parsedQuestionJSON?.type === "numberRange")) {
+      if (parsedQuestionJSON?.columns?.[field]?.attributes) {
+        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+        updatedParsed.columns[field].attributes.label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updatedParsed),
+        }));
+      }
+    }
+  };
+
+  // Handler for typeahead search label changes
+  const handleTypeAheadSearchLabelChange = (value: string) => {
+    setTypeaheadSearchLabel(value);
+
+    // Update the label in the question JSON and sync to question state
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
+      if (parsedQuestionJSON?.graphQL?.displayFields?.[0]) {
+        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+        updatedParsed.graphQL.displayFields[0].label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updatedParsed),
+        }));
+      }
+    }
+  };
+
+  // Handler for typeahead help text changes
+  const handleTypeAheadHelpTextChange = (value: string) => {
+    setTypeAheadHelpText(value);
+
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
+      const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+
+      if (updatedParsed.graphQL &&
+        Array.isArray(updatedParsed.graphQL.variables) &&
+        updatedParsed.graphQL.variables[0]) {
+        updatedParsed.graphQL.variables[0].label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updatedParsed),
+        }));
+      }
+    }
+  };
+
+  // Update common input fields when any of them change
+  const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
+    setQuestion((prev) => ({
+      ...prev,
+      [field]: value === undefined ? '' : value, // Default to empty string if value is undefined
+    }));
+  };
+
+  // Prepare input for the questionTypeHandler. For options questions, we update the 
+  // values with rows state. For non-options questions, we use the parsed JSON
+  const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
+
+    if (hasOptions) {
+      const useRows = rowsOverride ?? rows;
+      return {
+        options: useRows.map(row => ({
           label: row.text,
           value: row.text,
           selected: row.isSelected,
         })),
+      };
+    }
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }), Global);
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
       }
-      : parsedQuestionJSON; // Use parsed JSON for non-option types
+      return;
+    }
+    return {
+      ...parsed,
+      attributes: {
+        ...('attributes' in parsed ? parsed.attributes : {}),
+        ...getOverrides(questionType),
+      },
+    };
+  };
 
-    // Get any overrides for the question type json objects based on question type
-    const overrides = getOverrides(questionType);
+  // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
+  const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
+    const userInput = getFormState(question, rowsOverride);
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }), Global);
 
-    // Merge formState with overrides for non-options questions, and use formState directly for options questions
-    const userInput = hasOptions
-      ? formState
-      : { ...formState, attributes: { ...formState.attributes, ...overrides } };
-
-    // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
-    const updatedJSON = questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-      parsedQuestionJSON,
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
+      }
+      return;
+    }
+    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+      parsed,
       userInput
     );
+
+  };
+
+  // Function to add and save the new question
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const displayOrder = getDisplayOrder();
+    const updatedJSON = buildUpdatedJSON(question);
 
     // Strip all tags from questionText before sending to backend
     const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
@@ -176,7 +288,7 @@ const QuestionAdd = ({
       displayOrder,
       isDirty: true,
       questionText: cleanedQuestionText,
-      json: JSON.stringify(updatedJSON.data),
+      json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
       requirementText: question?.requirementText,
       guidanceText: question?.guidanceText,
       sampleText: question?.sampleText,
@@ -201,42 +313,63 @@ const QuestionAdd = ({
       }
     }
   };
+
+  // If questionType is missing, return user to the Question Types selection page
+  // If sectionId is missing, return user back to the Edit Template page
+  // This is to ensure that the user has selected a question type before proceeding
+  // to the QuestionAdd page, and that they are in a valid section of the template
   useEffect(() => {
     if (!questionType) {
-      // If questionType is missing, return user to the Question Types selection page
       toastState.add(Global('messaging.somethingWentWrong'), { type: 'error' });
       router.push(step1Url);
+      return; // Early return to prevent further execution
+    }
 
-      // If the sectionId is missing, return user back to the Edit Template page
+    if (!sectionId) {
+      toastState.add(Global('messaging.somethingWentWrong'), { type: 'error' });
       router.push(`/template/${templateId}`);
+      return;
     }
   }, [])
 
   useEffect(() => {
-    // Make sure to add the questionType to the question object so it can be used in the QuestionView component
-    if (question) {
-      setQuestion({
-        ...question,
-        questionType
-      });
+    if (questionType) {
+      // To determine if we have an options question type
+      const isOptionQuestion = isOptionsType(questionType);
+
+      setHasOptions(isOptionQuestion);
     }
-  }, [questionType]);
 
-  useEffect(() => {
-    // To determine if the question type selected is one that includes options fields
-    const isOptionQuestion = Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType)); // Ensure the result is a boolean
-
-    setHasOptions(isOptionQuestion);
   }, [questionType])
 
 
-  // Update state when input changes
-  const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
-    setQuestion((prev) => ({
-      ...prev,
-      [field]: value === undefined ? '' : value, // Default to empty string if value is undefined
-    }));
-  };
+  // Set labels for dateRange and numberRange
+  useEffect(() => {
+    if ((parsedQuestionJSON?.type === 'dateRange' || parsedQuestionJSON?.type === 'numberRange')) {
+      try {
+
+        setDateRangeLabels({
+          start: parsedQuestionJSON?.columns?.start?.attributes?.label,
+          end: parsedQuestionJSON?.columns?.end?.attributes?.label,
+        });
+      } catch {
+        setDateRangeLabels({ start: '', end: '' });
+      }
+    }
+  }, [parsedQuestionJSON])
+
+  useEffect(() => {
+    if (question) {
+      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }), Global);
+      if (!parsed) {
+        if (error) {
+          setErrors(prev => [...prev, error])
+        }
+        return;
+      }
+      setParsedQuestionJSON(parsed);
+    }
+  }, [question])
 
   return (
     <>
@@ -295,7 +428,7 @@ const QuestionAdd = ({
                   errorMessage={QuestionAdd('messages.errors.questionTextRequired')}
                 />
 
-
+                {/**Options question types*/}
                 {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
                   <>
                     <p className={styles.optionsDescription}>
@@ -304,13 +437,31 @@ const QuestionAdd = ({
                     <div className={styles.optionsWrapper}>
                       <QuestionOptionsComponent
                         rows={rows}
-                        setRows={setRows}
-                        questionType={questionType}
+                        setRows={updateRows}
+                        questionJSON={questionJSON}
                         formSubmitted={formSubmitted}
                         setFormSubmitted={setFormSubmitted}
                       />
                     </div>
                   </>
+                )}
+
+                {/**Date and Number range question types */}
+                {questionType && RANGE_QUESTION_TYPE.includes(questionType) && (
+                  <RangeComponent
+                    startLabel={dateRangeLabels.start}
+                    endLabel={dateRangeLabels.end}
+                    handleRangeLabelChange={handleRangeLabelChange}
+                  />
+                )}
+
+                {questionType && (questionType === TYPEAHEAD_QUESTION_TYPE) && (
+                  <TypeAheadSearch
+                    typeaheadSearchLabel={typeaheadSearchLabel}
+                    typeaheadHelpText={typeaheadHelpText}
+                    handleTypeAheadSearchLabelChange={handleTypeAheadSearchLabelChange}
+                    handleTypeAheadHelpTextChange={handleTypeAheadHelpTextChange}
+                  />
                 )}
 
                 <FormTextArea
@@ -350,7 +501,7 @@ const QuestionAdd = ({
                 )}
 
 
-                {questionType && ["text", "textArea"].includes(questionType) && (
+                {questionType && TEXT_QUESTION_TYPE.includes(questionType) && (
                   <Checkbox
                     onChange={() => handleInputChange('useSampleTextAsDefault', !question?.useSampleTextAsDefault)}
                     isSelected={question?.useSampleTextAsDefault || false}
@@ -390,6 +541,7 @@ const QuestionAdd = ({
               isPreview={true}
               question={question}
               templateId={Number(templateId)}
+              path={routePath('template.q.new', { templateId: templateId })}
             />
           </QuestionPreview>
 

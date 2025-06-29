@@ -21,12 +21,15 @@ import {
   TabList,
   TabPanel,
   Tabs,
+  Modal,
+  ModalOverlay,
 } from "react-aria-components";
 // GraphQL queries and mutations
 import {
   SectionErrors,
   useTagsQuery,
   useUpdateSectionMutation,
+  useRemoveSectionMutation,
 } from '@/generated/graphql';
 
 //Components
@@ -47,6 +50,7 @@ import { useToast } from '@/context/ToastContext';
 import { scrollToTop } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
+import styles from './sectionUpdate.module.scss';
 
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
@@ -99,6 +103,13 @@ const SectionUpdatePage: React.FC = () => {
 
   // Initialize user addSection mutation
   const [updateSectionMutation] = useUpdateSectionMutation();
+
+  // Initialize remove section mutation
+  const [removeSectionMutation] = useRemoveSectionMutation();
+
+  // State for delete confirmation modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Query for all tags
   const { data: tagsData } = useTagsQuery();
@@ -205,6 +216,31 @@ const SectionUpdatePage: React.FC = () => {
         setErrorMessages(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorUpdatingSection')]);
         return [{}, false];
       }
+    }
+  };
+
+  // Handle section deletion
+  const handleDeleteSection = async () => {
+    setIsDeleting(true);
+    try {
+      await removeSectionMutation({
+        variables: {
+          sectionId: Number(sectionId)
+        }
+      });
+
+      // Show success message and redirect to template page
+      toastState.add(SectionUpdatePage('messages.successDeletingSection'), { type: 'success' });
+      router.push(TEMPLATE_URL);
+    } catch (error) {
+      logECS('error', 'deleteSection', {
+        error,
+        url: { path: UPDATE_SECTION_URL }
+      });
+      setErrorMessages([SectionUpdatePage('messages.errorDeletingSection')]);
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -413,6 +449,48 @@ const SectionUpdatePage: React.FC = () => {
                   <h2>{Section('tabs.logic')}</h2>
                 </TabPanel>
               </Tabs>
+
+              {/* Delete Section Button and Modal */}
+              <div className={styles.deleteSectionContainer}>
+                <h3 className={styles.dangerZoneTitle}>{SectionUpdatePage('deleteSection.heading')}</h3>
+                <p className={styles.dangerZoneDescription}>
+                  {SectionUpdatePage('deleteSection.description')}
+                </p>
+                <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+                  <Button 
+                    className={`react-aria-Button danger`}
+                    isDisabled={isDeleting}
+                  >
+                    {isDeleting ? 'Deleting...' : SectionUpdatePage('buttons.deleteSection')}
+                  </Button>
+                  <ModalOverlay>
+                    <Modal>
+                      <Dialog>
+                        {({ close }) => (
+                          <>
+                            <h3>{SectionUpdatePage('deleteModal.title')}</h3>
+                            <p>{SectionUpdatePage('deleteModal.content')}</p>
+                            <div className={styles.deleteConfirmButtons}>
+                              <Button className='react-aria-Button' autoFocus onPress={close}>
+                                {SectionUpdatePage('deleteModal.cancelButton')}
+                              </Button>
+                              <Button 
+                                className={`danger`} 
+                                onPress={() => {
+                                  handleDeleteSection();
+                                  close();
+                                }}
+                              >
+                                {SectionUpdatePage('deleteModal.deleteButton')}
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </Dialog>
+                    </Modal>
+                  </ModalOverlay>
+                </DialogTrigger>
+              </div>
             </div>
           </div>
         </ContentContainer>
