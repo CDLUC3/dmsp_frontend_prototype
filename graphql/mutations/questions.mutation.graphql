@@ -35,3 +35,9 @@ mutation UpdateQuestion($input: UpdateQuestionInput!) {
     questionText
   }
 }
+
+mutation RemoveQuestion($questionId: Int!) {
+  removeQuestion(questionId: $questionId) {
+    id
+  }
+}
