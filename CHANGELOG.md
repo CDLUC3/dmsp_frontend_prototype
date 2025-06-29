@@ -1,3 +1,6 @@
+### Added
+- Added delete section functionality to template builder with confirmation modal, including translations, and tests
+
 ### Updated
 - Implement GraphQL integration for plan section questions page [#366]
 - Add `PlanSectionQuestions` query to fetch questions by section ID

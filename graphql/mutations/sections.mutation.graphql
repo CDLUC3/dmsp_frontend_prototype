@@ -51,3 +51,10 @@ mutation UpdateSection($input: UpdateSectionInput!) {
     }
   }
 }
+
+mutation RemoveSection($sectionId: Int!) {
+  removeSection(sectionId: $sectionId) {
+    id
+    name
+  }
+}

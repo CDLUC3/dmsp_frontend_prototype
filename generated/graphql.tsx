@@ -3864,6 +3864,13 @@ export type UpdateSectionMutationVariables = Exact<{
 
 export type UpdateSectionMutation = { __typename?: 'Mutation', updateSection: { __typename?: 'Section', id?: number | null, name: string, introduction?: string | null, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, introduction?: string | null, requirements?: string | null, guidance?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null } };
 
+export type RemoveSectionMutationVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+}>;
+
+
+export type RemoveSectionMutation = { __typename?: 'Mutation', removeSection: { __typename?: 'Section', id?: number | null, name: string } };
+
 export type AddTemplateCollaboratorMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
   email: Scalars['String']['input'];
@@ -4870,6 +4877,40 @@ export function useUpdateSectionMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateSectionMutationHookResult = ReturnType<typeof useUpdateSectionMutation>;
 export type UpdateSectionMutationResult = Apollo.MutationResult<UpdateSectionMutation>;
 export type UpdateSectionMutationOptions = Apollo.BaseMutationOptions<UpdateSectionMutation, UpdateSectionMutationVariables>;
+export const RemoveSectionDocument = gql`
+    mutation RemoveSection($sectionId: Int!) {
+  removeSection(sectionId: $sectionId) {
+    id
+    name
+  }
+}
+    `;
+export type RemoveSectionMutationFn = Apollo.MutationFunction<RemoveSectionMutation, RemoveSectionMutationVariables>;
+
+/**
+ * __useRemoveSectionMutation__
+ *
+ * To run a mutation, you first call `useRemoveSectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveSectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeSectionMutation, { data, loading, error }] = useRemoveSectionMutation({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *   },
+ * });
+ */
+export function useRemoveSectionMutation(baseOptions?: Apollo.MutationHookOptions<RemoveSectionMutation, RemoveSectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveSectionMutation, RemoveSectionMutationVariables>(RemoveSectionDocument, options);
+      }
+export type RemoveSectionMutationHookResult = ReturnType<typeof useRemoveSectionMutation>;
+export type RemoveSectionMutationResult = Apollo.MutationResult<RemoveSectionMutation>;
+export type RemoveSectionMutationOptions = Apollo.BaseMutationOptions<RemoveSectionMutation, RemoveSectionMutationVariables>;
 export const AddTemplateCollaboratorDocument = gql`
     mutation AddTemplateCollaborator($templateId: Int!, $email: String!) {
   addTemplateCollaborator(templateId: $templateId, email: $email) {
