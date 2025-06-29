@@ -4,7 +4,8 @@ import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useSectionQuery,
   useTagsQuery,
-  useUpdateSectionMutation
+  useUpdateSectionMutation,
+  useRemoveSectionMutation
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -19,6 +20,7 @@ expect.extend(toHaveNoViolations);
 jest.mock("@/generated/graphql", () => ({
   useTagsQuery: jest.fn(),
   useUpdateSectionMutation: jest.fn(),
+  useRemoveSectionMutation: jest.fn(),
   UpdateSectionDocument: jest.fn(),
   useSectionQuery: jest.fn()
 }));
@@ -181,6 +183,11 @@ describe("SectionUpdatePage", () => {
 
     (useSectionQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockSectionsData),
+      { loading: false, error: undefined },
+    ]);
+
+    (useRemoveSectionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { removeSection: { id: 123, name: 'Test Section' } } }),
       { loading: false, error: undefined },
     ]);
 
@@ -375,13 +382,196 @@ describe("SectionUpdatePage", () => {
       { loading: false, error: undefined },
     ]);
 
-
     const { container } = render(
       <SectionUpdatePage />
     );
+
+    // Click on the options tab to ensure h2 headings are rendered
+    const optionsTab = screen.getByRole('tab', { name: 'tabs.options' });
+    fireEvent.click(optionsTab);
+
     await act(async () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();
+    });
+  });
+
+  describe('Delete Section Functionality', () => {
+    it('should render delete section button in danger zone', async () => {
+      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+        { loading: false, error: undefined },
+      ]);
+
+      await act(async () => {
+        render(<SectionUpdatePage />);
+      });
+
+      const dangerZoneTitle = screen.getByText('deleteSection.heading');
+      expect(dangerZoneTitle).toBeInTheDocument();
+
+      const deleteButton = screen.getByRole('button', { name: /buttons.deleteSection/i });
+      expect(deleteButton).toBeInTheDocument();
+      expect(deleteButton).toHaveTextContent('buttons.deleteSection');
+    });
+
+    it('should open delete confirmation dialog when delete button is clicked', async () => {
+      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+        { loading: false, error: undefined },
+      ]);
+
+      await act(async () => {
+        render(<SectionUpdatePage />);
+      });
+
+      const deleteButton = screen.getByRole('button', { name: /buttons.deleteSection/i });
+      fireEvent.click(deleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('deleteModal.title')).toBeInTheDocument();
+        expect(screen.getByText('deleteModal.content')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /deleteModal.cancelButton/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /deleteModal.deleteButton/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should close dialog when cancel button is clicked', async () => {
+      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+        { loading: false, error: undefined },
+      ]);
+
+      await act(async () => {
+        render(<SectionUpdatePage />);
+      });
+
+      const deleteButton = screen.getByRole('button', { name: /buttons.deleteSection/i });
+      fireEvent.click(deleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('deleteModal.title')).toBeInTheDocument();
+      });
+
+      const cancelButton = screen.getByRole('button', { name: /deleteModal.cancelButton/i });
+      fireEvent.click(cancelButton);
+
+      await waitFor(() => {
+        expect(screen.queryByText('deleteModal.title')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should successfully delete section when confirm button is clicked', async () => {
+      const mockRemoveSection = jest.fn().mockResolvedValueOnce({ 
+        data: { removeSection: { id: 123, name: 'Test Section' } } 
+      });
+
+      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+        { loading: false, error: undefined },
+      ]);
+
+      (useRemoveSectionMutation as jest.Mock).mockReturnValue([
+        mockRemoveSection,
+        { loading: false, error: undefined },
+      ]);
+
+      await act(async () => {
+        render(<SectionUpdatePage />);
+      });
+
+      const deleteButton = screen.getByRole('button', { name: /buttons.deleteSection/i });
+      fireEvent.click(deleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('deleteModal.title')).toBeInTheDocument();
+      });
+
+      const confirmDeleteButton = screen.getByRole('button', { name: /deleteModal.deleteButton/i });
+      fireEvent.click(confirmDeleteButton);
+
+      await waitFor(() => {
+        expect(mockRemoveSection).toHaveBeenCalledWith({
+          variables: { sectionId: 123 }
+        });
+        expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/template/123');
+      });
+    });
+
+    it('should show error message when delete section fails', async () => {
+      const mockRemoveSection = jest.fn().mockRejectedValueOnce(new Error('Delete failed'));
+
+      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+        { loading: false, error: undefined },
+      ]);
+
+      (useRemoveSectionMutation as jest.Mock).mockReturnValue([
+        mockRemoveSection,
+        { loading: false, error: undefined },
+      ]);
+
+      await act(async () => {
+        render(<SectionUpdatePage />);
+      });
+
+      const deleteButton = screen.getByRole('button', { name: /buttons.deleteSection/i });
+      fireEvent.click(deleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('deleteModal.title')).toBeInTheDocument();
+      });
+
+      const confirmDeleteButton = screen.getByRole('button', { name: /deleteModal.deleteButton/i });
+      fireEvent.click(confirmDeleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('messages.errorDeletingSection')).toBeInTheDocument();
+        expect(logECS).toHaveBeenCalledWith(
+          'error',
+          'deleteSection',
+          expect.objectContaining({
+            error: expect.anything(),
+            url: { path: '/en-US/template/123/section/123' },
+          })
+        );
+      });
+    });
+
+    it('should disable delete button while deletion is in progress', async () => {
+      const mockRemoveSection = jest.fn().mockImplementation(() => 
+        new Promise(resolve => setTimeout(() => resolve({ data: { removeSection: { id: 123 } } }), 100))
+      );
+
+      (useUpdateSectionMutation as jest.Mock).mockReturnValue([
+        jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+        { loading: false, error: undefined },
+      ]);
+
+      (useRemoveSectionMutation as jest.Mock).mockReturnValue([
+        mockRemoveSection,
+        { loading: false, error: undefined },
+      ]);
+
+      await act(async () => {
+        render(<SectionUpdatePage />);
+      });
+
+      const deleteButton = screen.getByRole('button', { name: /buttons.deleteSection/i });
+      fireEvent.click(deleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('deleteModal.title')).toBeInTheDocument();
+      });
+
+      const confirmDeleteButton = screen.getByRole('button', { name: /deleteModal.deleteButton/i });
+      fireEvent.click(confirmDeleteButton);
+
+      // Button should be disabled and show "Deleting..." text
+      await waitFor(() => {
+        expect(deleteButton).toBeDisabled();
+        expect(deleteButton).toHaveTextContent('Deleting...');
+      });
     });
   });
 });
