@@ -70,9 +70,9 @@ describe('QuestionEditCard', () => {
       render(<QuestionEditCard {...props} />);
 
       const buttonMoveDown = screen.getByRole('button', { name: /move down/i });
-      expect(buttonMoveDown).toHaveAttribute('aria-label', 'Move down ');
+      expect(buttonMoveDown).toHaveAttribute('aria-label', 'Move down Sample question text');
       const buttonMoveUp = screen.getByRole('button', { name: /move up/i });
-      expect(buttonMoveUp).toHaveAttribute('aria-label', 'Move up ');
+      expect(buttonMoveUp).toHaveAttribute('aria-label', 'Move up Sample question text');
     });
   });
 
@@ -81,7 +81,7 @@ describe('QuestionEditCard', () => {
 
       render(<QuestionEditCard {...defaultProps} />);
 
-      const moveUpButton = screen.getByLabelText('Move up Sample Question');
+      const moveUpButton = screen.getByLabelText('Move up Sample question text');
 
       fireEvent.click(moveUpButton);
 
@@ -95,7 +95,7 @@ describe('QuestionEditCard', () => {
 
       render(<QuestionEditCard {...defaultProps} />);
 
-      const moveDownButton = screen.getByLabelText('Move down Sample Question');
+      const moveDownButton = screen.getByLabelText('Move down Sample question text');
 
       fireEvent.click(moveDownButton);
 
