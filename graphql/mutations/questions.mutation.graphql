@@ -36,6 +36,12 @@ mutation UpdateQuestion($input: UpdateQuestionInput!) {
   }
 }
 
+mutation RemoveQuestion($questionId: Int!) {
+  removeQuestion(questionId: $questionId) {
+    id
+  }
+}
+
 mutation UpdateQuestionDisplayOrder($questionId: Int!, $newDisplayOrder: Int!) {
   updateQuestionDisplayOrder(questionId: $questionId, newDisplayOrder: $newDisplayOrder) {
     questions {

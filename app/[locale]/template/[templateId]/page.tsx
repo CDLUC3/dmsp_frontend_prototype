@@ -129,10 +129,14 @@ const TemplateEditPage: React.FC = () => {
       if (
         responseErrors &&
         typeof responseErrors.general === 'string') {
-        setErrorMessages(prev => [
-          ...prev,
-          ...(responseErrors.general ? [responseErrors.general] : [])
-        ]);
+        if (responseErrors.general) {
+          const message = responseErrors.general;
+          setErrorMessages(prev => [
+            ...prev,
+            message
+          ]);
+        }
+
       } else {
         showSuccessArchiveToast();
         router.push(routePath('template.show', { templateId }));
@@ -257,16 +261,10 @@ const TemplateEditPage: React.FC = () => {
     });
 
     if (!result.success) {
-      const errors = result.errors;
-
-      //Check if errors is an array or an object
-      if (Array.isArray(errors)) {
-        setErrorMessages(errors.length > 0 ? errors : [EditTemplate('errors.updateTitleError')])
-      }
+      setErrorMessages([EditTemplate('errors.updateTitleError')])
     } else {
       if (
         result.data?.errors &&
-        typeof result.data.errors === 'object' &&
         typeof result.data.errors.general === 'string') {
         // Handle errors as an object with general or field-level errors
         setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateTitleError')]);

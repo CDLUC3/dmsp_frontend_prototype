@@ -3850,6 +3850,13 @@ export type UpdateQuestionMutationVariables = Exact<{
 
 export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, isDirty?: boolean | null, required?: boolean | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, questionText?: string | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null } | null } };
 
+export type RemoveQuestionMutationVariables = Exact<{
+  questionId: Scalars['Int']['input'];
+}>;
+
+
+export type RemoveQuestionMutation = { __typename?: 'Mutation', removeQuestion?: { __typename?: 'Question', id?: number | null } | null };
+
 export type UpdateQuestionDisplayOrderMutationVariables = Exact<{
   questionId: Scalars['Int']['input'];
   newDisplayOrder: Scalars['Int']['input'];
@@ -3871,6 +3878,13 @@ export type UpdateSectionMutationVariables = Exact<{
 
 
 export type UpdateSectionMutation = { __typename?: 'Mutation', updateSection: { __typename?: 'Section', id?: number | null, name: string, introduction?: string | null, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, introduction?: string | null, requirements?: string | null, guidance?: string | null } | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null } };
+
+export type RemoveSectionMutationVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+}>;
+
+
+export type RemoveSectionMutation = { __typename?: 'Mutation', removeSection: { __typename?: 'Section', id?: number | null, name: string } };
 
 export type UpdateSectionDisplayOrderMutationVariables = Exact<{
   sectionId: Scalars['Int']['input'];
@@ -4771,6 +4785,39 @@ export function useUpdateQuestionMutation(baseOptions?: Apollo.MutationHookOptio
 export type UpdateQuestionMutationHookResult = ReturnType<typeof useUpdateQuestionMutation>;
 export type UpdateQuestionMutationResult = Apollo.MutationResult<UpdateQuestionMutation>;
 export type UpdateQuestionMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionMutation, UpdateQuestionMutationVariables>;
+export const RemoveQuestionDocument = gql`
+    mutation RemoveQuestion($questionId: Int!) {
+  removeQuestion(questionId: $questionId) {
+    id
+  }
+}
+    `;
+export type RemoveQuestionMutationFn = Apollo.MutationFunction<RemoveQuestionMutation, RemoveQuestionMutationVariables>;
+
+/**
+ * __useRemoveQuestionMutation__
+ *
+ * To run a mutation, you first call `useRemoveQuestionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveQuestionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeQuestionMutation, { data, loading, error }] = useRemoveQuestionMutation({
+ *   variables: {
+ *      questionId: // value for 'questionId'
+ *   },
+ * });
+ */
+export function useRemoveQuestionMutation(baseOptions?: Apollo.MutationHookOptions<RemoveQuestionMutation, RemoveQuestionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveQuestionMutation, RemoveQuestionMutationVariables>(RemoveQuestionDocument, options);
+      }
+export type RemoveQuestionMutationHookResult = ReturnType<typeof useRemoveQuestionMutation>;
+export type RemoveQuestionMutationResult = Apollo.MutationResult<RemoveQuestionMutation>;
+export type RemoveQuestionMutationOptions = Apollo.BaseMutationOptions<RemoveQuestionMutation, RemoveQuestionMutationVariables>;
 export const UpdateQuestionDisplayOrderDocument = gql`
     mutation UpdateQuestionDisplayOrder($questionId: Int!, $newDisplayOrder: Int!) {
   updateQuestionDisplayOrder(
@@ -4928,6 +4975,40 @@ export function useUpdateSectionMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateSectionMutationHookResult = ReturnType<typeof useUpdateSectionMutation>;
 export type UpdateSectionMutationResult = Apollo.MutationResult<UpdateSectionMutation>;
 export type UpdateSectionMutationOptions = Apollo.BaseMutationOptions<UpdateSectionMutation, UpdateSectionMutationVariables>;
+export const RemoveSectionDocument = gql`
+    mutation RemoveSection($sectionId: Int!) {
+  removeSection(sectionId: $sectionId) {
+    id
+    name
+  }
+}
+    `;
+export type RemoveSectionMutationFn = Apollo.MutationFunction<RemoveSectionMutation, RemoveSectionMutationVariables>;
+
+/**
+ * __useRemoveSectionMutation__
+ *
+ * To run a mutation, you first call `useRemoveSectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveSectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeSectionMutation, { data, loading, error }] = useRemoveSectionMutation({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *   },
+ * });
+ */
+export function useRemoveSectionMutation(baseOptions?: Apollo.MutationHookOptions<RemoveSectionMutation, RemoveSectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveSectionMutation, RemoveSectionMutationVariables>(RemoveSectionDocument, options);
+      }
+export type RemoveSectionMutationHookResult = ReturnType<typeof useRemoveSectionMutation>;
+export type RemoveSectionMutationResult = Apollo.MutationResult<RemoveSectionMutation>;
+export type RemoveSectionMutationOptions = Apollo.BaseMutationOptions<RemoveSectionMutation, RemoveSectionMutationVariables>;
 export const UpdateSectionDisplayOrderDocument = gql`
     mutation UpdateSectionDisplayOrder($sectionId: Int!, $newDisplayOrder: Int!) {
   updateSectionDisplayOrder(

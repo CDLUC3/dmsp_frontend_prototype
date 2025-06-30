@@ -1,3 +1,7 @@
+// Mock useFormatter and useTranslations from next-intl
+jest.mock('next-intl', () => ({
+  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
+}));
 import React from "react";
 import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import {
@@ -480,6 +484,49 @@ describe("TemplateEditPage", () => {
     });
   })
 
+  it('should set errors when handleTitleChange is called and returns a general error', async () => {
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateData },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    (updateTemplateAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: 'There was an error changing title',
+          email: null,
+        },
+        id: 15,
+        name: 'Changed title',
+        visibility: 'ORGANIZATION',
+      },
+    });
+
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    const editButton = screen.getByRole('button', { name: /edit template name/i });
+
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
+
+    const input = screen.getByPlaceholderText(/enter new template title/i);
+    fireEvent.change(input, { target: { value: 'New template name' } });
+
+    const saveButton = screen.getByTestId('save-button');
+    await act(async () => {
+      fireEvent.click(saveButton);
+    })
+
+    expect(screen.getByText('There was an error changing title')).toBeInTheDocument();
+  });
+
   it('should display correct error when archving template fails', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({
       data: { template: mockTemplateData },
@@ -642,7 +689,7 @@ describe("TemplateEditPage", () => {
     (updateTemplateAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
-        error: {
+        errors: {
           general: null,
           email: null,
         },
@@ -1101,6 +1148,7 @@ describe("TemplateEditPage", () => {
     // Wait for the general error to appear in the page error area
     expect(screen.getByText('General publish error')).toBeInTheDocument();
   });
+
 
   it('should set no errors if createTemplateVersionMutation does not return errors.general', async () => {
     (useTemplateQuery as jest.Mock).mockReturnValue({

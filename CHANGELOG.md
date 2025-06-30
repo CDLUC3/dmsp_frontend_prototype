@@ -1,3 +1,7 @@
+### Added
+- Added delete section functionality to template builder with confirmation modal, including translations, and tests
+- Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
+
 ### Updated
 - Clean up connections page and buttons [#516]
 

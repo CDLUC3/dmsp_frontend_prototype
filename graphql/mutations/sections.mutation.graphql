@@ -52,6 +52,13 @@ mutation UpdateSection($input: UpdateSectionInput!) {
   }
 }
 
+mutation RemoveSection($sectionId: Int!) {
+  removeSection(sectionId: $sectionId) {
+    id
+    name
+  }
+}
+
 mutation UpdateSectionDisplayOrder($sectionId: Int!, $newDisplayOrder: Int!) {
   updateSectionDisplayOrder(sectionId: $sectionId, newDisplayOrder: $newDisplayOrder) {
     sections {
