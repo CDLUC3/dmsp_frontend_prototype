@@ -1,11 +1,12 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import {
   useArchiveTemplateMutation,
   useCreateTemplateVersionMutation,
   useTemplateQuery,
   useSectionQuery
 } from '@/generated/graphql';
+import { useToast } from '@/context/ToastContext';
 import { useParams, useRouter } from 'next/navigation';
 import logECS from '@/utils/clientLogger';
 import TemplateEditPage from '../page';
@@ -46,6 +47,10 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
   useRouter: jest.fn(),
 }))
+
+const mockToast = {
+  add: jest.fn(),
+};
 
 const mockUseRouter = useRouter as jest.Mock;
 
@@ -135,6 +140,20 @@ const mockTemplateData: {
         }
       ]
     },
+    {
+      id: 68,
+      displayOrder: 1,
+      name: "NFS",
+      questions: [
+        {
+          errors: null,
+          displayOrder: 1,
+          guidanceText: "Guidance text",
+          id: 67,
+          questionText: "National Science Foundation"
+        }
+      ]
+    },
   ]
 };
 
@@ -152,6 +171,9 @@ describe("TemplateEditPage", () => {
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
     });
+
+    (useToast as jest.Mock).mockReturnValue(mockToast);
+
     (useArchiveTemplateMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -209,14 +231,22 @@ describe("TemplateEditPage", () => {
     const versionText = screen.getByText(/version: v1/i);
     expect(versionText).toBeInTheDocument();
 
-    expect(screen.getByRole('heading', { level: 2, name: /data description/i })).toBeInTheDocument();
+    // Find all section cards
+    const sectionCards = screen.getAllByTestId('section-edit-card');
 
-    const questionText = screen.getByText(
-      (content) => content.includes('Process and Procedures'),
-      { selector: 'p' }
+    // Find the card that contains 'Data description'
+    const sectionCard1 = sectionCards.find(card =>
+      within(card).queryByText('Data Description')
     );
 
-    expect(questionText).toBeInTheDocument();
+    expect(sectionCard1).toBeInTheDocument();
+
+    const questionCards = screen.getAllByTestId('question-edit-card');
+
+    const questionCard1 = questionCards.find(card =>
+      within(card).queryByText('Process and Procedures')
+    )
+    expect(questionCard1).toBeInTheDocument();
   });
 
 
@@ -819,6 +849,116 @@ describe("TemplateEditPage", () => {
       });
     });
   });
+
+  it('should not call server action when display order would be less than 1', async () => {
+    const mockTemplateId = 123;
+    const mockUseParams = useParams as jest.Mock;
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+
+    const mockedSections = [
+      {
+        id: 67,
+        name: "Products of the research",
+        bestPractice: false,
+        displayOrder: 1,
+        isDirty: false,
+        questions: [
+          {
+            errors: {
+              general: null,
+            },
+            displayOrder: 1,
+            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  </ul>",
+            id: 104,
+            questionText: "<p>Describe the types of data and products that will be generated in the research, such as images of astronomical objects, spectra, data tables, time series, theoretical formalisms, computational strategies, software, and curriculum materials.</p>",
+            sectionId: 25,
+            templateId: 5
+          }
+        ]
+      },
+      {
+        id: 68,
+        name: "Data format",
+        bestPractice: false,
+        displayOrder: 1,
+        isDirty: false,
+        questions: [
+          {
+            errors: {
+              general: null,
+            },
+            displayOrder: 1,
+            guidanceText: "<ul>  <li><a href=\"http://www.nsf.gov/bfa/dias/policy/dmpdocs/ast.pdf\">NSF-AST Advice to PIs on DMPs</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf20001&amp;org=NSF\">NSF Proposal &amp; Award Policies &amp; Procedures Guide (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/pubs/policydocs/pappg20_1/pappg_2.jsp#IIC2j\">NSF plans for data management and sharing of the products of research (PAPPG)</a></li>  <li><a href=\"https://www.nsf.gov/publications/pub_summ.jsp?ods_key=nsf18041\">NSF Frequently Asked Questions (FAQs) for Public Access</a></li>  <li><a title=\"Ten Simple Rules for the Care and Feeding of Scientific Data&nbsp;\" href=\"https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003542\">Ten Simple Rules for the Care and Feeding of Scientific Data </a>&nbsp;(Suggestions on effective methods for sharing astronomical data)</li>  </ul>",
+            id: 105,
+            questionText: "<p>Describe the format in which the data or products are stored (e.g., ASCII, html, FITS, <span style=\"font-weight: 400;\">HD5, Virtual Observatory-compliant</span> tables, XML files, etc.). Include a description of <span style=\"font-weight: 400;\">any</span> metadata that will make the actual data products useful to the general researcher. Where data are stored in unusual or not generally accessible formats, explain how the data may be converted to a more accessible format or otherwise made available to interested parties. In general, solutions and remedies should be provided.</p>",
+            sectionId: 26,
+            templateId: 5
+          }
+        ]
+      },
+    ]
+
+    // Arrange: mock template with two sections
+    const mockTemplateWithSections = {
+      ...mockTemplateData,
+      sections: mockedSections,
+    };
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: { template: mockTemplateWithSections },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    (useSectionQuery as jest.Mock).mockReturnValueOnce({
+      data: {
+        section: mockedSections
+      },
+      loading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+
+    // Mock updateSectionDisplayOrderAction to resolve successfully
+    (updateSectionDisplayOrderAction as jest.Mock).mockResolvedValue({
+      success: true,
+      errors: [],
+      data: {},
+    });
+
+    await act(async () => {
+      render(<TemplateEditPage />);
+    });
+
+    // Find all section cards
+    const sectionCards = screen.getAllByTestId('section-edit-card');
+
+    // Find the card that contains 'Data Description'
+    const sectionCard1 = sectionCards.find(card =>
+      within(card).queryByText('Data Description')
+    );
+
+    expect(sectionCard1).toBeTruthy(); // Ensure it's found
+
+    // Get the move up button inside that card
+    const moveUpButton = within(sectionCard1!).getByRole('button', {
+      name: 'buttons.moveUp',
+    });
+
+    // Click the "Move Up" button
+    await act(async () => {
+      fireEvent.click(moveUpButton);
+    });
+
+    expect(updateSectionDisplayOrderAction).not.toHaveBeenCalled();
+
+    expect(mockToast.add).toHaveBeenCalledWith('errors.displayOrderAlreadyAtTop', { type: 'error' });
+
+  });
+
 
   it('should optimistically update section order when a section is moved (updateLocalSectionOrder)', async () => {
     const mockTemplateId = 123;

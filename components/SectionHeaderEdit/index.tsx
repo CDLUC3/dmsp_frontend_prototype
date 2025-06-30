@@ -57,7 +57,7 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
 
 
   return (
-    <div className={styles.sectionHeader}>
+    <div className={styles.sectionHeader} data-testid="section-edit-card">
       <h2 className={styles.sectionTitle}>
         <span className={styles.sectionNumber}>{Sections('labels.section')} {sectionNumber} </span>
         {title}

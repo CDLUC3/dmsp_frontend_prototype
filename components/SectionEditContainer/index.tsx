@@ -70,7 +70,6 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
 
     // If current question doesn't exist in localQuestions
     if (!currentQuestion || currentQuestion.displayOrder == null) {
-      console.log("Current question doesn't exist");
       const errorMsg = t('messages.errors.updateDisplayOrderError');
       return { isValid: false, message: errorMsg }
     }

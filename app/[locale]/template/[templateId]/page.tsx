@@ -389,7 +389,6 @@ const TemplateEditPage: React.FC = () => {
   };
 
   const handleSectionMove = async (sectionId: number, newDisplayOrder: number) => {
-
     if (isReordering) return; // Prevent concurrent operations
 
     // Remove all current errors
