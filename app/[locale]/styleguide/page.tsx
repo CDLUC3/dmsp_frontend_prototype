@@ -80,12 +80,41 @@ import { useToast } from '@/context/ToastContext';
 
 import QuestionPreview from '@/components/QuestionPreview';
 import FunderSearch from '@/components/FunderSearch';
+import FormInput from '@/components/Form/FormInput';
+import FormTextArea from '@/components/Form/FormTextArea';
+import { FormSelect, MyItem } from '@/components/Form/FormSelect';
+import RadioGroupComponent from '@/components/Form/RadioGroup';
+import CheckboxGroupComponent from '@/components/Form/CheckboxGroup';
 
 
 function Page() {
   const [otherField, setOtherField] = useState(false);
   const toastState = useToast(); // Access the toast state from context
   const router = useRouter();
+  
+  // Form state for styleguide examples
+  const [formData, setFormData] = useState({
+    givenName: '',
+    description: '',
+    notes: '',
+    researchDomain: '1',
+    secondaryDomain: '',
+    dataSharing: 'public',
+    notificationPreference: 'email',
+    dataTypes: ['tabular', 'images'],
+    optionalFeatures: [],
+    institution: '',
+    collaboratingInstitution: ''
+  });
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCheckboxChange = (field: string, value: string[]) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
   const richtextDefault = html`
@@ -1403,6 +1432,162 @@ function Page() {
               </TextField>
             </Example>
 
+            <h3>
+              Using FormInput
+            </h3>
+            <FormInput
+              name="givenName"
+              type="text"
+              label="First name"
+              description="Enter your first name(s), this is how we will address you"
+              placeholder="Your first name"
+              value={formData.givenName}
+              onChange={(e) => handleInputChange('givenName', e.target.value)}
+              isRequired={true}
+            />
+
+            <h3>
+              Using FormTextArea
+            </h3>
+            <FormTextArea
+              name="description"
+              label="Project Description"
+              description="Provide a detailed description of your research project"
+              placeholder="Enter your project description here..."
+              value={formData.description}
+              onChange={(value) => handleInputChange('description', value)}
+              isRequired={true}
+            />
+
+            <FormTextArea
+              name="notes"
+              label="Additional Notes"
+              description="Optional notes or comments about your project"
+              placeholder="Any additional information..."
+              value={formData.notes}
+              onChange={(value) => handleInputChange('notes', value)}
+              isRequired={false}
+            />
+
+            <h3>
+              Using FormSelect
+            </h3>
+            <FormSelect
+              label="Research Domain"
+              items={[
+                { id: '1', name: 'Computer Science' },
+                { id: '2', name: 'Biology' },
+                { id: '3', name: 'Chemistry' },
+                { id: '4', name: 'Physics' }
+              ]}
+              selectedKey={formData.researchDomain}
+              onSelectionChange={(key) => handleInputChange('researchDomain', key as string)}
+              isRequired={true}
+            >
+              {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
+            </FormSelect>
+
+            <FormSelect
+              label="Secondary Domain"
+              items={[
+                { id: '1', name: 'Computer Science' },
+                { id: '2', name: 'Biology' },
+                { id: '3', name: 'Chemistry' },
+                { id: '4', name: 'Physics' }
+              ]}
+              selectedKey={formData.secondaryDomain}
+              onSelectionChange={(key) => handleInputChange('secondaryDomain', key as string)}
+              isRequired={false}
+            >
+              {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
+            </FormSelect>
+
+            <h3>
+              Using RadioGroup
+            </h3>
+            <RadioGroupComponent
+              name="dataSharing"
+              radioGroupLabel="Data Sharing Preference"
+              radioButtonData={[
+                { value: 'public', label: 'Public', description: 'Data will be publicly available' },
+                { value: 'restricted', label: 'Restricted', description: 'Data access requires approval' },
+                { value: 'private', label: 'Private', description: 'Data will remain private' }
+              ]}
+              value={formData.dataSharing}
+              isRequired={true}
+              onChange={(value) => handleInputChange('dataSharing', value)}
+            />
+
+            <RadioGroupComponent
+              name="notificationPreference"
+              radioGroupLabel="Notification Preference"
+              radioButtonData={[
+                { value: 'email', label: 'Email notifications' },
+                { value: 'sms', label: 'SMS notifications' },
+                { value: 'none', label: 'No notifications' }
+              ]}
+              value={formData.notificationPreference}
+              isRequired={false}
+              onChange={(value) => handleInputChange('notificationPreference', value)}
+            />
+
+            <h3>
+              Using CheckboxGroup
+            </h3>
+            
+            <CheckboxGroupComponent
+              name="dataTypes"
+              checkboxGroupLabel="Data Types to be Collected"
+              checkboxData={[
+                { value: 'tabular', label: 'Tabular Data', description: 'Spreadsheets, databases' },
+                { value: 'images', label: 'Images', description: 'Photos, diagrams, charts' },
+                { value: 'documents', label: 'Documents', description: 'Reports, manuscripts' },
+                { value: 'code', label: 'Software Code', description: 'Scripts, applications' }
+              ]}
+              value={formData.dataTypes}
+              isRequired={true}
+              onChange={(value) => handleCheckboxChange('dataTypes', value)}
+            />
+
+            <CheckboxGroupComponent
+              name="optionalFeatures"
+              checkboxGroupLabel="Optional Features"
+              checkboxData={[
+                { value: 'analytics', label: 'Analytics Dashboard', description: 'Advanced reporting features' },
+                { value: 'export', label: 'Export Options', description: 'Multiple export formats' },
+                { value: 'api', label: 'API Access', description: 'Programmatic access to data' }
+              ]}
+              value={formData.optionalFeatures}
+              isRequired={false}
+              onChange={(value) => handleCheckboxChange('optionalFeatures', value)}
+            />
+
+            <h3>
+              Using TypeAheadWithOther
+            </h3>
+            <TypeAheadWithOther
+              label="Institution"
+              fieldName="institution"
+              graphqlQuery={AffiliationsDocument}
+              resultsKey="affiliations.items"
+              setOtherField={setOtherField}
+              required={true}
+              helpText="Search for your primary institution"
+              updateFormData={(id, value) => handleInputChange('institution', value)}
+              value={formData.institution}
+            />
+
+            <TypeAheadWithOther
+              label="Collaborating Institution"
+              fieldName="collaboratingInstitution"
+              graphqlQuery={AffiliationsDocument}
+              resultsKey="affiliations.items"
+              setOtherField={setOtherField}
+              required={false}
+              helpText="Search for any collaborating institutions (optional)"
+              updateFormData={(id, value) => handleInputChange('collaboratingInstitution', value)}
+              value={formData.collaboratingInstitution}
+            />
 
             <h3>
               Email
@@ -1679,12 +1864,12 @@ function Page() {
                 label="Institution"
                 fieldName="institution"
                 graphqlQuery={AffiliationsDocument}
-                resultsKey="affiliations"
+                resultsKey="affiliations.items"
                 setOtherField={setOtherField}
                 required={true}
                 helpText="Search for your institution"
-                updateFormData={() => console.log('updating form')}
-                value="UCOP"
+                updateFormData={(id, value) => handleInputChange('institution', value)}
+                value={formData.institution}
               />
               {otherField && (
                 <TextField type="text" name="institution">

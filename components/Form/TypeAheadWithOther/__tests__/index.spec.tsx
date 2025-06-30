@@ -2,6 +2,7 @@ import React from 'react';
 import "@testing-library/jest-dom";
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { gql } from '@apollo/client';
 
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
@@ -18,6 +19,42 @@ expect.extend(toHaveNoViolations);
 const mockQuery = jest.fn();
 const mockSetOtherField = jest.fn();
 const mockClient = { query: mockQuery };
+
+// Mock the Apollo client
+jest.mock('@/lib/graphql/client/apollo-client', () => ({
+  createApolloClient: jest.fn(() => ({
+    query: jest.fn(() => Promise.resolve({ data: { affiliations: { items: [] } } })),
+  })),
+}));
+
+// Mock the Spinner component
+jest.mock('@/components/Spinner', () => {
+  return function MockSpinner({ isActive }: { isActive: boolean }) {
+    return isActive ? <div data-testid="spinner">Loading...</div> : null;
+  };
+});
+
+const mockGraphQLQuery = gql`
+  query TestQuery($name: String) {
+    affiliations(name: $name) {
+      items {
+        id
+        displayName
+        uri
+      }
+    }
+  }
+`;
+
+const defaultProps = {
+  graphqlQuery: mockGraphQLQuery,
+  resultsKey: 'affiliations.items',
+  label: 'Test TypeAhead',
+  setOtherField: jest.fn(),
+  fieldName: 'test-field',
+  required: false,
+  updateFormData: jest.fn(),
+};
 
 describe('TypeAheadWithOther', () => {
 
@@ -443,4 +480,52 @@ describe('TypeAheadWithOther', () => {
       source: 'TypeAheadInput component'
     });
   })
+
+  it('should render the component correctly', () => {
+    render(<TypeAheadWithOther {...defaultProps} />);
+
+    expect(screen.getByText('Test TypeAhead')).toBeInTheDocument();
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
+  });
+
+  it('should display "(required)" text when field is required', () => {
+    render(
+      <TypeAheadWithOther
+        graphqlQuery={GET_AFFILIATIONS}
+        resultsKey="affiliations"
+        label="Institution"
+        helpText="Search for an institution"
+        setOtherField={mockSetOtherField}
+        fieldName="test"
+        required={true}
+        error=""
+        updateFormData={() => true}
+        value="text"
+      />
+    );
+
+    expect(screen.getByText('Institution')).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toBeInTheDocument();
+    expect(screen.getByText(/\(required\)/)).toHaveClass('is-required');
+  });
+
+  it('should not display "(required)" text when field is not required', () => {
+    render(
+      <TypeAheadWithOther
+        graphqlQuery={GET_AFFILIATIONS}
+        resultsKey="affiliations"
+        label="Institution"
+        helpText="Search for an institution"
+        setOtherField={mockSetOtherField}
+        fieldName="test"
+        required={false}
+        error=""
+        updateFormData={() => true}
+        value="text"
+      />
+    );
+
+    expect(screen.getByText('Institution')).toBeInTheDocument();
+    expect(screen.queryByText(/\(required\)/)).not.toBeInTheDocument();
+  });
 });

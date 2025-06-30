@@ -285,6 +285,7 @@ export interface RadioButtonProps {
   errorMessage?: string;
   // eslint-disable-next-line no-unused-vars
   onChange?: (value: string) => void;
+  isRequiredVisualOnly?: boolean;
 }
 
 interface CheckboxInterface {
@@ -303,6 +304,7 @@ export interface CheckboxGroupProps {
   // eslint-disable-next-line no-unused-vars
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
 }
 
 export interface ProjectMemberErrorInterface {

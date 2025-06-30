@@ -23,6 +23,7 @@ interface InputProps {
   inputClasses?: string;
   disabled?: boolean;
   isRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
@@ -47,6 +48,7 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
   inputClasses = '',
   disabled = false,
   isRequired = false,
+  isRequiredVisualOnly = false,
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
@@ -55,6 +57,14 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
   pattern,
   ...rest
 }) => {
+  // Check if aria-required is passed as a regular HTML attribute
+  const ariaRequiredFromProps = rest['aria-required'] === 'true' || rest['aria-required'] === true;
+
+  // Show "(required)" if isRequired OR aria-required attribute is present OR isRequiredVisualOnly is true
+  const shouldShowRequired = isRequired || ariaRequiredFromProps || isRequiredVisualOnly;
+
+  // Determine aria-required value for the Input
+  const inputAriaRequired = ariaRequiredFromProps || isRequiredVisualOnly;
 
   return (
     <>
@@ -66,7 +76,9 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
         isInvalid={isInvalid}
         data-testid="field-wrapper"
       >
-        <Label htmlFor={id} className={labelClasses}>{label}</Label>
+        <Label htmlFor={id} className={labelClasses}>
+          {label}{shouldShowRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+        </Label>
         <Text slot="description" className="help">
           {description}
         </Text>
@@ -81,6 +93,7 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
           disabled={disabled}
           aria-describedby={ariaDescribedBy}
           aria-label={ariaLabel}
+          {...(inputAriaRequired && { 'aria-required': true })}
           minLength={minLength}
           maxLength={maxLength}
           pattern={pattern}
