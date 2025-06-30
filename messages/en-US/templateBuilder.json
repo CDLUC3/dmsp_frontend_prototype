@@ -51,7 +51,10 @@
       "getTemplatesError": "Error getting templates",
       "updateTemplateError": "Error updating template",
       "updateTitleError": "Error updating template title",
-      "updateDisplayOrderError": "Error updating display order"
+      "updateDisplayOrderError": "Error updating display order",
+      "cannotMoveFurtherDown": "Cannot move section further down",
+      "displayOrderAlreadyAtTop": "Section is already at top of order",
+      "cannotMoveFurtherUpOrDown": "Cannot move section further up or down"
     },
     "messages": {
       "successfullyArchived": "Successfully archived the template",
@@ -119,7 +122,11 @@
     "messages": {
       "errors": {
         "failedToLoadSection": "Failed to load section",
-        "updateQuestionOrder": "Failed to reorder question"
+        "updateQuestionOrder": "Failed to reorder question",
+        "updateDisplayOrderError": "Error updating display order",
+        "cannotMoveFurtherDown": "Cannot move question further down",
+        "displayOrderAlreadyAtTop": "Question is already at top of order",
+        "cannotMoveFurtherUpOrDown": "Cannot move question further up or down"
       },
       "questionMoved": "Question moved to position {displayOrder}",
       "sectionMoved": "Section moved to position {displayOrder}"

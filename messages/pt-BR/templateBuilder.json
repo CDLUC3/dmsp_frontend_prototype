@@ -51,7 +51,10 @@
       "getTemplatesError": "Erro ao obter modelos",
       "updateTemplateError": "Erro ao obter modelos",
       "updateTitleError": "Erro ao obter modelos",
-      "updateDisplayOrderError": "Erro ao atualizar ordem de exibição"
+      "updateDisplayOrderError": "Erro ao atualizar ordem de exibição",
+      "cannotMoveFurtherDown": "Não é possível mover a seção mais para baixo",
+      "displayOrderAlreadyAtTop": "A seção já está no topo da ordem",
+      "cannotMoveFurtherUpOrDown": "Não é possível mover a seção mais para baixo"
     },
     "messages": {
       "successfullyArchived": "Modelo arquivado com sucesso",
@@ -118,10 +121,14 @@
     },
     "messages": {
       "errors": {
-        "failedToLoadSection": "Falha ao carregar a seção",
-        "updateQuestionOrder": "Falha ao carregar a pergunta"
+        "failedToLoadSection": "Não foi possível carregar a seção",
+        "updateQuestionOrder": "Falha ao reordenar pergunta",
+        "updateDisplayOrderError": "Erro ao atualizar ordem de exibição",
+        "cannotMoveFurtherDown": "Não é possível mover a seção mais para baixo",
+        "displayOrderAlreadyAtTop": "A seção já está no topo da ordem",
+        "cannotMoveFurtherUpOrDown": "Não é possível mover a seção mais para baixo"
       },
-      "questionMoved": "Pergunta movida para a posição {displayOrder}",
+      "questionMoved": "Seção movida para a posição {displayOrder}",
       "sectionMoved": "Seção movida para a posição {displayOrder}"
     }
   },
@@ -257,7 +264,8 @@
     "messages": {
       "errors": {
         "questionTextRequired": "Conjunto de perguntas (obrigatório.",
-        "questionUpdateError": "Erro ao criar a seção"
+        "questionUpdateError": "Erro ao criar a seção",
+        "invalidQuestionType": "Tipo de questão inválido encontrado"
       },
       "success": {
         "questionUpdated": "A pergunta foi atualizada com sucesso"
@@ -330,7 +338,8 @@
       "errors": {
         "questionTextRequired": "Campo texto da pergunta é obrigatório.",
         "questionAddingError": "Erro ao adicionar pergunta.",
-        "questionValidationError": "Valor inválido"
+        "questionValidationError": "Valor inválido",
+        "invalidQuestionType": "Tipo de questão inválido encontrado"
       },
       "success": {
         "questionAdded": "A pergunta foi adicionada com sucesso."

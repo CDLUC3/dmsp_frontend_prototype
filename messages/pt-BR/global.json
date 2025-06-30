@@ -220,7 +220,12 @@
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
       "fixBelow": "Por favor, corrija os erros abaixo",
-      "error": "Ocorreu um erro. Tente novamente."
+      "error": "Ocorreu um erro. Tente novamente.",
+      "errors": {
+        "invalidQuestionType": "Tipo de questão inválido encontrado.",
+        "questionUnexpectedFormat": "Formato inesperado para question.json.",
+        "questionJSONFParseFailed": "JSON.parse falhou."
+      }
     },
     "tabs": {
       "editQuestion": "Editar pergunta",

@@ -7,6 +7,7 @@ import {
   Section,
   Question,
 } from '@/generated/graphql';
+import { useToast } from '@/context/ToastContext';
 import SectionHeaderEdit from '@/components/SectionHeaderEdit';
 import QuestionEditCard from '@/components/QuestionEditCard';
 import AddQuestionButton from '@/components/AddQuestionButton';
@@ -30,6 +31,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   onMoveDown
 }) => {
   const router = useRouter();
+  const toastState = useToast();
   const t = useTranslations('Sections');
   const Global = useTranslations('Global');
 
@@ -63,22 +65,36 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
     return [...questions].sort((a, b) => (a.displayOrder!) - (b.displayOrder!));
   };
 
-  const validateQuestionMove = (questionId: number, newDisplayOrder: number): boolean => {
+  const validateQuestionMove = (questionId: number, newDisplayOrder: number): { isValid: boolean, message?: string } => {
     const currentQuestion = localQuestions.find(q => q.id === questionId);
+
+    // If current question doesn't exist in localQuestions
     if (!currentQuestion || currentQuestion.displayOrder == null) {
-      return false; // Invalid operation
+      console.log("Current question doesn't exist");
+      const errorMsg = t('messages.errors.updateDisplayOrderError');
+      return { isValid: false, message: errorMsg }
     }
 
+    // If new display order is zero
     const maxDisplayOrder = Math.max(...localQuestions.map(s => s.displayOrder!));
-    if (newDisplayOrder < 1 || newDisplayOrder > maxDisplayOrder) {
-      return false; // Invalid target position
+    if (newDisplayOrder < 1) {
+      const errorMsg = t('messages.errors.displayOrderAlreadyAtTop');
+      return { isValid: false, message: errorMsg }
     }
 
+    // If new display order exceeds max number of questions
+    if (newDisplayOrder > maxDisplayOrder) {
+      const errorMsg = t('messages.errors.cannotMoveFurtherDown');
+      return { isValid: false, message: errorMsg }
+    }
+
+    // If new display order is same as current one
     if (currentQuestion.displayOrder === newDisplayOrder) {
-      return false; // No change needed
+      const errorMsg = t('messages.errors.cannotMoveFurtherUpOrDown');
+      return { isValid: false, message: errorMsg }
     }
 
-    return true;
+    return { isValid: true };
   };
 
   // Optimistic update function
@@ -134,10 +150,15 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
   }
 
   const handleDisplayOrderChange = async (questionId: number, newDisplayOrder: number) => {
+    // Remove all current errors
+    setErrorMessages([]);
+
     if (isReordering) return; // Prevent concurrent operations
 
-    if (!validateQuestionMove(questionId, newDisplayOrder)) {
-      setErrorMessages(prev => [...prev, t('messages.errors.updateQuestionOrder')]);
+    const { isValid, message } = validateQuestionMove(questionId, newDisplayOrder);
+    if (!isValid && message) {
+      // Deliver toast error messages
+      toastState.add(message, { type: 'error' });
       return;
     }
 

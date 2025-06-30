@@ -357,29 +357,48 @@ const TemplateEditPage: React.FC = () => {
     });
   };
 
-  const validateSectionMove = (sectionId: number, newDisplayOrder: number): boolean => {
+  const validateSectionMove = (sectionId: number, newDisplayOrder: number): { isValid: boolean, message?: string } => {
     const currentSection = localSections.find(s => s.id === sectionId);
+
+    // If current section doesn't exist in localSections
     if (!currentSection || currentSection.displayOrder == null) {
-      return false; // Invalid operation
+      const errorMsg = EditTemplate('errors.updateDisplayOrderError');
+      return { isValid: false, message: errorMsg }
     }
 
+    // If new display order is zero
     const maxDisplayOrder = Math.max(...localSections.map(s => s.displayOrder || 0));
-    if (newDisplayOrder < 1 || newDisplayOrder > maxDisplayOrder) {
-      return false; // Invalid target position
+    if (newDisplayOrder < 1) {
+      const errorMsg = EditTemplate('errors.displayOrderAlreadyAtTop');
+      return { isValid: false, message: errorMsg }
     }
 
+    // If new display order exceeds max number of sections
+    if (newDisplayOrder > maxDisplayOrder) {
+      const errorMsg = EditTemplate('errors.cannotMoveFurtherDown');
+      return { isValid: false, message: errorMsg }
+    }
+
+    // If new display order is same as current display order
     if (currentSection.displayOrder === newDisplayOrder) {
-      return false; // No change needed
+      const errorMsg = EditTemplate('errors.cannotMoveFurtherUpOrDown');
+      return { isValid: false, message: errorMsg }
     }
 
-    return true;
+    return { isValid: true };
   };
 
   const handleSectionMove = async (sectionId: number, newDisplayOrder: number) => {
+
     if (isReordering) return; // Prevent concurrent operations
 
-    if (!validateSectionMove(sectionId, newDisplayOrder)) {
-      setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);
+    // Remove all current errors
+    setErrorMessages([]);
+
+    const { isValid, message } = validateSectionMove(sectionId, newDisplayOrder);
+    if (!isValid && message) {
+      // Deliver toast error messages
+      toastState.add(message, { type: 'error' });
       return;
     }
 

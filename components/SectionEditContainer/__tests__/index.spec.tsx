@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, within, waitFor } from '@testing-librar
 import { useParams, useRouter } from 'next/navigation';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
+import { useToast } from '@/context/ToastContext';
 import SectionEditContainer from '../index';
 import { useSectionQuery } from '@/generated/graphql';
 import { updateQuestionDisplayOrderAction } from '../actions';
@@ -32,6 +33,11 @@ jest.mock('@/generated/graphql', () => ({
   ...jest.requireActual('@/generated/graphql'),
   useSectionQuery: jest.fn(),
 }));
+
+const mockToast = {
+  add: jest.fn(),
+};
+
 
 const mockSetErrorMessages = jest.fn();
 const mockUseRouter = useRouter as jest.Mock;
@@ -311,6 +317,8 @@ describe('SectionEditContainer', () => {
 describe('Move Up Button for questions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (useToast as jest.Mock).mockReturnValue(mockToast);
+
   })
   it('should call updateQuestionDisplayOrderAction with decreased display order when move up button is clicked', async () => {
     // Mock successful server action response
@@ -423,10 +431,8 @@ describe('Move Up Button for questions', () => {
 
     expect(updateQuestionDisplayOrderAction).not.toHaveBeenCalled();
 
-    // Should set error message
-    expect(mockSetErrorMessages).toHaveBeenCalledWith(
-      expect.any(Function)
-    );
+    expect(mockToast.add).toHaveBeenCalledWith('messages.errors.displayOrderAlreadyAtTop', { type: 'error' });
+
   });
 });
 
