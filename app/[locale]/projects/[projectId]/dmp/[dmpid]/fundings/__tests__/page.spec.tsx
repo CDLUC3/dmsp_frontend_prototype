@@ -299,8 +299,9 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    expect(screen.getByText('Add a new funding source')).toBeInTheDocument();
-    expect(screen.getByText('Add a new funding source').closest('a')).toHaveAttribute('href', '/projects/proj_2425/fundings/');
+    const addFundingLink = screen.getByText("Add a new funding source");
+    expect(addFundingLink).toBeInTheDocument();
+    expect(addFundingLink).toHaveAttribute('href', '/en-US/projects/123/fundings/search');
   });
 
   it('should pass accessibility tests', async () => {

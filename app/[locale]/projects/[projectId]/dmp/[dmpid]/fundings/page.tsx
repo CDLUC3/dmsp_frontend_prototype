@@ -114,7 +114,6 @@ const ProjectsProjectPlanAdjustFunding = () => {
     });
   }
 
-
   return (
     <>
       <PageHeader
@@ -180,10 +179,9 @@ const ProjectsProjectPlanAdjustFunding = () => {
             plan can only have a single source of funding as we match it to the required
             template.
           </p>
-          <a href={"/projects/proj_2425/fundings/"} >
+          <Link href={routePath('projects.fundings.search', {projectId})}>
             Add a new funding source
-          </a>
-
+          </Link>
         </ContentContainer>
       </LayoutContainer>
     </>
