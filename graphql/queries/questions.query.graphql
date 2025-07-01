@@ -30,3 +30,17 @@ query Question($questionId: Int!) {
     isDirty
   }
 }
+
+query PlanSectionQuestions($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    id
+    questionText
+    displayOrder
+    guidanceText
+    requirementText
+    sampleText
+    sectionId
+    templateId
+    isDirty
+  }
+}

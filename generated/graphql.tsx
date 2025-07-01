@@ -1592,7 +1592,7 @@ export type PlanFunding = {
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The project that is seeking (or has aquired) funding */
-  project?: Maybe<Project>;
+  plan?: Maybe<Plan>;
   /** The project funder */
   projectFunding?: Maybe<ProjectFunding>;
 };
@@ -1603,7 +1603,7 @@ export type PlanFundingErrors = {
   ProjectFundingId?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
-  projectId?: Maybe<Scalars['String']['output']>;
+  planId?: Maybe<Scalars['String']['output']>;
 };
 
 /** A Member associated with a plan */
@@ -3995,7 +3995,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, project?: { __typename?: 'Project', title: string } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4055,6 +4055,13 @@ export type QuestionQueryVariables = Exact<{
 
 
 export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, isDirty?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, sectionId?: string | null, sourceQestionId?: string | null, templateId?: string | null } | null } | null };
+
+export type PlanSectionQuestionsQueryVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+}>;
+
+
+export type PlanSectionQuestionsQuery = { __typename?: 'Query', questions?: Array<{ __typename?: 'Question', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, sectionId: number, templateId: number, isDirty?: boolean | null } | null> | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -5592,9 +5599,6 @@ export const PlanDocument = gql`
     }
     fundings {
       id
-      project {
-        title
-      }
     }
     visibility
     status
@@ -6166,6 +6170,54 @@ export type QuestionQueryHookResult = ReturnType<typeof useQuestionQuery>;
 export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery>;
 export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
 export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
+export const PlanSectionQuestionsDocument = gql`
+    query PlanSectionQuestions($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    id
+    questionText
+    displayOrder
+    guidanceText
+    requirementText
+    sampleText
+    sectionId
+    templateId
+    isDirty
+  }
+}
+    `;
+
+/**
+ * __usePlanSectionQuestionsQuery__
+ *
+ * To run a query within a React component, call `usePlanSectionQuestionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanSectionQuestionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanSectionQuestionsQuery({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *   },
+ * });
+ */
+export function usePlanSectionQuestionsQuery(baseOptions: Apollo.QueryHookOptions<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables> & ({ variables: PlanSectionQuestionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>(PlanSectionQuestionsDocument, options);
+      }
+export function usePlanSectionQuestionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>(PlanSectionQuestionsDocument, options);
+        }
+export function usePlanSectionQuestionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>(PlanSectionQuestionsDocument, options);
+        }
+export type PlanSectionQuestionsQueryHookResult = ReturnType<typeof usePlanSectionQuestionsQuery>;
+export type PlanSectionQuestionsLazyQueryHookResult = ReturnType<typeof usePlanSectionQuestionsLazyQuery>;
+export type PlanSectionQuestionsSuspenseQueryHookResult = ReturnType<typeof usePlanSectionQuestionsSuspenseQuery>;
+export type PlanSectionQuestionsQueryResult = Apollo.QueryResult<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>;
 export const TopLevelResearchDomainsDocument = gql`
     query TopLevelResearchDomains {
   topLevelResearchDomains {

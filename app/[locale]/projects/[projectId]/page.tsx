@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import {
@@ -49,6 +49,7 @@ const ProjectOverviewPage: React.FC = () => {
   // Get projectId param
   const params = useParams();
   const { projectId } = params; // From route /projects/:projectId
+  const router = useRouter();
   const formatter = useFormatter();
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
@@ -74,10 +75,10 @@ const ProjectOverviewPage: React.FC = () => {
     }
   );
 
-  if (error) {
-    const errorMsg = ProjectOverview('messages.errorGettingProject');
-    setErrors(prev => [...prev, errorMsg]);
-  }
+  // if (error) {
+  //   const errorMsg = ProjectOverview('messages.errorGettingProject');
+  //   setErrors(prev => [...prev, errorMsg]);
+  // }
 
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
@@ -130,6 +131,14 @@ const ProjectOverviewPage: React.FC = () => {
 
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
+  }
+
+  if (error) {
+    if (error.message.toLowerCase() === 'forbidden') {
+      router.push('/not-found');
+    } else {
+      return <div>{error.message}</div>
+    }
   }
 
   return (
