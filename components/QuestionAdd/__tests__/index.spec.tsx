@@ -56,14 +56,6 @@ jest.mock('next-intl', () => ({
   }),
 }));
 
-// Mock QuestionOptionsComponent since it has it's own separate unit test
-jest.mock('@/components/Form/QuestionOptionsComponent', () => {
-  return {
-    __esModule: true,
-    default: () => <div>Mocked Question Options Component</div>,
-  };
-});
-
 const mockQuestionDisplayData = {
   questions: [
     {
@@ -96,8 +88,6 @@ describe("QuestionAdd", () => {
       remove: jest.fn(),
     };
 
-
-
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
 
@@ -120,11 +110,14 @@ describe("QuestionAdd", () => {
 
     const json = JSON.stringify({
       meta: {
+        asRichText: true,
         schemaVersion: "1.0"
       },
-      type: "text",
+      type: "textArea",
       attributes: {
         pattern: null,
+        rows: null,
+        cols: null,
         maxLength: null,
         minLength: 0
       }
@@ -132,8 +125,8 @@ describe("QuestionAdd", () => {
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="text"
-          questionName="Text"
+          questionType="textArea"
+          questionName="Text Area"
           questionJSON={json}
           sectionId="1"
         />);
@@ -314,14 +307,24 @@ describe("QuestionAdd", () => {
         />);
     });
 
-    // Get the input
+    // Get the question text input
     const input = screen.getByLabelText('labels.questionText');
 
-    // Set value to 'New Question'
+    // add text to question text field
     fireEvent.change(input, { target: { value: 'New Question' } });
 
-    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
-    fireEvent.click(saveButton);
+    // Add a new radio row
+    const radioInput = screen.getByPlaceholderText('placeholder.text');
+
+    await act(async () => {
+      fireEvent.change(radioInput, { target: { value: 'Yes' } });
+    })
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+
+    await act(async () => {
+      fireEvent.click(saveButton);
+    })
 
     // Check if the addQuestionMutation was called
     await waitFor(() => {
@@ -333,7 +336,7 @@ describe("QuestionAdd", () => {
             displayOrder: 5,
             isDirty: true,
             questionText: 'New Question',
-            json: "{\"type\":\"radioButtons\",\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"\",\"value\":\"\",\"selected\":false}}]}",
+            json: "{\"type\":\"radioButtons\",\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}}]}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -361,8 +364,8 @@ describe("QuestionAdd", () => {
       options: [
         {
           attributes: {
-            label: null,
-            value: null,
+            label: 'Yes',
+            value: 'yes',
             selected: false
           }
         }
@@ -384,10 +387,18 @@ describe("QuestionAdd", () => {
     // Set value to 'New Question'
     fireEvent.change(input, { target: { value: 'New Question' } });
 
-    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+    // Add a new radio row
+    const radioInput = screen.getByPlaceholderText('placeholder.text');
+
+    await act(async () => {
+      fireEvent.change(radioInput, { target: { value: 'Yes' } });
+    })
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+
     await act(async () => {
       fireEvent.click(saveButton);
-    });
+    })
 
     expect(screen.getByText('messages.errors.questionAddingError')).toBeInTheDocument();
   })
@@ -739,8 +750,51 @@ describe("QuestionAdd", () => {
         />);
     });
 
-    expect(screen.getByText('Mocked Question Options Component')).toBeInTheDocument();
+    // Radio button info with order, text and checkbox should be in document
+    expect(screen.getByLabelText('labels.order')).toBeInTheDocument();
+    expect(screen.getByLabelText('labels.text')).toBeInTheDocument();
+    expect(screen.getByLabelText('labels.default')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.addRow' })).toBeInTheDocument();
   })
+
+  it('should add a new row when the add button is clicked', async () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+    const mockQuestionJSON = "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"radioButtons\",\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Option 1\",\"value\":\"1\",\"selected\":false}},{\"type\":\"option\",\"attributes\":{\"label\":\"Option 2\",\"value\":\"2\",\"selected\":true}}]}"
+
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={mockQuestionJSON}
+          sectionId="1"
+        />);
+    });
+
+    // Enter Question text
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to empty
+    fireEvent.change(input, { target: { value: 'Testing adding new row' } });
+
+    const radioInput = screen.getByLabelText('labels.text');
+    fireEvent.change(radioInput, { target: { value: 'Yes' } });
+
+    const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
+    fireEvent.click(addButton);
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(useAddQuestionMutation).toHaveBeenCalled();
+    });
+  });
+
 
   it('should call the useAddQuestionMutation when user clicks \'save\' button', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
@@ -818,7 +872,7 @@ describe("QuestionAdd", () => {
     expect(checkboxText).not.toBeInTheDocument();
   })
 
-  it('should display the useSampleTextAsDefault checkbox if the questionTypeId is a Text field', async () => {
+  it('should display the useSampleTextAsDefault checkbox if the questionTypeId is a Text area field', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -826,11 +880,13 @@ describe("QuestionAdd", () => {
 
     const json = JSON.stringify({
       meta: {
+        asRichText: true,
         schemaVersion: "1.0"
       },
-      type: "text",
+      type: "textArea",
       attributes: {
-        pattern: null,
+        cols: 20,
+        rows: 4,
         maxLength: null,
         minLength: 0
       }
@@ -838,8 +894,8 @@ describe("QuestionAdd", () => {
     await act(async () => {
       render(
         <QuestionAdd
-          questionType="text"
-          questionName="Text"
+          questionType="textArea"
+          questionName="Text Area"
           questionJSON={json}
           sectionId="1"
         />);
