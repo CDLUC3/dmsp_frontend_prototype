@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useRouter, useParams, usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 import {
   useProjectFundingsQuery,
@@ -33,6 +34,9 @@ import {
 
 
 const ProjectsProjectPlanAdjustFunding = () => {
+  const globalTrans = useTranslations('Global');
+  const trans = useTranslations('PlanFunding');
+
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
   const [addPlanFunding] = useAddPlanFundingMutation({});
@@ -60,13 +64,6 @@ const ProjectsProjectPlanAdjustFunding = () => {
    */
   function checkErrors(errs: PlanFundingErrors): string[] {
     const typedKeys: (keyof PlanFundingErrors)[] = [
-      // TODO::
-      // Ask in developer meeting regarding the casing for this?
-      // Everything else starts with lowercase, but the first key here
-      // start with Uppercase
-      // I cannot change this to start with lowercase, since I have to do
-      // it in the mutation, and apollo will fail to generate cause it wants
-      // it this way.
       "ProjectFundingId",
       "general",
       "projectId",
@@ -122,8 +119,8 @@ const ProjectsProjectPlanAdjustFunding = () => {
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{globalTrans('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects">{globalTrans('breadcrumbs.projects')}</Link></Breadcrumb>
           </Breadcrumbs>
         }
         actions={
@@ -137,11 +134,9 @@ const ProjectsProjectPlanAdjustFunding = () => {
           <ErrorMessages errors={errors} ref={errorRef} />
           <Form onSubmit={handleSubmit}>
             <RadioGroup name="funding">
-              <Label>
-                Select funding sources for this plan
-              </Label>
+              <Label>{trans('fundingLabel')}</Label>
               <Text slot="description" className="help">
-                This funding list comes from the funding list attached to the project.
+                {trans('fundingDescription')}
               </Text>
 
               {funders?.projectFundings && funders.projectFundings.map((funder, index) => (
@@ -156,31 +151,16 @@ const ProjectsProjectPlanAdjustFunding = () => {
             </RadioGroup>
 
             <p>
-              <strong>
-                Note: Changing the funding sources may require a template change. Only
-                change if you are sure.
-              </strong>
+              <strong>{trans('changeWarning')}</strong>
             </p>
 
-            <Button
-              type="submit"
-            >
-              Save
-            </Button>
+            <Button type="submit">{globalTrans('buttons.save')}</Button>
           </Form>
 
-
-          <h2 className="heading-3 mt-8">
-            Adding a funding source?
-          </h2>
-          <p>
-            If you want to add new funding information, you can add funding at the
-            project level. This project can have multiple funding sources, whereas each
-            plan can only have a single source of funding as we match it to the required
-            template.
-          </p>
-          <Link href={routePath('projects.fundings.search', {projectId})}>
-            Add a new funding source
+          <h2 className="heading-3 mt-8">{trans('addSourceTitle')}</h2>
+          <p>{trans('addSourceNote')}</p>
+          <Link href={routePath('projects.fundings.search', {projectId: String(projectId)})}>
+            {trans('addSourceLink')}
           </Link>
         </ContentContainer>
       </LayoutContainer>

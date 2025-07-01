@@ -191,7 +191,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    expect(screen.getByText('Select funding sources for this plan')).toBeInTheDocument();
+    expect(screen.getByText('fundingLabel')).toBeInTheDocument();
 
     // Wait for the graphQL query to finish and check if the results are in
     await waitFor(() => {
@@ -207,7 +207,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    expect(screen.getByText(/Note: Changing the funding sources may require a template change./)).toBeInTheDocument();
+    expect(screen.getByText('changeWarning')).toBeInTheDocument();
   });
 
   it('should render the save button', () => {
@@ -217,7 +217,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.save' })).toBeInTheDocument();
   });
 
   it('should handle form submission', async () => {
@@ -233,7 +233,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       fireEvent.click(option);
     });
 
-    const saveButton = screen.getByRole('button', { name: 'Save' });
+    const saveButton = screen.getByRole('button', { name: 'buttons.save' });
     fireEvent.click(saveButton);
 
     await waitFor(() => {
@@ -254,7 +254,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       fireEvent.click(option);
     });
 
-    const saveButton = screen.getByRole('button', { name: 'Save' });
+    const saveButton = screen.getByRole('button', { name: 'buttons.save' });
     fireEvent.click(saveButton);
 
     await waitFor(() => {
@@ -277,7 +277,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       fireEvent.click(option);
     });
 
-    const saveButton = screen.getByRole('button', { name: 'Save' });
+    const saveButton = screen.getByRole('button', { name: 'buttons.save' });
     fireEvent.click(saveButton);
 
     await waitFor(() => {
@@ -299,7 +299,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       </MockedProvider>
     );
 
-    const addFundingLink = screen.getByText("Add a new funding source");
+    const addFundingLink = screen.getByText("addSourceLink");
     expect(addFundingLink).toBeInTheDocument();
     expect(addFundingLink).toHaveAttribute('href', '/en-US/projects/123/fundings/search');
   });
