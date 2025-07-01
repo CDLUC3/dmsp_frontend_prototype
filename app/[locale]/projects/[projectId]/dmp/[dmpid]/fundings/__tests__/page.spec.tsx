@@ -1,79 +1,314 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
+
 import '@testing-library/jest-dom';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { MockedProvider } from '@apollo/client/testing';
+import {
+  ProjectFundingsDocument,
+  AddPlanFundingDocument,
+} from '@/generated/graphql';
+
 import { axe, toHaveNoViolations } from 'jest-axe';
+
+import { stripHtml, scrollToTop } from '@/utils/general';
+import logECS from '@/utils/clientLogger';
+
 import ProjectsProjectPlanAdjustFunding from '../page';
+
 
 expect.extend(toHaveNoViolations);
 
+
+// GraphQL Mocks
+const MOCKS = [
+  // Fetch Project Funders: Success
+  {
+    request: {
+      query: ProjectFundingsDocument,
+      variables: {
+        projectId: 123,
+      },
+    },
+
+    result: {
+      data: {
+        projectFundings: [
+          {
+            id: 111,
+            affiliation: {
+              displayName: "Project Funder A",
+              uri: "https://funderA",
+            }
+          },
+
+          // This one is to test response errors when choosing this
+          {
+            id: 222,
+            affiliation: {
+              displayName: "Project Funder B",
+              uri: "https://funderB",
+            }
+          },
+
+          // This one is to test network errors when choosing this
+          {
+            id: 333,
+            affiliation: {
+              displayName: "Project Funder C",
+              uri: "https://funderC",
+            },
+          },
+        ],
+      },
+    },
+  },
+
+  // Adding Funder: Success
+  {
+    request: {
+      query: AddPlanFundingDocument,
+      variables: {
+        planId: 456,
+        projectFundingId: 111,
+      },
+    },
+
+    result: {
+      data: {
+        addPlanFunding: {
+          errors: {
+            ProjectFundingId: null,
+            general: null,
+            projectId: null
+          },
+          projectFunding: {
+            id: 111,
+          }
+        }
+      }
+    },
+  },
+
+  // Add Funder: Response Error
+  {
+    request: {
+      query: AddPlanFundingDocument,
+      variables: {
+        planId: 456,
+        projectFundingId: 222,
+      },
+    },
+
+    result: {
+      data: {
+        addPlanFunding: {
+          errors: {
+            ProjectFundingId: null,
+            general: "This should throw an error",
+            projectId: null,
+          },
+          projectFunding: {
+            id: 222,
+          }
+        }
+      }
+    },
+  },
+
+  // Add Funder: Network Error
+  {
+    request: {
+      query: AddPlanFundingDocument,
+      variables: {
+        planId: 456,
+        projectFundingId: 333,
+      },
+    },
+    error: new Error('Network error'),
+  },
+];
+
+
+// Other Mocks
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
+  useParams: jest.fn(),
+  usePathname: jest.fn(() => {
+    return '/en-US/projects/123/dmp/345/fundings';
+  })
 }));
 
-const mockUseRouter = useRouter as jest.Mock;
+// Needed for the errormessages component
+jest.mock('@/utils/general', () => ({
+  scrollToTop: jest.fn(),
+  stripHtml: jest.fn(),
+}));
 
+jest.mock('@/components/PageHeader', () => ({
+  __esModule: true,
+  default: () => <div data-testid="mock-page-header" />
+}));
+
+
+// Keep these separate and lean, so that we can customize based on
+// test requirements
+const mockUseRouter = useRouter as jest.Mock;
+const mockParams = useParams as jest.Mock;
+
+
+// Tests
 describe('ProjectsProjectPlanAdjustFunding', () => {
   beforeEach(() => {
+    window.scrollTo = jest.fn(); // Mock scrollTo to prevent errors in tests
+
+    // No individual test overrides needed. Just define the same everywhere.
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
-    })
+    });
 
-    window.scrollTo = jest.fn(); // Mock scrollTo to prevent errors in tests
-  })
+    // This might change based on the tests
+    mockParams.mockReturnValue({
+      projectId: '123',
+      dmpid: '456',
+    });
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
-  })
-
-  it('should render the page header with correct title and description', () => {
-    render(<ProjectsProjectPlanAdjustFunding />);
-    expect(screen.getByText('Project Funding')).toBeInTheDocument();
-    expect(screen.getByText('Manage funding sources for your project')).toBeInTheDocument();
   });
 
-  it('should render the breadcrumb links', () => {
-    render(<ProjectsProjectPlanAdjustFunding />);
-    expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('Projects')).toBeInTheDocument();
-  });
+  it('should render the radio group with funding options', async () => {
+    render(
+      <MockedProvider mocks={MOCKS} addTypename={false}>
+        <ProjectsProjectPlanAdjustFunding />
+      </MockedProvider>
+    );
 
-  it('should render the radio group with funding options', () => {
-    render(<ProjectsProjectPlanAdjustFunding />);
     expect(screen.getByText('Select funding sources for this plan')).toBeInTheDocument();
-    expect(screen.getByText('National Science Foundation (NSF)')).toBeInTheDocument();
-    expect(screen.getByText('National Science Foundation - AAA (NSF-AA)')).toBeInTheDocument();
+
+    // Wait for the graphQL query to finish and check if the results are in
+    await waitFor(() => {
+      expect(screen.getByText('Project Funder A')).toBeInTheDocument();
+      expect(screen.getByText('Project Funder B')).toBeInTheDocument();
+    });
   });
 
   it('should render the note about changing the funding sources', () => {
-    render(<ProjectsProjectPlanAdjustFunding />);
+    render(
+      <MockedProvider mocks={MOCKS} addTypename={false}>
+        <ProjectsProjectPlanAdjustFunding />
+      </MockedProvider>
+    );
+
     expect(screen.getByText(/Note: Changing the funding sources may require a template change./)).toBeInTheDocument();
   });
 
   it('should render the save button', () => {
-    render(<ProjectsProjectPlanAdjustFunding />);
+    render(
+      <MockedProvider mocks={MOCKS} addTypename={false}>
+        <ProjectsProjectPlanAdjustFunding />
+      </MockedProvider>
+    );
+
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
 
+  it('should handle form submission', async () => {
+    render(
+      <MockedProvider mocks={MOCKS} addTypename={false}>
+        <ProjectsProjectPlanAdjustFunding />
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      const option = screen.getByRole('radio', { name: 'Project Funder A' });
+      expect(option).toBeInTheDocument();
+      fireEvent.click(option);
+    });
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
+    });
+  });
+
+  it('should handle errors on form submission', async () => {
+    render(
+      <MockedProvider mocks={MOCKS} addTypename={false}>
+        <ProjectsProjectPlanAdjustFunding />
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      const option = screen.getByRole('radio', { name: 'Project Funder B' });
+      expect(option).toBeInTheDocument();
+      fireEvent.click(option);
+    });
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockUseRouter().push).not.toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
+      expect(screen.getByText("This should throw an error")).toBeInTheDocument();
+      expect(scrollToTop).toHaveBeenCalled();
+    });
+  });
+
+  it('should handle network errors on form submission', async () => {
+    render(
+      <MockedProvider mocks={MOCKS} addTypename={false}>
+        <ProjectsProjectPlanAdjustFunding />
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      const option = screen.getByRole('radio', { name: 'Project Funder C' });
+      expect(option).toBeInTheDocument();
+      fireEvent.click(option);
+    });
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'addPlanFunding',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/en-US/projects/123/dmp/345/fundings' },
+        })
+      );
+    });
+  });
+
   it('should render the link to add new funding', () => {
-    render(<ProjectsProjectPlanAdjustFunding />);
+    render(
+      <MockedProvider mocks={MOCKS} addTypename={false}>
+        <ProjectsProjectPlanAdjustFunding />
+      </MockedProvider>
+    );
+
     expect(screen.getByText('Add a new funding source')).toBeInTheDocument();
     expect(screen.getByText('Add a new funding source').closest('a')).toHaveAttribute('href', '/projects/proj_2425/fundings/');
   });
 
-  it('should handle form submission', async () => {
-    render(<ProjectsProjectPlanAdjustFunding />);
-    const saveButton = screen.getByRole('button', { name: 'Save' });
-    fireEvent.click(saveButton);
-    // Check console log or redirection logic if mocked
-    await waitFor(() => {
-      // Should redirect to the Feeback page when modal is closed
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/proj_2425/dmp/xxx');
-    });
-  });
-
   it('should pass accessibility tests', async () => {
-    const { container } = render(<ProjectsProjectPlanAdjustFunding />);
+    const { container } = render(
+      <MockedProvider mocks={MOCKS} addTypename={false}>
+        <ProjectsProjectPlanAdjustFunding />
+      </MockedProvider>
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
