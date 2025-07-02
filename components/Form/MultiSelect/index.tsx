@@ -67,7 +67,7 @@ function MultiSelect({
         ))}
       </ListBox>
 
-      <div className={styles.selectCount}>
+      <div className={styles.selectedCount}>
 
         <span style={{ marginLeft: '8px', color: '#3b82f6' }}>
           ({[...selected].join(', ')})

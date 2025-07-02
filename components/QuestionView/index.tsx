@@ -138,7 +138,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // These handlers are here so that users can interact with the different question types in the Question Preview
   // However, their changes are not saved anywhere. It's just so they can see how the questions will look and behave
   const handleAffiliationChange = async (id: string, value: string) => {
-    console.log("handle affiliation called")
     return setAffiliationData({ affiliationName: value, affiliationId: id })
   }
 
@@ -149,6 +148,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   // Update the selected radio value when user selects different option
   const handleRadioChange = (value: string) => {
+    console.log("Just selected ", value);
     setSelectedRadioValue(value);
   };
 

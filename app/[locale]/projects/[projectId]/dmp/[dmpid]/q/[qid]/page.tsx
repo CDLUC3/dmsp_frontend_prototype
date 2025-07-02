@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useParams, notFound } from 'next/navigation';
 import { Breadcrumb, Breadcrumbs, Form, Link } from "react-aria-components";
-import PageHeader from "@/components/PageHeader";
+import { CalendarDate, DateValue } from "@internationalized/date";
+import DOMPurify from 'dompurify';
+
 import styles from './PlanOverviewQuestionPage.module.scss';
 import { useTranslations } from "next-intl";
 import {
@@ -10,15 +13,186 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+
+import {
+  useQuestionQuery,
+} from '@/generated/graphql';
+
+// Components
+import PageHeader from "@/components/PageHeader";
 import TinyMCEEditor from '@/components/TinyMCEEditor';
 import { Card, } from "@/components/Card/card";
+import ErrorMessages from '@/components/ErrorMessages';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
+
+// Utils
+import logECS from '@/utils/clientLogger';
+import { questionTypeHandlers, QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { routePath } from '@/utils/routes';
+import {
+  TEXT_QUESTION_TYPE,
+  RANGE_QUESTION_TYPE,
+  TYPEAHEAD_QUESTION_TYPE,
+  DATE_RANGE_QUESTION_TYPE,
+  NUMBER_RANGE_QUESTION_TYPE,
+  OPTIONS_QUESTION_TYPES
+} from '@/lib/constants';
+
+import {
+  Option,
+  Question,
+  QuestionOptions,
+  QuestionTypesInterface
+} from '@/app/types';
+
+import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
+
+
+type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
+
 
 
 const PlanOverviewQuestionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
-  const html = String.raw;
-  const richtextDefault = html`test...`;
-  const [editorContent, setEditorContent] = useState(richtextDefault);
+  const params = useParams();
+  const dmpId = params.dmpid as string;
+  const projectId = params.projectId as string;
+  const questionId = params.qid as string;
+
+  const [question, setQuestion] = useState<Question>();
+  const [questionType, setQuestionType] = useState<string>('');
+  const [parsed, setParsed] = useState<AnyParsedQuestion>();
+  const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
+  const [hasOptions, setHasOptions] = useState<boolean | null>(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [otherField, setOtherField] = useState(false);
+  const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({ affiliationName: '', affiliationId: '' });
+  const [otherAffiliationName, setOtherAffiliationName] = useState<string>('');
+  const [selectedRadioValue, setSelectedRadioValue] = useState<string>('');
+  const [inputValue, setInputValue] = useState<number | null>(null);
+  const [urlValue, setUrlValue] = useState<string | null>(null);
+  const [emailValue, setEmailValue] = useState<string | null>(null);
+  const [textValue, setTextValue] = useState<string | number | null>(null);
+  const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
+  const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
+  const [yesNoValue, setYesNoValue] = useState<string>('no');
+  // Add local state for multiSelect values
+  const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
+
+  // Add local state to track if user has interacted with MultiSelect
+  const [multiSelectTouched, setMultiSelectTouched] = useState(false);
+
+  // Add local state for selected select value
+  const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
+    startDate: '',
+    endDate: '',
+  });
+  const [numberRange, setNumberRange] = useState<{ startNumber: number | null, endNumber: number | null }>({
+    startNumber: 0,
+    endNumber: 0,
+  });
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Localization
+  const Global = useTranslations('Global');
+
+
+  const convertToHTML = (htmlString: string | null | undefined) => {
+    if (htmlString) {
+      const sanitizedHTML = DOMPurify.sanitize(htmlString);
+      return (
+        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+      );
+    }
+    return null;
+  };
+
+  // Run selected question query
+  const {
+    data: selectedQuestion,
+    loading,
+    error: selectedQuestionQueryError
+  } = useQuestionQuery(
+    {
+      variables: {
+        questionId: Number(questionId)
+      }
+    },
+  );
+
+  // Check if question is an options type
+  const isOptionsType = (questionType: string) => {
+    return Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType));
+  }
+
+  const handleAffiliationChange = async (id: string, value: string) => {
+    return setAffiliationData({ affiliationName: value, affiliationId: id })
+  }
+
+  const handleOtherAffiliationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setOtherAffiliationName(value);
+  };
+
+  // Update the selected radio value when user selects different option
+  const handleRadioChange = (value: string) => {
+    setSelectedRadioValue(value);
+  };
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUrlValue(value);
+  };
+
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmailValue(value);
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTextValue(value);
+  };
+
+  // Handler for checkbox group changes
+  const handleCheckboxGroupChange = (values: string[]) => {
+    setSelectedCheckboxValues(values);
+  };
+
+  const handleBooleanChange = (values: string) => {
+    setYesNoValue(values);
+  };
+
+  // Handler for MultiSelect changes
+  const handleMultiSelectChange = (values: Set<string>) => {
+    setSelectedMultiSelectValues(values);
+    setMultiSelectTouched(true);
+  };
+
+  // Handler for date range changes
+  const handleDateChange = (
+    key: string,
+    value: string | DateValue | CalendarDate | null
+  ) => {
+    setDateRange(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  // Handler for number range changes
+  const handleNumberChange = (
+    key: string,
+    value: string | number | null
+  ) => {
+    setNumberRange(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
   const plan = {
     id: "plan_123",
@@ -26,6 +200,122 @@ const PlanOverviewQuestionPage: React.FC = () => {
     title: "NSF Polar Programs",
     funder_name: "National Science Foundation"
   };
+
+  useEffect(() => {
+    if (selectedQuestion?.question) {
+      const q = selectedQuestion.question;
+
+      try {
+        const { parsed, error } = getParsedQuestionJSON(q, routePath('projects.dmp.question.detail', { projectId, dmpId, q_slug: questionId }), Global);
+        if (!parsed?.type) {
+          if (error) {
+            logECS('error', 'Parsing error', {
+              error: 'Invalid question type in parsed JSON',
+              url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, q_slug: questionId }) }
+            });
+
+            setErrors(prev => [...prev, error])
+          }
+          return;
+        }
+
+        const questionType = parsed.type;
+        const questionTypeFriendlyName = Global(`questionTypes.${questionType}`);
+
+        setQuestionType(questionType);
+        setParsed(parsed);
+
+        const isOptionsQuestion = isOptionsType(questionType);
+        setQuestion(q);
+        setHasOptions(isOptionsQuestion);
+
+        // Set options info with proper type checking
+        if (isOptionsQuestion && 'options' in parsed && parsed.options && Array.isArray(parsed.options)) {
+          const optionRows = parsed.options
+            .map((option: Option, index: number) => ({
+              id: index,
+              text: option?.attributes?.label || '',
+              isSelected: option?.attributes?.selected || option?.attributes?.checked || false,
+            }));
+          setRows(optionRows);
+        }
+
+      } catch (error) {
+        logECS('error', 'Parsing error', {
+          error,
+          url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, q_slug: questionId }) }
+        });
+        setErrors(prev => [...prev, 'Error parsing question data']);
+      }
+    }
+  }, [selectedQuestion]);
+
+  const questionField = useRenderQuestionField({
+    questionType,
+    parsed,
+    question,
+    textFieldProps: {
+      textValue: typeof textValue === 'string' ? textValue : '',
+      handleTextChange,
+    },
+    radioProps: {
+      selectedRadioValue,
+      handleRadioChange
+    },
+    checkBoxProps: {
+      selectedCheckboxValues,
+      handleCheckboxGroupChange,
+    },
+    selectBoxProps: {
+      selectedSelectValue,
+      setSelectedSelectValue,
+    },
+    multiSelectBoxProps: {
+      selectedMultiSelectValues,
+      handleMultiSelectChange,
+      multiSelectTouched,
+    },
+    dateProps: {
+      dateRange,
+      handleDateChange,
+    },
+    dateRangeProps: {
+      dateRange,
+      handleDateChange,
+    },
+    numberProps: {
+      inputValue,
+      setInputValue,
+    },
+    numberRangeProps: {
+      numberRange,
+      handleNumberChange,
+    },
+    currencyProps: {
+      inputCurrencyValue,
+      setInputCurrencyValue,
+    },
+    urlProps: {
+      urlValue,
+      handleUrlChange,
+    },
+    emailProps: {
+      emailValue,
+      handleEmailChange,
+    },
+    booleanProps: {
+      yesNoValue,
+      handleBooleanChange,
+    },
+    typeaheadSearchProps: {
+      affiliationData,
+      otherAffiliationName,
+      otherField,
+      setOtherField,
+      handleAffiliationChange,
+      handleOtherAffiliationChange,
+    },
+  });
 
   return (
     <>
@@ -50,47 +340,25 @@ const PlanOverviewQuestionPage: React.FC = () => {
         className="page-project-list"
       />
 
+      <ErrorMessages errors={errors} ref={errorRef} />
+
       <LayoutWithPanel>
         <ContentContainer>
           <div className="container">
             <section aria-label={"Requirements"}>
               <h3 className={"h4"}>Requirements by {plan.funder_name}</h3>
-              <p>
-                The Arctic Data Center requires when submitting to the Center,
-                include methods to create these types of data.
-              </p>
-              <p>
-                If using proprietary formats like Excel or MATLAB, plan to
-                convert them to open-source formats before submission. If
-                conversion isn&#39;t possible, explain why
-              </p>
 
-              <h3 className={"h4"}>Requirements by University of California</h3>
-              <p>
-                The management of data and metadata is essential for supporting
-                research integrity, reproducibility and collaboration. This
-                section seeks to document the types and formats of data and
-                metadata that will be generated in your project. Properly
-                formatted and well-documented data enhance the visibility of
-                your research, promote collaboration among users and ensure
-                compliance with institutional policies and guidelines.
-              </p>
+              {convertToHTML(question?.requirementText)}
+
             </section>
 
-            <Card>
+            <Card data-testid='question-card'>
               <Form>
                 <span>Question</span>
                 <h2 id="question-title">
-                  What types of data, samples, collections, software, materials,
-                  etc. will be produced during your project?
+                  {question?.questionText}
                 </h2>
-
-                <TinyMCEEditor
-                  id="question-editor"
-                  content={editorContent}
-                  setContent={setEditorContent}
-                />
-
+                {parsed && questionField}
                 <div className="lastSaved mt-5"
                   aria-live="polite"
                   role="status">
@@ -99,30 +367,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
               </Form>
             </Card>
 
-
             <section aria-label={"Guidance"}>
               <h3 className={"h4"}>Guidance by {plan.funder_name}</h3>
-              <p>
-                In your Data Management Plan (DMP), detail the types of data and
-                materials expected to be produced in your project. This includes
-                specifying raw and processed data, biological samples, chemical
-                compounds, survey data and software. Highlight the formats (for
-                example CSV, JSON, executable files) and the scale of data
-                production (for example terabytes of data, hundreds of samples).
-              </p>
-              <p>
-                Additionally, mention any unique elements like multimedia files
-                or large-scale images and address specific storage needs or
-                management challenges. Providing this comprehensive overview
-                helps stakeholders understand the scope of your project&#39;s
-                data
-                requirements and ensures alignment with data management and
-                sharing policies.
-              </p>
-              <p>
-                NSF Helpdesk (open in new window) NSF.gov (open in new window)
-                funding.nsf.gov (open in new window)
-              </p>
+
+              {convertToHTML(question?.guidanceText)}
+
 
               <h3 className={"h4"}>Guidance by University of California</h3>
               <p>

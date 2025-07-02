@@ -43,6 +43,7 @@ const routes = {
   'projects.dmp.fundings': '/projects/:projectId/dmp/:dmpId/fundings',
   'projects.dmp.members': '/projects/:projectId/dmp/:dmpId/members',
   'projects.dmp.question': '/projects/:projectId/dmp/:dmpId/q',
+  'projects.dmp.question.detail': '/projects/:projectId/dmp/:dmpId/q/:q_slug',
   'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
   'projects.dmp.research-outputs.edit': '/projects/:projectId/dmp/:dmpId/research-outputs/edit',
   'projects.dmp.section': '/projects/:projectId/dmp/:dmpId/s/:sectionId',
@@ -176,4 +177,4 @@ export function routePath(
 
 // Type to get all available route names for better IDE support
 export type RouteName = keyof typeof routes;
-export {routes};
+export { routes };
