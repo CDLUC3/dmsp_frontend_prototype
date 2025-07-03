@@ -48,10 +48,17 @@
     "errors": {
       "archiveTemplateError": "Error when archiving template",
       "saveTemplateError": "Error when saving template",
-      "getTemplatesError": "Error getting templates"
+      "getTemplatesError": "Error getting templates",
+      "updateTemplateError": "Error updating template",
+      "updateTitleError": "Error updating template title",
+      "updateDisplayOrderError": "Error updating display order",
+      "cannotMoveFurtherDown": "Cannot move section further down",
+      "displayOrderAlreadyAtTop": "Section is already at top of order",
+      "cannotMoveFurtherUpOrDown": "Cannot move section further up or down"
     },
     "messages": {
-      "successfullyArchived": "Successfully archived the template"
+      "successfullyArchived": "Successfully archived the template",
+      "sectionMoved": "Section moved to position {displayOrder}"
     }
   },
   "PublishTemplate": {
@@ -93,8 +100,11 @@
       "addQuestion": "Add question"
     },
     "buttons": {
-      "moveUp": "Move question up",
-      "moveDown": "Move question down"
+      "moveUp": "Move question up {name}",
+      "moveDown": "Move question down {name}"
+    },
+    "messages": {
+      "questionMoved": "Question moved to position {displayOrder}"
     }
   },
   "Sections": {
@@ -106,8 +116,20 @@
       "addSection": "Add section"
     },
     "buttons": {
-      "moveUp": "Move section up",
-      "moveDown": "Move section down"
+      "moveUp": "Move section up {title}",
+      "moveDown": "Move section down {title}"
+    },
+    "messages": {
+      "errors": {
+        "failedToLoadSection": "Failed to load section",
+        "updateQuestionOrder": "Failed to reorder question",
+        "updateDisplayOrderError": "Error updating display order",
+        "cannotMoveFurtherDown": "Cannot move question further down",
+        "displayOrderAlreadyAtTop": "Question is already at top of order",
+        "cannotMoveFurtherUpOrDown": "Cannot move question further up or down"
+      },
+      "questionMoved": "Question moved to position {displayOrder}",
+      "sectionMoved": "Section moved to position {displayOrder}"
     }
   },
   "SectionTypeSelectPage": {
@@ -164,10 +186,25 @@
   },
   "SectionUpdatePage": {
     "title": "Update section",
+    "buttons": {
+      "deleteSection": "Delete section"
+    },
     "messages": {
       "fieldLengthValidation": "Name must be at least 2 characters.",
       "errorUpdatingSection": "Error when updating section.",
-      "success": "Section updated successfully."
+      "success": "Section updated successfully.",
+      "errorDeletingSection": "Error when deleting section.",
+      "successDeletingSection": "Section deleted successfully."
+    },
+    "deleteModal": {
+      "title": "Delete section",
+      "content": "Deleting this section will also permanently remove all associated questions. Deletion is not reversible.",
+      "cancelButton": "Cancel",
+      "deleteButton": "Delete section"
+    },
+    "deleteSection": {
+      "heading": "Delete this section",
+      "description": "Deleting this section will also permanently remove all associated questions. Deletion is not reversible."
     }
   },
   "QuestionTypeSelectPage": {
@@ -215,7 +252,8 @@
     "title": "Edit: {title}",
     "buttons": {
       "changeType": "Change type",
-      "previewQuestion": "Preview question"
+      "previewQuestion": "Preview question",
+      "deleteQuestion": "Delete question"
     },
     "descriptions": {
       "sampleText": "Provide an example or template of expected answer (optional but recommended)",
@@ -223,7 +261,8 @@
       "previewText": "See how this question will look to users.",
       "bestPracticePara1": "Keep the question concise and clear. Use the requirements or guidance to provide additional explanation.",
       "bestPracticePara2": "Outline the requirements that a user must consider for this question.",
-      "bestPracticePara3": "Researchers will be able to copy the sample text into the field as a starting point, as a way to speed up content entry."
+      "bestPracticePara3": "Researchers will be able to copy the sample text into the field as a starting point, as a way to speed up content entry.",
+      "deleteWarning": "This question will be removed from the template. This is not reversible."
     },
     "helpText": {
       "textField": "Changing the question type, for example from Short question to Radio button, may result in some data being lost.",
@@ -243,14 +282,18 @@
       "errors": {
         "questionTextRequired": "Question text field is required.",
         "questionUpdateError": "Error when updating question",
+        "questionRemoveError": "Error when removing question",
         "invalidQuestionType": "Invalid question type found"
       },
       "success": {
-        "questionUpdated": "Question was successfully updated"
+        "questionUpdated": "Question was successfully updated",
+        "questionRemoved": "Question was successfully removed"
       }
     },
     "headings": {
-      "bestPractice": "Best practice by DMP Tool"
+      "bestPractice": "Best practice by DMP Tool",
+      "deleteQuestion": "Delete question",
+      "confirmDelete": "Confirm delete"
     }
   },
   "QuestionOptionsComponent": {

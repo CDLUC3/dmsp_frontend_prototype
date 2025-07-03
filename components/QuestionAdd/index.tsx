@@ -136,7 +136,7 @@ const QuestionAdd = ({
     }
 
     // Filter out null/undefined questions and handle missing displayOrder
-    const validDisplayOrders = (questionDisplayOrders.questions ?? [])
+    const validDisplayOrders = questionDisplayOrders.questions
       .map(q => q?.displayOrder)
       .filter((order): order is number => typeof order === 'number');
 

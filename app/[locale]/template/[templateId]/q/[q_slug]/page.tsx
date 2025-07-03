@@ -9,10 +9,14 @@ import {
   Breadcrumbs,
   Button,
   Checkbox,
+  Dialog,
+  DialogTrigger,
   Form,
   Input,
   Label,
   Link,
+  Modal,
+  ModalOverlay,
   Tab,
   TabList,
   TabPanel,
@@ -25,7 +29,8 @@ import {
 import {
   useQuestionQuery,
   useQuestionTypesLazyQuery,
-  useUpdateQuestionMutation
+  useUpdateQuestionMutation,
+  useRemoveQuestionMutation,
 } from '@/generated/graphql';
 
 // Components
@@ -109,9 +114,11 @@ const QuestionEdit = () => {
   const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
 
+  const [isConfirmOpen, setConfirmOpen] = useState(false);
 
   // Initialize update question mutation
   const [updateQuestionMutation] = useUpdateQuestionMutation();
+  const [removeQuestionMutation] = useRemoveQuestionMutation();
 
   // localization keys
   const Global = useTranslations('Global');
@@ -301,6 +308,30 @@ const QuestionEdit = () => {
       }
     }
   }
+
+  // Handle form submission to delete the question
+  const handleDelete = async () => {
+    try {
+      const response = await removeQuestionMutation({
+        variables: {
+          questionId: Number(questionId),
+        }
+      });
+
+      if (response?.data) {
+        // Show success message and redirect to Edit Template page
+        toastState.add(t('messages.success.questionRemoved'), { type: 'success' });
+        router.push(TEMPLATE_URL);
+      }
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        //
+      } else {
+        // Handle other types of errors
+        setErrors(prevErrors => [...prevErrors, t('messages.errors.questionRemoveError')]);
+      }
+    }
+  };
 
   useEffect(() => {
     if (selectedQuestion?.question) {
@@ -644,6 +675,33 @@ const QuestionEdit = () => {
               <h2>{Global('tabs.logic')}</h2>
             </TabPanel>
           </Tabs>
+
+          <div className={styles.deleteZone}>
+            <h2>{t('headings.deleteQuestion')}</h2>
+            <p>{t('descriptions.deleteWarning')}</p>
+            <DialogTrigger isOpen={isConfirmOpen} onOpenChange={setConfirmOpen}>
+              <Button className={`danger`}>{t('buttons.deleteQuestion')}</Button>
+              <ModalOverlay>
+                <Modal>
+                  <Dialog>
+                    {({ close }) => (
+                      <>
+                        <h3>{t('headings.confirmDelete')}</h3>
+                        <p>{t('descriptions.deleteWarning')}</p>
+                        <div className={styles.deleteConfirmButtons}>
+                          <Button className='react-aria-Button' autoFocus onPress={close}>{Global('buttons.cancel')}</Button>
+                          <Button className={`danger `} onPress={() => {
+                            handleDelete();
+                            close();
+                          }}>{Global('buttons.confirm')}</Button>
+                        </div>
+                      </>
+                    )}
+                  </Dialog>
+                </Modal>
+              </ModalOverlay>
+            </DialogTrigger>
+          </div>
 
         </div>
 

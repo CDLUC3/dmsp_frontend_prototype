@@ -41,3 +41,16 @@
 .questionFormField {
   height: 100px
 }
+
+.deleteZone {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.deleteConfirmButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}

@@ -51,3 +51,58 @@ mutation UpdateSection($input: UpdateSectionInput!) {
     }
   }
 }
+
+mutation RemoveSection($sectionId: Int!) {
+  removeSection(sectionId: $sectionId) {
+    id
+    name
+  }
+}
+
+mutation UpdateSectionDisplayOrder($sectionId: Int!, $newDisplayOrder: Int!) {
+  updateSectionDisplayOrder(sectionId: $sectionId, newDisplayOrder: $newDisplayOrder) {
+    sections {
+      id
+    introduction
+    name
+    requirements
+    guidance
+    displayOrder
+    bestPractice
+    isDirty
+    questions {
+      errors {
+        general
+        templateId
+        sectionId
+        questionText
+        displayOrder
+      }
+      displayOrder
+      guidanceText
+      id
+      questionText
+      sectionId
+      templateId
+    }
+    tags {
+      id
+      description
+      name
+    }
+    errors {
+      general
+      name
+      displayOrder
+    }
+    template {
+      id
+      bestPractice
+      isDirty
+      languageId
+      name
+      visibility
+    }
+    }
+  }
+}
