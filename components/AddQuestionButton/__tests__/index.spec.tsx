@@ -11,7 +11,6 @@ describe('AddQuestionButton', () => {
 
   it('should render the button with default properties', () => {
     render(<AddQuestionButton />);
-    expect(screen.getByRole('listitem')).toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute('href', '#');
     expect(screen.getByText('links.addQuestion')).toBeInTheDocument(); // Default localized text
   });
@@ -38,9 +37,7 @@ describe('AddQuestionButton', () => {
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(
-      <div role="list">
-        <AddQuestionButton />
-      </div>
+      <AddQuestionButton />
     );
 
     await act(async () => {

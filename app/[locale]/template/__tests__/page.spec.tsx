@@ -4,7 +4,6 @@ import TemplateListPage from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useTemplatesQuery, } from '@/generated/graphql';
 import { mockScrollIntoView } from '@/__mocks__/common';
-import { wait } from '@testing-library/user-event/dist/cjs/utils/index.js';
 
 expect.extend(toHaveNoViolations);
 

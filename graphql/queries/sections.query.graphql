@@ -31,6 +31,22 @@ query Section($sectionId: Int!) {
     guidance
     displayOrder
     bestPractice
+    isDirty
+    questions {
+      errors {
+        general
+        templateId
+        sectionId
+        questionText
+        displayOrder
+      }
+      displayOrder
+      guidanceText
+      id
+      questionText
+      sectionId
+      templateId
+    }
     tags {
       id
       description
@@ -43,6 +59,11 @@ query Section($sectionId: Int!) {
     }
     template {
       id
+      bestPractice
+      isDirty
+      languageId
+      name
+      visibility
     }
   }
 }
