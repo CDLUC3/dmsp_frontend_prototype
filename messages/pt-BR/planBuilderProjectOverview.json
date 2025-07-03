@@ -146,7 +146,7 @@
     },
     "messages": {
       "errors": {
-        "projectFundingUpdateFailed": "Error updating project funding details",
+        "projectFundingUpdateFailed": "Erro ao atualizar detalhes do financiador do projeto",
         "funderGrantId": "Valor de ID do financiador inválido",
         "funderProjectNumber": "Valor inválido do número do projeto financiador"
       },
