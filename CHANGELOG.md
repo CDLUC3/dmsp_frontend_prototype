@@ -9,6 +9,10 @@
 - Updated `Account Profile` to use routePath() instead of hardcoded paths
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
+### Fixed
+- Removed the `Sample text` field from the Question Add/Edit forms for all question types except for `textArea` [#564]
+
+
 ## v0.0.1
 - Plan Manage Access [#299]
 - Plan Publish [#299]
