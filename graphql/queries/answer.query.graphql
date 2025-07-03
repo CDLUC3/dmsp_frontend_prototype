@@ -1,0 +1,10 @@
+query Answer($projectId: Int!, $answerId: Int!) {
+  answer(projectId: $projectId, answerId: $answerId) {
+    errors {
+      general
+    }
+    id
+    json
+    modified
+  }
+}

@@ -96,10 +96,12 @@ const PlanOverviewSectionPage: React.FC = () => {
   const questions: Question[] = questionsData?.questions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
     id: question.id?.toString() || '',
     title: question.questionText || '',
-    link: routePath('projects.dmp.question', {
+    link: routePath('projects.dmp.question.detail', {
       projectId,
       dmpId,
-    }) + `/${question.id}`,
+      sectionId,
+      questionId: Number(question?.id)
+    }),
     isAnswered: false
   })) || [];
 

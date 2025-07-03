@@ -2129,6 +2129,8 @@ export type Query = {
   affiliations?: Maybe<AffiliationSearchResults>;
   /** Get the sepecific answer */
   answer?: Maybe<Answer>;
+  /** Get answer by versionedQuestionId */
+  answerByVersionedQuestionId?: Maybe<Array<Maybe<Answer>>>;
   /** Get all answers for the given project and plan and section */
   answers?: Maybe<Array<Maybe<Answer>>>;
   /** Get all of the best practice VersionedSection */
@@ -2265,6 +2267,13 @@ export type QueryAffiliationsArgs = {
 export type QueryAnswerArgs = {
   answerId: Scalars['Int']['input'];
   projectId: Scalars['Int']['input'];
+};
+
+
+export type QueryAnswerByVersionedQuestionIdArgs = {
+  planId: Scalars['Int']['input'];
+  projectId: Scalars['Int']['input'];
+  versionedQuestionId: Scalars['Int']['input'];
 };
 
 
@@ -3735,6 +3744,16 @@ export type VersionedTemplateSearchResult = {
   visibility?: Maybe<TemplateVisibility>;
 };
 
+export type AddAnswerMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  versionedSectionId: Scalars['Int']['input'];
+  versionedQuestionId: Scalars['Int']['input'];
+  json: Scalars['String']['input'];
+}>;
+
+
+export type AddAnswerMutation = { __typename?: 'Mutation', addAnswer?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null } | null };
+
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -3973,6 +3992,14 @@ export type AffiliationFundersQueryVariables = Exact<{
 
 export type AffiliationFundersQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
 
+export type AnswerQueryVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+  answerId: Scalars['Int']['input'];
+}>;
+
+
+export type AnswerQuery = { __typename?: 'Query', answer?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null } | null } | null };
+
 export type ProjectFundingsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
 }>;
@@ -4009,7 +4036,7 @@ export type ProjectFundingQueryVariables = Exact<{
 }>;
 
 
-export type ProjectFundingQuery = { __typename?: 'Query', projectFunding?: { __typename?: 'ProjectFunding', status?: ProjectFundingStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string } | null } | null };
+export type ProjectFundingQuery = { __typename?: 'Query', projectFunding?: { __typename?: 'ProjectFunding', status?: ProjectFundingStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string } | null } | null };
 
 export type ProjectMembersQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4074,6 +4101,13 @@ export type ChildResearchDomainsQueryVariables = Exact<{
 
 
 export type ChildResearchDomainsQuery = { __typename?: 'Query', childResearchDomains?: Array<{ __typename?: 'ResearchDomain', id?: number | null, name: string } | null> | null };
+
+export type SectionVersionsQueryVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+}>;
+
+
+export type SectionVersionsQuery = { __typename?: 'Query', sectionVersions?: Array<{ __typename?: 'VersionedSection', id?: number | null, versionedQuestions?: Array<{ __typename?: 'VersionedQuestion', id?: number | null, questionText?: string | null, json?: string | null, questionId: number }> | null, section?: { __typename?: 'Section', id?: number | null } | null } | null> | null };
 
 export type SectionsDisplayOrderQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -4145,6 +4179,49 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
+export const AddAnswerDocument = gql`
+    mutation AddAnswer($planId: Int!, $versionedSectionId: Int!, $versionedQuestionId: Int!, $json: String!) {
+  addAnswer(
+    planId: $planId
+    versionedSectionId: $versionedSectionId
+    versionedQuestionId: $versionedQuestionId
+    json: $json
+  ) {
+    id
+    json
+    modified
+  }
+}
+    `;
+export type AddAnswerMutationFn = Apollo.MutationFunction<AddAnswerMutation, AddAnswerMutationVariables>;
+
+/**
+ * __useAddAnswerMutation__
+ *
+ * To run a mutation, you first call `useAddAnswerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAnswerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAnswerMutation, { data, loading, error }] = useAddAnswerMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      versionedSectionId: // value for 'versionedSectionId'
+ *      versionedQuestionId: // value for 'versionedQuestionId'
+ *      json: // value for 'json'
+ *   },
+ * });
+ */
+export function useAddAnswerMutation(baseOptions?: Apollo.MutationHookOptions<AddAnswerMutation, AddAnswerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddAnswerMutation, AddAnswerMutationVariables>(AddAnswerDocument, options);
+      }
+export type AddAnswerMutationHookResult = ReturnType<typeof useAddAnswerMutation>;
+export type AddAnswerMutationResult = Apollo.MutationResult<AddAnswerMutation>;
+export type AddAnswerMutationOptions = Apollo.BaseMutationOptions<AddAnswerMutation, AddAnswerMutationVariables>;
 export const AddPlanDocument = gql`
     mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
@@ -5459,6 +5536,52 @@ export type AffiliationFundersQueryHookResult = ReturnType<typeof useAffiliation
 export type AffiliationFundersLazyQueryHookResult = ReturnType<typeof useAffiliationFundersLazyQuery>;
 export type AffiliationFundersSuspenseQueryHookResult = ReturnType<typeof useAffiliationFundersSuspenseQuery>;
 export type AffiliationFundersQueryResult = Apollo.QueryResult<AffiliationFundersQuery, AffiliationFundersQueryVariables>;
+export const AnswerDocument = gql`
+    query Answer($projectId: Int!, $answerId: Int!) {
+  answer(projectId: $projectId, answerId: $answerId) {
+    errors {
+      general
+    }
+    id
+    json
+    modified
+  }
+}
+    `;
+
+/**
+ * __useAnswerQuery__
+ *
+ * To run a query within a React component, call `useAnswerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAnswerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAnswerQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *      answerId: // value for 'answerId'
+ *   },
+ * });
+ */
+export function useAnswerQuery(baseOptions: Apollo.QueryHookOptions<AnswerQuery, AnswerQueryVariables> & ({ variables: AnswerQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AnswerQuery, AnswerQueryVariables>(AnswerDocument, options);
+      }
+export function useAnswerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AnswerQuery, AnswerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AnswerQuery, AnswerQueryVariables>(AnswerDocument, options);
+        }
+export function useAnswerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AnswerQuery, AnswerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AnswerQuery, AnswerQueryVariables>(AnswerDocument, options);
+        }
+export type AnswerQueryHookResult = ReturnType<typeof useAnswerQuery>;
+export type AnswerLazyQueryHookResult = ReturnType<typeof useAnswerLazyQuery>;
+export type AnswerSuspenseQueryHookResult = ReturnType<typeof useAnswerSuspenseQuery>;
+export type AnswerQueryResult = Apollo.QueryResult<AnswerQuery, AnswerQueryVariables>;
 export const ProjectFundingsDocument = gql`
     query ProjectFundings($projectId: Int!) {
   projectFundings(projectId: $projectId) {
@@ -5731,6 +5854,7 @@ export const ProjectFundingDocument = gql`
   projectFunding(projectFundingId: $projectFundingId) {
     affiliation {
       name
+      displayName
     }
     status
     grantId
@@ -6299,6 +6423,55 @@ export type ChildResearchDomainsQueryHookResult = ReturnType<typeof useChildRese
 export type ChildResearchDomainsLazyQueryHookResult = ReturnType<typeof useChildResearchDomainsLazyQuery>;
 export type ChildResearchDomainsSuspenseQueryHookResult = ReturnType<typeof useChildResearchDomainsSuspenseQuery>;
 export type ChildResearchDomainsQueryResult = Apollo.QueryResult<ChildResearchDomainsQuery, ChildResearchDomainsQueryVariables>;
+export const SectionVersionsDocument = gql`
+    query SectionVersions($sectionId: Int!) {
+  sectionVersions(sectionId: $sectionId) {
+    id
+    versionedQuestions {
+      id
+      questionText
+      json
+      questionId
+    }
+    section {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useSectionVersionsQuery__
+ *
+ * To run a query within a React component, call `useSectionVersionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSectionVersionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSectionVersionsQuery({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *   },
+ * });
+ */
+export function useSectionVersionsQuery(baseOptions: Apollo.QueryHookOptions<SectionVersionsQuery, SectionVersionsQueryVariables> & ({ variables: SectionVersionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SectionVersionsQuery, SectionVersionsQueryVariables>(SectionVersionsDocument, options);
+      }
+export function useSectionVersionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SectionVersionsQuery, SectionVersionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SectionVersionsQuery, SectionVersionsQueryVariables>(SectionVersionsDocument, options);
+        }
+export function useSectionVersionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SectionVersionsQuery, SectionVersionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SectionVersionsQuery, SectionVersionsQueryVariables>(SectionVersionsDocument, options);
+        }
+export type SectionVersionsQueryHookResult = ReturnType<typeof useSectionVersionsQuery>;
+export type SectionVersionsLazyQueryHookResult = ReturnType<typeof useSectionVersionsLazyQuery>;
+export type SectionVersionsSuspenseQueryHookResult = ReturnType<typeof useSectionVersionsSuspenseQuery>;
+export type SectionVersionsQueryResult = Apollo.QueryResult<SectionVersionsQuery, SectionVersionsQueryVariables>;
 export const SectionsDisplayOrderDocument = gql`
     query SectionsDisplayOrder($templateId: Int!) {
   sections(templateId: $templateId) {

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Breadcrumb, Breadcrumbs, Form, Link } from "react-aria-components";
 import { CalendarDate, DateValue } from "@internationalized/date";
 import DOMPurify from 'dompurify';
@@ -15,6 +15,8 @@ import {
 } from "@/components/Container";
 
 import {
+  SectionVersionsQuery,
+  useSectionVersionsQuery,
   usePlanQuery,
   useQuestionQuery,
 } from '@/generated/graphql';
@@ -45,6 +47,8 @@ import {
   getOverrides,
 } from './hooks/useQuestionDetails';
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
+import { addAnswerAction } from './actions';
+
 
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
@@ -57,13 +61,18 @@ interface PlanData {
 const PlanOverviewQuestionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
   const params = useParams();
+  const router = useRouter();
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
+  const sectionId = params.sid as string;
   const questionId = params.qid as string;
+
 
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
   const [questionType, setQuestionType] = useState<string>('');
+  const [versionedSectionId, setVersionedSectionId] = useState<number | null>();
+  const [versionedQuestionId, setVersionedQuestionId] = useState<number | null>();
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
@@ -79,6 +88,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
   const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
   const [yesNoValue, setYesNoValue] = useState<string>('no');
+  const [textAreaContent, setTextAreaContent] = useState<string>('');
   // Add local state for multiSelect values
   const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
 
@@ -132,6 +142,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
       notifyOnNetworkStatusChange: true
     }
   );
+
+  // Get sectionVersions from sectionId
+  const { data: sectionVersions, loading: versionedSectionLoading, error: versionedSectionError, refetch: refetchVersionedSection } = useSectionVersionsQuery(
+    {
+      variables: { sectionId: Number(sectionId) }
+    }
+  )
 
   // Check if question is an options type
   const isOptionsType = (questionType: string) => {
@@ -205,103 +222,196 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }));
   };
 
+  const getAnswerJson = (): Record<string, any> => {
+    switch (questionType) {
+      case 'textArea':
+        return { answer: textAreaContent };
 
-  // Prepare input for the questionTypeHandler. For options questions, we update the 
-  // values with rows state. For non-options questions, we use the parsed JSON
-  const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
-    if (hasOptions) {
-      const useRows = rowsOverride ?? rows;
-      return {
-        options: useRows.map(row => ({
-          label: row.text,
-          value: row.text,
-          selected: row.isSelected,
-        })),
-      };
-    }
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('projects.dmp.question.detail', { projectId, dmpId, q_slug: questionId }), Global);
-    if (!parsed) {
-      if (error) {
-        setErrors(prev => [...prev, error])
+      case 'text':
+        return { answer: textValue };
+
+      case 'radioButtons':
+        return { answer: selectedRadioValue };
+
+      case 'checkboxes':
+        return { answer: selectedCheckboxValues };
+
+      case 'selectBox':
+        if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
+          return { answer: Array.from(selectedMultiSelectValues) }; // this is for multiSelect
+        }
+        return { answer: selectedSelectValue };
+
+      case 'boolean':
+        return { answer: yesNoValue };
+
+      case 'email':
+        return { answer: emailValue };
+
+      case 'url':
+        return { answer: urlValue };
+
+      case 'number':
+        return { answer: inputValue };
+
+      case 'currency':
+        return { answer: inputCurrencyValue };
+
+      case 'dateRange':
+      case 'date': {
+        return {
+          answer: {
+            startDate: dateRange.startDate?.toString() ?? null,
+            endDate: dateRange.endDate?.toString() ?? null
+          }
+        };
       }
-      return;
+
+      case 'numberRange':
+        return {
+          answer: {
+            startNumber: numberRange.startNumber,
+            endNumber: numberRange.endNumber
+          }
+        };
+
+      case 'typeaheadSearch':
+        return {
+          answer: {
+            affiliationId: affiliationData.affiliationId,
+            affiliationName: otherField ? otherAffiliationName : affiliationData.affiliationName,
+            isOther: otherField,
+          }
+        };
+
+      default:
+        return { answer: textAreaContent };
     }
-    return {
-      ...parsed,
-      attributes: {
-        ...('attributes' in parsed ? parsed.attributes : {}),
-        ...getOverrides(questionType),
-      },
-    };
   };
 
-  // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
-  const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
-    const userInput = getFormState(question, rowsOverride);
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('projects.dmp.question.detail', { projectId, dmpId, q_slug: questionId }), Global);
-    if (!parsed) {
-      if (error) {
-        setErrors(prev => [...prev, error])
-      }
-      return;
-    }
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-      parsed,
-      userInput
-    );
-  };
 
-  // Handle answer to question
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Call Server Action publishPlanAction to run the publishPlanMutation
+  const addAnswer = async () => {
+    const jsonPayload = getAnswerJson();
 
+    console.log("JSON PAYLOAD", jsonPayload);
     if (question) {
-      const updatedJSON = buildUpdatedJSON(question);
-
-      // Strip all tags from questionText before sending to backend
-      const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
-
       try {
-        // Add mutation for question
-        const response = await updateQuestionMutation({
-          variables: {
-            input: {
-              questionId: Number(questionId),
-              displayOrder: question.displayOrder,
-              json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
-              questionText: cleanedQuestionText,
-              requirementText: question.requirementText,
-              guidanceText: question.guidanceText,
-              sampleText: question.sampleText,
-              useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-            }
-          },
-        });
+        const response = await addAnswerAction({
+          planId: Number(dmpId),
+          versionedSectionId: Number(versionedSectionId),
+          versionedQuestionId: Number(versionedQuestionId),
+          json: JSON.stringify(jsonPayload)
+        })
 
-        if (response?.data) {
-          // Show success message and redirect to Edit Template page
-          toastState.add(t('messages.success.questionUpdated'), { type: 'success' });
-          router.push(TEMPLATE_URL);
+        console.log("RESPONSE", response)
+        if (response.redirect) {
+          router.push(response.redirect);
+        }
+
+        return {
+          success: response.success,
+          errors: response.errors,
+          data: response.data
         }
       } catch (error) {
-        if (!(error instanceof ApolloError)) {
-          setErrors(prevErrors => [...prevErrors, t('messages.errors.questionUpdateError')]);
-        }
+        logECS('error', 'addAnswer', {
+          error,
+          url: {
+            path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId })
+          }
+        });
       }
     }
+    return {
+      success: false,
+      errors: [Global('messaging.somethingWentWrong')],
+      data: null
+    };
   }
 
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = await addAnswer();
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        setErrors(prev => [...prev, Global('messaging.somethingWentWrong')])
+      }
+    } else {
+      if (
+        result.data?.errors &&
+        typeof result.data.errors === 'object' &&
+        typeof result.data.errors.general === 'string') {
+        // Handle errors as an object with general or field-level errors
+        setErrors(prev => [...prev, Global('messaging.somethingWentWrong')])
+
+      }
+      //Need to refetch plan data to refresh the info that was changed
+      await refetch();
+    }
+  };
+
+  interface VersionedQuestionInterface {
+    id: number;
+    json: string;
+    questionId: number;
+    questionText: string;
+  }
+
+  interface VersionedQuestion {
+    id: number;
+    questionText: string;
+    json: string;
+    questionId: number;
+  }
+
+  interface Section {
+    __typename: "Section";
+    id: number;
+  }
+
+  interface VersionedSection {
+    id: number;
+    versionedQuestions: VersionedQuestion[];
+    section: Section;
+  }
+
+  interface SectionVersionsData {
+    sectionVersions: VersionedSection[] | null;
+  }
+
+  const findVersionedQuestionId = (sectionVersions: SectionVersionsQuery, questionId: number) => {
+    if (!sectionVersions?.sectionVersions) return null;
+
+    for (const sectionVersion of sectionVersions.sectionVersions) {
+      if (!sectionVersion?.versionedQuestions) continue;
+
+      const foundQuestion = sectionVersion.versionedQuestions.find(
+        (question) => question?.questionId === questionId
+      );
+      if (foundQuestion?.id) {
+        return foundQuestion.id;
+      }
+    }
+    return null;
+  };
   useEffect(() => {
     if (selectedQuestion?.question) {
       const q = selectedQuestion.question;
 
       try {
-        const { parsed, error } = getParsedQuestionJSON(q, routePath('projects.dmp.question.detail', { projectId, dmpId, q_slug: questionId }), Global);
+        const { parsed, error } = getParsedQuestionJSON(q, routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }), Global);
         if (!parsed?.type) {
           if (error) {
             logECS('error', 'Parsing error', {
               error: 'Invalid question type in parsed JSON',
-              url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, q_slug: questionId }) }
+              url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }) }
             });
 
             setErrors(prev => [...prev, error])
@@ -310,7 +420,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         }
 
         const questionType = parsed.type;
-        const questionTypeFriendlyName = Global(`questionTypes.${questionType}`);
 
         setQuestionType(questionType);
         setParsed(parsed);
@@ -333,7 +442,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
-          url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, q_slug: questionId }) }
+          url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }) }
         });
         setErrors(prev => [...prev, 'Error parsing question data']);
       }
@@ -351,6 +460,18 @@ const PlanOverviewQuestionPage: React.FC = () => {
     };
   }, [planData]);
 
+
+  useEffect(() => {
+    if (sectionVersions && sectionVersions?.sectionVersions) {
+      setVersionedSectionId(sectionVersions?.sectionVersions?.[0]?.id);
+      if (sectionVersions) {
+        const versionedQuestionId = findVersionedQuestionId(sectionVersions, Number(questionId));
+        setVersionedQuestionId(versionedQuestionId ?? null);
+      }
+    }
+  }, [sectionVersions])
+
+
   const questionField = useRenderQuestionField({
     questionType,
     parsed,
@@ -358,6 +479,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
     textFieldProps: {
       textValue: typeof textValue === 'string' ? textValue : '',
       handleTextChange,
+    },
+    textAreaProps: {
+      setContent: setTextAreaContent
     },
     radioProps: {
       selectedRadioValue,
@@ -456,9 +580,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
               {convertToHTML(question?.requirementText)}
 
             </section>
+            <Form onSubmit={handleSubmit}>
+              <Card data-testid='question-card'>
 
-            <Card data-testid='question-card'>
-              <Form>
                 <span>Question</span>
                 <h2 id="question-title">
                   {question?.questionText}
@@ -469,54 +593,55 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   role="status">
                   Last saved X minutes ago
                 </div>
-              </Form>
-            </Card>
+              </Card>
 
-            <section aria-label={"Guidance"}>
-              <h3 className={"h4"}>Guidance by {plan?.funder}</h3>
+              <section aria-label={"Guidance"}>
+                <h3 className={"h4"}>Guidance by {plan?.funder}</h3>
 
-              {convertToHTML(question?.guidanceText)}
+                {convertToHTML(question?.guidanceText)}
 
 
-              <h3 className={"h4"}>Guidance by University of California</h3>
-              <p>
-                This is the most detailed section of the data management plan.
-                Describe the categories of data being collected and how they tie
-                into the data associated with the methods used to collect that
-                data.
-              </p>
-              <p>
-                Expect this section to be the most detailed section, taking up a
-                large portion of your data management plan document.
-              </p>
-            </section>
-
-            <div className={styles.actions}>
-              <div className={styles.actionItem}>
-                <button
-                  className="react-aria-Button react-aria-Button--primary"
-                  aria-label="Return to section overview"
-                >
-                  Back to Section
-                </button>
-              </div>
-              <div className={styles.actionItem}>
-                <button
-                  className="react-aria-Button react-aria-Button--primary"
-                  aria-label="Save answer"
-                >
-                  Save
-                </button>
-                <p
-                  className={styles.lastSaved}
-                  aria-live="polite"
-                  role="status"
-                >
-                  Last saved: X mins ago
+                <h3 className={"h4"}>Guidance by University of California</h3>
+                <p>
+                  This is the most detailed section of the data management plan.
+                  Describe the categories of data being collected and how they tie
+                  into the data associated with the methods used to collect that
+                  data.
                 </p>
+                <p>
+                  Expect this section to be the most detailed section, taking up a
+                  large portion of your data management plan document.
+                </p>
+              </section>
 
+              <div className={styles.actions}>
+                <div className={styles.actionItem}>
+                  <button
+                    className="react-aria-Button react-aria-Button--primary"
+                    aria-label="Return to section overview"
+                  >
+                    Back to Section
+                  </button>
+                </div>
+                <div className={styles.actionItem}>
+                  <button
+                    className="react-aria-Button react-aria-Button--primary"
+                    aria-label="Save answer"
+                    type="submit"
+                  >
+                    Save
+                  </button>
+                  <p
+                    className={styles.lastSaved}
+                    aria-live="polite"
+                    role="status"
+                  >
+                    Last saved: X mins ago
+                  </p>
+
+                </div>
               </div>
-            </div>
+            </Form>
 
 
           </div>
@@ -574,7 +699,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             </div>
           </div>
         </SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutWithPanel >
     </>
   );
 }

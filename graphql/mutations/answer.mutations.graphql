@@ -1,0 +1,7 @@
+mutation AddAnswer($planId: Int!, $versionedSectionId: Int!, $versionedQuestionId: Int!, $json: String!) {
+  addAnswer(planId: $planId, versionedSectionId: $versionedSectionId, versionedQuestionId: $versionedQuestionId, json: $json) {
+    id
+    json
+    modified
+  }
+}

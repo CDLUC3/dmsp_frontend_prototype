@@ -303,7 +303,7 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        max: input?.max ?? new Date().toISOString().split('T')[0], // Default to today
+        max: input?.max ?? null,
         min: input?.min ?? "1900-01-01",
         step: input?.step ?? 1,
       },

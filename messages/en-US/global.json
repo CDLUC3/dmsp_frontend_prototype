@@ -162,7 +162,8 @@
       "projectOverview": "Project overview",
       "projectFunding": "Project funding",
       "planOverview": "Plan overview",
-      "feedback": "Feedback"
+      "feedback": "Feedback",
+      "questionDetails": "Question details"
     },
     "form": {
       "yesLabel": "Yes",

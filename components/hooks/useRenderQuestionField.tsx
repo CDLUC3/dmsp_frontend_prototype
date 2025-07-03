@@ -77,6 +77,9 @@ export interface TextFieldProps {
   handleTextChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+export interface TextAreaProps {
+  setContent: (newContent: string) => void;
+}
 
 export interface DateProps {
   dateRange: { startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null };
@@ -133,6 +136,10 @@ export interface RenderQuestionFieldProps {
   textFieldProps?: {
     textValue?: string;
     handleTextChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  };
+
+  textAreaProps?: {
+    setContent?: (newContent: string) => void;
   };
 
   selectBoxProps?: {
@@ -214,6 +221,7 @@ export function useRenderQuestionField({
   multiSelectBoxProps,
   selectBoxProps,
   textFieldProps,
+  textAreaProps,
   dateProps,
   dateRangeProps,
   numberProps,
@@ -299,13 +307,12 @@ export function useRenderQuestionField({
       break;
 
     case TEXT_AREA_QUESTION_TYPE:
-      if (parsed.type === 'textArea') {
+      if (parsed.type === 'textArea' && textAreaProps) {
         return (
           <TinyMCEEditor
             id="question-text-editor"
             content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
-            setContent={() => { }
-            }
+            setContent={(value) => textAreaProps?.setContent && textAreaProps?.setContent(value)}
           />
         );
       }
