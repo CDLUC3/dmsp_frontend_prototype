@@ -78,6 +78,7 @@ export interface TextFieldProps {
 }
 
 export interface TextAreaProps {
+  content: string;
   setContent: (newContent: string) => void;
 }
 
@@ -139,6 +140,7 @@ export interface RenderQuestionFieldProps {
   };
 
   textAreaProps?: {
+    content: string;
     setContent?: (newContent: string) => void;
   };
 
@@ -311,7 +313,7 @@ export function useRenderQuestionField({
         return (
           <TinyMCEEditor
             id="question-text-editor"
-            content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
+            content={textAreaProps?.content ?? ''}
             setContent={(value) => textAreaProps?.setContent && textAreaProps?.setContent(value)}
           />
         );

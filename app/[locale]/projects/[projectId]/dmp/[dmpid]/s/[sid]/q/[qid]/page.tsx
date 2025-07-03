@@ -16,6 +16,7 @@ import {
 
 import {
   SectionVersionsQuery,
+  useAnswerByVersionedQuestionIdLazyQuery,
   useSectionVersionsQuery,
   usePlanQuery,
   useQuestionQuery,
@@ -30,24 +31,22 @@ import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON'
 // Utils
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { stripHtmlTags } from '@/utils/general';
 
 import {
   OPTIONS_QUESTION_TYPES
 } from '@/lib/constants';
-import { questionTypeHandlers, QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
 
 import {
   Option,
   Question,
   QuestionOptions,
 } from '@/app/types';
-import {
-  isOptionsType,
-  getOverrides,
-} from './hooks/useQuestionDetails';
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
-import { addAnswerAction } from './actions';
+import {
+  addAnswerAction,
+  updateAnswerAction
+} from './actions';
 
 
 
@@ -150,6 +149,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   )
 
+  // Get loadAnswer to call later, after we set the versionedQuestionId
+  const [loadAnswer, { data: answerData, loading: answerLoading, error: answerError }] =
+    useAnswerByVersionedQuestionIdLazyQuery();
+
   // Check if question is an options type
   const isOptionsType = (questionType: string) => {
     return Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType));
@@ -222,6 +225,74 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }));
   };
 
+  const prefillAnswer = (answer: any, type: string) => {
+    switch (type) {
+      case 'text':
+        setTextValue(answer ?? '');
+        break;
+      case 'textArea':
+        setTextAreaContent(answer ?? '');
+        break;
+      case 'radioButtons':
+        setSelectedRadioValue(answer ?? '');
+        break;
+      case 'checkBoxes':
+        setSelectedCheckboxValues(Array.isArray(answer) ? answer : []);
+        break;
+      case 'selectBox':
+        if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
+          setSelectedSelectValue(answer ?? '');
+        }
+        setSelectedMultiSelectValues(new Set(Array.isArray(answer) ? answer : []));
+
+        break;
+      case 'boolean':
+        setYesNoValue(answer ?? 'no');
+        break;
+      case 'email':
+        setEmailValue(answer ?? '');
+        break;
+      case 'url':
+        setUrlValue(answer ?? '');
+        break;
+      case 'number':
+        setInputValue(typeof answer === 'number' ? answer : null);
+        break;
+      case 'currency':
+        setInputCurrencyValue(typeof answer === 'number' ? answer : null);
+        break;
+      case 'date':
+      case 'dateRange':
+        if (answer?.startDate || answer?.endDate) {
+          setDateRange({
+            startDate: answer?.startDate ?? null,
+            endDate: answer?.endDate ?? null,
+          });
+        }
+        break;
+      case 'numberRange':
+        if (answer?.startNumber || answer?.endNumber) {
+          setNumberRange({
+            startNumber: answer?.startNumber ?? 0,
+            endNumber: answer?.endNumber ?? 0,
+          });
+        }
+        break;
+      case 'typeaheadSearch':
+        if (answer) {
+          setAffiliationData({
+            affiliationId: answer.affiliationId ?? '',
+            affiliationName: answer.affiliationName ?? ''
+          });
+          setOtherField(answer.isOther ?? false);
+          setOtherAffiliationName(answer.affiliationName ?? '');
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
   const getAnswerJson = (): Record<string, any> => {
     switch (questionType) {
       case 'textArea':
@@ -233,14 +304,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
       case 'radioButtons':
         return { answer: selectedRadioValue };
 
-      case 'checkboxes':
+      case 'checkBoxes':
         return { answer: selectedCheckboxValues };
 
       case 'selectBox':
         if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
-          return { answer: Array.from(selectedMultiSelectValues) }; // this is for multiSelect
+          if (parsed?.attributes?.multiple === true) {
+            return { answer: Array.from(selectedMultiSelectValues) }; // this is for multiSelect
+          }
+          return { answer: selectedSelectValue };
         }
-        return { answer: selectedSelectValue };
 
       case 'boolean':
         return { answer: yesNoValue };
@@ -294,17 +367,22 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const addAnswer = async () => {
     const jsonPayload = getAnswerJson();
 
-    console.log("JSON PAYLOAD", jsonPayload);
+    // Check is answer already exists. If so, we want to call an update mutation
+    const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
+
     if (question) {
       try {
-        const response = await addAnswerAction({
-          planId: Number(dmpId),
-          versionedSectionId: Number(versionedSectionId),
-          versionedQuestionId: Number(versionedQuestionId),
-          json: JSON.stringify(jsonPayload)
-        })
-
-        console.log("RESPONSE", response)
+        const response = isUpdate
+          ? await updateAnswerAction({
+            answerId: Number(answerData?.answerByVersionedQuestionId?.id),
+            json: JSON.stringify(jsonPayload),
+          })
+          : await addAnswerAction({
+            planId: Number(dmpId),
+            versionedSectionId: Number(versionedSectionId),
+            versionedQuestionId: Number(versionedQuestionId),
+            json: JSON.stringify(jsonPayload),
+          });
         if (response.redirect) {
           router.push(response.redirect);
         }
@@ -356,13 +434,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       await refetch();
     }
   };
-
-  interface VersionedQuestionInterface {
-    id: number;
-    json: string;
-    questionId: number;
-    questionText: string;
-  }
 
   interface VersionedQuestion {
     id: number;
@@ -471,6 +542,34 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }, [sectionVersions])
 
+  // Run the query when versionedQuestionId becomes available
+  useEffect(() => {
+    if (versionedQuestionId) {
+      loadAnswer({
+        variables: {
+          projectId: Number(projectId),
+          planId: Number(dmpId),
+          versionedQuestionId: Number(versionedQuestionId),
+        }
+      });
+    }
+  }, [versionedQuestionId, loadAnswer, projectId, dmpId]);
+
+  //Wait for answerData and questionType, then prefill the state
+  useEffect(() => {
+    const json = answerData?.answerByVersionedQuestionId?.json;
+    if (json && questionType) {
+      try {
+        const parsed = JSON.parse(json);
+        if (parsed?.answer !== undefined) {
+          prefillAnswer(parsed.answer, questionType);
+        }
+      } catch (err) {
+        console.error('Could not parse saved answer JSON', err);
+      }
+    }
+  }, [answerData, questionType]);
+
 
   const questionField = useRenderQuestionField({
     questionType,
@@ -481,6 +580,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleTextChange,
     },
     textAreaProps: {
+      content: textAreaContent ?? '',
       setContent: setTextAreaContent
     },
     radioProps: {

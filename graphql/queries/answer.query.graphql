@@ -1,10 +1,38 @@
-query Answer($projectId: Int!, $answerId: Int!) {
-  answer(projectId: $projectId, answerId: $answerId) {
-    errors {
-      general
-    }
+query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQuestionId: Int!) {
+  answerByVersionedQuestionId(projectId: $projectId, planId: $planId, versionedQuestionId: $versionedQuestionId) {
     id
     json
+    versionedQuestion {
+      id
+    }
+    plan {
+      id
+    }
     modified
+    errors {
+      general
+      versionedSectionId
+      versionedQuestionId
+      uri
+      types
+      subHeaderLinks
+      ssoEntityId
+      searchName
+      provenance
+      planId
+      name
+      logoURI
+      logoName
+      json
+      homepage
+      fundrefId
+      feedbackMessage
+      feedbackEmails
+      displayName
+      contactName
+      contactEmail
+      aliases
+      acronyms
+    }
   }
 }

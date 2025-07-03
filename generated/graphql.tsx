@@ -1592,7 +1592,7 @@ export type PlanFunding = {
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The project that is seeking (or has aquired) funding */
-  plan?: Maybe<Plan>;
+  project?: Maybe<Project>;
   /** The project funder */
   projectFunding?: Maybe<ProjectFunding>;
 };
@@ -1603,7 +1603,7 @@ export type PlanFundingErrors = {
   ProjectFundingId?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
-  planId?: Maybe<Scalars['String']['output']>;
+  projectId?: Maybe<Scalars['String']['output']>;
 };
 
 /** A Member associated with a plan */
@@ -2129,8 +2129,8 @@ export type Query = {
   affiliations?: Maybe<AffiliationSearchResults>;
   /** Get the sepecific answer */
   answer?: Maybe<Answer>;
-  /** Get answer by versionedQuestionId */
-  answerByVersionedQuestionId?: Maybe<Array<Maybe<Answer>>>;
+  /** Get an answer by versionedQuestionId */
+  answerByVersionedQuestionId?: Maybe<Answer>;
   /** Get all answers for the given project and plan and section */
   answers?: Maybe<Array<Maybe<Answer>>>;
   /** Get all of the best practice VersionedSection */
@@ -3754,6 +3754,14 @@ export type AddAnswerMutationVariables = Exact<{
 
 export type AddAnswerMutation = { __typename?: 'Mutation', addAnswer?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null } | null };
 
+export type UpdateAnswerMutationVariables = Exact<{
+  answerId: Scalars['Int']['input'];
+  json?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type UpdateAnswerMutation = { __typename?: 'Mutation', updateAnswer?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, errors?: { __typename?: 'AffiliationErrors', acronyms?: string | null, aliases?: string | null, contactEmail?: string | null, contactName?: string | null, displayName?: string | null, feedbackEmails?: string | null, feedbackMessage?: string | null, fundrefId?: string | null, general?: string | null, homepage?: string | null, json?: string | null, logoName?: string | null, logoURI?: string | null, name?: string | null, planId?: string | null, provenance?: string | null, searchName?: string | null, ssoEntityId?: string | null, subHeaderLinks?: string | null, types?: string | null, uri?: string | null, versionedQuestionId?: string | null, versionedSectionId?: string | null } | null, versionedQuestion?: { __typename?: 'VersionedQuestion', versionedSectionId: number } | null } | null };
+
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -3992,13 +4000,14 @@ export type AffiliationFundersQueryVariables = Exact<{
 
 export type AffiliationFundersQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
 
-export type AnswerQueryVariables = Exact<{
+export type AnswerByVersionedQuestionIdQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
-  answerId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
+  versionedQuestionId: Scalars['Int']['input'];
 }>;
 
 
-export type AnswerQuery = { __typename?: 'Query', answer?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null } | null } | null };
+export type AnswerByVersionedQuestionIdQuery = { __typename?: 'Query', answerByVersionedQuestionId?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, versionedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null } | null, plan?: { __typename?: 'Plan', id?: number | null } | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null, versionedSectionId?: string | null, versionedQuestionId?: string | null, uri?: string | null, types?: string | null, subHeaderLinks?: string | null, ssoEntityId?: string | null, searchName?: string | null, provenance?: string | null, planId?: string | null, name?: string | null, logoURI?: string | null, logoName?: string | null, json?: string | null, homepage?: string | null, fundrefId?: string | null, feedbackMessage?: string | null, feedbackEmails?: string | null, displayName?: string | null, contactName?: string | null, contactEmail?: string | null, aliases?: string | null, acronyms?: string | null } | null } | null };
 
 export type ProjectFundingsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4222,6 +4231,70 @@ export function useAddAnswerMutation(baseOptions?: Apollo.MutationHookOptions<Ad
 export type AddAnswerMutationHookResult = ReturnType<typeof useAddAnswerMutation>;
 export type AddAnswerMutationResult = Apollo.MutationResult<AddAnswerMutation>;
 export type AddAnswerMutationOptions = Apollo.BaseMutationOptions<AddAnswerMutation, AddAnswerMutationVariables>;
+export const UpdateAnswerDocument = gql`
+    mutation UpdateAnswer($answerId: Int!, $json: String) {
+  updateAnswer(answerId: $answerId, json: $json) {
+    errors {
+      acronyms
+      aliases
+      contactEmail
+      contactName
+      displayName
+      feedbackEmails
+      feedbackMessage
+      fundrefId
+      general
+      homepage
+      json
+      logoName
+      logoURI
+      name
+      planId
+      provenance
+      searchName
+      ssoEntityId
+      subHeaderLinks
+      types
+      uri
+      versionedQuestionId
+      versionedSectionId
+    }
+    id
+    json
+    modified
+    versionedQuestion {
+      versionedSectionId
+    }
+  }
+}
+    `;
+export type UpdateAnswerMutationFn = Apollo.MutationFunction<UpdateAnswerMutation, UpdateAnswerMutationVariables>;
+
+/**
+ * __useUpdateAnswerMutation__
+ *
+ * To run a mutation, you first call `useUpdateAnswerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAnswerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAnswerMutation, { data, loading, error }] = useUpdateAnswerMutation({
+ *   variables: {
+ *      answerId: // value for 'answerId'
+ *      json: // value for 'json'
+ *   },
+ * });
+ */
+export function useUpdateAnswerMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAnswerMutation, UpdateAnswerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAnswerMutation, UpdateAnswerMutationVariables>(UpdateAnswerDocument, options);
+      }
+export type UpdateAnswerMutationHookResult = ReturnType<typeof useUpdateAnswerMutation>;
+export type UpdateAnswerMutationResult = Apollo.MutationResult<UpdateAnswerMutation>;
+export type UpdateAnswerMutationOptions = Apollo.BaseMutationOptions<UpdateAnswerMutation, UpdateAnswerMutationVariables>;
 export const AddPlanDocument = gql`
     mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
@@ -5536,52 +5609,85 @@ export type AffiliationFundersQueryHookResult = ReturnType<typeof useAffiliation
 export type AffiliationFundersLazyQueryHookResult = ReturnType<typeof useAffiliationFundersLazyQuery>;
 export type AffiliationFundersSuspenseQueryHookResult = ReturnType<typeof useAffiliationFundersSuspenseQuery>;
 export type AffiliationFundersQueryResult = Apollo.QueryResult<AffiliationFundersQuery, AffiliationFundersQueryVariables>;
-export const AnswerDocument = gql`
-    query Answer($projectId: Int!, $answerId: Int!) {
-  answer(projectId: $projectId, answerId: $answerId) {
-    errors {
-      general
-    }
+export const AnswerByVersionedQuestionIdDocument = gql`
+    query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQuestionId: Int!) {
+  answerByVersionedQuestionId(
+    projectId: $projectId
+    planId: $planId
+    versionedQuestionId: $versionedQuestionId
+  ) {
     id
     json
+    versionedQuestion {
+      id
+    }
+    plan {
+      id
+    }
     modified
+    errors {
+      general
+      versionedSectionId
+      versionedQuestionId
+      uri
+      types
+      subHeaderLinks
+      ssoEntityId
+      searchName
+      provenance
+      planId
+      name
+      logoURI
+      logoName
+      json
+      homepage
+      fundrefId
+      feedbackMessage
+      feedbackEmails
+      displayName
+      contactName
+      contactEmail
+      aliases
+      acronyms
+    }
   }
 }
     `;
 
 /**
- * __useAnswerQuery__
+ * __useAnswerByVersionedQuestionIdQuery__
  *
- * To run a query within a React component, call `useAnswerQuery` and pass it any options that fit your needs.
- * When your component renders, `useAnswerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useAnswerByVersionedQuestionIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAnswerByVersionedQuestionIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useAnswerQuery({
+ * const { data, loading, error } = useAnswerByVersionedQuestionIdQuery({
  *   variables: {
  *      projectId: // value for 'projectId'
- *      answerId: // value for 'answerId'
+ *      planId: // value for 'planId'
+ *      versionedQuestionId: // value for 'versionedQuestionId'
  *   },
  * });
  */
-export function useAnswerQuery(baseOptions: Apollo.QueryHookOptions<AnswerQuery, AnswerQueryVariables> & ({ variables: AnswerQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function useAnswerByVersionedQuestionIdQuery(baseOptions: Apollo.QueryHookOptions<AnswerByVersionedQuestionIdQuery, AnswerByVersionedQuestionIdQueryVariables> & ({ variables: AnswerByVersionedQuestionIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AnswerQuery, AnswerQueryVariables>(AnswerDocument, options);
+        return Apollo.useQuery<AnswerByVersionedQuestionIdQuery, AnswerByVersionedQuestionIdQueryVariables>(AnswerByVersionedQuestionIdDocument, options);
       }
-export function useAnswerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AnswerQuery, AnswerQueryVariables>) {
+export function useAnswerByVersionedQuestionIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AnswerByVersionedQuestionIdQuery, AnswerByVersionedQuestionIdQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AnswerQuery, AnswerQueryVariables>(AnswerDocument, options);
+          return Apollo.useLazyQuery<AnswerByVersionedQuestionIdQuery, AnswerByVersionedQuestionIdQueryVariables>(AnswerByVersionedQuestionIdDocument, options);
         }
-export function useAnswerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AnswerQuery, AnswerQueryVariables>) {
+export function useAnswerByVersionedQuestionIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AnswerByVersionedQuestionIdQuery, AnswerByVersionedQuestionIdQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<AnswerQuery, AnswerQueryVariables>(AnswerDocument, options);
+          return Apollo.useSuspenseQuery<AnswerByVersionedQuestionIdQuery, AnswerByVersionedQuestionIdQueryVariables>(AnswerByVersionedQuestionIdDocument, options);
         }
-export type AnswerQueryHookResult = ReturnType<typeof useAnswerQuery>;
-export type AnswerLazyQueryHookResult = ReturnType<typeof useAnswerLazyQuery>;
-export type AnswerSuspenseQueryHookResult = ReturnType<typeof useAnswerSuspenseQuery>;
-export type AnswerQueryResult = Apollo.QueryResult<AnswerQuery, AnswerQueryVariables>;
+export type AnswerByVersionedQuestionIdQueryHookResult = ReturnType<typeof useAnswerByVersionedQuestionIdQuery>;
+export type AnswerByVersionedQuestionIdLazyQueryHookResult = ReturnType<typeof useAnswerByVersionedQuestionIdLazyQuery>;
+export type AnswerByVersionedQuestionIdSuspenseQueryHookResult = ReturnType<typeof useAnswerByVersionedQuestionIdSuspenseQuery>;
+export type AnswerByVersionedQuestionIdQueryResult = Apollo.QueryResult<AnswerByVersionedQuestionIdQuery, AnswerByVersionedQuestionIdQueryVariables>;
 export const ProjectFundingsDocument = gql`
     query ProjectFundings($projectId: Int!) {
   projectFundings(projectId: $projectId) {
