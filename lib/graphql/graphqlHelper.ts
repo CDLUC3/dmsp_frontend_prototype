@@ -3,6 +3,7 @@ import { Observable } from "@apollo/client";
 import logECS from "@/utils/clientLogger";
 import { RetryLink } from "@apollo/client/link/retry";
 import { createAuthLink } from "@/utils/authLink";
+import { navigateTo } from "@/utils/navigation";
 import { fetchCsrfToken, refreshAuthTokens } from "@/utils/authHelper";
 
 interface CustomError extends Error {
@@ -31,11 +32,11 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
                   return;
                 } else {
                   logECS('error', 'Token refresh failed with no result', { errorCode: 'UNAUTHENTICATED' });
-                  window.location.href = '/login';
+                  navigateTo('/login');
                 }
               } catch (error) {
                 logECS('error', 'Token refresh failed', { error });
-                window.location.href = '/login';
+                navigateTo('/login');
               }
               break;
 
@@ -53,11 +54,11 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
                   return;
                 } else {
                   logECS('error', 'Token refresh failed with no result', { errorCode: 'FORBIDDEN' });
-                  window.location.href = '/login';
+                  navigateTo('/login');
                 }
               } catch (error) {
                 logECS('error', 'Fetching csrf token failed', { error });
-                window.location.href = '/login';
+                navigateTo('/login');
               }
               break;
 
@@ -67,7 +68,7 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
               logECS('error', `[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`, {
                 errorCode: 'INTERNAL_SERVER_ERROR'
               });
-              window.location.href = '/500-error';
+              navigateTo('/500-error');
               break;
 
             default:
