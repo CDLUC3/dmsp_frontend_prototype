@@ -74,3 +74,17 @@ mutation UpdatePlanStatus($planId: Int!, $status: PlanStatus!) {
     visibility
   }
 }
+
+
+mutation AddPlanFunding($planId: Int!, $projectFundingId: Int!) {
+  addPlanFunding(planId: $planId, projectFundingId: $projectFundingId) {
+    errors {
+      ProjectFundingId
+      general
+      projectId
+    }
+    projectFunding {
+      id
+    }
+  }
+}
