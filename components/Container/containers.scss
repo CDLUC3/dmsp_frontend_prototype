@@ -71,6 +71,7 @@
     width: max-content;
     top: 0;
     bottom: 0;
+    z-index:1000;
   }
 
   &.state-closed {
@@ -87,7 +88,7 @@
 
 .layout-with-panel {
   @include layoutContainer;
-
+  position: relative;
   --_sidebar-width: 100%;
 
   width: 100%;
@@ -119,8 +120,6 @@
           max-width: none;
         }
       }
-
-
     }
   }
 
@@ -145,24 +144,91 @@
     }
   }
 
-  &.direction-right {
-    > {
-      .layout-drawer-panel {
-        &.state-open { right: 0; }
-        &.state-closed { right: calc(var(--_sidebar-width) * -1); }
-      }
+  // &.direction-right {
+  //   > {
+  //     .layout-drawer-panel {
+  //       &.state-open { right: 0; }
+  //       &.state-closed { right: calc(var(--_sidebar-width) * -1); }
+  //     }
 
-      .layout-drawer-modal {
-        &.state-open .drawer-content { right: 0; }
-        &.state-closed .drawer-content { right: calc(var(--_sidebar-width) * -1); }
-      }
+  //     .layout-drawer-modal {
+  //       &.state-open .drawer-content { right: 0; }
+  //       &.state-closed .drawer-content { right: calc(var(--_sidebar-width) * -1); }
+  //     }
 
-      @include r.device(md) {
-        .layout-sidebar-panel {
-          &.state-open { left: 0; }
-          &.state-closed { left: var(--_sidebar-width); }
-        }
-      }
-    }
+  //     @include r.device(md) {
+  //       .layout-sidebar-panel {
+  //         &.state-open { left: 0; }
+  //         &.state-closed { left: var(--_sidebar-width); }
+  //       }
+  //     }
+  //   }
+  // }
+}
+
+.layout-drawer-panel {
+  position: absolute; // instead of flex child
+  top: 0;
+  right: 0;
+  height: 100%;
+  z-index: 10;
+  background-color: white;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(100%); // hide offscreen
+
+  &.state-open {
+    transform: translateX(0);
+  }
+
+  &.state-closed {
+    transform: translateX(100%);
+  }
+}
+
+.layout-mask::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); // dim color
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.layout-mask.drawer-open::before {
+  opacity: 1;
+  pointer-events: auto;
+}
+  
+.close-action {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #000;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 20;
+  transition: background 0.2s ease-in-out;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: #000;
   }
 }

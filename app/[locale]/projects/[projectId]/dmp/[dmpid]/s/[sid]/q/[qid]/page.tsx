@@ -1,8 +1,15 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { Breadcrumb, Breadcrumbs, Form, Link } from "react-aria-components";
+import { notFound, useParams, useRouter } from 'next/navigation';
+import classNames from 'classnames';
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  Form,
+  Link
+} from "react-aria-components";
 import { CalendarDate, DateValue } from "@internationalized/date";
 import DOMPurify from 'dompurify';
 
@@ -11,7 +18,8 @@ import { useTranslations } from "next-intl";
 import {
   ContentContainer,
   LayoutWithPanel,
-  SidebarPanel
+  SidebarPanel,
+  DrawerPanel
 } from "@/components/Container";
 
 import {
@@ -28,6 +36,9 @@ import { Card, } from "@/components/Card/card";
 import ErrorMessages from '@/components/ErrorMessages';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 
+// Context
+import { useToast } from '@/context/ToastContext';
+
 // Utils
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
@@ -38,9 +49,7 @@ import {
 import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
 
 import {
-  Option,
   Question,
-  QuestionOptions,
 } from '@/app/types';
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 import {
@@ -50,31 +59,33 @@ import {
 
 
 
+
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 
 interface PlanData {
   funder: string;
+  funderName: string;
   title: string;
 }
 
 const PlanOverviewQuestionPage: React.FC = () => {
-  const t = useTranslations('PlanOverview');
   const params = useParams();
   const router = useRouter();
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
   const sectionId = params.sid as string;
   const questionId = params.qid as string;
+  const toastState = useToast(); // Access the toast state from context
 
 
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
   const [questionType, setQuestionType] = useState<string>('');
   const [versionedSectionId, setVersionedSectionId] = useState<number | null>();
+  const [isSampleTextDrawerOpen, setSampleTextDrawerOpen] = useState<boolean>(false);
+  const [isCommentsDrawerOpen, setCommentsDrawerOpen] = useState<boolean>(false);
   const [versionedQuestionId, setVersionedQuestionId] = useState<number | null>();
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
-  const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
-  const [hasOptions, setHasOptions] = useState<boolean | null>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [otherField, setOtherField] = useState(false);
   const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({ affiliationName: '', affiliationId: '' });
@@ -109,6 +120,23 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Localization
   const Global = useTranslations('Global');
+  const PlanOverview = useTranslations('PlanOverview');
+  const t = useTranslations('PlanOverviewQuestionPage');
+
+
+  // Show Success Message
+  const showSuccessToast = () => {
+    const successMessage = t('messages.success.questionSaved');
+    toastState.add(successMessage, { type: 'success', timeout: 3000 });
+  }
+
+  const toggleSampleTextDrawer = () => {
+    setSampleTextDrawerOpen(!isSampleTextDrawerOpen);
+  }
+
+  const toggleCommentsDrawer = () => {
+    setCommentsDrawerOpen(!isCommentsDrawerOpen);
+  }
 
 
   const convertToHTML = (htmlString: string | null | undefined) => {
@@ -415,13 +443,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
     if (!result.success) {
       const errors = result.errors;
-
-      //Check if errors is an array or an object
-      if (Array.isArray(errors)) {
-        //Handle errors as an array
-        setErrors(prev => [...prev, Global('messaging.somethingWentWrong')])
-      }
+      setErrors(prev => [...prev, Global('messaging.somethingWentWrong')])
     } else {
+      // On success
+
       if (
         result.data?.errors &&
         typeof result.data.errors === 'object' &&
@@ -429,9 +454,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
         // Handle errors as an object with general or field-level errors
         setErrors(prev => [...prev, Global('messaging.somethingWentWrong')])
 
+      } else {
+        showSuccessToast();
+        router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
+
       }
-      //Need to refetch plan data to refresh the info that was changed
-      await refetch();
+
     }
   };
 
@@ -494,22 +522,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
         setQuestionType(questionType);
         setParsed(parsed);
-
-        const isOptionsQuestion = isOptionsType(questionType);
+        console.log("QUESTION", q);
         setQuestion(q);
-        setHasOptions(isOptionsQuestion);
-
-        // Set options info with proper type checking
-        if (isOptionsQuestion && 'options' in parsed && parsed.options && Array.isArray(parsed.options)) {
-          const optionRows = parsed.options
-            .map((option: Option, index: number) => ({
-              id: index,
-              text: option?.attributes?.label || '',
-              isSelected: option?.attributes?.selected || option?.attributes?.checked || false,
-            }));
-          setRows(optionRows);
-        }
-
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
@@ -523,8 +537,17 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   useEffect(() => {
     if (planData?.plan) {
+      console.log("***PLAN DATA", planData);
+      // Validate section belongs to plan - 404 if not
+      // const planSections = planData?.plan?.sections || [];
+      // const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
+
+      // if (!sectionBelongsToPlan) {
+      //   notFound();
+      // }
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
+        funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
         title: planData?.plan?.project?.title ?? ''
       }
       setPlan(planInfo);
@@ -654,11 +677,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
         description=""
         showBackButton={true}
         breadcrumbs={
-          <Breadcrumbs aria-label={t('navigation.navigation')}>
+          <Breadcrumbs aria-label={PlanOverview('navigation.navigation')}>
             <Breadcrumb><Link
-              href="/en-US">{t('navigation.home')}</Link></Breadcrumb>
+              href="/en-US">{PlanOverview('navigation.home')}</Link></Breadcrumb>
             <Breadcrumb><Link
-              href="/en-US/projects">{t('navigation.projects')}</Link></Breadcrumb>
+              href="/en-US/projects">{PlanOverview('navigation.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={`/en-US/projects/${projectId}/`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
             <Breadcrumb><Link
               href={`/en-US/projects/${projectId}/dmp/${dmpId}/`}>{plan?.title}</Link></Breadcrumb>
@@ -671,9 +694,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
       <ErrorMessages errors={errors} ref={errorRef} />
 
-      <LayoutWithPanel>
+      <LayoutWithPanel className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}>
         <ContentContainer>
-          <div className="container">
+          <div className="container"><span></span>
             <section aria-label={"Requirements"}>
               <h3 className={"h4"}>Requirements by {plan?.funder}</h3>
 
@@ -687,7 +710,18 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 <h2 id="question-title">
                   {question?.questionText}
                 </h2>
-                {parsed && questionField}
+                <div>
+                  <div className={styles.buttonsRow}>
+                    <div className="">
+                      <Button className={`${styles.buttonSmall} tertiary`} data-secondary onPress={toggleSampleTextDrawer}>View 2 sample answers</Button>
+                    </div>
+                    <div className="">
+                      <Button className={`${styles.buttonSmall}`} onPress={toggleCommentsDrawer}>4 Comments</Button>
+                    </div>
+                  </div>
+                  {parsed && questionField}
+
+                </div>
                 <div className="lastSaved mt-5"
                   aria-live="polite"
                   role="status">
@@ -742,8 +776,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 </div>
               </div>
             </Form>
-
-
           </div>
         </ContentContainer>
 
@@ -799,6 +831,29 @@ const PlanOverviewQuestionPage: React.FC = () => {
             </div>
           </div>
         </SidebarPanel>
+
+        <DrawerPanel isOpen={isSampleTextDrawerOpen} onClose={() => setSampleTextDrawerOpen(false)}>
+          <h3>{question?.questionText}</h3>
+          <h4 className={`${styles.deEmphasize} h5`}>{plan?.funderName} sample text</h4>
+          <div className={styles.sampleText}>
+            {convertToHTML(question?.sampleText)}
+          </div>
+          <div className="">
+            <Button className={`${styles.buttonSmall}`} onPress={() => console.log('another test')}>Use answer</Button>
+          </div>
+        </DrawerPanel>
+
+
+        <DrawerPanel isOpen={isCommentsDrawerOpen} onClose={() => setCommentsDrawerOpen(false)}>
+          <h3>{question?.questionText}</h3>
+          <h4 className={`${styles.deEmphasize} h5`}>{plan?.funderName} sample text</h4>
+          <div className={styles.sampleText}>
+            {convertToHTML(question?.sampleText)}
+          </div>
+          <div className="">
+            <Button className={`${styles.buttonSmall}`} onPress={() => console.log('another test')}>Use answer</Button>
+          </div>
+        </DrawerPanel>
       </LayoutWithPanel >
     </>
   );

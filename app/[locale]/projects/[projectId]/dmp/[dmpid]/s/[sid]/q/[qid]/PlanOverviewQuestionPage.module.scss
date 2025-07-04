@@ -66,3 +66,30 @@
     margin-bottom: var(--space-4);
   }
 }
+
+.buttonsRow {
+  display: flex;
+  flex-direction: row;
+  justify-content:space-between;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  max-width: 600px;
+
+}
+
+.buttonSmall {
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.sampleText {
+  p {
+  font-size: var(--fs-small);
+  }
+}
+
+.deEmphasize {
+  color: var(--text-color-placeholder);
+  font-weight: 300;
+  font-size: var(--fs-small);
+}

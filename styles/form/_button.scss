@@ -13,13 +13,17 @@
   color: var(--bg-white);
   align-items: center;
 
-  &:active,
   &:visited {
     color: var(--bg-white);
   }
+
+  &:active:not(:disabled) {
+    transform: scale(1.05);
+  }
+
   &:hover:not(:disabled) {
     background: var(--blue-500);
-    color: #fff;
+    color: var(--bg-white);
   }
   &:disabled {
     opacity: 0.5;
@@ -98,11 +102,6 @@
     text-decoration: none;
   }
 
-  &:active:not(:disabled),
-  &[data-pressed]:not(:disabled) {
-    background: var(--slate-200);
-  }
-
   &:disabled {
     color: var(--slate-400);
     border-color: var(--slate-200);
@@ -165,7 +164,6 @@
     opacity: 0.5;
   }
 }
-
 
 // Styles for both react-aria buttons and default HTML buttons
 .react-aria-Button,

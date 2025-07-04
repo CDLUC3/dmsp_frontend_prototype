@@ -67,7 +67,6 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
       }),
     });
 
-    console.log("***RESPONSE", response);
     const result = await response.json();
 
     // Handle GraphQL errors

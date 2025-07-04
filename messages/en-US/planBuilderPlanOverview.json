@@ -143,5 +143,12 @@
       "updateProjectMembers": "Update project members",
       "inviteAPerson": "Invite a person"
     }
+  },
+  "PlanOverviewQuestionPage": {
+    "messages": {
+      "success": {
+        "questionSaved": "Question detail successfully saved"
+      }
+    }
   }
 }

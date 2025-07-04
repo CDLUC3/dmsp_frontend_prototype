@@ -16,6 +16,7 @@ query Plan($planId: Int!) {
       fundings {
         affiliation {
           displayName
+          name
         }
         funderOpportunityNumber
       }

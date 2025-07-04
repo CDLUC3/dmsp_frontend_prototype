@@ -123,6 +123,10 @@ export const SidebarPanel: React.FC<SidebarPanelProps> = ({
    */
   isOpen = true,
 }) => {
+
+  if (isOpen === false) {
+    return null;
+  }
   return (
     <>
       <div
@@ -233,10 +237,11 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
         >
           <Button
             className="close-action"
+            aria-label="Close drawer"
             onPress={handleClose}
             data-testid="close-action"
           >
-            <DmpIcon icon="cancel" />
+            X
           </Button>
 
           {children}
