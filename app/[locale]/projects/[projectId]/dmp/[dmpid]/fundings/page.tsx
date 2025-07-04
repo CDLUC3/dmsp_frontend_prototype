@@ -34,8 +34,8 @@ import {
 
 
 const ProjectsProjectPlanAdjustFunding = () => {
-  const globalTrans = useTranslations('Global');
-  const trans = useTranslations('PlanFunding');
+  const global = useTranslations('Global');
+  const t = useTranslations('PlanFunding');
 
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
@@ -114,13 +114,33 @@ const ProjectsProjectPlanAdjustFunding = () => {
   return (
     <>
       <PageHeader
-        title="Project Funding"
-        description="Manage funding sources for your project"
+        title={t('headerTitle')}
+        description={t('headerDescription')}
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{globalTrans('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{globalTrans('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{global('breadcrumbs.projects')}</Link></Breadcrumb>
+            {projectId && dmpId && (
+              <>
+                <Breadcrumb>
+                  <Link href={routePath('projects.show', {projectId: String(projectId)})}>
+                    {global('breadcrumbs.project')}
+                  </Link>
+                </Breadcrumb>
+                <Breadcrumb>
+                  <Link href={routePath('projects.dmp.show', {
+                    projectId: String(projectId),
+                    dmpId: String(dmpId)
+                  })}>
+                    {global('breadcrumbs.planOverview')}
+                  </Link>
+                </Breadcrumb>
+              </>
+            )}
+            <Breadcrumb>
+              {global('breadcrumbs.planFunding')}
+            </Breadcrumb>
           </Breadcrumbs>
         }
         actions={
@@ -134,9 +154,9 @@ const ProjectsProjectPlanAdjustFunding = () => {
           <ErrorMessages errors={errors} ref={errorRef} />
           <Form onSubmit={handleSubmit}>
             <RadioGroup name="funding">
-              <Label>{trans('fundingLabel')}</Label>
+              <Label>{t('fundingLabel')}</Label>
               <Text slot="description" className="help">
-                {trans('fundingDescription')}
+                {t('fundingDescription')}
               </Text>
 
               {funders?.projectFundings && funders.projectFundings.map((funder, index) => (
@@ -151,16 +171,16 @@ const ProjectsProjectPlanAdjustFunding = () => {
             </RadioGroup>
 
             <p>
-              <strong>{trans('changeWarning')}</strong>
+              <strong>{t('changeWarning')}</strong>
             </p>
 
-            <Button type="submit">{globalTrans('buttons.save')}</Button>
+            <Button type="submit">{global('buttons.save')}</Button>
           </Form>
 
-          <h2 className="heading-3 mt-8">{trans('addSourceTitle')}</h2>
-          <p>{trans('addSourceNote')}</p>
+          <h2 className="heading-3 mt-8">{t('addSourceTitle')}</h2>
+          <p>{t('addSourceNote')}</p>
           <Link href={routePath('projects.fundings.search', {projectId: String(projectId)})}>
-            {trans('addSourceLink')}
+            {t('addSourceLink')}
           </Link>
         </ContentContainer>
       </LayoutContainer>

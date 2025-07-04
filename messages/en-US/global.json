@@ -125,6 +125,8 @@
     "addManuallyLabel": "Add funder manually"
   },
   "PlanFunding": {
+    "headerTitle": "Plan Funding",
+    "headerDescription": "Manage funding sources for this Plan",
     "fundingLabel": "Select funding sources for this plan",
     "fundingDescription": "This funding list comes from the funding list attached to the project.",
     "changeWarning": "Note: Changing the funding sources may require a template change. Only change if you are sure.",
@@ -170,6 +172,7 @@
       "projectOverview": "Project overview",
       "projectFunding": "Project funding",
       "planOverview": "Plan overview",
+      "planFunding": "Plan funding",
       "feedback": "Feedback"
     },
     "form": {
