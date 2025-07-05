@@ -124,48 +124,6 @@
 
     }
   }
-
-  // &.direction-left {
-  //   > {
-  //     .layout-drawer-panel {
-  //       &.state-open { right: 0; }
-  //       &.state-closed { right: var(--_sidebar-width); }
-  //     }
-
-  //     .layout-drawer-modal {
-  //       &.state-open .drawer-content { left: 0; }
-  //       &.state-closed .drawer-content { left: calc(var(--_sidebar-width) * -1); }
-  //     }
-
-  //     @include r.device(md) {
-  //       .layout-sidebar-panel {
-  //         &.state-open { right: 0; }
-  //         &.state-closed { right: var(--_sidebar-width); }
-  //       }
-  //     }
-  //   }
-  // }
-
-  // &.direction-right {
-  //   > {
-  //     .layout-drawer-panel {
-  //       &.state-open { right: 0; }
-  //       &.state-closed { right: calc(var(--_sidebar-width) * -1); }
-  //     }
-
-  //     .layout-drawer-modal {
-  //       &.state-open .drawer-content { right: 0; }
-  //       &.state-closed .drawer-content { right: calc(var(--_sidebar-width) * -1); }
-  //     }
-
-  //     @include r.device(md) {
-  //       .layout-sidebar-panel {
-  //         &.state-open { left: 0; }
-  //         &.state-closed { left: var(--_sidebar-width); }
-  //       }
-  //     }
-  //   }
-  // }
 }
 
 .layout-drawer-panel {
@@ -201,7 +159,7 @@
   transition: opacity 0.3s ease-in-out;
 }
 
-.layout-mask.drawer-open::before {
+.layout-mask.drawer-open::before { // want to mask the content when the drawer is open
   opacity: 1;
   pointer-events: auto;
 }
@@ -224,7 +182,7 @@
   z-index: 20;
   transition: background 0.2s ease-in-out;
 
-    // Disable the mobile tap highlight on mobile that remain where the 
+    // Disable the mobile tap highlight on mobile devices that usually remains where the 
     // 'close' button was even after the drawer panel closes
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;

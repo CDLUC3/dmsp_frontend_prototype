@@ -188,10 +188,11 @@ const TypeAheadWithOther = ({
   }
 
   useEffect(() => {
+    // Set the initial value of the typeahead search to populate it with existing entry if any
     if (value) {
       setInitialInputValue(value);
     }
-  }, [])
+  }, [value])
 
   useEffect(() => {
     if (!error) {

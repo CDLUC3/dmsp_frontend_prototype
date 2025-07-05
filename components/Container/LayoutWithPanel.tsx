@@ -36,6 +36,7 @@ export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
   children,
   id,
   className = "",
+  onClick
 }) => {
   const thisRef = useRef<HTMLDivElement | null>(null);
 
@@ -102,6 +103,7 @@ export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
         id={id}
         className={`layout-container layout-with-panel ${className}`}
         data-testid="layout-with-panel"
+        onClick={onClick}
       >
         {children}
       </div>

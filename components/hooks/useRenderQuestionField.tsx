@@ -1,7 +1,6 @@
 // hooks/useRenderQuestionField.ts
 import { CalendarDate, DateValue } from "@internationalized/date";
 
-
 import {
   RADIOBUTTONS_QUESTION_TYPE,
   CHECKBOXES_QUESTION_TYPE,
@@ -50,79 +49,6 @@ import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
 export type QuestionType = keyof QuestionTypeMap;
 
 export type ParsedQuestion = QuestionTypeMap[QuestionType];
-
-export interface RadioProps {
-  selectedRadioValue: string | undefined;
-  handleRadioChange: (val: string) => void;
-}
-
-export interface CheckboxProps {
-  selectedCheckboxValues: string[];
-  handleCheckboxGroupChange: (vals: string[]) => void;
-}
-
-export interface MultiSelectBoxProps {
-  multiSelectTouched?: boolean;
-  selectedMultiSelectValues?: Set<string>;
-  handleMultiSelectChange?: (values: Set<string>) => void;
-}
-
-export interface SelectBoxProps {
-  selectedSelectValue?: string;
-  setSelectedSelectValue?: (val: string) => void;
-}
-
-export interface TextFieldProps {
-  textValue: string;
-  handleTextChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-export interface TextAreaProps {
-  content: string;
-  setContent: (newContent: string) => void;
-}
-
-export interface DateProps {
-  dateRange: { startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null };
-  handleDateChange: (field: string, value: string) => void;
-}
-
-export interface DateRangeProps {
-  dateRange: { startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null };
-  handleDateChange: (key: string,
-    value: string | DateValue | CalendarDate | null) => void;
-}
-
-export interface NumberProps {
-  inputValue: number | null;
-  setInputValue: (val: number | null) => void;
-}
-
-
-export interface NumberRangeProps {
-  numberRange: { startNumber: number | null, endNumber: number | null }
-  handleNumberChange: (key: string, value: string | number | null) => void;
-}
-
-export interface CurrencyProps {
-  inputCurrencyValue: (number | null);
-  setInputCurrencyValue: (value: number | null) => void;
-}
-
-export interface UrlProps {
-  urlValue: string;
-  handleUrlChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-export interface EmailProps {
-  emailValue: string;
-  handleEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-export interface BooleanProps {
-  yesNoValue: string;
-  handleBooleanChange: (values: string) => void;
-}
 
 export interface RenderQuestionFieldProps {
   questionType: string;
@@ -217,7 +143,6 @@ export interface RenderQuestionFieldProps {
 export function useRenderQuestionField({
   parsed,
   questionType,
-  question,
   radioProps,
   checkBoxProps,
   multiSelectBoxProps,

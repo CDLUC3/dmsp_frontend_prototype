@@ -139,6 +139,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     toastState.add(successMessage, { type: 'success', timeout: 3000 });
   }
 
+  // Handling Drawer Panels
   const toggleSampleTextDrawer = () => {
     setSampleTextDrawerOpen(!isSampleTextDrawerOpen);
   }
@@ -147,16 +148,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setCommentsDrawerOpen(!isCommentsDrawerOpen);
   }
 
-
-  const convertToHTML = (htmlString: string | null | undefined) => {
-    if (htmlString) {
-      const sanitizedHTML = DOMPurify.sanitize(htmlString);
-      return (
-        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
-      );
+  const closeDrawers = () => {
+    if (isCommentsDrawerOpen || isSampleTextDrawerOpen) {
+      setSampleTextDrawerOpen(false);
+      setCommentsDrawerOpen(false);
     }
-    return null;
-  };
+  }
 
   const handleUseAnswer = (text: string | null | undefined) => {
     if (text) {
@@ -223,10 +220,19 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [loadAnswer, { data: answerData, loading: answerLoading, error: answerError }] =
     useAnswerByVersionedQuestionIdLazyQuery();
 
-  // Check if question is an options type
-  const isOptionsType = (questionType: string) => {
-    return Boolean(questionType && OPTIONS_QUESTION_TYPES.includes(questionType));
-  }
+
+  const convertToHTML = (htmlString: string | null | undefined) => {
+    if (htmlString) {
+      const sanitizedHTML = DOMPurify.sanitize(htmlString);
+      return (
+        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+      );
+    }
+    return null;
+  };
+
+
+  // Handling changes to different question types
 
   const handleAffiliationChange = async (id: string, value: string) => {
     return setAffiliationData({ affiliationName: value, affiliationId: id })
@@ -246,7 +252,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const value = e.target.value;
     setUrlValue(value);
   };
-
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -295,6 +300,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }));
   };
 
+  // Prefill the current question with existing answer
   const prefillAnswer = (answer: any, type: string) => {
     switch (type) {
       case 'text':
@@ -354,7 +360,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             affiliationId: answer.affiliationId ?? '',
             affiliationName: answer.affiliationName ?? ''
           });
-          setOtherField(answer.isOther ?? false);
+          setOtherField(answer.affiliationName.length > 2 ? false : answer.isOther);
           setOtherAffiliationName(answer.affiliationName ?? '');
         }
         break;
@@ -363,6 +369,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   };
 
+  // Get the answer for the question
   const getAnswerJson = (): Record<string, any> => {
     switch (questionType) {
       case 'textArea':
@@ -433,7 +440,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
 
-  // Call Server Action publishPlanAction to run the publishPlanMutation
+  // Call Server Action updateAnswerAction or addAnswerAction to save answer
   const addAnswer = async () => {
     const jsonPayload = getAnswerJson();
 
@@ -478,6 +485,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     };
   }
 
+  // Handle submit of question detail form
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -505,28 +513,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   };
 
-  interface VersionedQuestion {
-    id: number;
-    questionText: string;
-    json: string;
-    questionId: number;
-  }
-
-  interface Section {
-    __typename: "Section";
-    id: number;
-  }
-
-  interface VersionedSection {
-    id: number;
-    versionedQuestions: VersionedQuestion[];
-    section: Section;
-  }
-
-  interface SectionVersionsData {
-    sectionVersions: VersionedSection[] | null;
-  }
-
   const findVersionedQuestionId = (sectionVersions: SectionVersionsQuery, questionId: number) => {
     if (!sectionVersions?.sectionVersions) return null;
 
@@ -542,6 +528,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
     return null;
   };
+
+  // Get parsed JSON from question, and set parsed, question and questionType in state
   useEffect(() => {
     if (selectedQuestion?.question) {
       const q = selectedQuestion.question;
@@ -576,6 +564,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }, [selectedQuestion]);
 
 
+  // Set plan data in state
   useEffect(() => {
     if (planData?.plan) {
       // Validate section belongs to plan - 404 if not
@@ -594,7 +583,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     };
   }, [planData]);
 
-
+  // Get versionedQuestionId and save in state
   useEffect(() => {
     if (sectionVersions && sectionVersions?.sectionVersions) {
       setVersionedSectionId(sectionVersions?.sectionVersions?.[0]?.id);
@@ -605,7 +594,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }, [sectionVersions])
 
-  // Run the query when versionedQuestionId becomes available
+  // Run the query when versionedQuestionId becomes available to lazy load the answer for the question
   useEffect(() => {
     if (versionedQuestionId) {
       loadAnswer({
@@ -634,10 +623,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }, [answerData, questionType]);
 
 
+  // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
     questionType,
     parsed,
-    question,
     textFieldProps: {
       textValue: typeof textValue === 'string' ? textValue : '',
       handleTextChange,
@@ -734,7 +723,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
       <ErrorMessages errors={errors} ref={errorRef} />
 
-      <LayoutWithPanel className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}>
+      <LayoutWithPanel
+        onClick={closeDrawers}
+        className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}
+      >
         <ContentContainer>
           <div className="container"><span></span>
             <section aria-label={"Requirements"}>
