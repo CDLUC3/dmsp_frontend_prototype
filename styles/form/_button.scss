@@ -31,13 +31,10 @@
   }
 
   &:focus {
-    outline: none;
-  }
-
-  &:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: var(--focus-ring-offset);
   }
+
 }
 
 @mixin button-primary {

@@ -55,7 +55,7 @@
   padding: 0;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   overflow: hidden;
   z-index: 1000;
@@ -67,11 +67,11 @@
 
   .drawer-content {
     position: absolute;
-    max-width: 90vw;
+    max-width: 100vw;
     width: max-content;
     top: 0;
-    bottom: 0;
-    z-index:1000;
+    // bottom: 0;
+    background-color: white;
   }
 
   &.state-closed {
@@ -120,29 +120,31 @@
           max-width: none;
         }
       }
+
+
     }
   }
 
-  &.direction-left {
-    > {
-      .layout-drawer-panel {
-        &.state-open { right: 0; }
-        &.state-closed { right: var(--_sidebar-width); }
-      }
+  // &.direction-left {
+  //   > {
+  //     .layout-drawer-panel {
+  //       &.state-open { right: 0; }
+  //       &.state-closed { right: var(--_sidebar-width); }
+  //     }
 
-      .layout-drawer-modal {
-        &.state-open .drawer-content { left: 0; }
-        &.state-closed .drawer-content { left: calc(var(--_sidebar-width) * -1); }
-      }
+  //     .layout-drawer-modal {
+  //       &.state-open .drawer-content { left: 0; }
+  //       &.state-closed .drawer-content { left: calc(var(--_sidebar-width) * -1); }
+  //     }
 
-      @include r.device(md) {
-        .layout-sidebar-panel {
-          &.state-open { right: 0; }
-          &.state-closed { right: var(--_sidebar-width); }
-        }
-      }
-    }
-  }
+  //     @include r.device(md) {
+  //       .layout-sidebar-panel {
+  //         &.state-open { right: 0; }
+  //         &.state-closed { right: var(--_sidebar-width); }
+  //       }
+  //     }
+  //   }
+  // }
 
   // &.direction-right {
   //   > {
@@ -222,8 +224,28 @@
   z-index: 20;
   transition: background 0.2s ease-in-out;
 
+    // Disable the mobile tap highlight on mobile that remain where the 
+    // 'close' button was even after the drawer panel closes
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  // Also disable any potential background color changes
+  &:active {
+    background: #f0f0f0;
+  }
+
   &:hover {
     background: #f0f0f0;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-ring, #3b82f6);
   }
 
   svg {

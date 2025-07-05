@@ -144,6 +144,7 @@ export const SidebarPanel: React.FC<SidebarPanelProps> = ({
 interface DrawerPanelProps extends ContentContainerProps {
   isOpen?: boolean;
   onClose?: () => void;
+  returnFocusRef?: React.RefObject<HTMLElement>;
 }
 
 export const DrawerPanel: React.FC<DrawerPanelProps> = ({
@@ -152,9 +153,11 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   className = '',
   isOpen = false,
   onClose,
+  returnFocusRef
 }) => {
 
   const drawerRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const size = useResponsive();
   const [isMobile, setIsMobile] = useState<boolean>(true);
   const [stateOpen, setStateOpen] = useState<boolean>(isOpen);
@@ -179,7 +182,9 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
         }, 301);
       }
     } else {
-      if (onClose) onClose();
+      if (onClose) {
+        onClose();
+      }
     }
   }, [stateOpen]);
 
@@ -198,7 +203,17 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   }, [stateOpen]);
 
   function handleClose() {
+    // Remove focus from the close button before hiding the drawer
+    drawerRef.current?.blur();
+    closeButtonRef.current?.blur();
+
     if (stateOpen) setStateOpen(false);
+
+    // Return focus to the opener button
+    if (returnFocusRef?.current) {
+      returnFocusRef.current.focus();
+    }
+
   }
 
   return (
@@ -214,11 +229,13 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
         >
           <ContentContainer className="drawer-content">
             <Button
+              ref={closeButtonRef}
               className="close-action"
+              aria-label="Close drawer"
               onPress={handleClose}
               data-testid="close-action"
             >
-              <DmpIcon icon="cancel" />
+              X
             </Button>
 
             {children}
@@ -236,6 +253,7 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
           data-testid="drawer-panel"
         >
           <Button
+            ref={closeButtonRef}
             className="close-action"
             aria-label="Close drawer"
             onPress={handleClose}

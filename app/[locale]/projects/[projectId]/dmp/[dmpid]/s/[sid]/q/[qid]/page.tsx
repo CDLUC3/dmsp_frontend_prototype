@@ -8,7 +8,10 @@ import {
   Breadcrumbs,
   Button,
   Form,
-  Link
+  Label,
+  Link,
+  TextArea,
+  TextField
 } from "react-aria-components";
 import { CalendarDate, DateValue } from "@internationalized/date";
 import DOMPurify from 'dompurify';
@@ -59,7 +62,6 @@ import {
 
 
 
-
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 
 interface PlanData {
@@ -82,8 +84,15 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [plan, setPlan] = useState<PlanData>();
   const [questionType, setQuestionType] = useState<string>('');
   const [versionedSectionId, setVersionedSectionId] = useState<number | null>();
+
+  // Drawer states
   const [isSampleTextDrawerOpen, setSampleTextDrawerOpen] = useState<boolean>(false);
   const [isCommentsDrawerOpen, setCommentsDrawerOpen] = useState<boolean>(false);
+  const openSampleTextButtonRef = useRef<HTMLButtonElement | null>(null);
+  const openCommentsButtonRef = useRef<HTMLButtonElement | null>(null);
+
+
+
   const [versionedQuestionId, setVersionedQuestionId] = useState<number | null>();
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [errors, setErrors] = useState<string[]>([]);
@@ -148,6 +157,39 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
     return null;
   };
+
+  const handleUseAnswer = (text: string | null | undefined) => {
+    if (text) {
+      setTextAreaContent(text);
+
+      // Close sample text drawer
+      setSampleTextDrawerOpen(false);
+
+      // Return focus to sample text button
+      if (openSampleTextButtonRef.current) {
+        openSampleTextButtonRef.current.focus();
+      }
+
+      // message user
+      toastState.add('Sample text added', { type: 'success', timeout: 3000 });
+    }
+  }
+
+  const handleAddComment = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Close comments drawer
+    setCommentsDrawerOpen(false);
+
+    // Return focus to sample text button
+    if (openCommentsButtonRef.current) {
+      openCommentsButtonRef.current.focus();
+    }
+
+    // message user
+    toastState.add('Comment sent', { type: 'success', timeout: 3000 });
+  }
+
 
   // Run selected question query
   const {
@@ -522,7 +564,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
         setQuestionType(questionType);
         setParsed(parsed);
-        console.log("QUESTION", q);
         setQuestion(q);
       } catch (error) {
         logECS('error', 'Parsing error', {
@@ -537,14 +578,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   useEffect(() => {
     if (planData?.plan) {
-      console.log("***PLAN DATA", planData);
       // Validate section belongs to plan - 404 if not
-      // const planSections = planData?.plan?.sections || [];
-      // const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
+      const planSections = planData?.plan?.sections || [];
+      const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
 
-      // if (!sectionBelongsToPlan) {
-      //   notFound();
-      // }
+      if (!sectionBelongsToPlan) {
+        notFound();
+      }
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
@@ -712,11 +752,28 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 </h2>
                 <div>
                   <div className={styles.buttonsRow}>
+                    {/**Only include sample text button for textArea question types */}
+                    {questionType === 'textArea' && (
+                      <div className="">
+                        <Button
+                          ref={openSampleTextButtonRef}
+                          className={`${styles.buttonSmall} tertiary`}
+                          data-secondary
+                          onPress={toggleSampleTextDrawer}
+                        >
+                          View 2 sample answers
+                        </Button>
+                      </div>
+                    )}
+
                     <div className="">
-                      <Button className={`${styles.buttonSmall} tertiary`} data-secondary onPress={toggleSampleTextDrawer}>View 2 sample answers</Button>
-                    </div>
-                    <div className="">
-                      <Button className={`${styles.buttonSmall}`} onPress={toggleCommentsDrawer}>4 Comments</Button>
+                      <Button
+                        ref={openCommentsButtonRef}
+                        className={`${styles.buttonSmall}`}
+                        onPress={toggleCommentsDrawer}
+                      >
+                        4 Comments
+                      </Button>
                     </div>
                   </div>
                   {parsed && questionField}
@@ -776,6 +833,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 </div>
               </div>
             </Form>
+
+
           </div>
         </ContentContainer>
 
@@ -832,26 +891,64 @@ const PlanOverviewQuestionPage: React.FC = () => {
           </div>
         </SidebarPanel>
 
-        <DrawerPanel isOpen={isSampleTextDrawerOpen} onClose={() => setSampleTextDrawerOpen(false)}>
-          <h3>{question?.questionText}</h3>
-          <h4 className={`${styles.deEmphasize} h5`}>{plan?.funderName} sample text</h4>
-          <div className={styles.sampleText}>
-            {convertToHTML(question?.sampleText)}
-          </div>
-          <div className="">
-            <Button className={`${styles.buttonSmall}`} onPress={() => console.log('another test')}>Use answer</Button>
-          </div>
-        </DrawerPanel>
+        {/** Sample text drawer. Only include for question types = Text Area */}
+        {questionType === 'textArea' && (
+          <DrawerPanel
+            isOpen={isSampleTextDrawerOpen}
+            onClose={() => setSampleTextDrawerOpen(false)}
+            returnFocusRef={openSampleTextButtonRef}
+          >
+            <h3>{question?.questionText}</h3>
+            <h4 className={`${styles.deEmphasize} h5`}>{plan?.funderName} sample text</h4>
+            <div className={styles.sampleText}>
+              {convertToHTML(question?.sampleText)}
+            </div>
+            <div className="">
+              <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>Use answer</Button>
+            </div>
+          </DrawerPanel>
+        )}
 
 
-        <DrawerPanel isOpen={isCommentsDrawerOpen} onClose={() => setCommentsDrawerOpen(false)}>
-          <h3>{question?.questionText}</h3>
-          <h4 className={`${styles.deEmphasize} h5`}>{plan?.funderName} sample text</h4>
-          <div className={styles.sampleText}>
-            {convertToHTML(question?.sampleText)}
+        {/**Comments drawer */}
+        <DrawerPanel
+          isOpen={isCommentsDrawerOpen}
+          onClose={() => setCommentsDrawerOpen(false)}
+          returnFocusRef={openCommentsButtonRef}
+        >
+          <h2>Comments</h2>
+          <div className={styles.comment}>
+            <h4>John Smith</h4>
+            <p className={styles.deEmphasize}>2 days ago</p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+              laboris nisi ut aliquip ex ea commodo consequat.
+            </p>
           </div>
-          <div className="">
-            <Button className={`${styles.buttonSmall}`} onPress={() => console.log('another test')}>Use answer</Button>
+
+          <div className={styles.comment}>
+            <h4>John Smith</h4>
+            <p className={styles.deEmphasize}>2 days ago</p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+              laboris nisi ut aliquip ex ea commodo consequat.
+            </p>
+          </div>
+
+          <div className={styles.leaveComment}>
+            <h2>Leave a comment</h2>
+            <Form onSubmit={(e) => handleAddComment(e)}>
+              <TextField>
+                <Label>Frederick Cook (you)</Label>
+                <TextArea />
+              </TextField>
+              <div>
+                <Button type="submit" className={`${styles.buttonSmall}`} >Comment</Button>
+                <p>Participants will be notified once submitted.</p>
+              </div>
+            </Form>
           </div>
         </DrawerPanel>
       </LayoutWithPanel >
