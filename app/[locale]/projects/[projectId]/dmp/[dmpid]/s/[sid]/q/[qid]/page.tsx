@@ -148,10 +148,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setCommentsDrawerOpen(!isCommentsDrawerOpen);
   }
 
-  const closeDrawers = () => {
-    if (isCommentsDrawerOpen || isSampleTextDrawerOpen) {
-      setSampleTextDrawerOpen(false);
-      setCommentsDrawerOpen(false);
+  const closeDrawers = (e: React.MouseEvent<HTMLDivElement, MouseEvent> | React.MouseEvent<Element, MouseEvent>) => {
+    // Only close if clicking on the mask/backdrop, not the drawer content
+    if (e.target === e.currentTarget) {
+      if (isCommentsDrawerOpen || isSampleTextDrawerOpen) {
+        setSampleTextDrawerOpen(false);
+        setCommentsDrawerOpen(false);
+      }
     }
   }
 
@@ -724,7 +727,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       <ErrorMessages errors={errors} ref={errorRef} />
 
       <LayoutWithPanel
-        onClick={closeDrawers}
+        onClick={e => closeDrawers(e)}
         className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}
       >
         <ContentContainer>
@@ -761,7 +764,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                     <div className="">
                       <Button
                         ref={openCommentsButtonRef}
-                        className={`${styles.buttonSmall}`}
+                        className={`${styles.buttonSmall} ${styles.buttonWithComments}`}
                         onPress={toggleCommentsDrawer}
                       >
                         4 Comments
@@ -889,6 +892,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             isOpen={isSampleTextDrawerOpen}
             onClose={() => setSampleTextDrawerOpen(false)}
             returnFocusRef={openSampleTextButtonRef}
+            className={styles.drawerPanelWrapper}
           >
             <h3>{question?.questionText}</h3>
             <h4 className={`${styles.deEmphasize} h5`}>{plan?.funderName} sample text</h4>
@@ -907,6 +911,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           isOpen={isCommentsDrawerOpen}
           onClose={() => setCommentsDrawerOpen(false)}
           returnFocusRef={openCommentsButtonRef}
+          className={styles.drawerPanelWrapper}
         >
           <h2>Comments</h2>
           <div className={styles.comment}>
