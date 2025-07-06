@@ -30,9 +30,9 @@
     cursor: not-allowed;
   }
 
-  &:focus {
+  &[data-focus-visible] {
     outline: 2px solid var(--focus-ring);
-    outline-offset: var(--focus-ring-offset);
+    outline-offset: -1px;
   }
 }
 
@@ -170,6 +170,17 @@ input[type="submit"],
 input[type="reset"],
 input[type="button"] {
   @include button-base;
+  &[data-pressed] {
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.1);
+    background: var(--button-background-pressed);
+    border-color: var(--border-color-pressed);
+  }
+
+  &[data-focus-visible] {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+
 }
 
 a.button-link {

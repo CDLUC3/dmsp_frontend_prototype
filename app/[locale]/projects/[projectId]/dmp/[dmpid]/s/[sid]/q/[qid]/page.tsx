@@ -7,9 +7,13 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
+  Dialog,
+  DialogTrigger,
   Form,
   Label,
   Link,
+  OverlayArrow,
+  Popover,
   TextArea,
   TextField
 } from "react-aria-components";
@@ -31,6 +35,7 @@ import {
   useSectionVersionsQuery,
   usePlanQuery,
   useQuestionQuery,
+  Mutation,
 } from '@/generated/graphql';
 
 // Components
@@ -38,6 +43,8 @@ import PageHeader from "@/components/PageHeader";
 import { Card, } from "@/components/Card/card";
 import ErrorMessages from '@/components/ErrorMessages';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
+import { DmpIcon } from "@/components/Icons";
+import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 
 // Context
 import { useToast } from '@/context/ToastContext';
@@ -45,16 +52,12 @@ import { useToast } from '@/context/ToastContext';
 // Utils
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-
-import {
-  OPTIONS_QUESTION_TYPES
-} from '@/lib/constants';
 import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
 
 import {
   Question,
 } from '@/app/types';
-import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
+
 import {
   addAnswerAction,
   updateAnswerAction
@@ -64,6 +67,30 @@ import {
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 
+interface MutationErrorsInterface {
+  acronyms: string | null;
+  aliases: string | null;
+  contactEmail: string | null;
+  displayName: string | null;
+  feedbackEmails: string | null;
+  feedbackMessage: string | null;
+  funderRefId: string | null;
+  general: string | null;
+  homepage: string | null;
+  json: string | null;
+  logoName: string | null;
+  logoURI: string | null;
+  name: string | null;
+  planId: string | null;
+  provenance: string | null;
+  searchName: string | null;
+  ssoEntityId: string | null;
+  subHeaderLinks: string | null;
+  types: string | null;
+  uri: string | null;
+  versionedQuestionId: string | null;
+  versionedSectionId: string | null;
+}
 interface PlanData {
   funder: string;
   funderName: string;
@@ -139,15 +166,19 @@ const PlanOverviewQuestionPage: React.FC = () => {
     toastState.add(successMessage, { type: 'success', timeout: 3000 });
   }
 
-  // Handling Drawer Panels
+  /*Handling Drawer Panels*/
+
+  // Toggle the sample text drawer open and closed
   const toggleSampleTextDrawer = () => {
     setSampleTextDrawerOpen(!isSampleTextDrawerOpen);
   }
 
+  // Toggle the comments drawer open and closed
   const toggleCommentsDrawer = () => {
     setCommentsDrawerOpen(!isCommentsDrawerOpen);
   }
 
+  // Close all drawer panels. One scenario is when the user clicks on the masked content.
   const closeDrawers = (e: React.MouseEvent<HTMLDivElement, MouseEvent> | React.MouseEvent<Element, MouseEvent>) => {
     // Only close if clicking on the mask/backdrop, not the drawer content
     if (e.target === e.currentTarget) {
@@ -158,8 +189,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }
 
+  // When the user clicks on the 'use answer' button from the Sample text drawer panel
   const handleUseAnswer = (text: string | null | undefined) => {
     if (text) {
+      // Set the new value for the textArea
       setTextAreaContent(text);
 
       // Close sample text drawer
@@ -175,9 +208,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }
 
+  // When the user adds a comment in the Comments drawer panel
   const handleAddComment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    /*TODO: when the backend has been updated, we will be able to update this function*/
     // Close comments drawer
     setCommentsDrawerOpen(false);
 
@@ -302,6 +337,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
       [key]: value,
     }));
   };
+
+  const handleBackToSection = () => {
+    router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
+  }
 
   // Prefill the current question with existing answer
   const prefillAnswer = (answer: any, type: string) => {
@@ -442,11 +481,24 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   };
 
+  // GraphQL mutation returns errors
+  const hasFieldLevelErrors = (mutationErrors: MutationErrorsInterface): boolean => {
+    return Object.values(mutationErrors).some(
+      value => value !== null && value !== undefined
+    );
+  };
+
+  // Extract the errors from the graphql mutation result
+  const getExtractedErrorValues = (mutationErrors: MutationErrorsInterface): string[] => {
+    return Object.values(mutationErrors).filter(
+      (value) => value !== null && value !== undefined
+    );
+  };
+
 
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
   const addAnswer = async () => {
     const jsonPayload = getAnswerJson();
-
     // Check is answer already exists. If so, we want to call an update mutation
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
 
@@ -463,6 +515,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             versionedQuestionId: Number(versionedQuestionId),
             json: JSON.stringify(jsonPayload),
           });
+
         if (response.redirect) {
           router.push(response.redirect);
         }
@@ -496,26 +549,27 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
     if (!result.success) {
       const errors = result.errors;
-      setErrors(prev => [...prev, Global('messaging.somethingWentWrong')])
+      if (errors) {
+        setErrors(errors)
+      }
     } else {
       // On success
-
-      if (
-        result.data?.errors &&
-        typeof result.data.errors === 'object' &&
-        typeof result.data.errors.general === 'string') {
+      if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
+        const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
+        const extractedErrors = getExtractedErrorValues(mutationErrors);
         // Handle errors as an object with general or field-level errors
-        setErrors(prev => [...prev, Global('messaging.somethingWentWrong')])
+        setErrors(extractedErrors)
 
       } else {
+        // Show user a success message and redirect back to the Section page
         showSuccessToast();
         router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
 
       }
-
     }
   };
 
+  // Get the versionedQuestionId for the given question. We will need this to get any existings answers for this question
   const findVersionedQuestionId = (sectionVersions: SectionVersionsQuery, questionId: number) => {
     if (!sectionVersions?.sectionVersions) return null;
 
@@ -525,6 +579,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const foundQuestion = sectionVersion.versionedQuestions.find(
         (question) => question?.questionId === questionId
       );
+
       if (foundQuestion?.id) {
         return foundQuestion.id;
       }
@@ -536,9 +591,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     if (selectedQuestion?.question) {
       const q = selectedQuestion.question;
+      const cleanedQuestion = {
+        ...q,
+        required: q.required ?? undefined // convert null to undefined
+      };
 
       try {
-        const { parsed, error } = getParsedQuestionJSON(q, routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }), Global);
+        const { parsed, error } = getParsedQuestionJSON(cleanedQuestion, routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }), Global);
         if (!parsed?.type) {
           if (error) {
             logECS('error', 'Parsing error', {
@@ -546,22 +605,23 @@ const PlanOverviewQuestionPage: React.FC = () => {
               url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }) }
             });
 
-            setErrors(prev => [...prev, error])
+            setErrors([error])
           }
           return;
         }
 
         const questionType = parsed.type;
 
+        // Set data in state
         setQuestionType(questionType);
         setParsed(parsed);
-        setQuestion(q);
+        setQuestion(cleanedQuestion);
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
           url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }) }
         });
-        setErrors(prev => [...prev, 'Error parsing question data']);
+        setErrors(['Error parsing question data']);
       }
     }
   }, [selectedQuestion]);
@@ -697,10 +757,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
     },
   });
 
-  if (loading) {
+  if (loading || planQueryLoading || versionedSectionLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
+  if (selectedQuestionQueryError || planQueryError || versionedSectionError) {
+    return <div>{Global('messaging.somethingWentWrong')}</div>
+  }
 
   return (
     <>
@@ -732,19 +795,51 @@ const PlanOverviewQuestionPage: React.FC = () => {
       >
         <ContentContainer>
           <div className="container"><span></span>
+            {/**Requirements by funder */}
             <section aria-label={"Requirements"}>
-              <h3 className={"h4"}>Requirements by {plan?.funder}</h3>
-
+              <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
               {convertToHTML(question?.requirementText)}
-
             </section>
+
+            {/**Requirements by organization */}
+            <section aria-label={"Requirements"}>
+              <h3 className={"h4"}>Requirements by University of California</h3>
+              <p>
+                The university requires data and metadata to be cleared by the ethics
+                committee before being submitted to funder.
+              </p>
+            </section>
+
+            <p className={styles.guidanceLinkWrapper}>
+              <DmpIcon icon="down_arrow" />
+              <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
+            </p>
             <Form onSubmit={handleSubmit}>
               <Card data-testid='question-card'>
-
                 <span>Question</span>
                 <h2 id="question-title">
                   {question?.questionText}
                 </h2>
+                {question?.required && (
+                  <div className={styles.requiredWrapper}>
+                    <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
+                    <DialogTrigger>
+                      <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
+                      <Popover>
+                        <OverlayArrow>
+                          <svg width={12} height={12} viewBox="0 0 12 12">
+                            <path d="M0 0 L6 6 L12 0" />
+                          </svg>
+                        </OverlayArrow>
+                        <Dialog>
+                          <div className="flex-col">
+                            This question is required by the National Science Foundation for all plans
+                          </div>
+                        </Dialog>
+                      </Popover>
+                    </DialogTrigger>
+                  </div>
+                )}
                 <div>
                   <div className={styles.buttonsRow}>
                     {/**Only include sample text button for textArea question types */}
@@ -756,7 +851,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                           data-secondary
                           onPress={toggleSampleTextDrawer}
                         >
-                          View 2 sample answers
+                          {PlanOverview('page.viewSampleAnswer')}
                         </Button>
                       </div>
                     )}
@@ -781,8 +876,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 </div>
               </Card>
 
-              <section aria-label={"Guidance"}>
-                <h3 className={"h4"}>Guidance by {plan?.funder}</h3>
+              <section aria-label={"Guidance"} id="guidance">
+                <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { funder: plan?.funder ?? '' })}</h3>
 
                 {convertToHTML(question?.guidanceText)}
 
@@ -799,39 +894,31 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   large portion of your data management plan document.
                 </p>
               </section>
-
-              <div className={styles.actions}>
-                <div className={styles.actionItem}>
-                  <button
-                    className="react-aria-Button react-aria-Button--primary"
-                    aria-label="Return to section overview"
-                  >
-                    Back to Section
-                  </button>
-                </div>
-                <div className={styles.actionItem}>
-                  <button
-                    className="react-aria-Button react-aria-Button--primary"
-                    aria-label="Save answer"
+              <div className={styles.modalAction}>
+                <div>
+                  <Button
                     type="submit"
+                    data-secondary
+                    className="primary"
+                    aria-label="Save answer"
                   >
                     Save
-                  </button>
-                  <p
-                    className={styles.lastSaved}
-                    aria-live="polite"
-                    role="status"
-                  >
-                    Last saved: X mins ago
-                  </p>
-
+                  </Button>
                 </div>
+                <div>
+                  <Button
+                    className="secondary"
+                    aria-label="Return to section overview"
+                    onPress={() => handleBackToSection()}
+                  >
+                    {PlanOverview('buttons.backToSection')}
+                  </Button>
+                </div>
+
               </div>
             </Form>
-
-
           </div>
-        </ContentContainer>
+        </ContentContainer >
 
         <SidebarPanel>
           <div
@@ -887,23 +974,25 @@ const PlanOverviewQuestionPage: React.FC = () => {
         </SidebarPanel>
 
         {/** Sample text drawer. Only include for question types = Text Area */}
-        {questionType === 'textArea' && (
-          <DrawerPanel
-            isOpen={isSampleTextDrawerOpen}
-            onClose={() => setSampleTextDrawerOpen(false)}
-            returnFocusRef={openSampleTextButtonRef}
-            className={styles.drawerPanelWrapper}
-          >
-            <h3>{question?.questionText}</h3>
-            <h4 className={`${styles.deEmphasize} h5`}>{plan?.funderName} sample text</h4>
-            <div className={styles.sampleText}>
-              {convertToHTML(question?.sampleText)}
-            </div>
-            <div className="">
-              <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>Use answer</Button>
-            </div>
-          </DrawerPanel>
-        )}
+        {
+          questionType === 'textArea' && (
+            <DrawerPanel
+              isOpen={isSampleTextDrawerOpen}
+              onClose={() => setSampleTextDrawerOpen(false)}
+              returnFocusRef={openSampleTextButtonRef}
+              className={styles.drawerPanelWrapper}
+            >
+              <h3>{question?.questionText}</h3>
+              <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
+              <div className={styles.sampleText}>
+                {convertToHTML(question?.sampleText)}
+              </div>
+              <div className="">
+                <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
+              </div>
+            </DrawerPanel>
+          )
+        }
 
 
         {/**Comments drawer */}
@@ -913,7 +1002,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           returnFocusRef={openCommentsButtonRef}
           className={styles.drawerPanelWrapper}
         >
-          <h2>Comments</h2>
+          <h2>{PlanOverview('headings.comments')}</h2>
           <div className={styles.comment}>
             <h4>John Smith</h4>
             <p className={styles.deEmphasize}>2 days ago</p>
@@ -935,15 +1024,15 @@ const PlanOverviewQuestionPage: React.FC = () => {
           </div>
 
           <div className={styles.leaveComment}>
-            <h2>Leave a comment</h2>
+            <h2>{PlanOverview('headings.leaveAComment')}</h2>
             <Form onSubmit={(e) => handleAddComment(e)}>
               <TextField>
                 <Label>Frederick Cook (you)</Label>
                 <TextArea />
               </TextField>
               <div>
-                <Button type="submit" className={`${styles.buttonSmall}`} >Comment</Button>
-                <p>Participants will be notified once submitted.</p>
+                <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
+                <p>{PlanOverview('page.participantsWillBeNotified')}</p>
               </div>
             </Form>
           </div>

@@ -28,6 +28,7 @@ query Question($questionId: Int!) {
     sectionId
     templateId
     isDirty
+    required
   }
 }
 

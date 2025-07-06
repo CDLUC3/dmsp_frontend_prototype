@@ -212,8 +212,10 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
     if (stateOpen) setStateOpen(false);
 
     // Return focus to the opener button
-    if (returnFocusRef?.current) {
-      returnFocusRef.current.focus();
+    const drawerTriggerBtn = returnFocusRef?.current;
+    if (drawerTriggerBtn) {
+      drawerTriggerBtn.focus();
+      drawerTriggerBtn.setAttribute('data-focus-visible', '');
     }
 
   }

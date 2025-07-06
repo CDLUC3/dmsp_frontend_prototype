@@ -5,8 +5,24 @@
       "projects": "Projects",
       "navigation": "Breadcrumb navigation"
     },
+    "buttons": {
+      "backToSection": "Back to section",
+      "useAnswer": "use answer",
+      "comment": "Comment"
+    },
+    "headings": {
+      "comments": "Comments",
+      "leaveAComment": "Leave a comment"
+    },
     "page": {
-      "pageDescription": "Overview of plan details"
+      "pageDescription": "Overview of plan details",
+      "requirementsBy": "Requirements by {funder}",
+      "requiredByFunder": "Required by funder",
+      "jumpToGuidance": "Jump to additional guidance",
+      "viewSampleAnswer": "View sample answer",
+      "guidanceBy": "Guidance by {funder}",
+      "funderSampleText": "{funder} sample text",
+      "participantsWillBeNotified": "Participants will be notified once submitted."
     },
     "funding": {
       "title": "Funding for this plan",
