@@ -75,11 +75,6 @@ const ProjectOverviewPage: React.FC = () => {
     }
   );
 
-  // if (error) {
-  //   const errorMsg = ProjectOverview('messages.errorGettingProject');
-  //   setErrors(prev => [...prev, errorMsg]);
-  // }
-
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
     const formattedDate = formatter.dateTime(new Date(Number(date)), {

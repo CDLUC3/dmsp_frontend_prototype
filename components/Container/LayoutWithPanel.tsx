@@ -8,7 +8,6 @@ import React, {
 
 import { Button } from 'react-aria-components';
 
-import { DmpIcon } from '@/components/Icons';
 import {
   useResponsive,
   getSizeByName,
@@ -241,7 +240,7 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
             >
               X
             </Button>
-            {/* Add a scrollable wrapper for the desktop version */}
+            {/* Add a scrollable wrapper for the desktop version, so that user can scroll the drawer panel */}
             <div className="drawer-scrollable-content">
               {children}
             </div>
@@ -267,7 +266,7 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
           >
             X
           </Button>
-          {/* Add a scrollable wrapper for the desktop version */}
+          {/* Add a scrollable wrapper for the desktop version so that user can scroll the drawer panel*/}
           <div className="drawer-scrollable-content">
             {children}
           </div>

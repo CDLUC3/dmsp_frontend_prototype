@@ -43,6 +43,7 @@ const DateComponent: React.FC<DateComponentProps> = ({
   <DatePicker
     name={name}
     value={value}
+    data-testid="date-picker"
     onChange={onChange}
     minValue={toDateValue(minValue)}
     maxValue={toDateValue(maxValue)}

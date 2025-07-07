@@ -26,7 +26,7 @@ const CheckboxesQuestionComponent: React.FC<CheckboxesQuestionProps> = ({
     <CheckboxGroupComponent
       name="checkboxes"
       value={value}
-      onChange={(handleCheckboxGroupChange)}
+      onChange={handleCheckboxGroupChange}
       checkboxGroupLabel=""
       checkboxGroupDescription={""}
       checkboxData={checkboxData}

@@ -508,7 +508,7 @@
   overflow: hidden;
 
   @media (max-width: 675px) {
-    /* Hide all breadcrumbs by default */z
+    /* Hide all breadcrumbs by default */
     li {
       display: none !important; /* Ensure no conflicts with other styles */
     }

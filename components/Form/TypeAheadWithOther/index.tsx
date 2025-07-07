@@ -289,6 +289,7 @@ const TypeAheadWithOther = ({
     <div className={`${styles.autocompleteContainer} ${styles.expanded} ${className} form-row`} aria-expanded={open} role="combobox" aria-controls="results">
       <TextField
         type="text"
+        data-testId="typeaheadWithOther"
         className={(!!error) ? styles.fieldError : ''}
         isInvalid={!!error}
       >

@@ -1,4 +1,3 @@
-// hooks/useRenderQuestionField.ts
 import { CalendarDate, DateValue } from "@internationalized/date";
 
 import {

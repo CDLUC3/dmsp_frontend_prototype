@@ -164,7 +164,8 @@
   }
 }
 
-.layout-mask::before {
+// Add mask to rest of content when drawer panel is open
+.layout-mask::before { 
   content: "";
   position: absolute;
   top: 0;
@@ -183,6 +184,7 @@
   pointer-events: auto;
 }
   
+// Close button in the drawer panel
 .close-action {
   position: absolute;
   top: 1rem;

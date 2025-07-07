@@ -4,7 +4,6 @@ import TemplateListPage from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useTemplatesQuery, } from '@/generated/graphql';
 import { mockScrollIntoView } from '@/__mocks__/common';
-import { wait } from '@testing-library/user-event/dist/cjs/utils/index.js';
 
 expect.extend(toHaveNoViolations);
 
@@ -19,13 +18,6 @@ jest.mock('next-intl', () => ({
 // Mock the GraphQL hook for getting templates
 jest.mock('@/generated/graphql', () => ({
   useTemplatesQuery: jest.fn(),
-}));
-
-// Mock createApolloClient
-jest.mock('@/lib/graphql/client/apollo-client', () => ({
-  createApolloClient: jest.fn(() => ({
-    query: jest.fn(),
-  })),
 }));
 
 // Will pass this mock data back when query is made for templates

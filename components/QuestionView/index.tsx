@@ -148,7 +148,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   // Update the selected radio value when user selects different option
   const handleRadioChange = (value: string) => {
-    console.log("Just selected ", value);
     setSelectedRadioValue(value);
   };
 

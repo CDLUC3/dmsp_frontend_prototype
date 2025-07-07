@@ -35,7 +35,6 @@ import {
   useSectionVersionsQuery,
   usePlanQuery,
   useQuestionQuery,
-  Mutation,
 } from '@/generated/graphql';
 
 // Components
@@ -105,12 +104,17 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const sectionId = params.sid as string;
   const questionId = params.qid as string;
   const toastState = useToast(); // Access the toast state from context
+  //For scrolling to error in page
+  const errorRef = useRef<HTMLDivElement | null>(null);
 
-
+  // Question, plan and versionedSection states
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
   const [questionType, setQuestionType] = useState<string>('');
   const [versionedSectionId, setVersionedSectionId] = useState<number | null>();
+  const [versionedQuestionId, setVersionedQuestionId] = useState<number | null>();
+  const [parsed, setParsed] = useState<AnyParsedQuestion>();
+  const [errors, setErrors] = useState<string[]>([]);
 
   // Drawer states
   const [isSampleTextDrawerOpen, setSampleTextDrawerOpen] = useState<boolean>(false);
@@ -119,10 +123,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const openCommentsButtonRef = useRef<HTMLButtonElement | null>(null);
 
 
-
-  const [versionedQuestionId, setVersionedQuestionId] = useState<number | null>();
-  const [parsed, setParsed] = useState<AnyParsedQuestion>();
-  const [errors, setErrors] = useState<string[]>([]);
+  // Question field states
   const [otherField, setOtherField] = useState(false);
   const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({ affiliationName: '', affiliationId: '' });
   const [otherAffiliationName, setOtherAffiliationName] = useState<string>('');
@@ -137,10 +138,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [textAreaContent, setTextAreaContent] = useState<string>('');
   // Add local state for multiSelect values
   const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
-
   // Add local state to track if user has interacted with MultiSelect
   const [multiSelectTouched, setMultiSelectTouched] = useState(false);
-
   // Add local state for selected select value
   const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
   const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
@@ -151,13 +150,47 @@ const PlanOverviewQuestionPage: React.FC = () => {
     startNumber: 0,
     endNumber: 0,
   });
-  //For scrolling to error in page
-  const errorRef = useRef<HTMLDivElement | null>(null);
+
 
   // Localization
   const Global = useTranslations('Global');
   const PlanOverview = useTranslations('PlanOverview');
   const t = useTranslations('PlanOverviewQuestionPage');
+
+
+  /*GraphQL queries */
+
+  // Run selected question query
+  const {
+    data: selectedQuestion,
+    loading,
+    error: selectedQuestionQueryError
+  } = useQuestionQuery(
+    {
+      variables: {
+        questionId: Number(questionId)
+      }
+    },
+  );
+
+  // Get Plan using planId
+  const { data: planData, loading: planQueryLoading, error: planQueryError, refetch } = usePlanQuery(
+    {
+      variables: { planId: Number(dmpId) },
+      notifyOnNetworkStatusChange: true
+    }
+  );
+
+  // Get sectionVersions from sectionId
+  const { data: sectionVersions, loading: versionedSectionLoading, error: versionedSectionError, refetch: refetchVersionedSection } = useSectionVersionsQuery(
+    {
+      variables: { sectionId: Number(sectionId) }
+    }
+  )
+
+  // Get loadAnswer to call later, after we set the versionedQuestionId
+  const [loadAnswer, { data: answerData, loading: answerLoading, error: answerError }] =
+    useAnswerByVersionedQuestionIdLazyQuery();
 
 
   // Show Success Message
@@ -167,7 +200,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }
 
   /*Handling Drawer Panels*/
-
   // Toggle the sample text drawer open and closed
   const toggleSampleTextDrawer = () => {
     setSampleTextDrawerOpen(!isSampleTextDrawerOpen);
@@ -224,40 +256,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     // message user
     toastState.add('Comment sent', { type: 'success', timeout: 3000 });
   }
-
-
-  // Run selected question query
-  const {
-    data: selectedQuestion,
-    loading,
-    error: selectedQuestionQueryError
-  } = useQuestionQuery(
-    {
-      variables: {
-        questionId: Number(questionId)
-      }
-    },
-  );
-
-  // Get Plan using planId
-  const { data: planData, loading: planQueryLoading, error: planQueryError, refetch } = usePlanQuery(
-    {
-      variables: { planId: Number(dmpId) },
-      notifyOnNetworkStatusChange: true
-    }
-  );
-
-  // Get sectionVersions from sectionId
-  const { data: sectionVersions, loading: versionedSectionLoading, error: versionedSectionError, refetch: refetchVersionedSection } = useSectionVersionsQuery(
-    {
-      variables: { sectionId: Number(sectionId) }
-    }
-  )
-
-  // Get loadAnswer to call later, after we set the versionedQuestionId
-  const [loadAnswer, { data: answerData, loading: answerLoading, error: answerError }] =
-    useAnswerByVersionedQuestionIdLazyQuery();
-
 
   const convertToHTML = (htmlString: string | null | undefined) => {
     if (htmlString) {
@@ -672,6 +670,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   //Wait for answerData and questionType, then prefill the state
   useEffect(() => {
+    console.log("ANSWER DATA", answerData);
     const json = answerData?.answerByVersionedQuestionId?.json;
     if (json && questionType) {
       try {
@@ -796,7 +795,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         <ContentContainer>
           <div className="container"><span></span>
             {/**Requirements by funder */}
-            <section aria-label={"Requirements"}>
+            <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
               <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
               {convertToHTML(question?.requirementText)}
             </section>
@@ -900,15 +899,15 @@ const PlanOverviewQuestionPage: React.FC = () => {
                     type="submit"
                     data-secondary
                     className="primary"
-                    aria-label="Save answer"
+                    aria-label={PlanOverview('labels.saveAnswer')}
                   >
-                    Save
+                    {Global('buttons.save')}
                   </Button>
                 </div>
                 <div>
                   <Button
                     className="secondary"
-                    aria-label="Return to section overview"
+                    aria-label={PlanOverview('labels.returnToSection')}
                     onPress={() => handleBackToSection()}
                   >
                     {PlanOverview('buttons.backToSection')}

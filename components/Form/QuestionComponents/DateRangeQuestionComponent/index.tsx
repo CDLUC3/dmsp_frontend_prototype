@@ -25,7 +25,10 @@ const DateRangeQuestionComponent: React.FC<DateRangeQuestionProps> = ({
   const startLabel = parsedQuestion?.columns?.start?.attributes?.label;
   const endLabel = parsedQuestion?.columns?.end?.attributes?.label;
   return (
-    <div className='two-item-row'>
+    <div
+      className='two-item-row'
+      data-testid='date-range-container'
+    >
       <DateComponent
         name="startDate"
         value={getCalendarDateValue(dateRange.startDate)}
