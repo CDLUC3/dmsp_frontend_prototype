@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import {
@@ -18,14 +18,35 @@ import mockQuestionData from '../__mocks__/mockQuestionData.json';
 import mockCheckboxQuestion from '../__mocks__/mockCheckboxQuestion.json';
 import mockSectionVersionsData from '../__mocks__/mockSectionVersions.json';
 import mockQuestionDataForTextField from '@/__mocks__/common/mockQuestionDataForTextField.json';
-import mockRadioQuestion from '@/__mocks__/common/mockRadioQuestion.json';
+import mockQuestionDataForRadioButton from '@/__mocks__/common/mockQuestionDataForRadioButton.json';
 import mockQuestionDataForCurrency from '@/__mocks__/common/mockQuestionDataForCurrency.json';
 import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.json';
 import mockQuestionDataForDateRange from '@/__mocks__/common/mockQuestionDataForDateRange.json';
 import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockQuestionDataForTypeAheadSearch.json';
+import mockQuestionDataForDate from '@/__mocks__/common/mockQuestionDataForDate.json';
+import mockQuestionDataForBoolean from '@/__mocks__/common/mockQuestionDataForBoolean.json';
+import mockQuestionDataForEmail from '@/__mocks__/common/mockQuestionDataForEmail.json';
+import mockQuestionDataForNumberRange from '@/__mocks__/common/mockQuestionDataForNumberRange.json';
+import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNumber.json';
+import mockQuestionDataForMultiSelect from '@/__mocks__/common/mockQuestionDataForMultiSelect.json';
+import mockQuestionDataForSelectBox from '@/__mocks__/common/mockQuestionDataForSelectBox.json';
+import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
 
 // Mocked answer data
+import mockAnswerDataForTextField from '@/__mocks__/common/mockAnswerDataForTextField.json';
+import mockAnswerDataForDate from '@/__mocks__/common/mockAnswerDataForDate.json';
 import mockAnswerDataForDateRange from '@/__mocks__/common/mockAnswerDataForDateRange.json';
+import mockAnswerDataForTypeAheadSearch from '@/__mocks__/common/mockAnswerDataForTypeAheadSearch.json';
+import mockAnswerDataForBoolean from '@/__mocks__/common/mockAnswerDataForBoolean.json';
+import mockAnswerDataForURL from '@/__mocks__/common/mockAnswerDataForURL.json';
+import mockAnswerDataForEmail from '@/__mocks__/common/mockAnswerDataForEmail.json';
+import mockAnswerDataForCurrency from '@/__mocks__/common/mockAnswerDataForCurrency.json';
+import mockAnswerDataForNumberRange from '@/__mocks__/common/mockAnswerDataForNumberRange.json';
+import mockAnswerDataForNumber from '@/__mocks__/common/mockAnswerDataForNumber.json';
+import mockAnswerDataForMultiSelect from '@/__mocks__/common/mockAnswerDataForMultiSelect.json';
+import mockAnswerDataForSelectBox from '@/__mocks__/common/mockAnswerDataForSelectBox.json';
+import mockAnswerDataForRadioButton from '@/__mocks__/common/mockAnswerDataForRadioButton.json';
+import mockAnswerDataForTextArea from '@/__mocks__/common/mockAnswerDataForTextArea.json';
 
 
 import { mockScrollIntoView } from "@/__mocks__/common";
@@ -96,7 +117,7 @@ describe('PlanOverviewQuestionPage', () => {
     });
 
     (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is your loadAnswer function
+      jest.fn(), // this is the loadAnswer function
       {
         data: mockAnswerData,
         loading: false,
@@ -122,6 +143,22 @@ describe('PlanOverviewQuestionPage', () => {
   // Test that when the user clicks the "Close" button that the Drawer Panel closes
 
   it('should load correct question content for textArea question', async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -215,12 +252,66 @@ describe('PlanOverviewQuestionPage', () => {
     expect(charlieCheckbox).toBeChecked();
   })
 
+  it('should load correct question content for radioButton question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForRadioButton,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForRadioButton,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    screen.debug(undefined, Infinity);
+    // Check that question card is in the page with correct question details
+    expect(screen.getByTestId('question-card')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Radio button question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+
+    //Radio group
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).toBeInTheDocument();
+    const yesRadio = within(radioGroup).getByRole('radio', { name: /yes/i });
+    expect(yesRadio).toBeInTheDocument();
+    const noRadio = within(radioGroup).getByRole('radio', { name: /no/i });
+    expect(noRadio).toBeInTheDocument();
+    const maybeRadio = within(radioGroup).getByRole('radio', { name: /maybe/i });
+    expect(maybeRadio).toBeInTheDocument();
+    // Check that the correct radio button is selected
+    const yesLabel = screen.getByText('Yes').closest('label');
+    expect(yesLabel).toBeInTheDocument();
+    expect(yesLabel).toHaveAttribute('data-selected', 'true');
+  })
+
   it('should load correct question content for text field question', async () => {
     (useQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextField,
       loading: false,
       error: undefined,
     });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextField,
+        loading: false,
+        error: undefined,
+      },
+    ]);
 
     await act(async () => {
       render(
@@ -250,6 +341,16 @@ describe('PlanOverviewQuestionPage', () => {
       error: undefined,
     });
 
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTypeAheadSearch,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -276,7 +377,7 @@ describe('PlanOverviewQuestionPage', () => {
     });
 
     (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is your loadAnswer function
+      jest.fn(), // this is the loadAnswer function
       {
         data: mockAnswerDataForDateRange,
         loading: false,
@@ -291,7 +392,6 @@ describe('PlanOverviewQuestionPage', () => {
       );
     });
 
-    screen.debug(undefined, Infinity);
     expect(screen.getByRole('heading', { level: 2, name: 'Date range question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
@@ -322,6 +422,351 @@ describe('PlanOverviewQuestionPage', () => {
     expect(EndDaySegment).toHaveTextContent('5');
     expect(EndYearSegment).toHaveTextContent('2025');
 
+  })
+
+  it('should load correct question content for date question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForDate,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForDate,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Date field question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    // Date picker container
+    const datePicker = screen.getByTestId('date-picker');
+    const date = within(datePicker);
+
+    // Date
+    expect(within(datePicker).getByText('Date')).toBeInTheDocument();
+    const monthSegment = date.getByRole('spinbutton', { name: /month/i })
+    const daySegment = date.getByRole('spinbutton', { name: /day/i })
+    const yearSegment = date.getByRole('spinbutton', { name: /year/i })
+    expect(monthSegment).toHaveTextContent('7');
+    expect(daySegment).toHaveTextContent('1');
+    expect(yearSegment).toHaveTextContent('2025');
+
+  })
+
+  it('should load correct question content for boolean question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForBoolean,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForBoolean,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Yes/No question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+
+    //Radio group
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).toBeInTheDocument();
+    const yesCheckbox = within(radioGroup).getByRole('radio', { name: /yes/i });
+    expect(yesCheckbox).toBeInTheDocument();
+    const noCheckbox = within(radioGroup).getByRole('radio', { name: /no/i });
+    expect(noCheckbox).toBeInTheDocument();
+  })
+
+  it('should load correct question content for url question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForURL,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForURL,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Url question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+
+    const urlInput = screen.getByPlaceholderText('url');
+    expect(urlInput).toBeInTheDocument();
+    expect(urlInput).toHaveValue('https://cdlib.org');
+  })
+
+  it('should load correct question content for email question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForEmail,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForEmail,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Email field question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+
+    const urlInput = screen.getByPlaceholderText('email');
+    expect(urlInput).toBeInTheDocument();
+    expect(urlInput).toHaveValue('js@example.com');
+  })
+
+  it('should load correct question content for currency question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForCurrency,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForCurrency,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Currency Field question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+
+    // Should see increment and decrement buttons
+    const decreaseButton = screen.getAllByLabelText('Decrease');
+    const increaseButton = screen.getAllByLabelText('Increase');
+    expect(decreaseButton.length).toBe(1);
+    expect(increaseButton.length).toBe(1);
+    const input = screen.getByRole('textbox');
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveValue('$1.00');
+  })
+
+  it('should load correct question content for numberRange question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForNumberRange,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForNumberRange,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Number Range question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+
+    expect(screen.getByText('Starting')).toBeInTheDocument();
+    expect(screen.getByText('Ending')).toBeInTheDocument();
+    // Should see increment and decrement buttons
+    const decreaseButton = screen.getAllByLabelText('Decrease');
+    const increaseButton = screen.getAllByLabelText('Increase');
+    expect(decreaseButton.length).toBe(2);
+    expect(increaseButton.length).toBe(2);
+    // Should see input fields with correct values
+    const startInput = screen.getByPlaceholderText('start');
+    const endInput = screen.getByPlaceholderText('end');
+    expect(startInput).toHaveValue('1');
+    expect(endInput).toHaveValue('10');
+  })
+
+  it('should load correct question content for number question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForNumber,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForNumber,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Number Field question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+
+    expect(screen.getByText('number')).toBeInTheDocument();
+    // Should see increment and decrement buttons
+    const decreaseButton = screen.getAllByLabelText('Decrease');
+    const increaseButton = screen.getAllByLabelText('Increase');
+    expect(decreaseButton.length).toBe(1);
+    expect(increaseButton.length).toBe(1);
+    // Should see input fields with correct values
+    const input = screen.getByPlaceholderText('number');
+    expect(input).toHaveValue('2');
+  })
+
+  it('should load correct question content for multiSelect question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForMultiSelect,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForMultiSelect,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Multi select question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+
+    expect(screen.getByText('Select Items (Multiple)')).toBeInTheDocument();
+    expect(screen.getByText('Apple')).toBeInTheDocument();
+    expect(screen.getByText('Banana')).toBeInTheDocument();
+    expect(screen.getByText('Pear')).toBeInTheDocument();
+    expect(screen.getByText('Orange')).toBeInTheDocument();
+
+    // Get all options
+    const options = screen.getAllByRole('option');
+
+    // Check selected state by aria-selected
+    expect(options[0]).toHaveAttribute('aria-selected', 'false');
+    expect(options[1]).toHaveAttribute('aria-selected', 'true');
+    expect(options[2]).toHaveAttribute('aria-selected', 'true');
+    expect(options[3]).toHaveAttribute('aria-selected', 'true');
+  })
+
+  it('should load correct question content for selectBox question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForSelectBox,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForSelectBox,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Select box question' })).toBeInTheDocument();
+    // View sample text button should not display when the question is not a textArea question type
+    expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+
+    const selectButton = screen.getByTestId('select-button');
+    expect(within(selectButton).getByText('Oregon')).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: 'California' })).not.toBeInTheDocument();
+    act(() => {
+      fireEvent.click(selectButton);
+    })
+    expect(screen.getByRole('option', { name: 'California' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Washington' })).toBeInTheDocument();
   })
 
   it('should pass accessibility tests', async () => {

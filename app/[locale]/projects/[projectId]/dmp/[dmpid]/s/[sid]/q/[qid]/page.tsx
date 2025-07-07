@@ -594,6 +594,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         required: q.required ?? undefined // convert null to undefined
       };
 
+      console.log("SELECTED QUESTION", selectedQuestion);
       try {
         const { parsed, error } = getParsedQuestionJSON(cleanedQuestion, routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }), Global);
         if (!parsed?.type) {
