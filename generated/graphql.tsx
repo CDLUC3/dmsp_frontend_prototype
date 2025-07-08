@@ -3988,6 +3988,13 @@ export type ProjectFundingsQueryVariables = Exact<{
 
 export type ProjectFundingsQuery = { __typename?: 'Query', projectFundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, affiliation?: { __typename?: 'Affiliation', displayName: string, uri: string } | null } | null> | null };
 
+export type PlanFundingsQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+}>;
+
+
+export type PlanFundingsQuery = { __typename?: 'Query', planFundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null> | null };
+
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -5545,6 +5552,49 @@ export type ProjectFundingsQueryHookResult = ReturnType<typeof useProjectFunding
 export type ProjectFundingsLazyQueryHookResult = ReturnType<typeof useProjectFundingsLazyQuery>;
 export type ProjectFundingsSuspenseQueryHookResult = ReturnType<typeof useProjectFundingsSuspenseQuery>;
 export type ProjectFundingsQueryResult = Apollo.QueryResult<ProjectFundingsQuery, ProjectFundingsQueryVariables>;
+export const PlanFundingsDocument = gql`
+    query PlanFundings($planId: Int!) {
+  planFundings(planId: $planId) {
+    id
+    projectFunding {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __usePlanFundingsQuery__
+ *
+ * To run a query within a React component, call `usePlanFundingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanFundingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanFundingsQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function usePlanFundingsQuery(baseOptions: Apollo.QueryHookOptions<PlanFundingsQuery, PlanFundingsQueryVariables> & ({ variables: PlanFundingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanFundingsQuery, PlanFundingsQueryVariables>(PlanFundingsDocument, options);
+      }
+export function usePlanFundingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanFundingsQuery, PlanFundingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanFundingsQuery, PlanFundingsQueryVariables>(PlanFundingsDocument, options);
+        }
+export function usePlanFundingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanFundingsQuery, PlanFundingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanFundingsQuery, PlanFundingsQueryVariables>(PlanFundingsDocument, options);
+        }
+export type PlanFundingsQueryHookResult = ReturnType<typeof usePlanFundingsQuery>;
+export type PlanFundingsLazyQueryHookResult = ReturnType<typeof usePlanFundingsLazyQuery>;
+export type PlanFundingsSuspenseQueryHookResult = ReturnType<typeof usePlanFundingsSuspenseQuery>;
+export type PlanFundingsQueryResult = Apollo.QueryResult<PlanFundingsQuery, PlanFundingsQueryVariables>;
 export const LanguagesDocument = gql`
     query Languages {
   languages {

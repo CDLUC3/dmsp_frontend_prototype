@@ -7,3 +7,12 @@ query ProjectFundings($projectId: Int!) {
     }
   }
 }
+
+query PlanFundings($planId: Int!) {
+  planFundings(planId: $planId) {
+    id
+    projectFunding {
+      id
+    }
+  }
+}

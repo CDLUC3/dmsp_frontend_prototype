@@ -12,6 +12,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { MockedProvider } from '@apollo/client/testing';
 import {
   ProjectFundingsDocument,
+  PlanFundingsDocument,
   AddPlanFundingDocument,
 } from '@/generated/graphql';
 
@@ -28,6 +29,29 @@ expect.extend(toHaveNoViolations);
 
 // GraphQL Mocks
 const MOCKS = [
+  // Fetch the existing project funding selection
+  {
+    request: {
+      query: PlanFundingsDocument,
+      variables: {
+        planId: 456,
+      },
+    },
+
+    result: {
+      data: {
+        planFundings: [
+          {
+            id: 101,
+            projectFunding: {
+              id: 222
+            }
+          },
+        ],
+      },
+    },
+  },
+
   // Fetch Project Funders: Success
   {
     request: {
@@ -218,6 +242,24 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     );
 
     expect(screen.getByRole('button', { name: 'buttons.save' })).toBeInTheDocument();
+  });
+
+  it('should have the current funding choice selected', async () => {
+    render(
+      <MockedProvider mocks={MOCKS} addTypename={false}>
+        <ProjectsProjectPlanAdjustFunding />
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      const optionA = screen.getByRole('radio', { name: 'Project Funder A' });
+      expect(optionA).toBeInTheDocument();
+      expect(optionA).not.toBeChecked();
+
+      const optionB = screen.getByRole('radio', { name: 'Project Funder B' });
+      expect(optionB).toBeInTheDocument();
+      expect(optionB).toBeChecked();
+    });
   });
 
   it('should handle form submission', async () => {

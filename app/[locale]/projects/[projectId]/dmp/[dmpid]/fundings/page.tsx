@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter, useParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import {
+  usePlanFundingsLazyQuery,
   useProjectFundingsQuery,
   useAddPlanFundingMutation,
   PlanFundingErrors,
@@ -21,9 +22,11 @@ import {
   Label,
   Link,
   Radio,
-  RadioGroup,
   Text,
 } from "react-aria-components";
+
+import { RadioButtonInterface } from '@/app/types';
+import { RadioGroupComponent } from '@/components/Form';
 
 import PageHeader from "@/components/PageHeader";
 import ErrorMessages from "@/components/ErrorMessages";
@@ -36,6 +39,10 @@ import {
 const ProjectsProjectPlanAdjustFunding = () => {
   const global = useTranslations('Global');
   const t = useTranslations('PlanFunding');
+
+  const [radioData, setRadioData] = useState<RadioButtonInterface[]>([])
+  const [fundingChoice, setFundingChoice] = useState<string>("");
+  const [fetchPlanFundings, {}] = usePlanFundingsLazyQuery({});
 
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
@@ -57,6 +64,45 @@ const ProjectsProjectPlanAdjustFunding = () => {
       projectId: Number(projectId),
     }
   });
+
+  useEffect(() => {
+    if (dmpId) {
+      // Now that we have a dmpId from the params, fetch the existing funding
+      // selection for the plan. We use this to set the initial value in the
+      // options.
+      fetchPlanFundings({
+        variables: {
+          planId: Number(dmpId)
+        }
+      }).then(({data}) => {
+        if (data?.planFundings && data?.planFundings?.length > 0) {
+          const current = data.planFundings[0]?.projectFunding?.id;
+          setFundingChoice(String(current));
+        } else {
+          setFundingChoice("");
+        }
+      });
+    }
+  }, [dmpId]);
+
+
+  // Once we have the list of funders, we need to prepare the radio button
+  // data for the RadioGroupComponent
+  useEffect(() => {
+    if (funders?.projectFundings) {
+      let dataMap: RadioButtonInterface[] = [];
+      funders.projectFundings.forEach((funder, index) => {
+        if (funder) {
+          dataMap.push({
+            value: String(funder.id),
+            label: funder.affiliation?.displayName!,
+          });
+        }
+      });
+      setRadioData(dataMap);
+    }
+  }, [funders]);
+
 
   /**
    * Handle specific errors that we care about in this component.
@@ -153,22 +199,14 @@ const ProjectsProjectPlanAdjustFunding = () => {
         <ContentContainer>
           <ErrorMessages errors={errors} ref={errorRef} />
           <Form onSubmit={handleSubmit}>
-            <RadioGroup name="funding">
-              <Label>{t('fundingLabel')}</Label>
-              <Text slot="description" className="help">
-                {t('fundingDescription')}
-              </Text>
-
-              {funders?.projectFundings && funders.projectFundings.map((funder, index) => (
-                <Radio
-                  key={index}
-                  value={String(funder?.id)}
-                >
-                  {funder?.affiliation?.displayName}
-                </Radio>
-              ))}
-
-            </RadioGroup>
+            <RadioGroupComponent
+              name="funding"
+              value={fundingChoice}
+              onChange={setFundingChoice}
+              description={t('fundingDescription')}
+              radioGroupLabel={t('fundingLabel')}
+              radioButtonData={radioData}
+            />
 
             <p>
               <strong>{t('changeWarning')}</strong>

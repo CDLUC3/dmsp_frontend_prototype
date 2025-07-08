@@ -269,7 +269,7 @@ export interface Affiliation {
   url?: string | null;
 }
 
-interface RadioButtonInterface {
+export interface RadioButtonInterface {
   value: string;
   label: string;
   description?: string | ReactNode;
