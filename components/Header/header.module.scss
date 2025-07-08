@@ -61,6 +61,7 @@ $color-red: #D3273E;
 
 button.mobile-icon {
   padding: .5rem 1rem;
+  float: right; //let the hamburger icon float to the right
 }
 
 /* Dropdown menus */
@@ -295,10 +296,10 @@ button.with-mark.dropdown-toggle:hover,
 }
 
 .dmpui-frontend-header {
-  padding: 1rem 0.7rem;
-  display: flex;
-  align-items: center;
-  gap: 15px;
+  padding: 1rem 0.7rem; //Let the hamburger menu wrap below the logo
+  //display: flex;
+  //align-items: center;
+  //gap: 15px;
 }
 
 .dmpui-frontend-header .header-logo img {

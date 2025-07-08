@@ -18,7 +18,7 @@ import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 
 import mockAnswerData from '../__mocks__/mockAnswerData.json';
 import mockPlanData from '../__mocks__/mockPlanData.json';
-import mockQuestionData from '../__mocks__/mockQuestionData.json';
+import mockQuestionData from '../__mocks__/mockQuestionDetailData.json';
 
 // Mocked question data
 import mockCheckboxQuestion from '../__mocks__/mockCheckboxQuestion.json';
@@ -96,6 +96,7 @@ jest.mock('@/components/PageHeader', () => ({
 const mockUseRouter = useRouter as jest.Mock;
 const mockUseParams = useParams as jest.Mock;
 
+
 describe('PlanOverviewQuestionPage render of questions', () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
@@ -111,6 +112,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     mockUseRouter.mockReturnValue({
       push: jest.fn(),
     });
+
+
+    jest.useFakeTimers();
 
     (useSectionVersionsQuery as jest.Mock).mockReturnValue({
       data: mockSectionVersionsData,
@@ -137,23 +141,11 @@ describe('PlanOverviewQuestionPage render of questions', () => {
         error: undefined,
       },
     ]);
-
   })
 
-  // Test that correct question loads (test a couple of different question types) with correct content
-  // Test interactions with each question type to make sure changes are handled correctly
-  // Test that the correct title is displayed in heading
-  // Test that expected content is displayed for requirements and guidance
-  // Test that the "View sample text" is displayed for text area type, but not for other types
-  // Test that the comments button is present
-  // Test that the "Required by funder" text is present when the question is required, and not present when the question is not required
-  // Test for info icon
-  // Test that Back to Section and Save button are displayed
-  // Test that when a user clicks on the "View sample text" button that the DrawerPanel opens with the correct content
-  // Test that when the user clicks the "Close" button that the Drawer Panel closes
-  // Test that when the user clicks "use answer" button when the drawer is open, that the contents is transferred to the question answer
-  // Test that when the user clicks on the "Comments" button that the DrawerPanel opens
-  // Test that when the user clicks the "Close" button that the Drawer Panel closes
+  afterEach(() => {
+    jest.useRealTimers();
+  })
 
   it('should load correct question content for textArea question', async () => {
 
@@ -806,14 +798,58 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/1/dmp/1/s/22');
   })
+});
+
+
+describe('accessibility', () => {
+  beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
+    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
+      data: mockSectionVersionsData,
+      loading: false,
+      error: undefined,
+    });
+
+    (usePlanQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce(mockPlanData),
+      { loading: false, error: undefined },
+    ]);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionData,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerData,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+  })
 
   it('should pass accessibility tests', async () => {
     const { container } = render(<PlanOverviewQuestionPage />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-
-});
+})
 
 describe('Call to updateAnswerAction', () => {
   beforeEach(() => {
@@ -856,6 +892,157 @@ describe('Call to updateAnswerAction', () => {
         error: undefined,
       },
     ]);
+  })
+
+  it('should call updateAnswerAction when data changes for typeaheadSearch field', async () => {
+    const mockQuery = jest.fn();
+    const mockClient = { query: mockQuery };
+    mockClient.query.mockResolvedValueOnce({
+      data: {
+        affiliations: {
+          items: []
+        }
+      }
+    });
+
+    (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTypeAheadSearch,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const searchLabelInput = screen.getByLabelText('Affiliation');
+    fireEvent.change(searchLabelInput, { target: { value: 'UCOP' } });
+
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 20,
+        json: "{\"answer\":{\"affiliationId\":\"\",\"affiliationName\":\"UCOP\",\"isOther\":false}}"
+      });
+    });
+
+  })
+
+  it('should call updateAnswerAction when data changes for typeaheadSearch field with Other field', async () => {
+    jest.useFakeTimers();
+    const mockQuery = jest.fn();
+    const mockClient = { query: mockQuery };
+
+    mockQuery.mockImplementation((options) => {
+      return Promise.resolve({
+        data: {
+          affiliations: {
+            totalCount: 3,
+            nextCursor: null,
+            items: [
+              {
+                id: 13,
+                displayName: "University of California, Santa Barbara (ucsb.edu)",
+                uri: "https://ror.org/02t274463"
+              },
+              {
+                id: 14,
+                displayName: "University of California, Santa Cruz (ucsc.edu)",
+                uri: "https://ror.org/03s65by71"
+              },
+              {
+                id: 3,
+                displayName: "University of California, San Diego (ucsd.edu)",
+                uri: "https://ror.org/0168r3w48"
+              }
+            ]
+          }
+        }
+      });
+    });
+
+    (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTypeAheadSearch,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const searchLabelInput = screen.getByLabelText('Affiliation');
+
+    act(() => {
+      fireEvent.change(searchLabelInput, { target: { value: 'UC San' } });
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(1000); // Debounce delay
+      await Promise.resolve(); // Flush microtasks
+    });
+
+    await waitFor(() => {
+      expect(mockQuery).toHaveBeenCalledTimes(1);
+    })
+
+    const otherOption = screen.getByText('Other');
+    await waitFor(() => {
+      expect(screen.getByText('Other')).toBeInTheDocument();
+      expect(screen.getByText('University of California, Santa Barbara (ucsb.edu)')).toBeInTheDocument();
+      expect(screen.getByText('University of California, Santa Cruz (ucsc.edu)')).toBeInTheDocument();
+      expect(screen.getByText('University of California, San Diego (ucsd.edu)')).toBeInTheDocument();
+    })
+
+    fireEvent.click(otherOption);
+
+    const otherField = screen.getByPlaceholderText('Enter other institution name');
+    fireEvent.change(otherField, { target: { value: 'Academy of stars' } });
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 20,
+        json: "{\"answer\":{\"affiliationId\":\"\",\"affiliationName\":\"Academy of stars\",\"isOther\":true}}"
+      });
+    });
+
+    jest.useRealTimers();
   })
 
   it('should call updateAnswerAction with correct data for checkbox', async () => {
@@ -1410,3 +1597,487 @@ describe('Call to updateAnswerAction', () => {
   })
 })
 
+describe('Call to addAnswerAction', () => {
+  beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
+    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
+      data: mockSectionVersionsData,
+      loading: false,
+      error: undefined,
+    });
+
+    (usePlanQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce(mockPlanData),
+      { loading: false, error: undefined },
+    ]);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionData,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerData,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+  })
+
+  it('should call addAnswerAction with correct data for checkbox when there is no corresponding answer in our db', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: null,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    (addAnswerAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+        },
+        id: 27,
+        json: "{\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        modified: "1751929006000",
+        versionedQuestion: {
+          versionedSectionId: 20
+        }
+      },
+    });
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    expect(checkboxGroup).toBeInTheDocument();
+    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
+    const alexCheckbox = checkboxes.find(
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+    );
+
+    await userEvent.click(alexCheckbox!);
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(addAnswerAction).toHaveBeenCalledWith({
+        planId: 1,
+        versionedSectionId: 22,
+        versionedQuestionId: 182,
+        json: "{\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}"
+      });
+    });
+  });
+});
+
+describe('DrawerPanel', () => {
+  beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
+    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
+      data: mockSectionVersionsData,
+      loading: false,
+      error: undefined,
+    });
+
+    (usePlanQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce(mockPlanData),
+      { loading: false, error: undefined },
+    ]);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionData,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerData,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+  })
+
+  it('should open Sample text DrawerPanel when user clicks on the \'View sample answer\' button', async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    // sidebar panel
+    const allDrawerPanels = screen.queryAllByTestId('drawer-panel');
+    const visibleDrawerPanel = allDrawerPanels.find(
+      panel => panel.getAttribute('aria-hidden') !== 'true'
+    );
+    const sidebarPanel = screen.queryByTestId('sidebar-panel');
+
+    // check for drawer panel trigger buttons
+    const viewSampleTextBtn = screen.getByRole('button', { name: 'page.viewSampleAnswer' });
+    expect(viewSampleTextBtn).toBeInTheDocument();
+    expect(sidebarPanel).toBeInTheDocument();
+    expect(visibleDrawerPanel).toBeUndefined();
+
+    // Check that the textArea question field is in page
+    const textAreaQuestion = screen.getByLabelText('question-text-editor');
+    expect(textAreaQuestion).toBeInTheDocument();
+    expect(screen.getByText((content) => content.includes('is simply dummy text'))).toBeInTheDocument();
+
+    // click on the viewSampleTextBtn
+    await act(async () => {
+      fireEvent.click(viewSampleTextBtn);
+    });
+
+    const allDrawerPanels2 = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel2 = allDrawerPanels2.find(
+      panel => panel.getAttribute('aria-hidden') !== 'false'
+    )!; // Non-null assertion operator
+    const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
+
+    // Check that the sidebar-panel is visible
+    expect(sidebarPanel2).not.toBeInTheDocument();
+    expect(visibleDrawerPanel2).toBeInTheDocument();
+
+    // While the drawer is open, click the 'Close' button to clower the panel
+    // Check that the close action exists within the visible drawer panel
+    const closeAction = screen.queryAllByTestId('close-action');
+
+    // Click the close button
+    await userEvent.click(closeAction[0]);
+
+    // Get new info on sidebar and drawer panel - drawer should be closed and sidebar panel should be displayed
+    const allDrawerPanels3 = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel3 = allDrawerPanels3.find(
+      panel => panel.getAttribute('aria-hidden') !== 'true'
+    )!; // Non-null assertion operator
+    const sidebarPanel3 = screen.queryByTestId('sidebar-panel');
+    expect(sidebarPanel3).toBeInTheDocument();
+    expect(visibleDrawerPanel3).toBeUndefined();
+  })
+
+  it('should transfer sample text into the textArea field when user clicks on the \'use answer\' button', async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const viewSampleTextBtn = screen.getByRole('button', { name: 'page.viewSampleAnswer' });
+
+    // click on the viewSampleTextBtn
+    await act(async () => {
+      fireEvent.click(viewSampleTextBtn);
+    });
+
+    const allDrawerPanel = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel = allDrawerPanel.find(
+      panel => panel.getAttribute('aria-hidden') !== 'false'
+    )!; // Non-null assertion operator
+
+
+    const useAnswerBtn = screen.getByRole('button', { name: 'buttons.useAnswer' });
+    // Click the useAnswer button
+    await userEvent.click(useAnswerBtn);
+
+    // Get new info on sidebar and drawer panel - drawer should be closed and sidebar panel should be displayed
+    const allDrawerPanels2 = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel2 = allDrawerPanels2.find(
+      panel => panel.getAttribute('aria-hidden') !== 'true'
+    )!; // Non-null assertion operator
+    const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
+    expect(sidebarPanel2).toBeInTheDocument();
+    expect(visibleDrawerPanel2).toBeUndefined();
+
+    // The sample text should be visible in the textarea question
+    expect(screen.getByText((content) => content.includes('Sample text'))).toBeInTheDocument();
+  })
+
+
+  it('should open Comments DrawerPanel when user clicks on the \'Comments\' button', async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    // sidebar panel
+    const allDrawerPanels = screen.queryAllByTestId('drawer-panel');
+    const visibleDrawerPanel = allDrawerPanels.find(
+      panel => panel.getAttribute('aria-hidden') !== 'true'
+    );
+    const sidebarPanel = screen.queryByTestId('sidebar-panel');
+
+    // check for drawer panel trigger buttons
+    const viewCommentsBtn = screen.getByRole('button', { name: '4 Comments' });
+    expect(viewCommentsBtn).toBeInTheDocument();
+    expect(sidebarPanel).toBeInTheDocument();
+    expect(visibleDrawerPanel).toBeUndefined();
+
+    // Check that the textArea question field is in page
+    const textAreaQuestion = screen.getByLabelText('question-text-editor');
+    expect(textAreaQuestion).toBeInTheDocument();
+    expect(screen.getByText((content) => content.includes('is simply dummy text'))).toBeInTheDocument();
+
+    // Click on Comments button to reveal comments drawer panel
+    await act(async () => {
+      fireEvent.click(viewCommentsBtn);
+    });
+
+    const allDrawerPanels2 = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel2 = allDrawerPanels2.find(
+      panel => panel.getAttribute('aria-hidden') !== 'false'
+    )!; // Non-null assertion operator
+    const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
+
+    // Check that the sidebar-panel is visible
+    expect(sidebarPanel2).not.toBeInTheDocument();
+    expect(visibleDrawerPanel2).toBeInTheDocument();
+
+    // While the drawer is open, click the 'Close' button to clower the panel
+    // Check that the close action exists within the visible drawer panel
+    const closeAction = screen.queryAllByTestId('close-action');
+
+    // Click the close button in the comments drawer
+    await userEvent.click(closeAction[1]);
+
+    // Get new info on sidebar and drawer panel - drawer should be closed and sidebar panel should be displayed
+    const allDrawerPanels3 = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel3 = allDrawerPanels3.find(
+      panel => panel.getAttribute('aria-hidden') !== 'true'
+    )!; // Non-null assertion operator
+    const sidebarPanel3 = screen.queryByTestId('sidebar-panel');
+    expect(sidebarPanel3).toBeInTheDocument();
+    expect(visibleDrawerPanel3).toBeUndefined();
+  })
+
+  it('should close drawer panel when user clicks on the Comment button to submit a new comment', async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+
+    const viewCommentsBtn = screen.getByRole('button', { name: '4 Comments' });
+    // Click on Comments button to reveal comments drawer panel
+    await userEvent.click(viewCommentsBtn);
+
+
+    const allDrawerPanels = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel = allDrawerPanels.find(
+      panel => panel.getAttribute('aria-hidden') !== 'false'
+    )!; // Non-null assertion operator
+
+    // While the drawer is open, click the 'Close' button to clower the panel
+    // Check that the close action exists within the visible drawer panel
+    const commentBtn = screen.getByRole('button', { name: 'buttons.comment' })
+
+    // Click the close button in the comments drawer
+    await userEvent.click(commentBtn);
+
+    // Get new info on sidebar and drawer panel - drawer should be closed and sidebar panel should be displayed
+    const allDrawerPanels2 = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel2 = allDrawerPanels2.find(
+      panel => panel.getAttribute('aria-hidden') !== 'true'
+    )!; // Non-null assertion operator
+    const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
+    expect(sidebarPanel2).toBeInTheDocument();
+    expect(visibleDrawerPanel2).toBeUndefined();
+  })
+
+  it('should close drawer panel when user clicks on the masked body while comments drawer panel is open', async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+
+    const viewCommentsBtn = screen.getByRole('button', { name: '4 Comments' });
+    // Click on Comments button to reveal comments drawer panel
+    await userEvent.click(viewCommentsBtn);
+
+    const layoutWithPanel = screen.getByTestId('layout-with-panel');
+
+    // Click on the masked layoutWithPanel to close the drawer
+    await userEvent.click(layoutWithPanel);
+
+    // Drawer should be closed now and sidebar panel should be displayed
+    const allDrawerPanels = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel = allDrawerPanels.find(
+      panel => panel.getAttribute('aria-hidden') !== 'true'
+    )!; // Non-null assertion operator
+    const sidebarPanel = screen.queryByTestId('sidebar-panel');
+    expect(sidebarPanel).toBeInTheDocument();
+    expect(visibleDrawerPanel).toBeUndefined();
+  })
+
+  it('should close drawer panel when user clicks on the masked body when sample answer drawer panel is open', async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+
+    const viewSampleTextBtn = screen.getByRole('button', { name: 'page.viewSampleAnswer' });
+    // Click on View Sample text button to reveal sample text drawer panel
+    await userEvent.click(viewSampleTextBtn);
+
+    const layoutWithPanel = screen.getByTestId('layout-with-panel');
+
+    // Click on the masked layoutWithPanel to close the drawer
+    await userEvent.click(layoutWithPanel);
+
+    // Drawer should be closed now and sidebar panel should be displayed
+    const allDrawerPanels = screen.getAllByTestId('drawer-panel');
+    const visibleDrawerPanel = allDrawerPanels.find(
+      panel => panel.getAttribute('aria-hidden') !== 'true'
+    )!; // Non-null assertion operator
+    const sidebarPanel = screen.queryByTestId('sidebar-panel');
+    expect(sidebarPanel).toBeInTheDocument();
+    expect(visibleDrawerPanel).toBeUndefined();
+  })
+});

@@ -210,8 +210,14 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
 
     if (stateOpen) setStateOpen(false);
 
+    // Remove 'data-focus-visible' from all buttons first
+    document.querySelectorAll('button[data-focus-visible]').forEach((btn) => {
+      btn.removeAttribute('data-focus-visible');
+    });
+
     // Return focus to the opener button
     const drawerTriggerBtn = returnFocusRef?.current;
+
     if (drawerTriggerBtn) {
       drawerTriggerBtn.focus();
       drawerTriggerBtn.setAttribute('data-focus-visible', '');

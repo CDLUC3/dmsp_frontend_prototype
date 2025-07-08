@@ -22,6 +22,7 @@
       "pageDescription": "Overview of plan details",
       "requirementsBy": "Requirements by {funder}",
       "requiredByFunder": "Required by funder",
+      "requiredByFunderInfo": "The funder has marked this as a required question on their template. You can leave it blank in the tool but should complete it before submitting your grant.",
       "jumpToGuidance": "Jump to additional guidance",
       "viewSampleAnswer": "View sample answer",
       "guidanceBy": "Guidance by {funder}",

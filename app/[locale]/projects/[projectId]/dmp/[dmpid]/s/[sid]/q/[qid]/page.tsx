@@ -117,6 +117,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
 
   // Drawer states
+  const [isSideBarPanelOpen, setIsSideBarPanelOpen] = useState<boolean>(true);
   const [isSampleTextDrawerOpen, setSampleTextDrawerOpen] = useState<boolean>(false);
   const [isCommentsDrawerOpen, setCommentsDrawerOpen] = useState<boolean>(false);
   const openSampleTextButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -202,18 +203,33 @@ const PlanOverviewQuestionPage: React.FC = () => {
   /*Handling Drawer Panels*/
   // Toggle the sample text drawer open and closed
   const toggleSampleTextDrawer = () => {
-    setSampleTextDrawerOpen(!isSampleTextDrawerOpen);
+    const newDrawerState = !isSampleTextDrawerOpen;
+
+    setSampleTextDrawerOpen(newDrawerState);
+    setIsSideBarPanelOpen(!newDrawerState); // Opposite of drawer state 
   }
 
   // Toggle the comments drawer open and closed
   const toggleCommentsDrawer = () => {
-    setCommentsDrawerOpen(!isCommentsDrawerOpen);
+    const newDrawerState = !isSampleTextDrawerOpen;
+
+    setCommentsDrawerOpen(newDrawerState);
+    setIsSideBarPanelOpen(!newDrawerState); // Opposite of drawer state
+  }
+
+  // Just close the current drawer and no need to check mask/backdrop
+  const closeCurrentDrawer = () => {
+    setIsSideBarPanelOpen(true);
+    setSampleTextDrawerOpen(false);
+    setCommentsDrawerOpen(false);
   }
 
   // Close all drawer panels. One scenario is when the user clicks on the masked content.
-  const closeDrawers = (e: React.MouseEvent<HTMLDivElement, MouseEvent> | React.MouseEvent<Element, MouseEvent>) => {
+  const closeDrawers = (e?: React.MouseEvent<HTMLDivElement, MouseEvent> | React.MouseEvent<Element, MouseEvent>) => {
+    setIsSideBarPanelOpen(true);
+
     // Only close if clicking on the mask/backdrop, not the drawer content
-    if (e.target === e.currentTarget) {
+    if (e && e.target === e.currentTarget) {
       if (isCommentsDrawerOpen || isSampleTextDrawerOpen) {
         setSampleTextDrawerOpen(false);
         setCommentsDrawerOpen(false);
@@ -246,7 +262,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
     /*TODO: when the backend has been updated, we will be able to update this function*/
     // Close comments drawer
-    setCommentsDrawerOpen(false);
+    closeCurrentDrawer();
 
     // Return focus to sample text button
     if (openCommentsButtonRef.current) {
@@ -497,6 +513,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
   const addAnswer = async () => {
     const jsonPayload = getAnswerJson();
+
     // Check is answer already exists. If so, we want to call an update mutation
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
 
@@ -831,7 +848,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                         </OverlayArrow>
                         <Dialog>
                           <div className="flex-col">
-                            This question is required by the National Science Foundation for all plans
+                            {PlanOverview('page.requiredByFunderInfo')}
                           </div>
                         </Dialog>
                       </Popover>
@@ -918,7 +935,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           </div>
         </ContentContainer >
 
-        <SidebarPanel>
+        <SidebarPanel isOpen={isSideBarPanelOpen}>
           <div
             className={styles.bestPracticesPanel}
             aria-labelledby="best-practices-title"
@@ -976,7 +993,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           questionType === 'textArea' && (
             <DrawerPanel
               isOpen={isSampleTextDrawerOpen}
-              onClose={() => setSampleTextDrawerOpen(false)}
+              onClose={closeCurrentDrawer}
               returnFocusRef={openSampleTextButtonRef}
               className={styles.drawerPanelWrapper}
             >
@@ -996,7 +1013,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         {/**Comments drawer */}
         <DrawerPanel
           isOpen={isCommentsDrawerOpen}
-          onClose={() => setCommentsDrawerOpen(false)}
+          onClose={closeCurrentDrawer}
           returnFocusRef={openCommentsButtonRef}
           className={styles.drawerPanelWrapper}
         >

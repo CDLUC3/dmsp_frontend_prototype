@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DocumentNode } from '@apollo/client';
 import {
   Input,
-  FieldError,
   Label,
   Text,
   TextField,
