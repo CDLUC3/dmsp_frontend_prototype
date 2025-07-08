@@ -1,6 +1,5 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
-import userEvent from "@testing-library/user-event";
 import { routePath } from '@/utils/routes';
 import {
   useQuestionQuery,
@@ -102,6 +101,12 @@ describe("QuestionEditPage", () => {
   });
 
   it("should render correct fields and content", async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
     (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -280,6 +285,10 @@ describe("QuestionEditPage", () => {
 
     // Verify that the options wrapper is present (indicating hasOptions is true)
     expect(screen.getByText('helpText.questionOptions')).toBeInTheDocument();
+
+    // Should not load the sample text field
+    const questionSampleTextLabel = screen.queryByText(/labels.sampleText/i);
+    expect(questionSampleTextLabel).not.toBeInTheDocument();
   })
 
   it('should call the useUpdateQuestionMutation when user clicks \'save\' button', async () => {
@@ -365,7 +374,46 @@ describe("QuestionEditPage", () => {
     expect(checkboxText).not.toBeInTheDocument();
   })
 
-  it('should display the useSampleTextAsDefault checkbox if the questionTypeId is for a text field', async () => {
+  it('should display the useSampleTextAsDefault checkbox if the questionTypeId is for a textArea field', async () => {
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+
+    const sampleTextField = screen.queryByText('descriptions.sampleTextAsDefault');
+    expect(sampleTextField).toBeInTheDocument();
+  })
+
+  it('should not display the useSampleTextAsDefault checkbox if the questionTypeId is for a text field', async () => {
     (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -400,8 +448,8 @@ describe("QuestionEditPage", () => {
       );
     });
 
-    const checkboxText = screen.queryByText('descriptions.sampleTextAsDefault');
-    expect(checkboxText).toBeInTheDocument();
+    const questionSampleTextLabel = screen.queryByText(/labels.sampleText/i);
+    expect(questionSampleTextLabel).not.toBeInTheDocument();
   })
 
   it("should call handleRangeLabelChange for dateRange question type", async () => {

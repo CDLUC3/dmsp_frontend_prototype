@@ -1,15 +1,18 @@
 ### Added
+- Added a test in `jest.setup.ts` to catch extraneous errors that are not tested or in a unit test.
 - Added delete section functionality to template builder with confirmation modal, including translations, and tests
 - Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
 
 ### Updated
 - Clean up connections page and buttons [#516]
-
-### Updated
 - Added spacing on the `Account Profile` for the demo [#509]
 - Updated `Account Profile` to use routePath() instead of hardcoded paths
 - fix translation string to use the correct tags for the `Account Profile` [#515]
+
+### Fixed
+- Removed the `Sample text` field from the Question Add/Edit forms for all question types except for `textArea` [#564]
+
 
 ## v0.0.1
 - Plan Manage Access [#299]
@@ -17,6 +20,8 @@
 - Plan Downloads [#299]
 -
 ### Added
+- Added new `SectionEditContainer` component, for use in `QuestionEditCard`, to make reordering of questions more smooth [#207]
+- Added new `updateQuestionDisplayorder` and `updateSectionDisplayOrder` server actions to update question and section order when users click the `onMoveUp` and `onMoveDown` arrows [#207]
 - Added question type components to the components/Form/QuestionComponents directory [#157]
   - Updated the `QuestionAdd` and `QuestionEdit` components to allow for the adding and editing of the new question types [#157]
   - Updated `QuestionView` component, which is used to show a Preview of the Question that is being added or edited. Added handlers to allows users to interact with the questions in the Preview mode.
