@@ -100,12 +100,12 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
     expect(within(addCollaboratorForm).getByRole('textbox', { name: 'formLabels.email' })).toBeInTheDocument();
     expect(within(addCollaboratorForm).getByText('radioButtons.access.label')).toBeInTheDocument();
     const radioButton1 = screen.getByRole('radio', {
-      name: 'edit',
+      name: 'radioButtons.access.edit',
       checked: true,
     });
     expect(radioButton1).toBeInTheDocument();
     const radioButton2 = screen.getByRole('radio', {
-      name: 'comment',
+      name: 'radioButtons.access.comment',
       checked: false
     });
     expect(radioButton2).toBeInTheDocument();
@@ -191,7 +191,7 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
     expect(emailField).toHaveValue('testing@example.com');
 
     // Select the "Comment only" radio option
-    const commentOnlyRadio = screen.getByRole('radio', { name: 'comment' });
+    const commentOnlyRadio = screen.getByRole('radio', { name: 'radioButtons.access.comment' });
     fireEvent.click(commentOnlyRadio);
 
     // Click "Grant Access" button
@@ -232,7 +232,7 @@ describe('ProjectsProjectPlanFeedbackInvite', () => {
     expect(emailField).toHaveValue('testing@example.com');
 
     // Select the "Comment only" radio option
-    const commentOnlyRadio = screen.getByRole('radio', { name: 'comment' });
+    const commentOnlyRadio = screen.getByRole('radio', { name: 'radioButtons.access.comment' });
     fireEvent.click(commentOnlyRadio);
 
     // Click "Grant Access" button
