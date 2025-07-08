@@ -27,6 +27,7 @@ import {
 
 import { RadioButtonInterface } from '@/app/types';
 import { RadioGroupComponent } from '@/components/Form';
+import { useToast } from '@/context/ToastContext';
 
 import PageHeader from "@/components/PageHeader";
 import ErrorMessages from "@/components/ErrorMessages";
@@ -37,8 +38,9 @@ import {
 
 
 const ProjectsProjectPlanAdjustFunding = () => {
-  const global = useTranslations('Global');
+  const Global = useTranslations('Global');
   const t = useTranslations('PlanFunding');
+  const Messaging = useTranslations('Messaging');
 
   const [radioData, setRadioData] = useState<RadioButtonInterface[]>([])
   const [fundingChoice, setFundingChoice] = useState<string>("");
@@ -48,6 +50,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
   const errorRef = useRef<HTMLDivElement>(null);
   const [addPlanFunding] = useAddPlanFundingMutation({});
 
+  const toastState = useToast();
   const path = usePathname();
   const router = useRouter();
   const params = useParams();
@@ -147,6 +150,8 @@ const ProjectsProjectPlanAdjustFunding = () => {
         if (errs.length > 0) {
           setErrors(errs);
         } else {
+          const msg = Messaging('successfullyUpdated');
+          toastState.add(msg, { type: 'success' });
           router.push(NEXT_URL);
         }
     }).catch(err => {
@@ -165,13 +170,13 @@ const ProjectsProjectPlanAdjustFunding = () => {
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.index')}>{global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             {projectId && dmpId && (
               <>
                 <Breadcrumb>
                   <Link href={routePath('projects.show', {projectId: String(projectId)})}>
-                    {global('breadcrumbs.project')}
+                    {Global('breadcrumbs.project')}
                   </Link>
                 </Breadcrumb>
                 <Breadcrumb>
@@ -179,13 +184,13 @@ const ProjectsProjectPlanAdjustFunding = () => {
                     projectId: String(projectId),
                     dmpId: String(dmpId)
                   })}>
-                    {global('breadcrumbs.planOverview')}
+                    {Global('breadcrumbs.planOverview')}
                   </Link>
                 </Breadcrumb>
               </>
             )}
             <Breadcrumb>
-              {global('breadcrumbs.planFunding')}
+              {Global('breadcrumbs.planFunding')}
             </Breadcrumb>
           </Breadcrumbs>
         }
@@ -212,7 +217,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
               <strong>{t('changeWarning')}</strong>
             </p>
 
-            <Button type="submit">{global('buttons.save')}</Button>
+            <Button type="submit">{Global('buttons.save')}</Button>
           </Form>
 
           <h2 className="heading-3 mt-8">{t('addSourceTitle')}</h2>

@@ -22,6 +22,7 @@ import { stripHtml, scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 
 import ProjectsProjectPlanAdjustFunding from '../page';
+import { useToast } from '@/context/ToastContext';
 
 
 expect.extend(toHaveNoViolations);
@@ -180,6 +181,10 @@ jest.mock('@/components/PageHeader', () => ({
   default: () => <div data-testid="mock-page-header" />
 }));
 
+const mockToast = {
+  add: jest.fn(),
+};
+
 
 // Keep these separate and lean, so that we can customize based on
 // test requirements
@@ -202,6 +207,9 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
       projectId: '123',
       dmpid: '456',
     });
+
+    // Mock Toast
+    (useToast as jest.Mock).mockReturnValue(mockToast);
   });
 
   afterEach(() => {
@@ -279,6 +287,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
+      expect(mockToast.add).toHaveBeenCalledWith('successfullyUpdated', { type: 'success' });
       expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
     });
   });
