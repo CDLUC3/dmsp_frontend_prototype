@@ -1,5 +1,6 @@
 import React from 'react';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import {
@@ -8,6 +9,11 @@ import {
   usePlanQuery,
   useQuestionQuery,
 } from '@/generated/graphql';
+import {
+  addAnswerAction,
+  updateAnswerAction
+} from '../actions';
+
 import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 
 import mockAnswerData from '../__mocks__/mockAnswerData.json';
@@ -47,6 +53,7 @@ import mockAnswerDataForMultiSelect from '@/__mocks__/common/mockAnswerDataForMu
 import mockAnswerDataForSelectBox from '@/__mocks__/common/mockAnswerDataForSelectBox.json';
 import mockAnswerDataForRadioButton from '@/__mocks__/common/mockAnswerDataForRadioButton.json';
 import mockAnswerDataForTextArea from '@/__mocks__/common/mockAnswerDataForTextArea.json';
+import mockCheckboxAnswer from '../__mocks__/mockCheckboxAnswer.json';
 
 
 import { mockScrollIntoView } from "@/__mocks__/common";
@@ -61,6 +68,12 @@ jest.mock("@/generated/graphql", () => ({
   useSectionVersionsQuery: jest.fn(),
   usePlanQuery: jest.fn(),
   useQuestionQuery: jest.fn(),
+}));
+
+// Mock actions
+jest.mock('../actions/index', () => ({
+  addAnswerAction: jest.fn(),
+  updateAnswerAction: jest.fn(),
 }));
 
 jest.mock('next/navigation', () => ({
@@ -83,7 +96,7 @@ jest.mock('@/components/PageHeader', () => ({
 const mockUseRouter = useRouter as jest.Mock;
 const mockUseParams = useParams as jest.Mock;
 
-describe('PlanOverviewQuestionPage', () => {
+describe('PlanOverviewQuestionPage render of questions', () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
@@ -274,7 +287,6 @@ describe('PlanOverviewQuestionPage', () => {
       );
     });
 
-    screen.debug(undefined, Infinity);
     // Check that question card is in the page with correct question details
     expect(screen.getByTestId('question-card')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'Radio button question' })).toBeInTheDocument();
@@ -385,7 +397,6 @@ describe('PlanOverviewQuestionPage', () => {
       },
     ]);
 
-
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -421,7 +432,6 @@ describe('PlanOverviewQuestionPage', () => {
     expect(EndMonthSegment).toHaveTextContent('7');
     expect(EndDaySegment).toHaveTextContent('5');
     expect(EndYearSegment).toHaveTextContent('2025');
-
   })
 
   it('should load correct question content for date question', async () => {
@@ -463,7 +473,6 @@ describe('PlanOverviewQuestionPage', () => {
     expect(monthSegment).toHaveTextContent('7');
     expect(daySegment).toHaveTextContent('1');
     expect(yearSegment).toHaveTextContent('2025');
-
   })
 
   it('should load correct question content for boolean question', async () => {
@@ -552,7 +561,6 @@ describe('PlanOverviewQuestionPage', () => {
       },
     ]);
 
-
     await act(async () => {
       render(
         <PlanOverviewQuestionPage />
@@ -564,9 +572,9 @@ describe('PlanOverviewQuestionPage', () => {
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
 
-    const urlInput = screen.getByPlaceholderText('email');
-    expect(urlInput).toBeInTheDocument();
-    expect(urlInput).toHaveValue('js@example.com');
+    const emailInput = screen.getByPlaceholderText('email');
+    expect(emailInput).toBeInTheDocument();
+    expect(emailInput).toHaveValue('js@example.com');
   })
 
   it('should load correct question content for currency question', async () => {
@@ -769,6 +777,36 @@ describe('PlanOverviewQuestionPage', () => {
     expect(screen.getByRole('option', { name: 'Washington' })).toBeInTheDocument();
   })
 
+  it('should redirect to section overview page when user clicks \'Back to section\' button', async () => {
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const backToSectionBtn = screen.getByRole('button', { name: 'labels.returnToSection' });
+
+    fireEvent.click(backToSectionBtn);
+
+    expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/1/dmp/1/s/22');
+  })
+
   it('should pass accessibility tests', async () => {
     const { container } = render(<PlanOverviewQuestionPage />);
     const results = await axe(container);
@@ -776,4 +814,599 @@ describe('PlanOverviewQuestionPage', () => {
   });
 
 });
+
+describe('Call to updateAnswerAction', () => {
+  beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
+    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
+      data: mockSectionVersionsData,
+      loading: false,
+      error: undefined,
+    });
+
+    (usePlanQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce(mockPlanData),
+      { loading: false, error: undefined },
+    ]);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionData,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerData,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+  })
+
+  it('should call updateAnswerAction with correct data for checkbox', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockCheckboxAnswer,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    (addAnswerAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+        },
+        id: 27,
+        json: "{\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        modified: "1751929006000",
+        versionedQuestion: {
+          versionedSectionId: 20
+        }
+      },
+    });
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    expect(checkboxGroup).toBeInTheDocument();
+    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
+    const alexCheckbox = checkboxes.find(
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+    );
+
+    await userEvent.click(alexCheckbox!);
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 27,
+        json: "{\"answer\":[\"Barbara\",\"Charlie\"]}"
+      });
+    });
+  });
+
+  it('should call updateAnswerAction with correct data for radioButton', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForRadioButton,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForRadioButton,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).toBeInTheDocument();
+    const noRadio = within(radioGroup).getByRole('radio', { name: /no/i });
+
+    await userEvent.click(noRadio!);
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 5,
+        json: "{\"answer\":\"No\"}"
+      });
+    });
+  });
+
+  it('should call updateAnswerAction with correct data for text field', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextField,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextField,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const textFieldWrapper = screen.getByTestId('field-wrapper');
+    expect(textFieldWrapper).toBeInTheDocument();
+    expect(within(textFieldWrapper).getByLabelText('text')).toBeInTheDocument();
+    const input = within(textFieldWrapper).getByRole('textbox');
+
+    // trigger change in textbox value
+    await userEvent.clear(input);
+    await userEvent.type(input, 'New input value');
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 21,
+        json: "{\"answer\":\"New input value\"}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for date range question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForDateRange,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForDateRange,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const buttons = screen.getAllByLabelText('Calendar');
+
+    // Open the date picker
+    await userEvent.click(buttons[0]);
+
+    // Find the day button for the date you want to select (e.g., 15th)
+    const dayButton = await screen.findByRole('button', { name: /15/ });
+    await userEvent.click(dayButton);
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 16,
+        json: "{\"answer\":{\"startDate\":\"2025-05-15\",\"endDate\":\"2025-07-05\"}}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for date question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForDate,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForDate,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const dateBtn = screen.getByLabelText('Calendar');
+
+    // Open the date picker
+    await userEvent.click(dateBtn);
+
+    // Find the day button for the date you want to select (e.g., 15th)
+    const dayButton = await screen.findByRole('button', { name: /15/ });
+    await userEvent.click(dayButton);
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 15,
+        json: "{\"answer\":{\"startDate\":\"2025-07-15\",\"endDate\":\"\"}}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for boolean', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForBoolean,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForBoolean,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    //Radio group
+    const radioGroup = screen.getByRole('radiogroup');
+    expect(radioGroup).toBeInTheDocument();
+    const yesCheckbox = within(radioGroup).getByRole('radio', { name: /yes/i });
+    expect(yesCheckbox).toBeInTheDocument();
+    const noCheckbox = within(radioGroup).getByRole('radio', { name: /no/i });
+    expect(noCheckbox).toBeInTheDocument();
+
+    await userEvent.click(noCheckbox!);
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 14,
+        json: "{\"answer\":\"no\"}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for url question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForURL,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForURL,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const urlInput = screen.getByPlaceholderText('url');
+    // trigger change in textbox value
+    await userEvent.clear(urlInput);
+    await userEvent.type(urlInput, 'https://ucop.edu');
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 13,
+        json: "{\"answer\":\"https://ucop.edu\"}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for email question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForEmail,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForEmail,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+    const emailInput = screen.getByPlaceholderText('email');
+    // trigger change in textbox value
+    await userEvent.clear(emailInput);
+    await userEvent.type(emailInput, 'test@example.com');
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 12,
+        json: "{\"answer\":\"test@example.com\"}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for currency question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForCurrency,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForCurrency,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const numberGroup = screen.getByRole('group');
+    const currencyInput = within(numberGroup).getByRole('textbox');
+
+    await userEvent.clear(currencyInput);
+    await userEvent.type(currencyInput, '15.00');
+    await userEvent.tab(); // 👈 React Aria Component NumberField requires this to be able to register an input change
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 11,
+        json: "{\"answer\":15}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for numberRange question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForNumberRange,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForNumberRange,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const startInput = screen.getByPlaceholderText('start');
+
+    await userEvent.clear(startInput);
+    await userEvent.type(startInput, '2');
+    await userEvent.tab(); // 👈 React Aria Component NumberField requires this to be able to register an input change
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 10,
+        json: "{\"answer\":{\"startNumber\":2,\"endNumber\":10}}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for number question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForNumber,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForNumber,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+    const startInput = screen.getByPlaceholderText('number');
+
+    await userEvent.clear(startInput);
+    await userEvent.type(startInput, '3');
+    await userEvent.tab(); // 👈 React Aria Component NumberField requires this to be able to register an input change
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 9,
+        json: "{\"answer\":3}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for multiSelect question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForMultiSelect,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForMultiSelect,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    // Get all options
+    const options = screen.getAllByRole('option');
+
+    fireEvent.click(options[0]);
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 18,
+        json: "{\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"]}"
+      });
+    });
+  })
+
+  it('should call updateAnswerAction with correct data for selectBox question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForSelectBox,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForSelectBox,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const selectButton = screen.getByTestId('select-button');
+    act(() => {
+      fireEvent.click(selectButton);
+    })
+    const caOption = screen.getByRole('option', { name: 'California' });
+
+    fireEvent.click(caOption);
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 30,
+        json: "{\"answer\":\"California\"}"
+      });
+    });
+  })
+})
 

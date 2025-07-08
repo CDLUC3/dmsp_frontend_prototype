@@ -594,7 +594,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         required: q.required ?? undefined // convert null to undefined
       };
 
-      console.log("SELECTED QUESTION", selectedQuestion);
       try {
         const { parsed, error } = getParsedQuestionJSON(cleanedQuestion, routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }), Global);
         if (!parsed?.type) {
@@ -671,7 +670,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   //Wait for answerData and questionType, then prefill the state
   useEffect(() => {
-    console.log("ANSWER DATA", answerData);
     const json = answerData?.answerByVersionedQuestionId?.json;
     if (json && questionType) {
       try {
