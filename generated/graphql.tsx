@@ -2129,6 +2129,8 @@ export type Query = {
   affiliations?: Maybe<AffiliationSearchResults>;
   /** Get the sepecific answer */
   answer?: Maybe<Answer>;
+  /** Get an answer by versionedQuestionId */
+  answerByVersionedQuestionId?: Maybe<Answer>;
   /** Get all answers for the given project and plan and section */
   answers?: Maybe<Array<Maybe<Answer>>>;
   /** Get all of the best practice VersionedSection */
@@ -2265,6 +2267,13 @@ export type QueryAffiliationsArgs = {
 export type QueryAnswerArgs = {
   answerId: Scalars['Int']['input'];
   projectId: Scalars['Int']['input'];
+};
+
+
+export type QueryAnswerByVersionedQuestionIdArgs = {
+  planId: Scalars['Int']['input'];
+  projectId: Scalars['Int']['input'];
+  versionedQuestionId: Scalars['Int']['input'];
 };
 
 
@@ -4026,7 +4035,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, project?: { __typename?: 'Project', title: string } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, project?: { __typename?: 'Project', title: string } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -5832,6 +5841,7 @@ export const PlanDocument = gql`
         id
         name
       }
+      name
     }
     fundings {
       id

@@ -314,7 +314,7 @@ const ProjectOverviewPage: React.FC = () => {
                     </div>
                     <div className="plan-action">
                       <Link
-                        href={`/projects/${projectId}/dmp/xxx`}
+                        href={`/projects/${projectId}/dmp/${plan.id}`}
                         className="react-aria-Button react-aria-Button--primary"
                         aria-label={ProjectOverview('updatePlan')}
                       >
