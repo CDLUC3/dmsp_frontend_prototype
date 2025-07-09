@@ -124,6 +124,16 @@
     "addManuallyText": "If your project isn’t shown, you can add the details manually.",
     "addManuallyLabel": "Add funder manually"
   },
+  "PlanFunding": {
+    "headerTitle": "Plan Funding",
+    "headerDescription": "Manage funding sources for this Plan",
+    "fundingLabel": "Select funding sources for this plan",
+    "fundingDescription": "This funding list comes from the funding list attached to the project.",
+    "changeWarning": "Note: Changing the funding sources may require a template change. Only change if you are sure.",
+    "addSourceTitle": "Adding a funding source?",
+    "addSourceNote": "If you want to add new funding information, you can add funding at the project level. This project can have multiple funding sources, whereas each plan can only have a single source of funding as we match it to the required template.",
+    "addSourceLink": "Add a new funding source"
+  },
   "TemplateHistory": {
     "title": "Template history",
     "subHeading": "History",
@@ -162,6 +172,7 @@
       "projectOverview": "Project overview",
       "projectFunding": "Project funding",
       "planOverview": "Plan overview",
+      "planFunding": "Plan funding",
       "feedback": "Feedback"
     },
     "form": {

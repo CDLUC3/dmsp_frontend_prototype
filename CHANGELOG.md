@@ -2,6 +2,7 @@
 - Added a test in `jest.setup.ts` to catch extraneous errors that are not tested or in a unit test.
 - Added delete section functionality to template builder with confirmation modal, including translations, and tests
 - Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
+- Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
 
 ### Updated
 - Clean up connections page and buttons [#516]
