@@ -209,7 +209,7 @@ describe('PlanOverviewPage', () => {
       expect(screen.getByRole('heading', { level: 2, name: 'publishModal.publish.visibilityOptionsTitle' })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /private/i })).toBeInTheDocument();
       expect(screen.getByRole('radio', { name: /public/i })).toBeInTheDocument();
-      expect(screen.getByRole('radio', { name: /organizational/i })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /organization/i })).toBeInTheDocument();
       expect(screen.getByText('publishModal.publish.visibilityOptions.public.label')).toBeInTheDocument();
       expect(screen.getByText('publishModal.publish.visibilityOptions.public.description')).toBeInTheDocument();
       expect(screen.getByText('publishModal.publish.visibilityOptions.organization.label')).toBeInTheDocument();
@@ -234,7 +234,7 @@ describe('PlanOverviewPage', () => {
     await waitFor(() => {
       const privateRadio = screen.getByRole('radio', { name: /private/i });
       const publicRadio = screen.getByRole('radio', { name: /public/i });
-      const organizationalRadio = screen.getByRole('radio', { name: /organizational/i });
+      const organizationalRadio = screen.getByRole('radio', { name: /organization/i });
 
       // Check initial state (none selected by default)
       expect(privateRadio).not.toBeChecked();

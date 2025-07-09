@@ -3811,6 +3811,14 @@ export type UpdatePlanStatusMutationVariables = Exact<{
 
 export type UpdatePlanStatusMutation = { __typename?: 'Mutation', updatePlanStatus?: { __typename?: 'Plan', id?: number | null, status?: PlanStatus | null, visibility?: PlanVisibility | null, errors?: { __typename?: 'PlanErrors', general?: string | null, status?: string | null } | null } | null };
 
+export type AddPlanFundingMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  projectFundingId: Scalars['Int']['input'];
+}>;
+
+
+export type AddPlanFundingMutation = { __typename?: 'Mutation', addPlanFunding?: { __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null, projectId?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null };
+
 export type AddProjectCollaboratorMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   email: Scalars['String']['input'];
@@ -3884,6 +3892,14 @@ export type RemoveQuestionMutationVariables = Exact<{
 
 export type RemoveQuestionMutation = { __typename?: 'Mutation', removeQuestion?: { __typename?: 'Question', id?: number | null } | null };
 
+export type UpdateQuestionDisplayOrderMutationVariables = Exact<{
+  questionId: Scalars['Int']['input'];
+  newDisplayOrder: Scalars['Int']['input'];
+}>;
+
+
+export type UpdateQuestionDisplayOrderMutation = { __typename?: 'Mutation', updateQuestionDisplayOrder: { __typename?: 'ReorderQuestionsResult', questions?: Array<{ __typename?: 'Question', id?: number | null, displayOrder?: number | null, questionText?: string | null, sampleText?: string | null, requirementText?: string | null, guidanceText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null } | null }> | null } };
+
 export type AddSectionMutationVariables = Exact<{
   input: AddSectionInput;
 }>;
@@ -3904,6 +3920,14 @@ export type RemoveSectionMutationVariables = Exact<{
 
 
 export type RemoveSectionMutation = { __typename?: 'Mutation', removeSection: { __typename?: 'Section', id?: number | null, name: string } };
+
+export type UpdateSectionDisplayOrderMutationVariables = Exact<{
+  sectionId: Scalars['Int']['input'];
+  newDisplayOrder: Scalars['Int']['input'];
+}>;
+
+
+export type UpdateSectionDisplayOrderMutation = { __typename?: 'Mutation', updateSectionDisplayOrder: { __typename?: 'ReorderSectionsResult', sections?: Array<{ __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, visibility: TemplateVisibility } | null }> | null } };
 
 export type AddTemplateCollaboratorMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -4015,6 +4039,13 @@ export type ProjectFundingsQueryVariables = Exact<{
 
 
 export type ProjectFundingsQuery = { __typename?: 'Query', projectFundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, affiliation?: { __typename?: 'Affiliation', displayName: string, uri: string } | null } | null> | null };
+
+export type PlanFundingsQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
+}>;
+
+
+export type PlanFundingsQuery = { __typename?: 'Query', planFundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null> | null };
 
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4137,7 +4168,7 @@ export type SectionQueryVariables = Exact<{
 }>;
 
 
-export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null } | null } | null };
+export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, visibility: TemplateVisibility } | null } | null };
 
 export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4536,6 +4567,47 @@ export function useUpdatePlanStatusMutation(baseOptions?: Apollo.MutationHookOpt
 export type UpdatePlanStatusMutationHookResult = ReturnType<typeof useUpdatePlanStatusMutation>;
 export type UpdatePlanStatusMutationResult = Apollo.MutationResult<UpdatePlanStatusMutation>;
 export type UpdatePlanStatusMutationOptions = Apollo.BaseMutationOptions<UpdatePlanStatusMutation, UpdatePlanStatusMutationVariables>;
+export const AddPlanFundingDocument = gql`
+    mutation AddPlanFunding($planId: Int!, $projectFundingId: Int!) {
+  addPlanFunding(planId: $planId, projectFundingId: $projectFundingId) {
+    errors {
+      ProjectFundingId
+      general
+      projectId
+    }
+    projectFunding {
+      id
+    }
+  }
+}
+    `;
+export type AddPlanFundingMutationFn = Apollo.MutationFunction<AddPlanFundingMutation, AddPlanFundingMutationVariables>;
+
+/**
+ * __useAddPlanFundingMutation__
+ *
+ * To run a mutation, you first call `useAddPlanFundingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPlanFundingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPlanFundingMutation, { data, loading, error }] = useAddPlanFundingMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      projectFundingId: // value for 'projectFundingId'
+ *   },
+ * });
+ */
+export function useAddPlanFundingMutation(baseOptions?: Apollo.MutationHookOptions<AddPlanFundingMutation, AddPlanFundingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddPlanFundingMutation, AddPlanFundingMutationVariables>(AddPlanFundingDocument, options);
+      }
+export type AddPlanFundingMutationHookResult = ReturnType<typeof useAddPlanFundingMutation>;
+export type AddPlanFundingMutationResult = Apollo.MutationResult<AddPlanFundingMutation>;
+export type AddPlanFundingMutationOptions = Apollo.BaseMutationOptions<AddPlanFundingMutation, AddPlanFundingMutationVariables>;
 export const AddProjectCollaboratorDocument = gql`
     mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
   addProjectCollaborator(
@@ -4959,6 +5031,55 @@ export function useRemoveQuestionMutation(baseOptions?: Apollo.MutationHookOptio
 export type RemoveQuestionMutationHookResult = ReturnType<typeof useRemoveQuestionMutation>;
 export type RemoveQuestionMutationResult = Apollo.MutationResult<RemoveQuestionMutation>;
 export type RemoveQuestionMutationOptions = Apollo.BaseMutationOptions<RemoveQuestionMutation, RemoveQuestionMutationVariables>;
+export const UpdateQuestionDisplayOrderDocument = gql`
+    mutation UpdateQuestionDisplayOrder($questionId: Int!, $newDisplayOrder: Int!) {
+  updateQuestionDisplayOrder(
+    questionId: $questionId
+    newDisplayOrder: $newDisplayOrder
+  ) {
+    questions {
+      id
+      displayOrder
+      questionText
+      sampleText
+      requirementText
+      guidanceText
+      sectionId
+      templateId
+      errors {
+        general
+      }
+    }
+  }
+}
+    `;
+export type UpdateQuestionDisplayOrderMutationFn = Apollo.MutationFunction<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>;
+
+/**
+ * __useUpdateQuestionDisplayOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuestionDisplayOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuestionDisplayOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuestionDisplayOrderMutation, { data, loading, error }] = useUpdateQuestionDisplayOrderMutation({
+ *   variables: {
+ *      questionId: // value for 'questionId'
+ *      newDisplayOrder: // value for 'newDisplayOrder'
+ *   },
+ * });
+ */
+export function useUpdateQuestionDisplayOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>(UpdateQuestionDisplayOrderDocument, options);
+      }
+export type UpdateQuestionDisplayOrderMutationHookResult = ReturnType<typeof useUpdateQuestionDisplayOrderMutation>;
+export type UpdateQuestionDisplayOrderMutationResult = Apollo.MutationResult<UpdateQuestionDisplayOrderMutation>;
+export type UpdateQuestionDisplayOrderMutationOptions = Apollo.BaseMutationOptions<UpdateQuestionDisplayOrderMutation, UpdateQuestionDisplayOrderMutationVariables>;
 export const AddSectionDocument = gql`
     mutation AddSection($input: AddSectionInput!) {
   addSection(input: $input) {
@@ -5101,6 +5222,85 @@ export function useRemoveSectionMutation(baseOptions?: Apollo.MutationHookOption
 export type RemoveSectionMutationHookResult = ReturnType<typeof useRemoveSectionMutation>;
 export type RemoveSectionMutationResult = Apollo.MutationResult<RemoveSectionMutation>;
 export type RemoveSectionMutationOptions = Apollo.BaseMutationOptions<RemoveSectionMutation, RemoveSectionMutationVariables>;
+export const UpdateSectionDisplayOrderDocument = gql`
+    mutation UpdateSectionDisplayOrder($sectionId: Int!, $newDisplayOrder: Int!) {
+  updateSectionDisplayOrder(
+    sectionId: $sectionId
+    newDisplayOrder: $newDisplayOrder
+  ) {
+    sections {
+      id
+      introduction
+      name
+      requirements
+      guidance
+      displayOrder
+      bestPractice
+      isDirty
+      questions {
+        errors {
+          general
+          templateId
+          sectionId
+          questionText
+          displayOrder
+        }
+        displayOrder
+        guidanceText
+        id
+        questionText
+        sectionId
+        templateId
+      }
+      tags {
+        id
+        description
+        name
+      }
+      errors {
+        general
+        name
+        displayOrder
+      }
+      template {
+        id
+        bestPractice
+        isDirty
+        languageId
+        name
+        visibility
+      }
+    }
+  }
+}
+    `;
+export type UpdateSectionDisplayOrderMutationFn = Apollo.MutationFunction<UpdateSectionDisplayOrderMutation, UpdateSectionDisplayOrderMutationVariables>;
+
+/**
+ * __useUpdateSectionDisplayOrderMutation__
+ *
+ * To run a mutation, you first call `useUpdateSectionDisplayOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSectionDisplayOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSectionDisplayOrderMutation, { data, loading, error }] = useUpdateSectionDisplayOrderMutation({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *      newDisplayOrder: // value for 'newDisplayOrder'
+ *   },
+ * });
+ */
+export function useUpdateSectionDisplayOrderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateSectionDisplayOrderMutation, UpdateSectionDisplayOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateSectionDisplayOrderMutation, UpdateSectionDisplayOrderMutationVariables>(UpdateSectionDisplayOrderDocument, options);
+      }
+export type UpdateSectionDisplayOrderMutationHookResult = ReturnType<typeof useUpdateSectionDisplayOrderMutation>;
+export type UpdateSectionDisplayOrderMutationResult = Apollo.MutationResult<UpdateSectionDisplayOrderMutation>;
+export type UpdateSectionDisplayOrderMutationOptions = Apollo.BaseMutationOptions<UpdateSectionDisplayOrderMutation, UpdateSectionDisplayOrderMutationVariables>;
 export const AddTemplateCollaboratorDocument = gql`
     mutation AddTemplateCollaborator($templateId: Int!, $email: String!) {
   addTemplateCollaborator(templateId: $templateId, email: $email) {
@@ -5732,6 +5932,49 @@ export type ProjectFundingsQueryHookResult = ReturnType<typeof useProjectFunding
 export type ProjectFundingsLazyQueryHookResult = ReturnType<typeof useProjectFundingsLazyQuery>;
 export type ProjectFundingsSuspenseQueryHookResult = ReturnType<typeof useProjectFundingsSuspenseQuery>;
 export type ProjectFundingsQueryResult = Apollo.QueryResult<ProjectFundingsQuery, ProjectFundingsQueryVariables>;
+export const PlanFundingsDocument = gql`
+    query PlanFundings($planId: Int!) {
+  planFundings(planId: $planId) {
+    id
+    projectFunding {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __usePlanFundingsQuery__
+ *
+ * To run a query within a React component, call `usePlanFundingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanFundingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanFundingsQuery({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function usePlanFundingsQuery(baseOptions: Apollo.QueryHookOptions<PlanFundingsQuery, PlanFundingsQueryVariables> & ({ variables: PlanFundingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanFundingsQuery, PlanFundingsQueryVariables>(PlanFundingsDocument, options);
+      }
+export function usePlanFundingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanFundingsQuery, PlanFundingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanFundingsQuery, PlanFundingsQueryVariables>(PlanFundingsDocument, options);
+        }
+export function usePlanFundingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanFundingsQuery, PlanFundingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanFundingsQuery, PlanFundingsQueryVariables>(PlanFundingsDocument, options);
+        }
+export type PlanFundingsQueryHookResult = ReturnType<typeof usePlanFundingsQuery>;
+export type PlanFundingsLazyQueryHookResult = ReturnType<typeof usePlanFundingsLazyQuery>;
+export type PlanFundingsSuspenseQueryHookResult = ReturnType<typeof usePlanFundingsSuspenseQuery>;
+export type PlanFundingsQueryResult = Apollo.QueryResult<PlanFundingsQuery, PlanFundingsQueryVariables>;
 export const LanguagesDocument = gql`
     query Languages {
   languages {
@@ -6682,6 +6925,22 @@ export const SectionDocument = gql`
     guidance
     displayOrder
     bestPractice
+    isDirty
+    questions {
+      errors {
+        general
+        templateId
+        sectionId
+        questionText
+        displayOrder
+      }
+      displayOrder
+      guidanceText
+      id
+      questionText
+      sectionId
+      templateId
+    }
     tags {
       id
       description
@@ -6694,6 +6953,11 @@ export const SectionDocument = gql`
     }
     template {
       id
+      bestPractice
+      isDirty
+      languageId
+      name
+      visibility
     }
   }
 }

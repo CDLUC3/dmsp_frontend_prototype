@@ -60,11 +60,11 @@ import {
   QuestionTypesInterface
 } from '@/app/types';
 import {
-  TEXT_QUESTION_TYPE,
   RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
   DATE_RANGE_QUESTION_TYPE,
-  NUMBER_RANGE_QUESTION_TYPE
+  NUMBER_RANGE_QUESTION_TYPE,
+  TEXT_AREA_QUESTION_TYPE
 } from '@/lib/constants';
 import {
   isOptionsType,
@@ -628,7 +628,7 @@ const QuestionEdit = () => {
 
                 />
 
-                {!hasOptions && (
+                {questionType === TEXT_AREA_QUESTION_TYPE && (
                   <FormTextArea
                     name="sample_text"
                     isRequired={false}
@@ -644,7 +644,7 @@ const QuestionEdit = () => {
                   />
                 )}
 
-                {questionType && TEXT_QUESTION_TYPE.includes(questionType) && (
+                {questionType === TEXT_AREA_QUESTION_TYPE && (
                   <Checkbox
                     onChange={() => setQuestion({
                       ...question,

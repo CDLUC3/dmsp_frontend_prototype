@@ -48,10 +48,17 @@
     "errors": {
       "archiveTemplateError": "Error when archiving template",
       "saveTemplateError": "Error when saving template",
-      "getTemplatesError": "Error getting templates"
+      "getTemplatesError": "Error getting templates",
+      "updateTemplateError": "Error updating template",
+      "updateTitleError": "Error updating template title",
+      "updateDisplayOrderError": "Error updating display order",
+      "cannotMoveFurtherDown": "Cannot move section further down",
+      "displayOrderAlreadyAtTop": "Section is already at top of order",
+      "cannotMoveFurtherUpOrDown": "Cannot move section further up or down"
     },
     "messages": {
-      "successfullyArchived": "Successfully archived the template"
+      "successfullyArchived": "Successfully archived the template",
+      "sectionMoved": "Section moved to position {displayOrder}"
     }
   },
   "PublishTemplate": {
@@ -93,8 +100,11 @@
       "addQuestion": "Add question"
     },
     "buttons": {
-      "moveUp": "Move question up",
-      "moveDown": "Move question down"
+      "moveUp": "Move question up {name}",
+      "moveDown": "Move question down {name}"
+    },
+    "messages": {
+      "questionMoved": "Question moved to position {displayOrder}"
     }
   },
   "Sections": {
@@ -106,8 +116,20 @@
       "addSection": "Add section"
     },
     "buttons": {
-      "moveUp": "Move section up",
-      "moveDown": "Move section down"
+      "moveUp": "Move section up {title}",
+      "moveDown": "Move section down {title}"
+    },
+    "messages": {
+      "errors": {
+        "failedToLoadSection": "Failed to load section",
+        "updateQuestionOrder": "Failed to reorder question",
+        "updateDisplayOrderError": "Error updating display order",
+        "cannotMoveFurtherDown": "Cannot move question further down",
+        "displayOrderAlreadyAtTop": "Question is already at top of order",
+        "cannotMoveFurtherUpOrDown": "Cannot move question further up or down"
+      },
+      "questionMoved": "Question moved to position {displayOrder}",
+      "sectionMoved": "Section moved to position {displayOrder}"
     }
   },
   "SectionTypeSelectPage": {

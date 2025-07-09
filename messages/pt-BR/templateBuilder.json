@@ -48,10 +48,17 @@
     "errors": {
       "archiveTemplateError": "Erro ao arquivar template",
       "saveTemplateError": "Erro ao salvar modelo",
-      "getTemplatesError": "Erro ao obter modelos"
+      "getTemplatesError": "Erro ao obter modelos",
+      "updateTemplateError": "Erro ao obter modelos",
+      "updateTitleError": "Erro ao obter modelos",
+      "updateDisplayOrderError": "Erro ao atualizar ordem de exibição",
+      "cannotMoveFurtherDown": "Não é possível mover a seção mais para baixo",
+      "displayOrderAlreadyAtTop": "A seção já está no topo da ordem",
+      "cannotMoveFurtherUpOrDown": "Não é possível mover a seção mais para baixo"
     },
     "messages": {
-      "successfullyArchived": "Modelo arquivado com sucesso"
+      "successfullyArchived": "Modelo arquivado com sucesso",
+      "sectionMoved": "Seção movida para a posição {displayOrder}"
     }
   },
   "PublishTemplate": {
@@ -93,8 +100,11 @@
       "addQuestion": "Adicionar pergunta"
     },
     "buttons": {
-      "moveUp": "Mover pergunta para cima",
+      "moveUp": "Mover pergunta para cima {name}",
       "moveDown": "Mover pergunta para baixo"
+    },
+    "messages": {
+      "questionMoved": "Seção movida para a posição {displayOrder}"
     }
   },
   "Sections": {
@@ -106,8 +116,20 @@
       "addSection": "Adicionar seção"
     },
     "buttons": {
-      "moveUp": "Mover a seção para cima",
-      "moveDown": "Mover a seção para baixo"
+      "moveUp": "Mover pergunta para cima {title}",
+      "moveDown": "Mover pergunta para baixo"
+    },
+    "messages": {
+      "errors": {
+        "failedToLoadSection": "Não foi possível carregar a seção",
+        "updateQuestionOrder": "Falha ao reordenar pergunta",
+        "updateDisplayOrderError": "Erro ao atualizar ordem de exibição",
+        "cannotMoveFurtherDown": "Não é possível mover a seção mais para baixo",
+        "displayOrderAlreadyAtTop": "A seção já está no topo da ordem",
+        "cannotMoveFurtherUpOrDown": "Não é possível mover a seção mais para baixo"
+      },
+      "questionMoved": "Seção movida para a posição {displayOrder}",
+      "sectionMoved": "Seção movida para a posição {displayOrder}"
     }
   },
   "SectionTypeSelectPage": {

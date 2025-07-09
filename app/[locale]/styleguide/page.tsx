@@ -1649,6 +1649,7 @@ function Page() {
               text="This is a question"
               link="/edit"
               name="question"
+              handleDisplayOrderChange={() => console.log('reordering')}
             />
 
 

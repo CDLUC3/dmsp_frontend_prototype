@@ -49,9 +49,9 @@ import { routePath } from '@/utils/routes';
 import { Question, QuestionOptions } from '@/app/types';
 import {
   OPTIONS_QUESTION_TYPES,
-  TEXT_QUESTION_TYPE,
   RANGE_QUESTION_TYPE,
-  TYPEAHEAD_QUESTION_TYPE
+  TYPEAHEAD_QUESTION_TYPE,
+  TEXT_AREA_QUESTION_TYPE
 } from '@/lib/constants';
 import {
   isOptionsType,
@@ -136,7 +136,7 @@ const QuestionAdd = ({
     }
 
     // Filter out null/undefined questions and handle missing displayOrder
-    const validDisplayOrders = (questionDisplayOrders.questions ?? [])
+    const validDisplayOrders = questionDisplayOrders.questions
       .map(q => q?.displayOrder)
       .filter((order): order is number => typeof order === 'number');
 
@@ -486,7 +486,7 @@ const QuestionAdd = ({
                   onChange={(newValue) => handleInputChange('guidanceText', newValue)}
                 />
 
-                {!hasOptions && (
+                {questionType === TEXT_AREA_QUESTION_TYPE && (
                   <FormTextArea
                     name="sample_text"
                     isRequired={false}
@@ -501,7 +501,7 @@ const QuestionAdd = ({
                 )}
 
 
-                {questionType && TEXT_QUESTION_TYPE.includes(questionType) && (
+                {questionType === TEXT_AREA_QUESTION_TYPE && (
                   <Checkbox
                     onChange={() => handleInputChange('useSampleTextAsDefault', !question?.useSampleTextAsDefault)}
                     isSelected={question?.useSampleTextAsDefault || false}
