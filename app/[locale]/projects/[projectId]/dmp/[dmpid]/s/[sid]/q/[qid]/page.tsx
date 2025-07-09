@@ -360,64 +360,64 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const prefillAnswer = (answer: any, type: string) => {
     switch (type) {
       case 'text':
-        setTextValue(answer ?? '');
+        setTextValue(answer);
         break;
       case 'textArea':
-        setTextAreaContent(answer ?? '');
+        setTextAreaContent(answer);
         break;
       case 'radioButtons':
-        setSelectedRadioValue(answer ?? '');
+        setSelectedRadioValue(answer);
         break;
       case 'checkBoxes':
-        setSelectedCheckboxValues(Array.isArray(answer) ? answer : []);
+        setSelectedCheckboxValues(answer);
         break;
       case 'selectBox':
         if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
-          setSelectedSelectValue(answer ?? '');
+          setSelectedSelectValue(answer);
         }
-        setSelectedMultiSelectValues(new Set(Array.isArray(answer) ? answer : []));
+        setSelectedMultiSelectValues(answer);
 
         break;
       case 'boolean':
-        setYesNoValue(answer ?? 'no');
+        setYesNoValue(answer);
         break;
       case 'email':
-        setEmailValue(answer ?? '');
+        setEmailValue(answer);
         break;
       case 'url':
-        setUrlValue(answer ?? '');
+        setUrlValue(answer);
         break;
       case 'number':
-        setInputValue(typeof answer === 'number' ? answer : null);
+        setInputValue(answer);
         break;
       case 'currency':
-        setInputCurrencyValue(typeof answer === 'number' ? answer : null);
+        setInputCurrencyValue(answer);
         break;
       case 'date':
       case 'dateRange':
         if (answer?.startDate || answer?.endDate) {
           setDateRange({
-            startDate: answer?.startDate ?? null,
-            endDate: answer?.endDate ?? null,
+            startDate: answer?.startDate,
+            endDate: answer?.endDate,
           });
         }
         break;
       case 'numberRange':
         if (answer?.startNumber || answer?.endNumber) {
           setNumberRange({
-            startNumber: answer?.startNumber ?? 0,
-            endNumber: answer?.endNumber ?? 0,
+            startNumber: answer?.startNumber,
+            endNumber: answer?.endNumber,
           });
         }
         break;
       case 'typeaheadSearch':
         if (answer) {
           setAffiliationData({
-            affiliationId: answer.affiliationId ?? '',
-            affiliationName: answer.affiliationName ?? ''
+            affiliationId: answer.affiliationId,
+            affiliationName: answer.affiliationName
           });
-          setOtherField(answer.affiliationName.length > 2 ? false : answer.isOther);
-          setOtherAffiliationName(answer.affiliationName ?? '');
+          setOtherField(answer.isOther);
+          setOtherAffiliationName(answer.affiliationName);
         }
         break;
       default:
@@ -513,7 +513,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
   const addAnswer = async () => {
     const jsonPayload = getAnswerJson();
-
     // Check is answer already exists. If so, we want to call an update mutation
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
 
@@ -650,7 +649,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
 
       if (!sectionBelongsToPlan) {
-        notFound();
+        router.push('/not-found')
       }
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
@@ -689,13 +688,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     const json = answerData?.answerByVersionedQuestionId?.json;
     if (json && questionType) {
-      try {
-        const parsed = JSON.parse(json);
-        if (parsed?.answer !== undefined) {
-          prefillAnswer(parsed.answer, questionType);
-        }
-      } catch (err) {
-        console.error('Could not parse saved answer JSON', err);
+      const parsed = JSON.parse(json);
+      if (parsed?.answer !== undefined) {
+        prefillAnswer(parsed.answer, questionType);
       }
     }
   }, [answerData, questionType]);
@@ -710,7 +705,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleTextChange,
     },
     textAreaProps: {
-      content: textAreaContent ?? '',
+      content: textAreaContent,
       setContent: setTextAreaContent
     },
     radioProps: {

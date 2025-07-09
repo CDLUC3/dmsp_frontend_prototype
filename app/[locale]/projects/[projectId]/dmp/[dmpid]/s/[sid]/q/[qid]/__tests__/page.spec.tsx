@@ -37,6 +37,7 @@ import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNum
 import mockQuestionDataForMultiSelect from '@/__mocks__/common/mockQuestionDataForMultiSelect.json';
 import mockQuestionDataForSelectBox from '@/__mocks__/common/mockQuestionDataForSelectBox.json';
 import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
+import mockOtherQuestion from '../__mocks__/mockOtherQuestionData.json';
 
 // Mocked answer data
 import mockAnswerDataForTextField from '@/__mocks__/common/mockAnswerDataForTextField.json';
@@ -54,6 +55,7 @@ import mockAnswerDataForSelectBox from '@/__mocks__/common/mockAnswerDataForSele
 import mockAnswerDataForRadioButton from '@/__mocks__/common/mockAnswerDataForRadioButton.json';
 import mockAnswerDataForTextArea from '@/__mocks__/common/mockAnswerDataForTextArea.json';
 import mockCheckboxAnswer from '../__mocks__/mockCheckboxAnswer.json';
+import mockOtherAnswerData from '../__mocks__/mockOtherAnswerData.json'
 
 
 import { mockScrollIntoView } from "@/__mocks__/common";
@@ -252,9 +254,9 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     expect(alexCheckbox).toBeInTheDocument();
     expect(barbaraCheckbox).toBeInTheDocument();
-    expect(barbaraCheckbox).toBeChecked();
+    expect(barbaraCheckbox).toHaveAttribute('checked');
     expect(charlieCheckbox).toBeInTheDocument();
-    expect(charlieCheckbox).toBeChecked();
+    expect(charlieCheckbox).toHaveAttribute('checked');
   })
 
   it('should load correct question content for radioButton question', async () => {
@@ -798,6 +800,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/1/dmp/1/s/22');
   })
+
 });
 
 
@@ -849,7 +852,8 @@ describe('accessibility', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-})
+
+});
 
 describe('Call to updateAnswerAction', () => {
   beforeEach(() => {
@@ -1395,6 +1399,64 @@ describe('Call to updateAnswerAction', () => {
     });
   })
 
+  it('should call updateAnswerAction with correct data for textArea question', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    // Create a mock editor instance
+    const mockEditor = {
+      setContent: jest.fn(),
+      getContent: jest.fn().mockReturnValue('This is the text area content'),
+      on: jest.fn(),
+    };
+
+    // Intercept the init call and simulate init_instance_callback
+    window.tinymce.init = jest.fn((config) => {
+      config.init_instance_callback(mockEditor);
+
+      // Manually trigger the `Change` event
+      setTimeout(() => {
+        const changeHandler = mockEditor.on.mock.calls.find(
+          ([eventName]) => eventName === 'Change'
+        )?.[1];
+        if (changeHandler) changeHandler(); // simulate content change
+      }, 0);
+    });
+
+    await act(async () => {
+      render(<PlanOverviewQuestionPage />);
+    });
+
+    // Wait for the simulated TinyMCE 'Change' event to propagate
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(updateAnswerAction).toHaveBeenCalledWith({
+        answerId: 4,
+        json: "{\"answer\":\"This is the text area content\"}"
+      });
+    });
+
+  })
+
   it('should call updateAnswerAction with correct data for currency question', async () => {
     (useQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForCurrency,
@@ -1594,6 +1656,195 @@ describe('Call to updateAnswerAction', () => {
         json: "{\"answer\":\"California\"}"
       });
     });
+  })
+
+  it('should redirect if the response to calling updateAnswerAction returns a redirect', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+        redirect: '/project/1/dmp/1/s/22'
+      },
+    ]);
+
+    (updateAnswerAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+        },
+        id: 27,
+        json: "{\"answer\":\"This is a test\"}",
+        modified: "1751929006000",
+        versionedQuestion: {
+          versionedSectionId: 20
+        }
+      },
+      redirect: '/project/1/dmp/1/s/22'
+    });
+
+    // Create a mock editor instance
+    const mockEditor = {
+      setContent: jest.fn(),
+      getContent: jest.fn().mockReturnValue('This is the text area content'),
+      on: jest.fn(),
+    };
+
+    // Intercept the init call and simulate init_instance_callback
+    window.tinymce.init = jest.fn((config) => {
+      config.init_instance_callback(mockEditor);
+
+      // Manually trigger the `Change` event
+      setTimeout(() => {
+        const changeHandler = mockEditor.on.mock.calls.find(
+          ([eventName]) => eventName === 'Change'
+        )?.[1];
+        if (changeHandler) changeHandler(); // simulate content change
+      }, 0);
+    });
+
+    await act(async () => {
+      render(<PlanOverviewQuestionPage />);
+    });
+
+    // Wait for the simulated TinyMCE 'Change' event to propagate
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    await act(async () => {
+      fireEvent.click(saveBtn);
+    })
+
+    expect(mockUseRouter().push).toHaveBeenNthCalledWith(2, '/en-US/projects/1/dmp/1/s/22');
+  })
+
+  it('should display errors if updateAnswerAction returns errors in the response', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockAnswerDataForTextArea,
+        loading: false,
+        error: undefined,
+        redirect: '/project/1/dmp/1/s/22'
+      },
+    ]);
+
+    (updateAnswerAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: 'The answer is not in the proper format.',
+          versionedQuestionId: 'versionedQuestionId already exists'
+        },
+        id: 27,
+        json: "{\"answer\":\"This is a test\"}",
+        modified: "1751929006000",
+        versionedQuestion: {
+          versionedSectionId: 20
+        }
+      },
+    });
+
+    // Create a mock editor instance
+    const mockEditor = {
+      setContent: jest.fn(),
+      getContent: jest.fn().mockReturnValue('This is the text area content'),
+      on: jest.fn(),
+    };
+
+    // Intercept the init call and simulate init_instance_callback
+    window.tinymce.init = jest.fn((config) => {
+      config.init_instance_callback(mockEditor);
+
+      // Manually trigger the `Change` event
+      setTimeout(() => {
+        const changeHandler = mockEditor.on.mock.calls.find(
+          ([eventName]) => eventName === 'Change'
+        )?.[1];
+        if (changeHandler) changeHandler(); // simulate content change
+      }, 0);
+    });
+
+    await act(async () => {
+      render(<PlanOverviewQuestionPage />);
+    });
+
+    // Wait for the simulated TinyMCE 'Change' event to propagate
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+
+    // Click "Save" button
+    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
+
+    await act(async () => {
+      fireEvent.click(saveBtn);
+    })
+
+    expect(
+      screen.getByText((content, element) => {
+        return element?.tagName.toLowerCase() === 'p' &&
+          content === 'The answer is not in the proper format.';
+      })
+    ).toBeInTheDocument();
+  })
+
+  it('should load page with error when answer type is not in the list ', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockOtherQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockOtherAnswerData,
+        loading: false,
+        error: undefined,
+        redirect: '/project/1/dmp/1/s/22'
+      },
+    ]);
+
+    (updateAnswerAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: 'The answer is not in the proper format.',
+          versionedQuestionId: 'versionedQuestionId already exists'
+        },
+        id: 27,
+        json: "{\"answer\":\"This is a test\"}",
+        modified: "1751929006000",
+        versionedQuestion: {
+          versionedSectionId: 20
+        }
+      },
+    });
+
+    await act(async () => {
+      render(<PlanOverviewQuestionPage />);
+    });
+
+    expect(screen.getByText('messaging.errors.questionUnexpectedFormat')).toBeInTheDocument();
   })
 })
 

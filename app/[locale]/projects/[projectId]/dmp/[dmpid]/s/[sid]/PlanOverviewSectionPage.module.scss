@@ -20,7 +20,6 @@
     margin: 0 0 var(--space-2);
     padding: 0 var(--space-3) 0 0;
   }
-
   p {
     margin: 0;
     padding: 0;
@@ -41,7 +40,7 @@
   flex-shrink: 0;
 }
 
-.questionCard+.questionCard {
+.questionCard + .questionCard {
   margin-top: var(--space-4);
 }
 
@@ -65,7 +64,6 @@
     margin-bottom: var(--space-4);
   }
 }
-
 .progressIconInactive {
   opacity: 0.5;
 }
@@ -93,84 +91,4 @@
       flex-shrink: 0;
     }
   }
-}
-
-/* Plan Navigation - Subtle sidebar for very large screens only */
-.planNavigation {
-  display: none;
-  position: fixed;
-  left: 20px;
-  top: 20%;
-  width: 180px;
-  font-size: 13px;
-  z-index: 1000;
-
-  /* Show when there's room for 1200px container + sidebar + margins */
-  @media (min-width: 1620px) {
-    display: block;
-  }
-}
-
-/* Content wrapper with relative positioning for the absolute nav */
-.contentWrapper {
-  position: relative;
-  overflow: visible;
-}
-
-.planOverviewLink {
-  display: block;
-  color: var(--gray-700);
-  text-decoration: none;
-  font-weight: 500;
-  margin-bottom: var(--space-3);
-  padding: var(--space-1) 0;
-  font-size: 13px;
-
-  &:hover {
-    color: var(--blue-600);
-    text-decoration: underline;
-  }
-}
-
-.sectionsList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-
-  li {
-    margin-bottom: var(--space-1);
-  }
-}
-
-.sectionLink {
-  display: block;
-  color: var(--gray-600);
-  text-decoration: none;
-  padding: var(--space-1) 0;
-  font-size: 13px;
-  line-height: 1.4;
-
-  &:hover {
-    color: var(--blue-600);
-    text-decoration: underline;
-  }
-}
-
-.currentSection {
-  color: var(--blue-600);
-  font-weight: 700;
-  text-decoration: underline;
-}
-
-/* Screen reader only utility */
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }

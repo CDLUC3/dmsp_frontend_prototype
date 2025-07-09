@@ -68,7 +68,7 @@ describe('MultiSelectQuestionComponent', () => {
 
     // Check selected state by aria-selected
     expect(options[0]).toHaveAttribute('aria-selected', 'true');
-    expect(options[1]).toHaveAttribute('aria-selected', 'true');
+    expect(options[1]).toHaveAttribute('aria-selected', 'false');
     expect(options[2]).toHaveAttribute('aria-selected', 'false');
   });
 

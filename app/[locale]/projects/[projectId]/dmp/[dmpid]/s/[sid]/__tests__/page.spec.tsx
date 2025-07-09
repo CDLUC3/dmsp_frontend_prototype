@@ -28,4 +28,3 @@ describe('PlanOverviewSectionPage', () => {
   it.todo('should handle form submission');
   it.todo('should handle access revocation');
 });
-

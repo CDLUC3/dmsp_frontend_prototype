@@ -335,8 +335,10 @@ const QuestionEdit = () => {
 
   useEffect(() => {
     if (selectedQuestion?.question) {
-      const q = selectedQuestion.question;
-
+      const q = {
+        ...selectedQuestion.question,
+        required: selectedQuestion.question.required ?? false // convert null to false
+      };
       try {
         const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
         if (!parsed?.type) {
