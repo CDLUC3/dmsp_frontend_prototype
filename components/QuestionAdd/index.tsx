@@ -239,7 +239,7 @@ const QuestionAdd = ({
         })),
       };
     }
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }), Global);
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
@@ -258,7 +258,7 @@ const QuestionAdd = ({
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }), Global);
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
 
     if (!parsed) {
       if (error) {
@@ -360,7 +360,7 @@ const QuestionAdd = ({
 
   useEffect(() => {
     if (question) {
-      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId: templateId }), Global);
+      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
       if (!parsed) {
         if (error) {
           setErrors(prev => [...prev, error])
@@ -541,7 +541,7 @@ const QuestionAdd = ({
               isPreview={true}
               question={question}
               templateId={Number(templateId)}
-              path={routePath('template.q.new', { templateId: templateId })}
+              path={routePath('template.q.new', { templateId })}
             />
           </QuestionPreview>
 

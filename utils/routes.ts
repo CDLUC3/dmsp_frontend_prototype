@@ -86,14 +86,13 @@ type RoutesMap = typeof routes;
  * Combines route names with their path patterns for better IDE hover documentation
  * @example 'projects.show ➜ /projects/:projectId'
  */
-// eslint-disable-line @typescript-eslint/no-unused-vars
-type RouteNameWithPath = {// eslint-disable-line @typescript-eslint/no-unused-vars
+type RouteNameWithPath = {
   [K in keyof RoutesMap]: `${K} ➜ ${RoutesMap[K]}`
 }[keyof RoutesMap];
 
 // Only used for documentation - not directly referenced in code
 // This prevents unused type lint errors
-declare const _ROUTE_DOCS: RouteNameWithPath; // eslint-disable-line no-unused-vars, @typescript-eslint/no-unused-vars
+declare const _ROUTE_DOCS: RouteNameWithPath;
 
 
 /**

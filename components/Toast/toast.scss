@@ -2,10 +2,6 @@
 
 /*mobile first*/
 .toast-region {
-  @include r.device(sm) {
-    top: var(--space-12);
-    left: 50%;
-  }
   position: fixed;
   bottom: var(--space-8);
   left: 50%;
@@ -15,6 +11,10 @@
   flex-direction: column; /* Stacks toasts vertically */
   gap: 10px; /* Spacing between toasts */
   max-height: fit-content; //Need this to prevent it from blocking access to any other CTAs
+    @include r.device(sm) {
+    top: var(--space-12);
+    left: 50%;
+  }
 }
 
 .toast {

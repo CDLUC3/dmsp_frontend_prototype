@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { notFound, useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import classNames from 'classnames';
 import {
   Breadcrumb,
@@ -139,8 +139,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [textAreaContent, setTextAreaContent] = useState<string>('');
   // Add local state for multiSelect values
   const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
-  // Add local state to track if user has interacted with MultiSelect
-  const [multiSelectTouched, setMultiSelectTouched] = useState(false);
   // Add local state for selected select value
   const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
   const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
@@ -175,7 +173,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   );
 
   // Get Plan using planId
-  const { data: planData, loading: planQueryLoading, error: planQueryError, refetch } = usePlanQuery(
+  const { data: planData, loading: planQueryLoading, error: planQueryError } = usePlanQuery(
     {
       variables: { planId: Number(dmpId) },
       notifyOnNetworkStatusChange: true
@@ -183,7 +181,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   );
 
   // Get sectionVersions from sectionId
-  const { data: sectionVersions, loading: versionedSectionLoading, error: versionedSectionError, refetch: refetchVersionedSection } = useSectionVersionsQuery(
+  const { data: sectionVersions, loading: versionedSectionLoading, error: versionedSectionError } = useSectionVersionsQuery(
     {
       variables: { sectionId: Number(sectionId) }
     }
@@ -327,7 +325,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Handler for MultiSelect changes
   const handleMultiSelectChange = (values: Set<string>) => {
     setSelectedMultiSelectValues(values);
-    setMultiSelectTouched(true);
   };
 
   // Handler for date range changes
@@ -357,6 +354,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }
 
   // Prefill the current question with existing answer
+  /*eslint-disable @typescript-eslint/no-explicit-any*/
   const prefillAnswer = (answer: any, type: string) => {
     switch (type) {
       case 'text':
@@ -723,7 +721,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     multiSelectBoxProps: {
       selectedMultiSelectValues,
       handleMultiSelectChange,
-      multiSelectTouched,
     },
     dateProps: {
       dateRange,
@@ -767,11 +764,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
     },
   });
 
-  if (loading || planQueryLoading || versionedSectionLoading) {
+  if (loading || planQueryLoading || versionedSectionLoading || answerLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
-  if (selectedQuestionQueryError || planQueryError || versionedSectionError) {
+  if (selectedQuestionQueryError || planQueryError || versionedSectionError || answerError) {
     return <div>{Global('messaging.somethingWentWrong')}</div>
   }
 

@@ -51,7 +51,6 @@ describe('MultiSelectQuestionComponent', () => {
     render(
       <MultiSelectQuestionComponent
         parsedQuestion={mockSelectBoxQuestion}
-        multiSelectTouched={false}
         selectedMultiSelectValues={new Set(['Option A'])}
         handleMultiSelectChange={mockSelectChange}
         selectBoxLabel='Select all that apply'
@@ -72,25 +71,6 @@ describe('MultiSelectQuestionComponent', () => {
     expect(options[2]).toHaveAttribute('aria-selected', 'false');
   });
 
-  it('should fall back to selectedMultiSelectValues when multiSelectTouched is true', async () => {
-    render(
-      <MultiSelectQuestionComponent
-        parsedQuestion={mockSelectBoxQuestion}
-        multiSelectTouched={true}
-        selectedMultiSelectValues={new Set(['Option B'])}
-        handleMultiSelectChange={mockSelectChange}
-        selectBoxLabel='Select all that apply'
-      />
-    );
-
-    expect(screen.getByText('Select all that apply')).toBeInTheDocument();
-    expect(screen.getByText('Option A')).toBeInTheDocument();
-
-    // Find the checkbox for Option B by label text
-    const optionB = screen.getByRole('option', { name: /Option B/i });
-    expect(optionB).toHaveAttribute('aria-selected', 'true');
-  });
-
   it('should pass axe accessibility test', async () => {
     const selectedMultiSelectValues = new Set(['Option A', 'Option B']);
 
@@ -100,7 +80,6 @@ describe('MultiSelectQuestionComponent', () => {
         handleMultiSelectChange={mockSelectChange}
         selectedMultiSelectValues={selectedMultiSelectValues}
         selectBoxLabel='Select all that apply'
-        multiSelectTouched={false}
       />
     );
     await act(async () => {

@@ -104,7 +104,6 @@ const QuestionEdit = () => {
   const [question, setQuestion] = useState<Question>();
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
   const [questionType, setQuestionType] = useState<string>('');
-  const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
   const [questionTypeName, setQuestionTypeName] = useState<string>(''); // Added to store friendly question name
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
@@ -456,8 +455,7 @@ const QuestionEdit = () => {
     if (questionTypesData?.questionTypes && questionTypeIdQueryParam && question) {
 
       const filteredQuestionTypes = questionTypesData.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
-      // Save the question types to state
-      setQuestionTypes(filteredQuestionTypes);
+
       // Find the matching question type
       const matchedQuestionType = getMatchingQuestionType(filteredQuestionTypes, questionTypeIdQueryParam);
 

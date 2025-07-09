@@ -955,7 +955,7 @@ describe('Call to updateAnswerAction', () => {
     const mockQuery = jest.fn();
     const mockClient = { query: mockQuery };
 
-    mockQuery.mockImplementation((options) => {
+    mockQuery.mockImplementation(() => {
       return Promise.resolve({
         data: {
           affiliations: {
@@ -2098,12 +2098,6 @@ describe('DrawerPanel', () => {
       fireEvent.click(viewSampleTextBtn);
     });
 
-    const allDrawerPanel = screen.getAllByTestId('drawer-panel');
-    const visibleDrawerPanel = allDrawerPanel.find(
-      panel => panel.getAttribute('aria-hidden') !== 'false'
-    )!; // Non-null assertion operator
-
-
     const useAnswerBtn = screen.getByRole('button', { name: 'buttons.useAnswer' });
     // Click the useAnswer button
     await userEvent.click(useAnswerBtn);
@@ -2222,12 +2216,6 @@ describe('DrawerPanel', () => {
     const viewCommentsBtn = screen.getByRole('button', { name: '4 Comments' });
     // Click on Comments button to reveal comments drawer panel
     await userEvent.click(viewCommentsBtn);
-
-
-    const allDrawerPanels = screen.getAllByTestId('drawer-panel');
-    const visibleDrawerPanel = allDrawerPanels.find(
-      panel => panel.getAttribute('aria-hidden') !== 'false'
-    )!; // Non-null assertion operator
 
     // While the drawer is open, click the 'Close' button to clower the panel
     // Check that the close action exists within the visible drawer panel

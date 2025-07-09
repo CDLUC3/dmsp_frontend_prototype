@@ -12,6 +12,7 @@ type ParsedQuestionResult<T extends keyof QuestionTypeMap = keyof QuestionTypeMa
 };
 
 // Type guard to check if parsed object has valid question type
+/*eslint-disable @typescript-eslint/no-explicit-any */
 const isValidQuestionType = (obj: any): obj is QuestionTypeMap[keyof QuestionTypeMap] => {
   return obj &&
     typeof obj === 'object' &&
@@ -37,7 +38,7 @@ const isValidQuestionType = (obj: any): obj is QuestionTypeMap[keyof QuestionTyp
     } as const);
 };
 
-
+/*eslint-disable @typescript-eslint/no-explicit-any */
 export const getParsedQuestionJSON = (
   question: Question | null,
   path: string,
@@ -78,6 +79,7 @@ export const getParsedQuestionJSON = (
   }
 
   // Log unexpected format
+  /*eslint-disable @typescript-eslint/no-explicit-any */
   logECS('error', 'getParsedQuestionJSON: Unexpected format', {
     error: `Invalid question format. Expected valid question type, got: ${(source as any)?.type || typeof source}`,
     url: { path }

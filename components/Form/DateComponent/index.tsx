@@ -16,6 +16,7 @@ import {
 import { parseDate, DateValue } from "@internationalized/date";
 
 
+/*eslint-disable @typescript-eslint/no-explicit-any*/
 interface DateComponentProps {
   name: string;
   value: any;

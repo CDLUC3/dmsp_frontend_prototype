@@ -305,7 +305,7 @@ describe('TemplateListPage', () => {
     const mockTemplates = [
       { name: 'A', id: 1 }, { name: 'B', id: 2 }, { name: 'C', id: 3 },
       { name: 'D', id: 4 }, { name: 'E', id: 5 }
-    ].map((t, i) => ({
+    ].map((t) => ({
       ...t,
       description: '',
       modified: '',

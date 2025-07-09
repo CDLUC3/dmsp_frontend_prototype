@@ -118,9 +118,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Add local state for multiSelect values
   const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
 
-  // Add local state to track if user has interacted with MultiSelect
-  const [multiSelectTouched, setMultiSelectTouched] = useState(false);
-
   // Add local state for selected select value
   const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
   const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
@@ -179,7 +176,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Handler for MultiSelect changes
   const handleMultiSelectChange = (values: Set<string>) => {
     setSelectedMultiSelectValues(values);
-    setMultiSelectTouched(true);
   };
 
   // Handler for date range changes
@@ -266,7 +262,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               {isMultiSelect ? (
                 <MultiSelectQuestionComponent
                   parsedQuestion={parsed}
-                  multiSelectTouched={multiSelectTouched}
                   selectedMultiSelectValues={selectedMultiSelectValues}
                   handleMultiSelectChange={handleMultiSelectChange}
                 />

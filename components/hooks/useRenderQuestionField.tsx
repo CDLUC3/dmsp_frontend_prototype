@@ -75,7 +75,6 @@ export interface RenderQuestionFieldProps {
   };
 
   multiSelectBoxProps?: {
-    multiSelectTouched: boolean;
     selectedMultiSelectValues: Set<string>;
     handleMultiSelectChange: (val: Set<string>) => void;
   };
@@ -194,7 +193,6 @@ export function useRenderQuestionField({
           return (
             <MultiSelectQuestionComponent
               parsedQuestion={parsed}
-              multiSelectTouched={multiSelectBoxProps.multiSelectTouched}
               selectedMultiSelectValues={multiSelectBoxProps.selectedMultiSelectValues}
               handleMultiSelectChange={multiSelectBoxProps.handleMultiSelectChange}
             />

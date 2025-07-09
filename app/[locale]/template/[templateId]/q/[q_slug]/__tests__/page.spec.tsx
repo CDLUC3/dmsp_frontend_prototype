@@ -1,6 +1,5 @@
 import React from "react";
 import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
-import userEvent from "@testing-library/user-event";
 import { routePath } from '@/utils/routes';
 import {
   useQuestionQuery,

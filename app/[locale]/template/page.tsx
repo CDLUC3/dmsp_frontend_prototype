@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -27,7 +26,6 @@ import ErrorMessages from '@/components/ErrorMessages';
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
 
-import logECS from '@/utils/clientLogger';
 import { toSentenceCase } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import {
@@ -61,7 +59,6 @@ const TemplateListPage: React.FC = () => {
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
 
   // Set URLs
-  const TEMPLATE_URL = routePath('template.index');
   const TEMPLATE_CREATE_URL = routePath('template.create');
 
 
@@ -163,7 +160,6 @@ const TemplateListPage: React.FC = () => {
         setTemplates([]);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {

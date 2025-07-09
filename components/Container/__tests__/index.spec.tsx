@@ -126,7 +126,7 @@ describe('SidebarPanel', () => {
   });
 
   it('should set state-open class on SidebarPanel', () => {
-    const { rerender } = render(<SidebarPanel isOpen={true}><h1>test</h1></SidebarPanel>);
+    render(<SidebarPanel isOpen={true}><h1>test</h1></SidebarPanel>);
 
     const sidebar = screen.getByTestId('sidebar-panel');
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { DateRangeQuestionType } from '@dmptool/types';
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { act, render, screen } from '@/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { CalendarDate } from '@internationalized/date';
