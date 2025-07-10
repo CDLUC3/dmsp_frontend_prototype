@@ -8,6 +8,7 @@ import { CalendarDate, DateValue } from "@internationalized/date";
 
 import {
   Button,
+  Link
 } from "react-aria-components";
 import {
   useQuestionTypesQuery,
@@ -16,6 +17,7 @@ import {
 
 import { Question } from '@/app/types';
 
+// Components
 import {
   LayoutWithPanel,
   SidebarPanel,
@@ -36,6 +38,7 @@ import {
   FormInput,
   NumberComponent,
 } from '@/components/Form';
+
 import {
   RadioButtonsQuestionComponent,
   CheckboxesQuestionComponent,
@@ -47,6 +50,8 @@ import {
   AffiliationSearchQuestionComponent,
   BooleanQuestionComponent
 } from '@/components/Form/QuestionComponents';
+
+//
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import {
   BOOLEAN_QUESTION_TYPE,
@@ -66,6 +71,7 @@ import {
 } from '@/lib/constants';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './QuestionView.module.scss';
+import ExpandableContentSection from '@/components/ExpandableContentSection';
 
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -509,31 +515,69 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         </p>
 
-        <h3>{trans('dataSharingTitle')}</h3>
-        <p>
-          Give a summary of the data you will collect or create, noting the
-          content, coverage and data type, for example tabular data, survey
-          data, experimental measurements, models, software, audiovisual data,
-          physical samples, etc.
-        </p>
-        <p><a href="#">{trans('expandLink')}</a></p>
+        <ExpandableContentSection
+          id="data-description"
+          heading={trans('dataDescription')}
+          summaryRows={1}
+          expandLabel={trans('expandLink')}
+        >
+          <p>
+            Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
+          </p>
+          <p>
+            Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
+          </p>
+          <p>
+            Indicate which data are of long-term value and should be shared and/or preserved.
 
-        <h3>{trans('dataPreservationTitle')}</h3>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
-          imperdiet tempor mi, in fringilla lectus viverra et. Suspendisse
-          erat dolor, rutrum et tempor eu, ultricies quis nunc.
-        </p>
-        <p><a href="#">{trans('expandLink')}</a></p>
+          </p>
+          <p>
+            If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
 
-        <h3>{trans('dataProtection')}</h3>
-        <p>
-          Quisque sit amet ex volutpat, imperdiet risus sit amet, malesuada
-          enim.
-        </p>
-        <p><a href="#">{trans('expandLink')}</a></p>
+          </p>
+
+        </ExpandableContentSection>
+
+        <ExpandableContentSection
+          id="data-format"
+          heading={trans('dataFormat')}
+          expandLabel={trans('expandLink')}
+          summaryRows={1}
+          summaryCharLimit={200}
+
+        >
+          <span>
+            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+
+          </span>
+        </ExpandableContentSection>
+
+        <ExpandableContentSection
+          id="data-volume"
+          heading={trans('dataVolume')}
+          expandLabel={trans('expandLink')}
+          summaryRows={1}
+          summaryCharLimit={200}
+        >
+          <p>
+            Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
+          </p>
+          <p>
+            Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
+          </p>
+          <p>
+            Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
+          </p>
+        </ExpandableContentSection>
+
       </SidebarPanel>
-    </LayoutWithPanel>
+    </LayoutWithPanel >
   )
 }
 
