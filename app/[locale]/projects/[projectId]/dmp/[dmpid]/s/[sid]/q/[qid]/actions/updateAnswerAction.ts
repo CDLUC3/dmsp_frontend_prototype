@@ -14,7 +14,7 @@ export async function updateAnswerAction({
 }): Promise<ActionResponse> {
   try {
     // Execute the mutation using the shared handler
-    return executeGraphQLMutation({
+    return await executeGraphQLMutation({
       document: UpdateAnswerDocument,
       variables: { answerId, json },
       dataPath: "updateAnswer"

@@ -18,12 +18,11 @@ export async function addAnswerAction({
 }): Promise<ActionResponse> {
   try {
     // Execute the mutation using the shared handler
-    return executeGraphQLMutation({
+    return await executeGraphQLMutation({
       document: AddAnswerDocument,
       variables: { planId, versionedSectionId, versionedQuestionId, json },
       dataPath: "addAnswer"
     });
-
   } catch (error) {
     logger.error(`[Add new answer for question]: ${error}`, { error });
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };

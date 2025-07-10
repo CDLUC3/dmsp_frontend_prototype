@@ -35,6 +35,8 @@ import {
   NumberComponent,
 } from '@/components/Form';
 
+import logECS from '@/utils/clientLogger';
+
 import {
   Question
 } from '@/app/types';
@@ -384,7 +386,10 @@ export function useRenderQuestionField({
       break;
 
     default:
-      return <p>Unsupported question type </p>;
+      logECS('error', 'useRenderQuestionField', {
+        error: `Unsupported question type ${questionType}`,
+      });
+      return;
   }
 
   return null;

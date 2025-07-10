@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
 } from 'react';
+import { useTranslations } from "next-intl";
 
 import { Button } from 'react-aria-components';
 
@@ -18,6 +19,7 @@ import {
   ContentContainerProps,
   ContentContainer,
 } from '@/components/Container/ContentContainer';
+import { DmpIcon } from '../Icons';
 
 
 type DirectionType =
@@ -125,9 +127,6 @@ export const SidebarPanel: React.FC<SidebarPanelProps> = ({
   isOpen = true,
 }) => {
 
-  if (isOpen === false) {
-    return null;
-  }
   return (
     <>
       <div
@@ -163,6 +162,8 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   const [isMobile, setIsMobile] = useState<boolean>(true);
   const [stateOpen, setStateOpen] = useState<boolean>(isOpen);
 
+  const Global = useTranslations('Global');
+
   useEffect(() => {
     setIsMobile(size.viewport[0] < getSizeByName('md')[0]);
   }, [size]);
@@ -170,6 +171,27 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   useEffect(() => {
     setStateOpen(isOpen);
   }, [isOpen]);
+
+  // Prevent background scrolling when drawer is open
+  useEffect(() => {
+    if (stateOpen) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
+
+      // Lock background scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+
+      return () => {
+        // Restore background scroll when drawer closes
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [stateOpen]);
 
   useEffect(() => {
     if (stateOpen) {
@@ -239,11 +261,11 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
             <Button
               ref={closeButtonRef}
               className="close-action"
-              aria-label="Close drawer"
+              aria-label={Global('buttons.close')}
               onPress={handleClose}
               data-testid="close-action"
             >
-              X
+              <DmpIcon icon="close" />
             </Button>
             {/* Add a scrollable wrapper for the desktop version, so that user can scroll the drawer panel */}
             <div className="drawer-scrollable-content">
@@ -265,11 +287,11 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
           <Button
             ref={closeButtonRef}
             className="close-action"
-            aria-label="Close drawer"
+            aria-label={Global('buttons.close')}
             onPress={handleClose}
             data-testid="close-action"
           >
-            X
+            <DmpIcon icon="close" />
           </Button>
           {/* Add a scrollable wrapper for the desktop version so that user can scroll the drawer panel*/}
           <div className="drawer-scrollable-content">

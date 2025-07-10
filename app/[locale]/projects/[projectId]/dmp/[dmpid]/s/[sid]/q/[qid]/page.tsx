@@ -801,7 +801,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}
       >
         <ContentContainer>
-          <div className="container"><span></span>
+          <div className="container">
             {/**Requirements by funder */}
             <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
               <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>

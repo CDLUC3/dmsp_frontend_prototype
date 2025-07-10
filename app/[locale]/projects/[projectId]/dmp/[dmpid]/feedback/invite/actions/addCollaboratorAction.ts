@@ -16,7 +16,7 @@ export async function addProjectCollaboratorAction({
 }): Promise<CollaboratorResponse> {
   try {
     // Execute the mutation using the shared handler
-    return executeGraphQLMutation({
+    return await executeGraphQLMutation({
       document: AddProjectCollaboratorDocument,
       variables: { projectId, email, accessLevel },
       dataPath: "addProjectCollaborator"

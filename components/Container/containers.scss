@@ -50,6 +50,19 @@
   }
 }
 
+.layout-sidebar-panel {
+    &.state-closed {
+    transition: visibility 0.1s 0.3s, opacity 0.1s 0.3s;
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  &.state-open {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
 .layout-drawer-modal {
   position: fixed;
   padding: 0;
@@ -189,8 +202,8 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   background: #fff;
   border: 2px solid #000;
@@ -232,4 +245,20 @@
     height: 1.25rem;
     fill: #000;
   }
+
+  .dmp-icon {
+    // override existing styles for dmp-icon because the icon, in this case, 
+    //is sharing same position as the circle around it
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    z-index: auto !important;
+    fill: var(--slate-900);
+    color: var(--slate-900);
+
+      &:hover {
+        fill: var(--blue-50);
+      }
+  }
+
 }

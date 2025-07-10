@@ -268,8 +268,7 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-      .querySelector('input')!;
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
     fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -303,8 +302,7 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-      .querySelector('input')!;
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
     fireEvent.change(searchInput, { target: { value: "paginated" } });
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -334,8 +332,7 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-      .querySelector('input')!;
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
     fireEvent.change(searchInput, { target: { value: "paginated" } });
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -374,8 +371,7 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-      .querySelector('input')!;
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
     fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -410,8 +406,7 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-      .querySelector('input')!;
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
     fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
@@ -446,8 +441,7 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-      .querySelector('input')!;
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
     fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');

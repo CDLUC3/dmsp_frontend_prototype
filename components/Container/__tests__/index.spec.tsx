@@ -102,6 +102,9 @@ describe('ToolbarContainer', () => {
 
 
 describe('SidebarPanel', () => {
+  beforeEach(() => {
+    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+  })
   it('should create a div with correct class', () => {
     render(<SidebarPanel><h1>test</h1></SidebarPanel>);
     const sidebar = screen.getByTestId('sidebar-panel');
@@ -125,13 +128,17 @@ describe('SidebarPanel', () => {
     expect(sidebar).toHaveAttribute('id', 'customID');
   });
 
-  it('should set state-open class on SidebarPanel', () => {
-    render(<SidebarPanel isOpen={true}><h1>test</h1></SidebarPanel>);
+  it('should toggle open and close on SidebarPanel', () => {
+    const { rerender } = render(<SidebarPanel isOpen={true}><h1>test</h1></SidebarPanel>);
 
     const sidebar = screen.getByTestId('sidebar-panel');
 
     expect(sidebar).toHaveClass('state-open');
     expect(sidebar).not.toHaveClass('state-closed');
+    rerender(<SidebarPanel isOpen={false}><h1>test</h1></SidebarPanel>);
+
+    expect(sidebar).toHaveClass('state-closed');
+    expect(sidebar).not.toHaveClass('state-open');
   });
 });
 

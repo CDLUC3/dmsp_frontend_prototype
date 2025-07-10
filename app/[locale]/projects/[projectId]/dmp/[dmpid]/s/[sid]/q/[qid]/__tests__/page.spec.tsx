@@ -1956,6 +1956,8 @@ describe('DrawerPanel', () => {
   beforeEach(() => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
 
+    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+
     // Mock window.tinymce
     window.tinymce = {
       init: jest.fn(),
@@ -2047,8 +2049,8 @@ describe('DrawerPanel', () => {
     )!; // Non-null assertion operator
     const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
 
+    expect(sidebarPanel2).toHaveClass('state-closed');
     // Check that the sidebar-panel is visible
-    expect(sidebarPanel2).not.toBeInTheDocument();
     expect(visibleDrawerPanel2).toBeInTheDocument();
 
     // While the drawer is open, click the 'Close' button to clower the panel
@@ -2169,7 +2171,7 @@ describe('DrawerPanel', () => {
     const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
 
     // Check that the sidebar-panel is visible
-    expect(sidebarPanel2).not.toBeInTheDocument();
+    expect(sidebarPanel2).toHaveClass('state-closed');
     expect(visibleDrawerPanel2).toBeInTheDocument();
 
     // While the drawer is open, click the 'Close' button to clower the panel
