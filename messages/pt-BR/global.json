@@ -212,7 +212,9 @@
       "clearFilter": "limpar filtro",
       "request": "Solicitação",
       "learnMore": "Saiba mais",
-      "update": "Atualização"
+      "update": "Atualização",
+      "expand": "Expandir",
+      "collapse": "Colapso"
     },
     "messaging": {
       "loading": "Baixar",
@@ -220,6 +222,8 @@
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
       "fixBelow": "Por favor, corrija os erros abaixo",
+      "sectionIsExpanded": "A seção foi expandida",
+      "sectionIsCollapsed": "A seção está recolhida",
       "error": "Ocorreu um erro. Tente novamente.",
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",

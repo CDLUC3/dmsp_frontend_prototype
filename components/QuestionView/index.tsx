@@ -518,8 +518,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         <ExpandableContentSection
           id="data-description"
           heading={trans('dataDescription')}
-          summaryRows={1}
           expandLabel={trans('expandLink')}
+          summaryCharLimit={200}
         >
           <p>
             Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
@@ -542,27 +542,19 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           id="data-format"
           heading={trans('dataFormat')}
           expandLabel={trans('expandLink')}
-          summaryRows={1}
           summaryCharLimit={200}
 
         >
-          <span>
+          <p>
             Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+          </p>
 
-          </span>
         </ExpandableContentSection>
 
         <ExpandableContentSection
           id="data-volume"
           heading={trans('dataVolume')}
           expandLabel={trans('expandLink')}
-          summaryRows={1}
           summaryCharLimit={200}
         >
           <p>
@@ -576,6 +568,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           </p>
         </ExpandableContentSection>
 
+        <ExpandableContentSection
+          id="data-volume"
+          heading={trans('dataVolume')}
+          expandLabel={trans('expandLink')}
+          summaryCharLimit={30}>
+          <p>This is a very long sentence that should be truncated at word boundaries.</p>
+
+        </ExpandableContentSection>
       </SidebarPanel>
     </LayoutWithPanel >
   )

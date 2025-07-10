@@ -1,10 +1,12 @@
 ### Added
+- Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]
 - Added a test in `jest.setup.ts` to catch extraneous errors that are not tested or in a unit test.
 - Added delete section functionality to template builder with confirmation modal, including translations, and tests
 - Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
 
 ### Updated
+- Updated `QuestionView` to use the new `ExpandableContentSection` for the `Best Practices` right sidebar [#578]
 - Clean up connections page and buttons [#516]
 - Added spacing on the `Account Profile` for the demo [#509]
 - Updated `Account Profile` to use routePath() instead of hardcoded paths
