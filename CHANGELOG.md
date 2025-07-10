@@ -5,6 +5,10 @@
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
 
 ### Updated
+- Implement GraphQL integration for plan section questions page [#366]
+- Add `PlanSectionQuestions` query to fetch questions by section ID
+
+### Updated
 - Clean up connections page and buttons [#516]
 - Added spacing on the `Account Profile` for the demo [#509]
 - Updated `Account Profile` to use routePath() instead of hardcoded paths
