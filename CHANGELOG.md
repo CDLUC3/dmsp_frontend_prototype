@@ -8,6 +8,7 @@
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
 
 ### Updated
+- Updated `routePath` with route `projects.share.index` and updated unit test for `ProjectsProjectMembers` [#589]
 - Updated `graphqlHelper.ts` file to be more robust and correctly refresh tokens and refresh content when there is an `UNAUTHENTICATED` error [#320]
 - Clean up connections page and buttons [#516]
 - Added spacing on the `Account Profile` for the demo [#509]
@@ -15,6 +16,7 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
+- Updated `projects/[projectId]/members` page to have consistent breadcrumbs as the `Project overview` page [#589]
 - Removed the `Sample text` field from the Question Add/Edit forms for all question types except for `textArea` [#564]
 
 

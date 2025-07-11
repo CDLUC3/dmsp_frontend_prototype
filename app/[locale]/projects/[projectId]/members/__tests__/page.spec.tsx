@@ -99,6 +99,11 @@ describe('ProjectsProjectMembers', () => {
 
     render(<ProjectsProjectMembers />);
 
+    // Expect certain breadcrumbs 
+    expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
+    expect(screen.getByText('breadcrumbs.projects')).toBeInTheDocument();
+    expect(screen.getByText('breadcrumbs.projectOverview')).toBeInTheDocument();
+
     expect(screen.getByText('Jacques Cousteau')).toBeInTheDocument();
     expect(screen.getByText('Captain Nemo')).toBeInTheDocument();
     const affiliation = screen.getAllByText('University of California, Davis (ucdavis.edu)');
@@ -122,7 +127,18 @@ describe('ProjectsProjectMembers', () => {
 
     fireEvent.click(screen.getByText('buttons.addMembers'));
 
-    expect(mockRouter.push).toHaveBeenCalledWith('/projects/1/members/search');
+    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/members/search');
+  });
+
+  it('should handle edit member button click', () => {
+    mockUseProjectMembersQuery.mockReturnValue({ data: mockProjectMembersData });
+
+    render(<ProjectsProjectMembers />);
+
+    const editButtons = screen.queryAllByText('buttons.edit');
+    fireEvent.click(editButtons[0]);
+
+    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/members/1/edit');
   });
 
   it('should handle share button click', () => {
@@ -132,7 +148,7 @@ describe('ProjectsProjectMembers', () => {
 
     fireEvent.click(screen.getByText('buttons.shareWithPeople'));
 
-    expect(mockRouter.push).toHaveBeenCalledWith('/projects/1/share');
+    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/share');
   });
 
   it('should pass axe accessibility test', async () => {
