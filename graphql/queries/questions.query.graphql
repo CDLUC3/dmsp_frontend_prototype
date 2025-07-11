@@ -28,5 +28,20 @@ query Question($questionId: Int!) {
     sectionId
     templateId
     isDirty
+    required
+  }
+}
+
+query PlanSectionQuestions($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    id
+    questionText
+    displayOrder
+    guidanceText
+    requirementText
+    sampleText
+    sectionId
+    templateId
+    isDirty
   }
 }

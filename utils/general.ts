@@ -28,7 +28,7 @@ export const stripHtml = (htmlString: string | null | undefined): string => {
       allowedAttributes: {},
     });
     return clean;
-  } catch (e) {
+  } catch {
     return String(htmlString);
   }
 };

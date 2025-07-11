@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { PlanSectionProgress, TemplateVisibility } from "@/generated/graphql";
+import { TypeaheadSearchQuestionType } from '@dmptool/types';
 
 export interface EmailInterface {
   id?: number | null;
@@ -283,7 +284,6 @@ export interface RadioButtonProps {
   value: string;
   isInvalid?: boolean;
   errorMessage?: string;
-  // eslint-disable-next-line no-unused-vars
   onChange?: (value: string) => void;
 }
 
@@ -300,7 +300,6 @@ export interface CheckboxGroupProps {
   value?: string[];
   isInvalid?: boolean;
   errorMessage?: string;
-  // eslint-disable-next-line no-unused-vars
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
 }
@@ -418,3 +417,24 @@ export type FunderSearchResults = {
   nextCursor?: string | null;
   items?: (FunderSearchItem | null)[] | null;
 };
+
+
+export interface Option {
+  type: string;
+  attributes: {
+    label: string;
+    value: string;
+    selected?: boolean;
+    checked?: boolean;
+  };
+}
+
+export interface AffiliationSearchQuestionProps {
+  parsedQuestion: TypeaheadSearchQuestionType;
+  affiliationData: { affiliationName: string, affiliationId: string };
+  otherAffiliationName?: string;
+  otherField?: boolean;
+  setOtherField: (value: boolean) => void;
+  handleAffiliationChange: (id: string, value: string) => Promise<void>
+  handleOtherAffiliationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}

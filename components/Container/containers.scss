@@ -50,12 +50,25 @@
   }
 }
 
+.layout-sidebar-panel {
+    &.state-closed {
+    transition: visibility 0.1s 0.3s, opacity 0.1s 0.3s;
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  &.state-open {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
 .layout-drawer-modal {
   position: fixed;
   padding: 0;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   overflow: hidden;
   z-index: 1000;
@@ -67,10 +80,14 @@
 
   .drawer-content {
     position: absolute;
-    max-width: 90vw;
+    max-width: 100vw;
     width: max-content;
+    height: 100vh;
     top: 0;
-    bottom: 0;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; // Prevent the container itself from scrolling
   }
 
   &.state-closed {
@@ -87,7 +104,7 @@
 
 .layout-with-panel {
   @include layoutContainer;
-
+  position: relative;
   --_sidebar-width: 100%;
 
   width: 100%;
@@ -123,46 +140,125 @@
 
     }
   }
+}
 
-  &.direction-left {
-    > {
-      .layout-drawer-panel {
-        &.state-open { right: 0; }
-        &.state-closed { right: var(--_sidebar-width); }
-      }
+.layout-drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  z-index: 10;
+  background-color: white;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(100%); // hide offscreen
+  display: flex;
+  flex-direction: column;
 
-      .layout-drawer-modal {
-        &.state-open .drawer-content { left: 0; }
-        &.state-closed .drawer-content { left: calc(var(--_sidebar-width) * -1); }
-      }
-
-      @include r.device(md) {
-        .layout-sidebar-panel {
-          &.state-open { right: 0; }
-          &.state-closed { right: var(--_sidebar-width); }
-        }
-      }
-    }
+  &.state-open {
+    transform: translateX(0);
   }
 
-  &.direction-right {
-    > {
-      .layout-drawer-panel {
-        &.state-open { right: 0; }
-        &.state-closed { right: calc(var(--_sidebar-width) * -1); }
-      }
-
-      .layout-drawer-modal {
-        &.state-open .drawer-content { right: 0; }
-        &.state-closed .drawer-content { right: calc(var(--_sidebar-width) * -1); }
-      }
-
-      @include r.device(md) {
-        .layout-sidebar-panel {
-          &.state-open { left: 0; }
-          &.state-closed { left: var(--_sidebar-width); }
-        }
-      }
-    }
+  &.state-closed {
+    transform: translateX(100%);
   }
+}
+
+// Scrollable content for both mobile and desktop
+.drawer-scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--layout-content-padding, var(--brand-space2));
+  padding-top: 4rem; // Space for close button
+  overscroll-behavior: contain;
+  
+  > :first-child { 
+    margin-top: 0; 
+  }
+}
+
+// Add mask to rest of content when drawer panel is open
+.layout-mask::before { 
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); // dim color
+  z-index: 5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.layout-mask.drawer-open::before { // want to mask the content when the drawer is open
+  opacity: 1;
+  pointer-events: auto;
+}
+  
+// Close button in the drawer panel
+.close-action {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #000;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 21;
+  transition: background 0.2s ease-in-out;
+
+    // Disable the mobile tap highlight on mobile devices that usually remains where the 
+    // 'close' button was even after the drawer panel closes
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  // Also disable any potential background color changes
+  &:active {
+    background: #f0f0f0;
+  }
+
+  &:hover {
+    background: #f0f0f0;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus-ring, #3b82f6);
+  }
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: #000;
+  }
+
+  .dmp-icon {
+    // override existing styles for dmp-icon because the icon, in this case, 
+    //is sharing same position as the circle around it
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    z-index: auto !important;
+    fill: var(--slate-900);
+    color: var(--slate-900);
+
+      &:hover {
+        fill: var(--blue-50);
+      }
+  }
+
 }

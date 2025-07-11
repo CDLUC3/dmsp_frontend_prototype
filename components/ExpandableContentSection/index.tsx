@@ -57,7 +57,7 @@ export default function ExpandableContentSection({
   const { summaryElements, wasTruncated } = useMemo(() => {
     const childrenArray = React.Children.toArray(children);
     let charCount = 0;
-    let limit = summaryCharLimit ?? Infinity; // If no character limit is specified, just show all the content
+    const limit = summaryCharLimit ?? Infinity; // If no character limit is specified, just show all the content
     const summary: React.ReactNode[] = [];
     let reachedLimit = false;
 

@@ -2,6 +2,7 @@ query ProjectFunding($projectFundingId: Int!) {
   projectFunding(projectFundingId: $projectFundingId) {
     affiliation {
       name
+      displayName
     }
     status
     grantId

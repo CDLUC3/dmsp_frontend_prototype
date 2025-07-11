@@ -43,6 +43,7 @@ const routes = {
   'projects.dmp.fundings': '/projects/:projectId/dmp/:dmpId/fundings',
   'projects.dmp.members': '/projects/:projectId/dmp/:dmpId/members',
   'projects.dmp.question': '/projects/:projectId/dmp/:dmpId/q',
+  'projects.dmp.question.detail': '/projects/:projectId/dmp/:dmpId/s/:sectionId/q/:questionId',
   'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
   'projects.dmp.research-outputs.edit': '/projects/:projectId/dmp/:dmpId/research-outputs/edit',
   'projects.dmp.section': '/projects/:projectId/dmp/:dmpId/s/:sectionId',
@@ -85,14 +86,13 @@ type RoutesMap = typeof routes;
  * Combines route names with their path patterns for better IDE hover documentation
  * @example 'projects.show ➜ /projects/:projectId'
  */
-// eslint-disable-line @typescript-eslint/no-unused-vars
-type RouteNameWithPath = {// eslint-disable-line @typescript-eslint/no-unused-vars
+type RouteNameWithPath = {
   [K in keyof RoutesMap]: `${K} ➜ ${RoutesMap[K]}`
 }[keyof RoutesMap];
 
 // Only used for documentation - not directly referenced in code
 // This prevents unused type lint errors
-declare const _ROUTE_DOCS: RouteNameWithPath; // eslint-disable-line no-unused-vars, @typescript-eslint/no-unused-vars
+declare const _ROUTE_DOCS: RouteNameWithPath;
 
 
 /**
@@ -176,4 +176,4 @@ export function routePath(
 
 // Type to get all available route names for better IDE support
 export type RouteName = keyof typeof routes;
-export {routes};
+export { routes };

@@ -15,8 +15,7 @@ import {
   AddProjectFundingDocument,
 } from '@/generated/graphql';
 
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-import { stripHtml, scrollToTop } from '@/utils/general';
+import { scrollToTop } from '@/utils/general';
 
 import CreateProjectSearchFunder from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -42,7 +41,7 @@ const mocks = [
     result: {
       data: {
         affiliations: {
-          items: Array.from({length: 50}, (_, i) => {
+          items: Array.from({ length: 50 }, (_, i) => {
             const count = i + 1;
             return {
               id: count,
@@ -110,7 +109,7 @@ const mocks = [
     result: {
       data: {
         affiliations: {
-          items: Array.from({length: 50}, (_, i) => {
+          items: Array.from({ length: 50 }, (_, i) => {
             const count = i + 1;
             return {
               id: count,
@@ -148,7 +147,7 @@ const mocks = [
     result: {
       data: {
         affiliations: {
-          items: Array.from({length: 20}, (_, i) => {
+          items: Array.from({ length: 20 }, (_, i) => {
             const count = i + 51;
             return {
               id: count,
@@ -184,13 +183,13 @@ const mocks = [
       data: {
         addProjectFunding: {
           errors: {
-              affiliationId: null,
-              funderOpportunityNumber: null,
-              funderProjectNumber: null,
-              general: null,
-              grantId: null,
-              projectId: null,
-              status: null,
+            affiliationId: null,
+            funderOpportunityNumber: null,
+            funderProjectNumber: null,
+            general: null,
+            grantId: null,
+            projectId: null,
+            status: null,
           },
         }
       }
@@ -269,9 +268,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -304,9 +302,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "paginated" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "paginated" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -335,9 +332,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "paginated" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "paginated" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -375,9 +371,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -411,9 +406,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -437,7 +431,7 @@ describe("CreateProjectSearchFunder", () => {
   });
 
   it("Should allow adding a funder manually", async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
 
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
@@ -447,9 +441,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);

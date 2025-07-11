@@ -11,13 +11,25 @@ import { updateQuestionDisplayOrderAction } from '../actions';
 expect.extend(toHaveNoViolations);
 
 // Mock child components
-jest.mock('@/components/SectionHeaderEdit', () => (props: any) => (
-  <div data-testid="section-header-edit">{props.title}</div>
-));
+jest.mock('@/components/SectionHeaderEdit', () => {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const MockSectionHeaderEdit = (props: any) => (
+    <div data-testid="section-header-edit">{props.title}</div>
+  );
+  MockSectionHeaderEdit.displayName = 'MockSectionHeaderEdit';
+  return MockSectionHeaderEdit;
+});
 
-jest.mock('@/components/AddQuestionButton', () => (props: any) => (
-  <button data-testid="add-question-btn">{props.href}</button>
-));
+
+jest.mock('@/components/AddQuestionButton', () => {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const MockAddQuestionButton = (props: any) => (
+    <button data-testid="add-question-btn">{props.href}</button>
+  );
+  MockAddQuestionButton.displayName = 'MockAddQuestionButton';
+  return MockAddQuestionButton;
+});
+
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),

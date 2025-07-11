@@ -4,7 +4,6 @@ import { MultiSelect } from '@/components/Form';
 
 interface SelectboxQuestionProps {
   parsedQuestion: SelectBoxQuestionType;
-  multiSelectTouched?: boolean;
   selectedMultiSelectValues?: Set<string>;
   selectBoxLabel?: string;
   handleMultiSelectChange: (values: Set<string>) => void;
@@ -12,7 +11,6 @@ interface SelectboxQuestionProps {
 
 const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
   parsedQuestion,
-  multiSelectTouched,
   selectedMultiSelectValues,
   selectBoxLabel,
   handleMultiSelectChange
@@ -32,7 +30,7 @@ const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
   return (
     <MultiSelect
       options={items}
-      selectedKeys={multiSelectTouched ? selectedMultiSelectValues : new Set(defaultSelected)}
+      selectedKeys={selectedMultiSelectValues ? selectedMultiSelectValues : new Set(defaultSelected)}
       onSelectionChange={handleMultiSelectChange}
       label={selectBoxLabel}
       aria-label={selectBoxLabel}

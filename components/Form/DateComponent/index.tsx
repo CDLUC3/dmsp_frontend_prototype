@@ -16,6 +16,7 @@ import {
 import { parseDate, DateValue } from "@internationalized/date";
 
 
+/*eslint-disable @typescript-eslint/no-explicit-any*/
 interface DateComponentProps {
   name: string;
   value: any;
@@ -43,6 +44,7 @@ const DateComponent: React.FC<DateComponentProps> = ({
   <DatePicker
     name={name}
     value={value}
+    data-testid="date-picker"
     onChange={onChange}
     minValue={toDateValue(minValue)}
     maxValue={toDateValue(maxValue)}

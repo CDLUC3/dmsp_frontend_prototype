@@ -23,7 +23,7 @@ const RadioButtonsQuestionComponent: React.FC<RadioButtonQuestionTypeProps> = ({
   }));
   const selectedOption = parsedQuestion.options?.find((opt: RadioButtonsQuestionType['options'][number]) => opt.attributes.selected);
   const initialValue = selectedOption ? selectedOption.attributes.value : undefined;
-  const value = selectedRadioValue !== undefined ? selectedRadioValue : initialValue;
+  const value = (selectedRadioValue === undefined || selectedRadioValue === '') ? initialValue : selectedRadioValue;
 
   return (
     <RadioGroupComponent

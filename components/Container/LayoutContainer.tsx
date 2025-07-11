@@ -14,6 +14,7 @@ export type LayoutContainerProps = React.HTMLAttributes<HTMLDivElement> & {
   id?: string;
   className?: string;
   children: React.ReactNode;
+  onClick?: (event: React.MouseEvent) => void;
 };
 export const LayoutContainer: React.FC<LayoutContainerProps> = ({
   id,
