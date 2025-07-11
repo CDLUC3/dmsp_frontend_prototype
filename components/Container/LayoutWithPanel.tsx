@@ -19,8 +19,7 @@ import {
   ContentContainerProps,
   ContentContainer,
 } from '@/components/Container/ContentContainer';
-import { DmpIcon } from '../Icons';
-
+import { DmpIcon } from "@/components/Icons";
 
 type DirectionType =
   | null

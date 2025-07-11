@@ -1,4 +1,5 @@
 import { CalendarDate, DateValue } from "@internationalized/date";
+import { useTranslations } from "next-intl";
 
 import {
   RADIOBUTTONS_QUESTION_TYPE,
@@ -160,6 +161,8 @@ export function useRenderQuestionField({
   typeaheadSearchProps
 
 }: RenderQuestionFieldProps) {
+  const Global = useTranslations('Global');
+
   if (!parsed) return null;
 
   switch (questionType) {
@@ -389,7 +392,7 @@ export function useRenderQuestionField({
       logECS('error', 'useRenderQuestionField', {
         error: `Unsupported question type ${questionType}`,
       });
-      return;
+      return <p>{Global('messaging.unsupportedQuestionType', { questionType })}</p>;
   }
 
   return null;
