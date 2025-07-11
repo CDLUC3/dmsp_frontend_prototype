@@ -193,6 +193,7 @@ const mockTemplates = {
   ]
 }
 // Helper function to cast to jest.Mock for TypeScript
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 const mockHook = (hook: any) => hook as jest.Mock;
 
 const setupMocks = () => {

@@ -1,6 +1,6 @@
 import React from 'react';
-import {render} from '@testing-library/react';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { render } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
 import PlanOverviewSectionPage from "../page";
 
@@ -13,13 +13,13 @@ jest.mock('next-intl', () => ({
 // Mock the PageHeader component
 jest.mock('@/components/PageHeader', () => ({
   __esModule: true,
-  default: () => <div data-testid="mock-page-header"/>,
+  default: () => <div data-testid="mock-page-header" />,
 }));
 
 
 describe('PlanOverviewSectionPage', () => {
   it('should pass accessibility tests', async () => {
-    const {container} = render(<PlanOverviewSectionPage/>);
+    const { container } = render(<PlanOverviewSectionPage />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -28,4 +28,3 @@ describe('PlanOverviewSectionPage', () => {
   it.todo('should handle form submission');
   it.todo('should handle access revocation');
 });
-

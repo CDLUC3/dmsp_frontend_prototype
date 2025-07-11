@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Button } from "react-aria-components";
@@ -32,9 +32,6 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
 
   // Localization
   const EditQuestion = useTranslations('EditQuestion');
-
-  // Added for accessibility
-  const [announcement, setAnnouncement] = useState('');
 
   const UpArrowIcon = () => (
     <svg
@@ -106,9 +103,6 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
         >
           <DownArrowIcon />
         </Button>
-      </div>
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
-        {announcement}
       </div>
     </div>
 

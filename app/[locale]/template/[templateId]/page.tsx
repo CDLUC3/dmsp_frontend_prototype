@@ -290,7 +290,7 @@ const TemplateEditPage: React.FC = () => {
       logECS('error', 'updateSectionDisplayOrder', {
         error: 'No sectionId',
         url: {
-          path: routePath('template.show', { templateId: templateId }),
+          path: routePath('template.show', { templateId }),
         },
       });
       return {
@@ -302,8 +302,8 @@ const TemplateEditPage: React.FC = () => {
 
     // Don't need a try-catch block here, as the error is handled in the server action
     const response = await updateSectionDisplayOrderAction({
-      sectionId: sectionId,
-      newDisplayOrder: newDisplayOrder
+      sectionId,
+      newDisplayOrder
     });
 
 
@@ -435,7 +435,7 @@ const TemplateEditPage: React.FC = () => {
       // Set accessible announcement
       const message = EditTemplate('messages.sectionMoved', { displayOrder: newDisplayOrder })
       setAnnouncement(message);
-    } catch (error) {
+    } catch {
       // Revert optimistic update on network error
       await refetch();
       setErrorMessages(prev => [...prev, EditTemplate('errors.updateDisplayOrderError')]);

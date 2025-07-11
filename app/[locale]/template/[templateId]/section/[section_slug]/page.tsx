@@ -296,7 +296,6 @@ const SectionUpdatePage: React.FC = () => {
   useEffect(() => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
-      /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
       const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
       setTags(cleanedData);
     }
@@ -457,7 +456,7 @@ const SectionUpdatePage: React.FC = () => {
                   {SectionUpdatePage('deleteSection.description')}
                 </p>
                 <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-                  <Button 
+                  <Button
                     className={`react-aria-Button danger`}
                     isDisabled={isDeleting}
                   >
@@ -474,8 +473,8 @@ const SectionUpdatePage: React.FC = () => {
                               <Button className='react-aria-Button' autoFocus onPress={close}>
                                 {SectionUpdatePage('deleteModal.cancelButton')}
                               </Button>
-                              <Button 
-                                className={`danger`} 
+                              <Button
+                                className={`danger`}
                                 onPress={() => {
                                   handleDeleteSection();
                                   close();

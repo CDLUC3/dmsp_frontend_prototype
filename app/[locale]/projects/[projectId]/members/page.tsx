@@ -81,8 +81,6 @@ const ProjectsProjectMembers = () => {
       const errorMsg = ProjectMembers('messages.errors.errorGettingMembers');
       setErrors(prev => [...prev, errorMsg]);
     }
-    /*eslint-disable react-hooks/exhaustive-deps*/
-
   }, [queryError])
 
   if (loading) {

@@ -34,9 +34,10 @@
   },
   "include": [
     "next-env.d.ts",
+    "app",
+    "components",
     "**/*.ts",
     "**/*.tsx",
-    "**/[...slug].tsx",
     ".next/types/**/*.ts",
     "components/abstract.js",
     "utils.js"

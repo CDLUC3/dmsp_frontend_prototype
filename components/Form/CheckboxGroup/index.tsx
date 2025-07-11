@@ -26,6 +26,7 @@ const CheckboxGroupComponent: React.FC<CheckboxGroupProps> = ({
         name={name}
         value={value}
         className="checkbox-group"
+        data-testid="checkbox-group"
         onChange={onChange}
         isRequired={isRequired}
       >

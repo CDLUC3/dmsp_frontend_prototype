@@ -18,7 +18,7 @@ import {
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 
-import { stripHtml, scrollToTop } from '@/utils/general';
+import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 
 import ProjectsProjectPlanAdjustFunding from '../page';

@@ -162,7 +162,8 @@
       "projectOverview": "Visão geral do projeto",
       "projectFunding": "Orçamento do projeto",
       "planOverview": "Resumo do plano",
-      "feedback": "Registrar"
+      "feedback": "Registrar",
+      "questionDetails": "Detalhes da pergunta"
     },
     "form": {
       "yesLabel": "Sim",
@@ -220,6 +221,7 @@
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
       "fixBelow": "Por favor, corrija os erros abaixo",
+      "unsupportedQuestionType": "Tipo de pergunta não suportado {questionType}",
       "error": "Ocorreu um erro. Tente novamente.",
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",

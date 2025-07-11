@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DocumentNode } from '@apollo/client';
 import {
   Input,
-  FieldError,
   Label,
   Text,
   TextField,
@@ -188,10 +187,11 @@ const TypeAheadWithOther = ({
   }
 
   useEffect(() => {
+    // Set the initial value of the typeahead search to populate it with existing entry if any
     if (value) {
       setInitialInputValue(value);
     }
-  }, [])
+  }, [value])
 
   useEffect(() => {
     if (!error) {
@@ -288,6 +288,7 @@ const TypeAheadWithOther = ({
     <div className={`${styles.autocompleteContainer} ${styles.expanded} ${className} form-row`} aria-expanded={open} role="combobox" aria-controls="results">
       <TextField
         type="text"
+        data-testid="typeaheadWithOther"
         className={(!!error) ? styles.fieldError : ''}
         isInvalid={!!error}
       >

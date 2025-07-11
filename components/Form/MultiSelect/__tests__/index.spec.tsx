@@ -2,7 +2,6 @@ import React from 'react';
 import { act, render, screen, fireEvent, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import MultiSelect from '../index';
-import { icon } from '@fortawesome/fontawesome-svg-core';
 
 expect.extend(toHaveNoViolations);
 

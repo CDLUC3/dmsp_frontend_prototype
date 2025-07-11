@@ -1,15 +1,29 @@
 {
   "question": {
-    "displayOrder": 17,
-    "errors": null,
-    "guidanceText": "This is the guidance text",
-    "id": 2271,
+    "__typename": "Question",
+    "id": 344,
+    "guidanceText": "<p><strong>Guidance text - Lorem Ipsum</strong>&nbsp;is simply dummy guidance text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
+    "errors": {
+      "__typename": "QuestionErrors",
+      "general": null,
+      "questionText": null,
+      "requirementText": null,
+      "sampleText": null,
+      "displayOrder": null,
+      "questionConditionIds": null,
+      "sectionId": null,
+      "sourceQestionId": null,
+      "templateId": null
+    },
+    "displayOrder": 3,
+    "questionText": "Text area question",
+    "json": "{\"meta\":{\"asRichText\":true,\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"cols\":20,\"rows\":20,\"maxLength\":1000,\"minLength\":0}}",
+    "requirementText": "<p><strong>Requirements - Lorem Ipsum</strong>&nbsp;is simply dummy requirements text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
+    "sampleText": "<p>Sample text <strong>Lorem Ipsum</strong>&nbsp;is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
+    "useSampleTextAsDefault": true,
+    "sectionId": 22,
+    "templateId": 1,
     "isDirty": true,
-    "json": "{\"meta\":{\"asRichText\":true,\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"cols\":20,\"rows\":4,\"maxLength\":null,\"minLength\":0}}",
-    "questionText": "Testing",
-    "requirementText": "This is requirement text",
-    "sampleText": "This is sample text",
-    "sectionId": 67,
-    "templateId": 15
+    "required": true
   }
 }

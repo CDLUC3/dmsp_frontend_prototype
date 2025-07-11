@@ -5,8 +5,24 @@
       "projects": "Projetos",
       "navigation": "Navegação de Breadcrumb"
     },
+    "buttons": {
+      "backToSection": "Voltar para a seção",
+      "useAnswer": "usar resposta",
+      "comment": "Comentário"
+    },
+    "headings": {
+      "comments": "Comments",
+      "leaveAComment": "Deixar uma foto"
+    },
     "page": {
-      "pageDescription": "Visão geral dos detalhes do plano"
+      "pageDescription": "Visão geral dos detalhes do plano",
+      "requirementsBy": "Requisitos de {funder}",
+      "requiredByFunder": "Necessário pelo financiador",
+      "jumpToGuidance": "Pule para orientação adicional",
+      "viewSampleAnswer": "Ver amostra da resposta",
+      "guidanceBy": "Guia por {funder}",
+      "funderSampleText": "{funder} texto de exemplo",
+      "participantsWillBeNotified": "Os participantes serão notificados assim que submetidos."
     },
     "funding": {
       "title": "Financiamento para este plano",
@@ -142,6 +158,13 @@
     "links": {
       "updateProjectMembers": "Atualizar membros do projeto",
       "inviteAPerson": "Convidar pessoa"
+    }
+  },
+  "PlanOverviewQuestionPage": {
+    "messages": {
+      "success": {
+        "questionSaved": "Detalhes da pergunta salvos com sucesso"
+      }
     }
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import {
@@ -14,7 +14,6 @@ import {
 import PageHeader from "@/components/PageHeader";
 import { Card } from '@/components/Card/card';
 import { ContentContainer, LayoutContainer } from "@/components/Container";
-import ErrorMessages from '@/components/ErrorMessages';
 
 interface FundingInterface {
   name: string;
@@ -49,9 +48,8 @@ const ProjectOverviewPage: React.FC = () => {
   // Get projectId param
   const params = useParams();
   const { projectId } = params; // From route /projects/:projectId
+  const router = useRouter();
   const formatter = useFormatter();
-  const errorRef = useRef<HTMLDivElement | null>(null);
-  const [errors, setErrors] = useState<string[]>([]);
   const [project, setProject] = useState<ProjectOverviewInterface>({
     title: '',
     startDate: null,
@@ -73,11 +71,6 @@ const ProjectOverviewPage: React.FC = () => {
       notifyOnNetworkStatusChange: true
     }
   );
-
-  if (error) {
-    const errorMsg = ProjectOverview('messages.errorGettingProject');
-    setErrors(prev => [...prev, errorMsg]);
-  }
 
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
@@ -132,6 +125,14 @@ const ProjectOverviewPage: React.FC = () => {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
+  if (error) {
+    if (error.message.toLowerCase() === 'forbidden') {
+      router.push('/not-found');
+    } else {
+      return <div>{error.message}</div>
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -148,7 +149,6 @@ const ProjectOverviewPage: React.FC = () => {
         actions={null}
         className="page-project-list"
       />
-      <ErrorMessages errors={errors} ref={errorRef} />
       <LayoutContainer>
         <ContentContainer>
           <div className="project-overview">

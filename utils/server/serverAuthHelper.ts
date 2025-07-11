@@ -49,7 +49,7 @@ export const serverRefreshAuthTokens = async () => {
     }
 
     // Get browser cookies
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
     // Refresh auth tokens
@@ -93,7 +93,7 @@ export const serverRefreshAuthTokens = async () => {
 // Server-side fetch CSRF token
 export const serverFetchCsrfToken = async () => {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
     const response = await fetch(`${process.env.SERVER_ENDPOINT}/apollo-csrf`, {
