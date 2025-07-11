@@ -15,6 +15,7 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
+- Prevent the project date from displaying if either `startDate` or `endDate` are not available [#588]
 - Removed the `Sample text` field from the Question Add/Edit forms for all question types except for `textArea` [#564]
 
 
