@@ -117,7 +117,7 @@ describe('PlanOverviewPage', () => {
   it('should render plan data', async () => {
     render(<PlanOverviewPage />);
 
-    expect(screen.getByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'NSF-CISE: Computer and Information Science and Engineering' })).toBeInTheDocument();
     expect(screen.getByText('National Science Foundation (nsf.gov)')).toBeInTheDocument();
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
