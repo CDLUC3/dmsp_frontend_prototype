@@ -5,6 +5,17 @@
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
 
 ### Updated
+- Added an example of Form components to the style guide
+- QuestionOptionsComponent tests to work with new required field indicators
+
+### Added
+- Required field indicators to FormInput, FormTextArea, FormSelect, RadioGroup, CheckboxGroup, and TypeAheadWithOther components [#552]
+- Added test suites for CheckboxGroup and RadioGroup components that seemed to be missing
+- Interactive form examples to the styleguide showing required and non-required states
+
+
+
+### Updated
 - Clean up connections page and buttons [#516]
 - Added spacing on the `Account Profile` for the demo [#509]
 - Updated `Account Profile` to use routePath() instead of hardcoded paths

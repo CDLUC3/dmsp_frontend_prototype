@@ -27,6 +27,7 @@ interface FormTextInputAreaProps {
 
   disabled?: boolean;
   isRequired?: boolean;
+  isRequiredVisualOnly?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
@@ -35,7 +36,7 @@ interface FormTextInputAreaProps {
   richText?: boolean;
 }
 
-const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
+const FormTextInputArea: React.FC<FormTextInputAreaProps & { 'aria-required'?: string | boolean }> = ({
   name,
   label,
   description,
@@ -48,11 +49,21 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
   editorWrapperClasses = '',
   disabled = false,
   isRequired = false,
+  isRequiredVisualOnly = false,
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
   richText = false,
+  'aria-required': ariaRequired,
 }) => {
+  // Check if aria-required is passed as a prop
+  const ariaRequiredFromProps = ariaRequired === 'true' || ariaRequired === true;
+
+  // Show "(required)" if isRequired OR aria-required attribute is present OR isRequiredVisualOnly is true
+  const shouldShowRequired = isRequired || ariaRequiredFromProps || isRequiredVisualOnly;
+
+  // Determine aria-required value for the TextArea
+  const inputAriaRequired = ariaRequiredFromProps || isRequiredVisualOnly;
 
   const sanitizeId = (id: string) => id.replace(/[^a-zA-Z0-9-_]/g, ''); // Remove invalid characters
 
@@ -83,7 +94,9 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
       isDisabled={disabled}
       data-testid="field-wrapper"
     >
-      <Label id={labelId} className={labelClasses}>{label}</Label>
+      <Label id={labelId} className={labelClasses}>
+        {label}{shouldShowRequired && <span className="is-required" aria-hidden="true"> (required)</span>}
+      </Label>
 
       {description && (
         <Text slot="description" className="help-text">
@@ -115,6 +128,7 @@ const FormTextInputArea: React.FC<FormTextInputAreaProps> = ({
           value={value}
           disabled={disabled}
           aria-describedby={helpMessage ? `${inputId}-help` : undefined}
+          {...(inputAriaRequired && { 'aria-required': true })}
         />
       )}
 
