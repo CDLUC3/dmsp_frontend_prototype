@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions*/
+
 import { getParsedQuestionJSON } from '../getParsedQuestionJSON';
 import { Question } from '@/app/types';
 
@@ -7,6 +9,7 @@ import { Question } from '@/app/types';
 const logECS = jest.fn();
 jest.mock('@/utils/clientLogger', () => ({
   __esModule: true,
+  /*eslint-disable @typescript-eslint/no-explicit-any */
   default: (...args: any[]) => logECS(...args),
 }));
 
@@ -159,7 +162,7 @@ describe('getParsedQuestionJSON', () => {
     expect(logECS).toHaveBeenCalledWith(
       'error',
       'getParsedQuestionJSON: Invalid question type',
-      expect.objectContaining({ "questionType": "notAType", "url": { "path": "/some/path" } })
+      expect.objectContaining({ questionType: "notAType", url: { path: "/some/path" } })
     );
   });
 

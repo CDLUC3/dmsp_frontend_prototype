@@ -3,22 +3,13 @@ import { useTranslations } from 'next-intl';
 import { gql } from 'graphql-tag';
 
 
-import { TypeaheadSearchQuestionType } from '@dmptool/types';
 import { FormInput } from '@/components/Form';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
 import {
   AffiliationsDocument,
 } from '@/generated/graphql';
+import { AffiliationSearchQuestionProps } from '@/app/types';
 
-interface AffiliationSearchQuestionProps {
-  parsedQuestion: TypeaheadSearchQuestionType;
-  affiliationData: { affiliationName: string, affiliationId: string };
-  otherAffiliationName?: string;
-  otherField?: boolean;
-  setOtherField: (value: boolean) => void;
-  handleAffiliationChange: (id: string, value: string) => Promise<void>
-  handleOtherAffiliationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
 
 const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProps> = ({
   parsedQuestion,

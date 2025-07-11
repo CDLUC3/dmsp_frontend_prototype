@@ -118,9 +118,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Add local state for multiSelect values
   const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
 
-  // Add local state to track if user has interacted with MultiSelect
-  const [multiSelectTouched, setMultiSelectTouched] = useState(false);
-
   // Add local state for selected select value
   const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
   const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
@@ -138,7 +135,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // These handlers are here so that users can interact with the different question types in the Question Preview
   // However, their changes are not saved anywhere. It's just so they can see how the questions will look and behave
   const handleAffiliationChange = async (id: string, value: string) => {
-    console.log("handle affiliation called")
     return setAffiliationData({ affiliationName: value, affiliationId: id })
   }
 
@@ -180,7 +176,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // Handler for MultiSelect changes
   const handleMultiSelectChange = (values: Set<string>) => {
     setSelectedMultiSelectValues(values);
-    setMultiSelectTouched(true);
   };
 
   // Handler for date range changes
@@ -267,7 +262,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
               {isMultiSelect ? (
                 <MultiSelectQuestionComponent
                   parsedQuestion={parsed}
-                  multiSelectTouched={multiSelectTouched}
                   selectedMultiSelectValues={selectedMultiSelectValues}
                   handleMultiSelectChange={handleMultiSelectChange}
                 />

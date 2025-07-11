@@ -16,7 +16,7 @@ export async function updateTemplateAction({
 }): Promise<ActionResponse> {
   try {
     // Execute the mutation using the shared handler
-    return executeGraphQLMutation({
+    return await executeGraphQLMutation({
       document: UpdateTemplateDocument,
       variables: { templateId, name, visibility },
       dataPath: "updateTemplate"

@@ -272,7 +272,6 @@ const CreateSectionPage: React.FC = () => {
   useEffect(() => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
-      /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
       const cleanedData = tagsData.tags.map(({
         __typename,
         ...fields

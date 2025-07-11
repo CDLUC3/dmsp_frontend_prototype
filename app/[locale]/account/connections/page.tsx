@@ -13,8 +13,8 @@ import Link from "next/link";
 import { useTranslations } from 'next-intl';
 import styles from "@/app/[locale]/account/profile/profile.module.scss";
 
-const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
-const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
+// const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
+// const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
 
 const ConnectionsPage: React.FC = () => {
   const t = useTranslations('UserConnections');
@@ -24,10 +24,10 @@ const ConnectionsPage: React.FC = () => {
 
 
   //Production Uri
-  const orcidUri = `https://orcid.org/oauth/authorize?client_id=${ORCID_CLIENT_ID}&response_type=code&scope=/authenticate&redirect_uri=${REDIRECT_URI}`;
+  //const orcidUri = `https://orcid.org/oauth/authorize?client_id=${ORCID_CLIENT_ID}&response_type=code&scope=/authenticate&redirect_uri=${REDIRECT_URI}`;
 
   // Fake flag to indicate if ORCID is connected
-  const isOrcidConnected = true;
+  //const isOrcidConnected = true;
 
 
 

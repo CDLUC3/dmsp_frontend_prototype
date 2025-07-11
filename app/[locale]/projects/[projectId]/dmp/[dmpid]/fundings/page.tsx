@@ -41,7 +41,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
 
   const [radioData, setRadioData] = useState<RadioButtonInterface[]>([])
   const [fundingChoice, setFundingChoice] = useState<string>("");
-  const [fetchPlanFundings, {}] = usePlanFundingsLazyQuery({});
+  const [fetchPlanFundings, { }] = usePlanFundingsLazyQuery({});
 
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
@@ -59,7 +59,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
   // But a discussion is required as well.
   const { projectId, dmpid: dmpId } = params;
 
-  const {data: funders} = useProjectFundingsQuery({
+  const { data: funders } = useProjectFundingsQuery({
     variables: {
       projectId: Number(projectId),
     }
@@ -74,7 +74,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
         variables: {
           planId: Number(dmpId)
         }
-      }).then(({data}) => {
+      }).then(({ data }) => {
         if (data?.planFundings && data?.planFundings?.length > 0) {
           const current = data.planFundings[0]?.projectFunding?.id;
           setFundingChoice(String(current));
@@ -90,12 +90,14 @@ const ProjectsProjectPlanAdjustFunding = () => {
   // data for the RadioGroupComponent
   useEffect(() => {
     if (funders?.projectFundings) {
-      let dataMap: RadioButtonInterface[] = [];
-      funders.projectFundings.forEach((funder, index) => {
-        if (funder) {
+      const dataMap: RadioButtonInterface[] = [];
+      funders.projectFundings.forEach((funder) => {
+        const displayName = funder?.affiliation?.displayName;
+
+        if (funder && displayName) {
           dataMap.push({
             value: String(funder.id),
-            label: funder.affiliation?.displayName!,
+            label: displayName!,
           });
         }
       });
@@ -143,14 +145,14 @@ const ProjectsProjectPlanAdjustFunding = () => {
         projectFundingId: Number(projectFundingId),
       },
     }).then((result) => {
-        const errs = checkErrors(result?.data?.addPlanFunding?.errors as PlanFundingErrors);
-        if (errs.length > 0) {
-          setErrors(errs);
-        } else {
-          const msg = Messaging('successfullyUpdated');
-          toastState.add(msg, { type: 'success' });
-          router.push(NEXT_URL);
-        }
+      const errs = checkErrors(result?.data?.addPlanFunding?.errors as PlanFundingErrors);
+      if (errs.length > 0) {
+        setErrors(errs);
+      } else {
+        const msg = Messaging('successfullyUpdated');
+        toastState.add(msg, { type: 'success' });
+        router.push(NEXT_URL);
+      }
     }).catch(err => {
       logECS('error', 'addPlanFunding', {
         error: err.message,
@@ -172,7 +174,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
             {projectId && dmpId && (
               <>
                 <Breadcrumb>
-                  <Link href={routePath('projects.show', {projectId: String(projectId)})}>
+                  <Link href={routePath('projects.show', { projectId: String(projectId) })}>
                     {Global('breadcrumbs.project')}
                   </Link>
                 </Breadcrumb>
@@ -219,7 +221,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
 
           <h2 className="heading-3 mt-8">{t('addSourceTitle')}</h2>
           <p>{t('addSourceNote')}</p>
-          <Link href={routePath('projects.fundings.search', {projectId: String(projectId)})}>
+          <Link href={routePath('projects.fundings.search', { projectId: String(projectId) })}>
             {t('addSourceLink')}
           </Link>
         </ContentContainer>

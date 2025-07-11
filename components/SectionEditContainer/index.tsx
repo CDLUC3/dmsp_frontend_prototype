@@ -133,8 +133,8 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
 
     // Don't need a try-catch block here, as the error is handled in the server action
     const response = await updateQuestionDisplayOrderAction({
-      questionId: questionId,
-      newDisplayOrder: newDisplayOrder
+      questionId,
+      newDisplayOrder
     });
 
     if (response.redirect) {
@@ -204,7 +204,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
       // After successful update
       const message = t('messages.questionMoved', { displayOrder: newDisplayOrder })
       setAnnouncement(message);
-    } catch (error) {
+    } catch {
       // Revert optimistic update on network error
       await refetch();
       setErrorMessages(prev => [...prev, t('messages.errors.updateQuestionOrder')]);

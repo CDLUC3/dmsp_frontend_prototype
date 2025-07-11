@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { useTranslations } from 'next-intl';
 import QuestionEditCard from '../index';
 
@@ -20,6 +20,7 @@ jest.mock('@/utils/routes', () => ({
 
 // Mock Link component
 jest.mock('next/link', () => {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   return function MockLink({ children, href, ...props }: any) {
     return <a href={href} {...props}>{children}</a>;
   };

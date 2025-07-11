@@ -1,0 +1,195 @@
+{
+  "plan": {
+    "id": 1,
+    "versionedTemplate": {
+      "template": {
+        "__typename": "Template",
+        "id": 1,
+        "name": "USGS Aquatic eDNA"
+      }
+    },
+    "fundings": [
+      {
+        "id": 1
+      }
+    ],
+    "visibility": "PUBLIC",
+    "status": "COMPLETE",
+    "project": {
+      "__typename": "Project",
+      "fundings": [
+        {
+          "affiliation": {
+            "__typename": "Affiliation",
+            "displayName": "National Science Foundation (nsf.gov)",
+            "name": "National Science Foundation"
+          },
+          "funderOpportunityNumber": "NSF-12345-ABC"
+        }
+      ],
+      "title": "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations"
+    },
+    "members": [
+      {
+        "__typename": "PlanMember",
+        "isPrimaryContact": true,
+        "projectMember": {
+          "__typename": "ProjectMember",
+          "givenName": "Jacques",
+          "surName": "Cousteau",
+          "email": "researcher@ucdavis.edu",
+          "orcid": "https://orcid.org/0000-JACQ-0000-0000",
+          "memberRoles": [
+            {
+              "__typename": "MemberRole",
+              "label": "Data Manager"
+            },
+            {
+              "__typename": "MemberRole",
+              "label": "Formal analysis"
+            }
+          ]
+        }
+      }
+    ],
+    "sections": [
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 1,
+        "sectionId": 1,
+        "sectionTitle": "Section 1: Project Description and Scope",
+        "totalQuestions": 12
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 1,
+        "sectionId": 19,
+        "sectionTitle": "Types of data",
+        "totalQuestions": 1
+      },
+      {
+        "answeredQuestions": 0,
+        "displayOrder": 1,
+        "sectionId": 8,
+        "sectionTitle": "Project Information",
+        "totalQuestions": 8
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 1,
+        "sectionId": 12,
+        "sectionTitle": "Product Information",
+        "totalQuestions": 5
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 2,
+        "sectionId": 20,
+        "sectionTitle": "Data and metadata standards",
+        "totalQuestions": 1
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 3,
+        "sectionId": 21,
+        "sectionTitle": "Policies for access, sharing, and privacy",
+        "totalQuestions": 1
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 4,
+        "sectionId": 22,
+        "sectionTitle": "Policies for re-use, re-distribution, derivatives",
+        "totalQuestions": 2
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 4,
+        "sectionId": 13,
+        "sectionTitle": "Acquire Stage",
+        "totalQuestions": 3
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 5,
+        "sectionId": 23,
+        "sectionTitle": "Plans for archiving and preservation",
+        "totalQuestions": 1
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 6,
+        "sectionId": 9,
+        "sectionTitle": "Data & Metadata",
+        "totalQuestions": 4
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 7,
+        "sectionId": 10,
+        "sectionTitle": "Policies for Access, Use, Sharing & Archiving",
+        "totalQuestions": 3
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 9,
+        "sectionId": 11,
+        "sectionTitle": "Backup and Secure",
+        "totalQuestions": 3
+      },
+      {
+        "answeredQuestions": 0,
+        "displayOrder": 14,
+        "sectionId": 2,
+        "sectionTitle": "Section 2: Data Types to be Produced",
+        "totalQuestions": 1
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 15,
+        "sectionId": 14,
+        "sectionTitle": "Process Stage",
+        "totalQuestions": 4
+      },
+      {
+        "answeredQuestions": 0,
+        "displayOrder": 21,
+        "sectionId": 3,
+        "sectionTitle": "Section 3: Data validation",
+        "totalQuestions": 0
+      },
+      {
+        "answeredQuestions": 0,
+        "displayOrder": 23,
+        "sectionId": 4,
+        "sectionTitle": "Section 4: Data link to NHD",
+        "totalQuestions": 0
+      },
+      {
+        "answeredQuestions": 1,
+        "displayOrder": 24,
+        "sectionId": 15,
+        "sectionTitle": "Analyze Stage",
+        "totalQuestions": 3
+      },
+      {
+        "answeredQuestions": 0,
+        "displayOrder": 25,
+        "sectionId": 5,
+        "sectionTitle": "Section 5: Metadata generation",
+        "totalQuestions": 2
+      },
+      {
+        "answeredQuestions": 0,
+        "displayOrder": 28,
+        "sectionId": 6,
+        "sectionTitle": "Section 6: Data repository",
+        "totalQuestions": 1
+      }
+    ],
+    "created": "1751501354000",
+    "modified": "1751501354000",
+    "dmpId": "https://doi.org/10.11111/2A3B4C",
+    "registered": "1751501354000"
+  }
+}

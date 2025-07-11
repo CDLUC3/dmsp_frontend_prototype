@@ -173,7 +173,8 @@
       "projectFunding": "Project funding",
       "planOverview": "Plan overview",
       "planFunding": "Plan funding",
-      "feedback": "Feedback"
+      "feedback": "Feedback",
+      "questionDetails": "Question details"
     },
     "form": {
       "yesLabel": "Yes",
@@ -231,6 +232,7 @@
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search",
       "fixBelow": "Please fix the errors below",
+      "unsupportedQuestionType": "Unsupported question type {questionType}",
       "error": "Something went wrong. Please try again.",
       "errors": {
         "invalidQuestionType": "Invalid question type found.",

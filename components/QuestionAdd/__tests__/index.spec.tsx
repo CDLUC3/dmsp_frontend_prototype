@@ -38,6 +38,7 @@ const mockScrollIntoView = jest.fn();
 // Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => {
+    /*eslint-disable @typescript-eslint/no-explicit-any */
     const mockUseTranslations = ((key: string, ..._args: string[]) => key) as any;
 
     /*eslint-disable @typescript-eslint/no-explicit-any */

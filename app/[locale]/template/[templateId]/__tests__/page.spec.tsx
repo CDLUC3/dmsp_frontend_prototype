@@ -21,8 +21,12 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
 
 jest.mock('next/link', () => {
-  return ({ children, href }: any) => <a href={href}>{children}</a>;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const MockLink = ({ children, href }: any) => <a href={href}>{children}</a>;
+  MockLink.displayName = 'MockNextLink';
+  return MockLink;
 });
+
 
 // Mock useFormatter and useTranslations from next-intl
 jest.mock('next-intl', () => ({
