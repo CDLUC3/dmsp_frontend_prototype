@@ -15,6 +15,7 @@ import PageHeader from "@/components/PageHeader";
 import { Card } from '@/components/Card/card';
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 import ErrorMessages from '@/components/ErrorMessages';
+import { routePath } from '@/utils/routes';
 
 interface FundingInterface {
   name: string;
@@ -48,7 +49,7 @@ interface ProjectOverviewInterface {
 const ProjectOverviewPage: React.FC = () => {
   // Get projectId param
   const params = useParams();
-  const { projectId } = params; // From route /projects/:projectId
+  const projectId = String(params.projectId); // From route /projects/:projectId
   const formatter = useFormatter();
   const errorRef = useRef<HTMLDivElement | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
@@ -314,7 +315,7 @@ const ProjectOverviewPage: React.FC = () => {
                     </div>
                     <div className="plan-action">
                       <Link
-                        href={`/projects/${projectId}/dmp/${plan.id}`}
+                        href={routePath('projects.dmp.show', { projectId, dmpId: String(plan.id) })}
                         className="react-aria-Button react-aria-Button--primary"
                         aria-label={ProjectOverview('updatePlan')}
                       >
