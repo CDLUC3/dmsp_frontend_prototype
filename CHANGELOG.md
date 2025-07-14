@@ -15,6 +15,7 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
+- Improved color contrast on date picker [#597]
 - Removed the `Sample text` field from the Question Add/Edit forms for all question types except for `textArea` [#564]
 
 

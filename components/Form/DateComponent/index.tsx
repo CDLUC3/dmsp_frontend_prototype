@@ -14,6 +14,7 @@ import {
   CalendarCell,
 } from "react-aria-components";
 import { parseDate, DateValue } from "@internationalized/date";
+import styles from './datePicker.module.scss';
 
 
 /*eslint-disable @typescript-eslint/no-explicit-any*/
@@ -62,7 +63,7 @@ const DateComponent: React.FC<DateComponentProps> = ({
         <Calendar>
           <header>
             <Button slot="previous">◀</Button>
-            <Heading />
+            <Heading className={styles.dateHeading} />
             <Button slot="next">▶</Button>
           </header>
           <CalendarGrid>
