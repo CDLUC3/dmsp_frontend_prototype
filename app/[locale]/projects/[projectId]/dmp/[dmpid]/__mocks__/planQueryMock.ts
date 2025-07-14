@@ -5,7 +5,8 @@ export const mockPlanData = {
       template: {
         id: 2,
         name: "General"
-      }
+      },
+      name: "NSF-CISE: Computer and Information Science and Engineering"
     },
     fundings: [
       {

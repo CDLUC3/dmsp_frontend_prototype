@@ -6,6 +6,7 @@ query Plan($planId: Int!) {
         id
         name
       }
+      name
     }
     fundings {
       id
