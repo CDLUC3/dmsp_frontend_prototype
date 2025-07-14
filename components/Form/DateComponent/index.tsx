@@ -14,6 +14,7 @@ import {
   CalendarCell,
 } from "react-aria-components";
 import { parseDate, DateValue } from "@internationalized/date";
+import { DmpIcon } from "@/components/Icons";
 import styles from './datePicker.module.scss';
 
 
@@ -56,15 +57,36 @@ const DateComponent: React.FC<DateComponentProps> = ({
       <DateInput>
         {(segment) => <DateSegment segment={segment} />}
       </DateInput>
-      <Button>▼</Button>
+      <Button>
+        <DmpIcon 
+          icon="solid-down_arrow" 
+          width="30px"
+          height="30px"
+          classes={styles.arrow}
+         />
+        </Button>
     </Group>
     <Popover>
       <Dialog>
         <Calendar>
           <header>
-            <Button slot="previous">◀</Button>
+            <Button slot="previous">
+              <DmpIcon 
+                icon="solid-left_arrow"
+                width="30px"
+                height="30px"
+                classes={styles.arrow}
+               />
+              </Button>
             <Heading className={styles.dateHeading} />
-            <Button slot="next">▶</Button>
+            <Button slot="next">
+              <DmpIcon
+                icon="solid-right_arrow"
+                width="30px"
+                height="30px"
+                classes={styles.arrow}
+              />
+            </Button>
           </header>
           <CalendarGrid>
             {(date) => <CalendarCell date={date} />}
