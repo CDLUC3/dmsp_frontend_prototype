@@ -224,7 +224,9 @@
       "clearFilter": "clear filter",
       "request": "Request",
       "learnMore": "Learn more",
-      "update": "Update"
+      "update": "Update",
+      "expand": "Expand",
+      "collapse": "Collapse"
     },
     "messaging": {
       "loading": "Loading",
@@ -233,6 +235,8 @@
       "resultsText": "{name} results match your search",
       "fixBelow": "Please fix the errors below",
       "unsupportedQuestionType": "Unsupported question type {questionType}",
+      "sectionIsExpanded": "Section is expanded",
+      "sectionIsCollapsed": "Section is collapsed",
       "error": "Something went wrong. Please try again.",
       "errors": {
         "invalidQuestionType": "Invalid question type found.",

@@ -1,4 +1,5 @@
 ### Added
+- Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]
 - Added the `Question details` page that allows users to answer a question [#320]
 - Added, or moved, the `question details` page from `projects/[projectId]/dmp/[dmpid]/q/[qid]` to `projects/[projectId]/dmp/[dmpid]/s/[sid]/q/[qid]` [#320]
 - Added a new `useRenderQuestionField` hook to render different questions on the `Question details` page [#320]
@@ -8,6 +9,7 @@
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
 
 ### Updated
+- Updated `QuestionView` to use the new `ExpandableContentSection` for the `Best Practices` right sidebar [#578]
 - Updated `graphqlHelper.ts` file to be more robust and correctly refresh tokens and refresh content when there is an `UNAUTHENTICATED` error [#320]
 - Clean up connections page and buttons [#516]
 - Added spacing on the `Account Profile` for the demo [#509]

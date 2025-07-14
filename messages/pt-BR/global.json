@@ -213,7 +213,9 @@
       "clearFilter": "limpar filtro",
       "request": "Solicitação",
       "learnMore": "Saiba mais",
-      "update": "Atualização"
+      "update": "Atualização",
+      "expand": "Expandir",
+      "collapse": "Colapso"
     },
     "messaging": {
       "loading": "Baixar",
@@ -222,6 +224,8 @@
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
       "fixBelow": "Por favor, corrija os erros abaixo",
       "unsupportedQuestionType": "Tipo de pergunta não suportado {questionType}",
+      "sectionIsExpanded": "A seção foi expandida",
+      "sectionIsCollapsed": "A seção está recolhida",
       "error": "Ocorreu um erro. Tente novamente.",
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",
