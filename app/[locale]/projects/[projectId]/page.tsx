@@ -162,10 +162,11 @@ const ProjectOverviewPage: React.FC = () => {
                 </strong>
               </p>
               <p>
-                {ProjectOverview('dateRange', {
-                  startDate: (project.startDate ?? ''),
-                  endDate: (project.endDate ?? '')
-                })}
+                {project.startDate && project.endDate && (
+                  ProjectOverview('dateRange', {
+                    startDate: (project.startDate ?? ''),
+                    endDate: (project.endDate ?? '')
+                  }))}
               </p>
               <Link href={`/projects/${projectId}/project`} aria-label={ProjectOverview('editProject')}>
                 {ProjectOverview('edit')}
