@@ -1,4 +1,5 @@
 ### Added
+- Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
 - Added the `Question details` page that allows users to answer a question [#320]
 - Added, or moved, the `question details` page from `projects/[projectId]/dmp/[dmpid]/q/[qid]` to `projects/[projectId]/dmp/[dmpid]/s/[sid]/q/[qid]` [#320]
 - Added a new `useRenderQuestionField` hook to render different questions on the `Question details` page [#320]
