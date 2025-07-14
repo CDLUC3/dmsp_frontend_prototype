@@ -60,8 +60,6 @@ const DateComponent: React.FC<DateComponentProps> = ({
       <Button>
         <DmpIcon 
           icon="solid-down_arrow" 
-          width="30px"
-          height="30px"
           classes={styles.arrow}
          />
         </Button>
@@ -73,8 +71,6 @@ const DateComponent: React.FC<DateComponentProps> = ({
             <Button slot="previous">
               <DmpIcon 
                 icon="solid-left_arrow"
-                width="30px"
-                height="30px"
                 classes={styles.arrow}
                />
               </Button>
@@ -82,8 +78,6 @@ const DateComponent: React.FC<DateComponentProps> = ({
             <Button slot="next">
               <DmpIcon
                 icon="solid-right_arrow"
-                width="30px"
-                height="30px"
                 classes={styles.arrow}
               />
             </Button>
