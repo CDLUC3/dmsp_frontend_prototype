@@ -15,6 +15,7 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
+- Fixed broken links on the `Project overview` page that go to the individual plans [#575]
 - Removed the `Sample text` field from the Question Add/Edit forms for all question types except for `textArea` [#564]
 
 
