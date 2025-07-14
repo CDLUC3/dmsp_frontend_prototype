@@ -125,6 +125,22 @@ describe('ProjectOverviewPage', () => {
     expect(screen.getByText('project')).toBeInTheDocument();
   });
 
+  it('should not display project start and end dates if one of them is null', () => {
+    const mockProjectDataWithoutStartDate = {
+      ...mockProjectData,
+      startDate: null
+    };
+
+    (useProjectQuery as jest.Mock).mockReturnValue({
+      data: { project: mockProjectDataWithoutStartDate },
+      loading: false,
+      error: null,
+    });
+    render(<ProjectOverviewPage />);
+    //Should not see end date
+    expect(screen.queryByText('2028-12-31')).not.toBeInTheDocument();
+  })
+
   it('should render the project fundings', () => {
     render(<ProjectOverviewPage />);
     expect(screen.getByText('fundings')).toBeInTheDocument();
