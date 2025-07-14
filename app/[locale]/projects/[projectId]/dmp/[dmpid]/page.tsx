@@ -365,7 +365,7 @@ const PlanOverviewPage: React.FC = () => {
           id: Number(data?.plan.id) ?? null,
           dmpId: data?.plan.dmpId ?? '',
           registered: data?.plan.registered ?? '',
-          title: data?.plan?.project?.title ?? '',
+          title: data?.plan?.versionedTemplate?.name ?? '',
           status: data?.plan?.status ?? '',
           funderName: data?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
           primaryContact: data.plan.members
@@ -469,7 +469,7 @@ const PlanOverviewPage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title={state.planData.title}
+        title={state.planData.title || t('page.pageDescription')}
         description={t('page.pageDescription')}
         showBackButton={false}
         breadcrumbs={
