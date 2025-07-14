@@ -1,4 +1,5 @@
 ### Added
+- Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
 - Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]
 - Added the `Question details` page that allows users to answer a question [#320]
 - Added, or moved, the `question details` page from `projects/[projectId]/dmp/[dmpid]/q/[qid]` to `projects/[projectId]/dmp/[dmpid]/s/[sid]/q/[qid]` [#320]
@@ -18,6 +19,7 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
+- Improved color contrast on date picker [#597]
 - Updated `projects/[projectId]/members` page to have consistent breadcrumbs as the `Project overview` page [#589]
 - Prevent the project date from displaying if either `startDate` or `endDate` are not available [#588]
 - Fixed broken links on the `Project overview` page that go to the individual plans [#575]

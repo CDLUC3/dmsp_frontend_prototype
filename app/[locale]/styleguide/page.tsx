@@ -740,6 +740,9 @@ function Page() {
                 <DmpIcon icon="check_circle" />
                 <DmpIcon icon="error_circle" />
                 <DmpIcon icon="close" />
+                <DmpIcon icon="solid-left_arrow" />
+                <DmpIcon icon="solid-right_arrow" />
+                <DmpIcon icon="solid-down_arrow" />
               </div>
             </Example>
 
