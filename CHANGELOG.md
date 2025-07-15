@@ -19,6 +19,7 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
+- Updated `Select` buttons on the `projects/projectId/funding-search` page to go to the correct `Search for your project` page [#596]
 - Improved color contrast on date picker [#597]
 - Updated `projects/[projectId]/members` page to have consistent breadcrumbs as the `Project overview` page [#589]
 - Prevent the project date from displaying if either `startDate` or `endDate` are not available [#588]

@@ -74,9 +74,7 @@ const CreateProjectSearchFunder = () => {
   }
 
   async function handleSelectFunder(funder: AffiliationSearch) {
-    const NEXT_URL = routePath('projects.create.projects.search', {
-      projectId: projectId as string,
-    });
+    const NEXT_URL = routePath('projects.create.project.search');
     const input = {
       projectId: Number(projectId),
       affiliationId: funder.uri

@@ -390,7 +390,7 @@ describe("CreateProjectSearchFunder", () => {
     fireEvent.click(selectBtn);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123/));
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/create-project\/projects-search/));
     });
   });
 
