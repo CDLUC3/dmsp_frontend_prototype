@@ -4047,6 +4047,11 @@ export type PlanFundingsQueryVariables = Exact<{
 
 export type PlanFundingsQuery = { __typename?: 'Query', planFundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null> | null };
 
+export type PopularFundersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PopularFundersQuery = { __typename?: 'Query', popularFunders?: Array<{ __typename?: 'FunderPopularityResult', displayName: string, id: number, nbrPlans: number, uri: string } | null> | null };
+
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -5975,6 +5980,48 @@ export type PlanFundingsQueryHookResult = ReturnType<typeof usePlanFundingsQuery
 export type PlanFundingsLazyQueryHookResult = ReturnType<typeof usePlanFundingsLazyQuery>;
 export type PlanFundingsSuspenseQueryHookResult = ReturnType<typeof usePlanFundingsSuspenseQuery>;
 export type PlanFundingsQueryResult = Apollo.QueryResult<PlanFundingsQuery, PlanFundingsQueryVariables>;
+export const PopularFundersDocument = gql`
+    query PopularFunders {
+  popularFunders {
+    displayName
+    id
+    nbrPlans
+    uri
+  }
+}
+    `;
+
+/**
+ * __usePopularFundersQuery__
+ *
+ * To run a query within a React component, call `usePopularFundersQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePopularFundersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePopularFundersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePopularFundersQuery(baseOptions?: Apollo.QueryHookOptions<PopularFundersQuery, PopularFundersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PopularFundersQuery, PopularFundersQueryVariables>(PopularFundersDocument, options);
+      }
+export function usePopularFundersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PopularFundersQuery, PopularFundersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PopularFundersQuery, PopularFundersQueryVariables>(PopularFundersDocument, options);
+        }
+export function usePopularFundersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PopularFundersQuery, PopularFundersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PopularFundersQuery, PopularFundersQueryVariables>(PopularFundersDocument, options);
+        }
+export type PopularFundersQueryHookResult = ReturnType<typeof usePopularFundersQuery>;
+export type PopularFundersLazyQueryHookResult = ReturnType<typeof usePopularFundersLazyQuery>;
+export type PopularFundersSuspenseQueryHookResult = ReturnType<typeof usePopularFundersSuspenseQuery>;
+export type PopularFundersQueryResult = Apollo.QueryResult<PopularFundersQuery, PopularFundersQueryVariables>;
 export const LanguagesDocument = gql`
     query Languages {
   languages {

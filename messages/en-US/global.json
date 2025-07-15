@@ -117,6 +117,7 @@
   "FunderSearch": {
     "headerTitle": "Search for Funders",
     "funder": "Funder",
+    "popularTitle": "Most popular funders",
     "found": "{count} funders found",
     "noResults": "No results found",
     "showCount": "Showing {count} of {total}",

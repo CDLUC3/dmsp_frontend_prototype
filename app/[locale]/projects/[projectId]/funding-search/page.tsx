@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { routePath } from '@/utils/routes';
@@ -9,6 +9,9 @@ import { LoggedError } from "@/utils/exceptions";
 
 import {
   AffiliationSearch,
+  // usePopularFundersQuery,
+  FunderPopularityResult,
+  usePopularFundersLazyQuery,
   useAddProjectFundingMutation,
   ProjectFundingErrors,
 } from '@/generated/graphql';
@@ -47,6 +50,18 @@ const CreateProjectSearchFunder = () => {
   const [addProjectFunding] = useAddProjectFundingMutation({});
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
+
+  const [popularFunders, setPopularFunders] = useState<FunderPopularityResult[]>([]);
+  const [popularFundersQuery] = usePopularFundersLazyQuery({});
+  // const { data: popularFundersResponse } = usePopularFundersQuery({variables: {}});
+
+  useEffect(() => {
+    popularFundersQuery().then((resp) => {
+      if (resp?.data?.popularFunders) {
+        setPopularFunders(resp.data.popularFunders);
+      }
+    });
+  }, []);
 
   /**
    * Handle specific errors that we care about in this component.
@@ -154,6 +169,32 @@ const CreateProjectSearchFunder = () => {
             onResults={onResults}
             moreTrigger={moreCounter}
           />
+
+          {popularFunders && (
+            <section aria-labelledby="popular-funders">
+              <h3>{trans('popularTitle')}</h3>
+              <div className={styles.popularFunders}>
+                {popularFunders.map((funder, index) => (
+                  <div
+                    key={index}
+                    className={styles.fundingResultsListItem}
+                    role="group"
+                    aria-label={`${trans('funder')}: ${funder.displayName}`}
+                  >
+                    <p className="funder-name">{funder.displayName}</p>
+                    <Button
+                      className="secondary select-button"
+                      data-funder-uri={funder.uri}
+                      onPress={() => handleSelectFunder(funder)}
+                      aria-label={`${globalTrans('buttons.select')} ${funder.displayName}`}
+                    >
+                      {globalTrans('buttons.select')}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {funders.length > 0 && (
             <section aria-labelledby="funders-section">

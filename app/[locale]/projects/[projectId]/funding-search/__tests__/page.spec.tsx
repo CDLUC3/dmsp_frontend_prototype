@@ -12,6 +12,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { MockedProvider } from '@apollo/client/testing';
 import {
   AffiliationFundersDocument,
+  PopularFundersDocument,
   AddProjectFundingDocument,
 } from '@/generated/graphql';
 
@@ -61,6 +62,26 @@ const mocks = [
     },
   },
 
+  // Popular Funders
+  {
+    request: {
+      query: PopularFundersDocument,
+    },
+
+    result: {
+      data: {
+        popularFunders: Array.from({length: 5}, (_, i) => {
+          const count = i + 1;
+          return {
+            id: count,
+            uri: `https://funder${count}`,
+            displayName: `Popular Funder ${count}`,
+            nbrPlans: 10,
+          };
+        }),
+      }
+    },
+  },
   // Empty results
   {
     request: {
@@ -257,6 +278,26 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: Search-field is the testid provided by the fundersearch component
     expect(screen.getByTestId('search-field')).toBeInTheDocument();
+  });
+
+  it("Should show a short-list of Popular Funders", async () => {
+    await render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('popularTitle')).toBeInTheDocument();
+
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Popular Funder 1')).toBeInTheDocument();
+      expect(screen.getByText('Popular Funder 2')).toBeInTheDocument();
+      expect(screen.getByText('Popular Funder 3')).toBeInTheDocument();
+      expect(screen.getByText('Popular Funder 4')).toBeInTheDocument();
+    });
   });
 
   it("Should render the search results", async () => {
