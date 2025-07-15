@@ -20,6 +20,7 @@
 
 ### Fixed
 - Improved the spacing on the `projects/create-project` page. Set the standard `line-height` for `#App` to 1.5. Added a little bit of margin above a checkbox to make it align better with text [#595]
+- Added another unit test for the `projects/create-project` page. Updated the routePath for that page to be correct [#595]
 - Improved color contrast on date picker [#597]
 - Updated `projects/[projectId]/members` page to have consistent breadcrumbs as the `Project overview` page [#589]
 - Prevent the project date from displaying if either `startDate` or `endDate` are not available [#588]
