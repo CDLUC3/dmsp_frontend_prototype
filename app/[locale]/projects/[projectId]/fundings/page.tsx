@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { routePath } from '@/utils/routes';
 
 import {
@@ -15,15 +16,22 @@ import {
   ContentContainer,
   LayoutContainer,
 } from "@/components/Container";
+import { useProjectFundingsQuery } from '@/generated/graphql';
+import { useToast } from '@/context/ToastContext';
+
 import styles from './ProjectsProjectFunding.module.scss';
 
-import { useProjectFundingsQuery } from '@/generated/graphql';
 
 
 const ProjectsProjectFunding = () => {
   const router = useRouter();
   const params = useParams();
-  const { projectId } = params;
+  const projectId = String(params.projectId); // From route /projects/:projectId
+  const toastState = useToast(); // Access the toast state from context
+
+  // Localization keys
+  const t = useTranslations('ProjectsProjectFunding');
+  const Global = useTranslations('Global');
 
   const {data: funders} = useProjectFundingsQuery({
     variables: {
@@ -37,12 +45,17 @@ const ProjectsProjectFunding = () => {
     }));
   };
 
-  const handleEditFunding = () => {
-    router.push(routePath('projects.fundings.edit', {
-      projectId: projectId as string,
-      projectFundingId: 'projFund_6902', // TODO:: Correct funder ID
-    }));
-  };
+  const handleEditFunding = (funderProjectNumber: string | number | null | undefined) => {
+    if(funderProjectNumber) {
+      router.push(routePath('projects.fundings.edit', {
+        projectId,
+        projectFundingId: String(funderProjectNumber)
+      }))
+    } else {
+      const errorMsg = t('messages.errors.funderNumberNotFound');
+      toastState.add(errorMsg, { type: 'error' });
+    }
+  }
 
   return (
     <>
@@ -52,8 +65,10 @@ const ProjectsProjectFunding = () => {
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index', {projectId})}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.projectFunding')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
@@ -63,7 +78,7 @@ const ProjectsProjectFunding = () => {
               className="secondary"
               aria-label="Add funding"
             >
-              Add a funding source
+              {t('buttons.addFundingSource')}
             </Button>
           </>
         }
@@ -84,11 +99,11 @@ const ProjectsProjectFunding = () => {
                 >
                   <p className="funder-name">{funder?.affiliation?.displayName}</p>
                   <Button
-                    onPress={handleEditFunding}
+                    onPress={() => handleEditFunding(funder?.funderProjectNumber)}
                     className="secondary"
                     aria-label={`Edit ${funder?.affiliation?.displayName} details`}
                   >
-                    Edit
+                    {Global('buttons.edit')}
                   </Button>
                 </div>
               </div>

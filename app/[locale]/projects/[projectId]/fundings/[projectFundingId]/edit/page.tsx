@@ -28,6 +28,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
+import { routePath } from '@/utils/routes';
 import { useToast } from '@/context/ToastContext';
 
 import styles from './projectFunding.module.scss';
@@ -57,7 +58,9 @@ const ProjectsProjectFundingEdit = () => {
 
   // Get projectId and projectFundingID
   const params = useParams();
-  const { projectId, projectFundingId } = params; // From route /projects/:projectId/fundings/:projectFundingId/edit
+  // From route /projects/:projectId/fundings/:projectFundingId/edit
+  const projectId = String(params.projectId);
+  const projectFundingId = String(params.projectFundingId);
 
   const [projectFunding, setProjectFunding] = useState<ProjectFundingInterface>({
     funderName: '',
@@ -88,7 +91,7 @@ const ProjectsProjectFundingEdit = () => {
   // Get Project Funding data
   const { data, loading, error: queryError, refetch } = useProjectFundingQuery(
     {
-      variables: { projectFundingId: Number(projectFundingId) },
+      variables: { projectFundingId: Number(projectId) },
       notifyOnNetworkStatusChange: true
     }
   );
@@ -227,9 +230,10 @@ const ProjectsProjectFundingEdit = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}/fundings`}>{Global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.fundings.index', {projectId})}>{Global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
             <Breadcrumb>{EditFunding('title')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -242,10 +246,12 @@ const ProjectsProjectFundingEdit = () => {
             <FormInput
               name="funderName"
               type="text"
-              isRequired={true}
+              isRequired={false}
               label={EditFunding('labels.funderName')}
               value={projectFunding.funderName}
               onChange={(e) => updateProjectFundingContent('funderName', e.target.value)}
+              isInvalid={(!projectFunding.funderName)}
+              errorMessage={EditFunding('messages.errors.fundingName')}
             />
 
             <FormSelect
@@ -273,7 +279,7 @@ const ProjectsProjectFundingEdit = () => {
               label={EditFunding('labels.grantNumber')}
               value={projectFunding.funderGrantId}
               onChange={(e) => updateProjectFundingContent('funderGrantId', e.target.value)}
-              isInvalid={(!projectFunding.funderGrantId || !!fieldErrors.funderGrantId)}
+              isInvalid={(!!fieldErrors.funderGrantId)}
               errorMessage={fieldErrors.funderGrantId.length > 0 ? fieldErrors.funderGrantId : EditFunding('messages.errors.fundingGrantId')}
             />
 
@@ -284,7 +290,7 @@ const ProjectsProjectFundingEdit = () => {
               label={EditFunding('labels.projectNumber')}
               value={projectFunding.funderProjectNumber}
               onChange={(e) => updateProjectFundingContent('funderProjectNumber', e.target.value)}
-              isInvalid={(!projectFunding.funderProjectNumber || !!fieldErrors.funderProjectNumber)}
+              isInvalid={(!!fieldErrors.funderProjectNumber)}
               errorMessage={fieldErrors.funderProjectNumber.length > 0 ? fieldErrors.funderProjectNumber : EditFunding('messages.errors.fundingProjectNumber')}
             />
 
@@ -295,8 +301,6 @@ const ProjectsProjectFundingEdit = () => {
               label={EditFunding('labels.opportunity')}
               value={projectFunding.funderOpportunityNumber}
               onChange={(e) => updateProjectFundingContent('funderOpportunityNumber', e.target.value)}
-              isInvalid={(!projectFunding.funderOpportunityNumber || !!fieldErrors.funderOpportunityNumber)}
-              errorMessage={fieldErrors.funderOpportunityNumber.length > 0 ? fieldErrors.funderOpportunityNumber : EditFunding('messages.errors.fundingProjectNumber')}
             />
 
             <Button type="submit" className="submit-button">{Global('buttons.saveChanges')}</Button>

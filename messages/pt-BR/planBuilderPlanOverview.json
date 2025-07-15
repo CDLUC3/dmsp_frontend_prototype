@@ -14,10 +14,15 @@
       "comments": "Comments",
       "leaveAComment": "Deixar uma foto"
     },
+    "labels": {
+      "saveAnswer": "Resposta salva",
+      "returnToSection": "Voltar à visão geral da seção"
+    },
     "page": {
       "pageDescription": "Visão geral dos detalhes do plano",
       "requirementsBy": "Requisitos de {funder}",
       "requiredByFunder": "Necessário pelo financiador",
+      "requiredByFunderInfo": "O financiador marcou isso como uma pergunta necessária no seu modelo. Você pode deixá-lo em branco na ferramenta, mas deve completá-lo antes de enviar sua subvenção.",
       "jumpToGuidance": "Pule para orientação adicional",
       "viewSampleAnswer": "Ver amostra da resposta",
       "guidanceBy": "Guia por {funder}",
@@ -164,6 +169,16 @@
     "messages": {
       "success": {
         "questionSaved": "Detalhes da pergunta salvos com sucesso"
+      }
+    }
+  },
+  "ProjectsProjectFunding": {
+    "buttons": {
+      "addFundingSource": "Adicionar nova fonte de financiamento"
+    },
+    "messages": {
+      "errors": {
+        "funderNumberNotFound": "Número do projeto fino não encontrado."
       }
     }
   }

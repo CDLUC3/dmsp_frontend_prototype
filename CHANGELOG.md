@@ -19,6 +19,10 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
+- Fixed the `Plan Overview` breadcrumb so that it includes a link to previous `Project Overview` page, as well as updating them to use `routePath` [#592]
+- Fixed the `Edit` link in the `Project Funding` page so that it includes correct `projectFundingId` in path, and added missing translation keys and updated routes to use `routePath`, and updated unit test [#592]
+- Added error message when the user clicks `Edit` for a funder that has no `funderProjectNumber` [#592]
+- Adjusted field-level errors on `Edit Funding Details` page, and switched to using `routePath` for breadcrumbs and updated unit test [#592]
 - Improved color contrast on date picker [#597]
 - Updated `projects/[projectId]/members` page to have consistent breadcrumbs as the `Project overview` page [#589]
 - Prevent the project date from displaying if either `startDate` or `endDate` are not available [#588]

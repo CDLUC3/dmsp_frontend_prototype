@@ -171,5 +171,15 @@
         "questionSaved": "Question detail successfully saved"
       }
     }
+  },
+  "ProjectsProjectFunding": {
+    "buttons": {
+      "addFundingSource": "Add a funding source"
+    },
+    "messages": {
+      "errors": {
+        "funderNumberNotFound": "Funder's project number not found."
+      }
+    }
   }
 }
