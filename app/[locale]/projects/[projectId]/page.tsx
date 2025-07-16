@@ -59,7 +59,7 @@ const ProjectOverviewPage: React.FC = () => {
     plans: [],
     projectMembers: [],
     researchOutputs: []
-  });  
+  });
 
   // Localization keys
   const ProjectOverview = useTranslations('ProjectOverview');
@@ -144,8 +144,8 @@ const ProjectOverviewPage: React.FC = () => {
           <Breadcrumbs aria-label={ProjectOverview('navigation')}>
             <Breadcrumb><Link href={routePath('app.home')}>{ProjectOverview('home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{ProjectOverview('projects')}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.projectOverview')}</Breadcrumb>  
-          </Breadcrumbs>   
+            <Breadcrumb>{Global('breadcrumbs.projectOverview')}</Breadcrumb>
+          </Breadcrumbs>
         }
         actions={null}
         className="page-project-list"
