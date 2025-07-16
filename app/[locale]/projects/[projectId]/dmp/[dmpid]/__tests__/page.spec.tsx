@@ -147,6 +147,22 @@ describe('PlanOverviewPage', () => {
     expect(within(sidebar).getByRole('link', { name: 'download' })).toBeInTheDocument();
   });
 
+  it('should use \'Start\' for section buttons if no questions in that section have been answered, otherwise it should use \'Update\'', async () => {
+    const {container} = render(<PlanOverviewPage />);
+
+    const sectionWithSomeAnswers = container.querySelector('section[aria-labelledby="section-title-8"]') as HTMLElement;
+    if(sectionWithSomeAnswers){
+      const button = within(sectionWithSomeAnswers).getByText('sections.update');
+      expect(button).toBeInTheDocument();
+    }
+
+    const sectionWithNoAnswers = container.querySelector('section[aria-labelledby="section-title-11"]') as HTMLElement;
+    if (sectionWithNoAnswers) {
+      const button = within(sectionWithNoAnswers).getByText('sections.start');
+      expect(button).toBeInTheDocument();
+    }
+  });
+
   it('should open and close modal', async () => {
     render(<PlanOverviewPage />);
     const publishButton = screen.getByText(/buttons.publish/i);
