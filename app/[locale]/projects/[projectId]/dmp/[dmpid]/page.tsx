@@ -137,6 +137,7 @@ const PlanOverviewPage: React.FC = () => {
   const { data, loading, error: queryError, refetch } = usePlanQuery(
     {
       variables: { planId: Number(planId) },
+      skip: isNaN(planId), // prevents the query from running when id is not a number
       notifyOnNetworkStatusChange: true
     }
   );
@@ -591,7 +592,7 @@ const PlanOverviewPage: React.FC = () => {
                     })}
                     className={"react-aria-Button react-aria-Button--secondary"}
                   >
-                    {t('sections.update')}
+                    {(section.answeredQuestions === 0) ? t('sections.start') : t('sections.update')}
                   </Link>
                 </div>
               </section>
