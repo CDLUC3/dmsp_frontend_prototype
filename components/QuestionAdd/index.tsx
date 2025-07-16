@@ -464,7 +464,7 @@ const QuestionAdd = ({
                 />
 
                 {/**Options question types*/}
-                {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
+                {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && parsedQuestionJSON && (
                   <>
                     <p className={styles.optionsDescription}>
                       {QuestionAdd('helpText.questionOptions', { questionName: questionName ?? '' })}
