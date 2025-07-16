@@ -40,6 +40,7 @@ import QuestionOptionsComponent
 import QuestionPreview from '@/components/QuestionPreview';
 import {
   FormInput,
+  RadioGroupComponent,
   RangeComponent,
   TypeAheadSearch
 } from '@/components/Form';
@@ -112,7 +113,6 @@ const QuestionEdit = () => {
   const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
   const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
-
   const [isConfirmOpen, setConfirmOpen] = useState(false);
 
   // Initialize update question mutation
@@ -144,6 +144,21 @@ const QuestionEdit = () => {
     data: questionTypesData,
     error: questionTypesError,
   }] = useQuestionTypesLazyQuery();
+
+
+  const radioData = {
+    radioGroupLabel: Global('labels.requiredField'),
+    radioButtonData: [
+      {
+        value: 'yes',
+        label: Global('form.yesLabel'),
+      },
+      {
+        value: 'no',
+        label: Global('form.noLabel')
+      }
+    ]
+  }
 
 
   // Update rows state and question.json when options change
@@ -219,6 +234,20 @@ const QuestionEdit = () => {
       }
     }
   };
+
+  // Handle changes from RadioGroup
+  const handleRadioChange = (value: string) => {
+
+    if (value) {
+      const isRequired = value === 'yes' ? true : false;
+      setQuestion(prev => ({
+        ...prev,
+        required: isRequired
+      }));
+    }
+
+  };
+
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
@@ -661,6 +690,15 @@ const QuestionEdit = () => {
 
                   </Checkbox>
                 )}
+
+                <RadioGroupComponent
+                  name="radioGroup"
+                  value={question?.required ? 'yes' : 'no'}
+                  radioGroupLabel={radioData.radioGroupLabel}
+                  radioButtonData={radioData.radioButtonData}
+                  description={Global('descriptions.requiredFieldDescription')}
+                  onChange={handleRadioChange}
+                />
 
                 <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndUpdate')}</Button>
 

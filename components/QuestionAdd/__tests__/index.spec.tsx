@@ -193,7 +193,7 @@ describe("QuestionAdd", () => {
 
     await waitFor(() => {
       expect(mockRouter.push).toHaveBeenCalledTimes(1);
-      expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=1&step=1');
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123/q/new?section_id=1&step=1');
     });
   });
 
@@ -225,7 +225,7 @@ describe("QuestionAdd", () => {
     const changeTypeButton = screen.getByRole('button', { name: 'buttons.changeType' });
     fireEvent.click(changeTypeButton);
     await waitFor(() => {
-      expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=1&step=1');
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123/q/new?section_id=1&step=1');
     });
   });
 

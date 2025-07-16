@@ -33,6 +33,7 @@ import PageHeader from "@/components/PageHeader";
 import {
   FormInput,
   FormTextArea,
+  RadioGroupComponent,
   RangeComponent,
   QuestionOptionsComponent,
   TypeAheadSearch
@@ -40,6 +41,7 @@ import {
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -57,7 +59,6 @@ import {
   isOptionsType,
   getOverrides,
 } from './hooks/useAddQuestion';
-import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -90,7 +91,7 @@ const QuestionAdd = ({
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
-  const step1Url = `/template/${templateId}/q/new?section_id=${sectionId}&step=1`;
+  const step1Url = routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1 })
 
   // Make sure to add questionJSON and questionType to the question object so it can be used in the QuestionView component
   const [question, setQuestion] = useState<Question>(() => ({
@@ -112,6 +113,21 @@ const QuestionAdd = ({
   // localization keys
   const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
+
+  const radioData = {
+    radioGroupLabel: Global('labels.requiredField'),
+    radioButtonData: [
+      {
+        value: 'yes',
+        label: Global('form.yesLabel'),
+      },
+      {
+        value: 'no',
+        label: Global('form.noLabel')
+      }
+    ]
+  }
+
 
   // Initialize add and update question mutations
   const [addQuestionMutation] = useAddQuestionMutation();
@@ -217,6 +233,20 @@ const QuestionAdd = ({
     }
   };
 
+  // Handle changes from RadioGroup
+  const handleRadioChange = (value: string) => {
+
+    if (value) {
+      const isRequired = value === 'yes' ? true : false;
+      setQuestion(prev => ({
+        ...prev,
+        required: isRequired
+      }));
+    }
+
+  };
+
+
   // Update common input fields when any of them change
   const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
     setQuestion((prev) => ({
@@ -293,7 +323,7 @@ const QuestionAdd = ({
       guidanceText: question?.guidanceText,
       sampleText: question?.sampleText,
       useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-      required: false,
+      required: question?.required,
     };
 
     try {
@@ -302,7 +332,7 @@ const QuestionAdd = ({
       if (response?.data) {
         toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
         // Redirect user to the Edit Question view with their new question id after successfully adding the new question
-        router.push(`/template/${templateId}`);
+        router.push(routePath('template.show', { templateId }));
       }
     } catch (error) {
       if (!(error instanceof ApolloError)) {
@@ -327,7 +357,7 @@ const QuestionAdd = ({
 
     if (!sectionId) {
       toastState.add(Global('messaging.somethingWentWrong'), { type: 'error' });
-      router.push(`/template/${templateId}`);
+      router.push(routePath('template.show', { templateId }));
       return;
     }
   }, [])
@@ -514,6 +544,15 @@ const QuestionAdd = ({
                     {QuestionAdd('descriptions.sampleTextAsDefault')}
                   </Checkbox>
                 )}
+
+                <RadioGroupComponent
+                  name="radioGroup"
+                  value={question?.required ? 'yes' : 'no'}
+                  radioGroupLabel={radioData.radioGroupLabel}
+                  radioButtonData={radioData.radioButtonData}
+                  description={Global('descriptions.requiredFieldDescription')}
+                  onChange={handleRadioChange}
+                />
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
                 <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>
