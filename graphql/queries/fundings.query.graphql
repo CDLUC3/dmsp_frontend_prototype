@@ -7,7 +7,6 @@ query ProjectFundings($projectId: Int!) {
     funderProjectNumber
     affiliation {
       displayName
-      name
       uri
     }
   }
