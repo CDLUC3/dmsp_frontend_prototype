@@ -231,7 +231,10 @@ const ProjectsCreateProject = () => {
   };
 
   useEffect(() => {
-    scrollToTop(inputFieldRef);
+    // Scroll to the Project name field if there is a field-level error
+    if(fieldErrors.projectName.length > 0) {
+      scrollToTop(inputFieldRef);
+    }
   },[fieldErrors.projectName])
 
   return (
