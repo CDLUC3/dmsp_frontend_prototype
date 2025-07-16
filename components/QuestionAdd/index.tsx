@@ -269,17 +269,15 @@ const QuestionAdd = ({
         })),
       };
     }
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
-    if (!parsed) {
-      if (error) {
-        setErrors(prev => [...prev, error])
-      }
+
+    if (!parsedQuestionJSON) {
       return;
     }
+
     return {
-      ...parsed,
+      ...parsedQuestionJSON,
       attributes: {
-        ...('attributes' in parsed ? parsed.attributes : {}),
+        ...('attributes' in parsedQuestionJSON ? parsedQuestionJSON.attributes : {}),
         ...getOverrides(questionType),
       },
     };
@@ -288,18 +286,14 @@ const QuestionAdd = ({
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
 
-    if (!parsed) {
-      if (error) {
-        setErrors(prev => [...prev, error])
-      }
-      return;
+    if (parsedQuestionJSON && userInput) {
+      return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+        parsedQuestionJSON,
+        userInput
+      );
     }
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-      parsed,
-      userInput
-    );
+    return null;
 
   };
 
@@ -310,38 +304,46 @@ const QuestionAdd = ({
     const displayOrder = getDisplayOrder();
     const updatedJSON = buildUpdatedJSON(question);
 
-    // Strip all tags from questionText before sending to backend
-    const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
-    const input = {
-      templateId: Number(templateId),
-      sectionId: Number(sectionId),
-      displayOrder,
-      isDirty: true,
-      questionText: cleanedQuestionText,
-      json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
-      requirementText: question?.requirementText,
-      guidanceText: question?.guidanceText,
-      sampleText: question?.sampleText,
-      useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-      required: question?.required,
-    };
+    if (updatedJSON) {
+      // Strip all tags from questionText before sending to backend
+      const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
+      const input = {
+        templateId: Number(templateId),
+        sectionId: Number(sectionId),
+        displayOrder,
+        isDirty: true,
+        questionText: cleanedQuestionText,
+        json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
+        requirementText: question?.requirementText,
+        guidanceText: question?.guidanceText,
+        sampleText: question?.sampleText,
+        useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
+        required: question?.required,
+      };
 
-    try {
-      const response = await addQuestionMutation({ variables: { input } });
+      try {
+        const response = await addQuestionMutation({ variables: { input } });
 
-      if (response?.data) {
-        toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
-        // Redirect user to the Edit Question view with their new question id after successfully adding the new question
-        router.push(routePath('template.show', { templateId }));
+        if (response?.data) {
+          toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
+          // Redirect user to the Edit Question view with their new question id after successfully adding the new question
+          router.push(routePath('template.show', { templateId }));
+        }
+      } catch (error) {
+        if (!(error instanceof ApolloError)) {
+          setErrors(prevErrors => [
+            ...prevErrors,
+            QuestionAdd('messages.errors.questionAddingError'),
+          ]);
+        }
       }
-    } catch (error) {
-      if (!(error instanceof ApolloError)) {
-        setErrors(prevErrors => [
-          ...prevErrors,
-          QuestionAdd('messages.errors.questionAddingError'),
-        ]);
-      }
+    } else {
+      setErrors(prevErrors => [
+        ...prevErrors,
+        QuestionAdd('messages.errors.questionAddingError'),
+      ]);
     }
+
   };
 
   // If questionType is missing, return user to the Question Types selection page
@@ -390,16 +392,19 @@ const QuestionAdd = ({
 
   useEffect(() => {
     if (question) {
-      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
-      if (!parsed) {
-        if (error) {
-          setErrors(prev => [...prev, error])
-        }
-        return;
+      const { parsed, error } = getParsedQuestionJSON(
+        question,
+        routePath('template.q.new', { templateId }),
+        Global
+      );
+
+      if (parsed) {
+        setParsedQuestionJSON(parsed);
+      } else if (error) {
+        setErrors(prev => (prev.includes(error) ? prev : [...prev, error]));
       }
-      setParsedQuestionJSON(parsed);
     }
-  }, [question])
+  }, [question]);
 
   return (
     <>
