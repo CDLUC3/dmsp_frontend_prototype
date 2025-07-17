@@ -608,6 +608,10 @@ describe("CreateProjectSearchFunder", () => {
       </MockedProvider>
     );
 
+    await waitFor(() => {
+      expect(screen.getByText("popularTitle")).toBeInTheDocument();
+    });
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
