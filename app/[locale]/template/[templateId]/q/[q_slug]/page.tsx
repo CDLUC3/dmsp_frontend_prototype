@@ -40,7 +40,6 @@ import QuestionOptionsComponent
 import QuestionPreview from '@/components/QuestionPreview';
 import {
   FormInput,
-  RadioGroupComponent,
   RangeComponent,
   TypeAheadSearch
 } from '@/components/Form';
@@ -146,21 +145,6 @@ const QuestionEdit = () => {
   }] = useQuestionTypesLazyQuery();
 
 
-  const radioData = {
-    radioGroupLabel: Global('labels.requiredField'),
-    radioButtonData: [
-      {
-        value: 'yes',
-        label: Global('form.yesLabel'),
-      },
-      {
-        value: 'no',
-        label: Global('form.noLabel')
-      }
-    ]
-  }
-
-
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
@@ -233,19 +217,6 @@ const QuestionEdit = () => {
         }));
       }
     }
-  };
-
-  // Handle changes from RadioGroup
-  const handleRadioChange = (value: string) => {
-
-    if (value) {
-      const isRequired = value === 'yes' ? true : false;
-      setQuestion(prev => ({
-        ...prev,
-        required: isRequired
-      }));
-    }
-
   };
 
 
@@ -690,15 +661,6 @@ const QuestionEdit = () => {
 
                   </Checkbox>
                 )}
-
-                <RadioGroupComponent
-                  name="radioGroup"
-                  value={question?.required ? 'yes' : 'no'}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
-                  description={Global('descriptions.requiredFieldDescription')}
-                  onChange={handleRadioChange}
-                />
 
                 <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndUpdate')}</Button>
 
