@@ -298,18 +298,11 @@ describe("CreateProjectSearchFunder", () => {
   });
 
   it("Should show a short-list of Popular Funders", async () => {
-    // NOTE: Act and async here is an attempt to remove a warning I get
-    // from the testing framework. The tests still pass however. but wrapping
-    // the compoment doesn't remove the warning.
-    // I also tried to use this wrapper in every other test, but it still didn't
-    // resolve the error.
-    await act(async () => {
-      render(
-        <MockedProvider mocks={mocks} addTypename={false}>
-          <CreateProjectSearchFunder />
-        </MockedProvider>
-      );
-    });
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
 
     await waitFor(() => {
       expect(screen.getByText('popularTitle')).toBeInTheDocument();
