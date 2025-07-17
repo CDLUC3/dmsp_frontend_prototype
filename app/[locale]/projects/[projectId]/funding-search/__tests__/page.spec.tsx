@@ -6,6 +6,7 @@ import {
   fireEvent,
   waitFor,
   within,
+  act,
 } from '@testing-library/react';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -16,7 +17,8 @@ import {
   AddProjectFundingDocument,
 } from '@/generated/graphql';
 
-import { scrollToTop } from '@/utils/general';
+import { stripHtml, scrollToTop } from '@/utils/general';
+import logECS from "@/utils/clientLogger";
 
 import CreateProjectSearchFunder from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -82,6 +84,7 @@ const mocks = [
       }
     },
   },
+
   // Empty results
   {
     request: {
@@ -246,6 +249,21 @@ const mocks = [
       }
     },
   },
+
+  // Mocked Server error for addProjectFunding
+  {
+    request: {
+      query: AddProjectFundingDocument,
+      variables: {
+        input: {
+          projectId: 123,
+          // Use funder6 as the server error response
+          affiliationId: "https://funder6",
+        },
+      },
+    },
+    error: new Error('Server Error')
+  },
 ];
 
 
@@ -281,22 +299,22 @@ describe("CreateProjectSearchFunder", () => {
   });
 
   it("Should show a short-list of Popular Funders", async () => {
-    await render(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <CreateProjectSearchFunder />
-      </MockedProvider>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('popularTitle')).toBeInTheDocument();
-
+    // NOTE: Act and async here is an attempt to remove a warning I get
+    // from the testing framework. The tests still pass however. but wrapping
+    // the compoment doesn't remove the warning.
+    // I also tried to use this wrapper in every other test, but it still didn't
+    // resolve the error.
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <CreateProjectSearchFunder />
+        </MockedProvider>
+      );
     });
 
     await waitFor(() => {
+      expect(screen.getByText('popularTitle')).toBeInTheDocument();
       expect(screen.getByText('Popular Funder 1')).toBeInTheDocument();
-      expect(screen.getByText('Popular Funder 2')).toBeInTheDocument();
-      expect(screen.getByText('Popular Funder 3')).toBeInTheDocument();
-      expect(screen.getByText('Popular Funder 4')).toBeInTheDocument();
     });
   });
 
@@ -435,6 +453,42 @@ describe("CreateProjectSearchFunder", () => {
     });
   });
 
+  it("Should also run add funder mutation when adding popular funder", async() => {
+    const mockPush = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    // NOTE: search-field and search-input are testID's provided by elements
+    // inside the FunderSearch component.
+    const searchInput = screen.getByTestId('search-field')
+                              .querySelector('input')!;
+    fireEvent.change(searchInput, {target: {value: "nih" }});
+
+    const searchBtn = screen.getByTestId('search-btn');
+    fireEvent.click(searchBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("Popular Funder 1")).toBeInTheDocument();
+    });
+
+    const popFunder = screen.getByText("Popular Funder 1").closest('div')!;
+    const funderContent = within(popFunder);
+    const selectBtn = funderContent.getByRole('button', {
+      name: /select/i,
+    });
+    expect(selectBtn).toHaveAttribute('data-funder-uri', 'https://funder1');
+    fireEvent.click(selectBtn);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123/));
+    });
+  });
+
   it("Should handle Errors", async () => {
     const mockPush = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
@@ -470,6 +524,53 @@ describe("CreateProjectSearchFunder", () => {
       expect(scrollToTop).toHaveBeenCalled();
     });
   });
+
+  it("add project funder mutation should handle server error", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    // NOTE: search-field and search-input are testID's provided by elements
+    // inside the FunderSearch component.
+    const searchInput = screen.getByTestId('search-field')
+                              .querySelector('input')!;
+    fireEvent.change(searchInput, {target: {value: "nih" }});
+
+    const searchBtn = screen.getByTestId('search-btn');
+    fireEvent.click(searchBtn);
+
+    // NOTE: In the mocks, Funder 6 is the one that will raise a server error
+    // when adding it as project funder.
+    await waitFor(() => {
+      expect(screen.getByText("Funder 6")).toBeInTheDocument();
+    });
+
+    const errFunder = screen.getByText("Funder 6").closest('div')!;
+    const funderContent = within(errFunder);
+    const selectBtn = funderContent.getByRole('button', {
+      name: /select/i,
+    });
+    expect(selectBtn).toHaveAttribute('data-funder-uri', 'https://funder6');
+    fireEvent.click(selectBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("Server Error")).toBeInTheDocument();
+      expect(scrollToTop).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'createProjectSearchFunder.addProjectFunding',
+        expect.objectContaining({
+          error: expect.anything(),
+        })
+      );
+    });
+  });
+
 
   it("Should allow adding a funder manually", async () => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => { });

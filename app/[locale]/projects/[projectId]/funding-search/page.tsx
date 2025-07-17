@@ -9,13 +9,13 @@ import { LoggedError } from "@/utils/exceptions";
 
 import {
   AffiliationSearch,
-  // usePopularFundersQuery,
   FunderPopularityResult,
   usePopularFundersLazyQuery,
   useAddProjectFundingMutation,
   ProjectFundingErrors,
 } from '@/generated/graphql';
 import { FunderSearchResults } from '@/app/types';
+import logECS from "@/utils/clientLogger";
 
 import {
   Breadcrumb,
@@ -53,12 +53,15 @@ const CreateProjectSearchFunder = () => {
 
   const [popularFunders, setPopularFunders] = useState<FunderPopularityResult[]>([]);
   const [popularFundersQuery] = usePopularFundersLazyQuery({});
-  // const { data: popularFundersResponse } = usePopularFundersQuery({variables: {}});
 
   useEffect(() => {
+    // Manually calling the effect because the query specifies that some items
+    // can be null, and we need to filter those potential null results out.
     popularFundersQuery().then((resp) => {
-      if (resp?.data?.popularFunders) {
-        setPopularFunders(resp.data.popularFunders);
+      const results = resp?.data?.popularFunders || [];
+      if (results) {
+        const cleaned = results.filter((item) => item !== null)
+        setPopularFunders(cleaned);
       }
     });
   }, []);
@@ -88,7 +91,7 @@ const CreateProjectSearchFunder = () => {
     return newErrors
   }
 
-  async function handleSelectFunder(funder: AffiliationSearch) {
+  async function handleSelectFunder(funder: AffiliationSearch | FunderPopularityResult) {
     const NEXT_URL = routePath('projects.create.projects.search', {
       projectId: projectId as string,
     });
@@ -107,7 +110,12 @@ const CreateProjectSearchFunder = () => {
         }
       })
       .catch((err) => {
-        throw new LoggedError(err.message);
+        logECS(
+          'error',
+          'createProjectSearchFunder.addProjectFunding',
+          {error: err.message}
+        );
+        setErrors([...errors, err.message])
       });
   };
 
@@ -170,7 +178,7 @@ const CreateProjectSearchFunder = () => {
             moreTrigger={moreCounter}
           />
 
-          {popularFunders && (
+          {popularFunders.length > 0 && (
             <section aria-labelledby="popular-funders">
               <h3>{trans('popularTitle')}</h3>
               <div className={styles.popularFunders}>
