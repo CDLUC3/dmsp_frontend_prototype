@@ -40,6 +40,7 @@ import QuestionOptionsComponent
 import QuestionPreview from '@/components/QuestionPreview';
 import {
   FormInput,
+  RadioGroupComponent,
   RangeComponent,
   TypeAheadSearch
 } from '@/components/Form';
@@ -125,6 +126,21 @@ const QuestionEdit = () => {
   // Set URLs
   const TEMPLATE_URL = routePath('template.show', { templateId });
 
+  const radioData = {
+    radioGroupLabel: Global('labels.requiredField'),
+    radioButtonData: [
+      {
+        value: 'yes',
+        label: Global('form.yesLabel'),
+      },
+      {
+        value: 'no',
+        label: Global('form.noLabel')
+      }
+    ]
+  }
+
+
   // Run selected question query
   const {
     data: selectedQuestion,
@@ -150,7 +166,7 @@ const QuestionEdit = () => {
     setRows(newRows);
 
     if (hasOptions && questionType && question?.json) {
-      const updatedJSON = buildUpdatedJSON(question, newRows);
+      const updatedJSON = buildUpdatedJSON(newRows);
 
       if (updatedJSON) {
         setQuestion((prev) => ({
@@ -168,6 +184,18 @@ const QuestionEdit = () => {
     // questionId as query param included to let page know that user is updating an existing question
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
+
+  // Handle changes from RadioGroup
+  const handleRadioChange = (value: string) => {
+    if (value) {
+      const isRequired = value === 'yes' ? true : false;
+      setQuestion(prev => ({
+        ...prev,
+        required: isRequired
+      }));
+    }
+
+  };
 
   // Handler for date range label changes
   const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
@@ -222,7 +250,8 @@ const QuestionEdit = () => {
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
-  const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
+  const getFormState = (rowsOverride?: QuestionOptions[]) => {
+
     if (hasOptions) {
       const useRows = rowsOverride ?? rows;
       return {
@@ -233,36 +262,33 @@ const QuestionEdit = () => {
         })),
       };
     }
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
-    if (!parsed) {
-      if (error) {
-        setErrors(prev => [...prev, error])
-      }
+
+    if (!parsedQuestionJSON) {
       return;
     }
+
     return {
-      ...parsed,
+      ...parsedQuestionJSON,
       attributes: {
-        ...('attributes' in parsed ? parsed.attributes : {}),
+        ...('attributes' in parsedQuestionJSON ? parsedQuestionJSON.attributes : {}),
         ...getOverrides(questionType),
       },
     };
   };
 
+
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
-  const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
-    const userInput = getFormState(question, rowsOverride);
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
-    if (!parsed) {
-      if (error) {
-        setErrors(prev => [...prev, error])
-      }
-      return;
+  const buildUpdatedJSON = (rowsOverride?: QuestionOptions[]) => {
+    const userInput = getFormState(rowsOverride);
+
+    if (parsedQuestionJSON && userInput) {
+      return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+        parsedQuestionJSON,
+        userInput
+      );
     }
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-      parsed,
-      userInput
-    );
+    return null;
+
   };
 
   // Handle form submission to update the question
@@ -273,7 +299,7 @@ const QuestionEdit = () => {
     setFormSubmitted(true);
 
     if (question) {
-      const updatedJSON = buildUpdatedJSON(question);
+      const updatedJSON = buildUpdatedJSON();
 
       // Strip all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
@@ -291,6 +317,7 @@ const QuestionEdit = () => {
               guidanceText: question.guidanceText,
               sampleText: question.sampleText,
               useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
+              required: question.required
             }
           },
         });
@@ -661,6 +688,16 @@ const QuestionEdit = () => {
 
                   </Checkbox>
                 )}
+
+                <RadioGroupComponent
+                  name="radioGroup"
+                  value={question?.required ? 'yes' : 'no'}
+                  radioGroupLabel={radioData.radioGroupLabel}
+                  radioButtonData={radioData.radioButtonData}
+                  description={Global('descriptions.requiredFieldDescription')}
+                  onChange={handleRadioChange}
+                />
+
 
                 <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndUpdate')}</Button>
 

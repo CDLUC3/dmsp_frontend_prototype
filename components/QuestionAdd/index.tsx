@@ -169,7 +169,7 @@ const QuestionAdd = ({
     setRows(newRows);
 
     if (hasOptions && questionType && question?.json) {
-      const updatedJSON = buildUpdatedJSON(question, newRows);
+      const updatedJSON = buildUpdatedJSON(newRows);
 
       if (updatedJSON) {
         setQuestion((prev) => ({
@@ -257,7 +257,7 @@ const QuestionAdd = ({
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
-  const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
+  const getFormState = (rowsOverride?: QuestionOptions[]) => {
 
     if (hasOptions) {
       const useRows = rowsOverride ?? rows;
@@ -284,8 +284,8 @@ const QuestionAdd = ({
   };
 
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
-  const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
-    const userInput = getFormState(question, rowsOverride);
+  const buildUpdatedJSON = (rowsOverride?: QuestionOptions[]) => {
+    const userInput = getFormState(rowsOverride);
 
     if (parsedQuestionJSON && userInput) {
       return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
@@ -302,7 +302,7 @@ const QuestionAdd = ({
     e.preventDefault();
 
     const displayOrder = getDisplayOrder();
-    const updatedJSON = buildUpdatedJSON(question);
+    const updatedJSON = buildUpdatedJSON();
 
     if (updatedJSON) {
       // Strip all tags from questionText before sending to backend
