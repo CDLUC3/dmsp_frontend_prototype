@@ -17,7 +17,7 @@ import {
   AddProjectFundingDocument,
 } from '@/generated/graphql';
 
-import { stripHtml, scrollToTop } from '@/utils/general';
+import { scrollToTop } from '@/utils/general';
 import logECS from "@/utils/clientLogger";
 
 import CreateProjectSearchFunder from '../page';
@@ -270,7 +270,6 @@ const mocks = [
 // Needed for the errormessages component
 jest.mock('@/utils/general', () => ({
   scrollToTop: jest.fn(),
-  stripHtml: jest.fn(),
 }));
 
 

@@ -5,8 +5,6 @@ import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { routePath } from '@/utils/routes';
 
-import { LoggedError } from "@/utils/exceptions";
-
 import {
   AffiliationSearch,
   FunderPopularityResult,
