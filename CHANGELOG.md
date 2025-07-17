@@ -8,6 +8,7 @@
 - Added delete section functionality to template builder with confirmation modal, including translations, and tests
 - Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
+- Added popular funders to the funder search page when creating a new project. [#380]
 
 ### Updated
 - Updated `routePath` with route `projects.share.index` and updated unit test for `ProjectsProjectMembers` [#589]
