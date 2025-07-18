@@ -152,7 +152,7 @@ const CreateProjectSearchFunder = () => {
    */
   function hasMore() {
     if (!nextCursor) return false;
-    if (funders.length < totalCount) return true;
+    return (funders.length < totalCount);
   }
 
   return (
