@@ -82,6 +82,7 @@ export const mockPlanData = {
     ],
     created: "1741308996000",
     modified: "1741308996000",
-    dmpId: ""
+    dmpId: "",
+    registered: null,
   }
 }

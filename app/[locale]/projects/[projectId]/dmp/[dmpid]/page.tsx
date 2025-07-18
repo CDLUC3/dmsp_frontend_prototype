@@ -180,14 +180,12 @@ const PlanOverviewPage: React.FC = () => {
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
     const selection = value.toUpperCase();
-    if (Object.values(PlanVisibility).includes(selection as PlanVisibility)) {
-      dispatch({
-        type: 'SET_PLAN_VISIBILITY',
-        payload: selection as PlanVisibility,
-      })
-    } else {
-      console.error(`Invalid visibility value: ${value}`);
-    }
+
+    dispatch({
+      type: 'SET_PLAN_VISIBILITY',
+      payload: selection as PlanVisibility,
+    })
+
   };
 
   const handlePlanStatusChange = () => {
@@ -248,14 +246,11 @@ const PlanOverviewPage: React.FC = () => {
         //Handle errors as an array
         dispatch({
           type: 'SET_ERROR_MESSAGES',
-          payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
+          payload: errors,
         })
       }
     } else {
-      if (
-        result.data?.errors &&
-        typeof result.data.errors === 'object' &&
-        typeof result.data.errors.general === 'string') {
+      if (result.data?.errors) {
         // Handle errors as an object with general or field-level errors
         dispatch({
           type: 'SET_ERROR_MESSAGES',
@@ -269,34 +264,21 @@ const PlanOverviewPage: React.FC = () => {
 
   // Call Server Action publishPlanAction to run the publishPlanMutation
   const updatePlan = async (visibility: PlanVisibility) => {
-    try {
-      const response = await publishPlanAction({
-        planId: Number(planId),
-        visibility
-      })
 
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
+    const response = await publishPlanAction({
+      planId: Number(planId),
+      visibility
+    })
 
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      }
-    } catch (error) {
-      logECS('error', 'updatePlan', {
-        error,
-        url: {
-          path: routePath('projects.dmp.show', { projectId, dmpId: planId })
-        }
-      });
+    if (response.redirect) {
+      router.push(response.redirect);
     }
+
     return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: null
-    };
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -334,10 +316,7 @@ const PlanOverviewPage: React.FC = () => {
         })
       }
     } else {
-      if (
-        result.data?.errors &&
-        typeof result.data.errors === 'object' &&
-        typeof result.data.errors.general === 'string') {
+      if (result.data?.errors) {
         // Handle errors as an object with general or field-level errors
         dispatch({
           type: 'SET_ERROR_MESSAGES',
@@ -366,7 +345,7 @@ const PlanOverviewPage: React.FC = () => {
           id: Number(data?.plan.id) ?? null,
           dmpId: data?.plan.dmpId ?? '',
           registered: data?.plan.registered ?? '',
-          title: data?.plan?.versionedTemplate?.name ?? '',
+          title: data?.plan?.project?.title ?? '',
           status: data?.plan?.status ?? '',
           funderName: data?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
           primaryContact: data.plan.members
