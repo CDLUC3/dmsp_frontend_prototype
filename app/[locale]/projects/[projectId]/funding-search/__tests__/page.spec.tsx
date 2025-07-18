@@ -6,7 +6,6 @@ import {
   fireEvent,
   waitFor,
   within,
-  act,
 } from '@testing-library/react';
 
 import { useParams, useRouter } from 'next/navigation';
