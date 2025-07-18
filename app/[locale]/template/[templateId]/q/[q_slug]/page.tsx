@@ -160,7 +160,6 @@ const QuestionEdit = () => {
     error: questionTypesError,
   }] = useQuestionTypesLazyQuery();
 
-
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
@@ -365,20 +364,9 @@ const QuestionEdit = () => {
         ...selectedQuestion.question,
         required: selectedQuestion.question.required ?? false // convert null to false
       };
-      try {
-        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
-        if (!parsed?.type) {
-          if (error) {
-            logECS('error', 'Parsing error', {
-              error: 'Invalid question type in parsed JSON',
-              url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
-            });
 
-            setErrors(prev => [...prev, error])
-          }
-          return;
-        }
-
+      const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
+      if (parsed && parsed?.type) {
         const questionType = parsed.type;
         const questionTypeFriendlyName = Global(`questionTypes.${questionType}`);
 
@@ -400,31 +388,15 @@ const QuestionEdit = () => {
             }));
           setRows(optionRows);
         }
-      } catch (error) {
+      } else if (error) {
         logECS('error', 'Parsing error', {
-          error,
+          error: 'Invalid question type in parsed JSON',
           url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
         });
-        setErrors(prev => [...prev, 'Error parsing question data']);
+        setErrors(prev => [...prev, error]);
       }
     }
   }, [selectedQuestion]);
-
-  // Saves any query errors to errors state
-  useEffect(() => {
-    const allErrors = [];
-
-    if (selectedQuestionQueryError) {
-      allErrors.push(selectedQuestionQueryError.message);
-    }
-
-    if (questionTypesError) {
-      allErrors.push(questionTypesError.message);
-    }
-
-    setErrors(allErrors);
-  }, [selectedQuestionQueryError, questionTypesError]);
-
 
   // Set labels for dateRange and numberRange
   useEffect(() => {
@@ -479,8 +451,7 @@ const QuestionEdit = () => {
   // If a user passes in a questionType query param we will find the matching questionTypes 
   // json schema and update the question with it
   useEffect(() => {
-    if (questionTypesData?.questionTypes && questionTypeIdQueryParam && question) {
-
+    if (questionTypesData?.questionTypes && questionTypeIdQueryParam) {
       const filteredQuestionTypes = questionTypesData.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
 
       // Find the matching question type
@@ -508,17 +479,19 @@ const QuestionEdit = () => {
   }, [questionTypesData, questionTypeIdQueryParam]);
 
   useEffect(() => {
-    if (question) {
-      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.show', { templateId }), Global);
-      if (!parsed) {
-        if (error) {
-          setErrors(prev => [...prev, error])
-        }
-        return;
-      }
-      setParsedQuestionJSON(parsed);
+    if (selectedQuestionQueryError || questionTypesError) {
+      const errorMessage =
+        selectedQuestionQueryError?.message || questionTypesError?.message;
+
+      logECS('error', 'GraphQL Query Error', {
+        error: errorMessage,
+        url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
+      });
+
+      setErrors(prevErrors => [...prevErrors, (errorMessage ? errorMessage : '')]);
     }
-  }, [question])
+  }, [selectedQuestionQueryError, questionTypesError]);
+
 
   if (loading) {
     return <div>Loading...</div>;

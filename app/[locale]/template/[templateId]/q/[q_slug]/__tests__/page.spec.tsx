@@ -7,10 +7,11 @@ import {
   useUpdateQuestionMutation,
   useRemoveQuestionMutation
 } from '@/generated/graphql';
-import { useToast } from '@/context/ToastContext';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useToast } from '@/context/ToastContext';
+import logECS from '@/utils/clientLogger';
 import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import mockQuestionData from '../__mocks__/mockQuestionData.json';
@@ -24,8 +25,18 @@ import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.js
 import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNumber.json';
 import mockQuestionDataForCurrency from '@/__mocks__/common/mockQuestionDataForCurrency.json';
 import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
+import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
 
 expect.extend(toHaveNoViolations);
+
+jest.mock('@/components/hooks/getParsedQuestionJSON', () => {
+  const actual = jest.requireActual('@/components/hooks/getParsedQuestionJSON');
+  return {
+    __esModule: true,
+    ...actual,
+    getParsedQuestionJSON: jest.fn(actual.getParsedQuestionJSON),
+  };
+});
 
 // Mock the useTemplateQuery hook
 jest.mock("@/generated/graphql", () => ({
@@ -84,8 +95,12 @@ describe("QuestionEditPage", () => {
     });
 
     (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockQuestionTypes }),
-      { loading: false, error: undefined },
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockQuestionTypes,
+        loading: false,
+        error: undefined,
+      },
     ]);
     (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
     (useRemoveQuestionMutation as jest.Mock).mockReturnValue([jest.fn(), { loading: false }]);
@@ -697,6 +712,222 @@ describe("QuestionEditPage", () => {
     expect(alert).toHaveTextContent('messages.errors.questionUpdateError');
   });
 
+  it('should call logECS if call to getParsedQuestionJSON returns error', async () => {
+    const mockGetParsed = getParsedJSONModule.getParsedQuestionJSON as jest.Mock;
+
+    // temporarily override return value
+    mockGetParsed.mockReturnValueOnce({
+      parsed: null,
+      error: 'Mocked parse error',
+    });
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextField,
+      loading: false,
+      error: undefined,
+    });
+
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+
+    // Expect logECS to be called
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'Parsing error',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/en-US/template/123/q/67' },
+        })
+      );
+    });
+  });
+
+  it('should set question to filtered question when user passes in questionTypeIdQueryParam', async () => {
+    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockQuestionTypes,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForDateRange,
+      loading: false,
+      error: undefined,
+    });
+
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionType: 'dateRange' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionType: 'short_text' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Starting Label')).toBeInTheDocument();
+      expect(screen.getByText('Ending Label')).toBeInTheDocument();
+    });
+  });
+
+  it('should set error when parsing fails for getMatchingQuestionType', async () => {
+    const mockGetParsed = getParsedJSONModule.getParsedQuestionJSON as jest.Mock;
+
+    // 1. First render sets parsedQuestionJSON
+    mockGetParsed.mockReturnValueOnce({
+      parsed: { type: 'dateRange' },
+      error: null,
+    });
+
+    // 2. On second invocation (triggered by form submit), it fails
+    mockGetParsed.mockReturnValueOnce({
+      parsed: null,
+      error: 'Failed to parse during submit',
+    });
+
+    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockQuestionTypes,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForDateRange,
+      loading: false,
+      error: undefined,
+    });
+
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionType: 'dateRange' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionType: 'short_text' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to parse during submit')).toBeInTheDocument();
+    });
+  });
+
+  it('should call logECS if useQuestionQuery graphql query returns an error ', async () => {
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: null,
+      loading: false,
+      error: { message: 'There was an error when calling useQuestionQuery' },
+    });
+
+    (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    // Render with text question type
+    (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
+      return {
+        get: (key: string) => {
+          const params: Record<string, string> = { questionTypeId: '1' };
+          return params[key] || null;
+        },
+        getAll: () => [],
+        has: (key: string) => key in { questionTypeId: '1' },
+        keys() { },
+        values() { },
+        entries() { },
+        forEach() { },
+        toString() { return ''; },
+      } as unknown as ReturnType<typeof useSearchParams>;
+    });
+
+    await act(async () => {
+      render(
+        <QuestionEdit />
+      );
+    });
+
+    // Expect logECS to be called
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'GraphQL Query Error',
+        expect.objectContaining({
+          error: expect.anything(),
+          url: { path: '/en-US/template/123/q/67' },
+        })
+      );
+    });
+  });
 
   it('should pass axe accessibility test', async () => {
     // Render with text question type
@@ -894,8 +1125,12 @@ describe('QuestionEditPage Delete Functionality', () => {
     });
 
     (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockQuestionTypes }),
-      { loading: false, error: undefined },
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockQuestionTypes,
+        loading: false,
+        error: undefined,
+      },
     ]);
     (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
     (useRemoveQuestionMutation as jest.Mock).mockReturnValue([jest.fn(), { loading: false }]);
@@ -947,7 +1182,7 @@ describe('QuestionEditPage Delete Functionality', () => {
     });
   });
 
-  it.only('should display error message when removeQuestionMutation returns an error', async () => {
+  it('should display error message when removeQuestionMutation returns an error', async () => {
     (useUpdateQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -979,15 +1214,23 @@ describe('QuestionEditPage Delete Functionality', () => {
 
 
     render(<QuestionEdit />);
-    fireEvent.click(screen.getByText('buttons.deleteQuestion'));
 
-    await waitFor(() => {
-      expect(screen.getByText('headings.confirmDelete')).toBeInTheDocument();
-    });
+    // Click the 'Delete question' button
+    await act(async () => {
+      fireEvent.click(screen.getByText('buttons.deleteQuestion'));
+    })
+
+    // Expect to get a confirmation screen
+    expect(screen.getByText('headings.confirmDelete')).toBeInTheDocument();
 
     const confirmButton = screen.getByText('buttons.confirm');
-    fireEvent.click(confirmButton);
 
+    // Click to confirm deletion
+    await act(async () => {
+      fireEvent.click(confirmButton);
+    })
+
+    // Should see error message since useRemoveQuestionMutation returns an error
     expect(screen.getByText('messages.errors.questionRemoveError')).toBeInTheDocument();
   });
 
@@ -1042,8 +1285,12 @@ describe('Options questions', () => {
     });
 
     (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockQuestionTypes }),
-      { loading: false, error: undefined },
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockQuestionTypes,
+        loading: false,
+        error: undefined,
+      },
     ]);
     (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
     (useRemoveQuestionMutation as jest.Mock).mockReturnValue([jest.fn(), { loading: false }]);
@@ -1089,6 +1336,14 @@ describe('Options questions', () => {
     expect(yesRadio).toBeInTheDocument();
     expect(noRadio).toBeInTheDocument();
     expect(noRadio).toBeChecked();
+
+    // Click the yes option
+    await act(async () => {
+      fireEvent.click(yesRadio);
+    })
+
+    expect(yesRadio).toBeChecked();
+    expect(noRadio).not.toBeChecked();
   })
 
   it('should add a new row when the add button is clicked', async () => {
