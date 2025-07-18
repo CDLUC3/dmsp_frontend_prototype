@@ -212,7 +212,7 @@
       "startDate": "Start date",
       "endDate": "End date",
       "funderSearch": "Search by funder name",
-      "requiredField": "Marks as required?"
+      "requiredField": "Mark as required?"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
