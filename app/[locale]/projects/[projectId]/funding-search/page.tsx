@@ -55,10 +55,9 @@ const CreateProjectSearchFunder = () => {
   useEffect(() => {
     // Manually calling the effect because the query specifies that some items
     // can be null, and we need to filter those potential null results out.
-    popularFundersQuery().then((resp) => {
-      const results = resp?.data?.popularFunders || [];
-      if (results) {
-        const cleaned = results.filter((item) => item !== null)
+    popularFundersQuery().then(({data}) => {
+      if (data?.popularFunders && data.popularFunders.length > 0) {
+        const cleaned = data.popularFunders.filter((item) => item !== null)
         setPopularFunders(cleaned);
       }
     });
@@ -69,7 +68,8 @@ const CreateProjectSearchFunder = () => {
    * @param {ProjectFunderErrors} errs - The errors from the graphql response
    */
   function checkErrors(errs: ProjectFundingErrors): string[] {
-    if (!errs) return [];
+    const noErrors = Object.values(errs).every(val => val === null);
+    if (noErrors) return [];
 
     const typedKeys: (keyof ProjectFundingErrors)[] = [
       "affiliationId",
@@ -126,23 +126,25 @@ const CreateProjectSearchFunder = () => {
   };
 
   function onResults(results: FunderSearchResults, isNew: boolean) {
-    if (results) {
-      const items = (results.items ?? [])
-        .filter((f): f is AffiliationSearch => f != null);
-
-      if (isNew) {
-        setFunders(items);
-      } else {
-        setFunders(funders.concat(items));
-      }
-
-      setTotalCount(results.totalCount as number);
-
-      if (results.nextCursor) {
-        setNextCursor(results.nextCursor);
-      }
-      if (!hasSearched) setHasSearched(true);
+    let validResults: AffiliationSearch[];
+    if (results.items && results.items.length > 0) {
+      validResults = results.items.filter((r): r is AffiliationSearch => r !== null)
+    } else {
+      validResults = [];
     }
+
+    if (isNew) {
+      setFunders(validResults);
+    } else {
+      setFunders(funders.concat(validResults));
+    }
+
+    setTotalCount(results.totalCount as number);
+
+    if (results.nextCursor) {
+      setNextCursor(results.nextCursor);
+    }
+    if (!hasSearched) setHasSearched(true);
   }
 
   /**

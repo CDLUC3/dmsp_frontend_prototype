@@ -114,7 +114,6 @@ const mocks = [
     },
   },
 
-
   // Paginated Mocks
   {
     request: {
@@ -265,6 +264,20 @@ const mocks = [
   },
 ];
 
+const emptyPopularMock = [
+  {
+    request: {
+      query: PopularFundersDocument,
+    },
+
+    result: {
+      data: {
+        popularFunders: [],
+      }
+    },
+  },
+];
+
 
 // Needed for the errormessages component
 jest.mock('@/utils/general', () => ({
@@ -309,6 +322,18 @@ describe("CreateProjectSearchFunder", () => {
     });
   });
 
+  it("Should neatly handle empty popular funder results", async () => {
+    render(
+      <MockedProvider mocks={emptyPopularMock} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('popularTitle')).not.toBeInTheDocument();
+    });
+  });
+
   it("Should render the search results", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
@@ -340,6 +365,26 @@ describe("CreateProjectSearchFunder", () => {
         expect(funderTitle).toBeInTheDocument();
         expect(selectBtn).toHaveAttribute('data-funder-uri', funder[1]);
       });
+    });
+  });
+
+  it("Should cleanly handle empty results", async() => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    // NOTE: search-field and search-input are testID's provided by elements
+    // inside the FunderSearch component.
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "empty" } });
+
+    const searchBtn = screen.getByTestId('search-btn');
+    fireEvent.click(searchBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("noResults")).toBeInTheDocument();
     });
   });
 
