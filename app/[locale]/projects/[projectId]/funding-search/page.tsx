@@ -232,7 +232,7 @@ const CreateProjectSearchFunder = () => {
                     <Button
                       data-testid="load-more-btn"
                       onPress={() => setMoreCounter(moreCounter + 1)}
-                      aria-label="Load more funders"
+                      aria-label={globalTrans('buttons.loadMore')}
                     >
                       {globalTrans('buttons.loadMore')}
                     </Button>
@@ -262,7 +262,7 @@ const CreateProjectSearchFunder = () => {
               <Button
                 className="add-funder-button"
                 onPress={() => handleAddFunderManually()}
-                aria-label="{trans(addManuallyLabel)}"
+                aria-label={trans('addManuallyLabel')}
               >
                 {trans('addManuallyLabel')}
               </Button>
