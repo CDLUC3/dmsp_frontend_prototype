@@ -1,18 +1,19 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { routePath } from '@/utils/routes';
 
-import { LoggedError } from "@/utils/exceptions";
-
 import {
   AffiliationSearch,
+  FunderPopularityResult,
+  usePopularFundersLazyQuery,
   useAddProjectFundingMutation,
   ProjectFundingErrors,
 } from '@/generated/graphql';
 import { FunderSearchResults } from '@/app/types';
+import logECS from "@/utils/clientLogger";
 
 import {
   Breadcrumb,
@@ -48,12 +49,27 @@ const CreateProjectSearchFunder = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
 
+  const [popularFunders, setPopularFunders] = useState<FunderPopularityResult[]>([]);
+  const [popularFundersQuery] = usePopularFundersLazyQuery({});
+
+  useEffect(() => {
+    // Manually calling the effect because the query specifies that some items
+    // can be null, and we need to filter those potential null results out.
+    popularFundersQuery().then(({data}) => {
+      if (data?.popularFunders && data.popularFunders.length > 0) {
+        const cleaned = data.popularFunders.filter((item) => item !== null)
+        setPopularFunders(cleaned);
+      }
+    });
+  }, []);
+
   /**
    * Handle specific errors that we care about in this component.
    * @param {ProjectFunderErrors} errs - The errors from the graphql response
    */
   function checkErrors(errs: ProjectFundingErrors): string[] {
-    if (!errs) return [];
+    const noErrors = Object.values(errs).every(val => val === null);
+    if (noErrors) return [];
 
     const typedKeys: (keyof ProjectFundingErrors)[] = [
       "affiliationId",
@@ -73,7 +89,7 @@ const CreateProjectSearchFunder = () => {
     return newErrors
   }
 
-  async function handleSelectFunder(funder: AffiliationSearch) {
+  async function handleSelectFunder(funder: AffiliationSearch | FunderPopularityResult) {
     const NEXT_URL = routePath('projects.create.projects.search', {
       projectId: projectId as string,
     });
@@ -92,7 +108,12 @@ const CreateProjectSearchFunder = () => {
         }
       })
       .catch((err) => {
-        throw new LoggedError(err.message);
+        logECS(
+          'error',
+          'createProjectSearchFunder.addProjectFunding',
+          {error: err.message}
+        );
+        setErrors([...errors, err.message])
       });
   };
 
@@ -105,23 +126,25 @@ const CreateProjectSearchFunder = () => {
   };
 
   function onResults(results: FunderSearchResults, isNew: boolean) {
-    if (results) {
-      const items = (results.items ?? [])
-        .filter((f): f is AffiliationSearch => f != null);
-
-      if (isNew) {
-        setFunders(items);
-      } else {
-        setFunders(funders.concat(items));
-      }
-
-      setTotalCount(results.totalCount as number);
-
-      if (results.nextCursor) {
-        setNextCursor(results.nextCursor);
-      }
-      if (!hasSearched) setHasSearched(true);
+    let validResults: AffiliationSearch[];
+    if (results.items && results.items.length > 0) {
+      validResults = results.items.filter((r): r is AffiliationSearch => r !== null)
+    } else {
+      validResults = [];
     }
+
+    if (isNew) {
+      setFunders(validResults);
+    } else {
+      setFunders(funders.concat(validResults));
+    }
+
+    setTotalCount(results.totalCount as number);
+
+    if (results.nextCursor) {
+      setNextCursor(results.nextCursor);
+    }
+    if (!hasSearched) setHasSearched(true);
   }
 
   /**
@@ -129,7 +152,7 @@ const CreateProjectSearchFunder = () => {
    */
   function hasMore() {
     if (!nextCursor) return false;
-    if (funders.length < totalCount) return true;
+    return (funders.length < totalCount);
   }
 
   return (
@@ -154,6 +177,32 @@ const CreateProjectSearchFunder = () => {
             onResults={onResults}
             moreTrigger={moreCounter}
           />
+
+          {popularFunders.length > 0 && (
+            <section aria-labelledby="popular-funders">
+              <h3>{trans('popularTitle')}</h3>
+              <div className={styles.popularFunders}>
+                {popularFunders.map((funder, index) => (
+                  <div
+                    key={index}
+                    className={styles.fundingResultsListItem}
+                    role="group"
+                    aria-label={`${trans('funder')}: ${funder.displayName}`}
+                  >
+                    <p className="funder-name">{funder.displayName}</p>
+                    <Button
+                      className="secondary select-button"
+                      data-funder-uri={funder.uri}
+                      onPress={() => handleSelectFunder(funder)}
+                      aria-label={`${globalTrans('buttons.select')} ${funder.displayName}`}
+                    >
+                      {globalTrans('buttons.select')}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {funders.length > 0 && (
             <section aria-labelledby="funders-section">
@@ -183,7 +232,7 @@ const CreateProjectSearchFunder = () => {
                     <Button
                       data-testid="load-more-btn"
                       onPress={() => setMoreCounter(moreCounter + 1)}
-                      aria-label="Load more funders"
+                      aria-label={globalTrans('buttons.loadMore')}
                     >
                       {globalTrans('buttons.loadMore')}
                     </Button>
@@ -213,7 +262,7 @@ const CreateProjectSearchFunder = () => {
               <Button
                 className="add-funder-button"
                 onPress={() => handleAddFunderManually()}
-                aria-label="{trans(addManuallyLabel)}"
+                aria-label={trans('addManuallyLabel')}
               >
                 {trans('addManuallyLabel')}
               </Button>

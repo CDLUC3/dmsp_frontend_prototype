@@ -20,3 +20,12 @@ query PlanFundings($planId: Int!) {
     }
   }
 }
+
+query PopularFunders {
+  popularFunders {
+    displayName
+    id
+    nbrPlans
+    uri
+  }
+}
