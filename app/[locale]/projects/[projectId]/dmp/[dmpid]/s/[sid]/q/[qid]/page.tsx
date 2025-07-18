@@ -51,7 +51,7 @@ import { useToast } from '@/context/ToastContext';
 // Utils
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from "@dmptool/types";
 
 import {
   Question,

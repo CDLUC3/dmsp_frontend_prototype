@@ -53,7 +53,8 @@ import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
-import { questionTypeHandlers, QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from "@dmptool/types";
 import {
   Question,
   QuestionOptions,
@@ -86,7 +87,6 @@ interface Option {
 }
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
-
 
 const QuestionEdit = () => {
   const params = useParams();

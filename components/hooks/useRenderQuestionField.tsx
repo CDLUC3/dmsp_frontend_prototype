@@ -46,7 +46,7 @@ import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 import { getCalendarDateValue } from "@/utils/dateUtils";
 
-import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from '@dmptool/types';
 
 export type QuestionType = keyof QuestionTypeMap;
 

@@ -44,7 +44,8 @@ import QuestionView from '@/components/QuestionView';
 //Other
 import { useToast } from '@/context/ToastContext';
 import { stripHtmlTags } from '@/utils/general';
-import { questionTypeHandlers, QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from "@dmptool/types";
 import { routePath } from '@/utils/routes';
 import { Question, QuestionOptions } from '@/app/types';
 import {

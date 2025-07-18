@@ -3,7 +3,7 @@
 import {
   Question,
 } from '@/app/types';
-import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from '@dmptool/types';
 import logECS from '@/utils/clientLogger';
 
 type ParsedQuestionResult<T extends keyof QuestionTypeMap = keyof QuestionTypeMap> = {
