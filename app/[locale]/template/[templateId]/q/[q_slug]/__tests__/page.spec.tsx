@@ -920,7 +920,7 @@ describe("QuestionEditPage", () => {
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'GraphQL Query Error',
+        'Parsing error',
         expect.objectContaining({
           error: expect.anything(),
           url: { path: '/en-US/template/123/q/67' },

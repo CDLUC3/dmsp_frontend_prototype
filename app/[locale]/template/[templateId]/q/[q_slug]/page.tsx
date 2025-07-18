@@ -160,12 +160,13 @@ const QuestionEdit = () => {
     error: questionTypesError,
   }] = useQuestionTypesLazyQuery();
 
+
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
     setRows(newRows);
 
     if (hasOptions && questionType && question?.json) {
-      const updatedJSON = buildUpdatedJSON(newRows);
+      const updatedJSON = buildUpdatedJSON(question, newRows);
 
       if (updatedJSON) {
         setQuestion((prev) => ({
@@ -249,8 +250,7 @@ const QuestionEdit = () => {
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
-  const getFormState = (rowsOverride?: QuestionOptions[]) => {
-
+  const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
     if (hasOptions) {
       const useRows = rowsOverride ?? rows;
       return {
@@ -261,33 +261,36 @@ const QuestionEdit = () => {
         })),
       };
     }
-
-    if (!parsedQuestionJSON) {
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
+      }
       return;
     }
-
     return {
-      ...parsedQuestionJSON,
+      ...parsed,
       attributes: {
-        ...('attributes' in parsedQuestionJSON ? parsedQuestionJSON.attributes : {}),
+        ...('attributes' in parsed ? parsed.attributes : {}),
         ...getOverrides(questionType),
       },
     };
   };
 
-
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
-  const buildUpdatedJSON = (rowsOverride?: QuestionOptions[]) => {
-    const userInput = getFormState(rowsOverride);
-
-    if (parsedQuestionJSON && userInput) {
-      return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-        parsedQuestionJSON,
-        userInput
-      );
+  const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
+    const userInput = getFormState(question, rowsOverride);
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
+      }
+      return;
     }
-    return null;
-
+    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+      parsed,
+      userInput
+    );
   };
 
   // Handle form submission to update the question
@@ -298,7 +301,7 @@ const QuestionEdit = () => {
     setFormSubmitted(true);
 
     if (question) {
-      const updatedJSON = buildUpdatedJSON();
+      const updatedJSON = buildUpdatedJSON(question);
 
       // Strip all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question.questionText ?? '');
@@ -364,9 +367,20 @@ const QuestionEdit = () => {
         ...selectedQuestion.question,
         required: selectedQuestion.question.required ?? false // convert null to false
       };
+      try {
+        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
+        if (!parsed?.type) {
+          if (error) {
+            logECS('error', 'Parsing error', {
+              error: 'Invalid question type in parsed JSON',
+              url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
+            });
 
-      const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
-      if (parsed && parsed?.type) {
+            setErrors(prev => [...prev, error])
+          }
+          return;
+        }
+
         const questionType = parsed.type;
         const questionTypeFriendlyName = Global(`questionTypes.${questionType}`);
 
@@ -388,15 +402,31 @@ const QuestionEdit = () => {
             }));
           setRows(optionRows);
         }
-      } else if (error) {
+      } catch (error) {
         logECS('error', 'Parsing error', {
-          error: 'Invalid question type in parsed JSON',
+          error,
           url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
         });
-        setErrors(prev => [...prev, error]);
+        setErrors(prev => [...prev, 'Error parsing question data']);
       }
     }
   }, [selectedQuestion]);
+
+  // Saves any query errors to errors state
+  useEffect(() => {
+    const allErrors = [];
+
+    if (selectedQuestionQueryError) {
+      allErrors.push(selectedQuestionQueryError.message);
+    }
+
+    if (questionTypesError) {
+      allErrors.push(questionTypesError.message);
+    }
+
+    setErrors(allErrors);
+  }, [selectedQuestionQueryError, questionTypesError]);
+
 
   // Set labels for dateRange and numberRange
   useEffect(() => {
@@ -479,19 +509,17 @@ const QuestionEdit = () => {
   }, [questionTypesData, questionTypeIdQueryParam]);
 
   useEffect(() => {
-    if (selectedQuestionQueryError || questionTypesError) {
-      const errorMessage =
-        selectedQuestionQueryError?.message || questionTypesError?.message;
-
-      logECS('error', 'GraphQL Query Error', {
-        error: errorMessage,
-        url: { path: routePath('template.q.slug', { templateId, q_slug: questionId }) }
-      });
-
-      setErrors(prevErrors => [...prevErrors, (errorMessage ? errorMessage : '')]);
+    if (question) {
+      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.show', { templateId }), Global);
+      if (!parsed) {
+        if (error) {
+          setErrors(prev => [...prev, error])
+        }
+        return;
+      }
+      setParsedQuestionJSON(parsed);
     }
-  }, [selectedQuestionQueryError, questionTypesError]);
-
+  }, [question])
 
   if (loading) {
     return <div>Loading...</div>;
