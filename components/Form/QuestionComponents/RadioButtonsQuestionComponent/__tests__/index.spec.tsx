@@ -47,7 +47,6 @@ describe('RadioButtonsQuestionComponent', () => {
         handleRadioChange={mockHandleRadioChange}
       />
     );
-    screen.debug(undefined, Infinity);
     expect(getByLabelText('Option 1')).toBeInTheDocument();
     expect(getByLabelText('Option 2')).toBeInTheDocument();
     expect(screen.getByText('My Radio Button Question')).toBeInTheDocument();

@@ -4038,7 +4038,7 @@ export type ProjectFundingsQueryVariables = Exact<{
 }>;
 
 
-export type ProjectFundingsQuery = { __typename?: 'Query', projectFundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, affiliation?: { __typename?: 'Affiliation', displayName: string, uri: string } | null } | null> | null };
+export type ProjectFundingsQuery = { __typename?: 'Query', projectFundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, status?: ProjectFundingStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string, uri: string } | null } | null> | null };
 
 export type PlanFundingsQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -5892,8 +5892,13 @@ export const ProjectFundingsDocument = gql`
     query ProjectFundings($projectId: Int!) {
   projectFundings(projectId: $projectId) {
     id
+    status
+    grantId
+    funderOpportunityNumber
+    funderProjectNumber
     affiliation {
       displayName
+      name
       uri
     }
   }
