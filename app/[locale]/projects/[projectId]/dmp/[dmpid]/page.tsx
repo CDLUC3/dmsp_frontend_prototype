@@ -32,7 +32,6 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { DmpIcon } from "@/components/Icons";
 import { FormSelect, RadioGroupComponent } from '@/components/Form';
 
-import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { publishPlanAction, updatePlanStatusAction } from './actions';
 import {

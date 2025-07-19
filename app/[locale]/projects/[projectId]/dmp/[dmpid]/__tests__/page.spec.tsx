@@ -1,5 +1,4 @@
 import React from 'react';
-import { gql } from '@apollo/client';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
@@ -33,7 +32,6 @@ import {
 } from "@/__mocks__/common";
 import PlanOverviewPage from "../page";
 import { mockPlanData } from "../__mocks__/planQueryMock";
-import { mock } from 'node:test';
 
 jest.mock("next/headers", () => ({
   cookies: jest.fn(),

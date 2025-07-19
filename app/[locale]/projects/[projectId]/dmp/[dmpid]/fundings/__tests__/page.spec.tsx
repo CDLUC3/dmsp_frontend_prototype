@@ -69,8 +69,13 @@ const MOCKS = [
             id: 111,
             affiliation: {
               displayName: "Project Funder A",
+              name: "National Science Foundation",
               uri: "https://funderA",
-            }
+            },
+            funderOpportunityNumber: "NSF-12345-ABC",
+            funderProjectNumber: null,
+            grantId: null,
+            status: "PLANNED"
           },
 
           // This one is to test response errors when choosing this
@@ -78,8 +83,13 @@ const MOCKS = [
             id: 222,
             affiliation: {
               displayName: "Project Funder B",
+              name: "National Institutes of Health",
               uri: "https://funderB",
-            }
+            },
+            funderOpportunityNumber: "NSF-12345-ABC",
+            funderProjectNumber: null,
+            grantId: null,
+            status: "PLANNED"
           },
 
           // This one is to test network errors when choosing this
@@ -87,8 +97,13 @@ const MOCKS = [
             id: 333,
             affiliation: {
               displayName: "Project Funder C",
+              name: "Department of Energy",
               uri: "https://funderC",
             },
+            funderOpportunityNumber: "NSF-12345-ABC",
+            funderProjectNumber: null,
+            grantId: null,
+            status: "PLANNED"
           },
         ],
       },
@@ -361,6 +376,11 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
+
+    await waitFor(() => {
+      expect(screen.getByText('fundingLabel')).toBeInTheDocument();
+    });
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
