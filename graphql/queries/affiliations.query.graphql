@@ -17,6 +17,7 @@ query AffiliationFunders($name: String!, $funderOnly: Boolean, $paginationOption
     items {
       id
       displayName
+      apiTarget
       uri
     }
   }
