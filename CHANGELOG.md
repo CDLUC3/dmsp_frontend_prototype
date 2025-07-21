@@ -20,7 +20,7 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
-- Updated the `Plan Overview` page so that it uses the `Project` title instead of the `template` title [#303]
+- Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
 - Fixed the `Plan Overview` breadcrumb so that it includes a link to previous `Project Overview` page, as well as updating them to use `routePath` [#592]
 - Fixed the `Edit` link in the `Project Funding` page so that it includes correct `projectFundingId` in path, and added missing translation keys and updated routes to use `routePath`, and updated unit test [#592]
 - Added error message when the user clicks `Edit` for a funder that has no `funderProjectNumber` [#592]

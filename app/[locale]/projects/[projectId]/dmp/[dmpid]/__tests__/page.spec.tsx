@@ -145,7 +145,7 @@ describe('PlanOverviewPage', () => {
 
     render(<PlanOverviewPage />);
 
-    expect(screen.getByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).not.toBeInTheDocument();
     expect(screen.getByText('National Science Foundation (nsf.gov)')).toBeInTheDocument();
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();

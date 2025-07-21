@@ -81,7 +81,6 @@ mutation AddPlanFunding($planId: Int!, $projectFundingId: Int!) {
     errors {
       ProjectFundingId
       general
-      projectId
     }
     projectFunding {
       id

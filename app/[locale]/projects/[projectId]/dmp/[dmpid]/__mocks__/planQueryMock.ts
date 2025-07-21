@@ -84,5 +84,6 @@ export const mockPlanData = {
     modified: "1741308996000",
     dmpId: "",
     registered: null,
+    title: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations'
   }
 }

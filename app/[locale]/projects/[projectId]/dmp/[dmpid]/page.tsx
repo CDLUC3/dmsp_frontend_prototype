@@ -344,7 +344,7 @@ const PlanOverviewPage: React.FC = () => {
           id: Number(data?.plan.id) ?? null,
           dmpId: data?.plan.dmpId ?? '',
           registered: data?.plan.registered ?? '',
-          title: data?.plan?.project?.title ?? '',
+          title: data?.plan?.title ?? '',
           status: data?.plan?.status ?? '',
           funderName: data?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
           primaryContact: data.plan.members
