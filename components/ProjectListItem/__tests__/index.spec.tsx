@@ -1,8 +1,8 @@
 import React from 'react';
-import {act, fireEvent, render, screen} from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import ProjectListItem from '../index';
-import {ProjectItemProps} from '@/app/types';
-import {axe, toHaveNoViolations} from 'jest-axe';
+import { ProjectItemProps } from '@/app/types';
+import { axe, toHaveNoViolations } from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
 
@@ -11,28 +11,20 @@ jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => jest.fn((key) => key)),
 }));
 
-const mockGlobalTranslations = {
-  buttons: {
-    linkUpdate: 'Update',
-    linkExpand: 'Expand',
-    linkCollapse: 'Collapse',
-  },
-};
-
 const mockProjectItem: ProjectItemProps = {
   title: 'Project 1',
   link: '/projects/1',
   defaultExpanded: false,
   startDate: '2023-01-01',
   endDate: '2023-12-31',
-  collaborators: [
+  members: [
     {
       name: 'John Doe',
-      roles: ['Researcher'],
+      roles: 'Researcher',
       orcid: '0000-0001-2345-6789',
     },
   ],
-  funder: 'NSF',
+  funding: 'NSF',
   grantId: 'GRANT123',
 };
 

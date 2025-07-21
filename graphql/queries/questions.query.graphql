@@ -11,22 +11,37 @@ query Question($questionId: Int!) {
     errors {
       general
       questionText
+      requirementText
+      sampleText
+      displayOrder
+      questionConditionIds
+      sectionId
+      sourceQestionId
+      templateId
     }
     displayOrder
     questionText
+    json
     requirementText
     sampleText
     useSampleTextAsDefault
     sectionId
     templateId
-    questionTypeId
-    questionOptions {
-      id
-      isDefault
-      orderNumber
-      text
-      questionId
-    }
+    isDirty
+    required
+  }
+}
+
+query PlanSectionQuestions($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    id
+    questionText
+    displayOrder
+    guidanceText
+    requirementText
+    sampleText
+    sectionId
+    templateId
     isDirty
   }
 }

@@ -1,7 +1,7 @@
-import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import React, { ReactNode } from "react";
+import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import { RichTranslationValues } from 'next-intl';
 import TemplateSelectTemplatePage from '../index';
 import {
   useAddTemplateMutation,
@@ -23,23 +23,21 @@ jest.mock('@/context/ToastContext', () => ({
   })),
 }));
 
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
+type MockUseTranslations = {
+  (key: string, ...args: unknown[]): string;
+  rich: (key: string, values?: RichTranslationValues) => ReactNode;
+};
 
-// Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
 
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
+    mockUseTranslations.rich = (key, values) => {
+      const p = values?.p;
+      if (typeof p === 'function') {
+        return p(key); // Can return JSX
       }
-      return key;
+      return key; // fallback
     };
 
     return mockUseTranslations;
@@ -68,41 +66,51 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-// Mock the debounce function
-jest.mock('@/hooks/useFormatDate', () => ({
-  useFormatDate: (fn: () => string) => fn,
+// Mock useFormatter from next-intl
+jest.mock('next-intl', () => ({
+  useFormatter: jest.fn(() => ({
+    dateTime: jest.fn(() => '01-01-2023'),
+  })),
+  useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
 }));
 
 
 const mockPublicTemplates = {
-  publishedTemplates: [
-    {
-      description: "",
-      errors: null,
-      id: 1,
-      modifiedById: 1,
-      name: "Public template 1",
-      owner: null,
-      template: {
+  publishedTemplates: {
+    items: [
+      {
+        description: "",
+        errors: null,
         id: 1,
-        __typename: "Template",
+        modifiedById: 1,
+        modifiedByName: "User One",
+        name: "Public template 1",
+        owner: null,
+        template: {
+          id: 1,
+          __typename: "Template",
+        },
+        publishStatus: "PUBLISHED",
+        modified: "2018-01-30 18:18:28",
+        visibility: "PUBLIC"
       },
-      visibility: "PUBLIC"
-    },
-    {
-      description: "",
-      errors: null,
-      id: 2,
-      modifiedById: 2,
-      name: "Public template 2",
-      owner: null,
-      template: {
+      {
+        description: "",
+        errors: null,
         id: 2,
-        __typename: "Template",
-      },
-      visibility: "PUBLIC"
-    }
-  ]
+        modifiedById: 2,
+        modifiedByName: "User Two",
+        modified: "2018-01-30 18:18:28",
+        name: "Public template 2",
+        owner: null,
+        template: {
+          id: 2,
+          __typename: "Template",
+        },
+        visibility: "PUBLIC"
+      }
+    ]
+  }
 }
 
 const mockTemplates = {
@@ -112,6 +120,8 @@ const mockTemplates = {
       errors: null,
       id: 3,
       modifiedById: 3,
+      modifiedByName: "User Three",
+      modified: "2018-01-30 18:18:28",
       name: "Public template 3",
       owner: {
         name: 'Institution',
@@ -129,6 +139,8 @@ const mockTemplates = {
       errors: null,
       id: 4,
       modifiedById: 4,
+      modifiedByName: "User Four",
+      modified: "2018-01-30 18:18:28",
       name: "Public template 4",
       owner: {
         name: 'Institution',
@@ -146,6 +158,8 @@ const mockTemplates = {
       errors: null,
       id: 5,
       modifiedById: 5,
+      modifiedByName: "User Five",
+      modified: "2018-01-30 18:18:28",
       name: "Odd template 5",
       owner: {
         name: 'Institution',
@@ -163,6 +177,7 @@ const mockTemplates = {
       errors: null,
       id: 6,
       modifiedById: 6,
+      modified: "2018-01-30 18:18:28",
       name: "Public template 6",
       owner: {
         name: 'Institution',
@@ -178,10 +193,14 @@ const mockTemplates = {
   ]
 }
 // Helper function to cast to jest.Mock for TypeScript
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 const mockHook = (hook: any) => hook as jest.Mock;
 
 const setupMocks = () => {
-  mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
+  mockHook(useAddTemplateMutation).mockReturnValue([jest.fn(), {
+    loading: false,
+    error: undefined
+  }]);
   mockHook(usePublishedTemplatesQuery).mockReturnValue({ data: mockPublicTemplates, loading: false, error: undefined });
   mockHook(useMyVersionedTemplatesQuery).mockReturnValue({ data: mockTemplates, loading: false, error: undefined });
 };
@@ -197,12 +216,22 @@ describe('TemplateSelectTemplatePage', () => {
     HTMLElement.prototype.scrollIntoView = jest.fn();
   });
 
+  it('should redirect back to step 1 if template name is missing', async () => {
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="" />
+      );
+    });
+    expect(pushMock).toHaveBeenCalledWith('/template/create?step1');
+  });
+
   it('should render the main content sections', async () => {
     await act(async () => {
       render(
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
+
     const input = screen.getByLabelText('labels.searchByKeyword');
     expect(input).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /public template 1/i })).toBeInTheDocument();
@@ -210,6 +239,23 @@ describe('TemplateSelectTemplatePage', () => {
     expect(screen.getByRole('heading', { name: /public template 3/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /public template 4/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /odd template 5/i })).toBeInTheDocument();
+    const templateData = screen.getAllByTestId('template-list-item');
+    const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*User Three/);
+    const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus = within(templateData[0]).getByText(/notPublished/);
+    const visibility = within(templateData[0]).getByText(/visibility\s*:\s*Public/i);
+    expect(lastRevisedBy).toBeInTheDocument();
+    expect(lastUpdated).toBeInTheDocument();
+    expect(publishStatus).toBeInTheDocument();
+    expect(visibility).toBeInTheDocument();
+    const lastRevisedBy1 = within(templateData[1]).getByText(/lastRevisedBy.*User Four/);
+    const lastUpdated1 = within(templateData[1]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus1 = within(templateData[1]).getByText(/notPublished/);
+    const visibility1 = within(templateData[1]).getByText(/visibility\s*:\s*Public/i);
+    expect(lastRevisedBy1).toBeInTheDocument();
+    expect(lastUpdated1).toBeInTheDocument();
+    expect(publishStatus1).toBeInTheDocument();
+    expect(visibility1).toBeInTheDocument();
   });
 
   it('should render text loading if templates are still loading', async () => {
@@ -263,18 +309,86 @@ describe('TemplateSelectTemplatePage', () => {
     expect(linkElement).toHaveLength(1);
   });
 
+  it("Should show errors when no templates were found", async () => {
+    // We need to mock both of these with empty results
+    (useMyVersionedTemplatesQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: { myVersionedTemplates: [] },
+        loading: false,
+        error: null
+      })
+    ]);
+
+    (usePublishedTemplatesQuery as jest.Mock).mockReturnValue({
+      data: { publishedTemplates: [] },
+      loading: false,
+      error: null
+    });
+
+    render(<TemplateSelectTemplatePage templateName="test" />);
+
+    // Search input field
+    const input = screen.getByLabelText('labels.searchByKeyword');
+    const searchButton = screen.getByRole('button', { name: /search/i });
+
+    expect(searchButton).toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: 'none' } });
+    fireEvent.click(searchButton);
+
+    await waitFor(() => {
+      expect(screen.getAllByText('messages.noItemsFound').length).toBeGreaterThan(0);
+    });
+  });
+
   it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: null
+          }
+        }
+      })
+    ]);
+
     await act(async () => {
       render(
         <TemplateSelectTemplatePage templateName="test" />
       );
     });
-    //Search input field
+
     const selectButton = screen.getAllByRole('button', { name: /select/i });
+    fireEvent.click(selectButton[0]);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
+
+  it('should handle response errors when user clicks a \'Select\' button', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: {
+              global: 'New Template, something went wrong...',
+            },
+          }
+        }
+      })
+    ]);
 
     await act(async () => {
-      fireEvent.click(selectButton[0]);
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
     });
+
+    const selectButton = screen.getAllByRole('button', { name: /select/i });
+    fireEvent.click(selectButton[0]);
 
     // Wait for the mutation to be called
     await waitFor(() => {
@@ -282,7 +396,7 @@ describe('TemplateSelectTemplatePage', () => {
     });
   });
 
-  it('should call useAddTemplateMutation when a user clicks a \'Select\' button', async () => {
+  it('should log error when useAddTemplateMutation rejects with an error', async () => {
     (useAddTemplateMutation as jest.Mock).mockReturnValue([
       jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
     ]);
@@ -309,6 +423,87 @@ describe('TemplateSelectTemplatePage', () => {
     )
   });
 
+  it('should call useAddTemplateMuration when user clicks to start a new template', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: null
+          }
+        }
+      })
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    const selectButton = screen.getByTestId('startNewButton');
+    fireEvent.click(selectButton);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
+
+  it('should handle response errors when user clicks start a new template', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValue({
+        data: {
+          addTemplate: {
+            id: 1,
+            errors: {
+              global: 'New Template, something went wrong...',
+            },
+          },
+        },
+      })
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    const selectButton = screen.getByTestId('startNewButton');
+    fireEvent.click(selectButton);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+  });
+
+  it('should handle errors when a user clicks on start a new template', async () => {
+    (useAddTemplateMutation as jest.Mock).mockReturnValue([
+      jest.fn(() => Promise.reject(new Error('Mutation failed'))), // Mock the mutation function
+    ]);
+
+    await act(async () => {
+      render(
+        <TemplateSelectTemplatePage templateName="test" />
+      );
+    });
+
+    const selectButton = screen.getByTestId('startNewButton');
+    fireEvent.click(selectButton);
+
+    await waitFor(() => {
+      expect(useAddTemplateMutation).toHaveBeenCalled();
+    });
+
+    expect(logECS).toHaveBeenCalledWith(
+      'error',
+      'handleClick',
+      expect.objectContaining({
+        error: expect.anything(),
+        url: { path: '/template/create' },
+      })
+    )
+  });
 
   it('should pass accessibility tests', async () => {
     const { container } = render(<TemplateSelectTemplatePage templateName="test" />);

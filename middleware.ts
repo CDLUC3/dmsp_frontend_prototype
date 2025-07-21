@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { JwtPayload } from 'jsonwebtoken';
-import { verifyJwtToken } from './lib/server/auth';
-import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
-import createMiddleware from 'next-intl/middleware';
-import { refreshAuthTokens } from "@/utils/authHelper";
-import { routing } from './i18n/routing';
-import logECS from '@/utils/clientLogger';
+import { JwtPayload } from 'jsonwebtoken'
 
-const locales = ['en-US', 'pt-BR'];
-const defaultLocale = 'en-US';
+import createMiddleware from 'next-intl/middleware';
+
+import { routing } from './i18n/routing';
+import { verifyJwtToken } from './lib/server/auth';
+import logECS from '@/utils/clientLogger';
+import { refreshAuthTokens } from "@/utils/authHelper";
+import { getAuthTokenServer } from '@/utils/getAuthTokenServer';
+import { locales, defaultLocale } from './config/i18nConfig';
 
 interface JWTAccessToken extends JwtPayload {
   id: number,
@@ -22,7 +22,7 @@ interface JWTAccessToken extends JwtPayload {
 }
 
 // TODO: These routes will need to be updated.
-const excludedPaths = ['/email', '/favicon.ico', '/_next', '/api', '/login', '/signup'];
+const excludedPaths = ['/email', '/favicon.ico', '/_next', '/api', '/login', '/signup', '/styleguide'];
 
 const handleI18nRouting = createMiddleware(routing);
 
@@ -33,6 +33,10 @@ async function getLocaleFromJWT(): Promise<string | null> {
       return null;
     }
     const user = await verifyJwtToken(token);
+
+    if (!user) {
+      return null;
+    }
     const { languageId } = user as JWTAccessToken;
 
     if (languageId && locales.includes(languageId)) {

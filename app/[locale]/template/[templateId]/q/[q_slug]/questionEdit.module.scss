@@ -19,7 +19,7 @@
 
 .searchInput {
   grid-area: input;
-  
+
 }
 
 .searchButton {
@@ -34,11 +34,23 @@
 }
 
 .optionsWrapper {
-  border: 1px solid var(--border-color);
-  padding: var(--space-4);
-  margin-bottom: var(--space-4);
+  padding: var(--space-0);
+  margin-bottom: var(--space-6);
 }
 
 .questionFormField {
   height: 100px
+}
+
+.deleteZone {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.deleteConfirmButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { getClient } from '@/lib/graphql/client';
-import logger from '@/utils/logger';
+import logger from '@/utils/server/logger';
 import userFriendlyErrorMessages, { ErrorMessages } from '@/utils/userFriendlyErrorMessages';
 
 const GET_DATA = gql`
@@ -76,14 +76,14 @@ query getDMSP($pk: String!) {
               funder_id {
                 identifier
               }
-              
+
             }
             start
             title
           }
           title
     }
-    
+
 }`;
 
 

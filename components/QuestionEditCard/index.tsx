@@ -1,26 +1,38 @@
 import React from 'react';
 import Link from 'next/link';
-import {useTranslations} from 'next-intl';
-import sanitizeHtml from 'sanitize-html';
+import { useTranslations } from 'next-intl';
+import { Button } from "react-aria-components";
+
+// Utils
+import { stripHtml } from "@/utils/general";
+//Other
 import styles from './QuestionEditCard.module.scss';
-import {Button} from "react-aria-components";
 
 interface QuestionEditCardProps {
   id: string;
   text: string;
   link: string;
   name?: string;
+  displayOrder?: number;
+  handleDisplayOrderChange: (questionId: number, questionDisplayOrder: number) => void;
 }
 
 const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   id,
   text,
   link,
-  name
+  name,
+  displayOrder,
+  handleDisplayOrderChange
 }) => {
 
-  const questionText = sanitizeHtml(text);
+  const questionText = stripHtml(text);
+  const questionId = Number(id);
+  const questionDisplayOrder = Number(displayOrder);
+
+  // Localization
   const EditQuestion = useTranslations('EditQuestion');
+
   const UpArrowIcon = () => (
     <svg
       width="24"
@@ -58,28 +70,42 @@ const QuestionEditCard: React.FC<QuestionEditCardProps> = ({
   );
 
   return (
-    <div className={styles.questionEditCard} key={id} role="listitem">
-      <div className={styles.questionEditCard__content} aria-labelledby={`question-${id}`}>
-        <p className={styles.questionEditCard__label} id={`question-label-${id}`}>
+    <div className={styles.questionEditCard} key={id} data-testid="question-edit-card">
+      <div className={styles.questionEditCard__content}
+        aria-labelledby={`question-${id}`}>
+        <p className={styles.questionEditCard__label}
+          id={`question-label-${id}`}>
           {EditQuestion('label.question')}
         </p>
-        <div className={styles.questionEditCard__name} id={`question-${id}`}
-          dangerouslySetInnerHTML={{ __html: questionText }}
-        />
-
+        <div className={styles.questionEditCard__name} id={`question-${id}`}>
+          <p>
+            {questionText}
+          </p>
+        </div>
       </div>
-      <div className={styles.questionEditCard__actions} role="group" aria-label="Question actions">
-        <Link href={link} className={styles.questionEditCard__link} aria-label={`Edit question: ${name}`}>
+      <div className={styles.questionEditCard__actions} role="group"
+        aria-label="Question actions">
+        <Link href={link} className={styles.questionEditCard__link}
+          aria-label={`Edit question: ${name}`}>
           {EditQuestion('links.editQuestion')}
         </Link>
-        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label={EditQuestion('buttons.moveUp')}>
+        <Button
+          className={`${styles.btnDefault} ${styles.orderButton}`}
+          aria-label={EditQuestion('buttons.moveUp', { name: text })}
+          onPress={() => handleDisplayOrderChange(questionId, questionDisplayOrder - 1)}
+        >
           <UpArrowIcon />
         </Button>
-        <Button className={`${styles.btnDefault} ${styles.orderButton}`} aria-label={EditQuestion('buttons.moveDown')}>
+        <Button
+          className={`${styles.btnDefault} ${styles.orderButton}`}
+          aria-label={EditQuestion('buttons.moveDown', { name: text })}
+          onPress={() => handleDisplayOrderChange(questionId, questionDisplayOrder + 1)}
+        >
           <DownArrowIcon />
         </Button>
       </div>
     </div>
+
   );
 };
 

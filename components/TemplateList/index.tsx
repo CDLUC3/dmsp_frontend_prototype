@@ -22,6 +22,8 @@ export interface TemplateListProps {
   templates: TemplateItemProps[];
   /** Key to identify which list is being displayed */
   visibleCountKey: VisibleCountKeys;
+  /** Increments for displaying additional templates*/
+  increment?: number;
   /** Callback function when a template is selected */
   onSelect: (versionedTemplateId: number) => Promise<void>;
   /** Object containing count of visible items for each list type */
@@ -34,6 +36,7 @@ export interface TemplateListProps {
 
 const TemplateList: React.FC<TemplateListProps> = ({
   templates,
+  increment = 3,
   visibleCountKey,
   onSelect,
   visibleCount,
@@ -73,7 +76,7 @@ const TemplateList: React.FC<TemplateListProps> = ({
       )
       }
       {templates.slice(0, visibleCount[visibleCountKey]).map((template, index) => {
-        const isFirstInNextSection = index === visibleCount[visibleCountKey] - 3;
+        const isFirstInNextSection = index === visibleCount[visibleCountKey] - increment;
         return (
           <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
             <TemplateSelectListItem
@@ -93,8 +96,8 @@ const TemplateList: React.FC<TemplateListProps> = ({
               return (
                 <>
                   <Button onPress={() => handleLoadMorePress(visibleCountKey)}>
-                    {loadMoreNumber > 2
-                      ? SelectTemplate('buttons.load3More')
+                    {loadMoreNumber > (increment - 1)
+                      ? SelectTemplate('buttons.loadMore', { name: increment })
                       : SelectTemplate('buttons.loadMore', { name: loadMoreNumber })}
                   </Button>
                   <div className={styles.remainingText}>

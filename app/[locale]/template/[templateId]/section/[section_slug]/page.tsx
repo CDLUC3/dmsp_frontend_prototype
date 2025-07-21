@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
@@ -21,21 +21,24 @@ import {
   TabList,
   TabPanel,
   Tabs,
+  Modal,
+  ModalOverlay,
 } from "react-aria-components";
 // GraphQL queries and mutations
 import {
   SectionErrors,
   useTagsQuery,
   useUpdateSectionMutation,
+  useRemoveSectionMutation,
 } from '@/generated/graphql';
 
 //Components
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import { DmpIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
-import { DmpEditor } from "@/components/Editor";
+import TinyMCEEditor from "@/components/TinyMCEEditor";
 import ErrorMessages from '@/components/ErrorMessages';
-
+import FormInput from '@/components/Form/FormInput';
 import {
   SectionFormErrorsInterface,
   SectionFormInterface,
@@ -44,16 +47,21 @@ import {
 import { useSectionData } from "@/hooks/sectionData";
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
+import { scrollToTop } from '@/utils/general';
+import { routePath } from '@/utils/routes';
+import { stripHtmlTags } from '@/utils/general';
+import styles from './sectionUpdate.module.scss';
 
 const SectionUpdatePage: React.FC = () => {
   const toastState = useToast(); // Access the toast state from context
 
   // Get sectionId param
   const params = useParams();
-  const { section_slug: sectionId } = params;
+  const router = useRouter();
 
-  // Get templateId param
-  const { templateId } = params; // From route /template/:templateId
+  // Get templateId and sectionId params
+  const templateId = String(params.templateId);
+  const sectionId = String(params.section_slug);
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -88,9 +96,20 @@ const SectionUpdatePage: React.FC = () => {
   //Store selection of tags in state
   const [tags, setTags] = useState<TagsInterface[]>([]);
 
+  // Set URLs
+  const TEMPLATE_URL = routePath('template.show', { templateId });
+  const UPDATE_SECTION_URL = routePath('template.section.slug', { templateId, section_slug: sectionId });
+
 
   // Initialize user addSection mutation
   const [updateSectionMutation] = useUpdateSectionMutation();
+
+  // Initialize remove section mutation
+  const [removeSectionMutation] = useRemoveSectionMutation();
+
+  // State for delete confirmation modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Query for all tags
   const { data: tagsData } = useTagsQuery();
@@ -157,23 +176,17 @@ const SectionUpdatePage: React.FC = () => {
     });
   }
 
-  const scrollToTop = (ref: React.MutableRefObject<HTMLDivElement | null>) => {
-    if (ref.current) {
-      ref.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }
-  }
-
   // Make GraphQL mutation request to update section
   const updateSection = async (): Promise<[SectionErrors, boolean]> => {
+    // string all tags from sectionName before sending to backend
+    const cleanedSectionName = stripHtmlTags(sectionData.sectionName);
+
     try {
       const response = await updateSectionMutation({
         variables: {
           input: {
             sectionId: Number(sectionId),
-            name: sectionData.sectionName,
+            name: cleanedSectionName,
             introduction: sectionData.sectionIntroduction,
             requirements: sectionData.sectionRequirements,
             guidance: sectionData.sectionGuidance,
@@ -195,7 +208,7 @@ const SectionUpdatePage: React.FC = () => {
     } catch (error) {
       logECS('error', 'updateSection', {
         error,
-        url: { path: '/template/[templateId]/section/[sectionid]' }
+        url: { path: UPDATE_SECTION_URL }
       });
       if (error instanceof ApolloError) {
         return [{}, false];
@@ -203,6 +216,31 @@ const SectionUpdatePage: React.FC = () => {
         setErrorMessages(prevErrors => [...prevErrors, SectionUpdatePage('messages.errorUpdatingSection')]);
         return [{}, false];
       }
+    }
+  };
+
+  // Handle section deletion
+  const handleDeleteSection = async () => {
+    setIsDeleting(true);
+    try {
+      await removeSectionMutation({
+        variables: {
+          sectionId: Number(sectionId)
+        }
+      });
+
+      // Show success message and redirect to template page
+      toastState.add(SectionUpdatePage('messages.successDeletingSection'), { type: 'success' });
+      router.push(TEMPLATE_URL);
+    } catch (error) {
+      logECS('error', 'deleteSection', {
+        error,
+        url: { path: UPDATE_SECTION_URL }
+      });
+      setErrorMessages([SectionUpdatePage('messages.errorDeletingSection')]);
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -219,6 +257,10 @@ const SectionUpdatePage: React.FC = () => {
     const successMessage = SectionUpdatePage('messages.success');
     toastState.add(successMessage, { type: 'success' });
   }
+
+  const handleSectionNameChange = (sectionData: SectionFormInterface) => {
+    setSectionData(sectionData);
+  };
 
   // Handle form submit
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -244,19 +286,16 @@ const SectionUpdatePage: React.FC = () => {
         setErrorMessages([errors.general || SectionUpdatePage('messages.errorUpdatingSection')]);
 
       } else {
-        // Show success message
+        // Show success message and redirect back to Edit Templates page
         showSuccessToast();
+        router.push(TEMPLATE_URL);
       }
-
-      // Scroll to top of page
-      scrollToTop(topRef);
     }
   };
 
   useEffect(() => {
     if (tagsData?.tags) {
       // Remove __typename field from the tags selection
-      /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
       const cleanedData = tagsData.tags.map(({ __typename, ...fields }) => fields);
       setTags(cleanedData);
     }
@@ -268,7 +307,6 @@ const SectionUpdatePage: React.FC = () => {
       scrollToTop(errorRef);
     }
   }, [errorMessages]);
-
 
   // We need this so that the page waits to render until data is available
   if (loading) {
@@ -283,11 +321,9 @@ const SectionUpdatePage: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/template">{Global('breadcrumbs.templates')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href={`/template/${templateId}`}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/template/${templateId}/section/new`}>{Global('breadcrumbs.addNewSection')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.index', { templateId })}>{Global('breadcrumbs.templates')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('template.show', { templateId })}>{Global('breadcrumbs.editTemplate')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.updateSection')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -301,7 +337,6 @@ const SectionUpdatePage: React.FC = () => {
             <div className="main-content">
 
               <ErrorMessages errors={errorMessages} ref={errorRef} />
-
               <Tabs>
                 <TabList aria-label="Question editing">
                   <Tab id="edit">{Section('tabs.editSection')}</Tab>
@@ -310,40 +345,50 @@ const SectionUpdatePage: React.FC = () => {
                 </TabList>
                 <TabPanel id="edit">
                   <Form onSubmit={handleFormSubmit}>
-                    <Label htmlFor="sectionName" id="sectionNameLabel">{Section('labels.sectionName')}</Label>
-                    <DmpEditor
-                      content={sectionData.sectionName}
-                      setContent={(value) => updateSectionContent('sectionName', value)}
-                      error={fieldErrors['sectionName']}
+
+                    <FormInput
+                      name="sectionName"
                       id="sectionName"
-                      labelId="sectionNameLabel"
+                      type="text"
+                      isRequired={false}
+                      aria-required={true}
+                      label={Section('labels.sectionName')}
+                      value={sectionData.sectionName ? sectionData.sectionName : ''}
+                      onChange={(e) => handleSectionNameChange({
+                        ...sectionData,
+                        sectionName: e.currentTarget.value
+                      })}
+                      errorMessage={fieldErrors['sectionName']}
                     />
 
                     <Label htmlFor="sectionIntroduction" id="sectionIntroductionLabel">{Section('labels.sectionIntroduction')}</Label>
-                    <DmpEditor
+                    <TinyMCEEditor
                       content={sectionData.sectionIntroduction}
                       setContent={(value) => updateSectionContent('sectionIntroduction', value)}
                       error={fieldErrors['sectionIntroduction']}
                       id="sectionIntroduction"
                       labelId="sectionIntroductionLabel"
+                      helpText={Section('helpText.sectionIntroduction')}
                     />
 
-                    <Label htmlFor="sectionRequirementsLabel" id="sectionRequirements">{Section('labels.sectionRequirements')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionRequirements" id="sectionRequirementsLabel">{Section('labels.sectionRequirements')}</Label>
+                    <TinyMCEEditor
                       content={sectionData.sectionRequirements}
                       setContent={(value) => updateSectionContent('sectionRequirements', value)}
                       error={fieldErrors['sectionRequirements']}
                       id="sectionRequirements"
                       labelId="sectionRequirementsLabel"
+                      helpText={Section('helpText.sectionRequirements')}
                     />
 
-                    <Label htmlFor="sectionGuidanceLabel" id="sectionGuidance">{Section('labels.sectionGuidance')}</Label>
-                    <DmpEditor
+                    <Label htmlFor="sectionGuidance" id="sectionGuidanceLabel">{Section('labels.sectionGuidance')}</Label>
+                    <TinyMCEEditor
                       content={sectionData.sectionGuidance}
                       setContent={(value) => updateSectionContent('sectionGuidance', value)}
                       error={fieldErrors['sectionGuidance']}
                       id="sectionGuidance"
                       labelId="sectionGuidanceLabel"
+                      helpText={Section('helpText.sectionGuidance')}
                     />
 
                     <CheckboxGroup
@@ -392,7 +437,7 @@ const SectionUpdatePage: React.FC = () => {
                         })}
                       </div>
                     </CheckboxGroup>
-                    <Button type="submit">{SectionUpdatePage('button.updateSection')}</Button>
+                    <Button type="submit">{Global('buttons.saveAndUpdate')}</Button>
 
                   </Form>
                 </TabPanel>
@@ -403,6 +448,48 @@ const SectionUpdatePage: React.FC = () => {
                   <h2>{Section('tabs.logic')}</h2>
                 </TabPanel>
               </Tabs>
+
+              {/* Delete Section Button and Modal */}
+              <div className={styles.deleteSectionContainer}>
+                <h3 className={styles.dangerZoneTitle}>{SectionUpdatePage('deleteSection.heading')}</h3>
+                <p className={styles.dangerZoneDescription}>
+                  {SectionUpdatePage('deleteSection.description')}
+                </p>
+                <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+                  <Button
+                    className={`react-aria-Button danger`}
+                    isDisabled={isDeleting}
+                  >
+                    {isDeleting ? 'Deleting...' : SectionUpdatePage('buttons.deleteSection')}
+                  </Button>
+                  <ModalOverlay>
+                    <Modal>
+                      <Dialog>
+                        {({ close }) => (
+                          <>
+                            <h3>{SectionUpdatePage('deleteModal.title')}</h3>
+                            <p>{SectionUpdatePage('deleteModal.content')}</p>
+                            <div className={styles.deleteConfirmButtons}>
+                              <Button className='react-aria-Button' autoFocus onPress={close}>
+                                {SectionUpdatePage('deleteModal.cancelButton')}
+                              </Button>
+                              <Button
+                                className={`danger`}
+                                onPress={() => {
+                                  handleDeleteSection();
+                                  close();
+                                }}
+                              >
+                                {SectionUpdatePage('deleteModal.deleteButton')}
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </Dialog>
+                    </Modal>
+                  </ModalOverlay>
+                </DialogTrigger>
+              </div>
             </div>
           </div>
         </ContentContainer>

@@ -1,12 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import { useTranslations } from 'next-intl';
 
 import {
   Button,
-  Modal,
-  ModalOverlay,
-  Dialog,
   DialogTrigger,
 } from "react-aria-components";
 
@@ -16,14 +13,19 @@ import styles from './QuestionPreview.module.scss';
 
 
 interface QuestionPreviewProps extends React.HTMLAttributes<HTMLDivElement> {
+  buttonLabel?: string,
+  previewDisabled?: boolean,
 }
 
 
 const QuestionPreview: React.FC<QuestionPreviewProps> = ({
   children,
-  id='',
-  className='',
+  id = '',
+  className = '',
+  buttonLabel = 'Preview',
+  previewDisabled = true,
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const [isOpen, setOpen] = useState<boolean>(false);
   const [ready, setReady] = useState<boolean>(false);
@@ -55,6 +57,35 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
     };
   }, []);
 
+  // Close on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isOpen &&
+        dialogRef.current &&
+        !dialogRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     if (isOpen) {
       if (window.location.hash !== `#${id}_modal`) {
@@ -69,56 +100,71 @@ const QuestionPreview: React.FC<QuestionPreviewProps> = ({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+
   return (
     <ContentContainer
       id={id}
-      className={`${className} ${styles.PreviewContainer}`}
+      className={`${styles.QuestionPreview} ${className}`}
     >
       <DialogTrigger>
         <Button
           onPress={() => setOpen(true)}
           data-testid="preview-button"
+          isDisabled={previewDisabled}
         >
-          {t("previewButton")}
+          {buttonLabel ? buttonLabel : t("previewButton")}
         </Button>
-        <ModalOverlay
-          data-testid="modal-overlay"
-          className={styles.ModalOverlay}
-          isOpen={isOpen}
-          onOpenChange={setOpen}
-          isDismissable
-        >
-          <Modal
-            className={styles.Modal}
-            data-testid="modal-bottomsheet"
+
+        {isOpen && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`${id}-title`}
+            className={`${styles.ModalOverlay} modal-overlay`}
+            data-testid="modal-overlay"
           >
-            <Dialog
-              data-testid="modal-dialog"
-              className={styles.ModalDialog}
-            >
+            <div className={styles.Modal} data-testid="modal-bottomsheet">
               <div
-                data-testid="preview-notice"
-                className={styles.PreviewNotice}
+                className={styles.ModalDialog}
+                data-testid="modal-dialog"
+                role="document"
               >
-                <h3>{t('previewNoticeTitle')}</h3>
-                <p>
-                  {t('previewNoticeText')}
-
-                </p>
-                <Button
-                  data-testid="preview-close-button"
-                  onPress={() => setOpen(false)}
+                <div
+                  data-testid="preview-notice"
+                  className={styles.PreviewNotice}
                 >
-                  {t('closeButton')}
-                </Button>
+                  <h3 id={`${id}-title`}>{t('previewNoticeTitle')}</h3>
+                  <p>{t('previewNoticeText')}</p>
+                  <Button
+                    data-testid="preview-close-button"
+                    onPress={() => setOpen(false)}
+                  >
+                    {t('closeButton')}
+                  </Button>
+                </div>
+                {children}
               </div>
-
-              {children}
-            </Dialog>
-          </Modal>
-        </ModalOverlay>
+            </div>
+          </div>
+        )}
       </DialogTrigger>
-    </ContentContainer>
+    </ContentContainer >
   )
 }
 

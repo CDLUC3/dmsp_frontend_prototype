@@ -1,7 +1,23 @@
-query Affiliations($name: String!){
+query Affiliations($name: String!) {
   affiliations(name: $name) {
-    id
-    displayName
-    uri
+    totalCount
+    nextCursor
+    items {
+      id
+      displayName
+      uri
+    }
+  }
+}
+
+query AffiliationFunders($name: String!, $funderOnly: Boolean, $paginationOptions: PaginationOptions){
+  affiliations(name: $name, funderOnly: $funderOnly, paginationOptions: $paginationOptions) {
+    totalCount
+    nextCursor
+    items {
+      id
+      displayName
+      uri
+    }
   }
 }

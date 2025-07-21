@@ -1,0 +1,27 @@
+mutation AddProjectFunding($input: AddProjectFundingInput!) {
+  addProjectFunding(input: $input) {
+    errors {
+      affiliationId
+      funderOpportunityNumber
+      funderProjectNumber
+      general
+      grantId
+      projectId
+      status
+    }
+  }
+}
+
+mutation UpdateProjectFunding($input: UpdateProjectFundingInput!) {
+  updateProjectFunding(input: $input) {
+    errors {
+      affiliationId
+      funderOpportunityNumber
+      funderProjectNumber
+      general
+      grantId
+      projectId
+      status
+    }
+  }
+}

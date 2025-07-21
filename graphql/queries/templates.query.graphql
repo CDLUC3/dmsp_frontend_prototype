@@ -1,38 +1,21 @@
-query Templates {
-  myTemplates {
-    id
-    name
-    description
-    modified
-    modifiedById
-    sections {
+query Templates($term: String) {
+  myTemplates(term: $term) {
+    totalCount
+    nextCursor
+    items {
       id
       name
-      bestPractice
-      displayOrder
+      description
+      visibility
       isDirty
-      questions {
-        errors {
-          general
-          templateId
-          sectionId
-          questionText
-          displayOrder
-        }
-        displayOrder
-        guidanceText
-        id
-        questionText
-        sectionId
-        templateId
-      }
-    },
-    owner {
-      name
-      displayName
-      searchName
-    },
-    visibility
+      latestPublishVersion
+      latestPublishDate
+      ownerId
+      ownerDisplayName
+      modified
+      modifiedById
+      modifiedByName
+    }
   }
 }
 
@@ -74,7 +57,10 @@ query Template($templateId: Int!) {
     owner {
       displayName
       id
-    }
+    },
+    visibility,
+    bestPractice,
+    isDirty
   }
 }
 

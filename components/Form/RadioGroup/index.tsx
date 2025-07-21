@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import {
   FieldError,
   Label,
@@ -14,6 +14,7 @@ import styles from './radioGroup.module.scss';
 const RadioGroupComponent: React.FC<RadioButtonProps> = ({
   name,
   value,
+  classes,
   description,
   radioGroupLabel,
   radioButtonData,
@@ -22,12 +23,19 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
   onChange
 }) => {
 
+  const renderDescription = (desc: string | ReactNode) => {
+    // If it's a string, just render it directly
+    // If it's a ReactNode, it will be rendered as JSX
+    return desc;
+  };
   return (
     <>
       <RadioGroup
         name={name}
         value={value}
+        className={classes}
         onChange={onChange}
+        aria-label={radioGroupLabel || 'Radio Group'}
       >
         <Label>{radioGroupLabel}</Label>
         <Text slot="description" className="help">
@@ -41,7 +49,7 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
                 slot="description"
                 className={classNames('help', styles.radioDescription)}
               >
-                {radioButton.description}
+                {renderDescription(radioButton.description)}
               </Text>
             )}
           </div>

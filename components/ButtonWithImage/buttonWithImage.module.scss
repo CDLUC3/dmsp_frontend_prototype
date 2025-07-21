@@ -1,17 +1,25 @@
-@import '@/styles/responsive.scss';
+@use '@/styles/responsive.scss' as r;
 
 .imageButton {
-  @include device(md) {
-  }
+  justify-content: center;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background-color: #f1f5f9;
+  margin: 15px 0;
+  padding: 1rem 1rem;
+  background-color: var(--gray-75);
+  color: black;
+  @include r.device(md) {
+  }
 }
 
-.imageButton:hover {
-  background-color: var(--gray-600);
-  color: var(--gray-50);
+.imageButton:visited {
+  color: black;
+}
+
+.imageButton:hover:not(:disabled) {
+  background-color: var(--gray-100) !important;
+  color: black !important;
+  text-decoration: none !important;
 }
 
 .icon {

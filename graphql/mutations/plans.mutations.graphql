@@ -1,0 +1,90 @@
+mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
+  addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
+    id
+  }
+}
+
+mutation AddPlanMember($planId: Int!, $projectMemberId: Int!) {
+  addPlanMember(planId: $planId, projectMemberId: $projectMemberId) {
+    errors {
+      general
+      memberRoleIds
+      primaryContact
+      projectMemberId
+      projectId
+    }
+    id
+    isPrimaryContact
+  }
+}
+
+mutation RemovePlanMember($planMemberId: Int!) {
+  removePlanMember(planMemberId: $planMemberId) {
+    errors {
+      general
+      primaryContact
+      projectMemberId
+      projectId
+      memberRoleIds
+    }
+    id
+    isPrimaryContact
+  }
+}
+
+mutation UpdatePlanMember(
+  $planId: Int!,
+  $planMemberId: Int!,
+  $isPrimaryContact: Boolean
+  $memberRoleIds: [Int!]
+  ) {
+  updatePlanMember(
+    planId: $planId,
+    planMemberId: $planMemberId,
+    memberRoleIds:$memberRoleIds,
+    isPrimaryContact:$isPrimaryContact,
+    ) {
+    id
+    errors {
+      general
+    }
+  }
+}
+
+mutation PublishPlan($planId: Int!, $visibility: PlanVisibility) {
+  publishPlan(planId: $planId, visibility: $visibility) {
+    errors {
+      general
+      visibility
+      status
+    }
+    visibility
+    status
+  }
+}
+
+mutation UpdatePlanStatus($planId: Int!, $status: PlanStatus!) {
+  updatePlanStatus(planId: $planId, status: $status) {
+    errors {
+      general
+      status
+    }
+    id
+    status
+    visibility
+  }
+}
+
+
+mutation AddPlanFunding($planId: Int!, $projectFundingId: Int!) {
+  addPlanFunding(planId: $planId, projectFundingId: $projectFundingId) {
+    errors {
+      ProjectFundingId
+      general
+      projectId
+    }
+    projectFunding {
+      id
+    }
+  }
+}

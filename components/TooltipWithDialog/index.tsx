@@ -11,7 +11,6 @@ import {
   OverlayArrow,
   PressEvent
 } from 'react-aria-components';
-import { useButton } from 'react-aria';
 import Image from 'next/image';
 import { DmpIcon } from "@/components/Icons";
 import classNames from 'classnames';
@@ -43,19 +42,24 @@ const TooltipWithDialog = ({
 
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const { buttonProps } = useButton(
-    {
-      onPress: () => setIsOpen(true),
-      'aria-label': 'Delete Item',
-    },
-    buttonRef
-  );
+  const onDialogChange = (isOpen: boolean) => {
+    setIsOpen(isOpen);
+    if (!isOpen) {
+      setIsConfirmed(true);
+    }
+  };
+
 
   return (
     <>
-      <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger isOpen={isOpen} onOpenChange={onDialogChange}>
         <TooltipTrigger delay={0}>
-          <Button {...buttonProps as {}} className={classNames('react-aria-Button', styles.tooltipButton)}>
+          <Button
+            className={classNames('react-aria-Button', styles.tooltipButton)}
+            onPress={() => setIsOpen(true)}
+            aria-label="Delete Item"
+            ref={buttonRef}
+          >
             {imageUrl && (
               <span><Image src={imageUrl} className={styles.icon} width={20} height={20} alt="" /></span>
             )}<span>{text}</span><span>{icon || <DmpIcon icon="cancel" />}</span>

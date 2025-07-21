@@ -5,11 +5,9 @@ import {
   fetchCsrfToken,
 } from "@/utils/authHelper";
 
-/* eslint-disable-next-line no-unused-vars */
 type RetryRequestType = (csrfToken: string | null) => Promise<Response>;
 
 interface CustomRouter {
-  // eslint-disable-next-line no-unused-vars
   push: (url: string) => void;
 }
 
@@ -17,7 +15,7 @@ async function safeJsonParse(response: Response) {
   try {
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch {
     throw new Error("Failed to parse JSON response");
   }
 }

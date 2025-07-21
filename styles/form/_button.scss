@@ -13,26 +13,26 @@
   color: var(--bg-white);
   align-items: center;
 
-  &:active,
   &:visited {
     color: var(--bg-white);
   }
+
+  &:active:not(:disabled) {
+    transform: scale(1.05);
+  }
+
   &:hover:not(:disabled) {
     background: var(--blue-500);
-    color: #fff;
+    color: var(--bg-white);
   }
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  &:focus {
-    outline: none;
-  }
-
-  &:focus-visible {
+  &[data-focus-visible] {
     outline: 2px solid var(--focus-ring);
-    outline-offset: var(--focus-ring-offset);
+    outline-offset: -1px;
   }
 }
 
@@ -98,14 +98,38 @@
     text-decoration: none;
   }
 
+  &:disabled {
+    color: var(--slate-400);
+    border-color: var(--slate-200);
+  }
+}
+
+@mixin button-link {
+  background: none;
+  border: none;
+  color: var(--slate-900);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+
+  &:active,
+  &:visited {
+    color: var(--slate-900);
+  }
+
+  &:hover:not(:disabled) {
+    background: none;
+    color: var(--blue-500)
+  }
+
   &:active:not(:disabled),
   &[data-pressed]:not(:disabled) {
-    background: var(--slate-200);
+    color: var(--slate-200);
   }
 
   &:disabled {
     color: var(--slate-400);
-    border-color: var(--slate-200);
   }
 }
 
@@ -137,7 +161,6 @@
   }
 }
 
-
 // Styles for both react-aria buttons and default HTML buttons
 .react-aria-Button,
 button,
@@ -147,6 +170,12 @@ input[type="submit"],
 input[type="reset"],
 input[type="button"] {
   @include button-base;
+
+  &[data-focus-visible] {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+
 }
 
 a.button-link {
@@ -189,6 +218,17 @@ input[type="button"].tertiary,
 input[type="reset"].tertiary,
 input[type="submit"].tertiary {
   @include button-tertiary;
+}
+
+// Link button styles
+.react-aria-Button.link,
+.react-aria-Button--link,
+button.link,
+button--link,
+input[type="button"].link,
+input[type="reset"].link,
+input[type="submit"].link {
+  @include button-link;
 }
 
 .react-aria-Button.danger,

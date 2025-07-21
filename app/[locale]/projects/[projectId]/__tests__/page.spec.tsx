@@ -2,14 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { useParams } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import {
-  useProjectQuery
-} from '@/generated/graphql';
+import { useProjectQuery } from '@/generated/graphql';
 import ProjectOverviewPage from '../page';
-import {
-  mockScrollIntoView,
-  mockScrollTo
-} from "@/__mocks__/common";
+import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
@@ -28,14 +23,13 @@ jest.mock('next-intl', () => ({
     dateTime: jest.fn(() => '01-01-2023'),
   })),
   useTranslations: jest.fn(() => jest.fn((key) => key)), // Mock `useTranslations`,
-  useLocale: jest.fn(() => 'en-US'), // Return a default locale
 }));
 
 const mockProjectData = {
   title: "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations",
   startDate: "2025-09-01",
   endDate: "2028-12-31",
-  funders: [
+  fundings: [
     {
       id: 1,
       grantId: "https://example.com/awards/IRL-000000X1",
@@ -46,11 +40,11 @@ const mockProjectData = {
       }
     }
   ],
-  contributors: [
+  members: [
     {
       givenName: "Jacques",
       surName: "Cousteau",
-      contributorRoles: [
+      memberRoles: [
         {
           description: "An individual conducting a research and investigation process, specifically performing the experiments, or data/evidence collection.",
           displayOrder: 1,
@@ -69,7 +63,7 @@ const mockProjectData = {
     {
       givenName: "Captain",
       surName: "Nemo",
-      contributorRoles: [
+      memberRoles: [
         {
           description: "An individual conducting a research and investigation process, specifically performing the experiments, or data/evidence collection.",
           displayOrder: 1,
@@ -92,7 +86,7 @@ const mockProjectData = {
     {
       created: "1740696782000",
       dmpId: "https://doi.org/10.11111/2A3B4C",
-      funder: "National Science Foundation",
+      funding: "National Science Foundation",
       id: 1,
       modified: "1740696782000",
       sections: [
@@ -131,9 +125,25 @@ describe('ProjectOverviewPage', () => {
     expect(screen.getByText('project')).toBeInTheDocument();
   });
 
-  it('should render the project funders', () => {
+  it('should not display project start and end dates if one of them is null', () => {
+    const mockProjectDataWithoutStartDate = {
+      ...mockProjectData,
+      startDate: null
+    };
+
+    (useProjectQuery as jest.Mock).mockReturnValue({
+      data: { project: mockProjectDataWithoutStartDate },
+      loading: false,
+      error: null,
+    });
     render(<ProjectOverviewPage />);
-    expect(screen.getByText('funders')).toBeInTheDocument();
+    //Should not see end date
+    expect(screen.queryByText('2028-12-31')).not.toBeInTheDocument();
+  })
+
+  it('should render the project fundings', () => {
+    render(<ProjectOverviewPage />);
+    expect(screen.getByText('fundings')).toBeInTheDocument();
   });
 
   it('should render the project members', () => {

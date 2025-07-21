@@ -1,3 +1,4 @@
+@use "responsive" as *;
 h1, .h1,
 h2, .h2,
 h3, .h3,
@@ -31,6 +32,18 @@ h2,
 }
 
 h3,.h3 {
+  font-size: calc(var(--fs-lg) * var(--scale-mobile));
+  color: var(--heading-color);
+  padding: var(--space-0) var(--space-0) var(--space-1);
+
+
+  @include device(md) {
+    font-size: var(--fs-xl);
+  }
+}
+
+// Sometimes we need to apply heading 3 styles to an <h2> element
+.heading-3 {
   font-size: calc(var(--fs-lg) * var(--scale-mobile));
   color: var(--heading-color);
   padding: 5px 10px 5px 3px;

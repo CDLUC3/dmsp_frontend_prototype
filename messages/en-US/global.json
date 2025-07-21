@@ -4,20 +4,8 @@
     "linkText": "Go to the Connections page",
     "content": "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."
   },
-  "LocaleTest": {
-    "title": "Localization Test",
-    "content": "Hello {name}!",
-    "itemCount": "{count, plural, one {You have {count} item} other {You have {count} items}}",
-    "message": "Please refer to <guidelines>the guidelines</guidelines>.",
-    "markup": "This is <important>important</important>",
-    "raw": "&lt;script&gt;alert('Hacked!')&lt;/script&gt;",
-    "general": "This is new content"
-  },
   "About": {
     "title": "Welcome to the DMP Tool"
-  },
-  "Test": {
-    "info": "You can try again later."
   },
   "Header": {
     "menuDashboard": "Dashboard",
@@ -66,6 +54,7 @@
     "givenName": "First name",
     "surName": "Last name",
     "institution": "Institution",
+    "otherInstitution": "Other institution",
     "language": "Language",
     "headingPrimaryEmail": "Primary email address",
     "headingSSO": "Single sign on activated",
@@ -75,7 +64,7 @@
     "headingRelatedActions": "Related actions",
     "primaryEmailDesc": "This email will be used for your account login. It can also be used for password resets.",
     "SSODesc": "This email address is managed by cdl.edu and connected to the institution.",
-    "notificationsDesc": "This email address will be used for DMP notifications. &lt;manage&gt;Manage your notifications&lt;/manage&gt;.",
+    "notificationsDesc": "This email address will be used for DMP notifications. <manage> Manage your notifications </manage>.",
     "aliasEmailDesc": "Alias email addresses may be used to help others find you, for example if they‘d like to share a DMP with you.",
     "linkMakePrimary": "Make primary email address",
     "helpTextForAddAlias": "You will be sent an email to confirm this addition",
@@ -91,8 +80,60 @@
     "linkManageNotifications": "Manage notifications",
     "messages": {
       "profileUpdateSuccess": "The profile form was successfully updated.",
-      "emailAddressUpdateSuccess": "The email was successfully added to your profile."
+      "emailAddressUpdateSuccess": "The email was successfully added to your profile.",
+      "errors": {
+        "givenNameValidation": "Name must be at least 2 characters",
+        "surNameValidation": "Surname must be at least 2 characters",
+        "affiliationValidation": "Institution name cannot be blank and must be at least 2 characters long",
+        "otherAffiliationValidation": "Other institution name cannot be blank and must be at least 2 characters long"
+      }
     }
+  },
+  "UserConnections": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProfile": "User profile",
+    "breadcrumbConnections": "Connections",
+    "title": "Connections",
+    "orcidConnection": {
+      "title": "ORCID iD",
+      "content": "ORCID provides a persistent identifier — an ORCID iD — that distinguishes you from other users. Learn more at <link>ORCID.org</link>.",
+      "btnText": "Connect your ORCID iD"
+    },
+    "orcidConnectionConnected": {
+      "title": "ORCID iD",
+      "content": "You've successfully connected your ORCID iD. Learn more or manage your record at <link>ORCID.org</link>.",
+      "btnText": "View ORCID iD"
+    },
+    "ssoConnection": {
+      "title": "Single Sign On",
+      "content": "Connect your account so that you can log into DMP Tool via your institution.",
+      "btnText": "Connect institutional credentials"
+    },
+    "headingRelatedActions": "Related actions",
+    "linkUpdatePassword": "Update password",
+    "linkUpdateConnections": "Update connections",
+    "linkManageNotifications": "Manage notifications"
+  },
+  "FunderSearch": {
+    "headerTitle": "Search for Funders",
+    "funder": "Funder",
+    "popularTitle": "Most popular funders",
+    "found": "{count} funders found",
+    "noResults": "No results found",
+    "showCount": "Showing {count} of {total}",
+    "addManuallyHeading": "Not in this list?",
+    "addManuallyText": "If your project isn’t shown, you can add the details manually.",
+    "addManuallyLabel": "Add funder manually"
+  },
+  "PlanFunding": {
+    "headerTitle": "Plan Funding",
+    "headerDescription": "Manage funding sources for this Plan",
+    "fundingLabel": "Select funding sources for this plan",
+    "fundingDescription": "This funding list comes from the funding list attached to the project.",
+    "changeWarning": "Note: Changing the funding sources may require a template change. Only change if you are sure.",
+    "addSourceTitle": "Adding a funding source?",
+    "addSourceNote": "If you want to add new funding information, you can add funding at the project level. This project can have multiple funding sources, whereas each plan can only have a single source of funding as we match it to the required template.",
+    "addSourceLink": "Add a new funding source"
   },
   "TemplateHistory": {
     "title": "Template history",
@@ -112,6 +153,7 @@
   },
   "Global": {
     "breadcrumbs": {
+      "navigation": "Breadcrumb navigation",
       "home": "Home",
       "templates": "Templates",
       "template": "Template",
@@ -126,9 +168,14 @@
       "editTemplate": "Edit Template",
       "question": "Question",
       "selectQuestionType": "Select Question Type",
+      "project": "Project",
       "projects": "Projects",
       "projectOverview": "Project overview",
-      "projectFunder": "Project funder"
+      "projectFunding": "Project funding",
+      "planOverview": "Plan overview",
+      "planFunding": "Plan funding",
+      "feedback": "Feedback",
+      "questionDetails": "Question details"
     },
     "form": {
       "yesLabel": "Yes",
@@ -136,38 +183,67 @@
     },
     "lastRevisedBy": "Last revised by",
     "lastUpdated": "Last updated",
+    "published": "Published",
+    "visibility": "Visibility",
+    "notPublished": "Not published",
     "buttons": {
       "search": "Search",
       "select": "Select",
       "next": "Next",
       "save": "Save",
+      "saveAndAdd": "Save and add",
+      "saveAndUpdate": "Save and update",
       "saveChanges": "Save changes",
       "remove": "Remove",
       "confirm": "Confirm",
+      "change": "Change",
       "cancel": "Cancel",
       "linkUpdate": "Update",
       "linkExpand": "Expand",
       "linkCollapse": "Collapse",
       "continue": "Continue",
-      "edit": "Edit"
+      "edit": "Edit",
+      "preview": "Preview",
+      "publish": "Publish",
+      "close": "Close",
+      "loadMore": "Load More"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
-      "endDate": "End date"
+      "endDate": "End date",
+      "funderSearch": "Search by funder name"
     },
     "helpText": {
-      "searchHelpText": "Search by research organization, field station or lab, template description, etc."
+      "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
+      "funderSearch": "Search by research organization, funder name, or related keywords."
+    },
+    "placeholders": {
+      "funderSearch": "Enter funder name..."
     },
     "links": {
-      "clearFilter": "clear filter"
+      "clearFilter": "clear filter",
+      "request": "Request",
+      "learnMore": "Learn more",
+      "update": "Update",
+      "expand": "Expand",
+      "collapse": "Collapse"
     },
     "messaging": {
       "loading": "Loading",
       "noItemsFound": "No items found",
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search",
-      "fixBelow": "Please fix the errors below"
+      "fixBelow": "Please fix the errors below",
+      "unsupportedQuestionType": "Unsupported question type {questionType}",
+      "sectionIsExpanded": "Section is expanded",
+      "sectionIsCollapsed": "Section is collapsed",
+      "error": "Something went wrong. Please try again.",
+      "errors": {
+        "invalidQuestionType": "Invalid question type found.",
+        "questionUnexpectedFormat": "Unexpected format for question.json.",
+        "questionJSONFParseFailed": "JSON.parse failed."
+      }
     },
     "tabs": {
       "editQuestion": "Edit question",
@@ -176,6 +252,25 @@
     },
     "headings": {
       "preview": "Preview"
+    },
+    "version": "Version",
+    "questionTypes": {
+      "text": "Text",
+      "textArea": "Text area",
+      "radioButtons": "Radio button",
+      "checkBoxes": "Checkbox",
+      "selectBox": "Select",
+      "boolean": "Boolean",
+      "number": "Number",
+      "numberRange": "Number range",
+      "email": "Email",
+      "url": "URL",
+      "currency": "Currency",
+      "date": "Date field",
+      "dateRange": "Date range",
+      "filteredSearch": "Filtered search",
+      "table": "Table",
+      "typeaheadSearch": "Typeahead search"
     }
   }
 }

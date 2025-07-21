@@ -4,9 +4,7 @@ import '@testing-library/jest-dom';
 import { useRouter } from 'next/navigation';
 import TemplateCreatePage from '../page';
 import { useQueryStep } from '../useQueryStep';
-import {
-  mockScrollTo
-} from '@/__mocks__/common';
+import { mockScrollTo } from '@/__mocks__/common';
 
 // Mock the useQueryStep hook
 jest.mock('@/app/[locale]/template/create/useQueryStep', () => ({
@@ -14,11 +12,9 @@ jest.mock('@/app/[locale]/template/create/useQueryStep', () => ({
 }));
 
 // Mock the debounce function
-/* eslint-disable no-unused-vars */
 jest.mock('@/hooks/debounce', () => ({
   debounce: (fn: (..._args: unknown[]) => unknown) => fn,
 }));
-/* eslint-enable no-unused-vars */
 
 // Mock the Next.js router
 jest.mock('next/navigation', () => ({

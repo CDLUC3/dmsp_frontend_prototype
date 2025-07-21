@@ -5,16 +5,36 @@
       "projects": "Projetos",
       "navigation": "Navegação de Breadcrumb"
     },
-    "page": {
-      "pageDescription": "Visão geral dos detalhes do plano"
+    "buttons": {
+      "backToSection": "Voltar para a seção",
+      "useAnswer": "usar resposta",
+      "comment": "Comentário"
     },
-    "funder": {
-      "title": "Gordo para este plano",
+    "headings": {
+      "comments": "Comments",
+      "leaveAComment": "Deixar uma foto"
+    },
+    "labels": {
+      "saveAnswer": "Resposta salva",
+      "returnToSection": "Voltar à visão geral da seção"
+    },
+    "page": {
+      "pageDescription": "Visão geral dos detalhes do plano",
+      "requirementsBy": "Requisitos de {funder}",
+      "requiredByFunder": "Necessário pelo financiador",
+      "requiredByFunderInfo": "O financiador marcou isso como uma pergunta necessária no seu modelo. Você pode deixá-lo em branco na ferramenta, mas deve completá-lo antes de enviar sua subvenção.",
+      "jumpToGuidance": "Pule para orientação adicional",
+      "viewSampleAnswer": "Ver amostra da resposta",
+      "guidanceBy": "Guia por {funder}",
+      "funderSampleText": "{funder} texto de exemplo",
+      "participantsWillBeNotified": "Os participantes serão notificados assim que submetidos."
+    },
+    "funding": {
+      "title": "Financiamento para este plano",
       "edit": "Ajustar para este plano"
     },
     "members": {
       "title": "Planejar membros para este plano",
-      "count": "Membros da equipe {count}",
       "info": "{name} ({role})",
       "edit": "Ajustar para este plano"
     },
@@ -36,24 +56,129 @@
       "updateSection": "Editar: {title}"
     },
     "status": {
-      "title": "Status",
-      "lastUpdated": "Últimas atualizações",
-      "publishedStatus": "Status da publicação",
-      "doi": "DOI",
-      "notPublished": "Não publicado",
-      "visibilitySettings": "Configurações de visibilidade",
+      "title": "Estado do plano",
+      "select": {
+        "label": "Selecione um status do plano",
+        "changeLabel": "Alterar status do plano"
+      },
+      "publish": {
+        "title": "Status da publicação",
+        "label": "Publicar"
+      },
       "download": {
-        "title": "Baixar",
-        "downloadPDF": "Baixar plano",
-        "draftInfo": "Quando você salvar como rascunho, somente você e pessoas com acesso compartilhado poderão ver este plano.",
-        "learnMore": "Saiba mais",
-        "markComplete": "Marcar como concluído"
+        "title": "Baixar"
       },
       "feedback": {
-        "title": "Feedback e colaboração",
-        "description": "Permitir que as pessoas acessem, editem ou comentem este plano",
-        "manageAccess": "Gerenciar acesso",
-        "requestFeedback": "Solicitar feedback"
+        "title": "Registrar"
+      }
+    },
+    "publishModal": {
+      "publish": {
+        "title": "Publicar",
+        "description1": "Publicar um Plano de Gerenciamento de Dados (DMP) atribui a ele um Identificador de Objeto Digital (DOI). Ao publicar, você poderá vincular este plano ao seu ORCiD e a saídas de projeto, como artigos, o que tornará mais fácil mostrar que você atendeu aos requisitos do seu financiador até o final do projeto.",
+        "description2": "Este DOI identifica exclusivamente o DMP, facilitando a referência e o acesso no futuro.",
+        "checklistTitle": "Publicar um Plano de Gerenciamento de Dados (DMP) atribui a ele um Identificador de Objeto Digital (DOI). Ao publicar, você poderá vincular este plano ao seu ORCiD e a saídas de projeto, como artigos, o que tornará mais fácil mostrar que você atendeu aos requisitos do seu financiador até o final do projeto.",
+        "checklistInfo": "itens podem ser corrigidos",
+        "buttonNext": "itens podem ser corrigidos",
+        "visibilityTitle": "Publicação: definir visibilidade",
+        "visibilityDescription": "Ótimo, a publicação do seu plano traz muitos benefícios.",
+        "visibilityOptionsTitle": "Definir a visibilidade do seu plano",
+        "visibilityOptions": {
+          "public": {
+            "label": "Público (recomendado)",
+            "description": "Todos os metadados serão visíveis para qualquer usuário. Os pesquisadores poderão visualizar o conteúdo do plano em si."
+          },
+          "organization": {
+            "label": "Apenas organização",
+            "description": "O plano completo será visível para qualquer pessoa de sua Organização. Apenas metadados básicos do seu plano (título e colaboradores) ficarão visíveis para usuários fora da sua organização."
+          },
+          "private": {
+            "label": "Privado",
+            "description": "Apenas metadados básicos do seu plano (títulos e colaboradores) ficarão visíveis para os outros usuários."
+          }
+        },
+        "checklistItem": {
+          "primaryContact": "ter um contato principal",
+          "complete": "marcou seu plano como completo",
+          "percentageAnswered": "respondeu a pelo menos 50% das perguntas (você respondeu {percentage}%",
+          "fundingText": "identificaram seu",
+          "funding": "fontes de financiamento",
+          "requiredFields": "todos os campos marcados como 'obrigatórios'",
+          "orcidText": "designou o ORCiD para pelo menos um dos",
+          "projectMembers": "Membros de projeto"
+        },
+        "publishButton": "Publicar"
+      }
+    }
+  },
+  "PlanCreate": {
+    "title": "Plano: Selecione um modelo DMP",
+    "description": "Selecione um modelo para usar ao criar o DMP.",
+    "checkbox": {
+      "filterByFunderLabel": "Filtrar por financiador",
+      "filterByFunderDescription": "Selecione se você quer ver apenas modelos pelo seu fundo.",
+      "filterByBestPracticesLabel": "Filtrar por melhores práticas",
+      "filterByBestPracticesDescription": "Selecione se você quer ver apenas os modelos de boas práticas"
+    },
+    "labels": {
+      "dmpBestPractice": "Prática de qualidade DMP"
+    }
+  },
+  "ProjectsProjectPlanAdjustMembers": {
+    "title": "Membros do plano",
+    "description": "Selecione os membros relevantes para <strong>este plano apenas </strong> na lista de membros do projeto mostrada abaixo. Independentemente do seu papel neste plano, eles permanecerão como membros do seu",
+    "newWindow": "(nova janela)",
+    "contactPerson": "Pessoa de contato",
+    "headings": {
+      "h2MembersInThePlan": "Apenas membros deste plano",
+      "h2MembersNotInPlan": "Membros do projeto não estão neste plano",
+      "h2AddProjectMember": "Adicionando um novo membro?",
+      "h2AllowOthers": "Permitir que outros acessem ao projeto",
+      "h3PrimaryContact": "Contato principal"
+    },
+    "addProjectMemberInfo": "Você pode adicionar qualquer membro do projeto a este plano usando as caixas de seleção acima. Se quiser adicionar alguém que não esteja mostrado aqui, você deve <strong>adicioná-lo ao projeto primeiro</strong>.",
+    "allowOthersToAccess": " Você pode permitir que outros acessem ao projeto. Isto lhes dará acesso ao projeto e a todos os planos.",
+    "labels": {
+      "planMembers": "Membros do plano",
+      "orcid": "Perfil ORCIiD do {name}",
+      "removeFromPlan": "Retirar do plano",
+      "addMemberToPlan": "Adicionar a este plano"
+    },
+    "messaging": {
+      "success": {
+        "addedPlanMember": "{fullName} adicionado com sucesso como membro do plano",
+        "removedPlanMember": "{fullName} removido com sucesso como membro do plano",
+        "updatedPlanMember": "{fullName} atualizado com sucesso como membro do plano"
+      },
+      "error": {
+        "memberNotFound": "Membro não encontrado"
+      }
+    },
+    "form": {
+      "select": {
+        "selectionIsRequired": "A seleção é necessária",
+        "description": "O contato primário é necessário, este será o contato principal do lead que será usado se um DOI for criado"
+      }
+    },
+    "links": {
+      "updateProjectMembers": "Atualizar membros do projeto",
+      "inviteAPerson": "Convidar pessoa"
+    }
+  },
+  "PlanOverviewQuestionPage": {
+    "messages": {
+      "success": {
+        "questionSaved": "Detalhes da pergunta salvos com sucesso"
+      }
+    }
+  },
+  "ProjectsProjectFunding": {
+    "buttons": {
+      "addFundingSource": "Adicionar nova fonte de financiamento"
+    },
+    "messages": {
+      "errors": {
+        "funderNumberNotFound": "Número do projeto fino não encontrado."
       }
     }
   }

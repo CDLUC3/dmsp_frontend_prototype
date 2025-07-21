@@ -1,58 +1,97 @@
 'use client'
 
 import React from 'react';
-import sanitizeHtml from 'sanitize-html';
 import ConnectionSection from '@/components/ConnectionSection';
 import PageHeader from '@/components/PageHeader';
-import {ContentContainer, LayoutContainer,} from '@/components/Container';
+import {
+  ContentContainer,
+  LayoutWithPanel,
+  SidebarPanel,
+} from '@/components/Container';
+import { Breadcrumb, Breadcrumbs } from "react-aria-components";
+import Link from "next/link";
+import { useTranslations } from 'next-intl';
+import styles from "@/app/[locale]/account/profile/profile.module.scss";
 
-const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
-const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
+// const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
+// const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
 
 const ConnectionsPage: React.FC = () => {
+  const t = useTranslations('UserConnections');
 
   // Sandbox Uri
   //const orcidUri = `https://sandbox.orcid.org/oauth/authorize?client_id=${orcidClientId}&response_type=code&scope=/read-limited&redirect_uri=${redirectURI}`;
 
-  //Production Uri
-  const orcidUri = `https://orcid.org/oauth/authorize?client_id=${ORCID_CLIENT_ID}&response_type=code&scope=/authenticate&redirect_uri=${REDIRECT_URI}`;
 
-  const orcidContentString = sanitizeHtml('ORCID provides a persistent identifier - an ORCID iD - that distinguishes you from other users. Learn more at <a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">ORCID.org</a>.');
+  //Production Uri
+  //const orcidUri = `https://orcid.org/oauth/authorize?client_id=${ORCID_CLIENT_ID}&response_type=code&scope=/authenticate&redirect_uri=${REDIRECT_URI}`;
+
+  // Fake flag to indicate if ORCID is connected
+  //const isOrcidConnected = true;
+
+
+
+  // const orcidContentString = t.markup(
+  //   isOrcidConnected
+  //     ? 'orcidConnectionConnected.content'
+  //     : 'orcidConnection.content',
+  //   {
+  //     link: (chunks) =>
+  //       `<a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">${chunks}</a>`
+  //   }
+  // );
 
   return (
     <>
-      <PageHeader title="Connections" />
-      <LayoutContainer>
+      <PageHeader
+        title={t('title')}
+        showBackButton={true}
+        breadcrumbs={
+          <Breadcrumbs>
+            <Breadcrumb><Link href="/">{t('breadcrumbHome')}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href="/account/profile">{t('breadcrumbProfile')}</Link></Breadcrumb>
+            <Breadcrumb>{t('breadcrumbConnections')}</Breadcrumb>
+          </Breadcrumbs>
+        }
+        className="page-connections-list"
+      />
+
+      <LayoutWithPanel>
         <ContentContainer>
           <div className="sectionContainer">
             <div className="sectionContent">
+
               <ConnectionSection
-                type='orcid'
-                title='ORCID iD - not connected'
-                content={orcidContentString}
-                btnUrl={orcidUri}
-                btnImageUrl='/images/orcid.svg'
-                btnText='Connect your ORCID iD'
-              />
-              <ConnectionSection
-                type='orcidtest'
-                title='ORCiD state when user is connected'
-                content='This is to test the display of the orcid id once the user has connected.'
+                type='orcidconnected'
+                title={t('orcidConnectionConnected.title')}
+                content={'orcidConnectionConnected.content'}
                 btnUrl='/users/auth/orcid/test'
                 btnImageUrl='/images/orcid.svg'
-                btnText='Connect your ORCID iD Test'
+                btnText={t('orcidConnectionConnected.btnText')}
               />
+
               <ConnectionSection
                 type='sso'
-                title='Single Sign On'
-                content='Connect your account so that you can log into DMP Tool via your institution.'
+                title={t('ssoConnection.title')}
+                content={t('ssoConnection.content')}
                 btnUrl=''
-                btnText='Connect institutional credentials'
+                btnText={t('ssoConnection.btnText')}
               />
             </div>
           </div>
         </ContentContainer>
-      </LayoutContainer>
+
+        <SidebarPanel className={styles.layoutSidebarPanel}>
+          <h2>{t('headingRelatedActions')}</h2>
+          <ul className={styles.relatedItems}>
+            <li><Link href="/account/profile">{t('breadcrumbProfile')}</Link></li>
+            <li><Link href="/account/update-password">{t('linkUpdatePassword')}</Link></li>
+            <li><Link href="/account/notifications">{t('linkManageNotifications')}</Link></li>
+          </ul>
+        </SidebarPanel>
+
+      </LayoutWithPanel>
     </>
   )
 }

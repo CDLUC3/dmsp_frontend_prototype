@@ -1,7 +1,9 @@
+/* eslint-disable react/prop-types */
+
 'use client'
 
-import {useState} from 'react';
-import {useTranslations} from 'next-intl';
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Button,
   Dialog,
@@ -11,7 +13,12 @@ import {
 } from 'react-aria-components';
 
 
-const ConfirmModal: React.FC<{ email: string, onConfirm: (email: string) => void }> = ({ email, onConfirm }) => {
+const ConfirmModal: React.FC<{
+  title: string,
+  email: string,
+  onConfirm: (email: string) => void
+}
+> = ({ title, email, onConfirm }) => {
   const [isOpen, setOpen] = useState(false);
   //Localization keys
   const Global = useTranslations('Global');
@@ -23,8 +30,8 @@ const ConfirmModal: React.FC<{ email: string, onConfirm: (email: string) => void
       <ModalOverlay>
         <Modal>
           <Dialog>
-            <h3>{AccessPage('headings.confirmCheckout')}</h3>
-            <p>{AccessPage('paragraphs.modalPara1', { email: email })}</p>
+            <h3>{title}</h3>
+            <p>{AccessPage('paragraphs.modalPara1', { email })}</p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
               <Button onPress={() => setOpen(false)}>{Global('buttons.cancel')}</Button>
               <Button onPress={() => { onConfirm(email); setOpen(false); }} autoFocus>{Global('buttons.confirm')}</Button>

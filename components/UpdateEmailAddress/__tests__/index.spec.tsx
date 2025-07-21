@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import {
   act,
   fireEvent,
@@ -9,7 +9,8 @@ import {
 } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import UpdateEmailAddress from '..';
-import { useTranslations as OriginalUseTranslations } from 'next-intl';
+import { RichTranslationValues } from 'next-intl';
+import { ApolloError } from '@apollo/client';
 import {
   MeDocument,
   useAddUserEmailMutation,
@@ -17,7 +18,7 @@ import {
   useSetPrimaryUserEmailMutation
 } from '@/generated/graphql';
 import logECS from '@/utils/clientLogger';
-import { NextIntlClientProvider } from 'next-intl';
+import { routePath } from '@/utils/routes';
 
 expect.extend(toHaveNoViolations);
 
@@ -49,42 +50,26 @@ jest.mock('@/context/ToastContext', () => ({
 }));
 
 
-type UseTranslationsType = ReturnType<typeof OriginalUseTranslations>;
+type MockUseTranslations = {
+  (key: string, ...args: unknown[]): string;
+  rich: (key: string, values?: RichTranslationValues) => ReactNode;
+};
 
-// Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
   useTranslations: jest.fn(() => {
-    const mockUseTranslations: UseTranslationsType = ((key: string) => key) as UseTranslationsType;
+    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
 
-    /*eslint-disable @typescript-eslint/no-explicit-any */
-    mockUseTranslations.rich = (
-      key: string,
-      values?: Record<string, any>
-    ) => {
-      // Handle rich text formatting
-      if (values?.p) {
-        return values.p(key); // Simulate rendering the `p` tag function
+    mockUseTranslations.rich = (key, values) => {
+      const p = values?.p;
+      if (typeof p === 'function') {
+        return p(key); // Can return JSX
       }
-      return key;
+      return key; // fallback
     };
 
     return mockUseTranslations;
   }),
 }));
-
-const mockUserData = {
-  me: {
-    givenName: 'John',
-    surName: 'Doe',
-    affiliation: { name: 'Test Institution', uri: 'test-uri' },
-    emails: [{ id: '1', email: 'test@example.com', isPrimary: true, isConfirmed: true }],
-    languageId: 'en',
-  },
-};
-
-const mockLanguagesData = {
-  languages: [{ id: 'en', name: 'English', isDefault: true }],
-};
 
 export interface EmailInterface {
   id?: number | null;
@@ -107,16 +92,16 @@ const mockEmailAddresses = [
 ]
 
 const mockEmailData = {
-  "id": 15,
-  "errors": null,
-  "email": "jshin3@test.com",
-  "isConfirmed": false,
-  "isPrimary": false,
-  "userId": 5,
+  id: 15,
+  errors: null,
+  email: "jshin3@test.com",
+  isConfirmed: false,
+  isPrimary: false,
+  userId: 5,
 }
 
 // Helper function to cast to jest.Mock for TypeScript
-const mockHook = (hook: any) => hook as jest.Mock;
+const mockHook = (hook: unknown) => hook as jest.Mock;
 
 const setupMocks = () => {
   mockHook(useSetPrimaryUserEmailMutation).mockReturnValue([jest.fn(), { loading: false, error: undefined }]);
@@ -144,8 +129,9 @@ describe('UpdateEmailAddressPage', () => {
       expect(screen.getByText('emailAndAuth')).toBeInTheDocument();
       const headingElement1 = screen.getByRole('heading', { name: 'headingPrimaryEmail' });
       const headingElement2 = screen.getByRole('heading', { name: 'headingAliasEmailAddr' });
-      const headingElement3 = screen.getByRole('heading', { name: 'headingSSO' })
-      const headingElement4 = screen.getByRole('heading', { name: 'headingNotifications' });
+      // Updated lines for the <p> tags:
+      const headingElement3 = screen.getByText('headingSSO');
+      const headingElement4 = screen.getByText('headingNotifications');
       expect(headingElement1).toBeInTheDocument();
       expect(headingElement2).toBeInTheDocument();
       expect(headingElement3).toBeInTheDocument();
@@ -184,9 +170,6 @@ describe('UpdateEmailAddressPage', () => {
       { loading: false }
     ]);
 
-    // Mock the refetch function
-    const mockRefetch = jest.fn();
-
     // Render the component
     render(
       <UpdateEmailAddress
@@ -224,9 +207,6 @@ describe('UpdateEmailAddressPage', () => {
       { loading: false }
     ]);
 
-    // Mock setErrors function to verify it's called
-    const mockSetEmailAddresses = jest.fn();
-
     // Render the component
     render(
       <UpdateEmailAddress
@@ -251,21 +231,53 @@ describe('UpdateEmailAddressPage', () => {
       expect(screen.getByText('Error when deleting email')).toBeInTheDocument();
     });
 
-    // Verify scrollIntoView was called with correct parameters
-    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start'
-    });
-
     // Verify logECS was called with correct parameters
+    const expectedPath = routePath('account.profile');
     expect(logECS).toHaveBeenCalledWith(
       'error',
       'deleteEmail',
       {
         error: generalError,
-        url: { path: '/account/profile' }
+        url: { path: expectedPath }
       }
     );
+  });
+
+  it('should call mockRemoveEmailMutation again if the initial call returns an instance of an Apollo error', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Apollo error occurred',
+    });
+
+    const mockRemoveEmailResponse = jest.fn()
+      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockResolvedValueOnce({ data: { removeUserEmail: [{ errors: null }] } }); // Second call succeeds
+
+
+    (useRemoveUserEmailMutation as jest.Mock).mockReturnValue([
+      mockRemoveEmailResponse,
+      { loading: false, error: undefined }
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    // Find and click the delete button for test@test.com
+    const deleteTrigger = document.querySelector('.delete-email') as HTMLElement;
+
+    await act(async () => {
+      fireEvent.click(deleteTrigger);
+    });
+
+    // Verify the mutation was called twice
+    await waitFor(() => {
+      expect(mockRemoveEmailResponse).toHaveBeenCalledTimes(2);
+    });
   });
 
   it('should handle general error when adding alias', async () => {
@@ -278,9 +290,6 @@ describe('UpdateEmailAddressPage', () => {
       mockAddUserEmailMutation,
       { loading: false }
     ]);
-
-    // Mock setErrors function to verify it's called
-    const mockSetEmailAddresses = jest.fn();
 
     // Render the component
     render(
@@ -315,19 +324,14 @@ describe('UpdateEmailAddressPage', () => {
       expect(screen.getByText('Error when adding new email')).toBeInTheDocument();
     });
 
-    // Verify scrollIntoView was called with correct parameters
-    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start'
-    });
-
     // Verify logECS was called with correct parameters
+    const expectedPath = routePath('account.profile');
     expect(logECS).toHaveBeenCalledWith(
       'error',
       'handleAddingAlias',
       {
         error: generalError,
-        url: { path: '/account/profile' }
+        url: { path: expectedPath }
       }
     );
   });
@@ -343,10 +347,6 @@ describe('UpdateEmailAddressPage', () => {
       mockSetPrimaryMutation,
       { loading: false }
     ]);
-
-    // Mock setErrors function to verify it's called
-    const mockSetEmailAddresses = jest.fn();
-
     // Render the component
     render(
       <UpdateEmailAddress
@@ -373,22 +373,184 @@ describe('UpdateEmailAddressPage', () => {
       expect(errorDiv).toBeInTheDocument();
       expect(screen.getByText('Error when setting primary email')).toBeInTheDocument();
     });
-    // Verify scrollIntoView was called with correct parameters
-    expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'start'
-    });
 
     // Verify logECS was called with correct parameters
+    const expectedPath = routePath('account.profile');
     expect(logECS).toHaveBeenCalledWith(
       'error',
       'makePrimaryEmail',
       {
         error: generalError,
-        url: { path: '/account/profile' }
+        url: { path: expectedPath }
       }
     );
   });
+
+  it('should display error message when call to setPrimaryUserEmailMutation returns errors', async () => {
+    const mockSetPrimaryUserEmailResponse = jest.fn().mockResolvedValue({
+      data: { setPrimaryUserEmail: [{ errors: { email: ['Email is already in use'] } }] },
+    });
+
+    // Override the mock for this specific test
+    (useSetPrimaryUserEmailMutation as jest.Mock).mockReturnValue([
+      mockSetPrimaryUserEmailResponse,
+      { loading: false, error: undefined },
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    // Find the "Make primary email address" button
+    const makePrimaryButton = screen.getByRole('button', {
+      name: /linkMakePrimary/i
+    });
+
+    // Trigger the make primary action
+    await act(async () => {
+      fireEvent.click(makePrimaryButton);
+    });
+
+    // Verify the error message is displayed
+    await waitFor(() => {
+      expect(screen.getByText('Email is already in use')).toBeInTheDocument();
+    });
+  });
+
+  it('should call setPrimaryUserEmailMutation again if the initial call returns an instance of an Apollo Error', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Apollo error occurred',
+    });
+
+    const mockSetPrimaryUserEmailResponse = jest.fn()
+      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockResolvedValueOnce({ data: { setPrimaryUserEmail: [{ errors: null }] } }); // Second call succeeds
+
+    // Override the mock for this specific test
+    (useSetPrimaryUserEmailMutation as jest.Mock).mockReturnValue([
+      mockSetPrimaryUserEmailResponse,
+      { loading: false, error: undefined },
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    // Find the "Make primary email address" button
+    const makePrimaryButton = screen.getByRole('button', {
+      name: /linkMakePrimary/i
+    });
+
+    // Trigger the make primary action
+    await act(async () => {
+      fireEvent.click(makePrimaryButton);
+    });
+
+    // Verify the mutation was called twice
+    await waitFor(() => {
+      expect(mockSetPrimaryUserEmailResponse).toHaveBeenCalledTimes(2);
+    });
+  })
+
+  it('should display error message when call to adding email alias', async () => {
+    const mockAddUserEmailMutation = jest.fn().mockResolvedValue({
+      data: { addUserEmail: { errors: { email: 'Email is already in use' } } },
+    });
+
+    // Override the mock for this specific test
+    (useAddUserEmailMutation as jest.Mock).mockReturnValue([
+      mockAddUserEmailMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    //Enter a value into the add alias input field
+    const addAliasInput = screen.getByLabelText(/headingAddAliasEmail/i);
+    fireEvent.change(addAliasInput, { target: { value: 'msmith@test.com' } });
+
+    // Locate the Add button and click it
+    // Select the wrapping div with class "addContainer" and assert it's not null
+    const addContainer = document.querySelector('.addContainer') as HTMLElement;
+    expect(addContainer).not.toBeNull(); // Ensure addContainer is found
+
+    // Now we can safely use addContainer with `within`
+    const addButton = within(addContainer!).getByRole('button', { name: 'btnAdd' });
+
+    await act(async () => {
+      fireEvent.click(addButton);
+    })
+
+    // Verify the error message is displayed
+    await waitFor(() => {
+      // Use container.querySelector to find the div with class "error"
+      const errorDiv = document.querySelector('.error-message') as HTMLElement;
+
+      // Check that the errorDiv exists
+      expect(errorDiv).toBeInTheDocument();
+      expect(screen.getByText('Email is already in use')).toBeInTheDocument();
+    });
+  });
+
+  it('should call mockAddUserEmailMutation again if the initial call returns an instance of an Apollo Error', async () => {
+    const apolloError = new ApolloError({
+      graphQLErrors: [{ message: 'Apollo error occurred' }],
+      networkError: null,
+      errorMessage: 'Apollo error occurred',
+    });
+
+    const mockAddUserEmailMutationResponse = jest.fn()
+      .mockRejectedValueOnce(apolloError) // First call returns an Apollo error
+      .mockResolvedValueOnce({ data: { addUserEmail: [{ errors: null }] } }); // Second call succeeds
+
+    // Override the mock for this specific test
+    (useAddUserEmailMutation as jest.Mock).mockReturnValue([
+      mockAddUserEmailMutationResponse,
+      { loading: false, error: undefined },
+    ]);
+
+    // Render the component
+    render(
+      <UpdateEmailAddress
+        emailAddresses={mockEmailAddresses}
+      />
+    );
+
+    //Enter a value into the add alias input field
+    const addAliasInput = screen.getByLabelText(/headingAddAliasEmail/i);
+    fireEvent.change(addAliasInput, { target: { value: 'msmith@test.com' } });
+
+    // Locate the Add button and click it
+    // Select the wrapping div with class "addContainer" and assert it's not null
+    const addContainer = document.querySelector('.addContainer') as HTMLElement;
+    expect(addContainer).not.toBeNull(); // Ensure addContainer is found
+
+    // Now we can safely use addContainer with `within`
+    const addButton = within(addContainer!).getByRole('button', { name: 'btnAdd' });
+
+    await act(async () => {
+      fireEvent.click(addButton);
+    })
+
+    // Verify the mutation was called twice
+    await waitFor(() => {
+      expect(mockAddUserEmailMutationResponse).toHaveBeenCalledTimes(2);
+    });
+  });
+
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(

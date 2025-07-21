@@ -1,6 +1,64 @@
-## v0.0.1
-
+==================================================================================================================
+<!-- Merged below to main branch on Friday, July 18th, 2025  -->
 ### Added
+- Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
+- Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]
+- Added the `Question details` page that allows users to answer a question [#320]
+- Added, or moved, the `question details` page from `projects/[projectId]/dmp/[dmpid]/q/[qid]` to `projects/[projectId]/dmp/[dmpid]/s/[sid]/q/[qid]` [#320]
+- Added a new `useRenderQuestionField` hook to render different questions on the `Question details` page [#320]
+- Added a test in `jest.setup.ts` to catch extraneous errors that are not tested or in a unit test.
+- Added delete section functionality to template builder with confirmation modal, including translations, and tests
+- Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
+- Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
+- Added popular funders to the funder search page when creating a new project. [#380]
+
+### Updated
+- Updated `routePath` with route `projects.share.index` and updated unit test for `ProjectsProjectMembers` [#589]
+- Updated `QuestionView` to use the new `ExpandableContentSection` for the `Best Practices` right sidebar [#578]
+- Updated `graphqlHelper.ts` file to be more robust and correctly refresh tokens and refresh content when there is an `UNAUTHENTICATED` error [#320]
+- Clean up connections page and buttons [#516]
+- Added spacing on the `Account Profile` for the demo [#509]
+- Updated `Account Profile` to use routePath() instead of hardcoded paths
+- fix translation string to use the correct tags for the `Account Profile` [#515]
+
+### Fixed
+- Fixed the `Plan Overview` breadcrumb so that it includes a link to previous `Project Overview` page, as well as updating them to use `routePath` [#592]
+- Fixed the `Edit` link in the `Project Funding` page so that it includes correct `projectFundingId` in path, and added missing translation keys and updated routes to use `routePath`, and updated unit test [#592]
+- Added error message when the user clicks `Edit` for a funder that has no `funderProjectNumber` [#592]
+- Adjusted field-level errors on `Edit Funding Details` page, and switched to using `routePath` for breadcrumbs and updated unit test [#592]
+- Improved the spacing on the `projects/create-project` page. Set the standard `line-height` for `#App` to 1.5. Added a little bit of margin above a checkbox to make it align better with text [#595]
+- Added another unit test for the `projects/create-project` page. Updated the routePath for that page to be correct [#595]
+- Updated `Update` link for each section on `projects/[projectId]/dmp/[dmpid]` to `Start` if no questions have been answered yet in that section [#594]
+- Improved color contrast on date picker [#597]
+- Updated `projects/[projectId]/members` page to have consistent breadcrumbs as the `Project overview` page [#589]
+- Prevent the project date from displaying if either `startDate` or `endDate` are not available [#588]
+- Fixed broken links on the `Project overview` page that go to the individual plans [#575]
+- Removed the `Sample text` field from the Question Add/Edit forms for all question types except for `textArea` [#564]
+
+
+## v0.0.1
+- Plan Manage Access [#299]
+- Plan Publish [#299]
+- Plan Downloads [#299]
+-
+### Added
+- Added new `SectionEditContainer` component, for use in `QuestionEditCard`, to make reordering of questions more smooth [#207]
+- Added new `updateQuestionDisplayorder` and `updateSectionDisplayOrder` server actions to update question and section order when users click the `onMoveUp` and `onMoveDown` arrows [#207]
+- Added question type components to the components/Form/QuestionComponents directory [#157]
+  - Updated the `QuestionAdd` and `QuestionEdit` components to allow for the adding and editing of the new question types [#157]
+  - Updated `QuestionView` component, which is used to show a Preview of the Question that is being added or edited. Added handlers to allows users to interact with the questions in the Preview mode.
+  - Built a `MultiSelect` component using an accessible approach [#157]
+  - Created the `Number` and `Currency` components using React Aria Component's `NumberField`. This allows users to increment and decrement the field using buttons.[#157]
+- Added support for question type JSON objects [#535]
+- Added TinyMCE Editor component and added it to the styleguide [#462]
+- Added a Load more button to the Add new section page [#450]
+- PublishedSections graphQL query [#448]
+- Added new Server Actions `addCollaboratorAction` [#381]
+- Added `addProjectCollaborator` mutations [#381]
+- Added help text to Section fields from the wireframe [#281]
+- Added new serverAuthHelper.ts to work with Server Actions [#364]
+- Added type check to pre-commit hook and fixed some issues in the app [#391]
+- Add central "named routes" and helper function
 - Project Create Flow [#299]
 - Project Upload [#299]
 - Project Funder [#299]
@@ -19,6 +77,23 @@
 - QuestionPreview component [#224]
 
 ### Updated
+- Updated the template cards in `TemplateListPage` and `PlanCreate` components to use the `TemplateSelectListItem` component, which was updated to correctly display `ownerDisplayName`, `publish status` and `visibility` [#470]
+- Updated the templates cards on `/template` page to match the look of the cards on the `/template/create` page [#470]
+- Switched out all occurrences of Remirror/DMPEditor rich text editor with TinyMCE [#496]
+- Convert all references to the old `Contributor` to `Member` and `Project/PlanFunder` to `Project/PlanFunding` to mimic language used in UI
+- Added the `Account Profile` link on the home page for the demo and fixed the success message when updating profile [#508] [#512]
+- Updated the "add new section" page to properly split our the affiliation's sections from best practice sections [#451]
+- Changed all instances of TemplateVisibility.PRIVATE to TemplateVisibility.ORGANIZATION to accomodate backend changes and also made update to `template/[templateId]` so that the `Version` and `Last updated` titles don't show in `description` when values are undefined [#466]
+- Updated `affiliations`, `myTemplates`, `publishedTemplates`, `myProjects` queries to handle the new pagination format. Updated the corresponding pages and components only enough to keep them working as-is [#180](https://github.com/CDLUC3/dmsp_backend_prototype/issues/180)
+- Updated `templates/[templateId]/sections/new` to use the new PublishedSections query and to use the addSection mutation when the user selects a section to copy
+- Hooked up `projects/[projectId]/dmp/[dmpId]/feedback/invite` page to backend data [#381]
+- Removed from from the modal on `projects/[projectId]/dmp/[dmpId]/feedback/invite` to add a project member, since we don't have user data at that point [#381]
+- Updated `Template` and `Projects` pages to work with the new pared down search result responses from GraphQL [#223] and [#218](https://github.com/CDLUC3/dmsp_backend_prototype/issues/218)
+- Updated `Plan Members` page. Added mutation and queries, and a server action for handling addPlanContributors mutation [#364]
+- Explicitly updated nextJS version to 14.2.25 due to an Authorization Bypass vulnerability in middleware (CVE-2025-29927) [#388]
+- Added `white-space: pre-wrap` for Prosemirror due to warnings [#388]
+- Update `Edit Member Details` page. Added mutation and queries, translations, and unit test [#367]
+- Updated `PlanCreate` component so that it hooks up to real data. The functionality of the page is a little complicated, so I added a `CreatePlan.md` file to summarize what functionality is expected in the page. [#361]
 - Updated the `Project Members` page with real data [#360]
 - Updated `ProjectsProjectFundingEdit` component and moved the page under a new `[projectFunderId]` directory at `/projects/[projectId]/funder/[projectFunderId]/edit` [#357]
 - Updated the `Project Overview` page [#339]
@@ -27,7 +102,7 @@
 - Updated translation content to use sentence-case rather than title case [#351]
 - Made updates throughout the Template Builder flow to make the experience more consistent across pages, and fixed some bugs [#347]
 - Updated `/projects/create-project` and added new shared RadioGroup and CheckboxGroup components [#332]
-- Made updates to get Dockerfile.prod to work. 
+- Made updates to get Dockerfile.prod to work.
   - Updated Dockerfile.prod
   - Updated next.config.mjs to include output `standalone`
   - Updated `docker-compose.yml`
@@ -49,11 +124,59 @@
 - Updated `middleware` to call refreshAuthTokens when there is no auth token cookie [#186]
 - Updated `QuestionTypeSelectPage`- hooked up to real data and updated code [#220]
 - Renamed previous `QuestionEdit` component to `QuestionEditCard` for more specificity [#220]
+- Added the `QuestionView` component which will render the question fields based on the question type. [#379]
+- Integrated the `QuestionPreview` and `QuestionView` components on the add and edit question pages. [#379]
+- Removed unused component `EditQuestionPage` to avoid confusion with other components. This is a legacy component. [#379]
+- Added a FunderSearch component that performs a funder search, and returns the
+  results. [#335]
+- Added a the `LoggedError` custom error type to simplify logging of errors by. [#335]
+- Updated the funding-search page under create project to use the new funder
+  search component. Also hooked up the capability to select a funder and
+  associate it with the project. [#335]
+- Updated some of the other Funder pages under create project so that they link
+  and redirect to the correct named urls for the funder search page. [#335]
 
 ### Fixed
+- Fixed type error related to `confirm-email` page that was breaking build
+- Fixed issue with search fields not looking good on smaller devices. Made updates to get the `Search` button to wrap for mobile [#488]
+- Fixed breaking build by addressing a type error
+- Fixed missing translations on User Profile page [#488]
+- Fixed issue with TypeAheadWithOther dropdown menu displaying when user clicks the `Edit` button on `User profile` page [#511]
+- Fixed issue with Template not refreshing after published [#455]
+  - Added a server endpoint env variable for graphqlServerActionHandler.ts since env variables prefixed with NEXT_PUBLIC do not work on the server side [#455]
+- Added Rich Text Editor for Sample Text in the Question forms [#456]
+  - Adjusted widths of Edit template title to accomodate for very long titles [#456]
+- Fixed bugs related to the template builder flow
+  - Fixed Preview page to not display HTML at top for Requirements [#449]
+  - Added redirect back to Edit Template page when user creates a new Section [#452]
+  - On `/template` page, fixed the `published` and `unpublished` labels on the list items because they were reversed [#453]
+  - Replaced hard-coded org names with the actual org names in text on `Manage access` page, and fixed archive modal title to `Confirm removal` [#454]
+  - Changed `Published` to `Last updated` on `/template/[templateId]` page and fixed missing translation for `Load 3 more`. Also when adding a new `Question`, the button should say `Save and add` and when editing an existing question, the form button should say `Save and update`. [#455]
+  - Added missing space after `Guidance by` and `These are requirements by` in the Preview page [#455]
+- Fix logger path issue in auth.ts [#441]
+- Added handling of scenario where no jwt payload is returned when getting languageId in middleware [#441]
+- Fixed ordering issue for Sections on the Edit Templates page [#436]
+- Fixed missing `as deps` in `Dockerfile.prod`.
+- Fixed wrong node image in `Dockerfile.prd`. Also fixed a number of linting issues.
+- Fixed bug in `/projects/[projectId]/dmp/[dmpId]/download` because of unused `FileIcon` [#376]
 - Fixed bug where `/template` page was continuosly refreshed when no data was returned [#351]
+- Fixed that didn't show the current title when editing a template name [#475]
+- Added the missing button to create a new template from scratch [#474]
+- Fixed typo and ensure that correct visibility text displays when changing the
+  Private/Public status in the Template Publish Modal [#483]
+
+### Chore
+- Updated a number of packages, such as next, react-aria-components, eslint, next-intl, etc [#529]
+- Updated a number of unit tests to address the reduced coverage of branch tests [#529]
+- Fixed sass warnings and errors introduced with latest updates to packages [#529]
+- Updated and added unit tests to increase coverage in the app [#490]
+- Updated and improved the cypress functional tests to fix them and updated some cypress documentation in the README.md file [#490]
+- Updated NodeJS version to v22 [#144]
+====================================================================================================
 
 ### Added
+- Added real data and functionality to the PlanOverviewPage, `/projects/[projectId]/dmp/[dmpId]` [#362]
+- Added new right sidebar with new multi-page Publish modal with checklist data, and `status` select [#362]
 - Added `/projects/[projectId]/project-funding`, copying over the static code from `/projects/[projectId]/create-project/funding`. Updated
   page to use shared RadioGroupComponent, and updated RadioGroupComponent to use description [#336]
 - Added new `QuestionEdit` and `QuestionTypeCard` components [#220]
@@ -167,6 +290,7 @@
 
 
 ### Fixed
+- Remove duplicate graphqlServerActionHandler.ts and serverAuthHelper.ts
 - Fixed `login` 404 error issue and looping issue in middleware [#194]
 - Removed old `app/layout.tsx` page. It was causing errors, since we have one located at `app/[locale]/layout.tsx` now.
 - Fixed a failing unit test and build for `confirm-email` component when backend server was not running [#180]

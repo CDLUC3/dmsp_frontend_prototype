@@ -1,4 +1,4 @@
-@import '@/styles/responsive.scss';
+@use '@/styles/responsive.scss' as r;
 
 
 .templateItem {
@@ -17,7 +17,7 @@
   gap: var(--space-4);
   align-items: flex-start;
 
-  @include device(sm) {
+  @include r.device(sm) {
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
@@ -36,7 +36,7 @@
 
 .TemplateItemHeading {
   padding: 0;
-  margin: 0 0 0.2rem;
+  margin: 0 0 0.5rem;
 
 }
 
@@ -58,7 +58,7 @@
   }
 
 
-  @include device(sm) {
+  @include r.device(sm) {
     span {
       display: inline-block;
       margin-bottom: 0rem;
@@ -79,4 +79,17 @@
   color: var(--slate-900);
 }
 
+.updateLink {
+  color: var(--slate-900) !important;
+  text-decoration: underline;
+  font-size: var(--fs-base);
+  line-height: 1;
+  font-family: var(--font-sans);
+}
 
+.titleLink {
+  color: var(--slate-900) !important;
+  &:hover {
+    text-decoration: underline;
+  }
+}

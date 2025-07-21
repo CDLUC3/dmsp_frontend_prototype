@@ -4,20 +4,8 @@
     "linkText": "Ir para a página de conexões",
     "content": "É um fato estabelecido há muito tempo que um leitor se distrairá com o conteúdo legível de uma página ao observar sua disposição."
   },
-  "LocaleTest": {
-    "title": "Teste de localização",
-    "content": "Olá, {name}!",
-    "itemCount": "{count, plural, one {Você tem {count} Item} other {Você tem {count} itens}}",
-    "message": "Consulte as <guidelines>diretrizes</guidelines>.",
-    "markup": "Este é <important>importante</important>",
-    "raw": "&lt; script&gt; alert('Hacked!');&lt;/script&gt;",
-    "general": "Este é um novo conteúdo"
-  },
   "About": {
     "title": "Bem-vindo à Ferramenta DMP"
-  },
-  "Test": {
-    "info": "Você pode tentar novamente mais tarde."
   },
   "Header": {
     "menuDashboard": "Painel de controle",
@@ -66,6 +54,7 @@
     "givenName": "Primeiro nome",
     "surName": "Sobrenome",
     "institution": "Instituição",
+    "otherInstitution": "Outra instituição",
     "language": "Idioma",
     "headingPrimaryEmail": "Endereço de e-mail principal",
     "headingSSO": "Logon único ativado",
@@ -75,7 +64,7 @@
     "headingRelatedActions": "Ações relacionadas",
     "primaryEmailDesc": "Este e-mail será usado para seu login de conta. Ele também pode ser usado para redefinições de senha.",
     "SSODesc": "Este endereço de e-mail é gerenciado por cdl.edu e conectado à instituição.",
-    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. &lt;manage&gt;Gerencie suas notificações&lt;/manage&gt;.",
+    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. <manage> Gerencie suas notificações </manage>.",
     "aliasEmailDesc": "Os endereços de e-mail do pseudônimo podem ser usados para ajudar outros a encontrar você, por exemplo, se eles quiserem compartilhar um DMP com você.",
     "linkMakePrimary": "Endereço de e-mail principal",
     "helpTextForAddAlias": "Você receberá um e-mail para confirmar esta adição",
@@ -91,8 +80,59 @@
     "linkManageNotifications": "Atualizar conexão?",
     "messages": {
       "profileUpdateSuccess": "Formulário de perfil atualizado com sucesso.",
-      "emailAddressUpdateSuccess": "O e-mail foi adicionado com sucesso ao seu perfil."
+      "emailAddressUpdateSuccess": "O e-mail foi adicionado com sucesso ao seu perfil.",
+      "errors": {
+        "givenNameValidation": "O nome deve ter pelo menos 2 caracteres",
+        "surNameValidation": "O nome deve ter pelo menos 2 caracteres",
+        "affiliationValidation": "O nome da instituição não pode ficar em branco e deve ter pelo menos 2 caracteres",
+        "otherAffiliationValidation": "Outro nome de instituição não pode estar em branco e deve ter pelo menos 2 caracteres"
+      }
     }
+  },
+  "UserConnections": {
+    "breadcrumbHome": "Home",
+    "breadcrumbProfile": "Perfil de usuário",
+    "breadcrumbConnections": "Conexões",
+    "title": "Conexões",
+    "orcidConnection": {
+      "title": "ORCID iD",
+      "content": "O ORCID fornece um identificador persistente — um ORCID iD — que distingue você de outros usuários. Saiba mais em <link>ORCID.org</link>.",
+      "btnText": "Conecte seu ORCID iD"
+    },
+    "orcidConnectionConnected": {
+      "title": "ORCID iD",
+      "content": "Você conectou com sucesso o seu ORCID iD. Saiba mais ou gerencie seu registro em <link>ORCID.org</link>.",
+      "btnText": "Ver ORCID iD"
+    },
+    "ssoConnection": {
+      "title": "Cadastro único",
+      "content": "Conecte sua conta para poder entrar na Ferramenta DMP através de sua instituição.",
+      "btnText": "Conectar credenciais institucionais"
+    },
+    "headingRelatedActions": "Ações relacionadas",
+    "linkUpdatePassword": "Atualizar senha",
+    "linkUpdateConnections": "Atualizar conexão?",
+    "linkManageNotifications": "Atualizar conexão?"
+  },
+  "FunderSearch": {
+    "headerTitle": "Procurar por fragmentos",
+    "funder": "Finalizações",
+    "found": "{count} erros encontrados",
+    "noResults": "Nenhum resultado encontrado",
+    "showCount": "Mostrando {count} de {total}",
+    "addManuallyHeading": "Não está nesta lista.",
+    "addManuallyText": "Se o seu projeto não for exibido, você pode adicionar os detalhes manualmente.",
+    "addManuallyLabel": "Adicionar professor manualmente"
+  },
+  "PlanFunding": {
+    "headerTitle": "Financiamento De Plano",
+    "headerDescription": "Gerenciar fontes de financiamento para este Plano",
+    "fundingLabel": "Selecionar fontes de financiamento para este plano",
+    "fundingDescription": "Esta lista de financiamento vem da lista de financiamento anexada ao projeto.",
+    "changeWarning": "Nota: Alterar as fontes de financiamento pode exigir uma mudança no modelo. Apenas mude se você tiver certeza.",
+    "addSourceTitle": "Adicionar uma fonte de financiamento?",
+    "addSourceNote": "Se você quiser adicionar novas informações de financiamento, pode adicionar financiamento ao nível do projeto. Este projeto pode ter várias fontes de financiamento, Considerando que cada plano só pode ter uma única fonte de financiamento, à medida que o comparamos com o modelo exigido.",
+    "addSourceLink": "Adicionar nova fonte de financiamento"
   },
   "TemplateHistory": {
     "title": "Primary Light",
@@ -112,23 +152,29 @@
   },
   "Global": {
     "breadcrumbs": {
+      "navigation": "Navegação de Breadcrumb",
       "home": "Home",
       "templates": "Modelos",
       "template": "Modelo",
       "createTemplate": "Criar um modelo",
       "selectExistingTemplate": "Selecionar um modelo existente",
-      "templateHistory": "Template history",
+      "templateHistory": "Histórico do modelo",
       "section": "Seção",
       "addNewSection": "Adicionar uma nova seção",
       "updateSection": "Seção de atualização",
-      "editSection": "",
+      "editSection": "Editar seção",
       "createSection": "Criar seção",
       "editTemplate": "Editar Modelo",
       "question": "Pergunta",
       "selectQuestionType": "Selecionar o tipo de questão",
+      "project": "Projeto",
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto",
-      "projectFunder": "Project funder"
+      "projectFunding": "Orçamento do projeto",
+      "planOverview": "Resumo do plano",
+      "planFunding": "Financiamento do plano",
+      "feedback": "Registrar",
+      "questionDetails": "Detalhes da pergunta"
     },
     "form": {
       "yesLabel": "Sim",
@@ -136,38 +182,67 @@
     },
     "lastRevisedBy": "Última revisão por",
     "lastUpdated": "Últimas atualizações",
+    "published": "Publicada",
+    "visibility": "Visibilidade",
+    "notPublished": "Não publicado",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
       "next": "Seguinte",
       "save": "Salvar",
-      "saveChanges": "Save changes",
+      "saveAndAdd": "Salvar e adicionar",
+      "saveAndUpdate": "Salvar e atualizar",
+      "saveChanges": "Salvar as alterações",
       "remove": "Remover",
       "confirm": "Confirmação",
+      "change": "Mudança",
       "cancel": "Cancelar",
       "linkUpdate": "Atualização",
       "linkExpand": "Expandir",
       "linkCollapse": "Retrair",
       "continue": "Avançar",
-      "edit": "Alterar"
+      "edit": "Alterar",
+      "preview": "Pré-visualizar",
+      "publish": "Publicar",
+      "close": "Fechar",
+      "loadMore": "Carregar mais..."
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",
       "startDate": "Data de início",
-      "endDate": "Data final"
+      "endDate": "Data final",
+      "funderSearch": "Pesquisar por nome do financiador"
     },
     "helpText": {
-      "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
+      "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
+      "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas."
+    },
+    "placeholders": {
+      "funderSearch": "Insira o nome da pasta"
     },
     "links": {
-      "clearFilter": "limpar filtro"
+      "clearFilter": "limpar filtro",
+      "request": "Solicitação",
+      "learnMore": "Saiba mais",
+      "update": "Atualização",
+      "expand": "Expandir",
+      "collapse": "Recolher"
     },
     "messaging": {
       "loading": "Baixar",
       "noItemsFound": "Nenhum item encontrado",
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
-      "fixBelow": "Por favor, corrija os erros abaixo"
+      "fixBelow": "Por favor, corrija os erros abaixo",
+      "unsupportedQuestionType": "Tipo de pergunta {questionType} sem suporte",
+      "sectionIsExpanded": "Secção expandida",
+      "sectionIsCollapsed": "Seção colapsada",
+      "error": "Ocorreu um erro. Tente novamente.",
+      "errors": {
+        "invalidQuestionType": "Tipo de questão inválido encontrado.",
+        "questionUnexpectedFormat": "Formato inesperado para question.json.",
+        "questionJSONFParseFailed": "JSON.parse falhou."
+      }
     },
     "tabs": {
       "editQuestion": "Editar pergunta",
@@ -176,6 +251,25 @@
     },
     "headings": {
       "preview": "Pré-visualizar"
+    },
+    "version": "Versão",
+    "questionTypes": {
+      "text": "Texto",
+      "textArea": "Área de texto",
+      "radioButtons": "Botão de opção",
+      "checkBoxes": "Caixa de verificação",
+      "selectBox": "Select",
+      "boolean": "Boleano",
+      "number": "Número",
+      "numberRange": "Intervalo de números",
+      "email": "E-mail",
+      "url": "URL",
+      "currency": "Moeda",
+      "date": "Campo de data",
+      "dateRange": "Intervalo de datas",
+      "filteredSearch": "Pesquisa com filtros",
+      "table": "Tabela",
+      "typeaheadSearch": "Digite a pesquisa"
     }
   }
 }

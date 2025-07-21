@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client';
 import { getClient } from '@/lib/graphql/client';
 
-const GET_CONTRIBUTOR_ROLES = gql`
-query ContributorRoles{
-    contributorRoles {
+const GET_MEMBER_ROLES = gql`
+query MemberRoles{
+    MemberRoles {
         id
         label
         url
@@ -16,10 +16,10 @@ type RolesInterface = {
     url: string;
 }
 
-export async function getContributorRoles(): Promise<RolesInterface[]> {
+export async function getMemberRoles(): Promise<RolesInterface[]> {
     try {
         const { data } = await getClient().query({
-            query: GET_CONTRIBUTOR_ROLES,
+            query: GET_MEMBER_ROLES,
             context: {
                 fetchOptions: {
                     next: { revalidate: 5 },
@@ -27,9 +27,9 @@ export async function getContributorRoles(): Promise<RolesInterface[]> {
             }
         });
 
-        return data.contributorRoles;
+        return data.memberRoles;
     } catch (error: unknown) {
         console.log(`Something went wrong: ${error}`)
-        throw new Error(`There was an error getting contributor roles: ${error}`)
+        throw new Error(`There was an error getting member roles: ${error}`)
     }
 }

@@ -1,4 +1,4 @@
-@import '@/styles/responsive';
+@use '@/styles/responsive' as r;
 
 
 .readOnlyField {
@@ -22,7 +22,9 @@
     padding: var(--space-3);
   }
 }
-
+.relatedItemsHeaading{
+  margin-bottom: var(--space-6);
+}
 .relatedItems {
   list-style-type: none;
   padding-left: 0;
@@ -49,4 +51,61 @@
 
 .btn {
   margin-left: auto;
+}
+
+.btnEdit {
+  margin-right: auto;
+  margin-left: 0;
+  @include r.device(sm) {
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+
+// Form spacing styles
+.formRow {
+  margin: 20px 0;
+  min-height: 20px;
+}
+
+.twoItemRow {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  > div {
+    flex: 1; /* Make both fields take equal width */
+  }
+
+  @include r.device(sm) {
+    flex-direction: row;
+  }
+}
+
+.oneItemRow {
+  max-width: 100%;
+  input {
+    max-width: 100%;
+  }
+}
+
+.formEditingRow {
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+
+.twoItemRowIsEditing {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  > div {
+    flex: 1; /* Make both fields take equal width */
+    margin-bottom: var(--space-4);
+  }
+
+  @include r.device(sm) {
+    flex-direction: row;
+    gap: 20px;
+  }
 }

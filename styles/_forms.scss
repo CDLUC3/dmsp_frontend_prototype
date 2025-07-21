@@ -1,3 +1,4 @@
+@use "responsive" as r;
 .error-message{
   font-size: var(--fs-small);
   color: red;
@@ -12,7 +13,7 @@
 .help-text {
   display: block;
   font-size: var(--fs-small);
-  margin: var(--space-2) var(--space-2);
+  margin: var(--space-2) var(--space-0);
   max-width: 600px;
 
 }
@@ -23,15 +24,18 @@
 }
 
 .two-item-row {
-  @include device(sm) {
-    flex-direction: row;
-  }
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  width: 100%;
+  gap: 1rem;
+  max-width: 600px;
 
   > div {
-    flex: 1; /* Make both fields take equal width */
+    flex: 1;
+  }
+
+  @include r.device(lg) {
+    flex-direction: row;
   }
 }
 

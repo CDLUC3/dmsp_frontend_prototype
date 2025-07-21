@@ -1,0 +1,19 @@
+
+.QuestionView {
+  padding: 1rem;
+  &__content-container {
+    grid-gap: var(--grid-gap);
+  }
+}
+
+.ByLine {
+  color: var(--text-byline-color);
+}
+
+.Logo {
+  vertical-align: middle;
+}
+
+.numberRange {
+  max-width: 400px;
+}

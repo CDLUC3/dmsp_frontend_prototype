@@ -1,130 +1,509 @@
 'use client';
 
-import React from 'react';
-import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-import PageHeader from "@/components/PageHeader";
-import styles from './PlanOverviewPage.module.scss';
-import { useTranslations } from "next-intl";
+import { useEffect, useReducer, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import {
+  Breadcrumb,
+  Breadcrumbs,
+  Button,
+  Dialog,
+  Form,
+  Heading,
+  Link,
+  ListBoxItem,
+  Modal,
+} from 'react-aria-components';
+import {
+  PlanSectionProgress,
+  PlanStatus,
+  PlanVisibility,
+  usePlanQuery,
+} from '@/generated/graphql';
+
+//Components
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import PageHeader from "@/components/PageHeader";
+import ErrorMessages from '@/components/ErrorMessages';
+import { DmpIcon } from "@/components/Icons";
+import { FormSelect, RadioGroupComponent } from '@/components/Form';
 
+import logECS from '@/utils/clientLogger';
+import { routePath } from '@/utils/routes';
+import { publishPlanAction, updatePlanStatusAction } from './actions';
+import {
+  ListItemsInterface,
+  PlanMember,
+  PlanOverviewInterface,
+} from '@/app/types';
+import styles from './PlanOverviewPage.module.scss';
+
+const PUBLISHED = 'Published';
+const UNPUBLISHED = 'Unpublished';
+
+// Status options for dropdown
+const planStatusOptions = Object.entries(PlanStatus).map(([name, id]) => ({
+  id,
+  name
+}));
+
+const initialState: {
+  isModalOpen: boolean;
+  checkListItems: ListItemsInterface[];
+  errorMessages: string[];
+  planVisibility: PlanVisibility;
+  planStatus: PlanStatus | null;
+  step: number;
+  isEditingPlanStatus: boolean;
+  planData: PlanOverviewInterface;
+} = {
+  isModalOpen: false,
+  checkListItems: [] as ListItemsInterface[],
+  errorMessages: [] as string[],
+  planVisibility: PlanVisibility.Private,
+  planStatus: null,
+  step: 1,
+  isEditingPlanStatus: false,
+  planData: {
+    id: null,
+    dmpId: '',
+    registered: '',
+    title: '',
+    status: '',
+    funderName: '',
+    primaryContact: '',
+    members: [] as PlanMember[],
+    sections: [] as PlanSectionProgress[],
+    percentageAnswered: 0,
+  },
+};
+
+type Action =
+  | { type: 'SET_IS_MODAL_OPEN'; payload: boolean }
+  | { type: 'SET_CHECKLIST_ITEMS'; payload: ListItemsInterface[] }
+  | { type: 'SET_ERROR_MESSAGES'; payload: string[] }
+  | { type: 'SET_PLAN_VISIBILITY'; payload: PlanVisibility }
+  | { type: 'SET_PLAN_STATUS'; payload: PlanStatus | null }
+  | { type: 'SET_STEP'; payload: number }
+  | { type: 'SET_IS_EDITING_PLAN_STATUS'; payload: boolean }
+  | { type: 'SET_PLAN_DATA'; payload: PlanOverviewInterface };
+
+type State = typeof initialState;
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'SET_IS_MODAL_OPEN':
+      return { ...state, isModalOpen: action.payload };
+    case 'SET_CHECKLIST_ITEMS':
+      return { ...state, checkListItems: action.payload };
+    case 'SET_ERROR_MESSAGES':
+      return { ...state, errorMessages: action.payload };
+    case 'SET_PLAN_VISIBILITY':
+      return { ...state, planVisibility: action.payload };
+    case 'SET_PLAN_STATUS':
+      return { ...state, planStatus: action.payload };
+    case 'SET_STEP':
+      return { ...state, step: action.payload };
+    case 'SET_IS_EDITING_PLAN_STATUS':
+      return { ...state, isEditingPlanStatus: action.payload };
+    case 'SET_PLAN_DATA':
+      return { ...state, planData: action.payload };
+    default:
+      return state;
+  }
+};
 
 const PlanOverviewPage: React.FC = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Get projectId and planId params
+  const params = useParams();
+  const router = useRouter();
+  const projectId = String(params.projectId);
+  const dmpId = String(params.dmpid);
+  const planId = Number(dmpId);
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Localization keys
   const t = useTranslations('PlanOverview');
+  const Global = useTranslations('Global');
 
-  const plan = {
-    id: "plan_123",
-    template_name: "NSF Polar Programs",
-    title: "NSF Polar Programs",
-    funder_id: "nsf_1",
-    funder_name: "National Science Foundation",
-    template_id: "temp_456",
-    published_status: "Draft",
-    visibility: "Not Published",
-    members: [
+
+  // Get Plan using planId
+  const { data, loading, error: queryError, refetch } = usePlanQuery(
+    {
+      variables: { planId: Number(planId) },
+      skip: isNaN(planId), // prevents the query from running when id is not a number
+      notifyOnNetworkStatusChange: true
+    }
+  );
+
+  // Set URLs
+  const FUNDINGS_URL = routePath('projects.dmp.fundings', { projectId, dmpId: planId });
+  const MEMBERS_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
+  const RESEARCH_OUTPUT_URL = routePath('projects.dmp.research-outputs', { projectId, dmpId: planId });
+  const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
+  const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId, dmpId: planId });
+  const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
+
+  // Set radio button data
+  const radioData = {
+    radioGroupLabel: t('publishModal.publish.visibilityOptionsTitle'),
+    radioButtonData: [
       {
-        fullname: "Frederick Ice",
-        role: "PI",
-        email: "fred.ice@example.com"
+        value: 'public',
+        label: t('publishModal.publish.visibilityOptions.public.label'),
+        description: <><strong>{t('publishModal.publish.visibilityOptions.public.description')}</strong></>
       },
       {
-        fullname: "Jennifer Frost",
-        role: "Contributor",
-        email: "jfrost@example.com"
+        value: 'organizational',
+        label: t('publishModal.publish.visibilityOptions.organization.label'),
+        description: <>{t.rich('publishModal.publish.visibilityOptions.organization.description', {
+          strong: (chunks) => <strong>{chunks}</strong>
+        })}</>
+      },
+      {
+        value: 'private',
+        label: t('publishModal.publish.visibilityOptions.private.label'),
+        description: t('publishModal.publish.visibilityOptions.private.description')
       }
-    ],
+    ]
+  }
 
-    adjust_funder_url: "/en-US/projects/proj_2425/dmp/xxx/funder",
-    adjust_members_url: "/en-US/projects/proj_2425/dmp/xxx/members",
-    adjust_researchoutputs_url: "/en-US/projects/proj_2425/dmp/xxx/research-outputs",
-    download_url: "/en-US/projects/proj_2425/dmp/xxx/download",
-    feedback_url: "/en-US/projects/proj_2425/dmp/xxx/feedback",
+  //TODO: Get research output count from backend
+  const researchOutputCount = 3;
 
-
-    research_output_count: 3,
-    sections: [
-      {
-        section_title: "Roles and Responsibilities",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2544",
-        id: "sect_1",
-        progress: 1
-      },
-      {
-        section_title: "Types of Data",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2545",
-        id: "sect_2",
-        progress: 1
-      },
-      {
-        section_title: "Data and Metadata formats",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2546",
-        id: "sect_3",
-        progress: 2
-      },
-      {
-        section_title: "Policies for Access and Sharing",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2547",
-        id: "sect_4",
-        progress: 1
-      },
-      {
-        section_title: "Policies for reuse and re-distribution",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2548",
-        id: "sect_5",
-        progress: 0
-      },
-      {
-        section_title: "Plans for archiving and preservation",
-        link: "/en-US/projects/proj_2425/dmp/xxx/s/2549",
-        id: "sect_6",
-        progress: 0
-      }
-    ],
-    doi: "10.12345/example.123",
-    last_updated: "2024-04-01",
-    created_date: "2023-07-18"
+  // Handle changes from RadioGroup
+  const handleRadioChange = (value: string) => {
+    const selection = value.toUpperCase();
+    if (Object.values(PlanVisibility).includes(selection as PlanVisibility)) {
+      dispatch({
+        type: 'SET_PLAN_VISIBILITY',
+        payload: selection as PlanVisibility,
+      })
+    } else {
+      console.error(`Invalid visibility value: ${value}`);
+    }
   };
+
+  const handlePlanStatusChange = () => {
+    dispatch({
+      type: 'SET_IS_EDITING_PLAN_STATUS',
+      payload: true
+    });
+  }
+
+
+  const handleDialogCloseBtn = () => {
+    dispatch({
+      type: 'SET_IS_MODAL_OPEN',
+      payload: false
+    });
+    dispatch({
+      type: 'SET_STEP',
+      payload: 1
+    })
+  }
+
+  // Call Server Action updatePlanStatusAction to run the updatePlanStatusMutation
+  const updateStatus = async (status: PlanStatus) => {
+    // Don't need a try-catch block here, as the error is handled in the action
+    const response = await updatePlanStatusAction({
+      planId: Number(planId),
+      status
+    })
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
+  }
+
+  const handlePlanStatusForm = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    dispatch({
+      type: 'SET_IS_EDITING_PLAN_STATUS',
+      payload: false
+    });
+
+    const status = state.planStatus ?? state.planData.status as PlanStatus;
+
+    const result = await updateStatus(status);
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        dispatch({
+          type: 'SET_ERROR_MESSAGES',
+          payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
+        })
+      }
+    } else {
+      if (
+        result.data?.errors &&
+        typeof result.data.errors === 'object' &&
+        typeof result.data.errors.general === 'string') {
+        // Handle errors as an object with general or field-level errors
+        dispatch({
+          type: 'SET_ERROR_MESSAGES',
+          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
+        });
+      }
+      //Need to refetch plan data to refresh the info that was changed
+      await refetch();
+    }
+  }
+
+  // Call Server Action publishPlanAction to run the publishPlanMutation
+  const updatePlan = async (visibility: PlanVisibility) => {
+    try {
+      const response = await publishPlanAction({
+        planId: Number(planId),
+        visibility
+      })
+
+      if (response.redirect) {
+        router.push(response.redirect);
+      }
+
+      return {
+        success: response.success,
+        errors: response.errors,
+        data: response.data
+      }
+    } catch (error) {
+      logECS('error', 'updatePlan', {
+        error,
+        url: {
+          path: routePath('projects.dmp.show', { projectId, dmpId: planId })
+        }
+      });
+    }
+    return {
+      success: false,
+      errors: [Global('messaging.somethingWentWrong')],
+      data: null
+    };
+  }
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    // Close modal
+    dispatch({
+      type: 'SET_IS_MODAL_OPEN',
+      payload: false
+    });
+
+    // Set step back to Step 1
+    dispatch({
+      type: 'SET_STEP',
+      payload: 1
+    });
+
+    const form = event.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
+    const visibility = formData.get('visibility')?.toString().toUpperCase() as PlanVisibility;
+
+    const result = await updatePlan(visibility);
+
+    if (!result.success) {
+      const errors = result.errors;
+
+      //Check if errors is an array or an object
+      if (Array.isArray(errors)) {
+        //Handle errors as an array
+        dispatch({
+          type: 'SET_ERROR_MESSAGES',
+          payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
+        })
+      }
+    } else {
+      if (
+        result.data?.errors &&
+        typeof result.data.errors === 'object' &&
+        typeof result.data.errors.general === 'string') {
+        // Handle errors as an object with general or field-level errors
+        dispatch({
+          type: 'SET_ERROR_MESSAGES',
+          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
+        });
+      }
+      //Need to refetch plan data to refresh the info that was changed
+      await refetch();
+    }
+  };
+
+  const calculatePercentageAnswered = (sections: PlanSectionProgress[]) => {
+    if (sections.length === 0) return 0;
+    const totalAnswered = sections.reduce((sum, section) => sum + section.answeredQuestions, 0);
+    const totalQuestions = sections.reduce((sum, section) => sum + section.totalQuestions, 0);
+    const overallPercentage = totalQuestions > 0 ? (totalAnswered / totalQuestions) * 100 : 0;
+    return Math.round(overallPercentage);
+  }
+
+  useEffect(() => {
+    // When data from backend changes, set project data in state
+    if (data && data.plan) {
+      dispatch({
+        type: 'SET_PLAN_DATA',
+        payload: {
+          id: Number(data?.plan.id) ?? null,
+          dmpId: data?.plan.dmpId ?? '',
+          registered: data?.plan.registered ?? '',
+          title: data?.plan?.versionedTemplate?.name ?? '',
+          status: data?.plan?.status ?? '',
+          funderName: data?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
+          primaryContact: data.plan.members
+            ?.filter(member => member?.isPrimaryContact === true)
+            ?.map(member => member?.projectMember?.givenName + ' ' + member?.projectMember?.surName)
+            ?.join(', ') ?? '',
+          members: data.plan.members
+            ?.filter((member) => member !== null) // Filter out null
+            .map((member) => ({
+              fullname: `${member?.projectMember?.givenName} ${member?.projectMember?.surName}`,
+              email: member?.projectMember?.email ?? '',
+              orcid: member?.projectMember?.orcid ?? '',
+              isPrimaryContact: member?.isPrimaryContact ?? false,
+              role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
+            })) ?? [],
+          sections: data?.plan?.sections ?? [],
+          percentageAnswered: calculatePercentageAnswered(data?.plan?.sections ?? []) ?? 0,
+        },
+      })
+      dispatch({
+        type: 'SET_PLAN_VISIBILITY',
+        payload: data.plan.visibility as PlanVisibility
+      });
+    }
+  }, [data]);
+
+
+  useEffect(() => {
+    if (queryError) {
+      dispatch({
+        type: 'SET_ERROR_MESSAGES',
+        payload: [...state.errorMessages, queryError.message]
+      });
+    }
+  }, [queryError])
+
+  useEffect(() => {
+    const listItems = [
+      {
+        id: 1,
+        content: (
+          <>
+            <strong>{t('publishModal.publish.checklistItem.primaryContact')} <Link href={CHANGE_PRIMARY_CONTACT_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{state.planData.primaryContact}</Link></strong>
+          </>
+        ),
+        completed: state.planData.members.some(member => member.isPrimaryContact),
+      },
+      {
+        id: 2,
+        content: (
+          <>
+            {t('publishModal.publish.checklistItem.complete')}
+          </>
+        ),
+        completed: state.planData.status === 'COMPLETE',
+      },
+      {
+        id: 3,
+        content: (
+          <>
+            {t('publishModal.publish.checklistItem.percentageAnswered', { percentage: state.planData.percentageAnswered })}
+
+          </>
+        ),
+        completed: state.planData.percentageAnswered >= 50,
+      },
+      {
+        id: 4,
+        content: (
+          <>
+            {t('publishModal.publish.checklistItem.fundingText')} (<Link href={FUNDINGS_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.funding')}</Link>)
+          </>
+        ),
+        completed: !!state.planData.funderName, // Check if funderName exists
+      },
+      {
+        id: 5,
+        content: <>{t('publishModal.publish.checklistItem.requiredFields')}</>,
+        completed: false, // Mark as not completed
+      },
+      {
+        id: 6,
+        content: (
+          <>
+            {t('publishModal.publish.checklistItem.orcidText')} <Link href={MEMBERS_URL} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: false })}>{t('publishModal.publish.checklistItem.projectMembers')}</Link>
+          </>
+        ),
+        completed: state.planData.members.some(member => member.orcid), // Check if any member has an ORCiD
+      },
+    ];
+    dispatch({
+      type: 'SET_CHECKLIST_ITEMS',
+      payload: listItems
+    });
+  }, [state.planData]);
+
+  if (loading) {
+    return <div>{Global('messaging.loading')}...</div>;
+  }
 
   return (
     <>
       <PageHeader
-        title={plan.title}
+        title={state.planData.title || t('page.pageDescription')}
         description={t('page.pageDescription')}
-        showBackButton={true}
+        showBackButton={false}
         breadcrumbs={
-          <Breadcrumbs aria-label={t('navigation.navigation')}>
-            <Breadcrumb><Link
-              href="/">{t('navigation.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{t('navigation.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects/proj_2425/">Project name</Link></Breadcrumb>
-            <Breadcrumb>{plan.title}</Breadcrumb>
+          <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb>{state.planData.title}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
         className="page-project-list"
       />
 
+      <ErrorMessages errors={state.errorMessages} ref={errorRef} />
       <LayoutWithPanel>
         <ContentContainer>
           <div className={"container"}>
             <div className={styles.planOverview}>
               <section className={styles.planOverviewItem}
-                aria-labelledby="funder-title">
+                aria-labelledby="funding-title">
                 <div className={styles.planOverviewItemContent}>
-                  <h2 id="funder-title"
+                  <h2 id="funding-title"
                     className={styles.planOverviewItemTitle}>
-                    {t('funder.title')}
+                    {t('funding.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
-                    {plan.funder_name}
+                    {state.planData.funderName}
                   </p>
                 </div>
-                <Link href={plan.adjust_funder_url}
-                  aria-label={t('funder.edit')}>
-                  {t('funder.edit')}
+                <Link href={FUNDINGS_URL}
+                  aria-label={t('funding.edit')}>
+                  {t('funding.edit')}
                 </Link>
               </section>
 
@@ -136,18 +515,18 @@ const PlanOverviewPage: React.FC = () => {
                     {t('members.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
-                    {plan.members.map((member, index) => (
+                    {state.planData.members.map((member, index) => (
                       <span key={index}>
                         {t('members.info', {
                           name: member.fullname,
-                          role: member.role
+                          role: member.role.map((role) => role).join(', ')
                         })}
-                        {index < plan.members.length - 1 ? '; ' : ''}
+                        {index < state.planData.members.length - 1 ? '; ' : ''}
                       </span>
                     ))}
                   </p>
                 </div>
-                <Link href={plan.adjust_members_url}
+                <Link href={MEMBERS_URL}
                   aria-label={t('members.edit')}>
                   {t('members.edit')}
                 </Link>
@@ -161,10 +540,10 @@ const PlanOverviewPage: React.FC = () => {
                     {t('outputs.title')}
                   </h2>
                   <p className={styles.planOverviewItemHeading}>
-                    {t('outputs.count', { count: plan.research_output_count })}
+                    {t('outputs.count', { count: researchOutputCount })}
                   </p>
                 </div>
-                <Link href={plan.adjust_researchoutputs_url}
+                <Link href={RESEARCH_OUTPUT_URL}
                   aria-label={t('outputs.edit')}>
                   {t('outputs.edit')}
                 </Link>
@@ -172,19 +551,19 @@ const PlanOverviewPage: React.FC = () => {
             </div>
 
 
-            {plan.sections.map((section) => (
+            {state.planData.sections.map((section) => (
               <section
-                key={section.id}
+                key={section.sectionId}
                 className={styles.planSectionsList}
-                aria-labelledby={`section-title-${section.id}`}
+                aria-labelledby={`section-title-${section.sectionId}`}
               >
                 <div className={styles.planSectionsHeader}>
                   <div className={styles.planSectionsTitle}>
-                    <h3 id={`section-title-${section.id}`}>
-                      {section.section_title}
+                    <h3 id={`section-title-${section.sectionId}`}>
+                      {section.sectionTitle}
                     </h3>
                     <p
-                      aria-label={`${section.progress} out of 3 questions answered for ${section.section_title}`}>
+                      aria-label={`${section.answeredQuestions} out of ${section.totalQuestions} questions answered for ${section.sectionTitle}`}>
                       <span
                         className={styles.progressIndicator}>
                         <svg
@@ -200,82 +579,211 @@ const PlanOverviewPage: React.FC = () => {
                             d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
                         </svg>
                         {t('sections.progress', {
-                          current: section.progress,
-                          total: 3
+                          current: section.answeredQuestions,
+                          total: section.totalQuestions
                         })} {t('sections.questionsAnswered')}
                       </span>
                     </p>
                   </div>
                   <Link
-                    href={section.link}
+                    href={routePath('projects.dmp.section', { projectId, dmpId: planId, sectionId: section.sectionId })}
                     aria-label={t('sections.updateSection', {
-                      title: section.section_title
+                      title: section.sectionTitle
                     })}
                     className={"react-aria-Button react-aria-Button--secondary"}
                   >
-                    {t('sections.update')}
+                    {(section.answeredQuestions === 0) ? t('sections.start') : t('sections.update')}
                   </Link>
                 </div>
               </section>
             ))}
-
-
           </div>
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={styles.statusPanel}>
-            <div className={styles.statusPanelHeader}>
-              <h2>{t('status.title')}</h2>
+          <div className={`${styles.statusPanelContent} ${styles.sidePanel} `}>
+            <div className={`${styles.buttonContainer} mb - 5`}>
+              <Button className="secondary">{Global('buttons.preview')}</Button>
+              <Button
+                onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })}
+              >
+                {Global('buttons.publish')}
+              </Button>
             </div>
-            <div className={styles.statusPanelContent}>
-              <div className="mb-5">
-                <h3>{t('status.lastUpdated')}</h3>
-                <p>{plan.last_updated}</p>
+            <div className={styles.sidePanelContent}>
+              <div className={`${styles.panelRow} mb-5`}>
+                <div>
+                  <h3>{t('status.feedback.title')}</h3>
+                </div>
+                <Link href={FEEDBACK_URL} aria-label={Global('links.request')} >
+                  {Global('links.request')}
+                </Link >
+              </div >
+              {state.isEditingPlanStatus ? (
+                <div>
+                  <Form onSubmit={handlePlanStatusForm} className={styles.statusForm}>
+                    <FormSelect
+                      label={t('status.title')}
+                      ariaLabel={t('status.select.label')}
+                      isRequired
+                      name="planStatus"
+                      items={planStatusOptions}
+                      onSelectionChange={(selected) => dispatch({ type: 'SET_PLAN_STATUS', payload: selected as PlanStatus })}
+                      selectedKey={state.planStatus ?? state.planData.status}
+                    >
+                      {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
+                    </FormSelect>
+                    {state.isEditingPlanStatus && (
+                      <Button type="submit">{Global('buttons.save')}</Button>
+                    )}
+                  </Form>
+                </div>
+              ) : (
+                <div className={`${styles.panelRow} mb-5`}>
+                  <div>
+                    <h3>{t('status.title')}</h3>
+                    <p>{state.planData.status}</p>
+                  </div>
+                  <Link className={`${styles.sidePanelLink} react-aria-Link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
+                    {Global('buttons.linkUpdate')}
+                  </Link>
+                </div>
+              )}
+
+              <div className={`${styles.panelRow} mb-5`}>
+                <div>
+                  <h3>{t('status.publish.title')}</h3>
+                  <p>{state.planData.registered ? PUBLISHED : UNPUBLISHED}</p>
+                </div>
+                <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })} aria-label={t('status.publish.label')}>
+                  {t('status.publish.label')}
+                </Link>
               </div>
-              <div className="mb-5">
-                <h3>{t('status.publishedStatus')}</h3>
-                <p>{plan.published_status}</p>
+              <div className={`${styles.panelRow} mb-5`}>
+                <div>
+                  <h3>{t('status.download.title')}</h3>
+                </div>
+                <Link href={DOWNLOAD_URL} aria-label="download">
+                  {t('status.download.title')}
+                </Link>
               </div>
-              <div className="mb-5">
-                <h3>{t('status.doi')}</h3>
-                <p>{plan.doi || t('status.notPublished')}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.visibilitySettings')}</h3>
-                <p>{plan.visibility}</p>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.download.title')}</h3>
-                <p>
-                  <Link
-                    href={plan.download_url}>{t('status.download.downloadPDF')}</Link>
-                </p>
-                <p>
-                  {t('status.download.draftInfo')} <Link
-                    href="#">{t('status.download.learnMore')}</Link>
-                </p>
-                <button
-                  className="react-aria-Button react-aria-Button--primary">
-                  {t('status.download.markComplete')}
-                </button>
-              </div>
-              <div className="mb-5">
-                <h3>{t('status.feedback.title')}</h3>
-                <p>{t('status.feedback.description')}</p>
-                <p>
-                  <Link
-                    href={plan.feedback_url}>{t('status.feedback.manageAccess')}</Link>
-                </p>
-                <button
-                  className="react-aria-Button react-aria-Button--secondary">
-                  {t('status.feedback.requestFeedback')}
-                </button>
+            </div >
+          </div >
+
+        </SidebarPanel >
+      </LayoutWithPanel >
+
+      <Modal isDismissable
+        isOpen={state.isModalOpen}
+        onOpenChange={(isOpen) => { dispatch({ type: 'SET_IS_MODAL_OPEN', payload: isOpen }) }}
+        data-testid="modal"
+      >
+
+        {state.step === 1 && (
+          <Dialog>
+            <div className={`${styles.publishModal} ${styles.dialogWrapper}`}>
+
+              <Heading slot="title">{t('publishModal.publish.title')}</Heading>
+
+              <p>{t('publishModal.publish.description1')}</p>
+
+              <p>
+                {t('publishModal.publish.description2')}
+              </p>
+
+              <Heading level={2}>{t('publishModal.publish.checklistTitle')}</Heading>
+
+              <ul className={styles.checkList} data-testid="checklist">
+                {/* Render completed items first */}
+                {state.checkListItems
+                  .filter(item => item.completed)
+                  .map(item => (
+                    <li key={item.id} className={styles.iconTextListItem}>
+                      <div className={styles.iconWrapper}>
+                        <DmpIcon
+                          icon="check_circle_black"
+                        />
+                      </div>
+                      <div className={styles.textWrapper}>
+                        {item.content}
+                      </div>
+                    </li>
+                  ))}
+
+                {/* Render incomplete items next */}
+                {state.checkListItems
+                  .filter(item => !item.completed)
+                  .map(item => (
+                    <li key={item.id} className={styles.iconTextListItem}>
+                      <div className={styles.iconWrapper}>
+                        <DmpIcon
+                          icon="error_circle"
+                        />
+                      </div>
+                      <div className={styles.textWrapper}>
+                        {item.content}
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+
+              <p>
+                <strong>{state.checkListItems.filter(item => !item.completed).length} {t('publishModal.publish.checklistInfo')}</strong>
+              </p>
+
+              <div className="modal-actions">
+                <div>
+                  <Button
+                    type="submit"
+                    onPress={() => dispatch({ type: 'SET_STEP', payload: 2 })}
+                  >
+                    {t('publishModal.publish.buttonNext')} &gt;
+                  </Button>
+                </div>
+                <div>
+                  <Button data-secondary className="secondary" onPress={handleDialogCloseBtn}>{Global('buttons.close')}</Button>
+                </div>
               </div>
             </div>
-          </div>
-        </SidebarPanel>
-      </LayoutWithPanel>
+          </Dialog>
+        )}
+
+        {/* Step 2: Visibility Settings & Publish Plan button*/}
+        {state.step === 2 && (
+          <Dialog>
+            <div className={`${styles.publishModal} ${styles.dialogWrapper}`}>
+              <Form onSubmit={e => handleSubmit(e)} data-testid="publishForm">
+
+                <Heading slot="title">{t('publishModal.publish.visibilityTitle')}</Heading>
+
+                <p>
+                  {t('publishModal.publish.visibilityDescription')}
+                </p>
+
+                <Heading level={2}>{t('publishModal.publish.visibilityOptionsTitle')}</Heading>
+                <RadioGroupComponent
+                  name="visibility"
+                  value={state.planVisibility.toLowerCase()}
+                  radioGroupLabel={radioData.radioGroupLabel}
+                  radioButtonData={radioData.radioButtonData}
+                  onChange={handleRadioChange}
+                />
+
+                <div className="modal-actions">
+                  <div>
+                    <Button type="submit">{t('publishModal.publish.title')}</Button>
+                  </div>
+                  <div>
+                    <Button data-secondary className="secondary" onPress={handleDialogCloseBtn}>{Global('buttons.close')}</Button>
+                  </div>
+                </div>
+
+
+              </Form>
+            </div>
+          </Dialog>
+        )}
+      </Modal >
     </>
   );
 }

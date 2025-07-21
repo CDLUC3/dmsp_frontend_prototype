@@ -4,6 +4,24 @@ query SectionsDisplayOrder($templateId: Int!) {
   }
 }
 
+query PublishedSections($term: String!) {
+  publishedSections(term: $term) {
+    totalCount
+    nextCursor
+    items {
+      id
+      name
+      displayOrder
+      bestPractice
+      modified
+      created
+      versionedTemplateId
+      versionedTemplateName
+      versionedQuestionCount
+    }
+  }
+}
+
 query Section($sectionId: Int!) {
   section(sectionId: $sectionId) {
     id
@@ -13,6 +31,22 @@ query Section($sectionId: Int!) {
     guidance
     displayOrder
     bestPractice
+    isDirty
+    questions {
+      errors {
+        general
+        templateId
+        sectionId
+        questionText
+        displayOrder
+      }
+      displayOrder
+      guidanceText
+      id
+      questionText
+      sectionId
+      templateId
+    }
     tags {
       id
       description
@@ -25,6 +59,11 @@ query Section($sectionId: Int!) {
     }
     template {
       id
+      bestPractice
+      isDirty
+      languageId
+      name
+      visibility
     }
   }
 }

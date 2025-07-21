@@ -1,0 +1,9 @@
+query MemberRoles{
+    memberRoles {
+        id
+        label
+        uri
+        description
+        displayOrder
+    }
+}

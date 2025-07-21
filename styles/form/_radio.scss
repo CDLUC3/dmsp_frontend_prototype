@@ -3,29 +3,39 @@
   flex-direction: column;
   margin-bottom: var(--space-5);
   color: var(--text-color);
-  label{
+
+  label {
     font-weight: 400;
   }
 }
 
 .react-aria-Radio {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.571rem;
   font-size: 1.143rem;
   color: var(--text-color);
   forced-color-adjust: none;
+
+  .text-sm {
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    margin: 0;
+  }
 
   &:before {
     content: '';
     display: block;
     width: 1.286rem;
     height: 1.286rem;
+    min-width: 1.286rem; /* Prevent shrinking */
     box-sizing: border-box;
     border: 0.143rem solid var(--border-color);
     background: var(--field-background);
     border-radius: 1.286rem;
     transition: all 200ms;
+    top: 2px;
+    position: relative;
   }
 
   &[data-pressed]:before {

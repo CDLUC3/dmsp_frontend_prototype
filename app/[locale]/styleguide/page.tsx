@@ -1,7 +1,7 @@
 'use client';
 
-import React, {useState} from 'react';
-import {useRouter} from 'next/navigation';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Button,
   Cell,
@@ -38,9 +38,8 @@ import {
   TextField
 } from "react-aria-components";
 
-
-import {DmpEditor} from "@/components/Editor";
-import {DmpIcon} from "@/components/Icons";
+import { DmpIcon } from "@/components/Icons";
+import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 import {
   Card,
@@ -60,22 +59,27 @@ import {
   ToolbarContainer,
 } from '@/components/Container';
 
-import {BrandColor, Example, handleDelete} from "./sg-components";
+import { BrandColor, Example, handleDelete } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import {AffiliationsDocument} from '@/generated/graphql';
+import {
+  AffiliationsDocument,
+  AffiliationSearch,
+  AffiliationSearchResults,
+} from '@/generated/graphql';
 
 import "./styleguide.scss";
 import SectionHeaderEdit from "@/components/SectionHeaderEdit";
 import QuestionEditCard from "@/components/QuestionEditCard";
 import SubHeader from "@/components/SubHeader";
 import TooltipWithDialog from "@/components/TooltipWithDialog";
-import {ModalOverlayComponent} from '@/components/ModalOverlayComponent';
+import { ModalOverlayComponent } from '@/components/ModalOverlayComponent';
 import ButtonWithImage from '@/components/ButtonWithImage';
-import {useToast} from '@/context/ToastContext';
+import { useToast } from '@/context/ToastContext';
 
 import QuestionPreview from '@/components/QuestionPreview';
+import FunderSearch from '@/components/FunderSearch';
 
 
 function Page() {
@@ -101,8 +105,8 @@ function Page() {
       be measured by cooperation partners are marked with an asterisk (*).
       Already existing data of the analytical methods will be reused in the
       stated formats.</p>
-    <table style="border-collapse: collapse; width: 100%; height: 371px;"
-           border="1">
+<table style="border-collapse: collapse; width: 99.9706%;" border="1">
+
       <colgroup>
         <col style="width: 20%;">
         <col style="width: 20%;">
@@ -191,6 +195,7 @@ function Page() {
       </tr>
       </tbody>
     </table>
+
     <p>(Raw) data generated within the working group Herres-Pawlis at the
       Institute of Inorganic Chemistry, RWTH Aachen University will be saved at
       least in a non-proprietary file format for reuse by scientists within the
@@ -359,6 +364,17 @@ function Page() {
     router.push('/');
   }
 
+  // To test the funder search results
+  const [funders, setFunders] = useState<AffiliationSearch[]>([]);
+
+  function onFunderResults(results: AffiliationSearchResults) {
+    if (results) {
+      const items = (results.items ?? [])
+        .filter((f): f is AffiliationSearch => f != null);
+      setFunders(items);
+    }
+  }
+
   return (
     <>
       <LayoutWithPanel id="sgLayout">
@@ -380,9 +396,10 @@ function Page() {
           <a href="#_table">Table</a>
           <a href="#_widgets">Custom Widget</a>
           <a href="#_tooltipWithDialog">Tooltip with dialog</a>
-          <a href="#_richtext">RichText Editor</a>
+          <a href="#_tinymce">TinyMCE Editor</a>
           <a href="#_toast">Toast Messages</a>
           <a href="#_questionpreview">QuestionPreview Bottomsheet</a>
+          <a href="#_fundersearch">Funder Search</a>
         </SidebarPanel>
 
         <ContentContainer id="sgContent">
@@ -710,6 +727,22 @@ function Page() {
                 <DmpIcon icon="format_bold" />
                 <DmpIcon icon="double_arrow" />
                 <DmpIcon icon="info" />
+                <DmpIcon icon="cancel" />
+                <DmpIcon icon="trashcan" />
+                <DmpIcon icon="table" />
+                <DmpIcon icon="chat" />
+                <DmpIcon icon="format_bold" />
+                <DmpIcon icon="format_italic" />
+                <DmpIcon icon="format_underlined" />
+                <DmpIcon icon="format_list_bulleted" />
+                <DmpIcon icon="format_list_numbered" />
+                <DmpIcon icon="double_arrow" />
+                <DmpIcon icon="check_circle" />
+                <DmpIcon icon="error_circle" />
+                <DmpIcon icon="close" />
+                <DmpIcon icon="solid-left_arrow" />
+                <DmpIcon icon="solid-right_arrow" />
+                <DmpIcon icon="solid-down_arrow" />
               </div>
             </Example>
 
@@ -1419,6 +1452,7 @@ function Page() {
                 <Button className="secondary">Secondary</Button>
                 <Button className="tertiary">Tertiary</Button>
                 <Button isDisabled>Disabled</Button>
+                <Button className="link">Button Link</Button>
                 <ButtonWithImage url="http://localhost:3000"
                   imageUrl="/images/orcid.svg"
                   buttonText="Connect institutional credentials" />
@@ -1619,6 +1653,7 @@ function Page() {
               text="This is a question"
               link="/edit"
               name="question"
+              handleDisplayOrderChange={() => console.log('reordering')}
             />
 
 
@@ -1893,8 +1928,8 @@ function Page() {
             </Example>
           </div>
 
-          <div id="_richtext">
-            <h2>ReMirror Editor (Custom)</h2>
+          <div id="_tinymce">
+            <h2>TinyMCE Editor</h2>
             <p>Required properties:</p>
             <dl>
               <dt><code>content</code></dt>
@@ -1902,14 +1937,23 @@ function Page() {
 
               <dt><code>setContent</code></dt>
               <dd>The effect function that will update the content variable</dd>
+
+              <dt><code>Optional props</code></dt>
+              <dd>
+                <p>The <code>error</code> and <code>helpText</code> adds text below the editor.</p>
+                <p>And the <code>id</code> is added to the editor tag, and the <code>labelid</code> is used for an aria-labelledby</p>
+              </dd>
             </dl>
             <p>Example Usage:</p>
-            <div><pre><code>
-              {`<DmpEditor content={editorContent} setContent={setEditorContent} \\>`}
-            </code></pre>
-            </div>
-            <hr />
-            <DmpEditor content={editorContent} setContent={setEditorContent} />
+            <TinyMCEEditor
+              content={editorContent}
+              setContent={setEditorContent}
+              error={undefined}
+              id="tinymce-test"
+              labelId="_tinymce"
+              helpText="This is using the tinyMCE editor component"
+            />
+
           </div>
 
           <div id="_toast">
@@ -1961,9 +2005,11 @@ function Page() {
 
           <div id="_questionpreview">
             <h3>QuestionPreview</h3>
-            <QuestionPreview>
+            <QuestionPreview
+              previewDisabled={false}
+            >
               <LayoutWithPanel>
-                <ContentContainer>
+                <ContentContainer className="question-preview-container">
                   <p>This is an example of the content within the Question Preview</p>
 
                   <TextField
@@ -1978,11 +2024,15 @@ function Page() {
                     <FieldError />
                   </TextField>
 
-                  <DmpEditor content="<p>Example richtext field inside the preview bottomsheet</p>" setContent={() => {}} />
+                  <TinyMCEEditor
+                    id="question-editor-preview"
+                    content="<p>Example richtext field inside the preview bottomsheet</p>"
+                    setContent={() => { }}
+                  />
                 </ContentContainer>
 
                 <SidebarPanel>
-                  <p>Best pracive by (DMPTool Logo)</p>
+                  <p>Best practice by (DMPTool Logo)</p>
 
                   <h3>Data Sharing</h3>
                   <p>
@@ -2012,6 +2062,24 @@ function Page() {
             </QuestionPreview>
           </div>
 
+          <div id="_fundersearch">
+            <h3>Funder Search</h3>
+            <FunderSearch onResults={onFunderResults} />
+
+            <div id="_fundersearchResults">
+              <h4>Results</h4>
+              <ul>
+                {funders.length === 0 && <li>No results</li>}
+                {funders.map((res) => (
+                  <li key={res.id}>
+                    <strong>{res.displayName}</strong><br />
+                    <small>{res.uri}</small>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+          </div>
         </ContentContainer>
       </LayoutWithPanel >
     </>

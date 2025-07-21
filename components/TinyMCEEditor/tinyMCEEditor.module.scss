@@ -1,0 +1,46 @@
+@use '@/styles/responsive';
+
+.tinyMCE-editor-container {
+  margin-bottom: 2rem;
+  max-width: 600px;
+
+
+  // Because TinyMCE has it's own classes that we have to overwrite, we need to use the :global selector for it to work properly
+  // Overwrite the main TinyMCE container border and padding
+  :global(.tox-tinymce) {
+    border: 2px solid var(--border-color) !important;
+    border-radius: 8px !important; // if you want rounded corners
+  }
+  
+  // Overwrite the editor content area specifically
+  :global(.tox-edit-area__iframe) {
+    border: none !important;
+  }
+
+  // Overwrite the bottom border of the toolbar so that it is more visible
+  :global(.tox-toolbar__primary) {
+    border-bottom: 1px solid var(--border-color) !important;
+  }
+
+  // Remove the box-shadow
+  :global(.tox-toolbar__primary) {
+    border-bottom: 1px solid var(--border-color) !important;
+  }
+
+  // Overwrite padding for editor header
+  :global(.tox-editor-header) {
+    padding: 0 !important;
+  }
+
+  :global(.tox-toolbar__overflow) {
+    z-index: 100 !important; // Ensure the overflow menu is above other elements
+  }
+
+  :global(.tox .tox-edit-area::before){
+    border-radius: 0 0 4px 4px !important; // Remove border radius when focused
+  }
+}
+
+.editor-help-text {
+  padding-left: var(--space-2);
+}

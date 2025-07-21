@@ -1,17 +1,32 @@
 .tooltipButton {
-  background: none;
-  border: none;
-  color: rgb(0, 85, 129);
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  margin: 15px 0;
-  padding: 0;
+  margin: var(--space-3) 0;
+  padding: 0.5rem 1rem;
+  background-color: var(--gray-75);
+  color: black;
 
-  &:hover {
-    text-decoration:underline;
+  &:hover:not(:disabled) {
+    background-color: var(--gray-100)!important;
+    color:black!important;
+    text-decoration: none!important;
   }
+
   span {
-    padding-right: 5px;
+    margin-left: 5px;
+
+    img{
+      position: relative;
+      top: 2px;
+    }
+
+    &.icon-cancel {
+      margin-left: 1rem;
+      padding: 0;
+      right: -5px;
+      position: relative;
+      top: 2px;
+    }
   }
 }
 
@@ -36,5 +51,5 @@
       bottom: -5px;
       left: 0;
     }
-}
+  }
 }

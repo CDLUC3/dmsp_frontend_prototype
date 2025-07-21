@@ -96,14 +96,14 @@ function ProjectListItem({ item }: { item: ProjectItemProps }) {
                 </div>
                 <div className={styles.section}>
                   <h3 id="project-title">{t('collaborators')}</h3>
-                  {item.collaborators.map((collaborator, index) => (
-                    <p key={index}>{collaborator.name}{collaborator.roles.length > 0 ? `(${collaborator.roles})` : ''}</p>
+                  {item.members?.map((member, index) => (
+                    <p key={index}>{member.name} {member.roles.length > 0 ? `(${member.roles})` : ''}</p>
                   ))}
 
                 </div>
                 <div className={styles.section}>
                   <h3 id="project-title">{t('funding')}</h3>
-                  <p>{item.funder}</p>
+                  <p>{item.funding}</p>
                   {item?.grantId ? (
                     <p>{t('grantId')}: {item.grantId}</p>
                   ) : null}

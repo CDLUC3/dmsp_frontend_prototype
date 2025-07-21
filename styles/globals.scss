@@ -1,104 +1,11 @@
-@import 'responsive';
-
-// Configurations
-$spacing: (
-  0: 0, // 0px
-  1: 0.25rem, // 4px
-  2: 0.5rem, // 8px
-  3: 0.75rem, // 12px
-  4: 1rem, // 16px
-  5: 1.5rem, // 24px
-  6: 2rem, // 32px
-  8: 3rem, // 48px
-  10: 4rem, // 64px
-  12: 6rem // 96px
-);
-
-$spacing-properties: (
-  'm': 'margin',
-  'p': 'padding'
-);
-
-$spacing-directions: (
-  '': '', // all sides - m-4
-  't': '-top', // mt-4
-  'b': '-bottom', // mb-4
-  's': '-left', // ms-4 (using left)
-  'e': '-right', // me-4 (using right)
-  'x': '-left' '-right', // mx-4
-  'y': '-top' '-bottom' // my-4
-);
-
-$font-sizes: (
-  'xsmall': 0.75rem, // 12px micro text
-  'small': 0.875rem, // 14px h5 - "special heading" and small text
-  'base': 1rem, // 16px h4 and p tag
-  'lg': 1.125rem, // 18px h3
-  'xl': 1.25rem, // 20px h2
-  '2xl': 1.5rem, // 24px  h1
-  '3xl': 1.875rem, // 30px
-  '4xl': 2.25rem // 36px
-);
-
-$colors: (
-  'brand': (
-    'primary': rgb(0, 85, 129),
-    'secondary': #444444,
-    'tertiary': rgb(207, 72, 23)
-  ),
-  'blue': (
-    50: #f2fbff,
-    100: #e4f7ff,
-    200: #b9e9ff,
-    300: #8ddaff,
-    400: #77d8ff,
-    500: #004EAA, // mid
-    600: #254eab, // dark blue
-    700: #254d9f,
-  ),
-  'gray': (
-    50: #ffffff,
-    75: #eee,
-    100: #e0e0e0,
-    200: #afafaf,
-    300: #8f8f8f,
-    400: #717171,
-    500: #555555,
-    600: #393939
-  ),
-  'purple': (
-    100: #d5c9fa,
-    200: #b8a3f6,
-    300: #997cf2,
-    400: #7a54ef,
-    500: #582ddc,
-    600: #3c1e95
-  ),
-  'red': (
-    100: #f7c4ba,
-    200: #f29887,
-    300: #eb664d,
-    400: #D3273E,
-    500: #a81b00,
-    600: #731200
-  ),
-  'slate': (
-    100: #F1F5F9,
-    200: #E2E8F0,
-    300: #CBD5E1,
-    400: #94A3B8,
-    500: #64748B,
-    600: #475569,
-    700: #334155,
-    800: #1E293B,
-    900: #0F172A
-  ),
-  'messaging': (
-    'info': #e1e4ff,
-    'success':#dcfbe5,
-    'error': #fce2e4,
-  ),
-);
+@use 'responsive' as r;
+@use 'spacing' as spacing;
+@use "typography";
+@use "elements";
+@use "messages";
+@use "page";
+@use "forms";
+@use "variables" as *;
 
 *,
 *:before,
@@ -112,7 +19,6 @@ html, body {
 
 
 :root {
-  --scale-mobile: 0.875; // Reduces font size by 12.5% on mobile
   --font-family: var(--font-sans-serif, sans-serif);
   --font-family-monospace: 'Fira Code', monospace;
   --font-family-heading: var(--font-sans-serif), sans-serif;
@@ -195,6 +101,9 @@ html, body {
   --text-color-hover: var(--gray-600);
   --text-color-disabled: var(--gray-200);
   --text-color-placeholder: var(--gray-400);
+
+  // Other kinds of text
+  --text-byline-color: var(--blue-500);
 
   // Links
   --link-color: var(--brand-primary);
@@ -315,15 +224,8 @@ body {
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-  line-height: var(--brand-line-height0);
+  line-height: var(--lh-normal);
 }
-
-@import 'spacing';
-@import "typography";
-@import "elements";
-@import "messages";
-@import "page";
-@import "forms";
 
 
 // this is potentailly temporary when integrating real side bar
@@ -341,7 +243,7 @@ body {
 
 .sidebar-inner {
   margin-top: var(--space-5);
-  @include device(xxl) {
+  @include r.device(xxl) {
     position: sticky;
     top: 0;
   }

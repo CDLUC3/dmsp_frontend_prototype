@@ -1,29 +1,22 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
+import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import {
-  Breadcrumb,
-  Breadcrumbs,
-  Link
-} from "react-aria-components";
-import {
-  useProjectQuery,
   PlanSearchResult,
-  PlanSectionProgress
+  PlanSectionProgress,
+  useProjectQuery
 } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
 import { Card } from '@/components/Card/card';
-import {
-  ContentContainer,
-  LayoutContainer
-} from "@/components/Container";
-import ErrorMessages from '@/components/ErrorMessages';
+import { ContentContainer, LayoutContainer } from "@/components/Container";
+import { routePath } from '@/utils/routes';
 
-interface FunderInterface {
+interface FundingInterface {
   name: string;
   shortName: string;
   id: number;
@@ -44,7 +37,7 @@ interface ProjectOverviewInterface {
   title: string;
   startDate: string | null;
   endDate: string | null;
-  funders: FunderInterface[];
+  fundings: FundingInterface[];
   projectMembers: ProjectMemberInterface[];
   researchOutputs: ResearchOutputsInterface[];
   plans: PlanSearchResult[];
@@ -55,15 +48,14 @@ interface ProjectOverviewInterface {
 const ProjectOverviewPage: React.FC = () => {
   // Get projectId param
   const params = useParams();
-  const { projectId } = params; // From route /projects/:projectId
+  const projectId = String(params.projectId); // From route /projects/:projectId
+  const router = useRouter();
   const formatter = useFormatter();
-  const errorRef = useRef<HTMLDivElement | null>(null);
-  const [errors, setErrors] = useState<string[]>([]);
   const [project, setProject] = useState<ProjectOverviewInterface>({
     title: '',
     startDate: null,
     endDate: null,
-    funders: [],
+    fundings: [],
     plans: [],
     projectMembers: [],
     researchOutputs: []
@@ -80,11 +72,6 @@ const ProjectOverviewPage: React.FC = () => {
       notifyOnNetworkStatusChange: true
     }
   );
-
-  if (error) {
-    const errorMsg = ProjectOverview('messages.errorGettingProject');
-    setErrors(prev => [...prev, errorMsg]);
-  }
 
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
@@ -110,20 +97,20 @@ const ProjectOverviewPage: React.FC = () => {
         startDate: data.project?.startDate ? data.project.startDate : '',
         endDate: data.project?.endDate ? data.project.endDate : '',
         plans: data.project?.plans ?? [],
-        funders: data.project.funders
-          ?.filter((funder) => funder !== null) // Filter out null
-          .map((funder) => ({
-            id: Number(funder.id),
-            name: funder.affiliation?.displayName ?? '',
-            shortName: funder.affiliation?.name ?? '',
-            grantId: funder.grantId ?? '',
+        fundings: data.project.fundings
+          ?.filter((funding) => funding !== null) // Filter out null
+          .map((funding) => ({
+            id: Number(funding.id),
+            name: funding.affiliation?.displayName ?? '',
+            shortName: funding.affiliation?.name ?? '',
+            grantId: funding.grantId ?? '',
           })) ?? [], // Provide a default empty array
-        projectMembers: data.project.contributors
+        projectMembers: data.project.members
           ?.filter((member) => member !== null) // Filter out null
           .map((member) => ({
             fullname: `${member.givenName} ${member.surName}`,
             email: member.email ?? '',
-            role: (member.contributorRoles ?? []).map((role) => role.label),
+            role: (member.memberRoles ?? []).map((role) => role.label),
           })) ?? [], // Provide a default empty array
         researchOutputs: data.project.outputs
           ?.filter((output) => output !== null) // Filter out null
@@ -139,6 +126,14 @@ const ProjectOverviewPage: React.FC = () => {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
+  if (error) {
+    if (error.message.toLowerCase() === 'forbidden') {
+      router.push('/not-found');
+    } else {
+      return <div>{error.message}</div>
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -147,15 +142,14 @@ const ProjectOverviewPage: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs aria-label={ProjectOverview('navigation')}>
-            <Breadcrumb><Link href="/">{ProjectOverview('home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{ProjectOverview('projects')}</Link></Breadcrumb>
-            <Breadcrumb>{ProjectOverview('pageTitle')}</Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{ProjectOverview('home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{ProjectOverview('projects')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.projectOverview')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
         className="page-project-list"
       />
-      <ErrorMessages errors={errors} ref={errorRef} />
       <LayoutContainer>
         <ContentContainer>
           <div className="project-overview">
@@ -168,10 +162,11 @@ const ProjectOverviewPage: React.FC = () => {
                 </strong>
               </p>
               <p>
-                {ProjectOverview('dateRange', {
-                  startDate: (project.startDate),
-                  endDate: (project.endDate)
-                })}
+                {project.startDate && project.endDate && (
+                  ProjectOverview('dateRange', {
+                    startDate: (project.startDate ?? ''),
+                    endDate: (project.endDate ?? '')
+                  }))}
               </p>
               <Link href={`/projects/${projectId}/project`} aria-label={ProjectOverview('editProject')}>
                 {ProjectOverview('edit')}
@@ -179,26 +174,26 @@ const ProjectOverviewPage: React.FC = () => {
             </section>
 
 
-            <section className="project-overview-item project-funders"
-              aria-labelledby="funders-title">
-              <h2 id="funders-title">{ProjectOverview('funders')}</h2>
+            <section className="project-overview-item project-fundings"
+              aria-labelledby="fundings-title">
+              <h2 id="fundings-title">{ProjectOverview('fundings')}</h2>
               <p className="project-overview-item-heading">
                 <strong>
-                  {ProjectOverview('funderCount', { count: project.funders.length })}
+                  {ProjectOverview('fundingCount', { count: project.fundings.length })}
                 </strong>
               </p>
               <p>
-                {project.funders.map((funder, index) => (
-                  <span key={funder.id} data-index={index}>
-                    {funder.grantId ? (ProjectOverview('funderInfo', {
-                      name: funder.name,
-                      id: funder.grantId
-                    })) : funder.name}
+                {project.fundings.map((funding, index) => (
+                  <span key={funding.id} data-index={index}>
+                    {funding.grantId ? (ProjectOverview('fundingInfo', {
+                      name: funding.name,
+                      id: funding.grantId
+                    })) : funding.name}
                   </span>
                 ))}
               </p>
-              <Link href={`/projects/${projectId}/funder`} aria-label={ProjectOverview('editFunders')}>
-                {ProjectOverview('editFunderDetails')}
+              <Link href={`/projects/${projectId}/fundings`} aria-label={ProjectOverview('editFundings')}>
+                {ProjectOverview('editFundingDetails')}
               </Link>
             </section>
 
@@ -273,7 +268,7 @@ const ProjectOverviewPage: React.FC = () => {
               const sortedSections = sortSections(plan.sections ?? []);
               return (
                 <Card className="plan-item" key={plan.id}>
-                  <p className="mb-1">{ProjectOverview('funder')}: {plan.funder}</p>
+                  <p className="mb-1">{ProjectOverview('funding')}: {plan.funding}</p>
                   <h3 className="mt-0">{plan.templateTitle}</h3>
                   <div className="plan-sections mb-4">
                     <ul className="plan-sections-list"
@@ -321,7 +316,7 @@ const ProjectOverviewPage: React.FC = () => {
                     </div>
                     <div className="plan-action">
                       <Link
-                        href={`/projects/${projectId}/dmp/xxx`}
+                        href={routePath('projects.dmp.show', { projectId, dmpId: String(plan.id) })}
                         className="react-aria-Button react-aria-Button--primary"
                         aria-label={ProjectOverview('updatePlan')}
                       >

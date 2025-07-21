@@ -1,27 +1,25 @@
 query MyProjects {
   myProjects {
-    title
-    id
-    contributors {
-      surName
-      givenName
-      contributorRoles {
-        label
-      }
-      orcid
-    }
-    startDate
-    endDate
-    funders {
-      affiliation {
-        name
-        uri
-      }
-      grantId
-    }
-    errors {
-      general
+    totalCount
+    nextCursor
+    items {
       title
+      id
+      startDate
+      endDate
+      fundings {
+        name
+        grantId
+      }
+      members {
+        name
+        role
+        orcid
+      }
+      errors {
+        general
+        title
+      }
     }
   }
 }
@@ -33,7 +31,7 @@ query Project($projectId: Int!) {
     startDate
     endDate
     isTestProject
-    funders {
+    fundings {
       id
       grantId
       affiliation {
@@ -42,10 +40,10 @@ query Project($projectId: Int!) {
         searchName
       }
     }
-    contributors {
+    members {
       givenName
       surName
-      contributorRoles {
+      memberRoles {
         description
         displayOrder
         label
@@ -70,7 +68,7 @@ query Project($projectId: Int!) {
       }
       templateTitle
       id
-      funder
+      funding
       dmpId
       modified
       created

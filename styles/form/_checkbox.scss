@@ -1,7 +1,4 @@
 
-
-
-
 .react-aria-Checkbox {
   --selected-color: var(--highlight-background);
   --selected-color-pressed: var(--highlight-background-pressed);
@@ -26,6 +23,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 0.3rem;
   }
 
   svg {
@@ -74,22 +72,24 @@
   }
 }
 
-.react-aria-CheckboxGroup{
+.react-aria-CheckboxGroup {
   margin-bottom: var(--space-5);
 
   .react-aria-Checkbox {
     margin-bottom: 0.5rem;
 
   }
-  label{
+
+  label {
     font-weight: 400;
   }
 }
 
+
 .checkbox-group-two-column {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem; /* Add spacing between checkboxes */
+  gap: 1rem;
   margin-bottom: 2rem;
   font-size: var(--fs-base);
 
@@ -100,34 +100,55 @@
   .checkbox-label {
     font-size: var(--fs-base);
   }
+
   .icon {
     svg {
       width: 18px;
-      height:18px;
+      height: 18px;
       fill: var(--brand-primary);
+      vertical-align: middle;
     }
   }
 
   .popover-btn {
-      display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    background: none;
+    padding: 0 0 0 0.25rem;
+    border: none;
+    vertical-align: middle;
+    cursor: pointer;
 
-      background:none;
-      padding: 0 0 0 0.03rem;
-
-      &:hover {
-        background: none;
-      }
+    &:hover {
+      background: none;
+    }
   }
 
-  label {
+
+  :global(.react-aria-Checkbox) {
     margin-bottom: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
   }
+
 
   .checkbox-wrapper {
-    display: inline;
+    display: inline-flex;
+    white-space: nowrap;
+    align-items: center;
+    gap: 0.25rem;
   }
-  
-  .checkbox-wrapper > div:first-child {
-    display: inline;
+
+}
+
+.react-aria-CheckboxGroup {
+  .checkbox-group-two-column {
+    .react-aria-Checkbox {
+      margin-bottom: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
   }
 }

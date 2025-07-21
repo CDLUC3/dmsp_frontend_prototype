@@ -119,6 +119,9 @@ const TemplateAccessPage: React.FC = () => {
   // Add new collaborator email
   const handleAddingEmail = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    clearErrors();
+
     try {
       const response = await addTemplateCollaboratorlMutation({
         variables: {
@@ -138,8 +141,6 @@ const TemplateAccessPage: React.FC = () => {
       if (emailData?.errors && Object.values(emailData?.errors).filter((err) => err && err !== 'TemplateCollaboratorErrors').length > 0) {
         setErrorMessages([emailData?.errors.general || AccessPage('messages.errors.errorAddingCollaborator')]);
       }
-
-      clearErrors();
       setAddCollaboratorEmail('');
 
       // Show success message
@@ -181,7 +182,7 @@ const TemplateAccessPage: React.FC = () => {
     );
   }, [organization]);
 
-  /* Handles rendering list of existing contributors*/
+  /* Handles rendering list of existing members*/
   const renderExternalPeople = useMemo(() => {
     if (loading) {
       return <div>{Global('messaging.loading')}...</div>;
@@ -208,6 +209,7 @@ const TemplateAccessPage: React.FC = () => {
               </div>
             </div>
             <ConfirmModal
+              title={AccessPage('headings.confirmRemoval')}
               email={person.email}
               onConfirm={handleRevokeAccess}
             />
@@ -227,7 +229,6 @@ const TemplateAccessPage: React.FC = () => {
   // Set organization section info
   useEffect(() => {
     if (templateCollaboratorData?.template) {
-      /* eslint-disable-next-line object-shorthand */
       const admins = templateCollaboratorData.template.admins?.map(admin => ({
         email: admin.email as string | null,
         givenName: admin.givenName ?? null,
@@ -266,7 +267,7 @@ const TemplateAccessPage: React.FC = () => {
             <div className="main-content">
               <ErrorMessages errors={errorMessages} ref={errorRef} />
               <p>
-                {AccessPage('intro')}
+                {AccessPage('intro', { orgName: organization?.name ?? '' })}
               </p>
               <section className="sectionContainer"
                 aria-labelledby="org-access-heading">
@@ -274,7 +275,7 @@ const TemplateAccessPage: React.FC = () => {
                   <h3 id="org-access-heading">{AccessPage('headings.h3OrgAccess')}</h3>
                 </div>
                 <div className="sectionContent">
-                  <p>{AccessPage('paragraphs.orgAccessPara1', { name: organization?.name })}</p>
+                  <p>{AccessPage('paragraphs.orgAccessPara1', { name: organization?.name ?? '' })}</p>
                   <p>{AccessPage('paragraphs.orgAccessPara2', { count: organization?.admins?.length ?? '' })}</p>
                   {renderOrgAdmins}
                 </div>
@@ -286,7 +287,7 @@ const TemplateAccessPage: React.FC = () => {
                   <h3 id="external-access-heading">{AccessPage('headings.externalPeople')}</h3>
                 </div>
                 <div className="sectionContent">
-                  <p>{AccessPage('paragraphs.externalPara1')}</p>
+                  <p>{AccessPage('paragraphs.externalPara1', { orgName: organization?.name || '' })}</p>
                   <div className={styles.externalPeopleList}>
                     {renderExternalPeople}
                   </div>
@@ -306,6 +307,7 @@ const TemplateAccessPage: React.FC = () => {
                       <FormInput
                         name="email"
                         type="text"
+                        data-testid="email-input"
                         value={addCollaboratorEmail}
                         onChange={handleEmailChange}
                         isRequired={true}

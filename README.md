@@ -1,6 +1,6 @@
 # dmsp_frontend_prototype app
-![Next.js](https://img.shields.io/badge/Next.js-v14.2.4-blue)
-![Node.js](https://img.shields.io/badge/Node.js-v20.9.0-green)
+![Next.js](https://img.shields.io/badge/Next.js-v14.2.25-blue)
+![Node.js](https://img.shields.io/badge/Node.js-v22.1.0-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## Table of Contents
@@ -49,8 +49,8 @@ This app was bootstrapped with [`create-next-app`](https://github.com/vercel/nex
 ## Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org) v20.9.0 or higher
-- [npm](https://www.npmjs.com/) v10.7.0 or higher
+- [Node.js](https://nodejs.org) v22.1.0
+- [npm](https://www.npmjs.com/) v10.9.1
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 -- Docker Desktop gives you Docker Engine, Docker CLI client, and Docker Compose
 
@@ -94,6 +94,35 @@ export default function HomePage() {
     </div>
   );
 }
+```
+
+Additional examples of how to use the translation keys:
+```
+    <PageHeader title={t('title')} />
+    <p>{t('content', { name })}</p>
+    <p>{t('itemCount', { count: 1 })}</p>
+    <p>
+      {t.rich('message', {
+        guidelines: (chunks) => <a href="/guidelines">{chunks}</a>
+      })}
+    </p>
+    {t.rich('markup', {
+      important: (chunks) => <b>${chunks}</b>
+    })}
+    <div dangerouslySetInnerHTML={{ __html: t.raw('raw') }} />
+    <p>{t('general')}</p>
+```
+with the translation definitions looking like:
+```
+    "LocaleTest": {
+    "title": "Localization Test",
+    "content": "Hello {name}!",
+    "itemCount": "{count, plural, one {You have {count} item} other {You have {count} items}}",
+    "message": "Please refer to <guidelines>the guidelines</guidelines>.",
+    "markup": "This is <important>important</important>",
+    "raw": "&lt;script&gt;alert('Hacked!')&lt;/script&gt;",
+    "general": "This is new content"
+  },
 ```
 
 For more documentation on what is available in `next-intl`, go to: https://next-intl-docs.vercel.app/docs/getting-started
@@ -243,7 +272,21 @@ Also, there is a very simple `cypress.config.ts` file that we need to add.
 ### Running cypress tests
 `cypress` can be opened using the `cypress:open` script in `package.json`. This will open cypress in your browser, and allow you to navigate to your test and run it.
 
-You can use the `cypress:run` script to run your tests in the terminal window.
+You can use the `cypress:run` script to run your tests in headless mode in the terminal window.
+
+By default, Cypress looks for tests in `cypress/e2e` directory. tests are run from the `cypress/e2e` directory. You can customize this and add your own test directories by updating the `cypress.config.ts` file:
+```
+export default defineConfig({
+  e2e: {
+    baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+    specPattern: 'tests/**/*.cy.{js,jsx,ts,tsx}', // Custom directory
+    setupNodeEvents(on, config) {
+      return config;
+    },
+  },
+  // ... rest of config
+});
+```
 
 ### Cypress documentation
 `cypress` provides good documentation at: https://docs.cypress.io/app/end-to-end-testing/writing-your-first-end-to-end-test

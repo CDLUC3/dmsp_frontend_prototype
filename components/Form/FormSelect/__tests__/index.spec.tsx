@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FormSelect, MyItem } from '@/components/Form/FormSelect';
 
@@ -21,13 +21,13 @@ describe('FormSelect', () => {
       {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
     </FormSelect>);
     const container = getByTestId('hidden-select-container');
-    const select = container.querySelector('select');
+    const select = container.querySelector('select')!;
 
     // Find the option with text "Option 1"
-    const option = Array.from(select.options).find(opt => opt.text === 'Option 1');
+    const option = Array.from(select?.options ?? []).find(opt => opt.text === 'Option 1');
 
     expect(option).toBeTruthy();
-    expect(option.value).toBe('1');
+    expect(option?.value).toBe('1');
 
   });
 
@@ -69,6 +69,7 @@ describe('FormSelect', () => {
       </FormSelect>
     );
 
-    expect(screen.getByText('Choose from the available options')).toBeInTheDocument();
+    const helpText = screen.getAllByText('Choose from the available options');
+    expect(helpText).toHaveLength(2);
   });
 });

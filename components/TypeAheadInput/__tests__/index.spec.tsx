@@ -35,6 +35,7 @@ describe('TypeAheadInput', () => {
     it('should render initial state correctly', () => {
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -49,6 +50,7 @@ describe('TypeAheadInput', () => {
     it('should pass axe accessibility test', async () => {
         const { container } = render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -63,15 +65,18 @@ describe('TypeAheadInput', () => {
     it('should fetch and display suggestions', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: [
-                    { id: '1', displayName: 'Test University' },
-                    { id: '2', displayName: 'Test Institution' }
-                ]
+                affiliations: {
+                    items: [
+                        { id: '1', displayName: 'Test University' },
+                        { id: '2', displayName: 'Test Institution' }
+                    ]
+                }
             }
         });
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -103,12 +108,13 @@ describe('TypeAheadInput', () => {
     it('should not display suggestions when there are no matching results', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: []
+                affiliations: { items: [] }
             }
         });
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -127,15 +133,18 @@ describe('TypeAheadInput', () => {
     it('should handle keyboard navigation in suggestions list', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: [
-                    { id: '1', displayName: 'Test University' },
-                    { id: '2', displayName: 'Test Institution' }
-                ]
+                affiliations: {
+                    items: [
+                        { id: '1', displayName: 'Test University' },
+                        { id: '2', displayName: 'Test Institution' }
+                    ]
+                }
             }
         });
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -167,16 +176,19 @@ describe('TypeAheadInput', () => {
     it('should correctly handle use of \'Enter\' key for selecting an item from the dropdown', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: [
-                    { id: '1', displayName: 'Test University' },
-                    { id: '2', displayName: 'Test Institution' }
-                ]
+                affiliations: {
+                    items: [
+                        { id: '1', displayName: 'Test University' },
+                        { id: '2', displayName: 'Test Institution' }
+                    ]
+                }
             }
         });
 
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -211,12 +223,13 @@ describe('TypeAheadInput', () => {
     it('should display a "No results found" message when no suggestions match the input', async () => {
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: []
+                affiliations: { items: [] }
             }
         });
 
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
@@ -234,14 +247,17 @@ describe('TypeAheadInput', () => {
         (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => { });
         mockClient.query.mockResolvedValueOnce({
             data: {
-                affiliations: [
-                    { id: '1', displayName: 'Test University' },
-                    { id: '2', displayName: 'Test Institution' }
-                ]
+                affiliations: {
+                    items: [
+                        { id: '1', displayName: 'Test University' },
+                        { id: '2', displayName: 'Test Institution' }
+                    ]
+                }
             }
         });
         render(
             <TypeAheadInput
+                fieldName="institution"
                 graphqlQuery={GET_AFFILIATIONS}
                 label="Institution"
                 helpText="Search for an institution"
