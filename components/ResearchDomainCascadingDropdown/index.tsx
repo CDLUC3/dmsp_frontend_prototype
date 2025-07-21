@@ -1,12 +1,12 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {useTranslations} from 'next-intl';
-import {ListBoxItem,} from "react-aria-components";
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { ListBoxItem, } from "react-aria-components";
 import {
   useChildResearchDomainsQuery,
   useTopLevelResearchDomainsQuery,
 } from '@/generated/graphql';
 
-import {FormSelect,} from "@/components/Form";
+import { FormSelect, } from "@/components/Form";
 
 
 import styles from './researchDomainDropdowns.module.scss';
@@ -21,15 +21,12 @@ interface ResearchDomainInterface {
   id: string;
   name: string;
 }
-
-interface ChildOptionsMap {
-  [key: string]: ChildOption[];
-}
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface CascadingDropdownProps {
   projectData: any;
   setProjectData: (data: any) => void;
 }
+
 const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ projectData, setProjectData }) => {
   const [selectedParent, setSelectedParent] = useState<string>('');
   const [selectedChild, setSelectedChild] = useState('');
@@ -54,13 +51,13 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
   );
 
   // Update child dropdown when parent selection changes
-  const updateChildDropdown = (parentResearchDomainId: string) => {
+  const updateChildDropdown = async (parentResearchDomainId: string) => {
     setSelectedParent(parentResearchDomainId);
     setSelectedChild('');
     setProjectData({ ...projectData, researchDomainId: parentResearchDomainId });
 
     if (parentResearchDomainId) {
-      refetch({ parentResearchDomainId: Number(parentResearchDomainId) });
+      await refetch({ parentResearchDomainId: Number(parentResearchDomainId) });
       // Set a brief timeout to ensure DOM is updated before focusing
       setTimeout(() => {
         if (childSelectRef.current) {
@@ -133,7 +130,8 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
   }, [childOptionsList, selectedParent]);
 
 
-  // Update selectedParent and selectedChild from data passed into component, just on initial load
+  // We need this useEffect to update the selectedParent and selectedChild data passed into component, 
+  // just on initial load
   useEffect(() => {
     if (initialLoadRef.current && projectData?.parentResearchDomainId && projectData?.researchDomainId) {
       if (projectData?.parentResearchDomainId) {
@@ -172,7 +170,7 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
 
       <div className="form-group">
         <FormSelect
-          label={(selectedParent && myResearchDomains?.topLevelResearchDomains) ? ProjectDetail('labels.childDomain', { name: selectedParentDomain?.name }) : ProjectDetail('labels.item')}
+          label={(selectedParent && myResearchDomains?.topLevelResearchDomains) ? ProjectDetail('labels.childDomain', { name: selectedParentDomain?.name || '' }) : ProjectDetail('labels.item')}
           isRequired
           isDisabled={isChildDisabled}
           name="childDomain"
@@ -189,7 +187,7 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
           <option value="">
             {isChildDisabled
               ? ProjectDetail('helpText.selectResearchDomain')
-              : ProjectDetail('labels.childDomain', { name: selectedParentDomain?.name })}
+              : ProjectDetail('labels.childDomain', { name: selectedParentDomain?.name || '' })}
           </option>
           {childOptionsList && childOptionsList.map((option) => {
             return (

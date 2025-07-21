@@ -6,32 +6,31 @@ query Plan($planId: Int!) {
         id
         name
       }
+      name
     }
-    funders {
+    fundings {
       id
-      project {
-        title
-      }
     }
     visibility
     status
     project {
-      funders {
+      fundings {
         affiliation {
           displayName
+          name
         }
         funderOpportunityNumber
       }
       title
     }
-    contributors {
+    members {
       isPrimaryContact
-      projectContributor {
+      projectMember {
         givenName
         surName
         email
         orcid
-        contributorRoles {
+        memberRoles {
           label
         }
       }

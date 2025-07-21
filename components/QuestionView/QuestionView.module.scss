@@ -1,5 +1,6 @@
 
 .QuestionView {
+  padding: 1rem;
   &__content-container {
     grid-gap: var(--grid-gap);
   }
@@ -11,4 +12,8 @@
 
 .Logo {
   vertical-align: middle;
+}
+
+.numberRange {
+  max-width: 400px;
 }

@@ -1,6 +1,7 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -11,7 +12,7 @@ import {
   Link,
   Text
 } from "react-aria-components";
-import type {DropEvent, FileDropItem} from 'react-aria';
+import type { DropEvent, FileDropItem } from 'react-aria';
 
 
 import PageHeader from "@/components/PageHeader";
@@ -20,9 +21,11 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
+import { routePath } from '@/utils/routes';
 
 
 const PlanCreateUpload = () => {
+  const router = useRouter();
   const [fileName, setFileName] = useState<string | null>(null); // Holds uploaded file name
   const [error, setError] = useState<string | null>(null); // Tracks any upload errors
   //const [isDragging, setIsDragging] = useState<boolean>(false); // State for drag-hover effect
@@ -72,9 +75,8 @@ const PlanCreateUpload = () => {
       return;
     }
 
-    console.log('Form submitted with file:', fileName);
     // Perform further actions or navigation here
-    window.location.href = '/projects/proj_2425new';
+    router.push(routePath('projects.show', { projectId: 'proj_2425' }))
   };
 
   return (
@@ -97,9 +99,10 @@ const PlanCreateUpload = () => {
       />
       <LayoutWithPanel>
         <ContentContainer>
-          <Form onSubmit={handleSubmit} role="presentation"
-                aria-labelledby="upload-form">
-            <h3 id="upload-form">Upload a Data Management Plan (DMP)</h3>
+          <Form onSubmit={handleSubmit}
+            data-testid="upload-form"
+            aria-labelledby="upload-form">
+            <h2 id="upload-form" className="heading-3">Upload a Data Management Plan (DMP)</h2>
             <p>PDF, DOC, or DOCX files only</p>
 
 

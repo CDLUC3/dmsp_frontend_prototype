@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import classNames from 'classnames';
 
 
 /**
@@ -8,9 +9,13 @@ import React from 'react';
  * inherrit from this one. So that we have some common functionality for all
  * layout containers.
  */
-export interface LayoutContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-}
 
+export type LayoutContainerProps = React.HTMLAttributes<HTMLDivElement> & {
+  id?: string;
+  className?: string;
+  children: React.ReactNode;
+  onClick?: (event: React.MouseEvent) => void;
+};
 export const LayoutContainer: React.FC<LayoutContainerProps> = ({
   id,
   className,
@@ -20,7 +25,7 @@ export const LayoutContainer: React.FC<LayoutContainerProps> = ({
     <>
       <div
         id={id}
-        className={`layout-container ${className}`}
+        className={classNames('layout-container', className)}
         data-testid="layout-container"
       >
         {children}

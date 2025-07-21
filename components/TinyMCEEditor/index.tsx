@@ -9,6 +9,7 @@ import styles from './tinyMCEEditor.module.scss';
 // while still providing TypeScript type safety
 declare global {
   interface Window {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     tinymce: any;
   }
 }
@@ -16,11 +17,12 @@ declare global {
 interface TinyMCEEditorProps {
   content: string;
   setContent: (newContent: string) => void;
-  id?: string;
+  id: string;
   error?: string;
   labelId?: string;
   helpText?: string;
 }
+
 
 const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: TinyMCEEditorProps) => {
   const editorRef = useRef<TinyMCEEditorType | null>(null); // Update the type here
@@ -41,14 +43,18 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
         selector: `#${elementId}`,
         menubar: false,
         max_height: 400,
-        min_height: 200,
+        min_height: 100,
+        popup_container: 'body',
         plugins: [
           'autoresize',
           'table',
+          'lists',
+          'link'
         ],
-        toolbar: 'undo redo | formatselect | bold italic backcolor | ' +
-          'alignleft aligncenter alignright alignjustify | ' +
-          'bullist numlist outdent indent | removeformat | help | table',
+        toolbar: 'formatselect | bold italic | ' +
+          'alignleft aligncenter alignright | ' +
+          'bullist numlist | ' +
+          'link unlink | table',
         content_style: `
           @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
           body { font-family: "Poppins", sans-serif; color:#393939;};
@@ -60,6 +66,12 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
 
           editor.on('Change', () => {
             setContent(editor.getContent());
+
+            // Close all remaining open menus when content changes. 
+            const openMenus = document.querySelectorAll('.tox-pop, .tox-menu, .tox-toolbar__overflow');
+            openMenus.forEach(menu => {
+              (menu as HTMLElement).style.display = 'none';
+            });
           });
         }
       });
@@ -70,12 +82,13 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
 
     // Cleanup function when component unmounts
     return () => {
-      window.tinymce.remove(`#${elementId}`);
+      if (window.tinymce) {
+        window.tinymce.remove(`#${elementId}`);
+      }
       editorRef.current = null;
       setIsEditorReady(false);
-
     };
-  }, [elementId]);
+  }, [elementId]); // Add isMounted to dependencies
 
   // Update editor content when content prop changes
   useEffect(() => {
@@ -88,6 +101,7 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
     <div className={styles['tinyMCE-editor-container']}>
       <textarea
         id={elementId}
+        className={elementId}
         aria-label={id ?? 'Editor input area'}
         aria-labelledby={labelId ?? ''}
         aria-describedby={helpText ? `${elementId}-help-text` : ''}

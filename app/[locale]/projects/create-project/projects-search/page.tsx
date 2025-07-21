@@ -1,6 +1,8 @@
 'use client';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -15,12 +17,15 @@ import {
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
+import { routePath } from '@/utils/routes';
+
 import styles from './ProjectsCreateProjectProjectSearch.module.scss';
 
 const ProjectsCreateProjectProjectSearch = () => {
+  const router = useRouter();
+
   // States for each search field
   const [projectID, setProjectID] = useState<string>("");
   const [projectName, setProjectName] = useState<string>("Particle");
@@ -92,8 +97,7 @@ const ProjectsCreateProjectProjectSearch = () => {
 
   const handleSelectProject = (projectName: string) => {
     console.log('Project selected:', projectName);
-    window.location.href = '/projects/proj_2425new';
-
+    router.push(routePath('projects.show', { projectId: 'proj_2425new' }));
   };
 
   const handleAddProjectManually = () => {
@@ -115,7 +119,7 @@ const ProjectsCreateProjectProjectSearch = () => {
         }
         className="page-project-create-project-search"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           {/* Search Form */}
           <Form onSubmit={handleSearch} aria-labelledby="search-section">
@@ -243,8 +247,7 @@ const ProjectsCreateProjectProjectSearch = () => {
             </>
           )}
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

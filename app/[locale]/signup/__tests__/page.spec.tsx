@@ -1,7 +1,9 @@
 import React from 'react';
+
 import { act, fireEvent, render, screen, waitFor, } from '@/utils/test-utils';
 import SignUpPage from '../page';
 import logECS from '@/utils/clientLogger';
+import { useCsrf } from '@/context/CsrfContext';
 
 //Need to import this useRouter after the jest.mock is in place
 import { useRouter } from 'next/navigation';
@@ -11,21 +13,18 @@ import { fetchCsrfToken } from "@/utils/authHelper";
 // Mock TypeAheadWithOther component
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
-  /* eslint-disable-next-line no-unused-vars */
   default: ({ updateFormData }: { updateFormData: (name: string, value: string) => void }) => (
     <div data-testid="type-ahead">
       <input
         data-testid="institution"
         type="text"
         name="institution"
-        /* eslint-disable-next-line no-unused-vars */
         onChange={(e) => updateFormData("institution", e.target.value)}
       />
       <input
         data-testid="otherinst"
         type="text"
         name="otherAffiliation"
-        /* eslint-disable-next-line no-unused-vars */
         onChange={(e) => updateFormData("otherAffiliation", e.target.value)}
       />
     </div>
@@ -72,8 +71,8 @@ const mockUseRouter = useRouter as jest.Mock;
 
 const mockFetchCsrfToken = fetchCsrfToken as jest.Mock;
 
-global.fetch = global.fetch || require('node-fetch');
-
+// Mock fetch globally
+global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 describe('SignUpPage', () => {
   const signupData = {
@@ -128,8 +127,6 @@ describe('SignUpPage', () => {
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     HTMLElement.prototype.focus = mockFocus;
 
-    /*eslint-disable @typescript-eslint/no-var-requires */
-    const { useCsrf } = require('@/context/CsrfContext');
     (useCsrf as jest.Mock).mockReturnValue({ csrfToken: 'mocked-csrf-token' });
 
     mockUseRouter.mockReturnValue({

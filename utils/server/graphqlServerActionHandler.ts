@@ -23,10 +23,10 @@ interface GraphQLActionResponse<T = unknown> {
 
 /**
  * Execute a GraphQL mutation with comprehensive error handling
- * 
+ *
  * @param document - The GraphQL mutation DocumentNodeto execute
  * @param variables - Variables to pass to the mutation
- * @param dataPath - Path to extract data from response (e.g., "addPlanContributor")
+ * @param dataPath - Path to extract data from response (e.g., "addPlanMember")
  * @returns GraphQLActionResponse with appropriate success, data, errors, or redirect information
  */
 export async function executeGraphQLMutation<T = unknown, V = Record<string, unknown>>({
@@ -47,7 +47,7 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
     }
 
     // Get all cookies
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
     // Headers for the GraphQL request
@@ -71,7 +71,6 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
 
     // Handle GraphQL errors
     if (result.errors) {
-      console.log("RESULT.ERRORS", result.errors);
       for (const { message, extensions } of result.errors) {
         const errorCode = extensions?.code;
         switch (errorCode) {
@@ -86,7 +85,7 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
               }
 
               // Extract and store cookies from response
-              const nextCookies = cookies();
+              const nextCookies = await cookies();
               const setCookieHeader = refreshResult?.response?.headers?.get("set-cookie");
 
               if (!setCookieHeader) {

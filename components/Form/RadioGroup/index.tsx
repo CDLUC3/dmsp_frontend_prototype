@@ -35,6 +35,7 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
         value={value}
         className={classes}
         onChange={onChange}
+        aria-label={radioGroupLabel || 'Radio Group'}
       >
         <Label>{radioGroupLabel}</Label>
         <Text slot="description" className="help">
@@ -42,7 +43,7 @@ const RadioGroupComponent: React.FC<RadioButtonProps> = ({
         </Text>
         {radioButtonData.map((radioButton, index) => (
           <div key={index}>
-            <Radio value={radioButton.value} aria-label={radioButton.value}>{radioButton.label}</Radio>
+            <Radio value={radioButton.value}>{radioButton.label}</Radio>
             {radioButton.description && (
               <Text
                 slot="description"

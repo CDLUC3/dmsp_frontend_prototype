@@ -1,0 +1,42 @@
+{
+  "answerByVersionedQuestionId": {
+    "__typename": "Answer",
+    "id": 20,
+    "json": "{\"answer\":{\"isOther\":false,\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"University of California, San Diego (ucsd.edu)\"}}",
+    "versionedQuestion": {
+      "__typename": "VersionedQuestion",
+      "id": 195
+    },
+    "plan": {
+      "__typename": "Plan",
+      "id": 1
+    },
+    "modified": "1751754739000",
+    "errors": {
+      "__typename": "AffiliationErrors",
+      "general": null,
+      "versionedSectionId": null,
+      "versionedQuestionId": null,
+      "uri": null,
+      "types": null,
+      "subHeaderLinks": null,
+      "ssoEntityId": null,
+      "searchName": null,
+      "provenance": null,
+      "planId": null,
+      "name": null,
+      "logoURI": null,
+      "logoName": null,
+      "json": null,
+      "homepage": null,
+      "fundrefId": null,
+      "feedbackMessage": null,
+      "feedbackEmails": null,
+      "displayName": null,
+      "contactName": null,
+      "contactEmail": null,
+      "aliases": null,
+      "acronyms": null
+    }
+  }
+}

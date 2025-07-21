@@ -26,7 +26,7 @@ import { CheckboxGroupComponent } from '@/components/Form';
 // GraphQL
 import {
   useAddPlanMutation,
-  useProjectFundersQuery,
+  useProjectFundingsQuery,
   usePublishedTemplatesQuery
 } from '@/generated/graphql';
 
@@ -50,6 +50,7 @@ interface PublicTemplatesInterface {
   name?: string | null;
   description?: string | null;
   modified?: string | null;
+  modifiedByName?: string | null;
   modifiedById?: number | null;
   visibility?: string | null;
   ownerDisplayName?: string | null;
@@ -158,7 +159,7 @@ const PlanCreate: React.FC = () => {
   const Global = useTranslations('Global');
 
   // Get Project Funders data
-  const { data: projectFunders, loading: projectFundersLoading, error: projectFundersError } = useProjectFundersQuery({
+  const { data: projectFundings, loading: projectFundingsLoading, error: projectFundingsError } = useProjectFundingsQuery({
     variables: { projectId: Number(projectId) },
   });
 
@@ -173,8 +174,8 @@ const PlanCreate: React.FC = () => {
   });
 
 
-  const isLoading = projectFundersLoading || publishedTemplatesLoading;
-  const isError = projectFundersError || publishedTemplatesError;
+  const isLoading = projectFundingsLoading || publishedTemplatesLoading;
+  const isError = projectFundingsError || publishedTemplatesError;
 
 
   const clearErrors = () => {
@@ -200,7 +201,7 @@ const PlanCreate: React.FC = () => {
         funder: template?.ownerDisplayName || "",
         funderUri: template?.ownerURI || "",
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
-        lastRevisedBy: template?.modifiedById || null,
+        lastRevisedBy: template?.modifiedByName || null,
         hasAdditionalGuidance: false,
         defaultExpanded: false,
         visibility: template?.visibility,
@@ -284,7 +285,7 @@ const PlanCreate: React.FC = () => {
   };
 
   const sortTemplatesByProjectFunders = (templates: TemplateItemProps[]) => {
-    const funders = projectFunders?.projectFunders || [];
+    const funders = projectFundings?.projectFundings || [];
     return [...templates].sort((a, b) => {
       if (funders?.length === 0) {
         return Number(b.bestPractices) - Number(a.bestPractices);
@@ -355,7 +356,7 @@ const PlanCreate: React.FC = () => {
 
       // Find templates that contain project funder as owner
       const matchingTemplates = templates.filter(template =>
-        projectFunders?.projectFunders && projectFunders.projectFunders.some(pf => pf?.affiliation?.uri === template?.ownerURI)
+        projectFundings?.projectFundings && projectFundings.projectFundings.some(pf => pf?.affiliation?.uri === template?.ownerURI)
       );
 
       if (matchingTemplates) {
@@ -379,7 +380,7 @@ const PlanCreate: React.FC = () => {
       }
     };
     processTemplates();
-  }, [publishedTemplatesData, projectFunders]);
+  }, [publishedTemplatesData, projectFundings]);
 
 
   useEffect(() => {

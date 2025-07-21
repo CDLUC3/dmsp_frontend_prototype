@@ -1,0 +1,32 @@
+{
+  "projectFundings": [
+    {
+      "__typename": "ProjectFunding",
+      "id": 2,
+      "status": "GRANTED",
+      "grantId": "https://example.com/awards/IRL-000000X1",
+      "funderOpportunityNumber": null,
+      "funderProjectNumber": "IRL-000000X1",
+      "affiliation": {
+        "__typename": "Affiliation",
+        "displayName": "Irish Research Council (research.ie)",
+        "name": "Irish Research Council",
+        "uri": "https://ror.org/051xex213"
+      }
+    },
+    {
+      "__typename": "ProjectFunding",
+      "id": 3,
+      "status": "DENIED",
+      "grantId": null,
+      "funderOpportunityNumber": "NSF-123455678/wf34f",
+      "funderProjectNumber": null,
+      "affiliation": {
+        "__typename": "Affiliation",
+        "displayName": "National Science Foundation (nsf.gov)",
+        "name": "National Science Foundation",
+        "uri": "https://ror.org/021nxhr62"
+      }
+    }
+  ]
+}

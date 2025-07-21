@@ -7,13 +7,13 @@ import {
   Button,
   Checkbox,
   CheckboxGroup,
+  Label,
   Link
 } from "react-aria-components";
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
 import styles from './ProjectsProjectPlanFeedback.module.scss';
 
@@ -145,7 +145,7 @@ const ProjectsProjectPlanFeedback = () => {
         className="page-project-members"
       />
 
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer className="layout-content-container-full">
           <p>
             When you invite a person, we&#39;ll send an email to this person
@@ -153,15 +153,15 @@ const ProjectsProjectPlanFeedback = () => {
           </p>
           <p>
             <Link href='/projects/proj_2425/dmp/xxx/feedback/invite'
-                  className={"react-aria-Button react-aria-Button--secondary"}>Invite
+              className={"react-aria-Button react-aria-Button--secondary"}>Invite
               a person</Link>
           </p>
 
           {/* Current access section */}
           <section className={styles.section}
-                   aria-labelledby="current-access-heading">
+            aria-labelledby="current-access-heading">
             <h2 id="current-access-heading"
-                className={styles.sectionTitle}>These people currently have
+              className={styles.sectionTitle}>These people currently have
               access to this plan</h2>
             <div className={styles.membersList} role="list">
               {activeMembers.map((member) => (
@@ -177,9 +177,11 @@ const ProjectsProjectPlanFeedback = () => {
                     <p className={styles.memberRole}>{member.role}</p>
                   </div>
                   <div className={styles.accessOptions}>
-                    <CheckboxGroup
-                      aria-label={`Access options for ${member.name}`}>
 
+                    <CheckboxGroup
+                      aria-label={`Access options for ${member.name}`}
+                    >
+                      <Label className="hidden-accessibly">{`Accepted options for ${member.name}`}</Label>
                       <Checkbox
                         value={`${member.id}-edit`}
                         aria-label={`Can edit plan for ${member.name}`}
@@ -187,7 +189,7 @@ const ProjectsProjectPlanFeedback = () => {
                       >
                         <div className="checkbox">
                           <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4"/>
+                            <polyline points="1 9 7 14 15 4" />
                           </svg>
                         </div>
                         <span>Can edit plan</span>
@@ -200,7 +202,7 @@ const ProjectsProjectPlanFeedback = () => {
                       >
                         <div className="checkbox">
                           <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4"/>
+                            <polyline points="1 9 7 14 15 4" />
                           </svg>
                         </div>
                         <span>Comment only</span>
@@ -224,7 +226,7 @@ const ProjectsProjectPlanFeedback = () => {
 
           {/* Not accepted section */}
           <section className={styles.section}
-                   aria-labelledby="not-accepted-heading">
+            aria-labelledby="not-accepted-heading">
             <h2 id="not-accepted-heading" className={styles.sectionTitle}>
               These people have not accepted
               invite yet</h2>
@@ -244,6 +246,7 @@ const ProjectsProjectPlanFeedback = () => {
                   <div className={styles.accessOptions}>
                     <CheckboxGroup
                       aria-label={`Access options for ${member.name}`}>
+                      <Label className="hidden-accessibly">{`Access options for ${member.name}`}</Label>
                       <Checkbox
                         value={`${member.id}-edit`}
                         aria-label={`Can edit plan for ${member.name}`}
@@ -251,7 +254,7 @@ const ProjectsProjectPlanFeedback = () => {
                       >
                         <div className="checkbox">
                           <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4"/>
+                            <polyline points="1 9 7 14 15 4" />
                           </svg>
                         </div>
                         <span>Can edit plan</span>
@@ -264,7 +267,7 @@ const ProjectsProjectPlanFeedback = () => {
                       >
                         <div className="checkbox">
                           <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4"/>
+                            <polyline points="1 9 7 14 15 4" />
                           </svg>
                         </div>
                         <span>Comment only</span>
@@ -294,7 +297,7 @@ const ProjectsProjectPlanFeedback = () => {
 
           {/* No longer have access section */}
           <section className={styles.section}
-                   aria-labelledby="no-longer-access-heading">
+            aria-labelledby="no-longer-access-heading">
             <h2 id="no-longer-access-heading" className={styles.sectionTitle}>No
               longer have access</h2>
             <div className={styles.membersList} role="list">
@@ -311,7 +314,9 @@ const ProjectsProjectPlanFeedback = () => {
                     <p className={styles.accessRevoked}>{member.role}</p>
                   </div>
                   <div className={styles.accessOptions}>
-                    <CheckboxGroup>
+                    <CheckboxGroup
+                      aria-label={`Access options for ${member.name}`}>
+                      <Label className="hidden-accessibly">{`Accepted options for ${member.name}`}</Label>
                       <Checkbox
                         value={`${member.id}-edit`}
                         aria-label={`Can edit plan for ${member.name}`}
@@ -319,7 +324,7 @@ const ProjectsProjectPlanFeedback = () => {
                       >
                         <div className="checkbox">
                           <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4"/>
+                            <polyline points="1 9 7 14 15 4" />
                           </svg>
                         </div>
                         <span>Can edit plan</span>
@@ -331,7 +336,7 @@ const ProjectsProjectPlanFeedback = () => {
                       >
                         <div className="checkbox">
                           <svg viewBox="0 0 18 18" aria-hidden="true">
-                            <polyline points="1 9 7 14 15 4"/>
+                            <polyline points="1 9 7 14 15 4" />
                           </svg>
                         </div>
                         <span>Comment only</span>
@@ -352,8 +357,7 @@ const ProjectsProjectPlanFeedback = () => {
             </div>
           </section>
         </ContentContainer>
-        <SidebarPanel/>
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

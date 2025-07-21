@@ -13,8 +13,8 @@ import Link from "next/link";
 import { useTranslations } from 'next-intl';
 import styles from "@/app/[locale]/account/profile/profile.module.scss";
 
-const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
-const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
+// const REDIRECT_URI = process.env.NEXT_PUBLIC_ORCID_DEV_CALLBACK;
+// const ORCID_CLIENT_ID = process.env.NEXT_PUBLIC_ORCID_CLIENT_ID;
 
 const ConnectionsPage: React.FC = () => {
   const t = useTranslations('UserConnections');
@@ -24,22 +24,22 @@ const ConnectionsPage: React.FC = () => {
 
 
   //Production Uri
-  const orcidUri = `https://orcid.org/oauth/authorize?client_id=${ORCID_CLIENT_ID}&response_type=code&scope=/authenticate&redirect_uri=${REDIRECT_URI}`;
+  //const orcidUri = `https://orcid.org/oauth/authorize?client_id=${ORCID_CLIENT_ID}&response_type=code&scope=/authenticate&redirect_uri=${REDIRECT_URI}`;
 
   // Fake flag to indicate if ORCID is connected
-  const isOrcidConnected = true;
+  //const isOrcidConnected = true;
 
 
 
-  const orcidContentString = t.markup(
-    isOrcidConnected
-      ? 'orcidConnectionConnected.content'
-      : 'orcidConnection.content',
-    {
-      link: (chunks) =>
-        `<a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">${chunks}</a>`
-    }
-  );
+  // const orcidContentString = t.markup(
+  //   isOrcidConnected
+  //     ? 'orcidConnectionConnected.content'
+  //     : 'orcidConnection.content',
+  //   {
+  //     link: (chunks) =>
+  //       `<a href="https://orcid.org/" target="_blank" rel="noopener noreferrer">${chunks}</a>`
+  //   }
+  // );
 
   return (
     <>
@@ -61,25 +61,16 @@ const ConnectionsPage: React.FC = () => {
         <ContentContainer>
           <div className="sectionContainer">
             <div className="sectionContent">
-              {!isOrcidConnected ? (
-                <ConnectionSection
-                  type='orcid'
-                  title={t('orcidConnection.title')}
-                  content={orcidContentString}
-                  btnUrl={orcidUri}
-                  btnImageUrl='/images/orcid.svg'
-                  btnText={t('orcidConnection.btnText')}
-                />
-              ) : (
-                <ConnectionSection
-                  type='orcidconnected'
-                  title={t('orcidConnectionConnected.title')}
-                  content={orcidContentString}
-                  btnUrl='/users/auth/orcid/test'
-                  btnImageUrl='/images/orcid.svg'
-                  btnText={t('orcidConnectionConnected.btnText')}
-                />
-              )}
+
+              <ConnectionSection
+                type='orcidconnected'
+                title={t('orcidConnectionConnected.title')}
+                content={'orcidConnectionConnected.content'}
+                btnUrl='/users/auth/orcid/test'
+                btnImageUrl='/images/orcid.svg'
+                btnText={t('orcidConnectionConnected.btnText')}
+              />
+
               <ConnectionSection
                 type='sso'
                 title={t('ssoConnection.title')}

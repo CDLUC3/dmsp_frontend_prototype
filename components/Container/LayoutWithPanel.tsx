@@ -1,15 +1,14 @@
 'use client';
 
 import React, {
-  CSSProperties,
   useState,
   useEffect,
   useRef,
 } from 'react';
+import { useTranslations } from "next-intl";
 
 import { Button } from 'react-aria-components';
 
-import { DmpIcon } from '@/components/Icons';
 import {
   useResponsive,
   getSizeByName,
@@ -20,7 +19,7 @@ import {
   ContentContainerProps,
   ContentContainer,
 } from '@/components/Container/ContentContainer';
-
+import { DmpIcon } from "@/components/Icons";
 
 type DirectionType =
   | null
@@ -31,13 +30,13 @@ type DirectionType =
 /**
  * Layout with a dynamic sidebar
  */
-interface LayoutWithPanelProps extends LayoutContainerProps {
-}
+export type LayoutWithPanelProps = LayoutContainerProps;
 
 export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
   children,
   id,
   className = "",
+  onClick
 }) => {
   const thisRef = useRef<HTMLDivElement | null>(null);
 
@@ -104,6 +103,7 @@ export const LayoutWithPanel: React.FC<LayoutWithPanelProps> = ({
         id={id}
         className={`layout-container layout-with-panel ${className}`}
         data-testid="layout-with-panel"
+        onClick={onClick}
       >
         {children}
       </div>
@@ -125,6 +125,7 @@ export const SidebarPanel: React.FC<SidebarPanelProps> = ({
    */
   isOpen = true,
 }) => {
+
   return (
     <>
       <div
@@ -142,6 +143,7 @@ export const SidebarPanel: React.FC<SidebarPanelProps> = ({
 interface DrawerPanelProps extends ContentContainerProps {
   isOpen?: boolean;
   onClose?: () => void;
+  returnFocusRef?: React.RefObject<HTMLElement>;
 }
 
 export const DrawerPanel: React.FC<DrawerPanelProps> = ({
@@ -150,12 +152,16 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   className = '',
   isOpen = false,
   onClose,
+  returnFocusRef
 }) => {
 
   const drawerRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const size = useResponsive();
   const [isMobile, setIsMobile] = useState<boolean>(true);
   const [stateOpen, setStateOpen] = useState<boolean>(isOpen);
+
+  const Global = useTranslations('Global');
 
   useEffect(() => {
     setIsMobile(size.viewport[0] < getSizeByName('md')[0]);
@@ -164,6 +170,27 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   useEffect(() => {
     setStateOpen(isOpen);
   }, [isOpen]);
+
+  // Prevent background scrolling when drawer is open
+  useEffect(() => {
+    if (stateOpen) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
+
+      // Lock background scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+
+      return () => {
+        // Restore background scroll when drawer closes
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [stateOpen]);
 
   useEffect(() => {
     if (stateOpen) {
@@ -177,7 +204,9 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
         }, 301);
       }
     } else {
-      if (onClose) onClose();
+      if (onClose) {
+        onClose();
+      }
     }
   }, [stateOpen]);
 
@@ -196,7 +225,24 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   }, [stateOpen]);
 
   function handleClose() {
+    // Remove focus from the close button before hiding the drawer
+    drawerRef.current?.blur();
+    closeButtonRef.current?.blur();
+
     if (stateOpen) setStateOpen(false);
+
+    // Remove 'data-focus-visible' from all buttons first
+    document.querySelectorAll('button[data-focus-visible]').forEach((btn) => {
+      btn.removeAttribute('data-focus-visible');
+    });
+
+    // Return focus to the opener button
+    const drawerTriggerBtn = returnFocusRef?.current;
+    if (drawerTriggerBtn) {
+      drawerTriggerBtn.focus();
+      drawerTriggerBtn.setAttribute('data-focus-visible', '');
+    }
+
   }
 
   return (
@@ -212,14 +258,18 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
         >
           <ContentContainer className="drawer-content">
             <Button
+              ref={closeButtonRef}
               className="close-action"
+              aria-label={Global('buttons.close')}
               onPress={handleClose}
               data-testid="close-action"
             >
-              <DmpIcon icon="cancel" />
+              <DmpIcon icon="close" />
             </Button>
-
-            {children}
+            {/* Add a scrollable wrapper for the desktop version, so that user can scroll the drawer panel */}
+            <div className="drawer-scrollable-content">
+              {children}
+            </div>
           </ContentContainer>
         </div>
       )}
@@ -234,14 +284,18 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
           data-testid="drawer-panel"
         >
           <Button
+            ref={closeButtonRef}
             className="close-action"
+            aria-label={Global('buttons.close')}
             onPress={handleClose}
             data-testid="close-action"
           >
-            <DmpIcon icon="cancel" />
+            <DmpIcon icon="close" />
           </Button>
-
-          {children}
+          {/* Add a scrollable wrapper for the desktop version so that user can scroll the drawer panel*/}
+          <div className="drawer-scrollable-content">
+            {children}
+          </div>
         </div>
       )}
     </>

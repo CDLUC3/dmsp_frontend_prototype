@@ -76,14 +76,14 @@ query getDMSP($pk: String!) {
               funder_id {
                 identifier
               }
-              
+
             }
             start
             title
           }
           title
     }
-    
+
 }`;
 
 

@@ -5,12 +5,17 @@ import {
   Observable,
   Operation
 } from "@apollo/client";
-import { redirect } from "next/navigation";
 import { GraphQLError, Kind } from "graphql";
 import { errorLink } from "@/lib/graphql/graphqlHelper";
 import logECS from "@/utils/clientLogger";
 import { refreshAuthTokens, fetchCsrfToken } from "@/utils/authHelper";
+import * as navigationUtils from '@/utils/navigation';
 
+
+// Mock the navigation utility
+jest.mock('@/utils/navigation', () => ({
+  navigateTo: jest.fn(),
+}));
 
 // Mock the entire module
 jest.mock("@/utils/clientLogger", () => ({
@@ -27,6 +32,9 @@ jest.mock("next/navigation", () => ({
   redirect: jest.fn()
 }))
 
+
+const mockNavigateTo = navigationUtils.navigateTo as jest.MockedFunction<typeof navigationUtils.navigateTo>;
+
 describe("GraphQL Errors", () => {
   let operation: Operation;
   let forward: NextLink;
@@ -34,14 +42,7 @@ describe("GraphQL Errors", () => {
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
-
-    // Mock window.location
-    Object.defineProperty(window, 'location', {
-      value: {
-        href: '',
-      },
-      writable: true,
-    });
+    mockNavigateTo.mockClear();
 
     // Setup operation mock with proper typing
     operation = {
@@ -177,7 +178,7 @@ describe("GraphQL Errors", () => {
           expect.stringContaining('Internal Server Error'),
           expect.objectContaining({ errorCode: 'INTERNAL_SERVER_ERROR' })
         );
-        expect(redirect).toHaveBeenCalledWith("/500-error");
+        expect(mockNavigateTo).toHaveBeenCalledWith('/500-error');
       },
     });
   });

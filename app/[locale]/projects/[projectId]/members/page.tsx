@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Breadcrumb, Breadcrumbs, Button, Link } from "react-aria-components";
 
-import { useProjectContributorsQuery } from '@/generated/graphql';
+import { useProjectMembersQuery } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
@@ -13,9 +13,10 @@ import { ContentContainer, LayoutContainer, } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import ErrorMessages from '@/components/ErrorMessages';
 
+import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectMembers.module.scss';
 
-interface ProjectContributorInterface {
+interface ProjectMemberInterface {
   id: number | null;
   fullName: string;
   affiliation: string;
@@ -29,60 +30,58 @@ const ProjectsProjectMembers = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
   // Get projectId param
   const params = useParams();
-  const { projectId } = params; // From route /projects/:projectId
+  const projectId = String(params.projectId);  // From route /projects/:projectId
 
   // Localization keys
   const ProjectMembers = useTranslations('ProjectsProjectMembers');
   const Global = useTranslations('Global');
 
-  const [projectContributors, setProjectContributors] = useState<ProjectContributorInterface[]>();
+  const [projectMembers, setProjectMembers] = useState<ProjectMemberInterface[]>();
   const [errors, setErrors] = useState<string[]>([]);
 
-  // Get project contributors using projectid
-  const { data, loading, error: queryError } = useProjectContributorsQuery(
+  // Get project members using projectid
+  const { data, loading, error: queryError } = useProjectMembersQuery(
     {
       variables: { projectId: Number(projectId) },
       notifyOnNetworkStatusChange: true
     }
   );
 
-  const handleAddCollaborator = (): void => {
-    // Handle adding new collaborator
-    router.push(`/projects/${projectId}/members/search`);
+  const handleAddMember = (): void => {
+    // Handle adding new member
+    router.push(routePath('projects.members.search', {projectId}));
   };
 
   const handleEdit = (memberId: number | null): void => {
 
     // Handle editing member
-    router.push(`/projects/${projectId}/members/${memberId?.toString()}/edit`);
+    router.push(routePath('projects.members.edit', {projectId, memberId: String(memberId)}));
   };
 
   const handleShare = (): void => {
     // Handle share
-    router.push(`/projects/${projectId}/share`);
+    router.push(routePath('projects.share.index', {projectId}));
   };
 
   useEffect(() => {
-    // When data from backend changes, set project contributors data in state
-    if (data && data.projectContributors) {
-      const projectContributorData = data.projectContributors.map((contributor) => ({
-        id: contributor?.id ?? null,
-        fullName: `${contributor?.givenName} ${contributor?.surName}`,
-        affiliation: contributor?.affiliation?.displayName ?? '',
-        orcid: contributor?.orcid ?? '',
-        role: (contributor?.contributorRoles && contributor.contributorRoles.length > 0) ? contributor?.contributorRoles?.map((role) => role.label).join(', ') : '',
+    // When data from backend changes, set project members data in state
+    if (data && data.projectMembers) {
+      const projectMemberData = data.projectMembers.map((member) => ({
+        id: member?.id ?? null,
+        fullName: `${member?.givenName} ${member?.surName}`,
+        affiliation: member?.affiliation?.displayName ?? '',
+        orcid: member?.orcid ?? '',
+        role: (member?.memberRoles && member.memberRoles.length > 0) ? member?.memberRoles?.map((role) => role.label).join(', ') : '',
       }))
-      setProjectContributors(projectContributorData);
+      setProjectMembers(projectMemberData);
     }
   }, [data]);
 
   useEffect(() => {
     if (queryError) {
-      const errorMsg = ProjectMembers('messages.errors.errorGettingContributors');
+      const errorMsg = ProjectMembers('messages.errors.errorGettingMembers');
       setErrors(prev => [...prev, errorMsg]);
     }
-    /*eslint-disable react-hooks/exhaustive-deps*/
-
   }, [queryError])
 
   if (loading) {
@@ -98,19 +97,19 @@ const ProjectsProjectMembers = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}`}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
             <Breadcrumb>{ProjectMembers('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={
           <>
             <Button
-              onPress={handleAddCollaborator}
+              onPress={handleAddMember}
               className="secondary"
             >
-              {ProjectMembers('buttons.addCollaborators')}
+              {ProjectMembers('buttons.addMembers')}
             </Button>
           </>
         }
@@ -123,11 +122,11 @@ const ProjectsProjectMembers = () => {
             aria-label="Project members list"
             role="region"
           >
-            {(!projectContributors || projectContributors?.length === 0) ? (
-              <p>{ProjectMembers('messages.noContributors')}</p>
+            {(!projectMembers || projectMembers?.length === 0) ? (
+              <p>{ProjectMembers('messages.noMembers')}</p>
             ) : (
               <div className={styles.membersList} role="list">
-                {projectContributors.map((member) => (
+                {projectMembers.map((member) => (
                   <div
                     key={member.id}
                     className={styles.membersListItem}

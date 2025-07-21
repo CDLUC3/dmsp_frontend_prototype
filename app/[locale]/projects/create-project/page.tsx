@@ -1,9 +1,9 @@
 'use client';
 
-import {useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useRouter} from 'next/navigation';
-import {useTranslations} from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -13,14 +13,13 @@ import {
 } from "react-aria-components";
 
 //GraphQL
-import {ProjectErrors, useAddProjectMutation} from '@/generated/graphql';
+import { ProjectErrors, useAddProjectMutation } from '@/generated/graphql';
 
 // Components
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from "@/components/Container";
 import {
   CheckboxGroupComponent,
@@ -31,7 +30,9 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
 import logECS from '@/utils/clientLogger';
-import {useToast} from '@/context/ToastContext';
+import { scrollToTop } from '@/utils/general';
+import { routePath } from '@/utils/routes';
+import { useToast } from '@/context/ToastContext';
 
 interface CreateProjectResponse {
   id?: number | null;
@@ -54,6 +55,7 @@ const ProjectsCreateProject = () => {
   const router = useRouter();
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+  const inputFieldRef = useRef<HTMLInputElement | null>(null);
 
   const [fieldErrors, setFieldErrors] = useState<CreateProjectErrorsInterface>({
     projectName: '',
@@ -169,9 +171,6 @@ const ProjectsCreateProject = () => {
 
     // Update state with all errors
     setFieldErrors(errors);
-    if (errors) {
-      setErrors(Object.values(errors).filter((e) => e)); // Store only non-empty error messages
-    }
 
     return !hasError;
   };
@@ -191,9 +190,9 @@ const ProjectsCreateProject = () => {
       }
       setFormSubmitted(true)
     } catch (error) {
-      logECS('error', 'updateSection', {
+      logECS('error', 'createProject', {
         error,
-        url: { path: '/template/[templateId]/section/[sectionid]' }
+        url: { path: routePath('projects.create') }
       });
       if (error instanceof ApolloError) {
         setErrors(prevErrors => [...prevErrors, error.message]);
@@ -208,6 +207,7 @@ const ProjectsCreateProject = () => {
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    setFormSubmitted(true);
     // Clear previous error messages
     setErrors([]);
 
@@ -230,6 +230,13 @@ const ProjectsCreateProject = () => {
     }
   };
 
+  useEffect(() => {
+    // Scroll to the Project name field if there is a field-level error
+    if(fieldErrors.projectName.length > 0) {
+      scrollToTop(inputFieldRef);
+    }
+  },[fieldErrors.projectName])
+
   return (
     <>
       <PageHeader
@@ -249,17 +256,19 @@ const ProjectsCreateProject = () => {
         }
         className="page-project-create-project"
       />
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer>
           <ErrorMessages errors={errors} ref={errorRef} />
           <Form onSubmit={handleFormSubmit}>
             <FormInput
+              ref={inputFieldRef}
               name="projectName"
               type="text"
               value={formData.projectName}
               label={CreateProject('form.projectTitle')}
-              description={CreateProject('form.projectTitleHelpText')}
-              isRequired={true}
+              helpMessage={CreateProject('form.projectTitleHelpText')}
+              isRequired={false}
+              ariaRequired={true}
               onChange={handleInputChange}
               isInvalid={(!formData.projectName || !!fieldErrors.projectName) && formSubmitted}
               errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : CreateProject('messages.errors.title')}
@@ -286,16 +295,14 @@ const ProjectsCreateProject = () => {
             <Button
               type="submit"
               className=""
-              onPress={() => { setFormSubmitted(true) }}
-            >{Global('buttons.continue')}
-
+            >
+              {Global('buttons.continue')}
             </Button>
 
           </Form>
 
         </ContentContainer>
-        <SidebarPanel></SidebarPanel>
-      </LayoutWithPanel>
+      </LayoutContainer>
 
 
     </>

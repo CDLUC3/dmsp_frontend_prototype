@@ -1,12 +1,13 @@
-@import "form/text";
-@import "form/button";
-@import "form/label";
-@import "form/select";
-@import "form/radio";
-@import "form/checkbox";
-@import "form/switch";
-@import "form/tabs";
-@import "form/fileupload";
+@use "form/text";
+@use "form/button";
+@use "form/label";
+@use "form/select";
+@use "form/radio";
+@use "form/checkbox";
+@use "form/switch";
+@use "form/tabs";
+@use "form/fileupload";
+@use "responsive" as r;
 
 
 // Link
@@ -454,7 +455,7 @@
     gap: 1rem;
     margin-top: 1rem;
 
-    @include device(xl) {
+    @include r.device(xl) {
       flex-direction: row-reverse;
     }
 
@@ -578,23 +579,72 @@
   }
 }
 
-.Filters {
-  margin: 1rem 0;
-  display: grid;
-  gap: 20px;
-  grid-template-columns: 1fr 1fr;
-}
-
 .searchSection {
   display: grid;
-  grid-template-columns: 1fr; /* Single column by default (mobile) */
-  gap: 20px;
-
+  gap: 1rem;
+  /* Mobile-first: single column */
+  grid-template-columns: 1fr;
+  grid-template-areas: 
+    "search"
+    "filters";
 }
 
-@media (min-width: 768px) {
+.react-aria-SearchField {
+  grid-area: search;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "label"
+    "input"
+    "help" 
+    "button";
+  max-width: 500px;
+
+  .react-aria-Label {
+    grid-area: label;
+  }
+  
+  .help {
+    grid-area: help;
+  }
+  
+  .react-aria-Input {
+    grid-area: input;
+    min-width: 250px;
+  }
+  
+  .react-aria-Button {
+    grid-area: button;
+    justify-self: start; /* Prevents button from stretching full width */
+  }
+  
+  .checkbox-group {
+    grid-area: filters;
+  }
+}
+
+
+
+/* Desktop layout */
+@include r.device('md') {
   .searchSection {
-    grid-template-columns: 1fr 1fr; /* Two equal columns on larger screens */
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "search filters";
+    align-items: start;
+  }
+  
+  .react-aria-SearchField {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "label label"
+      "input button"
+      "help help";
+    align-items: end; /* Aligns input and button to bottom */
+  }
+  
+  .react-aria-Button {
+    margin-left: 0;
   }
 }
 
@@ -603,11 +653,11 @@
   margin-bottom: var(--space-8);
   display: grid;
   gap: var(--space-5);
-  @include device(md) {
+  @include r.device(md) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @include device(xl) {
+  @include r.device(xl) {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -631,12 +681,6 @@
     background: var(--bg-white);
     box-shadow: var(--card-shadow);
     border: 1px solid var(--card-border);
-
-    h2, .h2, h3, .h3, h4, .h4, h5, .h5 {
-      margin: 2rem 0px 1rem;
-      display: block;
-    }
-
   }
 }
 
@@ -695,26 +739,20 @@
     margin-bottom: var(--space-2);
     flex-direction: column;
     gap: var(--space-2);
-    @include device(sm) {
+    @include r.device(sm) {
       flex-direction: row;
       align-items: center;
       margin-bottom: var(--space-2);
     }
-
     .actions {
-      @include device(sm) {
+      @include r.device(sm) {
         flex-direction: row;
         align-items: center;
       }
-
-      a {
+      a{
         margin-bottom: var(--space-1);
       }
     }
-  }
-
-  .plan-item {
-
   }
 
   .plan-sections-list {
@@ -737,7 +775,7 @@
 
     .plan-sections-list-item-progress {
       display: block;
-      @include device(sm) {
+      @include r.device(sm) {
         display: inline-block;
         margin-left: var(--space-3);
       }
@@ -757,7 +795,7 @@
   .plan-links {
     display: flex;
     flex-direction: column;
-    @include device(md) {
+    @include r.device(md) {
       flex-direction: row;
       gap: var(--space-4);
     }
@@ -788,15 +826,15 @@
     align-items: flex-start;
     gap: var(--space-4);
     flex-direction: column;
-    @include device(md) {
+    @include r.device(md) {
       flex-direction: row;
       align-items: center;
     }
   }
 }
 
-.form-signpost {
-  .form-signpost-inner {
+.form-signpost{
+  .form-signpost-inner{
     background: var(--gray-100);
     padding: var(--space-4);
   }
@@ -814,6 +852,10 @@
     display: inline-block;
   }
 }
+
+
+
+
 
 
 /* --- Basic ProseMirror Table Styling --- */

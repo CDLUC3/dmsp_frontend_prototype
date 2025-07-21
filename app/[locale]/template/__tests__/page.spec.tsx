@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, within, waitFor } from '@/utils/test-utils';
 import TemplateListPage from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useTemplatesQuery, } from '@/generated/graphql';
@@ -20,26 +20,6 @@ jest.mock('@/generated/graphql', () => ({
   useTemplatesQuery: jest.fn(),
 }));
 
-// Mock createApolloClient
-jest.mock('@/lib/graphql/client/apollo-client', () => ({
-  createApolloClient: jest.fn(() => ({
-    query: jest.fn(),
-  })),
-}));
-
-// Mock TemplateListItem component
-jest.mock('@/components/TemplateListItem', () => {
-  return {
-    __esModule: true,
-    default: ({ item }: TemplateListItemProps) => (
-      <div data-testid="template-list-item" role="listitem">
-        <h2>{item.title}</h2>
-        <div>{item.content}</div>
-      </div>
-    ),
-  };
-});
-
 // Will pass this mock data back when query is made for templates
 const mockTemplateData = {
   myTemplates: {
@@ -47,6 +27,21 @@ const mockTemplateData = {
       name: 'UCOP',
       description: 'University of California Office of the President',
       modified: '2024-11-20 00:00:00',
+      modifiedByName: 'Test User',
+      visibility: 'ORGANIZATION',
+      publishStatus: 'PUBLISHED',
+      publishDate: '2024-11-20 00:00:00',
+      id: 1,
+      owner: null
+    },
+    {
+      name: 'CDL',
+      description: 'California Digital Library',
+      modified: '2024-11-20 00:00:00',
+      modifiedByName: 'Test User',
+      visibility: 'ORGANIZATION',
+      publishStatus: 'PUBLISHED',
+      publishDate: '2024-11-20 00:00:00',
       id: 1,
       owner: null
     }]
@@ -87,12 +82,6 @@ interface PageHeaderProps {
   description: string;
   actions: React.ReactNode;
   breadcrumbs: React.ReactNode;
-}
-interface TemplateListItemProps {
-  item: {
-    title: string;
-    content: React.ReactNode;
-  };
 }
 
 jest.mock('@/components/PageHeader', () => {
@@ -161,7 +150,7 @@ describe('TemplateListPage', () => {
     });
 
     const templateItems = screen.getAllByTestId('template-list-item');
-    expect(templateItems).toHaveLength(1);
+    expect(templateItems).toHaveLength(2);
   });
 
   it('should render template items with correct titles', async () => {
@@ -172,7 +161,15 @@ describe('TemplateListPage', () => {
     });
 
     expect(screen.getByText('UCOP')).toBeInTheDocument();
-    expect(screen.getByText('University of California Office of the President')).toBeInTheDocument();
+    const templateData = screen.getAllByTestId('template-metadata');
+    const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*Test User/);
+    const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
+    const publishStatus = within(templateData[0]).getByText(/published/);
+    const visibility = within(templateData[0]).getByText(/visibility.*Organization/);
+    expect(lastRevisedBy).toBeInTheDocument();
+    expect(publishStatus).toBeInTheDocument();
+    expect(lastUpdated).toBeInTheDocument();
+    expect(visibility).toBeInTheDocument();
   });
 
   it('should render the template list with correct ARIA role', async () => {
@@ -229,7 +226,8 @@ describe('TemplateListPage', () => {
     expect(screen.getByText('somethingWentWrong')).toBeInTheDocument();
   });
 
-  it('should show filtered list when user clicks Search button', async () => {
+
+  it('should reset filters when user clicks on \'clear fitler\' ', async () => {
     await act(async () => {
       render(
         <TemplateListPage />
@@ -245,12 +243,25 @@ describe('TemplateListPage', () => {
       fireEvent.change(searchInput, { target: { value: 'UCOP' } });
     });
 
+    // Click the Search button
+    await waitFor(() => {
+      const searchButton = screen.getByRole('button', { name: /search/i });
+      fireEvent.click(searchButton);
+    });
 
-    const searchButton = screen.getByLabelText('Clear search');
-    fireEvent.click(searchButton);
-
-    // Check that we can find list item for UCOP
+    // Newly filtered list should only show UCOP
     expect(screen.getByText('UCOP')).toBeInTheDocument();
+    expect(screen.queryByText('CDL')).not.toBeInTheDocument();
+    // Check that the clear filter button is present
+    const clearFilterButton = screen.getByText(/clearFilter/i);
+    expect(clearFilterButton).toBeInTheDocument();
+    // Click the clear filter button
+    fireEvent.click(clearFilterButton);
+    // Check that the search input is cleared
+    expect(searchInput).toHaveValue('');
+    // Check that both items are now visible again
+    expect(screen.getByText('UCOP')).toBeInTheDocument();
+    expect(screen.getByText('CDL')).toBeInTheDocument();
   })
 
   it('should show error message when we cannot find item that matches search term', async () => {
@@ -286,6 +297,48 @@ describe('TemplateListPage', () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
+
+  });
+
+  it('should display correct load more and remaining text', async () => {
+    // Five templates in mock
+    const mockTemplates = [
+      { name: 'A', id: 1 }, { name: 'B', id: 2 }, { name: 'C', id: 3 },
+      { name: 'D', id: 4 }, { name: 'E', id: 5 }
+    ].map((t) => ({
+      ...t,
+      description: '',
+      modified: '',
+      modifiedByName: '',
+      visibility: '',
+      publishStatus: '',
+      publishDate: '',
+      owner: null,
+      ownerDisplayName: '',
+      isDirty: false,
+    }));
+
+    mockHook(useTemplatesQuery).mockReturnValue({
+      data: { myTemplates: { items: mockTemplates } },
+      loading: false,
+      error: undefined
+    });
+
+    await act(async () => {
+      render(<TemplateListPage />);
+    });
+
+    // By default, visibleCount is 3, so loadMoreNumber = 2, currentlyDisplayed = 3, totalAvailable = 5
+    // The button should show the correct label (for 2 more)
+    expect(screen.getByRole('button', { name: /loadMore/i })).toBeInTheDocument();
+
+    const loadMoreButton = screen.getByRole('button', { name: /loadMore/i });
+    await act(async () => {
+      fireEvent.click(loadMoreButton);
+    }
+    );
+    const templateItems = screen.getAllByTestId('template-list-item');
+    expect(templateItems).toHaveLength(5);
 
   });
 });

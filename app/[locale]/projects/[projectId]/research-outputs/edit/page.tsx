@@ -23,12 +23,10 @@ import {
 import PageHeader from '@/components/PageHeader';
 import {
   ContentContainer,
-  LayoutWithPanel,
-  SidebarPanel
+  LayoutContainer,
 } from '@/components/Container';
 
 const ResearchOutputEdit = () => {
-  // eslint-disable-next-line no-unused-vars
   const [formData, setFormData] = useState({
     type: '',
     title: '',
@@ -117,7 +115,7 @@ const ResearchOutputEdit = () => {
         }
       />
 
-      <LayoutWithPanel>
+      <LayoutContainer>
         <ContentContainer className="layout-content-container-full">
           <form onSubmit={(e) => e.preventDefault()}>
             <Select name="type"
@@ -141,7 +139,6 @@ const ResearchOutputEdit = () => {
               <Label>Title</Label>
               <Input
                 value={formData.title}
-
               />
               <FieldError />
             </TextField>
@@ -252,8 +249,7 @@ const ResearchOutputEdit = () => {
             </div>
           </form>
         </ContentContainer>
-        <SidebarPanel />
-      </LayoutWithPanel>
+      </LayoutContainer>
     </>
   );
 };

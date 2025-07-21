@@ -21,7 +21,7 @@
     "titleStatus": "Status",
     "draft": "Rascunho",
     "notPublished": "Não publicado",
-    "published": "Publicado",
+    "published": "Publicada",
     "allowAccess": "Permitir que as pessoas acessem, editem ou comentem este plano",
     "description": {
       "archiveTemplate": "Este modelo não será mais visível para os criadores de planos. Os planos pré-existentes que usam este modelo não serão afetados. Isto não é reversível."
@@ -48,10 +48,17 @@
     "errors": {
       "archiveTemplateError": "Erro ao arquivar template",
       "saveTemplateError": "Erro ao salvar modelo",
-      "getTemplatesError": "Erro ao obter modelos"
+      "getTemplatesError": "Erro ao obter modelos",
+      "updateTemplateError": "Erro ao obter modelos",
+      "updateTitleError": "Erro ao obter modelos",
+      "updateDisplayOrderError": "Erro ao atualizar ordem de exibição",
+      "cannotMoveFurtherDown": "Não é possível mover a seção mais para baixo",
+      "displayOrderAlreadyAtTop": "A seção já está no topo da ordem",
+      "cannotMoveFurtherUpOrDown": "Não é possível mover a seção mais para baixo"
     },
     "messages": {
-      "successfullyArchived": "Modelo arquivado com sucesso"
+      "successfullyArchived": "Modelo arquivado com sucesso",
+      "sectionMoved": "Seção movida para a posição {displayOrder}"
     }
   },
   "PublishTemplate": {
@@ -71,7 +78,8 @@
     "bullet": {
       "publishingTemplate": "Após a publicação, todos os novos planos usarão esta versão.",
       "publishingTemplate2": "Os planos existentes ou em andamento não serão atualizados.",
-      "publishingTemplate3": "Você configurou a visibilidade como pública nas opções do modelo. Todos os usuários das Ferramentas DMP serão capazes de ver e usar este modelo."
+      "publishingTemplate3": "Você configurou a visibilidade como pública nas opções do modelo. Todos os usuários das Ferramentas DMP serão capazes de ver e usar este modelo.",
+      "publishingTemplate3Private": "Você configurou a visibilidade como pública nas opções do modelo. Todos os usuários das Ferramentas DMP serão capazes de ver e usar este modelo."
     },
     "descChangeLog": "Insira uma breve descrição do que foi alterado. Isto só será visível para pessoas de sua organização.",
     "button": {
@@ -92,8 +100,11 @@
       "addQuestion": "Adicionar pergunta"
     },
     "buttons": {
-      "moveUp": "Mover pergunta para cima",
+      "moveUp": "Mover pergunta para cima {name}",
       "moveDown": "Mover pergunta para baixo"
+    },
+    "messages": {
+      "questionMoved": "Seção movida para a posição {displayOrder}"
     }
   },
   "Sections": {
@@ -105,8 +116,20 @@
       "addSection": "Adicionar seção"
     },
     "buttons": {
-      "moveUp": "Mover a seção para cima",
-      "moveDown": "Mover a seção para baixo"
+      "moveUp": "Mover pergunta para cima {title}",
+      "moveDown": "Mover pergunta para baixo"
+    },
+    "messages": {
+      "errors": {
+        "failedToLoadSection": "Não foi possível carregar a seção",
+        "updateQuestionOrder": "Falha ao reordenar pergunta",
+        "updateDisplayOrderError": "Erro ao atualizar ordem de exibição",
+        "cannotMoveFurtherDown": "Não é possível mover a seção mais para baixo",
+        "displayOrderAlreadyAtTop": "A seção já está no topo da ordem",
+        "cannotMoveFurtherUpOrDown": "Não é possível mover a seção mais para baixo"
+      },
+      "questionMoved": "Seção movida para a posição {displayOrder}",
+      "sectionMoved": "Seção movida para a posição {displayOrder}"
     }
   },
   "SectionTypeSelectPage": {
@@ -163,10 +186,25 @@
   },
   "SectionUpdatePage": {
     "title": "Seção de atualização",
+    "buttons": {
+      "deleteSection": "Excluir seção"
+    },
     "messages": {
       "fieldLengthValidation": "O nome precisa ter pelo menos 3 caracteres",
       "errorUpdatingSection": "Erro ao criar a seção.",
-      "success": "Seção criada com sucesso."
+      "success": "Seção criada com sucesso.",
+      "errorDeletingSection": "Erro ao excluir seção.",
+      "successDeletingSection": "Seção excluída com sucesso."
+    },
+    "deleteModal": {
+      "title": "Excluir seção",
+      "content": "Excluir esta seção também removerá permanentemente todas as questões associadas. A exclusão não é reversível.",
+      "cancelButton": "Cancelar",
+      "deleteButton": "Excluir seção"
+    },
+    "deleteSection": {
+      "heading": "Excluir esta seção",
+      "description": "Excluir esta seção também removerá permanentemente todas as questões associadas. A exclusão não é reversível."
     }
   },
   "QuestionTypeSelectPage": {
@@ -191,11 +229,13 @@
     "clearFilter": "filtros transparentes",
     "buttons": {
       "loadMore": "Carregue mais {name}",
-      "load3More": "Carregue mais 3"
+      "load3More": "Carregue mais 3",
+      "startNew": "Iniciar"
     },
     "headings": {
       "previouslyCreatedTemplates": "Use uma de suas seções criadas anteriormente",
-      "publicTemplates": "Use um dos modelos públicos"
+      "publicTemplates": "Use um dos modelos públicos",
+      "createNew": "Construir um novo template"
     },
     "messages": {
       "noItemsFound": "Nenhum “item” encontrado",
@@ -212,7 +252,8 @@
     "title": "Editar: {title}",
     "buttons": {
       "changeType": "Mudar os Tipos",
-      "previewQuestion": "Pergunta de visualização"
+      "previewQuestion": "Pergunta de visualização",
+      "deleteQuestion": "Excluir questão"
     },
     "descriptions": {
       "sampleText": "Forneça um exemplo ou modelo de resposta esperada (opcional, mas recomendado)",
@@ -220,7 +261,8 @@
       "previewText": "Veja como esta pergunta ficará para os usuários.",
       "bestPracticePara1": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
       "bestPracticePara2": "Esboça os requisitos que um usuário deve considerar para esta pergunta.",
-      "bestPracticePara3": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo."
+      "bestPracticePara3": "Pesquisadores poderão copiar o texto de amostra para o campo como ponto de partida, como uma maneira de acelerar a entrada de conteúdo.",
+      "deleteWarning": "Esta pergunta será removida do modelo. Isso não é reversível."
     },
     "helpText": {
       "textField": "Alterar o tipo de questão, por exemplo, da pergunta curta para o botão Rádio, pode resultar na perda de alguns dados.",
@@ -239,14 +281,19 @@
     "messages": {
       "errors": {
         "questionTextRequired": "Conjunto de perguntas (obrigatório.",
-        "questionUpdateError": "Erro ao criar a seção"
+        "questionUpdateError": "Erro ao criar a seção",
+        "questionRemoveError": "Erro ao remover questão",
+        "invalidQuestionType": "Tipo de questão inválido encontrado"
       },
       "success": {
-        "questionUpdated": "A pergunta foi atualizada com sucesso"
+        "questionUpdated": "A pergunta foi atualizada com sucesso",
+        "questionRemoved": "A pergunta foi removida com sucesso"
       }
     },
     "headings": {
-      "bestPractice": "Melhores práticas da Ferramenta DMP"
+      "bestPractice": "Melhores práticas da Ferramenta DMP",
+      "deleteQuestion": "Apagar Pergunta",
+      "confirmDelete": "Confirmar exclusão?"
     }
   },
   "QuestionOptionsComponent": {
@@ -266,7 +313,7 @@
     "announcements": {
       "rowDefault": "Linha com ID {id} definida como padrão.",
       "rowRemoved": "Linha com ID {id} removida.",
-      "rowAdded": "Linha {orderNumber} adicionada."
+      "rowAdded": "Linha {nextNum} adicionada."
     },
     "placeholder": {
       "orderNumber": "Insira o pedido #",
@@ -295,11 +342,12 @@
     },
     "buttons": {
       "addRow": "Adicionar linha",
-      "previewQuestion": "Pergunta de visualização"
+      "previewQuestion": "Pergunta de visualização",
+      "changeType": "Mudar os Tipos"
     },
     "helpText": {
       "textField": "Alterar o tipo de questão, por exemplo, da pergunta curta para o botão Rádio, pode resultar na perda de alguns dados.",
-      "questionOptions": "Por favor, insira as opções de resposta para o {questionTypeName}",
+      "questionOptions": "Por favor, insira as opções de resposta para o {questionName}",
       "questionText": "Mantenha a pergunta concisa e clara. Use os requisitos ou orientações para fornecer explicações adicionais.",
       "requirementText": "Tente ser preciso e conciso, para que os autores do plano não faltem a quaisquer requisitos. Orientação às perguntas é melhor para conselhos mais gerais.",
       "sampleText": "Os criadores de planos poderão copiar o texto da amostra para o campo como ponto de partida, para acelerar a entrada de conteúdo."
@@ -310,7 +358,9 @@
     "messages": {
       "errors": {
         "questionTextRequired": "Campo texto da pergunta é obrigatório.",
-        "questionAddingError": "Erro ao adicionar pergunta."
+        "questionAddingError": "Erro ao adicionar pergunta.",
+        "questionValidationError": "Valor inválido",
+        "invalidQuestionType": "Tipo de questão inválido encontrado"
       },
       "success": {
         "questionAdded": "A pergunta foi adicionada com sucesso."

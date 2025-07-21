@@ -1,8 +1,14 @@
+'use client'
+
 import React, { useEffect, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { CalendarDate, DateValue } from "@internationalized/date";
 
+import {
+  Button,
+} from "react-aria-components";
 import {
   useQuestionTypesQuery,
   useTemplateQuery,
@@ -10,6 +16,7 @@ import {
 
 import { Question } from '@/app/types';
 
+// Components
 import {
   LayoutWithPanel,
   SidebarPanel,
@@ -24,17 +31,54 @@ import {
   CardHeading,
 } from "@/components/Card/card";
 
+import TinyMCEEditor from '@/components/TinyMCEEditor';
+import {
+  DateComponent,
+  FormInput,
+  NumberComponent,
+} from '@/components/Form';
 
-import { DmpEditor } from "@/components/Editor";
-import { Button } from "react-aria-components";
+import {
+  RadioButtonsQuestionComponent,
+  CheckboxesQuestionComponent,
+  SelectboxQuestionComponent,
+  MultiSelectQuestionComponent,
+  DateRangeQuestionComponent,
+  NumberRangeQuestionComponent,
+  CurrencyQuestionComponent,
+  AffiliationSearchQuestionComponent,
+  BooleanQuestionComponent
+} from '@/components/Form/QuestionComponents';
 
+// Utils
+import { getCalendarDateValue } from "@/utils/dateUtils";
+import {
+  BOOLEAN_QUESTION_TYPE,
+  CHECKBOXES_QUESTION_TYPE,
+  CURRENCY_QUESTION_TYPE,
+  DATE_QUESTION_TYPE,
+  DATE_RANGE_QUESTION_TYPE,
+  EMAIL_QUESTION_TYPE,
+  NUMBER_QUESTION_TYPE,
+  NUMBER_RANGE_QUESTION_TYPE,
+  RADIOBUTTONS_QUESTION_TYPE,
+  SELECTBOX_QUESTION_TYPE,
+  TEXT_AREA_QUESTION_TYPE,
+  TEXT_FIELD_QUESTION_TYPE,
+  TYPEAHEAD_QUESTION_TYPE,
+  URL_QUESTION_TYPE,
+} from '@/lib/constants';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './QuestionView.module.scss';
+import ExpandableContentSection from '@/components/ExpandableContentSection';
 
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
+  id?: string;
+  className?: string;
   isPreview: boolean,
   question: Question | null | undefined,
-
+  path: string;
   /**
    * NOTE: We pass this explicitly, as we cannot predict or infer if the
    * templateId will be available in the question object.
@@ -42,41 +86,364 @@ interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
   templateId: number,
 }
 
-
+//This component is meant to work with the QuestionAdd and QuestionEdit components, to display
+// just a preview of the one question type being edited or added
 const QuestionView: React.FC<QuestionViewProps> = ({
-  children,
   id = '',
   className = '',
   isPreview = false,
   question,
   templateId,
+  path = ''
 }) => {
 
-  if (!question) return null;
-
   const trans = useTranslations('QuestionView');
+
   const { data: qtData } = useQuestionTypesQuery();
   const { data: templateData } = useTemplateQuery({
     variables: {
-      templateId: templateId,
+      templateId,
     },
     notifyOnNetworkStatusChange: true
   });
+
+  // State was added so that users can change or interact with the question types in the Question Preview
   const [questionType, setQuestionType] = useState<string>('');
-  const [editorContent, setEditorContent] = useState('');
+  const [otherField, setOtherField] = useState(false);
+  const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({ affiliationName: '', affiliationId: '' });
+  const [otherAffiliationName, setOtherAffiliationName] = useState<string>('');
+  const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
+  const [inputValue, setInputValue] = useState<number | null>(null);
+  const [urlValue, setUrlValue] = useState<string | null>(null);
+  const [emailValue, setEmailValue] = useState<string | null>(null);
+  const [textValue, setTextValue] = useState<string | number | null>(null);
+  const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
+  const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
+  const [yesNoValue, setYesNoValue] = useState<string>('no');
+  // Add local state for multiSelect values
+  const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
+
+  // Add local state for selected select value
+  const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
+  const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
+    startDate: '',
+    endDate: '',
+  });
+  const [numberRange, setNumberRange] = useState<{ startNumber: number | null, endNumber: number | null }>({
+    startNumber: 0,
+    endNumber: 0,
+  });
+
+  // localization keys
+  const Global = useTranslations('Global');
+
+  // These handlers are here so that users can interact with the different question types in the Question Preview
+  // However, their changes are not saved anywhere. It's just so they can see how the questions will look and behave
+  const handleAffiliationChange = async (id: string, value: string) => {
+    return setAffiliationData({ affiliationName: value, affiliationId: id })
+  }
+
+  const handleOtherAffiliationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setOtherAffiliationName(value);
+  };
+
+  // Update the selected radio value when user selects different option
+  const handleRadioChange = (value: string) => {
+    setSelectedRadioValue(value);
+  };
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUrlValue(value);
+  };
+
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmailValue(value);
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTextValue(value);
+  };
+
+  // Handler for checkbox group changes
+  const handleCheckboxGroupChange = (values: string[]) => {
+    setSelectedCheckboxValues(values);
+  };
+
+  const handleBooleanChange = (values: string) => {
+    setYesNoValue(values);
+  };
+
+  // Handler for MultiSelect changes
+  const handleMultiSelectChange = (values: Set<string>) => {
+    setSelectedMultiSelectValues(values);
+  };
+
+  // Handler for date range changes
+  const handleDateChange = (
+    key: string,
+    value: string | DateValue | CalendarDate | null
+  ) => {
+    setDateRange(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  // Handler for number range changes
+  const handleNumberChange = (
+    key: string,
+    value: string | number | null
+  ) => {
+    setNumberRange(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
 
   useEffect(() => {
-    if (!question) return;
-    if (!qtData) return;
+    if (!question || !qtData?.questionTypes) return;
 
-    if (questionType == '' && qtData.questionTypes) {
-      const qt = qtData.questionTypes
-        .find(qt => qt && qt.id === question.questionTypeId);
-      if (qt) {
-        setQuestionType(qt.name);
+    const { parsed } = getParsedQuestionJSON(question, path, Global);
+    if (!parsed) {
+      return;
+    }
+    const type = parsed.type;
+
+    for (const qt of qtData.questionTypes) {
+      if (!qt || !qt.json) continue; // null check
+      const qtJson = JSON.parse(qt.json);
+      if (qtJson?.type === type) {
+        setQuestionType(type);
+        break;
       }
     }
-  }, [question]);
+  })
+
+  if (!question) return null;
+
+  const { parsed } = getParsedQuestionJSON(question, path, Global);
+
+  const renderQuestionField = () => {
+    if (!parsed) {
+      return;
+    }
+
+    switch (questionType) {
+      case RADIOBUTTONS_QUESTION_TYPE: {
+        // Type guard to ensure this is actually a radioButtons question
+        if (parsed.type === 'radioButtons' && 'options' in parsed) {
+          return (
+            <RadioButtonsQuestionComponent
+              parsedQuestion={parsed}
+              selectedRadioValue={selectedRadioValue}
+              name='radio-buttons'
+              handleRadioChange={handleRadioChange}
+            />
+          )
+        }
+      }
+      case CHECKBOXES_QUESTION_TYPE: {
+        if (parsed.type === 'checkBoxes' && 'options' in parsed) {
+          return (
+            <CheckboxesQuestionComponent
+              parsedQuestion={parsed}
+              selectedCheckboxValues={selectedCheckboxValues}
+              handleCheckboxGroupChange={handleCheckboxGroupChange}
+            />
+          )
+        }
+      }
+      case SELECTBOX_QUESTION_TYPE: {
+        if (parsed.type === 'selectBox' && 'options' in parsed) {
+          const isMultiSelect = parsed.attributes?.multiple || false;
+
+          return (
+            <>
+              {isMultiSelect ? (
+                <MultiSelectQuestionComponent
+                  parsedQuestion={parsed}
+                  selectedMultiSelectValues={selectedMultiSelectValues}
+                  handleMultiSelectChange={handleMultiSelectChange}
+                />
+              ) : (
+                <SelectboxQuestionComponent
+                  parsedQuestion={parsed}
+                  selectedSelectValue={selectedSelectValue}
+                  setSelectedSelectValue={setSelectedSelectValue}
+                />
+              )}
+
+            </>
+          );
+        }
+      }
+      case TEXT_FIELD_QUESTION_TYPE:
+        if (parsed.type === 'text') {
+
+          const minLength = parsed?.attributes?.minLength;
+          const maxLength = parsed?.attributes?.maxLength;
+          return (
+            <FormInput
+              name="textField"
+              type="text"
+              label="text"
+              placeholder="Enter text"
+              value={textValue ?? ''}
+              onChange={e => handleTextChange(e)}
+              minLength={minLength}
+              maxLength={maxLength}
+            />
+          )
+        }
+      case TEXT_AREA_QUESTION_TYPE:
+        if (parsed.type === 'textArea') {
+          return (
+            <TinyMCEEditor
+              id="question-text-editor"
+              content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
+              setContent={() => { }}
+            />
+          );
+        }
+      case DATE_QUESTION_TYPE:
+        if (parsed.type === 'date') {
+          const dateMinValue = parsed?.attributes?.min;
+          const dateMaxValue = parsed?.attributes?.max;
+          return (
+            <DateComponent
+              name="startDate"
+              value={getCalendarDateValue(dateRange.startDate)}
+              onChange={newDate => handleDateChange('startDate', newDate)}
+              label="Date"
+              minValue={dateMinValue}
+              maxValue={dateMaxValue}
+
+            />
+          )
+        }
+      case DATE_RANGE_QUESTION_TYPE:
+        if (parsed.type === 'dateRange') {
+          return (
+            <DateRangeQuestionComponent
+              parsedQuestion={parsed}
+              dateRange={dateRange}
+              handleDateChange={handleDateChange}
+            />
+          )
+        }
+      case NUMBER_QUESTION_TYPE:
+        if (parsed.type === 'number') {
+          const minValue = parsed?.attributes?.min;
+          const maxValue = parsed?.attributes?.max;
+          const step = parsed?.attributes?.step;
+          return (
+            <NumberComponent
+              label="number"
+              value={inputValue === null ? undefined : inputValue}
+              onChange={value => setInputValue(value)}
+              placeholder="number"
+              minValue={minValue}
+              {...(typeof maxValue === 'number' ? { maxValue } : {})} //if maxValue is null, we don't want to set it
+              step={step}
+            />
+          )
+        }
+
+      case NUMBER_RANGE_QUESTION_TYPE:
+        if (parsed.type === 'numberRange') {
+          return (
+            <NumberRangeQuestionComponent
+              parsedQuestion={parsed}
+              numberRange={numberRange}
+              handleNumberChange={handleNumberChange}
+              startPlaceholder="start"
+              endPlaceholder="end"
+            />
+          )
+        }
+      case CURRENCY_QUESTION_TYPE:
+        if (parsed.type === 'currency') {
+          return (
+            <CurrencyQuestionComponent
+              parsedQuestion={parsed}
+              inputCurrencyValue={inputCurrencyValue}
+              setInputCurrencyValue={setInputCurrencyValue}
+            />
+          )
+        }
+      case URL_QUESTION_TYPE:
+        if (parsed.type === 'url') {
+          const urlMinLength = parsed?.attributes?.minLength;
+          const urlMaxLength = parsed?.attributes?.maxLength;
+          const urlPattern = parsed?.attributes?.pattern;
+          return (
+            <FormInput
+              name="urlInput"
+              type="url"
+              label="url"
+              placeholder="url"
+              value={urlValue ?? ''}
+              onChange={e => handleUrlChange(e)}
+              minLength={urlMinLength}
+              maxLength={urlMaxLength}
+              pattern={urlPattern}
+            />
+          )
+        }
+      case EMAIL_QUESTION_TYPE:
+        if (parsed.type === 'email') {
+          const emailMinLength = parsed?.attributes?.minLength;
+          const emailMaxLength = parsed?.attributes?.maxLength;
+          const emailPattern = parsed?.attributes?.pattern;
+          return (
+            <FormInput
+              name="emailInput"
+              type="email"
+              label="email"
+              placeholder="email"
+              value={emailValue ?? ''}
+              onChange={e => handleEmailChange(e)}
+              minLength={emailMinLength}
+              maxLength={emailMaxLength}
+              pattern={emailPattern}
+            />
+          )
+        }
+
+      case BOOLEAN_QUESTION_TYPE:
+        if (parsed.type === 'boolean') {
+          return (
+            <BooleanQuestionComponent
+              parsedQuestion={parsed}
+              selectedValue={yesNoValue}
+              handleRadioChange={handleBooleanChange}
+            />
+          )
+        }
+
+      case TYPEAHEAD_QUESTION_TYPE:
+        if (parsed.type === 'typeaheadSearch') {
+          return (
+            <AffiliationSearchQuestionComponent
+              parsedQuestion={parsed}
+              affiliationData={affiliationData}
+              otherAffiliationName={otherAffiliationName}
+              otherField={otherField}
+              setOtherField={setOtherField}
+              handleAffiliationChange={(handleAffiliationChange)}
+              handleOtherAffiliationChange={handleOtherAffiliationChange}
+            />
+          )
+        }
+      default:
+        return <p>Unsupported question type</p>;
+    }
+  };
 
   return (
     <LayoutWithPanel
@@ -89,7 +456,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         {(question?.requirementText) && (
           <div className={styles.Requirements}>
             <p className={styles.ByLine}>
-              {trans('requirements', { orgName: templateData?.template?.owner?.displayName })}
+              {trans('requirements', { orgName: templateData?.template?.owner?.displayName || '' })}
             </p>
             <div dangerouslySetInnerHTML={{ __html: question.requirementText || '' }}></div>
           </div>
@@ -105,42 +472,14 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           <CardEyebrow>{trans('cardType')}</CardEyebrow>
           <CardHeading>{question?.questionText}</CardHeading>
           <CardBody data-testid="card-body">
-            {(questionType == 'Text Area') && (
-              <DmpEditor
-                content={question?.useSampleTextAsDefault ? question.sampleText as string : ''}
-                setContent={setEditorContent}
-              />
-            )}
-
-            {(questionType == 'Text Field') && (
-              <p>Plain text field</p>
-            )}
-
-            {(questionType == 'Radio Buttons') && (
-              <p>Radios</p>
-            )}
-
-            {(questionType == 'Check Boxes') && (
-              <p>Checkboxes</p>
-            )}
-
-            {(questionType == 'Select Box') && (
-              <p>Select Box</p>
-            )}
-
-            {(questionType == 'Multi Select Box') && (
-              <p>Multi Select Box</p>
-            )}
-
-            <div id="_guidance" className={styles.Guidance}>
-            </div>
+            {renderQuestionField()}
           </CardBody>
         </Card>
 
         {(question?.guidanceText) && (
           <div className="guidance">
             <p className={styles.ByLine}>
-              {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName })}
+              {trans('guidanceBy', { orgName: templateData?.template?.owner?.displayName ?? '' })}
             </p>
             <div dangerouslySetInnerHTML={{ __html: question.guidanceText }}></div>
           </div>
@@ -169,31 +508,69 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           />
         </p>
 
-        <h3>{trans('dataSharingTitle')}</h3>
-        <p>
-          Give a summary of the data you will collect or create, noting the
-          content, coverage and data type, for example tabular data, survey
-          data, experimental measurements, models, software, audiovisual data,
-          physical samples, etc.
-        </p>
-        <p><a href="#">{trans('expandLink')}</a></p>
+        <ExpandableContentSection
+          id="data-description"
+          heading={trans('dataDescription')}
+          expandLabel={trans('expandLink')}
+          summaryCharLimit={200}
+        >
+          <p>
+            Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
+          </p>
+          <p>
+            Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
+          </p>
+          <p>
+            Indicate which data are of long-term value and should be shared and/or preserved.
 
-        <h3>{trans('dataPreservationTitle')}</h3>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus
-          imperdiet tempor mi, in fringilla lectus viverra et. Suspendisse
-          erat dolor, rutrum et tempor eu, ultricies quis nunc.
-        </p>
-        <p><a href="#">{trans('expandLink')}</a></p>
+          </p>
+          <p>
+            If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
 
-        <h3>{trans('dataProtection')}</h3>
-        <p>
-          Quisque sit amet ex volutpat, imperdiet risus sit amet, malesuada
-          enim.
-        </p>
-        <p><a href="#">{trans('expandLink')}</a></p>
+          </p>
+
+        </ExpandableContentSection>
+
+        <ExpandableContentSection
+          id="data-format"
+          heading={trans('dataFormat')}
+          expandLabel={trans('expandLink')}
+          summaryCharLimit={200}
+
+        >
+          <p>
+            Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+          </p>
+
+        </ExpandableContentSection>
+
+        <ExpandableContentSection
+          id="data-volume"
+          heading={trans('dataVolume')}
+          expandLabel={trans('expandLink')}
+          summaryCharLimit={200}
+        >
+          <p>
+            Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
+          </p>
+          <p>
+            Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
+          </p>
+          <p>
+            Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
+          </p>
+        </ExpandableContentSection>
+
+        <ExpandableContentSection
+          id="data-volume"
+          heading={trans('dataVolume')}
+          expandLabel={trans('expandLink')}
+          summaryCharLimit={30}>
+          <p>This is a very long sentence that should be truncated at word boundaries.</p>
+
+        </ExpandableContentSection>
       </SidebarPanel>
-    </LayoutWithPanel>
+    </LayoutWithPanel >
   )
 }
 

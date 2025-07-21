@@ -1,0 +1,14 @@
+query SectionVersions($sectionId: Int!) {
+  sectionVersions(sectionId: $sectionId) {
+    id,
+    versionedQuestions {
+      id
+      questionText
+      json
+      questionId
+    },
+    section {
+      id
+    }
+  }
+}

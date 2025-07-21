@@ -5,11 +5,32 @@
       "projects": "Projects",
       "navigation": "Breadcrumb navigation"
     },
-    "page": {
-      "pageDescription": "Overview of plan details"
+    "buttons": {
+      "backToSection": "Back to section",
+      "useAnswer": "use answer",
+      "comment": "Comment"
     },
-    "funder": {
-      "title": "Funder for this plan",
+    "headings": {
+      "comments": "Comments",
+      "leaveAComment": "Leave a comment"
+    },
+    "labels": {
+      "saveAnswer": "Save answer",
+      "returnToSection": "Return to section overview"
+    },
+    "page": {
+      "pageDescription": "Overview of plan details",
+      "requirementsBy": "Requirements by {funder}",
+      "requiredByFunder": "Required by funder",
+      "requiredByFunderInfo": "The funder has marked this as a required question on their template. You can leave it blank in the tool but should complete it before submitting your grant.",
+      "jumpToGuidance": "Jump to additional guidance",
+      "viewSampleAnswer": "View sample answer",
+      "guidanceBy": "Guidance by {funder}",
+      "funderSampleText": "{funder} sample text",
+      "participantsWillBeNotified": "Participants will be notified once submitted."
+    },
+    "funding": {
+      "title": "Funding for this plan",
       "edit": "Adjust for this plan"
     },
     "members": {
@@ -80,8 +101,8 @@
           "primaryContact": "have a primary contact",
           "complete": "marked your plan as complete",
           "percentageAnswered": "have answered at least 50% of the questions (you answered {percentage}%",
-          "funderText": "have identified your",
-          "funder": "funder(s)",
+          "fundingText": "have identified your",
+          "funding": "funding source(s)",
           "requiredFields": "completed all fields marked as 'required'",
           "orcidText": "have designated the ORCiD for at least one of the",
           "projectMembers": "Project members"
@@ -142,6 +163,23 @@
     "links": {
       "updateProjectMembers": "Update project members",
       "inviteAPerson": "Invite a person"
+    }
+  },
+  "PlanOverviewQuestionPage": {
+    "messages": {
+      "success": {
+        "questionSaved": "Question detail successfully saved"
+      }
+    }
+  },
+  "ProjectsProjectFunding": {
+    "buttons": {
+      "addFundingSource": "Add a funding source"
+    },
+    "messages": {
+      "errors": {
+        "funderNumberNotFound": "Funder's project number not found."
+      }
     }
   }
 }

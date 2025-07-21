@@ -5,9 +5,10 @@ export const mockPlanData = {
       template: {
         id: 2,
         name: "General"
-      }
+      },
+      name: "NSF-CISE: Computer and Information Science and Engineering"
     },
-    funders: [
+    fundings: [
       {
         id: 1,
         project: null
@@ -16,7 +17,7 @@ export const mockPlanData = {
     visibility: "PUBLIC",
     status: "DRAFT",
     project: {
-      funders: [
+      fundings: [
         {
           affiliation: {
             displayName: "National Science Foundation (nsf.gov)"
@@ -26,15 +27,15 @@ export const mockPlanData = {
       ],
       title: "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations"
     },
-    contributors: [
+    members: [
       {
         isPrimaryContact: true,
-        projectContributor: {
+        projectMember: {
           givenName: "Captain",
           surName: "Nemo",
           email: null,
           orcid: "https://orcid.org/0000-0002-1234-5678",
-          contributorRoles: [
+          memberRoles: [
             {
               label: "Principal Investigator (PI)"
             }

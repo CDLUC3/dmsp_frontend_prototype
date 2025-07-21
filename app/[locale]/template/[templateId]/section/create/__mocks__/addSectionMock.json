@@ -1,0 +1,20 @@
+{
+  "addSection": {
+    "id": 175,
+    "tags": [],
+    "guidance": "",
+    "errors": {
+      "general": null,
+      "name": null,
+      "displayOrder": null,
+      "__typename": "SectionErrors"
+    },
+    "displayOrder": 33,
+    "introduction": "<p>Test Intro text</p>",
+    "isDirty": true,
+    "name": "Test Section",
+    "questions": [],
+    "requirements": "",
+    "__typename": "Section"
+  }
+}

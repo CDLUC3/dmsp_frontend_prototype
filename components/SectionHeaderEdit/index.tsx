@@ -1,14 +1,14 @@
 import React from 'react';
-import {useTranslations} from 'next-intl';
+import { useTranslations } from 'next-intl';
 import styles from './SectionHeaderEdit.module.scss';
-import {Button} from "react-aria-components";
+import { Button } from "react-aria-components";
 
 interface SectionHeaderEditProps {
   title: string;
   sectionNumber: number;
   editUrl: string;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
+  onMoveUp?: (() => void) | undefined;
+  onMoveDown?: (() => void) | undefined;
 }
 
 const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
@@ -18,7 +18,6 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
   onMoveUp,
   onMoveDown
 }) => {
-
   const Sections = useTranslations('Sections');
   const UpArrowIcon = () => (
     <svg
@@ -58,23 +57,29 @@ const SectionHeaderEdit: React.FC<SectionHeaderEditProps> = ({
 
 
   return (
-    <div className={styles.sectionHeader} role="listitem">
+    <div className={styles.sectionHeader} data-testid="section-edit-card">
       <h2 className={styles.sectionTitle}>
         <span className={styles.sectionNumber}>{Sections('labels.section')} {sectionNumber} </span>
         {title}
       </h2>
       <div className={styles.buttonGroup}>
         <a href={editUrl} className={styles.editButton}>{Sections('links.editSection')}</a>
-        <Button className={`${styles.btnDefault} ${styles.orderButton}`}
-          onPress={onMoveUp}
-          aria-label={Sections('buttons.moveUp')}>
-          <UpArrowIcon />
-        </Button>
-        <Button className={`${styles.btnDefault} ${styles.orderButton}`}
-          onPress={onMoveDown}
-          aria-label={Sections('buttons.moveDown')}>
-          <DownArrowIcon />
-        </Button>
+        {onMoveUp && (
+          <Button className={`${styles.btnDefault} ${styles.orderButton}`}
+            onPress={onMoveUp}
+            aria-label={Sections('buttons.moveUp', { title })}>
+            <UpArrowIcon />
+          </Button>
+        )}
+
+        {onMoveDown && (
+          <Button className={`${styles.btnDefault} ${styles.orderButton}`}
+            onPress={onMoveDown}
+            aria-label={Sections('buttons.moveDown', { title })}>
+            <DownArrowIcon />
+          </Button>
+        )}
+
       </div>
     </div>
 

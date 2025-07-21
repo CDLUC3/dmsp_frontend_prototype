@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { CalendarDate, DateValue, parseDate } from "@internationalized/date";
 import {
   Breadcrumb,
@@ -41,7 +41,7 @@ import ResearchDomainCascadingDropdown
 
 import { getCalendarDateValue } from "@/utils/dateUtils";
 import { scrollToTop } from '@/utils/general';
-import logECS from '@/utils/clientLogger';
+import { logECS, routePath } from '@/utils/index';
 import { useToast } from '@/context/ToastContext';
 
 interface ProjectFormErrorsInterface {
@@ -64,6 +64,7 @@ const ProjectsProjectDetail = () => {
 
   // Get projectId param
   const params = useParams();
+  const router = useRouter();
   const { projectId } = params; // From route /projects/:projectId
 
   //For scrolling to top of page
@@ -71,6 +72,8 @@ const ProjectsProjectDetail = () => {
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const PROJECT_SEARCH_REDIRECT_ROUTE = routePath('projects.search');
 
   const [projectData, setProjectData] = useState<ProjectDetailsFormInterface>({
     projectName: '',
@@ -206,10 +209,9 @@ const ProjectsProjectDetail = () => {
             ...submissionData
           }
         }
-
       });
 
-      const responseErrors = response.data?.updateProject?.errors
+      const responseErrors = response.data?.updateProject?.errors;
       if (responseErrors) {
         if (responseErrors && Object.values(responseErrors).filter((err) => err && err !== 'ProjectErrors').length > 0) {
           return [responseErrors, false];
@@ -218,10 +220,6 @@ const ProjectsProjectDetail = () => {
 
       return [{}, true];
     } catch (error) {
-      logECS('error', 'updateProjectMutation', {
-        error,
-        url: { path: '/projects/[projectId]/project' }
-      });
       if (error instanceof ApolloError) {
         if (error.message.toLowerCase() === "unauthorized") {
           // Need to refresh values if the refresh token was refreshed in the graphql error handler
@@ -229,6 +227,10 @@ const ProjectsProjectDetail = () => {
         }
         return [{}, false];
       } else {
+        logECS('error', 'updateProjectMutation', {
+          error,
+          url: { path: `/projects/${projectId}/project` }
+        });
         setErrors(prevErrors => [...prevErrors, "Error updating project"]);
         return [{}, false];
       }
@@ -256,6 +258,7 @@ const ProjectsProjectDetail = () => {
       const [errors, success] = await updateProject();
 
       if (!success) {
+
         if (errors) {
           setFieldErrors({
             projectName: errors.title || '',
@@ -352,7 +355,7 @@ const ProjectsProjectDetail = () => {
               errorMessage={fieldErrors.projectAbstract.length > 0 ? fieldErrors.projectAbstract : ProjectDetail('messages.errors.projectAbstract')}
             />
 
-            <div className="date-range-group">
+            <div className="input-range-group">
               <DatePicker
                 name="startDate"
                 value={getCalendarDateValue(projectData.startDate)}
@@ -428,7 +431,8 @@ const ProjectsProjectDetail = () => {
                 <div className="form-signpost-button">
                   <Button
                     className="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800"
-                    onPress={() => window.location.href = '/projects/search'}
+                    data-testid="search-projects-button"
+                    onPress={() => router.push(PROJECT_SEARCH_REDIRECT_ROUTE)}
                   >
                     {ProjectDetail('buttons.searchProjects')}
                   </Button>

@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { ApolloError } from "@apollo/client";
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -20,14 +19,14 @@ import { useTemplatesQuery, } from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';
-import TemplateListItem from '@/components/TemplateListItem';
+import TemplateSelectListItem from '@/components/TemplateSelectListItem';
 import { ContentContainer, LayoutContainer, } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
 
-import logECS from '@/utils/clientLogger';
+import { toSentenceCase } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import {
   TemplateSearchResultInterface,
@@ -60,12 +59,11 @@ const TemplateListPage: React.FC = () => {
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');
 
   // Set URLs
-  const TEMPLATE_URL = routePath('template.index');
   const TEMPLATE_CREATE_URL = routePath('template.create');
 
 
   // Make graphql request for templates under the user's affiliation
-  const { data = {}, loading, error: queryError } = useTemplatesQuery({
+  const { data, loading, error: queryError } = useTemplatesQuery({
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,
@@ -88,31 +86,16 @@ const TemplateListPage: React.FC = () => {
     setSearchTerm(value);
   }
 
-  // Extract text content because sometimes `content` can be a JSX Element
-  const extractTextFromJSX = (element: React.ReactNode): string => {
-    if (typeof element === 'string') {
-      return element;
-    }
-    if (React.isValidElement(element)) {
-      const children = element.props.children;
-      if (Array.isArray(children)) {
-        return children.map(extractTextFromJSX).join(' ');
-      }
-      return extractTextFromJSX(children);
-    }
-    return '';
-  }
-
   // Find title, funder, content and publishStatus fields that include search term
   const handleFiltering = (term: string) => {
     setErrors([]);
     const lowerCaseTerm = term.toLowerCase();
     const filteredList = templates.filter(item => {
-      const contentText = extractTextFromJSX(item.content);
       return [item.title,
-        contentText,
       item.funder,
-      item.publishStatus
+      item.publishStatus,
+      item.visibility,
+      item.description
       ]
         .filter(Boolean)
         .some(field => field?.toLowerCase().includes(lowerCaseTerm));
@@ -141,56 +124,42 @@ const TemplateListPage: React.FC = () => {
 
   useEffect(() => {
     if (queryError) {
-      if (queryError instanceof ApolloError) {
-        setErrors(prevErrors => [...prevErrors, queryError.message]);
-        logECS('error', 'queryError', {
-          error: queryError,
-          url: { path: TEMPLATE_URL }
-        });
-      } else {
-        // Safely access queryError.message
-        setErrors(prev => [...prev, t('somethingWentWrong')]);
-      }
+      setErrors(prev => [...prev, t('somethingWentWrong')]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryError]);
 
 
   useEffect(() => {
-    // Transform templates into format expected by TemplateListItem component
-    if (data && data?.myTemplates) {
+    (async () => {
+      // Transform templates into format expected by TemplateSelectListItem component
       const fetchAllTemplates = async (templates: PaginatedTemplateSearchResultsInterface | null) => {
         const items = templates?.items ?? [];
         const transformedTemplates = await Promise.all(
           items.map(async (template: TemplateSearchResultInterface | null) => {
             return {
               title: template?.name || "",
-              link: routePath('template.show', { templateId: template?.id ?? '' }),
-              content: template?.description || template?.modified ? (
-                <div>
-                  <p>{template?.description}</p>
-                  <p>Last updated: {(template?.modified) ? formatDate(template?.modified) : null}</p>
-                </div>
-              ) : null, // Set to null if no description or last modified data
+              link: routePath('template.show', { templateId: template?.id ?? '' }) || '',
               funder: template?.ownerDisplayName,
               lastUpdated: (template?.modified) ? formatDate(template?.modified) : null,
+              lastRevisedBy: template?.modifiedByName,
               publishStatus: (template?.isDirty) ? 'Unpublished' : 'Published',
-              defaultExpanded: false
+              publishDate: (template?.latestPublishDate) ? formatDate(template?.latestPublishDate) : null,
+              defaultExpanded: false,
+              visibility: toSentenceCase(template?.visibility ? template?.visibility?.toString() : '')
             }
           }));
 
         setTemplates(transformedTemplates);
       }
-      if (data?.myTemplates) {
-        fetchAllTemplates({
+      if (data && data.myTemplates) {
+        await fetchAllTemplates({
           ...data.myTemplates,
           items: (data.myTemplates.items ?? []).filter((item): item is TemplateSearchResultInterface => item !== null),
         });
       } else {
-        fetchAllTemplates({ items: [] });
+        setTemplates([]);
       }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    })();
   }, [data]);
 
   useEffect(() => {
@@ -236,6 +205,11 @@ const TemplateListPage: React.FC = () => {
     return null;
   };
 
+  useEffect(() => {
+    // console.log('Filtered templates:', filteredTemplates);
+    // console.log('Templates:', templates);
+  }, [filteredTemplates, templates]);
+
   // TODO: Implement shared loading
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
@@ -266,7 +240,7 @@ const TemplateListPage: React.FC = () => {
 
       <LayoutContainer>
         <ContentContainer>
-          <div className="Filters" ref={topRef}>
+          <div className="searchSection" role="search" ref={topRef}>
             <SearchField
               onClear={() => { setFilteredTemplates(null) }}
             >
@@ -295,7 +269,7 @@ const TemplateListPage: React.FC = () => {
                   const isFirstInNextSection = index === visibleCount['filteredTemplates'] - 3;
                   return (
                     <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
-                      <TemplateListItem
+                      <TemplateSelectListItem
                         key={index}
                         item={template} />
                     </div>
@@ -318,7 +292,7 @@ const TemplateListPage: React.FC = () => {
                   const isFirstInNextSection = index === visibleCount['templates'] - 3;
                   return (
                     <div ref={isFirstInNextSection ? nextSectionRef : null} key={index}>
-                      <TemplateListItem
+                      <TemplateSelectListItem
                         key={index}
                         item={template} />
                     </div>
@@ -334,7 +308,7 @@ const TemplateListPage: React.FC = () => {
           }
 
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 }

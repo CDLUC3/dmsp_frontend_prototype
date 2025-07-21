@@ -1,32 +1,39 @@
-@import '@/styles/responsive.scss';
+@use '@/styles/responsive.scss' as r;
 
 /*mobile first*/
 .toast-region {
-  @include device(sm) {
-    top: var(--space-12);
-    left: 50%;
-  }
   position: fixed;
   bottom: var(--space-8);
   left: 50%;
-  //transform: translateX(-50%);
+  transform: translateX(-50%);
   z-index: 1000;
   display: flex;
   flex-direction: column; /* Stacks toasts vertically */
   gap: 10px; /* Spacing between toasts */
   max-height: fit-content; //Need this to prevent it from blocking access to any other CTAs
+    @include r.device(sm) {
+    top: var(--space-12);
+    left: 50%;
+  }
 }
 
 .toast {
+  display: flex;
+  align-items: flex-start; /* Align to top instead of center */
   color: var(--text-color);
   font-weight: 600;
-  background: var(--messaging-info);
+  gap: 12px; /* Add gap between content and button */
+  padding: 16px; /* Increase padding for mobile */
   border-radius: 8px;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 16px;
-  display: flex;
-  transform: translateX(-50%); // so that message is centered on the page
+  min-width: 320px; /* Increase minimum width */
+  width: 100%; /* Take full available width */
+  box-sizing: border-box; /* Include padding in width calculation */
+  
+  @include r.device(sm) {
+    padding: 12px 16px; /* Reduce padding on larger screens */
+    min-width: 320px;
+    width: auto; /* Auto width on larger screens */
+  }
 }
 
 .toast button {

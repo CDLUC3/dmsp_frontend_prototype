@@ -23,12 +23,16 @@ interface InputProps {
   inputClasses?: string;
   disabled?: boolean;
   isRequired?: boolean;
+  ariaRequired?: boolean;
   isInvalid?: boolean;
   errorMessage?: string;
   helpMessage?: string;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
 }
 
-const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElement>> = ({
+const FormInput = React.forwardRef<HTMLInputElement, InputProps & React.InputHTMLAttributes<HTMLInputElement>>(({
   name,
   id,
   type,
@@ -44,11 +48,15 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
   inputClasses = '',
   disabled = false,
   isRequired = false,
+  ariaRequired = false,
   isInvalid = false,
   errorMessage = '',
   helpMessage = '',
+  minLength = undefined,
+  maxLength = undefined,
+  pattern,
   ...rest
-}) => {
+}, ref) => {
 
   return (
     <>
@@ -65,6 +73,7 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
           {description}
         </Text>
         <Input
+          ref={ref}
           id={id}
           name={name}
           type={type}
@@ -75,6 +84,10 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
           disabled={disabled}
           aria-describedby={ariaDescribedBy}
           aria-label={ariaLabel}
+          minLength={minLength}
+          maxLength={maxLength}
+          pattern={pattern}
+          aria-required={ariaRequired}
           {...rest}
         />
 
@@ -89,6 +102,7 @@ const FormInput: React.FC<InputProps & React.InputHTMLAttributes<HTMLInputElemen
       </TextField>
     </>
   );
-};
+});
 
+FormInput.displayName = 'FormInput';
 export default FormInput;

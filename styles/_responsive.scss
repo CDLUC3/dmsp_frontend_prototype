@@ -1,3 +1,5 @@
+@use "sass:map";
+
 /* NOTE:: Since we are doing responsive, all CSS that DOESN'T use
  * media queries will be assumed to be for mobile sizes.
  */
@@ -14,17 +16,12 @@ $breakpoints: (
 
 // A quick helper to create a media query block for a named device
 @mixin device($breakpoint) {
-  @if map-has-key($breakpoints, $breakpoint) {
-    @media screen and (min-width: map-get($breakpoints, $breakpoint)) {
+  @if map.has-key($breakpoints, $breakpoint) {
+    @media screen and (min-width: map.get($breakpoints, $breakpoint)) {
       @content;
     }
   } @else {
     @warn "Unfortunately, no value could be retrieved from `#{$breakpoint}`. "
-          + "Available breakpoints are: #{map-keys($breakpoints)}.";
+          + "Available breakpoints are: #{map.keys($breakpoints)}.";
   }
 }
-
-// Usage examples:
-// @include device('md') {
-//   .example { width: 100%; }
-// }

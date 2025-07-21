@@ -1,0 +1,32 @@
+{
+  "memberRoles": [
+    {
+      "id": 1,
+      "label": "Data Manager",
+      "uri": "https://credit.niso.org/contributor-roles/data-curation/",
+      "description": "An individual engaged in management activities to annotate (produce metadata), scrub data and maintain research data (including software code, where it is necessary for interpreting the data itself) for initial use and later re-use.",
+      "displayOrder": 3
+    },
+    {
+      "id": 4,
+      "label": "Other",
+      "uri": "http://dmptool.org/contributor_roles/other",
+      "description": "",
+      "displayOrder": 4
+    },
+    {
+      "id": 2,
+      "label": "Principal Investigator (PI)",
+      "uri": "https://credit.niso.org/contributor-roles/investigation/",
+      "description": "An individual conducting a research and investigation process, specifically performing the experiments, or data/evidence collection.",
+      "displayOrder": 1
+    },
+    {
+      "id": 3,
+      "label": "Project Administrator",
+      "uri": "https://credit.niso.org/contributor-roles/project-administration/",
+      "description": "An individual with management and coordination responsibility for the research activity planning and execution.",
+      "displayOrder": 2
+    }
+  ]
+}

@@ -23,7 +23,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { logECS, routePath } from '@/utils/index';
 import { useToast } from '@/context/ToastContext';
 import { addProjectCollaboratorAction } from './actions/index';
-import { UserInterface, CollaboratorResponse } from '@/app/types';
+import { CollaboratorResponse } from '@/app/types';
 
 // Define types for actions
 type Action =
@@ -33,7 +33,6 @@ type Action =
   | { type: 'SET_ERROR_MESSAGES'; payload: string[] }
   | { type: 'SET_IS_MODAL_OPEN'; payload: boolean }
   | { type: 'SET_INVITED_EMAIL'; payload: string }
-  | { type: 'SET_USER'; payload: UserInterface }
   | { type: 'SET_EMAIL_ERROR'; payload: string | null };
 
 
@@ -41,27 +40,18 @@ type Action =
 type State = {
   accessLevel: string;
   email: string;
-  statusMessage: string;
   errorMessages: string[];
   isModalOpen: boolean;
   invitedEmail: string;
-  user: UserInterface;
   emailError: string | null;
 };
 // Define initial state for useReducer
 const initialState: State = {
   accessLevel: 'edit',
   email: '',
-  statusMessage: '',
   errorMessages: [] as string[],
   isModalOpen: false,
   invitedEmail: '',
-  user: {
-    givenName: '',
-    surName: '',
-    affiliation: { uri: '' },
-    orcid: ''
-  },
   emailError: null,
 };
 
@@ -72,16 +62,12 @@ const reducer = (state: typeof initialState, action: Action) => {
       return { ...state, accessLevel: action.payload };
     case 'SET_EMAIL':
       return { ...state, email: action.payload, emailError: null };
-    case 'SET_STATUS_MESSAGE':
-      return { ...state, statusMessage: action.payload };
     case 'SET_ERROR_MESSAGES':
       return { ...state, errorMessages: action.payload };
     case 'SET_IS_MODAL_OPEN':
       return { ...state, isModalOpen: action.payload };
     case 'SET_INVITED_EMAIL':
       return { ...state, invitedEmail: action.payload };
-    case 'SET_USER':
-      return { ...state, user: action.payload };
     case 'SET_EMAIL_ERROR':
       return { ...state, emailError: action.payload };
     default:
@@ -97,8 +83,8 @@ const ProjectsProjectPlanFeedbackInvite = () => {
   // Get projectId and planId params
   const params = useParams();
   const router = useRouter();
-  const projectId = Array.isArray(params.projectId) ? params.projectId[0] : params.projectId;
-  const dmpId = Array.isArray(params.dmpid) ? params.dmpid[0] : params.dmpid;
+  const projectId = String(params.projectId);
+  const dmpId = String(params.dmpid);
   const planId = Number(dmpId);
 
   // Localization keys
@@ -122,7 +108,6 @@ const ProjectsProjectPlanFeedbackInvite = () => {
   const INVITE_ROUTE = routePath('projects.dmp.feedback.invite', { projectId, dmpId });
   const MEMBERS_ROUTE = routePath('projects.members.index', { projectId });
   const FEEDBACK_ROUTE = routePath('projects.dmp.feedback', { projectId, dmpId });
-  const FEEDBACK_INVITE_ROUTE = routePath('projects.dmp.feedback.invite', { projectId, dmpId });
 
   // Access level ratio button data
   const radioData = {
@@ -161,33 +146,21 @@ const ProjectsProjectPlanFeedbackInvite = () => {
 
   // Use Server Action to add project collaborator
   const addProjectCollaborator = async (email: string, accessLevel: string): Promise<CollaboratorResponse> => {
-    try {
-      const response = await addProjectCollaboratorAction({
-        projectId: Number(projectId),
-        email,
-        accessLevel: accessLevel.toUpperCase()
-      })
+    // Don't need a try-catch block here, as the error is handled in the server action
+    const response = await addProjectCollaboratorAction({
+      projectId: Number(projectId),
+      email,
+      accessLevel: accessLevel.toUpperCase(),
+    });
 
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      }
-    } catch (error) {
-      logECS('error', 'addProjectCollaborator', {
-        error,
-        url: {
-          path: FEEDBACK_INVITE_ROUTE
-        }
-      });
+    if (response.redirect) {
+      router.push(response.redirect);
     }
+
     return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')]
+      success: response.success,
+      errors: response.errors,
+      data: response.data,
     };
   }
 
@@ -227,7 +200,7 @@ const ProjectsProjectPlanFeedbackInvite = () => {
         toastState.add(errorMsg, { type: 'error' });
       } else {
         if (result.data?.errors?.email) {
-          dispatch({ type: 'SET_EMAIL_ERROR', payload: result.data.errors.email });
+          dispatch({ type: 'SET_ERROR_MESSAGES', payload: [...state.errorMessages, result.data.errors.email] });
         }
         // Store the email for use in the modal
         dispatch({ type: 'SET_INVITED_EMAIL', payload: state.email });

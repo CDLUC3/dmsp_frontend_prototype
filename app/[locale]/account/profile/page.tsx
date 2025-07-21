@@ -1,11 +1,11 @@
 'use client'
 
-import React, {useEffect, useRef, useState} from 'react';
-import {ApolloError} from '@apollo/client';
-import {useRouter, useSearchParams} from 'next/navigation';
+import React, { useEffect, useRef, useState } from 'react';
+import { ApolloError } from '@apollo/client';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import {useLocale, useTranslations} from 'next-intl';
-import {usePathname} from '@/i18n/routing';
+import { useLocale, useTranslations } from 'next-intl';
+import { usePathname } from '@/i18n/routing';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -28,7 +28,7 @@ import {
 import PageHeader from '@/components/PageHeader';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import {FormSelect} from '@/components/Form/FormSelect';
+import { FormSelect } from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
 import {
   ContentContainer,
@@ -46,10 +46,10 @@ import {
 
 // Utils and other
 import logECS from '@/utils/clientLogger';
-import {refreshAuthTokens} from "@/utils/authHelper";
-import {useToast} from '@/context/ToastContext';
+import { refreshAuthTokens } from "@/utils/authHelper";
+import { useToast } from '@/context/ToastContext';
 import styles from './profile.module.scss';
-import {routePath} from '@/utils/routes';
+import { routePath } from '@/utils/routes';
 
 const ProfilePage: React.FC = () => {
   const t = useTranslations('UserProfile');
@@ -109,24 +109,24 @@ const ProfilePage: React.FC = () => {
     switch (name) {
       case 'givenName':
         if (!value || value.length <= 2) {
-          error = 'Name must be at least 2 characters';
+          error = t('messages.errors.givenNameValidation');
         }
         break;
       case 'surName':
         if (!value || value.length <= 2) {
-          error = 'Name must be at least 2 characters';
+          error = t('messages.errors.surNameValidation');
         }
         break;
-      case 'affiliationName':
+      case 'affiliationId':
         if (!value || value.length <= 2) {
-          error = 'Institution name cannot be blank and must be at least 2 characters long';
+          error = t('messages.errors.affiliationValidation');
         }
         break;
       case 'otherAffiliationName':
         // We only want to validate this field if the user specifically selected this 'Other' option
-        if (formData['affiliationName'] === 'Other(organization not listed)') {
+        if (formData['affiliationName'] === 'Other') {
           if (!value || value.length <= 2) {
-            error = 'Institution name cannot be blank and must be at least 2 characters long';
+            error = t('messages.errors.otherAffiliationValidation');
           }
           break;
         }
@@ -151,6 +151,7 @@ const ProfilePage: React.FC = () => {
         }
       },
     });
+
     return response.data;
   }
 
@@ -248,7 +249,7 @@ const ProfilePage: React.FC = () => {
   /* This function is called by the child component, UpdateEmailAddress
   when affiliation/institution is changed */
   const updateAffiliationFormData = async (id: string, value: string) => {
-    clearActiveFieldError('affiliationName');
+    clearActiveFieldError('affiliationId');
     return setFormData({
       ...formData,
       affiliationName: value,
