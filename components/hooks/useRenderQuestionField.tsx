@@ -70,6 +70,7 @@ export interface RenderQuestionFieldProps {
   textAreaProps?: {
     content: string;
     setContent?: (newContent: string) => void;
+    handleTextAreaChange?: () => void;
   };
 
   selectBoxProps?: {
@@ -242,6 +243,7 @@ export function useRenderQuestionField({
             id="question-text-editor"
             content={textAreaProps?.content ?? ''}
             setContent={(value) => textAreaProps?.setContent && textAreaProps?.setContent(value)}
+            onChange={textAreaProps?.handleTextAreaChange}
           />
         );
       }

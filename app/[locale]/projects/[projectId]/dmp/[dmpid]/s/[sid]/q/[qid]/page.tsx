@@ -150,6 +150,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
     endNumber: 0,
   });
 
+  // State variables for tracking auto-save info
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [isAutoSaving, setIsAutoSaving] = useState<boolean>(false);
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Localization
   const Global = useTranslations('Global');
@@ -285,46 +290,60 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Handling changes to different question types
 
   const handleAffiliationChange = async (id: string, value: string) => {
-    return setAffiliationData({ affiliationName: value, affiliationId: id })
+    const result = setAffiliationData({ affiliationName: value, affiliationId: id });
+    setHasUnsavedChanges(true);
+    return result;
   }
 
   const handleOtherAffiliationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setOtherAffiliationName(value);
+    setHasUnsavedChanges(true);
   };
 
   // Update the selected radio value when user selects different option
   const handleRadioChange = (value: string) => {
     setSelectedRadioValue(value);
+    setHasUnsavedChanges(true);
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUrlValue(value);
+    setHasUnsavedChanges(true);
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmailValue(value);
+    setHasUnsavedChanges(true);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setTextValue(value);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleTextAreaChange = () => {
+    setHasUnsavedChanges(true);
   };
 
   // Handler for checkbox group changes
   const handleCheckboxGroupChange = (values: string[]) => {
     setSelectedCheckboxValues(values);
+    setHasUnsavedChanges(true);
   };
 
   const handleBooleanChange = (values: string) => {
     setYesNoValue(values);
+    setHasUnsavedChanges(true);
   };
 
   // Handler for MultiSelect changes
   const handleMultiSelectChange = (values: Set<string>) => {
     setSelectedMultiSelectValues(values);
+    setHasUnsavedChanges(true);
   };
 
   // Handler for date range changes
@@ -336,6 +355,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       [key]: value,
     }));
+    setHasUnsavedChanges(true);
   };
 
   // Handler for number range changes
@@ -347,6 +367,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       [key]: value,
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleBackToSection = () => {
@@ -507,9 +528,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
     );
   };
 
-
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
-  const addAnswer = async () => {
+  const addAnswer = async (isAutoSave = false) => {
+
+    if(isAutoSave) {
+      setIsAutoSaving(true);
+    }
+
     const jsonPayload = getAnswerJson();
     // Check is answer already exists. If so, we want to call an update mutation
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
@@ -544,6 +569,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
             path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId })
           }
         });
+      } finally {
+        if(isAutoSave) {
+          setIsAutoSaving(false);
+          setHasUnsavedChanges(false);
+        } 
       }
     }
     return {
@@ -556,6 +586,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Handle submit of question detail form
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // Clear any pending auto-save
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
 
     const result = await addAnswer();
 
@@ -693,6 +728,21 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }, [answerData, questionType]);
 
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    if (!versionedQuestionId || !versionedSectionId || !question) return;
+
+    autoSaveTimeoutRef.current = setTimeout(async () => {
+      const { success } = await addAnswer(true);
+      if (success) {
+        setLastSavedAt(new Date());
+        setHasUnsavedChanges(false);
+      }
+    }, 3000);
+
+    return () => clearTimeout(autoSaveTimeoutRef.current);
+  }, [inputValue, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
+
 
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
@@ -704,7 +754,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
     },
     textAreaProps: {
       content: textAreaContent,
-      setContent: setTextAreaContent
+      setContent: setTextAreaContent,
+      handleTextAreaChange
     },
     radioProps: {
       selectedRadioValue,
@@ -763,6 +814,59 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleOtherAffiliationChange,
     },
   });
+
+  // Auto-save on window blur and before unload
+  useEffect(() => {
+    const handleWindowBlur = () => {
+      if (hasUnsavedChanges && !isAutoSaving) {
+        if (autoSaveTimeoutRef.current) {
+          clearTimeout(autoSaveTimeoutRef.current);
+        }
+        addAnswer(true);
+      }
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        // Cannot save at this point, so we show a toast message warning
+        toastState.add('You have unsaved changes. Are you sure you want to leave?', { type: 'info', timeout: 3000 });
+      }
+    };
+
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, [hasUnsavedChanges, isAutoSaving]);
+
+  // Helper function to format the last saved time
+  const getLastSavedText = () => {
+    if (isAutoSaving) {
+      return 'Saving...';
+    }
+
+    if (!lastSavedAt) {
+      return hasUnsavedChanges ? 'Unsaved changes' : '';
+    }
+
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - lastSavedAt.getTime()) / (1000 * 60));
+
+    if (diffInMinutes === 0) {
+      return 'Saved just now';
+    } else if (diffInMinutes === 1) {
+      return 'Saved 1 minute ago';
+    } else {
+      return `Saved ${diffInMinutes} minutes ago`;
+    }
+  };
 
   if (loading || planQueryLoading || versionedSectionLoading || answerLoading) {
     return <div>{Global('messaging.loading')}...</div>;
@@ -880,6 +984,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   aria-live="polite"
                   role="status">
                   Last saved X minutes ago
+                  {getLastSavedText()}
                 </div>
               </Card>
 
