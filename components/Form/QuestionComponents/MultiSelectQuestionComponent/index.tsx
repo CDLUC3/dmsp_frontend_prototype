@@ -30,7 +30,7 @@ const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
   return (
     <MultiSelect
       options={items}
-      selectedKeys={selectedMultiSelectValues ? selectedMultiSelectValues : new Set(defaultSelected)}
+      selectedKeys={(selectedMultiSelectValues && selectedMultiSelectValues.size > 0) ? selectedMultiSelectValues : new Set(defaultSelected)}
       onSelectionChange={handleMultiSelectChange}
       label={selectBoxLabel}
       aria-label={selectBoxLabel}

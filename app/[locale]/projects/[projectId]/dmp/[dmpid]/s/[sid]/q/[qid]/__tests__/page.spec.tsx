@@ -731,7 +731,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(options[0]).toHaveAttribute('aria-selected', 'false');
     expect(options[1]).toHaveAttribute('aria-selected', 'true');
     expect(options[2]).toHaveAttribute('aria-selected', 'true');
-    expect(options[3]).toHaveAttribute('aria-selected', 'true');
+    expect(options[3]).toHaveAttribute('aria-selected', 'false');
   })
 
   it('should load correct question content for selectBox question', async () => {
@@ -1611,7 +1611,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 18,
-        json: "{\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"]}"
+        json: "{\"answer\":[\"Banana\",\"Pear\",\"Apple\"]}"
       });
     });
   })

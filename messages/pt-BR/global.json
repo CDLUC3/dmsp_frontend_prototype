@@ -211,11 +211,15 @@
       "searchByKeyword": "Pesquisar por palavra-chave",
       "startDate": "Data de início",
       "endDate": "Data final",
-      "funderSearch": "Pesquisar por nome do financiador"
+      "funderSearch": "Pesquisar por nome do financiador",
+      "requiredField": "Marcar como necessário?"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
       "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas."
+    },
+    "descriptions": {
+      "requiredFieldDescription": "Esta questão deve incluir um aviso ao criador do plano de que uma resposta é necessária como condição para aceitar o PGD? (Os usuários poderão enviar o PGD mesmo que não respondam)"
     },
     "placeholders": {
       "funderSearch": "Insira o nome da pasta"

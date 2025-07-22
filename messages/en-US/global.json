@@ -212,11 +212,15 @@
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
       "endDate": "End date",
-      "funderSearch": "Search by funder name"
+      "funderSearch": "Search by funder name",
+      "requiredField": "Mark as required?"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
       "funderSearch": "Search by research organization, funder name, or related keywords."
+    },
+    "descriptions": {
+      "requiredFieldDescription": "Should this question include a warning to the plan builder that an answer is required as a condition of accepting the DMP?(Users will be able to submit the DMP even if they don't answer)"
     },
     "placeholders": {
       "funderSearch": "Enter funder name..."
