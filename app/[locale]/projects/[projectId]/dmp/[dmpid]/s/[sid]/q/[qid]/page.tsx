@@ -821,9 +821,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const planSections = planData?.plan?.sections || [];
       const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
 
-      // if (!sectionBelongsToPlan) {
-      //   router.push('/not-found')
-      // }
+      if (!sectionBelongsToPlan) {
+        router.push('/not-found')
+      }
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
