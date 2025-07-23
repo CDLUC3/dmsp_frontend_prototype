@@ -530,6 +530,19 @@ export type ExternalProject = {
   title?: Maybe<Scalars['String']['output']>;
 };
 
+export type ExternalSearchInput = {
+  /** The URI of the funder we are using to search for projects */
+  affiliationId: Scalars['String']['input'];
+  /** The funder award/grant id/url (optional) */
+  awardId?: InputMaybe<Scalars['String']['input']>;
+  /** The funder award/grant name (optional) */
+  awardName?: InputMaybe<Scalars['String']['input']>;
+  /** The funder award/grant year (optional) as YYYY */
+  awardYear?: InputMaybe<Scalars['String']['input']>;
+  /** The principal investigator names (optional) can be any combination of first/middle/last names */
+  piNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
 /** A result of the most popular funders */
 export type FunderPopularityResult = {
   __typename?: 'FunderPopularityResult';
@@ -1250,6 +1263,7 @@ export type MutationUpdateMetadataStandardArgs = {
 
 
 export type MutationUpdatePasswordArgs = {
+  email: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
 };
@@ -1591,8 +1605,8 @@ export type PlanFunding = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The project that is seeking (or has aquired) funding */
-  project?: Maybe<Project>;
+  /** The plan that is seeking (or has aquired) funding */
+  plan?: Maybe<Plan>;
   /** The project funder */
   projectFunding?: Maybe<ProjectFunding>;
 };
@@ -1603,7 +1617,7 @@ export type PlanFundingErrors = {
   ProjectFundingId?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
-  projectId?: Maybe<Scalars['String']['output']>;
+  planId?: Maybe<Scalars['String']['output']>;
 };
 
 /** A Member associated with a plan */
@@ -1752,6 +1766,8 @@ export type Project = {
   __typename?: 'Project';
   /** The research project abstract */
   abstractText?: Maybe<Scalars['String']['output']>;
+  /** People who have access to modify or comment on the Project */
+  collaborators?: Maybe<Array<ProjectCollaborator>>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
@@ -1927,6 +1943,8 @@ export type ProjectMember = {
   givenName?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not the Member the primary contact for the Plan */
+  isPrimaryContact?: Maybe<Scalars['Boolean']['output']>;
   /** The roles the Member has on the research project */
   memberRoles?: Maybe<Array<MemberRole>>;
   /** The timestamp when the Object was last modifed */
@@ -2209,8 +2227,6 @@ export type Query = {
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
   questionConditions?: Maybe<Array<Maybe<QuestionCondition>>>;
-  /** Get all the QuestionTypes */
-  questionTypes?: Maybe<Array<Maybe<QuestionType>>>;
   /** Get the Questions that belong to the associated sectionId */
   questions?: Maybe<Array<Maybe<Question>>>;
   /** Return the recommended Licenses */
@@ -2467,11 +2483,7 @@ export type QueryRepositoryArgs = {
 
 
 export type QuerySearchExternalProjectsArgs = {
-  affiliationId: Scalars['Int']['input'];
-  awardId?: InputMaybe<Scalars['String']['input']>;
-  awardName?: InputMaybe<Scalars['String']['input']>;
-  awardYear?: InputMaybe<Scalars['String']['input']>;
-  piNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  input: ExternalSearchInput;
 };
 
 
@@ -2648,41 +2660,6 @@ export type QuestionErrors = {
   sectionId?: Maybe<Scalars['String']['output']>;
   sourceQestionId?: Maybe<Scalars['String']['output']>;
   templateId?: Maybe<Scalars['String']['output']>;
-};
-
-/** The type of Question, such as text field, radio buttons, etc */
-export type QuestionType = {
-  __typename?: 'QuestionType';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<QuestionTypeErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** Whether or not this is the default question type */
-  isDefault: Scalars['Boolean']['output'];
-  /** The default JSON for the QuestionType */
-  json: Scalars['String']['output'];
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The name of the QuestionType, like 'Short text question' */
-  name: Scalars['String']['output'];
-  /** The description of the QuestionType */
-  usageDescription: Scalars['String']['output'];
-};
-
-/** A collection of errors related to the QuestionType */
-export type QuestionTypeErrors = {
-  __typename?: 'QuestionTypeErrors';
-  /** General error messages such as the object already exists */
-  general?: Maybe<Scalars['String']['output']>;
-  json?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  usageDescription?: Maybe<Scalars['String']['output']>;
 };
 
 /** The results of reordering the questions */
@@ -3317,16 +3294,16 @@ export type User = {
   /** The user who created the Object */
   createdById?: Maybe<Scalars['Int']['output']>;
   /** The user's primary email address */
-  email: Scalars['EmailAddress']['output'];
+  email?: Maybe<Scalars['String']['output']>;
   /** The user's email addresses */
   emails?: Maybe<Array<Maybe<UserEmail>>>;
   /** Errors associated with the Object */
   errors?: Maybe<UserErrors>;
   /** The number of failed login attempts */
-  failed_sign_in_attemps?: Maybe<Scalars['Int']['output']>;
+  failed_sign_in_attempts?: Maybe<Scalars['Int']['output']>;
   /** The user's first/given name */
   givenName?: Maybe<Scalars['String']['output']>;
-  /** The unique identifer for the Object */
+  /** The unique identifier for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The user's preferred language */
   languageId: Scalars['String']['output'];
@@ -3336,7 +3313,7 @@ export type User = {
   last_sign_in_via?: Maybe<Scalars['String']['output']>;
   /** Whether or not the account is locked from failed login attempts */
   locked?: Maybe<Scalars['Boolean']['output']>;
-  /** The timestamp when the Object was last modifed */
+  /** The timestamp when the Object was last modified */
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
@@ -3370,13 +3347,13 @@ export type UserEmail = {
   email: Scalars['String']['output'];
   /** Errors associated with the Object */
   errors?: Maybe<UserEmailErrors>;
-  /** The unique identifer for the Object */
+  /** The unique identifier for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** Whether or not the email address has been confirmed */
   isConfirmed: Scalars['Boolean']['output'];
   /** Whether or not this is the primary email address */
   isPrimary: Scalars['Boolean']['output'];
-  /** The timestamp when the Object was last modifed */
+  /** The timestamp when the Object was last modified */
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
@@ -3817,7 +3794,7 @@ export type AddPlanFundingMutationVariables = Exact<{
 }>;
 
 
-export type AddPlanFundingMutation = { __typename?: 'Mutation', addPlanFunding?: { __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null, projectId?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null };
+export type AddPlanFundingMutation = { __typename?: 'Mutation', addPlanFunding?: { __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null, planId?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null };
 
 export type AddProjectCollaboratorMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -3984,7 +3961,7 @@ export type UpdateUserProfileMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserProfileMutation = { __typename?: 'Mutation', updateUserProfile?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, email: any, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
+export type UpdateUserProfileMutation = { __typename?: 'Mutation', updateUserProfile?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, email?: string | null, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 export type AddUserEmailMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -4104,11 +4081,6 @@ export type ProjectQueryVariables = Exact<{
 
 export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, fundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, members?: Array<{ __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, outputs?: Array<{ __typename?: 'ProjectOutput', title: string }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null, parentResearchDomainId?: number | null } | null, plans?: Array<{ __typename?: 'PlanSearchResult', templateTitle?: string | null, id?: number | null, funding?: string | null, dmpId?: string | null, modified?: string | null, created?: string | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null }> | null } | null };
 
-export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type QuestionTypesQuery = { __typename?: 'Query', questionTypes?: Array<{ __typename?: 'QuestionType', id?: number | null, name: string, usageDescription: string, json: string, errors?: { __typename?: 'QuestionTypeErrors', general?: string | null, name?: string | null, usageDescription?: string | null } | null } | null> | null };
-
 export type QuestionsDisplayOrderQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
 }>;
@@ -4211,7 +4183,7 @@ export type TemplateCollaboratorsQueryVariables = Exact<{
 }>;
 
 
-export type TemplateCollaboratorsQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, collaborators?: Array<{ __typename?: 'TemplateCollaborator', email: string, id?: number | null, user?: { __typename?: 'User', id?: number | null, email: any, givenName?: string | null, surName?: string | null } | null }> | null, admins?: Array<{ __typename?: 'User', givenName?: string | null, surName?: string | null, email: any }> | null, owner?: { __typename?: 'Affiliation', name: string } | null } | null };
+export type TemplateCollaboratorsQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, collaborators?: Array<{ __typename?: 'TemplateCollaborator', email: string, id?: number | null, user?: { __typename?: 'User', id?: number | null, email?: string | null, givenName?: string | null, surName?: string | null } | null }> | null, admins?: Array<{ __typename?: 'User', givenName?: string | null, surName?: string | null, email?: string | null }> | null, owner?: { __typename?: 'Affiliation', name: string } | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4573,7 +4545,7 @@ export const AddPlanFundingDocument = gql`
     errors {
       ProjectFundingId
       general
-      projectId
+      planId
     }
     projectFunding {
       id
@@ -6497,53 +6469,6 @@ export type ProjectQueryHookResult = ReturnType<typeof useProjectQuery>;
 export type ProjectLazyQueryHookResult = ReturnType<typeof useProjectLazyQuery>;
 export type ProjectSuspenseQueryHookResult = ReturnType<typeof useProjectSuspenseQuery>;
 export type ProjectQueryResult = Apollo.QueryResult<ProjectQuery, ProjectQueryVariables>;
-export const QuestionTypesDocument = gql`
-    query QuestionTypes {
-  questionTypes {
-    id
-    errors {
-      general
-      name
-      usageDescription
-    }
-    name
-    usageDescription
-    json
-  }
-}
-    `;
-
-/**
- * __useQuestionTypesQuery__
- *
- * To run a query within a React component, call `useQuestionTypesQuery` and pass it any options that fit your needs.
- * When your component renders, `useQuestionTypesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useQuestionTypesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useQuestionTypesQuery(baseOptions?: Apollo.QueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
-      }
-export function useQuestionTypesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
-        }
-export function useQuestionTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
-        }
-export type QuestionTypesQueryHookResult = ReturnType<typeof useQuestionTypesQuery>;
-export type QuestionTypesLazyQueryHookResult = ReturnType<typeof useQuestionTypesLazyQuery>;
-export type QuestionTypesSuspenseQueryHookResult = ReturnType<typeof useQuestionTypesSuspenseQuery>;
-export type QuestionTypesQueryResult = Apollo.QueryResult<QuestionTypesQuery, QuestionTypesQueryVariables>;
 export const QuestionsDisplayOrderDocument = gql`
     query QuestionsDisplayOrder($sectionId: Int!) {
   questions(sectionId: $sectionId) {
@@ -7201,7 +7126,7 @@ export type PublishedTemplatesSuspenseQueryHookResult = ReturnType<typeof usePub
 export type PublishedTemplatesQueryResult = Apollo.QueryResult<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>;
 export const TemplatesDocument = gql`
     query Templates($term: String) {
-  myTemplates(term: $term) {
+  myTemplates(term: $term, paginationOptions: {limit: 25}) {
     totalCount
     nextCursor
     items {

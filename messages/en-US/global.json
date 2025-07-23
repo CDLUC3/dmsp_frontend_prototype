@@ -259,6 +259,7 @@
       "radioButtons": "Radio button",
       "checkBoxes": "Checkbox",
       "selectBox": "Select",
+      "multiselectBox": "Multi-select Box",
       "boolean": "Boolean",
       "number": "Number",
       "numberRange": "Number range",
@@ -269,7 +270,7 @@
       "dateRange": "Date range",
       "filteredSearch": "Filtered search",
       "table": "Table",
-      "typeaheadSearch": "Typeahead search"
+      "affiliationSearch": "Affiliation search"
     }
   }
 }

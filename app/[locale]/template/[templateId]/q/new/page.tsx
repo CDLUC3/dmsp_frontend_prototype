@@ -22,9 +22,6 @@ import QuestionAdd from '@/components/QuestionAdd';
 import QuestionTypeCard from '@/components/QuestionTypeCard';
 import ErrorMessages from '@/components/ErrorMessages';
 
-//GraphQL
-import { useQuestionTypesQuery } from '@/generated/graphql';
-
 //Other
 import { scrollToTop } from '@/utils/general';
 import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
@@ -59,9 +56,6 @@ const QuestionTypeSelectPage: React.FC = () => {
   //Localization keys
   const Global = useTranslations('Global');
   const QuestionTypeSelect = useTranslations('QuestionTypeSelectPage');
-
-  // Make graphql request for question types
-  const { data, loading, error: queryError } = useQuestionTypesQuery();
 
   // Handle the selection of a question type
   const handleSelect = (
@@ -128,12 +122,6 @@ const QuestionTypeSelectPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (queryError) {
-      setErrors(prev => [...prev, queryError.message]);
-    }
-  }, [queryError])
-
-  useEffect(() => {
     // Need this to set list of templates back to original, full list after filtering
     if (searchTerm === '') {
       resetSearch();
@@ -147,11 +135,6 @@ const QuestionTypeSelectPage: React.FC = () => {
       setStep(stepQueryValue);
     }
   }, [stepQueryValue])
-
-  // TODO: Implement shared loading
-  if (loading) {
-    return <div>{Global('messaging.loading')}...</div>;
-  }
 
   return (
     <>

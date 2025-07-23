@@ -10,7 +10,6 @@ import {
   Button,
 } from "react-aria-components";
 import {
-  useQuestionTypesQuery,
   useTemplateQuery,
 } from '@/generated/graphql';
 
@@ -71,6 +70,7 @@ import {
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './QuestionView.module.scss';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
+import {getQuestionTypes} from "@/utils/questionTypeHandlers";
 
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -99,7 +99,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   const trans = useTranslations('QuestionView');
 
-  const { data: qtData } = useQuestionTypesQuery();
+  const { data: qtData } = { data: getQuestionTypes() };
   const { data: templateData } = useTemplateQuery({
     variables: {
       templateId,

@@ -247,7 +247,8 @@
       "textArea": "Área de texto",
       "radioButtons": "Botão de opção",
       "checkBoxes": "Caixa de verificação",
-      "selectBox": "Select",
+      "selectBox": "Selecione",
+      "multiselectBox": "Seleção múltipla",
       "boolean": "Boleano",
       "number": "Número",
       "numberRange": "Intervalo de números",
@@ -258,7 +259,7 @@
       "dateRange": "Intervalo de datas",
       "filteredSearch": "Pesquisa com filtros",
       "table": "Tabela",
-      "typeaheadSearch": "Digite a pesquisa"
+      "affiliationSearch": "Pesquisa de Afiliação"
     }
   }
 }

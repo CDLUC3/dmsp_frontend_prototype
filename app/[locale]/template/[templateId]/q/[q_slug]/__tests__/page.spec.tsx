@@ -3,7 +3,6 @@ import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import { routePath } from '@/utils/routes';
 import {
   useQuestionQuery,
-  useQuestionTypesLazyQuery,
   useUpdateQuestionMutation,
   useRemoveQuestionMutation
 } from '@/generated/graphql';
@@ -23,7 +22,6 @@ import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForT
 import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.json';
 import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNumber.json';
 import mockQuestionDataForCurrency from '@/__mocks__/common/mockQuestionDataForCurrency.json';
-import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -31,7 +29,6 @@ expect.extend(toHaveNoViolations);
 jest.mock("@/generated/graphql", () => ({
   useQuestionQuery: jest.fn(),
   useUpdateQuestionMutation: jest.fn(),
-  useQuestionTypesLazyQuery: jest.fn(),
   useRemoveQuestionMutation: jest.fn()
 }));
 
@@ -92,10 +89,6 @@ describe("QuestionEditPage", () => {
       error: undefined,
     });
 
-    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: mockQuestionTypes }),
-      { loading: false, error: undefined },
-    ]);
     (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
     (useRemoveQuestionMutation as jest.Mock).mockReturnValue([jest.fn(), { loading: false }]);
   });

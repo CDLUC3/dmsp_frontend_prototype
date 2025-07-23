@@ -32,7 +32,7 @@ export function getQuestionFormatInfo(name: string): QuestionFormatInterface | n
 
 // Fetch all available Question Types
 export function getQuestionTypes(): QuestionFormatInterface[] {
-  const info = Object.keys(QuestionFormatsEnum).map(key => getQuestionFormatInfo(key));
+  const info = QuestionFormatsEnum.options.map(key => getQuestionFormatInfo(key));
   return info.filter((item): item is QuestionFormatInterface => item !== null);
 }
 
@@ -85,6 +85,12 @@ const createAndValidateQuestion = (
   }
 };
 
+interface QuestionOptionInterface {
+  label?: string;
+  value: string;
+  selected?: boolean;
+  checked?: boolean;
+};
 
 /**
  * The function is a collection of handlers for generating and validating
@@ -108,7 +114,7 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
         maxLength: input?.attributes?.maxLength ?? 1000,
         minLength: input?.attributes?.minLength ?? 0,
         pattern: input?.attributes?.pattern ?? "^.+$",
@@ -129,7 +135,7 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
         maxLength: input?.attributes?.maxLength ?? 1000,
         minLength: input?.attributes?.minLength ?? 0,
         rows: input?.attributes?.rows ?? 2,
@@ -140,7 +146,7 @@ export const questionTypeHandlers: Record<
     return createAndValidateQuestion("textArea", questionData, QuestionSchemaMap["textArea"]);
   },
   radioButtons: (json, input: {
-    options: QuestionTypeMap["radioButtons"]['options'],
+    options: QuestionOptionInterface[],
     attributes?: QuestionTypeMap["radioButtons"]['attributes']
   }) => {
     const questionData: QuestionTypeMap["radioButtons"] = {
@@ -152,11 +158,11 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
       },
       options: input.options?.map(option => ({
         label: option.label ?? option.value,
-        selected: option.selected ?? false,
+        selected: option.checked ?? option.selected ?? false,
         value: option.value,
       })) || [],
     };
@@ -165,7 +171,7 @@ export const questionTypeHandlers: Record<
   },
 
   checkBoxes: (json, input: {
-    options: QuestionTypeMap["checkBoxes"]['options'],
+    options: QuestionOptionInterface[],
     attributes?: QuestionTypeMap["checkBoxes"]['attributes']
   }) => {
     const questionData: QuestionTypeMap["checkBoxes"] = {
@@ -177,11 +183,11 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
       },
       options: input.options?.map(option => ({
         label: option.label ?? option.value,
-        checked: option.checked ?? false,
+        checked: option.checked ?? option.selected ?? false,
         value: option.value,
       })) || [],
     };
@@ -190,7 +196,7 @@ export const questionTypeHandlers: Record<
   },
 
   selectBox: (json, input: {
-    options: QuestionTypeMap["selectBox"]['options'],
+    options: QuestionOptionInterface[],
     attributes?: QuestionTypeMap["selectBox"]['attributes']
   }) => {
     const questionData: QuestionTypeMap["selectBox"] = {
@@ -202,12 +208,12 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
         multiple: false,
       },
       options: input.options?.map(option => ({
         label: option.label ?? option.value,
-        selected: option.selected ?? false,
+        selected: option.checked ?? option.selected ?? false,
         value: option.value,
       })) || [],
     };
@@ -216,7 +222,7 @@ export const questionTypeHandlers: Record<
   },
 
   multiselectBox: (json, input: {
-    options: QuestionTypeMap["multiselectBox"]['options'],
+    options: QuestionOptionInterface[],
     attributes?: QuestionTypeMap["multiselectBox"]['attributes']
   }) => {
     const questionData: QuestionTypeMap["multiselectBox"] = {
@@ -228,12 +234,12 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
         multiple: true,
       },
       options: input.options?.map(option => ({
         label: option.label ?? option.value,
-        selected: option.selected ?? false,
+        selected: option.checked ?? option.selected ?? false,
         value: option.value,
       })) || [],
     };
@@ -252,7 +258,7 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         label: input?.label ?? "Number",
-        help: input?.help ?? null,
+        help: input?.help,
         checked: input?.checked ?? false,
       },
     };
@@ -271,9 +277,9 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
         pattern: input?.attributes?.pattern ?? "https?://.+",
-        maxLength: input?.attributes?.maxLength ?? null,
+        maxLength: input?.attributes?.maxLength,
         minLength: input?.attributes?.minLength !== undefined ? input.attributes?.minLength : 0 // Fall back to 0 instead of null
       }
     };
@@ -292,7 +298,7 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
         max: input?.attributes?.max ?? 10000000, // Optional maximum value
         min: input?.attributes?.min ?? 0,
         step: input?.attributes?.step ?? 1,
@@ -313,8 +319,8 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         label: input?.label ?? "Number",
-        help: input?.help ?? null,
-        max: input?.max ?? null,
+        help: input?.help,
+        max: input?.max,
         min: input?.min ?? "1900-01-01",
         step: input?.step ?? 1,
       },
@@ -335,22 +341,22 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
       },
       columns: {
         end: {
-          max: endCol.max ?? null,
-          min: endCol.min ?? null,
+          max: endCol.max,
+          min: endCol.min,
           step: endCol.step ?? 1,
           label: endCol.label ?? "From",
-          help: endCol.help ?? null,
+          help: endCol.help,
         },
         start: {
-          max: startCol.max ?? null,
-          min: startCol.min ?? null,
+          max: startCol.max,
+          min: startCol.min,
           step: startCol.step ?? 1,
           label: startCol.label ?? "To",
-          help: startCol.help ?? null,
+          help: startCol.help,
         },
       },
     };
@@ -368,7 +374,7 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         label: input?.label ?? "Email",
-        help: input?.help ?? null,
+        help: input?.help,
         pattern: input?.pattern ?? "^.+$",
         multiple: input?.multiple ?? false,
         maxLength: input?.maxLength ?? 100,
@@ -378,38 +384,27 @@ export const questionTypeHandlers: Record<
 
     return createAndValidateQuestion("email", questionData, QuestionSchemaMap["email"]);
   },
-  affiliationSearch: (json, input: {
-    query?: string;
-    queryId?: string;
-    variables?: QuestionTypeMap['affiliationSearch']['graphQL']['variables'];
-    answerField?: string;
-    displayFields?: QuestionTypeMap['affiliationSearch']["graphQL"]["displayFields"];
-    responseField?: string;
+  affiliationSearch: (json: QuestionTypeMap["affiliationSearch"], input: {
+    label?: string;
+    help?: string;
   }) => {
+    // Splice in the labels the user entered otherwise keep everything the same
     const questionData: QuestionTypeMap["affiliationSearch"] = {
-      ...json,
       type: "affiliationSearch",
       meta: {
-        ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
+      attributes: {
+        label: input?.label,
+        help: input?.help
+      },
       graphQL: {
-        query: input?.query ?? "",
-        queryId: input?.queryId ?? "",
-        variables: input?.variables?.map(variable => ({
-          name: variable.name ?? "",
-          type: variable.type ?? "string",
-          label: variable.label ?? "",
-          minLength: variable.minLength ?? 0,
-          labelTranslationKey: variable.labelTranslationKey ?? null,
-        })) ?? [],
-        answerField: input?.answerField ?? "",
-        displayFields: input?.displayFields?.map(field => ({
-          label: field.label ?? "",
-          propertyName: field.propertyName ?? "",
-          labelTranslationKey: field.labelTranslationKey ?? null,
-        })) ?? [],
-        responseField: input?.responseField ?? "",
+        query: json?.graphQL.query,
+        queryId: json?.graphQL.queryId,
+        variables: json?.graphQL?.variables,
+        answerField: json?.graphQL?.answerField ?? "",
+        displayFields: json?.graphQL?.displayFields,
+        responseField: json.graphQL?.responseField ?? "",
       },
     };
 
@@ -426,8 +421,8 @@ export const questionTypeHandlers: Record<
       attributes: {
         ...json.attributes,
         label: input?.attributes?.label ?? "Number",
-        help: input?.attributes?.help ?? null,
-        max: input?.attributes?.max ?? null,
+        help: input?.attributes?.help,
+        max: input?.attributes?.max,
         min: input?.attributes?.min ?? 0,
         step: input?.attributes?.step ?? 1,
       },
@@ -447,22 +442,22 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         label: input?.attributes?.label ?? "Number Range",
-        help: input?.attributes?.help ?? null,
+        help: input?.attributes?.help,
       },
       columns: {
         end: {
-          max: endCol.max ?? null,
-          min: endCol.min ?? null,
+          max: endCol.max,
+          min: endCol.min,
           step: endCol.step ?? 1,
           label: endCol.label ?? "From",
-          help: endCol.help ?? null,
+          help: endCol.help,
         },
         start: {
-          max: startCol.max ?? null,
-          min: startCol.min ?? null,
+          max: startCol.max,
+          min: startCol.min,
           step: startCol.step ?? 1,
           label: startCol.label ?? "To",
-          help: startCol.help ?? null,
+          help: startCol.help,
         },
       },
     };

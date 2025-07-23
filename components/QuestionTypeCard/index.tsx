@@ -33,7 +33,7 @@ const QuestionTypeCard: React.FC<QuestionTypeCardProps> = ({ questionType, handl
           onPress={() => handleSelect({
             questionJSON: JSON.stringify(json),
             questionType: qType,
-            questionTypeName: json.type
+            questionTypeName: questionType.title ?? qType
           })}
         >
           {Global('buttons.select')}

@@ -28,7 +28,6 @@ import {
 // GraphQL queries and mutations
 import {
   useQuestionQuery,
-  useQuestionTypesLazyQuery,
   useUpdateQuestionMutation,
   useRemoveQuestionMutation,
 } from '@/generated/graphql';
@@ -53,7 +52,7 @@ import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
-import { getQuestionFormatInfo, questionTypeHandlers } from '@/utils/questionTypeHandlers';
+import {getQuestionFormatInfo, getQuestionTypes, questionTypeHandlers} from '@/utils/questionTypeHandlers';
 import { QuestionTypeMap } from "@dmptool/types";
 import {
   Question,
@@ -136,12 +135,6 @@ const QuestionEdit = () => {
     },
   );
 
-  // Get question types if the questionType is in the query param
-  const [getQuestionTypes, {
-    data: questionTypesData,
-    error: questionTypesError,
-  }] = useQuestionTypesLazyQuery();
-
 
   // Update rows state and question.json when options change
   const updateRows = (newRows: QuestionOptions[]) => {
@@ -186,35 +179,11 @@ const QuestionEdit = () => {
   // Handler for typeahead search label changes
   const handleTypeAheadSearchLabelChange = (value: string) => {
     setTypeaheadSearchLabel(value);
-
-    // Update the label in the question JSON and sync to question state
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
-      if (parsedQuestionJSON?.graphQL?.displayFields?.[0]) {
-        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-        updatedParsed.graphQL.displayFields[0].label = value;
-        setQuestion(prev => ({
-          ...prev,
-          json: JSON.stringify(updatedParsed),
-        }));
-      }
-    }
   };
 
   // Handler for typeahead help text changes
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
-
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
-      const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-
-      if (updatedParsed?.graphQL?.variables?.[0]) {
-        updatedParsed.graphQL.variables[0].label = value;
-        setQuestion(prev => ({
-          ...prev,
-          json: JSON.stringify(updatedParsed),
-        }));
-      }
-    }
   };
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
@@ -230,6 +199,14 @@ const QuestionEdit = () => {
         })),
       };
     }
+
+    if (questionType === TYPEAHEAD_QUESTION_TYPE) {
+      return {
+        label: typeaheadSearchLabel,
+        help: typeaheadHelpText,
+      }
+    }
+
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
     if (!parsed) {
       if (error) {
@@ -329,6 +306,17 @@ const QuestionEdit = () => {
     }
   };
 
+  // Saves any query errors to errors state
+  useEffect(() => {
+    const allErrors = [];
+
+    if (selectedQuestionQueryError) {
+      allErrors.push(selectedQuestionQueryError.message);
+    }
+
+    setErrors(allErrors);
+  }, [selectedQuestionQueryError]);
+
   useEffect(() => {
     if (selectedQuestion?.question) {
       const q = {
@@ -360,6 +348,11 @@ const QuestionEdit = () => {
         setQuestion(q);
         setHasOptions(isOptionsQuestion);
 
+        if (questionType === TYPEAHEAD_QUESTION_TYPE) {
+          setTypeaheadSearchLabel(parsed?.attributes?.label ?? '');
+          setTypeAheadHelpText(parsed?.attributes?.help ?? '');
+        }
+
         // Set options info with proper type checking
         if (isOptionsQuestion && 'options' in parsed && parsed.options && Array.isArray(parsed.options)) {
           const optionRows: QuestionOptions[] = parsed.options
@@ -380,21 +373,15 @@ const QuestionEdit = () => {
     }
   }, [selectedQuestion]);
 
-  // Saves any query errors to errors state
   useEffect(() => {
-    const allErrors = [];
+    if (questionType) {
+      // To determine if we have an options question type
+      const isOptionQuestion = isOptionsType(questionType);
 
-    if (selectedQuestionQueryError) {
-      allErrors.push(selectedQuestionQueryError.message);
+      setHasOptions(isOptionQuestion);
     }
 
-    if (questionTypesError) {
-      allErrors.push(questionTypesError.message);
-    }
-
-    setErrors(allErrors);
-  }, [selectedQuestionQueryError, questionTypesError]);
-
+  }, [questionType])
 
   // Set labels for dateRange and numberRange
   useEffect(() => {
@@ -432,7 +419,7 @@ const QuestionEdit = () => {
   // If a user passes in a questionType query param we will find the matching questionTypes 
   // json schema and update the question with it
   useEffect(() => {
-    if (questionTypesData?.questionTypes && questionTypeIdQueryParam && question) {
+    if (questionType && questionTypeIdQueryParam && question) {
       // Find the matching question type
       const qInfo: QuestionFormatInterface | null = getQuestionFormatInfo(questionTypeIdQueryParam);
 
@@ -454,7 +441,7 @@ const QuestionEdit = () => {
 
       }
     }
-  }, [questionTypesData, questionTypeIdQueryParam]);
+  }, [questionType, questionTypeIdQueryParam]);
 
   useEffect(() => {
     if (question) {

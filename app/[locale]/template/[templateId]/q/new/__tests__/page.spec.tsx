@@ -1,19 +1,12 @@
 import React from "react";
 import { act, fireEvent, render, screen } from '@/utils/test-utils';
-import { useQuestionTypesQuery } from '@/generated/graphql';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
 import QuestionTypeSelectPage from "../page";
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
 
 expect.extend(toHaveNoViolations);
-
-// Mock the useQuestionTypesQuery hook
-jest.mock("@/generated/graphql", () => ({
-  useQuestionTypesQuery: jest.fn(),
-}));
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
@@ -85,12 +78,6 @@ describe("QuestionTypeSelectPage", () => {
   });
 
   it("should render loading state", async () => {
-    (useQuestionTypesQuery as jest.Mock).mockReturnValue({
-      data: null,
-      loading: true,
-      error: null,
-    });
-
     await act(async () => {
       render(
         <QuestionTypeSelectPage />
@@ -101,12 +88,6 @@ describe("QuestionTypeSelectPage", () => {
   });
 
   it("should render data returned from template query correctly", async () => {
-    (useQuestionTypesQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionTypes,
-      loading: false,
-      error: null,
-    });
-
     await act(async () => {
       render(
         <QuestionTypeSelectPage />
@@ -142,12 +123,6 @@ describe("QuestionTypeSelectPage", () => {
   });
 
   it('should show filtered list when user clicks Search button', async () => {
-    (useQuestionTypesQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionTypes,
-      loading: false,
-      error: null,
-    });
-
     await act(async () => {
       render(
         <QuestionTypeSelectPage />
@@ -174,12 +149,6 @@ describe("QuestionTypeSelectPage", () => {
   })
 
   it('should show error message when query fails with a network error', async () => {
-    (useQuestionTypesQuery as jest.Mock).mockReturnValue({
-      data: undefined,
-      loading: false,
-      error: { message: 'There was an error.' },
-    });
-
     await act(async () => {
       render(
         <QuestionTypeSelectPage />
@@ -191,12 +160,6 @@ describe("QuestionTypeSelectPage", () => {
   })
 
   it('should load QuestionAdd component when a user selects a question type', async () => {
-    (useQuestionTypesQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionTypes,
-      loading: false,
-      error: null,
-    });
-
     await act(async () => {
       render(
         <QuestionTypeSelectPage />
@@ -219,11 +182,6 @@ describe("QuestionTypeSelectPage", () => {
   })
 
   it('should pass axe accessibility test', async () => {
-    (useQuestionTypesQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionTypes,
-      loading: false,
-      error: null,
-    });
     const { container } = render(
       <QuestionTypeSelectPage />
     );

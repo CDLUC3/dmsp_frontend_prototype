@@ -185,37 +185,11 @@ const QuestionAdd = ({
   // Handler for typeahead search label changes
   const handleTypeAheadSearchLabelChange = (value: string) => {
     setTypeaheadSearchLabel(value);
-
-    // Update the label in the question JSON and sync to question state
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
-      if (parsedQuestionJSON?.graphQL?.displayFields?.[0]) {
-        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-        updatedParsed.graphQL.displayFields[0].label = value;
-        setQuestion(prev => ({
-          ...prev,
-          json: JSON.stringify(updatedParsed),
-        }));
-      }
-    }
   };
 
   // Handler for typeahead help text changes
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
-
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
-      const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-
-      if (updatedParsed.graphQL &&
-        Array.isArray(updatedParsed.graphQL.variables) &&
-        updatedParsed.graphQL.variables[0]) {
-        updatedParsed.graphQL.variables[0].label = value;
-        setQuestion(prev => ({
-          ...prev,
-          json: JSON.stringify(updatedParsed),
-        }));
-      }
-    }
   };
 
   // Update common input fields when any of them change
@@ -241,6 +215,14 @@ const QuestionAdd = ({
       };
     }
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
+
+    if (questionType === TYPEAHEAD_QUESTION_TYPE) {
+      return {
+        label: typeaheadSearchLabel,
+        help: typeaheadHelpText,
+      }
+    }
+
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
@@ -260,7 +242,6 @@ const QuestionAdd = ({
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
-
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])
@@ -279,6 +260,7 @@ const QuestionAdd = ({
     e.preventDefault();
 
     const displayOrder = getDisplayOrder();
+
     const updatedJSON = buildUpdatedJSON(question);
 
     // Strip all tags from questionText before sending to backend
