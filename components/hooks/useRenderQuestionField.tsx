@@ -99,13 +99,13 @@ export interface RenderQuestionFieldProps {
   };
 
   numberProps?: {
-    inputValue: number | null;
-    setInputValue: (val: number | null) => void
+    numberValue: number | null;
+    handleNumberChange: (value: number) => void;
   };
 
   numberRangeProps?: {
     numberRange: { startNumber: number | null; endNumber: number | null };
-    handleNumberChange: (key: string, val: number | null) => void
+    handleNumberRangeChange: (key: string, val: number | null) => void
   };
 
   checkBoxProps?: {
@@ -115,7 +115,7 @@ export interface RenderQuestionFieldProps {
 
   currencyProps?: {
     inputCurrencyValue: number | null;
-    setInputCurrencyValue: (val: number | null) => void
+    handleCurrencyChange: (value: number | null) => void;
   };
 
   booleanProps?: {
@@ -286,9 +286,9 @@ export function useRenderQuestionField({
         return (
           <NumberComponent
             label="number"
-            value={numberProps?.inputValue ?? undefined
+            value={numberProps?.numberValue ?? undefined
             }
-            onChange={numberProps?.setInputValue}
+            onChange={numberProps?.handleNumberChange}
             placeholder="number"
             minValue={minValue}
             {...(typeof maxValue === 'number' ? { maxValue } : {})}
@@ -304,7 +304,7 @@ export function useRenderQuestionField({
           <NumberRangeQuestionComponent
             parsedQuestion={parsed}
             numberRange={numberRangeProps?.numberRange}
-            handleNumberChange={numberRangeProps?.handleNumberChange}
+            handleNumberChange={numberRangeProps?.handleNumberRangeChange}
             startPlaceholder="start"
             endPlaceholder="end"
           />
@@ -318,7 +318,7 @@ export function useRenderQuestionField({
           <CurrencyQuestionComponent
             parsedQuestion={parsed}
             inputCurrencyValue={currencyProps?.inputCurrencyValue}
-            setInputCurrencyValue={currencyProps?.setInputCurrencyValue}
+            handleCurrencyChange={currencyProps?.handleCurrencyChange}
           />
         );
       }

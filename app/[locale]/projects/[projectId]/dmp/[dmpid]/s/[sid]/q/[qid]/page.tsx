@@ -67,7 +67,7 @@ interface FormDataInterface {
   affiliationData: { affiliationName: string; affiliationId: string };
   otherAffiliationName: string;
   selectedRadioValue: string;
-  inputValue: number | null;
+  numberValue: number | null;
   urlValue: string | null;
   emailValue: string | null;
   textValue: string | number | null;
@@ -147,7 +147,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     affiliationData: { affiliationName: '', affiliationId: '' },
     otherAffiliationName: '',
     selectedRadioValue: '',
-    inputValue: null,
+    numberValue: null,
     urlValue: null,
     emailValue: null,
     textValue: null,
@@ -429,8 +429,27 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setHasUnsavedChanges(true);
   };
 
+  // Handler for currency changes
+  const handleCurrencyChange = (value: number | null) => {
+    setFormData(prev => ({
+      ...prev,
+      inputCurrencyValue: value
+    }));
+    setHasUnsavedChanges(true);
+  };
+  
+
+  // Handler for number changes
+  const handleNumberChange = (value: number) => {
+    setFormData(prev => ({
+      ...prev,
+      numberValue: value
+    }));
+    setHasUnsavedChanges(true);
+  };
+
   // Handler for number range changes
-  const handleNumberChange = (
+  const handleNumberRangeChange = (
     key: string,
     value: string | number | null
   ) => {
@@ -446,6 +465,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   const handleBackToSection = () => {
     router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
+  }
+
+  function hasAttributes(obj: any): obj is { attributes: { multiple?: boolean } } {
+    return obj && typeof obj === 'object' && 'attributes' in obj;
   }
 
   // Prefill the current question with existing answer
@@ -483,11 +506,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
             selectedSelectValue: answer
           }));
         }
-
-        setFormData(prev => ({
+        if (hasAttributes(parsed) && parsed.attributes.multiple === true) {
+          setFormData(prev => ({
           ...prev,
           selectedMultiSelectValues: answer
         }));
+      }
 
         break;
       case 'boolean':
@@ -511,7 +535,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       case 'number':
         setFormData(prev => ({
           ...prev,
-          inputValue: answer
+          numberValue: answer
         }));
         break;
       case 'currency':
@@ -594,7 +618,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         return { answer: formData.urlValue };
 
       case 'number':
-        return { answer: formData.inputValue };
+        return { answer: formData.numberValue };
 
       case 'currency':
         return { answer: formData.inputCurrencyValue };
@@ -821,9 +845,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const planSections = planData?.plan?.sections || [];
       const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
 
-      if (!sectionBelongsToPlan) {
-        router.push('/not-found')
-      }
+      // if (!sectionBelongsToPlan) {
+      //   router.push('/not-found')
+      // }
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
@@ -966,16 +990,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleDateChange,
     },
     numberProps: {
-      inputValue: formData.inputValue,
-      setInputValue: buildSetContent('inputValue', setFormData),
+      numberValue: formData.numberValue,
+      handleNumberChange
     },
     numberRangeProps: {
       numberRange: formData.numberRange,
-      handleNumberChange,
+      handleNumberRangeChange,
     },
     currencyProps: {
       inputCurrencyValue: formData.inputCurrencyValue,
-      setInputCurrencyValue: buildSetContent('inputCurrencyValue', setFormData),
+      handleCurrencyChange
     },
     urlProps: {
       urlValue: formData.urlValue,
