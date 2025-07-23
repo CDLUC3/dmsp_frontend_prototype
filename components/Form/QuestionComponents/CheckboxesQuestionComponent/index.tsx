@@ -14,12 +14,12 @@ const CheckboxesQuestionComponent: React.FC<CheckboxesQuestionProps> = ({
   handleCheckboxGroupChange
 }) => {
   const checkboxData = parsedQuestion.options?.map((opt: CheckboxesQuestionType['options'][number]) => ({
-    label: opt.attributes.label,
-    value: opt.attributes.value,
+    label: opt.label,
+    value: opt.value,
   }));
   const initialChecked = parsedQuestion.options
-    ?.filter((opt: CheckboxesQuestionType['options'][number]) => opt.attributes.checked)
-    .map((opt: CheckboxesQuestionType['options'][number]) => opt.attributes.value);
+    ?.filter((opt: CheckboxesQuestionType['options'][number]) => opt.checked)
+    .map((opt: CheckboxesQuestionType['options'][number]) => opt.value);
   const value = selectedCheckboxValues.length > 0 ? selectedCheckboxValues : initialChecked;
 
   return (

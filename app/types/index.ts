@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { PlanSectionProgress, TemplateVisibility } from "@/generated/graphql";
-import { TypeaheadSearchQuestionType } from '@dmptool/types';
+import { AffiliationSearchQuestionType, AnyQuestionType } from '@dmptool/types';
 
 export interface EmailInterface {
   id?: number | null;
@@ -167,13 +167,6 @@ export interface TagsInterface {
   description?: string | null;
 }
 
-export interface QuestionTypesInterface {
-  id: number;
-  name: string;
-  usageDescription: string;
-  json: string;
-}
-
 export interface QuestionOptions {
   id?: number | null;
   text: string;
@@ -194,6 +187,13 @@ export interface Question {
   templateId?: number | null;
   questionOptions?: QuestionOptions[] | null;
   modified?: string | null;
+}
+
+export interface QuestionFormatInterface {
+  type?: string;
+  title?: string;
+  usageDescription?: string;
+  defaultJSON?: AnyQuestionType;
 }
 
 export interface PaginatedProjectSearchResultsInterface {
@@ -430,7 +430,7 @@ export interface Option {
 }
 
 export interface AffiliationSearchQuestionProps {
-  parsedQuestion: TypeaheadSearchQuestionType;
+  parsedQuestion: AffiliationSearchQuestionType;
   affiliationData: { affiliationName: string, affiliationId: string };
   otherAffiliationName?: string;
   otherField?: boolean;

@@ -44,10 +44,8 @@ export const getParsedQuestionJSON = (
   path: string,
   t: any
 ): ParsedQuestionResult => {
-
   if (!question?.json) {
     return { parsed: null, error: t('messaging.errors.invalidQuestionType') };
-
   }
 
   const { json: source } = question;

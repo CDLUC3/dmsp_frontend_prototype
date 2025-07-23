@@ -373,7 +373,7 @@ export function useRenderQuestionField({
       break;
 
     case TYPEAHEAD_QUESTION_TYPE:
-      if (parsed.type === 'typeaheadSearch' && typeaheadSearchProps) {
+      if (parsed.type === 'affiliationSearch' && typeaheadSearchProps) {
         return (
           <AffiliationSearchQuestionComponent
             parsedQuestion={parsed}

@@ -17,15 +17,15 @@ const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
 }) => {
   // Transform options to items for FormSelect/MultiSelect
   const items = parsedQuestion.options?.map((opt: SelectBoxQuestionType['options'][number]) => ({
-    id: opt.attributes.value,
-    name: opt.attributes.label,
-    selected: opt.attributes.selected || false,
+    id: opt.value,
+    name: opt.label,
+    selected: opt.selected || false,
   }));
 
   // Extract selected values for MultiSelect
   const defaultSelected = parsedQuestion.options
-    ?.filter((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.selected)
-    .map((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.value);
+    ?.filter((opt: SelectBoxQuestionType['options'][number]) => opt.selected)
+    .map((opt: SelectBoxQuestionType['options'][number]) => opt.value);
 
   return (
     <MultiSelect

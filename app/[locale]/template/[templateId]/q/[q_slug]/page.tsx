@@ -53,12 +53,12 @@ import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
-import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
+import { getQuestionFormatInfo, questionTypeHandlers } from '@/utils/questionTypeHandlers';
 import { QuestionTypeMap } from "@dmptool/types";
 import {
   Question,
   QuestionOptions,
-  QuestionTypesInterface
+  QuestionFormatInterface
 } from '@/app/types';
 import {
   RANGE_QUESTION_TYPE,
@@ -77,13 +77,10 @@ import styles from './questionEdit.module.scss';
 
 // Define the type for the options in json.options
 interface Option {
-  type: string;
-  attributes: {
-    label: string;
-    value: string;
-    selected?: boolean;
-    checked?: boolean;
-  };
+  label: string;
+  value: string;
+  selected?: boolean;
+  checked?: boolean;
 }
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
@@ -175,9 +172,9 @@ const QuestionEdit = () => {
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
 
     if (parsedQuestionJSON && (parsedQuestionJSON?.type === "dateRange" || parsedQuestionJSON?.type === "numberRange")) {
-      if (parsedQuestionJSON?.columns?.[field]?.attributes) {
+      if (parsedQuestionJSON?.columns?.[field]) {
         const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-        updatedParsed.columns[field].attributes.label = value;
+        updatedParsed.columns[field].label = value;
         setQuestion(prev => ({
           ...prev,
           json: JSON.stringify(updatedParsed),
@@ -191,7 +188,7 @@ const QuestionEdit = () => {
     setTypeaheadSearchLabel(value);
 
     // Update the label in the question JSON and sync to question state
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
       if (parsedQuestionJSON?.graphQL?.displayFields?.[0]) {
         const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
         updatedParsed.graphQL.displayFields[0].label = value;
@@ -207,7 +204,7 @@ const QuestionEdit = () => {
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
 
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
       const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
 
       if (updatedParsed?.graphQL?.variables?.[0]) {
@@ -365,11 +362,11 @@ const QuestionEdit = () => {
 
         // Set options info with proper type checking
         if (isOptionsQuestion && 'options' in parsed && parsed.options && Array.isArray(parsed.options)) {
-          const optionRows = parsed.options
+          const optionRows: QuestionOptions[] = parsed.options
             .map((option: Option, index: number) => ({
               id: index,
-              text: option?.attributes?.label || '',
-              isSelected: option?.attributes?.selected || option?.attributes?.checked || false,
+              text: option?.label || '',
+              isSelected: option?.selected || option?.checked || false,
             }));
           setRows(optionRows);
         }
@@ -403,10 +400,9 @@ const QuestionEdit = () => {
   useEffect(() => {
     if ((parsedQuestionJSON?.type === DATE_RANGE_QUESTION_TYPE || parsedQuestionJSON?.type === NUMBER_RANGE_QUESTION_TYPE)) {
       try {
-
         setDateRangeLabels({
-          start: parsedQuestionJSON?.columns?.start?.attributes?.label,
-          end: parsedQuestionJSON?.columns?.end?.attributes?.label,
+          start: parsedQuestionJSON?.columns?.start?.label ?? '',
+          end: parsedQuestionJSON?.columns?.end?.label ?? '',
         });
       } catch {
         setDateRangeLabels({ start: '', end: '' });
@@ -432,39 +428,19 @@ const QuestionEdit = () => {
   }, [questionTypeIdQueryParam]);
 
 
-  // Return the question type schema that matches the one in the questionType query param
-  function getMatchingQuestionType(qTypes: QuestionTypesInterface[], questionTypeIdQueryParam: string) {
-    return qTypes.find((q) => {
-      try {
-        const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
-        if (!parsed) {
-          if (error) {
-            setErrors(prev => [...prev, error])
-          }
-          return;
-        }
-        return parsed.type === questionTypeIdQueryParam;
-      } catch {
-        return false;
-      }
-    });
-  }
+
   // If a user passes in a questionType query param we will find the matching questionTypes 
   // json schema and update the question with it
   useEffect(() => {
     if (questionTypesData?.questionTypes && questionTypeIdQueryParam && question) {
-
-      const filteredQuestionTypes = questionTypesData.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
-
       // Find the matching question type
-      const matchedQuestionType = getMatchingQuestionType(filteredQuestionTypes, questionTypeIdQueryParam);
+      const qInfo: QuestionFormatInterface | null = getQuestionFormatInfo(questionTypeIdQueryParam);
 
-      if (matchedQuestionType?.json) {
-
+      if (qInfo?.defaultJSON) {
         // Update the question object with the new JSON
         setQuestion(prev => ({
           ...prev,
-          json: matchedQuestionType.json
+          json: JSON.stringify(qInfo.defaultJSON)
         }));
 
         setQuestionType(questionTypeIdQueryParam)

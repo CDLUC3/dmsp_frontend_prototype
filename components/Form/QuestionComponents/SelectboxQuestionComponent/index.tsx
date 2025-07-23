@@ -26,14 +26,14 @@ const SelectboxQuestionComponent: React.FC<SelectboxQuestionProps> = ({
 }) => {
   // Transform options to items for FormSelect
   const items = parsedQuestion.options?.map((opt: SelectBoxQuestionType['options'][number]) => ({
-    id: opt.attributes.value,
-    name: opt.attributes.label,
-    selected: opt.attributes.selected || false,
+    id: opt.value,
+    name: opt.label,
+    selected: opt.selected || false,
   })) || [];
 
   // Find initial selected value
-  const selectedOption = parsedQuestion.options?.find((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.selected);
-  const initialValue = selectedOption ? selectedOption.attributes.value : '';
+  const selectedOption = parsedQuestion.options?.find((opt: SelectBoxQuestionType['options'][number]) => opt.selected);
+  const initialValue = selectedOption ? selectedOption.value : '';
   const value = selectedSelectValue !== undefined ? selectedSelectValue : initialValue;
 
   return (

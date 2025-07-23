@@ -171,9 +171,9 @@ const QuestionAdd = ({
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
 
     if (parsedQuestionJSON && (parsedQuestionJSON?.type === "dateRange" || parsedQuestionJSON?.type === "numberRange")) {
-      if (parsedQuestionJSON?.columns?.[field]?.attributes) {
+      if (parsedQuestionJSON?.columns?.[field]) {
         const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-        updatedParsed.columns[field].attributes.label = value;
+        updatedParsed.columns[field].label = value;
         setQuestion(prev => ({
           ...prev,
           json: JSON.stringify(updatedParsed),
@@ -187,7 +187,7 @@ const QuestionAdd = ({
     setTypeaheadSearchLabel(value);
 
     // Update the label in the question JSON and sync to question state
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
       if (parsedQuestionJSON?.graphQL?.displayFields?.[0]) {
         const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
         updatedParsed.graphQL.displayFields[0].label = value;
@@ -203,7 +203,7 @@ const QuestionAdd = ({
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
 
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
       const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
 
       if (updatedParsed.graphQL &&
@@ -350,8 +350,8 @@ const QuestionAdd = ({
       try {
 
         setDateRangeLabels({
-          start: parsedQuestionJSON?.columns?.start?.attributes?.label,
-          end: parsedQuestionJSON?.columns?.end?.attributes?.label,
+          start: parsedQuestionJSON?.columns?.start?.label ?? '',
+          end: parsedQuestionJSON?.columns?.end?.label ?? '',
         });
       } catch {
         setDateRangeLabels({ start: '', end: '' });

@@ -427,7 +427,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         }
 
       case TYPEAHEAD_QUESTION_TYPE:
-        if (parsed.type === 'typeaheadSearch') {
+        if (parsed.type === 'affiliationSearch') {
           return (
             <AffiliationSearchQuestionComponent
               parsedQuestion={parsed}

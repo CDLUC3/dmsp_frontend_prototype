@@ -28,7 +28,7 @@ const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
       maxValue={maxValue ?? undefined}
       formatOptions={{
         style: 'currency',
-        currency: parsedQuestion?.meta?.denomination || 'USD', // TODO: Need to eventually get denomination from under attributes
+        currency: parsedQuestion?.attributes?.denomination || 'USD',
         currencyDisplay: 'symbol',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,

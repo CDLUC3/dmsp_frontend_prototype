@@ -440,10 +440,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
       case 'selectBox':
         if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
-          if (parsed?.attributes?.multiple === true) {
-            return { answer: Array.from(selectedMultiSelectValues) }; // this is for multiSelect
-          }
           return { answer: selectedSelectValue };
+        }
+
+      case 'multiselectBox':
+        if (questionType === 'multiselectBox' && (parsed && parsed.type === 'multiselectBox')) {
+          return { answer: Array.from(selectedMultiSelectValues) };
         }
 
       case 'boolean':
@@ -479,14 +481,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }
         };
 
-      case 'typeaheadSearch':
-        return {
-          answer: {
-            affiliationId: affiliationData.affiliationId,
-            affiliationName: otherField ? otherAffiliationName : affiliationData.affiliationName,
-            isOther: otherField,
-          }
-        };
+      case 'affiliationSearch':
+        return { answer: affiliationData.affiliationId };
 
       default:
         return { answer: textAreaContent };
