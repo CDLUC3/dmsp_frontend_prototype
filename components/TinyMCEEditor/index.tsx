@@ -61,7 +61,7 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
           body { font-family: "Poppins", sans-serif; color:#393939;};
           `,
           setup: (editor: TinyMCEEditorType) => {
-            editor.on('Change', () => {
+            editor.on('Change KeyUp Input Blur', () => {
               setContent(editor.getContent());
               onChange?.();
               // Close all remaining open menus when content changes. 

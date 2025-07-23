@@ -76,6 +76,7 @@ export interface RenderQuestionFieldProps {
   selectBoxProps?: {
     selectedSelectValue?: string | undefined;
     setSelectedSelectValue?: (val: string | undefined) => void;
+    handleSelectChange?: (value: string) => void;
   };
 
   multiSelectBoxProps?: {
@@ -211,6 +212,7 @@ export function useRenderQuestionField({
               parsedQuestion={parsed}
               selectedSelectValue={selectBoxProps.selectedSelectValue}
               setSelectedSelectValue={selectBoxProps.setSelectedSelectValue}
+              handleSelectChange={selectBoxProps.handleSelectChange}
             />
           );
         }

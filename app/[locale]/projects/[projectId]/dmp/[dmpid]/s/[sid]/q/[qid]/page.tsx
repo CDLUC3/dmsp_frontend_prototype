@@ -62,7 +62,24 @@ import {
   updateAnswerAction
 } from './actions';
 
-
+interface FormDataInterface {
+  otherField: boolean;
+  affiliationData: { affiliationName: string; affiliationId: string };
+  otherAffiliationName: string;
+  selectedRadioValue: string;
+  inputValue: number | null;
+  urlValue: string | null;
+  emailValue: string | null;
+  textValue: string | number | null;
+  inputCurrencyValue: number | null;
+  selectedCheckboxValues: string[];
+  yesNoValue: string;
+  textAreaContent: string;
+  selectedMultiSelectValues: Set<string>;
+  selectedSelectValue: string | undefined;
+  dateRange: { startDate: string | DateValue | CalendarDate | null; endDate: string | DateValue | CalendarDate | null };
+  numberRange: { startNumber: number | null; endNumber: number | null };
+}
 
 type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
 
@@ -125,35 +142,30 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
 
   // Question field states
-  const [otherField, setOtherField] = useState(false);
-  const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({ affiliationName: '', affiliationId: '' });
-  const [otherAffiliationName, setOtherAffiliationName] = useState<string>('');
-  const [selectedRadioValue, setSelectedRadioValue] = useState<string>('');
-  const [inputValue, setInputValue] = useState<number | null>(null);
-  const [urlValue, setUrlValue] = useState<string | null>(null);
-  const [emailValue, setEmailValue] = useState<string | null>(null);
-  const [textValue, setTextValue] = useState<string | number | null>(null);
-  const [inputCurrencyValue, setInputCurrencyValue] = useState<number | null>(null);
-  const [selectedCheckboxValues, setSelectedCheckboxValues] = useState<string[]>([]);
-  const [yesNoValue, setYesNoValue] = useState<string>('no');
-  const [textAreaContent, setTextAreaContent] = useState<string>('');
-  // Add local state for multiSelect values
-  const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
-  // Add local state for selected select value
-  const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
-  const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
-    startDate: '',
-    endDate: '',
-  });
-  const [numberRange, setNumberRange] = useState<{ startNumber: number | null, endNumber: number | null }>({
-    startNumber: 0,
-    endNumber: 0,
+  const [formData, setFormData] = useState<FormDataInterface>({
+    otherField: false,
+    affiliationData: { affiliationName: '', affiliationId: '' },
+    otherAffiliationName: '',
+    selectedRadioValue: '',
+    inputValue: null,
+    urlValue: null,
+    emailValue: null,
+    textValue: null,
+    inputCurrencyValue: null,
+    selectedCheckboxValues: [],
+    yesNoValue: 'no',
+    textAreaContent: '',
+    selectedMultiSelectValues: new Set<string>(),
+    selectedSelectValue: undefined,
+    dateRange: { startDate: '', endDate: '' },
+    numberRange: { startNumber: 0, endNumber: 0 },
   });
 
   // State variables for tracking auto-save info
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [isAutoSaving, setIsAutoSaving] = useState<boolean>(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Localization
@@ -240,11 +252,26 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }
 
+  function buildSetContent<T extends keyof FormDataInterface>(
+    key: T,
+    setFormData: React.Dispatch<React.SetStateAction<typeof formData>>
+  ) {
+    return (value: FormDataInterface[T]) => {
+      setFormData((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+    };
+  }
+
   // When the user clicks on the 'use answer' button from the Sample text drawer panel
   const handleUseAnswer = (text: string | null | undefined) => {
     if (text) {
       // Set the new value for the textArea
-      setTextAreaContent(text);
+      setFormData(prev => ({
+        ...prev,
+        textAreaContent: text
+      }));
 
       // Close sample text drawer
       setSampleTextDrawerOpen(false);
@@ -290,38 +317,59 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Handling changes to different question types
 
   const handleAffiliationChange = async (id: string, value: string) => {
-    const result = setAffiliationData({ affiliationName: value, affiliationId: id });
+    const result = setFormData(prev => ({
+      ...prev,
+      affiliationData: {
+        affiliationName: value,
+        affiliationId: id
+      }
+    }));
     setHasUnsavedChanges(true);
     return result;
   }
 
   const handleOtherAffiliationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setOtherAffiliationName(value);
+    setFormData(prev => ({
+      ...prev,
+      otherAffiliationName: value
+    }));
     setHasUnsavedChanges(true);
   };
 
   // Update the selected radio value when user selects different option
   const handleRadioChange = (value: string) => {
-    setSelectedRadioValue(value);
+    setFormData(prev => ({
+      ...prev,
+      selectedRadioValue: value
+    }));
     setHasUnsavedChanges(true);
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setUrlValue(value);
+    setFormData(prev => ({
+      ...prev,
+      urlValue: value
+    }));
     setHasUnsavedChanges(true);
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setEmailValue(value);
+    setFormData(prev => ({
+      ...prev,
+      emailValue: value
+    }));
     setHasUnsavedChanges(true);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setTextValue(value);
+    setFormData(prev => ({
+      ...prev,
+      textValue: value
+    }));
     setHasUnsavedChanges(true);
   };
 
@@ -331,18 +379,38 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Handler for checkbox group changes
   const handleCheckboxGroupChange = (values: string[]) => {
-    setSelectedCheckboxValues(values);
+    setFormData(prev => ({
+      ...prev,
+      selectedCheckboxValues: values
+    }));
     setHasUnsavedChanges(true);
   };
 
   const handleBooleanChange = (values: string) => {
-    setYesNoValue(values);
+    setFormData(prev => ({
+      ...prev,
+      yesNoValue: values
+    }));
     setHasUnsavedChanges(true);
   };
 
+
+  // Handler for Select changes
+  const handleSelectChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      selectedSelectValue: value
+    }));
+    setHasUnsavedChanges(true);
+    };
+
+
   // Handler for MultiSelect changes
   const handleMultiSelectChange = (values: Set<string>) => {
-    setSelectedMultiSelectValues(values);
+    setFormData(prev => ({
+      ...prev,
+      selectedMultiSelectValues: values
+    }));
     setHasUnsavedChanges(true);
   };
 
@@ -351,9 +419,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
     key: string,
     value: string | DateValue | CalendarDate | null
   ) => {
-    setDateRange(prev => ({
+    setFormData(prev => ({
       ...prev,
-      [key]: value,
+      dateRange: {
+        ...prev.dateRange,
+        [key]: value
+      }
     }));
     setHasUnsavedChanges(true);
   };
@@ -363,9 +434,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
     key: string,
     value: string | number | null
   ) => {
-    setNumberRange(prev => ({
+    setFormData(prev => ({
       ...prev,
-      [key]: value,
+      numberRange: {
+        ...prev.numberRange,
+        [key]: value === '' ? null : Number(value) // Convert empty string to null  
+      }
     }));
     setHasUnsavedChanges(true);
   };
@@ -379,64 +453,107 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const prefillAnswer = (answer: any, type: string) => {
     switch (type) {
       case 'text':
-        setTextValue(answer);
+        setFormData(prev => ({
+          ...prev,
+          textValue: answer
+        }));
         break;
       case 'textArea':
-        setTextAreaContent(answer);
+        setFormData(prev => ({
+          ...prev,
+          textAreaContent: answer
+        }));
         break;
       case 'radioButtons':
-        setSelectedRadioValue(answer);
+        setFormData(prev => ({
+          ...prev,
+          selectedRadioValue: answer
+        }));
         break;
       case 'checkBoxes':
-        setSelectedCheckboxValues(answer);
+        setFormData(prev => ({
+          ...prev,
+          selectedCheckboxValues: answer
+        }));
         break;
       case 'selectBox':
         if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
-          setSelectedSelectValue(answer);
+          setFormData(prev => ({
+            ...prev,
+            selectedSelectValue: answer
+          }));
         }
-        setSelectedMultiSelectValues(answer);
+
+        setFormData(prev => ({
+          ...prev,
+          selectedMultiSelectValues: answer
+        }));
 
         break;
       case 'boolean':
-        setYesNoValue(answer);
+        setFormData(prev => ({
+          ...prev,
+          yesNoValue: answer
+        }));
         break;
       case 'email':
-        setEmailValue(answer);
+        setFormData(prev => ({
+          ...prev,
+          emailValue: answer
+        }));
         break;
       case 'url':
-        setUrlValue(answer);
+        setFormData(prev => ({
+          ...prev,
+          urlValue: answer
+        }));
         break;
       case 'number':
-        setInputValue(answer);
+        setFormData(prev => ({
+          ...prev,
+          inputValue: answer
+        }));
         break;
       case 'currency':
-        setInputCurrencyValue(answer);
+        setFormData(prev => ({
+          ...prev,
+          inputCurrencyValue: answer
+        }));
         break;
       case 'date':
       case 'dateRange':
         if (answer?.startDate || answer?.endDate) {
-          setDateRange({
-            startDate: answer?.startDate,
-            endDate: answer?.endDate,
-          });
+          setFormData(prev => ({
+            ...prev,
+            dateRange: {
+              startDate: answer?.startDate,
+              endDate: answer?.endDate
+            }
+          }));
         }
         break;
       case 'numberRange':
         if (answer?.startNumber || answer?.endNumber) {
-          setNumberRange({
-            startNumber: answer?.startNumber,
-            endNumber: answer?.endNumber,
-          });
+          setFormData(prev => ({
+            ...prev,
+            numberRange: {
+              startNumber: answer?.startNumber,
+              endNumber: answer?.endNumber
+            }
+          }));
         }
         break;
       case 'typeaheadSearch':
         if (answer) {
-          setAffiliationData({
-            affiliationId: answer.affiliationId,
-            affiliationName: answer.affiliationName
-          });
-          setOtherField(answer.isOther);
-          setOtherAffiliationName(answer.affiliationName);
+          setFormData(prev => ({
+            ...prev,
+            affiliationData: {
+              affiliationId: answer.affiliationId,
+              affiliationName: answer.affiliationName
+            },
+            otherField: answer.isOther,
+            otherAffiliationName: answer.affiliationName
+          }));
         }
         break;
       default:
@@ -448,46 +565,46 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const getAnswerJson = (): Record<string, any> => {
     switch (questionType) {
       case 'textArea':
-        return { answer: textAreaContent };
+        return { answer: formData.textAreaContent };
 
       case 'text':
-        return { answer: textValue };
+        return { answer: formData.textValue };
 
       case 'radioButtons':
-        return { answer: selectedRadioValue };
+        return { answer: formData.selectedRadioValue };
 
       case 'checkBoxes':
-        return { answer: selectedCheckboxValues };
+        return { answer: formData.selectedCheckboxValues };
 
       case 'selectBox':
         if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
           if (parsed?.attributes?.multiple === true) {
-            return { answer: Array.from(selectedMultiSelectValues) }; // this is for multiSelect
+            return { answer: Array.from(formData.selectedMultiSelectValues) }; // this is for multiSelect
           }
-          return { answer: selectedSelectValue };
+          return { answer: formData.selectedSelectValue };
         }
 
       case 'boolean':
-        return { answer: yesNoValue };
+        return { answer: formData.yesNoValue };
 
       case 'email':
-        return { answer: emailValue };
+        return { answer: formData.emailValue };
 
       case 'url':
-        return { answer: urlValue };
+        return { answer: formData.urlValue };
 
       case 'number':
-        return { answer: inputValue };
+        return { answer: formData.inputValue };
 
       case 'currency':
-        return { answer: inputCurrencyValue };
+        return { answer: formData.inputCurrencyValue };
 
       case 'dateRange':
       case 'date': {
         return {
           answer: {
-            startDate: dateRange.startDate?.toString() ?? null,
-            endDate: dateRange.endDate?.toString() ?? null
+            startDate: formData.dateRange.startDate?.toString() ?? null,
+            endDate: formData.dateRange.endDate?.toString() ?? null
           }
         };
       }
@@ -495,22 +612,22 @@ const PlanOverviewQuestionPage: React.FC = () => {
       case 'numberRange':
         return {
           answer: {
-            startNumber: numberRange.startNumber,
-            endNumber: numberRange.endNumber
+            startNumber: formData.numberRange.startNumber,
+            endNumber: formData.numberRange.endNumber
           }
         };
 
       case 'typeaheadSearch':
         return {
           answer: {
-            affiliationId: affiliationData.affiliationId,
-            affiliationName: otherField ? otherAffiliationName : affiliationData.affiliationName,
-            isOther: otherField,
+            affiliationId: formData.affiliationData.affiliationId,
+            affiliationName: formData.otherField ? formData.otherAffiliationName : formData.affiliationData.affiliationName,
+            isOther: formData.otherField,
           }
         };
 
       default:
-        return { answer: textAreaContent };
+        return { answer: formData.textAreaContent };
     }
   };
 
@@ -536,7 +653,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
 
     const jsonPayload = getAnswerJson();
-    // Check is answer already exists. If so, we want to call an update mutation
+    // Check is answer already exists. If so, we want to call an update mutation rather than add
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
 
     if (question) {
@@ -634,6 +751,29 @@ const PlanOverviewQuestionPage: React.FC = () => {
     return null;
   };
 
+
+  // Helper function to format the last saved messaging
+  const getLastSavedText = () => {
+
+    if (isAutoSaving) {
+      return 'Saving...';
+    }
+
+    if (!lastSavedAt) {
+      return hasUnsavedChanges ? 'Unsaved changes' : '';
+    }
+
+    const diffInMinutes = Math.floor(Math.abs(currentTime.getTime() - lastSavedAt.getTime()) / (1000 * 60));
+
+    if (diffInMinutes === 0) {
+      return 'Saved just now';
+    } else if (diffInMinutes === 1) {
+      return 'Last saved 1 minute ago';
+    } else {
+      return `Last saved ${diffInMinutes} minutes ago`;
+    }
+  };
+
   // Get parsed JSON from question, and set parsed, question and questionType in state
   useEffect(() => {
     if (selectedQuestion?.question) {
@@ -681,9 +821,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const planSections = planData?.plan?.sections || [];
       const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
 
-      if (!sectionBelongsToPlan) {
-        router.push('/not-found')
-      }
+      // if (!sectionBelongsToPlan) {
+      //   router.push('/not-found')
+      // }
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
@@ -717,7 +857,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }, [versionedQuestionId, loadAnswer, projectId, dmpId]);
 
-  //Wait for answerData and questionType, then prefill the state
+  //Wait for answerData and questionType, then prefill the question with existing answer
   useEffect(() => {
     const json = answerData?.answerByVersionedQuestionId?.json;
     if (json && questionType) {
@@ -728,10 +868,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }, [answerData, questionType]);
 
+
+  // Auto-save logic
   useEffect(() => {
     if (!hasUnsavedChanges) return;
     if (!versionedQuestionId || !versionedSectionId || !question) return;
 
+    // Set a timeout to auto-save after 3 seconds of inactivity
     autoSaveTimeoutRef.current = setTimeout(async () => {
       const { success } = await addAnswer(true);
       if (success) {
@@ -741,79 +884,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }, 3000);
 
     return () => clearTimeout(autoSaveTimeoutRef.current);
-  }, [inputValue, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
+  }, [formData, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
 
 
-  // Render the question using the useRenderQuestionField helper
-  const questionField = useRenderQuestionField({
-    questionType,
-    parsed,
-    textFieldProps: {
-      textValue: typeof textValue === 'string' ? textValue : '',
-      handleTextChange,
-    },
-    textAreaProps: {
-      content: textAreaContent,
-      setContent: setTextAreaContent,
-      handleTextAreaChange
-    },
-    radioProps: {
-      selectedRadioValue,
-      handleRadioChange
-    },
-    checkBoxProps: {
-      selectedCheckboxValues,
-      handleCheckboxGroupChange,
-    },
-    selectBoxProps: {
-      selectedSelectValue,
-      setSelectedSelectValue,
-    },
-    multiSelectBoxProps: {
-      selectedMultiSelectValues,
-      handleMultiSelectChange,
-    },
-    dateProps: {
-      dateRange,
-      handleDateChange,
-    },
-    dateRangeProps: {
-      dateRange,
-      handleDateChange,
-    },
-    numberProps: {
-      inputValue,
-      setInputValue,
-    },
-    numberRangeProps: {
-      numberRange,
-      handleNumberChange,
-    },
-    currencyProps: {
-      inputCurrencyValue,
-      setInputCurrencyValue,
-    },
-    urlProps: {
-      urlValue,
-      handleUrlChange,
-    },
-    emailProps: {
-      emailValue,
-      handleEmailChange,
-    },
-    booleanProps: {
-      yesNoValue,
-      handleBooleanChange,
-    },
-    typeaheadSearchProps: {
-      affiliationData,
-      otherAffiliationName,
-      otherField,
-      setOtherField,
-      handleAffiliationChange,
-      handleOtherAffiliationChange,
-    },
-  });
 
   // Auto-save on window blur and before unload
   useEffect(() => {
@@ -829,8 +902,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
-        // Cannot save at this point, so we show a toast message warning
-        toastState.add('You have unsaved changes. Are you sure you want to leave?', { type: 'info', timeout: 3000 });
+        e.returnValue = ''; // This is required for some browsers to show the confirmation dialog
       }
     };
 
@@ -846,27 +918,86 @@ const PlanOverviewQuestionPage: React.FC = () => {
     };
   }, [hasUnsavedChanges, isAutoSaving]);
 
-  // Helper function to format the last saved time
-  const getLastSavedText = () => {
-    if (isAutoSaving) {
-      return 'Saving...';
-    }
+  // Set up an interval to update the current time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60 * 1000); // Update every minute
 
-    if (!lastSavedAt) {
-      return hasUnsavedChanges ? 'Unsaved changes' : '';
-    }
+    return () => clearInterval(interval);
+  }, []);
 
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - lastSavedAt.getTime()) / (1000 * 60));
-
-    if (diffInMinutes === 0) {
-      return 'Saved just now';
-    } else if (diffInMinutes === 1) {
-      return 'Saved 1 minute ago';
-    } else {
-      return `Saved ${diffInMinutes} minutes ago`;
-    }
-  };
+  // Render the question using the useRenderQuestionField helper
+  const questionField = useRenderQuestionField({
+    questionType,
+    parsed,
+    textFieldProps: {
+      textValue: typeof formData.textValue === 'string' ? formData.textValue : '',
+      handleTextChange,
+    },
+    textAreaProps: {
+      content: formData.textAreaContent,
+      setContent: buildSetContent('textAreaContent', setFormData),
+      handleTextAreaChange
+    },
+    radioProps: {
+      selectedRadioValue: formData.selectedRadioValue,
+      handleRadioChange
+    },
+    checkBoxProps: {
+      selectedCheckboxValues: formData.selectedCheckboxValues,
+      handleCheckboxGroupChange,
+    },
+    selectBoxProps: {
+      selectedSelectValue: formData.selectedSelectValue,
+      setSelectedSelectValue: buildSetContent('selectedSelectValue', setFormData),
+      handleSelectChange
+    },
+    multiSelectBoxProps: {
+      selectedMultiSelectValues: formData.selectedMultiSelectValues,
+      handleMultiSelectChange,
+    },
+    dateProps: {
+      dateRange: formData.dateRange,
+      handleDateChange,
+    },
+    dateRangeProps: {
+      dateRange: formData.dateRange,
+      handleDateChange,
+    },
+    numberProps: {
+      inputValue: formData.inputValue,
+      setInputValue: buildSetContent('inputValue', setFormData),
+    },
+    numberRangeProps: {
+      numberRange: formData.numberRange,
+      handleNumberChange,
+    },
+    currencyProps: {
+      inputCurrencyValue: formData.inputCurrencyValue,
+      setInputCurrencyValue: buildSetContent('inputCurrencyValue', setFormData),
+    },
+    urlProps: {
+      urlValue: formData.urlValue,
+      handleUrlChange,
+    },
+    emailProps: {
+      emailValue: formData.emailValue,
+      handleEmailChange,
+    },
+    booleanProps: {
+      yesNoValue: formData.yesNoValue,
+      handleBooleanChange,
+    },
+    typeaheadSearchProps: {
+      affiliationData: formData.affiliationData,
+      otherAffiliationName: formData.otherAffiliationName,
+      otherField: formData.otherField,
+      setOtherField: buildSetContent('otherField', setFormData),
+      handleAffiliationChange,
+      handleOtherAffiliationChange,
+    },
+  });
 
   if (loading || planQueryLoading || versionedSectionLoading || answerLoading) {
     return <div>{Global('messaging.loading')}...</div>;
@@ -983,7 +1114,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 <div className="lastSaved mt-5"
                   aria-live="polite"
                   role="status">
-                  Last saved X minutes ago
                   {getLastSavedText()}
                 </div>
               </Card>

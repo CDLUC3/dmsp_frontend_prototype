@@ -628,7 +628,7 @@ const PlanOverviewPage: React.FC = () => {
                       isRequired
                       name="planStatus"
                       items={planStatusOptions}
-                      onSelectionChange={(selected) => dispatch({ type: 'SET_PLAN_STATUS', payload: selected as PlanStatus })}
+                      onChange={(selected) => dispatch({ type: 'SET_PLAN_STATUS', payload: selected as PlanStatus })}
                       selectedKey={state.planStatus ?? state.planData.status}
                     >
                       {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}

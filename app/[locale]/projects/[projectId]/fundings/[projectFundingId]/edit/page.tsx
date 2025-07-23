@@ -133,10 +133,10 @@ const ProjectsProjectFundingEdit = () => {
         variables: {
           input: {
             projectFundingId: Number(projectFundingId),
-            status: projectFunding.fundingStatus,
-            funderProjectNumber: projectFunding.funderProjectNumber,
-            grantId: projectFunding.funderGrantId,
-            funderOpportunityNumber: projectFunding.funderOpportunityNumber
+            status: projectFunding.fundingStatus || null,
+            funderProjectNumber: projectFunding.funderProjectNumber || null,
+            grantId: projectFunding.funderGrantId || null,
+            funderOpportunityNumber: projectFunding.funderOpportunityNumber || null
           }
         }
       });
@@ -201,6 +201,7 @@ const ProjectsProjectFundingEdit = () => {
   useEffect(() => {
     // set project data in state
     if (data && data.projectFunding) {
+      console.log("PROJECT FUNDING DATA", data.projectFunding);
       setProjectFunding({
         funderName: data.projectFunding?.affiliation?.name || '',
         fundingStatus: data.projectFunding.status || ProjectFundingStatus.Planned,
@@ -260,7 +261,7 @@ const ProjectsProjectFundingEdit = () => {
               name="fundingStatus"
               items={fundingStatuses}
               selectClasses={styles.fundingStatusSelect}
-              onSelectionChange={selected => updateProjectFundingContent('fundingStatus', selected as ProjectFundingStatus)}
+              onChange={selected => updateProjectFundingContent('fundingStatus', selected as ProjectFundingStatus)}
               selectedKey={projectFunding.fundingStatus}
             >
 
@@ -275,7 +276,7 @@ const ProjectsProjectFundingEdit = () => {
             <FormInput
               name="grantNumber"
               type="text"
-              isRequired={true}
+              isRequired={false}
               label={EditFunding('labels.grantNumber')}
               value={projectFunding.funderGrantId}
               onChange={(e) => updateProjectFundingContent('funderGrantId', e.target.value)}
@@ -286,7 +287,7 @@ const ProjectsProjectFundingEdit = () => {
             <FormInput
               name="projectNumber"
               type="text"
-              isRequired={true}
+              isRequired={false}
               label={EditFunding('labels.projectNumber')}
               value={projectFunding.funderProjectNumber}
               onChange={(e) => updateProjectFundingContent('funderProjectNumber', e.target.value)}
@@ -297,7 +298,7 @@ const ProjectsProjectFundingEdit = () => {
             <FormInput
               name="opportunityNumber"
               type="text"
-              isRequired={true}
+              isRequired={false}
               label={EditFunding('labels.opportunity')}
               value={projectFunding.funderOpportunityNumber}
               onChange={(e) => updateProjectFundingContent('funderOpportunityNumber', e.target.value)}

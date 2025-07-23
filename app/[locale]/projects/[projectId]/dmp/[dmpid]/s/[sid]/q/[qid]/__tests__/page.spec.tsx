@@ -1415,47 +1415,56 @@ describe('Call to updateAnswerAction', () => {
       },
     ]);
 
+    // Store the change handler reference
+    let changeHandler: (() => void) | null = null;
+
     // Create a mock editor instance
     const mockEditor = {
       setContent: jest.fn(),
       getContent: jest.fn().mockReturnValue('This is the text area content'),
-      on: jest.fn(),
+      on: jest.fn((events: string, handler: () => void) => {
+        if (events === 'Change KeyUp Input Blur') {
+          changeHandler = handler;
+        }
+      }),
     };
 
     // Intercept the init call and simulate init_instance_callback
     window.tinymce.init = jest.fn((config) => {
-      config.init_instance_callback(mockEditor);
+      // Call setup to register event handlers
+      if (config.setup) {
+        config.setup(mockEditor);
+      }
 
-      // Manually trigger the `Change` event
-      setTimeout(() => {
-        const changeHandler = mockEditor.on.mock.calls.find(
-          ([eventName]) => eventName === 'Change'
-        )?.[1];
-        if (changeHandler) changeHandler(); // simulate content change
-      }, 0);
+      // Call the init callback
+      config.init_instance_callback(mockEditor);
     });
 
     await act(async () => {
       render(<PlanOverviewQuestionPage />);
     });
 
-    // Wait for the simulated TinyMCE 'Change' event to propagate
+    // Wait for initialization
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
     });
 
+    // Trigger the change handler if it exists
+    await act(async () => {
+      changeHandler?.(); // Optional chaining - safe way to call
+    });
+
     // Click "Save" button
     const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
-
     fireEvent.click(saveBtn);
+
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 4,
         json: "{\"answer\":\"This is the text area content\"}"
       });
     });
-
-  })
+  });
 
   it('should call updateAnswerAction with correct data for currency question', async () => {
     (useQuestionQuery as jest.Mock).mockReturnValue({
