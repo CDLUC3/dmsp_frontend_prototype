@@ -12,40 +12,30 @@ describe('RadioButtonsQuestionComponent', () => {
     type: "checkBoxes",
     meta: {
       schemaVersion: "1.0",
+    },
+    attributes: {
       labelTranslationKey: "questions.research_methods"
     },
     options: [
       {
-        type: "option",
-        attributes: {
-          label: "Interviews",
-          value: "interviews",
-          checked: true
-        }
+        label: "Interviews",
+        value: "interviews",
+        checked: true
       },
       {
-        type: "option",
-        attributes: {
-          label: "Surveys",
-          value: "surveys",
-          checked: false
-        }
+        label: "Surveys",
+        value: "surveys",
+        checked: false
       },
       {
-        type: "option",
-        attributes: {
-          label: "Observations",
-          value: "observations",
-          checked: true
-        }
+        label: "Observations",
+        value: "observations",
+        checked: true
       },
       {
-        type: "option",
-        attributes: {
-          label: "Focus Groups",
-          value: "focus_groups",
-          checked: true
-        }
+        label: "Focus Groups",
+        value: "focus_groups",
+        checked: true
       }
     ]
   };

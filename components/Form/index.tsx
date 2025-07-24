@@ -8,5 +8,5 @@ export { default as NumberComponent } from './NumberComponent';
 export { default as RadioGroupComponent } from './RadioGroup';
 export { default as RangeComponent } from './RangeComponent';
 export { default as QuestionOptionsComponent } from './QuestionOptionsComponent';
-export { default as TypeAheadSearch } from './TypeAheadSearch';
+export { default as TypeAheadSearch } from './AffiliationSearch';
 

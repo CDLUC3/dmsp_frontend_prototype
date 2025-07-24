@@ -39,6 +39,7 @@ import QuestionOptionsComponent
 import QuestionPreview from '@/components/QuestionPreview';
 import {
   FormInput,
+  RadioGroupComponent,
   RangeComponent,
   TypeAheadSearch
 } from '@/components/Form';
@@ -108,7 +109,6 @@ const QuestionEdit = () => {
   const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
   const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
-
   const [isConfirmOpen, setConfirmOpen] = useState(false);
 
   // Initialize update question mutation
@@ -121,6 +121,21 @@ const QuestionEdit = () => {
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.show', { templateId });
+
+  const radioData = {
+    radioGroupLabel: Global('labels.requiredField'),
+    radioButtonData: [
+      {
+        value: 'yes',
+        label: Global('form.yesLabel'),
+      },
+      {
+        value: 'no',
+        label: Global('form.noLabel')
+      }
+    ]
+  }
+
 
   // Run selected question query
   const {
@@ -160,6 +175,18 @@ const QuestionEdit = () => {
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
 
+  // Handle changes from RadioGroup
+  const handleRadioChange = (value: string) => {
+    if (value) {
+      const isRequired = value === 'yes' ? true : false;
+      setQuestion(prev => ({
+        ...prev,
+        required: isRequired
+      }));
+    }
+
+  };
+
   // Handler for date range label changes
   const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
@@ -185,6 +212,7 @@ const QuestionEdit = () => {
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
   };
+
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
@@ -265,6 +293,7 @@ const QuestionEdit = () => {
               guidanceText: question.guidanceText,
               sampleText: question.sampleText,
               useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
+              required: question.required
             }
           },
         });
@@ -624,6 +653,16 @@ const QuestionEdit = () => {
 
                   </Checkbox>
                 )}
+
+                <RadioGroupComponent
+                  name="radioGroup"
+                  value={question?.required ? 'yes' : 'no'}
+                  radioGroupLabel={radioData.radioGroupLabel}
+                  radioButtonData={radioData.radioButtonData}
+                  description={Global('descriptions.requiredFieldDescription')}
+                  onChange={handleRadioChange}
+                />
+
 
                 <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndUpdate')}</Button>
 

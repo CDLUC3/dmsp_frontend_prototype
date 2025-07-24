@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TypeaheadSearchQuestionType } from '@dmptool/types';
+import type { AffiliationSearchQuestionType } from '@dmptool/types';
 import { act, fireEvent, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
@@ -14,43 +14,35 @@ describe('TypeaheadSearchQuestionComponent', () => {
     affiliationName: 'Test Institution',
     affiliationId: '12345'
   };
-  const mockParsedQuestion: TypeaheadSearchQuestionType = {
-    type: "typeaheadSearch",
+  const mockParsedQuestion: AffiliationSearchQuestionType = {
+    type: "affiliationSearch",
     meta: {
       schemaVersion: "1.0",
-      labelTranslationKey: "questions.organizations"
+    },
+    attributes: {
+      label: "Organization",
+      labelTranslationKey: "questions.organizations",
+      help: "Pick an organization"
     },
     graphQL: {
-      responseField: "organizations",
+      responseField: "affiliations.items",
+      answerField: "uri",
       localQueryId: "getOrganizations",
       displayFields: [
         {
           label: "Organization Name",
-          propertyName: "name",
+          propertyName: "displayName",
           labelTranslationKey: "organization.name"
-        },
-        {
-          label: "Acronym",
-          propertyName: "acronym",
-          labelTranslationKey: "organization.acronym"
         }
       ],
-      query: `
-      query getOrganizations($search: String!) {
-        organizations(search: $search) {
-          id
-          name
-          acronym
-        }
-      }
-    `,
+      query: "\nquery Affiliations($name: String!){\n  affiliations(name: $name) {\n    totalCount\n    nextCursor\n    items {\n      id\n      displayName\n      uri\n    }\n  }\n}",
       variables: [
         {
-          name: "search",
+          name: "name",
           type: "String",
           label: "Search Term",
           labelTranslationKey: "search.label",
-          minLength: 2
+          minLength: 3
         }
       ]
     }

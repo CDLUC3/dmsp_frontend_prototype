@@ -1,22 +1,22 @@
 import React from 'react';
-import { SelectBoxQuestionType } from '@dmptool/types';
+import { MultiselectBoxQuestionType } from '@dmptool/types';
 import { MultiSelect } from '@/components/Form';
 
-interface SelectboxQuestionProps {
-  parsedQuestion: SelectBoxQuestionType;
+interface MultiselectboxQuestionProps {
+  parsedQuestion: MultiselectBoxQuestionType;
   selectedMultiSelectValues?: Set<string>;
   selectBoxLabel?: string;
   handleMultiSelectChange: (values: Set<string>) => void;
 }
 
-const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
+const MultiSelectQuestionComponent: React.FC<MultiselectboxQuestionProps> = ({
   parsedQuestion,
   selectedMultiSelectValues,
   selectBoxLabel,
   handleMultiSelectChange
 }) => {
   // Transform options to items for FormSelect/MultiSelect
-  const items = parsedQuestion.options?.map((opt: SelectBoxQuestionType['options'][number]) => ({
+  const items = parsedQuestion.options?.map((opt: MultiselectBoxQuestionType['options'][number]) => ({
     id: opt.value,
     name: opt.label,
     selected: opt.selected || false,
@@ -24,13 +24,13 @@ const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
 
   // Extract selected values for MultiSelect
   const defaultSelected = parsedQuestion.options
-    ?.filter((opt: SelectBoxQuestionType['options'][number]) => opt.selected)
-    .map((opt: SelectBoxQuestionType['options'][number]) => opt.value);
+    ?.filter((opt: MultiselectBoxQuestionType['options'][number]) => opt.selected)
+    .map((opt: MultiselectBoxQuestionType['options'][number]) => opt.value);
 
   return (
     <MultiSelect
       options={items}
-      selectedKeys={selectedMultiSelectValues ? selectedMultiSelectValues : new Set(defaultSelected)}
+      selectedKeys={(selectedMultiSelectValues && selectedMultiSelectValues.size > 0) ? selectedMultiSelectValues : new Set(defaultSelected)}
       onSelectionChange={handleMultiSelectChange}
       label={selectBoxLabel}
       aria-label={selectBoxLabel}

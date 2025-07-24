@@ -1,5 +1,34 @@
 // utils/routes.ts
 
+/*Usage*/
+/*
+Basic - no idea if we are going to namespace it just an example
+routePath('app.login');
+Output: "/en-US/login"
+
+Route with Path Parameters
+routePath('projects.show', { projectId: '123' });
+Output: "/en-US/projects/123"
+
+routePath('projects.dmp.section', { projectId: '123', dmpId: '456', sectionId: '789' });
+Output: "/en-US/projects/123/dmp/456/s/789"
+
+Route with Query Parameters
+routePath('projects.index', {}, { page: 2, limit: 10 });
+Output: "/en-US/projects?page=2&limit=10"
+
+routePath('projects.index', {}, { filters: ['active', 'draft'] });
+Output: "/en-US/projects?filters[]=active&filters[]=draft"
+
+Example of both params and query string
+routePath('projects.members.search', { projectId: '123' }, { role: 'PI', status: 'active' });
+Output: "/en-US/projects/123/members/search?role=PI&status=active"
+
+Different locales can be passed if needed but defaults to en-US and should still work with middleware
+routePath('projects.show', { projectId: '123' }, {}, 'pt-BR');
+Output: "/pt-BR/projects/123"
+*/
+
 // Define query param value types
 type QueryParamValue =
   string
@@ -20,7 +49,7 @@ const routes = {
   // Project routes
   'projects.index': '/projects',
   'projects.show': '/projects/:projectId',
-  'projects.create': '/projects/create',
+  'projects.create': '/projects/create-project',
   'projects.search': '/projects/search',
   'projects.create.funding.search': '/projects/:projectId/funding-search',
   'projects.create.projects.search': '/projects/:projectId/project',

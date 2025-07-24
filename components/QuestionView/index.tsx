@@ -57,7 +57,7 @@ import {
   CURRENCY_QUESTION_TYPE,
   DATE_QUESTION_TYPE,
   DATE_RANGE_QUESTION_TYPE,
-  EMAIL_QUESTION_TYPE,
+  EMAIL_QUESTION_TYPE, MULTISELECTBOX_QUESTION_TYPE,
   NUMBER_QUESTION_TYPE,
   NUMBER_RANGE_QUESTION_TYPE,
   RADIOBUTTONS_QUESTION_TYPE,
@@ -70,7 +70,7 @@ import {
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './QuestionView.module.scss';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
-import {getQuestionTypes} from "@/utils/questionTypeHandlers";
+import { getQuestionTypes } from "@/utils/questionTypeHandlers";
 
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -206,7 +206,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   };
 
   useEffect(() => {
-    if (!question || !qtData?.questionTypes) return;
+    if (!question || !Array.isArray(qtData) || qtData.length < 1) return;
 
     const { parsed } = getParsedQuestionJSON(question, path, Global);
     if (!parsed) {
@@ -214,9 +214,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     }
     const type = parsed.type;
 
-    for (const qt of qtData.questionTypes) {
-      if (!qt || !qt.json) continue; // null check
-      const qtJson = JSON.parse(qt.json);
+    for (const qt of qtData) {
+      if (!qt || !qt.defaultJSON) continue; // null check
+      const qtJson = qt.defaultJSON;
       if (qtJson?.type === type) {
         setQuestionType(type);
         break;
@@ -258,27 +258,25 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           )
         }
       }
+      case MULTISELECTBOX_QUESTION_TYPE: {
+        if (parsed.type === 'multiselectBox' && 'options' in parsed) {
+          return (
+            <MultiSelectQuestionComponent
+              parsedQuestion={parsed}
+              selectedMultiSelectValues={selectedMultiSelectValues}
+              handleMultiSelectChange={handleMultiSelectChange}
+            />
+          );
+        }
+      }
       case SELECTBOX_QUESTION_TYPE: {
         if (parsed.type === 'selectBox' && 'options' in parsed) {
-          const isMultiSelect = parsed.attributes?.multiple || false;
-
           return (
-            <>
-              {isMultiSelect ? (
-                <MultiSelectQuestionComponent
-                  parsedQuestion={parsed}
-                  selectedMultiSelectValues={selectedMultiSelectValues}
-                  handleMultiSelectChange={handleMultiSelectChange}
-                />
-              ) : (
-                <SelectboxQuestionComponent
-                  parsedQuestion={parsed}
-                  selectedSelectValue={selectedSelectValue}
-                  setSelectedSelectValue={setSelectedSelectValue}
-                />
-              )}
-
-            </>
+            <SelectboxQuestionComponent
+              parsedQuestion={parsed}
+              selectedSelectValue={selectedSelectValue}
+              setSelectedSelectValue={setSelectedSelectValue}
+            />
           );
         }
       }

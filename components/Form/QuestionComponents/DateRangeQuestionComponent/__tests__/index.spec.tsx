@@ -17,24 +17,15 @@ describe('RadioButtonsQuestionComponent', () => {
     meta: {
       schemaVersion: "1.0",
     },
+    attributes: {},
     columns: {
       start: {
-        type: "date",
-        meta: {
-          schemaVersion: "1.0",
-        },
-        attributes: {
-          label: "Starting number",
-        },
+        label: "Starting number",
+        step: 1
       },
       end: {
-        type: "date",
-        meta: {
-          schemaVersion: "1.0",
-        },
-        attributes: {
-          label: "Ending number",
-        },
+        label: "Ending number",
+        step: 1
       },
     },
   };

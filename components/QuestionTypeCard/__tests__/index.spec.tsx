@@ -2,16 +2,29 @@ import React from 'react';
 import { act, render, screen, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import QuestionTypeCard from '../index';
+import {QuestionFormatInterface} from "@/app/types";
 
 expect.extend(toHaveNoViolations);
 
 describe('QuestionTypeCard', () => {
-  const mockQuestionType = {
-    id: 1,
-    name: 'Radio Button',
+  const mockQuestionType: QuestionFormatInterface = {
+    type: 'radioButtons',
+    title: 'Radio Button',
     usageDescription: 'Select one option from the list',
-    json: '{"meta":{"schemaVersion":"1.0"},"type":"radioButtons","options":[{"attributes":{"label":"Option 1","value":"1","selected":false}}]}'
-
+    defaultJSON: {
+      type: 'radioButtons',
+      attributes: {},
+      options: [
+        {
+          label: 'Option 1',
+          value: '1',
+          selected: false
+        }
+      ],
+      meta: {
+        schemaVersion: '1.0'
+      }
+    }
   };
 
   const defaultProps = {

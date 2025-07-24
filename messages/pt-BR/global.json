@@ -64,7 +64,7 @@
     "headingRelatedActions": "Ações relacionadas",
     "primaryEmailDesc": "Este e-mail será usado para seu login de conta. Ele também pode ser usado para redefinições de senha.",
     "SSODesc": "Este endereço de e-mail é gerenciado por cdl.edu e conectado à instituição.",
-    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. &lt;manage&gt;Gerencie suas notificações&lt;/manage&gt;.",
+    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. <manage> Gerencie suas notificações </manage>.",
     "aliasEmailDesc": "Os endereços de e-mail do pseudônimo podem ser usados para ajudar outros a encontrar você, por exemplo, se eles quiserem compartilhar um DMP com você.",
     "linkMakePrimary": "Endereço de e-mail principal",
     "helpTextForAddAlias": "Você receberá um e-mail para confirmar esta adição",
@@ -124,6 +124,16 @@
     "addManuallyText": "Se o seu projeto não for exibido, você pode adicionar os detalhes manualmente.",
     "addManuallyLabel": "Adicionar professor manualmente"
   },
+  "PlanFunding": {
+    "headerTitle": "Financiamento De Plano",
+    "headerDescription": "Gerenciar fontes de financiamento para este Plano",
+    "fundingLabel": "Selecionar fontes de financiamento para este plano",
+    "fundingDescription": "Esta lista de financiamento vem da lista de financiamento anexada ao projeto.",
+    "changeWarning": "Nota: Alterar as fontes de financiamento pode exigir uma mudança no modelo. Apenas mude se você tiver certeza.",
+    "addSourceTitle": "Adicionar uma fonte de financiamento?",
+    "addSourceNote": "Se você quiser adicionar novas informações de financiamento, pode adicionar financiamento ao nível do projeto. Este projeto pode ter várias fontes de financiamento, Considerando que cada plano só pode ter uma única fonte de financiamento, à medida que o comparamos com o modelo exigido.",
+    "addSourceLink": "Adicionar nova fonte de financiamento"
+  },
   "TemplateHistory": {
     "title": "Primary Light",
     "subHeading": "História",
@@ -162,6 +172,7 @@
       "projectOverview": "Visão geral do projeto",
       "projectFunding": "Orçamento do projeto",
       "planOverview": "Resumo do plano",
+      "planFunding": "Financiamento do plano",
       "feedback": "Registrar",
       "questionDetails": "Detalhes da pergunta"
     },
@@ -200,11 +211,15 @@
       "searchByKeyword": "Pesquisar por palavra-chave",
       "startDate": "Data de início",
       "endDate": "Data final",
-      "funderSearch": "Pesquisar por nome do financiador"
+      "funderSearch": "Pesquisar por nome do financiador",
+      "requiredField": "Marcar como necessário?"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
       "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas."
+    },
+    "descriptions": {
+      "requiredFieldDescription": "Esta questão deve incluir um aviso ao criador do plano de que uma resposta é necessária como condição para aceitar o PGD? (Os usuários poderão enviar o PGD mesmo que não respondam)"
     },
     "placeholders": {
       "funderSearch": "Insira o nome da pasta"
@@ -215,7 +230,7 @@
       "learnMore": "Saiba mais",
       "update": "Atualização",
       "expand": "Expandir",
-      "collapse": "Colapso"
+      "collapse": "Recolher"
     },
     "messaging": {
       "loading": "Baixar",
@@ -223,9 +238,9 @@
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
       "fixBelow": "Por favor, corrija os erros abaixo",
-      "unsupportedQuestionType": "Tipo de pergunta não suportado {questionType}",
-      "sectionIsExpanded": "A seção foi expandida",
-      "sectionIsCollapsed": "A seção está recolhida",
+      "unsupportedQuestionType": "Tipo de pergunta {questionType} sem suporte",
+      "sectionIsExpanded": "Secção expandida",
+      "sectionIsCollapsed": "Seção colapsada",
       "error": "Ocorreu um erro. Tente novamente.",
       "errors": {
         "invalidQuestionType": "Tipo de questão inválido encontrado.",

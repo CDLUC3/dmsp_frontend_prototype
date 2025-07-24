@@ -30,10 +30,28 @@ export function getQuestionFormatInfo(name: string): QuestionFormatInterface | n
   }
 }
 
+function orderQuestionTypes(qTypes: QuestionFormatInterface[]): QuestionFormatInterface[] {
+  // Define the desired desired sort order for the Question types
+  const sortOrder: string[] = [
+    "textArea", "text", "radioButtons", "checkBoxes", "selectBox", "multiselectBox",
+    "number", "numberRange", "currency", "email", "url", "boolean", "date", "dateRange",
+    "table", "affiliationSearch"
+  ];
+
+  // Sort the question format array using the definition.
+  // Note: Infinity ensures that types not listed above are placed at the end
+  return qTypes.sort((a: QuestionFormatInterface, b: QuestionFormatInterface): number => {
+    const aIndex = a.type ? sortOrder.indexOf(a.type) : Infinity;
+    const bIndex = b.type ? sortOrder.indexOf(b.type) : Infinity;
+    return aIndex - bIndex;
+  });
+}
+
 // Fetch all available Question Types
 export function getQuestionTypes(): QuestionFormatInterface[] {
   const info = QuestionFormatsEnum.options.map(key => getQuestionFormatInfo(key));
-  return info.filter((item): item is QuestionFormatInterface => item !== null);
+  const qTypes = info.filter((item): item is QuestionFormatInterface => item !== null);
+  return orderQuestionTypes(qTypes);
 }
 
 // Return the question type schema that matches the one in the questionType query param

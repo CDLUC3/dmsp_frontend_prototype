@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import ProjectsCreateProject from '../page';
 import { useAddProjectMutation } from '@/generated/graphql';
 import { RichTranslationValues } from 'next-intl';
@@ -129,18 +129,33 @@ describe('ProjectsCreateProject', () => {
     });
   });
 
-  it('should display project title field error for invalid data', async () => {
+  it('should handle showing field-level error when there is no title', async () => {
+    const addProjectMutationMock = jest.fn().mockResolvedValue({
+      data: {
+        addProject: {
+          id: 123,
+          errors: [],
+        },
+      },
+    });
+
+    (useAddProjectMutation as jest.Mock).mockReturnValue([addProjectMutationMock]);
+
     await act(async () => {
       render(
         <ProjectsCreateProject />
       );
     });
 
-    const continueButton = screen.getByRole('button', { name: /buttons.continue/i });
-    fireEvent.click(continueButton);
+    fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: '' } });
+    fireEvent.click(screen.getByLabelText('form.radioNewLabel'));
+    fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
+    fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
-    expect(screen.getByText(/messages.errors.title/i)).toBeInTheDocument();
-
+    await waitFor(() => {
+      const fieldWrapper = screen.getByTestId('field-wrapper');
+      expect(within(fieldWrapper).getByText('messages.errors.titleLength')).toBeInTheDocument();
+    });
   });
 
   it('should display error messages from the server', async () => {

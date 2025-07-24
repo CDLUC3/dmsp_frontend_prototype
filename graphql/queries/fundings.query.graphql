@@ -1,6 +1,10 @@
 query ProjectFundings($projectId: Int!) {
   projectFundings(projectId: $projectId) {
     id
+    status
+    grantId
+    funderOpportunityNumber
+    funderProjectNumber
     affiliation {
       displayName
       uri
@@ -14,5 +18,14 @@ query PlanFundings($planId: Int!) {
     projectFunding {
       id
     }
+  }
+}
+
+query PopularFunders {
+  popularFunders {
+    displayName
+    id
+    nbrPlans
+    uri
   }
 }

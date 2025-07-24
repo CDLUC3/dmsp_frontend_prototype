@@ -109,7 +109,7 @@ const MOCKS = [
       data: {
         addPlanFunding: {
           errors: {
-            ProjectFundingId: null,
+            projectFundingId: null,
             general: null,
             projectId: null
           },
@@ -135,9 +135,9 @@ const MOCKS = [
       data: {
         addPlanFunding: {
           errors: {
-            ProjectFundingId: null,
+            projectFundingId: null,
             general: "This should throw an error",
-            projectId: null,
+            planId: null,
           },
           projectFunding: {
             id: 222,

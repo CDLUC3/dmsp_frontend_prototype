@@ -142,9 +142,9 @@ const ProjectOverviewPage: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs aria-label={ProjectOverview('navigation')}>
-            <Breadcrumb><Link href="/">{ProjectOverview('home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{ProjectOverview('projects')}</Link></Breadcrumb>
-            <Breadcrumb>{ProjectOverview('pageTitle')}</Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{ProjectOverview('home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{ProjectOverview('projects')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.projectOverview')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}

@@ -77,16 +77,6 @@ describe("QuestionTypeSelectPage", () => {
 
   });
 
-  it("should render loading state", async () => {
-    await act(async () => {
-      render(
-        <QuestionTypeSelectPage />
-      );
-    });
-
-    expect(screen.getByText(/messaging.loading.../i)).toBeInTheDocument();
-  });
-
   it("should render data returned from template query correctly", async () => {
     await act(async () => {
       render(
@@ -148,17 +138,6 @@ describe("QuestionTypeSelectPage", () => {
     expect(textArea).not.toBeInTheDocument();
   })
 
-  it('should show error message when query fails with a network error', async () => {
-    await act(async () => {
-      render(
-        <QuestionTypeSelectPage />
-      );
-    });
-
-    expect(screen.getByText('There was an error.')).toBeInTheDocument();
-
-  })
-
   it('should load QuestionAdd component when a user selects a question type', async () => {
     await act(async () => {
       render(
@@ -168,7 +147,7 @@ describe("QuestionTypeSelectPage", () => {
 
     // Find a question type that has options, like a radio button
     const buttons = screen.getAllByText('buttons.select');
-    const selectButton = buttons.find(button => button.getAttribute('data-type') === '3');
+    const selectButton = buttons.find(button => button.getAttribute('data-type') === 'selectBox');
     expect(selectButton).toBeInTheDocument();
 
     if (selectButton) {

@@ -820,7 +820,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             <Form onSubmit={handleSubmit}>
               <Card data-testid='question-card'>
                 <span>Question</span>
-                <h2 id="question-title">
+                <h2 id="question-title" className="h3">
                   {question?.questionText}
                 </h2>
                 {question?.required && (

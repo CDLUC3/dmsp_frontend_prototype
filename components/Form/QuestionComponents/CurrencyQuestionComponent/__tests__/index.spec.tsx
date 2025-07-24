@@ -14,13 +14,13 @@ describe('RadioButtonsQuestionComponent', () => {
     type: "currency",
     meta: {
       schemaVersion: "1.0",
-      labelTranslationKey: "questions.cost_estimate",
-      denomination: "USD"
     },
     attributes: {
       min: 0,
       max: 10000,
-      step: 0.01
+      step: 0.01,
+      denomination: "USD",
+      labelTranslationKey: "questions.cost_estimate",
     }
   };
 
@@ -77,13 +77,13 @@ describe('RadioButtonsQuestionComponent', () => {
       type: "currency",
       meta: {
         schemaVersion: "1.0",
-        labelTranslationKey: "questions.cost_estimate",
-        denomination: undefined
       },
       attributes: {
         min: 0,
         max: 10000,
-        step: 0.01
+        step: 0.01,
+        denomination: '',
+        labelTranslationKey: "questions.cost_estimate",
       }
     };
     render(

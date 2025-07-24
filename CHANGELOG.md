@@ -1,4 +1,5 @@
 ### Added
+- Added the `Mark as required` radio buttons on the `QuestionAdd` and `QuestionEdit` pages and updated unit tests [#562]
 - Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
 - Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]
 - Added the `Question details` page that allows users to answer a question [#320]
@@ -8,6 +9,7 @@
 - Added delete section functionality to template builder with confirmation modal, including translations, and tests
 - Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
+- Added popular funders to the funder search page when creating a new project. [#380]
 
 ### Updated
 - Updated `routePath` with route `projects.share.index` and updated unit test for `ProjectsProjectMembers` [#589]
@@ -19,6 +21,12 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
+- Fixed the `Plan Overview` breadcrumb so that it includes a link to previous `Project Overview` page, as well as updating them to use `routePath` [#592]
+- Fixed the `Edit` link in the `Project Funding` page so that it includes correct `projectFundingId` in path, and added missing translation keys and updated routes to use `routePath`, and updated unit test [#592]
+- Added error message when the user clicks `Edit` for a funder that has no `funderProjectNumber` [#592]
+- Adjusted field-level errors on `Edit Funding Details` page, and switched to using `routePath` for breadcrumbs and updated unit test [#592]
+- Improved the spacing on the `projects/create-project` page. Set the standard `line-height` for `#App` to 1.5. Added a little bit of margin above a checkbox to make it align better with text [#595]
+- Added another unit test for the `projects/create-project` page. Updated the routePath for that page to be correct [#595]
 - Updated `Update` link for each section on `projects/[projectId]/dmp/[dmpid]` to `Start` if no questions have been answered yet in that section [#594]
 - Improved color contrast on date picker [#597]
 - Updated `projects/[projectId]/members` page to have consistent breadcrumbs as the `Project overview` page [#589]

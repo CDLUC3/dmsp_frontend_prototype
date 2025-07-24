@@ -64,7 +64,7 @@
     "headingRelatedActions": "Related actions",
     "primaryEmailDesc": "This email will be used for your account login. It can also be used for password resets.",
     "SSODesc": "This email address is managed by cdl.edu and connected to the institution.",
-    "notificationsDesc": "This email address will be used for DMP notifications. &lt;manage&gt;Manage your notifications&lt;/manage&gt;.",
+    "notificationsDesc": "This email address will be used for DMP notifications. <manage> Manage your notifications </manage>.",
     "aliasEmailDesc": "Alias email addresses may be used to help others find you, for example if they‘d like to share a DMP with you.",
     "linkMakePrimary": "Make primary email address",
     "helpTextForAddAlias": "You will be sent an email to confirm this addition",
@@ -117,6 +117,7 @@
   "FunderSearch": {
     "headerTitle": "Search for Funders",
     "funder": "Funder",
+    "popularTitle": "Most popular funders",
     "found": "{count} funders found",
     "noResults": "No results found",
     "showCount": "Showing {count} of {total}",
@@ -211,11 +212,15 @@
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
       "endDate": "End date",
-      "funderSearch": "Search by funder name"
+      "funderSearch": "Search by funder name",
+      "requiredField": "Mark as required?"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
       "funderSearch": "Search by research organization, funder name, or related keywords."
+    },
+    "descriptions": {
+      "requiredFieldDescription": "Should this question include a warning to the plan builder that an answer is required as a condition of accepting the DMP?(Users will be able to submit the DMP even if they don't answer)"
     },
     "placeholders": {
       "funderSearch": "Enter funder name..."
