@@ -133,10 +133,10 @@ const ProjectsProjectFundingEdit = () => {
         variables: {
           input: {
             projectFundingId: Number(projectFundingId),
-            status: projectFunding.fundingStatus || null,
-            funderProjectNumber: projectFunding.funderProjectNumber || null,
-            grantId: projectFunding.funderGrantId || null,
-            funderOpportunityNumber: projectFunding.funderOpportunityNumber || null
+            status: projectFunding.fundingStatus,
+            funderProjectNumber: projectFunding.funderProjectNumber,
+            grantId: projectFunding.funderGrantId,
+            funderOpportunityNumber: projectFunding.funderOpportunityNumber
           }
         }
       });
@@ -201,7 +201,6 @@ const ProjectsProjectFundingEdit = () => {
   useEffect(() => {
     // set project data in state
     if (data && data.projectFunding) {
-      console.log("PROJECT FUNDING DATA", data.projectFunding);
       setProjectFunding({
         funderName: data.projectFunding?.affiliation?.name || '',
         fundingStatus: data.projectFunding.status || ProjectFundingStatus.Planned,

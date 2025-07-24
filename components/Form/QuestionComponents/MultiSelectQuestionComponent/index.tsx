@@ -27,8 +27,8 @@ const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
     ?.filter((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.selected)
     .map((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.value);
 
-  // Convert selectedMultiSelectValues to Set regardless of input type. This is because this component is called to render
-  // an answer that may be a Set or an array.
+  // Convert selectedMultiSelectValues to Set regardless of input type.
+  // This is because this component is called to render an answer that may be a Set or an array.
   const selectedSet = selectedMultiSelectValues
     ? (Array.isArray(selectedMultiSelectValues)
       ? new Set(selectedMultiSelectValues)

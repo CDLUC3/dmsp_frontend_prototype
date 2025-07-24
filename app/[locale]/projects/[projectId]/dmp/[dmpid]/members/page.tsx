@@ -427,8 +427,6 @@ const ProjectsProjectPlanAdjustMembers = () => {
         (member): member is PlanMember => member !== null
       );
 
-      console.log("PLAN MEMBER DATA", planMemberData);
-
       // Extract planMemberIds
       const planMemberIds = validPlanMembers
         .map((member) => member.projectMember?.id ?? null)
