@@ -27,13 +27,19 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-import PageHeader from "@/components/PageHeader";
 import ErrorMessages from '@/components/ErrorMessages';
 import { DmpIcon } from "@/components/Icons";
 import { FormSelect, RadioGroupComponent } from '@/components/Form';
+import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 
 import { routePath } from '@/utils/routes';
-import { publishPlanAction, updatePlanStatusAction } from './actions';
+import { extractErrors } from '@/utils/errorHandler';
+import { useToast } from '@/context/ToastContext';
+import {
+  publishPlanAction,
+  updatePlanStatusAction,
+  updatePlanTitleAction
+} from './actions';
 import {
   ListItemsInterface,
   PlanMember,
@@ -49,6 +55,22 @@ const planStatusOptions = Object.entries(PlanStatus).map(([name, id]) => ({
   id,
   name
 }));
+
+type UpdateTitleErrors = {
+  general?: string;
+  title?: string;
+};
+
+type UpdateStatusErrors = {
+  general?: string;
+  status?: string;
+}
+
+type PublishPlanErrors = {
+  general?: string;
+  visibility?: string;
+  status?: string;
+}
 
 const initialState: {
   isModalOpen: boolean;
@@ -126,6 +148,8 @@ const PlanOverviewPage: React.FC = () => {
   const dmpId = String(params.dmpid);
   const planId = Number(dmpId);
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const toastState = useToast();
 
   // Localization keys
   const t = useTranslations('PlanOverview');
@@ -249,12 +273,17 @@ const PlanOverviewPage: React.FC = () => {
         })
       }
     } else {
-      if (result.data?.errors) {
-        // Handle errors as an object with general or field-level errors
-        dispatch({
-          type: 'SET_ERROR_MESSAGES',
-          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
-        });
+      if (result?.data?.errors) {
+        const errs = extractErrors<UpdateStatusErrors>(result?.data?.errors, ['general', 'status']);
+        if (errs.length > 0) {
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errs
+          });
+        } else {
+          const successMessage = t('messages.success.successfullyUpdatedStatus');
+          toastState.add(successMessage, { type: 'success' });
+        }
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
@@ -262,8 +291,7 @@ const PlanOverviewPage: React.FC = () => {
   }
 
   // Call Server Action publishPlanAction to run the publishPlanMutation
-  const updatePlan = async (visibility: PlanVisibility) => {
-
+  const publishPlan = async (visibility: PlanVisibility) => {
     const response = await publishPlanAction({
       planId: Number(planId),
       visibility
@@ -301,7 +329,7 @@ const PlanOverviewPage: React.FC = () => {
     // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
     const visibility = formData.get('visibility')?.toString().toUpperCase() as PlanVisibility;
 
-    const result = await updatePlan(visibility);
+    const result = await publishPlan(visibility);
 
     if (!result.success) {
       const errors = result.errors;
@@ -315,12 +343,17 @@ const PlanOverviewPage: React.FC = () => {
         })
       }
     } else {
-      if (result.data?.errors) {
-        // Handle errors as an object with general or field-level errors
-        dispatch({
-          type: 'SET_ERROR_MESSAGES',
-          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
-        });
+      if (result?.data?.errors) {
+        const errs = extractErrors<PublishPlanErrors>(result?.data?.errors, ['general', 'visibility', 'status']);
+        if (errs.length > 0) {
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errs
+          });
+        } else {
+          const successMessage = t('messages.success.successfullyPublished');
+          toastState.add(successMessage, { type: 'success' });
+        }
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
@@ -334,6 +367,53 @@ const PlanOverviewPage: React.FC = () => {
     const overallPercentage = totalQuestions > 0 ? (totalAnswered / totalQuestions) * 100 : 0;
     return Math.round(overallPercentage);
   }
+
+  // Call Server Action updatePlanTitleAction to run the updatePlanTitleMutation
+  const updateTitle = async (title: string) => {
+    // Don't need a try-catch block here, as the error is handled in the action
+    const response = await updatePlanTitleAction({
+      planId: Number(planId),
+      title
+    })
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
+  }
+
+  const handleTitleChange = async (newTitle: string) => {
+    const result = await updateTitle(newTitle);
+
+    if (!result.success) {
+      dispatch({
+        type: 'SET_ERROR_MESSAGES',
+        payload: [...state.errorMessages, t('messages.errors.updateTitleError')]
+      });
+    } else {
+      if (result.data?.errors) {
+        // Handle errors as an object with general or field-level errors
+        const errs = extractErrors<UpdateTitleErrors>(result?.data?.errors, ['general', 'title']);
+        if (errs.length > 0) {
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errs
+          });
+        } else {
+          const successMessage = t('messages.success.successfullyUpdatedTitle');
+          toastState.add(successMessage, { type: 'success' });
+        }
+      }
+      //Need to refetch plan data to refresh the info that was changed
+      await refetch();
+    }
+  }
+
 
   useEffect(() => {
     // When data from backend changes, set project data in state
@@ -447,9 +527,12 @@ const PlanOverviewPage: React.FC = () => {
 
   return (
     <>
-      <PageHeader
-        title={state.planData.title || t('page.pageDescription')}
+      <PageHeaderWithTitleChange
+        title={state.planData.title}
         description={t('page.pageDescription')}
+        linkText={t('links.editTitle')}
+        labelText={t('labels.planTitle')}
+        placeholder={t('page.planTitlePlaceholder')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
@@ -459,8 +542,7 @@ const PlanOverviewPage: React.FC = () => {
             <Breadcrumb>{state.planData.title}</Breadcrumb>
           </Breadcrumbs>
         }
-        actions={null}
-        className="page-project-list"
+        onTitleChange={handleTitleChange}
       />
 
       <ErrorMessages errors={state.errorMessages} ref={errorRef} />

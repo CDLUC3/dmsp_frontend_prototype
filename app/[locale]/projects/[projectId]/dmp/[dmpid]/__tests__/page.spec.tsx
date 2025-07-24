@@ -3,12 +3,18 @@ import { act, render, screen, fireEvent, waitFor, within } from '@testing-librar
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
 import { cookies } from "next/headers";
-import { publishPlanAction, updatePlanStatusAction } from '../actions';
+import {
+  publishPlanAction,
+  updatePlanStatusAction,
+  updatePlanTitleAction
+} from '../actions';
 import { usePlanQuery } from '@/generated/graphql';
+import { useToast } from '@/context/ToastContext';
 
 jest.mock('../actions/index', () => ({
   publishPlanAction: jest.fn(),
   updatePlanStatusAction: jest.fn(),
+  updatePlanTitleAction: jest.fn(),
 }));
 
 // Mock the graphql hooks
@@ -47,6 +53,10 @@ const mockRouter = {
   push: jest.fn(),
 };
 
+const mockToast = {
+  add: jest.fn(),
+};
+
 expect.extend(toHaveNoViolations);
 
 
@@ -58,6 +68,10 @@ describe('PlanOverviewPage', () => {
     const mockUseParams = useParams as jest.Mock;
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1 });
+
+    // Mock Toast
+    (useToast as jest.Mock).mockReturnValue(mockToast);
+
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     // Mock the hook for data state
     (usePlanQuery as jest.Mock).mockReturnValue({
@@ -371,7 +385,7 @@ describe('PlanOverviewPage', () => {
     (publishPlanAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
-        error: {
+        errors: {
           general: null,
           status: null,
           visibility: null
@@ -404,6 +418,55 @@ describe('PlanOverviewPage', () => {
         visibility: "PUBLIC",
       });
     });
+    expect(mockToast.add).toHaveBeenCalledWith('messages.success.successfullyPublished', { type: 'success' });
+  });
+
+  it('should display error when publishPlanAction mutation returns field-level errors', async () => {
+    // Mock the cookies function
+    const mockCookies = {
+      toString: jest.fn().mockReturnValue("mockedCookie=value"),
+    };
+    (cookies as jest.Mock).mockReturnValue(mockCookies);
+
+
+    (publishPlanAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: 'There was a problem publishing the plan',
+          status: null,
+          visibility: null
+        },
+        visibility: 'PUBLIC',
+        status: 'COMPLETE'
+      },
+    });
+
+    render(<PlanOverviewPage />);
+
+    // Click the Publish button to open the modal
+    const publishButton = screen.getByText(/buttons.publish/i);
+    fireEvent.click(publishButton);
+
+    const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext >' });
+    fireEvent.click(nextButton);
+
+    // Select the visibility option
+    const publicRadio = screen.getByRole('radio', { name: /public/i });
+    fireEvent.click(publicRadio);
+
+    // Click the Publish button in the modal
+    const publishPlanButton = screen.getByRole('button', { name: 'publishModal.publish.title' });
+    fireEvent.click(publishPlanButton);
+
+    await waitFor(() => {
+      expect(publishPlanAction).toHaveBeenCalledWith({
+        planId: expect.any(Number),
+        visibility: "PUBLIC",
+      });
+      expect(screen.getByText('There was a problem publishing the plan')).toBeInTheDocument();
+    });
+
   });
 
   it('should redirect if publishPlanAction mutation returns a redirect prop in its response', async () => {
@@ -451,7 +514,7 @@ describe('PlanOverviewPage', () => {
     (updatePlanStatusAction as jest.Mock).mockResolvedValue({
       success: true,
       data: {
-        error: {
+        errors: {
           general: null,
           status: null
         },
@@ -501,6 +564,8 @@ describe('PlanOverviewPage', () => {
         planId: expect.any(Number),
         status: "COMPLETE",
       });
+      expect(mockToast.add).toHaveBeenCalledWith('messages.success.successfullyUpdatedStatus', { type: 'success' });
+
     });
   });
 
@@ -665,7 +730,7 @@ describe('PlanOverviewPage', () => {
     });
   });
 
-  it('should set generic error message when call updatePlanStatus mutation is successful and returns an error that is not general', async () => {
+  it('should set error message when call updatePlanStatus mutation is successful and returns an error that is not general', async () => {
     // Mock the cookies function
     const mockCookies = {
       toString: jest.fn().mockReturnValue("mockedCookie=value"),
@@ -723,8 +788,81 @@ describe('PlanOverviewPage', () => {
 
 
     await waitFor(() => {
-      expect(screen.getByText('messaging.somethingWentWrong')).toBeInTheDocument();
+      expect(screen.getByText('Status cannot be updated to COMPLETE.')).toBeInTheDocument();
     });
+  });
+
+  it('should call updatePlanTitleAction when user enters a new title and clicks save', async () => {
+
+    (updatePlanTitleAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+          email: null,
+        },
+        id: 1,
+        title: 'Changed title',
+      },
+    });
+
+    render(<PlanOverviewPage />);
+
+    const editButton = screen.getByRole('button', { name: 'links.editTitle' });
+
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
+
+    const input = screen.getByPlaceholderText('page.planTitlePlaceholder');
+    fireEvent.change(input, { target: { value: 'New plan title' } });
+
+    const saveButton = screen.getByTestId('save-button');
+    await act(async () => {
+      fireEvent.click(saveButton);
+    })
+
+    // Wait for the updatePlanTitleAction to be called
+    await waitFor(() => {
+      expect(updatePlanTitleAction).toHaveBeenCalledWith({
+        planId: 1,
+        title: 'New plan title',
+      });
+    });
+  });
+
+  it('should set errors when handleTitleChange is called and returns a general error', async () => {
+
+    (updatePlanTitleAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: 'There was an error changing title',
+          email: null,
+        },
+        id: 15,
+        title: 'Changed title',
+      },
+    });
+
+
+    render(<PlanOverviewPage />);
+
+    const editButton = screen.getByRole('button', { name: 'links.editTitle' });
+
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
+
+    const input = screen.getByPlaceholderText('page.planTitlePlaceholder');
+    fireEvent.change(input, { target: { value: 'New plan title' } });
+
+    const saveButton = screen.getByTestId('save-button');
+    await act(async () => {
+      fireEvent.click(saveButton);
+    })
+
+    expect(screen.getByText('There was an error changing title')).toBeInTheDocument();
   });
 
   it('should pass accessibility tests', async () => {

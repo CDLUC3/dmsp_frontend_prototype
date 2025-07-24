@@ -1,4 +1,5 @@
 ### Added
+- Added the ability to edit the `Plan title` [#608]
 - Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
 - Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]
 - Added the `Question details` page that allows users to answer a question [#320]
