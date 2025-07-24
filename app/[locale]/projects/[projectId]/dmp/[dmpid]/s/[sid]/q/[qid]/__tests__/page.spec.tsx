@@ -731,7 +731,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(options[0]).toHaveAttribute('aria-selected', 'false');
     expect(options[1]).toHaveAttribute('aria-selected', 'true');
     expect(options[2]).toHaveAttribute('aria-selected', 'true');
-    expect(options[3]).toHaveAttribute('aria-selected', 'false');
+    expect(options[3]).toHaveAttribute('aria-selected', 'true');
   })
 
   it('should load correct question content for selectBox question', async () => {
@@ -1620,7 +1620,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 18,
-        json: "{\"answer\":[\"Banana\",\"Pear\",\"Apple\"]}"
+        json: "{\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"]}"
       });
     });
   })
@@ -2330,4 +2330,87 @@ describe('DrawerPanel', () => {
     expect(sidebarPanel).toBeInTheDocument();
     expect(visibleDrawerPanel).toBeUndefined();
   })
+});
+
+describe('Auto save', () => {
+  it('should call setTimeout for saving data when changes their answer', async () => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
+    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
+      data: mockSectionVersionsData,
+      loading: false,
+      error: undefined,
+    });
+
+    (usePlanQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce(mockPlanData),
+      { loading: false, error: undefined },
+    ]);
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockCheckboxAnswer,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    (addAnswerAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+        },
+        id: 27,
+        json: "{\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        modified: "1751929006000",
+        versionedQuestion: {
+          versionedSectionId: 20
+        }
+      },
+    });
+
+    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    expect(checkboxGroup).toBeInTheDocument();
+    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
+    const alexCheckbox = checkboxes.find(
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+    );
+
+    await userEvent.click(alexCheckbox!);
+
+    expect(screen.getByText('messages.unsavedChanges')).toBeInTheDocument();
+
+    // Verify setTimeout was called with 3000ms
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
+
+    setTimeoutSpy.mockRestore();
+  });
 });

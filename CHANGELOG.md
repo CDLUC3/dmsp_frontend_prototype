@@ -1,4 +1,12 @@
 ### Added
+- Added auto-save to the `Question Answer` page [#585]
+
+
+
+====================================================================================================================================
+## All changes above the line happened after the merge to the main branch on July 21, 2025
+
+### Added
 - Added the `Mark as required` radio buttons on the `QuestionAdd` and `QuestionEdit` pages and updated unit tests [#562]
 - Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
 - Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]

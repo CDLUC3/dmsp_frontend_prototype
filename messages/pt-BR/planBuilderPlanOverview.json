@@ -169,7 +169,11 @@
     "messages": {
       "success": {
         "questionSaved": "Detalhes da pergunta salvos com sucesso"
-      }
+      },
+      "unsavedChanges": "Alterações não Salvas",
+      "savedJustNow": "Salvo há pouco",
+      "lastSavedOneMinuteAgo": "Última salvo há 1 minuto",
+      "lastSaves": "Salvo há {minutes} minutos atrás"
     }
   },
   "ProjectsProjectFunding": {

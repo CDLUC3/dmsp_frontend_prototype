@@ -161,6 +161,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
     numberRange: { startNumber: 0, endNumber: 0 },
   });
 
+  // Form state
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
   // State variables for tracking auto-save info
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [isAutoSaving, setIsAutoSaving] = useState<boolean>(false);
@@ -467,8 +470,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
     router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
   }
 
-  function hasAttributes(obj: any): obj is { attributes: { multiple?: boolean } } {
-    return obj && typeof obj === 'object' && 'attributes' in obj;
+  function hasAttributes(obj: AnyParsedQuestion | undefined): obj is AnyParsedQuestion & { attributes: { multiple?: boolean } } {
+    if(obj){
+      return obj && typeof obj === 'object' && 'attributes' in obj;
+    }
+    return false;
   }
 
   // Prefill the current question with existing answer
@@ -728,6 +734,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // Prevent double submission
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     // Clear any pending auto-save
     if (autoSaveTimeoutRef.current) {
       clearTimeout(autoSaveTimeoutRef.current);
@@ -749,6 +759,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setErrors(extractedErrors)
 
       } else {
+        setIsSubmitting(false);
         // Show user a success message and redirect back to the Section page
         showSuccessToast();
         router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
@@ -780,21 +791,21 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const getLastSavedText = () => {
 
     if (isAutoSaving) {
-      return 'Saving...';
+      return `${Global('buttons.saving')}...`;
     }
 
     if (!lastSavedAt) {
-      return hasUnsavedChanges ? 'Unsaved changes' : '';
+      return hasUnsavedChanges ? t('messages.unsavedChanges') : '';
     }
 
     const diffInMinutes = Math.floor(Math.abs(currentTime.getTime() - lastSavedAt.getTime()) / (1000 * 60));
 
     if (diffInMinutes === 0) {
-      return 'Saved just now';
+      return t('messages.savedJustNow');
     } else if (diffInMinutes === 1) {
-      return 'Last saved 1 minute ago';
+      return t('messages.lastSavedOneMinuteAgo');
     } else {
-      return `Last saved ${diffInMinutes} minutes ago`;
+      return t('messages.lastSaves', { minutes: diffInMinutes });
     }
   };
 
@@ -845,9 +856,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const planSections = planData?.plan?.sections || [];
       const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
 
-      // if (!sectionBelongsToPlan) {
-      //   router.push('/not-found')
-      // }
+      // Make sure to redirect to 404 if section does not belong to plan
+      if (!sectionBelongsToPlan) {
+        router.push('/not-found')
+      }
+
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
@@ -1167,8 +1180,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
                     data-secondary
                     className="primary"
                     aria-label={PlanOverview('labels.saveAnswer')}
+                    aria-disabled={isSubmitting}
                   >
-                    {Global('buttons.save')}
+                    {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
                   </Button>
                 </div>
                 <div>
