@@ -29,7 +29,7 @@ interface MySelectProps<T extends SelectItem>
   helpMessage?: string;
   description?: string;
   selectClasses?: string;
-  onChange?: (value: string) => void;  
+  onChange?: (value: string) => void;
   items?: T[];
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
@@ -69,7 +69,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
           <Text slot="description" className="help">
             {description}</Text>
           <Button className='react-aria-Button' ref={ref} data-testid="select-button">
-            <SelectValue  />
+            <SelectValue />
             <span
               aria-hidden="true"
               style={{

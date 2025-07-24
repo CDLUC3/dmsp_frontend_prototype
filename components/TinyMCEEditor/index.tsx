@@ -60,17 +60,17 @@ const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, help
           @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
           body { font-family: "Poppins", sans-serif; color:#393939;};
           `,
-          setup: (editor: TinyMCEEditorType) => {
-            editor.on('Change KeyUp Input Blur', () => {
-              setContent(editor.getContent());
-              onChange?.();
-              // Close all remaining open menus when content changes. 
-              const openMenus = document.querySelectorAll('.tox-pop, .tox-menu, .tox-toolbar__overflow');
-              openMenus.forEach(menu => {
-                (menu as HTMLElement).style.display = 'none';
-              });
+        setup: (editor: TinyMCEEditorType) => {
+          editor.on('Change KeyUp Input Blur', () => {
+            setContent(editor.getContent());
+            onChange?.();
+            // Close all remaining open menus when content changes. 
+            const openMenus = document.querySelectorAll('.tox-pop, .tox-menu, .tox-toolbar__overflow');
+            openMenus.forEach(menu => {
+              (menu as HTMLElement).style.display = 'none';
             });
-          },
+          });
+        },
         init_instance_callback: (editor: TinyMCEEditorType) => {
           editorRef.current = editor;
           editor.setContent(content);
