@@ -857,10 +857,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
 
       // Make sure to redirect to 404 if section does not belong to plan
-      // if (!sectionBelongsToPlan) {
-      //   router.push('/not-found')
-      // }
-
+      if (!sectionBelongsToPlan) {
+        router.push('/not-found')
+      }
+      
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
