@@ -25,10 +25,8 @@
 
     @include r.device(md) {
       flex-direction: row;
-      //gap: var(--brand-space2);
-      justify-content: space-between;
       gap: var(--brand-space2);
-
+      justify-content: space-between;
     }
   
     .pageheader-title {
@@ -85,7 +83,6 @@
   
   .react-aria-TextField {
     margin-bottom: 0;
-    //max-width: 70%; // This was squeezed on mobile
   }
 
   // Custom input class
