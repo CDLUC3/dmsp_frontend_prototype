@@ -16,6 +16,8 @@ describe('PageHeaderWithTitleChange', () => {
   const defaultProps = {
     title: 'Test Title',
     description: 'This is a test description.',
+    linkText: 'Edit template title',
+    labelText: 'Template Title',
     showBackButton: true,
     breadcrumbs: <div>Mock Breadcrumbs</div>,
     actions: <button>Mock Action</button>,
@@ -43,10 +45,10 @@ describe('PageHeaderWithTitleChange', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
 
     // Click the "Edit template name" button
-    fireEvent.click(screen.getByText('Edit template name'));
+    fireEvent.click(screen.getByText('Edit template title'));
 
     // Check if the input field is rendered
-    const input = screen.getByPlaceholderText('Enter new template title');
+    const input = screen.getByPlaceholderText('edittitle');
     expect(input).toBeInTheDocument();
   });
 
@@ -54,7 +56,7 @@ describe('PageHeaderWithTitleChange', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
 
     // Click the "Edit template name" button
-    fireEvent.click(screen.getByText('Edit template name'));
+    fireEvent.click(screen.getByText('Edit template title'));
 
     // NOTE: We deliberately do not change the title text before we submit
     // because we need to test that the callback was NOT called
@@ -71,10 +73,10 @@ describe('PageHeaderWithTitleChange', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
 
     // Click the "Edit template name" button
-    fireEvent.click(screen.getByText('Edit template name'));
+    fireEvent.click(screen.getByText('Edit template title'));
 
     // Change the title Text
-    const input = screen.getByPlaceholderText('Enter new template title');
+    const input = screen.getByPlaceholderText('edittitle');
     fireEvent.change(input, { target: { value: 'Updated Title' } });
 
     // Submit the form
@@ -89,7 +91,7 @@ describe('PageHeaderWithTitleChange', () => {
     render(<PageHeaderWithTitleChange {...defaultProps} />);
 
     // Click the "Edit template name" button
-    fireEvent.click(screen.getByText('Edit template name'));
+    fireEvent.click(screen.getByText('Edit template title'));
 
     // Click the cancel button
     const cancelButton = screen.getByText('buttons.cancel');

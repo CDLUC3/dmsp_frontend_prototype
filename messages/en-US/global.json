@@ -186,6 +186,7 @@
     "published": "Published",
     "visibility": "Visibility",
     "notPublished": "Not published",
+    "editTitle": "Edit title",
     "buttons": {
       "search": "Search",
       "select": "Select",
@@ -232,7 +233,8 @@
       "learnMore": "Learn more",
       "update": "Update",
       "expand": "Expand",
-      "collapse": "Collapse"
+      "collapse": "Collapse",
+      "editTitle": "Edit title"
     },
     "messaging": {
       "loading": "Loading",

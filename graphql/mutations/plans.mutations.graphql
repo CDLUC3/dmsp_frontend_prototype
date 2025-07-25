@@ -75,13 +75,24 @@ mutation UpdatePlanStatus($planId: Int!, $status: PlanStatus!) {
   }
 }
 
+mutation UpdatePlanTitle($planId: Int!, $title: String!) {
+  updatePlanTitle(planId: $planId, title: $title) {
+    errors {
+      general
+      title
+    }
+    id
+    title
+  }
+}
+
+
 
 mutation AddPlanFunding($planId: Int!, $projectFundingId: Int!) {
   addPlanFunding(planId: $planId, projectFundingId: $projectFundingId) {
     errors {
       ProjectFundingId
       general
-      projectId
     }
     projectFunding {
       id

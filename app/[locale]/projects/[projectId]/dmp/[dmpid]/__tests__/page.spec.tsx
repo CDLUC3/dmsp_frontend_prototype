@@ -1,55 +1,36 @@
 import React from 'react';
-import { gql } from '@apollo/client';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { cookies } from "next/headers";
+import {
+  publishPlanAction,
+  updatePlanStatusAction,
+  updatePlanTitleAction
+} from '../actions';
+import { usePlanQuery } from '@/generated/graphql';
+import { useToast } from '@/context/ToastContext';
 
-jest.mock("@/generated/graphql", () => {
-  const actual = jest.requireActual("@/generated/graphql");
-  return {
-    ...actual,
-    usePlanQuery: jest.fn(),
-    PlanStatus: {
-      DRAFT: "DRAFT",
-      COMPLETE: "COMPLETE",
-      ARCHIVED: "ARCHIVED",
-    },
-    PlanVisibility: {
-      Public: "PUBLIC",
-      Private: "PRIVATE",
-      Organizational: "ORGANIZATIONAL",
-    },
-    UpdatePlanStatus: gql`
-    mutation UpdatePlanStatus($planId: Int!, $status: PlanStatus!) {
-  updatePlanStatus(planId: $planId, status: $status) {
-    errors {
-      general
-      status
-    }
-    id
-    status
-    visibility
-  }
-}`,
-    PublishPlanDocument: gql`
-      mutation PublishPlan($planId: Int!, $visibility: PlanVisibility) {
-        publishPlan(planId: $planId, visibility: $visibility) {
-          errors {
-            general
-            visibility
-            status
-          }
-          visibility
-          status
-        }
-      }
-    `,
-  };
-});
+jest.mock('../actions/index', () => ({
+  publishPlanAction: jest.fn(),
+  updatePlanStatusAction: jest.fn(),
+  updatePlanTitleAction: jest.fn(),
+}));
 
-// Now import after the mock is defined
-import { usePlanQuery } from "@/generated/graphql";
+// Mock the graphql hooks
+jest.mock("@/generated/graphql", () => ({
+  PlanStatus: {
+    Archived: 'ARCHIVED',
+    Complete: 'COMPLETE',
+    Draft: 'DRAFT',
+  },
+  PlanVisibility: {
+    Public: 'PUBLIC',
+    Private: 'PRIVATE',
+    Organizational: 'ORGANIZATIONAL',
+  },
+  usePlanQuery: jest.fn(),
+}));
 
 import {
   mockScrollIntoView,
@@ -68,6 +49,14 @@ jest.mock('next/navigation', () => ({
   useParams: jest.fn()
 }));
 
+const mockRouter = {
+  push: jest.fn(),
+};
+
+const mockToast = {
+  add: jest.fn(),
+};
+
 expect.extend(toHaveNoViolations);
 
 
@@ -80,6 +69,10 @@ describe('PlanOverviewPage', () => {
     // Mock the return value of useParams
     mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1 });
 
+    // Mock Toast
+    (useToast as jest.Mock).mockReturnValue(mockToast);
+
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
     // Mock the hook for data state
     (usePlanQuery as jest.Mock).mockReturnValue({
       data: { plan: mockPlanData.plan },
@@ -117,7 +110,7 @@ describe('PlanOverviewPage', () => {
   it('should render plan data', async () => {
     render(<PlanOverviewPage />);
 
-    expect(screen.getByRole('heading', { name: 'NSF-CISE: Computer and Information Science and Engineering' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).toBeInTheDocument();
     expect(screen.getByText('National Science Foundation (nsf.gov)')).toBeInTheDocument();
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
@@ -147,11 +140,121 @@ describe('PlanOverviewPage', () => {
     expect(within(sidebar).getByRole('link', { name: 'download' })).toBeInTheDocument();
   });
 
+  it('should function as expected if plan data is missing id, dmpId, registered, title, and status', async () => {
+    const updatedMockPlanData = {
+      ...mockPlanData.plan,
+      id: null,
+      dmpId: null,
+      registered: null,
+      title: null,
+      status: null
+    };
+
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    render(<PlanOverviewPage />);
+
+    expect(screen.queryByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).not.toBeInTheDocument();
+    expect(screen.getByText('National Science Foundation (nsf.gov)')).toBeInTheDocument();
+    expect(screen.getByText('members.title')).toBeInTheDocument();
+    expect(screen.getByText('members.info')).toBeInTheDocument();
+    expect(screen.getByText('members.edit')).toBeInTheDocument();
+    expect(screen.getByText('outputs.title')).toBeInTheDocument();
+    expect(screen.getByText('outputs.count')).toBeInTheDocument();
+    // Check that sections rendered
+    expect(screen.getByRole('heading', { name: 'Roles & Responsibilities' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Metadata' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sharing/Copyright Issues' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Long Term Storage' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Research Products' })).toBeInTheDocument();
+
+    // Check sidebar items
+    const sidebar = screen.getByTestId('sidebar-panel');
+    expect(sidebar).toBeInTheDocument();
+    expect(within(sidebar).getByRole('button', { name: 'buttons.preview' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('button', { name: 'buttons.publish' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('heading', { name: 'status.title' })).toBeInTheDocument();
+    expect(within(sidebar).queryByText('DRAFT')).not.toBeInTheDocument();
+    expect(within(sidebar).getByText('buttons.linkUpdate')).toBeInTheDocument();
+    expect(within(sidebar).getByRole('heading', { name: 'status.publish.title' })).toBeInTheDocument();
+    expect(within(sidebar).getByText('status.publish.label')).toBeInTheDocument();
+    expect(within(sidebar).getByRole('heading', { name: 'status.download.title' })).toBeInTheDocument();
+    expect(within(sidebar).getByRole('link', { name: 'download' })).toBeInTheDocument();
+  });
+
+  it('should display plan status PUBLISHED if \'registered\' prop has a value', async () => {
+
+    const updatedMockPlanData = {
+      ...mockPlanData.plan,
+      registered: '2023-10-01T00:00:00Z',
+    };
+
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: { plan: updatedMockPlanData },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    render(<PlanOverviewPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Published')).toBeInTheDocument();
+    });
+  });
+
+  it('should display plan status UNPUBLISHED if \'registered\' prop has a value of null', async () => {
+
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: { plan: mockPlanData.plan },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    render(<PlanOverviewPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Unpublished')).toBeInTheDocument();
+    });
+  });
+
+  it('should display zero percentageAnswered when there are no sections', async () => {
+
+    const mockPlanDataWithNoSections = {
+      ...mockPlanData.plan,
+      sections: [],
+    };
+    (usePlanQuery as jest.Mock).mockReturnValue({
+      data: { plan: mockPlanDataWithNoSections },
+      loading: false,
+      error: null,
+      refetch: jest.fn()
+    });
+
+    render(<PlanOverviewPage />);
+
+    // Click the Publish button to open the modal
+    const publishButton = screen.getByText(/buttons.publish/i);
+    fireEvent.click(publishButton);
+    const checklist = screen.getByTestId('checklist');
+
+    await waitFor(() => {
+      expect(within(checklist).getByText('publishModal.publish.checklistItem.percentageAnswered')).toBeInTheDocument();
+    });
+  });
+
   it('should use \'Start\' for section buttons if no questions in that section have been answered, otherwise it should use \'Update\'', async () => {
-    const {container} = render(<PlanOverviewPage />);
+    const { container } = render(<PlanOverviewPage />);
 
     const sectionWithSomeAnswers = container.querySelector('section[aria-labelledby="section-title-8"]') as HTMLElement;
-    if(sectionWithSomeAnswers){
+    if (sectionWithSomeAnswers) {
       const button = within(sectionWithSomeAnswers).getByText('sections.update');
       expect(button).toBeInTheDocument();
     }
@@ -271,7 +374,7 @@ describe('PlanOverviewPage', () => {
     });
   });
 
-  it('should call publishPlan mutation with correct info when user clicks Publish button', async () => {
+  it('should call publishPlanAction mutation with correct info when user clicks Publish button', async () => {
     // Mock the cookies function
     const mockCookies = {
       toString: jest.fn().mockReturnValue("mockedCookie=value"),
@@ -279,16 +382,19 @@ describe('PlanOverviewPage', () => {
     (cookies as jest.Mock).mockReturnValue(mockCookies);
 
 
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        data: {
-          publishPlan: {
-            success: true,
-          },
+    (publishPlanAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+          status: null,
+          visibility: null
         },
-      }),
-    }) as jest.Mock;
+        visibility: 'PUBLIC',
+        status: 'COMPLETE'
+      },
+    });
+
     render(<PlanOverviewPage />);
 
     // Click the Publish button to open the modal
@@ -307,23 +413,15 @@ describe('PlanOverviewPage', () => {
     fireEvent.click(publishPlanButton);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/graphql"),
-        expect.objectContaining({
-          method: "POST",
-          body: expect.stringContaining("mutation PublishPlan"),
-        })
-      );
-
-      const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
-      expect(body.variables).toEqual({
+      expect(publishPlanAction).toHaveBeenCalledWith({
         planId: expect.any(Number),
         visibility: "PUBLIC",
       });
     });
+    expect(mockToast.add).toHaveBeenCalledWith('messages.success.successfullyPublished', { type: 'success' });
   });
 
-  it('should call updatePlanStatus mutation with correct info when user changes', async () => {
+  it('should display error when publishPlanAction mutation returns field-level errors', async () => {
     // Mock the cookies function
     const mockCookies = {
       toString: jest.fn().mockReturnValue("mockedCookie=value"),
@@ -331,16 +429,100 @@ describe('PlanOverviewPage', () => {
     (cookies as jest.Mock).mockReturnValue(mockCookies);
 
 
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        data: {
-          updatePlanStatus: {
-            success: true,
-          },
+    (publishPlanAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: 'There was a problem publishing the plan',
+          status: null,
+          visibility: null
         },
-      }),
-    }) as jest.Mock;
+        visibility: 'PUBLIC',
+        status: 'COMPLETE'
+      },
+    });
+
+    render(<PlanOverviewPage />);
+
+    // Click the Publish button to open the modal
+    const publishButton = screen.getByText(/buttons.publish/i);
+    fireEvent.click(publishButton);
+
+    const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext >' });
+    fireEvent.click(nextButton);
+
+    // Select the visibility option
+    const publicRadio = screen.getByRole('radio', { name: /public/i });
+    fireEvent.click(publicRadio);
+
+    // Click the Publish button in the modal
+    const publishPlanButton = screen.getByRole('button', { name: 'publishModal.publish.title' });
+    fireEvent.click(publishPlanButton);
+
+    await waitFor(() => {
+      expect(publishPlanAction).toHaveBeenCalledWith({
+        planId: expect.any(Number),
+        visibility: "PUBLIC",
+      });
+      expect(screen.getByText('There was a problem publishing the plan')).toBeInTheDocument();
+    });
+
+  });
+
+  it('should redirect if publishPlanAction mutation returns a redirect prop in its response', async () => {
+    // Mock the cookies function
+    const mockCookies = {
+      toString: jest.fn().mockReturnValue("mockedCookie=value"),
+    };
+    (cookies as jest.Mock).mockReturnValue(mockCookies);
+
+
+    (publishPlanAction as jest.Mock).mockResolvedValue({
+      success: false,
+      redirect: '/login',
+    });
+
+    render(<PlanOverviewPage />);
+
+    // Click the Publish button to open the modal
+    const publishButton = screen.getByText(/buttons.publish/i);
+    fireEvent.click(publishButton);
+
+    const nextButton = screen.getByRole('button', { name: 'publishModal.publish.buttonNext >' });
+    fireEvent.click(nextButton);
+
+    // Select the visibility option
+    const publicRadio = screen.getByRole('radio', { name: /public/i });
+    fireEvent.click(publicRadio);
+
+    // Click the Publish button in the modal
+    const publishPlanButton = screen.getByRole('button', { name: 'publishModal.publish.title' });
+    fireEvent.click(publishPlanButton);
+
+    await waitFor(() => {
+      expect(mockRouter.push).toHaveBeenCalledWith('/login');
+    });
+  });
+
+  it('should call updatePlanStatusAction mutation with correct info when user changes', async () => {
+    // Mock the cookies function
+    const mockCookies = {
+      toString: jest.fn().mockReturnValue("mockedCookie=value"),
+    };
+    (cookies as jest.Mock).mockReturnValue(mockCookies);
+
+    (updatePlanStatusAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+          status: null
+        },
+        id: 6,
+        status: 'COMPLETE',
+        visibility: 'PRIVATE',
+      },
+    });
 
     render(<PlanOverviewPage />);
 
@@ -377,25 +559,63 @@ describe('PlanOverviewPage', () => {
       fireEvent.click(saveButton);
     });
 
-
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining("/graphql"),
-        expect.objectContaining({
-          method: "POST",
-          body: expect.stringContaining("mutation UpdatePlanStatus"),
-        })
-      );
-
-      const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
-      expect(body.variables).toEqual({
+      expect(updatePlanStatusAction).toHaveBeenCalledWith({
         planId: expect.any(Number),
         status: "COMPLETE",
       });
+      expect(mockToast.add).toHaveBeenCalledWith('messages.success.successfullyUpdatedStatus', { type: 'success' });
+
     });
   });
 
-  it('should display error message when updatePlanStatus mutation is not successful', async () => {
+  it('should redirect if updatePlanStatusAction returns a redirect in response', async () => {
+    (updatePlanStatusAction as jest.Mock).mockResolvedValue({
+      success: false,
+      redirect: '/login'
+    });
+
+    render(<PlanOverviewPage />);
+
+    // First check that inital Plan Status is DRAFT
+    expect(screen.getByText('DRAFT')).toBeInTheDocument();
+
+    // Click the Update link next to Plan Status to reveal the select dropdown
+    const updateLink = screen.getByTestId('updateLink');
+    await act(async () => {
+      fireEvent.click(updateLink);
+    });
+
+    // Find the dropdown button using its aria-label
+    const dropdownButton = screen.getByRole('button', { name: /draft/i });
+    await act(async () => {
+      fireEvent.click(dropdownButton);
+    });
+
+    // Find the dropdown container (role="listbox")
+    const listbox = screen.getByRole('listbox');
+
+    // Find the "Complete" option (role="option") within the listbox
+    const option = within(listbox).getByRole('option', { name: /Complete/i });
+
+    // Click the "Complete" option
+    await act(async () => {
+      fireEvent.click(option);
+    });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+
+    // Click the save button
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    await waitFor(() => {
+      expect(mockRouter.push).toHaveBeenCalledWith('/login');
+    });
+  });
+
+  it('should display error message when updatePlanStatusAction mutation is not successful', async () => {
     // Mock the cookies function
     const mockCookies = {
       toString: jest.fn().mockReturnValue("mockedCookie=value"),
@@ -403,7 +623,10 @@ describe('PlanOverviewPage', () => {
     (cookies as jest.Mock).mockReturnValue(mockCookies);
 
 
-    global.fetch = jest.fn().mockRejectedValueOnce(new Error("Error removing member"))
+    (updatePlanStatusAction as jest.Mock).mockResolvedValue({
+      success: false,
+      errors: ['There was a problem connecting to the server. Please try again.'],
+    });
 
     render(<PlanOverviewPage />);
 
@@ -453,19 +676,18 @@ describe('PlanOverviewPage', () => {
     (cookies as jest.Mock).mockReturnValue(mockCookies);
 
 
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        data: {
-          updatePlanStatus: {
-            errors: { general: 'No such status INCOMPLETE.', status: null },
-            id: 1,
-            status: 'COMPLETE',
-            visibility: 'PUBLIC'
-          },
+    (updatePlanStatusAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: 'There was a problem updating the plan status.',
+          status: null
         },
-      }),
-    }) as jest.Mock;
+        id: 6,
+        status: 'COMPLETE',
+        visibility: 'PRIVATE',
+      },
+    });
 
     render(<PlanOverviewPage />);
 
@@ -504,8 +726,143 @@ describe('PlanOverviewPage', () => {
 
 
     await waitFor(() => {
-      expect(screen.getByText('No such status INCOMPLETE.')).toBeInTheDocument();
+      expect(screen.getByText('There was a problem updating the plan status.')).toBeInTheDocument();
     });
+  });
+
+  it('should set error message when call updatePlanStatus mutation is successful and returns an error that is not general', async () => {
+    // Mock the cookies function
+    const mockCookies = {
+      toString: jest.fn().mockReturnValue("mockedCookie=value"),
+    };
+    (cookies as jest.Mock).mockReturnValue(mockCookies);
+
+
+    (updatePlanStatusAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+          status: 'Status cannot be updated to COMPLETE.',
+        },
+        id: 6,
+        status: 'COMPLETE',
+        visibility: 'PRIVATE',
+      },
+    });
+
+    render(<PlanOverviewPage />);
+
+    // First check that inital Plan Status is DRAFT
+    expect(screen.getByText('DRAFT')).toBeInTheDocument();
+
+    // Click the Update link next to Plan Status to reveal the select dropdown
+    const updateLink = screen.getByTestId('updateLink');
+    await act(async () => {
+      fireEvent.click(updateLink);
+    });
+
+    // Find the dropdown button using its aria-label
+    const dropdownButton = screen.getByRole('button', { name: /draft/i });
+    await act(async () => {
+      fireEvent.click(dropdownButton);
+    });
+
+    // Find the dropdown container (role="listbox")
+    const listbox = screen.getByRole('listbox');
+
+    // Find the "Complete" option (role="option") within the listbox
+    const option = within(listbox).getByRole('option', { name: /Complete/i });
+
+    // Click the "Complete" option
+    await act(async () => {
+      fireEvent.click(option);
+    });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+
+    // Click the save button
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+
+    await waitFor(() => {
+      expect(screen.getByText('Status cannot be updated to COMPLETE.')).toBeInTheDocument();
+    });
+  });
+
+  it('should call updatePlanTitleAction when user enters a new title and clicks save', async () => {
+
+    (updatePlanTitleAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+          email: null,
+        },
+        id: 1,
+        title: 'Changed title',
+      },
+    });
+
+    render(<PlanOverviewPage />);
+
+    const editButton = screen.getByRole('button', { name: 'links.editTitle' });
+
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
+
+    const input = screen.getByPlaceholderText('page.planTitlePlaceholder');
+    fireEvent.change(input, { target: { value: 'New plan title' } });
+
+    const saveButton = screen.getByTestId('save-button');
+    await act(async () => {
+      fireEvent.click(saveButton);
+    })
+
+    // Wait for the updatePlanTitleAction to be called
+    await waitFor(() => {
+      expect(updatePlanTitleAction).toHaveBeenCalledWith({
+        planId: 1,
+        title: 'New plan title',
+      });
+    });
+  });
+
+  it('should set errors when handleTitleChange is called and returns a general error', async () => {
+
+    (updatePlanTitleAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: 'There was an error changing title',
+          email: null,
+        },
+        id: 15,
+        title: 'Changed title',
+      },
+    });
+
+
+    render(<PlanOverviewPage />);
+
+    const editButton = screen.getByRole('button', { name: 'links.editTitle' });
+
+    await act(async () => {
+      fireEvent.click(editButton);
+    })
+
+    const input = screen.getByPlaceholderText('page.planTitlePlaceholder');
+    fireEvent.change(input, { target: { value: 'New plan title' } });
+
+    const saveButton = screen.getByTestId('save-button');
+    await act(async () => {
+      fireEvent.click(saveButton);
+    })
+
+    expect(screen.getByText('There was an error changing title')).toBeInTheDocument();
   });
 
   it('should pass accessibility tests', async () => {
