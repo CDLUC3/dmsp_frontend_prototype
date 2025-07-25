@@ -546,6 +546,8 @@ export type ExternalSearchInput = {
 /** A result of the most popular funders */
 export type FunderPopularityResult = {
   __typename?: 'FunderPopularityResult';
+  /** The apiTarget for the affiliation (if available) */
+  apiTarget: Scalars['String']['output'];
   /** The official display name */
   displayName: Scalars['String']['output'];
   /** The unique identifer for the affiliation */
@@ -4083,7 +4085,7 @@ export type PlanFundingsQuery = { __typename?: 'Query', planFundings?: Array<{ _
 export type PopularFundersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PopularFundersQuery = { __typename?: 'Query', popularFunders?: Array<{ __typename?: 'FunderPopularityResult', displayName: string, id: number, nbrPlans: number, uri: string } | null> | null };
+export type PopularFundersQuery = { __typename?: 'Query', popularFunders?: Array<{ __typename?: 'FunderPopularityResult', displayName: string, id: number, nbrPlans: number, uri: string, apiTarget: string } | null> | null };
 
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6062,6 +6064,7 @@ export const PopularFundersDocument = gql`
     id
     nbrPlans
     uri
+    apiTarget
   }
 }
     `;

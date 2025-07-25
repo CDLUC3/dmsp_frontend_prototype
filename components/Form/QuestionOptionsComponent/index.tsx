@@ -87,7 +87,7 @@ const QuestionOptionsComponent: React.FC<QuestionOptionsComponentProps> = ({ row
     } else {
       const updatedRows = rows.map(row => ({
         ...row,
-        isSelected: row.id === id, // only one selected
+        isSelected: row.id === id ? !row.isSelected : false, // toggle if already selected
       }));
 
       setRows(updatedRows);

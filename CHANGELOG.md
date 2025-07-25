@@ -1,10 +1,10 @@
 
 ### Added
+- Added auto-save to the `Question Answer` page [#585]
 - Added the ability to edit the `Plan title` [#608]
 
 ### Fixed
 - Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
-
 
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on July 21, 2025

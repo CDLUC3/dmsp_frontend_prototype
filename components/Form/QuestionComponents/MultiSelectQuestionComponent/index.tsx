@@ -27,10 +27,20 @@ const MultiSelectQuestionComponent: React.FC<SelectboxQuestionProps> = ({
     ?.filter((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.selected)
     .map((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.value);
 
+  // Convert selectedMultiSelectValues to Set regardless of input type.
+  // This is because this component is called to render an answer that may be a Set or an array.
+  const selectedSet = selectedMultiSelectValues
+    ? (Array.isArray(selectedMultiSelectValues)
+      ? new Set(selectedMultiSelectValues)
+      : selectedMultiSelectValues)
+    : new Set(defaultSelected);
+
+  const hasSelectedValues = selectedSet.size > 0;
+
   return (
     <MultiSelect
       options={items}
-      selectedKeys={(selectedMultiSelectValues && selectedMultiSelectValues.size > 0) ? selectedMultiSelectValues : new Set(defaultSelected)}
+      selectedKeys={hasSelectedValues ? selectedSet : new Set(defaultSelected)}
       onSelectionChange={handleMultiSelectChange}
       label={selectBoxLabel}
       aria-label={selectBoxLabel}

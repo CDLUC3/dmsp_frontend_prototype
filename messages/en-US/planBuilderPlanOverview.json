@@ -184,7 +184,11 @@
     "messages": {
       "success": {
         "questionSaved": "Question detail successfully saved"
-      }
+      },
+      "unsavedChanges": "Unsaved changes",
+      "savedJustNow": "Saved just now",
+      "lastSavedOneMinuteAgo": "Last saved 1 minute ago",
+      "lastSaves": "Last saved {minutes} minutes ago"
     }
   },
   "ProjectsProjectFunding": {

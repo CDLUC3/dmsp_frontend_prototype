@@ -731,7 +731,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(options[0]).toHaveAttribute('aria-selected', 'false');
     expect(options[1]).toHaveAttribute('aria-selected', 'true');
     expect(options[2]).toHaveAttribute('aria-selected', 'true');
-    expect(options[3]).toHaveAttribute('aria-selected', 'false');
+    expect(options[3]).toHaveAttribute('aria-selected', 'true');
   })
 
   it('should load correct question content for selectBox question', async () => {
@@ -1415,47 +1415,56 @@ describe('Call to updateAnswerAction', () => {
       },
     ]);
 
+    // Store the change handler reference
+    let changeHandler: (() => void) | null = null;
+
     // Create a mock editor instance
     const mockEditor = {
       setContent: jest.fn(),
       getContent: jest.fn().mockReturnValue('This is the text area content'),
-      on: jest.fn(),
+      on: jest.fn((events: string, handler: () => void) => {
+        if (events === 'Change KeyUp Input Blur') {
+          changeHandler = handler;
+        }
+      }),
     };
 
     // Intercept the init call and simulate init_instance_callback
     window.tinymce.init = jest.fn((config) => {
-      config.init_instance_callback(mockEditor);
+      // Call setup to register event handlers
+      if (config.setup) {
+        config.setup(mockEditor);
+      }
 
-      // Manually trigger the `Change` event
-      setTimeout(() => {
-        const changeHandler = mockEditor.on.mock.calls.find(
-          ([eventName]) => eventName === 'Change'
-        )?.[1];
-        if (changeHandler) changeHandler(); // simulate content change
-      }, 0);
+      // Call the init callback
+      config.init_instance_callback(mockEditor);
     });
 
     await act(async () => {
       render(<PlanOverviewQuestionPage />);
     });
 
-    // Wait for the simulated TinyMCE 'Change' event to propagate
+    // Wait for initialization
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 10));
     });
 
+    // Trigger the change handler if it exists
+    await act(async () => {
+      changeHandler?.(); // Optional chaining - safe way to call
+    });
+
     // Click "Save" button
     const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
-
     fireEvent.click(saveBtn);
+
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 4,
         json: "{\"answer\":\"This is the text area content\"}"
       });
     });
-
-  })
+  });
 
   it('should call updateAnswerAction with correct data for currency question', async () => {
     (useQuestionQuery as jest.Mock).mockReturnValue({
@@ -1611,7 +1620,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 18,
-        json: "{\"answer\":[\"Banana\",\"Pear\",\"Apple\"]}"
+        json: "{\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"]}"
       });
     });
   })
@@ -2321,4 +2330,87 @@ describe('DrawerPanel', () => {
     expect(sidebarPanel).toBeInTheDocument();
     expect(visibleDrawerPanel).toBeUndefined();
   })
+});
+
+describe('Auto save', () => {
+  it('should call setTimeout for saving data when changes their answer', async () => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
+    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
+      data: mockSectionVersionsData,
+      loading: false,
+      error: undefined,
+    });
+
+    (usePlanQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce(mockPlanData),
+      { loading: false, error: undefined },
+    ]);
+    (useQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
+      jest.fn(), // this is the loadAnswer function
+      {
+        data: mockCheckboxAnswer,
+        loading: false,
+        error: undefined,
+      },
+    ]);
+
+    (addAnswerAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+        },
+        id: 27,
+        json: "{\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        modified: "1751929006000",
+        versionedQuestion: {
+          versionedSectionId: 20
+        }
+      },
+    });
+
+    const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
+
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    expect(checkboxGroup).toBeInTheDocument();
+    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
+    const alexCheckbox = checkboxes.find(
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+    );
+
+    await userEvent.click(alexCheckbox!);
+
+    expect(screen.getByText('messages.unsavedChanges')).toBeInTheDocument();
+
+    // Verify setTimeout was called with 3000ms
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
+
+    setTimeoutSpy.mockRestore();
+  });
 });

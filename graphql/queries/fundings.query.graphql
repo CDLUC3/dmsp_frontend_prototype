@@ -27,5 +27,6 @@ query PopularFunders {
     id
     nbrPlans
     uri
+    apiTarget
   }
 }
