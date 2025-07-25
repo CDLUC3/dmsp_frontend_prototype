@@ -131,7 +131,7 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
         maxLength: input?.attributes?.maxLength ?? 1000,
         minLength: input?.attributes?.minLength ?? 0,
@@ -152,7 +152,7 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
         maxLength: input?.attributes?.maxLength ?? 1000,
         minLength: input?.attributes?.minLength ?? 0,
@@ -175,7 +175,7 @@ export const questionTypeHandlers: Record<
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
       attributes: {
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
       },
       options: input.options?.map(option => ({
@@ -200,7 +200,7 @@ export const questionTypeHandlers: Record<
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
       attributes: {
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
       },
       options: input.options?.map(option => ({
@@ -225,7 +225,7 @@ export const questionTypeHandlers: Record<
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
       attributes: {
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
         multiple: false,
       },
@@ -251,7 +251,7 @@ export const questionTypeHandlers: Record<
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
       attributes: {
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
         multiple: true,
       },
@@ -269,15 +269,15 @@ export const questionTypeHandlers: Record<
     const questionData: QuestionTypeMap["boolean"] = {
       ...json,
       type: "boolean",
+      attributes: {
+        ...json.attributes,
+        label: input?.label,
+        help: input?.help,
+        checked: input?.checked ?? false,
+      },
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
-      attributes: {
-        ...json.attributes,
-        label: input?.label ?? "Number",
-        help: input?.help,
-        checked: input?.checked ?? false,
       },
     };
 
@@ -288,18 +288,18 @@ export const questionTypeHandlers: Record<
     const questionData: QuestionTypeMap["url"] = {
       ...json,
       type: "url",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION
-      },
       attributes: {
         ...json.attributes,
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
         pattern: input?.attributes?.pattern ?? "https?://.+",
         maxLength: input?.attributes?.maxLength,
         minLength: input?.attributes?.minLength !== undefined ? input.attributes?.minLength : 0 // Fall back to 0 instead of null
-      }
+      },
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION
+      },
     };
 
     return createAndValidateQuestion("url", questionData, QuestionSchemaMap['url']);
@@ -309,18 +309,18 @@ export const questionTypeHandlers: Record<
     const questionData: QuestionTypeMap["currency"] = {
       ...json,
       type: "currency",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
       attributes: {
         ...json.attributes,
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
         max: input?.attributes?.max ?? 10000000, // Optional maximum value
         min: input?.attributes?.min ?? 0,
         step: input?.attributes?.step ?? 1,
         denomination: input?.attributes?.denomination ?? "USD",
+      },
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       },
     };
 
@@ -330,17 +330,17 @@ export const questionTypeHandlers: Record<
     const questionData: QuestionTypeMap["date"] = {
       ...json,
       type: "date",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
       attributes: {
         ...json.attributes,
-        label: input?.label ?? "Number",
+        label: input?.label,
         help: input?.help,
         max: input?.max,
         min: input?.min ?? "1900-01-01",
         step: input?.step ?? 1,
+      },
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       },
     };
 
@@ -353,12 +353,8 @@ export const questionTypeHandlers: Record<
     const questionData: QuestionTypeMap["dateRange"] = {
       ...json,
       type: "dateRange",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
       attributes: {
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
       },
       columns: {
@@ -377,6 +373,10 @@ export const questionTypeHandlers: Record<
           help: startCol.help,
         },
       },
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
     };
 
     return createAndValidateQuestion("dateRange", questionData, QuestionSchemaMap["dateRange"]);
@@ -385,10 +385,6 @@ export const questionTypeHandlers: Record<
     const questionData: QuestionTypeMap["email"] = {
       ...json,
       type: "email",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
       attributes: {
         ...json.attributes,
         label: input?.label ?? "Email",
@@ -397,6 +393,10 @@ export const questionTypeHandlers: Record<
         multiple: input?.multiple ?? false,
         maxLength: input?.maxLength ?? 100,
         minLength: input?.minLength ?? 0,
+      },
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       },
     };
 
@@ -409,9 +409,6 @@ export const questionTypeHandlers: Record<
     // Splice in the labels the user entered otherwise keep everything the same
     const questionData: QuestionTypeMap["affiliationSearch"] = {
       type: "affiliationSearch",
-      meta: {
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
       attributes: {
         label: input?.label,
         help: input?.help
@@ -424,6 +421,9 @@ export const questionTypeHandlers: Record<
         displayFields: json?.graphQL?.displayFields,
         responseField: json.graphQL?.responseField ?? "",
       },
+      meta: {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
     };
 
     return createAndValidateQuestion("affiliationSearch", questionData, QuestionSchemaMap["affiliationSearch"]);
@@ -432,17 +432,17 @@ export const questionTypeHandlers: Record<
     const questionData: QuestionTypeMap["number"] = {
       ...json,
       type: "number",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
       attributes: {
         ...json.attributes,
-        label: input?.attributes?.label ?? "Number",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
         max: input?.attributes?.max,
         min: input?.attributes?.min ?? 0,
         step: input?.attributes?.step ?? 1,
+      },
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       },
     };
 
@@ -454,12 +454,8 @@ export const questionTypeHandlers: Record<
     const questionData: QuestionTypeMap["numberRange"] = {
       ...json,
       type: "numberRange",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
       attributes: {
-        label: input?.attributes?.label ?? "Number Range",
+        label: input?.attributes?.label,
         help: input?.attributes?.help,
       },
       columns: {
@@ -478,6 +474,10 @@ export const questionTypeHandlers: Record<
           help: startCol.help,
         },
       },
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
     };
 
     return createAndValidateQuestion("numberRange", questionData, QuestionSchemaMap['numberRange']);
@@ -489,9 +489,12 @@ export const questionTypeHandlers: Record<
     const questionData: QuestionTypeMap["table"] = {
       ...json,
       type: "table",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
+      attributes: {
+        maxRows: input?.attributes?.maxRows ?? 10, // Use number, not null
+        minRows: input?.attributes?.minRows ?? 1,  // Use number, not null
+        canAddRows: input?.attributes?.canAddRows ?? true,
+        initialRows: input?.attributes?.initialRows ?? 1,
+        canRemoveRows: input?.attributes?.canRemoveRows ?? true,
       },
       columns: input?.columns?.map(column => ({
         heading: column.heading,
@@ -510,12 +513,9 @@ export const questionTypeHandlers: Record<
           },
         },
       })) || [],
-      attributes: {
-        maxRows: input?.attributes?.maxRows ?? 10, // Use number, not null
-        minRows: input?.attributes?.minRows ?? 1,  // Use number, not null
-        canAddRows: input?.attributes?.canAddRows ?? true,
-        initialRows: input?.attributes?.initialRows ?? 1,
-        canRemoveRows: input?.attributes?.canRemoveRows ?? true,
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       },
     };
 

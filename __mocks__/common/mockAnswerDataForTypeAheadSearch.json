@@ -2,7 +2,7 @@
   "answerByVersionedQuestionId": {
     "__typename": "Answer",
     "id": 20,
-    "json": "{\"answer\":\"https://ror.org/0168r3w48\"}",
+    "json": "{\"answer\":{\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"UCOP\"}}",
     "versionedQuestion": {
       "__typename": "VersionedQuestion",
       "id": 195

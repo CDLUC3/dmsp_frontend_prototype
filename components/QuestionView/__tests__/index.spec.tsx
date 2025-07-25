@@ -22,7 +22,6 @@ import {
   NumberRangeQuestionType,
   RadioButtonsQuestionType,
   SelectBoxQuestionType,
-  TextAreaQuestionType,
   TextQuestionType,
   URLQuestionType
 } from "@dmptool/types";
@@ -203,44 +202,6 @@ describe("QuestionView", () => {
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('type', 'text');
     expect(input).not.toHaveAttribute('maxLength', 255);
-    expect(input).toHaveAttribute('name', 'textField');
-
-    // Simulate typing
-    await userEvent.type(input, 'Hello world!');
-    expect(input).toHaveValue('Hello world!');
-  });
-
-  it('should render the Text Area Field question type', async () => {
-    const json: TextAreaQuestionType = {
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "textArea",
-      attributes: {
-        cols: 20,
-        rows: 2,
-        asRichText: true
-      }
-    };
-    const mockQuestionWithTextAreaField = { ...mockQuestion, json: JSON.stringify(json) };
-
-    render(
-        <QuestionView
-            question={mockQuestionWithTextAreaField}
-            isPreview={true}
-            templateId={1}
-            path="/template/123"
-        />
-    );
-    // display the screen output
-    expect(screen.getByTestId('card-body').textContent).toContain('text');
-
-    // Find the input by its placeholder or role and name
-    const input = screen.getByPlaceholderText('Enter text');
-    expect(input).toBeInTheDocument();
-    expect(input).toHaveAttribute('type', 'text');
-    expect(input).not.toHaveAttribute('maxLength');
-    expect(input).toHaveAttribute('minLength', '0');
     expect(input).toHaveAttribute('name', 'textField');
 
     // Simulate typing

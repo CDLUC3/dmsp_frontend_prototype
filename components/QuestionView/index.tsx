@@ -110,7 +110,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // State was added so that users can change or interact with the question types in the Question Preview
   const [questionType, setQuestionType] = useState<string>('');
   const [otherField, setOtherField] = useState(false);
-  const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({ affiliationName: '', affiliationId: '' });
+  const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({
+    affiliationName: '',
+    affiliationId: ''
+  });
   const [otherAffiliationName, setOtherAffiliationName] = useState<string>('');
   const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState<number | null>(null);
@@ -122,9 +125,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const [yesNoValue, setYesNoValue] = useState<string>('no');
   // Add local state for multiSelect values
   const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
-
   // Add local state for selected select value
   const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
+  const [dateValue, setDateValue] = useState<string | DateValue | CalendarDate | null>(null);
   const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
     startDate: '',
     endDate: '',
@@ -183,8 +186,13 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setSelectedMultiSelectValues(values);
   };
 
-  // Handler for date range changes
   const handleDateChange = (
+    value: string | DateValue | CalendarDate | null
+  ) => {
+    setDateValue(value);
+  }
+  // Handler for date range changes
+  const handleDateRangeChange = (
     key: string,
     value: string | DateValue | CalendarDate | null
   ) => {
@@ -314,9 +322,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           const dateMaxValue = parsed?.attributes?.max;
           return (
             <DateComponent
-              name="startDate"
-              value={getCalendarDateValue(dateRange.startDate)}
-              onChange={newDate => handleDateChange('startDate', newDate)}
+              name="start"
+              value={getCalendarDateValue(dateValue)}
+              onChange={newDate => handleDateChange(newDate)}
               label="Date"
               minValue={dateMinValue}
               maxValue={dateMaxValue}
@@ -330,7 +338,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             <DateRangeQuestionComponent
               parsedQuestion={parsed}
               dateRange={dateRange}
-              handleDateChange={handleDateChange}
+              handleDateChange={handleDateRangeChange}
             />
           )
         }

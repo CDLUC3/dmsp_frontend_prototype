@@ -6,7 +6,7 @@
     "id": 2271,
     "isDirty": true,
     "questionText": "Testing",
-    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"dateRange\",\"columns\":{\"end\":{\"label\":\"Ending\"}},\"start\":{\"label\":\"Beginning\"}}}}",
+    "json": "\"type\":\"dateRange\",\"columns\":{\"end\":{\"label\":\"Ending\"}},\"start\":{\"label\":\"Beginning\"}}},{\"meta\":{\"schemaVersion\":\"1.0\"}}",
     "requirementText": "This is requirement text",
     "sampleText": "This is sample text",
     "sectionId": 67,

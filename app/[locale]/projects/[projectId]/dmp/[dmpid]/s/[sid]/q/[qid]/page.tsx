@@ -51,7 +51,7 @@ import { useToast } from '@/context/ToastContext';
 // Utils
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { QuestionTypeMap } from "@dmptool/types";
+import { QuestionTypeMap } from '@dmptool/types';
 
 import {
   Question,
@@ -141,6 +141,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
   // Add local state for selected select value
   const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
+  const [dateValue, setDateValue] = useState<string | DateValue | CalendarDate | null>(null);
   const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
     startDate: '',
     endDate: '',
@@ -165,31 +166,31 @@ const PlanOverviewQuestionPage: React.FC = () => {
     loading,
     error: selectedQuestionQueryError
   } = useQuestionQuery(
-    {
-      variables: {
-        questionId: Number(questionId)
-      }
-    },
+      {
+        variables: {
+          questionId: Number(questionId)
+        }
+      },
   );
 
   // Get Plan using planId
   const { data: planData, loading: planQueryLoading, error: planQueryError } = usePlanQuery(
-    {
-      variables: { planId: Number(dmpId) },
-      notifyOnNetworkStatusChange: true
-    }
+      {
+        variables: { planId: Number(dmpId) },
+        notifyOnNetworkStatusChange: true
+      }
   );
 
   // Get sectionVersions from sectionId
   const { data: sectionVersions, loading: versionedSectionLoading, error: versionedSectionError } = useSectionVersionsQuery(
-    {
-      variables: { sectionId: Number(sectionId) }
-    }
+      {
+        variables: { sectionId: Number(sectionId) }
+      }
   )
 
   // Get loadAnswer to call later, after we set the versionedQuestionId
   const [loadAnswer, { data: answerData, loading: answerLoading, error: answerError }] =
-    useAnswerByVersionedQuestionIdLazyQuery();
+      useAnswerByVersionedQuestionIdLazyQuery();
 
 
   // Show Success Message
@@ -204,7 +205,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const newDrawerState = !isSampleTextDrawerOpen;
 
     setSampleTextDrawerOpen(newDrawerState);
-    setIsSideBarPanelOpen(!newDrawerState); // Opposite of drawer state 
+    setIsSideBarPanelOpen(!newDrawerState); // Opposite of drawer state
   }
 
   // Toggle the comments drawer open and closed
@@ -275,7 +276,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     if (htmlString) {
       const sanitizedHTML = DOMPurify.sanitize(htmlString);
       return (
-        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+          <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
       );
     }
     return null;
@@ -327,10 +328,17 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setSelectedMultiSelectValues(values);
   };
 
-  // Handler for date range changes
+  // Handler for date change
   const handleDateChange = (
-    key: string,
-    value: string | DateValue | CalendarDate | null
+      value: string | DateValue | CalendarDate | null
+  ) => {
+    setDateValue(value);
+  };
+
+  // Handler for date range changes
+  const handleDateRangeChange = (
+      key: string,
+      value: string | DateValue | CalendarDate | null
   ) => {
     setDateRange(prev => ({
       ...prev,
@@ -340,8 +348,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Handler for number range changes
   const handleNumberChange = (
-    key: string,
-    value: string | number | null
+      key: string,
+      value: string | number | null
   ) => {
     setNumberRange(prev => ({
       ...prev,
@@ -370,11 +378,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setSelectedCheckboxValues(answer);
         break;
       case 'selectBox':
-        if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
-          setSelectedSelectValue(answer);
-        }
+        setSelectedSelectValue(answer);
+        break;
+      case 'multiselectBox':
         setSelectedMultiSelectValues(answer);
-
         break;
       case 'boolean':
         setYesNoValue(answer);
@@ -392,23 +399,25 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setInputCurrencyValue(answer);
         break;
       case 'date':
+        setDateValue(answer);
+        break;
       case 'dateRange':
-        if (answer?.startDate || answer?.endDate) {
+        if (answer?.start || answer?.end) {
           setDateRange({
-            startDate: answer?.startDate,
-            endDate: answer?.endDate,
+            startDate: answer?.start,
+            endDate: answer?.end,
           });
         }
         break;
       case 'numberRange':
-        if (answer?.startNumber || answer?.endNumber) {
+        if (answer?.start || answer?.end) {
           setNumberRange({
-            startNumber: answer?.startNumber,
-            endNumber: answer?.endNumber,
+            startNumber: answer?.start,
+            endNumber: answer?.end,
           });
         }
         break;
-      case 'typeaheadSearch':
+      case 'affiliationSearch':
         if (answer) {
           setAffiliationData({
             affiliationId: answer.affiliationId,
@@ -439,14 +448,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
         return { answer: selectedCheckboxValues };
 
       case 'selectBox':
-        if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
-          return { answer: selectedSelectValue };
-        }
+        return {answer: selectedSelectValue};
 
       case 'multiselectBox':
-        if (questionType === 'multiselectBox' && (parsed && parsed.type === 'multiselectBox')) {
-          return { answer: Array.from(selectedMultiSelectValues) };
-        }
+        return { answer: Array.from(selectedMultiSelectValues) };
 
       case 'boolean':
         return { answer: yesNoValue };
@@ -463,15 +468,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
       case 'currency':
         return { answer: inputCurrencyValue };
 
+      case 'date':
+        return { answer: dateValue?.toString() };
+
       case 'dateRange':
-      case 'date': {
         return {
           answer: {
             startDate: dateRange.startDate?.toString() ?? null,
             endDate: dateRange.endDate?.toString() ?? null
           }
         };
-      }
 
       case 'numberRange':
         return {
@@ -482,7 +488,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
         };
 
       case 'affiliationSearch':
-        return { answer: affiliationData.affiliationId };
+        return {
+          answer: {
+            affiliationId: affiliationData.affiliationId,
+            affiliationName: otherField ? otherAffiliationName : affiliationData.affiliationName,
+            isOther: otherField,
+          }
+        };
 
       default:
         return { answer: textAreaContent };
@@ -492,14 +504,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // GraphQL mutation returns errors
   const hasFieldLevelErrors = (mutationErrors: MutationErrorsInterface): boolean => {
     return Object.values(mutationErrors).some(
-      value => value !== null && value !== undefined
+        value => value !== null && value !== undefined
     );
   };
 
   // Extract the errors from the graphql mutation result
   const getExtractedErrorValues = (mutationErrors: MutationErrorsInterface): string[] => {
     return Object.values(mutationErrors).filter(
-      (value) => value !== null && value !== undefined
+        (value) => value !== null && value !== undefined
     );
   };
 
@@ -513,16 +525,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
     if (question) {
       try {
         const response = isUpdate
-          ? await updateAnswerAction({
-            answerId: Number(answerData?.answerByVersionedQuestionId?.id),
-            json: JSON.stringify(jsonPayload),
-          })
-          : await addAnswerAction({
-            planId: Number(dmpId),
-            versionedSectionId: Number(versionedSectionId),
-            versionedQuestionId: Number(versionedQuestionId),
-            json: JSON.stringify(jsonPayload),
-          });
+            ? await updateAnswerAction({
+              answerId: Number(answerData?.answerByVersionedQuestionId?.id),
+              json: JSON.stringify(jsonPayload),
+            })
+            : await addAnswerAction({
+              planId: Number(dmpId),
+              versionedSectionId: Number(versionedSectionId),
+              versionedQuestionId: Number(versionedQuestionId),
+              json: JSON.stringify(jsonPayload),
+            });
 
         if (response.redirect) {
           router.push(response.redirect);
@@ -585,7 +597,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       if (!sectionVersion?.versionedQuestions) continue;
 
       const foundQuestion = sectionVersion.versionedQuestions.find(
-        (question) => question?.questionId === questionId
+          (question) => question?.questionId === questionId
       );
 
       if (foundQuestion?.id) {
@@ -719,12 +731,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleMultiSelectChange,
     },
     dateProps: {
-      dateRange,
+      dateValue,
       handleDateChange,
     },
     dateRangeProps: {
       dateRange,
-      handleDateChange,
+      handleDateRangeChange,
     },
     numberProps: {
       inputValue,
@@ -769,279 +781,279 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }
 
   return (
-    <>
-      <PageHeader
-        title={plan?.title ?? ''}
-        description=""
-        showBackButton={true}
-        breadcrumbs={
-          <Breadcrumbs aria-label={PlanOverview('navigation.navigation')}>
-            <Breadcrumb><Link
-              href="/en-US">{PlanOverview('navigation.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href="/en-US/projects">{PlanOverview('navigation.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/en-US/projects/${projectId}/`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href={`/en-US/projects/${projectId}/dmp/${dmpId}/`}>{plan?.title}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.questionDetails')}</Breadcrumb>
-          </Breadcrumbs>
-        }
-        actions={null}
-        className="page-project-list"
-      />
+      <>
+        <PageHeader
+            title={plan?.title ?? ''}
+            description=""
+            showBackButton={true}
+            breadcrumbs={
+              <Breadcrumbs aria-label={PlanOverview('navigation.navigation')}>
+                <Breadcrumb><Link
+                    href="/en-US">{PlanOverview('navigation.home')}</Link></Breadcrumb>
+                <Breadcrumb><Link
+                    href="/en-US/projects">{PlanOverview('navigation.projects')}</Link></Breadcrumb>
+                <Breadcrumb><Link href={`/en-US/projects/${projectId}/`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+                <Breadcrumb><Link
+                    href={`/en-US/projects/${projectId}/dmp/${dmpId}/`}>{plan?.title}</Link></Breadcrumb>
+                <Breadcrumb>{Global('breadcrumbs.questionDetails')}</Breadcrumb>
+              </Breadcrumbs>
+            }
+            actions={null}
+            className="page-project-list"
+        />
 
-      <ErrorMessages errors={errors} ref={errorRef} />
+        <ErrorMessages errors={errors} ref={errorRef} />
 
-      <LayoutWithPanel
-        onClick={e => closeDrawers(e)}
-        className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}
-      >
-        <ContentContainer>
-          <div className="container">
-            {/**Requirements by funder */}
-            <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
-              <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
-              {convertToHTML(question?.requirementText)}
-            </section>
+        <LayoutWithPanel
+            onClick={e => closeDrawers(e)}
+            className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}
+        >
+          <ContentContainer>
+            <div className="container">
+              {/**Requirements by funder */}
+              <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
+                <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
+                {convertToHTML(question?.requirementText)}
+              </section>
 
-            {/**Requirements by organization */}
-            <section aria-label={"Requirements"}>
-              <h3 className={"h4"}>Requirements by University of California</h3>
-              <p>
-                The university requires data and metadata to be cleared by the ethics
-                committee before being submitted to funder.
-              </p>
-            </section>
-
-            <p className={styles.guidanceLinkWrapper}>
-              <DmpIcon icon="down_arrow" />
-              <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
-            </p>
-            <Form onSubmit={handleSubmit}>
-              <Card data-testid='question-card'>
-                <span>Question</span>
-                <h2 id="question-title" className="h3">
-                  {question?.questionText}
-                </h2>
-                {question?.required && (
-                  <div className={styles.requiredWrapper}>
-                    <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
-                    <DialogTrigger>
-                      <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
-                      <Popover>
-                        <OverlayArrow>
-                          <svg width={12} height={12} viewBox="0 0 12 12">
-                            <path d="M0 0 L6 6 L12 0" />
-                          </svg>
-                        </OverlayArrow>
-                        <Dialog>
-                          <div className="flex-col">
-                            {PlanOverview('page.requiredByFunderInfo')}
-                          </div>
-                        </Dialog>
-                      </Popover>
-                    </DialogTrigger>
-                  </div>
-                )}
-                <div>
-                  <div className={styles.buttonsRow}>
-                    {/**Only include sample text button for textArea question types */}
-                    {questionType === 'textArea' && (
-                      <div className="">
-                        <Button
-                          ref={openSampleTextButtonRef}
-                          className={`${styles.buttonSmall} tertiary`}
-                          data-secondary
-                          onPress={toggleSampleTextDrawer}
-                        >
-                          {PlanOverview('page.viewSampleAnswer')}
-                        </Button>
-                      </div>
-                    )}
-
-                    <div className="">
-                      <Button
-                        ref={openCommentsButtonRef}
-                        className={`${styles.buttonSmall} ${styles.buttonWithComments}`}
-                        onPress={toggleCommentsDrawer}
-                      >
-                        4 Comments
-                      </Button>
-                    </div>
-                  </div>
-                  {parsed && questionField}
-
-                </div>
-                <div className="lastSaved mt-5"
-                  aria-live="polite"
-                  role="status">
-                  Last saved X minutes ago
-                </div>
-              </Card>
-
-              <section aria-label={"Guidance"} id="guidance">
-                <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { funder: plan?.funder ?? '' })}</h3>
-
-                {convertToHTML(question?.guidanceText)}
-
-
-                <h3 className={"h4"}>Guidance by University of California</h3>
+              {/**Requirements by organization */}
+              <section aria-label={"Requirements"}>
+                <h3 className={"h4"}>Requirements by University of California</h3>
                 <p>
-                  This is the most detailed section of the data management plan.
-                  Describe the categories of data being collected and how they tie
-                  into the data associated with the methods used to collect that
-                  data.
-                </p>
-                <p>
-                  Expect this section to be the most detailed section, taking up a
-                  large portion of your data management plan document.
+                  The university requires data and metadata to be cleared by the ethics
+                  committee before being submitted to funder.
                 </p>
               </section>
-              <div className={styles.modalAction}>
-                <div>
-                  <Button
-                    type="submit"
-                    data-secondary
-                    className="primary"
-                    aria-label={PlanOverview('labels.saveAnswer')}
-                  >
-                    {Global('buttons.save')}
-                  </Button>
+
+              <p className={styles.guidanceLinkWrapper}>
+                <DmpIcon icon="down_arrow" />
+                <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
+              </p>
+              <Form onSubmit={handleSubmit}>
+                <Card data-testid='question-card'>
+                  <span>Question</span>
+                  <h2 id="question-title">
+                    {question?.questionText}
+                  </h2>
+                  {question?.required && (
+                      <div className={styles.requiredWrapper}>
+                        <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
+                        <DialogTrigger>
+                          <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
+                          <Popover>
+                            <OverlayArrow>
+                              <svg width={12} height={12} viewBox="0 0 12 12">
+                                <path d="M0 0 L6 6 L12 0" />
+                              </svg>
+                            </OverlayArrow>
+                            <Dialog>
+                              <div className="flex-col">
+                                {PlanOverview('page.requiredByFunderInfo')}
+                              </div>
+                            </Dialog>
+                          </Popover>
+                        </DialogTrigger>
+                      </div>
+                  )}
+                  <div>
+                    <div className={styles.buttonsRow}>
+                      {/**Only include sample text button for textArea question types */}
+                      {questionType === 'textArea' && (
+                          <div className="">
+                            <Button
+                                ref={openSampleTextButtonRef}
+                                className={`${styles.buttonSmall} tertiary`}
+                                data-secondary
+                                onPress={toggleSampleTextDrawer}
+                            >
+                              {PlanOverview('page.viewSampleAnswer')}
+                            </Button>
+                          </div>
+                      )}
+
+                      <div className="">
+                        <Button
+                            ref={openCommentsButtonRef}
+                            className={`${styles.buttonSmall} ${styles.buttonWithComments}`}
+                            onPress={toggleCommentsDrawer}
+                        >
+                          4 Comments
+                        </Button>
+                      </div>
+                    </div>
+                    {parsed && questionField}
+
+                  </div>
+                  <div className="lastSaved mt-5"
+                       aria-live="polite"
+                       role="status">
+                    Last saved X minutes ago
+                  </div>
+                </Card>
+
+                <section aria-label={"Guidance"} id="guidance">
+                  <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { funder: plan?.funder ?? '' })}</h3>
+
+                  {convertToHTML(question?.guidanceText)}
+
+
+                  <h3 className={"h4"}>Guidance by University of California</h3>
+                  <p>
+                    This is the most detailed section of the data management plan.
+                    Describe the categories of data being collected and how they tie
+                    into the data associated with the methods used to collect that
+                    data.
+                  </p>
+                  <p>
+                    Expect this section to be the most detailed section, taking up a
+                    large portion of your data management plan document.
+                  </p>
+                </section>
+                <div className={styles.modalAction}>
+                  <div>
+                    <Button
+                        type="submit"
+                        data-secondary
+                        className="primary"
+                        aria-label={PlanOverview('labels.saveAnswer')}
+                    >
+                      {Global('buttons.save')}
+                    </Button>
+                  </div>
+                  <div>
+                    <Button
+                        className="secondary"
+                        aria-label={PlanOverview('labels.returnToSection')}
+                        onPress={() => handleBackToSection()}
+                    >
+                      {PlanOverview('buttons.backToSection')}
+                    </Button>
+                  </div>
+
                 </div>
-                <div>
-                  <Button
-                    className="secondary"
-                    aria-label={PlanOverview('labels.returnToSection')}
-                    onPress={() => handleBackToSection()}
-                  >
-                    {PlanOverview('buttons.backToSection')}
-                  </Button>
-                </div>
-
-              </div>
-            </Form>
-          </div>
-        </ContentContainer >
-
-        <SidebarPanel isOpen={isSideBarPanelOpen}>
-          <div
-            className={styles.bestPracticesPanel}
-            aria-labelledby="best-practices-title"
-          >
-            <h3 id="best-practices-title">Best practice by DMP Tool</h3>
-            <p>Most relevant best practice guide</p>
-
-            <div role="navigation" aria-label="Best practices navigation"
-              className={styles.bestPracticesLinks}>
-              <Link href="/best-practices/sharing">
-                Data sharing
-                <svg width="20" height="20" viewBox="0 0 20 20"
-                  fill="currentColor">
-                  <path fillRule="evenodd"
-                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                    clipRule="evenodd" />
-                </svg>
-              </Link>
-
-              <Link href="/best-practices/preservation">
-                Data preservation
-                <svg width="20" height="20" viewBox="0 0 20 20"
-                  fill="currentColor">
-                  <path fillRule="evenodd"
-                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                    clipRule="evenodd" />
-                </svg>
-              </Link>
-
-              <Link href="/best-practices/protection">
-                Data protection
-                <svg width="20" height="20" viewBox="0 0 20 20"
-                  fill="currentColor">
-                  <path fillRule="evenodd"
-                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                    clipRule="evenodd" />
-                </svg>
-              </Link>
-
-              <Link href="/best-practices/all">
-                All topics
-                <svg width="20" height="20" viewBox="0 0 20 20"
-                  fill="currentColor">
-                  <path fillRule="evenodd"
-                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                    clipRule="evenodd" />
-                </svg>
-              </Link>
+              </Form>
             </div>
-          </div>
-        </SidebarPanel>
+          </ContentContainer >
 
-        {/** Sample text drawer. Only include for question types = Text Area */}
-        {
-          questionType === 'textArea' && (
-            <DrawerPanel
-              isOpen={isSampleTextDrawerOpen}
-              onClose={closeCurrentDrawer}
-              returnFocusRef={openSampleTextButtonRef}
-              className={styles.drawerPanelWrapper}
+          <SidebarPanel isOpen={isSideBarPanelOpen}>
+            <div
+                className={styles.bestPracticesPanel}
+                aria-labelledby="best-practices-title"
             >
-              <h3>{question?.questionText}</h3>
-              <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
-              <div className={styles.sampleText}>
-                {convertToHTML(question?.sampleText)}
+              <h3 id="best-practices-title">Best practice by DMP Tool</h3>
+              <p>Most relevant best practice guide</p>
+
+              <div role="navigation" aria-label="Best practices navigation"
+                   className={styles.bestPracticesLinks}>
+                <Link href="/best-practices/sharing">
+                  Data sharing
+                  <svg width="20" height="20" viewBox="0 0 20 20"
+                       fill="currentColor">
+                    <path fillRule="evenodd"
+                          d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                          clipRule="evenodd" />
+                  </svg>
+                </Link>
+
+                <Link href="/best-practices/preservation">
+                  Data preservation
+                  <svg width="20" height="20" viewBox="0 0 20 20"
+                       fill="currentColor">
+                    <path fillRule="evenodd"
+                          d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                          clipRule="evenodd" />
+                  </svg>
+                </Link>
+
+                <Link href="/best-practices/protection">
+                  Data protection
+                  <svg width="20" height="20" viewBox="0 0 20 20"
+                       fill="currentColor">
+                    <path fillRule="evenodd"
+                          d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                          clipRule="evenodd" />
+                  </svg>
+                </Link>
+
+                <Link href="/best-practices/all">
+                  All topics
+                  <svg width="20" height="20" viewBox="0 0 20 20"
+                       fill="currentColor">
+                    <path fillRule="evenodd"
+                          d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
+                          clipRule="evenodd" />
+                  </svg>
+                </Link>
               </div>
-              <div className="">
-                <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
-              </div>
-            </DrawerPanel>
-          )
-        }
+            </div>
+          </SidebarPanel>
+
+          {/** Sample text drawer. Only include for question types = Text Area */}
+          {
+              questionType === 'textArea' && (
+                  <DrawerPanel
+                      isOpen={isSampleTextDrawerOpen}
+                      onClose={closeCurrentDrawer}
+                      returnFocusRef={openSampleTextButtonRef}
+                      className={styles.drawerPanelWrapper}
+                  >
+                    <h3>{question?.questionText}</h3>
+                    <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
+                    <div className={styles.sampleText}>
+                      {convertToHTML(question?.sampleText)}
+                    </div>
+                    <div className="">
+                      <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
+                    </div>
+                  </DrawerPanel>
+              )
+          }
 
 
-        {/**Comments drawer */}
-        <DrawerPanel
-          isOpen={isCommentsDrawerOpen}
-          onClose={closeCurrentDrawer}
-          returnFocusRef={openCommentsButtonRef}
-          className={styles.drawerPanelWrapper}
-        >
-          <h2>{PlanOverview('headings.comments')}</h2>
-          <div className={styles.comment}>
-            <h4>John Smith</h4>
-            <p className={styles.deEmphasize}>2 days ago</p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-              laboris nisi ut aliquip ex ea commodo consequat.
-            </p>
-          </div>
+          {/**Comments drawer */}
+          <DrawerPanel
+              isOpen={isCommentsDrawerOpen}
+              onClose={closeCurrentDrawer}
+              returnFocusRef={openCommentsButtonRef}
+              className={styles.drawerPanelWrapper}
+          >
+            <h2>{PlanOverview('headings.comments')}</h2>
+            <div className={styles.comment}>
+              <h4>John Smith</h4>
+              <p className={styles.deEmphasize}>2 days ago</p>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                laboris nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
 
-          <div className={styles.comment}>
-            <h4>John Smith</h4>
-            <p className={styles.deEmphasize}>2 days ago</p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-              laboris nisi ut aliquip ex ea commodo consequat.
-            </p>
-          </div>
+            <div className={styles.comment}>
+              <h4>John Smith</h4>
+              <p className={styles.deEmphasize}>2 days ago</p>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                laboris nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
 
-          <div className={styles.leaveComment}>
-            <h2>{PlanOverview('headings.leaveAComment')}</h2>
-            <Form onSubmit={(e) => handleAddComment(e)}>
-              <TextField>
-                <Label>Frederick Cook (you)</Label>
-                <TextArea />
-              </TextField>
-              <div>
-                <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
-                <p>{PlanOverview('page.participantsWillBeNotified')}</p>
-              </div>
-            </Form>
-          </div>
-        </DrawerPanel>
-      </LayoutWithPanel >
-    </>
+            <div className={styles.leaveComment}>
+              <h2>{PlanOverview('headings.leaveAComment')}</h2>
+              <Form onSubmit={(e) => handleAddComment(e)}>
+                <TextField>
+                  <Label>Frederick Cook (you)</Label>
+                  <TextArea />
+                </TextField>
+                <div>
+                  <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
+                  <p>{PlanOverview('page.participantsWillBeNotified')}</p>
+                </div>
+              </Form>
+            </div>
+          </DrawerPanel>
+        </LayoutWithPanel >
+      </>
   );
 }
 

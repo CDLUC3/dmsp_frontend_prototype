@@ -255,6 +255,7 @@ const QuestionEdit = () => {
   const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
     const userInput = getFormState(question, rowsOverride);
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
+
     if (!parsed) {
       if (error) {
         setErrors(prev => [...prev, error])

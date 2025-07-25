@@ -24,6 +24,46 @@ import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.js
 import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNumber.json';
 import mockQuestionDataForCurrency from '@/__mocks__/common/mockQuestionDataForCurrency.json';
 import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
+import { AffiliationSearchQuestionType } from "@dmptool/types";
+
+beforeEach(() => {
+  // Cannot get the escaping to work in the mock JSON file, so doing it programmatically here
+  const affiliationQuery = `
+query Affiliations($name: String!){
+  affiliations(name: $name) {
+    totalCount
+    nextCursor
+    items {
+      id
+      displayName
+      uri
+    }
+  }
+}`;
+  const json: AffiliationSearchQuestionType = {
+    type: 'affiliationSearch',
+    attributes: {},
+    graphQL: {
+      displayFields: [{
+        label: "Institution",
+        propertyName: "displayName",
+      }],
+      query: affiliationQuery,
+      responseField: 'affiliations.items',
+      variables: [{
+        label: "Search for your institution",
+        minLength: 3,
+        name: "name",
+        type: "string",
+      }],
+      answerField: 'uri'
+    },
+    meta: {
+      schemaVersion: '1.0'
+    },
+  };
+  mockQuestionDataForTypeAheadSearch.question.json = JSON.stringify(json);
+});
 
 expect.extend(toHaveNoViolations);
 
@@ -185,11 +225,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: 'radioButtons' };
+          const params: Record<string, string> = { questionTypeId: 'text' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: 'radioButtons' },
+        has: (key: string) => key in { questionTypeId: 'text' },
         keys() { },
         values() { },
         entries() { },
@@ -224,7 +264,7 @@ describe("QuestionEditPage", () => {
           input: {
             questionId: 67,
             displayOrder: 3,
-            json: "{\"type\":\"textArea\",\"attributes\":{\"label\":\"Number\",\"cols\":20,\"maxLength\":1000,\"minLength\":0,\"rows\":20,\"asRichText\":true},\"meta\":{\"schemaVersion\":\"1.0\"}}",
+            json: "{\"type\":\"textArea\",\"attributes\":{\"cols\":20,\"maxLength\":1000,\"minLength\":0,\"rows\":20,\"asRichText\":true},\"meta\":{\"schemaVersion\":\"1.0\"}}",
             questionText: "Text area question",
             requirementText: "<p><strong>Requirements - Lorem Ipsum</strong>&nbsp;is simply dummy requirements text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
             guidanceText: "<p><strong>Guidance text - Lorem Ipsum</strong>&nbsp;is simply dummy guidance text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
@@ -346,6 +386,11 @@ describe("QuestionEditPage", () => {
         <QuestionEdit />
       );
     });
+
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set required QuestionType value
+    fireEvent.change(input, { target: { value: 'Testing' } });
 
     const saveButton = screen.getByText('buttons.saveAndUpdate');
     expect(saveButton).toBeInTheDocument();
@@ -598,6 +643,7 @@ describe("QuestionEditPage", () => {
         <QuestionEdit />
       );
     });
+
     // Find the label input rendered by AffiliationSearch
     const labelInput = screen.getByPlaceholderText('Enter search label');
 
@@ -1013,6 +1059,7 @@ describe("QuestionEditPage", () => {
       },
     },
   ])("QuestionEditPage - $questionType", ({ questionType, mockData, expectedJson }) => {
+
     it(`should call updateQuestionMutation with correct JSON for ${questionType}`, async () => {
       (useQuestionQuery as jest.Mock).mockReturnValue({
         data: mockData,
@@ -1364,7 +1411,7 @@ describe('Options questions', () => {
           input: {
             questionId: 67,
             displayOrder: 17,
-            json: '{"type":"radioButtons","attributes":{},"options":[{"label":"Yes","value":"Yes","selected":true},{"label":"No","value":"No","selected":false},{"label":"Maybe","value":"Maybe","selected":false},{"type":"option","attributes":{"label":"Maybe","value":"Maybe","selected":false}}],"meta":{"schemaVersion":"1.0"}}',
+            json: '{"type":"radioButtons","attributes":{},"meta":{"schemaVersion":"1.0"},"options":[{"label":"Yes","value":"Yes","selected":true},{"label":"No","value":"No","selected":false},{"label":"Maybe","value":"Maybe","selected":false},{"label":"Maybe","value":"Maybe","selected":false}]}',
             questionText: 'Testing',
             requirementText: 'This is requirement text',
             guidanceText: 'This is the guidance text',
