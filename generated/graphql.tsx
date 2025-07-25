@@ -530,6 +530,19 @@ export type ExternalProject = {
   title?: Maybe<Scalars['String']['output']>;
 };
 
+export type ExternalSearchInput = {
+  /** The URI of the funder we are using to search for projects */
+  affiliationId: Scalars['String']['input'];
+  /** The funder award/grant id/url (optional) */
+  awardId?: InputMaybe<Scalars['String']['input']>;
+  /** The funder award/grant name (optional) */
+  awardName?: InputMaybe<Scalars['String']['input']>;
+  /** The funder award/grant year (optional) as YYYY */
+  awardYear?: InputMaybe<Scalars['String']['input']>;
+  /** The principal investigator names (optional) can be any combination of first/middle/last names */
+  piNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
 /** A result of the most popular funders */
 export type FunderPopularityResult = {
   __typename?: 'FunderPopularityResult';
@@ -1470,6 +1483,8 @@ export type Plan = {
   sections?: Maybe<Array<PlanSectionProgress>>;
   /** The status/state of the plan */
   status?: Maybe<PlanStatus>;
+  /** The title of the plan */
+  title?: Maybe<Scalars['String']['output']>;
   /** The template the plan is based on */
   versionedTemplate?: Maybe<VersionedTemplate>;
   /** Prior versions of the plan */
@@ -1498,6 +1513,7 @@ export type PlanErrors = {
   registered?: Maybe<Scalars['String']['output']>;
   registeredById?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
   visibility?: Maybe<Scalars['String']['output']>;
 };
@@ -1592,8 +1608,8 @@ export type PlanFunding = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The project that is seeking (or has aquired) funding */
-  project?: Maybe<Project>;
+  /** The plan that is seeking (or has aquired) funding */
+  plan?: Maybe<Plan>;
   /** The project funder */
   projectFunding?: Maybe<ProjectFunding>;
 };
@@ -1604,7 +1620,7 @@ export type PlanFundingErrors = {
   ProjectFundingId?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
-  projectId?: Maybe<Scalars['String']['output']>;
+  planId?: Maybe<Scalars['String']['output']>;
 };
 
 /** A Member associated with a plan */
@@ -1753,6 +1769,8 @@ export type Project = {
   __typename?: 'Project';
   /** The research project abstract */
   abstractText?: Maybe<Scalars['String']['output']>;
+  /** People who have access to modify or comment on the Project */
+  collaborators?: Maybe<Array<ProjectCollaborator>>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
@@ -1928,6 +1946,8 @@ export type ProjectMember = {
   givenName?: Maybe<Scalars['String']['output']>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
+  /** Whether or not the Member the primary contact for the Plan */
+  isPrimaryContact?: Maybe<Scalars['Boolean']['output']>;
   /** The roles the Member has on the research project */
   memberRoles?: Maybe<Array<MemberRole>>;
   /** The timestamp when the Object was last modifed */
@@ -2468,11 +2488,7 @@ export type QueryRepositoryArgs = {
 
 
 export type QuerySearchExternalProjectsArgs = {
-  affiliationId: Scalars['Int']['input'];
-  awardId?: InputMaybe<Scalars['String']['input']>;
-  awardName?: InputMaybe<Scalars['String']['input']>;
-  awardYear?: InputMaybe<Scalars['String']['input']>;
-  piNames?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  input: ExternalSearchInput;
 };
 
 
@@ -3818,7 +3834,7 @@ export type AddPlanFundingMutationVariables = Exact<{
 }>;
 
 
-export type AddPlanFundingMutation = { __typename?: 'Mutation', addPlanFunding?: { __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null, projectId?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null };
+export type AddPlanFundingMutation = { __typename?: 'Mutation', addPlanFunding?: { __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null };
 
 export type AddProjectCollaboratorMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4039,7 +4055,7 @@ export type ProjectFundingsQueryVariables = Exact<{
 }>;
 
 
-export type ProjectFundingsQuery = { __typename?: 'Query', projectFundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, status?: ProjectFundingStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string, uri: string } | null } | null> | null };
+export type ProjectFundingsQuery = { __typename?: 'Query', projectFundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, status?: ProjectFundingStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, uri: string } | null } | null> | null };
 
 export type PlanFundingsQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4068,7 +4084,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4579,7 +4595,6 @@ export const AddPlanFundingDocument = gql`
     errors {
       ProjectFundingId
       general
-      projectId
     }
     projectFunding {
       id
@@ -5904,7 +5919,6 @@ export const ProjectFundingsDocument = gql`
     funderProjectNumber
     affiliation {
       displayName
-      name
       uri
     }
   }
@@ -6161,6 +6175,7 @@ export const PlanDocument = gql`
     modified
     dmpId
     registered
+    title
   }
 }
     `;

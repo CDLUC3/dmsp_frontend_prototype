@@ -352,7 +352,7 @@ export interface ListItemsInterface {
 export interface PlanOverviewInterface {
   id: number | null;
   dmpId: string;
-  registered: string;
+  registered: string | null;
   title: string;
   status: string;
   funderName: string;
