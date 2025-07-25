@@ -495,6 +495,8 @@ const TemplateEditPage: React.FC = () => {
       <PageHeaderWithTitleChange
         title={template.name}
         description={description}
+        linkText={EditTemplate('links.editTemplateTitle')}
+        labelText={EditTemplate('templateTitleLabel')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>

@@ -1,3 +1,14 @@
+
+### Added
+- Added the ability to edit the `Plan title` [#608]
+
+### Fixed
+- Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
+
+
+====================================================================================================================================
+## All changes above the line happened after the merge to the main branch on July 21, 2025
+
 ### Added
 - Added the `Mark as required` radio buttons on the `QuestionAdd` and `QuestionEdit` pages and updated unit tests [#562]
 - Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
@@ -21,7 +32,6 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
-- Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
 - Fixed the `Plan Overview` breadcrumb so that it includes a link to previous `Project Overview` page, as well as updating them to use `routePath` [#592]
 - Fixed the `Edit` link in the `Project Funding` page so that it includes correct `projectFundingId` in path, and added missing translation keys and updated routes to use `routePath`, and updated unit test [#592]
 - Added error message when the user clicks `Edit` for a funder that has no `funderProjectNumber` [#592]
