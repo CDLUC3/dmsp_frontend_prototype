@@ -404,13 +404,22 @@ const PlanOverviewPage: React.FC = () => {
             type: 'SET_ERROR_MESSAGES',
             payload: errs
           });
-        } else {
-          const successMessage = t('messages.success.successfullyUpdatedTitle');
-          toastState.add(successMessage, { type: 'success' });
+          return;
         }
+
+        // Optimistically update state so UI reflects it smoothly
+        dispatch({
+          type: 'SET_PLAN_DATA',
+          payload: {
+            ...state.planData,
+            title: newTitle
+          }
+        });
+
+        const successMessage = t('messages.success.successfullyUpdatedTitle');
+        toastState.add(successMessage, { type: 'success' });
+
       }
-      //Need to refetch plan data to refresh the info that was changed
-      await refetch();
     }
   }
 

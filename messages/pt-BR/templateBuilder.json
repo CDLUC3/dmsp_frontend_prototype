@@ -60,7 +60,8 @@
     },
     "messages": {
       "successfullyArchived": "Modelo arquivado com sucesso",
-      "sectionMoved": "Seção movida para a posição {displayOrder}"
+      "sectionMoved": "Seção movida para a posição {displayOrder}",
+      "successfullyUpdatedTitle": "Título do modelo atualizado com sucesso"
     }
   },
   "PublishTemplate": {

@@ -98,7 +98,7 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
                 label={labelText}
                 value={newTitle}
                 inputClasses="titleChange-input"
-                placeholder={placeholder ?? Global('edittitle')}
+                placeholder={placeholder ?? Global('editTitle')}
                 onChange={handleChange}
               />
             ) : (
