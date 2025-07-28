@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
-import { useParams, notFound } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import PageHeader from "@/components/PageHeader";
 import styles from './PlanOverviewSectionPage.module.scss';
 import { useTranslations } from "next-intl";
@@ -15,7 +15,7 @@ import { usePlanSectionQuestionsQuery, useSectionQuery, usePlanQuery } from '@/g
 import { stripHtml } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { DmpIcon } from '@/components/Icons';
-
+import ErrorMessages from '@/components/ErrorMessages';
 interface Question {
   id: string;
   title: string;
@@ -33,11 +33,8 @@ const PlanOverviewSectionPage: React.FC = () => {
   // State for navigation visibility
   const [showNavigation, setShowNavigation] = useState(true);
 
-  // Validate that dmpId is a valid number, redirect to 404 if not
+  // Validate that dmpId is a valid number
   const planId = parseInt(dmpId);
-  if (isNaN(planId)) {
-    notFound();
-  }
 
   const { data: questionsData, loading: questionsLoading, error: questionsError } = usePlanSectionQuestionsQuery({
     variables: { sectionId },
@@ -76,6 +73,11 @@ const PlanOverviewSectionPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Simple error handling - check for invalid DMP ID
+  if (isNaN(planId)) {
+    return <ErrorMessages errors={[t('errors.invalidDmpId')]} />;
+  }
+
   // Loading states
   if (questionsLoading || sectionLoading || planLoading) {
     return <div>Loading questions...</div>;
@@ -85,12 +87,13 @@ const PlanOverviewSectionPage: React.FC = () => {
     return <div>Error loading questions: {questionsError.message}</div>;
   }
 
-  // Validate section belongs to plan - 404 if not
+  // Plan sections data for rendering
   const planSections = planData?.plan?.sections || [];
   const sectionBelongsToPlan = planSections.some(section => section.sectionId === sectionId);
 
+  // Check if section belongs to this plan
   if (!sectionBelongsToPlan) {
-    notFound();
+    return <ErrorMessages errors={[t('errors.sectionNotFound')]} />;
   }
 
   // Check for questions - show message if none
