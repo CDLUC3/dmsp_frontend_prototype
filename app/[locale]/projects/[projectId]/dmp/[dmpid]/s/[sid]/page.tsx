@@ -14,6 +14,7 @@ import {
 import { usePlanSectionQuestionsQuery, useSectionQuery, usePlanQuery } from '@/generated/graphql';
 import { stripHtml } from '@/utils/general';
 import { routePath } from '@/utils/routes';
+import { DmpIcon } from '@/components/Icons';
 
 interface Question {
   id: string;
@@ -105,7 +106,6 @@ const PlanOverviewSectionPage: React.FC = () => {
 
   const plan = {
     id: planData?.plan?.id?.toString() || '',
-    template_name: planData?.plan?.versionedTemplate?.template?.name || '',
     title: planData?.plan?.versionedTemplate?.template?.name || '',
     funder_name: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName || ''
   };
@@ -239,18 +239,10 @@ const PlanOverviewSectionPage: React.FC = () => {
                             className={styles.progressIndicator}
                             aria-label={`Question status: ${question.isAnswered ? 'Completed' : 'Not started'}`}
                           >
-                            <svg
-                              className={`${styles.progressIcon} ${!question.isAnswered ? styles.progressIconInactive : ''}`}
-                              width="18"
-                              height="18"
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 -960 960 960"
-                              fill="currentColor"
-                              aria-hidden="true"
-                            >
-                              <path
-                                d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
-                            </svg>
+                            <DmpIcon
+                              icon={question.isAnswered ? 'check_circle' : 'cancel'}
+                              classes={`${styles.progressIcon} ${!question.isAnswered ? styles.progressIconInactive : ''}`}
+                            />
                             {question.isAnswered ? t('question.answered') : t('question.notAnswered')}
                           </span>
                         </p>
@@ -285,46 +277,22 @@ const PlanOverviewSectionPage: React.FC = () => {
               className={styles.bestPracticesLinks}>
               <Link href="/best-practices/sharing">
                 Data sharing
-                <svg width="20" height="20" viewBox="0 0 20 20"
-                  aria-hidden="true"
-                  fill="currentColor">
-                  <path fillRule="evenodd"
-                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                    clipRule="evenodd" />
-                </svg>
+                <DmpIcon icon="external_link" />
               </Link>
 
               <Link href="/best-practices/preservation">
                 Data preservation
-                <svg width="20" height="20" viewBox="0 0 20 20"
-                  aria-hidden="true"
-                  fill="currentColor">
-                  <path fillRule="evenodd"
-                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                    clipRule="evenodd" />
-                </svg>
+                <DmpIcon icon="external_link" />
               </Link>
 
               <Link href="/best-practices/protection">
                 Data protection
-                <svg width="20" height="20" viewBox="0 0 20 20"
-                  aria-hidden="true"
-                  fill="currentColor">
-                  <path fillRule="evenodd"
-                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                    clipRule="evenodd" />
-                </svg>
+                <DmpIcon icon="external_link" />
               </Link>
 
               <Link href="/best-practices/all">
                 All topics
-                <svg width="20" height="20" viewBox="0 0 20 20"
-                  aria-hidden="true"
-                  fill="currentColor">
-                  <path fillRule="evenodd"
-                    d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                    clipRule="evenodd" />
-                </svg>
+                <DmpIcon icon="external_link" />
               </Link>
             </div>
           </div>
