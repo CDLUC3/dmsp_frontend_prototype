@@ -114,7 +114,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
     const typedKeys: (keyof PlanFundingErrors)[] = [
       "ProjectFundingId",
       "general",
-      "projectId",
+      "planId",
     ];
     const newErrors: string[] = [];
 
