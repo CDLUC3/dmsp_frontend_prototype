@@ -228,4 +228,34 @@ describe('QuestionOptionsComponent', () => {
       { id: 2, orderNumber: 2, text: 'Option 2', isSelected: true, questionId: 1 }, // <== isDefault changed
     ]);
   });
+
+  it('should uncheck the checked default', () => {
+    function Wrapper() {
+      const [rows, setRows] = React.useState<Row[]>([
+        { id: 1, text: 'Option 1', isSelected: false },
+        { id: 2, text: 'Option 2', isSelected: false },
+      ]);
+
+      return (
+        <QuestionOptionsComponent
+          rows={rows}
+          setRows={setRows}
+          questionJSON={mockQuestionJSON}
+          setFormSubmitted={jest.fn()}
+        />
+      );
+    }
+
+    const { getByLabelText } = render(<Wrapper />);
+
+    const defaultCheckbox = getByLabelText('Set row 2 as default');
+
+    // First click - should check it
+    fireEvent.click(defaultCheckbox);
+    expect(defaultCheckbox).toBeChecked();
+
+    // Second click - should uncheck it
+    fireEvent.click(defaultCheckbox);
+    expect(defaultCheckbox).not.toBeChecked();
+  });
 });

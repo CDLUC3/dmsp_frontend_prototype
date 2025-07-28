@@ -27,14 +27,19 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-import PageHeader from "@/components/PageHeader";
 import ErrorMessages from '@/components/ErrorMessages';
 import { DmpIcon } from "@/components/Icons";
 import { FormSelect, RadioGroupComponent } from '@/components/Form';
+import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 
-import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { publishPlanAction, updatePlanStatusAction } from './actions';
+import { extractErrors } from '@/utils/errorHandler';
+import { useToast } from '@/context/ToastContext';
+import {
+  publishPlanAction,
+  updatePlanStatusAction,
+  updatePlanTitleAction
+} from './actions';
 import {
   ListItemsInterface,
   PlanMember,
@@ -50,6 +55,22 @@ const planStatusOptions = Object.entries(PlanStatus).map(([name, id]) => ({
   id,
   name
 }));
+
+type UpdateTitleErrors = {
+  general?: string;
+  title?: string;
+};
+
+type UpdateStatusErrors = {
+  general?: string;
+  status?: string;
+}
+
+type PublishPlanErrors = {
+  general?: string;
+  visibility?: string;
+  status?: string;
+}
 
 const initialState: {
   isModalOpen: boolean;
@@ -128,6 +149,8 @@ const PlanOverviewPage: React.FC = () => {
   const planId = Number(dmpId);
   const errorRef = useRef<HTMLDivElement | null>(null);
 
+  const toastState = useToast();
+
   // Localization keys
   const t = useTranslations('PlanOverview');
   const Global = useTranslations('Global');
@@ -180,14 +203,12 @@ const PlanOverviewPage: React.FC = () => {
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
     const selection = value.toUpperCase();
-    if (Object.values(PlanVisibility).includes(selection as PlanVisibility)) {
-      dispatch({
-        type: 'SET_PLAN_VISIBILITY',
-        payload: selection as PlanVisibility,
-      })
-    } else {
-      console.error(`Invalid visibility value: ${value}`);
-    }
+
+    dispatch({
+      type: 'SET_PLAN_VISIBILITY',
+      payload: selection as PlanVisibility,
+    })
+
   };
 
   const handlePlanStatusChange = () => {
@@ -248,19 +269,21 @@ const PlanOverviewPage: React.FC = () => {
         //Handle errors as an array
         dispatch({
           type: 'SET_ERROR_MESSAGES',
-          payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
+          payload: errors,
         })
       }
     } else {
-      if (
-        result.data?.errors &&
-        typeof result.data.errors === 'object' &&
-        typeof result.data.errors.general === 'string') {
-        // Handle errors as an object with general or field-level errors
-        dispatch({
-          type: 'SET_ERROR_MESSAGES',
-          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
-        });
+      if (result?.data?.errors) {
+        const errs = extractErrors<UpdateStatusErrors>(result?.data?.errors, ['general', 'status']);
+        if (errs.length > 0) {
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errs
+          });
+        } else {
+          const successMessage = t('messages.success.successfullyUpdatedStatus');
+          toastState.add(successMessage, { type: 'success' });
+        }
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
@@ -268,35 +291,21 @@ const PlanOverviewPage: React.FC = () => {
   }
 
   // Call Server Action publishPlanAction to run the publishPlanMutation
-  const updatePlan = async (visibility: PlanVisibility) => {
-    try {
-      const response = await publishPlanAction({
-        planId: Number(planId),
-        visibility
-      })
+  const publishPlan = async (visibility: PlanVisibility) => {
+    const response = await publishPlanAction({
+      planId: Number(planId),
+      visibility
+    })
 
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      }
-    } catch (error) {
-      logECS('error', 'updatePlan', {
-        error,
-        url: {
-          path: routePath('projects.dmp.show', { projectId, dmpId: planId })
-        }
-      });
+    if (response.redirect) {
+      router.push(response.redirect);
     }
+
     return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: null
-    };
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -320,7 +329,7 @@ const PlanOverviewPage: React.FC = () => {
     // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
     const visibility = formData.get('visibility')?.toString().toUpperCase() as PlanVisibility;
 
-    const result = await updatePlan(visibility);
+    const result = await publishPlan(visibility);
 
     if (!result.success) {
       const errors = result.errors;
@@ -334,15 +343,17 @@ const PlanOverviewPage: React.FC = () => {
         })
       }
     } else {
-      if (
-        result.data?.errors &&
-        typeof result.data.errors === 'object' &&
-        typeof result.data.errors.general === 'string') {
-        // Handle errors as an object with general or field-level errors
-        dispatch({
-          type: 'SET_ERROR_MESSAGES',
-          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
-        });
+      if (result?.data?.errors) {
+        const errs = extractErrors<PublishPlanErrors>(result?.data?.errors, ['general', 'visibility', 'status']);
+        if (errs.length > 0) {
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errs
+          });
+        } else {
+          const successMessage = t('messages.success.successfullyPublished');
+          toastState.add(successMessage, { type: 'success' });
+        }
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
@@ -357,6 +368,53 @@ const PlanOverviewPage: React.FC = () => {
     return Math.round(overallPercentage);
   }
 
+  // Call Server Action updatePlanTitleAction to run the updatePlanTitleMutation
+  const updateTitle = async (title: string) => {
+    // Don't need a try-catch block here, as the error is handled in the action
+    const response = await updatePlanTitleAction({
+      planId: Number(planId),
+      title
+    })
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
+  }
+
+  const handleTitleChange = async (newTitle: string) => {
+    const result = await updateTitle(newTitle);
+
+    if (!result.success) {
+      dispatch({
+        type: 'SET_ERROR_MESSAGES',
+        payload: [...state.errorMessages, t('messages.errors.updateTitleError')]
+      });
+    } else {
+      if (result.data?.errors) {
+        // Handle errors as an object with general or field-level errors
+        const errs = extractErrors<UpdateTitleErrors>(result?.data?.errors, ['general', 'title']);
+        if (errs.length > 0) {
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errs
+          });
+        } else {
+          const successMessage = t('messages.success.successfullyUpdatedTitle');
+          toastState.add(successMessage, { type: 'success' });
+        }
+      }
+      //Need to refetch plan data to refresh the info that was changed
+      await refetch();
+    }
+  }
+
+
   useEffect(() => {
     // When data from backend changes, set project data in state
     if (data && data.plan) {
@@ -366,7 +424,7 @@ const PlanOverviewPage: React.FC = () => {
           id: Number(data?.plan.id) ?? null,
           dmpId: data?.plan.dmpId ?? '',
           registered: data?.plan.registered ?? '',
-          title: data?.plan?.versionedTemplate?.name ?? '',
+          title: data?.plan?.title ?? '',
           status: data?.plan?.status ?? '',
           funderName: data?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
           primaryContact: data.plan.members
@@ -469,9 +527,12 @@ const PlanOverviewPage: React.FC = () => {
 
   return (
     <>
-      <PageHeader
-        title={state.planData.title || t('page.pageDescription')}
+      <PageHeaderWithTitleChange
+        title={state.planData.title}
         description={t('page.pageDescription')}
+        linkText={t('links.editTitle')}
+        labelText={t('labels.planTitle')}
+        placeholder={t('page.planTitlePlaceholder')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
@@ -481,8 +542,7 @@ const PlanOverviewPage: React.FC = () => {
             <Breadcrumb>{state.planData.title}</Breadcrumb>
           </Breadcrumbs>
         }
-        actions={null}
-        className="page-project-list"
+        onTitleChange={handleTitleChange}
       />
 
       <ErrorMessages errors={state.errorMessages} ref={errorRef} />
@@ -628,7 +688,7 @@ const PlanOverviewPage: React.FC = () => {
                       isRequired
                       name="planStatus"
                       items={planStatusOptions}
-                      onSelectionChange={(selected) => dispatch({ type: 'SET_PLAN_STATUS', payload: selected as PlanStatus })}
+                      onChange={(selected) => dispatch({ type: 'SET_PLAN_STATUS', payload: selected as PlanStatus })}
                       selectedKey={state.planStatus ?? state.planData.status}
                     >
                       {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}

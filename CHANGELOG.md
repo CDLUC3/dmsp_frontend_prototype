@@ -1,3 +1,14 @@
+
+### Added
+- Added auto-save to the `Question Answer` page [#585]
+- Added the ability to edit the `Plan title` [#608]
+
+### Fixed
+- Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
+
+====================================================================================================================================
+## All changes above the line happened after the merge to the main branch on July 21, 2025
+
 ### Added
 - Added the `Mark as required` radio buttons on the `QuestionAdd` and `QuestionEdit` pages and updated unit tests [#562]
 - Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]

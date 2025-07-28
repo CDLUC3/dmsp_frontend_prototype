@@ -16,7 +16,8 @@
     },
     "labels": {
       "saveAnswer": "Resposta salva",
-      "returnToSection": "Voltar à visão geral da seção"
+      "returnToSection": "Voltar à visão geral da seção",
+      "planTitle": "Título do Plano"
     },
     "page": {
       "pageDescription": "Visão geral dos detalhes do plano",
@@ -27,7 +28,8 @@
       "viewSampleAnswer": "Ver amostra da resposta",
       "guidanceBy": "Guia por {funder}",
       "funderSampleText": "{funder} texto de exemplo",
-      "participantsWillBeNotified": "Os participantes serão notificados assim que submetidos."
+      "participantsWillBeNotified": "Os participantes serão notificados assim que submetidos.",
+      "planTitlePlaceholder": "Inserir título do plano"
     },
     "funding": {
       "title": "Financiamento para este plano",
@@ -109,6 +111,19 @@
         },
         "publishButton": "Publicar"
       }
+    },
+    "messages": {
+      "errors": {
+        "updateTitleError": "Ocorreu um erro ao atualizar o título do plano"
+      },
+      "success": {
+        "successfullyUpdatedTitle": "Título do plano atualizado com êxito",
+        "successfullyPublished": "Plano publicado com sucesso",
+        "successfullyUpdatedStatus": "Status do plano atualizado com sucesso"
+      }
+    },
+    "links": {
+      "editTitle": "Editar título do plano"
     }
   },
   "PlanCreate": {
@@ -169,7 +184,11 @@
     "messages": {
       "success": {
         "questionSaved": "Detalhes da pergunta salvos com sucesso"
-      }
+      },
+      "unsavedChanges": "Alterações não Salvas",
+      "savedJustNow": "Salvo há pouco",
+      "lastSavedOneMinuteAgo": "Última salvo há 1 minuto",
+      "lastSaves": "Salvo há {minutes} minutos atrás"
     }
   },
   "ProjectsProjectFunding": {

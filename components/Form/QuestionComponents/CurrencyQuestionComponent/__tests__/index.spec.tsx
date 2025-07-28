@@ -8,7 +8,7 @@ import { CurrencyQuestionComponent } from '@/components/Form/QuestionComponents'
 expect.extend(toHaveNoViolations);
 
 
-describe('RadioButtonsQuestionComponent', () => {
+describe('Currency Question Component', () => {
   const mockHandleCurrencyChange = jest.fn();
   const mockParsedQuestion: CurrencyQuestionType = {
     type: "currency",
@@ -35,7 +35,7 @@ describe('RadioButtonsQuestionComponent', () => {
         inputCurrencyValue={12.00}
         currencyLabel="Currency Amount"
         placeholder='Enter amount'
-        setInputCurrencyValue={mockHandleCurrencyChange}
+        handleCurrencyChange={mockHandleCurrencyChange}
       />
     );
     // Should see the label
@@ -57,7 +57,7 @@ describe('RadioButtonsQuestionComponent', () => {
       <CurrencyQuestionComponent
         parsedQuestion={mockParsedQuestion}
         inputCurrencyValue={12.00}
-        setInputCurrencyValue={mockHandleCurrencyChange}
+        handleCurrencyChange={mockHandleCurrencyChange}
       />
     );
 
@@ -91,7 +91,7 @@ describe('RadioButtonsQuestionComponent', () => {
         parsedQuestion={mockCurrencyQuestion}
         inputCurrencyValue={12.00}
         placeholder={'Enter amount'}
-        setInputCurrencyValue={mockHandleCurrencyChange}
+        handleCurrencyChange={mockHandleCurrencyChange}
       />
     );
 
@@ -107,7 +107,7 @@ describe('RadioButtonsQuestionComponent', () => {
         inputCurrencyValue={12.00}
         currencyLabel="Currency Amount"
         placeholder='Enter amount'
-        setInputCurrencyValue={mockHandleCurrencyChange}
+        handleCurrencyChange={mockHandleCurrencyChange}
       />
     );
 
@@ -127,7 +127,7 @@ describe('RadioButtonsQuestionComponent', () => {
         inputCurrencyValue={12.00}
         currencyLabel="Currency Amount"
         placeholder='Enter amount'
-        setInputCurrencyValue={mockHandleCurrencyChange}
+        handleCurrencyChange={mockHandleCurrencyChange}
       />
     );
 
@@ -156,7 +156,7 @@ describe('RadioButtonsQuestionComponent', () => {
         inputCurrencyValue={12.00}
         currencyLabel="Currency Amount"
         placeholder='Enter amount'
-        setInputCurrencyValue={mockHandleCurrencyChange}
+        handleCurrencyChange={mockHandleCurrencyChange}
       />
     );
     await act(async () => {

@@ -156,7 +156,7 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
           name="researchDomain"
           items={rDomains}
           selectClasses={styles.researchDomainSelect}
-          onSelectionChange={selected => updateChildDropdown(selected as string)}
+          onChange={selected => updateChildDropdown(selected as string)}
           selectedKey={selectedParent}
         >
           {rDomains && rDomains.map((domain) => {
@@ -176,7 +176,7 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
           name="childDomain"
           items={childOptionsList}
           selectClasses={styles.researchDomainSelect}
-          onSelectionChange={selected => handleChildChange(selected as string)}
+          onChange={selected => handleChildChange(selected as string)}
           helpMessage={(selectedParent || selectedChild) ? getSelectionText() : ''}
           selectedKey={selectedChild}
           aria-labelledby="child-label"

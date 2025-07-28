@@ -139,7 +139,7 @@
     "description": "Atualizar informações da fonte de financiamento",
     "labels": {
       "funderName": "Nome da planta",
-      "fundingStatus": "Funding Status",
+      "fundingStatus": "Status do financiamento",
       "grantNumber": "Conceder número/url",
       "projectNumber": "Número ou ID do projeto",
       "opportunity": "No. de Prêmio Oportunidade/Federal"

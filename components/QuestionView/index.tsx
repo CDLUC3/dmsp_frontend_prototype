@@ -378,7 +378,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             <CurrencyQuestionComponent
               parsedQuestion={parsed}
               inputCurrencyValue={inputCurrencyValue}
-              setInputCurrencyValue={setInputCurrencyValue}
+              handleCurrencyChange={setInputCurrencyValue}
             />
           )
         }

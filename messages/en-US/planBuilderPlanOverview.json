@@ -16,7 +16,8 @@
     },
     "labels": {
       "saveAnswer": "Save answer",
-      "returnToSection": "Return to section overview"
+      "returnToSection": "Return to section overview",
+      "planTitle": "Plan title"
     },
     "page": {
       "pageDescription": "Overview of plan details",
@@ -27,7 +28,8 @@
       "viewSampleAnswer": "View sample answer",
       "guidanceBy": "Guidance by {funder}",
       "funderSampleText": "{funder} sample text",
-      "participantsWillBeNotified": "Participants will be notified once submitted."
+      "participantsWillBeNotified": "Participants will be notified once submitted.",
+      "planTitlePlaceholder": "Enter plan title"
     },
     "funding": {
       "title": "Funding for this plan",
@@ -109,6 +111,19 @@
         },
         "publishButton": "Publish"
       }
+    },
+    "messages": {
+      "errors": {
+        "updateTitleError": "There was an error updating the plan title"
+      },
+      "success": {
+        "successfullyUpdatedTitle": "Successfully updated the plan title",
+        "successfullyPublished": "Successfully published the plan",
+        "successfullyUpdatedStatus": "Successfully updated the plan status"
+      }
+    },
+    "links": {
+      "editTitle": "Edit plan title"
     }
   },
   "PlanCreate": {
@@ -169,7 +184,11 @@
     "messages": {
       "success": {
         "questionSaved": "Question detail successfully saved"
-      }
+      },
+      "unsavedChanges": "Unsaved changes",
+      "savedJustNow": "Saved just now",
+      "lastSavedOneMinuteAgo": "Last saved 1 minute ago",
+      "lastSaves": "Last saved {minutes} minutes ago"
     }
   },
   "ProjectsProjectFunding": {
