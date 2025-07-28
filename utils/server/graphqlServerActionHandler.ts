@@ -47,7 +47,7 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
     }
 
     // Get all cookies
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
     // Headers for the GraphQL request

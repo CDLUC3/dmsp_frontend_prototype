@@ -17,6 +17,7 @@ declare global {
 interface TinyMCEEditorProps {
   content: string;
   setContent: (newContent: string) => void;
+  onChange?: () => void; // Optional onChange prop for handling changes
   id: string;
   error?: string;
   labelId?: string;
@@ -24,7 +25,7 @@ interface TinyMCEEditorProps {
 }
 
 
-const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: TinyMCEEditorProps) => {
+const TinyMCEEditor = ({ content, setContent, onChange, error, id, labelId, helpText }: TinyMCEEditorProps) => {
   const editorRef = useRef<TinyMCEEditorType | null>(null); // Update the type here
   const elementId = id || 'tiny-editor';
   const [isEditorReady, setIsEditorReady] = useState(false);
@@ -59,20 +60,21 @@ const TinyMCEEditor = ({ content, setContent, error, id, labelId, helpText }: Ti
           @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
           body { font-family: "Poppins", sans-serif; color:#393939;};
           `,
-        init_instance_callback: (editor: TinyMCEEditorType) => {
-          editorRef.current = editor;
-          editor.setContent(content);
-          setIsEditorReady(true);
-
-          editor.on('Change', () => {
+        setup: (editor: TinyMCEEditorType) => {
+          editor.on('Change KeyUp Input Blur', () => {
             setContent(editor.getContent());
-
+            onChange?.();
             // Close all remaining open menus when content changes. 
             const openMenus = document.querySelectorAll('.tox-pop, .tox-menu, .tox-toolbar__overflow');
             openMenus.forEach(menu => {
               (menu as HTMLElement).style.display = 'none';
             });
           });
+        },
+        init_instance_callback: (editor: TinyMCEEditorType) => {
+          editorRef.current = editor;
+          editor.setContent(content);
+          setIsEditorReady(true);
         }
       });
     };

@@ -5,8 +5,31 @@
       "projects": "Projetos",
       "navigation": "Navegação de Breadcrumb"
     },
+    "buttons": {
+      "backToSection": "Voltar para a seção",
+      "useAnswer": "usar resposta",
+      "comment": "Comentário"
+    },
+    "headings": {
+      "comments": "Comments",
+      "leaveAComment": "Deixar uma foto"
+    },
+    "labels": {
+      "saveAnswer": "Resposta salva",
+      "returnToSection": "Voltar à visão geral da seção",
+      "planTitle": "Título do Plano"
+    },
     "page": {
-      "pageDescription": "Visão geral dos detalhes do plano"
+      "pageDescription": "Visão geral dos detalhes do plano",
+      "requirementsBy": "Requisitos de {funder}",
+      "requiredByFunder": "Necessário pelo financiador",
+      "requiredByFunderInfo": "O financiador marcou isso como uma pergunta necessária no seu modelo. Você pode deixá-lo em branco na ferramenta, mas deve completá-lo antes de enviar sua subvenção.",
+      "jumpToGuidance": "Pule para orientação adicional",
+      "viewSampleAnswer": "Ver amostra da resposta",
+      "guidanceBy": "Guia por {funder}",
+      "funderSampleText": "{funder} texto de exemplo",
+      "participantsWillBeNotified": "Os participantes serão notificados assim que submetidos.",
+      "planTitlePlaceholder": "Inserir título do plano"
     },
     "funding": {
       "title": "Financiamento para este plano",
@@ -92,6 +115,19 @@
         },
         "publishButton": "Publicar"
       }
+    },
+    "messages": {
+      "errors": {
+        "updateTitleError": "Ocorreu um erro ao atualizar o título do plano"
+      },
+      "success": {
+        "successfullyUpdatedTitle": "Título do plano atualizado com êxito",
+        "successfullyPublished": "Plano publicado com sucesso",
+        "successfullyUpdatedStatus": "Status do plano atualizado com sucesso"
+      }
+    },
+    "links": {
+      "editTitle": "Editar título do plano"
     }
   },
   "PlanCreate": {
@@ -146,6 +182,27 @@
     "links": {
       "updateProjectMembers": "Atualizar membros do projeto",
       "inviteAPerson": "Convidar pessoa"
+    }
+  },
+  "PlanOverviewQuestionPage": {
+    "messages": {
+      "success": {
+        "questionSaved": "Detalhes da pergunta salvos com sucesso"
+      },
+      "unsavedChanges": "Alterações não Salvas",
+      "savedJustNow": "Salvo há pouco",
+      "lastSavedOneMinuteAgo": "Última salvo há 1 minuto",
+      "lastSaves": "Salvo há {minutes} minutos atrás"
+    }
+  },
+  "ProjectsProjectFunding": {
+    "buttons": {
+      "addFundingSource": "Adicionar nova fonte de financiamento"
+    },
+    "messages": {
+      "errors": {
+        "funderNumberNotFound": "Número do projeto fino não encontrado."
+      }
     }
   }
 }

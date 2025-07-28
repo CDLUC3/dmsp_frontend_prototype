@@ -64,7 +64,7 @@
     "headingRelatedActions": "Ações relacionadas",
     "primaryEmailDesc": "Este e-mail será usado para seu login de conta. Ele também pode ser usado para redefinições de senha.",
     "SSODesc": "Este endereço de e-mail é gerenciado por cdl.edu e conectado à instituição.",
-    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. <manage>Gerencie suas notificações</manage>.",
+    "notificationsDesc": "Este endereço de e-mail será usado para notificações DMP. <manage> Gerencie suas notificações </manage>.",
     "aliasEmailDesc": "Os endereços de e-mail do pseudônimo podem ser usados para ajudar outros a encontrar você, por exemplo, se eles quiserem compartilhar um DMP com você.",
     "linkMakePrimary": "Endereço de e-mail principal",
     "helpTextForAddAlias": "Você receberá um e-mail para confirmar esta adição",
@@ -80,7 +80,13 @@
     "linkManageNotifications": "Atualizar conexão?",
     "messages": {
       "profileUpdateSuccess": "Formulário de perfil atualizado com sucesso.",
-      "emailAddressUpdateSuccess": "O e-mail foi adicionado com sucesso ao seu perfil."
+      "emailAddressUpdateSuccess": "O e-mail foi adicionado com sucesso ao seu perfil.",
+      "errors": {
+        "givenNameValidation": "O nome deve ter pelo menos 2 caracteres",
+        "surNameValidation": "O nome deve ter pelo menos 2 caracteres",
+        "affiliationValidation": "O nome da instituição não pode ficar em branco e deve ter pelo menos 2 caracteres",
+        "otherAffiliationValidation": "Outro nome de instituição não pode estar em branco e deve ter pelo menos 2 caracteres"
+      }
     }
   },
   "UserConnections": {
@@ -107,6 +113,27 @@
     "linkUpdatePassword": "Atualizar senha",
     "linkUpdateConnections": "Atualizar conexão?",
     "linkManageNotifications": "Atualizar conexão?"
+  },
+  "FunderSearch": {
+    "headerTitle": "Procurar por fragmentos",
+    "funder": "Finalizações",
+    "popularTitle": "Financiadores mais populares",
+    "found": "{count} erros encontrados",
+    "noResults": "Nenhum resultado encontrado",
+    "showCount": "Mostrando {count} de {total}",
+    "addManuallyHeading": "Não está nesta lista.",
+    "addManuallyText": "Se o seu projeto não for exibido, você pode adicionar os detalhes manualmente.",
+    "addManuallyLabel": "Adicionar professor manualmente"
+  },
+  "PlanFunding": {
+    "headerTitle": "Financiamento De Plano",
+    "headerDescription": "Gerenciar fontes de financiamento para este Plano",
+    "fundingLabel": "Selecionar fontes de financiamento para este plano",
+    "fundingDescription": "Esta lista de financiamento vem da lista de financiamento anexada ao projeto.",
+    "changeWarning": "Nota: Alterar as fontes de financiamento pode exigir uma mudança no modelo. Apenas mude se você tiver certeza.",
+    "addSourceTitle": "Adicionar uma fonte de financiamento?",
+    "addSourceNote": "Se você quiser adicionar novas informações de financiamento, pode adicionar financiamento ao nível do projeto. Este projeto pode ter várias fontes de financiamento, Considerando que cada plano só pode ter uma única fonte de financiamento, à medida que o comparamos com o modelo exigido.",
+    "addSourceLink": "Adicionar nova fonte de financiamento"
   },
   "TemplateHistory": {
     "title": "Primary Light",
@@ -144,9 +171,11 @@
       "project": "Projeto",
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto",
-      "projectFunding": "Project funding",
+      "projectFunding": "Orçamento do projeto",
       "planOverview": "Resumo do plano",
-      "feedback": "Registrar"
+      "planFunding": "Financiamento do plano",
+      "feedback": "Registrar",
+      "questionDetails": "Detalhes da pergunta"
     },
     "form": {
       "yesLabel": "Sim",
@@ -157,11 +186,13 @@
     "published": "Publicada",
     "visibility": "Visibilidade",
     "notPublished": "Não publicado",
+    "editTitle": "Editar título",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
       "next": "Seguinte",
       "save": "Salvar",
+      "saving": "Salvando",
       "saveAndAdd": "Salvar e adicionar",
       "saveAndUpdate": "Salvar e atualizar",
       "saveChanges": "Salvar as alterações",
@@ -176,21 +207,34 @@
       "edit": "Alterar",
       "preview": "Pré-visualizar",
       "publish": "Publicar",
-      "close": "Fechar"
+      "close": "Fechar",
+      "loadMore": "Carregar mais..."
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",
       "startDate": "Data de início",
-      "endDate": "Data final"
+      "endDate": "Data final",
+      "funderSearch": "Pesquisar por nome do financiador",
+      "requiredField": "Marcar como obrigatório?"
     },
     "helpText": {
-      "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc."
+      "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
+      "funderSearch": "Pesquisar por organização de pesquisa, nome do financiador ou palavras-chave relacionadas."
+    },
+    "descriptions": {
+      "requiredFieldDescription": "Esta pergunta deve incluir um aviso para o construtor do plano de que é necessária uma resposta como condição para aceitar o DMP? Os usuários poderão enviar o DMP, mesmo se eles não responderem)"
+    },
+    "placeholders": {
+      "funderSearch": "Insira o nome da pasta"
     },
     "links": {
       "clearFilter": "limpar filtro",
       "request": "Solicitação",
       "learnMore": "Saiba mais",
-      "update": "Atualização"
+      "update": "Atualização",
+      "expand": "Expandir",
+      "collapse": "Recolher",
+      "editTitle": "Editar título"
     },
     "messaging": {
       "loading": "Baixar",
@@ -198,7 +242,15 @@
       "somethingWentWrong": "Ocorreu um erro. Tente novamente.",
       "resultsText": "Os resultados {name} correspondem à sua pesquisa",
       "fixBelow": "Por favor, corrija os erros abaixo",
-      "error": "Ocorreu um erro. Tente novamente."
+      "unsupportedQuestionType": "Tipo de pergunta {questionType} sem suporte",
+      "sectionIsExpanded": "Secção expandida",
+      "sectionIsCollapsed": "Seção colapsada",
+      "error": "Ocorreu um erro. Tente novamente.",
+      "errors": {
+        "invalidQuestionType": "Tipo de questão inválido encontrado.",
+        "questionUnexpectedFormat": "Formato inesperado para question.json.",
+        "questionJSONFParseFailed": "JSON.parse falhou."
+      }
     },
     "tabs": {
       "editQuestion": "Editar pergunta",
@@ -217,11 +269,11 @@
       "selectBox": "Select",
       "boolean": "Boleano",
       "number": "Número",
-      "numberRange": "Intervalo numérico",
+      "numberRange": "Intervalo de números",
       "email": "E-mail",
       "url": "URL",
       "currency": "Moeda",
-      "date": "Seletor de datas",
+      "date": "Campo de data",
       "dateRange": "Intervalo de datas",
       "filteredSearch": "Pesquisa com filtros",
       "table": "Tabela",

@@ -37,7 +37,6 @@ export const useProjectMemberData = (projectMemberId: number) => {
       })
       if (data.projectMember?.memberRoles) {
         const cleanedRoles = data.projectMember?.memberRoles.filter(role => role !== null && role !== undefined);
-        /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
         const cleanedData = cleanedRoles.map(({ __typename, ...fields }) => fields);
         const selectedRoleLabels = cleanedData
           .map(role => {

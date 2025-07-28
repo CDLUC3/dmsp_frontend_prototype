@@ -65,11 +65,14 @@ describe('SelectboxQuestionComponent', () => {
   });
 
   it('should call setSelectedSelectValue with correct option when user makes a different selection', async () => {
+
+    const mockHandleSelectChange = jest.fn();
     render(
       <SelectboxQuestionComponent
         parsedQuestion={mockSelectBoxQuestion}
         selectedSelectValue='Option A'
         setSelectedSelectValue={mockSelectChange}
+        handleSelectChange={mockHandleSelectChange}
       />
     );
 
@@ -83,7 +86,8 @@ describe('SelectboxQuestionComponent', () => {
     act(() => {
       fireEvent.click(optionB);
     })
-    expect(mockSelectChange).toHaveBeenCalledWith('Option B');
+
+    expect(mockHandleSelectChange).toHaveBeenCalledWith('Option B');
   });
 
   it('should pass axe accessibility test', async () => {

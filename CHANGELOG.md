@@ -1,17 +1,54 @@
+
 ### Added
+- Added auto-save to the `Question Answer` page [#585]
+- Added the ability to edit the `Plan title` [#608]
+
+### Fixed
+- Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
+
+====================================================================================================================================
+## All changes above the line happened after the merge to the main branch on July 21, 2025
+
+### Added
+- Added the `Mark as required` radio buttons on the `QuestionAdd` and `QuestionEdit` pages and updated unit tests [#562]
+- Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
+- Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]
+- Added the `Question details` page that allows users to answer a question [#320]
+- Added, or moved, the `question details` page from `projects/[projectId]/dmp/[dmpid]/q/[qid]` to `projects/[projectId]/dmp/[dmpid]/s/[sid]/q/[qid]` [#320]
+- Added a new `useRenderQuestionField` hook to render different questions on the `Question details` page [#320]
+- Added a test in `jest.setup.ts` to catch extraneous errors that are not tested or in a unit test.
 - Added delete section functionality to template builder with confirmation modal, including translations, and tests
+- Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
+- Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
+- Added popular funders to the funder search page when creating a new project. [#380]
 
 ### Updated
 - Implement GraphQL integration for plan section questions page [#366]
 - Add `PlanSectionQuestions` query to fetch questions by section ID
 
 ### Updated
+- Updated `routePath` with route `projects.share.index` and updated unit test for `ProjectsProjectMembers` [#589]
+- Updated `QuestionView` to use the new `ExpandableContentSection` for the `Best Practices` right sidebar [#578]
+- Updated `graphqlHelper.ts` file to be more robust and correctly refresh tokens and refresh content when there is an `UNAUTHENTICATED` error [#320]
 - Clean up connections page and buttons [#516]
-
-### Updated
 - Added spacing on the `Account Profile` for the demo [#509]
 - Updated `Account Profile` to use routePath() instead of hardcoded paths
 - fix translation string to use the correct tags for the `Account Profile` [#515]
+
+### Fixed
+- Fixed the `Plan Overview` breadcrumb so that it includes a link to previous `Project Overview` page, as well as updating them to use `routePath` [#592]
+- Fixed the `Edit` link in the `Project Funding` page so that it includes correct `projectFundingId` in path, and added missing translation keys and updated routes to use `routePath`, and updated unit test [#592]
+- Added error message when the user clicks `Edit` for a funder that has no `funderProjectNumber` [#592]
+- Adjusted field-level errors on `Edit Funding Details` page, and switched to using `routePath` for breadcrumbs and updated unit test [#592]
+- Improved the spacing on the `projects/create-project` page. Set the standard `line-height` for `#App` to 1.5. Added a little bit of margin above a checkbox to make it align better with text [#595]
+- Added another unit test for the `projects/create-project` page. Updated the routePath for that page to be correct [#595]
+- Updated `Update` link for each section on `projects/[projectId]/dmp/[dmpid]` to `Start` if no questions have been answered yet in that section [#594]
+- Improved color contrast on date picker [#597]
+- Updated `projects/[projectId]/members` page to have consistent breadcrumbs as the `Project overview` page [#589]
+- Prevent the project date from displaying if either `startDate` or `endDate` are not available [#588]
+- Fixed broken links on the `Project overview` page that go to the individual plans [#575]
+- Removed the `Sample text` field from the Question Add/Edit forms for all question types except for `textArea` [#564]
+
 
 ## v0.0.1
 - Plan Manage Access [#299]
@@ -19,6 +56,8 @@
 - Plan Downloads [#299]
 -
 ### Added
+- Added new `SectionEditContainer` component, for use in `QuestionEditCard`, to make reordering of questions more smooth [#207]
+- Added new `updateQuestionDisplayorder` and `updateSectionDisplayOrder` server actions to update question and section order when users click the `onMoveUp` and `onMoveDown` arrows [#207]
 - Added question type components to the components/Form/QuestionComponents directory [#157]
   - Updated the `QuestionAdd` and `QuestionEdit` components to allow for the adding and editing of the new question types [#157]
   - Updated `QuestionView` component, which is used to show a Preview of the Question that is being added or edited. Added handlers to allows users to interact with the questions in the Preview mode.

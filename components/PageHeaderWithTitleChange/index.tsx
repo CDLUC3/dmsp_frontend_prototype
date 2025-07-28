@@ -15,6 +15,12 @@ interface PageHeaderProps {
   title: string;
   /** Optional description text below the title */
   description?: string;
+  /** Required link text, such as 'Edit template title' */
+  linkText: string;
+  /** Required text for label */
+  labelText: string;
+  /** Optional placeholder title */
+  placeholder?: string;
   /** Whether to show the back button - defaults to true */
   showBackButton?: boolean;
   /** Optional breadcrumbs component */
@@ -30,6 +36,9 @@ interface PageHeaderProps {
 const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
   title,
   description,
+  linkText,
+  labelText,
+  placeholder,
   showBackButton = true,
   breadcrumbs,
   actions,
@@ -40,6 +49,11 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState<string>(title);
   const Global = useTranslations('Global');
+
+  const handleEdit = () => {
+    setNewTitle(title);
+    setIsEditing(true);
+  }
 
   function handleChange(ev: React.ChangeEvent<HTMLInputElement>) {
     ev.preventDefault();
@@ -75,16 +89,16 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
 
       <div className="pageheader-container">
         {/* Title and description section */}
-        <div>
+        <div className="title-form-container">
           <Form onSubmit={handleFormSubmit} className="pageheader-title-form">
             {isEditing ? (
               <FormInput
                 name={title}
                 type="text"
-                label="Template title"
+                label={labelText}
                 value={newTitle}
                 inputClasses="titleChange-input"
-                placeholder="Enter new template title"
+                placeholder={placeholder ?? Global('edittitle')}
                 onChange={handleChange}
               />
             ) : (
@@ -92,9 +106,9 @@ const PageHeaderWithTitleChange: React.FC<PageHeaderProps> = ({
                 <h1 className="pageheader-title">{title}</h1>
                 <Button
                   className='link'
-                  onPress={() => setIsEditing(true)}
+                  onPress={handleEdit}
                 >
-                  Edit template name
+                  {linkText ?? Global('links.editTitle')}
                 </Button>
               </div>
             )}

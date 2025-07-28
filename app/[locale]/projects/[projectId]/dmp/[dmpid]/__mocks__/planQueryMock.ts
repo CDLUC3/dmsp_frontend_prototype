@@ -5,7 +5,8 @@ export const mockPlanData = {
       template: {
         id: 2,
         name: "General"
-      }
+      },
+      name: "NSF-CISE: Computer and Information Science and Engineering"
     },
     fundings: [
       {
@@ -81,6 +82,8 @@ export const mockPlanData = {
     ],
     created: "1741308996000",
     modified: "1741308996000",
-    dmpId: ""
+    dmpId: "",
+    registered: null,
+    title: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations'
   }
 }

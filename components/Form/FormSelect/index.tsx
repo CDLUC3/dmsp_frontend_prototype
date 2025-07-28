@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, Key } from 'react';
 import type {
   ListBoxItemProps,
   SelectProps,
@@ -29,7 +29,7 @@ interface MySelectProps<T extends SelectItem>
   helpMessage?: string;
   description?: string;
   selectClasses?: string;
-  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange?: (value: string) => void;
   items?: T[];
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
@@ -46,6 +46,14 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     items,
     ...rest
   } = props;
+
+  const handleSelectionChange = (key: Key | null) => {
+    if (onChange) {
+      // Convert `Key | null` to string or undefined as needed
+      onChange(key?.toString() ?? '');
+    }
+  };
+
   return (
     <Select
       {...rest}
@@ -53,6 +61,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
       data-invalid={errorMessage}
       className={`${selectClasses} ${styles.mySelect} react-aria-Select`}
       aria-label={ariaLabel}
+      onSelectionChange={handleSelectionChange}
     >
       {(state) => (
         <>
@@ -60,7 +69,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
           <Text slot="description" className="help">
             {description}</Text>
           <Button className='react-aria-Button' ref={ref} data-testid="select-button">
-            <SelectValue onChange={onChange} />
+            <SelectValue />
             <span
               aria-hidden="true"
               style={{

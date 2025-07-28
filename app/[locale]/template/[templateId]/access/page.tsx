@@ -229,7 +229,6 @@ const TemplateAccessPage: React.FC = () => {
   // Set organization section info
   useEffect(() => {
     if (templateCollaboratorData?.template) {
-      /* eslint-disable-next-line object-shorthand */
       const admins = templateCollaboratorData.template.admins?.map(admin => ({
         email: admin.email as string | null,
         givenName: admin.givenName ?? null,

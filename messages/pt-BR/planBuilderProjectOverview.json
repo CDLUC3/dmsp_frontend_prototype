@@ -139,16 +139,17 @@
     "description": "Atualizar informações da fonte de financiamento",
     "labels": {
       "funderName": "Nome da planta",
-      "funderStatus": "Status do financiamento",
+      "fundingStatus": "Status do financiamento",
       "grantNumber": "Conceder número/url",
       "projectNumber": "Número ou ID do projeto",
       "opportunity": "No. de Prêmio Oportunidade/Federal"
     },
     "messages": {
       "errors": {
-        "projectFundingUpdateFailed": "Error updating project funding details",
-        "funderGrantId": "Valor de ID do financiador inválido",
-        "funderProjectNumber": "Valor inválido do número do projeto financiador"
+        "projectFundingUpdateFailed": "Erro ao atualizar detalhes do financiador do projeto",
+        "fundingGrantId": "Valor de ID do financiador inválido",
+        "fundingProjectNumber": "Valor inválido do número do projeto financiador",
+        "fundingName": "Valor do nome do financiador inválido"
       },
       "success": {
         "projectFundingUpdated": "Detalhes do financiador do projeto atualizados com sucesso"
@@ -237,14 +238,14 @@
     "para1": "Quando você clicar em <strong>Conceder acesso</strong>, enviaremos um e-mail para essa pessoa convidando-a a visualizar seu plano.",
     "para2": "Se ainda não for membro, nós os convidaremos a entrar.",
     "para3": "Enviamos um convite para <strong>{email}</strong>. Eles terão acesso a este projeto.",
-    "para4": "Para também adicioná-los como membro do projeto, &lt;projectmember&gt;vá para a página de membros do projeto&lt;/projectmember&gt;.",
+    "para4": "Para também adicioná-los como membro do projeto, <projectmember> vá para a página de membros do projeto </projectmember>.",
     "para5": "Eles terão acesso a DMPs {access} neste projeto.",
     "messaging": {
       "errors": {
-        "email": "Por favor, insira um endereço de e-mail válido"
+        "email": "Por favor insira um endereço de e-mail válido"
       },
       "success": {
-        "addMember": "{email} adicionado como membro do projeto"
+        "addMember": "{email} Adicionado como membro do projeto"
       }
     },
     "formLabels": {

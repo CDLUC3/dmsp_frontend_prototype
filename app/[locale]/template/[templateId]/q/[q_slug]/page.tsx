@@ -9,10 +9,14 @@ import {
   Breadcrumbs,
   Button,
   Checkbox,
+  Dialog,
+  DialogTrigger,
   Form,
   Input,
   Label,
   Link,
+  Modal,
+  ModalOverlay,
   Tab,
   TabList,
   TabPanel,
@@ -25,7 +29,8 @@ import {
 import {
   useQuestionQuery,
   useQuestionTypesLazyQuery,
-  useUpdateQuestionMutation
+  useUpdateQuestionMutation,
+  useRemoveQuestionMutation,
 } from '@/generated/graphql';
 
 // Components
@@ -35,6 +40,7 @@ import QuestionOptionsComponent
 import QuestionPreview from '@/components/QuestionPreview';
 import {
   FormInput,
+  RadioGroupComponent,
   RangeComponent,
   TypeAheadSearch
 } from '@/components/Form';
@@ -55,11 +61,11 @@ import {
   QuestionTypesInterface
 } from '@/app/types';
 import {
-  TEXT_QUESTION_TYPE,
   RANGE_QUESTION_TYPE,
   TYPEAHEAD_QUESTION_TYPE,
   DATE_RANGE_QUESTION_TYPE,
-  NUMBER_RANGE_QUESTION_TYPE
+  NUMBER_RANGE_QUESTION_TYPE,
+  TEXT_AREA_QUESTION_TYPE
 } from '@/lib/constants';
 import {
   isOptionsType,
@@ -99,7 +105,6 @@ const QuestionEdit = () => {
   const [question, setQuestion] = useState<Question>();
   const [rows, setRows] = useState<QuestionOptions[]>([{ id: 0, text: "", isSelected: false }]);
   const [questionType, setQuestionType] = useState<string>('');
-  const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
   const [questionTypeName, setQuestionTypeName] = useState<string>(''); // Added to store friendly question name
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [hasOptions, setHasOptions] = useState<boolean | null>(false);
@@ -108,10 +113,11 @@ const QuestionEdit = () => {
   const [typeaheadHelpText, setTypeAheadHelpText] = useState<string>('');
   const [typeaheadSearchLabel, setTypeaheadSearchLabel] = useState<string>('');
   const [parsedQuestionJSON, setParsedQuestionJSON] = useState<AnyParsedQuestion>();
-
+  const [isConfirmOpen, setConfirmOpen] = useState(false);
 
   // Initialize update question mutation
   const [updateQuestionMutation] = useUpdateQuestionMutation();
+  const [removeQuestionMutation] = useRemoveQuestionMutation();
 
   // localization keys
   const Global = useTranslations('Global');
@@ -119,6 +125,21 @@ const QuestionEdit = () => {
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.show', { templateId });
+
+  const radioData = {
+    radioGroupLabel: Global('labels.requiredField'),
+    radioButtonData: [
+      {
+        value: 'yes',
+        label: Global('form.yesLabel'),
+      },
+      {
+        value: 'no',
+        label: Global('form.noLabel')
+      }
+    ]
+  }
+
 
   // Run selected question query
   const {
@@ -163,6 +184,18 @@ const QuestionEdit = () => {
     // questionId as query param included to let page know that user is updating an existing question
     router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=1&questionId=${questionId}`)
   }
+
+  // Handle changes from RadioGroup
+  const handleRadioChange = (value: string) => {
+    if (value) {
+      const isRequired = value === 'yes' ? true : false;
+      setQuestion(prev => ({
+        ...prev,
+        required: isRequired
+      }));
+    }
+
+  };
 
   // Handler for date range label changes
   const handleRangeLabelChange = (field: 'start' | 'end', value: string) => {
@@ -213,6 +246,7 @@ const QuestionEdit = () => {
       }
     }
   };
+
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
@@ -285,6 +319,7 @@ const QuestionEdit = () => {
               guidanceText: question.guidanceText,
               sampleText: question.sampleText,
               useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
+              required: question.required
             }
           },
         });
@@ -302,10 +337,36 @@ const QuestionEdit = () => {
     }
   }
 
+  // Handle form submission to delete the question
+  const handleDelete = async () => {
+    try {
+      const response = await removeQuestionMutation({
+        variables: {
+          questionId: Number(questionId),
+        }
+      });
+
+      if (response?.data) {
+        // Show success message and redirect to Edit Template page
+        toastState.add(t('messages.success.questionRemoved'), { type: 'success' });
+        router.push(TEMPLATE_URL);
+      }
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        //
+      } else {
+        // Handle other types of errors
+        setErrors(prevErrors => [...prevErrors, t('messages.errors.questionRemoveError')]);
+      }
+    }
+  };
+
   useEffect(() => {
     if (selectedQuestion?.question) {
-      const q = selectedQuestion.question;
-
+      const q = {
+        ...selectedQuestion.question,
+        required: selectedQuestion.question.required ?? false // convert null to false
+      };
       try {
         const { parsed, error } = getParsedQuestionJSON(q, routePath('template.show', { templateId }), Global);
         if (!parsed?.type) {
@@ -420,11 +481,9 @@ const QuestionEdit = () => {
   // If a user passes in a questionType query param we will find the matching questionTypes 
   // json schema and update the question with it
   useEffect(() => {
-    if (questionTypesData?.questionTypes && questionTypeIdQueryParam && question) {
-
+    if (questionTypesData?.questionTypes && questionTypeIdQueryParam) {
       const filteredQuestionTypes = questionTypesData.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
-      // Save the question types to state
-      setQuestionTypes(filteredQuestionTypes);
+
       // Find the matching question type
       const matchedQuestionType = getMatchingQuestionType(filteredQuestionTypes, questionTypeIdQueryParam);
 
@@ -597,7 +656,7 @@ const QuestionEdit = () => {
 
                 />
 
-                {!hasOptions && (
+                {questionType === TEXT_AREA_QUESTION_TYPE && (
                   <FormTextArea
                     name="sample_text"
                     isRequired={false}
@@ -613,7 +672,7 @@ const QuestionEdit = () => {
                   />
                 )}
 
-                {questionType && TEXT_QUESTION_TYPE.includes(questionType) && (
+                {questionType === TEXT_AREA_QUESTION_TYPE && (
                   <Checkbox
                     onChange={() => setQuestion({
                       ...question,
@@ -631,6 +690,16 @@ const QuestionEdit = () => {
                   </Checkbox>
                 )}
 
+                <RadioGroupComponent
+                  name="radioGroup"
+                  value={question?.required ? 'yes' : 'no'}
+                  radioGroupLabel={radioData.radioGroupLabel}
+                  radioButtonData={radioData.radioButtonData}
+                  description={Global('descriptions.requiredFieldDescription')}
+                  onChange={handleRadioChange}
+                />
+
+
                 <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndUpdate')}</Button>
 
               </Form>
@@ -644,6 +713,33 @@ const QuestionEdit = () => {
               <h2>{Global('tabs.logic')}</h2>
             </TabPanel>
           </Tabs>
+
+          <div className={styles.deleteZone}>
+            <h2>{t('headings.deleteQuestion')}</h2>
+            <p>{t('descriptions.deleteWarning')}</p>
+            <DialogTrigger isOpen={isConfirmOpen} onOpenChange={setConfirmOpen}>
+              <Button className={`danger`}>{t('buttons.deleteQuestion')}</Button>
+              <ModalOverlay>
+                <Modal>
+                  <Dialog>
+                    {({ close }) => (
+                      <>
+                        <h3>{t('headings.confirmDelete')}</h3>
+                        <p>{t('descriptions.deleteWarning')}</p>
+                        <div className={styles.deleteConfirmButtons}>
+                          <Button className='react-aria-Button' autoFocus onPress={close}>{Global('buttons.cancel')}</Button>
+                          <Button className={`danger `} onPress={() => {
+                            handleDelete();
+                            close();
+                          }}>{Global('buttons.confirm')}</Button>
+                        </div>
+                      </>
+                    )}
+                  </Dialog>
+                </Modal>
+              </ModalOverlay>
+            </DialogTrigger>
+          </div>
 
         </div>
 

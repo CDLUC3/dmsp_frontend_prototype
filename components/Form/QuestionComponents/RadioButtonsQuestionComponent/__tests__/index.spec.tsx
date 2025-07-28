@@ -47,12 +47,12 @@ describe('RadioButtonsQuestionComponent', () => {
         handleRadioChange={mockHandleRadioChange}
       />
     );
-    screen.debug(undefined, Infinity);
     expect(getByLabelText('Option 1')).toBeInTheDocument();
     expect(getByLabelText('Option 2')).toBeInTheDocument();
     expect(screen.getByText('My Radio Button Question')).toBeInTheDocument();
+
     // Find the radio input by its accessible name (from aria-label)
-    const radio = screen.getByRole('radio', { name: '2' });
+    const radio = screen.getByRole('radio', { name: 'Option 2' });
 
     // Assert the name attribute
     expect(radio).toHaveAttribute('name', 'radio-options');
@@ -95,7 +95,6 @@ describe('RadioButtonsQuestionComponent', () => {
   });
 
   it('should handle single option with no selected attribute', () => {
-
     const singleOptionParsedQuestion: RadioButtonsQuestionType = {
       meta: {
         schemaVersion: "1.0",
@@ -110,8 +109,18 @@ describe('RadioButtonsQuestionComponent', () => {
             selected: false,
           },
         },
+
+        {
+          type: "option",
+          attributes: {
+            label: "Option 2",
+            value: "option2",
+            selected: false,
+          },
+        },
       ],
     };
+
     const { getByLabelText } = render(
       <RadioButtonsQuestionComponent
         parsedQuestion={singleOptionParsedQuestion}
@@ -119,8 +128,11 @@ describe('RadioButtonsQuestionComponent', () => {
         handleRadioChange={mockHandleRadioChange}
       />
     );
-    expect(getByLabelText('option1')).not.toBeChecked();
-    fireEvent.click(getByLabelText('option1'));
+
+    expect(getByLabelText('Option 1')).not.toBeChecked();
+    expect(getByLabelText('Option 2')).not.toBeChecked();
+
+    fireEvent.click(getByLabelText('Option 1'));
     expect(mockHandleRadioChange).toHaveBeenCalledWith('option1');
   });
 

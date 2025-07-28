@@ -70,7 +70,7 @@ describe('QuestionOptionsComponent', () => {
     const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
     fireEvent.click(addButton);
 
-    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": false, "text": "Option 1" }, { "id": 2, "isSelected": false, "text": "" }]);
+    expect(setRows).toHaveBeenCalledWith([{ id: 1, isSelected: false, text: "Option 1" }, { id: 2, isSelected: false, text: "" }]);
     expect(screen.getByText('announcements.rowAdded')).toBeInTheDocument();
   });
 
@@ -86,7 +86,7 @@ describe('QuestionOptionsComponent', () => {
     const textInput = screen.getByLabelText('labels.text');
     fireEvent.change(textInput, { target: { value: 'Updated Option' } });
 
-    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": false, "text": "Updated Option" }]);
+    expect(setRows).toHaveBeenCalledWith([{ id: 1, isSelected: false, text: "Updated Option" }]);
   });
 
   it('should handle case where questionJSON is passed as an object', () => {
@@ -102,7 +102,7 @@ describe('QuestionOptionsComponent', () => {
     const textInput = screen.getByLabelText('labels.text');
     fireEvent.change(textInput, { target: { value: 'Updated Option' } });
 
-    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": false, "text": "Updated Option" }]);
+    expect(setRows).toHaveBeenCalledWith([{ id: 1, isSelected: false, text: "Updated Option" }]);
   });
 
   it('should set a row as default when checkbox is clicked', () => {
@@ -118,7 +118,7 @@ describe('QuestionOptionsComponent', () => {
     fireEvent.click(defaultCheckbox);
 
 
-    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": true, "text": "Option 1" }]);
+    expect(setRows).toHaveBeenCalledWith([{ id: 1, isSelected: true, text: "Option 1" }]);
   });
 
   it('should allow checking of multiple checkboxes', () => {
@@ -179,7 +179,7 @@ describe('QuestionOptionsComponent', () => {
     const addButton = screen.getByRole('button', { name: /buttons.addRow/i });
     fireEvent.click(addButton);
 
-    expect(setRows).toHaveBeenCalledWith([{ "id": 1, "isSelected": false, "text": "Option 1" }, { "id": 2, "isSelected": false, "text": "" }]);
+    expect(setRows).toHaveBeenCalledWith([{ id: 1, isSelected: false, text: "Option 1" }, { id: 2, isSelected: false, text: "" }]);
   });
 
   it('should remove a row when delete button is clicked', () => {
@@ -227,5 +227,35 @@ describe('QuestionOptionsComponent', () => {
       { id: 1, orderNumber: 1, text: 'Option 1', isSelected: false, questionId: 1 },
       { id: 2, orderNumber: 2, text: 'Option 2', isSelected: true, questionId: 1 }, // <== isDefault changed
     ]);
+  });
+
+  it('should uncheck the checked default', () => {
+    function Wrapper() {
+      const [rows, setRows] = React.useState<Row[]>([
+        { id: 1, text: 'Option 1', isSelected: false },
+        { id: 2, text: 'Option 2', isSelected: false },
+      ]);
+
+      return (
+        <QuestionOptionsComponent
+          rows={rows}
+          setRows={setRows}
+          questionJSON={mockQuestionJSON}
+          setFormSubmitted={jest.fn()}
+        />
+      );
+    }
+
+    const { getByLabelText } = render(<Wrapper />);
+
+    const defaultCheckbox = getByLabelText('Set row 2 as default');
+
+    // First click - should check it
+    fireEvent.click(defaultCheckbox);
+    expect(defaultCheckbox).toBeChecked();
+
+    // Second click - should uncheck it
+    fireEvent.click(defaultCheckbox);
+    expect(defaultCheckbox).not.toBeChecked();
   });
 });

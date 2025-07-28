@@ -1,0 +1,42 @@
+{
+  "answerByVersionedQuestionId": {
+    "__typename": "Answer",
+    "id": 5,
+    "json": "{\"answer\":\"Yes\"}",
+    "versionedQuestion": {
+      "__typename": "VersionedQuestion",
+      "id": 183
+    },
+    "plan": {
+      "__typename": "Plan",
+      "id": 1
+    },
+    "modified": "1751754674000",
+    "errors": {
+      "__typename": "AffiliationErrors",
+      "general": null,
+      "versionedSectionId": null,
+      "versionedQuestionId": null,
+      "uri": null,
+      "types": null,
+      "subHeaderLinks": null,
+      "ssoEntityId": null,
+      "searchName": null,
+      "provenance": null,
+      "planId": null,
+      "name": null,
+      "logoURI": null,
+      "logoName": null,
+      "json": null,
+      "homepage": null,
+      "fundrefId": null,
+      "feedbackMessage": null,
+      "feedbackEmails": null,
+      "displayName": null,
+      "contactName": null,
+      "contactEmail": null,
+      "aliases": null,
+      "acronyms": null
+    }
+  }
+}

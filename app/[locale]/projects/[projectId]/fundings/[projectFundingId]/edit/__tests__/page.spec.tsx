@@ -98,7 +98,34 @@ describe('ProjectsProjectFundingEdit', () => {
     expect(screen.getByLabelText('labels.projectNumber')).toBeInTheDocument();
     expect(screen.getByLabelText('labels.opportunity')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /buttons.saveChanges/i })).toBeInTheDocument();
+
+    // breadcrumbs
+    expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
+    expect(screen.getByText('breadcrumbs.projects')).toBeInTheDocument();
+    expect(screen.getByText('breadcrumbs.projectOverview')).toBeInTheDocument();
+    expect(screen.getByText('breadcrumbs.projectFunding')).toBeInTheDocument();
   });
+
+  it('should display error if the initial ProjectFundingsQuery returns an error', async() => {
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    mockUseProjectFundingQuery.mockReturnValue({
+      data: null,
+      loading: false,
+      error: { message: 'There was an error getting the funders.'}
+    });
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    expect(screen.getByText('There was an error getting the funders.')).toBeInTheDocument();
+  })
 
   it('should update the funderName field when the user types in the input', async () => {
     (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
@@ -237,6 +264,27 @@ describe('ProjectsProjectFundingEdit', () => {
       },
     });
   });
+
+  it('should display error message when the funder name field has no value', async () => {
+    (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectFundingEdit />
+      );
+    });
+
+    const funderNameInput = screen.getByLabelText('labels.funderName');
+    await act(async() => {
+      fireEvent.change(funderNameInput, { target: { value: '' } });
+    })
+
+    expect(screen.getByText('messages.errors.fundingName')).toBeInTheDocument();
+  });
+
 
   it('should display error messages when mutation throws an error', async () => {
     (useUpdateProjectFundingMutation as jest.Mock).mockReturnValue([

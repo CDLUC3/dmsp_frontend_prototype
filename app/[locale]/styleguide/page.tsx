@@ -739,6 +739,10 @@ function Page() {
                 <DmpIcon icon="double_arrow" />
                 <DmpIcon icon="check_circle" />
                 <DmpIcon icon="error_circle" />
+                <DmpIcon icon="close" />
+                <DmpIcon icon="solid-left_arrow" />
+                <DmpIcon icon="solid-right_arrow" />
+                <DmpIcon icon="solid-down_arrow" />
               </div>
             </Example>
 
@@ -1649,6 +1653,7 @@ function Page() {
               text="This is a question"
               link="/edit"
               name="question"
+              handleDisplayOrderChange={() => console.log('reordering')}
             />
 
 
@@ -2019,10 +2024,10 @@ function Page() {
                     <FieldError />
                   </TextField>
 
-                  <TinyMCEEditor 
-                  id="question-editor-preview"
-                  content="<p>Example richtext field inside the preview bottomsheet</p>" 
-                  setContent={() => { }} 
+                  <TinyMCEEditor
+                    id="question-editor-preview"
+                    content="<p>Example richtext field inside the preview bottomsheet</p>"
+                    setContent={() => { }}
                   />
                 </ContentContainer>
 

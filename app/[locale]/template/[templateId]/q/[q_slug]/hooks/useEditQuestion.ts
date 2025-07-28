@@ -1,9 +1,4 @@
 import { OPTIONS_QUESTION_TYPES } from '@/lib/constants';
-import {
-  Question,
-} from '@/app/types';
-import logECS from '@/utils/clientLogger';
-import { routePath } from '@/utils/routes';
 
 // Configure what overrides you want to apply to the question type json objects
 export const getOverrides = (questionType: string | null | undefined) => {

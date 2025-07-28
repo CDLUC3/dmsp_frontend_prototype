@@ -13,6 +13,7 @@ import { ContentContainer, LayoutContainer, } from "@/components/Container";
 import { OrcidIcon } from '@/components/Icons/orcid/';
 import ErrorMessages from '@/components/ErrorMessages';
 
+import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectMembers.module.scss';
 
 interface ProjectMemberInterface {
@@ -29,7 +30,7 @@ const ProjectsProjectMembers = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
   // Get projectId param
   const params = useParams();
-  const { projectId } = params; // From route /projects/:projectId
+  const projectId = String(params.projectId);  // From route /projects/:projectId
 
   // Localization keys
   const ProjectMembers = useTranslations('ProjectsProjectMembers');
@@ -48,18 +49,18 @@ const ProjectsProjectMembers = () => {
 
   const handleAddMember = (): void => {
     // Handle adding new member
-    router.push(`/projects/${projectId}/members/search`);
+    router.push(routePath('projects.members.search', {projectId}));
   };
 
   const handleEdit = (memberId: number | null): void => {
 
     // Handle editing member
-    router.push(`/projects/${projectId}/members/${memberId?.toString()}/edit`);
+    router.push(routePath('projects.members.edit', {projectId, memberId: String(memberId)}));
   };
 
   const handleShare = (): void => {
     // Handle share
-    router.push(`/projects/${projectId}/share`);
+    router.push(routePath('projects.share.index', {projectId}));
   };
 
   useEffect(() => {
@@ -81,8 +82,6 @@ const ProjectsProjectMembers = () => {
       const errorMsg = ProjectMembers('messages.errors.errorGettingMembers');
       setErrors(prev => [...prev, errorMsg]);
     }
-    /*eslint-disable react-hooks/exhaustive-deps*/
-
   }, [queryError])
 
   if (loading) {
@@ -98,9 +97,9 @@ const ProjectsProjectMembers = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}`}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
             <Breadcrumb>{ProjectMembers('title')}</Breadcrumb>
           </Breadcrumbs>
         }

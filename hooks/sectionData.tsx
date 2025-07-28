@@ -44,7 +44,6 @@ export const useSectionData = (sectionId: number) => {
       })
       if (data.section?.tags) {
         const cleanedTags = data.section?.tags.filter(tag => tag !== null && tag !== undefined);
-        /* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
         const cleanedData = cleanedTags.map(({ __typename, ...fields }) => fields);
         setSelectedTags((prevTags) => {
           return [...prevTags, ...cleanedData];

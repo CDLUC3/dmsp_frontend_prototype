@@ -5,11 +5,9 @@ import {
   fetchCsrfToken,
 } from "@/utils/authHelper";
 
-/* eslint-disable-next-line no-unused-vars */
 type RetryRequestType = (csrfToken: string | null) => Promise<Response>;
 
 interface CustomRouter {
-  // eslint-disable-next-line no-unused-vars
   push: (url: string) => void;
 }
 
@@ -17,7 +15,7 @@ async function safeJsonParse(response: Response) {
   try {
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch {
     throw new Error("Failed to parse JSON response");
   }
 }
@@ -91,3 +89,26 @@ export const handleErrors = async (
       break;
   }
 };
+
+
+/**
+ * Shared function to extract specified errors from an error object.
+ * @param errs - The error object (can be any shape)
+ * @param keys - The keys to extract errors from
+ * @returns Array of error messages (non-empty strings)
+ */
+export function extractErrors<T extends Record<string, string | undefined>>(
+  errs: T,
+  keys: (keyof T)[]
+): string[] {
+  const newErrors: string[] = [];
+
+  for (const key of keys) {
+    const val = errs[key];
+    if (val) {
+      newErrors.push(val);
+    }
+  }
+
+  return newErrors;
+}

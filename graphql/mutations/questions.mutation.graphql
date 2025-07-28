@@ -35,3 +35,27 @@ mutation UpdateQuestion($input: UpdateQuestionInput!) {
     questionText
   }
 }
+
+mutation RemoveQuestion($questionId: Int!) {
+  removeQuestion(questionId: $questionId) {
+    id
+  }
+}
+
+mutation UpdateQuestionDisplayOrder($questionId: Int!, $newDisplayOrder: Int!) {
+  updateQuestionDisplayOrder(questionId: $questionId, newDisplayOrder: $newDisplayOrder) {
+    questions {
+      id
+      displayOrder
+      questionText
+      sampleText
+      requirementText
+      guidanceText
+      sectionId
+      templateId
+      errors {
+        general
+      }
+    }
+  }
+}

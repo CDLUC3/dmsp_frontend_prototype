@@ -5,8 +5,31 @@
       "projects": "Projects",
       "navigation": "Breadcrumb navigation"
     },
+    "buttons": {
+      "backToSection": "Back to section",
+      "useAnswer": "use answer",
+      "comment": "Comment"
+    },
+    "headings": {
+      "comments": "Comments",
+      "leaveAComment": "Leave a comment"
+    },
+    "labels": {
+      "saveAnswer": "Save answer",
+      "returnToSection": "Return to section overview",
+      "planTitle": "Plan title"
+    },
     "page": {
-      "pageDescription": "Overview of plan details"
+      "pageDescription": "Overview of plan details",
+      "requirementsBy": "Requirements by {funder}",
+      "requiredByFunder": "Required by funder",
+      "requiredByFunderInfo": "The funder has marked this as a required question on their template. You can leave it blank in the tool but should complete it before submitting your grant.",
+      "jumpToGuidance": "Jump to additional guidance",
+      "viewSampleAnswer": "View sample answer",
+      "guidanceBy": "Guidance by {funder}",
+      "funderSampleText": "{funder} sample text",
+      "participantsWillBeNotified": "Participants will be notified once submitted.",
+      "planTitlePlaceholder": "Enter plan title"
     },
     "funding": {
       "title": "Funding for this plan",
@@ -92,6 +115,19 @@
         },
         "publishButton": "Publish"
       }
+    },
+    "messages": {
+      "errors": {
+        "updateTitleError": "There was an error updating the plan title"
+      },
+      "success": {
+        "successfullyUpdatedTitle": "Successfully updated the plan title",
+        "successfullyPublished": "Successfully published the plan",
+        "successfullyUpdatedStatus": "Successfully updated the plan status"
+      }
+    },
+    "links": {
+      "editTitle": "Edit plan title"
     }
   },
   "PlanCreate": {
@@ -146,6 +182,27 @@
     "links": {
       "updateProjectMembers": "Update project members",
       "inviteAPerson": "Invite a person"
+    }
+  },
+  "PlanOverviewQuestionPage": {
+    "messages": {
+      "success": {
+        "questionSaved": "Question detail successfully saved"
+      },
+      "unsavedChanges": "Unsaved changes",
+      "savedJustNow": "Saved just now",
+      "lastSavedOneMinuteAgo": "Last saved 1 minute ago",
+      "lastSaves": "Last saved {minutes} minutes ago"
+    }
+  },
+  "ProjectsProjectFunding": {
+    "buttons": {
+      "addFundingSource": "Add a funding source"
+    },
+    "messages": {
+      "errors": {
+        "funderNumberNotFound": "Funder's project number not found."
+      }
     }
   }
 }

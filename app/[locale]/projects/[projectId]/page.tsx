@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Breadcrumb, Breadcrumbs, Link } from "react-aria-components";
 import {
@@ -9,13 +9,13 @@ import {
   PlanSectionProgress,
   useProjectQuery
 } from '@/generated/graphql';
+
 import { routePath } from '@/utils/routes';
 
 // Components
 import PageHeader from "@/components/PageHeader";
 import { Card } from '@/components/Card/card';
 import { ContentContainer, LayoutContainer } from "@/components/Container";
-import ErrorMessages from '@/components/ErrorMessages';
 
 interface FundingInterface {
   name: string;
@@ -49,10 +49,9 @@ interface ProjectOverviewInterface {
 const ProjectOverviewPage: React.FC = () => {
   // Get projectId param
   const params = useParams();
-  const { projectId } = params; // From route /projects/:projectId
+  const projectId = String(params.projectId); // From route /projects/:projectId
+  const router = useRouter();
   const formatter = useFormatter();
-  const errorRef = useRef<HTMLDivElement | null>(null);
-  const [errors, setErrors] = useState<string[]>([]);
   const [project, setProject] = useState<ProjectOverviewInterface>({
     title: '',
     startDate: null,
@@ -74,11 +73,6 @@ const ProjectOverviewPage: React.FC = () => {
       notifyOnNetworkStatusChange: true
     }
   );
-
-  if (error) {
-    const errorMsg = ProjectOverview('messages.errorGettingProject');
-    setErrors(prev => [...prev, errorMsg]);
-  }
 
   // Format date using next-intl date formatter
   const formatDate = (date: string) => {
@@ -133,6 +127,14 @@ const ProjectOverviewPage: React.FC = () => {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
+  if (error) {
+    if (error.message.toLowerCase() === 'forbidden') {
+      router.push('/not-found');
+    } else {
+      return <div>{error.message}</div>
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -141,15 +143,14 @@ const ProjectOverviewPage: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs aria-label={ProjectOverview('navigation')}>
-            <Breadcrumb><Link href="/">{ProjectOverview('home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{ProjectOverview('projects')}</Link></Breadcrumb>
-            <Breadcrumb>{ProjectOverview('pageTitle')}</Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{ProjectOverview('home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{ProjectOverview('projects')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.projectOverview')}</Breadcrumb>
           </Breadcrumbs>
         }
         actions={null}
         className="page-project-list"
       />
-      <ErrorMessages errors={errors} ref={errorRef} />
       <LayoutContainer>
         <ContentContainer>
           <div className="project-overview">
@@ -162,10 +163,11 @@ const ProjectOverviewPage: React.FC = () => {
                 </strong>
               </p>
               <p>
-                {ProjectOverview('dateRange', {
-                  startDate: (project.startDate ?? ''),
-                  endDate: (project.endDate ?? '')
-                })}
+                {project.startDate && project.endDate && (
+                  ProjectOverview('dateRange', {
+                    startDate: (project.startDate ?? ''),
+                    endDate: (project.endDate ?? '')
+                  }))}
               </p>
               <Link href={`/projects/${projectId}/project`} aria-label={ProjectOverview('editProject')}>
                 {ProjectOverview('edit')}
@@ -322,10 +324,7 @@ const ProjectOverviewPage: React.FC = () => {
                     </div>
                     <div className="plan-action">
                       <Link
-                        href={routePath('projects.dmp.show', {
-                          projectId: String(projectId),
-                          dmpId: planId
-                        })}
+                        href={routePath('projects.dmp.show', { projectId, dmpId: String(plan.id) })}
                         className="react-aria-Button react-aria-Button--primary"
                         aria-label={ProjectOverview('updatePlan')}
                       >

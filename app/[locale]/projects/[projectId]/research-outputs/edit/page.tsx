@@ -27,7 +27,6 @@ import {
 } from '@/components/Container';
 
 const ResearchOutputEdit = () => {
-  // eslint-disable-next-line no-unused-vars
   const [formData, setFormData] = useState({
     type: '',
     title: '',

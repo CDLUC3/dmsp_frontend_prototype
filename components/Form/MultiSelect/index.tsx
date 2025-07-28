@@ -27,6 +27,7 @@ function MultiSelect({
   const [internalSelected, setInternalSelected] = React.useState<Set<string>>(new Set(defaultSelected));
   const selected = isControlled ? selectedKeys! : internalSelected;
 
+  /*eslint-disable @typescript-eslint/no-explicit-any*/
   const handleSelectionChange = (newSelection: any) => {
     // react-aria-components passes a Set<Key> for multiple selection
     if (!isControlled) setInternalSelected(newSelection as Set<string>);
@@ -67,7 +68,7 @@ function MultiSelect({
         ))}
       </ListBox>
 
-      <div className={styles.selectCount}>
+      <div className={styles.selectedCount}>
 
         <span style={{ marginLeft: '8px', color: '#3b82f6' }}>
           ({[...selected].join(', ')})

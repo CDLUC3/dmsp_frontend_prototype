@@ -13,21 +13,18 @@ import { fetchCsrfToken } from "@/utils/authHelper";
 // Mock TypeAheadWithOther component
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
-  /* eslint-disable-next-line no-unused-vars */
   default: ({ updateFormData }: { updateFormData: (name: string, value: string) => void }) => (
     <div data-testid="type-ahead">
       <input
         data-testid="institution"
         type="text"
         name="institution"
-        /* eslint-disable-next-line no-unused-vars */
         onChange={(e) => updateFormData("institution", e.target.value)}
       />
       <input
         data-testid="otherinst"
         type="text"
         name="otherAffiliation"
-        /* eslint-disable-next-line no-unused-vars */
         onChange={(e) => updateFormData("otherAffiliation", e.target.value)}
       />
     </div>

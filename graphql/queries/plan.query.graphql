@@ -6,12 +6,10 @@ query Plan($planId: Int!) {
         id
         name
       }
+      name
     }
     fundings {
       id
-      project {
-        title
-      }
     }
     visibility
     status
@@ -19,6 +17,7 @@ query Plan($planId: Int!) {
       fundings {
         affiliation {
           displayName
+          name
         }
         funderOpportunityNumber
       }
@@ -47,5 +46,6 @@ query Plan($planId: Int!) {
     modified
     dmpId
     registered
+    title
   }
 }

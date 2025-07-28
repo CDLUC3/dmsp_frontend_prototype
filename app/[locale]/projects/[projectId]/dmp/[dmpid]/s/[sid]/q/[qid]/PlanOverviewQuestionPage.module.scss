@@ -1,0 +1,210 @@
+@use '@/styles/responsive' as r;
+
+.bestPracticesLinks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    color: var(--blue-600);
+    text-decoration: none;
+    font-size: var(--fs-base);
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    svg {
+      margin-left: var(--space-1);
+      width: var(--space-4);
+      height: var(--space-4);
+      flex-shrink: 0;
+    }
+  }
+}
+
+.lastSaved {
+  display: flex;
+  justify-content: right;
+  color: var(--slate-800);
+  margin-top: 10px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+
+  .actionItem {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+    .react-aria-Button{
+      justify-items: flex-end;
+      margin-bottom: var(--space-2);
+    }
+  }
+}
+
+/* Best Practices Sidebar Styles */
+.bestPracticesPanel {
+  background-color: var(--color-background-subtle);
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-4);
+
+  h3 {
+    font-size: var(--fs-base);
+    font-weight: 500;
+    margin: 0;
+    margin-bottom: var(--space-2);
+  }
+
+  p {
+    font-size: var(--fs-sm);
+    color: var(--gray-600);
+    margin: 0;
+    margin-bottom: var(--space-4);
+  }
+}
+
+
+/*Button styles*/
+// Wrapper for multiple buttons in a row
+.buttonsRow {
+  display: flex;
+  flex-direction: row;
+  justify-content:space-between;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  max-width: 600px;
+
+}
+
+// smaller buttons for the drawer panel and sample text and comments buttons
+.buttonSmall {
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+}
+
+  /* We want buttons to be side by side on larger screens
+  but stack on top of each other on mobile*/
+  .modalAction {
+  display: flex;
+  flex-direction: column;  // stack buttons on mobile
+  gap: 1rem;
+  margin-top: 1rem;
+
+  > div {
+    width: 100%; // buttons fill width on mobile
+  }
+
+  button {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @include r.device(xl) {
+    flex-direction: row-reverse; // Reverse order: Save on right
+    justify-content: space-between;
+
+    > div {
+      width: auto; // let buttons size to content
+      flex: 0 0 auto;
+    }
+
+    button {
+      width: auto; // don't stretch buttons
+    }
+  }
+}
+
+// Red dot in comments button when question has comments
+.buttonWithComments {
+  position: relative;
+}
+
+.buttonWithComments::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  background-color: var(--red-700);
+  border-radius: 50%;
+  border: none;
+}
+/*End Button styles*/
+
+// sample text font size should be smaller than main content
+.sampleText {
+  p {
+  font-size: var(--fs-small);
+  }
+}
+
+// lighter font colors
+.deEmphasize {
+  color: var(--text-color-placeholder);
+  font-weight: 300;
+  font-size: var(--fs-small);
+}
+
+.drawerPanelWrapper {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* For link to jump down to Guidance section*/
+.guidanceLink {
+      font-size: var(--fs-small);
+      color: var(--slate-800);
+      margin-top: var(--space-1);
+      display: inline-block;
+}
+
+.guidanceLinkWrapper {
+  display: flex;
+}
+/* End For link to jump down to Guidance section*/
+
+
+/* 'Required by funder' info icon tooltip*/
+.popOverButton {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  padding: 0 0 0 0.25rem;
+  border: none;
+  vertical-align: middle;
+  cursor: pointer;
+
+  &:hover,
+  &:hover:not(:disabled) {
+    background: none;
+  }
+}
+
+.infoIcon svg {
+  width: 18px;
+  height: 18px;
+  fill: var(--brand-primary);
+  vertical-align: middle;
+}
+
+.requiredWrapper {
+  display: inline-flex;
+  white-space: nowrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+/*End 'Required by funder' info icon tooltip*/

@@ -39,7 +39,7 @@ describe('FormSelect', () => {
         label="Select an option"
         items={sampleItems}
         selectedKey="1"
-        onSelectionChange={onSelectionChange}
+        onChange={onSelectionChange}
       >
         {(item) => <MyItem key={item.id}>{item.name}</MyItem>}
       </FormSelect>

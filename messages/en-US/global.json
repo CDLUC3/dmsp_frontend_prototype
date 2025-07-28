@@ -64,7 +64,7 @@
     "headingRelatedActions": "Related actions",
     "primaryEmailDesc": "This email will be used for your account login. It can also be used for password resets.",
     "SSODesc": "This email address is managed by cdl.edu and connected to the institution.",
-    "notificationsDesc": "This email address will be used for DMP notifications. <manage>Manage your notifications</manage>.",
+    "notificationsDesc": "This email address will be used for DMP notifications. <manage> Manage your notifications <manage>.",
     "aliasEmailDesc": "Alias email addresses may be used to help others find you, for example if they‘d like to share a DMP with you.",
     "linkMakePrimary": "Make primary email address",
     "helpTextForAddAlias": "You will be sent an email to confirm this addition",
@@ -117,12 +117,23 @@
   "FunderSearch": {
     "headerTitle": "Search for Funders",
     "funder": "Funder",
+    "popularTitle": "Most popular funders",
     "found": "{count} funders found",
     "noResults": "No results found",
     "showCount": "Showing {count} of {total}",
     "addManuallyHeading": "Not in this list?",
     "addManuallyText": "If your project isn’t shown, you can add the details manually.",
     "addManuallyLabel": "Add funder manually"
+  },
+  "PlanFunding": {
+    "headerTitle": "Plan Funding",
+    "headerDescription": "Manage funding sources for this Plan",
+    "fundingLabel": "Select funding sources for this plan",
+    "fundingDescription": "This funding list comes from the funding list attached to the project.",
+    "changeWarning": "Note: Changing the funding sources may require a template change. Only change if you are sure.",
+    "addSourceTitle": "Adding a funding source?",
+    "addSourceNote": "If you want to add new funding information, you can add funding at the project level. This project can have multiple funding sources, whereas each plan can only have a single source of funding as we match it to the required template.",
+    "addSourceLink": "Add a new funding source"
   },
   "TemplateHistory": {
     "title": "Template history",
@@ -162,7 +173,9 @@
       "projectOverview": "Project overview",
       "projectFunding": "Project funding",
       "planOverview": "Plan overview",
-      "feedback": "Feedback"
+      "planFunding": "Plan funding",
+      "feedback": "Feedback",
+      "questionDetails": "Question details"
     },
     "form": {
       "yesLabel": "Yes",
@@ -173,11 +186,13 @@
     "published": "Published",
     "visibility": "Visibility",
     "notPublished": "Not published",
+    "editTitle": "Edit title",
     "buttons": {
       "search": "Search",
       "select": "Select",
       "next": "Next",
       "save": "Save",
+      "saving": "Saving",
       "saveAndAdd": "Save and add",
       "saveAndUpdate": "Save and update",
       "saveChanges": "Save changes",
@@ -199,11 +214,15 @@
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
       "endDate": "End date",
-      "funderSearch": "Search by funder name"
+      "funderSearch": "Search by funder name",
+      "requiredField": "Mark as required?"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
       "funderSearch": "Search by research organization, funder name, or related keywords."
+    },
+    "descriptions": {
+      "requiredFieldDescription": "Should this question include a warning to the plan builder that an answer is required as a condition of accepting the DMP?(Users will be able to submit the DMP even if they don't answer)"
     },
     "placeholders": {
       "funderSearch": "Enter funder name..."
@@ -212,7 +231,10 @@
       "clearFilter": "clear filter",
       "request": "Request",
       "learnMore": "Learn more",
-      "update": "Update"
+      "update": "Update",
+      "expand": "Expand",
+      "collapse": "Collapse",
+      "editTitle": "Edit title"
     },
     "messaging": {
       "loading": "Loading",
@@ -220,6 +242,9 @@
       "somethingWentWrong": "Something went wrong. Please try again.",
       "resultsText": "{name} results match your search",
       "fixBelow": "Please fix the errors below",
+      "unsupportedQuestionType": "Unsupported question type {questionType}",
+      "sectionIsExpanded": "Section is expanded",
+      "sectionIsCollapsed": "Section is collapsed",
       "error": "Something went wrong. Please try again.",
       "errors": {
         "invalidQuestionType": "Invalid question type found.",

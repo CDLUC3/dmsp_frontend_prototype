@@ -12,11 +12,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { MockedProvider } from '@apollo/client/testing';
 import {
   AffiliationFundersDocument,
+  PopularFundersDocument,
   AddProjectFundingDocument,
 } from '@/generated/graphql';
 
-// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-import { stripHtml, scrollToTop } from '@/utils/general';
+import { scrollToTop } from '@/utils/general';
+import logECS from "@/utils/clientLogger";
 
 import CreateProjectSearchFunder from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -42,7 +43,7 @@ const mocks = [
     result: {
       data: {
         affiliations: {
-          items: Array.from({length: 50}, (_, i) => {
+          items: Array.from({ length: 50 }, (_, i) => {
             const count = i + 1;
             return {
               id: count,
@@ -58,6 +59,27 @@ const mocks = [
           hasPreviousPage: null,
           availableSortFields: []
         }
+      }
+    },
+  },
+
+  // Popular Funders
+  {
+    request: {
+      query: PopularFundersDocument,
+    },
+
+    result: {
+      data: {
+        popularFunders: Array.from({length: 5}, (_, i) => {
+          const count = i + 1;
+          return {
+            id: count,
+            uri: `https://funder${count}`,
+            displayName: `Popular Funder ${count}`,
+            nbrPlans: 10,
+          };
+        }),
       }
     },
   },
@@ -92,7 +114,6 @@ const mocks = [
     },
   },
 
-
   // Paginated Mocks
   {
     request: {
@@ -110,7 +131,7 @@ const mocks = [
     result: {
       data: {
         affiliations: {
-          items: Array.from({length: 50}, (_, i) => {
+          items: Array.from({ length: 50 }, (_, i) => {
             const count = i + 1;
             return {
               id: count,
@@ -148,7 +169,7 @@ const mocks = [
     result: {
       data: {
         affiliations: {
-          items: Array.from({length: 20}, (_, i) => {
+          items: Array.from({ length: 20 }, (_, i) => {
             const count = i + 51;
             return {
               id: count,
@@ -184,13 +205,13 @@ const mocks = [
       data: {
         addProjectFunding: {
           errors: {
-              affiliationId: null,
-              funderOpportunityNumber: null,
-              funderProjectNumber: null,
-              general: null,
-              grantId: null,
-              projectId: null,
-              status: null,
+            affiliationId: null,
+            funderOpportunityNumber: null,
+            funderProjectNumber: null,
+            general: null,
+            grantId: null,
+            projectId: null,
+            status: null,
           },
         }
       }
@@ -226,13 +247,41 @@ const mocks = [
       }
     },
   },
+
+  // Mocked Server error for addProjectFunding
+  {
+    request: {
+      query: AddProjectFundingDocument,
+      variables: {
+        input: {
+          projectId: 123,
+          // Use funder6 as the server error response
+          affiliationId: "https://funder6",
+        },
+      },
+    },
+    error: new Error('Server Error')
+  },
+];
+
+const emptyPopularMock = [
+  {
+    request: {
+      query: PopularFundersDocument,
+    },
+
+    result: {
+      data: {
+        popularFunders: [],
+      }
+    },
+  },
 ];
 
 
 // Needed for the errormessages component
 jest.mock('@/utils/general', () => ({
   scrollToTop: jest.fn(),
-  stripHtml: jest.fn(),
 }));
 
 
@@ -260,6 +309,31 @@ describe("CreateProjectSearchFunder", () => {
     expect(screen.getByTestId('search-field')).toBeInTheDocument();
   });
 
+  it("Should show a short-list of Popular Funders", async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('popularTitle')).toBeInTheDocument();
+      expect(screen.getByText('Popular Funder 1')).toBeInTheDocument();
+    });
+  });
+
+  it("Should neatly handle empty popular funder results", async () => {
+    render(
+      <MockedProvider mocks={emptyPopularMock} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('popularTitle')).not.toBeInTheDocument();
+    });
+  });
+
   it("Should render the search results", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
@@ -269,9 +343,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -295,6 +368,26 @@ describe("CreateProjectSearchFunder", () => {
     });
   });
 
+  it("Should cleanly handle empty results", async() => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    // NOTE: search-field and search-input are testID's provided by elements
+    // inside the FunderSearch component.
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "empty" } });
+
+    const searchBtn = screen.getByTestId('search-btn');
+    fireEvent.click(searchBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("noResults")).toBeInTheDocument();
+    });
+  });
+
   it("Load More button visible when there are more results", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
@@ -304,9 +397,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "paginated" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "paginated" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -335,9 +427,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "paginated" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "paginated" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -375,9 +466,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -388,6 +478,42 @@ describe("CreateProjectSearchFunder", () => {
 
     const firstFunder = screen.getByText("Funder 1").closest('div')!;
     const funderContent = within(firstFunder);
+    const selectBtn = funderContent.getByRole('button', {
+      name: /select/i,
+    });
+    expect(selectBtn).toHaveAttribute('data-funder-uri', 'https://funder1');
+    fireEvent.click(selectBtn);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123/));
+    });
+  });
+
+  it("Should also run add funder mutation when adding popular funder", async() => {
+    const mockPush = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    // NOTE: search-field and search-input are testID's provided by elements
+    // inside the FunderSearch component.
+    const searchInput = screen.getByTestId('search-field')
+                              .querySelector('input')!;
+    fireEvent.change(searchInput, {target: {value: "nih" }});
+
+    const searchBtn = screen.getByTestId('search-btn');
+    fireEvent.click(searchBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("Popular Funder 1")).toBeInTheDocument();
+    });
+
+    const popFunder = screen.getByText("Popular Funder 1").closest('div')!;
+    const funderContent = within(popFunder);
     const selectBtn = funderContent.getByRole('button', {
       name: /select/i,
     });
@@ -411,9 +537,8 @@ describe("CreateProjectSearchFunder", () => {
 
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -436,9 +561,7 @@ describe("CreateProjectSearchFunder", () => {
     });
   });
 
-  it("Should allow adding a funder manually", async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
+  it("add project funder mutation should handle server error", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -450,6 +573,54 @@ describe("CreateProjectSearchFunder", () => {
     const searchInput = screen.getByTestId('search-field')
                               .querySelector('input')!;
     fireEvent.change(searchInput, {target: {value: "nih" }});
+
+    const searchBtn = screen.getByTestId('search-btn');
+    fireEvent.click(searchBtn);
+
+    // NOTE: In the mocks, Funder 6 is the one that will raise a server error
+    // when adding it as project funder.
+    await waitFor(() => {
+      expect(screen.getByText("Funder 6")).toBeInTheDocument();
+    });
+
+    const errFunder = screen.getByText("Funder 6").closest('div')!;
+    const funderContent = within(errFunder);
+    const selectBtn = funderContent.getByRole('button', {
+      name: /select/i,
+    });
+    expect(selectBtn).toHaveAttribute('data-funder-uri', 'https://funder6');
+    fireEvent.click(selectBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("Server Error")).toBeInTheDocument();
+      expect(scrollToTop).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'createProjectSearchFunder.addProjectFunding',
+        expect.objectContaining({
+          error: expect.anything(),
+        })
+      );
+    });
+  });
+
+
+  it("Should allow adding a funder manually", async () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    // NOTE: search-field and search-input are testID's provided by elements
+    // inside the FunderSearch component.
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -472,6 +643,10 @@ describe("CreateProjectSearchFunder", () => {
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
+
+    await waitFor(() => {
+      expect(screen.getByText("popularTitle")).toBeInTheDocument();
+    });
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
