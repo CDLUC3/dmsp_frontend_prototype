@@ -90,12 +90,19 @@ const CreateProjectSearchFunder = () => {
   }
 
   async function handleSelectFunder(funder: AffiliationSearch | FunderPopularityResult) {
-    const NEXT_URL = routePath('projects.create.projects.search', {
+    let next_url = routePath('projects.project.info', {
       projectId: projectId as string,
     });
+
     const input = {
       projectId: Number(projectId),
       affiliationId: funder.uri
+    }
+
+    if (funder.apiTarget) {
+      next_url = routePath('projects.create.projects.search', {
+        projectId: projectId as string,
+      });
     }
 
     addProjectFunding({ variables: { input } })
@@ -104,7 +111,7 @@ const CreateProjectSearchFunder = () => {
         if (errs.length > 0) {
           setErrors(errs);
         } else {
-          router.push(NEXT_URL);
+          router.push(next_url);
         }
       })
       .catch((err) => {
