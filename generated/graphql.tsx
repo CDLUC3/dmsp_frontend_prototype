@@ -4022,13 +4022,6 @@ export type AffiliationFundersQueryVariables = Exact<{
 
 export type AffiliationFundersQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
 
-export type AffiliationByUriQueryVariables = Exact<{
-  uri: Scalars['String']['input'];
-}>;
-
-
-export type AffiliationByUriQuery = { __typename?: 'Query', affiliationByURI?: { __typename?: 'Affiliation', id?: number | null, displayName: string, uri: string } | null };
-
 export type AnswerByVersionedQuestionIdQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
   planId: Scalars['Int']['input'];
@@ -5853,48 +5846,6 @@ export type AffiliationFundersQueryHookResult = ReturnType<typeof useAffiliation
 export type AffiliationFundersLazyQueryHookResult = ReturnType<typeof useAffiliationFundersLazyQuery>;
 export type AffiliationFundersSuspenseQueryHookResult = ReturnType<typeof useAffiliationFundersSuspenseQuery>;
 export type AffiliationFundersQueryResult = Apollo.QueryResult<AffiliationFundersQuery, AffiliationFundersQueryVariables>;
-export const AffiliationByUriDocument = gql`
-    query AffiliationByURI($uri: String!) {
-  affiliationByURI(uri: $uri) {
-    id
-    displayName
-    uri
-  }
-}
-    `;
-
-/**
- * __useAffiliationByUriQuery__
- *
- * To run a query within a React component, call `useAffiliationByUriQuery` and pass it any options that fit your needs.
- * When your component renders, `useAffiliationByUriQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useAffiliationByUriQuery({
- *   variables: {
- *      uri: // value for 'uri'
- *   },
- * });
- */
-export function useAffiliationByUriQuery(baseOptions: Apollo.QueryHookOptions<AffiliationByUriQuery, AffiliationByUriQueryVariables> & ({ variables: AffiliationByUriQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<AffiliationByUriQuery, AffiliationByUriQueryVariables>(AffiliationByUriDocument, options);
-      }
-export function useAffiliationByUriLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AffiliationByUriQuery, AffiliationByUriQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<AffiliationByUriQuery, AffiliationByUriQueryVariables>(AffiliationByUriDocument, options);
-        }
-export function useAffiliationByUriSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AffiliationByUriQuery, AffiliationByUriQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<AffiliationByUriQuery, AffiliationByUriQueryVariables>(AffiliationByUriDocument, options);
-        }
-export type AffiliationByUriQueryHookResult = ReturnType<typeof useAffiliationByUriQuery>;
-export type AffiliationByUriLazyQueryHookResult = ReturnType<typeof useAffiliationByUriLazyQuery>;
-export type AffiliationByUriSuspenseQueryHookResult = ReturnType<typeof useAffiliationByUriSuspenseQuery>;
-export type AffiliationByUriQueryResult = Apollo.QueryResult<AffiliationByUriQuery, AffiliationByUriQueryVariables>;
 export const AnswerByVersionedQuestionIdDocument = gql`
     query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQuestionId: Int!) {
   answerByVersionedQuestionId(

@@ -21,11 +21,3 @@ query AffiliationFunders($name: String!, $funderOnly: Boolean, $paginationOption
     }
   }
 }
-
-query AffiliationByURI($uri: String!) {
-  affiliationByURI(uri: $uri) {
-    id
-    displayName
-    uri
-  }
-}
