@@ -115,7 +115,6 @@ describe("FunderSearch", () => {
   function WrappedSearch() {
     const [moreCounter, setMoreCounter] = useState(0);
     const [funders, setFunders] = useState<FunderSearchItem[]>([]);
-    const [emptyResults, setEmptyResults] = useState<Boolean>(true);
 
     function handleResults(resp: FunderSearchResults) {
       if (resp && resp.items) {
