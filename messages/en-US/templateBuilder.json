@@ -60,7 +60,8 @@
     },
     "messages": {
       "successfullyArchived": "Successfully archived the template",
-      "sectionMoved": "Section moved to position {displayOrder}"
+      "sectionMoved": "Section moved to position {displayOrder}",
+      "successfullyUpdatedTitle": "Successfully updated the template title"
     }
   },
   "PublishTemplate": {
