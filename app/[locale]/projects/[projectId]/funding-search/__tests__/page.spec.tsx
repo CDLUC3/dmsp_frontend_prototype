@@ -541,6 +541,7 @@ describe("CreateProjectSearchFunder", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Funder 1")).toBeInTheDocument();
+      expect(screen.queryByText("popularTitle")).not.toBeInTheDocument();
     });
 
     const firstFunder = screen.getByText("Funder 1").closest('div')!;
@@ -565,15 +566,6 @@ describe("CreateProjectSearchFunder", () => {
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
-
-    // NOTE: search-field and search-input are testID's provided by elements
-    // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
-
-    const searchBtn = screen.getByTestId('search-btn');
-    fireEvent.click(searchBtn);
 
     await waitFor(() => {
       expect(screen.getByText("Popular Funder 1")).toBeInTheDocument();

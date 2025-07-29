@@ -134,6 +134,7 @@ const CreateProjectSearchFunder = () => {
 
   function onResults(results: FunderSearchResults, isNew: boolean) {
     let validResults: AffiliationSearch[];
+
     if (results.items && results.items.length > 0) {
       validResults = results.items.filter((r): r is AffiliationSearch => r !== null)
     } else {
@@ -185,7 +186,7 @@ const CreateProjectSearchFunder = () => {
             moreTrigger={moreCounter}
           />
 
-          {popularFunders.length > 0 && (
+          {((popularFunders.length > 0) && !hasSearched)  && (
             <section aria-labelledby="popular-funders">
               <h3>{trans('popularTitle')}</h3>
               <div className={styles.popularFunders}>
