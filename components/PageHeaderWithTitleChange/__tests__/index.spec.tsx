@@ -48,7 +48,7 @@ describe('PageHeaderWithTitleChange', () => {
     fireEvent.click(screen.getByText('Edit template title'));
 
     // Check if the input field is rendered
-    const input = screen.getByPlaceholderText('edittitle');
+    const input = screen.getByPlaceholderText('editTitle');
     expect(input).toBeInTheDocument();
   });
 
@@ -76,7 +76,7 @@ describe('PageHeaderWithTitleChange', () => {
     fireEvent.click(screen.getByText('Edit template title'));
 
     // Change the title Text
-    const input = screen.getByPlaceholderText('edittitle');
+    const input = screen.getByPlaceholderText('editTitle');
     fireEvent.change(input, { target: { value: 'Updated Title' } });
 
     // Submit the form

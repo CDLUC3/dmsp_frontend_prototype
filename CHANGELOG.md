@@ -14,6 +14,8 @@
 
 
 ### Fixed
+- Make `plan` and `template` title changes more smooth by optimistically updating title [#625]
+- Made the project title change smoother by optimistically updated title [#608]
 - Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
 
 ### Removed

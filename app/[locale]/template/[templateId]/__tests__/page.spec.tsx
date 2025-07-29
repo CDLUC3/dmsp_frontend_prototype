@@ -520,7 +520,7 @@ describe("TemplateEditPage", () => {
       fireEvent.click(editButton);
     })
 
-    const input = screen.getByPlaceholderText('edittitle');
+    const input = screen.getByPlaceholderText('editTitle');
     fireEvent.change(input, { target: { value: 'New template name' } });
 
     const saveButton = screen.getByTestId('save-button');
@@ -674,7 +674,7 @@ describe("TemplateEditPage", () => {
     fireEvent.click(editTemplateButton);
 
     // Check if the input field is displayed
-    const inputField = screen.getByPlaceholderText('edittitle');
+    const inputField = screen.getByPlaceholderText('editTitle');
     expect(inputField).toBeInTheDocument();
   });
 
@@ -714,7 +714,7 @@ describe("TemplateEditPage", () => {
     });
 
     // Simulate typing a new title into the input field
-    const inputField = screen.getByPlaceholderText('edittitle');
+    const inputField = screen.getByPlaceholderText('editTitle');
     await act(async () => {
       fireEvent.change(inputField, { target: { value: 'New Template Title' } });
     });
@@ -774,7 +774,7 @@ describe("TemplateEditPage", () => {
     });
 
     // Simulate typing a new title into the input field
-    const inputField = screen.getByPlaceholderText('edittitle');
+    const inputField = screen.getByPlaceholderText('editTitle');
     await act(async () => {
       fireEvent.change(inputField, { target: { value: 'New Template Title' } });
     });
