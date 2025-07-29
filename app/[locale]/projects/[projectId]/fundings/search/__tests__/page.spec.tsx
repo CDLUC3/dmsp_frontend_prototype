@@ -49,6 +49,7 @@ const mocks = [
               id: count,
               uri: `https://funder${count}`,
               displayName: `Funder ${count}`,
+              apiTarget: `api/target/${count}`
             };
           }),
           totalCount: 50,
@@ -78,6 +79,7 @@ const mocks = [
             uri: `https://funder${count}`,
             displayName: `Popular Funder ${count}`,
             nbrPlans: 10,
+            apiTarget: `api/target/${count}`
           };
         }),
       }
@@ -137,6 +139,7 @@ const mocks = [
               id: count,
               uri: `https://funder${count}`,
               displayName: `Funder ${count}`,
+              apiTarget: `api/target/${count}`
             };
           }),
           totalCount: 70,
@@ -175,6 +178,7 @@ const mocks = [
               id: count,
               uri: `https://funder${count}`,
               displayName: `Funder ${count}`,
+              apiTarget: `api/target/${count}`
             };
           }),
           totalCount: 70,
@@ -204,6 +208,7 @@ const mocks = [
     result: {
       data: {
         addProjectFunding: {
+          id: 18,
           errors: {
             affiliationId: null,
             funderOpportunityNumber: null,
@@ -234,6 +239,7 @@ const mocks = [
     result: {
       data: {
         addProjectFunding: {
+          id: 18,
           errors: {
             affiliationId: null,
             funderOpportunityNumber: null,
@@ -284,7 +290,6 @@ jest.mock('@/utils/general', () => ({
   scrollToTop: jest.fn(),
 }));
 
-
 jest.mock('@/components/PageHeader', () => ({
   __esModule: true,
   default: () => <div data-testid="mock-page-header" />
@@ -298,7 +303,7 @@ describe("ProjectsProjectFundingSearch", () => {
     window.scrollTo = jest.fn();
   });
 
-  it("Should render the view", async () => {
+  it("should render the view", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -309,7 +314,7 @@ describe("ProjectsProjectFundingSearch", () => {
     expect(screen.getByTestId('search-field')).toBeInTheDocument();
   });
 
-  it("Should show a short-list of Popular Funders", async () => {
+  it("should show a short-list of Popular Funders", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -322,7 +327,7 @@ describe("ProjectsProjectFundingSearch", () => {
     });
   });
 
-  it("Should neatly handle empty popular funder results", async () => {
+  it("should neatly handle empty popular funder results", async () => {
     render(
       <MockedProvider mocks={emptyPopularMock} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -334,7 +339,7 @@ describe("ProjectsProjectFundingSearch", () => {
     });
   });
 
-  it("Should render the search results", async () => {
+  it("should render the search results", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -368,7 +373,7 @@ describe("ProjectsProjectFundingSearch", () => {
     });
   });
 
-  it("Should cleanly handle empty results", async () => {
+  it("should cleanly handle empty results", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -388,7 +393,7 @@ describe("ProjectsProjectFundingSearch", () => {
     });
   });
 
-  it("Load More button visible when there are more results", async () => {
+  it("should display \'Load More\' button when there are more results", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -418,7 +423,7 @@ describe("ProjectsProjectFundingSearch", () => {
     expect(screen.getByTestId('load-more-btn')).toBeInTheDocument();
   });
 
-  it("Should load more when clicking the button", async () => {
+  it("should load more when clicking the button", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -454,7 +459,7 @@ describe("ProjectsProjectFundingSearch", () => {
     });
   });
 
-  it("Should run the addFunder mutation and redirect when selecting a funder", async () => {
+  it("should run the addFunder mutation and redirect when selecting a funder", async () => {
     const mockPush = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
@@ -489,7 +494,7 @@ describe("ProjectsProjectFundingSearch", () => {
     });
   });
 
-  it("Should also run add funder mutation when adding popular funder", async () => {
+  it("should also run add funder mutation when adding popular funder", async () => {
     const mockPush = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
@@ -521,7 +526,80 @@ describe("ProjectsProjectFundingSearch", () => {
     fireEvent.click(selectBtn);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123/));
+      expect(mockPush).toHaveBeenCalledWith('/en-US/projects/123/fundings/18/edit');
+    });
+  });
+
+  it("should call logECS with error if no projectFundingId is returned", async () => {
+    const mockPush = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+
+    const mocksWithNullId = [
+      {
+        request: {
+          query: AddProjectFundingDocument,
+          variables: {
+            input: {
+              projectId: 123,
+              affiliationId: "https://funder1", // or whichever funder you want to test
+            },
+          },
+        },
+        result: {
+          data: {
+            addProjectFunding: {
+              id: null, // <-- This is the key change
+              errors: {
+                affiliationId: null,
+                funderOpportunityNumber: null,
+                funderProjectNumber: null,
+                general: null,
+                grantId: null,
+                projectId: null,
+                status: null,
+              },
+            }
+          }
+        },
+      },
+      ...mocks // Spread the rest of your mocks after the override
+    ];
+
+    render(
+      <MockedProvider mocks={mocksWithNullId} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    // NOTE: search-field and search-input are testID's provided by elements
+    // inside the FunderSearch component.
+    const searchInput = screen.getByTestId('search-field')
+      .querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
+
+    const searchBtn = screen.getByTestId('search-btn');
+    fireEvent.click(searchBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("Popular Funder 1")).toBeInTheDocument();
+    });
+
+    const popFunder = screen.getByText("Popular Funder 1").closest('div')!;
+    const funderContent = within(popFunder);
+    const selectBtn = funderContent.getByRole('button', {
+      name: /select/i,
+    });
+    expect(selectBtn).toHaveAttribute('data-funder-uri', 'https://funder1');
+    fireEvent.click(selectBtn);
+
+    await waitFor(() => {
+      expect(logECS).toHaveBeenCalledWith(
+        'error',
+        'ProjectsProjectFundingSearch.addProjectFunding',
+        expect.objectContaining({
+          error: expect.anything(),
+        })
+      );
     });
   });
 

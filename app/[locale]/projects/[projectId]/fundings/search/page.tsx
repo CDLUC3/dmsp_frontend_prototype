@@ -64,9 +64,7 @@ const ProjectsProjectFundingSearch = () => {
     });
   }, []);
 
-  useEffect(() => {
-    console.log("POPULAR FUNDERS", popularFunders);
-  }, [popularFunders])
+
   /**
    * Handle specific errors that we care about in this component.
    * @param {ProjectFunderErrors} errs - The errors from the graphql response
