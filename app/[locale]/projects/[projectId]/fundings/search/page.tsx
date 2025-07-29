@@ -12,7 +12,9 @@ import {
   useAddProjectFundingMutation,
   ProjectFundingErrors,
 } from '@/generated/graphql';
+
 import { FunderSearchResults } from '@/app/types';
+
 import logECS from "@/utils/clientLogger";
 
 import {
@@ -29,7 +31,7 @@ import {
 } from "@/components/Container";
 import FunderSearch from '@/components/FunderSearch';
 import ErrorMessages from "@/components/ErrorMessages";
-
+import { useToast } from '@/context/ToastContext';
 
 import styles from './ProjectsProjectFundingSearch.module.scss';
 
@@ -37,6 +39,7 @@ import styles from './ProjectsProjectFundingSearch.module.scss';
 const ProjectsProjectFundingSearch = () => {
   const globalTrans = useTranslations('Global');
   const trans = useTranslations('FunderSearch');
+  const toastState = useToast(); // Access the toast state from context
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId as string;
@@ -106,6 +109,10 @@ const ProjectsProjectFundingSearch = () => {
           const projectFundingId = result?.data?.addProjectFunding?.id;
           if (projectFundingId) {
             const NEXT_URL = routePath('projects.fundings.edit', { projectId, projectFundingId })
+            const successMessage = trans('messages.success.addProjectFunding');
+            // Set Toast message
+            toastState.add(successMessage, { type: 'success', timeout: 3000 });
+            // Route user to the Funder Edit page
             router.push(NEXT_URL);
           } else {
             logECS(
@@ -173,8 +180,11 @@ const ProjectsProjectFundingSearch = () => {
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{globalTrans('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{globalTrans('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{globalTrans('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index', { projectId })}>{globalTrans('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{globalTrans('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.fundings.index', { projectId })}>{globalTrans('breadcrumbs.projectFunding')}</Link></Breadcrumb>
+            <Breadcrumb>{globalTrans('breadcrumbs.projectFundingSearch')}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-project-create-project-funding"

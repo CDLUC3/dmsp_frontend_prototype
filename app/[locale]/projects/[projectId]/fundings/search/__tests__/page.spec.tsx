@@ -18,6 +18,7 @@ import {
 
 import { scrollToTop } from '@/utils/general';
 import logECS from "@/utils/clientLogger";
+import { useToast } from '@/context/ToastContext';
 
 import CreateProjectSearchFunder from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -295,12 +296,18 @@ jest.mock('@/components/PageHeader', () => ({
   default: () => <div data-testid="mock-page-header" />
 }));
 
+// Mock Toast
+const mockToast = {
+  add: jest.fn(),
+};
 describe("ProjectsProjectFundingSearch", () => {
 
   beforeEach(() => {
     const mockParams = useParams as jest.Mock;
     mockParams.mockReturnValue({ projectId: '123' });
     window.scrollTo = jest.fn();
+
+    (useToast as jest.Mock).mockReturnValue(mockToast);
   });
 
   it("should render the view", async () => {
@@ -527,6 +534,8 @@ describe("ProjectsProjectFundingSearch", () => {
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/en-US/projects/123/fundings/18/edit');
+      expect(mockToast.add).toHaveBeenCalledWith('messages.success.addProjectFunding', { type: 'success', timeout: 3000 });
+
     });
   });
 
