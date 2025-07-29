@@ -132,7 +132,7 @@ describe('PlanOverviewPage', () => {
     expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.title' })).toBeInTheDocument();
-    expect(within(sidebar).getByText('DRAFT')).toBeInTheDocument();
+    expect(within(sidebar).getByText('Draft')).toBeInTheDocument();
     expect(within(sidebar).getByText('buttons.linkUpdate')).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.publish.title' })).toBeInTheDocument();
     expect(within(sidebar).getByText('status.publish.label')).toBeInTheDocument();
@@ -181,7 +181,7 @@ describe('PlanOverviewPage', () => {
     expect(within(sidebar).getByRole('heading', { name: 'status.feedback.title' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('link', { name: 'links.request' })).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.title' })).toBeInTheDocument();
-    expect(within(sidebar).queryByText('DRAFT')).not.toBeInTheDocument();
+    expect(within(sidebar).queryByText('Draft')).not.toBeInTheDocument();
     expect(within(sidebar).getByText('buttons.linkUpdate')).toBeInTheDocument();
     expect(within(sidebar).getByRole('heading', { name: 'status.publish.title' })).toBeInTheDocument();
     expect(within(sidebar).getByText('status.publish.label')).toBeInTheDocument();
@@ -527,7 +527,7 @@ describe('PlanOverviewPage', () => {
     render(<PlanOverviewPage />);
 
     // First check that inital Plan Status is DRAFT
-    expect(screen.getByText('DRAFT')).toBeInTheDocument();
+    expect(screen.getByText('Draft')).toBeInTheDocument();
 
     // Click the Update link next to Plan Status to reveal the select dropdown
     const updateLink = screen.getByTestId('updateLink');
@@ -578,7 +578,7 @@ describe('PlanOverviewPage', () => {
     render(<PlanOverviewPage />);
 
     // First check that inital Plan Status is DRAFT
-    expect(screen.getByText('DRAFT')).toBeInTheDocument();
+    expect(screen.getByText('Draft')).toBeInTheDocument();
 
     // Click the Update link next to Plan Status to reveal the select dropdown
     const updateLink = screen.getByTestId('updateLink');
@@ -631,7 +631,7 @@ describe('PlanOverviewPage', () => {
     render(<PlanOverviewPage />);
 
     // First check that inital Plan Status is DRAFT
-    expect(screen.getByText('DRAFT')).toBeInTheDocument();
+    expect(screen.getByText('Draft')).toBeInTheDocument();
 
     // Click the Update link next to Plan Status to reveal the select dropdown
     const updateLink = screen.getByTestId('updateLink');
@@ -692,7 +692,7 @@ describe('PlanOverviewPage', () => {
     render(<PlanOverviewPage />);
 
     // First check that inital Plan Status is DRAFT
-    expect(screen.getByText('DRAFT')).toBeInTheDocument();
+    expect(screen.getByText('Draft')).toBeInTheDocument();
 
     // Click the Update link next to Plan Status to reveal the select dropdown
     const updateLink = screen.getByTestId('updateLink');
@@ -754,7 +754,7 @@ describe('PlanOverviewPage', () => {
     render(<PlanOverviewPage />);
 
     // First check that inital Plan Status is DRAFT
-    expect(screen.getByText('DRAFT')).toBeInTheDocument();
+    expect(screen.getByText('Draft')).toBeInTheDocument();
 
     // Click the Update link next to Plan Status to reveal the select dropdown
     const updateLink = screen.getByTestId('updateLink');
