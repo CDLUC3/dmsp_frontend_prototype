@@ -1,5 +1,5 @@
-query Templates($term: String) {
-  myTemplates(term: $term) {
+query Templates($term: String, $paginationOptions: PaginationOptions) {
+  myTemplates(term: $term, paginationOptions: $paginationOptions) {
     totalCount
     nextCursor
     items {

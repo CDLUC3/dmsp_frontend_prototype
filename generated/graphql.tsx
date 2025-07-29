@@ -4192,6 +4192,7 @@ export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates
 
 export type TemplatesQueryVariables = Exact<{
   term?: InputMaybe<Scalars['String']['input']>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
 }>;
 
 
@@ -7238,8 +7239,8 @@ export type PublishedTemplatesLazyQueryHookResult = ReturnType<typeof usePublish
 export type PublishedTemplatesSuspenseQueryHookResult = ReturnType<typeof usePublishedTemplatesSuspenseQuery>;
 export type PublishedTemplatesQueryResult = Apollo.QueryResult<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>;
 export const TemplatesDocument = gql`
-    query Templates($term: String) {
-  myTemplates(term: $term) {
+    query Templates($term: String, $paginationOptions: PaginationOptions) {
+  myTemplates(term: $term, paginationOptions: $paginationOptions) {
     totalCount
     nextCursor
     items {
@@ -7273,6 +7274,7 @@ export const TemplatesDocument = gql`
  * const { data, loading, error } = useTemplatesQuery({
  *   variables: {
  *      term: // value for 'term'
+ *      paginationOptions: // value for 'paginationOptions'
  *   },
  * });
  */

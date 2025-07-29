@@ -427,15 +427,6 @@ const QuestionEdit = () => {
     }
   }, [parsedQuestionJSON])
 
-  // Set labels for typeahead search
-  useEffect(() => {
-    if ((parsedQuestionJSON?.type === TYPEAHEAD_QUESTION_TYPE)) {
-      setTypeaheadSearchLabel(parsedQuestionJSON?.graphQL?.displayFields[0]?.label);
-      setTypeAheadHelpText(parsedQuestionJSON?.graphQL?.variables?.[0]?.label ?? '');
-    }
-  }, [questionType])
-
-
   // If a user changes their question type, then we need to fetch the question types to set the new json schema
   useEffect(() => {
     // Only fetch question types if we have a questionType query param present

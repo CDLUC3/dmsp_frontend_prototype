@@ -64,6 +64,10 @@ const TemplateListPage: React.FC = () => {
 
   // Make graphql request for templates under the user's affiliation
   const { data, loading, error: queryError } = useTemplatesQuery({
+    // TODO: Adding this because the default limit is too small. We eventually want to
+    //       convert this to use the provided cursor when clicking "Load more" instead of
+    //       the local Array of initial results
+    variables: { paginationOptions: { limit: 25 } },
     /* Force Apollo to notify React of changes. This was needed for when refetch is
     called and a re-render of data is necessary*/
     notifyOnNetworkStatusChange: true,

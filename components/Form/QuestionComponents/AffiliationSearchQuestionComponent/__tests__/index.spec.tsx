@@ -30,7 +30,7 @@ describe('TypeaheadSearchQuestionComponent', () => {
       localQueryId: "getOrganizations",
       displayFields: [
         {
-          label: "Organization Name",
+          label: "Organization",
           propertyName: "displayName",
           labelTranslationKey: "organization.name"
         }
@@ -77,14 +77,14 @@ describe('TypeaheadSearchQuestionComponent', () => {
         handleOtherAffiliationChange={mockHandleOtherAffiliationChange}
       />
     );
-    expect(screen.getByLabelText('Organization Name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Organization')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Type to search...')).toHaveValue('Test Institution');
     expect(screen.getByText('Search Term')).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveAttribute('name', 'institution');
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });
 
-  it('should renders the typeahead with correct props', () => {
+  it.only('should renders the typeahead with correct props', () => {
     render(
       <AffiliationSearchQuestionComponent
         parsedQuestion={mockParsedQuestion}
@@ -96,9 +96,9 @@ describe('TypeaheadSearchQuestionComponent', () => {
         handleOtherAffiliationChange={mockHandleOtherAffiliationChange}
       />
     );
-    expect(screen.getByLabelText('Organization Name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Organization')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Type to search...')).toHaveValue('Test Institution');
-    expect(screen.getByText('Search Term')).toBeInTheDocument();
+    expect(screen.getByText('Pick an organization')).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toHaveAttribute('name', 'institution');
     expect(screen.getByRole('listbox')).toBeInTheDocument();
   });

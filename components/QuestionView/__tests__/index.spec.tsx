@@ -723,13 +723,13 @@ describe("QuestionView", () => {
         path="/template/123"
       />
     );
-    expect(screen.getByTestId('card-body').textContent).toContain('Affiliation');
-    expect(screen.getByTestId('card-body').textContent).toContain('AffiliationNameOpen drop down');
+    expect(screen.getByTestId('card-body').textContent).toContain('Enter a search term to find your affiliation');
+    expect(screen.getByTestId('card-body').textContent).toContain('institutionHelpOpen drop down');
     const searchInput = screen.getByRole('textbox');
     expect(searchInput).toBeInTheDocument();
     expect(searchInput).toHaveAttribute('placeholder', 'Type to search...');
     expect(searchInput).toHaveValue('');
-    const input = screen.getByLabelText('Affiliation');
+    const input = screen.getByLabelText('Enter a search term to find your affiliation');
 
     // Type in the input
     fireEvent.change(input, { target: { value: 'Test University' } });
