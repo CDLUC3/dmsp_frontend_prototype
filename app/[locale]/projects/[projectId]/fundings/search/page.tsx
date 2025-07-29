@@ -1,139 +1,214 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState, useRef } from 'react';
+import { useTranslations } from 'next-intl';
+import { useParams, useRouter } from 'next/navigation';
+import { routePath } from '@/utils/routes';
+
+import {
+  AffiliationSearch,
+  FunderPopularityResult,
+  usePopularFundersLazyQuery,
+  useAddProjectFundingMutation,
+  ProjectFundingErrors,
+} from '@/generated/graphql';
+import { FunderSearchResults } from '@/app/types';
+import logECS from "@/utils/clientLogger";
 
 import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Form,
-  Input,
-  Label,
   Link,
-  SearchField,
-  Text
 } from "react-aria-components";
+
 import PageHeader from "@/components/PageHeader";
 import {
   ContentContainer,
   LayoutContainer,
 } from "@/components/Container";
-import { routePath } from '@/utils/routes';
+import FunderSearch from '@/components/FunderSearch';
+import ErrorMessages from "@/components/ErrorMessages";
+
 
 import styles from './ProjectsProjectFundingSearch.module.scss';
 
+
 const ProjectsProjectFundingSearch = () => {
+  const globalTrans = useTranslations('Global');
+  const trans = useTranslations('FunderSearch');
   const router = useRouter();
+  const params = useParams();
+  const projectId = params.projectId as string;
 
-  // State for search field input
-  const [searchTerm, setSearchTerm] = useState<string>("NSF");
-
-  // State to track if a search has been performed
   const [hasSearched, setHasSearched] = useState<boolean>(false);
+  const [moreCounter, setMoreCounter] = useState<number>(0);
+  const [funders, setFunders] = useState<AffiliationSearch[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [addProjectFunding] = useAddProjectFundingMutation({});
+  const [errors, setErrors] = useState<string[]>([]);
+  const errorRef = useRef<HTMLDivElement>(null);
 
-  // List of most used funders (shown when no search has been executed)
-  const mostUsedFunders = [
-    "Bill & Melinda Gates Foundation",
-    "Wellcome Trust",
-    "National Institutes of Health (NIH)"
-  ];
+  const [popularFunders, setPopularFunders] = useState<FunderPopularityResult[]>([]);
+  const [popularFundersQuery] = usePopularFundersLazyQuery({});
 
-  // Mock funders list (For after search - NSF examples given)
-  const fundersMockData = [
-    "National Science Foundation (NSF)",
-    "National Science Foundation-BSF (NSF-BSF)",
-    "NSF-AAA"
-  ];
-  const [funders, setFunders] = useState<string[]>([]);
+  useEffect(() => {
+    // Manually calling the effect because the query specifies that some items
+    // can be null, and we need to filter those potential null results out.
+    popularFundersQuery().then(({ data }) => {
+      if (data?.popularFunders && data.popularFunders.length > 0) {
+        const cleaned = data.popularFunders.filter((item) => item !== null)
+        setPopularFunders(cleaned);
+      }
+    });
+  }, []);
 
-  // Handles the Search button click
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    console.log("POPULAR FUNDERS", popularFunders);
+  }, [popularFunders])
+  /**
+   * Handle specific errors that we care about in this component.
+   * @param {ProjectFunderErrors} errs - The errors from the graphql response
+   */
+  function checkErrors(errs: ProjectFundingErrors): string[] {
+    const noErrors = Object.values(errs).every(val => val === null);
+    if (noErrors) return [];
 
-    // If search is blank, reset back to empty state
-    if (!searchTerm.trim()) {
-      setHasSearched(false);
-      setFunders([]); // Clear funders list as no search is executed
-      return;
+    const typedKeys: (keyof ProjectFundingErrors)[] = [
+      "affiliationId",
+      "general",
+      "projectId",
+      "status",
+    ];
+    const newErrors: string[] = [];
+
+    for (const k of typedKeys) {
+      const errVal = errs[k];
+      if (errVal) {
+        newErrors.push(errVal);
+      }
     }
 
-    console.log('Search executed for:', searchTerm);
-    setHasSearched(true);
+    return newErrors
+  }
 
-    // Mock search implementation: Filter for NSF funders
-    const results = fundersMockData.filter(funder =>
-      funder.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFunders(results);
+  async function handleSelectFunder(funder: AffiliationSearch | FunderPopularityResult) {
+    const input = {
+      projectId: Number(projectId),
+      affiliationId: funder.uri
+    }
+
+    addProjectFunding({ variables: { input } })
+      .then((result) => {
+        const errs = checkErrors(result?.data?.addProjectFunding?.errors as ProjectFundingErrors);
+        if (errs.length > 0) {
+          setErrors(errs);
+        } else {
+          const projectFundingId = result?.data?.addProjectFunding?.id;
+          if (projectFundingId) {
+            const NEXT_URL = routePath('projects.fundings.edit', { projectId, projectFundingId })
+            router.push(NEXT_URL);
+          } else {
+            logECS(
+              'error',
+              'ProjectsProjectFundingSearch.addProjectFunding',
+              { error: 'projectFundingId not returned in result' }
+            );
+            setErrors([globalTrans('messaging.somethingWentWrong')])
+          }
+        }
+      })
+      .catch((err) => {
+        logECS(
+          'error',
+          'createProjectSearchFunder.addProjectFunding',
+          { error: err.message }
+        );
+        setErrors([...errors, err.message])
+      });
   };
 
-  const handleSelectFunder = (funder: string) => {
-    console.log('Funder selected:', funder);
-    // Handle funder selection logic (e.g., save state)
-    router.push(routePath('projects.fundings.index', { projectId: 'proj_2425' }))
+  async function handleAddFunderManually() {
+    // TODO:: Handle manual addition of funders
+    // NOTE:: Reason we didn't implement this is because the template for the
+    // target // URL doesn't exist. There is a separate ticket tracking this.
+    // TODO:: Remember to update the test when this is finally updated
+    console.log('TODO: Navigate to create funder page.');
   };
 
-  const handleAddFunderManually = () => {
-    console.log('Add funder manually clicked');
-    // Handle manual addition of funders
-    router.push(routePath('projects.fundings.edit', { projectId: 'proj_2425', projectFundingId: 'projFund_6902' }))
-  };
+  function onResults(results: FunderSearchResults, isNew: boolean) {
+    let validResults: AffiliationSearch[];
+    if (results.items && results.items.length > 0) {
+      validResults = results.items.filter((r): r is AffiliationSearch => r !== null)
+    } else {
+      validResults = [];
+    }
+
+    if (isNew) {
+      setFunders(validResults);
+    } else {
+      setFunders(funders.concat(validResults));
+    }
+
+    setTotalCount(results.totalCount as number);
+
+    if (results.nextCursor) {
+      setNextCursor(results.nextCursor);
+    }
+    if (!hasSearched) setHasSearched(true);
+  }
+
+  /**
+   * Checks if the useMore button should display or not.
+   */
+  function hasMore() {
+    if (!nextCursor) return false;
+    return (funders.length < totalCount);
+  }
 
   return (
     <>
       <PageHeader
-        title="Search for Funders"
+        title={trans('headerTitle')}
         description=""
         showBackButton={true}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">Home</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">Projects</Link></Breadcrumb>
+            <Breadcrumb><Link href="/">{globalTrans('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href="/projects">{globalTrans('breadcrumbs.projects')}</Link></Breadcrumb>
           </Breadcrumbs>
         }
         className="page-project-create-project-funding"
       />
+
       <LayoutContainer>
         <ContentContainer>
-          {/* Search Field */}
-          <Form onSubmit={handleSearch} aria-labelledby="search-section">
-            <section id="search-section" className={styles.searchSection}>
-              <SearchField aria-label="Search funders">
-                <Label>Search by funder name</Label>
-                <Input
-                  aria-describedby="search-help"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Enter funder name..."
-                />
-                <Button type={"submit"}>Search</Button>
-                <Text slot="description" className="help" id="search-help">
-                  Search by research organization, funder name, or related keywords.
-                </Text>
-              </SearchField>
-            </section>
-          </Form>
+          <ErrorMessages errors={errors} ref={errorRef} />
+          <FunderSearch
+            onResults={onResults}
+            moreTrigger={moreCounter}
+          />
 
-          {/* "Empty State" - Most Used Funders (shown before search is executed) */}
-          {!hasSearched && (
-            <section aria-labelledby="most-used-section">
-              <h2 id="most-used-section" className="heading-3">Most popular funders</h2>
-              <div className={styles.funderResultsList}>
-                {mostUsedFunders.map((funder, index) => (
+          {popularFunders.length > 0 && (
+            <section aria-labelledby="popular-funders">
+              <h3>{trans('popularTitle')}</h3>
+              <div className={styles.popularFunders}>
+                {popularFunders.map((funder, index) => (
                   <div
                     key={index}
-                    className={styles.funderResultsListItem}
+                    className={styles.fundingResultsListItem}
                     role="group"
-                    aria-label={`Funder: ${funder}`}
+                    aria-label={`${trans('funder')}: ${funder.displayName}`}
                   >
-                    <p className="funder-name">{funder}</p>
+                    <p className="funder-name">{funder.displayName}</p>
                     <Button
                       className="secondary select-button"
+                      data-funder-uri={funder.uri}
                       onPress={() => handleSelectFunder(funder)}
-                      aria-label={`Select ${funder}`}
+                      aria-label={`${globalTrans('buttons.select')} ${funder.displayName}`}
                     >
-                      Select
+                      {globalTrans('buttons.select')}
                     </Button>
                   </div>
                 ))}
@@ -141,55 +216,71 @@ const ProjectsProjectFundingSearch = () => {
             </section>
           )}
 
-          {/* Search Results (3 NSF funders - shown after search is executed) */}
-          {hasSearched && (
+          {funders.length > 0 && (
             <section aria-labelledby="funders-section">
-              <h3 id="funders-section">{funders.length} funders found</h3>
-              <div className={styles.funderResultsList}>
+              <h3 id="funders-section">{trans('found', { count: totalCount })}</h3>
+              <div className={styles.fundingResultsList}>
                 {funders.map((funder, index) => (
                   <div
                     key={index}
-                    className={styles.funderResultsListItem}
+                    className={styles.fundingResultsListItem}
                     role="group"
-                    aria-label={`Funder: ${funder}`}
+                    aria-label={`${trans('funder')}: ${funder.displayName}`}
                   >
-                    <p className="funder-name">{funder}</p>
+                    <p className="funder-name">{funder.displayName}</p>
                     <Button
                       className="secondary select-button"
+                      data-funder-uri={funder.uri}
                       onPress={() => handleSelectFunder(funder)}
-                      aria-label={`Select ${funder}`}
+                      aria-label={`${globalTrans('buttons.select')} ${funder.displayName}`}
                     >
-                      Select
+                      {globalTrans('buttons.select')}
                     </Button>
                   </div>
                 ))}
 
-                <div className={styles.funderResultsListMore}>
-                  <Button
-                    onPress={() => console.log('Load more funders')}
-                    aria-label="Load more funders"
-                  >
-                    Load More
-                  </Button>
-                </div>
+                {(hasMore()) && (
+                  <div className={styles.fundingResultsListMore}>
+                    <Button
+                      data-testid="load-more-btn"
+                      onPress={() => setMoreCounter(moreCounter + 1)}
+                      aria-label={globalTrans('buttons.loadMore')}
+                    >
+                      {globalTrans('buttons.loadMore')}
+                    </Button>
+                    <p>
+                      {trans('showCount', {
+                        count: funders.length,
+                        total: totalCount,
+                      })}
+                    </p>
+                  </div>
+                )}
               </div>
+            </section>
+          )}
+
+          {funders.length === 0 && hasSearched && (
+            <section>
+              <p>{trans('noResults')}</p>
             </section>
           )}
 
           {/* Add Funder Manually (Always Visible After Search) */}
           {hasSearched && (
             <section aria-labelledby="manual-section" className="mt-8">
-              <h3 id="manual-section">Not in this list?</h3>
-              <p>If your project isn’t shown, you can add the details manually.</p>
+              <h3 id="manual-section">{trans('addManuallyHeading')}</h3>
+              <p>{trans('addManuallyText')}</p>
               <Button
                 className="add-funder-button"
-                onPress={handleAddFunderManually}
-                aria-label="Add funder manually"
+                onPress={() => handleAddFunderManually()}
+                aria-label={trans('addManuallyLabel')}
               >
-                Add Funder Manually
+                {trans('addManuallyLabel')}
               </Button>
             </section>
           )}
+
         </ContentContainer>
       </LayoutContainer>
     </>
