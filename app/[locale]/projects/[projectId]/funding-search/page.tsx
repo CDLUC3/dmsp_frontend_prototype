@@ -54,7 +54,7 @@ const CreateProjectSearchFunder = () => {
   useEffect(() => {
     // Manually calling the effect because the query specifies that some items
     // can be null, and we need to filter those potential null results out.
-    popularFundersQuery().then(({data}) => {
+    popularFundersQuery().then(({ data }) => {
       if (data?.popularFunders && data.popularFunders.length > 0) {
         const cleaned = data.popularFunders.filter((item) => item !== null)
         setPopularFunders(cleaned);
@@ -103,11 +103,11 @@ const CreateProjectSearchFunder = () => {
         } else {
           if (funder.apiTarget) {
             router.push(routePath('projects.create.projects.search', {
-              projectId: projectId,
+              projectId,
             }));
           } else {
             router.push(routePath('projects.project.info', {
-              projectId: projectId,
+              projectId,
             }));
           }
         }
@@ -116,7 +116,7 @@ const CreateProjectSearchFunder = () => {
         logECS(
           'error',
           'createProjectSearchFunder.addProjectFunding',
-          {error: err.message}
+          { error: err.message }
         );
         setErrors([...errors, err.message])
       });
@@ -184,7 +184,7 @@ const CreateProjectSearchFunder = () => {
             moreTrigger={moreCounter}
           />
 
-          {((popularFunders.length > 0) && !hasSearched)  && (
+          {((popularFunders.length > 0) && !hasSearched) && (
             <section aria-labelledby="popular-funders">
               <h3>{trans('popularTitle')}</h3>
               <div className={styles.popularFunders}>
