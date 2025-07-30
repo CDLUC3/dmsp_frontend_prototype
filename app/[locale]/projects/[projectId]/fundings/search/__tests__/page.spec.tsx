@@ -376,6 +376,8 @@ describe("ProjectsProjectFundingSearch", () => {
 
         expect(funderTitle).toBeInTheDocument();
         expect(selectBtn).toHaveAttribute('data-funder-uri', funder[1]);
+        // Expect Popular Funders to no longer be displayed after user does search
+        expect(screen.queryByText('Popular Funder 1')).not.toBeInTheDocument();
       });
     });
   });
@@ -511,15 +513,6 @@ describe("ProjectsProjectFundingSearch", () => {
       </MockedProvider>
     );
 
-    // NOTE: search-field and search-input are testID's provided by elements
-    // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-      .querySelector('input')!;
-    fireEvent.change(searchInput, { target: { value: "nih" } });
-
-    const searchBtn = screen.getByTestId('search-btn');
-    fireEvent.click(searchBtn);
-
     await waitFor(() => {
       expect(screen.getByText("Popular Funder 1")).toBeInTheDocument();
     });
@@ -550,7 +543,7 @@ describe("ProjectsProjectFundingSearch", () => {
           variables: {
             input: {
               projectId: 123,
-              affiliationId: "https://funder1", // or whichever funder you want to test
+              affiliationId: "https://funder3", // or whichever funder you want to test
             },
           },
         },
@@ -590,15 +583,15 @@ describe("ProjectsProjectFundingSearch", () => {
     fireEvent.click(searchBtn);
 
     await waitFor(() => {
-      expect(screen.getByText("Popular Funder 1")).toBeInTheDocument();
+      expect(screen.getByText("Funder 3")).toBeInTheDocument();
     });
 
-    const popFunder = screen.getByText("Popular Funder 1").closest('div')!;
+    const popFunder = screen.getByText("Funder 3").closest('div')!;
     const funderContent = within(popFunder);
     const selectBtn = funderContent.getByRole('button', {
       name: /select/i,
     });
-    expect(selectBtn).toHaveAttribute('data-funder-uri', 'https://funder1');
+    expect(selectBtn).toHaveAttribute('data-funder-uri', 'https://funder3');
     fireEvent.click(selectBtn);
 
     await waitFor(() => {

@@ -198,7 +198,7 @@ const ProjectsProjectFundingSearch = () => {
             moreTrigger={moreCounter}
           />
 
-          {popularFunders.length > 0 && (
+          {((popularFunders.length > 0) && !hasSearched) && (
             <section aria-labelledby="popular-funders">
               <h3>{trans('popularTitle')}</h3>
               <div className={styles.popularFunders}>
