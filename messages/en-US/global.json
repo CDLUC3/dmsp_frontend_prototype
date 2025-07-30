@@ -123,7 +123,12 @@
     "showCount": "Showing {count} of {total}",
     "addManuallyHeading": "Not in this list?",
     "addManuallyText": "If your project isn’t shown, you can add the details manually.",
-    "addManuallyLabel": "Add funder manually"
+    "addManuallyLabel": "Add funder manually",
+    "messages": {
+      "success": {
+        "addProjectFunding": "Successfully added the funder to the project."
+      }
+    }
   },
   "PlanFunding": {
     "headerTitle": "Plan Funding",
@@ -172,6 +177,7 @@
       "projects": "Projects",
       "projectOverview": "Project overview",
       "projectFunding": "Project funding",
+      "projectFundingSearch": "Project funding search",
       "planOverview": "Plan overview",
       "planFunding": "Plan funding",
       "feedback": "Feedback",

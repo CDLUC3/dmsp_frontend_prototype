@@ -547,7 +547,7 @@ export type ExternalSearchInput = {
 export type FunderPopularityResult = {
   __typename?: 'FunderPopularityResult';
   /** The apiTarget for the affiliation (if available) */
-  apiTarget: Scalars['String']['output'];
+  apiTarget?: Maybe<Scalars['String']['output']>;
   /** The official display name */
   displayName: Scalars['String']['output'];
   /** The unique identifer for the affiliation */
@@ -3840,7 +3840,7 @@ export type AddProjectFundingMutationVariables = Exact<{
 }>;
 
 
-export type AddProjectFundingMutation = { __typename?: 'Mutation', addProjectFunding?: { __typename?: 'ProjectFunding', errors?: { __typename?: 'ProjectFundingErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
+export type AddProjectFundingMutation = { __typename?: 'Mutation', addProjectFunding?: { __typename?: 'ProjectFunding', id?: number | null, errors?: { __typename?: 'ProjectFundingErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
 
 export type UpdateProjectFundingMutationVariables = Exact<{
   input: UpdateProjectFundingInput;
@@ -4020,7 +4020,7 @@ export type AffiliationsQueryVariables = Exact<{
 }>;
 
 
-export type AffiliationsQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
+export type AffiliationsQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string, apiTarget?: string | null } | null> | null } | null };
 
 export type AffiliationFundersQueryVariables = Exact<{
   name: Scalars['String']['input'];
@@ -4029,7 +4029,7 @@ export type AffiliationFundersQueryVariables = Exact<{
 }>;
 
 
-export type AffiliationFundersQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
+export type AffiliationFundersQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, apiTarget?: string | null, uri: string } | null> | null } | null };
 
 export type AnswerByVersionedQuestionIdQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4057,7 +4057,7 @@ export type PlanFundingsQuery = { __typename?: 'Query', planFundings?: Array<{ _
 export type PopularFundersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PopularFundersQuery = { __typename?: 'Query', popularFunders?: Array<{ __typename?: 'FunderPopularityResult', displayName: string, id: number, nbrPlans: number, uri: string, apiTarget: string } | null> | null };
+export type PopularFundersQuery = { __typename?: 'Query', popularFunders?: Array<{ __typename?: 'FunderPopularityResult', displayName: string, id: number, nbrPlans: number, uri: string, apiTarget?: string | null } | null> | null };
 
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4710,6 +4710,7 @@ export type AddProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<A
 export const AddProjectFundingDocument = gql`
     mutation AddProjectFunding($input: AddProjectFundingInput!) {
   addProjectFunding(input: $input) {
+    id
     errors {
       affiliationId
       funderOpportunityNumber
@@ -5772,6 +5773,7 @@ export const AffiliationsDocument = gql`
       id
       displayName
       uri
+      apiTarget
     }
   }
 }
@@ -5821,6 +5823,7 @@ export const AffiliationFundersDocument = gql`
     items {
       id
       displayName
+      apiTarget
       uri
     }
   }

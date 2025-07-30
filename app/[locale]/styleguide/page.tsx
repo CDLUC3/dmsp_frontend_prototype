@@ -366,6 +366,7 @@ function Page() {
 
   // To test the funder search results
   const [funders, setFunders] = useState<AffiliationSearch[]>([]);
+  const [moreCounter, setMoreCounter] = useState(0);
 
   function onFunderResults(results: AffiliationSearchResults) {
     if (results) {
@@ -2064,7 +2065,7 @@ function Page() {
 
           <div id="_fundersearch">
             <h3>Funder Search</h3>
-            <FunderSearch onResults={onFunderResults} />
+            <FunderSearch onResults={onFunderResults} moreTrigger={moreCounter} />
 
             <div id="_fundersearchResults">
               <h4>Results</h4>
@@ -2077,6 +2078,12 @@ function Page() {
                   </li>
                 ))}
               </ul>
+              <Button
+                onClick={() => setMoreCounter(moreCounter + 1)}
+                aria-label="Load more funders"
+              >
+                Load More
+              </Button>
             </div>
 
           </div>
