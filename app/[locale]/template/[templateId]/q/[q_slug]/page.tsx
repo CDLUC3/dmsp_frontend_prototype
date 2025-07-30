@@ -206,11 +206,35 @@ const QuestionEdit = () => {
   // Handler for typeahead search label changes
   const handleTypeAheadSearchLabelChange = (value: string) => {
     setTypeaheadSearchLabel(value);
+
+console.log(parsedQuestionJSON)
+
+    if (parsedQuestionJSON && parsedQuestionJSON?.type === "affiliationSearch") {
+      if (parsedQuestionJSON?.attributes?.label) {
+        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+        parsedQuestionJSON.attributes.label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updatedParsed),
+        }));
+      }
+    }
   };
 
   // Handler for typeahead help text changes
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
+
+    if (parsedQuestionJSON && parsedQuestionJSON?.type === "affiliationSearch") {
+      if (parsedQuestionJSON?.attributes?.help) {
+        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+        parsedQuestionJSON.attributes.help = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updatedParsed),
+        }));
+      }
+    }
   };
 
 
@@ -226,13 +250,6 @@ const QuestionEdit = () => {
           selected: row.isSelected,
         })),
       };
-    }
-
-    if (questionType === TYPEAHEAD_QUESTION_TYPE) {
-      return {
-        label: typeaheadSearchLabel,
-        help: typeaheadHelpText,
-      }
     }
 
     const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.slug', { templateId, q_slug: questionId }), Global);
