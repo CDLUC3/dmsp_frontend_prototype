@@ -1,13 +1,18 @@
 
 ### Added
+- Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
 - Added auto-save to the `Question Answer` page [#585]
 - Added the ability to edit the `Plan title` [#608]
 
 ### Fixed
 - Fixed the contrast for the `Date Picker` on the `/projects/[projectId]/project` page by implementing the shared `Date Component` there [#597]
+- Fixed bug where links in `Plan Overview` sidebar were of different sizes [#634]
+- Fixed the bug where `Plan Status` was displayed in all caps in the sidebar for the `Plan Overview` page [#634]
 - Make `plan` and `template` title changes more smooth by optimistically updating title [#625]
 - Made the project title change smoother by optimistically updated title [#608]
 - Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
+- Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
+- Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
 
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on July 21, 2025

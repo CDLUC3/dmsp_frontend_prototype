@@ -33,6 +33,7 @@ import { FormSelect, RadioGroupComponent } from '@/components/Form';
 import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 
 import { routePath } from '@/utils/routes';
+import { toTitleCase } from '@/utils/general';
 import { extractErrors } from '@/utils/errorHandler';
 import { useToast } from '@/context/ToastContext';
 import {
@@ -281,12 +282,25 @@ const PlanOverviewPage: React.FC = () => {
             payload: errs
           });
         } else {
+
+          // Optimistically update status so UI reflects it smoothly
+          dispatch({
+            type: 'SET_PLAN_STATUS',
+            payload: status
+          });
+
+          // ALSO update the planData.status so the display paragraph updates
+          dispatch({
+            type: 'SET_PLAN_DATA',
+            payload: {
+              ...state.planData,
+              status
+            }
+          });
           const successMessage = t('messages.success.successfullyUpdatedStatus');
           toastState.add(successMessage, { type: 'success' });
         }
       }
-      //Need to refetch plan data to refresh the info that was changed
-      await refetch();
     }
   }
 
@@ -684,7 +698,7 @@ const PlanOverviewPage: React.FC = () => {
                 <div>
                   <h3>{t('status.feedback.title')}</h3>
                 </div>
-                <Link href={FEEDBACK_URL} aria-label={Global('links.request')} >
+                <Link className={styles.sidePanelLink} href={FEEDBACK_URL} aria-label={Global('links.request')} >
                   {Global('links.request')}
                 </Link >
               </div >
@@ -711,11 +725,11 @@ const PlanOverviewPage: React.FC = () => {
                 <div className={`${styles.panelRow} mb-5`}>
                   <div>
                     <h3>{t('status.title')}</h3>
-                    <p>{state.planData.status}</p>
+                    <p>{toTitleCase(state.planData.status)}</p>
                   </div>
-                  <Link className={`${styles.sidePanelLink} react-aria-Link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
+                  <Button className={`${styles.buttonLink} link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
                     {Global('buttons.linkUpdate')}
-                  </Link>
+                  </Button>
                 </div>
               )}
 
@@ -724,7 +738,7 @@ const PlanOverviewPage: React.FC = () => {
                   <h3>{t('status.publish.title')}</h3>
                   <p>{state.planData.registered ? PUBLISHED : UNPUBLISHED}</p>
                 </div>
-                <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })} aria-label={t('status.publish.label')}>
+                <Link href="#" onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })} aria-label={t('status.publish.label')}>
                   {t('status.publish.label')}
                 </Link>
               </div>

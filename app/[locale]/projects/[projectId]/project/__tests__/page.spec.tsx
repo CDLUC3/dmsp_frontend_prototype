@@ -269,7 +269,7 @@ describe('ProjectsProjectDetail', () => {
 
     const searchBtn = screen.getByTestId('search-projects-button');
     fireEvent.click(searchBtn);
-    expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/search');
+    expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/1/projects-search');
   });
 
   it('should pass axe accessibility test', async () => {
