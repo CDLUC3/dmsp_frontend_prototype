@@ -4,6 +4,7 @@
 - Added the ability to edit the `Plan title` [#608]
 
 ### Fixed
+- Added the missing expanding/collapsing `Best Practices` to the sidebar of the `Question Details` page [#638]
 - Fixed bug where links in `Plan Overview` sidebar were of different sizes [#634]
 - Fixed the bug where `Plan Status` was displayed in all caps in the sidebar for the `Plan Overview` page [#634]
 - Make `plan` and `template` title changes more smooth by optimistically updating title [#625]
