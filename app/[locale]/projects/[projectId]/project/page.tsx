@@ -73,7 +73,9 @@ const ProjectsProjectDetail = () => {
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  const PROJECT_SEARCH_REDIRECT_ROUTE = routePath('projects.search');
+  const PROJECT_SEARCH_REDIRECT_ROUTE = routePath('projects.create.projects.search', {
+    projectId: projectId as string,
+  });
 
   const [projectData, setProjectData] = useState<ProjectDetailsFormInterface>({
     projectName: '',

@@ -7,6 +7,8 @@
 - Make `plan` and `template` title changes more smooth by optimistically updating title [#625]
 - Made the project title change smoother by optimistically updated title [#608]
 - Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
+- Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
+- Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
 
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on July 21, 2025
