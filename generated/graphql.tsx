@@ -3868,7 +3868,7 @@ export type AddProjectFundingMutationVariables = Exact<{
 }>;
 
 
-export type AddProjectFundingMutation = { __typename?: 'Mutation', addProjectFunding?: { __typename?: 'ProjectFunding', errors?: { __typename?: 'ProjectFundingErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
+export type AddProjectFundingMutation = { __typename?: 'Mutation', addProjectFunding?: { __typename?: 'ProjectFunding', id?: number | null, errors?: { __typename?: 'ProjectFundingErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
 
 export type UpdateProjectFundingMutationVariables = Exact<{
   input: UpdateProjectFundingInput;
@@ -4048,7 +4048,7 @@ export type AffiliationsQueryVariables = Exact<{
 }>;
 
 
-export type AffiliationsQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
+export type AffiliationsQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string, apiTarget?: string | null } | null> | null } | null };
 
 export type AffiliationFundersQueryVariables = Exact<{
   name: Scalars['String']['input'];
@@ -4741,6 +4741,7 @@ export type AddProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<A
 export const AddProjectFundingDocument = gql`
     mutation AddProjectFunding($input: AddProjectFundingInput!) {
   addProjectFunding(input: $input) {
+    id
     errors {
       affiliationId
       funderOpportunityNumber
@@ -5803,6 +5804,7 @@ export const AffiliationsDocument = gql`
       id
       displayName
       uri
+      apiTarget
     }
   }
 }

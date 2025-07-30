@@ -1,5 +1,6 @@
 
 ### Added
+- Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
 - Added auto-save to the `Question Answer` page [#585]
 - Added the ability to edit the `Plan title` [#608]
 
