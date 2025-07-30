@@ -12,6 +12,11 @@ export async function updateAnswerAction({
   answerId: number;
   json: string;
 }): Promise<ActionResponse> {
+
+console.log('Doc', UpdateAnswerDocument);
+console.log('answer', answerId);
+console.log('json', json);
+
   try {
     // Execute the mutation using the shared handler
     return await executeGraphQLMutation({

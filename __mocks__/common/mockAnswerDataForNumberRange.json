@@ -2,7 +2,7 @@
   "answerByVersionedQuestionId": {
     "__typename": "Answer",
     "id": 10,
-    "json": "{\"answer\":{\"end\":10,\"start\":1}}",
+    "json": "{\"type\":\"numberRange\",\"answer\":{\"end\":10,\"start\":1}}",
     "versionedQuestion": {
       "__typename": "VersionedQuestion",
       "id": 188

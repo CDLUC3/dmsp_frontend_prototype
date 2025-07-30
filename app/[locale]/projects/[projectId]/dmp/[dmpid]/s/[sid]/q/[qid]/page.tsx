@@ -602,68 +602,109 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const getAnswerJson = (): Record<string, any> => {
     switch (questionType) {
       case 'textArea':
-        return { answer: formData.textAreaContent };
+        return {
+          type: 'textArea',
+          answer: formData.textAreaContent
+        };
 
       case 'text':
-        return { answer: formData.textValue };
+        return {
+          type: 'text',
+          answer: formData.textValue
+        };
 
       case 'radioButtons':
-        return { answer: formData.selectedRadioValue };
+        return {
+          type: 'radioButtons',
+          answer: formData.selectedRadioValue
+        };
 
       case 'checkBoxes':
-        return { answer: formData.selectedCheckboxValues };
+        return {
+          type: 'checkBoxes',
+          answer: formData.selectedCheckboxValues
+        };
 
       case 'selectBox':
-        return { answer: formData.selectedSelectValue };
+        return {
+          type: 'selectBox',
+          answer: formData.selectedSelectValue
+        };
 
       case 'multiselectBox':
-        return { answer: Array.from(formData.selectedMultiSelectValues) };
+        return {
+          type: 'multiselectBox',
+          answer: Array.from(formData.selectedMultiSelectValues)
+        };
 
       case 'boolean':
-        return { answer: formData.yesNoValue };
+        return {
+          type: 'boolean',
+          answer: formData.yesNoValue
+        };
 
       case 'email':
-        return { answer: formData.emailValue };
+        return {
+          type: 'email',
+          answer: formData.emailValue
+        };
 
       case 'url':
-        return { answer: formData.urlValue };
+        return {
+          type: 'url',
+          answer: formData.urlValue
+        };
 
       case 'number':
-        return { answer: formData.numberValue };
+        return {
+          type: 'number',
+          answer: formData.numberValue
+        };
 
       case 'currency':
-        return { answer: formData.inputCurrencyValue };
+        return {
+          type: 'currency',
+          answer: formData.inputCurrencyValue
+        };
 
       case 'date':
-        return { answer: formData.dateValue?.toString() };
+        return {
+          type: 'date',
+          answer: formData.dateValue?.toString()
+        };
 
       case 'dateRange':
         return {
+          type: 'dateRange',
           answer: {
-            startDate: formData.dateRange.startDate?.toString() ?? null,
-            endDate: formData.dateRange.endDate?.toString() ?? null
+            start: formData.dateRange.startDate?.toString() ?? null,
+            end: formData.dateRange.endDate?.toString() ?? null
           }
         };
 
       case 'numberRange':
         return {
+          type: 'numberRange',
           answer: {
-            startNumber: formData.numberRange.startNumber,
-            endNumber: formData.numberRange.endNumber
+            start: formData.numberRange.startNumber,
+            end: formData.numberRange.endNumber
           }
         };
 
       case 'affiliationSearch':
         return {
+          type: 'affiliationSearch',
           answer: {
             affiliationId: formData.affiliationData.affiliationId,
             affiliationName: formData.otherField ? formData.otherAffiliationName : formData.affiliationData.affiliationName,
-            isOther: formData.otherField,
           }
         };
 
       default:
-        return { answer: formData.textAreaContent };
+        return {
+          type: questionType,
+          answer: formData.textAreaContent
+        };
     }
   };
 
