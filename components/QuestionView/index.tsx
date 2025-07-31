@@ -503,8 +503,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       </ContentContainer>
 
       <SidebarPanel>
-        <p>
-          {trans('bestPractice')}
+        <div className={styles.headerWithLogo}>
+          <h2 className="h4">{Global('bestPractice')}</h2>
           <Image
             className={styles.Logo}
             src="/images/DMP-logo.svg"
@@ -512,7 +512,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             height="16"
             alt="DMP Tool"
           />
-        </p>
+        </div>
 
         <ExpandableContentSection
           id="data-description"

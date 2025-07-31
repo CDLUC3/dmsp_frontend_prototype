@@ -10,6 +10,7 @@
   - Added toast message
   - Made updates to assure that funder appears on the `Plan Overview` page after selecting it
   - Made sure that `funding` was saved correctly so that the saved selection displays when user returns
+- Added the missing expanding/collapsing `Best Practices` to the sidebar of the `Question Details` page [#638]
 - Removed errors that were being observed due to missing projectFundingId in mocks [#641]
 - Fixed the contrast for the `Date Picker` on the `/projects/[projectId]/project` page by implementing the shared `Date Component` there [#597]
 - Fixed bug where links in `Plan Overview` sidebar were of different sizes [#634]

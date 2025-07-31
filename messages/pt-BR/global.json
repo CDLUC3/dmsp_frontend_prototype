@@ -193,6 +193,10 @@
     "visibility": "Visibilidade",
     "notPublished": "Não publicado",
     "editTitle": "Editar título",
+    "bestPractice": "Melhores práticas por",
+    "dataDescription": "Descrição dos dados",
+    "dataFormat": "Formato de dados",
+    "dataVolume": "Volume de dados",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
