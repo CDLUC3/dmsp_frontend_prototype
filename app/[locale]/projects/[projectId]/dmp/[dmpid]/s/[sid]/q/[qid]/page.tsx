@@ -1077,10 +1077,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
         <ContentContainer>
           <div className="container">
             {/**Requirements by funder */}
-            <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
-              <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
-              {convertToHTML(question?.requirementText)}
-            </section>
+            {question?.requirementText && (
+              <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
+                <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
+                {convertToHTML(question?.requirementText)}
+              </section>
+            )}
 
             {/**Requirements by organization */}
             <section aria-label={"Requirements"}>
