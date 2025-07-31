@@ -725,7 +725,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
   const addAnswer = async (isAutoSave = false) => {
 
-    if(setIsAutoSaving) {
+    if(isAutoSaving) {
       setIsAutoSaving(true);
     }
 
@@ -764,7 +764,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }
         });
       } finally {
-        if(isAutoSave) {
+        if (isAutoSave) {
           setIsAutoSaving(false);
           setHasUnsavedChanges(false);
         } 

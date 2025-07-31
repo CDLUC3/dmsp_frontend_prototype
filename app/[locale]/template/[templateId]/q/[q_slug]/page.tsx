@@ -207,17 +207,13 @@ const QuestionEdit = () => {
   const handleTypeAheadSearchLabelChange = (value: string) => {
     setTypeaheadSearchLabel(value);
 
-console.log(parsedQuestionJSON)
-
     if (parsedQuestionJSON && parsedQuestionJSON?.type === "affiliationSearch") {
-      if (parsedQuestionJSON?.attributes?.label) {
-        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-        parsedQuestionJSON.attributes.label = value;
-        setQuestion(prev => ({
-          ...prev,
-          json: JSON.stringify(updatedParsed),
-        }));
-      }
+      const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+      updatedParsed.attributes.label = value;
+      setQuestion(prev => ({
+        ...prev,
+        json: JSON.stringify(updatedParsed),
+      }));
     }
   };
 
@@ -228,7 +224,7 @@ console.log(parsedQuestionJSON)
     if (parsedQuestionJSON && parsedQuestionJSON?.type === "affiliationSearch") {
       if (parsedQuestionJSON?.attributes?.help) {
         const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-        parsedQuestionJSON.attributes.help = value;
+        updatedParsed.attributes.help = value;
         setQuestion(prev => ({
           ...prev,
           json: JSON.stringify(updatedParsed),
