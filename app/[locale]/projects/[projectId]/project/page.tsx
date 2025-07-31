@@ -9,19 +9,8 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
-  Calendar,
-  CalendarCell,
-  CalendarGrid,
-  DateInput,
-  DatePicker,
-  DateSegment,
-  Dialog,
   Form,
-  Group,
-  Heading,
-  Label,
   Link,
-  Popover,
 } from "react-aria-components";
 
 //GraphQL
@@ -34,7 +23,11 @@ import {
 //Components
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
-import { FormInput, RadioGroupComponent } from "@/components/Form";
+import {
+  FormInput,
+  RadioGroupComponent,
+  DateComponent
+} from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
 import ResearchDomainCascadingDropdown
   from '@/components/ResearchDomainCascadingDropdown';
@@ -73,7 +66,9 @@ const ProjectsProjectDetail = () => {
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  const PROJECT_SEARCH_REDIRECT_ROUTE = routePath('projects.search');
+  const PROJECT_SEARCH_REDIRECT_ROUTE = routePath('projects.create.projects.search', {
+    projectId: projectId as string,
+  });
 
   const [projectData, setProjectData] = useState<ProjectDetailsFormInterface>({
     projectName: '',
@@ -356,67 +351,24 @@ const ProjectsProjectDetail = () => {
             />
 
             <div className="input-range-group">
-              <DatePicker
+              <DateComponent
                 name="startDate"
                 value={getCalendarDateValue(projectData.startDate)}
                 onChange={(newDate) => {
                   // Store the CalendarDate object directly
                   updateProjectContent('startDate', newDate);
                 }}
-              >
-                <Label>{Global('labels.startDate')}</Label>
-                <Group>
-                  <DateInput>
-                    {(segment) => <DateSegment segment={segment} />}
-                  </DateInput>
-                  <Button>▼</Button>
-                </Group>
-                <Popover>
-                  <Dialog>
-                    <Calendar>
-                      <header>
-                        <Button slot="previous">◀</Button>
-                        <Heading />
-                        <Button slot="next">▶</Button>
-                      </header>
-                      <CalendarGrid>
-                        {(date) => <CalendarCell date={date} />}
-                      </CalendarGrid>
-                    </Calendar>
-                  </Dialog>
-                </Popover>
-              </DatePicker>
-
-              <DatePicker
+                label={Global('labels.startDate')}
+              />
+              <DateComponent
                 name="endDate"
                 value={getCalendarDateValue(projectData.endDate)}
                 onChange={(newDate) => {
                   // Store the CalendarDate object directly
                   updateProjectContent('endDate', newDate);
                 }}
-              >
-                <Label>{Global('labels.endDate')}</Label>
-                <Group>
-                  <DateInput>
-                    {(segment) => <DateSegment segment={segment} />}
-                  </DateInput>
-                  <Button>▼</Button>
-                </Group>
-                <Popover>
-                  <Dialog>
-                    <Calendar>
-                      <header>
-                        <Button slot="previous">◀</Button>
-                        <Heading className={"text-sm"} />
-                        <Button slot="next">▶</Button>
-                      </header>
-                      <CalendarGrid>
-                        {(date) => <CalendarCell date={date} />}
-                      </CalendarGrid>
-                    </Calendar>
-                  </Dialog>
-                </Popover>
-              </DatePicker>
+                label={Global('labels.endDate')}
+              />
             </div>
 
             <ResearchDomainCascadingDropdown projectData={projectData} setProjectData={setProjectData} />

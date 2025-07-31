@@ -91,7 +91,7 @@ const ProjectsProjectFundingEdit = () => {
   // Get Project Funding data
   const { data, loading, error: queryError, refetch } = useProjectFundingQuery(
     {
-      variables: { projectFundingId: Number(projectId) },
+      variables: { projectFundingId: Number(projectFundingId) },
       notifyOnNetworkStatusChange: true
     }
   );
@@ -232,8 +232,8 @@ const ProjectsProjectFundingEdit = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.fundings.index', {projectId})}>{Global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.fundings.index', { projectId })}>{Global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
             <Breadcrumb>{EditFunding('title')}</Breadcrumb>
           </Breadcrumbs>
         }

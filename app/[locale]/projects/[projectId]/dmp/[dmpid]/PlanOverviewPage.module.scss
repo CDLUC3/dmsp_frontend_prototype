@@ -11,8 +11,8 @@
   
     display: grid;
     grid-template-columns: 1fr auto; /* Content takes available space, button takes needed space */
-    gap: var(--space-2);
-    align-items: flex-end;
+    gap: var(--space-3);
+    align-items: center;
   
     /* Make the content area span full width on mobile */
     @media (max-width: 640px) {
@@ -171,14 +171,6 @@
     margin-bottom: var(--space-8);
   }
 }
-
-.sidePanelLink {
-  font-size: var(--fs-small);
-    color: var(--slate-800);
-    margin-top: var(--space-1);
-    display: inline-block;
-}
-
 .sidePanel {
   a {
     font-size: var(--fs-small);
@@ -196,6 +188,15 @@
   .panelRow {
     display: flex;
     justify-content: space-between;
+
+    .buttonLink {
+      font-size: var(--fs-small);
+      font-weight: 300;
+      color: var(--slate-800);
+      margin-top: var(--space-1);
+      display: inline-block;
+      margin: 0;
+    }
   }
 }
 

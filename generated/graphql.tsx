@@ -547,7 +547,7 @@ export type ExternalSearchInput = {
 export type FunderPopularityResult = {
   __typename?: 'FunderPopularityResult';
   /** The apiTarget for the affiliation (if available) */
-  apiTarget: Scalars['String']['output'];
+  apiTarget?: Maybe<Scalars['String']['output']>;
   /** The official display name */
   displayName: Scalars['String']['output'];
   /** The unique identifer for the affiliation */
@@ -868,6 +868,8 @@ export type Mutation = {
   updateMetadataStandard?: Maybe<MetadataStandard>;
   /** Change the current user's password */
   updatePassword?: Maybe<User>;
+  /** Update multiple Plan Fundings passing in an array of projectFundingIds */
+  updatePlanFunding?: Maybe<Array<Maybe<PlanFunding>>>;
   /** Chnage a Member's accessLevel on a Plan */
   updatePlanMember?: Maybe<PlanMember>;
   /** Change the plan's status */
@@ -1270,6 +1272,12 @@ export type MutationUpdatePasswordArgs = {
   email: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
+};
+
+
+export type MutationUpdatePlanFundingArgs = {
+  planId: Scalars['Int']['input'];
+  projectFundingIds: Array<Scalars['Int']['input']>;
 };
 
 
@@ -3846,13 +3854,13 @@ export type UpdatePlanTitleMutationVariables = Exact<{
 
 export type UpdatePlanTitleMutation = { __typename?: 'Mutation', updatePlanTitle?: { __typename?: 'Plan', id?: number | null, title?: string | null, errors?: { __typename?: 'PlanErrors', general?: string | null, title?: string | null } | null } | null };
 
-export type AddPlanFundingMutationVariables = Exact<{
+export type UpdatePlanFundingMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
-  projectFundingId: Scalars['Int']['input'];
+  projectFundingIds: Array<Scalars['Int']['input']> | Scalars['Int']['input'];
 }>;
 
 
-export type AddPlanFundingMutation = { __typename?: 'Mutation', addPlanFunding?: { __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null };
+export type UpdatePlanFundingMutation = { __typename?: 'Mutation', updatePlanFunding?: Array<{ __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null> | null };
 
 export type AddProjectCollaboratorMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -3868,7 +3876,7 @@ export type AddProjectFundingMutationVariables = Exact<{
 }>;
 
 
-export type AddProjectFundingMutation = { __typename?: 'Mutation', addProjectFunding?: { __typename?: 'ProjectFunding', errors?: { __typename?: 'ProjectFundingErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
+export type AddProjectFundingMutation = { __typename?: 'Mutation', addProjectFunding?: { __typename?: 'ProjectFunding', id?: number | null, errors?: { __typename?: 'ProjectFundingErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
 
 export type UpdateProjectFundingMutationVariables = Exact<{
   input: UpdateProjectFundingInput;
@@ -4012,7 +4020,7 @@ export type UpdateTemplateMutationVariables = Exact<{
 }>;
 
 
-export type UpdateTemplateMutation = { __typename?: 'Mutation', updateTemplate?: { __typename?: 'Template', id?: number | null, name: string, visibility: TemplateVisibility } | null };
+export type UpdateTemplateMutation = { __typename?: 'Mutation', updateTemplate?: { __typename?: 'Template', id?: number | null, name: string, visibility: TemplateVisibility, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, description?: string | null } | null } | null };
 
 export type UpdateUserProfileMutationVariables = Exact<{
   input: UpdateUserProfileInput;
@@ -4048,7 +4056,7 @@ export type AffiliationsQueryVariables = Exact<{
 }>;
 
 
-export type AffiliationsQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
+export type AffiliationsQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string, apiTarget?: string | null } | null> | null } | null };
 
 export type AffiliationFundersQueryVariables = Exact<{
   name: Scalars['String']['input'];
@@ -4057,7 +4065,7 @@ export type AffiliationFundersQueryVariables = Exact<{
 }>;
 
 
-export type AffiliationFundersQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, uri: string } | null> | null } | null };
+export type AffiliationFundersQuery = { __typename?: 'Query', affiliations?: { __typename?: 'AffiliationSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'AffiliationSearch', id: number, displayName: string, apiTarget?: string | null, uri: string } | null> | null } | null };
 
 export type AnswerByVersionedQuestionIdQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4085,7 +4093,7 @@ export type PlanFundingsQuery = { __typename?: 'Query', planFundings?: Array<{ _
 export type PopularFundersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PopularFundersQuery = { __typename?: 'Query', popularFunders?: Array<{ __typename?: 'FunderPopularityResult', displayName: string, id: number, nbrPlans: number, uri: string, apiTarget: string } | null> | null };
+export type PopularFundersQuery = { __typename?: 'Query', popularFunders?: Array<{ __typename?: 'FunderPopularityResult', displayName: string, id: number, nbrPlans: number, uri: string, apiTarget?: string | null } | null> | null };
 
 export type LanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4102,7 +4110,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4646,9 +4654,9 @@ export function useUpdatePlanTitleMutation(baseOptions?: Apollo.MutationHookOpti
 export type UpdatePlanTitleMutationHookResult = ReturnType<typeof useUpdatePlanTitleMutation>;
 export type UpdatePlanTitleMutationResult = Apollo.MutationResult<UpdatePlanTitleMutation>;
 export type UpdatePlanTitleMutationOptions = Apollo.BaseMutationOptions<UpdatePlanTitleMutation, UpdatePlanTitleMutationVariables>;
-export const AddPlanFundingDocument = gql`
-    mutation AddPlanFunding($planId: Int!, $projectFundingId: Int!) {
-  addPlanFunding(planId: $planId, projectFundingId: $projectFundingId) {
+export const UpdatePlanFundingDocument = gql`
+    mutation UpdatePlanFunding($planId: Int!, $projectFundingIds: [Int!]!) {
+  updatePlanFunding(planId: $planId, projectFundingIds: $projectFundingIds) {
     errors {
       ProjectFundingId
       general
@@ -4659,33 +4667,33 @@ export const AddPlanFundingDocument = gql`
   }
 }
     `;
-export type AddPlanFundingMutationFn = Apollo.MutationFunction<AddPlanFundingMutation, AddPlanFundingMutationVariables>;
+export type UpdatePlanFundingMutationFn = Apollo.MutationFunction<UpdatePlanFundingMutation, UpdatePlanFundingMutationVariables>;
 
 /**
- * __useAddPlanFundingMutation__
+ * __useUpdatePlanFundingMutation__
  *
- * To run a mutation, you first call `useAddPlanFundingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddPlanFundingMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdatePlanFundingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanFundingMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [addPlanFundingMutation, { data, loading, error }] = useAddPlanFundingMutation({
+ * const [updatePlanFundingMutation, { data, loading, error }] = useUpdatePlanFundingMutation({
  *   variables: {
  *      planId: // value for 'planId'
- *      projectFundingId: // value for 'projectFundingId'
+ *      projectFundingIds: // value for 'projectFundingIds'
  *   },
  * });
  */
-export function useAddPlanFundingMutation(baseOptions?: Apollo.MutationHookOptions<AddPlanFundingMutation, AddPlanFundingMutationVariables>) {
+export function useUpdatePlanFundingMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanFundingMutation, UpdatePlanFundingMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddPlanFundingMutation, AddPlanFundingMutationVariables>(AddPlanFundingDocument, options);
+        return Apollo.useMutation<UpdatePlanFundingMutation, UpdatePlanFundingMutationVariables>(UpdatePlanFundingDocument, options);
       }
-export type AddPlanFundingMutationHookResult = ReturnType<typeof useAddPlanFundingMutation>;
-export type AddPlanFundingMutationResult = Apollo.MutationResult<AddPlanFundingMutation>;
-export type AddPlanFundingMutationOptions = Apollo.BaseMutationOptions<AddPlanFundingMutation, AddPlanFundingMutationVariables>;
+export type UpdatePlanFundingMutationHookResult = ReturnType<typeof useUpdatePlanFundingMutation>;
+export type UpdatePlanFundingMutationResult = Apollo.MutationResult<UpdatePlanFundingMutation>;
+export type UpdatePlanFundingMutationOptions = Apollo.BaseMutationOptions<UpdatePlanFundingMutation, UpdatePlanFundingMutationVariables>;
 export const AddProjectCollaboratorDocument = gql`
     mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
   addProjectCollaborator(
@@ -4741,6 +4749,7 @@ export type AddProjectCollaboratorMutationOptions = Apollo.BaseMutationOptions<A
 export const AddProjectFundingDocument = gql`
     mutation AddProjectFunding($input: AddProjectFundingInput!) {
   addProjectFunding(input: $input) {
+    id
     errors {
       affiliationId
       funderOpportunityNumber
@@ -5587,6 +5596,11 @@ export const UpdateTemplateDocument = gql`
     id
     name
     visibility
+    errors {
+      general
+      name
+      description
+    }
   }
 }
     `;
@@ -5798,6 +5812,7 @@ export const AffiliationsDocument = gql`
       id
       displayName
       uri
+      apiTarget
     }
   }
 }
@@ -5847,6 +5862,7 @@ export const AffiliationFundersDocument = gql`
     items {
       id
       displayName
+      apiTarget
       uri
     }
   }
@@ -6197,6 +6213,11 @@ export const PlanDocument = gql`
     }
     fundings {
       id
+      projectFunding {
+        affiliation {
+          displayName
+        }
+      }
     }
     visibility
     status

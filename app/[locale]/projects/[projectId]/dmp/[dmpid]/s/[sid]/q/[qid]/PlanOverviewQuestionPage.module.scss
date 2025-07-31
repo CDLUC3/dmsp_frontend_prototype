@@ -48,25 +48,11 @@
   }
 }
 
-/* Best Practices Sidebar Styles */
-.bestPracticesPanel {
-  background-color: var(--color-background-subtle);
-  border-radius: var(--border-radius-lg);
-  padding: var(--space-4);
-
-  h3 {
-    font-size: var(--fs-base);
-    font-weight: 500;
-    margin: 0;
-    margin-bottom: var(--space-2);
-  }
-
-  p {
-    font-size: var(--fs-sm);
-    color: var(--gray-600);
-    margin: 0;
-    margin-bottom: var(--space-4);
-  }
+/* Best Practices Sidebar Style */
+.headerWithLogo {
+  display: flex;
+  align-items: center; // vertically center the image and text
+  gap: 0.5rem;
 }
 
 

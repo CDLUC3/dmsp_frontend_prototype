@@ -38,7 +38,6 @@ const CreateProjectSearchFunder = () => {
   const trans = useTranslations('FunderSearch');
   const router = useRouter();
   const params = useParams();
-  const { projectId } = params;
 
   const [hasSearched, setHasSearched] = useState<boolean>(false);
   const [moreCounter, setMoreCounter] = useState<number>(0);
@@ -55,7 +54,7 @@ const CreateProjectSearchFunder = () => {
   useEffect(() => {
     // Manually calling the effect because the query specifies that some items
     // can be null, and we need to filter those potential null results out.
-    popularFundersQuery().then(({data}) => {
+    popularFundersQuery().then(({ data }) => {
       if (data?.popularFunders && data.popularFunders.length > 0) {
         const cleaned = data.popularFunders.filter((item) => item !== null)
         setPopularFunders(cleaned);
@@ -90,9 +89,7 @@ const CreateProjectSearchFunder = () => {
   }
 
   async function handleSelectFunder(funder: AffiliationSearch | FunderPopularityResult) {
-    const NEXT_URL = routePath('projects.create.projects.search', {
-      projectId: projectId as string,
-    });
+    const projectId = params.projectId as string;
     const input = {
       projectId: Number(projectId),
       affiliationId: funder.uri
@@ -104,14 +101,22 @@ const CreateProjectSearchFunder = () => {
         if (errs.length > 0) {
           setErrors(errs);
         } else {
-          router.push(NEXT_URL);
+          if (funder.apiTarget) {
+            router.push(routePath('projects.create.projects.search', {
+              projectId,
+            }));
+          } else {
+            router.push(routePath('projects.project.info', {
+              projectId,
+            }));
+          }
         }
       })
       .catch((err) => {
         logECS(
           'error',
           'createProjectSearchFunder.addProjectFunding',
-          {error: err.message}
+          { error: err.message }
         );
         setErrors([...errors, err.message])
       });
@@ -127,6 +132,7 @@ const CreateProjectSearchFunder = () => {
 
   function onResults(results: FunderSearchResults, isNew: boolean) {
     let validResults: AffiliationSearch[];
+
     if (results.items && results.items.length > 0) {
       validResults = results.items.filter((r): r is AffiliationSearch => r !== null)
     } else {
@@ -178,7 +184,7 @@ const CreateProjectSearchFunder = () => {
             moreTrigger={moreCounter}
           />
 
-          {popularFunders.length > 0 && (
+          {((popularFunders.length > 0) && !hasSearched) && (
             <section aria-labelledby="popular-funders">
               <h3>{trans('popularTitle')}</h3>
               <div className={styles.popularFunders}>

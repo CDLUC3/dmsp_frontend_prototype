@@ -100,7 +100,7 @@ export default function ExpandableContentSection({
 
   return (
     <section className={styles.section}>
-      <h3 id={`${id}-heading`}>{heading}</h3>
+      <h3 id={`${id}-heading`} className="h5">{heading}</h3>
 
       {/**Don't show the summaryElements if the content is expanded */}
       <div className={styles.summaryContent} id={contentId}>

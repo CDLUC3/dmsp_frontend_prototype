@@ -287,7 +287,7 @@ export interface RadioButtonProps {
   onChange?: (value: string) => void;
 }
 
-interface CheckboxInterface {
+export interface CheckboxInterface {
   value: string;
   label: string;
   description?: string;
