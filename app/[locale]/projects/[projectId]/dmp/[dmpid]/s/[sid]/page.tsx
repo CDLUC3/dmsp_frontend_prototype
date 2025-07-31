@@ -64,10 +64,7 @@ const PlanOverviewSectionPage: React.FC = () => {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       const scrollTop = window.scrollY;
-      const navHeight = 300; // Approximate height of navigation
 
-      // Calculate if navigation bottom would be close to footer
-      //const navBottom = windowHeight * 0.2 + navHeight; // 20% from top + nav height
       const distanceToBottom = documentHeight - scrollTop - windowHeight;
 
       // Hide if we're within 200px of the bottom
