@@ -1,5 +1,6 @@
 mutation AddProjectFunding($input: AddProjectFundingInput!) {
   addProjectFunding(input: $input) {
+    id,
     errors {
       affiliationId
       funderOpportunityNumber

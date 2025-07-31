@@ -106,7 +106,7 @@ const mocks = [
 
     result: {
       data: {
-        popularFunders: Array.from({length: 5}, (_, i) => {
+        popularFunders: Array.from({ length: 5 }, (_, i) => {
           const count = i + 1;
           return {
             id: count,
@@ -242,6 +242,7 @@ const mocks = [
     result: {
       data: {
         addProjectFunding: {
+          id: 18,
           errors: {
             affiliationId: null,
             funderOpportunityNumber: null,
@@ -271,6 +272,7 @@ const mocks = [
     result: {
       data: {
         addProjectFunding: {
+          id: 18,
           errors: {
             affiliationId: null,
             funderOpportunityNumber: null,
@@ -301,6 +303,7 @@ const mocks = [
     result: {
       data: {
         addProjectFunding: {
+          id: 18,
           errors: {
             affiliationId: null,
             funderOpportunityNumber: null,
@@ -435,7 +438,7 @@ describe("CreateProjectSearchFunder", () => {
     });
   });
 
-  it("Should cleanly handle empty results", async() => {
+  it("Should cleanly handle empty results", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -557,7 +560,7 @@ describe("CreateProjectSearchFunder", () => {
     });
   });
 
-  it("Should also run add funder mutation when adding popular funder", async() => {
+  it("Should also run add funder mutation when adding popular funder", async () => {
     const mockPush = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
@@ -665,8 +668,8 @@ describe("CreateProjectSearchFunder", () => {
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+      .querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
