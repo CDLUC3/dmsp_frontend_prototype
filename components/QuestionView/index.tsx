@@ -183,6 +183,12 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setSelectedMultiSelectValues(values);
   };
 
+  const handleSelectChange = (value: string) => {
+    console
+    setSelectedSelectValue(value);
+  };
+
+
   // Handler for date range changes
   const handleDateChange = (
     key: string,
@@ -274,7 +280,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
                 <SelectboxQuestionComponent
                   parsedQuestion={parsed}
                   selectedSelectValue={selectedSelectValue}
-                  setSelectedSelectValue={setSelectedSelectValue}
+                  handleSelectChange={handleSelectChange}
                 />
               )}
 
@@ -282,6 +288,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           );
         }
       }
+
       case TEXT_FIELD_QUESTION_TYPE:
         if (parsed.type === 'text') {
 

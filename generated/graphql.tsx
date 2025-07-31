@@ -752,8 +752,6 @@ export type Mutation = {
   addMetadataStandard?: Maybe<MetadataStandard>;
   /** Create a plan */
   addPlan?: Maybe<Plan>;
-  /** Add a Funding information to a Plan */
-  addPlanFunding?: Maybe<PlanFunding>;
   /** Add a Member to a Plan */
   addPlanMember?: Maybe<PlanMember>;
   /** Create a project */
@@ -868,6 +866,8 @@ export type Mutation = {
   updateMetadataStandard?: Maybe<MetadataStandard>;
   /** Change the current user's password */
   updatePassword?: Maybe<User>;
+  /** Add a Funding information to a Plan */
+  updatePlanFunding?: Maybe<Array<Maybe<PlanFunding>>>;
   /** Chnage a Member's accessLevel on a Plan */
   updatePlanMember?: Maybe<PlanMember>;
   /** Change the plan's status */
@@ -958,12 +958,6 @@ export type MutationAddMetadataStandardArgs = {
 export type MutationAddPlanArgs = {
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
-};
-
-
-export type MutationAddPlanFundingArgs = {
-  planId: Scalars['Int']['input'];
-  projectFundingId: Scalars['Int']['input'];
 };
 
 
@@ -1270,6 +1264,12 @@ export type MutationUpdatePasswordArgs = {
   email: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
   oldPassword: Scalars['String']['input'];
+};
+
+
+export type MutationUpdatePlanFundingArgs = {
+  planId: Scalars['Int']['input'];
+  projectFundingIds: Array<Scalars['Int']['input']>;
 };
 
 
@@ -3846,13 +3846,13 @@ export type UpdatePlanTitleMutationVariables = Exact<{
 
 export type UpdatePlanTitleMutation = { __typename?: 'Mutation', updatePlanTitle?: { __typename?: 'Plan', id?: number | null, title?: string | null, errors?: { __typename?: 'PlanErrors', general?: string | null, title?: string | null } | null } | null };
 
-export type AddPlanFundingMutationVariables = Exact<{
+export type UpdatePlanFundingMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
-  projectFundingId: Scalars['Int']['input'];
+  projectFundingIds: Array<Scalars['Int']['input']> | Scalars['Int']['input'];
 }>;
 
 
-export type AddPlanFundingMutation = { __typename?: 'Mutation', addPlanFunding?: { __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null };
+export type UpdatePlanFundingMutation = { __typename?: 'Mutation', updatePlanFunding?: Array<{ __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null> | null };
 
 export type AddProjectCollaboratorMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4646,9 +4646,9 @@ export function useUpdatePlanTitleMutation(baseOptions?: Apollo.MutationHookOpti
 export type UpdatePlanTitleMutationHookResult = ReturnType<typeof useUpdatePlanTitleMutation>;
 export type UpdatePlanTitleMutationResult = Apollo.MutationResult<UpdatePlanTitleMutation>;
 export type UpdatePlanTitleMutationOptions = Apollo.BaseMutationOptions<UpdatePlanTitleMutation, UpdatePlanTitleMutationVariables>;
-export const AddPlanFundingDocument = gql`
-    mutation AddPlanFunding($planId: Int!, $projectFundingId: Int!) {
-  addPlanFunding(planId: $planId, projectFundingId: $projectFundingId) {
+export const UpdatePlanFundingDocument = gql`
+    mutation UpdatePlanFunding($planId: Int!, $projectFundingIds: [Int!]!) {
+  updatePlanFunding(planId: $planId, projectFundingIds: $projectFundingIds) {
     errors {
       ProjectFundingId
       general
@@ -4659,33 +4659,33 @@ export const AddPlanFundingDocument = gql`
   }
 }
     `;
-export type AddPlanFundingMutationFn = Apollo.MutationFunction<AddPlanFundingMutation, AddPlanFundingMutationVariables>;
+export type UpdatePlanFundingMutationFn = Apollo.MutationFunction<UpdatePlanFundingMutation, UpdatePlanFundingMutationVariables>;
 
 /**
- * __useAddPlanFundingMutation__
+ * __useUpdatePlanFundingMutation__
  *
- * To run a mutation, you first call `useAddPlanFundingMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useAddPlanFundingMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdatePlanFundingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanFundingMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [addPlanFundingMutation, { data, loading, error }] = useAddPlanFundingMutation({
+ * const [updatePlanFundingMutation, { data, loading, error }] = useUpdatePlanFundingMutation({
  *   variables: {
  *      planId: // value for 'planId'
- *      projectFundingId: // value for 'projectFundingId'
+ *      projectFundingIds: // value for 'projectFundingIds'
  *   },
  * });
  */
-export function useAddPlanFundingMutation(baseOptions?: Apollo.MutationHookOptions<AddPlanFundingMutation, AddPlanFundingMutationVariables>) {
+export function useUpdatePlanFundingMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanFundingMutation, UpdatePlanFundingMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<AddPlanFundingMutation, AddPlanFundingMutationVariables>(AddPlanFundingDocument, options);
+        return Apollo.useMutation<UpdatePlanFundingMutation, UpdatePlanFundingMutationVariables>(UpdatePlanFundingDocument, options);
       }
-export type AddPlanFundingMutationHookResult = ReturnType<typeof useAddPlanFundingMutation>;
-export type AddPlanFundingMutationResult = Apollo.MutationResult<AddPlanFundingMutation>;
-export type AddPlanFundingMutationOptions = Apollo.BaseMutationOptions<AddPlanFundingMutation, AddPlanFundingMutationVariables>;
+export type UpdatePlanFundingMutationHookResult = ReturnType<typeof useUpdatePlanFundingMutation>;
+export type UpdatePlanFundingMutationResult = Apollo.MutationResult<UpdatePlanFundingMutation>;
+export type UpdatePlanFundingMutationOptions = Apollo.BaseMutationOptions<UpdatePlanFundingMutation, UpdatePlanFundingMutationVariables>;
 export const AddProjectCollaboratorDocument = gql`
     mutation addProjectCollaborator($projectId: Int!, $email: String!, $accessLevel: ProjectCollaboratorAccessLevel) {
   addProjectCollaborator(

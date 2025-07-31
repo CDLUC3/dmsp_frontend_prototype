@@ -405,7 +405,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       selectedSelectValue: value
     }));
     setHasUnsavedChanges(true);
-    };
+  };
 
 
   // Handler for MultiSelect changes
@@ -440,7 +440,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }));
     setHasUnsavedChanges(true);
   };
-  
+
 
   // Handler for number changes
   const handleNumberChange = (value: number) => {
@@ -471,7 +471,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }
 
   function hasAttributes(obj: AnyParsedQuestion | undefined): obj is AnyParsedQuestion & { attributes: { multiple?: boolean } } {
-    if(obj){
+    if (obj) {
       return obj && typeof obj === 'object' && 'attributes' in obj;
     }
     return false;
@@ -514,10 +514,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
         }
         if (hasAttributes(parsed) && parsed.attributes.multiple === true) {
           setFormData(prev => ({
-          ...prev,
-          selectedMultiSelectValues: answer
-        }));
-      }
+            ...prev,
+            selectedMultiSelectValues: answer
+          }));
+        }
 
         break;
       case 'boolean':
@@ -678,7 +678,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
   const addAnswer = async (isAutoSave = false) => {
 
-    if(isAutoSave) {
+    if (isAutoSave) {
       setIsAutoSaving(true);
     }
 
@@ -717,10 +717,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
           }
         });
       } finally {
-        if(isAutoSave) {
+        if (isAutoSave) {
           setIsAutoSaving(false);
           setHasUnsavedChanges(false);
-        } 
+        }
       }
     }
     return {
@@ -860,7 +860,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       if (!sectionBelongsToPlan) {
         router.push('/not-found')
       }
-      
+
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
@@ -1075,10 +1075,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
         <ContentContainer>
           <div className="container">
             {/**Requirements by funder */}
-            <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
-              <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
-              {convertToHTML(question?.requirementText)}
-            </section>
+            {question?.requirementText && (
+              <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
+                <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
+                {convertToHTML(question?.requirementText)}
+              </section>
+            )}
 
             {/**Requirements by organization */}
             <section aria-label={"Requirements"}>
