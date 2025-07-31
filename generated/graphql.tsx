@@ -4164,19 +4164,19 @@ export type QuestionsDisplayOrderQueryVariables = Exact<{
 
 export type QuestionsDisplayOrderQuery = { __typename?: 'Query', questions?: Array<{ __typename?: 'Question', displayOrder?: number | null } | null> | null };
 
-export type QuestionQueryVariables = Exact<{
-  questionId: Scalars['Int']['input'];
-}>;
-
-
-export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, isDirty?: boolean | null, required?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, sectionId?: string | null, sourceQestionId?: string | null, templateId?: string | null } | null } | null };
-
 export type PlanSectionQuestionsQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
 }>;
 
 
 export type PlanSectionQuestionsQuery = { __typename?: 'Query', questions?: Array<{ __typename?: 'Question', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, sectionId: number, templateId: number, isDirty?: boolean | null } | null> | null };
+
+export type QuestionQueryVariables = Exact<{
+  questionId: Scalars['Int']['input'];
+}>;
+
+
+export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, isDirty?: boolean | null, required?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, sectionId?: string | null, sourceQestionId?: string | null, templateId?: string | null } | null } | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -6731,6 +6731,54 @@ export type QuestionsDisplayOrderQueryHookResult = ReturnType<typeof useQuestion
 export type QuestionsDisplayOrderLazyQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderLazyQuery>;
 export type QuestionsDisplayOrderSuspenseQueryHookResult = ReturnType<typeof useQuestionsDisplayOrderSuspenseQuery>;
 export type QuestionsDisplayOrderQueryResult = Apollo.QueryResult<QuestionsDisplayOrderQuery, QuestionsDisplayOrderQueryVariables>;
+export const PlanSectionQuestionsDocument = gql`
+    query PlanSectionQuestions($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    id
+    questionText
+    displayOrder
+    guidanceText
+    requirementText
+    sampleText
+    sectionId
+    templateId
+    isDirty
+  }
+}
+    `;
+
+/**
+ * __usePlanSectionQuestionsQuery__
+ *
+ * To run a query within a React component, call `usePlanSectionQuestionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlanSectionQuestionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlanSectionQuestionsQuery({
+ *   variables: {
+ *      sectionId: // value for 'sectionId'
+ *   },
+ * });
+ */
+export function usePlanSectionQuestionsQuery(baseOptions: Apollo.QueryHookOptions<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables> & ({ variables: PlanSectionQuestionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>(PlanSectionQuestionsDocument, options);
+      }
+export function usePlanSectionQuestionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>(PlanSectionQuestionsDocument, options);
+        }
+export function usePlanSectionQuestionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>(PlanSectionQuestionsDocument, options);
+        }
+export type PlanSectionQuestionsQueryHookResult = ReturnType<typeof usePlanSectionQuestionsQuery>;
+export type PlanSectionQuestionsLazyQueryHookResult = ReturnType<typeof usePlanSectionQuestionsLazyQuery>;
+export type PlanSectionQuestionsSuspenseQueryHookResult = ReturnType<typeof usePlanSectionQuestionsSuspenseQuery>;
+export type PlanSectionQuestionsQueryResult = Apollo.QueryResult<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>;
 export const QuestionDocument = gql`
     query Question($questionId: Int!) {
   question(questionId: $questionId) {
@@ -6793,54 +6841,6 @@ export type QuestionQueryHookResult = ReturnType<typeof useQuestionQuery>;
 export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery>;
 export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
 export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
-export const PlanSectionQuestionsDocument = gql`
-    query PlanSectionQuestions($sectionId: Int!) {
-  questions(sectionId: $sectionId) {
-    id
-    questionText
-    displayOrder
-    guidanceText
-    requirementText
-    sampleText
-    sectionId
-    templateId
-    isDirty
-  }
-}
-    `;
-
-/**
- * __usePlanSectionQuestionsQuery__
- *
- * To run a query within a React component, call `usePlanSectionQuestionsQuery` and pass it any options that fit your needs.
- * When your component renders, `usePlanSectionQuestionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePlanSectionQuestionsQuery({
- *   variables: {
- *      sectionId: // value for 'sectionId'
- *   },
- * });
- */
-export function usePlanSectionQuestionsQuery(baseOptions: Apollo.QueryHookOptions<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables> & ({ variables: PlanSectionQuestionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>(PlanSectionQuestionsDocument, options);
-      }
-export function usePlanSectionQuestionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>(PlanSectionQuestionsDocument, options);
-        }
-export function usePlanSectionQuestionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>(PlanSectionQuestionsDocument, options);
-        }
-export type PlanSectionQuestionsQueryHookResult = ReturnType<typeof usePlanSectionQuestionsQuery>;
-export type PlanSectionQuestionsLazyQueryHookResult = ReturnType<typeof usePlanSectionQuestionsLazyQuery>;
-export type PlanSectionQuestionsSuspenseQueryHookResult = ReturnType<typeof usePlanSectionQuestionsSuspenseQuery>;
-export type PlanSectionQuestionsQueryResult = Apollo.QueryResult<PlanSectionQuestionsQuery, PlanSectionQuestionsQueryVariables>;
 export const TopLevelResearchDomainsDocument = gql`
     query TopLevelResearchDomains {
   topLevelResearchDomains {

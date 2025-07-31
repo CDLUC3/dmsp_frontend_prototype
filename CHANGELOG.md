@@ -38,6 +38,10 @@
 - Added popular funders to the funder search page when creating a new project. [#380]
 
 ### Updated
+- Implement GraphQL integration for plan section questions page [#366]
+- Add `PlanSectionQuestions` query to fetch questions by section ID
+
+### Updated
 - Updated `routePath` with route `projects.share.index` and updated unit test for `ProjectsProjectMembers` [#589]
 - Updated `QuestionView` to use the new `ExpandableContentSection` for the `Best Practices` right sidebar [#578]
 - Updated `graphqlHelper.ts` file to be more robust and correctly refresh tokens and refresh content when there is an `UNAUTHENTICATED` error [#320]
