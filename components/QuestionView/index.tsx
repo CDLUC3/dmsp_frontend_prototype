@@ -184,7 +184,6 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   };
 
   const handleSelectChange = (value: string) => {
-    console
     setSelectedSelectValue(value);
   };
 

@@ -41,7 +41,6 @@ const ProjectsProjectPlanAdjustFunding = () => {
   const Messaging = useTranslations('Messaging');
 
   const [checkboxData, setCheckboxData] = useState<CheckboxInterface[]>([])
-  const [selectedFunders, setSelectedFunders] = useState<string[]>([]);
   const [fundingChoices, setFundingChoices] = useState<string[]>([]);
   const [fetchPlanFundings, { }] = usePlanFundingsLazyQuery({});
 
@@ -83,7 +82,6 @@ const ProjectsProjectPlanAdjustFunding = () => {
           planId: Number(dmpId)
         }
       }).then(({ data }) => {
-        console.log("DATA", data);
         if (data?.planFundings && data.planFundings.length > 0) {
           // Collect all projectFunding ids as strings
           const ids = data.planFundings
@@ -119,10 +117,6 @@ const ProjectsProjectPlanAdjustFunding = () => {
   }, [funders]);
 
 
-  useEffect(() => {
-    console.log("FUNDING CHOICES", fundingChoices)
-  }, [fundingChoices])
-
   /**
    * Handle specific errors that we care about in this component.
    * @param {ProjectFunderErrors} errs - The errors from the graphql response
@@ -155,8 +149,6 @@ const ProjectsProjectPlanAdjustFunding = () => {
     const formData = new FormData(e.currentTarget);
     const projectFundingIds = formData.getAll("funding").map(id => Number(id));
 
-    console.log("FORM DATA", formData);
-    console.log("PROJECT FUNDING ID", projectFundingIds);
     updatePlanFunding({
       variables: {
         planId: Number(dmpId),
@@ -208,7 +200,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
               <>
                 <Breadcrumb>
                   <Link href={routePath('projects.show', { projectId: String(projectId) })}>
-                    {Global('breadcrumbs.project')}
+                    {Global('breadcrumbs.projectOverview')}
                   </Link>
                 </Breadcrumb>
                 <Breadcrumb>

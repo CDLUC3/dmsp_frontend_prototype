@@ -5,6 +5,11 @@
 - Added the ability to edit the `Plan title` [#608]
 
 ### Fixed
+- Updated `ProjectsProjectPlanAdjustFunding` component to use `checkboxes` instead of `radiobuttons` for funders [#631]
+  - Also, made sure to redirect users to the `Project Overview` page after saving `funding` selection
+  - Added toast message
+  - Made updates to assure that funder appears on the `Plan Overview` page after selecting it
+  - Made sure that `funding` was saved correctly so that the saved selection displays when user returns
 - Removed errors that were being observed due to missing projectFundingId in mocks [#641]
 - Fixed the contrast for the `Date Picker` on the `/projects/[projectId]/project` page by implementing the shared `Date Component` there [#597]
 - Fixed bug where links in `Plan Overview` sidebar were of different sizes [#634]

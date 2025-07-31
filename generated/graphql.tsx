@@ -752,6 +752,8 @@ export type Mutation = {
   addMetadataStandard?: Maybe<MetadataStandard>;
   /** Create a plan */
   addPlan?: Maybe<Plan>;
+  /** Add a Funding information to a Plan */
+  addPlanFunding?: Maybe<PlanFunding>;
   /** Add a Member to a Plan */
   addPlanMember?: Maybe<PlanMember>;
   /** Create a project */
@@ -866,7 +868,7 @@ export type Mutation = {
   updateMetadataStandard?: Maybe<MetadataStandard>;
   /** Change the current user's password */
   updatePassword?: Maybe<User>;
-  /** Add a Funding information to a Plan */
+  /** Update multiple Plan Fundings passing in an array of projectFundingIds */
   updatePlanFunding?: Maybe<Array<Maybe<PlanFunding>>>;
   /** Chnage a Member's accessLevel on a Plan */
   updatePlanMember?: Maybe<PlanMember>;
@@ -958,6 +960,12 @@ export type MutationAddMetadataStandardArgs = {
 export type MutationAddPlanArgs = {
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
+};
+
+
+export type MutationAddPlanFundingArgs = {
+  planId: Scalars['Int']['input'];
+  projectFundingId: Scalars['Int']['input'];
 };
 
 
@@ -4102,7 +4110,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -6205,6 +6213,11 @@ export const PlanDocument = gql`
     }
     fundings {
       id
+      projectFunding {
+        affiliation {
+          displayName
+        }
+      }
     }
     visibility
     status
