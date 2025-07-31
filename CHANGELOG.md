@@ -5,6 +5,7 @@
 - Added the ability to edit the `Plan title` [#608]
 
 ### Fixed
+- Added the missing expanding/collapsing `Best Practices` to the sidebar of the `Question Details` page [#638]
 - Removed errors that were being observed due to missing projectFundingId in mocks [#641]
 - Fixed the contrast for the `Date Picker` on the `/projects/[projectId]/project` page by implementing the shared `Date Component` there [#597]
 - Fixed bug where links in `Plan Overview` sidebar were of different sizes [#634]
