@@ -6,16 +6,22 @@ import { useParams } from 'next/navigation';
 import PageHeader from "@/components/PageHeader";
 import styles from './PlanOverviewSectionPage.module.scss';
 import { useTranslations } from "next-intl";
+import Image from 'next/image';
 import {
   ContentContainer,
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-import { usePlanSectionQuestionsQuery, useSectionQuery, usePlanQuery } from '@/generated/graphql';
+import {
+  usePlanSectionQuestionsQuery,
+  useSectionQuery,
+  usePlanQuery
+} from '@/generated/graphql';
 import { stripHtml } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { DmpIcon } from '@/components/Icons';
 import ErrorMessages from '@/components/ErrorMessages';
+import ExpandableContentSection from '@/components/ExpandableContentSection';
 interface Question {
   id: string;
   title: string;
@@ -25,6 +31,7 @@ interface Question {
 
 const PlanOverviewSectionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
+  const Global = useTranslations('Global');
   const params = useParams();
   const sectionId = Number(params.sid);
   const dmpId = params.dmpid as string;
@@ -60,7 +67,7 @@ const PlanOverviewSectionPage: React.FC = () => {
       const navHeight = 300; // Approximate height of navigation
 
       // Calculate if navigation bottom would be close to footer
-      const navBottom = windowHeight * 0.2 + navHeight; // 20% from top + nav height
+      //const navBottom = windowHeight * 0.2 + navHeight; // 20% from top + nav height
       const distanceToBottom = documentHeight - scrollTop - windowHeight;
 
       // Hide if we're within 200px of the bottom
@@ -100,10 +107,9 @@ const PlanOverviewSectionPage: React.FC = () => {
   const questions: Question[] = questionsData?.questions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
     id: question.id?.toString() || '',
     title: question.questionText || '',
-    link: routePath('projects.dmp.question', {
-      projectId,
-      dmpId,
-    }) + `/${question.id}`,
+    link: routePath('projects.dmp.question.detail', {
+      projectId, dmpId, sectionId, questionId: String(question.id)
+    }),
     isAnswered: false
   })) || [];
 
@@ -269,36 +275,71 @@ const PlanOverviewSectionPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div
-            className={styles.bestPracticesPanel}
-            aria-labelledby="best-practices-title"
-          >
-            <h3 id="best-practices-title">Best practice by DMP Tool</h3>
-            <p>Most relevant best practice guide</p>
 
-            <div role="navigation" aria-label="Best practices navigation"
-              className={styles.bestPracticesLinks}>
-              <Link href="/best-practices/sharing">
-                Data sharing
-                <DmpIcon icon="external_link" />
-              </Link>
-
-              <Link href="/best-practices/preservation">
-                Data preservation
-                <DmpIcon icon="external_link" />
-              </Link>
-
-              <Link href="/best-practices/protection">
-                Data protection
-                <DmpIcon icon="external_link" />
-              </Link>
-
-              <Link href="/best-practices/all">
-                All topics
-                <DmpIcon icon="external_link" />
-              </Link>
-            </div>
+          <div className={styles.headerWithLogo}>
+            <h2 className="h4">{Global('bestPractice')}</h2>
+            <Image
+              className={styles.Logo}
+              src="/images/DMP-logo.svg"
+              width="140"
+              height="16"
+              alt="DMP Tool"
+            />
           </div>
+
+
+          <ExpandableContentSection
+            id="data-description"
+            heading={Global('dataDescription')}
+            expandLabel={Global('links.expand')}
+            summaryCharLimit={200}
+          >
+            <p>
+              Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
+            </p>
+            <p>
+              Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
+            </p>
+            <p>
+              Indicate which data are of long-term value and should be shared and/or preserved.
+
+            </p>
+            <p>
+              If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
+
+            </p>
+
+          </ExpandableContentSection>
+
+          <ExpandableContentSection
+            id="data-format"
+            heading={Global('dataFormat')}
+            expandLabel={Global('links.expand')}
+            summaryCharLimit={200}
+
+          >
+            <p>
+              Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+            </p>
+
+          </ExpandableContentSection>
+
+          <ExpandableContentSection
+            id="data-volume"
+            heading={Global('dataVolume')}
+            expandLabel={Global('links.expand')}
+            summaryCharLimit={200}
+          >
+            <p>
+              Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
+            </p>
+            <p>
+              Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
+            </p>
+            <p>
+              Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
+            </p>
+          </ExpandableContentSection>
         </SidebarPanel>
       </LayoutWithPanel>
     </>
