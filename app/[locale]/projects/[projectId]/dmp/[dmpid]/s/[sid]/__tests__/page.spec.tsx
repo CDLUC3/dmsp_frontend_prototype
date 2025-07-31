@@ -133,7 +133,12 @@ const planMock = {
     name: 'Test Template'
   },
   fundings: {
-    id: 1
+    id: 1,
+    projectFunding: {
+      affiliation: {
+        displayName: 'National Science Foundation (nsf.gov)'
+      }
+    }
   },
   visibility: 'PUBLIC',
   status: 'ACTIVE',
@@ -283,7 +288,7 @@ describe('PlanOverviewSectionPage', () => {
     (useParams as jest.Mock).mockReturnValue(mockParams);
   });
 
-  it.only('should render the page with questions and section data', async () => {
+  it('should render the page with questions and section data', async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <PlanOverviewSectionPage />
@@ -307,12 +312,15 @@ describe('PlanOverviewSectionPage', () => {
     expect(screen.getByText('Requirements by National Science Foundation')).toBeInTheDocument();
     expect(screen.getByText('Requirements by University of California')).toBeInTheDocument();
 
-    // Check that best practices panel is rendered
-    expect(screen.getByText('Best practice by DMP Tool')).toBeInTheDocument();
-    expect(screen.getByText('Data sharing')).toBeInTheDocument();
-    expect(screen.getByText('Data preservation')).toBeInTheDocument();
-    expect(screen.getByText('Data protection')).toBeInTheDocument();
-    expect(screen.getByText('All topics')).toBeInTheDocument();
+    // Check for best practice content in sidebar
+    expect(screen.getByTestId('sidebar-panel')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'bestPractice' })).toBeInTheDocument();
+    const bestPracticeDataDescription = screen.getByRole('heading', { level: 3, name: 'dataDescription' });
+    expect(bestPracticeDataDescription).toBeInTheDocument();
+    const bestPracticeDataFormat = screen.getByRole('heading', { level: 3, name: 'dataFormat' });
+    expect(bestPracticeDataFormat).toBeInTheDocument();
+    const bestPracticeDataVolume = screen.getByRole('heading', { level: 3, name: 'dataVolume' });
+    expect(bestPracticeDataVolume).toBeInTheDocument();
   });
 
   it('should handle empty questions list', async () => {
@@ -332,7 +340,7 @@ describe('PlanOverviewSectionPage', () => {
 
     // Check that other content is still rendered
     expect(screen.getByText('Requirements by National Science Foundation')).toBeInTheDocument();
-    expect(screen.getByText('Best practice by DMP Tool')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'bestPractice' })).toBeInTheDocument();
   });
 
   it('should handle GraphQL errors gracefully', async () => {

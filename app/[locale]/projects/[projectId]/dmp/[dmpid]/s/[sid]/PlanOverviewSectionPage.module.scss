@@ -45,55 +45,17 @@
   margin-top: var(--space-4);
 }
 
-/* Best Practices Sidebar Styles */
-.bestPracticesPanel {
-  background-color: var(--color-background-subtle);
-  border-radius: var(--border-radius-lg);
-  padding: var(--space-4);
-
-  h3 {
-    font-size: var(--fs-base);
-    font-weight: 500;
-    margin: 0;
-    margin-bottom: var(--space-2);
-  }
-
-  p {
-    font-size: var(--fs-sm);
-    color: var(--gray-600);
-    margin: 0;
-    margin-bottom: var(--space-4);
-  }
-}
-
 .progressIconInactive {
   opacity: 0.5;
 }
 
-.bestPracticesLinks {
+/* Best Practices Sidebar Style */
+.headerWithLogo {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-
-  a {
-    display: inline-flex;
-    align-items: center;
-    color: var(--blue-600);
-    text-decoration: none;
-    font-size: var(--fs-base);
-
-    &:hover {
-      text-decoration: underline;
-    }
-
-    svg {
-      margin-left: var(--space-1);
-      width: var(--space-4);
-      height: var(--space-4);
-      flex-shrink: 0;
-    }
-  }
+  align-items: center; // vertically center the image and text
+  gap: 0.5rem;
 }
+
 
 /* Plan Navigation - Subtle sidebar for very large screens only */
 .planNavigation {
