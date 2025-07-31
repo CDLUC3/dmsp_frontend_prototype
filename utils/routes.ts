@@ -10,7 +10,7 @@ Route with Path Parameters
 routePath('projects.show', { projectId: '123' });
 Output: "/en-US/projects/123"
 
-routePath('projects.dmp.section', { projectId: '123', dmpId: '456', sectionId: '789' });
+routePath('projects.dmp.versionedSection', { projectId: '123', dmpId: '456', versionedSectionId: '789' });
 Output: "/en-US/projects/123/dmp/456/s/789"
 
 Route with Query Parameters
@@ -72,11 +72,11 @@ const routes = {
   'projects.dmp.download': '/projects/:projectId/dmp/:dmpId/download',
   'projects.dmp.fundings': '/projects/:projectId/dmp/:dmpId/fundings',
   'projects.dmp.members': '/projects/:projectId/dmp/:dmpId/members',
-  'projects.dmp.question': '/projects/:projectId/dmp/:dmpId/q',
-  'projects.dmp.question.detail': '/projects/:projectId/dmp/:dmpId/s/:sectionId/q/:questionId',
+  'projects.dmp.versionedQuestion': '/projects/:projectId/dmp/:dmpId/q',
+  'projects.dmp.versionedQuestion.detail': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId/q/:versionedQuestionId',
   'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
   'projects.dmp.research-outputs.edit': '/projects/:projectId/dmp/:dmpId/research-outputs/edit',
-  'projects.dmp.section': '/projects/:projectId/dmp/:dmpId/s/:sectionId',
+  'projects.dmp.versionedSection': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId',
   'projects.dmp.create': '/projects/:projectId/dmp/create',
   'projects.dmp.feedback': '/projects/:projectId/dmp/:dmpId/feedback',
   'projects.dmp.feedback.invite': '/projects/:projectId/dmp/:dmpId/feedback/invite',

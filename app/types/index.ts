@@ -358,7 +358,7 @@ export interface PlanOverviewInterface {
   funderName: string;
   primaryContact: string;
   members: PlanMember[];
-  sections: PlanSectionProgress[];
+  versionedSections: PlanSectionProgress[];
   percentageAnswered: number;
 }
 

@@ -11,7 +11,7 @@ import {
   SidebarPanel
 } from "@/components/Container";
 
-interface Question {
+interface VersionedQuestion {
   id: string;
   title: string;
   link: string;
@@ -28,7 +28,7 @@ const PlanOverviewSectionPage: React.FC = () => {
     funder_name: "National Science Foundation"
   };
 
-  const questions: Question[] = [
+  const versionedQuestions: VersionedQuestion[] = [
     {
       id: "q1",
       title: "What types of data, samples, collections, software, materials, etc. will be produced during your project?",
@@ -99,24 +99,24 @@ const PlanOverviewSectionPage: React.FC = () => {
               </p>
             </section>
 
-            {questions.map((question) => (
+            {versionedQuestions.map((versionedQuestion) => (
               <section
-                key={question.id}
+                key={versionedQuestion.id}
                 className={styles.questionCard}
-                aria-labelledby={`question-title-${question.id}`}
+                aria-labelledby={`question-title-${versionedQuestion.id}`}
               >
                 <div className={styles.questionHeader}>
                   <div className={styles.questionTitle}>
-                    <h3 id={`question-title-${question.id}`}>
-                      {question.title}
+                    <h3 id={`question-title-${versionedQuestion.id}`}>
+                      {versionedQuestion.title}
                     </h3>
                     <p aria-live="polite">
                       <span
                         className={styles.progressIndicator}
-                        aria-label={`Question status: ${question.isAnswered ? 'Completed' : 'Not started'}`}
+                        aria-label={`Question status: ${versionedQuestion.isAnswered ? 'Completed' : 'Not started'}`}
                       >
                         <svg
-                          className={`${styles.progressIcon} ${!question.isAnswered ? styles.progressIconInactive : ''}`}
+                          className={`${styles.progressIcon} ${!versionedQuestion.isAnswered ? styles.progressIconInactive : ''}`}
                           width="18"
                           height="18"
                           xmlns="http://www.w3.org/2000/svg"
@@ -127,19 +127,19 @@ const PlanOverviewSectionPage: React.FC = () => {
                           <path
                             d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
                         </svg>
-                        {question.isAnswered ? t('question.answered') : t('question.notAnswered')}
+                        {versionedQuestion.isAnswered ? t('question.answered') : t('question.notAnswered')}
                       </span>
                     </p>
                   </div>
                   <Link
-                    href={question.link}
+                    href={versionedQuestion.link}
                     aria-label={t('sections.ariaLabel', {
-                      action: question.isAnswered ? t('sections.update') : t('sections.start'),
-                      title: question.title
+                      action: versionedQuestion.isAnswered ? t('sections.update') : t('sections.start'),
+                      title: versionedQuestion.title
                     })}
                     className="react-aria-Button react-aria-Button--secondary"
                   >
-                    {question.isAnswered ? t('sections.update') : t('sections.start')}
+                    {versionedQuestion.isAnswered ? t('sections.update') : t('sections.start')}
                   </Link>
                 </div>
               </section>

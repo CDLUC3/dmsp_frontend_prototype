@@ -17,7 +17,7 @@ describe('routePath utility', () => {
       expect(routePath('projects.dmp.show', { projectId: '123', dmpId: '456' }))
         .toBe('/en-US/projects/123/dmp/456');
 
-      expect(routePath('projects.dmp.section', { projectId: '123', dmpId: '456', sectionId: '789' }))
+      expect(routePath('projects.dmp.versionedSection', { projectId: '123', dmpId: '456', sectionId: '789' }))
         .toBe('/en-US/projects/123/dmp/456/s/789');
     });
 

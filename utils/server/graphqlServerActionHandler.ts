@@ -174,6 +174,9 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
       data: responseData as T,
     };
   } catch (networkError) {
+
+console.log('HERE WE ARE')
+
     logger.error(`[GraphQL Network Error]: ${networkError}`, { error: "NETWORK_ERROR" });
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }

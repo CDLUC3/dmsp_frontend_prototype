@@ -59,11 +59,11 @@ query Project($projectId: Int!) {
       parentResearchDomainId
     }
      plans {
-      sections {
+      versionedSections {
         answeredQuestions
         displayOrder
-        sectionId
-        sectionTitle
+        versionedSectionId
+        title
         totalQuestions
       }
       templateTitle
