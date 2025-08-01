@@ -43,7 +43,7 @@ describe('SelectboxQuestionComponent', () => {
       <SelectboxQuestionComponent
         parsedQuestion={mockSelectBoxQuestion}
         selectedSelectValue='Option A'
-        setSelectedSelectValue={mockSelectChange}
+        handleSelectChange={mockSelectChange}
       />
     );
 
@@ -64,7 +64,6 @@ describe('SelectboxQuestionComponent', () => {
       <SelectboxQuestionComponent
         parsedQuestion={mockSelectBoxQuestion}
         selectedSelectValue='Option A'
-        setSelectedSelectValue={mockSelectChange}
         handleSelectChange={mockHandleSelectChange}
       />
     );
@@ -88,7 +87,7 @@ describe('SelectboxQuestionComponent', () => {
       <SelectboxQuestionComponent
         parsedQuestion={mockSelectBoxQuestion}
         selectedSelectValue='a'
-        setSelectedSelectValue={mockSelectChange}
+        handleSelectChange={mockSelectChange}
       />
     );
     await act(async () => {

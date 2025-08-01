@@ -77,7 +77,7 @@ describe("GraphQL Errors", () => {
         return () => { };
       })
     );
-    (refreshAuthTokens as jest.Mock).mockResolvedValue(true);
+    (refreshAuthTokens as jest.Mock).mockResolvedValue({ response: true });
 
     await new Promise<void>((resolve, reject) => {
       const subscription = (errorLink as NonNullable<typeof errorLink>)

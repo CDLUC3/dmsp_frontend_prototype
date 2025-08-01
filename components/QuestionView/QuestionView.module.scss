@@ -17,3 +17,10 @@
 .numberRange {
   max-width: 400px;
 }
+
+/* Best Practices Sidebar Style */
+.headerWithLogo {
+  display: flex;
+  align-items: center; // vertically center the image and text
+  gap: 0.5rem;
+}

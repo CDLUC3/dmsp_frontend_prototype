@@ -11,7 +11,19 @@ export const mockPlanData = {
     fundings: [
       {
         id: 1,
-        project: null
+        projectFunding: {
+          affiliation: {
+            displayName: 'National Science Foundation (nsf.gov)'
+          }
+        }
+      },
+      {
+        id: 3,
+        projectFunding: {
+          affiliation: {
+            displayName: 'Irish Research Council (research.ie)'
+          }
+        }
       }
     ],
     visibility: "PUBLIC",

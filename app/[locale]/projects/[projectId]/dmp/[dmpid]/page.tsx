@@ -449,7 +449,7 @@ const PlanOverviewPage: React.FC = () => {
           registered: data?.plan.registered ?? '',
           title: data?.plan?.title ?? '',
           status: data?.plan?.status ?? '',
-          funderName: data?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
+          funderName: data?.plan?.fundings?.map(f => f?.projectFunding?.affiliation?.displayName).filter(Boolean).join(', ') ?? '',
           primaryContact: data.plan.members
             ?.filter(member => member?.isPrimaryContact === true)
             ?.map(member => member?.projectMember?.givenName + ' ' + member?.projectMember?.surName)

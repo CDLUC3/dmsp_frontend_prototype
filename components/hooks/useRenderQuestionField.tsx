@@ -200,7 +200,6 @@ export function useRenderQuestionField({
               <SelectboxQuestionComponent
                   parsedQuestion={parsed}
                   selectedSelectValue={selectBoxProps.selectedSelectValue}
-                  setSelectedSelectValue={selectBoxProps.setSelectedSelectValue}
                   handleSelectChange={selectBoxProps.handleSelectChange}
               />
           );

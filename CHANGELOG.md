@@ -15,6 +15,12 @@
 
 
 ### Fixed
+- Updated `ProjectsProjectPlanAdjustFunding` component to use `checkboxes` instead of `radiobuttons` for funders [#631]
+  - Also, made sure to redirect users to the `Project Overview` page after saving `funding` selection
+  - Added toast message
+  - Made updates to assure that funder appears on the `Plan Overview` page after selecting it
+  - Made sure that `funding` was saved correctly so that the saved selection displays when user returns
+- Added the missing expanding/collapsing `Best Practices` to the sidebar of the `Question Details` page [#638]
 - Removed errors that were being observed due to missing projectFundingId in mocks [#641]
 - Fixed the contrast for the `Date Picker` on the `/projects/[projectId]/project` page by implementing the shared `Date Component` there [#597]
 - Fixed bug where links in `Plan Overview` sidebar were of different sizes [#634]
@@ -45,6 +51,10 @@
 - Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
 - Added popular funders to the funder search page when creating a new project. [#380]
+
+### Updated
+- Implement GraphQL integration for plan section questions page [#366]
+- Add `PlanSectionQuestions` query to fetch questions by section ID
 
 ### Updated
 - Updated `routePath` with route `projects.share.index` and updated unit test for `ProjectsProjectMembers` [#589]

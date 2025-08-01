@@ -22,18 +22,26 @@ export const errorLink = onError(({ graphQLErrors, networkError, operation, forw
           try {
             const result = await refreshAuthTokens();
 
-            if (result) {
+            // Check if we should redirect due to failed refresh
+            if (result?.shouldRedirect) {
+              observer.error(new Error('Authentication failed - redirecting to login'));
+              navigateTo(result.redirectTo);
+            } else if (result?.response) {
+              // Token refresh succeeded, retry the operation
               forward(operation).subscribe({
                 next: observer.next.bind(observer),
                 error: observer.error.bind(observer),
                 complete: observer.complete.bind(observer),
               });
             } else {
-              logECS('error', 'Token refresh failed with no result', { errorCode: 'UNAUTHENTICATED' });
+              // Unexpected result
+              logECS('error', 'Token refresh failed with unexpected result', { errorCode: 'UNAUTHENTICATED', result });
+              observer.error(new Error('Token refresh failed'));
               navigateTo('/login');
             }
           } catch (error) {
             logECS('error', 'Token refresh failed', { error });
+            observer.error(error);
             navigateTo('/login')
           }
         })();

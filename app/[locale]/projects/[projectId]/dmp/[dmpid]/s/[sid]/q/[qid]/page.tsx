@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import classNames from 'classnames';
 import {
   Breadcrumb,
@@ -44,6 +45,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
+import ExpandableContentSection from '@/components/ExpandableContentSection';
 
 // Context
 import { useToast } from '@/context/ToastContext';
@@ -405,7 +407,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       selectedSelectValue: value
     }));
     setHasUnsavedChanges(true);
-    };
+  };
 
 
   // Handler for MultiSelect changes
@@ -451,7 +453,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }));
     setHasUnsavedChanges(true);
   };
-  
+
 
   // Handler for number changes
   const handleNumberChange = (value: number) => {
@@ -481,6 +483,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
     router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
   }
 
+  function hasAttributes(obj: AnyParsedQuestion | undefined): obj is AnyParsedQuestion & { attributes: { multiple?: boolean } } {
+    if (obj) {
+      return obj && typeof obj === 'object' && 'attributes' in obj;
+    }
+    return false;
+  }
 
   // Prefill the current question with existing answer
   /*eslint-disable @typescript-eslint/no-explicit-any*/
@@ -725,7 +733,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
   const addAnswer = async (isAutoSave = false) => {
 
-    if(isAutoSaving) {
+    if (isAutoSave) {
       setIsAutoSaving(true);
     }
 
@@ -767,7 +775,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         if (isAutoSave) {
           setIsAutoSaving(false);
           setHasUnsavedChanges(false);
-        } 
+        }
       }
     }
     return {
@@ -907,7 +915,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       if (!sectionBelongsToPlan) {
         router.push('/not-found')
       }
-      
+
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
@@ -1144,7 +1152,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
               <Form onSubmit={handleSubmit}>
                 <Card data-testid='question-card'>
                   <span>Question</span>
-                  <h2 id="question-title" className="h3">
+                  <h2 id="question-title">
                     {question?.questionText}
                   </h2>
                   {question?.required && (
@@ -1199,7 +1207,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   <div className="lastSaved mt-5"
                        aria-live="polite"
                        role="status">
-                    {getLastSavedText()}
+                    Last saved X minutes ago
                   </div>
                 </Card>
 
@@ -1228,9 +1236,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
                         data-secondary
                         className="primary"
                         aria-label={PlanOverview('labels.saveAnswer')}
-                        aria-disabled={isSubmitting}
                     >
-                      {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
+                      {Global('buttons.save')}
                     </Button>
                   </div>
                   <div>
