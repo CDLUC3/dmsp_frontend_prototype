@@ -49,7 +49,7 @@ interface ProjectFundingInterface {
 }
 
 const AddProjectFunderManually = () => {
-  const editFunding = useTranslations('ProjectsProjectFundingEdit');
+  const addFunding = useTranslations('ProjectsProjectFundingAdd');
   const global = useTranslations('Global');
 
   const toastState = useToast();
@@ -96,7 +96,7 @@ const AddProjectFunderManually = () => {
 
   // Show Success Message
   function showSuccessToast() {
-    const successMessage = editFunding('messages.success.projectFundingUpdated');
+    const successMessage = addFunding('messages.success.projectFundingUpdated');
     toastState.add(successMessage, { type: 'success' });
     scrollToTop(topRef);
   }
@@ -173,7 +173,7 @@ const AddProjectFunderManually = () => {
           ...fieldErrors,
           funderName: String(errs.name),
         });
-        setErrors([editFunding('messages.errors.projectFundingUpdateFailed')]);
+        setErrors([addFunding('messages.errors.projectFundingUpdateFailed')]);
       } else {
         return addProjectFunding({
           variables: {
@@ -199,7 +199,7 @@ const AddProjectFunderManually = () => {
             funderOpportunityNumber: String(errs.funderOpportunityNumber),
             funderProjectNumber: String(errs.funderProjectNumber),
           });
-          setErrors([editFunding('messages.errors.projectFundingUpdateFailed')]);
+          setErrors([addFunding('messages.errors.projectFundingUpdateFailed')]);
         } else {
           showSuccessToast();
           router.push(`/projects/${projectId}/fundings`);
@@ -210,7 +210,7 @@ const AddProjectFunderManually = () => {
         err,
         url: { path: '/projects/[projectId]/fundings/add' }
       });
-      setErrors(prevErrors => [...prevErrors, editFunding('messages.errors.projectFundingUpdateFailed')]);
+      setErrors(prevErrors => [...prevErrors, addFunding('messages.errors.projectFundingUpdateFailed')]);
     });
   };
 
@@ -218,15 +218,15 @@ const AddProjectFunderManually = () => {
     <>
       <div ref={topRef} />
       <PageHeader
-        title={editFunding('title')}
-        description={editFunding('description')}
+        title={addFunding('title')}
+        description={addFunding('description')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href="/">{global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href="/projects">{global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={`/projects/${projectId}/fundings`}>{global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
-            <Breadcrumb>{editFunding('title')}</Breadcrumb>
+            <Breadcrumb>{addFunding('title')}</Breadcrumb>
           </Breadcrumbs>
         }
         className="page-funding-edit"
@@ -239,15 +239,15 @@ const AddProjectFunderManually = () => {
               name="funderName"
               type="text"
               isRequired={true}
-              label={editFunding('labels.funderName')}
+              label={addFunding('labels.funderName')}
               value={fundingData.funderName}
               onChange={handleInputChange}
               isInvalid={(!fundingData.funderName || !!fieldErrors.funderName)}
-              errorMessage={fieldErrors.funderName.length > 0 ? fieldErrors.funderName : editFunding('messages.errors.fundingName')}
+              errorMessage={fieldErrors.funderName.length > 0 ? fieldErrors.funderName : addFunding('messages.errors.fundingName')}
             />
 
             <FormSelect
-              label={editFunding('labels.fundingStatus')}
+              label={addFunding('labels.fundingStatus')}
               isRequired
               name="fundingStatus"
               items={fundingStatuses}
@@ -266,33 +266,33 @@ const AddProjectFunderManually = () => {
               name="funderGrantId"
               type="text"
               isRequired={true}
-              label={editFunding('labels.grantNumber')}
+              label={addFunding('labels.grantNumber')}
               value={fundingData.funderGrantId}
               onChange={handleInputChange}
               isInvalid={(!fundingData.funderGrantId || !!fieldErrors.funderGrantId)}
-              errorMessage={fieldErrors.funderGrantId.length > 0 ? fieldErrors.funderGrantId : editFunding('messages.errors.fundingGrantId')}
+              errorMessage={fieldErrors.funderGrantId.length > 0 ? fieldErrors.funderGrantId : addFunding('messages.errors.fundingGrantId')}
             />
 
             <FormInput
               name="funderProjectNumber"
               type="text"
               isRequired={true}
-              label={editFunding('labels.projectNumber')}
+              label={addFunding('labels.projectNumber')}
               value={fundingData.funderProjectNumber}
               onChange={handleInputChange}
               isInvalid={(!fundingData.funderProjectNumber || !!fieldErrors.funderProjectNumber)}
-              errorMessage={fieldErrors.funderProjectNumber.length > 0 ? fieldErrors.funderProjectNumber : editFunding('messages.errors.fundingProjectNumber')}
+              errorMessage={fieldErrors.funderProjectNumber.length > 0 ? fieldErrors.funderProjectNumber : addFunding('messages.errors.fundingProjectNumber')}
             />
 
             <FormInput
               name="funderOpportunityNumber"
               type="text"
               isRequired={true}
-              label={editFunding('labels.opportunity')}
+              label={addFunding('labels.opportunity')}
               value={fundingData.funderOpportunityNumber}
               onChange={handleInputChange}
               isInvalid={(!fundingData.funderOpportunityNumber || !!fieldErrors.funderOpportunityNumber)}
-              errorMessage={fieldErrors.funderOpportunityNumber.length > 0 ? fieldErrors.funderOpportunityNumber : editFunding('messages.errors.fundingProjectNumber')}
+              errorMessage={fieldErrors.funderOpportunityNumber.length > 0 ? fieldErrors.funderOpportunityNumber : addFunding('messages.errors.fundingProjectNumber')}
             />
 
             <Button type="submit" className="submit-button">{global('buttons.saveChanges')}</Button>
