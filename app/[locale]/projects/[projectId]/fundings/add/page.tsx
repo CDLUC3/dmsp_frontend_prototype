@@ -265,34 +265,31 @@ const AddProjectFunderManually = () => {
             <FormInput
               name="funderGrantId"
               type="text"
-              isRequired={true}
               label={addFunding('labels.grantNumber')}
               value={fundingData.funderGrantId}
               onChange={handleInputChange}
-              isInvalid={(!fundingData.funderGrantId || !!fieldErrors.funderGrantId)}
-              errorMessage={fieldErrors.funderGrantId.length > 0 ? fieldErrors.funderGrantId : addFunding('messages.errors.fundingGrantId')}
+              isInvalid={!!fieldErrors.funderGrantId}
+              errorMessage={fieldErrors.funderGrantId}
             />
 
             <FormInput
               name="funderProjectNumber"
               type="text"
-              isRequired={true}
               label={addFunding('labels.projectNumber')}
               value={fundingData.funderProjectNumber}
               onChange={handleInputChange}
-              isInvalid={(!fundingData.funderProjectNumber || !!fieldErrors.funderProjectNumber)}
-              errorMessage={fieldErrors.funderProjectNumber.length > 0 ? fieldErrors.funderProjectNumber : addFunding('messages.errors.fundingProjectNumber')}
+              isInvalid={!!fieldErrors.funderProjectNumber}
+              errorMessage={fieldErrors.funderProjectNumber}
             />
 
             <FormInput
               name="funderOpportunityNumber"
               type="text"
-              isRequired={true}
               label={addFunding('labels.opportunity')}
               value={fundingData.funderOpportunityNumber}
               onChange={handleInputChange}
-              isInvalid={(!fundingData.funderOpportunityNumber || !!fieldErrors.funderOpportunityNumber)}
-              errorMessage={fieldErrors.funderOpportunityNumber.length > 0 ? fieldErrors.funderOpportunityNumber : addFunding('messages.errors.fundingProjectNumber')}
+              isInvalid={!!fieldErrors.funderOpportunityNumber}
+              errorMessage={fieldErrors.funderOpportunityNumber}
             />
 
             <Button type="submit" className="submit-button">{global('buttons.saveChanges')}</Button>
