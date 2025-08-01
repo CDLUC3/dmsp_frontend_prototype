@@ -123,11 +123,10 @@ const CreateProjectSearchFunder = () => {
   };
 
   async function handleAddFunderManually() {
-    // TODO:: Handle manual addition of funders
-    // NOTE:: Reason we didn't implement this is because the template for the
-    // target // URL doesn't exist. There is a separate ticket tracking this.
-    // TODO:: Remember to update the test when this is finally updated
-    console.log('TODO: Navigate to create funder page.');
+    const projectId = params.projectId as string;
+    router.push(routePath('projects.fundings.add', {
+      projectId: projectId,
+    }));
   };
 
   function onResults(results: FunderSearchResults, isNew: boolean) {
