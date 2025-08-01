@@ -3,6 +3,6 @@ mutation AddAffiliation($input: AffiliationInput!) {
     errors {
       name
     }
-    id
+    uri
   }
 }

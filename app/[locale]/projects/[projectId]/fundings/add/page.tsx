@@ -162,6 +162,8 @@ const AddProjectFunderManually = () => {
     }).then((result) => {
       if (result && result.data) {
         const data = result.data;
+        const affiliationId = data!.addAffiliation!.uri;
+
         const hasErrors = hasAffiliationErrors(data?.addAffiliation?.errors as AffiliationErrors);
         if (hasErrors) {
           setFieldErrors({
@@ -170,12 +172,11 @@ const AddProjectFunderManually = () => {
           });
           setErrors([editFunding('messages.errors.projectFundingUpdateFailed')]);
         } else {
-          const affiliationId = data!.addAffiliation!.id;
           return addProjectFunding({
             variables: {
               input: {
                 projectId,
-                affiliationId: String(affiliationId),
+                affiliationId,
                 funderOpportunityNumber: fundingData.funderOpportunityNumber,
                 funderProjectNumber: fundingData.funderProjectNumber,
                 grantId: fundingData.funderGrantId,

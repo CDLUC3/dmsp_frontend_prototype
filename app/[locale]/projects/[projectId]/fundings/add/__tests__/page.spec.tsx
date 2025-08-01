@@ -37,7 +37,7 @@ const successMocks = [
           errors: {
             name: null,
           },
-          id: "222",
+          uri: "https://dmptool/123",
         }
       }
     },
@@ -50,7 +50,7 @@ const successMocks = [
       variables: {
         input: {
           projectId: 111,
-          affiliationId: "222",
+          affiliationId: "https://dmptool/123",
           funderOpportunityNumber: 'New-opportunity-123',
           funderProjectNumber: 'New-projectNumber-123',
           grantId: 'New-grantNumber-123',
@@ -97,7 +97,7 @@ const errorMocks = [
           errors: {
             name: "Error with affiliate name",
           },
-          id: null,
+          uri: null,
         }
       }
     },
@@ -120,7 +120,7 @@ const errorMocks = [
           errors: {
             name: null,
           },
-          id: "222",
+          uri: "https://dmptool/123",
         }
       }
     },
@@ -133,7 +133,7 @@ const errorMocks = [
       variables: {
         input: {
           projectId: 111,
-          affiliationId: "222",
+          affiliationId: "https://dmptool/123",
           funderOpportunityNumber: '',
           funderProjectNumber: '',
           grantId: '',
