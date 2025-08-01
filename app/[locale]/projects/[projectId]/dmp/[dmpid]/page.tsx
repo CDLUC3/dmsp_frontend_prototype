@@ -463,7 +463,7 @@ const PlanOverviewPage: React.FC = () => {
               isPrimaryContact: member?.isPrimaryContact ?? false,
               role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
             })) ?? [],
-          versionedSections: data?.plan?.versionedSections ?? [],
+          versionedSections:  data?.plan?.versionedSections ?? [],
           percentageAnswered: calculatePercentageAnswered(data?.plan?.versionedSections ?? []) ?? 0,
         },
       })

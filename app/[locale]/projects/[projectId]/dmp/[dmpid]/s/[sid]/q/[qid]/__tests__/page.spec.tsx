@@ -66,10 +66,9 @@ expect.extend(toHaveNoViolations);
 
 // Mock the GraphQL query and mutation hooks
 jest.mock("@/generated/graphql", () => ({
-  useAnswerByVersionedQuestionIdLazyQuery: jest.fn(),
-  useSectionVersionsQuery: jest.fn(),
   usePlanQuery: jest.fn(),
-  useQuestionQuery: jest.fn(),
+  useVersionedQuestionQuery: jest.fn(),
+  useAnswerByVersionedQuestionIdQuery: jest.fn(),
 }));
 
 // Mock actions

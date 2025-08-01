@@ -43,40 +43,40 @@ export const mockPlanData = {
         }
       }
     ],
-    sections: [
+    versionedSections: [
       {
         answeredQuestions: 1,
         displayOrder: 1,
-        sectionId: 7,
-        sectionTitle: "Roles & Responsibilities",
+        versionedSectionId: 7,
+        title: "Roles & Responsibilities",
         totalQuestions: 1
       },
       {
         answeredQuestions: 2,
         displayOrder: 2,
-        sectionId: 8,
-        sectionTitle: "Metadata",
+        versionedSectionId: 8,
+        title: "Metadata",
         totalQuestions: 5
       },
       {
         answeredQuestions: 0,
         displayOrder: 3,
-        sectionId: 9,
-        sectionTitle: "Sharing/Copyright Issues",
+        versionedSectionId: 9,
+        title: "Sharing/Copyright Issues",
         totalQuestions: 0
       },
       {
         answeredQuestions: 0,
         displayOrder: 4,
-        sectionId: 10,
-        sectionTitle: "Long Term Storage",
+        versionedSectionId: 10,
+        title: "Long Term Storage",
         totalQuestions: 0
       },
       {
         answeredQuestions: 0,
         displayOrder: 5,
-        sectionId: 11,
-        sectionTitle: "Research Products",
+        versionedSectionId: 11,
+        title: "Research Products",
         totalQuestions: 1
       }
     ],

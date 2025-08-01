@@ -26,7 +26,7 @@ jest.mock("@/generated/graphql", () => ({
   useProjectMemberQuery: jest.fn(),
   useMemberRolesQuery: jest.fn(),
   useUpdateProjectMemberMutation: jest.fn(),
-  useRemoveProjectMemberMutation: jest.fn()
+  useRemoveProjectMemberMutation: jest.fn(),
 }));
 
 jest.mock('@/hooks/projectMemberData', () => ({

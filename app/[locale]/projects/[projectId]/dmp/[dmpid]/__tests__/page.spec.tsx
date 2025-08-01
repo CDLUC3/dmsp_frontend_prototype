@@ -117,6 +117,7 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.edit')).toBeInTheDocument();
     expect(screen.getByText('outputs.title')).toBeInTheDocument();
     expect(screen.getByText('outputs.count')).toBeInTheDocument();
+
     // Check that sections rendered
     expect(screen.getByRole('heading', { name: 'Roles & Responsibilities' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Metadata' })).toBeInTheDocument();
