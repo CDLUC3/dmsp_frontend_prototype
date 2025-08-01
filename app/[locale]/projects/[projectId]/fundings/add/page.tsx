@@ -241,7 +241,7 @@ const AddProjectFunderManually = () => {
               value={fundingData.funderName}
               onChange={handleInputChange}
               isInvalid={(!fundingData.funderName || !!fieldErrors.funderName)}
-              errorMessage={fieldErrors.funderName.length > 0 ? fieldErrors.funderName : editFunding('messages.errors.funderName')}
+              errorMessage={fieldErrors.funderName.length > 0 ? fieldErrors.funderName : editFunding('messages.errors.fundingName')}
             />
 
             <FormSelect
