@@ -15,6 +15,10 @@
 
 
 ### Fixed
+- Fixed bugs related to the `Project Funding` page [#643,650]
+  - Updated `Project Funding` page to use correct `projectFundingId` when clicking `edit` and changed the `fetchPolicy` to make sure it always grabs latest list of `funding` when the user arrives at the page
+  - Added `commas` in between `funder` names on the `Project Overview` page
+  - Updated the `Project Funding Search` page to use same `max-widths` for the funder lists
 - Updated `ProjectsProjectPlanAdjustFunding` component to use `checkboxes` instead of `radiobuttons` for funders [#631]
   - Also, made sure to redirect users to the `Project Overview` page after saving `funding` selection
   - Added toast message

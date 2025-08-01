@@ -203,21 +203,23 @@ const ProjectsProjectFundingSearch = () => {
               <h3>{trans('popularTitle')}</h3>
               <div className={styles.popularFunders}>
                 {popularFunders.map((funder, index) => (
-                  <div
-                    key={index}
-                    className={styles.fundingResultsListItem}
-                    role="group"
-                    aria-label={`${trans('funder')}: ${funder.displayName}`}
-                  >
-                    <p className="funder-name">{funder.displayName}</p>
-                    <Button
-                      className="secondary select-button"
-                      data-funder-uri={funder.uri}
-                      onPress={() => handleSelectFunder(funder)}
-                      aria-label={`${globalTrans('buttons.select')} ${funder.displayName}`}
+                  <div key={index} className={styles.fundingResultsList}>
+                    <div
+                      key={index}
+                      className={styles.fundingResultsListItem}
+                      role="group"
+                      aria-label={`${trans('funder')}: ${funder.displayName}`}
                     >
-                      {globalTrans('buttons.select')}
-                    </Button>
+                      <p className="funder-name">{funder.displayName}</p>
+                      <Button
+                        className="secondary select-button"
+                        data-funder-uri={funder.uri}
+                        onPress={() => handleSelectFunder(funder)}
+                        aria-label={`${globalTrans('buttons.select')} ${funder.displayName}`}
+                      >
+                        {globalTrans('buttons.select')}
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -227,23 +229,24 @@ const ProjectsProjectFundingSearch = () => {
           {funders.length > 0 && (
             <section aria-labelledby="funders-section">
               <h3 id="funders-section">{trans('found', { count: totalCount })}</h3>
-              <div className={styles.fundingResultsList}>
+              <div>
                 {funders.map((funder, index) => (
-                  <div
-                    key={index}
-                    className={styles.fundingResultsListItem}
-                    role="group"
-                    aria-label={`${trans('funder')}: ${funder.displayName}`}
-                  >
-                    <p className="funder-name">{funder.displayName}</p>
-                    <Button
-                      className="secondary select-button"
-                      data-funder-uri={funder.uri}
-                      onPress={() => handleSelectFunder(funder)}
-                      aria-label={`${globalTrans('buttons.select')} ${funder.displayName}`}
+                  <div key={index} className={styles.fundingResultsList}>
+                    <div
+                      className={styles.fundingResultsListItem}
+                      role="group"
+                      aria-label={`${trans('funder')}: ${funder.displayName}`}
                     >
-                      {globalTrans('buttons.select')}
-                    </Button>
+                      <p className="funder-name">{funder.displayName}</p>
+                      <Button
+                        className="secondary select-button"
+                        data-funder-uri={funder.uri}
+                        onPress={() => handleSelectFunder(funder)}
+                        aria-label={`${globalTrans('buttons.select')} ${funder.displayName}`}
+                      >
+                        {globalTrans('buttons.select')}
+                      </Button>
+                    </div>
                   </div>
                 ))}
 
@@ -290,7 +293,7 @@ const ProjectsProjectFundingSearch = () => {
           )}
 
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 };

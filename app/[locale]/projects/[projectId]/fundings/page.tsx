@@ -33,10 +33,11 @@ const ProjectsProjectFunding = () => {
   const t = useTranslations('ProjectsProjectFunding');
   const Global = useTranslations('Global');
 
-  const {data: funders} = useProjectFundingsQuery({
+  const { data: funders } = useProjectFundingsQuery({
     variables: {
       projectId: Number(projectId),
-    }
+    },
+    fetchPolicy: 'network-only'
   });
 
   const handleAddFunding = () => {
@@ -45,11 +46,11 @@ const ProjectsProjectFunding = () => {
     }));
   };
 
-  const handleEditFunding = (funderProjectNumber: string | number | null | undefined) => {
-    if(funderProjectNumber) {
+  const handleEditFunding = (projectFundingId: string | number | null | undefined) => {
+    if (projectFundingId) {
       router.push(routePath('projects.fundings.edit', {
         projectId,
-        projectFundingId: String(funderProjectNumber)
+        projectFundingId: String(projectFundingId)
       }))
     } else {
       const errorMsg = t('messages.errors.funderNumberNotFound');
@@ -66,8 +67,8 @@ const ProjectsProjectFunding = () => {
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.index', {projectId})}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index', { projectId })}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
             <Breadcrumb>{Global('breadcrumbs.projectFunding')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -99,7 +100,7 @@ const ProjectsProjectFunding = () => {
                 >
                   <p className="funder-name">{funder?.affiliation?.displayName}</p>
                   <Button
-                    onPress={() => handleEditFunding(funder?.funderProjectNumber)}
+                    onPress={() => handleEditFunding(funder?.id)}
                     className="secondary"
                     aria-label={`Edit ${funder?.affiliation?.displayName} details`}
                   >
