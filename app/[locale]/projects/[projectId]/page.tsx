@@ -190,6 +190,7 @@ const ProjectOverviewPage: React.FC = () => {
                       name: funding.name,
                       id: funding.grantId
                     })) : funding.name}
+                    {index < project.fundings.length - 1 && ', '}
                   </span>
                 ))}
               </p>
