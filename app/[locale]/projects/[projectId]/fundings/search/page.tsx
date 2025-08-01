@@ -228,7 +228,7 @@ const ProjectsProjectFundingSearch = () => {
 
           {funders.length > 0 && (
             <section aria-labelledby="funders-section">
-              <h3 id="funders-section">{trans('found', { count: totalCount })} TESTING</h3>
+              <h3 id="funders-section">{trans('found', { count: totalCount })}</h3>
               <div>
                 {funders.map((funder, index) => (
                   <div key={index} className={styles.fundingResultsList}>
