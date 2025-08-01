@@ -3779,6 +3779,13 @@ export type VersionedTemplateSearchResult = {
   visibility?: Maybe<TemplateVisibility>;
 };
 
+export type AddAffiliationMutationVariables = Exact<{
+  input: AffiliationInput;
+}>;
+
+
+export type AddAffiliationMutation = { __typename?: 'Mutation', addAffiliation?: { __typename?: 'Affiliation', id?: number | null, errors?: { __typename?: 'AffiliationErrors', name?: string | null } | null } | null };
+
 export type AddAnswerMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
   versionedSectionId: Scalars['Int']['input'];
@@ -4267,6 +4274,42 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
+export const AddAffiliationDocument = gql`
+    mutation AddAffiliation($input: AffiliationInput!) {
+  addAffiliation(input: $input) {
+    errors {
+      name
+    }
+    id
+  }
+}
+    `;
+export type AddAffiliationMutationFn = Apollo.MutationFunction<AddAffiliationMutation, AddAffiliationMutationVariables>;
+
+/**
+ * __useAddAffiliationMutation__
+ *
+ * To run a mutation, you first call `useAddAffiliationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAffiliationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAffiliationMutation, { data, loading, error }] = useAddAffiliationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddAffiliationMutation(baseOptions?: Apollo.MutationHookOptions<AddAffiliationMutation, AddAffiliationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddAffiliationMutation, AddAffiliationMutationVariables>(AddAffiliationDocument, options);
+      }
+export type AddAffiliationMutationHookResult = ReturnType<typeof useAddAffiliationMutation>;
+export type AddAffiliationMutationResult = Apollo.MutationResult<AddAffiliationMutation>;
+export type AddAffiliationMutationOptions = Apollo.BaseMutationOptions<AddAffiliationMutation, AddAffiliationMutationVariables>;
 export const AddAnswerDocument = gql`
     mutation AddAnswer($planId: Int!, $versionedSectionId: Int!, $versionedQuestionId: Int!, $json: String!) {
   addAnswer(

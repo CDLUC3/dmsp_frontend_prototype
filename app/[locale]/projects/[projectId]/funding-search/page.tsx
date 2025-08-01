@@ -125,7 +125,7 @@ const CreateProjectSearchFunder = () => {
   async function handleAddFunderManually() {
     const projectId = params.projectId as string;
     router.push(routePath('projects.fundings.add', {
-      projectId: projectId,
+      projectId,
     }));
   };
 
