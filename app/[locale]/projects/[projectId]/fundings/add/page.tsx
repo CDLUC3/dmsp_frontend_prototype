@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
+import { routePath } from '@/utils/routes';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -202,7 +203,7 @@ const AddProjectFunderManually = () => {
           setErrors([addFunding('messages.errors.projectFundingUpdateFailed')]);
         } else {
           showSuccessToast();
-          router.push(`/projects/${projectId}/fundings`);
+          router.push(routePath('projects.fundings.index', {projectId}));
         }
       }
     }).catch((err) => {
@@ -223,9 +224,10 @@ const AddProjectFunderManually = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href="/projects">{global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}/fundings`}>{global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index', {projectId})}>{global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.fundings.index', {projectId})}>{global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
             <Breadcrumb>{addFunding('title')}</Breadcrumb>
           </Breadcrumbs>
         }
