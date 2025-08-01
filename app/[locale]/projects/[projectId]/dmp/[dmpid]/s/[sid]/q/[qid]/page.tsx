@@ -32,7 +32,7 @@ import {
 
 import {
   usePlanQuery,
-  useVersionedQuestionQuery,
+  usePublishedQuestionQuery,
   useAnswerByVersionedQuestionIdQuery,
 } from '@/generated/graphql';
 
@@ -185,7 +185,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     data: selectedQuestion,
     loading,
     error: selectedQuestionQueryError
-  } = useVersionedQuestionQuery(
+  } = usePublishedQuestionQuery(
     {
       variables: {
         versionedQuestionId: Number(versionedQuestionId)
@@ -599,7 +599,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const getAnswerJson = (): Record<string, any> => {
     switch (questionType) {
       case 'textArea':
-        return { answer: formData.textAreaContent };
+        return { type: 'textArea', answer: formData.textAreaContent };
 
       case 'text':
         return { answer: formData.textValue };

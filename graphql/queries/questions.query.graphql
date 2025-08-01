@@ -45,21 +45,20 @@ query Question($questionId: Int!) {
   }
 }
 
-query PlanSectionQuestions($sectionId: Int!) {
-  questions(sectionId: $sectionId) {
+query PublishedQuestions($versionedSectionId: Int!) {
+  publishedQuestions(versionedSectionId: $versionedSectionId) {
     id
     questionText
     displayOrder
     guidanceText
     requirementText
     sampleText
-    sectionId
-    templateId
-    isDirty
+    versionedSectionId
+    versionedTemplateId
   }
 }
 
-query VersionedQuestion($versionedQuestionId: Int!) {
+query PublishedQuestion($versionedQuestionId: Int!) {
   publishedQuestion(versionedQuestionId: $versionedQuestionId) {
     id
     guidanceText

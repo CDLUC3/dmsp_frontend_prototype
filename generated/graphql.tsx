@@ -2242,6 +2242,8 @@ export type Query = {
   publishedQuestion?: Maybe<VersionedQuestion>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedQuestions?: Maybe<Array<Maybe<VersionedQuestion>>>;
+  /** Fetch a specific VersionedSection */
+  publishedSection?: Maybe<VersionedSection>;
   /** Search for VersionedSection whose name contains the search term */
   publishedSections?: Maybe<VersionedSectionSearchResults>;
   /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
@@ -2466,6 +2468,11 @@ export type QueryPublishedQuestionArgs = {
 
 
 export type QueryPublishedQuestionsArgs = {
+  versionedSectionId: Scalars['Int']['input'];
+};
+
+
+export type QueryPublishedSectionArgs = {
   versionedSectionId: Scalars['Int']['input'];
 };
 
@@ -4185,12 +4192,19 @@ export type QuestionQueryVariables = Exact<{
 
 export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, isDirty?: boolean | null, required?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, sectionId?: string | null, templateId?: string | null } | null } | null };
 
-export type VersionedQuestionQueryVariables = Exact<{
+export type PublishedQuestionsQueryVariables = Exact<{
+  versionedSectionId: Scalars['Int']['input'];
+}>;
+
+
+export type PublishedQuestionsQuery = { __typename?: 'Query', publishedQuestions?: Array<{ __typename?: 'VersionedQuestion', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number } | null> | null };
+
+export type PublishedQuestionQueryVariables = Exact<{
   versionedQuestionId: Scalars['Int']['input'];
 }>;
 
 
-export type VersionedQuestionQuery = { __typename?: 'Query', publishedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number, required?: boolean | null, errors?: { __typename?: 'VersionedQuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, versionedSectionId?: string | null } | null } | null };
+export type PublishedQuestionQuery = { __typename?: 'Query', publishedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number, required?: boolean | null, errors?: { __typename?: 'VersionedQuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, versionedSectionId?: string | null } | null } | null };
 
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4224,6 +4238,13 @@ export type PublishedSectionsQueryVariables = Exact<{
 
 
 export type PublishedSectionsQuery = { __typename?: 'Query', publishedSections?: { __typename?: 'VersionedSectionSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'VersionedSectionSearchResult', id?: number | null, name: string, displayOrder: number, bestPractice?: boolean | null, modified?: string | null, created?: string | null, versionedTemplateId?: number | null, versionedTemplateName?: string | null, versionedQuestionCount?: number | null } | null> | null } | null };
+
+export type PublishedSectionQueryVariables = Exact<{
+  versionedSectionId: Scalars['Int']['input'];
+}>;
+
+
+export type PublishedSectionQuery = { __typename?: 'Query', publishedSection?: { __typename?: 'VersionedSection', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder: number, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'VersionedSectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null } | null };
 
 export type SectionQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
@@ -6854,8 +6875,55 @@ export type QuestionQueryHookResult = ReturnType<typeof useQuestionQuery>;
 export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery>;
 export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
 export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
-export const VersionedQuestionDocument = gql`
-    query VersionedQuestion($versionedQuestionId: Int!) {
+export const PublishedQuestionsDocument = gql`
+    query PublishedQuestions($versionedSectionId: Int!) {
+  publishedQuestions(versionedSectionId: $versionedSectionId) {
+    id
+    questionText
+    displayOrder
+    guidanceText
+    requirementText
+    sampleText
+    versionedSectionId
+    versionedTemplateId
+  }
+}
+    `;
+
+/**
+ * __usePublishedQuestionsQuery__
+ *
+ * To run a query within a React component, call `usePublishedQuestionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublishedQuestionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublishedQuestionsQuery({
+ *   variables: {
+ *      versionedSectionId: // value for 'versionedSectionId'
+ *   },
+ * });
+ */
+export function usePublishedQuestionsQuery(baseOptions: Apollo.QueryHookOptions<PublishedQuestionsQuery, PublishedQuestionsQueryVariables> & ({ variables: PublishedQuestionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PublishedQuestionsQuery, PublishedQuestionsQueryVariables>(PublishedQuestionsDocument, options);
+      }
+export function usePublishedQuestionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedQuestionsQuery, PublishedQuestionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PublishedQuestionsQuery, PublishedQuestionsQueryVariables>(PublishedQuestionsDocument, options);
+        }
+export function usePublishedQuestionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedQuestionsQuery, PublishedQuestionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PublishedQuestionsQuery, PublishedQuestionsQueryVariables>(PublishedQuestionsDocument, options);
+        }
+export type PublishedQuestionsQueryHookResult = ReturnType<typeof usePublishedQuestionsQuery>;
+export type PublishedQuestionsLazyQueryHookResult = ReturnType<typeof usePublishedQuestionsLazyQuery>;
+export type PublishedQuestionsSuspenseQueryHookResult = ReturnType<typeof usePublishedQuestionsSuspenseQuery>;
+export type PublishedQuestionsQueryResult = Apollo.QueryResult<PublishedQuestionsQuery, PublishedQuestionsQueryVariables>;
+export const PublishedQuestionDocument = gql`
+    query PublishedQuestion($versionedQuestionId: Int!) {
   publishedQuestion(versionedQuestionId: $versionedQuestionId) {
     id
     guidanceText
@@ -6880,37 +6948,37 @@ export const VersionedQuestionDocument = gql`
     `;
 
 /**
- * __useVersionedQuestionQuery__
+ * __usePublishedQuestionQuery__
  *
- * To run a query within a React component, call `useVersionedQuestionQuery` and pass it any options that fit your needs.
- * When your component renders, `useVersionedQuestionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `usePublishedQuestionQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublishedQuestionQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useVersionedQuestionQuery({
+ * const { data, loading, error } = usePublishedQuestionQuery({
  *   variables: {
  *      versionedQuestionId: // value for 'versionedQuestionId'
  *   },
  * });
  */
-export function useVersionedQuestionQuery(baseOptions: Apollo.QueryHookOptions<VersionedQuestionQuery, VersionedQuestionQueryVariables> & ({ variables: VersionedQuestionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+export function usePublishedQuestionQuery(baseOptions: Apollo.QueryHookOptions<PublishedQuestionQuery, PublishedQuestionQueryVariables> & ({ variables: PublishedQuestionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<VersionedQuestionQuery, VersionedQuestionQueryVariables>(VersionedQuestionDocument, options);
+        return Apollo.useQuery<PublishedQuestionQuery, PublishedQuestionQueryVariables>(PublishedQuestionDocument, options);
       }
-export function useVersionedQuestionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<VersionedQuestionQuery, VersionedQuestionQueryVariables>) {
+export function usePublishedQuestionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedQuestionQuery, PublishedQuestionQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<VersionedQuestionQuery, VersionedQuestionQueryVariables>(VersionedQuestionDocument, options);
+          return Apollo.useLazyQuery<PublishedQuestionQuery, PublishedQuestionQueryVariables>(PublishedQuestionDocument, options);
         }
-export function useVersionedQuestionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<VersionedQuestionQuery, VersionedQuestionQueryVariables>) {
+export function usePublishedQuestionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedQuestionQuery, PublishedQuestionQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<VersionedQuestionQuery, VersionedQuestionQueryVariables>(VersionedQuestionDocument, options);
+          return Apollo.useSuspenseQuery<PublishedQuestionQuery, PublishedQuestionQueryVariables>(PublishedQuestionDocument, options);
         }
-export type VersionedQuestionQueryHookResult = ReturnType<typeof useVersionedQuestionQuery>;
-export type VersionedQuestionLazyQueryHookResult = ReturnType<typeof useVersionedQuestionLazyQuery>;
-export type VersionedQuestionSuspenseQueryHookResult = ReturnType<typeof useVersionedQuestionSuspenseQuery>;
-export type VersionedQuestionQueryResult = Apollo.QueryResult<VersionedQuestionQuery, VersionedQuestionQueryVariables>;
+export type PublishedQuestionQueryHookResult = ReturnType<typeof usePublishedQuestionQuery>;
+export type PublishedQuestionLazyQueryHookResult = ReturnType<typeof usePublishedQuestionLazyQuery>;
+export type PublishedQuestionSuspenseQueryHookResult = ReturnType<typeof usePublishedQuestionSuspenseQuery>;
+export type PublishedQuestionQueryResult = Apollo.QueryResult<PublishedQuestionQuery, PublishedQuestionQueryVariables>;
 export const TopLevelResearchDomainsDocument = gql`
     query TopLevelResearchDomains {
   topLevelResearchDomains {
@@ -7133,6 +7201,61 @@ export type PublishedSectionsQueryHookResult = ReturnType<typeof usePublishedSec
 export type PublishedSectionsLazyQueryHookResult = ReturnType<typeof usePublishedSectionsLazyQuery>;
 export type PublishedSectionsSuspenseQueryHookResult = ReturnType<typeof usePublishedSectionsSuspenseQuery>;
 export type PublishedSectionsQueryResult = Apollo.QueryResult<PublishedSectionsQuery, PublishedSectionsQueryVariables>;
+export const PublishedSectionDocument = gql`
+    query PublishedSection($versionedSectionId: Int!) {
+  publishedSection(versionedSectionId: $versionedSectionId) {
+    id
+    introduction
+    name
+    requirements
+    guidance
+    displayOrder
+    tags {
+      id
+      description
+      name
+    }
+    errors {
+      general
+      name
+      displayOrder
+    }
+  }
+}
+    `;
+
+/**
+ * __usePublishedSectionQuery__
+ *
+ * To run a query within a React component, call `usePublishedSectionQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublishedSectionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublishedSectionQuery({
+ *   variables: {
+ *      versionedSectionId: // value for 'versionedSectionId'
+ *   },
+ * });
+ */
+export function usePublishedSectionQuery(baseOptions: Apollo.QueryHookOptions<PublishedSectionQuery, PublishedSectionQueryVariables> & ({ variables: PublishedSectionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PublishedSectionQuery, PublishedSectionQueryVariables>(PublishedSectionDocument, options);
+      }
+export function usePublishedSectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedSectionQuery, PublishedSectionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PublishedSectionQuery, PublishedSectionQueryVariables>(PublishedSectionDocument, options);
+        }
+export function usePublishedSectionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedSectionQuery, PublishedSectionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PublishedSectionQuery, PublishedSectionQueryVariables>(PublishedSectionDocument, options);
+        }
+export type PublishedSectionQueryHookResult = ReturnType<typeof usePublishedSectionQuery>;
+export type PublishedSectionLazyQueryHookResult = ReturnType<typeof usePublishedSectionLazyQuery>;
+export type PublishedSectionSuspenseQueryHookResult = ReturnType<typeof usePublishedSectionSuspenseQuery>;
+export type PublishedSectionQueryResult = Apollo.QueryResult<PublishedSectionQuery, PublishedSectionQueryVariables>;
 export const SectionDocument = gql`
     query Section($sectionId: Int!) {
   section(sectionId: $sectionId) {
