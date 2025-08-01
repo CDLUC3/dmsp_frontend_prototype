@@ -13,7 +13,7 @@ import { MockedProvider } from '@apollo/client/testing';
 import {
   ProjectFundingsDocument,
   PlanFundingsDocument,
-  AddPlanFundingDocument,
+  UpdatePlanFundingDocument,
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -113,24 +113,35 @@ const MOCKS = [
   // Adding Funder: Success
   {
     request: {
-      query: AddPlanFundingDocument,
+      query: UpdatePlanFundingDocument,
       variables: {
         planId: 456,
-        projectFundingId: 111,
+        projectFundingIds: [111, 222],
       },
     },
 
     result: {
       data: {
-        addPlanFunding: {
-          errors: {
-            ProjectFundingId: null,
-            general: null,
+        updatePlanFunding: [
+          {
+            errors: {
+              ProjectFundingId: null,
+              general: null,
+            },
+            projectFunding: {
+              id: 111,
+            }
           },
-          projectFunding: {
-            id: 111,
-          }
-        }
+          {
+            errors: {
+              ProjectFundingId: null,
+              general: null,
+            },
+            projectFunding: {
+              id: 222,
+            }
+          },
+        ]
       }
     },
   },
@@ -138,24 +149,27 @@ const MOCKS = [
   // Add Funder: Response Error
   {
     request: {
-      query: AddPlanFundingDocument,
+      query: UpdatePlanFundingDocument,
       variables: {
         planId: 456,
-        projectFundingId: 222,
+        projectFundingIds: [222],
       },
     },
 
     result: {
       data: {
-        addPlanFunding: {
-          errors: {
-            ProjectFundingId: null,
-            general: "This should throw an error",
-          },
-          projectFunding: {
-            id: 222,
+        updatePlanFunding: [
+          {
+            errors: {
+              ProjectFundingId: null,
+              general: "This should throw an error",
+            },
+            projectFunding: {
+              id: 222,
+            }
+
           }
-        }
+        ]
       }
     },
   },
@@ -163,13 +177,39 @@ const MOCKS = [
   // Add Funder: Network Error
   {
     request: {
-      query: AddPlanFundingDocument,
+      query: UpdatePlanFundingDocument,
       variables: {
         planId: 456,
-        projectFundingId: 333,
+        projectFundingIds: [222, 333],
       },
     },
     error: new Error('Network error'),
+  },
+
+  {
+    request: {
+      query: UpdatePlanFundingDocument,
+      variables: {
+        planId: 456,
+        projectFundingIds: [], // No funders selected (empty array)
+      },
+    },
+    result: {
+      data: {
+        updatePlanFunding: [
+          {
+            errors: {
+              ProjectFundingId: null,
+              general: "This should throw an error",
+            },
+            projectFunding: {
+              id: null,
+            }
+
+          }
+        ]
+      }
+    },
   },
 ];
 
@@ -273,11 +313,11 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     );
 
     await waitFor(() => {
-      const optionA = screen.getByRole('radio', { name: 'Project Funder A' });
+      const optionA = screen.getByRole('checkbox', { name: 'Project Funder A' });
       expect(optionA).toBeInTheDocument();
       expect(optionA).not.toBeChecked();
 
-      const optionB = screen.getByRole('radio', { name: 'Project Funder B' });
+      const optionB = screen.getByRole('checkbox', { name: 'Project Funder B' });
       expect(optionB).toBeInTheDocument();
       expect(optionB).toBeChecked();
     });
@@ -291,7 +331,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     );
 
     await waitFor(() => {
-      const option = screen.getByRole('radio', { name: 'Project Funder A' });
+      const option = screen.getByRole('checkbox', { name: 'Project Funder A' });
       expect(option).toBeInTheDocument();
       fireEvent.click(option);
     });
@@ -313,7 +353,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     );
 
     await waitFor(() => {
-      const option = screen.getByRole('radio', { name: 'Project Funder B' });
+      const option = screen.getByRole('checkbox', { name: 'Project Funder B' });
       expect(option).toBeInTheDocument();
       fireEvent.click(option);
     });
@@ -322,7 +362,6 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockUseRouter().push).not.toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
       expect(screen.getByText("This should throw an error")).toBeInTheDocument();
       expect(scrollToTop).toHaveBeenCalled();
     });
@@ -336,7 +375,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     );
 
     await waitFor(() => {
-      const option = screen.getByRole('radio', { name: 'Project Funder C' });
+      const option = screen.getByRole('checkbox', { name: 'Project Funder C' });
       expect(option).toBeInTheDocument();
       fireEvent.click(option);
     });

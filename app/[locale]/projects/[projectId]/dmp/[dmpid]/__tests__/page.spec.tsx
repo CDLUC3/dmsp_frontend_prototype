@@ -111,7 +111,7 @@ describe('PlanOverviewPage', () => {
     render(<PlanOverviewPage />);
 
     expect(screen.getByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).toBeInTheDocument();
-    expect(screen.getByText('National Science Foundation (nsf.gov)')).toBeInTheDocument();
+    expect(screen.getByText('National Science Foundation (nsf.gov), Irish Research Council (research.ie)')).toBeInTheDocument();
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();
@@ -125,7 +125,7 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByRole('heading', { name: 'Long Term Storage' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Research Products' })).toBeInTheDocument();
 
-    // Check sidebar items
+    // // Check sidebar items
     const sidebar = screen.getByTestId('sidebar-panel');
     expect(sidebar).toBeInTheDocument();
     expect(within(sidebar).getByRole('button', { name: 'buttons.preview' })).toBeInTheDocument();
@@ -161,7 +161,7 @@ describe('PlanOverviewPage', () => {
     render(<PlanOverviewPage />);
 
     expect(screen.queryByRole('heading', { name: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations' })).not.toBeInTheDocument();
-    expect(screen.getByText('National Science Foundation (nsf.gov)')).toBeInTheDocument();
+    expect(screen.getByText('National Science Foundation (nsf.gov), Irish Research Council (research.ie)')).toBeInTheDocument();
     expect(screen.getByText('members.title')).toBeInTheDocument();
     expect(screen.getByText('members.info')).toBeInTheDocument();
     expect(screen.getByText('members.edit')).toBeInTheDocument();

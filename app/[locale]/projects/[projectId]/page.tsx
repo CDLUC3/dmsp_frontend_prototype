@@ -10,11 +10,12 @@ import {
   useProjectQuery
 } from '@/generated/graphql';
 
+import { routePath } from '@/utils/routes';
+
 // Components
 import PageHeader from "@/components/PageHeader";
 import { Card } from '@/components/Card/card';
 import { ContentContainer, LayoutContainer } from "@/components/Container";
-import { routePath } from '@/utils/routes';
 
 interface FundingInterface {
   name: string;
@@ -189,6 +190,7 @@ const ProjectOverviewPage: React.FC = () => {
                       name: funding.name,
                       id: funding.grantId
                     })) : funding.name}
+                    {index < project.fundings.length - 1 && ', '}
                   </span>
                 ))}
               </p>
@@ -261,8 +263,8 @@ const ProjectOverviewPage: React.FC = () => {
             </div>
             {/** Plans */}
             {project.plans.map((plan) => {
-              // extract dmp id from the full dmpId
-              const doiId = plan?.dmpId?.match(/(?:https?:\/\/doi\.org\/)(.+)/)?.[1] ?? '';
+              // Use the plan ID for routing, not the DOI extraction
+              const planId = plan?.id?.toString() || '';
               const modifiedDate = formatDate(plan?.modified ?? '');
               const createdDate = formatDate(plan?.created ?? '');
               const sortedSections = sortSections(plan.sections ?? []);
@@ -275,7 +277,11 @@ const ProjectOverviewPage: React.FC = () => {
                       aria-label={ProjectOverview('planSections')}>
                       {sortedSections.map((section) => (
                         <li key={section.sectionId} className="plan-sections-list-item">
-                          <Link href={`/projects/${projectId}/dmp/${doiId}/s/${section.sectionId}`}>
+                          <Link href={routePath('projects.dmp.section', {
+                            projectId: String(projectId),
+                            dmpId: planId,
+                            sectionId: section.sectionId
+                          })}>
                             {section.sectionTitle}
                           </Link>
                           <span className="plan-sections-list-item-progress">
@@ -298,7 +304,10 @@ const ProjectOverviewPage: React.FC = () => {
                   <div className="plan-footer">
                     <div className="plan-links">
                       <Link
-                        href="/plans/123"
+                        href={routePath('projects.dmp.download', {
+                          projectId: String(projectId),
+                          dmpId: planId
+                        })}
                         className="plan-link download-link"
                         aria-label={ProjectOverview('downloadPlan')}
                       >

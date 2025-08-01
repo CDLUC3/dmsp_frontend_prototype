@@ -88,8 +88,8 @@ mutation UpdatePlanTitle($planId: Int!, $title: String!) {
 
 
 
-mutation AddPlanFunding($planId: Int!, $projectFundingId: Int!) {
-  addPlanFunding(planId: $planId, projectFundingId: $projectFundingId) {
+mutation UpdatePlanFunding($planId: Int!, $projectFundingIds: [Int!]!) {
+  updatePlanFunding(planId: $planId, projectFundingIds: $projectFundingIds) {
     errors {
       ProjectFundingId
       general

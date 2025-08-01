@@ -10,6 +10,11 @@ query Plan($planId: Int!) {
     }
     fundings {
       id
+      projectFunding {
+        affiliation {
+          displayName
+        }
+      }
     }
     visibility
     status

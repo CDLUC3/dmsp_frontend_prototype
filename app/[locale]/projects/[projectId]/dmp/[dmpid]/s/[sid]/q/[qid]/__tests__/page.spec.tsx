@@ -170,6 +170,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
         <PlanOverviewQuestionPage />
       );
     });
+
     // Check for Requirements content
     expect(screen.getByRole('heading', { level: 3, name: 'page.requirementsBy' })).toBeInTheDocument();
     const boldedRequirements = screen.getByText('Requirements - Lorem Ipsum');
@@ -209,14 +210,13 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     // Check for best practice content in sidebar
     expect(screen.getByTestId('sidebar-panel')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: 'Best practice by DMP Tool' })).toBeInTheDocument();
-    const bestPracticeSubHeading = screen.getByText(/Most relevant best practice guide/i);
-    expect(bestPracticeSubHeading).toBeInTheDocument();
-    expect(bestPracticeSubHeading.tagName).toBe('P');
-    expect(screen.getByRole('link', { name: /Data sharing/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Data preservation/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Data protection/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /All topics/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'bestPractice' })).toBeInTheDocument();
+    const bestPracticeDataDescription = screen.getByRole('heading', { level: 3, name: 'dataDescription' });
+    expect(bestPracticeDataDescription).toBeInTheDocument();
+    const bestPracticeDataFormat = screen.getByRole('heading', { level: 3, name: 'dataFormat' });
+    expect(bestPracticeDataFormat).toBeInTheDocument();
+    const bestPracticeDataVolume = screen.getByRole('heading', { level: 3, name: 'dataVolume' });
+    expect(bestPracticeDataVolume).toBeInTheDocument();
   })
 
   it('should load correct question content for checkbox question', async () => {
