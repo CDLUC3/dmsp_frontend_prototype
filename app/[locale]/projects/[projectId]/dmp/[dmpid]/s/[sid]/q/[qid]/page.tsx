@@ -483,13 +483,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
   }
 
-  function hasAttributes(obj: AnyParsedQuestion | undefined): obj is AnyParsedQuestion & { attributes: { multiple?: boolean } } {
-    if (obj) {
-      return obj && typeof obj === 'object' && 'attributes' in obj;
-    }
-    return false;
-  }
-
   // Prefill the current question with existing answer
   /*eslint-disable @typescript-eslint/no-explicit-any*/
   const prefillAnswer = (answer: any, type: string) => {
@@ -1131,10 +1124,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
           <ContentContainer>
             <div className="container">
               {/**Requirements by funder */}
-              <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
-                <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
-                {convertToHTML(question?.requirementText)}
-              </section>
+              {question?.requirementText && (
+                  <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
+                    <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
+                    {convertToHTML(question?.requirementText)}
+                  </section>
+              )}
 
               {/**Requirements by organization */}
               <section aria-label={"Requirements"}>
@@ -1152,7 +1147,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
               <Form onSubmit={handleSubmit}>
                 <Card data-testid='question-card'>
                   <span>Question</span>
-                  <h2 id="question-title">
+                  <h2 id="question-title" className="h3">
                     {question?.questionText}
                   </h2>
                   {question?.required && (
@@ -1207,7 +1202,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   <div className="lastSaved mt-5"
                        aria-live="polite"
                        role="status">
-                    Last saved X minutes ago
+                    {getLastSavedText()}
                   </div>
                 </Card>
 
@@ -1236,8 +1231,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
                         data-secondary
                         className="primary"
                         aria-label={PlanOverview('labels.saveAnswer')}
+                        aria-disabled={isSubmitting}
                     >
-                      {Global('buttons.save')}
+                      {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
                     </Button>
                   </div>
                   <div>
@@ -1256,56 +1252,71 @@ const PlanOverviewQuestionPage: React.FC = () => {
           </ContentContainer >
 
           <SidebarPanel isOpen={isSideBarPanelOpen}>
-            <div
-                className={styles.bestPracticesPanel}
-                aria-labelledby="best-practices-title"
-            >
-              <h3 id="best-practices-title">Best practice by DMP Tool</h3>
-              <p>Most relevant best practice guide</p>
 
-              <div role="navigation" aria-label="Best practices navigation"
-                   className={styles.bestPracticesLinks}>
-                <Link href="/best-practices/sharing">
-                  Data sharing
-                  <svg width="20" height="20" viewBox="0 0 20 20"
-                       fill="currentColor">
-                    <path fillRule="evenodd"
-                          d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                          clipRule="evenodd" />
-                  </svg>
-                </Link>
-
-                <Link href="/best-practices/preservation">
-                  Data preservation
-                  <svg width="20" height="20" viewBox="0 0 20 20"
-                       fill="currentColor">
-                    <path fillRule="evenodd"
-                          d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                          clipRule="evenodd" />
-                  </svg>
-                </Link>
-
-                <Link href="/best-practices/protection">
-                  Data protection
-                  <svg width="20" height="20" viewBox="0 0 20 20"
-                       fill="currentColor">
-                    <path fillRule="evenodd"
-                          d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                          clipRule="evenodd" />
-                  </svg>
-                </Link>
-
-                <Link href="/best-practices/all">
-                  All topics
-                  <svg width="20" height="20" viewBox="0 0 20 20"
-                       fill="currentColor">
-                    <path fillRule="evenodd"
-                          d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z"
-                          clipRule="evenodd" />
-                  </svg>
-                </Link>
-              </div>
+            <div className={styles.headerWithLogo}>
+              <h2 className="h4">{Global('bestPractice')}</h2>
+              <Image
+                  className={styles.Logo}
+                  src="/images/DMP-logo.svg"
+                  width="140"
+                  height="16"
+                  alt="DMP Tool"
+              />
             </div>
+
+
+            <ExpandableContentSection
+                id="data-description"
+                heading={Global('dataDescription')}
+                expandLabel={Global('links.expand')}
+                summaryCharLimit={200}
+            >
+              <p>
+                Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
+              </p>
+              <p>
+                Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
+              </p>
+              <p>
+                Indicate which data are of long-term value and should be shared and/or preserved.
+
+              </p>
+              <p>
+                If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
+
+              </p>
+
+            </ExpandableContentSection>
+
+            <ExpandableContentSection
+                id="data-format"
+                heading={Global('dataFormat')}
+                expandLabel={Global('links.expand')}
+                summaryCharLimit={200}
+
+            >
+              <p>
+                Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+              </p>
+
+            </ExpandableContentSection>
+
+            <ExpandableContentSection
+                id="data-volume"
+                heading={Global('dataVolume')}
+                expandLabel={Global('links.expand')}
+                summaryCharLimit={200}
+            >
+              <p>
+                Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
+              </p>
+              <p>
+                Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
+              </p>
+              <p>
+                Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
+              </p>
+            </ExpandableContentSection>
           </SidebarPanel>
 
           {/** Sample text drawer. Only include for question types = Text Area */}
