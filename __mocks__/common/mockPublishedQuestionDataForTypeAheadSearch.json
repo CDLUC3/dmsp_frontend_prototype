@@ -1,0 +1,27 @@
+{
+  "publishedQuestion": {
+    "__typename": "VersionedQuestion",
+    "id": 357,
+    "guidanceText": "<p>Guidance - <strong>Lorem Ipsum</strong>&nbsp;is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
+    "errors": {
+      "__typename": "VersionedQuestionErrors",
+      "general": null,
+      "questionText": null,
+      "requirementText": null,
+      "sampleText": null,
+      "displayOrder": null,
+      "questionConditionIds": null,
+      "versionedSectionId": null,
+      "versionedTemplateId": null
+    },
+    "displayOrder": 16,
+    "questionText": "Affiliation search question",
+    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"typeaheadSearch\",\"graphQL\":{\"query\":\"query Affiliations($name: String!){affiliations(name: $name) { totalCount nextCursor items {id displayName uri}}}\",\"queryId\":\"useAffiliationsQuery\",\"variables\":[{\"name\":\"term\",\"type\":\"string\",\"label\":\"Enter a search term to find your affiliation\",\"minLength\":3,\"labelTranslationKey\":\"SignupPage.institutionHelp\"}],\"answerField\":\"uri\",\"displayFields\":[{\"label\":\"Affiliation\",\"propertyName\":\"displayName\",\"labelTranslationKey\":\"SignupPage.institution\"}],\"responseField\":\"affiliations.items\"}}",
+    "requirementText": "<p>Requirements - <strong>Lorem Ipsum</strong>&nbsp;is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
+    "sampleText": "<p>Sample -<strong>Lorem Ipsum</strong>&nbsp;is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
+    "useSampleTextAsDefault": false,
+    "versionedSectionId": 9,
+    "versionedTemplateId": 1,
+    "required": false
+  }
+}

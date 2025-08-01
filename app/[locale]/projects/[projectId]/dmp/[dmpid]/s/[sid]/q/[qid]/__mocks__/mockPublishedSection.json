@@ -1,0 +1,24 @@
+{
+  "publishedSection": {
+    "__typename": "VersionedSection",
+    "id": 22,
+    "introduction": "This is the introduction text",
+    "name": "Section Test Number one",
+    "requirements": "This is the requirement text",
+    "guidance": "This is the guidance text",
+    "displayOrder": 1,
+    "tags": [
+      {
+        "__typename": "Tag",
+        "id": 34,
+        "description": "Tag A description",
+        "name": "Tag A"
+      }
+    ],
+    "errors": {
+      "general": null,
+      "name": null,
+      "displayOrder": null
+    }
+  }
+}

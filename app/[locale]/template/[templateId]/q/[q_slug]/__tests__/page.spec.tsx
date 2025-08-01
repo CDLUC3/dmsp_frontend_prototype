@@ -16,14 +16,14 @@ import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import mockQuestionData from '../__mocks__/mockQuestionData.json';
 import mockRadioQuestion from '@/__mocks__/common/mockRadioQuestion.json';
-import mockQuestionDataForDateRange from '@/__mocks__/common/mockQuestionDataForDateRange.json';
-import mockQuestionDataForNumberRange from '@/__mocks__/common/mockQuestionDataForNumberRange.json';
-import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockQuestionDataForTypeAheadSearch.json';
-import mockQuestionDataForTextField from '@/__mocks__/common/mockQuestionDataForTextField.json';
-import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
-import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.json';
-import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNumber.json';
-import mockQuestionDataForCurrency from '@/__mocks__/common/mockQuestionDataForCurrency.json';
+import mockQuestionDataForDateRange from '@/__mocks__/common/mockDateRangeQuestion.json';
+import mockQuestionDataForNumberRange from '@/__mocks__/common/mockNumberRangeQuestion.json';
+import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockTypeaheadQuestion.json';
+import mockQuestionDataForTextField from '@/__mocks__/common/mockTextQuestion.json';
+import mockQuestionDataForTextArea from '@/__mocks__/common/mockTextAreaQuestion.json';
+import mockQuestionDataForURL from '@/__mocks__/common/mockURLQuestion.json';
+import mockQuestionDataForNumber from '@/__mocks__/common/mockNumberQuestion.json';
+import mockQuestionDataForCurrency from '@/__mocks__/common/mockCurrencyQuestion.json';
 import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
 import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
 
@@ -122,11 +122,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionType: '1' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionType: '1' },
         keys() { },
         values() { },
         entries() { },

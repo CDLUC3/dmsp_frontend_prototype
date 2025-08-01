@@ -17,6 +17,9 @@ export async function addAnswerAction({
   json: string;
 }): Promise<ActionResponse> {
   try {
+
+console.log('document', AddAnswerDocument)
+
     // Execute the mutation using the shared handler
     return await executeGraphQLMutation({
       document: AddAnswerDocument,

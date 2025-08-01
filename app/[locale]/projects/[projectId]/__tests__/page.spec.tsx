@@ -89,12 +89,12 @@ const mockProjectData = {
       funding: "National Science Foundation",
       id: 1,
       modified: "1740696782000",
-      sections: [
+      versionedSections: [
         {
           answeredQuestions: 0,
           displayOrder: 1,
-          sectionId: 7,
-          sectionTitle: "Roles & Responsibilities",
+          versionedSectionId: 7,
+          title: "Roles & Responsibilities",
           totalQuestions: 1
         }
       ],

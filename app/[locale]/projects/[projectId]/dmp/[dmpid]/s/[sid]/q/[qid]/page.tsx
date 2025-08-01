@@ -599,7 +599,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const getAnswerJson = (): Record<string, any> => {
     switch (questionType) {
       case 'textArea':
-        return { type: 'textArea', answer: formData.textAreaContent };
+        return { answer: formData.textAreaContent };
 
       case 'text':
         return { answer: formData.textValue };

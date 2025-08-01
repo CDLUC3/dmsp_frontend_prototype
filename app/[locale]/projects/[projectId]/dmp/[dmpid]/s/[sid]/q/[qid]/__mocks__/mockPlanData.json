@@ -52,138 +52,138 @@
         }
       }
     ],
-    "sections": [
+    "versionedSections": [
       {
         "answeredQuestions": 1,
         "displayOrder": 1,
-        "sectionId": 1,
-        "sectionTitle": "Section 1: Project Description and Scope",
+        "versionedSectionId": 1,
+        "title": "Section 1: Project Description and Scope",
         "totalQuestions": 12
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 1,
-        "sectionId": 19,
-        "sectionTitle": "Types of data",
+        "versionedSectionId": 19,
+        "title": "Types of data",
         "totalQuestions": 1
       },
       {
         "answeredQuestions": 0,
         "displayOrder": 1,
-        "sectionId": 8,
-        "sectionTitle": "Project Information",
+        "versionedSectionId": 8,
+        "title": "Project Information",
         "totalQuestions": 8
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 1,
-        "sectionId": 12,
-        "sectionTitle": "Product Information",
+        "versionedSectionId": 12,
+        "title": "Product Information",
         "totalQuestions": 5
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 2,
-        "sectionId": 20,
-        "sectionTitle": "Data and metadata standards",
+        "versionedSectionId": 20,
+        "title": "Data and metadata standards",
         "totalQuestions": 1
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 3,
-        "sectionId": 21,
-        "sectionTitle": "Policies for access, sharing, and privacy",
+        "versionedSectionId": 21,
+        "title": "Policies for access, sharing, and privacy",
         "totalQuestions": 1
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 4,
-        "sectionId": 22,
-        "sectionTitle": "Policies for re-use, re-distribution, derivatives",
+        "versionedSectionId": 22,
+        "title": "Policies for re-use, re-distribution, derivatives",
         "totalQuestions": 2
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 4,
-        "sectionId": 13,
-        "sectionTitle": "Acquire Stage",
+        "versionedSectionId": 13,
+        "title": "Acquire Stage",
         "totalQuestions": 3
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 5,
-        "sectionId": 23,
-        "sectionTitle": "Plans for archiving and preservation",
+        "versionedSectionId": 23,
+        "title": "Plans for archiving and preservation",
         "totalQuestions": 1
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 6,
-        "sectionId": 9,
-        "sectionTitle": "Data & Metadata",
+        "versionedSectionId": 9,
+        "title": "Data & Metadata",
         "totalQuestions": 4
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 7,
-        "sectionId": 10,
-        "sectionTitle": "Policies for Access, Use, Sharing & Archiving",
+        "versionedSectionId": 10,
+        "title": "Policies for Access, Use, Sharing & Archiving",
         "totalQuestions": 3
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 9,
-        "sectionId": 11,
-        "sectionTitle": "Backup and Secure",
+        "versionedSectionId": 11,
+        "title": "Backup and Secure",
         "totalQuestions": 3
       },
       {
         "answeredQuestions": 0,
         "displayOrder": 14,
-        "sectionId": 2,
-        "sectionTitle": "Section 2: Data Types to be Produced",
+        "versionedSectionId": 2,
+        "title": "Section 2: Data Types to be Produced",
         "totalQuestions": 1
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 15,
-        "sectionId": 14,
-        "sectionTitle": "Process Stage",
+        "versionedSectionId": 14,
+        "title": "Process Stage",
         "totalQuestions": 4
       },
       {
         "answeredQuestions": 0,
         "displayOrder": 21,
-        "sectionId": 3,
-        "sectionTitle": "Section 3: Data validation",
+        "versionedSectionId": 3,
+        "title": "Section 3: Data validation",
         "totalQuestions": 0
       },
       {
         "answeredQuestions": 0,
         "displayOrder": 23,
-        "sectionId": 4,
-        "sectionTitle": "Section 4: Data link to NHD",
+        "versionedSectionId": 4,
+        "title": "Section 4: Data link to NHD",
         "totalQuestions": 0
       },
       {
         "answeredQuestions": 1,
         "displayOrder": 24,
-        "sectionId": 15,
-        "sectionTitle": "Analyze Stage",
+        "versionedSectionId": 15,
+        "title": "Analyze Stage",
         "totalQuestions": 3
       },
       {
         "answeredQuestions": 0,
         "displayOrder": 25,
-        "sectionId": 5,
-        "sectionTitle": "Section 5: Metadata generation",
+        "versionedSectionId": 5,
+        "title": "Section 5: Metadata generation",
         "totalQuestions": 2
       },
       {
         "answeredQuestions": 0,
         "displayOrder": 28,
-        "sectionId": 6,
-        "sectionTitle": "Section 6: Data repository",
+        "versionedSectionId": 6,
+        "title": "Section 6: Data repository",
         "totalQuestions": 1
       }
     ],

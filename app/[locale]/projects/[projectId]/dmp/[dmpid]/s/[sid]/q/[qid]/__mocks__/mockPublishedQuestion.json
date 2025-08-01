@@ -1,5 +1,5 @@
 {
-  "question": {
+  "publishedQuestion": {
     "id": 344,
     "guidanceText": "<p><strong>Guidance text - Lorem Ipsum</strong>&nbsp;is simply dummy guidance text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
     "errors": {
@@ -9,9 +9,8 @@
       "sampleText": null,
       "displayOrder": null,
       "questionConditionIds": null,
-      "sectionId": null,
-      "sourceQestionId": null,
-      "templateId": null
+      "versionedSectionId": null,
+      "versionedTemplateId": null
     },
     "displayOrder": 3,
     "questionText": "Text area question",
@@ -19,9 +18,8 @@
     "requirementText": "<p><strong>Requirements - Lorem Ipsum</strong>&nbsp;is simply dummy requirements text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
     "sampleText": "<p>Sample text <strong>Lorem Ipsum</strong>&nbsp;is simply dummy sample text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
     "useSampleTextAsDefault": true,
-    "sectionId": 22,
-    "templateId": 1,
-    "isDirty": true,
+    "versionedSectionId": 22,
+    "versionedTemplateId": 1,
     "required": true
   }
 }
