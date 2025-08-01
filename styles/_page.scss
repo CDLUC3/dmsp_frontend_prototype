@@ -186,7 +186,7 @@ footer {
 
 .back-link-button:hover,
 .back-link-button:focus {
-  color: var(--slate-900);
+  color: var(--slate-900) !important;
   text-decoration: underline;
   background: transparent !important;
 }
