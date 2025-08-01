@@ -3,6 +3,8 @@
 - Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
 - Added auto-save to the `Question Answer` page [#585]
 - Added the ability to edit the `Plan title` [#608]
+- Added the page for adding a funder manually [#497]
+- Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
 - Fixed bugs related to the `Project Funding` page [#643,650]
