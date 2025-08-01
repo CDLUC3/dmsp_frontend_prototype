@@ -54,7 +54,7 @@ const successMocks = [
           funderOpportunityNumber: 'New-opportunity-123',
           funderProjectNumber: 'New-projectNumber-123',
           grantId: 'New-grantNumber-123',
-          status: 'PLANNED',
+          status: 'GRANTED',
         }
       },
     },
@@ -227,14 +227,13 @@ describe('AddProjectFunderManually', () => {
       {target: { value: 'New-funderName-123' }}
     );
 
-    fireEvent.change(
-      screen.getByLabelText('labels.fundingStatus'),
-      { target: { value: 'PLANNED' } }
-    );
+    // To change the value in FormSelect, we need to "click" to open the options
+    const statusSelect = screen.getByRole('button', { name: /fundingStatus/ });
+    await fireEvent.click(statusSelect);
 
-    // To change the value in FormSelect, we need to "click" one of the options
-    // const optionGranted = screen.getByRole('option', { name: 'GRANTED' });
-    // await fireEvent.click(optionGranted);
+    // Now we need to click on one of the options
+    const optionGranted = screen.getByRole('option', { name: /granted/i });
+    await fireEvent.click(optionGranted);
 
     fireEvent.change(
       screen.getByLabelText('labels.grantNumber'),

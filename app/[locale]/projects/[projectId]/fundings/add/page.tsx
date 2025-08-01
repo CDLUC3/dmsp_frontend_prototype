@@ -60,13 +60,6 @@ const AddProjectFunderManually = () => {
   const params = useParams();
   const projectId = Number(params.projectId);
 
-  if (isNaN(projectId)) {
-    // TODO:: Big Error, shouldn't happen what to do here?
-    // Redirect?
-    // 400?
-    // definitely log the error
-  }
-
   const [addAffiliation] = useAddAffiliationMutation();
   const [addProjectFunding] = useAddProjectFundingMutation();
 
@@ -109,20 +102,31 @@ const AddProjectFunderManually = () => {
   }
 
   /**
-   * Check if there are any errors from our two graphql queries.
-   * returns true if any error was detected.
+   * Check if there are any errors from our addAffilitation graphql mutation.
+   *
+   * Returns true if any error was detected, as well as the original error
+   * object that should now be type casted correctly
    */
-  function hasAffiliationErrors(errs: AffiliationErrors): boolean {
-    if (!errs) return false;
+  function hasAffiliationErrors(errs: AffiliationErrors): [boolean, AffiliationErrors] {
+    const noErrors = Object.values(errs).every(val => val === null);
+    if (noErrors) return [false, errs];
 
     const keys: (keyof AffiliationErrors)[] = [
       "name",
     ];
-    return keys.some((k) => !!errs[k]);
+
+    return [keys.some((k) => !!errs[k]), errs];
   }
 
-  function hasProjectFundingErrors(errs: ProjectFundingErrors): boolean {
-    if (!errs) return false;
+  /**
+   * Check if there are any errors from our addProjectFunding graphql mutation.
+   *
+   * Returns true if any error was detected, as well as the original error
+   * object that should now be type casted correctly
+   */
+  function hasProjectFundingErrors(errs: ProjectFundingErrors): [boolean, ProjectFundingErrors] {
+    const noErrors = Object.values(errs).every(val => val === null);
+    if (noErrors) return [false, errs];
 
     // is ProjectFunding error
     const keys: (keyof ProjectFundingErrors)[] = [
@@ -134,7 +138,8 @@ const AddProjectFunderManually = () => {
       "general",
       "status",
     ];
-    return keys.some((k) => !!errs[k]);
+
+    return [keys.some((k) => !!errs[k]), errs];
   }
 
   // Handle any changes to form field values
@@ -156,47 +161,43 @@ const AddProjectFunderManually = () => {
         input: {
           funder: true,
           name: fundingData.funderName,
-      
         },
       }
     }).then((result) => {
-      if (result && result.data) {
-        const data = result.data;
-        const affiliationId = data!.addAffiliation!.uri;
+      const data = result!.data!;
+      const affiliationId = data!.addAffiliation!.uri;
 
-        const hasErrors = hasAffiliationErrors(data?.addAffiliation?.errors as AffiliationErrors);
-        if (hasErrors) {
-          setFieldErrors({
-            ...fieldErrors,
-            funderName: data?.addAffiliation?.errors?.name || '',
-          });
-          setErrors([editFunding('messages.errors.projectFundingUpdateFailed')]);
-        } else {
-          return addProjectFunding({
-            variables: {
-              input: {
-                projectId,
-                affiliationId,
-                funderOpportunityNumber: fundingData.funderOpportunityNumber,
-                funderProjectNumber: fundingData.funderProjectNumber,
-                grantId: fundingData.funderGrantId,
-                status: fundingData.fundingStatus,
-              },
+      const [hasErrors, errs] = hasAffiliationErrors(data?.addAffiliation?.errors as AffiliationErrors);
+      if (hasErrors) {
+        setFieldErrors({
+          ...fieldErrors,
+          funderName: String(errs.name),
+        });
+        setErrors([editFunding('messages.errors.projectFundingUpdateFailed')]);
+      } else {
+        return addProjectFunding({
+          variables: {
+            input: {
+              projectId,
+              affiliationId,
+              funderOpportunityNumber: fundingData.funderOpportunityNumber,
+              funderProjectNumber: fundingData.funderProjectNumber,
+              grantId: fundingData.funderGrantId,
+              status: fundingData.fundingStatus,
             },
-          });
-        }
+          },
+        });
       }
     }).then((result) => {
       if (result && result.data) {
         const data = result.data;
-        const hasErrors = hasProjectFundingErrors(data?.addProjectFunding?.errors as ProjectFundingErrors);
+        const [hasErrors, errs] = hasProjectFundingErrors(data?.addProjectFunding?.errors as ProjectFundingErrors);
         if (hasErrors) {
-          const errs = data?.addProjectFunding?.errors;
           setFieldErrors({
             ...fieldErrors,
-            funderGrantId: errs?.grantId || '',
-            funderOpportunityNumber: errs?.funderOpportunityNumber || '',
-            funderProjectNumber: errs?.funderProjectNumber || '',
+            funderGrantId: String(errs.grantId),
+            funderOpportunityNumber: String(errs.funderOpportunityNumber),
+            funderProjectNumber: String(errs.funderProjectNumber),
           });
           setErrors([editFunding('messages.errors.projectFundingUpdateFailed')]);
         } else {
