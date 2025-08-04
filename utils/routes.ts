@@ -58,6 +58,7 @@ const routes = {
   'projects.fundings.index': '/projects/:projectId/fundings',
   'projects.fundings.show': '/projects/:projectId/fundings/:projectFundingId',
   'projects.fundings.search': '/projects/:projectId/fundings/search',
+  'projects.fundings.add': '/projects/:projectId/fundings/add',
   'projects.fundings.edit': '/projects/:projectId/fundings/:projectFundingId/edit',
   'projects.members.index': '/projects/:projectId/members',
   'projects.members.edit': '/projects/:projectId/members/:memberId/edit',

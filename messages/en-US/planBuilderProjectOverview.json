@@ -156,6 +156,28 @@
       }
     }
   },
+  "ProjectsProjectFundingAdd": {
+    "title": "Add Funding Details",
+    "description": "Manually add a new fundting source",
+    "labels": {
+      "funderName": "Funder name",
+      "fundingStatus": "Funding Status",
+      "grantNumber": "Grant number/url",
+      "projectNumber": "Project number or ID",
+      "opportunity": "Opportunity/Federal Award Number"
+    },
+    "messages": {
+      "errors": {
+        "projectFundingUpdateFailed": "Error updating project funding details",
+        "fundingGrantId": "Invalid funder grant ID value",
+        "fundingProjectNumber": "Invalid funder project number value",
+        "fundingName": "Invalid funder name value"
+      },
+      "success": {
+        "projectFundingUpdated": "Successfully updated project funding details"
+      }
+    }
+  },
   "ProjectsProjectMembers": {
     "title": "Project Members",
     "description": "Define contributors and team members and their role in this project.",

@@ -706,7 +706,8 @@ describe("CreateProjectSearchFunder", () => {
 
 
   it("Should allow adding a funder manually", async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+    const mockPush = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
@@ -728,10 +729,9 @@ describe("CreateProjectSearchFunder", () => {
       fireEvent.click(addBtn);
     });
 
-    expect(logSpy).toHaveBeenCalledWith('TODO: Navigate to create funder page.');
-
-    // Cleanup
-    logSpy.mockRestore();
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/fundings\/add/));
+    });
   });
 
   it('should pass accessibility tests', async () => {
