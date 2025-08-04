@@ -15,26 +15,19 @@ describe('SelectboxQuestionComponent', () => {
     },
     options: [
       {
-        type: 'option',
-        attributes: {
-          label: 'Option A',
-          value: 'Option A',
-          selected: true,
-        },
+        label: 'Option A',
+        value: 'Option A',
+        selected: true,
       },
       {
-        type: 'option',
-        attributes: {
-          label: 'Option B',
-          value: 'Option B',
-        },
+        label: 'Option B',
+        value: 'Option B',
+        selected: false,
       },
       {
-        type: 'option',
-        attributes: {
-          label: 'Option C',
-          value: 'Option C',
-        },
+        label: 'Option C',
+        value: 'Option C',
+        selected: false
       },
     ],
     attributes: {

@@ -6,7 +6,7 @@ export const getOverrides = (questionType: string | null | undefined) => {
     case "text":
       return { maxLength: null };
     case "textArea":
-      return { maxLength: null, rows: 20 };
+      return { asRichText: true, maxLength: null, rows: 20 };
     case "number":
       return { min: 0, max: 10000000, step: 1 };
     case "currency":

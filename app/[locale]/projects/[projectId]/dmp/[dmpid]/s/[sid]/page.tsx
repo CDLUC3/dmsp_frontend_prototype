@@ -13,16 +13,17 @@ import {
   SidebarPanel
 } from "@/components/Container";
 import {
-  usePlanSectionQuestionsQuery,
-  useSectionQuery,
-  usePlanQuery
+  usePublishedQuestionsQuery,
+  usePublishedSectionQuery,
+  usePlanQuery,
 } from '@/generated/graphql';
 import { stripHtml } from '@/utils/general';
 import { routePath } from '@/utils/routes';
 import { DmpIcon } from '@/components/Icons';
 import ErrorMessages from '@/components/ErrorMessages';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
-interface Question {
+
+interface VersionedQuestion {
   id: string;
   title: string;
   link: string;
@@ -33,7 +34,7 @@ const PlanOverviewSectionPage: React.FC = () => {
   const t = useTranslations('PlanOverview');
   const Global = useTranslations('Global');
   const params = useParams();
-  const sectionId = Number(params.sid);
+  const versionedSectionId = Number(params.sid);
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
 
@@ -43,14 +44,14 @@ const PlanOverviewSectionPage: React.FC = () => {
   // Validate that dmpId is a valid number
   const planId = parseInt(dmpId);
 
-  const { data: questionsData, loading: questionsLoading, error: questionsError } = usePlanSectionQuestionsQuery({
-    variables: { sectionId },
-    skip: !sectionId
+  const { data: questionsData, loading: questionsLoading, error: questionsError } = usePublishedQuestionsQuery({
+    variables: { versionedSectionId },
+    skip: !versionedSectionId
   });
 
-  const { data: sectionData, loading: sectionLoading } = useSectionQuery({
-    variables: { sectionId },
-    skip: !sectionId
+  const { data: sectionData, loading: sectionLoading } = usePublishedSectionQuery({
+    variables: { versionedSectionId },
+    skip: !versionedSectionId
   });
 
   const { data: planData, loading: planLoading } = usePlanQuery({
@@ -92,8 +93,8 @@ const PlanOverviewSectionPage: React.FC = () => {
   }
 
   // Plan sections data for rendering
-  const planSections = planData?.plan?.sections || [];
-  const sectionBelongsToPlan = planSections.some(section => section.sectionId === sectionId);
+  const planSections = planData?.plan?.versionedSections || [];
+  const sectionBelongsToPlan = planSections.some(section => section.versionedSectionId === versionedSectionId);
 
   // Check if section belongs to this plan
   if (!sectionBelongsToPlan) {
@@ -101,11 +102,11 @@ const PlanOverviewSectionPage: React.FC = () => {
   }
 
   // Check for questions - show message if none
-  const questions: Question[] = questionsData?.questions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
+  const questions: VersionedQuestion[] = questionsData?.publishedQuestions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
     id: question.id?.toString() || '',
     title: question.questionText || '',
-    link: routePath('projects.dmp.question.detail', {
-      projectId, dmpId, sectionId, questionId: String(question.id)
+    link: routePath('projects.dmp.versionedQuestion.detail', {
+      projectId, dmpId, versionedSectionId, versionedQuestionId: String(question.id)
     }),
     isAnswered: false
   })) || [];
@@ -119,7 +120,7 @@ const PlanOverviewSectionPage: React.FC = () => {
   return (
     <>
       <PageHeader
-        title={sectionData?.section?.name || "Data and Metadata Formats"}
+        title={sectionData?.publishedSection?.name || "Data and Metadata Formats"}
         description=""
         showBackButton={true}
         breadcrumbs={
@@ -148,7 +149,7 @@ const PlanOverviewSectionPage: React.FC = () => {
               </Link>
             </Breadcrumb>
             <Breadcrumb>
-              {sectionData?.section?.name || "Data and Metadata Formats"}
+              {sectionData?.publishedSection?.name || "Data and Metadata Formats"}
             </Breadcrumb>
           </Breadcrumbs>
         }
@@ -178,19 +179,18 @@ const PlanOverviewSectionPage: React.FC = () => {
               {planSections.length > 0 && (
                 <ul className={styles.sectionsList} role="list" aria-label="Plan sections">
                   {planSections.map((section) => (
-                    <li key={section.sectionId}>
+                    <li key={section.versionedSectionId}>
                       <Link
-                        href={routePath('projects.dmp.section', {
+                        href={routePath('projects.dmp.show', {
                           projectId,
-                          dmpId,
-                          sectionId: section.sectionId
+                          dmpId
                         })}
-                        className={`${styles.sectionLink} ${section.sectionId === sectionId ? styles.currentSection : ''
+                        className={`${styles.sectionLink} ${section.versionedSectionId === versionedSectionId ? styles.currentSection : ''
                           }`}
-                        aria-label={`Go to ${section.sectionTitle} section`}
-                        aria-current={section.sectionId === sectionId ? 'page' : undefined}
+                        aria-label={`Go to ${section.title} section`}
+                        aria-current={section.versionedSectionId === versionedSectionId ? 'page' : undefined}
                       >
-                        {section.sectionTitle}
+                        {section.title}
                       </Link>
                     </li>
                   ))}

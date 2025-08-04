@@ -18,11 +18,11 @@ const RadioButtonsQuestionComponent: React.FC<RadioButtonQuestionTypeProps> = ({
   handleRadioChange
 }) => {
   const radioButtonData = parsedQuestion.options?.map((opt: RadioButtonsQuestionType['options'][number]) => ({
-    label: opt.attributes.label,
-    value: opt.attributes.value,
+    label: opt.label,
+    value: opt.value,
   }));
-  const selectedOption = parsedQuestion.options?.find((opt: RadioButtonsQuestionType['options'][number]) => opt.attributes.selected);
-  const initialValue = selectedOption ? selectedOption.attributes.value : undefined;
+  const selectedOption = parsedQuestion.options?.find((opt: RadioButtonsQuestionType['options'][number]) => opt.selected);
+  const initialValue = selectedOption ? selectedOption.value : undefined;
   const value = (selectedRadioValue === undefined || selectedRadioValue === '') ? initialValue : selectedRadioValue;
 
   return (

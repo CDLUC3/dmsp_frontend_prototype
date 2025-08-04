@@ -3,7 +3,7 @@
 import {
   Question,
 } from '@/app/types';
-import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from '@dmptool/types';
 import logECS from '@/utils/clientLogger';
 
 type ParsedQuestionResult<T extends keyof QuestionTypeMap = keyof QuestionTypeMap> = {
@@ -34,7 +34,8 @@ const isValidQuestionType = (obj: any): obj is QuestionTypeMap[keyof QuestionTyp
       number: true,
       numberRange: true,
       table: true,
-      typeaheadSearch: true
+      affiliationSearch: true,
+      multiselectBox: true
     } as const);
 };
 
@@ -44,10 +45,8 @@ export const getParsedQuestionJSON = (
   path: string,
   t: any
 ): ParsedQuestionResult => {
-
   if (!question?.json) {
     return { parsed: null, error: t('messaging.errors.invalidQuestionType') };
-
   }
 
   const { json: source } = question;

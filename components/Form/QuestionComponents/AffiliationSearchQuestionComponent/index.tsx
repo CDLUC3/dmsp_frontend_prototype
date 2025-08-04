@@ -24,7 +24,7 @@ const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProp
   return (
     <>
       <TypeAheadWithOther
-        label={parsedQuestion?.graphQL?.displayFields?.[0]?.label || Signup('institution')}
+        label={parsedQuestion?.attributes?.label || Signup('institution')}
         fieldName="institution"
         graphqlQuery={
           typeof parsedQuestion?.graphQL?.query === 'string'
@@ -35,7 +35,7 @@ const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProp
         setOtherField={setOtherField}
         required={true}
         error=""
-        helpText={parsedQuestion?.graphQL?.variables?.[0]?.label || Signup('institutionHelp')}
+        helpText={parsedQuestion?.attributes?.help || Signup('institutionHelp')}
         updateFormData={handleAffiliationChange}
         value={affiliationData?.affiliationName || ''}
       />

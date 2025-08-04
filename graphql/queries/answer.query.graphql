@@ -11,28 +11,10 @@ query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQue
     modified
     errors {
       general
+      planId
       versionedSectionId
       versionedQuestionId
-      uri
-      types
-      subHeaderLinks
-      ssoEntityId
-      searchName
-      provenance
-      planId
-      name
-      logoURI
-      logoName
       json
-      homepage
-      fundrefId
-      feedbackMessage
-      feedbackEmails
-      displayName
-      contactName
-      contactEmail
-      aliases
-      acronyms
     }
   }
 }

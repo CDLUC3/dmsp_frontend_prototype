@@ -13,10 +13,10 @@ describe('RadioButtonsQuestionComponent', () => {
     type: "boolean",
     meta: {
       schemaVersion: "1.0",
-      labelTranslationKey: "questions.use_existing_data"
     },
     attributes: {
-      checked: true
+      checked: true,
+      labelTranslationKey: "questions.use_existing_data"
     }
   };
 
@@ -68,10 +68,10 @@ describe('RadioButtonsQuestionComponent', () => {
       type: "boolean",
       meta: {
         schemaVersion: "1.0",
-        labelTranslationKey: "questions.use_existing_data"
       },
       attributes: {
-        checked: false
+        checked: false,
+        labelTranslationKey: "questions.use_existing_data"
       }
     };
 

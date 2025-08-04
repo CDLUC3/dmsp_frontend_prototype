@@ -30,7 +30,6 @@ query Question($questionId: Int!) {
       displayOrder
       questionConditionIds
       sectionId
-      sourceQestionId
       templateId
     }
     displayOrder
@@ -46,16 +45,38 @@ query Question($questionId: Int!) {
   }
 }
 
-query PlanSectionQuestions($sectionId: Int!) {
-  questions(sectionId: $sectionId) {
+query PublishedQuestions($versionedSectionId: Int!) {
+  publishedQuestions(versionedSectionId: $versionedSectionId) {
     id
     questionText
     displayOrder
     guidanceText
     requirementText
     sampleText
-    sectionId
-    templateId
-    isDirty
+    versionedSectionId
+    versionedTemplateId
+  }
+}
+
+query PublishedQuestion($versionedQuestionId: Int!) {
+  publishedQuestion(versionedQuestionId: $versionedQuestionId) {
+    id
+    guidanceText
+    errors {
+      general
+      questionText
+      requirementText
+      sampleText
+      displayOrder
+      versionedSectionId
+    }
+    displayOrder
+    questionText
+    json
+    requirementText
+    sampleText
+    versionedSectionId
+    versionedTemplateId
+    required
   }
 }

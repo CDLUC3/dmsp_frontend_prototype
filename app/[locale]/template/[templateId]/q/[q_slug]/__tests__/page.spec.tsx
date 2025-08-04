@@ -3,7 +3,6 @@ import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import { routePath } from '@/utils/routes';
 import {
   useQuestionQuery,
-  useQuestionTypesLazyQuery,
   useUpdateQuestionMutation,
   useRemoveQuestionMutation
 } from '@/generated/graphql';
@@ -16,16 +15,58 @@ import QuestionEdit from '../page';
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 import mockQuestionData from '../__mocks__/mockQuestionData.json';
 import mockRadioQuestion from '@/__mocks__/common/mockRadioQuestion.json';
-import mockQuestionDataForDateRange from '@/__mocks__/common/mockQuestionDataForDateRange.json';
-import mockQuestionDataForNumberRange from '@/__mocks__/common/mockQuestionDataForNumberRange.json';
-import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockQuestionDataForTypeAheadSearch.json';
-import mockQuestionDataForTextField from '@/__mocks__/common/mockQuestionDataForTextField.json';
-import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
-import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.json';
-import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNumber.json';
-import mockQuestionDataForCurrency from '@/__mocks__/common/mockQuestionDataForCurrency.json';
-import mockQuestionTypes from '@/__mocks__/mockQuestionTypes.json';
+import mockQuestionDataForDateRange from '@/__mocks__/common/mockDateRangeQuestion.json';
+import mockQuestionDataForNumberRange from '@/__mocks__/common/mockNumberRangeQuestion.json';
+import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockTypeaheadQuestion.json';
+import mockQuestionDataForTextField from '@/__mocks__/common/mockTextQuestion.json';
+import mockQuestionDataForTextArea from '@/__mocks__/common/mockTextAreaQuestion.json';
+import mockQuestionDataForURL from '@/__mocks__/common/mockURLQuestion.json';
+import mockQuestionDataForNumber from '@/__mocks__/common/mockNumberQuestion.json';
+import mockQuestionDataForCurrency from '@/__mocks__/common/mockCurrencyQuestion.json';
 import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
+import { AffiliationSearchQuestionType } from "@dmptool/types";
+
+beforeEach(() => {
+  // Cannot get the escaping to work in the mock JSON file, so doing it programmatically here
+  const affiliationQuery = 'query Affiliations($name: String!){ ' +
+    'affiliations(name: $name) { ' +
+      'totalCount ' +
+      'nextCursor ' +
+      'items { ' +
+        'id ' +
+        'displayName ' +
+        'uri ' +
+      '} ' +
+    '} ' +
+  '}';
+
+  const json: AffiliationSearchQuestionType = {
+    type: 'affiliationSearch',
+    attributes: {
+      label: 'Institution',
+      help: 'Search for your institution',
+    },
+    graphQL: {
+      displayFields: [{
+        label: "Institution",
+        propertyName: "displayName",
+      }],
+      query: affiliationQuery,
+      responseField: 'affiliations.items',
+      variables: [{
+        label: "Search for your institution",
+        minLength: 3,
+        name: "name",
+        type: "string",
+      }],
+      answerField: 'uri'
+    },
+    meta: {
+      schemaVersion: '1.0'
+    },
+  };
+  mockQuestionDataForTypeAheadSearch.question.json = JSON.stringify(json);
+});
 
 expect.extend(toHaveNoViolations);
 
@@ -42,7 +83,6 @@ jest.mock('@/components/hooks/getParsedQuestionJSON', () => {
 jest.mock("@/generated/graphql", () => ({
   useQuestionQuery: jest.fn(),
   useUpdateQuestionMutation: jest.fn(),
-  useQuestionTypesLazyQuery: jest.fn(),
   useRemoveQuestionMutation: jest.fn()
 }));
 
@@ -94,14 +134,6 @@ describe("QuestionEditPage", () => {
       error: undefined,
     });
 
-    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockQuestionTypes,
-        loading: false,
-        error: undefined,
-      },
-    ]);
     (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
     (useRemoveQuestionMutation as jest.Mock).mockReturnValue([jest.fn(), { loading: false }]);
   });
@@ -122,11 +154,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'textArea' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'textArea' },
         keys() { },
         values() { },
         entries() { },
@@ -196,11 +228,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'text' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'text' },
         keys() { },
         values() { },
         entries() { },
@@ -235,7 +267,7 @@ describe("QuestionEditPage", () => {
           input: {
             questionId: 67,
             displayOrder: 3,
-            json: "{\"type\":\"textArea\",\"meta\":{\"schemaVersion\":\"1.0\",\"asRichText\":true},\"attributes\":{\"cols\":20,\"maxLength\":1000,\"minLength\":0,\"rows\":20}}",
+            json: "{\"type\":\"textArea\",\"attributes\":{\"cols\":20,\"maxLength\":1000,\"minLength\":0,\"rows\":20,\"asRichText\":true},\"meta\":{\"schemaVersion\":\"1.0\"}}",
             questionText: "Text area question",
             requirementText: "<p><strong>Requirements - Lorem Ipsum</strong>&nbsp;is simply dummy requirements text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
             guidanceText: "<p><strong>Guidance text - Lorem Ipsum</strong>&nbsp;is simply dummy guidance text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
@@ -258,11 +290,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'text' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'text' },
         keys() { },
         values() { },
         entries() { },
@@ -300,11 +332,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'textArea' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'textArea' },
         keys() { },
         values() { },
         entries() { },
@@ -339,11 +371,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'text' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'text' },
         keys() { },
         values() { },
         entries() { },
@@ -357,6 +389,11 @@ describe("QuestionEditPage", () => {
         <QuestionEdit />
       );
     });
+
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set required QuestionType value
+    fireEvent.change(input, { target: { value: 'Testing' } });
 
     const saveButton = screen.getByText('buttons.saveAndUpdate');
     expect(saveButton).toBeInTheDocument();
@@ -386,11 +423,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '' };
+          const params: Record<string, string> = { questionTypeId: 'radioButtons' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '' },
+        has: (key: string) => key in { questionTypeId: 'radioButtons' },
         keys() { },
         values() { },
         entries() { },
@@ -419,11 +456,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '' };
+          const params: Record<string, string> = { questionTypeId: 'textArea' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '' },
+        has: (key: string) => key in { questionTypeId: 'textArea' },
         keys() { },
         values() { },
         entries() { },
@@ -458,11 +495,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '' };
+          const params: Record<string, string> = { questionTypeId: 'text' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '' },
+        has: (key: string) => key in { questionTypeId: 'text' },
         keys() { },
         values() { },
         entries() { },
@@ -503,11 +540,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'dateRange' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'dateRange' },
         keys() { },
         values() { },
         entries() { },
@@ -547,11 +584,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'numberRange' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'numberRange' },
         keys() { },
         values() { },
         entries() { },
@@ -575,7 +612,7 @@ describe("QuestionEditPage", () => {
 
   });
 
-  it("should call handleTypeAheadSearchLabelChange for typeaheadsearch question type", async () => {
+  it("should call handleTypeAheadSearchLabelChange for affiliationSearch question type", async () => {
 
     (useQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTypeAheadSearch,
@@ -587,15 +624,15 @@ describe("QuestionEditPage", () => {
       { loading: false, error: undefined },
     ]);
 
-    // Render with text question type
+    // Render with text affiliation search type
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'affiliationSearch' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'affiliationSearch' },
         keys() { },
         values() { },
         entries() { },
@@ -609,7 +646,8 @@ describe("QuestionEditPage", () => {
         <QuestionEdit />
       );
     });
-    // Find the label input rendered by TypeAheadSearch
+
+    // Find the label input rendered by AffiliationSearch
     const labelInput = screen.getByPlaceholderText('Enter search label');
 
     // Simulate user typing
@@ -619,7 +657,7 @@ describe("QuestionEditPage", () => {
 
   });
 
-  it("should call handleTypeAheadHelpTextChange for typeaheadsearch question type", async () => {
+  it("should call handleTypeAheadHelpTextChange for affiliationSearch question type", async () => {
 
     (useQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTypeAheadSearch,
@@ -635,11 +673,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'affiliationSearch' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'affiliationSearch' },
         keys() { },
         values() { },
         entries() { },
@@ -653,7 +691,7 @@ describe("QuestionEditPage", () => {
         <QuestionEdit />
       );
     });
-    // Find the label input rendered by TypeAheadSearch
+    // Find the label input rendered by AffiliationSearch
     const helpTextInput = screen.getByPlaceholderText('Enter the help text you want to display');
 
     // Simulate user typing
@@ -679,11 +717,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'textArea' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'textArea' },
         keys() { },
         values() { },
         entries() { },
@@ -736,11 +774,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'textArea' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'textArea' },
         keys() { },
         values() { },
         entries() { },
@@ -769,15 +807,6 @@ describe("QuestionEditPage", () => {
   });
 
   it('should set question to filtered question when user passes in questionTypeIdQueryParam', async () => {
-    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockQuestionTypes,
-        loading: false,
-        error: undefined,
-      },
-    ]);
-
     (useQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForDateRange,
       loading: false,
@@ -832,15 +861,6 @@ describe("QuestionEditPage", () => {
       parsed: null,
       error: 'Failed to parse during submit',
     });
-
-    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockQuestionTypes,
-        loading: false,
-        error: undefined,
-      },
-    ]);
 
     (useQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForDateRange,
@@ -897,11 +917,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '1' };
+          const params: Record<string, string> = { questionTypeId: 'affiliationSearch' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '1' },
+        has: (key: string) => key in { questionTypeId: 'affiliationSearch' },
         keys() { },
         values() { },
         entries() { },
@@ -934,11 +954,11 @@ describe("QuestionEditPage", () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '3' };
+          const params: Record<string, string> = { questionTypeId: 'checkBoxes' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '3' },
+        has: (key: string) => key in { questionTypeId: 'checkBoxes' },
         keys() { },
         values() { },
         entries() { },
@@ -967,12 +987,14 @@ describe("QuestionEditPage", () => {
       mockData: mockQuestionDataForTextField,
       expectedJson: {
         type: "text",
-        meta: { schemaVersion: "1.0" },
         attributes: {
           maxLength: 1000,
           minLength: 0,
           pattern: "^.+$",
-        }
+        },
+        meta: {
+          schemaVersion: "1.0"
+        },
       }
     },
     {
@@ -980,15 +1002,15 @@ describe("QuestionEditPage", () => {
       mockData: mockQuestionDataForTextArea,
       expectedJson: {
         type: "textArea",
-        meta: {
-          asRichText: true,
-          schemaVersion: "1.0",
-        },
         attributes: {
+          asRichText: true,
           cols: 20,
           rows: 20,
           maxLength: 1000,
           minLength: 0,
+        },
+        meta: {
+          schemaVersion: "1.0",
         },
       },
     },
@@ -997,13 +1019,13 @@ describe("QuestionEditPage", () => {
       mockData: mockQuestionDataForNumber,
       expectedJson: {
         type: "number",
-        meta: {
-          schemaVersion: "1.0",
-        },
         attributes: {
           min: 0,
           max: 10000000,
           step: 1,
+        },
+        meta: {
+          schemaVersion: "1.0",
         },
       },
     },
@@ -1013,6 +1035,7 @@ describe("QuestionEditPage", () => {
       expectedJson: {
         type: "currency",
         attributes: {
+          denomination: "USD",
           min: 0,
           max: 10000000,
           step: 0.01
@@ -1028,17 +1051,18 @@ describe("QuestionEditPage", () => {
       mockData: mockQuestionDataForURL,
       expectedJson: {
         type: "url",
-        meta: {
-          schemaVersion: "1.0",
-        },
         attributes: {
           maxLength: 2048,
           minLength: 2,
           pattern: "https?://.+",
         },
+        meta: {
+          schemaVersion: "1.0",
+        },
       },
     },
   ])("QuestionEditPage - $questionType", ({ questionType, mockData, expectedJson }) => {
+
     it(`should call updateQuestionMutation with correct JSON for ${questionType}`, async () => {
       (useQuestionQuery as jest.Mock).mockReturnValue({
         data: mockData,
@@ -1124,14 +1148,6 @@ describe('QuestionEditPage Delete Functionality', () => {
       error: undefined,
     });
 
-    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockQuestionTypes,
-        loading: false,
-        error: undefined,
-      },
-    ]);
     (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
     (useRemoveQuestionMutation as jest.Mock).mockReturnValue([jest.fn(), { loading: false }]);
   });
@@ -1199,11 +1215,11 @@ describe('QuestionEditPage Delete Functionality', () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '3' };
+          const params: Record<string, string> = { questionTypeId: 'checkBoxes' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '3' },
+        has: (key: string) => key in { questionTypeId: 'checkBoxes' },
         keys() { },
         values() { },
         entries() { },
@@ -1284,14 +1300,6 @@ describe('Options questions', () => {
       error: undefined,
     });
 
-    (useQuestionTypesLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockQuestionTypes,
-        loading: false,
-        error: undefined,
-      },
-    ]);
     (useToast as jest.Mock).mockReturnValue({ add: jest.fn() });
     (useRemoveQuestionMutation as jest.Mock).mockReturnValue([jest.fn(), { loading: false }]);
   });
@@ -1312,11 +1320,11 @@ describe('Options questions', () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '3' };
+          const params: Record<string, string> = { questionTypeId: 'radioButtons' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '3' },
+        has: (key: string) => key in { questionTypeId: 'radioButtons' },
         keys() { },
         values() { },
         entries() { },
@@ -1364,11 +1372,11 @@ describe('Options questions', () => {
     (useSearchParams as jest.MockedFunction<typeof useSearchParams>).mockImplementation(() => {
       return {
         get: (key: string) => {
-          const params: Record<string, string> = { questionTypeId: '3' };
+          const params: Record<string, string> = { questionTypeId: 'checkBoxes' };
           return params[key] || null;
         },
         getAll: () => [],
-        has: (key: string) => key in { questionTypeId: '3' },
+        has: (key: string) => key in { questionTypeId: 'checkBoxes' },
         keys() { },
         values() { },
         entries() { },
@@ -1406,7 +1414,7 @@ describe('Options questions', () => {
           input: {
             questionId: 67,
             displayOrder: 17,
-            json: '{"type":"radioButtons","meta":{"schemaVersion":"1.0"},"options":[{"type":"option","attributes":{"label":"Yes","value":"Yes","selected":true}},{"type":"option","attributes":{"label":"No","value":"No","selected":false}},{"type":"option","attributes":{"label":"Maybe","value":"Maybe","selected":false}},{"type":"option","attributes":{"label":"Maybe","value":"Maybe","selected":false}}]}',
+            json: '{"type":"radioButtons","attributes":{},"meta":{"schemaVersion":"1.0"},"options":[{"label":"Yes","value":"Yes","selected":true},{"label":"No","value":"No","selected":false},{"label":"Maybe","value":"Maybe","selected":false},{"label":"Maybe","value":"Maybe","selected":false}]}',
             questionText: 'Testing',
             requirementText: 'This is requirement text',
             guidanceText: 'This is the guidance text',

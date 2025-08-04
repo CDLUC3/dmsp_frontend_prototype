@@ -22,14 +22,12 @@ import QuestionAdd from '@/components/QuestionAdd';
 import QuestionTypeCard from '@/components/QuestionTypeCard';
 import ErrorMessages from '@/components/ErrorMessages';
 
-//GraphQL
-import { useQuestionTypesQuery } from '@/generated/graphql';
-
 //Other
 import { scrollToTop } from '@/utils/general';
 import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
-import { QuestionTypesInterface } from '@/app/types';
+import { QuestionFormatInterface } from '@/app/types';
 import styles from './newQuestion.module.scss';
+import { getQuestionTypes } from "@/utils/questionTypeHandlers";
 
 
 const QuestionTypeSelectPage: React.FC = () => {
@@ -46,9 +44,9 @@ const QuestionTypeSelectPage: React.FC = () => {
 
   // State management
   const [step, setStep] = useState<number | null>(null);
+  const [questionTypes, setQuestionTypes] = useState<QuestionFormatInterface[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filteredQuestionTypes, setFilteredQuestionTypes] = useState<QuestionTypesInterface[] | null>([]);
-  const [questionTypes, setQuestionTypes] = useState<QuestionTypesInterface[]>([]);
+  const [filteredQuestionTypes, setFilteredQuestionTypes] = useState<QuestionFormatInterface[] | null>([]);
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
   const [selectedQuestionType, setSelectedQuestionType] = useState<{ questionType: string, questionName: string, questionJSON: string }>();
   const [errors, setErrors] = useState<string[]>([]);
@@ -58,10 +56,6 @@ const QuestionTypeSelectPage: React.FC = () => {
   //Localization keys
   const Global = useTranslations('Global');
   const QuestionTypeSelect = useTranslations('QuestionTypeSelectPage');
-
-  // Make graphql request for question types
-  const { data, loading, error: queryError } = useQuestionTypesQuery();
-
 
   // Handle the selection of a question type
   const handleSelect = (
@@ -98,14 +92,14 @@ const QuestionTypeSelectPage: React.FC = () => {
 
   // Filter through questionTypes and find the question type whose info includes the search term
   const filterQuestionTypes = (
-    questionTypes: QuestionTypesInterface[],
+    questionTypes: QuestionFormatInterface[],
     term: string
-  ): QuestionTypesInterface[] =>
+  ): QuestionFormatInterface[] =>
     questionTypes.filter(qt => {
       const lowerTerm = term.toLowerCase();
-      const nameMatch = qt.name?.toLowerCase().includes(lowerTerm);
+      const nameMatch = qt.title?.toLowerCase().includes(lowerTerm);
       const usageDescriptionMatch = qt.usageDescription?.toLowerCase().includes(lowerTerm);
-      const jsonMatch = qt.json?.toLowerCase().includes(lowerTerm);
+      const jsonMatch = qt.usageDescription?.toLowerCase().includes(lowerTerm);
 
       return nameMatch || jsonMatch || usageDescriptionMatch;
     });
@@ -124,20 +118,8 @@ const QuestionTypeSelectPage: React.FC = () => {
   }
 
   useEffect(() => {
-    if (data?.questionTypes) {
-      // filter out any null values
-      const filteredQuestionTypes = data.questionTypes.filter((qt): qt is QuestionTypesInterface => qt !== null);
-      if (data.questionTypes.length > 0) {
-        setQuestionTypes(filteredQuestionTypes);
-      }
-    }
-  }, [data]);
-
-  useEffect(() => {
-    if (queryError) {
-      setErrors(prev => [...prev, queryError.message]);
-    }
-  }, [queryError])
+    setQuestionTypes(getQuestionTypes());
+  }, []);
 
   useEffect(() => {
     // Need this to set list of templates back to original, full list after filtering
@@ -153,11 +135,6 @@ const QuestionTypeSelectPage: React.FC = () => {
       setStep(stepQueryValue);
     }
   }, [stepQueryValue])
-
-  // TODO: Implement shared loading
-  if (loading) {
-    return <div>{Global('messaging.loading')}...</div>;
-  }
 
   return (
     <>
@@ -212,7 +189,7 @@ const QuestionTypeSelectPage: React.FC = () => {
                     <>
                       {filteredQuestionTypes.map((questionType) => (
                         <QuestionTypeCard
-                          key={questionType.id}
+                          key={questionType.type}
                           questionType={questionType}
                           handleSelect={handleSelect}
                         />
@@ -231,7 +208,7 @@ const QuestionTypeSelectPage: React.FC = () => {
                         <>
                           {questionTypes.map((questionType) => (
                             <QuestionTypeCard
-                              key={questionType.id}
+                              key={questionType.type}
                               questionType={questionType}
                               handleSelect={handleSelect}
                             />

@@ -31,11 +31,9 @@ import {
 } from "@/components/Container";
 
 import {
-  SectionVersionsQuery,
-  useAnswerByVersionedQuestionIdLazyQuery,
-  useSectionVersionsQuery,
   usePlanQuery,
-  useQuestionQuery,
+  usePublishedQuestionQuery,
+  useAnswerByVersionedQuestionIdQuery,
 } from '@/generated/graphql';
 
 // Components
@@ -53,7 +51,7 @@ import { useToast } from '@/context/ToastContext';
 // Utils
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from '@dmptool/types';
 
 import {
   Question,
@@ -79,6 +77,7 @@ interface FormDataInterface {
   textAreaContent: string;
   selectedMultiSelectValues: Set<string>;
   selectedSelectValue: string | undefined;
+  dateValue: string | DateValue | CalendarDate | null;
   dateRange: { startDate: string | DateValue | CalendarDate | null; endDate: string | DateValue | CalendarDate | null };
   numberRange: { startNumber: number | null; endNumber: number | null };
 }
@@ -120,18 +119,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const router = useRouter();
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
-  const sectionId = params.sid as string;
-  const questionId = params.qid as string;
+  const versionedSectionId = params.sid as string;
+  const versionedQuestionId = params.qid as string;
   const toastState = useToast(); // Access the toast state from context
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  // Question, plan and versionedSection states
+  // VersionedQuestion, plan and versionedSection states
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
   const [questionType, setQuestionType] = useState<string>('');
-  const [versionedSectionId, setVersionedSectionId] = useState<number | null>();
-  const [versionedQuestionId, setVersionedQuestionId] = useState<number | null>();
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -142,6 +139,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const openSampleTextButtonRef = useRef<HTMLButtonElement | null>(null);
   const openCommentsButtonRef = useRef<HTMLButtonElement | null>(null);
 
+  const routeParams = { projectId, dmpId, versionedSectionId, versionedQuestionId };
 
   // Question field states
   const [formData, setFormData] = useState<FormDataInterface>({
@@ -159,6 +157,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     textAreaContent: '',
     selectedMultiSelectValues: new Set<string>(),
     selectedSelectValue: undefined,
+    dateValue: null,
     dateRange: { startDate: '', endDate: '' },
     numberRange: { startNumber: 0, endNumber: 0 },
   });
@@ -184,14 +183,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Run selected question query
   const {
     data: selectedQuestion,
-    loading,
-    error: selectedQuestionQueryError
-  } = useQuestionQuery(
+    loading: versionedQuestionLoading,
+    error: versionedQuestionError
+  } = usePublishedQuestionQuery(
     {
       variables: {
-        questionId: Number(questionId)
+        versionedQuestionId: Number(versionedQuestionId)
       }
-    },
+    }
   );
 
   // Get Plan using planId
@@ -202,16 +201,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
-  // Get sectionVersions from sectionId
-  const { data: sectionVersions, loading: versionedSectionLoading, error: versionedSectionError } = useSectionVersionsQuery(
-    {
-      variables: { sectionId: Number(sectionId) }
-    }
-  )
-
   // Get loadAnswer to call later, after we set the versionedQuestionId
-  const [loadAnswer, { data: answerData, loading: answerLoading, error: answerError }] =
-    useAnswerByVersionedQuestionIdLazyQuery();
+  const { data: answerData, loading: answerLoading, error: answerError } = useAnswerByVersionedQuestionIdQuery(
+    {
+      variables: {
+        projectId: Number(projectId),
+        planId: Number(dmpId),
+        versionedQuestionId: Number(versionedQuestionId)
+      }
+    }
+  );
 
 
   // Show Success Message
@@ -226,7 +225,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const newDrawerState = !isSampleTextDrawerOpen;
 
     setSampleTextDrawerOpen(newDrawerState);
-    setIsSideBarPanelOpen(!newDrawerState); // Opposite of drawer state 
+    setIsSideBarPanelOpen(!newDrawerState); // Opposite of drawer state
   }
 
   // Toggle the comments drawer open and closed
@@ -312,7 +311,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     if (htmlString) {
       const sanitizedHTML = DOMPurify.sanitize(htmlString);
       return (
-        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+          <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
       );
     }
     return null;
@@ -322,7 +321,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Handling changes to different question types
 
   const handleAffiliationChange = async (id: string, value: string) => {
-    const result = setFormData(prev => ({
+    setFormData(prev => ({
       ...prev,
       affiliationData: {
         affiliationName: value,
@@ -330,7 +329,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       }
     }));
     setHasUnsavedChanges(true);
-    return result;
   }
 
   const handleOtherAffiliationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -419,10 +417,21 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setHasUnsavedChanges(true);
   };
 
-  // Handler for date range changes
+  // Handler for date change
   const handleDateChange = (
-    key: string,
-    value: string | DateValue | CalendarDate | null
+      value: string | DateValue | CalendarDate | null
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      dateValue: value
+    }));
+    setHasUnsavedChanges(true);
+  };
+
+  // Handler for date range changes
+  const handleDateRangeChange = (
+      key: string,
+      value: string | DateValue | CalendarDate | null
   ) => {
     setFormData(prev => ({
       ...prev,
@@ -469,14 +478,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
   const handleBackToSection = () => {
-    router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
-  }
-
-  function hasAttributes(obj: AnyParsedQuestion | undefined): obj is AnyParsedQuestion & { attributes: { multiple?: boolean } } {
-    if (obj) {
-      return obj && typeof obj === 'object' && 'attributes' in obj;
-    }
-    return false;
+    router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
   }
 
   // Prefill the current question with existing answer
@@ -508,19 +510,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
         }));
         break;
       case 'selectBox':
-        if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
-          setFormData(prev => ({
-            ...prev,
-            selectedSelectValue: answer
-          }));
-        }
-        if (hasAttributes(parsed) && parsed.attributes.multiple === true) {
-          setFormData(prev => ({
-            ...prev,
-            selectedMultiSelectValues: answer
-          }));
-        }
-
+        setFormData(prev => ({
+          ...prev,
+          selectedSelectValue: answer
+        }));
+        break;
+      case 'multiselectBox':
+        setFormData(prev => ({
+        ...prev,
+        selectedMultiSelectValues: new Set(answer)
+        }));
         break;
       case 'boolean':
         setFormData(prev => ({
@@ -553,29 +552,34 @@ const PlanOverviewQuestionPage: React.FC = () => {
         }));
         break;
       case 'date':
+        setFormData(prev => ({
+          ...prev,
+          dateValue: answer
+        }));
+        break;
       case 'dateRange':
-        if (answer?.startDate || answer?.endDate) {
+        if (answer?.start || answer?.end) {
           setFormData(prev => ({
             ...prev,
             dateRange: {
-              startDate: answer?.startDate,
-              endDate: answer?.endDate
+              startDate: answer?.start,
+              endDate: answer?.end
             }
           }));
         }
         break;
       case 'numberRange':
-        if (answer?.startNumber || answer?.endNumber) {
+        if (answer?.start || answer?.end) {
           setFormData(prev => ({
             ...prev,
             numberRange: {
-              startNumber: answer?.startNumber,
-              endNumber: answer?.endNumber
+              startNumber: answer?.start,
+              endNumber: answer?.end
             }
           }));
         }
         break;
-      case 'typeaheadSearch':
+      case 'affiliationSearch':
         if (answer) {
           setFormData(prev => ({
             ...prev,
@@ -597,83 +601,123 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const getAnswerJson = (): Record<string, any> => {
     switch (questionType) {
       case 'textArea':
-        return { answer: formData.textAreaContent };
+        return {
+          type: 'textArea',
+          answer: formData.textAreaContent
+        };
 
       case 'text':
-        return { answer: formData.textValue };
+        return {
+          type: 'text',
+          answer: formData.textValue
+        };
 
       case 'radioButtons':
-        return { answer: formData.selectedRadioValue };
+        return {
+          type: 'radioButtons',
+          answer: formData.selectedRadioValue
+        };
 
       case 'checkBoxes':
-        return { answer: formData.selectedCheckboxValues };
+        return {
+          type: 'checkBoxes',
+          answer: formData.selectedCheckboxValues
+        };
 
       case 'selectBox':
-        if (questionType === 'selectBox' && (parsed && parsed.type === 'selectBox')) {
-          if (parsed?.attributes?.multiple === true) {
-            return { answer: Array.from(formData.selectedMultiSelectValues) }; // this is for multiSelect
-          }
-          return { answer: formData.selectedSelectValue };
-        }
+        return {
+          type: 'selectBox',
+          answer: formData.selectedSelectValue
+        };
+
+      case 'multiselectBox':
+        return {
+          type: 'multiselectBox',
+          answer: Array.from(formData.selectedMultiSelectValues)
+        };
 
       case 'boolean':
-        return { answer: formData.yesNoValue };
+        return {
+          type: 'boolean',
+          answer: formData.yesNoValue
+        };
 
       case 'email':
-        return { answer: formData.emailValue };
+        return {
+          type: 'email',
+          answer: formData.emailValue
+        };
 
       case 'url':
-        return { answer: formData.urlValue };
+        return {
+          type: 'url',
+          answer: formData.urlValue
+        };
 
       case 'number':
-        return { answer: formData.numberValue };
+        return {
+          type: 'number',
+          answer: formData.numberValue
+        };
 
       case 'currency':
-        return { answer: formData.inputCurrencyValue };
+        return {
+          type: 'currency',
+          answer: formData.inputCurrencyValue
+        };
+
+      case 'date':
+        return {
+          type: 'date',
+          answer: formData.dateValue?.toString()
+        };
 
       case 'dateRange':
-      case 'date': {
         return {
+          type: 'dateRange',
           answer: {
-            startDate: formData.dateRange.startDate?.toString() ?? null,
-            endDate: formData.dateRange.endDate?.toString() ?? null
+            start: formData.dateRange.startDate?.toString() ?? null,
+            end: formData.dateRange.endDate?.toString() ?? null
           }
         };
-      }
 
       case 'numberRange':
         return {
+          type: 'numberRange',
           answer: {
-            startNumber: formData.numberRange.startNumber,
-            endNumber: formData.numberRange.endNumber
+            start: formData.numberRange.startNumber,
+            end: formData.numberRange.endNumber
           }
         };
 
-      case 'typeaheadSearch':
+      case 'affiliationSearch':
         return {
+          type: 'affiliationSearch',
           answer: {
             affiliationId: formData.affiliationData.affiliationId,
             affiliationName: formData.otherField ? formData.otherAffiliationName : formData.affiliationData.affiliationName,
-            isOther: formData.otherField,
           }
         };
 
       default:
-        return { answer: formData.textAreaContent };
+        return {
+          type: questionType,
+          answer: formData.textAreaContent
+        };
     }
   };
 
   // GraphQL mutation returns errors
   const hasFieldLevelErrors = (mutationErrors: MutationErrorsInterface): boolean => {
     return Object.values(mutationErrors).some(
-      value => value !== null && value !== undefined
+        value => value !== null && value !== undefined
     );
   };
 
   // Extract the errors from the graphql mutation result
   const getExtractedErrorValues = (mutationErrors: MutationErrorsInterface): string[] => {
     return Object.values(mutationErrors).filter(
-      (value) => value !== null && value !== undefined
+        (value) => value !== null && value !== undefined
     );
   };
 
@@ -688,19 +732,19 @@ const PlanOverviewQuestionPage: React.FC = () => {
     // Check is answer already exists. If so, we want to call an update mutation rather than add
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
 
-    if (question) {
+    if (selectedQuestion) {
       try {
         const response = isUpdate
-          ? await updateAnswerAction({
-            answerId: Number(answerData?.answerByVersionedQuestionId?.id),
-            json: JSON.stringify(jsonPayload),
-          })
-          : await addAnswerAction({
-            planId: Number(dmpId),
-            versionedSectionId: Number(versionedSectionId),
-            versionedQuestionId: Number(versionedQuestionId),
-            json: JSON.stringify(jsonPayload),
-          });
+            ? await updateAnswerAction({
+              answerId: Number(answerData?.answerByVersionedQuestionId?.id),
+              json: JSON.stringify(jsonPayload),
+            })
+            : await addAnswerAction({
+              planId: Number(dmpId),
+              versionedSectionId: Number(versionedSectionId),
+              versionedQuestionId: Number(versionedQuestionId),
+              json: JSON.stringify(jsonPayload),
+            });
 
         if (response.redirect) {
           router.push(response.redirect);
@@ -715,7 +759,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         logECS('error', 'addAnswer', {
           error,
           url: {
-            path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId })
+            path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
           }
         });
       } finally {
@@ -764,30 +808,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setIsSubmitting(false);
         // Show user a success message and redirect back to the Section page
         showSuccessToast();
-        router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
+        router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
 
       }
     }
   };
-
-  // Get the versionedQuestionId for the given question. We will need this to get any existings answers for this question
-  const findVersionedQuestionId = (sectionVersions: SectionVersionsQuery, questionId: number) => {
-    if (!sectionVersions?.sectionVersions) return null;
-
-    for (const sectionVersion of sectionVersions.sectionVersions) {
-      if (!sectionVersion?.versionedQuestions) continue;
-
-      const foundQuestion = sectionVersion.versionedQuestions.find(
-        (question) => question?.questionId === questionId
-      );
-
-      if (foundQuestion?.id) {
-        return foundQuestion.id;
-      }
-    }
-    return null;
-  };
-
 
   // Helper function to format the last saved messaging
   const getLastSavedText = () => {
@@ -813,20 +838,20 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Get parsed JSON from question, and set parsed, question and questionType in state
   useEffect(() => {
-    if (selectedQuestion?.question) {
-      const q = selectedQuestion.question;
+    if (selectedQuestion) {
+      const q = selectedQuestion.publishedQuestion;
       const cleanedQuestion = {
         ...q,
-        required: q.required ?? undefined // convert null to undefined
+        required: q?.required ?? undefined // convert null to undefined
       };
 
       try {
-        const { parsed, error } = getParsedQuestionJSON(cleanedQuestion, routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }), Global);
+        const { parsed, error } = getParsedQuestionJSON(cleanedQuestion, routePath('projects.dmp.versionedQuestion.detail', routeParams), Global);
         if (!parsed?.type) {
           if (error) {
             logECS('error', 'Parsing error', {
               error: 'Invalid question type in parsed JSON',
-              url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }) }
+              url: { path: routePath('projects.dmp.versionedQuestion.detail', routeParams) }
             });
 
             setErrors([error])
@@ -843,7 +868,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
-          url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }) }
+          url: { path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId }) }
         });
         setErrors(['Error parsing question data']);
       }
@@ -855,8 +880,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     if (planData?.plan) {
       // Validate section belongs to plan - 404 if not
-      const planSections = planData?.plan?.sections || [];
-      const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
+      const planSections = planData?.plan?.versionedSections || [];
+      const sectionBelongsToPlan = planSections && planSections.some(section => section.versionedSectionId === Number(versionedSectionId));
 
       // Make sure to redirect to 404 if section does not belong to plan
       if (!sectionBelongsToPlan) {
@@ -872,29 +897,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     };
   }, [planData]);
 
-  // Get versionedQuestionId and save in state
-  useEffect(() => {
-    if (sectionVersions && sectionVersions?.sectionVersions) {
-      setVersionedSectionId(sectionVersions?.sectionVersions?.[0]?.id);
-      if (sectionVersions) {
-        const versionedQuestionId = findVersionedQuestionId(sectionVersions, Number(questionId));
-        setVersionedQuestionId(versionedQuestionId ?? null);
-      }
-    }
-  }, [sectionVersions])
-
-  // Run the query when versionedQuestionId becomes available to lazy load the answer for the question
-  useEffect(() => {
-    if (versionedQuestionId) {
-      loadAnswer({
-        variables: {
-          projectId: Number(projectId),
-          planId: Number(dmpId),
-          versionedQuestionId: Number(versionedQuestionId),
-        }
-      });
-    }
-  }, [versionedQuestionId, loadAnswer, projectId, dmpId]);
 
   //Wait for answerData and questionType, then prefill the question with existing answer
   useEffect(() => {
@@ -916,6 +918,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     // Set a timeout to auto-save after 3 seconds of inactivity
     autoSaveTimeoutRef.current = setTimeout(async () => {
       const { success } = await addAnswer(true);
+
       if (success) {
         setLastSavedAt(new Date());
         setHasUnsavedChanges(false);
@@ -997,12 +1000,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleMultiSelectChange,
     },
     dateProps: {
-      dateRange: formData.dateRange,
+      dateValue: formData.dateValue,
       handleDateChange,
     },
     dateRangeProps: {
       dateRange: formData.dateRange,
-      handleDateChange,
+      handleDateRangeChange,
     },
     numberProps: {
       numberValue: formData.numberValue,
@@ -1038,306 +1041,306 @@ const PlanOverviewQuestionPage: React.FC = () => {
     },
   });
 
-  if (loading || planQueryLoading || versionedSectionLoading || answerLoading) {
+  if (versionedQuestionLoading || planQueryLoading || answerLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
-  if (selectedQuestionQueryError || planQueryError || versionedSectionError || answerError) {
+  if (versionedQuestionError || planQueryError || answerError) {
     return <div>{Global('messaging.somethingWentWrong')}</div>
   }
 
   return (
-    <>
-      <PageHeader
-        title={plan?.title ?? ''}
-        description=""
-        showBackButton={true}
-        breadcrumbs={
-          <Breadcrumbs aria-label={PlanOverview('navigation.navigation')}>
-            <Breadcrumb><Link
-              href="/en-US">{PlanOverview('navigation.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href="/en-US/projects">{PlanOverview('navigation.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/en-US/projects/${projectId}/`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb><Link
-              href={`/en-US/projects/${projectId}/dmp/${dmpId}/`}>{plan?.title}</Link></Breadcrumb>
-            <Breadcrumb>{Global('breadcrumbs.questionDetails')}</Breadcrumb>
-          </Breadcrumbs>
-        }
-        actions={null}
-        className="page-project-list"
-      />
+      <>
+        <PageHeader
+            title={plan?.title ?? ''}
+            description=""
+            showBackButton={true}
+            breadcrumbs={
+              <Breadcrumbs aria-label={PlanOverview('navigation.navigation')}>
+                <Breadcrumb><Link
+                    href="/en-US">{PlanOverview('navigation.home')}</Link></Breadcrumb>
+                <Breadcrumb><Link
+                    href="/en-US/projects">{PlanOverview('navigation.projects')}</Link></Breadcrumb>
+                <Breadcrumb><Link href={`/en-US/projects/${projectId}/`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+                <Breadcrumb><Link
+                    href={`/en-US/projects/${projectId}/dmp/${dmpId}/`}>{plan?.title}</Link></Breadcrumb>
+                <Breadcrumb>{Global('breadcrumbs.questionDetails')}</Breadcrumb>
+              </Breadcrumbs>
+            }
+            actions={null}
+            className="page-project-list"
+        />
 
-      <ErrorMessages errors={errors} ref={errorRef} />
+        <ErrorMessages errors={errors} ref={errorRef} />
 
-      <LayoutWithPanel
-        onClick={e => closeDrawers(e)}
-        className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}
-      >
-        <ContentContainer>
-          <div className="container">
-            {/**Requirements by funder */}
-            {question?.requirementText && (
-              <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
-                <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
-                {convertToHTML(question?.requirementText)}
+        <LayoutWithPanel
+            onClick={e => closeDrawers(e)}
+            className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}
+        >
+          <ContentContainer>
+            <div className="container">
+              {/**Requirements by funder */}
+              {question?.requirementText && (
+                  <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
+                    <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
+                    {convertToHTML(question?.requirementText)}
+                  </section>
+              )}
+
+              {/**Requirements by organization */}
+              <section aria-label={"Requirements"}>
+                <h3 className={"h4"}>Requirements by University of California</h3>
+                <p>
+                  The university requires data and metadata to be cleared by the ethics
+                  committee before being submitted to funder.
+                </p>
               </section>
-            )}
 
-            {/**Requirements by organization */}
-            <section aria-label={"Requirements"}>
-              <h3 className={"h4"}>Requirements by University of California</h3>
-              <p>
-                The university requires data and metadata to be cleared by the ethics
-                committee before being submitted to funder.
+              <p className={styles.guidanceLinkWrapper}>
+                <DmpIcon icon="down_arrow" />
+                <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
               </p>
-            </section>
-
-            <p className={styles.guidanceLinkWrapper}>
-              <DmpIcon icon="down_arrow" />
-              <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
-            </p>
-            <Form onSubmit={handleSubmit}>
-              <Card data-testid='question-card'>
-                <span>Question</span>
-                <h2 id="question-title" className="h3">
-                  {question?.questionText}
-                </h2>
-                {question?.required && (
-                  <div className={styles.requiredWrapper}>
-                    <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
-                    <DialogTrigger>
-                      <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
-                      <Popover>
-                        <OverlayArrow>
-                          <svg width={12} height={12} viewBox="0 0 12 12">
-                            <path d="M0 0 L6 6 L12 0" />
-                          </svg>
-                        </OverlayArrow>
-                        <Dialog>
-                          <div className="flex-col">
-                            {PlanOverview('page.requiredByFunderInfo')}
+              <Form onSubmit={handleSubmit}>
+                <Card data-testid='question-card'>
+                  <span>Question</span>
+                  <h2 id="question-title" className="h3">
+                    {question?.questionText}
+                  </h2>
+                  {question?.required && (
+                      <div className={styles.requiredWrapper}>
+                        <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
+                        <DialogTrigger>
+                          <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
+                          <Popover>
+                            <OverlayArrow>
+                              <svg width={12} height={12} viewBox="0 0 12 12">
+                                <path d="M0 0 L6 6 L12 0" />
+                              </svg>
+                            </OverlayArrow>
+                            <Dialog>
+                              <div className="flex-col">
+                                {PlanOverview('page.requiredByFunderInfo')}
+                              </div>
+                            </Dialog>
+                          </Popover>
+                        </DialogTrigger>
+                      </div>
+                  )}
+                  <div>
+                    <div className={styles.buttonsRow}>
+                      {/**Only include sample text button for textArea question types */}
+                      {questionType === 'textArea' && (
+                          <div className="">
+                            <Button
+                                ref={openSampleTextButtonRef}
+                                className={`${styles.buttonSmall} tertiary`}
+                                data-secondary
+                                onPress={toggleSampleTextDrawer}
+                            >
+                              {PlanOverview('page.viewSampleAnswer')}
+                            </Button>
                           </div>
-                        </Dialog>
-                      </Popover>
-                    </DialogTrigger>
-                  </div>
-                )}
-                <div>
-                  <div className={styles.buttonsRow}>
-                    {/**Only include sample text button for textArea question types */}
-                    {questionType === 'textArea' && (
+                      )}
+
                       <div className="">
                         <Button
-                          ref={openSampleTextButtonRef}
-                          className={`${styles.buttonSmall} tertiary`}
-                          data-secondary
-                          onPress={toggleSampleTextDrawer}
+                            ref={openCommentsButtonRef}
+                            className={`${styles.buttonSmall} ${styles.buttonWithComments}`}
+                            onPress={toggleCommentsDrawer}
                         >
-                          {PlanOverview('page.viewSampleAnswer')}
+                          4 Comments
                         </Button>
                       </div>
-                    )}
-
-                    <div className="">
-                      <Button
-                        ref={openCommentsButtonRef}
-                        className={`${styles.buttonSmall} ${styles.buttonWithComments}`}
-                        onPress={toggleCommentsDrawer}
-                      >
-                        4 Comments
-                      </Button>
                     </div>
+                    {parsed && questionField}
+
                   </div>
-                  {parsed && questionField}
+                  <div className="lastSaved mt-5"
+                       aria-live="polite"
+                       role="status">
+                    {getLastSavedText()}
+                  </div>
+                </Card>
+
+                <section aria-label={"Guidance"} id="guidance">
+                  <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { funder: plan?.funder ?? '' })}</h3>
+
+                  {convertToHTML(question?.guidanceText)}
+
+
+                  <h3 className={"h4"}>Guidance by University of California</h3>
+                  <p>
+                    This is the most detailed section of the data management plan.
+                    Describe the categories of data being collected and how they tie
+                    into the data associated with the methods used to collect that
+                    data.
+                  </p>
+                  <p>
+                    Expect this section to be the most detailed section, taking up a
+                    large portion of your data management plan document.
+                  </p>
+                </section>
+                <div className={styles.modalAction}>
+                  <div>
+                    <Button
+                        type="submit"
+                        data-secondary
+                        className="primary"
+                        aria-label={PlanOverview('labels.saveAnswer')}
+                        aria-disabled={isSubmitting}
+                    >
+                      {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
+                    </Button>
+                  </div>
+                  <div>
+                    <Button
+                        className="secondary"
+                        aria-label={PlanOverview('labels.returnToSection')}
+                        onPress={() => handleBackToSection()}
+                    >
+                      {PlanOverview('buttons.backToSection')}
+                    </Button>
+                  </div>
 
                 </div>
-                <div className="lastSaved mt-5"
-                  aria-live="polite"
-                  role="status">
-                  {getLastSavedText()}
-                </div>
-              </Card>
+              </Form>
+            </div>
+          </ContentContainer >
 
-              <section aria-label={"Guidance"} id="guidance">
-                <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { funder: plan?.funder ?? '' })}</h3>
+          <SidebarPanel isOpen={isSideBarPanelOpen}>
 
-                {convertToHTML(question?.guidanceText)}
-
-
-                <h3 className={"h4"}>Guidance by University of California</h3>
-                <p>
-                  This is the most detailed section of the data management plan.
-                  Describe the categories of data being collected and how they tie
-                  into the data associated with the methods used to collect that
-                  data.
-                </p>
-                <p>
-                  Expect this section to be the most detailed section, taking up a
-                  large portion of your data management plan document.
-                </p>
-              </section>
-              <div className={styles.modalAction}>
-                <div>
-                  <Button
-                    type="submit"
-                    data-secondary
-                    className="primary"
-                    aria-label={PlanOverview('labels.saveAnswer')}
-                    aria-disabled={isSubmitting}
-                  >
-                    {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
-                  </Button>
-                </div>
-                <div>
-                  <Button
-                    className="secondary"
-                    aria-label={PlanOverview('labels.returnToSection')}
-                    onPress={() => handleBackToSection()}
-                  >
-                    {PlanOverview('buttons.backToSection')}
-                  </Button>
-                </div>
-
-              </div>
-            </Form>
-          </div>
-        </ContentContainer >
-
-        <SidebarPanel isOpen={isSideBarPanelOpen}>
-
-          <div className={styles.headerWithLogo}>
-            <h2 className="h4">{Global('bestPractice')}</h2>
-            <Image
-              className={styles.Logo}
-              src="/images/DMP-logo.svg"
-              width="140"
-              height="16"
-              alt="DMP Tool"
-            />
-          </div>
+            <div className={styles.headerWithLogo}>
+              <h2 className="h4">{Global('bestPractice')}</h2>
+              <Image
+                  className={styles.Logo}
+                  src="/images/DMP-logo.svg"
+                  width="140"
+                  height="16"
+                  alt="DMP Tool"
+              />
+            </div>
 
 
-          <ExpandableContentSection
-            id="data-description"
-            heading={Global('dataDescription')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
-            </p>
-            <p>
-              Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
-            </p>
-            <p>
-              Indicate which data are of long-term value and should be shared and/or preserved.
-
-            </p>
-            <p>
-              If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
-
-            </p>
-
-          </ExpandableContentSection>
-
-          <ExpandableContentSection
-            id="data-format"
-            heading={Global('dataFormat')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-
-          >
-            <p>
-              Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-            </p>
-
-          </ExpandableContentSection>
-
-          <ExpandableContentSection
-            id="data-volume"
-            heading={Global('dataVolume')}
-            expandLabel={Global('links.expand')}
-            summaryCharLimit={200}
-          >
-            <p>
-              Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
-            </p>
-            <p>
-              Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
-            </p>
-            <p>
-              Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
-            </p>
-          </ExpandableContentSection>
-        </SidebarPanel>
-
-        {/** Sample text drawer. Only include for question types = Text Area */}
-        {
-          questionType === 'textArea' && (
-            <DrawerPanel
-              isOpen={isSampleTextDrawerOpen}
-              onClose={closeCurrentDrawer}
-              returnFocusRef={openSampleTextButtonRef}
-              className={styles.drawerPanelWrapper}
+            <ExpandableContentSection
+                id="data-description"
+                heading={Global('dataDescription')}
+                expandLabel={Global('links.expand')}
+                summaryCharLimit={200}
             >
-              <h3>{question?.questionText}</h3>
-              <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
-              <div className={styles.sampleText}>
-                {convertToHTML(question?.sampleText)}
-              </div>
-              <div className="">
-                <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
-              </div>
-            </DrawerPanel>
-          )
-        }
+              <p>
+                Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
+              </p>
+              <p>
+                Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
+              </p>
+              <p>
+                Indicate which data are of long-term value and should be shared and/or preserved.
+
+              </p>
+              <p>
+                If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
+
+              </p>
+
+            </ExpandableContentSection>
+
+            <ExpandableContentSection
+                id="data-format"
+                heading={Global('dataFormat')}
+                expandLabel={Global('links.expand')}
+                summaryCharLimit={200}
+
+            >
+              <p>
+                Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+              </p>
+
+            </ExpandableContentSection>
+
+            <ExpandableContentSection
+                id="data-volume"
+                heading={Global('dataVolume')}
+                expandLabel={Global('links.expand')}
+                summaryCharLimit={200}
+            >
+              <p>
+                Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
+              </p>
+              <p>
+                Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
+              </p>
+              <p>
+                Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
+              </p>
+            </ExpandableContentSection>
+          </SidebarPanel>
+
+          {/** Sample text drawer. Only include for question types = Text Area */}
+          {
+              questionType === 'textArea' && (
+                  <DrawerPanel
+                      isOpen={isSampleTextDrawerOpen}
+                      onClose={closeCurrentDrawer}
+                      returnFocusRef={openSampleTextButtonRef}
+                      className={styles.drawerPanelWrapper}
+                  >
+                    <h3>{question?.questionText}</h3>
+                    <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
+                    <div className={styles.sampleText}>
+                      {convertToHTML(question?.sampleText)}
+                    </div>
+                    <div className="">
+                      <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
+                    </div>
+                  </DrawerPanel>
+              )
+          }
 
 
-        {/**Comments drawer */}
-        <DrawerPanel
-          isOpen={isCommentsDrawerOpen}
-          onClose={closeCurrentDrawer}
-          returnFocusRef={openCommentsButtonRef}
-          className={styles.drawerPanelWrapper}
-        >
-          <h2>{PlanOverview('headings.comments')}</h2>
-          <div className={styles.comment}>
-            <h4>John Smith</h4>
-            <p className={styles.deEmphasize}>2 days ago</p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-              laboris nisi ut aliquip ex ea commodo consequat.
-            </p>
-          </div>
+          {/**Comments drawer */}
+          <DrawerPanel
+              isOpen={isCommentsDrawerOpen}
+              onClose={closeCurrentDrawer}
+              returnFocusRef={openCommentsButtonRef}
+              className={styles.drawerPanelWrapper}
+          >
+            <h2>{PlanOverview('headings.comments')}</h2>
+            <div className={styles.comment}>
+              <h4>John Smith</h4>
+              <p className={styles.deEmphasize}>2 days ago</p>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                laboris nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
 
-          <div className={styles.comment}>
-            <h4>John Smith</h4>
-            <p className={styles.deEmphasize}>2 days ago</p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-              laboris nisi ut aliquip ex ea commodo consequat.
-            </p>
-          </div>
+            <div className={styles.comment}>
+              <h4>John Smith</h4>
+              <p className={styles.deEmphasize}>2 days ago</p>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+                ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                laboris nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
 
-          <div className={styles.leaveComment}>
-            <h2>{PlanOverview('headings.leaveAComment')}</h2>
-            <Form onSubmit={(e) => handleAddComment(e)}>
-              <TextField>
-                <Label>Frederick Cook (you)</Label>
-                <TextArea />
-              </TextField>
-              <div>
-                <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
-                <p>{PlanOverview('page.participantsWillBeNotified')}</p>
-              </div>
-            </Form>
-          </div>
-        </DrawerPanel>
-      </LayoutWithPanel >
-    </>
+            <div className={styles.leaveComment}>
+              <h2>{PlanOverview('headings.leaveAComment')}</h2>
+              <Form onSubmit={(e) => handleAddComment(e)}>
+                <TextField>
+                  <Label>Frederick Cook (you)</Label>
+                  <TextArea />
+                </TextField>
+                <div>
+                  <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
+                  <p>{PlanOverview('page.participantsWillBeNotified')}</p>
+                </div>
+              </Form>
+            </div>
+          </DrawerPanel>
+        </LayoutWithPanel >
+      </>
   );
 }
 

@@ -267,7 +267,7 @@ const ProjectOverviewPage: React.FC = () => {
               const planId = plan?.id?.toString() || '';
               const modifiedDate = formatDate(plan?.modified ?? '');
               const createdDate = formatDate(plan?.created ?? '');
-              const sortedSections = sortSections(plan.sections ?? []);
+              const sortedSections = sortSections(plan.versionedSections ?? []);
               return (
                 <Card className="plan-item" key={plan.id}>
                   <p className="mb-1">{ProjectOverview('funding')}: {plan.funding}</p>
@@ -276,13 +276,13 @@ const ProjectOverviewPage: React.FC = () => {
                     <ul className="plan-sections-list"
                       aria-label={ProjectOverview('planSections')}>
                       {sortedSections.map((section) => (
-                        <li key={section.sectionId} className="plan-sections-list-item">
-                          <Link href={routePath('projects.dmp.section', {
+                        <li key={section.versionedSectionId} className="plan-sections-list-item">
+                          <Link href={routePath('projects.dmp.versionedSection', {
                             projectId: String(projectId),
                             dmpId: planId,
-                            sectionId: section.sectionId
+                            versionedSectionId: section.versionedSectionId
                           })}>
-                            {section.sectionTitle}
+                            {section.title}
                           </Link>
                           <span className="plan-sections-list-item-progress">
                             {ProjectOverview('progress', {
