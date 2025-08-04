@@ -2248,8 +2248,6 @@ export type Query = {
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
   questionConditions?: Maybe<Array<Maybe<QuestionCondition>>>;
-  /** Get all the QuestionTypes */
-  questionTypes?: Maybe<Array<Maybe<QuestionType>>>;
   /** Get the Questions that belong to the associated sectionId */
   questions?: Maybe<Array<Maybe<Question>>>;
   /** Return the recommended Licenses */
@@ -2283,6 +2281,8 @@ export type Query = {
   user?: Maybe<User>;
   /** Returns all of the users associated with the current admin's affiliation (Super admins get everything) */
   users?: Maybe<UserSearchResults>;
+  /** Get a specific VersionedQuestion based on its id */
+  versionedQuestion?: Maybe<VersionedQuestion>;
 };
 
 
@@ -2561,6 +2561,11 @@ export type QueryUsersArgs = {
   term?: InputMaybe<Scalars['String']['input']>;
 };
 
+
+export type QueryVersionedQuestionArgs = {
+  versionedQuestionId: Scalars['Int']['input'];
+};
+
 /** Question always belongs to a Section, which always belongs to a Template */
 export type Question = {
   __typename?: 'Question';
@@ -2683,41 +2688,6 @@ export type QuestionErrors = {
   sectionId?: Maybe<Scalars['String']['output']>;
   sourceQestionId?: Maybe<Scalars['String']['output']>;
   templateId?: Maybe<Scalars['String']['output']>;
-};
-
-/** The type of Question, such as text field, radio buttons, etc */
-export type QuestionType = {
-  __typename?: 'QuestionType';
-  /** The timestamp when the Object was created */
-  created?: Maybe<Scalars['String']['output']>;
-  /** The user who created the Object */
-  createdById?: Maybe<Scalars['Int']['output']>;
-  /** Errors associated with the Object */
-  errors?: Maybe<QuestionTypeErrors>;
-  /** The unique identifer for the Object */
-  id?: Maybe<Scalars['Int']['output']>;
-  /** Whether or not this is the default question type */
-  isDefault: Scalars['Boolean']['output'];
-  /** The default JSON for the QuestionType */
-  json: Scalars['String']['output'];
-  /** The timestamp when the Object was last modifed */
-  modified?: Maybe<Scalars['String']['output']>;
-  /** The user who last modified the Object */
-  modifiedById?: Maybe<Scalars['Int']['output']>;
-  /** The name of the QuestionType, like 'Short text question' */
-  name: Scalars['String']['output'];
-  /** The description of the QuestionType */
-  usageDescription: Scalars['String']['output'];
-};
-
-/** A collection of errors related to the QuestionType */
-export type QuestionTypeErrors = {
-  __typename?: 'QuestionTypeErrors';
-  /** General error messages such as the object already exists */
-  general?: Maybe<Scalars['String']['output']>;
-  json?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  usageDescription?: Maybe<Scalars['String']['output']>;
 };
 
 /** The results of reordering the questions */
@@ -3505,6 +3475,8 @@ export type VersionedQuestion = {
   requirementText?: Maybe<Scalars['String']['output']>;
   /** Sample text to possibly provide a starting point or example to answer question */
   sampleText?: Maybe<Scalars['String']['output']>;
+  /** Whether or not the sample text should be used as the default answer for this question */
+  useSampleTextAsDefault?: Maybe<Scalars['Boolean']['output']>;
   /** The conditional logic associated with this VersionedQuestion */
   versionedQuestionConditions?: Maybe<Array<VersionedQuestionCondition>>;
   /** The unique id of the VersionedSection that the VersionedQuestion belongs to */
@@ -3867,7 +3839,7 @@ export type UpdatePlanFundingMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePlanFundingMutation = { __typename?: 'Mutation', updatePlanFunding?: Array<{ __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null> | null };
+export type UpdatePlanFundingMutation = { __typename?: 'Mutation', updatePlanFunding?: Array<{ __typename?: 'PlanFunding', errors?: { __typename?: 'PlanFundingErrors', ProjectFundingId?: string | null, general?: string | null, planId?: string | null } | null, projectFunding?: { __typename?: 'ProjectFunding', id?: number | null } | null } | null> | null };
 
 export type AddProjectCollaboratorMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4159,11 +4131,6 @@ export type ProjectQueryVariables = Exact<{
 
 export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, fundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, members?: Array<{ __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, outputs?: Array<{ __typename?: 'ProjectOutput', title: string }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null, parentResearchDomainId?: number | null } | null, plans?: Array<{ __typename?: 'PlanSearchResult', templateTitle?: string | null, id?: number | null, funding?: string | null, dmpId?: string | null, modified?: string | null, created?: string | null, sections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, sectionId: number, sectionTitle: string, totalQuestions: number }> | null }> | null } | null };
 
-export type QuestionTypesQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type QuestionTypesQuery = { __typename?: 'Query', questionTypes?: Array<{ __typename?: 'QuestionType', id?: number | null, name: string, usageDescription: string, json: string, errors?: { __typename?: 'QuestionTypeErrors', general?: string | null, name?: string | null, usageDescription?: string | null } | null } | null> | null };
-
 export type QuestionsDisplayOrderQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
 }>;
@@ -4249,6 +4216,7 @@ export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates
 
 export type TemplatesQueryVariables = Exact<{
   term?: InputMaybe<Scalars['String']['input']>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
 }>;
 
 
@@ -4703,6 +4671,7 @@ export const UpdatePlanFundingDocument = gql`
     errors {
       ProjectFundingId
       general
+      planId
     }
     projectFunding {
       id
@@ -6687,53 +6656,6 @@ export type ProjectQueryHookResult = ReturnType<typeof useProjectQuery>;
 export type ProjectLazyQueryHookResult = ReturnType<typeof useProjectLazyQuery>;
 export type ProjectSuspenseQueryHookResult = ReturnType<typeof useProjectSuspenseQuery>;
 export type ProjectQueryResult = Apollo.QueryResult<ProjectQuery, ProjectQueryVariables>;
-export const QuestionTypesDocument = gql`
-    query QuestionTypes {
-  questionTypes {
-    id
-    errors {
-      general
-      name
-      usageDescription
-    }
-    name
-    usageDescription
-    json
-  }
-}
-    `;
-
-/**
- * __useQuestionTypesQuery__
- *
- * To run a query within a React component, call `useQuestionTypesQuery` and pass it any options that fit your needs.
- * When your component renders, `useQuestionTypesQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useQuestionTypesQuery({
- *   variables: {
- *   },
- * });
- */
-export function useQuestionTypesQuery(baseOptions?: Apollo.QueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
-      }
-export function useQuestionTypesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
-        }
-export function useQuestionTypesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuestionTypesQuery, QuestionTypesQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<QuestionTypesQuery, QuestionTypesQueryVariables>(QuestionTypesDocument, options);
-        }
-export type QuestionTypesQueryHookResult = ReturnType<typeof useQuestionTypesQuery>;
-export type QuestionTypesLazyQueryHookResult = ReturnType<typeof useQuestionTypesLazyQuery>;
-export type QuestionTypesSuspenseQueryHookResult = ReturnType<typeof useQuestionTypesSuspenseQuery>;
-export type QuestionTypesQueryResult = Apollo.QueryResult<QuestionTypesQuery, QuestionTypesQueryVariables>;
 export const QuestionsDisplayOrderDocument = gql`
     query QuestionsDisplayOrder($sectionId: Int!) {
   questions(sectionId: $sectionId) {
@@ -7390,8 +7312,8 @@ export type PublishedTemplatesLazyQueryHookResult = ReturnType<typeof usePublish
 export type PublishedTemplatesSuspenseQueryHookResult = ReturnType<typeof usePublishedTemplatesSuspenseQuery>;
 export type PublishedTemplatesQueryResult = Apollo.QueryResult<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>;
 export const TemplatesDocument = gql`
-    query Templates($term: String) {
-  myTemplates(term: $term) {
+    query Templates($term: String, $paginationOptions: PaginationOptions) {
+  myTemplates(term: $term, paginationOptions: $paginationOptions) {
     totalCount
     nextCursor
     items {
@@ -7425,6 +7347,7 @@ export const TemplatesDocument = gql`
  * const { data, loading, error } = useTemplatesQuery({
  *   variables: {
  *      term: // value for 'term'
+ *      paginationOptions: // value for 'paginationOptions'
  *   },
  * });
  */

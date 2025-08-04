@@ -15,7 +15,7 @@ import {
   URL_QUESTION_TYPE,
   EMAIL_QUESTION_TYPE,
   BOOLEAN_QUESTION_TYPE,
-  TYPEAHEAD_QUESTION_TYPE,
+  TYPEAHEAD_QUESTION_TYPE, MULTISELECTBOX_QUESTION_TYPE,
 } from '@/lib/constants';
 
 import {
@@ -46,7 +46,7 @@ import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 import { getCalendarDateValue } from "@/utils/dateUtils";
 
-import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from '@dmptool/types';
 
 export type QuestionType = keyof QuestionTypeMap;
 
@@ -85,8 +85,8 @@ export interface RenderQuestionFieldProps {
   };
 
   dateProps?: {
-    dateRange: { startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null };
-    handleDateChange: (key: string, val: DateValue | null) => void;
+    dateValue: string | DateValue | CalendarDate | null;
+    handleDateChange: (val: string | DateValue | CalendarDate | null) => void;
   };
 
   dateRangeProps?: {
@@ -94,7 +94,7 @@ export interface RenderQuestionFieldProps {
       startDate: string | DateValue | CalendarDate | null,
       endDate: string | DateValue | CalendarDate | null
     };
-    handleDateChange: (key: string,
+    handleDateRangeChange: (key: string,
       value: string | DateValue | CalendarDate | null) => void;
   };
 
@@ -195,24 +195,27 @@ export function useRenderQuestionField({
 
     case SELECTBOX_QUESTION_TYPE:
       if (parsed.type === 'selectBox' && 'options' in parsed) {
-        const isMultiSelect = parsed.attributes?.multiple || false;
-        if (isMultiSelect && multiSelectBoxProps?.handleMultiSelectChange) {
+        if (selectBoxProps?.setSelectedSelectValue) {
           return (
-            <MultiSelectQuestionComponent
-              parsedQuestion={parsed}
-              selectedMultiSelectValues={multiSelectBoxProps.selectedMultiSelectValues}
-              handleMultiSelectChange={multiSelectBoxProps.handleMultiSelectChange}
-            />
+              <SelectboxQuestionComponent
+                  parsedQuestion={parsed}
+                  selectedSelectValue={selectBoxProps.selectedSelectValue}
+                  handleSelectChange={selectBoxProps.handleSelectChange}
+              />
           );
         }
+      }
+      break;
 
-        if (!isMultiSelect && selectBoxProps?.setSelectedSelectValue) {
+    case MULTISELECTBOX_QUESTION_TYPE:
+      if (parsed.type === 'multiselectBox' && 'options' in parsed) {
+        if (multiSelectBoxProps?.handleMultiSelectChange) {
           return (
-            <SelectboxQuestionComponent
-              parsedQuestion={parsed}
-              selectedSelectValue={selectBoxProps.selectedSelectValue}
-              handleSelectChange={selectBoxProps.handleSelectChange}
-            />
+              <MultiSelectQuestionComponent
+                  parsedQuestion={parsed}
+                  selectedMultiSelectValues={multiSelectBoxProps.selectedMultiSelectValues}
+                  handleMultiSelectChange={multiSelectBoxProps.handleMultiSelectChange}
+              />
           );
         }
       }
@@ -256,8 +259,8 @@ export function useRenderQuestionField({
         return (
           <DateComponent
             name="startDate"
-            value={getCalendarDateValue(dateProps?.dateRange.startDate)}
-            onChange={(newDate) => dateProps?.handleDateChange('startDate', newDate)
+            value={getCalendarDateValue(dateProps?.dateValue)}
+            onChange={(newDate) => dateProps?.handleDateChange(newDate)
             }
             label="Date"
             minValue={minValue}
@@ -273,7 +276,7 @@ export function useRenderQuestionField({
           <DateRangeQuestionComponent
             parsedQuestion={parsed}
             dateRange={dateRangeProps?.dateRange}
-            handleDateChange={dateRangeProps?.handleDateChange}
+            handleDateChange={dateRangeProps?.handleDateRangeChange}
           />
         );
       }
@@ -376,7 +379,7 @@ export function useRenderQuestionField({
       break;
 
     case TYPEAHEAD_QUESTION_TYPE:
-      if (parsed.type === 'typeaheadSearch' && typeaheadSearchProps) {
+      if (parsed.type === 'affiliationSearch' && typeaheadSearchProps) {
         return (
           <AffiliationSearchQuestionComponent
             parsedQuestion={parsed}

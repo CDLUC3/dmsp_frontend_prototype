@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SelectBoxQuestionType } from '@dmptool/types';
+import type { MultiselectBoxQuestionType } from '@dmptool/types';
 import { act, render, screen } from '@/utils/test-utils';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { MultiSelectQuestionComponent } from '@/components/Form/QuestionComponents';
@@ -7,36 +7,27 @@ import { MultiSelectQuestionComponent } from '@/components/Form/QuestionComponen
 expect.extend(toHaveNoViolations);
 
 describe('MultiSelectQuestionComponent', () => {
-  const mockSelectChange = jest.fn();
-  const mockSelectBoxQuestion: SelectBoxQuestionType = {
-    type: 'selectBox',
+  const mockMultiSelectChange = jest.fn();
+  const mockMultiSelectBoxQuestion: MultiselectBoxQuestionType = {
+    type: 'multiselectBox',
     meta: {
       schemaVersion: '1.0',
     },
     options: [
       {
-        type: 'option',
-        attributes: {
-          label: 'Option A',
-          value: 'Option A',
-          selected: true,
-        },
+        label: 'Option A',
+        value: 'Option A',
+        selected: true,
       },
       {
-        type: 'option',
-        attributes: {
-          label: 'Option B',
-          value: 'Option B',
-          selected: true,
-        },
+        label: 'Option B',
+        value: 'Option B',
+        selected: true,
       },
       {
-        type: 'option',
-        attributes: {
-          label: 'Option C',
-          value: 'Option C',
-          selected: false
-        },
+        label: 'Option C',
+        value: 'Option C',
+        selected: false
       },
     ],
     attributes: {
@@ -50,9 +41,9 @@ describe('MultiSelectQuestionComponent', () => {
   it('should render multi select with correct labels and values', async () => {
     render(
       <MultiSelectQuestionComponent
-        parsedQuestion={mockSelectBoxQuestion}
+        parsedQuestion={mockMultiSelectBoxQuestion}
         selectedMultiSelectValues={new Set(['Option A'])}
-        handleMultiSelectChange={mockSelectChange}
+        handleMultiSelectChange={mockMultiSelectChange}
         selectBoxLabel='Select all that apply'
       />
     );
@@ -76,8 +67,8 @@ describe('MultiSelectQuestionComponent', () => {
 
     const { container } = render(
       <MultiSelectQuestionComponent
-        parsedQuestion={mockSelectBoxQuestion}
-        handleMultiSelectChange={mockSelectChange}
+        parsedQuestion={mockMultiSelectBoxQuestion}
+        handleMultiSelectChange={mockMultiSelectChange}
         selectedMultiSelectValues={selectedMultiSelectValues}
         selectBoxLabel='Select all that apply'
       />

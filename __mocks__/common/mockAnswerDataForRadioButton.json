@@ -2,7 +2,7 @@
   "answerByVersionedQuestionId": {
     "__typename": "Answer",
     "id": 5,
-    "json": "{\"answer\":\"Yes\"}",
+    "json": "{\"type\":\"radioButton\",\"answer\":\"Yes\"}",
     "versionedQuestion": {
       "__typename": "VersionedQuestion",
       "id": 183

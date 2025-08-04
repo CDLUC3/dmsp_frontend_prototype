@@ -1,40 +1,64 @@
+import { z } from "zod";
+import { QuestionFormatInterface } from "@/app/types";
 import {
   CURRENT_SCHEMA_VERSION,
-  QuestionTypesEnum,
-  BooleanQuestionSchema,
-  TextAreaQuestionSchema,
-  TextQuestionSchema,
-  RadioButtonsQuestionSchema,
-  CheckboxesQuestionSchema,
-  SelectBoxQuestionSchema,
-  URLQuestionSchema,
-  CurrencyQuestionSchema,
-  DateQuestionSchema,
-  DateRangeQuestionSchema,
-  EmailQuestionSchema,
-  FilteredSearchQuestionSchema,
-  NumberQuestionSchema,
-  NumberRangeQuestionSchema,
-  TableQuestionSchema,
-  TypeaheadSearchQuestionSchema,
-  TextQuestionType,
-  TextAreaQuestionType,
-  RadioButtonsQuestionType,
-  CheckboxesQuestionType,
-  SelectBoxQuestionType,
-  URLQuestionType,
-  BooleanQuestionType,
-  CurrencyQuestionType,
-  DateQuestionType,
-  DateRangeQuestionType,
-  EmailQuestionType,
-  FilteredSearchQuestionType,
-  NumberQuestionType,
-  NumberRangeQuestionType,
-  TableQuestionType,
-  TypeaheadSearchQuestionType,
+  QuestionTypeMap,
+  QuestionSchemaMap,
+  QuestionFormatsEnum,
+  QuestionFormatsUsage,
+  QuestionFormatsUsageInterface,
 } from "@dmptool/types";
-import { z, ZodSchema } from "zod";
+
+type QuestionType = z.infer<typeof QuestionFormatsEnum>
+
+// Fetch the usage information and then Parse the Zod schema with no input to generate the
+// default JSON schemas
+export function getQuestionFormatInfo(name: string): QuestionFormatInterface | null {
+  if (name in QuestionSchemaMap) {
+    const usage: QuestionFormatsUsageInterface = QuestionFormatsUsage[name as QuestionType];
+    const schema: z.ZodTypeAny = QuestionSchemaMap[name as QuestionType];
+    const parsedSchema = schema.parse({ type: name });
+
+    return {
+      type: name,
+      title: usage?.title,
+      usageDescription: usage?.usageDescription,
+      defaultJSON: parsedSchema
+    };
+  } else {
+    return null;
+  }
+}
+
+function orderQuestionTypes(qTypes: QuestionFormatInterface[]): QuestionFormatInterface[] {
+  // Define the desired desired sort order for the Question types
+  const sortOrder: string[] = [
+    "textArea", "text", "radioButtons", "checkBoxes", "selectBox", "multiselectBox",
+    "number", "numberRange", "currency", "email", "url", "boolean", "date", "dateRange",
+    "table", "affiliationSearch"
+  ];
+
+  // Sort the question format array using the definition.
+  // Note: Infinity ensures that types not listed above are placed at the end
+  return qTypes.sort((a: QuestionFormatInterface, b: QuestionFormatInterface): number => {
+    const aIndex = a.type ? sortOrder.indexOf(a.type) : Infinity;
+    const bIndex = b.type ? sortOrder.indexOf(b.type) : Infinity;
+    return aIndex - bIndex;
+  });
+}
+
+// Fetch all available Question Types
+export function getQuestionTypes(): QuestionFormatInterface[] {
+  const info = QuestionFormatsEnum.options.map(key => getQuestionFormatInfo(key));
+  const qTypes = info.filter((item): item is QuestionFormatInterface => item !== null);
+  return orderQuestionTypes(qTypes);
+}
+
+// Return the question type schema that matches the one in the questionType query param
+export function getMatchingQuestionType(questionTypeIdQueryParam: string): z.ZodTypeAny | null {
+  const schema: z.ZodTypeAny = QuestionSchemaMap[questionTypeIdQueryParam as QuestionType];
+  return schema ?? null;
+}
 
 // Type for handler result with validation
 type HandlerResult = {
@@ -48,59 +72,11 @@ type HandlerResult = {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type QuestionTypeHandler = (baseJSON: any, userInput: any) => HandlerResult;
 
-type Option = {
-  label: string; // The display label for the option
-  value: string; // The value associated with the option
-  selected?: boolean; // Whether the option is selected (optional)
-};
-
-
-export type QuestionTypeMap = {
-  text: TextQuestionType;
-  textArea: TextAreaQuestionType;
-  radioButtons: RadioButtonsQuestionType;
-  checkBoxes: CheckboxesQuestionType;
-  selectBox: SelectBoxQuestionType;
-  boolean: BooleanQuestionType;
-  url: URLQuestionType;
-  currency: CurrencyQuestionType;
-  date: DateQuestionType;
-  dateRange: DateRangeQuestionType;
-  email: EmailQuestionType;
-  filteredSearch: FilteredSearchQuestionType;
-  number: NumberQuestionType;
-  numberRange: NumberRangeQuestionType;
-  table: TableQuestionType;
-  typeaheadSearch: TypeaheadSearchQuestionType;
-};
-
-
-
-// Map question types to their corresponding Zod schemas
-const questionSchemas: Record<string, ZodSchema> = {
-  boolean: BooleanQuestionSchema,
-  text: TextQuestionSchema,
-  textArea: TextAreaQuestionSchema,
-  radioButtons: RadioButtonsQuestionSchema,
-  checkBoxes: CheckboxesQuestionSchema,
-  selectBox: SelectBoxQuestionSchema,
-  url: URLQuestionSchema,
-  currency: CurrencyQuestionSchema,
-  date: DateQuestionSchema,
-  dateRange: DateRangeQuestionSchema,
-  email: EmailQuestionSchema,
-  filteredSearch: FilteredSearchQuestionSchema,
-  number: NumberQuestionSchema,
-  numberRange: NumberRangeQuestionSchema,
-  table: TableQuestionSchema,
-  typeAheadSearch: TypeaheadSearchQuestionSchema,
-};
-
 // Helper function to create and validate question type JSON
 const createAndValidateQuestion = (
   type: string,
   jsonData: any,
-  schema?: ZodSchema
+  schema?: z.ZodSchema
 ): HandlerResult => {
   try {
     // Validates jsonData and checks if it conforms to the specified schema
@@ -113,7 +89,8 @@ const createAndValidateQuestion = (
     return { success: true, data: jsonData };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errorMessage = `Validation failed for ${type}: ${error.errors
+      const err = new z.ZodError([]);
+      const errorMessage = `Validation failed for ${type}: ${err.issues
         .map(e => `${e.path.join('.')}: ${e.message}`)
         .join(', ')}`;
       return { success: false, error: errorMessage };
@@ -126,6 +103,12 @@ const createAndValidateQuestion = (
   }
 };
 
+interface QuestionOptionInterface {
+  label?: string;
+  value: string;
+  selected?: boolean;
+  checked?: boolean;
+};
 
 /**
  * The function is a collection of handlers for generating and validating
@@ -135,11 +118,11 @@ const createAndValidateQuestion = (
  * and metadata, ensuring compatibility with the current schema version.
  */
 export const questionTypeHandlers: Record<
-  z.infer<typeof QuestionTypesEnum>,
+  z.infer<typeof QuestionFormatsEnum>,
   QuestionTypeHandler
 > = {
-  text: (json, input) => {
-    const questionData: TextQuestionType = {
+  text: (json, input: QuestionTypeMap["text"]) => {
+    const questionData: QuestionTypeMap["text"] = {
       ...json,
       type: "text",
       meta: {
@@ -148,17 +131,19 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
         maxLength: input?.attributes?.maxLength ?? 1000,
         minLength: input?.attributes?.minLength ?? 0,
         pattern: input?.attributes?.pattern ?? "^.+$",
       },
     };
 
-    return createAndValidateQuestion("text", questionData, questionSchemas.text);
+    return createAndValidateQuestion("text", questionData, QuestionSchemaMap["text"]);
   },
 
-  textArea: (json, input) => {
-    const questionData: TextAreaQuestionType = {
+  textArea: (json, input: QuestionTypeMap["textArea"]) => {
+    const questionData: QuestionTypeMap["textArea"] = {
       ...json,
       type: "textArea",
       meta: {
@@ -167,6 +152,8 @@ export const questionTypeHandlers: Record<
       },
       attributes: {
         ...json.attributes,
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
         maxLength: input?.attributes?.maxLength ?? 1000,
         minLength: input?.attributes?.minLength ?? 0,
         rows: input?.attributes?.rows ?? 2,
@@ -174,308 +161,340 @@ export const questionTypeHandlers: Record<
       },
     };
 
-    return createAndValidateQuestion("textArea", questionData, questionSchemas.textArea);
+    return createAndValidateQuestion("textArea", questionData, QuestionSchemaMap["textArea"]);
   },
-  radioButtons: (json, input: { options: Option[] }) => {
-    const questionData: RadioButtonsQuestionType = {
+  radioButtons: (json, input: {
+    options: QuestionOptionInterface[],
+    attributes?: QuestionTypeMap["radioButtons"]['attributes']
+  }) => {
+    const questionData: QuestionTypeMap["radioButtons"] = {
       ...json,
       type: "radioButtons",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
+      attributes: {
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
+      },
       options: input.options?.map(option => ({
-        type: 'option',
-        attributes: {
-          label: option.label ?? option.value,
-          selected: option.selected ?? false,
-          value: option.value,
-        },
+        label: option.label ?? option.value,
+        selected: option.checked ?? option.selected ?? false,
+        value: option.value,
       })) || [],
     };
 
-    return createAndValidateQuestion("radioButtons", questionData, questionSchemas.radioButtons);
+    return createAndValidateQuestion("radioButtons", questionData, QuestionSchemaMap["radioButtons"]);
   },
 
-  checkBoxes: (json, input: { options: Option[] }) => {
-    const questionData: CheckboxesQuestionType = {
+  checkBoxes: (json, input: {
+    options: QuestionOptionInterface[],
+    attributes?: QuestionTypeMap["checkBoxes"]['attributes']
+  }) => {
+    const questionData: QuestionTypeMap["checkBoxes"] = {
       ...json,
       type: "checkBoxes",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
+      attributes: {
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
+      },
       options: input.options?.map(option => ({
-        type: 'option',
-        attributes: {
-          label: option.label ?? option.value,
-          checked: option.selected ?? false,
-          value: option.value,
-        },
+        label: option.label ?? option.value,
+        checked: option.checked ?? option.selected ?? false,
+        value: option.value,
       })) || [],
     };
 
-    return createAndValidateQuestion("checkBoxes", questionData, questionSchemas.checkBoxes);
+    return createAndValidateQuestion("checkBoxes", questionData, QuestionSchemaMap["checkBoxes"]);
   },
 
-  selectBox: (json, input: { options: Option[] }) => {
-    const questionData: SelectBoxQuestionType = {
+  selectBox: (json, input: {
+    options: QuestionOptionInterface[],
+    attributes?: QuestionTypeMap["selectBox"]['attributes']
+  }) => {
+    const questionData: QuestionTypeMap["selectBox"] = {
       ...json,
       type: "selectBox",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
+      attributes: {
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
+        multiple: false,
+      },
       options: input.options?.map(option => ({
-        type: 'option',
-        attributes: {
-          label: option.label ?? option.value,
-          selected: option.selected ?? false,
-          value: option.value,
-        },
+        label: option.label ?? option.value,
+        selected: option.checked ?? option.selected ?? false,
+        value: option.value,
       })) || [],
     };
 
-    return createAndValidateQuestion("selectBox", questionData, questionSchemas.selectBox);
+    return createAndValidateQuestion("selectBox", questionData, QuestionSchemaMap["selectBox"]);
   },
 
-  boolean: (json, input) => {
-    const questionData: BooleanQuestionType = {
+  multiselectBox: (json, input: {
+    options: QuestionOptionInterface[],
+    attributes?: QuestionTypeMap["multiselectBox"]['attributes']
+  }) => {
+    const questionData: QuestionTypeMap["multiselectBox"] = {
       ...json,
-      type: "boolean",
+      type: "multiselectBox",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
       attributes: {
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
+        multiple: true,
+      },
+      options: input.options?.map(option => ({
+        label: option.label ?? option.value,
+        selected: option.checked ?? option.selected ?? false,
+        value: option.value,
+      })) || [],
+    };
+
+    return createAndValidateQuestion("selectBox", questionData, QuestionSchemaMap["multiselectBox"]);
+  },
+
+  boolean: (json, input: QuestionTypeMap["boolean"]['attributes']) => {
+    const questionData: QuestionTypeMap["boolean"] = {
+      ...json,
+      type: "boolean",
+      attributes: {
         ...json.attributes,
+        label: input?.label,
+        help: input?.help,
         checked: input?.checked ?? false,
+      },
+      meta: {
+        ...json.meta,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       },
     };
 
-    return createAndValidateQuestion("boolean", questionData, questionSchemas.boolean);
+    return createAndValidateQuestion("boolean", questionData, QuestionSchemaMap["boolean"]);
   },
 
-  url: (json, input) => {
-    const questionData: URLQuestionType = {
+  url: (json, input: QuestionTypeMap["url"]) => {
+    const questionData: QuestionTypeMap["url"] = {
       ...json,
       type: "url",
+      attributes: {
+        ...json.attributes,
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
+        pattern: input?.attributes?.pattern ?? "https?://.+",
+        maxLength: input?.attributes?.maxLength,
+        minLength: input?.attributes?.minLength !== undefined ? input.attributes?.minLength : 0 // Fall back to 0 instead of null
+      },
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION
       },
-      attributes: {
-        ...json.attributes,
-        pattern: input?.attributes?.pattern ?? "https?://.+",
-        maxLength: input?.attributes?.maxLength ?? null,
-        minLength: input?.attributes?.minLength !== undefined ? input.attributes?.minLength : 0 // Fall back to 0 instead of null
-      }
     };
 
-    return createAndValidateQuestion("url", questionData, questionSchemas.url);
+    return createAndValidateQuestion("url", questionData, QuestionSchemaMap['url']);
   },
 
-  currency: (json, input) => {
-    const questionData: CurrencyQuestionType = {
+  currency: (json, input: QuestionTypeMap["currency"]) => {
+    const questionData: QuestionTypeMap["currency"] = {
       ...json,
       type: "currency",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
       attributes: {
         ...json.attributes,
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
         max: input?.attributes?.max ?? 10000000, // Optional maximum value
         min: input?.attributes?.min ?? 0,
         step: input?.attributes?.step ?? 1,
+        denomination: input?.attributes?.denomination ?? "USD",
       },
-    };
-
-    return createAndValidateQuestion("currency", questionData, questionSchemas.currency);
-  },
-  date: (json, input) => {
-    const questionData: DateQuestionType = {
-      ...json,
-      type: "date",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
+    };
+
+    return createAndValidateQuestion("currency", questionData, QuestionSchemaMap["currency"]);
+  },
+  date: (json, input: QuestionTypeMap["date"]['attributes']) => {
+    const questionData: QuestionTypeMap["date"] = {
+      ...json,
+      type: "date",
       attributes: {
         ...json.attributes,
-        max: input?.max ?? null,
+        label: input?.label,
+        help: input?.help,
+        max: input?.max,
         min: input?.min ?? "1900-01-01",
         step: input?.step ?? 1,
       },
-    };
-
-    return createAndValidateQuestion("datePicker", questionData, questionSchemas.datePicker);
-  },
-  dateRange: (json, input) => {
-    const startCol = input?.columns?.start?.attributes || {};
-    const endCol = input?.columns?.end?.attributes || {};
-
-    const questionData: DateRangeQuestionType = {
-      ...json,
-      type: "dateRange",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+    };
+
+    return createAndValidateQuestion("datePicker", questionData, QuestionSchemaMap["date"]);
+  },
+  dateRange: (json, input: QuestionTypeMap["dateRange"]) => {
+    const startCol = input?.columns?.start || {};
+    const endCol = input?.columns?.end || {};
+
+    const questionData: QuestionTypeMap["dateRange"] = {
+      ...json,
+      type: "dateRange",
+      attributes: {
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
       },
       columns: {
         end: {
-          meta: {
-            schemaVersion: CURRENT_SCHEMA_VERSION,
-          },
-          type: "date",
-          attributes: {
-            max: endCol.max ?? null,
-            min: endCol.min ?? null,
-            step: endCol.step ?? 1,
-            label: endCol.label ?? "From",
-          },
+          max: endCol.max,
+          min: endCol.min,
+          step: endCol.step ?? 1,
+          label: endCol.label ?? "From",
+          help: endCol.help,
         },
         start: {
-          meta: {
-            schemaVersion: CURRENT_SCHEMA_VERSION,
-          },
-          type: "date",
-          attributes: {
-            max: startCol.max ?? null,
-            min: startCol.min ?? null,
-            step: startCol.step ?? 1,
-            label: startCol.label ?? "To",
-          },
+          max: startCol.max,
+          min: startCol.min,
+          step: startCol.step ?? 1,
+          label: startCol.label ?? "To",
+          help: startCol.help,
         },
       },
-    };
-
-    return createAndValidateQuestion("dateRange", questionData, questionSchemas.dateRange);
-  },
-  email: (json, input) => {
-    const questionData: EmailQuestionType = {
-      ...json,
-      type: "email",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
+    };
+
+    return createAndValidateQuestion("dateRange", questionData, QuestionSchemaMap["dateRange"]);
+  },
+  email: (json, input: QuestionTypeMap["email"]['attributes']) => {
+    const questionData: QuestionTypeMap["email"] = {
+      ...json,
+      type: "email",
       attributes: {
         ...json.attributes,
+        label: input?.label ?? "Email",
+        help: input?.help,
         pattern: input?.pattern ?? "^.+$",
         multiple: input?.multiple ?? false,
         maxLength: input?.maxLength ?? 100,
         minLength: input?.minLength ?? 0,
       },
-    };
-
-    return createAndValidateQuestion("email", questionData, questionSchemas.email);
-  },
-  filteredSearch: (json, input: {
-    query?: string;
-    queryId?: string;
-    variables?: FilteredSearchQuestionType["graphQL"]["variables"];
-    answerField?: string;
-    displayFields?: FilteredSearchQuestionType["graphQL"]["displayFields"];
-    responseField?: string;
-  }) => {
-    const questionData: FilteredSearchQuestionType = {
-      ...json,
-      type: "filteredSearch",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+    };
+
+    return createAndValidateQuestion("email", questionData, QuestionSchemaMap["email"]);
+  },
+  affiliationSearch: (json: QuestionTypeMap["affiliationSearch"], input: {
+    label?: string;
+    help?: string;
+  }) => {
+    // Splice in the labels the user entered otherwise keep everything the same
+    const questionData: QuestionTypeMap["affiliationSearch"] = {
+      type: "affiliationSearch",
+      attributes: {
+        label: input?.label,
+        help: input?.help
       },
       graphQL: {
-        query: input?.query ?? "",
-        queryId: input?.queryId ?? "",
-        variables: input?.variables?.map(variable => ({
-          name: variable.name ?? "",
-          type: variable.type ?? "string",
-          label: variable.label ?? "",
-          minLength: variable.minLength ?? 0,
-          labelTranslationKey: variable.labelTranslationKey ?? null,
-        })) ?? [],
-        answerField: input?.answerField ?? "",
-        displayFields: input?.displayFields?.map(field => ({
-          label: field.label ?? "",
-          propertyName: field.propertyName ?? "",
-          labelTranslationKey: field.labelTranslationKey ?? null,
-        })) ?? [],
-        responseField: input?.responseField ?? "",
+        query: json?.graphQL.query,
+        queryId: json?.graphQL.queryId,
+        variables: json?.graphQL?.variables,
+        answerField: json?.graphQL?.answerField ?? "",
+        displayFields: json?.graphQL?.displayFields,
+        responseField: json.graphQL?.responseField ?? "",
+      },
+      meta: {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       },
     };
 
-    return createAndValidateQuestion("filteredSearch", questionData, questionSchemas.filteredSearch);
+    return createAndValidateQuestion("affiliationSearch", questionData, QuestionSchemaMap["affiliationSearch"]);
   },
-  number: (json, input) => {
-    const questionData: NumberQuestionType = {
+  number: (json, input: QuestionTypeMap["number"]) => {
+    const questionData: QuestionTypeMap["number"] = {
       ...json,
       type: "number",
-      meta: {
-        ...json.meta,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      },
       attributes: {
         ...json.attributes,
-        max: input?.attributes?.max ?? null,
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
+        max: input?.attributes?.max,
         min: input?.attributes?.min ?? 0,
         step: input?.attributes?.step ?? 1,
       },
-    };
-
-    return createAndValidateQuestion("number", questionData, questionSchemas.number);
-  },
-  numberRange: (json, input) => {
-    const startCol = input?.columns?.start?.attributes || {};
-    const endCol = input?.columns?.end?.attributes || {};
-    const questionData: NumberQuestionType = {
-      ...json,
-      type: "numberRange",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+    };
+
+    return createAndValidateQuestion("number", questionData, QuestionSchemaMap['number']);
+  },
+  numberRange: (json, input: QuestionTypeMap["numberRange"]) => {
+    const startCol = input?.columns?.start || {};
+    const endCol = input?.columns?.end || {};
+    const questionData: QuestionTypeMap["numberRange"] = {
+      ...json,
+      type: "numberRange",
+      attributes: {
+        label: input?.attributes?.label,
+        help: input?.attributes?.help,
       },
       columns: {
         end: {
-          meta: {
-            schemaVersion: CURRENT_SCHEMA_VERSION,
-          },
-          type: "number",
-          attributes: {
-            max: endCol.max ?? null,
-            min: endCol.min ?? null,
-            step: endCol.step ?? 1,
-            label: endCol.label ?? "From",
-          },
+          max: endCol.max,
+          min: endCol.min,
+          step: endCol.step ?? 1,
+          label: endCol.label ?? "From",
+          help: endCol.help,
         },
         start: {
-          meta: {
-            schemaVersion: CURRENT_SCHEMA_VERSION,
-          },
-          type: "number",
-          attributes: {
-            max: startCol.max ?? null,
-            min: startCol.min ?? null,
-            step: startCol.step ?? 1,
-            label: startCol.label ?? "To"
-          },
+          max: startCol.max,
+          min: startCol.min,
+          step: startCol.step ?? 1,
+          label: startCol.label ?? "To",
+          help: startCol.help,
         },
       },
-    };
-
-    return createAndValidateQuestion("numberRange", questionData, questionSchemas.numberRange);
-  },
-  table: (json, input: {
-    columns?: TableQuestionType["columns"];
-    attributes?: TableQuestionType["attributes"];
-  }) => {
-    const questionData: TableQuestionType = {
-      ...json,
-      type: "table",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
+      },
+    };
+
+    return createAndValidateQuestion("numberRange", questionData, QuestionSchemaMap['numberRange']);
+  },
+  table: (json, input: {
+    columns?: QuestionTypeMap["table"]['columns'];
+    attributes?: QuestionTypeMap["table"]["attributes"];
+  }) => {
+    const questionData: QuestionTypeMap["table"] = {
+      ...json,
+      type: "table",
+      attributes: {
+        maxRows: input?.attributes?.maxRows ?? 10, // Use number, not null
+        minRows: input?.attributes?.minRows ?? 1,  // Use number, not null
+        canAddRows: input?.attributes?.canAddRows ?? true,
+        initialRows: input?.attributes?.initialRows ?? 1,
+        canRemoveRows: input?.attributes?.canRemoveRows ?? true,
       },
       columns: input?.columns?.map(column => ({
         heading: column.heading,
@@ -494,59 +513,12 @@ export const questionTypeHandlers: Record<
           },
         },
       })) || [],
-      attributes: {
-        maxRows: input?.attributes?.maxRows ?? 10, // Use number, not null
-        minRows: input?.attributes?.minRows ?? 1,  // Use number, not null
-        canAddRows: input?.attributes?.canAddRows ?? true,
-        initialRows: input?.attributes?.initialRows ?? 1,
-        canRemoveRows: input?.attributes?.canRemoveRows ?? true,
-      },
-    };
-
-    return createAndValidateQuestion("table", questionData, questionSchemas.table);
-  },
-  typeaheadSearch: (json, input: {
-    query?: string;
-    queryId?: string;
-    variables?: TypeaheadSearchQuestionType["graphQL"]["variables"];
-    answerField?: string;
-    displayFields?: FilteredSearchQuestionType["graphQL"]["displayFields"];
-    responseField?: string;
-  }) => {
-    const existingGraphQL = json.graphQL || {};
-
-    const questionData: TypeaheadSearchQuestionType = {
-      ...json,
-      type: "typeaheadSearch",
       meta: {
         ...json.meta,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       },
-      graphQL: {
-        query: input?.query ?? existingGraphQL.query ?? "",
-        queryId: input?.queryId ?? existingGraphQL.queryId ?? "",
-        responseField: input?.responseField ?? existingGraphQL.responseField ?? "",
-        answerField: input?.answerField ?? existingGraphQL.answerField ?? "",
-        variables: input?.variables
-          ? input.variables.map(variable => ({
-            name: variable.name ?? "",
-            type: variable.type ?? "string",
-            label: variable.label ?? "",
-            minLength: variable.minLength ?? 0,
-            defaultValue: variable.defaultValue ?? "",
-            labelTranslationKey: variable.labelTranslationKey ?? null,
-          }))
-          : existingGraphQL.variables ?? [],
-        displayFields: input?.displayFields
-          ? input.displayFields.map(field => ({
-            propertyName: field.propertyName ?? "",
-            label: field.label ?? "",
-            labelTranslationKey: field.labelTranslationKey ?? null,
-          }))
-          : existingGraphQL.displayFields ?? [],
-      },
     };
 
-    return createAndValidateQuestion("typeaheadSearch", questionData, questionSchemas.typeaheadSearch);
+    return createAndValidateQuestion("table", questionData, QuestionSchemaMap['table']);
   },
 };

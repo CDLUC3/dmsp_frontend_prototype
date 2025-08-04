@@ -8,14 +8,14 @@
           "__typename": "VersionedQuestion",
           "id": 54,
           "questionText": "<p>The Data Management Plan should address the policies and provision for re-use, re-distribution, and the production of derivatives.</p>",
-          "json": "{\"meta\":{\"asRichText\":true,\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"rows\":4}}",
+          "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"asRichText\":true,\"rows\":4}}",
           "questionId": 100
         },
         {
           "__typename": "VersionedQuestion",
           "id": 182,
           "questionText": "Text Area question",
-          "json": "{\"meta\":{\"asRichText\":true,\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"cols\":20,\"rows\":20,\"maxLength\":1000,\"minLength\":0}}",
+          "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"textArea\",\"attributes\":{\"asRichText\":true,\"cols\":20,\"rows\":20,\"maxLength\":1000,\"minLength\":0}}",
           "questionId": 344
         }
       ],
