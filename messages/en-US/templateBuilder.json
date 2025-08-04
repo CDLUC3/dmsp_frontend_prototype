@@ -18,6 +18,7 @@
   },
   "EditTemplates": {
     "title": "Edit template",
+    "templateTitleLabel": "Template title",
     "titleStatus": "Status",
     "draft": "Draft",
     "notPublished": "Not Published",
@@ -30,7 +31,8 @@
       "addSection": "Add section",
       "edit": "Edit",
       "manageAccess": "Manage access",
-      "templateHistory": "Template history"
+      "templateHistory": "Template history",
+      "editTemplateTitle": "Edit template title"
     },
     "button": {
       "archiveTemplate": "Archive template",
@@ -58,7 +60,8 @@
     },
     "messages": {
       "successfullyArchived": "Successfully archived the template",
-      "sectionMoved": "Section moved to position {displayOrder}"
+      "sectionMoved": "Section moved to position {displayOrder}",
+      "successfullyUpdatedTitle": "Successfully updated the template title"
     }
   },
   "PublishTemplate": {

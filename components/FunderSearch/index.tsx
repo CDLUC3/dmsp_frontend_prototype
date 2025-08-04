@@ -21,7 +21,7 @@ interface FunderSearchProps extends React.HTMLAttributes<HTMLDivElement> {
   onResults(results: FunderSearchResults, newSearch: boolean): void;
 
   // A simple counter to trigger fetching more results
-  moreTrigger?: number;
+  moreTrigger: number;
 
   // Specifies result limit to paginate by
   limit?: number,
@@ -63,14 +63,11 @@ const FunderSearch = ({
   useEffect(() => {
     if (data?.affiliations) {
       setNextCursor(data.affiliations.nextCursor ?? null);
-      if (onResults) {
-        onResults(data.affiliations as FunderSearchResults, newSearch);
-      }
+      onResults(data.affiliations as FunderSearchResults, newSearch);
     }
   }, [data]);
 
   useEffect(() => {
-    if (!moreTrigger) return;
     if (moreTrigger > moreCounter) {
       setNewSearch(false);
       fetchAffiliations({

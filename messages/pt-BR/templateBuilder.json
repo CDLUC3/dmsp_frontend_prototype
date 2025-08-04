@@ -18,6 +18,7 @@
   },
   "EditTemplates": {
     "title": "Editar modelo",
+    "templateTitleLabel": "Título do modelo",
     "titleStatus": "Status",
     "draft": "Rascunho",
     "notPublished": "Não publicado",
@@ -30,7 +31,8 @@
       "addSection": "Adicionar seção",
       "edit": "Alterar",
       "manageAccess": "Gerenciar acesso",
-      "templateHistory": "Histórico do modelo"
+      "templateHistory": "Histórico do modelo",
+      "editTemplateTitle": "Editar título do modelo"
     },
     "button": {
       "archiveTemplate": "Template de arquivo",
@@ -58,7 +60,8 @@
     },
     "messages": {
       "successfullyArchived": "Modelo arquivado com sucesso",
-      "sectionMoved": "Seção movida para a posição {displayOrder}"
+      "sectionMoved": "Seção movida para a posição {displayOrder}",
+      "successfullyUpdatedTitle": "Título do modelo atualizado com sucesso"
     }
   },
   "PublishTemplate": {

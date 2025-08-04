@@ -13,7 +13,7 @@ import { MockedProvider } from '@apollo/client/testing';
 import {
   ProjectFundingsDocument,
   PlanFundingsDocument,
-  AddPlanFundingDocument,
+  UpdatePlanFundingDocument,
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -69,8 +69,13 @@ const MOCKS = [
             id: 111,
             affiliation: {
               displayName: "Project Funder A",
+              name: "National Science Foundation",
               uri: "https://funderA",
-            }
+            },
+            funderOpportunityNumber: "NSF-12345-ABC",
+            funderProjectNumber: null,
+            grantId: null,
+            status: "PLANNED"
           },
 
           // This one is to test response errors when choosing this
@@ -78,8 +83,13 @@ const MOCKS = [
             id: 222,
             affiliation: {
               displayName: "Project Funder B",
+              name: "National Institutes of Health",
               uri: "https://funderB",
-            }
+            },
+            funderOpportunityNumber: "NSF-12345-ABC",
+            funderProjectNumber: null,
+            grantId: null,
+            status: "PLANNED"
           },
 
           // This one is to test network errors when choosing this
@@ -87,8 +97,13 @@ const MOCKS = [
             id: 333,
             affiliation: {
               displayName: "Project Funder C",
+              name: "Department of Energy",
               uri: "https://funderC",
             },
+            funderOpportunityNumber: "NSF-12345-ABC",
+            funderProjectNumber: null,
+            grantId: null,
+            status: "PLANNED"
           },
         ],
       },
@@ -98,25 +113,35 @@ const MOCKS = [
   // Adding Funder: Success
   {
     request: {
-      query: AddPlanFundingDocument,
+      query: UpdatePlanFundingDocument,
       variables: {
         planId: 456,
-        projectFundingId: 111,
+        projectFundingIds: [111, 222],
       },
     },
 
     result: {
       data: {
-        addPlanFunding: {
-          errors: {
-            ProjectFundingId: null,
-            general: null,
-            projectId: null
+        updatePlanFunding: [
+          {
+            errors: {
+              ProjectFundingId: null,
+              general: null,
+            },
+            projectFunding: {
+              id: 111,
+            }
           },
-          projectFunding: {
-            id: 111,
-          }
-        }
+          {
+            errors: {
+              ProjectFundingId: null,
+              general: null,
+            },
+            projectFunding: {
+              id: 222,
+            }
+          },
+        ]
       }
     },
   },
@@ -124,25 +149,27 @@ const MOCKS = [
   // Add Funder: Response Error
   {
     request: {
-      query: AddPlanFundingDocument,
+      query: UpdatePlanFundingDocument,
       variables: {
         planId: 456,
-        projectFundingId: 222,
+        projectFundingIds: [222],
       },
     },
 
     result: {
       data: {
-        addPlanFunding: {
-          errors: {
-            ProjectFundingId: null,
-            general: "This should throw an error",
-            projectId: null,
-          },
-          projectFunding: {
-            id: 222,
+        updatePlanFunding: [
+          {
+            errors: {
+              ProjectFundingId: null,
+              general: "This should throw an error",
+            },
+            projectFunding: {
+              id: 222,
+            }
+
           }
-        }
+        ]
       }
     },
   },
@@ -150,13 +177,39 @@ const MOCKS = [
   // Add Funder: Network Error
   {
     request: {
-      query: AddPlanFundingDocument,
+      query: UpdatePlanFundingDocument,
       variables: {
         planId: 456,
-        projectFundingId: 333,
+        projectFundingIds: [222, 333],
       },
     },
     error: new Error('Network error'),
+  },
+
+  {
+    request: {
+      query: UpdatePlanFundingDocument,
+      variables: {
+        planId: 456,
+        projectFundingIds: [], // No funders selected (empty array)
+      },
+    },
+    result: {
+      data: {
+        updatePlanFunding: [
+          {
+            errors: {
+              ProjectFundingId: null,
+              general: "This should throw an error",
+            },
+            projectFunding: {
+              id: null,
+            }
+
+          }
+        ]
+      }
+    },
   },
 ];
 
@@ -260,11 +313,11 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     );
 
     await waitFor(() => {
-      const optionA = screen.getByRole('radio', { name: 'Project Funder A' });
+      const optionA = screen.getByRole('checkbox', { name: 'Project Funder A' });
       expect(optionA).toBeInTheDocument();
       expect(optionA).not.toBeChecked();
 
-      const optionB = screen.getByRole('radio', { name: 'Project Funder B' });
+      const optionB = screen.getByRole('checkbox', { name: 'Project Funder B' });
       expect(optionB).toBeInTheDocument();
       expect(optionB).toBeChecked();
     });
@@ -278,7 +331,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     );
 
     await waitFor(() => {
-      const option = screen.getByRole('radio', { name: 'Project Funder A' });
+      const option = screen.getByRole('checkbox', { name: 'Project Funder A' });
       expect(option).toBeInTheDocument();
       fireEvent.click(option);
     });
@@ -300,7 +353,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     );
 
     await waitFor(() => {
-      const option = screen.getByRole('radio', { name: 'Project Funder B' });
+      const option = screen.getByRole('checkbox', { name: 'Project Funder B' });
       expect(option).toBeInTheDocument();
       fireEvent.click(option);
     });
@@ -309,7 +362,6 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockUseRouter().push).not.toHaveBeenCalledWith('/en-US/projects/123/dmp/456');
       expect(screen.getByText("This should throw an error")).toBeInTheDocument();
       expect(scrollToTop).toHaveBeenCalled();
     });
@@ -323,7 +375,7 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
     );
 
     await waitFor(() => {
-      const option = screen.getByRole('radio', { name: 'Project Funder C' });
+      const option = screen.getByRole('checkbox', { name: 'Project Funder C' });
       expect(option).toBeInTheDocument();
       fireEvent.click(option);
     });
@@ -361,6 +413,11 @@ describe('ProjectsProjectPlanAdjustFunding', () => {
         <ProjectsProjectPlanAdjustFunding />
       </MockedProvider>
     );
+
+    await waitFor(() => {
+      expect(screen.getByText('fundingLabel')).toBeInTheDocument();
+    });
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

@@ -33,6 +33,7 @@ import PageHeader from "@/components/PageHeader";
 import {
   FormInput,
   FormTextArea,
+  RadioGroupComponent,
   RangeComponent,
   QuestionOptionsComponent,
   TypeAheadSearch
@@ -40,6 +41,7 @@ import {
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionPreview from '@/components/QuestionPreview';
 import QuestionView from '@/components/QuestionView';
+import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 
 //Other
 import { useToast } from '@/context/ToastContext';
@@ -57,7 +59,6 @@ import {
   isOptionsType,
   getOverrides,
 } from './hooks/useAddQuestion';
-import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './questionAdd.module.scss';
 
 const defaultQuestion = {
@@ -90,7 +91,7 @@ const QuestionAdd = ({
 
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
-  const step1Url = `/template/${templateId}/q/new?section_id=${sectionId}&step=1`;
+  const step1Url = routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1 })
 
   // Make sure to add questionJSON and questionType to the question object so it can be used in the QuestionView component
   const [question, setQuestion] = useState<Question>(() => ({
@@ -112,6 +113,21 @@ const QuestionAdd = ({
   // localization keys
   const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
+
+  const radioData = {
+    radioGroupLabel: Global('labels.requiredField'),
+    radioButtonData: [
+      {
+        value: 'yes',
+        label: Global('form.yesLabel'),
+      },
+      {
+        value: 'no',
+        label: Global('form.noLabel')
+      }
+    ]
+  }
+
 
   // Initialize add and update question mutations
   const [addQuestionMutation] = useAddQuestionMutation();
@@ -153,7 +169,7 @@ const QuestionAdd = ({
     setRows(newRows);
 
     if (hasOptions && questionType && question?.json) {
-      const updatedJSON = buildUpdatedJSON(question, newRows);
+      const updatedJSON = buildUpdatedJSON(newRows);
 
       if (updatedJSON) {
         setQuestion((prev) => ({
@@ -217,6 +233,20 @@ const QuestionAdd = ({
     }
   };
 
+  // Handle changes from RadioGroup
+  const handleRadioChange = (value: string) => {
+
+    if (value) {
+      const isRequired = value === 'yes' ? true : false;
+      setQuestion(prev => ({
+        ...prev,
+        required: isRequired
+      }));
+    }
+
+  };
+
+
   // Update common input fields when any of them change
   const handleInputChange = (field: keyof Question, value: string | boolean | undefined) => {
     setQuestion((prev) => ({
@@ -227,7 +257,7 @@ const QuestionAdd = ({
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
-  const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
+  const getFormState = (rowsOverride?: QuestionOptions[]) => {
 
     if (hasOptions) {
       const useRows = rowsOverride ?? rows;
@@ -239,37 +269,31 @@ const QuestionAdd = ({
         })),
       };
     }
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
-    if (!parsed) {
-      if (error) {
-        setErrors(prev => [...prev, error])
-      }
+
+    if (!parsedQuestionJSON) {
       return;
     }
+
     return {
-      ...parsed,
+      ...parsedQuestionJSON,
       attributes: {
-        ...('attributes' in parsed ? parsed.attributes : {}),
+        ...('attributes' in parsedQuestionJSON ? parsedQuestionJSON.attributes : {}),
         ...getOverrides(questionType),
       },
     };
   };
 
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
-  const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
-    const userInput = getFormState(question, rowsOverride);
-    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
+  const buildUpdatedJSON = (rowsOverride?: QuestionOptions[]) => {
+    const userInput = getFormState(rowsOverride);
 
-    if (!parsed) {
-      if (error) {
-        setErrors(prev => [...prev, error])
-      }
-      return;
+    if (parsedQuestionJSON && userInput) {
+      return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+        parsedQuestionJSON,
+        userInput
+      );
     }
-    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-      parsed,
-      userInput
-    );
+    return null;
 
   };
 
@@ -278,40 +302,48 @@ const QuestionAdd = ({
     e.preventDefault();
 
     const displayOrder = getDisplayOrder();
-    const updatedJSON = buildUpdatedJSON(question);
+    const updatedJSON = buildUpdatedJSON();
 
-    // Strip all tags from questionText before sending to backend
-    const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
-    const input = {
-      templateId: Number(templateId),
-      sectionId: Number(sectionId),
-      displayOrder,
-      isDirty: true,
-      questionText: cleanedQuestionText,
-      json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
-      requirementText: question?.requirementText,
-      guidanceText: question?.guidanceText,
-      sampleText: question?.sampleText,
-      useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
-      required: false,
-    };
+    if (updatedJSON) {
+      // Strip all tags from questionText before sending to backend
+      const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
+      const input = {
+        templateId: Number(templateId),
+        sectionId: Number(sectionId),
+        displayOrder,
+        isDirty: true,
+        questionText: cleanedQuestionText,
+        json: JSON.stringify(updatedJSON ? updatedJSON.data : ''),
+        requirementText: question?.requirementText,
+        guidanceText: question?.guidanceText,
+        sampleText: question?.sampleText,
+        useSampleTextAsDefault: question?.useSampleTextAsDefault || false,
+        required: question?.required,
+      };
 
-    try {
-      const response = await addQuestionMutation({ variables: { input } });
+      try {
+        const response = await addQuestionMutation({ variables: { input } });
 
-      if (response?.data) {
-        toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
-        // Redirect user to the Edit Question view with their new question id after successfully adding the new question
-        router.push(`/template/${templateId}`);
+        if (response?.data) {
+          toastState.add(QuestionAdd('messages.success.questionAdded'), { type: 'success' });
+          // Redirect user to the Edit Question view with their new question id after successfully adding the new question
+          router.push(routePath('template.show', { templateId }));
+        }
+      } catch (error) {
+        if (!(error instanceof ApolloError)) {
+          setErrors(prevErrors => [
+            ...prevErrors,
+            QuestionAdd('messages.errors.questionAddingError'),
+          ]);
+        }
       }
-    } catch (error) {
-      if (!(error instanceof ApolloError)) {
-        setErrors(prevErrors => [
-          ...prevErrors,
-          QuestionAdd('messages.errors.questionAddingError'),
-        ]);
-      }
+    } else {
+      setErrors(prevErrors => [
+        ...prevErrors,
+        QuestionAdd('messages.errors.questionAddingError'),
+      ]);
     }
+
   };
 
   // If questionType is missing, return user to the Question Types selection page
@@ -327,7 +359,7 @@ const QuestionAdd = ({
 
     if (!sectionId) {
       toastState.add(Global('messaging.somethingWentWrong'), { type: 'error' });
-      router.push(`/template/${templateId}`);
+      router.push(routePath('template.show', { templateId }));
       return;
     }
   }, [])
@@ -360,16 +392,19 @@ const QuestionAdd = ({
 
   useEffect(() => {
     if (question) {
-      const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
-      if (!parsed) {
-        if (error) {
-          setErrors(prev => [...prev, error])
-        }
-        return;
+      const { parsed, error } = getParsedQuestionJSON(
+        question,
+        routePath('template.q.new', { templateId }),
+        Global
+      );
+
+      if (parsed) {
+        setParsedQuestionJSON(parsed);
+      } else if (error) {
+        setErrors(prev => (prev.includes(error) ? prev : [...prev, error]));
       }
-      setParsedQuestionJSON(parsed);
     }
-  }, [question])
+  }, [question]);
 
   return (
     <>
@@ -429,7 +464,7 @@ const QuestionAdd = ({
                 />
 
                 {/**Options question types*/}
-                {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && (
+                {questionType && OPTIONS_QUESTION_TYPES.includes(questionType) && parsedQuestionJSON && (
                   <>
                     <p className={styles.optionsDescription}>
                       {QuestionAdd('helpText.questionOptions', { questionName: questionName ?? '' })}
@@ -514,6 +549,15 @@ const QuestionAdd = ({
                     {QuestionAdd('descriptions.sampleTextAsDefault')}
                   </Checkbox>
                 )}
+
+                <RadioGroupComponent
+                  name="radioGroup"
+                  value={question?.required ? 'yes' : 'no'}
+                  radioGroupLabel={radioData.radioGroupLabel}
+                  radioButtonData={radioData.radioButtonData}
+                  description={Global('descriptions.requiredFieldDescription')}
+                  onChange={handleRadioChange}
+                />
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
                 <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>

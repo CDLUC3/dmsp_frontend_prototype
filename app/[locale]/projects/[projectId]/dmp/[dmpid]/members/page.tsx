@@ -590,7 +590,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
 
                           errorMessage={PlanMembers('form.select.selectionIsRequired')}
                           description={PlanMembers('form.select.description')}
-                          onSelectionChange={(selected) =>
+                          onChange={(selected) =>
                             dispatch({ type: 'SET_SELECTED_PLAN_MEMBER', payload: selected as string })
                           } selectedKey={selectedPlanMember}
                         >

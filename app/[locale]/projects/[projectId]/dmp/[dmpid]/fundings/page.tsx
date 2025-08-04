@@ -5,9 +5,10 @@ import { useRouter, useParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 import {
+  PlanFunding,
   usePlanFundingsLazyQuery,
   useProjectFundingsQuery,
-  useAddPlanFundingMutation,
+  useUpdatePlanFundingMutation,
   PlanFundingErrors,
 } from '@/generated/graphql';
 
@@ -22,8 +23,8 @@ import {
   Link,
 } from "react-aria-components";
 
-import { RadioButtonInterface } from '@/app/types';
-import { RadioGroupComponent } from '@/components/Form';
+import { CheckboxInterface } from '@/app/types';
+import { CheckboxGroupComponent } from '@/components/Form';
 import { useToast } from '@/context/ToastContext';
 
 import PageHeader from "@/components/PageHeader";
@@ -39,13 +40,13 @@ const ProjectsProjectPlanAdjustFunding = () => {
   const t = useTranslations('PlanFunding');
   const Messaging = useTranslations('Messaging');
 
-  const [radioData, setRadioData] = useState<RadioButtonInterface[]>([])
-  const [fundingChoice, setFundingChoice] = useState<string>("");
+  const [checkboxData, setCheckboxData] = useState<CheckboxInterface[]>([])
+  const [fundingChoices, setFundingChoices] = useState<string[]>([]);
   const [fetchPlanFundings, { }] = usePlanFundingsLazyQuery({});
 
   const [errors, setErrors] = useState<string[]>([]);
   const errorRef = useRef<HTMLDivElement>(null);
-  const [addPlanFunding] = useAddPlanFundingMutation({});
+  const [updatePlanFunding] = useUpdatePlanFundingMutation({});
 
   const toastState = useToast();
   const path = usePathname();
@@ -65,6 +66,12 @@ const ProjectsProjectPlanAdjustFunding = () => {
     }
   });
 
+
+  const handleCheckboxChange = (values: string[]) => {
+    setFundingChoices(values);
+  };
+
+
   useEffect(() => {
     if (dmpId) {
       // Now that we have a dmpId from the params, fetch the existing funding
@@ -75,22 +82,25 @@ const ProjectsProjectPlanAdjustFunding = () => {
           planId: Number(dmpId)
         }
       }).then(({ data }) => {
-        if (data?.planFundings && data?.planFundings?.length > 0) {
-          const current = data.planFundings[0]?.projectFunding?.id;
-          setFundingChoice(String(current));
+        if (data?.planFundings && data.planFundings.length > 0) {
+          // Collect all projectFunding ids as strings
+          const ids = data.planFundings
+            .map(f => f?.projectFunding?.id)
+            .filter(id => id !== undefined && id !== null)
+            .map(id => String(id));
+          setFundingChoices(ids);
         } else {
-          setFundingChoice("");
+          setFundingChoices([]);
         }
       });
     }
   }, [dmpId]);
 
-
   // Once we have the list of funders, we need to prepare the radio button
   // data for the RadioGroupComponent
   useEffect(() => {
     if (funders?.projectFundings) {
-      const dataMap: RadioButtonInterface[] = [];
+      const dataMap: CheckboxInterface[] = [];
       funders.projectFundings.forEach((funder) => {
         const displayName = funder?.affiliation?.displayName;
 
@@ -101,7 +111,8 @@ const ProjectsProjectPlanAdjustFunding = () => {
           });
         }
       });
-      setRadioData(dataMap);
+
+      setCheckboxData(dataMap);
     }
   }, [funders]);
 
@@ -114,7 +125,6 @@ const ProjectsProjectPlanAdjustFunding = () => {
     const typedKeys: (keyof PlanFundingErrors)[] = [
       "ProjectFundingId",
       "general",
-      "projectId",
     ];
     const newErrors: string[] = [];
 
@@ -137,22 +147,37 @@ const ProjectsProjectPlanAdjustFunding = () => {
     });
 
     const formData = new FormData(e.currentTarget);
-    const projectFundingId = formData.get("funding");
+    const projectFundingIds = formData.getAll("funding").map(id => Number(id));
 
-    addPlanFunding({
+    updatePlanFunding({
       variables: {
         planId: Number(dmpId),
-        projectFundingId: Number(projectFundingId),
+        projectFundingIds
       },
     }).then((result) => {
-      const errs = checkErrors(result?.data?.addPlanFunding?.errors as PlanFundingErrors);
-      if (errs.length > 0) {
-        setErrors(errs);
+      const planFundingResults = result?.data?.updatePlanFunding as PlanFunding[] | undefined;
+
+      const allErrors: string[] = [];
+
+      if (planFundingResults) {
+        planFundingResults.forEach((pfResult) => {
+          const errors = checkErrors(pfResult?.errors as PlanFundingErrors);
+          if (errors && errors.length > 0) {
+            allErrors.push(...errors);
+          }
+        });
+      }
+
+      if (allErrors.length > 0) {
+        setErrors(allErrors);
+        // Optionally scroll to error display
+        errorRef?.current?.scrollIntoView({ behavior: 'smooth' });
       } else {
         const msg = Messaging('successfullyUpdated');
         toastState.add(msg, { type: 'success' });
         router.push(NEXT_URL);
       }
+
     }).catch(err => {
       logECS('error', 'addPlanFunding', {
         error: err.message,
@@ -175,7 +200,7 @@ const ProjectsProjectPlanAdjustFunding = () => {
               <>
                 <Breadcrumb>
                   <Link href={routePath('projects.show', { projectId: String(projectId) })}>
-                    {Global('breadcrumbs.project')}
+                    {Global('breadcrumbs.projectOverview')}
                   </Link>
                 </Breadcrumb>
                 <Breadcrumb>
@@ -203,13 +228,14 @@ const ProjectsProjectPlanAdjustFunding = () => {
         <ContentContainer>
           <ErrorMessages errors={errors} ref={errorRef} />
           <Form onSubmit={handleSubmit}>
-            <RadioGroupComponent
+
+            <CheckboxGroupComponent
               name="funding"
-              value={fundingChoice}
-              onChange={setFundingChoice}
-              description={t('fundingDescription')}
-              radioGroupLabel={t('fundingLabel')}
-              radioButtonData={radioData}
+              value={fundingChoices}
+              onChange={handleCheckboxChange}
+              checkboxGroupLabel={t('fundingLabel')}
+              checkboxGroupDescription={t('fundingDescription')}
+              checkboxData={checkboxData}
             />
 
             <p>

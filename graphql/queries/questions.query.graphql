@@ -4,6 +4,20 @@ query QuestionsDisplayOrder($sectionId: Int!) {
   }
 }
 
+query PlanSectionQuestions($sectionId: Int!) {
+  questions(sectionId: $sectionId) {
+    id
+    questionText
+    displayOrder
+    guidanceText
+    requirementText
+    sampleText
+    sectionId
+    templateId
+    isDirty
+  }
+}
+
 query Question($questionId: Int!) {
   question(questionId: $questionId) {
     id

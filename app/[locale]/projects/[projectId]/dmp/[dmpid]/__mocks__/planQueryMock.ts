@@ -11,7 +11,19 @@ export const mockPlanData = {
     fundings: [
       {
         id: 1,
-        project: null
+        projectFunding: {
+          affiliation: {
+            displayName: 'National Science Foundation (nsf.gov)'
+          }
+        }
+      },
+      {
+        id: 3,
+        projectFunding: {
+          affiliation: {
+            displayName: 'Irish Research Council (research.ie)'
+          }
+        }
       }
     ],
     visibility: "PUBLIC",
@@ -82,6 +94,8 @@ export const mockPlanData = {
     ],
     created: "1741308996000",
     modified: "1741308996000",
-    dmpId: ""
+    dmpId: "",
+    registered: null,
+    title: 'Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations'
   }
 }

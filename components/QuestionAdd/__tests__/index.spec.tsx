@@ -7,11 +7,23 @@ import {
 
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { useParams, useRouter } from 'next/navigation';
+import { useToast } from '@/context/ToastContext';
 import QuestionAdd from '@/components/QuestionAdd';
+import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
+
 
 expect.extend(toHaveNoViolations);
 
-// Mock the useTemplateQuery hook
+jest.mock('@/components/hooks/getParsedQuestionJSON', () => {
+  const actual = jest.requireActual('@/components/hooks/getParsedQuestionJSON');
+  return {
+    __esModule: true,
+    ...actual,
+    getParsedQuestionJSON: jest.fn(actual.getParsedQuestionJSON),
+  };
+});
+
+// Mock the hooks
 jest.mock("@/generated/graphql", () => ({
   useQuestionsDisplayOrderQuery: jest.fn(),
   useAddQuestionMutation: jest.fn(),
@@ -34,6 +46,9 @@ if (typeof global.structuredClone !== 'function') {
 
 // Create a mock for scrollIntoView and focus
 const mockScrollIntoView = jest.fn();
+const mockToast = {
+  add: jest.fn(),
+};
 
 // Mock useTranslations from next-intl
 jest.mock('next-intl', () => ({
@@ -163,6 +178,9 @@ describe("QuestionAdd", () => {
     expect(bestPracticePara2).toBeInTheDocument();
     const bestPracticePara3 = screen.getByText('descriptions.bestPracticePara3', { selector: 'p' });
     expect(bestPracticePara3).toBeInTheDocument();
+    // Setting question as required
+    expect(screen.getByText('form.yesLabel')).toBeInTheDocument();
+    expect(screen.getByText('form.noLabel')).toBeInTheDocument();
   });
 
   it("should return user to the template edit page if questionType is missing", async () => {
@@ -193,7 +211,7 @@ describe("QuestionAdd", () => {
 
     await waitFor(() => {
       expect(mockRouter.push).toHaveBeenCalledTimes(1);
-      expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=1&step=1');
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123/q/new?section_id=1&step=1');
     });
   });
 
@@ -225,53 +243,10 @@ describe("QuestionAdd", () => {
     const changeTypeButton = screen.getByRole('button', { name: 'buttons.changeType' });
     fireEvent.click(changeTypeButton);
     await waitFor(() => {
-      expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=1&step=1');
+      expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123/q/new?section_id=1&step=1');
     });
   });
 
-  it('should display error when no value is entered in question Text field', async () => {
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
-      { loading: false, error: undefined },
-    ]);
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "radioButtons",
-      options: [
-        {
-          attributes: {
-            label: null,
-            value: null,
-            selected: false
-          }
-        }
-      ]
-    })
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="radioButtons"
-          questionName="Radio buttons"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Get the input
-    const input = screen.getByLabelText('labels.questionText');
-
-    // Set value to empty
-    fireEvent.change(input, { target: { value: '' } });
-
-    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
-    fireEvent.click(saveButton);
-
-    const errorMessage = screen.getByText('messages.errors.questionTextRequired');
-    expect(errorMessage).toBeInTheDocument();
-  })
 
   it('should call addQuestionMutation when Save button is clicked after entering data', async () => {
     const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
@@ -321,6 +296,13 @@ describe("QuestionAdd", () => {
       fireEvent.change(radioInput, { target: { value: 'Yes' } });
     })
 
+    // Select that the question should be required
+    const isRequiredRadio = screen.getByLabelText('form.yesLabel');
+
+    await act(async () => {
+      fireEvent.click(isRequiredRadio);
+    })
+
     const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
 
     await act(async () => {
@@ -342,66 +324,11 @@ describe("QuestionAdd", () => {
             guidanceText: '',
             sampleText: '',
             useSampleTextAsDefault: false,
-            required: false,
+            required: true,
           },
         },
       });
     });
-  })
-
-  it('should display error when addQuestionMutation returns an error', async () => {
-    const mockAddQuestionMutation = jest.fn().mockRejectedValueOnce(new Error("Error"));
-
-    (useAddQuestionMutation as jest.Mock).mockReturnValue([
-      mockAddQuestionMutation,
-      { loading: false, error: undefined },
-    ]);
-
-    const json = JSON.stringify({
-      meta: {
-        schemaVersion: "1.0"
-      },
-      type: "radioButtons",
-      options: [
-        {
-          attributes: {
-            label: 'Yes',
-            value: 'yes',
-            selected: false
-          }
-        }
-      ]
-    })
-    await act(async () => {
-      render(
-        <QuestionAdd
-          questionType="radioButtons"
-          questionName="Radio buttons"
-          questionJSON={json}
-          sectionId="1"
-        />);
-    });
-
-    // Get the input
-    const input = screen.getByLabelText('labels.questionText');
-
-    // Set value to 'New Question'
-    fireEvent.change(input, { target: { value: 'New Question' } });
-
-    // Add a new radio row
-    const radioInput = screen.getByPlaceholderText('placeholder.text');
-
-    await act(async () => {
-      fireEvent.change(radioInput, { target: { value: 'Yes' } });
-    })
-
-    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
-
-    await act(async () => {
-      fireEvent.click(saveButton);
-    })
-
-    expect(screen.getByText('messages.errors.questionAddingError')).toBeInTheDocument();
   })
 
   it('should call addQuestionMutation with correct data for \'text\' question type ', async () => {
@@ -954,6 +881,150 @@ describe("QuestionAdd", () => {
     expect(rangeStartInput).toHaveValue('New Range Label');
   });
 
+  it('should call handleRangeLabelChange for numberRange changes', () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+    const mockDateRangeJSON = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "numberRange",
+      columns: {
+        end: {
+          meta: {
+            schemaVersion: "1.0"
+          },
+          type: "number",
+          attributes: {
+            max: null,
+            min: 0,
+            step: 1,
+            label: "To"
+          }
+        },
+        start: {
+          meta: {
+            schemaVersion: "1.0"
+          },
+          type: "number",
+          attributes: {
+            max: null,
+            min: 0,
+            step: 1,
+            label: "From"
+          }
+        }
+      }
+    });
+    render(
+      <QuestionAdd
+        questionType="numberRange"
+        questionName="Number Range Label"
+        questionJSON={mockDateRangeJSON}
+        sectionId="1"
+      />);
+
+    // Find the input rendered by RangeComponent
+    const rangeStartInput = screen.getByLabelText('range start');
+
+    // Simulate user typing
+    fireEvent.change(rangeStartInput, { target: { value: 'New Range Label' } });
+
+    expect(rangeStartInput).toHaveValue('New Range Label');
+  });
+
+  it('should set displayOrder to 1 for the new question, if there are no existing questions', async () => {
+
+    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
+      data: null,
+      loading: false,
+      error: undefined,
+    });
+
+    const mockAddQuestionMutation = jest.fn().mockResolvedValueOnce({
+      data: { addQuestion: { id: 1 } },
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: null,
+            value: null,
+            selected: false
+          }
+        }
+      ]
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the question text input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // add text to question text field
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    // Add a new radio row
+    const radioInput = screen.getByPlaceholderText('placeholder.text');
+
+    await act(async () => {
+      fireEvent.change(radioInput, { target: { value: 'Yes' } });
+    })
+
+    // Select that the question should be required
+    const isRequiredRadio = screen.getByLabelText('form.yesLabel');
+
+    await act(async () => {
+      fireEvent.click(isRequiredRadio);
+    })
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+
+    await act(async () => {
+      fireEvent.click(saveButton);
+    })
+
+    // Check if the addQuestionMutation was called
+    await waitFor(() => {
+      expect(mockAddQuestionMutation).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            templateId: 123,
+            sectionId: 1,
+            displayOrder: 1,
+            isDirty: true,
+            questionText: 'New Question',
+            json: "{\"type\":\"radioButtons\",\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}}]}",
+            requirementText: '',
+            guidanceText: '',
+            sampleText: '',
+            useSampleTextAsDefault: false,
+            required: true,
+          },
+        },
+      });
+    });
+  })
+
   it('should call handleTypeAheadSearchLabelChange when typeaheadSearch label value changes', () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
@@ -1090,5 +1161,270 @@ describe("QuestionAdd", () => {
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
+  });
+});
+
+describe("Error handling", () => {
+  let mockRouter;
+  beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+    const mockTemplateId = 123;
+    const mockUseParams = useParams as jest.Mock;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+
+    // Mock the router
+    mockRouter = { push: jest.fn() };
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+
+    // Mock Toast
+    (useToast as jest.Mock).mockReturnValue(mockToast);
+
+    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDisplayData,
+      loading: false,
+      error: undefined,
+    });
+  });
+
+  it('should display error when no value is entered in question Text field', async () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: null,
+            value: null,
+            selected: false
+          }
+        }
+      ]
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to empty
+    fireEvent.change(input, { target: { value: '' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.save/i });
+    fireEvent.click(saveButton);
+
+    const errorMessage = screen.getByText('messages.errors.questionTextRequired');
+    expect(errorMessage).toBeInTheDocument();
+  })
+
+  it('should display error when addQuestionMutation returns an error', async () => {
+    const mockAddQuestionMutation = jest.fn().mockRejectedValueOnce(new Error("Error"));
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      mockAddQuestionMutation,
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: 'Yes',
+            value: 'yes',
+            selected: false
+          }
+        }
+      ]
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to 'New Question'
+    fireEvent.change(input, { target: { value: 'New Question' } });
+
+    // Add a new radio row
+    const radioInput = screen.getByPlaceholderText('placeholder.text');
+
+    await act(async () => {
+      fireEvent.change(radioInput, { target: { value: 'Yes' } });
+    })
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+
+    await act(async () => {
+      fireEvent.click(saveButton);
+    })
+
+    expect(screen.getByText('messages.errors.questionAddingError')).toBeInTheDocument();
+  })
+
+  it('should display toast error and call router.push when no sectionId', async () => {
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    const json = JSON.stringify({
+      meta: {
+        schemaVersion: "1.0"
+      },
+      type: "radioButtons",
+      options: [
+        {
+          attributes: {
+            label: 'Yes',
+            value: 'yes',
+            selected: false
+          }
+        }
+      ]
+    })
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON={json}
+        />);
+    });
+
+    expect(mockToast.add).toHaveBeenCalledWith('messaging.somethingWentWrong', { type: 'error' });
+    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123');
+  })
+
+  it('should display error when getParsedQuestionJSON returns null for parsed', async () => {
+    const mockGetParsed = getParsedJSONModule.getParsedQuestionJSON as jest.Mock;
+
+    // temporarily override return value
+    mockGetParsed.mockReturnValueOnce({
+      parsed: null,
+      error: 'Mocked parse error',
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+
+    act(() => {
+      render(
+        <QuestionAdd
+          questionType="radioButtons"
+          questionName="Radio buttons"
+          questionJSON=""
+          sectionId="1"
+        />
+      );
+    });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    act(() => {
+      fireEvent.click(saveButton);
+    });
+
+    expect(screen.getByText('Mocked parse error')).toBeInTheDocument();
+
+  });
+
+  it('should trigger an error when trying to add the question due to getParsedQuestionJSON returning null for parsed', async () => {
+    const mockGetParsed = getParsedJSONModule.getParsedQuestionJSON as jest.Mock;
+
+    // 1. First render sets parsedQuestionJSON
+    mockGetParsed.mockReturnValueOnce({
+      parsed: { type: 'radioButtons' },
+      error: null,
+    });
+
+    // 2. On second invocation (triggered by form submit), it fails
+    mockGetParsed.mockReturnValueOnce({
+      parsed: null,
+      error: 'Failed to parse during submit',
+    });
+
+    (useAddQuestionMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+
+    const json = JSON.stringify({
+      meta: {
+        asRichText: true,
+        schemaVersion: "1.0"
+      },
+      type: "textArea",
+      attributes: {
+        cols: 20,
+        rows: 4,
+        maxLength: null,
+        minLength: 0
+      }
+    })
+
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="text"
+          questionName="Text"
+          questionJSON={json}
+          sectionId="1"
+        />);
+    });
+
+    //Wait for component to mount and parsedQuestionJSON to be set
+    await waitFor(() => {
+      expect(screen.queryByText('Failed to parse during submit')).not.toBeInTheDocument();
+    });
+
+    // Get the input
+    const input = screen.getByLabelText('labels.questionText');
+
+    // Set value to empty
+    fireEvent.change(input, { target: { value: 'Test' } });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveAndAdd/i });
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    expect(screen.getByText('Failed to parse during submit')).toBeInTheDocument();
+
   });
 });

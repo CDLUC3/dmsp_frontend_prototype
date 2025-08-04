@@ -183,6 +183,11 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setSelectedMultiSelectValues(values);
   };
 
+  const handleSelectChange = (value: string) => {
+    setSelectedSelectValue(value);
+  };
+
+
   // Handler for date range changes
   const handleDateChange = (
     key: string,
@@ -274,7 +279,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
                 <SelectboxQuestionComponent
                   parsedQuestion={parsed}
                   selectedSelectValue={selectedSelectValue}
-                  setSelectedSelectValue={setSelectedSelectValue}
+                  handleSelectChange={handleSelectChange}
                 />
               )}
 
@@ -282,6 +287,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           );
         }
       }
+
       case TEXT_FIELD_QUESTION_TYPE:
         if (parsed.type === 'text') {
 
@@ -372,7 +378,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             <CurrencyQuestionComponent
               parsedQuestion={parsed}
               inputCurrencyValue={inputCurrencyValue}
-              setInputCurrencyValue={setInputCurrencyValue}
+              handleCurrencyChange={setInputCurrencyValue}
             />
           )
         }
@@ -497,8 +503,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       </ContentContainer>
 
       <SidebarPanel>
-        <p>
-          {trans('bestPractice')}
+        <div className={styles.headerWithLogo}>
+          <h2 className="h4">{Global('bestPractice')}</h2>
           <Image
             className={styles.Logo}
             src="/images/DMP-logo.svg"
@@ -506,7 +512,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             height="16"
             alt="DMP Tool"
           />
-        </p>
+        </div>
 
         <ExpandableContentSection
           id="data-description"

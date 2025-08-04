@@ -91,7 +91,7 @@ const ProjectsProjectFundingEdit = () => {
   // Get Project Funding data
   const { data, loading, error: queryError, refetch } = useProjectFundingQuery(
     {
-      variables: { projectFundingId: Number(projectId) },
+      variables: { projectFundingId: Number(projectFundingId) },
       notifyOnNetworkStatusChange: true
     }
   );
@@ -232,8 +232,8 @@ const ProjectsProjectFundingEdit = () => {
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.fundings.index', {projectId})}>{Global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.fundings.index', { projectId })}>{Global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
             <Breadcrumb>{EditFunding('title')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -260,7 +260,7 @@ const ProjectsProjectFundingEdit = () => {
               name="fundingStatus"
               items={fundingStatuses}
               selectClasses={styles.fundingStatusSelect}
-              onSelectionChange={selected => updateProjectFundingContent('fundingStatus', selected as ProjectFundingStatus)}
+              onChange={selected => updateProjectFundingContent('fundingStatus', selected as ProjectFundingStatus)}
               selectedKey={projectFunding.fundingStatus}
             >
 
@@ -275,7 +275,7 @@ const ProjectsProjectFundingEdit = () => {
             <FormInput
               name="grantNumber"
               type="text"
-              isRequired={true}
+              isRequired={false}
               label={EditFunding('labels.grantNumber')}
               value={projectFunding.funderGrantId}
               onChange={(e) => updateProjectFundingContent('funderGrantId', e.target.value)}
@@ -286,7 +286,7 @@ const ProjectsProjectFundingEdit = () => {
             <FormInput
               name="projectNumber"
               type="text"
-              isRequired={true}
+              isRequired={false}
               label={EditFunding('labels.projectNumber')}
               value={projectFunding.funderProjectNumber}
               onChange={(e) => updateProjectFundingContent('funderProjectNumber', e.target.value)}
@@ -297,7 +297,7 @@ const ProjectsProjectFundingEdit = () => {
             <FormInput
               name="opportunityNumber"
               type="text"
-              isRequired={true}
+              isRequired={false}
               label={EditFunding('labels.opportunity')}
               value={projectFunding.funderOpportunityNumber}
               onChange={(e) => updateProjectFundingContent('funderOpportunityNumber', e.target.value)}

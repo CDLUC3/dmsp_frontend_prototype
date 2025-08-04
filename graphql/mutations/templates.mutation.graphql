@@ -39,5 +39,10 @@ mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: Template
     id
     name
     visibility
+    errors {
+      general
+      name
+      description
+    }
   }
 }

@@ -1,4 +1,39 @@
+
 ### Added
+- Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
+- Added auto-save to the `Question Answer` page [#585]
+- Added the ability to edit the `Plan title` [#608]
+- Added the page for adding a funder manually [#497]
+- Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
+
+### Fixed
+- Fixed bug when hovering over the `Back` button turns text white (essentially invisible) [#651]
+- Fixed inconsistent naming of question type `Affiliation Search` [#645]
+- Fixed bugs related to the `Project Funding` page [#643,650]
+  - Updated `Project Funding` page to use correct `projectFundingId` when clicking `edit` and changed the `fetchPolicy` to make sure it always grabs latest list of `funding` when the user arrives at the page
+  - Added `commas` in between `funder` names on the `Project Overview` page
+  - Updated the `Project Funding Search` page to use same `max-widths` for the funder lists
+- Updated `ProjectsProjectPlanAdjustFunding` component to use `checkboxes` instead of `radiobuttons` for funders [#631]
+  - Also, made sure to redirect users to the `Project Overview` page after saving `funding` selection
+  - Added toast message
+  - Made updates to assure that funder appears on the `Plan Overview` page after selecting it
+  - Made sure that `funding` was saved correctly so that the saved selection displays when user returns
+- Added the missing expanding/collapsing `Best Practices` to the sidebar of the `Question Details` page [#638]
+- Removed errors that were being observed due to missing projectFundingId in mocks [#641]
+- Fixed the contrast for the `Date Picker` on the `/projects/[projectId]/project` page by implementing the shared `Date Component` there [#597]
+- Fixed bug where links in `Plan Overview` sidebar were of different sizes [#634]
+- Fixed the bug where `Plan Status` was displayed in all caps in the sidebar for the `Plan Overview` page [#634]
+- Make `plan` and `template` title changes more smooth by optimistically updating title [#625]
+- Made the project title change smoother by optimistically updated title [#608]
+- Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
+- Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
+- Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
+
+====================================================================================================================================
+## All changes above the line happened after the merge to the main branch on July 21, 2025
+
+### Added
+- Added the `Mark as required` radio buttons on the `QuestionAdd` and `QuestionEdit` pages and updated unit tests [#562]
 - Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
 - Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]
 - Added the `Question details` page that allows users to answer a question [#320]
@@ -9,6 +44,10 @@
 - Implemented a "Delete Question" feature on the question editing page with extra dialog and with tests
 - Hook up the Plan Funder page with actual data so that the user can manage funders on their plan. [#363]
 - Added popular funders to the funder search page when creating a new project. [#380]
+
+### Updated
+- Implement GraphQL integration for plan section questions page [#366]
+- Add `PlanSectionQuestions` query to fetch questions by section ID
 
 ### Updated
 - Updated `routePath` with route `projects.share.index` and updated unit test for `ProjectsProjectMembers` [#589]

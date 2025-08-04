@@ -30,7 +30,7 @@
   
     .pageheader-title {
       margin-bottom: 0;
-      max-width: 70%;
+      max-width: 80%;
     }
 
     .link {
@@ -55,7 +55,16 @@
     align-items: center;
     gap: 0.25rem;
   }
+
+  .title-form-container {
+    width: 100%;
+    @include r.device(lg) {
+      width: 80%;
+    }
+  }
 }
+
+
 
 // Form styles
 .pageheader-title-form{
@@ -73,13 +82,16 @@
   
   .react-aria-TextField {
     margin-bottom: 0;
-    max-width: 70%;
   }
 
   // Custom input class
   .titleChange-input {
     margin-bottom: 0;
     max-width: 100%;
+    white-space: nowrap;        /* Prevents text from wrapping */
+    overflow: hidden;           /* Hides overflow text */
+    text-overflow: ellipsis;    /* Shows ellipsis when text overflows */
+    
   }
   
   // Field wrapper takes most of the space
