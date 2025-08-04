@@ -3,6 +3,7 @@
 - Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
 - Added auto-save to the `Question Answer` page [#585]
 - Added the ability to edit the `Plan title` [#608]
+- Added the page for adding a funder manually [#497]
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
@@ -12,9 +13,10 @@
 - Updated `utils/questionTypeHandlers.ts` to work with the changed `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Update json mocks in `__mocks__` directory to reflect changes to question and answer types [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Updated mocks in `components` to work with updated question JSON [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
-
+- Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed inconsistent naming of question type `Affiliation Search` [#645]
 - Fixed bugs related to the `Project Funding` page [#643,650]
   - Updated `Project Funding` page to use correct `projectFundingId` when clicking `edit` and changed the `fetchPolicy` to make sure it always grabs latest list of `funding` when the user arrives at the page
   - Added `commas` in between `funder` names on the `Project Overview` page
