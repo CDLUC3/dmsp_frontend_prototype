@@ -55,12 +55,7 @@ interface PublicTemplatesInterface {
   visibility?: string | null;
   ownerDisplayName?: string | null;
   ownerURI?: string | null;
-  /*owner?: {
-    displayName?: string;
-    name?: string;
-    searchName?: string;
-    uri?: string | null;
-  } | null;*/
+  versionType?: string;
 }
 
 const PUBLIC_TEMPLATES_INCREMENT = 3;
@@ -206,6 +201,7 @@ const PlanCreate: React.FC = () => {
         defaultExpanded: false,
         visibility: template?.visibility,
         bestPractices: template?.bestPractice || false,
+        publishStatus: Global('published') // All publishedTemplates returned are marked as 'Published'
       }))
     );
     return transformedTemplates;

@@ -132,7 +132,8 @@ const mockTemplates = {
         id: 3,
         __typename: "Template",
       },
-      visibility: "PUBLIC"
+      visibility: "PUBLIC",
+      publishStatus: 'Published'
     },
     {
       description: "",
@@ -151,7 +152,8 @@ const mockTemplates = {
         id: 4,
         __typename: "Template",
       },
-      visibility: "PUBLIC"
+      visibility: "PUBLIC",
+      publishStatus: 'Published'
     },
     {
       description: "",
@@ -170,7 +172,8 @@ const mockTemplates = {
         id: 5,
         __typename: "Template",
       },
-      visibility: "PUBLIC"
+      visibility: "PUBLIC",
+      publishStatus: 'Published'
     },
     {
       description: "",
@@ -188,7 +191,8 @@ const mockTemplates = {
         id: 6,
         __typename: "Template",
       },
-      visibility: "PUBLIC"
+      visibility: "PUBLIC",
+      publishStatus: 'Published'
     }
   ]
 }
@@ -242,7 +246,7 @@ describe('TemplateSelectTemplatePage', () => {
     const templateData = screen.getAllByTestId('template-list-item');
     const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*User Three/);
     const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
-    const publishStatus = within(templateData[0]).getByText(/notPublished/);
+    const publishStatus = within(templateData[0]).getByText('published');
     const visibility = within(templateData[0]).getByText(/visibility\s*:\s*Public/i);
     expect(lastRevisedBy).toBeInTheDocument();
     expect(lastUpdated).toBeInTheDocument();
@@ -250,7 +254,7 @@ describe('TemplateSelectTemplatePage', () => {
     expect(visibility).toBeInTheDocument();
     const lastRevisedBy1 = within(templateData[1]).getByText(/lastRevisedBy.*User Four/);
     const lastUpdated1 = within(templateData[1]).getByText(/lastUpdated.*01-01-2023/);
-    const publishStatus1 = within(templateData[1]).getByText(/notPublished/);
+    const publishStatus1 = within(templateData[1]).getByText('published');
     const visibility1 = within(templateData[1]).getByText(/visibility\s*:\s*Public/i);
     expect(lastRevisedBy1).toBeInTheDocument();
     expect(lastUpdated1).toBeInTheDocument();

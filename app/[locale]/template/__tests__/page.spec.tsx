@@ -164,7 +164,7 @@ describe('TemplateListPage', () => {
     const templateData = screen.getAllByTestId('template-metadata');
     const lastRevisedBy = within(templateData[0]).getByText(/lastRevisedBy.*Test User/);
     const lastUpdated = within(templateData[0]).getByText(/lastUpdated.*01-01-2023/);
-    const publishStatus = within(templateData[0]).getByText(/published/);
+    const publishStatus = within(templateData[0]).getByText('Published');
     const visibility = within(templateData[0]).getByText(/visibility.*Organization/);
     expect(lastRevisedBy).toBeInTheDocument();
     expect(publishStatus).toBeInTheDocument();

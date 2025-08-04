@@ -179,7 +179,7 @@ const TemplateSelectTemplatePage = ({ templateName }: { templateName: string }) 
         funder: template?.template?.owner?.name || template?.name,
         lastUpdated: template?.modified ? formatDate(template?.modified) : null,
         lastRevisedBy: template?.modifiedByName || null,
-        publishStatus: template?.versionType,
+        publishStatus: Global('published'), // All records returned for publishedTemplates and myVersionedTemplates are marked as 'Published'
         hasAdditionalGuidance: false,
         defaultExpanded: false,
         visibility: template?.visibility ? toSentenceCase(template.visibility) : ''
