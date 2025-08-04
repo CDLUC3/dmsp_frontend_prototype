@@ -2,7 +2,7 @@
   "answerByVersionedQuestionId": {
     "__typename": "Answer",
     "id": 13,
-    "json": "{\"answer\":\"https://cdlib.org\"}",
+    "json": "{\"type\":\"url\",\"answer\":\"https://cdlib.org\"}",
     "versionedQuestion": {
       "__typename": "VersionedQuestion",
       "id": 191

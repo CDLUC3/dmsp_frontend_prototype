@@ -5,7 +5,7 @@
     "guidanceText": "This is the guidance text",
     "id": 2271,
     "questionText": "Testing",
-    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"radioButtons\",\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":true}},{\"type\":\"option\",\"attributes\":{\"label\":\"No\",\"value\":\"No\",\"selected\":false}},{\"type\":\"option\",\"attributes\":{\"label\":\"Maybe\",\"value\":\"Maybe\",\"selected\":false}}]}",
+    "json": "{\"type\":\"radioButtons\",\"attributes\":{},\"options\":[{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":true},{\"label\":\"No\",\"value\":\"No\",\"selected\":false},{\"label\":\"Maybe\",\"value\":\"Maybe\",\"selected\":false}],\"meta\":{\"schemaVersion\":\"1.0\"}}",
     "requirementText": "This is requirement text",
     "sampleText": "This is sample text",
     "versionedSectionId": 67,

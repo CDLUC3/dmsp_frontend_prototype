@@ -4,9 +4,19 @@
 - Added auto-save to the `Question Answer` page [#585]
 - Added the ability to edit the `Plan title` [#608]
 - Added the page for adding a funder manually [#497]
+- Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+
+### Updated
+- Update `@dmptool/types` version [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+- Updated handling of `date`, `dateRange`, `numberRange`, `currency`, and `option` to reflect changes in `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+- `@dmptool/types` now has an `affiliationSearch` instead of `typeaheadSearch` and a separate`multiselectBox` type, so updated code to work with these new handlers [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+- Updated `utils/questionTypeHandlers.ts` to work with the changed `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+- Update json mocks in `__mocks__` directory to reflect changes to question and answer types [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+- Updated mocks in `components` to work with updated question JSON [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed bug when hovering over the `Back` button turns text white (essentially invisible) [#651]
 - Fixed inconsistent naming of question type `Affiliation Search` [#645]
 - Fixed bugs related to the `Project Funding` page [#643,650]
   - Updated `Project Funding` page to use correct `projectFundingId` when clicking `edit` and changed the `fetchPolicy` to make sure it always grabs latest list of `funding` when the user arrives at the page
@@ -27,6 +37,11 @@
 - Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
 - Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
+
+### Removed
+- Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+- Remove the old QuestinType` graphQL query [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+- Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on July 21, 2025

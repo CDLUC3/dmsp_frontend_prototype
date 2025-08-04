@@ -10,6 +10,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
 import QuestionAdd from '@/components/QuestionAdd';
 import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
+import {AffiliationSearchQuestionType} from "@dmptool/types";
 
 
 expect.extend(toHaveNoViolations);
@@ -319,7 +320,7 @@ describe("QuestionAdd", () => {
             displayOrder: 5,
             isDirty: true,
             questionText: 'New Question',
-            json: "{\"type\":\"radioButtons\",\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}}]}",
+            json: "{\"type\":\"radioButtons\",\"attributes\":{},\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}]}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -382,7 +383,7 @@ describe("QuestionAdd", () => {
             displayOrder: 5,
             isDirty: true,
             questionText: 'New Question',
-            json: "{\"type\":\"text\",\"meta\":{\"schemaVersion\":\"1.0\"},\"attributes\":{\"maxLength\":1000,\"minLength\":0,\"pattern\":\"^.+$\"}}",
+            json: "{\"type\":\"text\",\"attributes\":{\"maxLength\":1000,\"minLength\":0,\"pattern\":\"^.+$\"},\"meta\":{\"schemaVersion\":\"1.0\"}}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -447,7 +448,7 @@ describe("QuestionAdd", () => {
             displayOrder: 5,
             isDirty: true,
             questionText: 'New Question',
-            json: "{\"type\":\"textArea\",\"meta\":{\"schemaVersion\":\"1.0\",\"asRichText\":true},\"attributes\":{\"cols\":40,\"maxLength\":1000,\"minLength\":0,\"rows\":20}}",
+            json: "{\"type\":\"textArea\",\"attributes\":{\"cols\":40,\"maxLength\":1000,\"minLength\":0,\"rows\":20,\"asRichText\":true},\"meta\":{\"schemaVersion\":\"1.0\"}}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -509,7 +510,7 @@ describe("QuestionAdd", () => {
             displayOrder: 5,
             isDirty: true,
             questionText: 'New Question',
-            json: "{\"type\":\"number\",\"meta\":{\"schemaVersion\":\"1.0\"},\"attributes\":{\"max\":10000000,\"min\":0,\"step\":1}}",
+            json: "{\"type\":\"number\",\"attributes\":{\"max\":10000000,\"min\":0,\"step\":1},\"meta\":{\"schemaVersion\":\"1.0\"}}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -572,7 +573,7 @@ describe("QuestionAdd", () => {
             displayOrder: 5,
             isDirty: true,
             questionText: 'New Question',
-            json: "{\"type\":\"currency\",\"meta\":{\"schemaVersion\":\"1.0\"},\"attributes\":{\"max\":10000000,\"min\":0,\"step\":0.01}}",
+            json: "{\"type\":\"currency\",\"attributes\":{\"max\":10000000,\"min\":0,\"step\":0.01,\"denomination\":\"GBP\"},\"meta\":{\"schemaVersion\":\"1.0\"}}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -634,7 +635,7 @@ describe("QuestionAdd", () => {
             displayOrder: 5,
             isDirty: true,
             questionText: 'New Question',
-            json: "{\"type\":\"url\",\"meta\":{\"schemaVersion\":\"1.0\"},\"attributes\":{\"maxLength\":2048,\"minLength\":2,\"pattern\":\"https?://.+\"}}",
+            json: "{\"type\":\"url\",\"attributes\":{\"maxLength\":2048,\"minLength\":2,\"pattern\":\"https?://.+\"},\"meta\":{\"schemaVersion\":\"1.0\"}}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -1013,7 +1014,7 @@ describe("QuestionAdd", () => {
             displayOrder: 1,
             isDirty: true,
             questionText: 'New Question',
-            json: "{\"type\":\"radioButtons\",\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"type\":\"option\",\"attributes\":{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}}]}",
+            json: "{\"type\":\"radioButtons\",\"attributes\":{},\"meta\":{\"schemaVersion\":\"1.0\"},\"options\":[{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":false}]}",
             requirementText: '',
             guidanceText: '',
             sampleText: '',
@@ -1030,21 +1031,24 @@ describe("QuestionAdd", () => {
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
-    const mockTypeAheadJSON = JSON.stringify({
+    const json: AffiliationSearchQuestionType = {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "typeaheadSearch",
+      type: "affiliationSearch",
+      attributes: {
+        label: "Enter the search term to find your affiliation",
+      },
       graphQL: {
-        query: "query Affiliations($name: String!){affiliations(name: $name) { totalCount nextCursor items {id displayName uri}}}",
+        query: "\nquery Affiliations($name: String!){\n  affiliations(name: $name) {\n    totalCount\n    nextCursor\n    items {\n      id\n      displayName\n      uri\n    }\n  }\n}",
         queryId: "useAffiliationsQuery",
         variables: [
           {
-            name: "term",
+            name: "name",
+            label: "Search",
+            labelTranslationKey: "SignupPage.institutionHelp",
             type: "string",
-            label: "Enter the search term to find your affiliation",
             minLength: 3,
-            labelTranslationKey: "SignupPage.institutionHelp"
           }
         ],
         answerField: "uri",
@@ -1057,17 +1061,18 @@ describe("QuestionAdd", () => {
         ],
         responseField: "affiliations.items"
       }
-    });
+    };
+    const mockTypeAheadJSON = JSON.stringify(json);
 
     render(
       <QuestionAdd
-        questionType="typeaheadSearch"
-        questionName="Typeahead Search"
+        questionType="affiliationSearch"
+        questionName="Affiliation Search"
         questionJSON={mockTypeAheadJSON}
         sectionId="1"
       />);
 
-    // Find the label input rendered by TypeAheadSearch
+    // Find the label input rendered by AffiliationSearch
     const labelInput = screen.getByPlaceholderText('Enter search label');
 
     // Simulate user typing
@@ -1081,21 +1086,24 @@ describe("QuestionAdd", () => {
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
-    const mockTypeAheadJSON = JSON.stringify({
+    const json: AffiliationSearchQuestionType = {
       meta: {
         schemaVersion: "1.0"
       },
-      type: "typeaheadSearch",
+      type: "affiliationSearch",
+      attributes: {
+        label: "Enter the search term to find your affiliation",
+      },
       graphQL: {
-        query: "query Affiliations($name: String!){affiliations(name: $name) { totalCount nextCursor items {id displayName uri}}}",
+        query: "\nquery Affiliations($name: String!){\n  affiliations(name: $name) {\n    totalCount\n    nextCursor\n    items {\n      id\n      displayName\n      uri\n    }\n  }\n}",
         queryId: "useAffiliationsQuery",
         variables: [
           {
-            name: "term",
+            name: "name",
+            label: "Search",
+            labelTranslationKey: "SignupPage.institutionHelp",
             type: "string",
-            label: "Enter the search term to find your affiliation",
             minLength: 3,
-            labelTranslationKey: "SignupPage.institutionHelp"
           }
         ],
         answerField: "uri",
@@ -1108,17 +1116,18 @@ describe("QuestionAdd", () => {
         ],
         responseField: "affiliations.items"
       }
-    });
+    };
+    const mockTypeAheadJSON = JSON.stringify(json);
 
     render(
       <QuestionAdd
-        questionType="typeaheadSearch"
-        questionName="Typeahead Search"
+        questionType="affiliationSearch"
+        questionName="Affiliation Search"
         questionJSON={mockTypeAheadJSON}
         sectionId="1"
       />);
 
-    // Find the label input rendered by TypeAheadSearch
+    // Find the label input rendered by AffiliationSearch
     const helpTextInput = screen.getByPlaceholderText('Enter the help text you want to display');
 
     // Simulate user typing

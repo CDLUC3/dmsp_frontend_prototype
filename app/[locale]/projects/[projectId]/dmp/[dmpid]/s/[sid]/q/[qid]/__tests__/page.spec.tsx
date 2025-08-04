@@ -55,9 +55,51 @@ import mockAnswerDataForTextArea from '@/__mocks__/common/mockAnswerDataForTextA
 import mockCheckboxAnswer from '../__mocks__/mockCheckboxAnswer.json';
 import mockOtherAnswerData from '../__mocks__/mockOtherAnswerData.json'
 
-
 import { mockScrollIntoView } from "@/__mocks__/common";
 import PlanOverviewQuestionPage from "../page";
+import { AffiliationSearchQuestionType } from "@dmptool/types";
+
+beforeEach(() => {
+  // Cannot get the escaping to work in the mock JSON file, so doing it programmatically here
+  const affiliationQuery = 'query Affiliations($name: String!){ ' +
+    'affiliations(name: $name) { ' +
+      'totalCount ' +
+      'nextCursor ' +
+      'items { ' +
+        'id ' +
+        'displayName ' +
+        'uri ' +
+      '} ' +
+    '} ' +
+  '}';
+
+  const json: AffiliationSearchQuestionType = {
+    type: 'affiliationSearch',
+    attributes: {
+      label: 'Institution',
+      help: 'Search for your institution',
+    },
+    graphQL: {
+      displayFields: [{
+        label: "Institution",
+        propertyName: "displayName",
+      }],
+      query: affiliationQuery,
+      responseField: 'affiliations.items',
+      variables: [{
+        label: "Search for your institution",
+        minLength: 3,
+        name: "name",
+        type: "string",
+      }],
+      answerField: 'uri'
+    },
+    meta: {
+      schemaVersion: '1.0'
+    },
+  };
+  mockQuestionDataForTypeAheadSearch.publishedQuestion.json = JSON.stringify(json);
+});
 
 expect.extend(toHaveNoViolations);
 
@@ -345,10 +387,10 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
     const typeAheadContainer = screen.getByTestId('typeaheadWithOther');
     expect(typeAheadContainer).toBeInTheDocument();
-    expect(within(typeAheadContainer).getByText('Affiliation')).toBeInTheDocument();
+    expect(within(typeAheadContainer).getByText('Institution')).toBeInTheDocument();
     const input = within(typeAheadContainer).getByRole('textbox');
     expect(input).toBeInTheDocument();
-    expect(within(typeAheadContainer).getByText('Enter a search term to find your affiliation')).toBeInTheDocument();
+    expect(within(typeAheadContainer).getByText('Search for your institution')).toBeInTheDocument();
   })
 
   it('should load correct question content for date range question', async () => {
@@ -855,7 +897,7 @@ describe('Call to updateAnswerAction', () => {
       );
     });
 
-    const searchLabelInput = screen.getByLabelText('Affiliation');
+    const searchLabelInput = screen.getByLabelText('Institution');
     fireEvent.change(searchLabelInput, { target: { value: 'UCOP' } });
 
 
@@ -866,7 +908,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 20,
-        json: "{\"answer\":{\"affiliationId\":\"\",\"affiliationName\":\"UCOP\",\"isOther\":false}}"
+        json: "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"UCOP\"}}"
       });
     });
 
@@ -926,7 +968,7 @@ describe('Call to updateAnswerAction', () => {
       );
     });
 
-    const searchLabelInput = screen.getByLabelText('Affiliation');
+    const searchLabelInput = screen.getByLabelText('Institution');
 
     act(() => {
       fireEvent.change(searchLabelInput, { target: { value: 'UC San' } });
@@ -961,7 +1003,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 20,
-        json: "{\"answer\":{\"affiliationId\":\"\",\"affiliationName\":\"Academy of stars\",\"isOther\":true}}"
+        json: "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"\",\"affiliationName\":\"Academy of stars\"}}"
       });
     });
 
@@ -988,7 +1030,7 @@ describe('Call to updateAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1018,7 +1060,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 27,
-        json: "{\"answer\":[\"Barbara\",\"Charlie\"]}"
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\"]}"
       });
     });
   });
@@ -1055,7 +1097,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 5,
-        json: "{\"answer\":\"No\"}"
+        json: "{\"type\":\"radioButtons\",\"answer\":\"No\"}"
       });
     });
   });
@@ -1095,7 +1137,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 21,
-        json: "{\"answer\":\"New input value\"}"
+        json: "{\"type\":\"text\",\"answer\":\"New input value\"}"
       });
     });
   })
@@ -1135,7 +1177,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 16,
-        json: "{\"answer\":{\"startDate\":\"2025-05-15\",\"endDate\":\"2025-07-05\"}}"
+        json: "{\"type\":\"dateRange\",\"answer\":{\"start\":\"2025-05-15\",\"end\":\"2025-07-05\"}}"
       });
     });
   })
@@ -1176,7 +1218,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 15,
-        json: "{\"answer\":{\"startDate\":\"2025-07-15\",\"endDate\":\"\"}}"
+        json: "{\"type\":\"date\",\"answer\":\"2025-07-15\"}"
       });
     });
   })
@@ -1218,7 +1260,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 14,
-        json: "{\"answer\":\"no\"}"
+        json: "{\"type\":\"boolean\",\"answer\":\"no\"}"
       });
     });
   })
@@ -1254,7 +1296,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 13,
-        json: "{\"answer\":\"https://ucop.edu\"}"
+        json: "{\"type\":\"url\",\"answer\":\"https://ucop.edu\"}"
       });
     });
   })
@@ -1289,7 +1331,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 12,
-        json: "{\"answer\":\"test@example.com\"}"
+        json: "{\"type\":\"email\",\"answer\":\"test@example.com\"}"
       });
     });
   })
@@ -1353,7 +1395,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 4,
-        json: "{\"answer\":\"This is the text area content\"}"
+        json: "{\"type\":\"textArea\",\"answer\":\"This is the text area content\"}"
       });
     });
   });
@@ -1391,7 +1433,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 11,
-        json: "{\"answer\":15}"
+        json: "{\"type\":\"currency\",\"answer\":15}"
       });
     });
   })
@@ -1428,7 +1470,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 10,
-        json: "{\"answer\":{\"startNumber\":2,\"endNumber\":10}}"
+        json: "{\"type\":\"numberRange\",\"answer\":{\"start\":2,\"end\":10}}"
       });
     });
   })
@@ -1464,7 +1506,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 9,
-        json: "{\"answer\":3}"
+        json: "{\"type\":\"number\",\"answer\":3}"
       });
     });
   })
@@ -1500,7 +1542,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 18,
-        json: "{\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"]}"
+        json: "{\"type\":\"multiselectBox\",\"answer\":[\"Banana\",\"Pear\",\"Orange\",\"Apple\"]}"
       });
     });
   })
@@ -1539,7 +1581,7 @@ describe('Call to updateAnswerAction', () => {
     await waitFor(() => {
       expect(updateAnswerAction).toHaveBeenCalledWith({
         answerId: 30,
-        json: "{\"answer\":\"California\"}"
+        json: "{\"type\":\"selectBox\",\"answer\":\"California\"}"
       });
     });
   })
@@ -1565,7 +1607,7 @@ describe('Call to updateAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"answer\":\"This is a test\"}",
+        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1635,7 +1677,7 @@ describe('Call to updateAnswerAction', () => {
           versionedQuestionId: 'versionedQuestionId already exists'
         },
         id: 27,
-        json: "{\"answer\":\"This is a test\"}",
+        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1709,7 +1751,7 @@ describe('Call to updateAnswerAction', () => {
           versionedQuestionId: 'versionedQuestionId already exists'
         },
         id: 27,
-        json: "{\"answer\":\"This is a test\"}",
+        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1779,7 +1821,7 @@ describe('Call to addAnswerAction', () => {
           general: null,
         },
         id: 27,
-        json: "{\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1811,7 +1853,7 @@ describe('Call to addAnswerAction', () => {
         planId: 1,
         versionedSectionId: 22,
         versionedQuestionId: 344,
-        json: "{\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}"
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}"
       });
     });
   });
@@ -2200,7 +2242,7 @@ describe('Auto save', () => {
           general: null,
         },
         id: 27,
-        json: "{\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20

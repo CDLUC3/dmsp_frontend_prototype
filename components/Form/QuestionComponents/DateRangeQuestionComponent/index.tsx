@@ -22,8 +22,8 @@ const DateRangeQuestionComponent: React.FC<DateRangeQuestionProps> = ({
   handleDateChange,
 }) => {
   // Extract labels from JSON if available
-  const startLabel = parsedQuestion?.columns?.start?.attributes?.label;
-  const endLabel = parsedQuestion?.columns?.end?.attributes?.label;
+  const startLabel = parsedQuestion?.columns?.start?.label;
+  const endLabel = parsedQuestion?.columns?.end?.label;
   return (
     <div
       className='two-item-row'

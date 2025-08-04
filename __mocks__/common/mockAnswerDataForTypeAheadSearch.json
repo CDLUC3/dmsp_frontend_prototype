@@ -2,7 +2,7 @@
   "answerByVersionedQuestionId": {
     "__typename": "Answer",
     "id": 20,
-    "json": "{\"answer\":{\"isOther\":false,\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"University of California, San Diego (ucsd.edu)\"}}",
+    "json": "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"https://ror.org/0168r3w48\",\"affiliationName\":\"UCOP\"}}",
     "versionedQuestion": {
       "__typename": "VersionedQuestion",
       "id": 195

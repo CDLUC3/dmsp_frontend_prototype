@@ -46,7 +46,8 @@ import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON'
 //Other
 import { useToast } from '@/context/ToastContext';
 import { stripHtmlTags } from '@/utils/general';
-import { questionTypeHandlers, QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { questionTypeHandlers } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from "@dmptool/types";
 import { routePath } from '@/utils/routes';
 import { Question, QuestionOptions } from '@/app/types';
 import {
@@ -169,7 +170,7 @@ const QuestionAdd = ({
     setRows(newRows);
 
     if (hasOptions && questionType && question?.json) {
-      const updatedJSON = buildUpdatedJSON(newRows);
+      const updatedJSON = buildUpdatedJSON(question, newRows);
 
       if (updatedJSON) {
         setQuestion((prev) => ({
@@ -186,9 +187,9 @@ const QuestionAdd = ({
     setDateRangeLabels(prev => ({ ...prev, [field]: value }));
 
     if (parsedQuestionJSON && (parsedQuestionJSON?.type === "dateRange" || parsedQuestionJSON?.type === "numberRange")) {
-      if (parsedQuestionJSON?.columns?.[field]?.attributes) {
+      if (parsedQuestionJSON?.columns?.[field]) {
         const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-        updatedParsed.columns[field].attributes.label = value;
+        updatedParsed.columns[field].label = value;
         setQuestion(prev => ({
           ...prev,
           json: JSON.stringify(updatedParsed),
@@ -200,37 +201,11 @@ const QuestionAdd = ({
   // Handler for typeahead search label changes
   const handleTypeAheadSearchLabelChange = (value: string) => {
     setTypeaheadSearchLabel(value);
-
-    // Update the label in the question JSON and sync to question state
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
-      if (parsedQuestionJSON?.graphQL?.displayFields?.[0]) {
-        const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-        updatedParsed.graphQL.displayFields[0].label = value;
-        setQuestion(prev => ({
-          ...prev,
-          json: JSON.stringify(updatedParsed),
-        }));
-      }
-    }
   };
 
   // Handler for typeahead help text changes
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
-
-    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "typeaheadSearch")) {
-      const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
-
-      if (updatedParsed.graphQL &&
-        Array.isArray(updatedParsed.graphQL.variables) &&
-        updatedParsed.graphQL.variables[0]) {
-        updatedParsed.graphQL.variables[0].label = value;
-        setQuestion(prev => ({
-          ...prev,
-          json: JSON.stringify(updatedParsed),
-        }));
-      }
-    }
   };
 
   // Handle changes from RadioGroup
@@ -257,7 +232,7 @@ const QuestionAdd = ({
 
   // Prepare input for the questionTypeHandler. For options questions, we update the 
   // values with rows state. For non-options questions, we use the parsed JSON
-  const getFormState = (rowsOverride?: QuestionOptions[]) => {
+  const getFormState = (question: Question, rowsOverride?: QuestionOptions[]) => {
 
     if (hasOptions) {
       const useRows = rowsOverride ?? rows;
@@ -270,31 +245,45 @@ const QuestionAdd = ({
       };
     }
 
-    if (!parsedQuestionJSON) {
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
+
+    if (questionType === TYPEAHEAD_QUESTION_TYPE) {
+      return {
+        label: typeaheadSearchLabel,
+        help: typeaheadHelpText,
+      }
+    }
+
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
+      }
       return;
     }
 
     return {
       ...parsedQuestionJSON,
       attributes: {
-        ...('attributes' in parsedQuestionJSON ? parsedQuestionJSON.attributes : {}),
+        ...('attributes' in parsed ? parsed.attributes : {}),
         ...getOverrides(questionType),
       },
     };
   };
 
   // Pass the merged userInput to questionTypeHandlers to generate json and do type and schema validation
-  const buildUpdatedJSON = (rowsOverride?: QuestionOptions[]) => {
-    const userInput = getFormState(rowsOverride);
-
-    if (parsedQuestionJSON && userInput) {
-      return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-        parsedQuestionJSON,
-        userInput
-      );
+  const buildUpdatedJSON = (question: Question, rowsOverride?: QuestionOptions[]) => {
+    const userInput = getFormState(question, rowsOverride);
+    const { parsed, error } = getParsedQuestionJSON(question, routePath('template.q.new', { templateId }), Global);
+    if (!parsed) {
+      if (error) {
+        setErrors(prev => [...prev, error])
+      }
+      return;
     }
-    return null;
-
+    return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
+        parsed,
+        userInput
+    );
   };
 
   // Function to add and save the new question
@@ -302,7 +291,8 @@ const QuestionAdd = ({
     e.preventDefault();
 
     const displayOrder = getDisplayOrder();
-    const updatedJSON = buildUpdatedJSON();
+
+    const updatedJSON = buildUpdatedJSON(question);
 
     if (updatedJSON) {
       // Strip all tags from questionText before sending to backend
@@ -382,8 +372,8 @@ const QuestionAdd = ({
       try {
 
         setDateRangeLabels({
-          start: parsedQuestionJSON?.columns?.start?.attributes?.label,
-          end: parsedQuestionJSON?.columns?.end?.attributes?.label,
+          start: parsedQuestionJSON?.columns?.start?.label ?? '',
+          end: parsedQuestionJSON?.columns?.end?.label ?? '',
         });
       } catch {
         setDateRangeLabels({ start: '', end: '' });
