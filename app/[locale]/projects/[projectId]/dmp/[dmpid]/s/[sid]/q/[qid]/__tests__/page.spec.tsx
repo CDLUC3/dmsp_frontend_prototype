@@ -33,7 +33,7 @@ import mockQuestionDataForRadioButton from '@/__mocks__/common/mockPublishedQues
 import mockQuestionDataForSelectBox from '@/__mocks__/common/mockPublishedQuestionDataForSelectBox.json';
 import mockQuestionDataForTextArea from '@/__mocks__/common/mockPublishedQuestionDataForTextArea.json';
 import mockQuestionDataForTextField from '@/__mocks__/common/mockPublishedQuestionDataForTextField.json';
-import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockPublishedQuestionDataForTypeAheadSearch.json';
+import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockPublishedQuestionDataForAffiliationSearch.json';
 import mockQuestionDataForURL from '@/__mocks__/common/mockPublishedQuestionDataForURL.json';
 import mockOtherQuestion from '../__mocks__/mockOtherQuestionData.json';
 
