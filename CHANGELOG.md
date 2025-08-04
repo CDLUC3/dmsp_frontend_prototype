@@ -7,6 +7,7 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed bug when hovering over the `Back` button turns text white (essentially invisible) [#651]
 - Fixed inconsistent naming of question type `Affiliation Search` [#645]
 - Fixed bugs related to the `Project Funding` page [#643,650]
   - Updated `Project Funding` page to use correct `projectFundingId` when clicking `edit` and changed the `fetchPolicy` to make sure it always grabs latest list of `funding` when the user arrives at the page
