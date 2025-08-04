@@ -300,6 +300,8 @@ const QuestionEdit = () => {
     // Set formSubmitted to true to indicate the form has been submitted
     setFormSubmitted(true);
 
+
+
     if (question) {
       const updatedJSON = buildUpdatedJSON(question);
 

@@ -307,6 +307,7 @@ const QuestionAdd = ({
     if (updatedJSON) {
       // Strip all tags from questionText before sending to backend
       const cleanedQuestionText = stripHtmlTags(question?.questionText ?? '');
+
       const input = {
         templateId: Number(templateId),
         sectionId: Number(sectionId),

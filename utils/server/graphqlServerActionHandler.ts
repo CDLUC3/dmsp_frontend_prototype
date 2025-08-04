@@ -56,6 +56,11 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
       Cookie: cookieString,
     };
 
+console.log('url', `${process.env.SERVER_ENDPOINT}/graphql`)
+console.log('headers: ', headers)
+console.log('mutationString: ', mutationString)
+console.log('variables: ', variables)
+
     // Make the GraphQL request
     const response = await fetch(`${process.env.SERVER_ENDPOINT}/graphql`, {
       method: "POST",
@@ -66,6 +71,8 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
         variables,
       }),
     });
+
+console.log('response: ', response)
 
     const result = await response.json();
 
