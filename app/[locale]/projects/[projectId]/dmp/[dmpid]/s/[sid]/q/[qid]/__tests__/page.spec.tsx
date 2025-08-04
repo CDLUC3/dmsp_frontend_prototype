@@ -4,10 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { useParams, useRouter } from 'next/navigation';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import {
-  useAnswerByVersionedQuestionIdLazyQuery,
-  useSectionVersionsQuery,
+  useAnswerByVersionedQuestionIdQuery,
+  usePublishedQuestionQuery,
   usePlanQuery,
-  useQuestionQuery,
 } from '@/generated/graphql';
 import {
   addAnswerAction,
@@ -18,25 +17,24 @@ import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 
 import mockAnswerData from '../__mocks__/mockAnswerData.json';
 import mockPlanData from '../__mocks__/mockPlanData.json';
-import mockQuestionData from '../__mocks__/mockQuestionDetailData.json';
+import mockPublishedQuestion from '../__mocks__/mockPublishedQuestion.json';
 
 // Mocked question data
 import mockCheckboxQuestion from '../__mocks__/mockCheckboxQuestion.json';
-import mockSectionVersionsData from '../__mocks__/mockSectionVersions.json';
-import mockQuestionDataForTextField from '@/__mocks__/common/mockQuestionDataForTextField.json';
-import mockQuestionDataForRadioButton from '@/__mocks__/common/mockQuestionDataForRadioButton.json';
-import mockQuestionDataForCurrency from '@/__mocks__/common/mockQuestionDataForCurrency.json';
-import mockQuestionDataForURL from '@/__mocks__/common/mockQuestionDataForURL.json';
-import mockQuestionDataForDateRange from '@/__mocks__/common/mockQuestionDataForDateRange.json';
-import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockQuestionDataForTypeAheadSearch.json';
-import mockQuestionDataForDate from '@/__mocks__/common/mockQuestionDataForDate.json';
-import mockQuestionDataForBoolean from '@/__mocks__/common/mockQuestionDataForBoolean.json';
-import mockQuestionDataForEmail from '@/__mocks__/common/mockQuestionDataForEmail.json';
-import mockQuestionDataForNumberRange from '@/__mocks__/common/mockQuestionDataForNumberRange.json';
-import mockQuestionDataForNumber from '@/__mocks__/common/mockQuestionDataForNumber.json';
-import mockQuestionDataForMultiSelect from '@/__mocks__/common/mockQuestionDataForMultiSelect.json';
-import mockQuestionDataForSelectBox from '@/__mocks__/common/mockQuestionDataForSelectBox.json';
-import mockQuestionDataForTextArea from '@/__mocks__/common/mockQuestionDataForTextArea.json';
+import mockQuestionDataForBoolean from '@/__mocks__/common/mockPublishedQuestionDataForBoolean.json';
+import mockQuestionDataForCurrency from '@/__mocks__/common/mockPublishedQuestionDataForCurrency.json';
+import mockQuestionDataForDate from '@/__mocks__/common/mockPublishedQuestionDataForDate.json';
+import mockQuestionDataForDateRange from '@/__mocks__/common/mockPublishedQuestionDataForDateRange.json';
+import mockQuestionDataForEmail from '@/__mocks__/common/mockPublishedQuestionDataForEmail.json';
+import mockQuestionDataForMultiSelect from '@/__mocks__/common/mockPublishedQuestionDataForMultiSelect.json';
+import mockQuestionDataForNumber from '@/__mocks__/common/mockPublishedQuestionDataForNumber.json';
+import mockQuestionDataForNumberRange from '@/__mocks__/common/mockPublishedQuestionDataForNumberRange.json';
+import mockQuestionDataForRadioButton from '@/__mocks__/common/mockPublishedQuestionDataForRadioButton.json';
+import mockQuestionDataForSelectBox from '@/__mocks__/common/mockPublishedQuestionDataForSelectBox.json';
+import mockQuestionDataForTextArea from '@/__mocks__/common/mockPublishedQuestionDataForTextArea.json';
+import mockQuestionDataForTextField from '@/__mocks__/common/mockPublishedQuestionDataForTextField.json';
+import mockQuestionDataForTypeAheadSearch from '@/__mocks__/common/mockPublishedQuestionDataForAffiliationSearch.json';
+import mockQuestionDataForURL from '@/__mocks__/common/mockPublishedQuestionDataForURL.json';
 import mockOtherQuestion from '../__mocks__/mockOtherQuestionData.json';
 
 // Mocked answer data
@@ -100,7 +98,7 @@ beforeEach(() => {
       schemaVersion: '1.0'
     },
   };
-  mockQuestionDataForTypeAheadSearch.question.json = JSON.stringify(json);
+  mockQuestionDataForTypeAheadSearch.publishedQuestion.json = JSON.stringify(json);
 });
 
 expect.extend(toHaveNoViolations);
@@ -108,10 +106,9 @@ expect.extend(toHaveNoViolations);
 
 // Mock the GraphQL query and mutation hooks
 jest.mock("@/generated/graphql", () => ({
-  useAnswerByVersionedQuestionIdLazyQuery: jest.fn(),
-  useSectionVersionsQuery: jest.fn(),
   usePlanQuery: jest.fn(),
-  useQuestionQuery: jest.fn(),
+  usePublishedQuestionQuery: jest.fn(),
+  useAnswerByVersionedQuestionIdQuery: jest.fn(),
 }));
 
 // Mock actions
@@ -160,31 +157,22 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     jest.useFakeTimers();
 
-    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
-      data: mockSectionVersionsData,
-      loading: false,
-      error: undefined,
-    });
-
     (usePlanQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockPlanData),
       { loading: false, error: undefined },
     ]);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockPublishedQuestion,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerData,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerData,
+      loading: false,
+      error: undefined,
+    });
   })
 
   afterEach(() => {
@@ -193,24 +181,21 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
   it('should load correct question content for textArea question', async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -263,7 +248,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for checkbox question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockCheckboxQuestion,
       loading: false,
       error: undefined,
@@ -271,7 +256,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -285,13 +270,13 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(checkboxGroup).toBeInTheDocument();
     const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
     const alexCheckbox = checkboxes.find(
-        (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
     );
     const barbaraCheckbox = checkboxes.find(
-        (checkbox) => (checkbox as HTMLInputElement).value === 'Barbara'
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Barbara'
     );
     const charlieCheckbox = checkboxes.find(
-        (checkbox) => (checkbox as HTMLInputElement).value === 'Charlie'
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Charlie'
     );
 
     expect(alexCheckbox).toBeInTheDocument();
@@ -302,24 +287,21 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for radioButton question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForRadioButton,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForRadioButton,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForRadioButton,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -346,24 +328,21 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for text field question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextField,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextField,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextField,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -383,25 +362,22 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     const mockClient = { query: mockQuery };
     (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTypeAheadSearch,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTypeAheadSearch,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -418,24 +394,21 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for date range question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForDateRange,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForDateRange,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForDateRange,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -471,25 +444,22 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for date question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForDate,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForDate,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForDate,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -512,25 +482,22 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for boolean question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForBoolean,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForBoolean,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForBoolean,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -549,25 +516,22 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for url question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForURL,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForURL,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForURL,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -582,24 +546,21 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for email question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForEmail,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForEmail,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForEmail,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -614,25 +575,22 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for currency question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForCurrency,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForCurrency,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForCurrency,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -652,25 +610,22 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for numberRange question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForNumberRange,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForNumberRange,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForNumberRange,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -694,25 +649,22 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for number question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForNumber,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForNumber,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForNumber,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -733,25 +685,22 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for multiSelect question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForMultiSelect,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForMultiSelect,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForMultiSelect,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -777,24 +726,21 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for selectBox question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForSelectBox,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForSelectBox,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForSelectBox,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -815,24 +761,21 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
   it('should redirect to section overview page when user clicks \'Back to section\' button', async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -862,31 +805,22 @@ describe('accessibility', () => {
       push: jest.fn(),
     });
 
-    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
-      data: mockSectionVersionsData,
-      loading: false,
-      error: undefined,
-    });
-
     (usePlanQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockPlanData),
       { loading: false, error: undefined },
     ]);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockPublishedQuestion,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerData,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerData,
+      loading: false,
+      error: undefined,
+    });
   })
 
   it('should pass accessibility tests', async () => {
@@ -913,31 +847,22 @@ describe('Call to updateAnswerAction', () => {
       push: jest.fn(),
     });
 
-    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
-      data: mockSectionVersionsData,
-      loading: false,
-      error: undefined,
-    });
-
     (usePlanQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockPlanData),
       { loading: false, error: undefined },
     ]);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockPublishedQuestion,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerData,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerData,
+      loading: false,
+      error: undefined,
+    });
   })
 
   it('should call updateAnswerAction when data changes for typeaheadSearch field', async () => {
@@ -953,25 +878,22 @@ describe('Call to updateAnswerAction', () => {
 
     (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTypeAheadSearch,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTypeAheadSearch,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1027,25 +949,22 @@ describe('Call to updateAnswerAction', () => {
 
     (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTypeAheadSearch,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTypeAheadSearch,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTypeAheadSearch,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1092,20 +1011,17 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for checkbox', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockCheckboxQuestion,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockCheckboxAnswer,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxAnswer,
+      loading: false,
+      error: undefined,
+    });
 
     (addAnswerAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -1124,7 +1040,7 @@ describe('Call to updateAnswerAction', () => {
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1132,7 +1048,7 @@ describe('Call to updateAnswerAction', () => {
     expect(checkboxGroup).toBeInTheDocument();
     const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
     const alexCheckbox = checkboxes.find(
-        (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
     );
 
     await userEvent.click(alexCheckbox!);
@@ -1150,24 +1066,21 @@ describe('Call to updateAnswerAction', () => {
   });
 
   it('should call updateAnswerAction with correct data for radioButton', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForRadioButton,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForRadioButton,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForRadioButton,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1190,24 +1103,21 @@ describe('Call to updateAnswerAction', () => {
   });
 
   it('should call updateAnswerAction with correct data for text field', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextField,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextField,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextField,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1233,24 +1143,21 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for date range question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForDateRange,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForDateRange,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForDateRange,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1276,25 +1183,22 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for date question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForDate,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForDate,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForDate,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1320,25 +1224,22 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for boolean', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForBoolean,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForBoolean,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForBoolean,
+      loading: false,
+      error: undefined,
+    });
 
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1365,24 +1266,21 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for url question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForURL,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForURL,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForURL,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1404,24 +1302,21 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for email question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForEmail,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForEmail,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForEmail,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
     const emailInput = screen.getByPlaceholderText('email');
@@ -1442,20 +1337,17 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for textArea question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
 
     // Store the change handler reference
     let changeHandler: (() => void) | null = null;
@@ -1509,24 +1401,21 @@ describe('Call to updateAnswerAction', () => {
   });
 
   it('should call updateAnswerAction with correct data for currency question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForCurrency,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForCurrency,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForCurrency,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1550,24 +1439,21 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for numberRange question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForNumberRange,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForNumberRange,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForNumberRange,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1590,24 +1476,21 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for number question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForNumber,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForNumber,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForNumber,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
     const startInput = screen.getByPlaceholderText('number');
@@ -1629,24 +1512,21 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for multiSelect question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForMultiSelect,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForMultiSelect,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForMultiSelect,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1668,24 +1548,21 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction with correct data for selectBox question', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForSelectBox,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForSelectBox,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForSelectBox,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1710,21 +1587,18 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should redirect if the response to calling updateAnswerAction returns a redirect', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-        redirect: '/project/1/dmp/1/s/22'
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+      redirect: '/project/1/dmp/1/s/22'
+    });
 
     (updateAnswerAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -1756,7 +1630,7 @@ describe('Call to updateAnswerAction', () => {
       // Manually trigger the `Change` event
       setTimeout(() => {
         const changeHandler = mockEditor.on.mock.calls.find(
-            ([eventName]) => eventName === 'Change'
+          ([eventName]) => eventName === 'Change'
         )?.[1];
         if (changeHandler) changeHandler(); // simulate content change
       }, 0);
@@ -1782,21 +1656,18 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should display errors if updateAnswerAction returns errors in the response', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-        redirect: '/project/1/dmp/1/s/22'
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+      redirect: '/project/1/dmp/1/s/22'
+    });
 
     (updateAnswerAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -1828,7 +1699,7 @@ describe('Call to updateAnswerAction', () => {
       // Manually trigger the `Change` event
       setTimeout(() => {
         const changeHandler = mockEditor.on.mock.calls.find(
-            ([eventName]) => eventName === 'Change'
+          ([eventName]) => eventName === 'Change'
         )?.[1];
         if (changeHandler) changeHandler(); // simulate content change
       }, 0);
@@ -1851,29 +1722,26 @@ describe('Call to updateAnswerAction', () => {
     })
 
     expect(
-        screen.getByText((content, element) => {
-          return element?.tagName.toLowerCase() === 'p' &&
-              content === 'The answer is not in the proper format.';
-        })
+      screen.getByText((content, element) => {
+        return element?.tagName.toLowerCase() === 'p' &&
+          content === 'The answer is not in the proper format.';
+      })
     ).toBeInTheDocument();
   })
 
   it('should load page with error when answer type is not in the list ', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockOtherQuestion,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockOtherAnswerData,
-        loading: false,
-        error: undefined,
-        redirect: '/project/1/dmp/1/s/22'
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockOtherAnswerData,
+      loading: false,
+      error: undefined,
+      redirect: '/project/1/dmp/1/s/22'
+    });
 
     (updateAnswerAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -1915,48 +1783,36 @@ describe('Call to addAnswerAction', () => {
       push: jest.fn(),
     });
 
-    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
-      data: mockSectionVersionsData,
-      loading: false,
-      error: undefined,
-    });
-
     (usePlanQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockPlanData),
       { loading: false, error: undefined },
     ]);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockPublishedQuestion,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerData,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerData,
+      loading: false,
+      error: undefined,
+    });
   })
 
   it('should call addAnswerAction with correct data for checkbox when there is no corresponding answer in our db', async () => {
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockCheckboxQuestion,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: null,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: null,
+      loading: false,
+      error: undefined,
+    });
 
     (addAnswerAction as jest.Mock).mockResolvedValue({
       success: true,
@@ -1975,7 +1831,7 @@ describe('Call to addAnswerAction', () => {
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -1983,7 +1839,7 @@ describe('Call to addAnswerAction', () => {
     expect(checkboxGroup).toBeInTheDocument();
     const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
     const alexCheckbox = checkboxes.find(
-        (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
     );
 
     await userEvent.click(alexCheckbox!);
@@ -1996,7 +1852,7 @@ describe('Call to addAnswerAction', () => {
       expect(addAnswerAction).toHaveBeenCalledWith({
         planId: 1,
         versionedSectionId: 22,
-        versionedQuestionId: 182,
+        versionedQuestionId: 344,
         json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}"
       });
     });
@@ -2021,60 +1877,48 @@ describe('DrawerPanel', () => {
       push: jest.fn(),
     });
 
-    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
-      data: mockSectionVersionsData,
-      loading: false,
-      error: undefined,
-    });
-
     (usePlanQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockPlanData),
       { loading: false, error: undefined },
     ]);
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionData,
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockPublishedQuestion,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerData,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerData,
+      loading: false,
+      error: undefined,
+    });
   })
 
   it('should open Sample text DrawerPanel when user clicks on the \'View sample answer\' button', async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
     // sidebar panel
     const allDrawerPanels = screen.queryAllByTestId('drawer-panel');
     const visibleDrawerPanel = allDrawerPanels.find(
-        panel => panel.getAttribute('aria-hidden') !== 'true'
+      panel => panel.getAttribute('aria-hidden') !== 'true'
     );
     const sidebarPanel = screen.queryByTestId('sidebar-panel');
 
@@ -2096,7 +1940,7 @@ describe('DrawerPanel', () => {
 
     const allDrawerPanels2 = screen.getAllByTestId('drawer-panel');
     const visibleDrawerPanel2 = allDrawerPanels2.find(
-        panel => panel.getAttribute('aria-hidden') !== 'false'
+      panel => panel.getAttribute('aria-hidden') !== 'false'
     )!; // Non-null assertion operator
     const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
 
@@ -2114,7 +1958,7 @@ describe('DrawerPanel', () => {
     // Get new info on sidebar and drawer panel - drawer should be closed and sidebar panel should be displayed
     const allDrawerPanels3 = screen.getAllByTestId('drawer-panel');
     const visibleDrawerPanel3 = allDrawerPanels3.find(
-        panel => panel.getAttribute('aria-hidden') !== 'true'
+      panel => panel.getAttribute('aria-hidden') !== 'true'
     )!; // Non-null assertion operator
     const sidebarPanel3 = screen.queryByTestId('sidebar-panel');
     expect(sidebarPanel3).toBeInTheDocument();
@@ -2123,24 +1967,21 @@ describe('DrawerPanel', () => {
 
   it('should transfer sample text into the textArea field when user clicks on the \'use answer\' button', async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -2158,7 +1999,7 @@ describe('DrawerPanel', () => {
     // Get new info on sidebar and drawer panel - drawer should be closed and sidebar panel should be displayed
     const allDrawerPanels2 = screen.getAllByTestId('drawer-panel');
     const visibleDrawerPanel2 = allDrawerPanels2.find(
-        panel => panel.getAttribute('aria-hidden') !== 'true'
+      panel => panel.getAttribute('aria-hidden') !== 'true'
     )!; // Non-null assertion operator
     const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
     expect(sidebarPanel2).toBeInTheDocument();
@@ -2171,31 +2012,28 @@ describe('DrawerPanel', () => {
 
   it('should open Comments DrawerPanel when user clicks on the \'Comments\' button', async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
     // sidebar panel
     const allDrawerPanels = screen.queryAllByTestId('drawer-panel');
     const visibleDrawerPanel = allDrawerPanels.find(
-        panel => panel.getAttribute('aria-hidden') !== 'true'
+      panel => panel.getAttribute('aria-hidden') !== 'true'
     );
     const sidebarPanel = screen.queryByTestId('sidebar-panel');
 
@@ -2217,7 +2055,7 @@ describe('DrawerPanel', () => {
 
     const allDrawerPanels2 = screen.getAllByTestId('drawer-panel');
     const visibleDrawerPanel2 = allDrawerPanels2.find(
-        panel => panel.getAttribute('aria-hidden') !== 'false'
+      panel => panel.getAttribute('aria-hidden') !== 'false'
     )!; // Non-null assertion operator
     const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
 
@@ -2235,7 +2073,7 @@ describe('DrawerPanel', () => {
     // Get new info on sidebar and drawer panel - drawer should be closed and sidebar panel should be displayed
     const allDrawerPanels3 = screen.getAllByTestId('drawer-panel');
     const visibleDrawerPanel3 = allDrawerPanels3.find(
-        panel => panel.getAttribute('aria-hidden') !== 'true'
+      panel => panel.getAttribute('aria-hidden') !== 'true'
     )!; // Non-null assertion operator
     const sidebarPanel3 = screen.queryByTestId('sidebar-panel');
     expect(sidebarPanel3).toBeInTheDocument();
@@ -2244,24 +2082,21 @@ describe('DrawerPanel', () => {
 
   it('should close drawer panel when user clicks on the Comment button to submit a new comment', async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -2280,7 +2115,7 @@ describe('DrawerPanel', () => {
     // Get new info on sidebar and drawer panel - drawer should be closed and sidebar panel should be displayed
     const allDrawerPanels2 = screen.getAllByTestId('drawer-panel');
     const visibleDrawerPanel2 = allDrawerPanels2.find(
-        panel => panel.getAttribute('aria-hidden') !== 'true'
+      panel => panel.getAttribute('aria-hidden') !== 'true'
     )!; // Non-null assertion operator
     const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
     expect(sidebarPanel2).toBeInTheDocument();
@@ -2289,24 +2124,21 @@ describe('DrawerPanel', () => {
 
   it('should close drawer panel when user clicks on the masked body while comments drawer panel is open', async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -2323,7 +2155,7 @@ describe('DrawerPanel', () => {
     // Drawer should be closed now and sidebar panel should be displayed
     const allDrawerPanels = screen.getAllByTestId('drawer-panel');
     const visibleDrawerPanel = allDrawerPanels.find(
-        panel => panel.getAttribute('aria-hidden') !== 'true'
+      panel => panel.getAttribute('aria-hidden') !== 'true'
     )!; // Non-null assertion operator
     const sidebarPanel = screen.queryByTestId('sidebar-panel');
     expect(sidebarPanel).toBeInTheDocument();
@@ -2332,24 +2164,21 @@ describe('DrawerPanel', () => {
 
   it('should close drawer panel when user clicks on the masked body when sample answer drawer panel is open', async () => {
 
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTextArea,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockAnswerDataForTextArea,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
 
     await act(async () => {
       render(
-          <PlanOverviewQuestionPage />
+        <PlanOverviewQuestionPage />
       );
     });
 
@@ -2366,7 +2195,7 @@ describe('DrawerPanel', () => {
     // Drawer should be closed now and sidebar panel should be displayed
     const allDrawerPanels = screen.getAllByTestId('drawer-panel');
     const visibleDrawerPanel = allDrawerPanels.find(
-        panel => panel.getAttribute('aria-hidden') !== 'true'
+      panel => panel.getAttribute('aria-hidden') !== 'true'
     )!; // Non-null assertion operator
     const sidebarPanel = screen.queryByTestId('sidebar-panel');
     expect(sidebarPanel).toBeInTheDocument();
@@ -2390,30 +2219,21 @@ describe('Auto save', () => {
       push: jest.fn(),
     });
 
-    (useSectionVersionsQuery as jest.Mock).mockReturnValue({
-      data: mockSectionVersionsData,
-      loading: false,
-      error: undefined,
-    });
-
     (usePlanQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockPlanData),
       { loading: false, error: undefined },
     ]);
-    (useQuestionQuery as jest.Mock).mockReturnValue({
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockCheckboxQuestion,
       loading: false,
       error: undefined,
     });
 
-    (useAnswerByVersionedQuestionIdLazyQuery as jest.Mock).mockReturnValue([
-      jest.fn(), // this is the loadAnswer function
-      {
-        data: mockCheckboxAnswer,
-        loading: false,
-        error: undefined,
-      },
-    ]);
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxAnswer,
+      loading: false,
+      error: undefined,
+    });
 
     (addAnswerAction as jest.Mock).mockResolvedValue({
       success: true,

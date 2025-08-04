@@ -13,30 +13,12 @@
     },
     "modified": "1751752116000",
     "errors": {
-      "__typename": "AffiliationErrors",
+      "__typename": "AnswerErrors",
       "general": null,
+      "planId": null,
       "versionedSectionId": null,
       "versionedQuestionId": null,
-      "uri": null,
-      "types": null,
-      "subHeaderLinks": null,
-      "ssoEntityId": null,
-      "searchName": null,
-      "provenance": null,
-      "planId": null,
-      "name": null,
-      "logoURI": null,
-      "logoName": null,
-      "json": null,
-      "homepage": null,
-      "fundrefId": null,
-      "feedbackMessage": null,
-      "feedbackEmails": null,
-      "displayName": null,
-      "contactName": null,
-      "contactEmail": null,
-      "aliases": null,
-      "acronyms": null
+      "json": null
     }
   }
 }

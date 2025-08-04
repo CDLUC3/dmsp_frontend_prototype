@@ -1,5 +1,6 @@
 
 ### Added
+- Added JSON mocks to `__mocks__` for all types of versioned questions (for use with the project/plan pages)
 - Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
 - Added auto-save to the `Question Answer` page [#585]
 - Added the ability to edit the `Plan title` [#608]
@@ -7,6 +8,8 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Updated all plan pages to use the proper section and question ids. They were using `Section.id` and `Question.id` but should be using `VersionedSection.id` and `VersionedQuestion.id` since the plan is based on a published template and so should be referencing the components of the published version
+- Renamed existing `__mocks__` to be clear that they represent non-versioned questions (for use with the template pages)
 - Update `@dmptool/types` version [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Updated handling of `date`, `dateRange`, `numberRange`, `currency`, and `option` to reflect changes in `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - `@dmptool/types` now has an `affiliationSearch` instead of `typeaheadSearch` and a separate`multiselectBox` type, so updated code to work with these new handlers [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)

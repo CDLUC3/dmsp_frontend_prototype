@@ -99,7 +99,7 @@ const initialState: {
     funderName: '',
     primaryContact: '',
     members: [] as PlanMember[],
-    sections: [] as PlanSectionProgress[],
+    versionedSections: [] as PlanSectionProgress[],
     percentageAnswered: 0,
   },
 };
@@ -463,8 +463,8 @@ const PlanOverviewPage: React.FC = () => {
               isPrimaryContact: member?.isPrimaryContact ?? false,
               role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
             })) ?? [],
-          sections: data?.plan?.sections ?? [],
-          percentageAnswered: calculatePercentageAnswered(data?.plan?.sections ?? []) ?? 0,
+          versionedSections:  data?.plan?.versionedSections ?? [],
+          percentageAnswered: calculatePercentageAnswered(data?.plan?.versionedSections ?? []) ?? 0,
         },
       })
       dispatch({
@@ -634,19 +634,19 @@ const PlanOverviewPage: React.FC = () => {
             </div>
 
 
-            {state.planData.sections.map((section) => (
+            {state.planData.versionedSections.map((versionedSection) => (
               <section
-                key={section.sectionId}
+                key={versionedSection.versionedSectionId}
                 className={styles.planSectionsList}
-                aria-labelledby={`section-title-${section.sectionId}`}
+                aria-labelledby={`section-title-${versionedSection.versionedSectionId}`}
               >
                 <div className={styles.planSectionsHeader}>
                   <div className={styles.planSectionsTitle}>
-                    <h3 id={`section-title-${section.sectionId}`}>
-                      {section.sectionTitle}
+                    <h3 id={`section-title-${versionedSection.versionedSectionId}`}>
+                      {versionedSection.title}
                     </h3>
                     <p
-                      aria-label={`${section.answeredQuestions} out of ${section.totalQuestions} questions answered for ${section.sectionTitle}`}>
+                      aria-label={`${versionedSection.answeredQuestions} out of ${versionedSection.totalQuestions} questions answered for ${versionedSection.title}`}>
                       <span
                         className={styles.progressIndicator}>
                         <svg
@@ -662,20 +662,20 @@ const PlanOverviewPage: React.FC = () => {
                             d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
                         </svg>
                         {t('sections.progress', {
-                          current: section.answeredQuestions,
-                          total: section.totalQuestions
+                          current: versionedSection.answeredQuestions,
+                          total: versionedSection.totalQuestions
                         })} {t('sections.questionsAnswered')}
                       </span>
                     </p>
                   </div>
                   <Link
-                    href={routePath('projects.dmp.section', { projectId, dmpId: planId, sectionId: section.sectionId })}
+                    href={routePath('projects.dmp.versionedSection', { projectId, dmpId: planId, versionedSectionId: versionedSection.versionedSectionId })}
                     aria-label={t('sections.updateSection', {
-                      title: section.sectionTitle
+                      title: versionedSection.title
                     })}
                     className={"react-aria-Button react-aria-Button--secondary"}
                   >
-                    {(section.answeredQuestions === 0) ? t('sections.start') : t('sections.update')}
+                    {(versionedSection.answeredQuestions === 0) ? t('sections.start') : t('sections.update')}
                   </Link>
                 </div>
               </section>

@@ -1,0 +1,14 @@
+{
+  "publishedQuestion": {
+    "displayOrder": 17,
+    "errors": null,
+    "guidanceText": "This is the guidance text",
+    "id": 2271,
+    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"text\",\"attributes\":{\"pattern\":null,\"maxLength\":null,\"minLength\":0}}",
+    "questionText": "Testing",
+    "requirementText": "This is requirement text",
+    "sampleText": "This is sample text",
+    "versionedSectionId": 67,
+    "versionedTemplateId": 15
+  }
+}

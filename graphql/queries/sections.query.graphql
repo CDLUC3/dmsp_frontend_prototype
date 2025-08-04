@@ -22,6 +22,27 @@ query PublishedSections($term: String!) {
   }
 }
 
+query PublishedSection($versionedSectionId: Int!) {
+  publishedSection(versionedSectionId: $versionedSectionId) {
+    id
+    introduction
+    name
+    requirements
+    guidance
+    displayOrder
+    tags {
+      id
+      description
+      name
+    }
+    errors {
+      general
+      name
+      displayOrder
+    }
+  }
+}
+
 query Section($sectionId: Int!) {
   section(sectionId: $sectionId) {
     id

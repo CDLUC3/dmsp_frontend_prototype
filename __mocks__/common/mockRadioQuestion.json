@@ -4,12 +4,11 @@
     "errors": null,
     "guidanceText": "This is the guidance text",
     "id": 2271,
-    "isDirty": true,
     "questionText": "Testing",
     "json": "{\"type\":\"radioButtons\",\"attributes\":{},\"options\":[{\"label\":\"Yes\",\"value\":\"Yes\",\"selected\":true},{\"label\":\"No\",\"value\":\"No\",\"selected\":false},{\"label\":\"Maybe\",\"value\":\"Maybe\",\"selected\":false}],\"meta\":{\"schemaVersion\":\"1.0\"}}",
     "requirementText": "This is requirement text",
     "sampleText": "This is sample text",
-    "sectionId": 67,
-    "templateId": 15
+    "versionedSectionId": 67,
+    "versionedTemplateId": 15
   }
 }

@@ -1,29 +1,27 @@
 {
-  "question": {
-    "__typename": "Question",
-    "id": 352,
+  "publishedQuestion": {
+    "__typename": "VersionedQuestion",
+    "id": 351,
     "guidanceText": "<p>Guidance - <strong>Lorem Ipsum</strong>&nbsp;is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
     "errors": {
-      "__typename": "QuestionErrors",
+      "__typename": "VersionedQuestionErrors",
       "general": null,
       "questionText": null,
       "requirementText": null,
       "sampleText": null,
       "displayOrder": null,
       "questionConditionIds": null,
-      "sectionId": null,
-      "sourceQestionId": null,
-      "templateId": null
+      "versionedSectionId": null,
+      "versionedTemplateId": null
     },
-    "displayOrder": 11,
-    "questionText": "Email field question",
-    "json": "{\"type\":\"email\",\"attributes\":{\"pattern\":\"^.+$\",\"multiple\":false,\"maxLength\":100,\"minLength\":0},\"meta\":{\"schemaVersion\":\"1.0\"}}",
+    "displayOrder": 10,
+    "questionText": "Currency Field question",
+    "json": "{\"meta\":{\"schemaVersion\":\"1.0\"},\"type\":\"currency\",\"attributes\":{\"max\":10000000,\"min\":0,\"step\":0.01}}",
     "requirementText": "<p>Requirements - <strong>Lorem Ipsum</strong>&nbsp;is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
-    "sampleText": "<p>Sample text - <strong>Lorem Ipsum</strong>&nbsp;is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
+    "sampleText": "<p>Sample text -<strong>Lorem Ipsum</strong>&nbsp;is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>",
     "useSampleTextAsDefault": false,
-    "sectionId": 14,
-    "templateId": 1,
-    "isDirty": true,
+    "versionedSectionId": 15,
+    "versionedTemplateId": 1,
     "required": false
   }
 }

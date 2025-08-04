@@ -40,11 +40,11 @@ query Plan($planId: Int!) {
         }
       }
     }
-    sections {
+    versionedSections {
       answeredQuestions
       displayOrder
-      sectionId
-      sectionTitle
+      versionedSectionId
+      title
       totalQuestions
     }
     created

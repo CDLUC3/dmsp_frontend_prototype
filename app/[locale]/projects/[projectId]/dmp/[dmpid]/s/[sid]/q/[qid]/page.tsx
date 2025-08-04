@@ -31,11 +31,9 @@ import {
 } from "@/components/Container";
 
 import {
-  SectionVersionsQuery,
-  useAnswerByVersionedQuestionIdLazyQuery,
-  useSectionVersionsQuery,
   usePlanQuery,
-  useQuestionQuery,
+  usePublishedQuestionQuery,
+  useAnswerByVersionedQuestionIdQuery,
 } from '@/generated/graphql';
 
 // Components
@@ -121,18 +119,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const router = useRouter();
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
-  const sectionId = params.sid as string;
-  const questionId = params.qid as string;
+  const versionedSectionId = params.sid as string;
+  const versionedQuestionId = params.qid as string;
   const toastState = useToast(); // Access the toast state from context
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  // Question, plan and versionedSection states
+  // VersionedQuestion, plan and versionedSection states
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
   const [questionType, setQuestionType] = useState<string>('');
-  const [versionedSectionId, setVersionedSectionId] = useState<number | null>();
-  const [versionedQuestionId, setVersionedQuestionId] = useState<number | null>();
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -142,6 +138,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [isCommentsDrawerOpen, setCommentsDrawerOpen] = useState<boolean>(false);
   const openSampleTextButtonRef = useRef<HTMLButtonElement | null>(null);
   const openCommentsButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  const routeParams = { projectId, dmpId, versionedSectionId, versionedQuestionId };
 
   // Question field states
   const [formData, setFormData] = useState<FormDataInterface>({
@@ -185,34 +183,34 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Run selected question query
   const {
     data: selectedQuestion,
-    loading,
-    error: selectedQuestionQueryError
-  } = useQuestionQuery(
-      {
-        variables: {
-          questionId: Number(questionId)
-        }
-      },
+    loading: versionedQuestionLoading,
+    error: versionedQuestionError
+  } = usePublishedQuestionQuery(
+    {
+      variables: {
+        versionedQuestionId: Number(versionedQuestionId)
+      }
+    }
   );
 
   // Get Plan using planId
   const { data: planData, loading: planQueryLoading, error: planQueryError } = usePlanQuery(
-      {
-        variables: { planId: Number(dmpId) },
-        notifyOnNetworkStatusChange: true
-      }
+    {
+      variables: { planId: Number(dmpId) },
+      notifyOnNetworkStatusChange: true
+    }
   );
 
-  // Get sectionVersions from sectionId
-  const { data: sectionVersions, loading: versionedSectionLoading, error: versionedSectionError } = useSectionVersionsQuery(
-      {
-        variables: { sectionId: Number(sectionId) }
-      }
-  )
-
   // Get loadAnswer to call later, after we set the versionedQuestionId
-  const [loadAnswer, { data: answerData, loading: answerLoading, error: answerError }] =
-      useAnswerByVersionedQuestionIdLazyQuery();
+  const { data: answerData, loading: answerLoading, error: answerError } = useAnswerByVersionedQuestionIdQuery(
+    {
+      variables: {
+        projectId: Number(projectId),
+        planId: Number(dmpId),
+        versionedQuestionId: Number(versionedQuestionId)
+      }
+    }
+  );
 
 
   // Show Success Message
@@ -480,7 +478,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
   const handleBackToSection = () => {
-    router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
+    router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
   }
 
   // Prefill the current question with existing answer
@@ -734,7 +732,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     // Check is answer already exists. If so, we want to call an update mutation rather than add
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
 
-    if (question) {
+    if (selectedQuestion) {
       try {
         const response = isUpdate
             ? await updateAnswerAction({
@@ -761,7 +759,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         logECS('error', 'addAnswer', {
           error,
           url: {
-            path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId })
+            path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
           }
         });
       } finally {
@@ -810,30 +808,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setIsSubmitting(false);
         // Show user a success message and redirect back to the Section page
         showSuccessToast();
-        router.push(routePath('projects.dmp.section', { projectId, dmpId, sectionId }))
+        router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
 
       }
     }
   };
-
-  // Get the versionedQuestionId for the given question. We will need this to get any existings answers for this question
-  const findVersionedQuestionId = (sectionVersions: SectionVersionsQuery, questionId: number) => {
-    if (!sectionVersions?.sectionVersions) return null;
-
-    for (const sectionVersion of sectionVersions.sectionVersions) {
-      if (!sectionVersion?.versionedQuestions) continue;
-
-      const foundQuestion = sectionVersion.versionedQuestions.find(
-          (question) => question?.questionId === questionId
-      );
-
-      if (foundQuestion?.id) {
-        return foundQuestion.id;
-      }
-    }
-    return null;
-  };
-
 
   // Helper function to format the last saved messaging
   const getLastSavedText = () => {
@@ -859,20 +838,20 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Get parsed JSON from question, and set parsed, question and questionType in state
   useEffect(() => {
-    if (selectedQuestion?.question) {
-      const q = selectedQuestion.question;
+    if (selectedQuestion) {
+      const q = selectedQuestion.publishedQuestion;
       const cleanedQuestion = {
         ...q,
-        required: q.required ?? undefined // convert null to undefined
+        required: q?.required ?? undefined // convert null to undefined
       };
 
       try {
-        const { parsed, error } = getParsedQuestionJSON(cleanedQuestion, routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }), Global);
+        const { parsed, error } = getParsedQuestionJSON(cleanedQuestion, routePath('projects.dmp.versionedQuestion.detail', routeParams), Global);
         if (!parsed?.type) {
           if (error) {
             logECS('error', 'Parsing error', {
               error: 'Invalid question type in parsed JSON',
-              url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }) }
+              url: { path: routePath('projects.dmp.versionedQuestion.detail', routeParams) }
             });
 
             setErrors([error])
@@ -889,7 +868,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       } catch (error) {
         logECS('error', 'Parsing error', {
           error,
-          url: { path: routePath('projects.dmp.question.detail', { projectId, dmpId, sectionId, questionId }) }
+          url: { path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId }) }
         });
         setErrors(['Error parsing question data']);
       }
@@ -901,8 +880,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   useEffect(() => {
     if (planData?.plan) {
       // Validate section belongs to plan - 404 if not
-      const planSections = planData?.plan?.sections || [];
-      const sectionBelongsToPlan = planSections && planSections.some(section => section.sectionId === Number(sectionId));
+      const planSections = planData?.plan?.versionedSections || [];
+      const sectionBelongsToPlan = planSections && planSections.some(section => section.versionedSectionId === Number(versionedSectionId));
 
       // Make sure to redirect to 404 if section does not belong to plan
       if (!sectionBelongsToPlan) {
@@ -918,29 +897,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     };
   }, [planData]);
 
-  // Get versionedQuestionId and save in state
-  useEffect(() => {
-    if (sectionVersions && sectionVersions?.sectionVersions) {
-      setVersionedSectionId(sectionVersions?.sectionVersions?.[0]?.id);
-      if (sectionVersions) {
-        const versionedQuestionId = findVersionedQuestionId(sectionVersions, Number(questionId));
-        setVersionedQuestionId(versionedQuestionId ?? null);
-      }
-    }
-  }, [sectionVersions])
-
-  // Run the query when versionedQuestionId becomes available to lazy load the answer for the question
-  useEffect(() => {
-    if (versionedQuestionId) {
-      loadAnswer({
-        variables: {
-          projectId: Number(projectId),
-          planId: Number(dmpId),
-          versionedQuestionId: Number(versionedQuestionId),
-        }
-      });
-    }
-  }, [versionedQuestionId, loadAnswer, projectId, dmpId]);
 
   //Wait for answerData and questionType, then prefill the question with existing answer
   useEffect(() => {
@@ -1085,11 +1041,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
     },
   });
 
-  if (loading || planQueryLoading || versionedSectionLoading || answerLoading) {
+  if (versionedQuestionLoading || planQueryLoading || answerLoading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
 
-  if (selectedQuestionQueryError || planQueryError || versionedSectionError || answerError) {
+  if (versionedQuestionError || planQueryError || answerError) {
     return <div>{Global('messaging.somethingWentWrong')}</div>
   }
 
