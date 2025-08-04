@@ -55,7 +55,6 @@ interface PublicTemplatesInterface {
   visibility?: string | null;
   ownerDisplayName?: string | null;
   ownerURI?: string | null;
-  versionType?: string;
 }
 
 const PUBLIC_TEMPLATES_INCREMENT = 3;
