@@ -190,7 +190,7 @@ const ProjectsListPage: React.FC = () => {
     fetchProjects({
       variables: {
         paginationOptions: {
-          limit: 3,
+          limit: LIMIT,
         },
       },
       notifyOnNetworkStatusChange: true,
