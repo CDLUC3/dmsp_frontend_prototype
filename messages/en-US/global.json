@@ -218,7 +218,7 @@
       "preview": "Preview",
       "publish": "Publish",
       "close": "Close",
-      "loadMore": "Load More"
+      "loadMore": "Load more"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",
@@ -260,7 +260,8 @@
         "invalidQuestionType": "Invalid question type found.",
         "questionUnexpectedFormat": "Unexpected format for question.json.",
         "questionJSONFParseFailed": "JSON.parse failed."
-      }
+      },
+      "numDisplaying": "Showing {num} of {total}"
     },
     "tabs": {
       "editQuestion": "Edit question",

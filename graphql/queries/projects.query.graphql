@@ -1,5 +1,5 @@
-query MyProjects {
-  myProjects {
+query MyProjects($term: String, $paginationOptions: PaginationOptions) {
+  myProjects(term: $term, paginationOptions: $paginationOptions) {
     totalCount
     nextCursor
     items {

@@ -19,6 +19,7 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Added `Load more` functionality for `/projects` page, using the new pagination [#647]
 - Addressed issue where templates on `/projects/7/dmp/create` were showing `Not published`. They are all `versionedTemplates` so they are `published` [#646] d
 - Fixed bug when hovering over the `Back` button turns text white (essentially invisible) [#651]
 - Fixed inconsistent naming of question type `Affiliation Search` [#645]
