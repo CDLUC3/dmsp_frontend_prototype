@@ -2285,8 +2285,6 @@ export type Query = {
   user?: Maybe<User>;
   /** Returns all of the users associated with the current admin's affiliation (Super admins get everything) */
   users?: Maybe<UserSearchResults>;
-  /** Get a specific VersionedQuestion based on its id */
-  versionedQuestion?: Maybe<VersionedQuestion>;
 };
 
 
@@ -2573,11 +2571,6 @@ export type QueryUserArgs = {
 export type QueryUsersArgs = {
   paginationOptions?: InputMaybe<PaginationOptions>;
   term?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryVersionedQuestionArgs = {
-  versionedQuestionId: Scalars['Int']['input'];
 };
 
 /** Question always belongs to a Section, which always belongs to a Template */
@@ -4133,7 +4126,10 @@ export type ProjectMemberQueryVariables = Exact<{
 
 export type ProjectMemberQuery = { __typename?: 'Query', projectMember?: { __typename?: 'ProjectMember', email?: string | null, givenName?: string | null, surName?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', id?: number | null, label: string, displayOrder: number, uri: string }> | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, displayName: string, uri: string } | null } | null };
 
-export type MyProjectsQueryVariables = Exact<{ [key: string]: never; }>;
+export type MyProjectsQueryVariables = Exact<{
+  term?: InputMaybe<Scalars['String']['input']>;
+  paginationOptions?: InputMaybe<PaginationOptions>;
+}>;
 
 
 export type MyProjectsQuery = { __typename?: 'Query', myProjects?: { __typename?: 'ProjectSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'ProjectSearchResult', title?: string | null, id?: number | null, startDate?: string | null, endDate?: string | null, fundings?: Array<{ __typename?: 'ProjectSearchResultFunding', name?: string | null, grantId?: string | null }> | null, members?: Array<{ __typename?: 'ProjectSearchResultMember', name?: string | null, role?: string | null, orcid?: string | null }> | null, errors?: { __typename?: 'ProjectErrors', general?: string | null, title?: string | null } | null } | null> | null } | null };
@@ -6529,8 +6525,8 @@ export type ProjectMemberLazyQueryHookResult = ReturnType<typeof useProjectMembe
 export type ProjectMemberSuspenseQueryHookResult = ReturnType<typeof useProjectMemberSuspenseQuery>;
 export type ProjectMemberQueryResult = Apollo.QueryResult<ProjectMemberQuery, ProjectMemberQueryVariables>;
 export const MyProjectsDocument = gql`
-    query MyProjects {
-  myProjects {
+    query MyProjects($term: String, $paginationOptions: PaginationOptions) {
+  myProjects(term: $term, paginationOptions: $paginationOptions) {
     totalCount
     nextCursor
     items {
@@ -6568,6 +6564,8 @@ export const MyProjectsDocument = gql`
  * @example
  * const { data, loading, error } = useMyProjectsQuery({
  *   variables: {
+ *      term: // value for 'term'
+ *      paginationOptions: // value for 'paginationOptions'
  *   },
  * });
  */

@@ -244,6 +244,8 @@ export interface ProjectItemProps {
     orcid?: string | null;
   }[];
   grantId?: string | null;
+  nextCursor?: string | null;
+  totalCount?: number | null;
 }
 
 export interface ProjectMember {

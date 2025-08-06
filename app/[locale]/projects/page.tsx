@@ -21,66 +21,146 @@ import { ContentContainer, LayoutContainer } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
-import { useMyProjectsQuery, } from '@/generated/graphql';
+import { useMyProjectsLazyQuery, } from '@/generated/graphql';
 
-import { ProjectItemProps, ProjectSearchResultInterface, PaginatedProjectSearchResultsInterface } from '@/app/types';
+import {
+  ProjectItemProps,
+  ProjectSearchResultInterface,
+  PaginatedProjectSearchResultsInterface
+} from '@/app/types';
+
+// Hooks
+import { useScrollToTop } from '@/hooks/scrollToTop';
+
+import styles from './ProjectsListPage.module.scss';
+
+const LIMIT = 3;
 
 const ProjectsListPage: React.FC = () => {
   const formatter = useFormatter();
   const errorRef = useRef<HTMLDivElement | null>(null);
+  const topRef = useRef<HTMLDivElement>(null);
 
+  const { scrollToTop } = useScrollToTop();
   const [projects, setProjects] = useState<(ProjectItemProps)[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchButtonClicked, setSearchButtonClicked] = useState(false);
-  const [filteredProjects, setFilteredProjects] = useState<(ProjectItemProps)[] | null>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+
+  const [totalCount, setTotalCount] = useState<number | null>(0);
+  const [fetchProjects, { data: projectData, loading }] = useMyProjectsLazyQuery();
+  const [searchResults, setSearchResults] = useState<ProjectItemProps[]>([]);
+  const [isSearchFetch, setIsSearchFetch] = useState(false);
+  const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
+
+
+  // Add separate state for search pagination
+  const [searchNextCursor, setSearchNextCursor] = useState<string | null>(null);
+  const [searchTotalCount, setSearchTotalCount] = useState<number | null>(0);
+
 
   // Translation keys
   const Global = useTranslations('Global');
   const Project = useTranslations('ProjectsListPage');
 
-  // Query for projects
-  const { data = {}, loading } = useMyProjectsQuery({
-    /* Force Apollo to notify React of changes. This was needed for when refetch is
-    called and a re-render of data is necessary*/
-    notifyOnNetworkStatusChange: true,
-  });
+
+  // zero out search and filters
+  const resetSearch = () => {
+    setSearchTerm('');
+    setIsSearchFetch(false);
+    setProjects([]); // Clear existing projects
+    setSearchResults([]); // Clear search results
+    setSearchButtonClicked(false);
+    setNextCursor(null); // Reset cursor
+    setSearchNextCursor(null); // Reset search cursor
+    fetchProjects({
+      variables: {
+        paginationOptions: {
+          limit: LIMIT,
+        },
+      },
+      notifyOnNetworkStatusChange: true,
+    });
+    scrollToTop(topRef);
+  }
 
   //Update searchTerm state whenever entry in the search field changes
   const handleSearchInput = (value: string) => {
     setSearchTerm(value);
   }
 
-  /* Filter results when a user enters a search term and clicks "Search" button.
-  Searches through title, content, description, and member fields*/
-  const handleFiltering = (term: string) => {
+  /* Make new request when search term entered and user clicks "Search" button.*/
+  const handleSearch = async () => {
     setSearchButtonClicked(true);
     setErrors([]);
+    setIsSearchFetch(true);
+    setSearchResults([]); // Clear previous search results
+    setSearchNextCursor(null); // Reset search cursor
 
-    const lowerCaseTerm = term.toLowerCase();
+    if (!searchTerm.trim()) return;
 
-    const filteredList = projects.filter(proj =>
-      [
-        proj.title,
-        proj.description,
-        // Ensure all member fields (name, orcid, roles) are included in the search
-        proj.members
-          .map(member =>
-            [
-              member.name.toLowerCase(),
-              member.orcid?.toLowerCase() || "",
-              member.roles.split(",").map(role => role.toLowerCase()).join(" ")
-            ].join(" ")
-          )
-          .join(" ") // Join all members into one searchable string
-      ]
-        .filter(Boolean) // Remove any undefined/null values
-        .some(field => field?.toLowerCase().includes(lowerCaseTerm))
-    );
+    await fetchProjects({
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          limit: LIMIT,
+        },
+        term: searchTerm.toLowerCase(),
+      },
+    });
+  };
 
-    if (filteredList.length >= 1) {
-      setSearchTerm(term);
-      setFilteredProjects(filteredList);
+  // Handler for search "Load more"
+  const handleSearchLoadMore = async () => {
+    if (!searchNextCursor) return;
+    const scrollY = window.scrollY;
+    setFirstNewIndex(searchResults.length);
+
+    await fetchProjects({
+      variables: {
+        paginationOptions: {
+          type: "CURSOR",
+          cursor: searchNextCursor,
+          limit: LIMIT,
+        },
+        term: searchTerm.toLowerCase(),
+      },
+    });
+
+    // Restore scroll position
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollY });
+    });
+  };
+
+
+  const handleLoadMore = async () => {
+    if (!nextCursor) return;
+    const scrollY = window.scrollY;
+
+    setFirstNewIndex(projects.length);
+
+    try {
+      await fetchProjects({
+        variables: {
+          paginationOptions: {
+            type: "CURSOR",
+            cursor: nextCursor,
+            limit: LIMIT,
+          },
+        },
+        notifyOnNetworkStatusChange: true,
+      });
+
+      // Restore scroll position
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: scrollY });
+      });
+
+    } catch (err) {
+      console.error('Load more failed:', err);
+      setErrors(prev => [...prev, 'Failed to load more projects']);
     }
   };
 
@@ -100,50 +180,88 @@ const ProjectsListPage: React.FC = () => {
     });
   };
 
-
+  // Load projects when page loads
   useEffect(() => {
-    // Transform projects into format expected by ProjectListItem component
-    if (data && data?.myProjects) {
-      const fetchAllProjects = async (projects: PaginatedProjectSearchResultsInterface | null) => {
-        const items = projects?.items ?? [];
-        const transformedProjects = await Promise.all(
-          items.map(async (project: ProjectSearchResultInterface | null) => {
-            return {
-              title: project?.title || "",
-              link: `/projects/${project?.id}`,
-              funding: project?.fundings ? project?.fundings.map((fund) => fund?.name).join(', ') : '',
-              defaultExpanded: false,
-              startDate: project?.startDate ? formatDate(project.startDate) : '',
-              endDate: project?.endDate ? formatDate(project.endDate) : '',
-              members: (project?.members ? project.members.map((member) => {
-                return {
-                  name: member.name || '',
-                  roles: member.role || '',
-                  orcid: member.orcid || ''
-                }
-              }) : []),
-              grantId: project?.fundings ? project?.fundings.map((fund) => fund?.grantId).join(', ') : '',
-            }
-          }));
+    fetchProjects({
+      variables: {
+        paginationOptions: {
+          limit: 3,
+        },
+      },
+      notifyOnNetworkStatusChange: true,
+    });
+  }, []);
 
-        setProjects(transformedProjects);
-      }
+  // Transform project data when projectData updates
+  useEffect(() => {
+    if (!projectData || !projectData.myProjects) return;
 
-      if (data?.myProjects) {
-        fetchAllProjects({
-          ...data.myProjects,
-          items: (data.myProjects.items ?? []).filter((item): item is ProjectSearchResultInterface => item !== null),
-        });
+    const processProjects = async (projectsData: PaginatedProjectSearchResultsInterface | null) => {
+      const items = projectsData?.items ?? [];
+
+      // Transform each project
+      const transformed = await Promise.all(
+        items.map(async (project) => ({
+          title: project?.title || "",
+          link: `/projects/${project?.id}`,
+          funding: project?.fundings?.map((fund) => fund?.name).join(', ') || '',
+          defaultExpanded: false,
+          startDate: project?.startDate ? formatDate(project.startDate) : '',
+          endDate: project?.endDate ? formatDate(project.endDate) : '',
+          members: project?.members?.map((member) => ({
+            name: member.name || '',
+            roles: member.role || '',
+            orcid: member.orcid || ''
+          })) ?? [],
+          grantId: project?.fundings?.map((fund) => fund?.grantId).join(', ') || '',
+        }))
+      );
+
+      if (isSearchFetch) {
+        // Handle search results - backend returns only new items for pagination
+        if (searchResults.length === 0) {
+          // First search request - set all results
+          setSearchResults(transformed);
+        } else {
+          // Subsequent search requests - append new items
+          setSearchResults(prev => [...prev, ...transformed]);
+        }
+        setSearchNextCursor(projectData.myProjects?.nextCursor ?? null);
+        setSearchTotalCount(projectData?.myProjects?.totalCount ?? null);
       } else {
-        fetchAllProjects({ items: [] });
+        // Handle regular pagination - backend returns only new items for pagination
+        if (projects.length === 0) {
+          // First load - set all results
+          setProjects(transformed);
+        } else {
+          // Subsequent loads - append new items (backend sends only new items)
+          setProjects(prev => [...prev, ...transformed]);
+        }
+
+        setNextCursor(projectData.myProjects?.nextCursor ?? null);
+        setTotalCount(projectData?.myProjects?.totalCount ?? null);
       }
+    };
+
+    processProjects({
+      ...projectData.myProjects,
+      items: projectData.myProjects.items?.filter((item): item is ProjectSearchResultInterface => item !== null) ?? []
+    });
+
+    // Check for errors
+    const items = projectData.myProjects.items ?? [];
+    const projectErrors = items
+      .filter((project) => project?.errors?.general || project?.errors?.title)
+      .map((project) => project?.errors?.general || Project('messages.errors.errorRetrievingProjects'));
+
+    if (projectErrors.length > 0) {
+      setErrors(projectErrors);
     }
-  }, [data]);
+  }, [projectData, isSearchFetch]); // REMOVED projects.length and searchResults.length to avoid circular dependencies
 
   useEffect(() => {
     // Need this to set list of projects back to original, full list after filtering
     if (searchTerm === '') {
-      setFilteredProjects(null);
       setSearchButtonClicked(false);
     }
   }, [searchTerm])
@@ -158,20 +276,25 @@ const ProjectsListPage: React.FC = () => {
     }
   }, [errors]);
 
+  // Scroll to the next set of items when user clicks "Load more"
   useEffect(() => {
-    if (data?.myProjects) {
-      const items = data.myProjects.items ?? [];
-      const projectErrors = items
-        .filter((project) => project?.errors?.general || project?.errors?.title)
-        .map((project) => project?.errors?.general || Project('messages.errors.errorRetrievingProjects'));
+    if (firstNewIndex !== null) {
+      const timeoutId = setTimeout(() => {
+        const element = document.querySelector(`[data-index="${firstNewIndex}"]`);
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+        setFirstNewIndex(null); // reset after scroll
+      }, 150); // allow time for DOM update
 
-      if (projectErrors.length > 0) {
-        setErrors(projectErrors);
-      }
+      return () => clearTimeout(timeoutId);
     }
-  }, [data]);
+  }, [projects, searchResults, firstNewIndex]);
 
-  // TODO: Implement shared loading spinner
+  //TODO: Implement shared loading spinner
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
   }
@@ -202,16 +325,13 @@ const ProjectsListPage: React.FC = () => {
 
       <LayoutContainer>
         <ContentContainer>
-          <div className="searchSection" role="search">
-            <SearchField
-              onClear={() => { setFilteredProjects(null) }}
-            >
+          <div className="searchSection" role="search" ref={topRef}>
+            <SearchField>
               <Label>{Global('labels.searchByKeyword')}</Label>
               <Input value={searchTerm} onChange={e => handleSearchInput(e.target.value)} />
               <Button
                 onPress={() => {
-                  // Call your filtering function without changing the input value
-                  handleFiltering(searchTerm);
+                  handleSearch();
                 }}
               >
                 {Global('buttons.search')}
@@ -223,44 +343,74 @@ const ProjectsListPage: React.FC = () => {
             </SearchField>
           </div>
 
-
-          {filteredProjects && filteredProjects.length > 0 ? (
-            <div className="template-list" aria-label="Template list" role="list">
-              {
-                filteredProjects.map((project, index) => (
-                  <ProjectListItem
-                    key={index}
-                    item={project} />
-                ))
-              }
+          {isSearchFetch && (
+            <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> clear filter</Button>
+          )}
+          {searchResults.length > 0 ? (
+            <div className="template-list" role="list">
+              {searchResults.map((project, index) => (
+                <div
+                  key={`search-${project.link}-${index}`}
+                  data-index={index}
+                >
+                  <ProjectListItem item={project} />
+                </div>
+              ))}
+              {searchTotalCount && searchTotalCount > searchResults.length && (
+                <div className={styles.loadBtnContainer}>
+                  <Button
+                    type="button"
+                    data-testid="search-load-more-btn"
+                    onPress={handleSearchLoadMore}
+                    aria-label="load more search results"
+                    isDisabled={!searchNextCursor}
+                  >
+                    Load more
+                  </Button>
+                  <div>
+                    {Global('messaging.numDisplaying', { num: searchResults.length, total: searchTotalCount || '' })}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <>
-              <div className="template-list" aria-label="Template list" role="list">
-                {(searchTerm.length > 0 && searchButtonClicked) ? (
-                  <>
-                    <p>{Global('messaging.noItemsFound')}</p>
-                  </>
+              <div className='template-list' role="list">
+                {searchTerm && searchButtonClicked ? (
+                  <p>{Global('messaging.noItemsFound')}</p>
                 ) : (
                   <>
-                    {
-                      projects.map((project, index) => (
-                        <ProjectListItem
-                          key={index}
-                          item={project} />
-                      ))
-                    }
+                    {projects.map((project, index) => (
+                      <div
+                        key={`project-${project.link}-${index}`}
+                        data-index={index}
+                      >
+                        <ProjectListItem item={project} />
+                      </div>
+                    ))}
+                    {totalCount != null && totalCount > projects.length && (
+                      <div className={styles.loadBtnContainer}>
+                        <Button
+                          type="button"
+                          data-testid="load-more-btn"
+                          onPress={handleLoadMore}
+                          aria-label="load more"
+                        //isDisabled={!nextCursor || loading}
+                        >
+                          Load more
+                        </Button>
+                        <div className={styles.remainingText}>
+                          {Global('messaging.numDisplaying', { num: projects.length, total: totalCount || '' })}
+                        </div>
+                      </div>
+                    )}
                   </>
-                )
-                }
+                )}
               </div>
             </>
-          )
-          }
-
-
+          )}
         </ContentContainer>
-      </LayoutContainer>
+      </LayoutContainer >
     </>
   );
 }
