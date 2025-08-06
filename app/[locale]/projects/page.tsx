@@ -21,7 +21,7 @@ import { ContentContainer, LayoutContainer } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 
 //GraphQL
-import { useMyProjectsLazyQuery, } from '@/generated/graphql';
+import { useMyProjectsLazyQuery } from '@/generated/graphql';
 
 import {
   ProjectItemProps,
@@ -31,6 +31,7 @@ import {
 
 // Hooks
 import { useScrollToTop } from '@/hooks/scrollToTop';
+import { logECS, routePath } from '@/utils/index';
 
 import styles from './ProjectsListPage.module.scss';
 
@@ -49,7 +50,7 @@ const ProjectsListPage: React.FC = () => {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   const [totalCount, setTotalCount] = useState<number | null>(0);
-  const [fetchProjects, { data: projectData, loading }] = useMyProjectsLazyQuery();
+  const [fetchProjects, { data: projectData }] = useMyProjectsLazyQuery();
   const [searchResults, setSearchResults] = useState<ProjectItemProps[]>([]);
   const [isSearchFetch, setIsSearchFetch] = useState(false);
   const [firstNewIndex, setFirstNewIndex] = useState<number | null>(null);
@@ -92,13 +93,17 @@ const ProjectsListPage: React.FC = () => {
 
   /* Make new request when search term entered and user clicks "Search" button.*/
   const handleSearch = async () => {
+
+    if (!searchTerm.trim()) {
+      return;
+    }
+
     setSearchButtonClicked(true);
     setErrors([]);
     setIsSearchFetch(true);
     setSearchResults([]); // Clear previous search results
     setSearchNextCursor(null); // Reset search cursor
 
-    if (!searchTerm.trim()) return;
 
     await fetchProjects({
       variables: {
@@ -113,31 +118,33 @@ const ProjectsListPage: React.FC = () => {
 
   // Handler for search "Load more"
   const handleSearchLoadMore = async () => {
+
     if (!searchNextCursor) return;
-    const scrollY = window.scrollY;
     setFirstNewIndex(searchResults.length);
 
-    await fetchProjects({
-      variables: {
-        paginationOptions: {
-          type: "CURSOR",
-          cursor: searchNextCursor,
-          limit: LIMIT,
+    try {
+      await fetchProjects({
+        variables: {
+          paginationOptions: {
+            type: "CURSOR",
+            cursor: searchNextCursor,
+            limit: LIMIT,
+          },
+          term: searchTerm.toLowerCase(),
         },
-        term: searchTerm.toLowerCase(),
-      },
-    });
-
-    // Restore scroll position
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: scrollY });
-    });
+      });
+    } catch (err) {
+      logECS('error', 'handleSearchLoadMore', {
+        errors: err,
+        url: { path: routePath('projects.index') }
+      });
+      setErrors(prev => [...prev, 'Failed to load more projects']);
+    }
   };
 
 
   const handleLoadMore = async () => {
     if (!nextCursor) return;
-    const scrollY = window.scrollY;
 
     setFirstNewIndex(projects.length);
 
@@ -153,13 +160,11 @@ const ProjectsListPage: React.FC = () => {
         notifyOnNetworkStatusChange: true,
       });
 
-      // Restore scroll position
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: scrollY });
-      });
-
     } catch (err) {
-      console.error('Load more failed:', err);
+      logECS('error', 'handleLoadMore', {
+        errors: err,
+        url: { path: routePath('projects.index') }
+      });
       setErrors(prev => [...prev, 'Failed to load more projects']);
     }
   };
@@ -255,7 +260,7 @@ const ProjectsListPage: React.FC = () => {
       .map((project) => project?.errors?.general || Project('messages.errors.errorRetrievingProjects'));
 
     if (projectErrors.length > 0) {
-      setErrors(projectErrors);
+      setErrors(prev => [...prev, ...projectErrors]);
     }
   }, [projectData, isSearchFetch]); // REMOVED projects.length and searchResults.length to avoid circular dependencies
 
@@ -293,11 +298,6 @@ const ProjectsListPage: React.FC = () => {
       return () => clearTimeout(timeoutId);
     }
   }, [projects, searchResults, firstNewIndex]);
-
-  //TODO: Implement shared loading spinner
-  if (loading) {
-    return <div>{Global('messaging.loading')}...</div>;
-  }
 
   return (
     <>
@@ -344,7 +344,7 @@ const ProjectsListPage: React.FC = () => {
           </div>
 
           {isSearchFetch && (
-            <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> clear filter</Button>
+            <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
           )}
           {searchResults.length > 0 ? (
             <div className="template-list" role="list">
@@ -365,11 +365,13 @@ const ProjectsListPage: React.FC = () => {
                     aria-label="load more search results"
                     isDisabled={!searchNextCursor}
                   >
-                    Load more
+                    {Global('buttons.loadMore')}
                   </Button>
                   <div>
                     {Global('messaging.numDisplaying', { num: searchResults.length, total: searchTotalCount || '' })}
                   </div>
+                  <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
+
                 </div>
               )}
             </div>
@@ -395,13 +397,16 @@ const ProjectsListPage: React.FC = () => {
                           data-testid="load-more-btn"
                           onPress={handleLoadMore}
                           aria-label="load more"
-                        //isDisabled={!nextCursor || loading}
+                          isDisabled={!nextCursor}
                         >
-                          Load more
+                          {Global('buttons.loadMore')}
                         </Button>
                         <div className={styles.remainingText}>
                           {Global('messaging.numDisplaying', { num: projects.length, total: totalCount || '' })}
                         </div>
+                        {isSearchFetch && (
+                          <Button onPress={resetSearch} className={`${styles.searchMatchText} link`}> {Global('links.clearFilter')}</Button>
+                        )}
                       </div>
                     )}
                   </>
