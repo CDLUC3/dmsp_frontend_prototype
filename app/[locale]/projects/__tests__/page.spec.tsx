@@ -403,26 +403,22 @@ const mocks = [
     result: {
       data: {
         myProjects: {
-          "__typename": "ProjectSearchResults",
           totalCount: 9,
           nextCursor: "2025-08-05_00:00:004",
           items: [
             {
-              "__typename": "ProjectSearchResult",
               title: "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations",
               id: 1,
               startDate: "2025-09-01",
               endDate: "2028-12-31",
               fundings: [
                 {
-                  "__typename": "ProjectSearchResultFunding",
                   name: "National Science Foundation",
                   grantId: null
                 }
               ],
               members: [
                 {
-                  "__typename": "ProjectSearchResultMember",
                   name: "Jacques Cousteau",
                   role: "Data Manager, Formal analysis",
                   orcid: "https://orcid.org/0000-JACQ-0000-0000"
@@ -453,26 +449,22 @@ const mocks = [
     result: {
       data: {
         myProjects: {
-          "__typename": "ProjectSearchResults",
           totalCount: 9,
           nextCursor: "2025-08-05_00:00:004",
           items: [
             {
-              "__typename": "ProjectSearchResult",
               title: "Reef Havens: Exploring the Role of Reef Ecosystems in Sustaining Eel Populations",
               id: 1,
               startDate: "2025-09-01",
               endDate: "2028-12-31",
               fundings: [
                 {
-                  "__typename": "ProjectSearchResultFunding",
                   name: "National Science Foundation",
                   grantId: null
                 }
               ],
               members: [
                 {
-                  "__typename": "ProjectSearchResultMember",
                   name: "Jacques Cousteau",
                   role: "Data Manager, Formal analysis",
                   orcid: "https://orcid.org/0000-JACQ-0000-0000"
