@@ -1444,6 +1444,8 @@ export type PaginatedQueryResults = {
 export type PaginationOptions = {
   /** The cursor to start the pagination from (used for cursor infinite scroll/load more only!) */
   cursor?: InputMaybe<Scalars['String']['input']>;
+  /** Specify that you want additional metadata, like whether the result set includes bestPractice options */
+  includeMetadata?: InputMaybe<Scalars['Boolean']['input']>;
   /** The number of items to return */
   limit?: InputMaybe<Scalars['Int']['input']>;
   /** The number of items to skip before starting the pagination (used for standard offset pagination only!) */
@@ -2137,10 +2139,14 @@ export type ProjectSearchResults = PaginatedQueryResults & {
 
 export type PublishedTemplateSearchResults = PaginatedQueryResults & {
   __typename?: 'PublishedTemplateSearchResults';
+  /** The available affiliations in the result set */
+  availableAffiliations?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The sortFields that are available for this query (for standard offset pagination only!) */
   availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The current offset of the results (for standard offset pagination) */
   currentOffset?: Maybe<Scalars['Int']['output']>;
+  /** Whether the result set includes bestPractice templates */
+  hasBestPracticeTemplates?: Maybe<Scalars['Boolean']['output']>;
   /** Whether or not there is a next page */
   hasNextPage?: Maybe<Scalars['Boolean']['output']>;
   /** Whether or not there is a previous page */
@@ -4240,10 +4246,13 @@ export type MyVersionedTemplatesQueryVariables = Exact<{ [key: string]: never; }
 
 export type MyVersionedTemplatesQuery = { __typename?: 'Query', myVersionedTemplates?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null };
 
-export type PublishedTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+export type PublishedTemplatesQueryVariables = Exact<{
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  term?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
-export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: { __typename?: 'PublishedTemplateSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null } | null };
+export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: { __typename?: 'PublishedTemplateSearchResults', limit?: number | null, nextCursor?: string | null, totalCount?: number | null, availableSortFields?: Array<string | null> | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, hasBestPracticeTemplates?: boolean | null, availableAffiliations?: Array<string | null> | null, items?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null } | null };
 
 export type TemplatesQueryVariables = Exact<{
   term?: InputMaybe<Scalars['String']['input']>;
@@ -7429,10 +7438,17 @@ export type MyVersionedTemplatesLazyQueryHookResult = ReturnType<typeof useMyVer
 export type MyVersionedTemplatesSuspenseQueryHookResult = ReturnType<typeof useMyVersionedTemplatesSuspenseQuery>;
 export type MyVersionedTemplatesQueryResult = Apollo.QueryResult<MyVersionedTemplatesQuery, MyVersionedTemplatesQueryVariables>;
 export const PublishedTemplatesDocument = gql`
-    query PublishedTemplates {
-  publishedTemplates {
-    totalCount
+    query PublishedTemplates($paginationOptions: PaginationOptions, $term: String) {
+  publishedTemplates(paginationOptions: $paginationOptions, term: $term) {
+    limit
     nextCursor
+    totalCount
+    availableSortFields
+    currentOffset
+    hasNextPage
+    hasPreviousPage
+    hasBestPracticeTemplates
+    availableAffiliations
     items {
       id
       templateId
@@ -7465,6 +7481,8 @@ export const PublishedTemplatesDocument = gql`
  * @example
  * const { data, loading, error } = usePublishedTemplatesQuery({
  *   variables: {
+ *      paginationOptions: // value for 'paginationOptions'
+ *      term: // value for 'term'
  *   },
  * });
  */
