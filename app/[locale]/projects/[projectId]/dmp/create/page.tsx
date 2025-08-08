@@ -180,14 +180,13 @@ const PlanCreate: React.FC = () => {
     // Mark that user has interacted with checkboxes
     setUserHasInteracted(true);
 
-    setSelectedFilterItems(value);
-    let filteredList: TemplateItemProps[] | null = null;
-
     // Determine which templates to show based on selected filters
 
     if (value.length === 0) {
       setSelectedOwnerURIs([]);
       setBestPractice(false);
+      setSelectedFunders([]);
+      setSelectedFilterItems([]);
       // Default to all templates when no criteria selected
       await fetchTemplates({ page: currentPage });
 
@@ -199,6 +198,7 @@ const PlanCreate: React.FC = () => {
       // Fetch templates for selected funders
       await fetchTemplates({ selectedOwnerURIs: value });
     } else if (type === 'bestPractice') {
+      setSelectedFilterItems(value);
       setSelectedOwnerURIs([]);
       setBestPractice(true);
       // Fetch best practice templates
@@ -356,7 +356,6 @@ const PlanCreate: React.FC = () => {
         setSelectedFilterItems(["DMP Best Practice"]); // Set to best practice value
         setBestPractice(true);
         setSelectedOwnerURIs([]);
-        await fetchTemplates({ bestPractice: true });
 
       } else {
         // Set selected funders by their uri

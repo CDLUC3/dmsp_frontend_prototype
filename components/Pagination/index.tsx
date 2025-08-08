@@ -33,7 +33,7 @@ export default function Pagination({ currentPage, totalPages, hasPreviousPage, h
         })
       }
 
-      <button onClick={async () => handlePageClick(currentPage - 1)} disabled={!hasNextPage}>
+      <button onClick={async () => handlePageClick(currentPage + 1)} disabled={!hasNextPage}>
         Next
       </button>
     </div >
