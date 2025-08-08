@@ -6,13 +6,20 @@ interface PaginationProps {
   totalPages: number;
   hasPreviousPage: boolean | null;
   hasNextPage: boolean | null;
-  fetchTemplates: (page: number) => Promise<void>
+  bestPractice?: boolean;
+  selectedOwnerURIs?: string[];
+  fetchTemplates: (args: {
+    page?: number;
+    bestPractice?: boolean;
+    selectedOwnerURIs?: string[]
+  }) => Promise<void>;
+
 }
 
-export default function Pagination({ currentPage, totalPages, hasPreviousPage, hasNextPage, fetchTemplates }: PaginationProps) {
+export default function Pagination({ currentPage, totalPages, hasPreviousPage, hasNextPage, bestPractice, selectedOwnerURIs, fetchTemplates }: PaginationProps) {
   return (
     <div>
-      <button onClick={() => fetchTemplates(currentPage - 1)} disabled={!hasPreviousPage}>
+      <button onClick={async () => await fetchTemplates({ page: currentPage - 1, bestPractice, selectedOwnerURIs })} disabled={!hasPreviousPage}>
         Prev
       </button>
 
@@ -23,7 +30,7 @@ export default function Pagination({ currentPage, totalPages, hasPreviousPage, h
             key={page}
             data-page={page}
             data-current={currentPage}
-            onClick={() => fetchTemplates(page)}
+            onClick={async () => await fetchTemplates({ page, bestPractice, selectedOwnerURIs })}
             disabled={page === currentPage}
           >
             {page}
@@ -31,7 +38,7 @@ export default function Pagination({ currentPage, totalPages, hasPreviousPage, h
         );
       })}
 
-      <button onClick={() => fetchTemplates(currentPage + 1)} disabled={!hasNextPage}>
+      <button onClick={async () => await fetchTemplates({ page: currentPage + 1 })} disabled={!hasNextPage}>
         Next
       </button>
     </div>

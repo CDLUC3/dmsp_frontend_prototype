@@ -1442,6 +1442,8 @@ export type PaginatedQueryResults = {
 
 /** Pagination options, either cursor-based (inifite-scroll) or offset-based pagination (standard first, next, etc.) */
 export type PaginationOptions = {
+  /** Request just the bestPractice templates */
+  bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
   /** The cursor to start the pagination from (used for cursor infinite scroll/load more only!) */
   cursor?: InputMaybe<Scalars['String']['input']>;
   /** Specify that you want additional metadata, like whether the result set includes bestPractice options */
@@ -1450,6 +1452,8 @@ export type PaginationOptions = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   /** The number of items to skip before starting the pagination (used for standard offset pagination only!) */
   offset?: InputMaybe<Scalars['Int']['input']>;
+  /** Request templates whose ownerIds match the provided array of ownerURIs */
+  selectOwnerURIs?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   /** The sort order (used for standard offset pagination only!) */
   sortDir?: InputMaybe<Scalars['String']['input']>;
   /** The sort field (used for standard offset pagination only!) */

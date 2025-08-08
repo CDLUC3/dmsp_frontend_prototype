@@ -60,6 +60,22 @@ interface PublicTemplatesInterface {
   ownerURI?: string | null;
 }
 
+interface Affiliation {
+  __typename: "Affiliation";
+  displayName: string;
+  uri: string;
+}
+
+interface ProjectFunding {
+  __typename: "ProjectFunding";
+  id: number;
+  status: string; // or use a union type like "PLANNED" | "ACTIVE" | "COMPLETED" if you know the possible values
+  grantId: string | null;
+  funderOpportunityNumber: string;
+  funderProjectNumber: string | null;
+  affiliation: Affiliation;
+}
+
 const PUBLIC_TEMPLATES_INCREMENT = 3;
 const FILTER_TEMPLATES_INCREMENT = 10;
 
@@ -78,10 +94,18 @@ const PlanCreate: React.FC = () => {
   const topRef = useRef<HTMLDivElement>(null);
 
   //states
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
+
   const [projectFunderTemplates, setProjectFunderTemplates] = useState<TemplateItemProps[]>([]);
+  const [bestPractice, setBestPractice] = useState<boolean>(false);
+  const [selectedOwnerURIs, setSelectedOwnerURIs] = useState<string[]>([]);
+  const [hasBestPractice, setHasBestPractice] = useState<boolean>(false);
+  const [selectedFunders, setSelectedFunders] = useState<string[]>([]);
   const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
   const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<TemplateItemProps[] | null>([])
   const [funders, setFunders] = useState<ProjectFundersInterface[]>([]);
+  const [uniqueAffiliations, setUniqueAffiliations] = useState<string[]>([]);
+  const [matchingFundings, setMatchingFundings] = useState<ProjectFunding[]>([]);
   const [bestPracticeTemplates, setBestPracticeTemplates] = useState<TemplateItemProps[]>([]);
   const [selectedFilterItems, setSelectedFilterItems] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -106,7 +130,6 @@ const PlanCreate: React.FC = () => {
   });
 
 
-  console.log("PROJECT FUNDINGS", projectFundings);
   // Initialize the addPlan mutation
   const [addPlanMutation] = useAddPlanMutation({
     notifyOnNetworkStatusChange: true,
@@ -154,30 +177,39 @@ const PlanCreate: React.FC = () => {
   };
 
   // Handle checkbox change
-  const handleCheckboxChange = (value: string[], bestPracticeTemplates?: TemplateItemProps[]) => {
-    // Always dispatch selected filter items (whether empty or not)
-    setSelectedFilterItems(value);
+  const handleCheckboxChange = async (value: string[], type: string) => {
+    // Mark that user has interacted with checkboxes
+    setUserHasInteracted(true);
 
+    setSelectedFilterItems(value);
     let filteredList: TemplateItemProps[] | null = null;
 
     // Determine which templates to show based on selected filters
-    if (value.length > 0) {
-      if (value.includes('DMP Best Practice')) {
-        // Use best practice templates
-        filteredList = bestPracticeTemplates ?? bestPracticeTemplates ?? [];
-      } else if (funders.length > 0) {
-        // Filter project templates by selected funders
-        filteredList = projectFunderTemplates.filter(template =>
-          template.funder && value.includes(template.funder)
-        );
-      } else {
-        // Default to best practice templates when no other criteria match
-        filteredList = bestPracticeTemplates ?? [];
-      }
-    } else {
-      // No filters selected - use all templates or null depending on search
-      filteredList = searchTerm ? publicTemplatesList : null;
+    console.log("TYPE", type);
+    console.log("VALUE", value);
+
+    if (value.length === 0) {
+      setSelectedOwnerURIs([]);
+      setBestPractice(false);
+      // Default to all templates when no criteria selected
+      await fetchTemplates({ page: 1 });
+
+    } else if (type === 'funders') {
+      // Always dispatch selected filter items (whether empty or not)
+      setSelectedFunders(value);
+      setSelectedOwnerURIs(value);
+      setBestPractice(false);
+      // Fetch templates for selected funders
+      await fetchTemplates({ selectedOwnerURIs: value });
+    } else if (type === 'bestPractice') {
+      setSelectedOwnerURIs([]);
+      setBestPractice(true);
+      // Fetch best practice templates
+      await fetchTemplates({ bestPractice: true, selectedOwnerURIs: [] });
     }
+
+
+
 
     // Apply search term filtering if needed
     if (searchTerm && filteredList) {
@@ -208,27 +240,10 @@ const PlanCreate: React.FC = () => {
     }
   };
 
-  // const sortTemplatesByProjectFunders = (templates: TemplateItemProps[]) => {
-  //   const funders = projectFundings?.projectFundings || [];
-  //   return [...templates].sort((a, b) => {
-  //     if (funders?.length === 0) {
-  //       return Number(b.bestPractices) - Number(a.bestPractices);
-  //     }
-  //     return a.funder && funders && funders.some(f => f?.affiliation?.displayName === a.funder) ? -1 : 1;
-  //   });
-  // };
 
   const resetSearch = () => {
     if (selectedFilterItems.length > 0) {
-      let filteredList;
-      if (funders.length > 0) {
-        filteredList = projectFunderTemplates.filter(template =>
-          template.funder && selectedFilterItems.includes(template.funder)
-        );
-      } else {
-        filteredList = bestPracticeTemplates;
-      }
-      setFilteredPublicTemplates(filteredList)
+
     } else {
       setFilteredPublicTemplates(null);
     }
@@ -265,63 +280,62 @@ const PlanCreate: React.FC = () => {
     }
   }
 
-  const fetchTemplates: (page: number) => Promise<void> = async (page) => {
-    setCurrentPage(page);
+  const fetchTemplates = async ({
+    page = 1,
+    bestPractice = false,
+    selectedOwnerURIs = []
+  }: {
+    page?: number;
+    bestPractice?: boolean;
+    selectedOwnerURIs?: string[];
+  }): Promise<void> => {
+    let offsetLimit = 0;
+    if (page) {
+      setCurrentPage(page);
+      offsetLimit = (page - 1) * LIMIT;
+    }
+
     await fetchPublishedTemplates({
       variables: {
         paginationOptions: {
-          offset: (page - 1) * LIMIT,
-          limit: 10,
-          type: "OFFSET", // or just leave off if this is the default
-          sortDir: "DESC", // optional
-          includeMetadata: true
+          offset: offsetLimit,
+          limit: LIMIT,
+          type: "OFFSET",
+          sortDir: "DESC",
+          includeMetadata: true,
+          selectOwnerURIs: selectedOwnerURIs,
+          bestPractice: bestPractice
         },
         term: '',
       }
     });
-  }
+  };
 
   // Load published templates
   useEffect(() => {
-    fetchTemplates(1);
+    const callFetchTemplates = async () => {
+      await fetchTemplates({ page: 1 });
+    }
+
+    callFetchTemplates();
   }, []);
 
   useEffect(() => {
     const processTemplates = async () => {
-      console.log("***PUBLISHED TEMPLATES", publishedTemplates);
-      const templates = publishedTemplates?.publishedTemplates?.items ?? [];
+      console.log("PUBLIC TEMPLATES LIST", publishedTemplates?.publishedTemplates);
+      const affiliations = publishedTemplates?.publishedTemplates?.availableAffiliations?.filter(
+        (affiliation): affiliation is string => affiliation !== null
+      ) || [];
 
+      const hasBestPractice = publishedTemplates?.publishedTemplates?.hasBestPracticeTemplates ?? false;
       if (publishedTemplates && publishedTemplates?.publishedTemplates && publishedTemplates?.publishedTemplates?.items) {
         const publicTemplates = await transformTemplates(publishedTemplates?.publishedTemplates?.items);
         setPublicTemplatesList(publicTemplates);
         setTotalCount(publishedTemplates?.publishedTemplates?.totalCount ? publishedTemplates?.publishedTemplates?.totalCount : 0);
         setHasNextPage(publishedTemplates?.publishedTemplates?.hasNextPage ? publishedTemplates?.publishedTemplates?.hasNextPage : false);
         setHasPreviousPage(publishedTemplates?.publishedTemplates?.hasPreviousPage ? publishedTemplates?.publishedTemplates?.hasPreviousPage : false);
-      }
-
-      // Find templates that contain project funder as owner
-      const matchingTemplates = templates.filter(template =>
-        projectFundings?.projectFundings && projectFundings.projectFundings.some(pf => pf?.affiliation?.uri === template?.ownerURI)
-      );
-
-      if (matchingTemplates) {
-        const transformedProjectFunderTemplates = await transformTemplates(matchingTemplates);
-        const funders = transformedProjectFunderTemplates
-          .map(funder => ({
-            name: funder?.funder ?? null,
-            uri: funder?.funderUri ?? null,
-          }))
-          .filter((funder): funder is { name: string; uri: string } => funder.name !== null);
-
-        // Remove duplicates based on `name` and `uri`
-        const uniqueFunders = Array.from(
-          new Map(funders.map(funder => [funder.name, funder])).values()
-        );
-
-        if (uniqueFunders.length > 0) {
-          setFunders(uniqueFunders);
-        }
-        setProjectFunderTemplates(transformedProjectFunderTemplates);
+        setUniqueAffiliations(affiliations);
+        setHasBestPractice(hasBestPractice);
       }
     };
     processTemplates();
@@ -329,20 +343,56 @@ const PlanCreate: React.FC = () => {
 
 
   useEffect(() => {
-    // On page load, initially check the checkboxes for either project funders or best practice templates
-    if (funders.length === 0) {
-      const bestPracticeTemplates = publicTemplatesList.filter(template => template.bestPractices);
-      // If best practice templates exist, then we want to show them by default
-      if (bestPracticeTemplates.length > 0) {
-        const bestPracticeArray = bestPracticeTemplates.map(bp => bp.funder || '');
-        setBestPracticeTemplates(bestPracticeTemplates);
-        setSelectedFilterItems(bestPracticeArray);
-        handleCheckboxChange([...bestPracticeArray, "DMP Best Practice"], bestPracticeTemplates);
+    const processMatchingFunders = async () => {
+      if (projectFundings?.projectFundings && uniqueAffiliations.length > 0 && funders.length === 0) {
+        const matchingAffiliations = projectFundings.projectFundings.filter(item =>
+          item && item.affiliation && uniqueAffiliations.includes(item.affiliation.uri)
+        );
+
+        if (matchingAffiliations.length > 0) {
+          const fundersData = matchingAffiliations
+            .map(funder => ({
+              name: funder?.affiliation?.displayName ?? null,
+              uri: funder?.affiliation?.uri ?? null,
+            }))
+            .filter((funder): funder is { name: string; uri: string } => funder.name !== null);
+
+          const funderURIs = fundersData.map(funder => funder.uri);
+          setFunders(fundersData);
+          setSelectedFunders(funderURIs);
+          await fetchTemplates({ selectedOwnerURIs: funderURIs });
+        }
       }
-    } else {
-      const funderNames = funders.map(funder => funder.name);
-      handleCheckboxChange(funderNames);
     }
+    processMatchingFunders();
+  }, [projectFundings, uniqueAffiliations, funders.length]);
+
+  useEffect(() => {
+    const setSelectedItems = async () => {
+      // On page load, initially check the checkboxes for either project funders or best practice templates
+      if (funders.length === 0 && hasBestPractice) {
+        // Check 'bestPractices' value in query response to see if the available templates even include any best practice templates
+        const bestPracticeTemplates = publicTemplatesList.filter(template => template.bestPractices);
+        // If best practice templates exist, then we want to show them by default
+        if (bestPracticeTemplates.length > 0) {
+          setBestPracticeTemplates(bestPracticeTemplates);
+          setSelectedFilterItems(["DMP Best Practice"]); // Set to best practice value
+          setBestPractice(true);
+          setSelectedOwnerURIs([]);
+          await fetchTemplates({ bestPractice: true });
+        }
+      } else {
+        // Set selected funders by their uri
+        const funderURIs = funders.map(funder => funder.uri);
+        setSelectedFunders(funderURIs);
+        setBestPractice(false);
+        setSelectedOwnerURIs(funderURIs);
+      }
+    }
+    if (!userHasInteracted) {
+      setSelectedItems();
+    }
+
   }, [funders, publicTemplatesList]);
 
   useEffect(() => {
@@ -352,6 +402,8 @@ const PlanCreate: React.FC = () => {
       setSearchButtonClicked(false);
     }
   }, [searchTerm]);
+
+
 
   // Calculate total pages based on total records and records per page
   const RECORDS_PER_PAGE = 10;
@@ -394,37 +446,44 @@ const PlanCreate: React.FC = () => {
               <FieldError />
             </SearchField>
 
-            {/**funders or best practice options  */}
+            {/**Only show filters if there are funders. If no funders, then show best practice filter if the results include them  */}
 
-            <CheckboxGroupComponent
-              name="funders"
-              value={selectedFilterItems}
-              onChange={handleCheckboxChange}
-              checkboxGroupLabel={PlanCreate('checkbox.filterByFunderLabel')}
-              checkboxGroupDescription={PlanCreate('checkbox.filterByFunderDescription')}
-              checkboxData={funders.map(funder => ({
-                label: funder.name,
-                value: funder.name,
-              }))}
-            />
+            {funders.length > 0 && (
+              <CheckboxGroupComponent
+                name="funders"
+                value={selectedFunders}
+                onChange={(value) => handleCheckboxChange(value, 'funders')}
+                checkboxGroupLabel={PlanCreate('checkbox.filterByFunderLabel')}
+                checkboxGroupDescription={PlanCreate('checkbox.filterByFunderDescription')}
+                checkboxData={funders.map(funder => ({
+                  label: funder.name,
+                  value: funder.uri,
+                }))}
+              />
+            )}
 
-            <CheckboxGroupComponent
-              name="bestPractices"
-              value={selectedFilterItems}
-              onChange={handleCheckboxChange}
-              checkboxGroupLabel={PlanCreate('checkbox.filterByBestPracticesLabel')}
-              checkboxGroupDescription={PlanCreate('checkbox.filterByBestPracticesDescription')}
-              checkboxData={bestPracticeTemplates.map(() => ({
-                label: PlanCreate('labels.dmpBestPractice'),
-                value: "DMP Best Practice",
-              }))}
-            />
+            {funders.length === 0 && hasBestPractice && (
+              <CheckboxGroupComponent
+                name="bestPractices"
+                value={selectedFilterItems}
+                onChange={(value) => handleCheckboxChange(value, 'bestPractice')}
+                checkboxGroupLabel={PlanCreate('checkbox.filterByBestPracticesLabel')}
+                checkboxGroupDescription={PlanCreate('checkbox.filterByBestPracticesDescription')}
+                checkboxData={[{
+                  label: PlanCreate('labels.dmpBestPractice'),
+                  value: "DMP Best Practice",
+                }]}
+              />
+            )}
 
           </div>
 
           {publicTemplatesList?.length > 0 && (
             <>
-              {Pagination({ currentPage, totalPages, hasPreviousPage, hasNextPage, fetchTemplates })}
+              {/**Only display pagination if there is more than one page */}
+              {publicTemplatesList?.length && (
+                Pagination({ currentPage, totalPages, hasPreviousPage, hasNextPage, bestPractice, selectedOwnerURIs, fetchTemplates })
+              )}
 
               <section className="mb-8" aria-labelledby="public-templates">
                 <div className="template-list" role="list" aria-label="Public templates">
@@ -437,7 +496,10 @@ const PlanCreate: React.FC = () => {
 
                 </div>
               </section>
-              {Pagination({ currentPage, totalPages, hasPreviousPage, hasNextPage, fetchTemplates })}
+              {/**Only display pagination if there is more than one page */}
+              {publicTemplatesList?.length && (
+                Pagination({ currentPage, totalPages, hasPreviousPage, hasNextPage, bestPractice, selectedOwnerURIs, fetchTemplates })
+              )}
 
             </>
           )}
