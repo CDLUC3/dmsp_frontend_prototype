@@ -76,9 +76,6 @@ interface ProjectFunding {
   affiliation: Affiliation;
 }
 
-const PUBLIC_TEMPLATES_INCREMENT = 3;
-const FILTER_TEMPLATES_INCREMENT = 10;
-
 const PlanCreate: React.FC = () => {
   const formatDate = useFormatDate();
   const { scrollToTop } = useScrollToTop();
@@ -95,8 +92,6 @@ const PlanCreate: React.FC = () => {
 
   //states
   const [userHasInteracted, setUserHasInteracted] = useState(false);
-
-  const [projectFunderTemplates, setProjectFunderTemplates] = useState<TemplateItemProps[]>([]);
   const [bestPractice, setBestPractice] = useState<boolean>(false);
   const [selectedOwnerURIs, setSelectedOwnerURIs] = useState<string[]>([]);
   const [hasBestPractice, setHasBestPractice] = useState<boolean>(false);
@@ -105,7 +100,6 @@ const PlanCreate: React.FC = () => {
   const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<TemplateItemProps[] | null>([])
   const [funders, setFunders] = useState<ProjectFundersInterface[]>([]);
   const [uniqueAffiliations, setUniqueAffiliations] = useState<string[]>([]);
-  const [matchingFundings, setMatchingFundings] = useState<ProjectFunding[]>([]);
   const [bestPracticeTemplates, setBestPracticeTemplates] = useState<TemplateItemProps[]>([]);
   const [selectedFilterItems, setSelectedFilterItems] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -113,6 +107,7 @@ const PlanCreate: React.FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const [hasNextPage, setHasNextPage] = useState<boolean | null>(false);
   const [hasPreviousPage, setHasPreviousPage] = useState<boolean | null>(false);
 
@@ -172,8 +167,12 @@ const PlanCreate: React.FC = () => {
   };
 
   // Handle search input
-  const handleSearchInput = (value: string) => {
+  const handleSearchInput = async (value: string) => {
     setSearchTerm(value);
+    if (value.length === 0) {
+      setSearchButtonClicked(false);
+      await fetchTemplates({ page: currentPage, bestPractice, selectedOwnerURIs })
+    }
   };
 
   // Handle checkbox change
@@ -185,14 +184,12 @@ const PlanCreate: React.FC = () => {
     let filteredList: TemplateItemProps[] | null = null;
 
     // Determine which templates to show based on selected filters
-    console.log("TYPE", type);
-    console.log("VALUE", value);
 
     if (value.length === 0) {
       setSelectedOwnerURIs([]);
       setBestPractice(false);
       // Default to all templates when no criteria selected
-      await fetchTemplates({ page: 1 });
+      await fetchTemplates({ page: currentPage });
 
     } else if (type === 'funders') {
       // Always dispatch selected filter items (whether empty or not)
@@ -207,47 +204,28 @@ const PlanCreate: React.FC = () => {
       // Fetch best practice templates
       await fetchTemplates({ bestPractice: true, selectedOwnerURIs: [] });
     }
-
-
-
-
-    // Apply search term filtering if needed
-    if (searchTerm && filteredList) {
-      filteredList = filterTemplates(filteredList, searchTerm);
-      // Set filtered templates with a single dispatch
-      setFilteredPublicTemplates(filteredList);
-    }
   };
 
-  const handleFiltering = (term: string) => {
-    let filtered;
+  const handlePageClick = async (page: number) => {
+    if (!userHasInteracted) {
+      setUserHasInteracted(true);
+    }
+
+    await fetchTemplates({
+      page,
+      bestPractice,
+      selectedOwnerURIs,
+      searchTerm
+    });
+  };
+
+
+  const handleFiltering = async (term: string) => {
     setErrors([]);
     setSearchButtonClicked(true);
+    setSearchTerm(term);
 
-    if (selectedFilterItems.length > 0 && (filteredPublicTemplates && filteredPublicTemplates.length > 0)) {
-      filtered = filterTemplates(filteredPublicTemplates, term);
-    } else {
-
-      filtered = filterTemplates(publicTemplatesList, term);
-
-    }
-
-    if (filtered.length > 0) {
-      setSearchTerm(term);
-      setFilteredPublicTemplates(filtered);
-    } else {
-      setFilteredPublicTemplates(null);
-    }
-  };
-
-
-  const resetSearch = () => {
-    if (selectedFilterItems.length > 0) {
-
-    } else {
-      setFilteredPublicTemplates(null);
-    }
-    scrollToTop(topRef);
+    await fetchTemplates({ searchTerm: term })
   };
 
   // When user selects a template, we create a plan and redirect
@@ -281,13 +259,15 @@ const PlanCreate: React.FC = () => {
   }
 
   const fetchTemplates = async ({
-    page = 1,
+    page,
     bestPractice = false,
-    selectedOwnerURIs = []
+    selectedOwnerURIs = [],
+    searchTerm = ''
   }: {
     page?: number;
     bestPractice?: boolean;
     selectedOwnerURIs?: string[];
+    searchTerm?: string;
   }): Promise<void> => {
     let offsetLimit = 0;
     if (page) {
@@ -306,7 +286,7 @@ const PlanCreate: React.FC = () => {
           selectOwnerURIs: selectedOwnerURIs,
           bestPractice: bestPractice
         },
-        term: '',
+        term: searchTerm,
       }
     });
   };
@@ -314,7 +294,7 @@ const PlanCreate: React.FC = () => {
   // Load published templates
   useEffect(() => {
     const callFetchTemplates = async () => {
-      await fetchTemplates({ page: 1 });
+      await fetchTemplates({ page: currentPage });
     }
 
     callFetchTemplates();
@@ -322,7 +302,6 @@ const PlanCreate: React.FC = () => {
 
   useEffect(() => {
     const processTemplates = async () => {
-      console.log("PUBLIC TEMPLATES LIST", publishedTemplates?.publishedTemplates);
       const affiliations = publishedTemplates?.publishedTemplates?.availableAffiliations?.filter(
         (affiliation): affiliation is string => affiliation !== null
       ) || [];
@@ -331,7 +310,10 @@ const PlanCreate: React.FC = () => {
       if (publishedTemplates && publishedTemplates?.publishedTemplates && publishedTemplates?.publishedTemplates?.items) {
         const publicTemplates = await transformTemplates(publishedTemplates?.publishedTemplates?.items);
         setPublicTemplatesList(publicTemplates);
-        setTotalCount(publishedTemplates?.publishedTemplates?.totalCount ? publishedTemplates?.publishedTemplates?.totalCount : 0);
+        const totalCount = publishedTemplates?.publishedTemplates?.totalCount ? publishedTemplates?.publishedTemplates?.totalCount : 0;
+        // Calculate total pages based on total records and records per page
+        const totalPages = Math.ceil(totalCount / LIMIT);
+        setTotalPages(totalPages);
         setHasNextPage(publishedTemplates?.publishedTemplates?.hasNextPage ? publishedTemplates?.publishedTemplates?.hasNextPage : false);
         setHasPreviousPage(publishedTemplates?.publishedTemplates?.hasPreviousPage ? publishedTemplates?.publishedTemplates?.hasPreviousPage : false);
         setUniqueAffiliations(affiliations);
@@ -371,16 +353,11 @@ const PlanCreate: React.FC = () => {
     const setSelectedItems = async () => {
       // On page load, initially check the checkboxes for either project funders or best practice templates
       if (funders.length === 0 && hasBestPractice) {
-        // Check 'bestPractices' value in query response to see if the available templates even include any best practice templates
-        const bestPracticeTemplates = publicTemplatesList.filter(template => template.bestPractices);
-        // If best practice templates exist, then we want to show them by default
-        if (bestPracticeTemplates.length > 0) {
-          setBestPracticeTemplates(bestPracticeTemplates);
-          setSelectedFilterItems(["DMP Best Practice"]); // Set to best practice value
-          setBestPractice(true);
-          setSelectedOwnerURIs([]);
-          await fetchTemplates({ bestPractice: true });
-        }
+        setSelectedFilterItems(["DMP Best Practice"]); // Set to best practice value
+        setBestPractice(true);
+        setSelectedOwnerURIs([]);
+        await fetchTemplates({ bestPractice: true });
+
       } else {
         // Set selected funders by their uri
         const funderURIs = funders.map(funder => funder.uri);
@@ -395,19 +372,6 @@ const PlanCreate: React.FC = () => {
 
   }, [funders, publicTemplatesList]);
 
-  useEffect(() => {
-    // Reset to original state when search term is empty
-    if (searchTerm === '') {
-      resetSearch();
-      setSearchButtonClicked(false);
-    }
-  }, [searchTerm]);
-
-
-
-  // Calculate total pages based on total records and records per page
-  const RECORDS_PER_PAGE = 10;
-  const totalPages = Math.ceil(totalCount / RECORDS_PER_PAGE);
 
 
   return (
@@ -482,7 +446,13 @@ const PlanCreate: React.FC = () => {
             <>
               {/**Only display pagination if there is more than one page */}
               {publicTemplatesList?.length && (
-                Pagination({ currentPage, totalPages, hasPreviousPage, hasNextPage, bestPractice, selectedOwnerURIs, fetchTemplates })
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  hasPreviousPage={hasPreviousPage}
+                  hasNextPage={hasNextPage}
+                  handlePageClick={handlePageClick}
+                />
               )}
 
               <section className="mb-8" aria-labelledby="public-templates">
@@ -498,8 +468,13 @@ const PlanCreate: React.FC = () => {
               </section>
               {/**Only display pagination if there is more than one page */}
               {publicTemplatesList?.length && (
-                Pagination({ currentPage, totalPages, hasPreviousPage, hasNextPage, bestPractice, selectedOwnerURIs, fetchTemplates })
-              )}
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  hasPreviousPage={hasPreviousPage}
+                  hasNextPage={hasNextPage}
+                  handlePageClick={handlePageClick}
+                />)}
 
             </>
           )}
