@@ -1,5 +1,7 @@
 'use client';
 import React from 'react';
+import { useTranslations } from 'next-intl';
+
 
 interface PaginationProps {
   currentPage: number;
@@ -10,14 +12,16 @@ interface PaginationProps {
 }
 
 export default function Pagination({ currentPage, totalPages, hasPreviousPage, hasNextPage, handlePageClick }: PaginationProps) {
+  // Localization keys
+  const Global = useTranslations('Global');
   return (
-    <div>
+    <nav aria-label="pagination" id="pagination">
       <button onClick={async () => handlePageClick(currentPage - 1)} disabled={!hasPreviousPage}>
-        Prev
+        {Global('links.prev')}
       </button>
 
       {
-        [...Array(totalPages)].map((_, index) => {
+        [...Array(totalPages)].map((_, index: number) => {
           const page = index + 1;
           return (
             <button
@@ -34,8 +38,8 @@ export default function Pagination({ currentPage, totalPages, hasPreviousPage, h
       }
 
       <button onClick={async () => handlePageClick(currentPage + 1)} disabled={!hasNextPage}>
-        Next
+        {Global('links.next')}
       </button>
-    </div >
+    </nav>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -19,7 +19,6 @@ import {
 import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from '@/components/Container';
 import TemplateList from '@/components/TemplateList';
-import TemplateSelectListItem from "@/components/TemplateSelectListItem";
 import ErrorMessages from '@/components/ErrorMessages';
 import { CheckboxGroupComponent } from '@/components/Form';
 import Pagination from '@/components/Pagination';
@@ -31,12 +30,10 @@ import {
   usePublishedTemplatesLazyQuery
 } from '@/generated/graphql';
 
-// Hooks
-import { useScrollToTop } from '@/hooks/scrollToTop';
-
 // Other
+import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
-import { filterTemplates } from '@/utils/filterTemplates';
+import { routePath } from '@/utils/routes';
 import { TemplateItemProps } from '@/app/types';
 import { useFormatDate } from '@/hooks/useFormatDate';
 
@@ -60,34 +57,17 @@ interface PublicTemplatesInterface {
   ownerURI?: string | null;
 }
 
-interface Affiliation {
-  __typename: "Affiliation";
-  displayName: string;
-  uri: string;
-}
-
-interface ProjectFunding {
-  __typename: "ProjectFunding";
-  id: number;
-  status: string; // or use a union type like "PLANNED" | "ACTIVE" | "COMPLETED" if you know the possible values
-  grantId: string | null;
-  funderOpportunityNumber: string;
-  funderProjectNumber: string | null;
-  affiliation: Affiliation;
-}
-
 const PlanCreate: React.FC = () => {
   const formatDate = useFormatDate();
-  const { scrollToTop } = useScrollToTop();
   const params = useParams();
   const router = useRouter();
 
   // Get projectId from the URL
-  const { projectId } = params;
+  const projectId = String(params.projectId);
 
-  // Set refs for Load More button and error messages
-  const nextSectionRef = useRef<HTMLDivElement>(null);
+  // Set ref for error messages
   const errorRef = useRef<HTMLDivElement | null>(null);
+  // Scrolling to top
   const topRef = useRef<HTMLDivElement>(null);
 
   //states
@@ -97,16 +77,12 @@ const PlanCreate: React.FC = () => {
   const [hasBestPractice, setHasBestPractice] = useState<boolean>(false);
   const [selectedFunders, setSelectedFunders] = useState<string[]>([]);
   const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
-  const [filteredPublicTemplates, setFilteredPublicTemplates] = useState<TemplateItemProps[] | null>([])
   const [funders, setFunders] = useState<ProjectFundersInterface[]>([]);
   const [uniqueAffiliations, setUniqueAffiliations] = useState<string[]>([]);
-  const [bestPracticeTemplates, setBestPracticeTemplates] = useState<TemplateItemProps[]>([]);
   const [selectedFilterItems, setSelectedFilterItems] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [searchButtonClicked, setSearchButtonClicked] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalCount, setTotalCount] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [hasNextPage, setHasNextPage] = useState<boolean | null>(false);
   const [hasPreviousPage, setHasPreviousPage] = useState<boolean | null>(false);
@@ -131,6 +107,12 @@ const PlanCreate: React.FC = () => {
     notifyOnNetworkStatusChange: true,
   });
 
+
+  const resetSearch = useCallback(() => {
+    setSearchTerm('');
+    handleSearchInput('');
+    scrollToTop(topRef);
+  }, [scrollToTop]);
 
   const clearErrors = () => {
     setErrors([])
@@ -171,7 +153,6 @@ const PlanCreate: React.FC = () => {
   const handleSearchInput = async (value: string) => {
     setSearchTerm(value);
     if (value.length === 0) {
-      setSearchButtonClicked(false);
       await fetchTemplates({ page: currentPage, bestPractice, selectedOwnerURIs })
     }
   };
@@ -225,8 +206,10 @@ const PlanCreate: React.FC = () => {
 
   const handleFiltering = async (term: string) => {
     setErrors([]);
-    setSearchButtonClicked(true);
     setSearchTerm(term);
+
+    // Reset to first page on new search
+    setCurrentPage(1);
 
     await fetchTemplates({ searchTerm: term })
   };
@@ -250,14 +233,16 @@ const PlanCreate: React.FC = () => {
     } catch (err) {
       logECS('error', 'handleClick', {
         error: err,
-        url: { path: '/template/create' }
+        url: {
+          path: routePath('projects.dmp.create')
+        }
       });
       setErrors([(err as Error).message])
     }
 
     // Redirect to the newly created plan
     if (newPlanId) {
-      router.push(`/projects/${projectId}/dmp/${newPlanId}`)
+      router.push(routePath('projects.dmp.show', { projectId, dmpId: newPlanId }));
     }
   }
 
@@ -324,67 +309,73 @@ const PlanCreate: React.FC = () => {
     processTemplates();
   }, [publishedTemplates, projectFundings]);
 
-
   useEffect(() => {
-    const processMatchingFunders = async () => {
-      if (projectFundings?.projectFundings && uniqueAffiliations.length > 0 && funders.length === 0) {
-        const matchingAffiliations = projectFundings.projectFundings.filter(item =>
-          item && item.affiliation && uniqueAffiliations.includes(item.affiliation.uri)
-        );
-
-        if (matchingAffiliations.length > 0) {
-          const fundersData = matchingAffiliations
-            .map(funder => ({
-              name: funder?.affiliation?.displayName ?? null,
-              uri: funder?.affiliation?.uri ?? null,
-            }))
-            .filter((funder): funder is { name: string; uri: string } => funder.name !== null);
-
-          const funderURIs = fundersData.map(funder => funder.uri);
-          setFunders(fundersData);
-          setSelectedFunders(funderURIs);
-          //await fetchTemplates({ selectedOwnerURIs: funderURIs });
-        }
-      }
-    }
-    processMatchingFunders();
-  }, [projectFundings, uniqueAffiliations, funders.length]);
-
-  useEffect(() => {
-    // wait until both published templates and project fundings finish loading
+    // Wait until both GraphQL queries finish
     if (loading || projectFundingsLoading) return;
     if (userHasInteracted || initialSelectionApplied) return;
 
-    const hasBestPractice = publishedTemplates?.publishedTemplates?.hasBestPracticeTemplates ?? false;
+    const hasBestPractice =
+      publishedTemplates?.publishedTemplates?.hasBestPracticeTemplates ?? false;
     setHasBestPractice(hasBestPractice);
-    const setSelectedItems = async () => {
-      // On page load, initially check the checkboxes for either project funders or best practice templates
-      if (funders.length === 0 && hasBestPractice) {
-        setSelectedFilterItems(["DMP Best Practice"]); // Set to best practice value
-        setBestPractice(true);
-        setSelectedOwnerURIs([]);
-        await fetchTemplates({ bestPractice: true });
-      } else if (funders.length > 0) {
-        // Set selected funders by their uri
-        const funderURIs = funders.map(funder => funder.uri);
+
+    // Get matching funders directly from `projectFundings` + `uniqueAffiliations`
+    let fundersData: { name: string; uri: string }[] = [];
+    let funderURIs: string[] = [];
+
+    if (projectFundings?.projectFundings && uniqueAffiliations.length > 0) {
+      const matchingAffiliations = projectFundings.projectFundings.filter(
+        (item) =>
+          item?.affiliation &&
+          uniqueAffiliations.includes(item.affiliation.uri)
+      );
+
+      if (matchingAffiliations.length > 0) {
+        fundersData = matchingAffiliations
+          .map((funder) => ({
+            name: funder?.affiliation?.displayName ?? null,
+            uri: funder?.affiliation?.uri ?? null,
+          }))
+          .filter(
+            (funder): funder is { name: string; uri: string } =>
+              funder.name !== null
+          );
+
+        funderURIs = fundersData.map((funder) => funder.uri);
+      }
+    }
+
+    const setSelectionsAndFetch = async () => {
+      if (fundersData.length > 0) {
+        // Funders exist
+        setFunders(fundersData);
         setSelectedFunders(funderURIs);
         setBestPractice(false);
         setSelectedOwnerURIs(funderURIs);
         await fetchTemplates({ selectedOwnerURIs: funderURIs });
+      } else if (hasBestPractice) {
+        // No funders, but best practice exists
+        setSelectedFilterItems(["DMP Best Practice"]);
+        setBestPractice(true);
+        setSelectedOwnerURIs([]);
+        await fetchTemplates({ bestPractice: true });
       } else {
-        //no funders and no best practice
-        await fetchTemplates({ page: currentPage })
+        // No funders and no best practice
+        await fetchTemplates({ page: currentPage });
       }
-      setInitialSelectionApplied(true); // ensure this runs only once
+      setInitialSelectionApplied(true);
+    };
 
-    }
-    if (!userHasInteracted) {
-      setSelectedItems();
-    }
-
-  }, [funders, publicTemplatesList, loading, hasBestPractice, userHasInteracted, initialSelectionApplied, currentPage]);
-
-
+    setSelectionsAndFetch();
+  }, [
+    loading,
+    projectFundingsLoading,
+    publishedTemplates,
+    projectFundings,
+    uniqueAffiliations,
+    userHasInteracted,
+    initialSelectionApplied,
+    currentPage,
+  ]);
 
   return (
     <>
@@ -402,10 +393,12 @@ const PlanCreate: React.FC = () => {
         actions={<></>}
         className="page-template-list"
       />
+
       <ErrorMessages errors={errors} ref={errorRef} />
+
       <LayoutContainer>
         <ContentContainer className={"layout-content-container-full"}>
-          <div className="searchSection" role="search">
+          <div className="searchSection" role="search" ref={topRef}>
             <SearchField aria-label="Template search">
               <Label>{Global('labels.searchByKeyword')}</Label>
               <Text slot="description" className="help">
@@ -451,8 +444,14 @@ const PlanCreate: React.FC = () => {
                 }]}
               />
             )}
-
           </div>
+
+          {searchTerm.length > 0 && (
+            <div className="clear-filter">
+              <div className="search-match-text"><Button onPress={resetSearch} className="search-match-text link">{Global('links.clearFilter')}</Button></div>
+            </div>
+          )}
+
 
           {publicTemplatesList?.length > 0 && (
             <>
@@ -467,9 +466,9 @@ const PlanCreate: React.FC = () => {
                 />
               )}
 
+              {/**Display list of published templates */}
               <section className="mb-8" aria-labelledby="public-templates">
                 <div className="template-list" role="list" aria-label="Public templates">
-
                   <TemplateList
                     key={publicTemplatesList.length}
                     templates={publicTemplatesList}
@@ -478,6 +477,7 @@ const PlanCreate: React.FC = () => {
 
                 </div>
               </section>
+
               {/**Only display pagination if there is more than one page */}
               {publicTemplatesList?.length && (
                 <Pagination
@@ -487,7 +487,6 @@ const PlanCreate: React.FC = () => {
                   hasNextPage={hasNextPage}
                   handlePageClick={handlePageClick}
                 />)}
-
             </>
           )}
 
