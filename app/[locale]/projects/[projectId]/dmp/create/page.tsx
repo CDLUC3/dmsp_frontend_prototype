@@ -110,6 +110,7 @@ const PlanCreate: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [hasNextPage, setHasNextPage] = useState<boolean | null>(false);
   const [hasPreviousPage, setHasPreviousPage] = useState<boolean | null>(false);
+  const [initialSelectionApplied, setInitialSelectionApplied] = useState(false);
 
   // Localization keys
   const PlanCreate = useTranslations('PlanCreate');
@@ -117,7 +118,7 @@ const PlanCreate: React.FC = () => {
 
 
   // Published templates lazy query
-  const [fetchPublishedTemplates, { data: publishedTemplates }] = usePublishedTemplatesLazyQuery();
+  const [fetchPublishedTemplates, { data: publishedTemplates, loading }] = usePublishedTemplatesLazyQuery();
 
   // Get Project Funders data
   const { data: projectFundings, loading: projectFundingsLoading, error: projectFundingsError } = useProjectFundingsQuery({
@@ -180,8 +181,10 @@ const PlanCreate: React.FC = () => {
     // Mark that user has interacted with checkboxes
     setUserHasInteracted(true);
 
-    // Determine which templates to show based on selected filters
+    // Reset the search field back to empty
+    setSearchTerm('');
 
+    // Determine which templates to show based on selected filters
     if (value.length === 0) {
       setSelectedOwnerURIs([]);
       setBestPractice(false);
@@ -306,7 +309,6 @@ const PlanCreate: React.FC = () => {
         (affiliation): affiliation is string => affiliation !== null
       ) || [];
 
-      const hasBestPractice = publishedTemplates?.publishedTemplates?.hasBestPracticeTemplates ?? false;
       if (publishedTemplates && publishedTemplates?.publishedTemplates && publishedTemplates?.publishedTemplates?.items) {
         const publicTemplates = await transformTemplates(publishedTemplates?.publishedTemplates?.items);
         setPublicTemplatesList(publicTemplates);
@@ -317,7 +319,6 @@ const PlanCreate: React.FC = () => {
         setHasNextPage(publishedTemplates?.publishedTemplates?.hasNextPage ? publishedTemplates?.publishedTemplates?.hasNextPage : false);
         setHasPreviousPage(publishedTemplates?.publishedTemplates?.hasPreviousPage ? publishedTemplates?.publishedTemplates?.hasPreviousPage : false);
         setUniqueAffiliations(affiliations);
-        setHasBestPractice(hasBestPractice);
       }
     };
     processTemplates();
@@ -342,7 +343,7 @@ const PlanCreate: React.FC = () => {
           const funderURIs = fundersData.map(funder => funder.uri);
           setFunders(fundersData);
           setSelectedFunders(funderURIs);
-          await fetchTemplates({ selectedOwnerURIs: funderURIs });
+          //await fetchTemplates({ selectedOwnerURIs: funderURIs });
         }
       }
     }
@@ -350,26 +351,38 @@ const PlanCreate: React.FC = () => {
   }, [projectFundings, uniqueAffiliations, funders.length]);
 
   useEffect(() => {
+    // wait until both published templates and project fundings finish loading
+    if (loading || projectFundingsLoading) return;
+    if (userHasInteracted || initialSelectionApplied) return;
+
+    const hasBestPractice = publishedTemplates?.publishedTemplates?.hasBestPracticeTemplates ?? false;
+    setHasBestPractice(hasBestPractice);
     const setSelectedItems = async () => {
       // On page load, initially check the checkboxes for either project funders or best practice templates
       if (funders.length === 0 && hasBestPractice) {
         setSelectedFilterItems(["DMP Best Practice"]); // Set to best practice value
         setBestPractice(true);
         setSelectedOwnerURIs([]);
-
-      } else {
+        await fetchTemplates({ bestPractice: true });
+      } else if (funders.length > 0) {
         // Set selected funders by their uri
         const funderURIs = funders.map(funder => funder.uri);
         setSelectedFunders(funderURIs);
         setBestPractice(false);
         setSelectedOwnerURIs(funderURIs);
+        await fetchTemplates({ selectedOwnerURIs: funderURIs });
+      } else {
+        //no funders and no best practice
+        await fetchTemplates({ page: currentPage })
       }
+      setInitialSelectionApplied(true); // ensure this runs only once
+
     }
     if (!userHasInteracted) {
       setSelectedItems();
     }
 
-  }, [funders, publicTemplatesList]);
+  }, [funders, publicTemplatesList, loading, hasBestPractice, userHasInteracted, initialSelectionApplied, currentPage]);
 
 
 
