@@ -10,6 +10,7 @@
 
 ### Updated
 - Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
+- Updated unit test for `Plan Create` to use new `MockProvider` [#686]
 - Updated all plan pages to use the proper section and question ids. They were using `Section.id` and `Question.id` but should be using `VersionedSection.id` and `VersionedQuestion.id` since the plan is based on a published template and so should be referencing the components of the published version
 - Renamed existing `__mocks__` to be clear that they represent non-versioned questions (for use with the template pages)
 - Update `@dmptool/types` version [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
