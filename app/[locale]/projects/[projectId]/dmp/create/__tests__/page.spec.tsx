@@ -1,14 +1,11 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within, cleanup } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import PlanCreate from '../page';
 import { useParams, useRouter } from 'next/navigation';
-import { print } from 'graphql';
+import { useTranslations, useFormatter } from 'next-intl';
 import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
-
-
-
 import {
   ProjectFundingsDocument,
   PublishedTemplatesDocument,
@@ -56,7 +53,7 @@ const mocks = [
           selectOwnerURIs: [],
           bestPractice: false
         },
-        "term": ""
+        term: ""
       },
     },
     result: {
@@ -69,6 +66,7 @@ const mocks = [
           hasBestPracticeTemplates: false,
         },
       },
+      loading: false
     },
   },
   // PublishedTemplatesMetaData query
@@ -84,7 +82,7 @@ const mocks = [
           selectOwnerURIs: [],
           bestPractice: false
         },
-        "term": ""
+        term: ""
       },
     },
     result: {
@@ -97,6 +95,7 @@ const mocks = [
           hasBestPracticeTemplates: false,
         },
       },
+      loading: false
     },
   },
   {
@@ -111,15 +110,15 @@ const mocks = [
           selectOwnerURIs: [],
           bestPractice: false
         },
-        "term": ""
+        term: ""
       },
     },
     result: {
       data: {
         publishedTemplates: {
-          limit: 10,
+          limit: 5,
           nextCursor: null,
-          totalCount: 4,
+          totalCount: 10,
           availableSortFields: ['vt.bestPractice'],
           currentOffset: 1,
           hasNextPage: true,
@@ -224,6 +223,56 @@ const mocks = [
           ]
         },
       },
+      loading: false
+    },
+  },
+  // Unchecking funders updates to offset of 5
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 5,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          limit: 5,
+          nextCursor: null,
+          totalCount: 10,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: true,
+          hasPreviousPage: true,
+          items: [
+            {
+              bestPractice: false,
+              description: "Page 2",
+              id: "14",
+              name: "Page 2",
+              visibility: "PUBLIC",
+              ownerDisplayName: "National Science Foundation (nsf.gov)",
+              ownerURI: "http://nsf.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "John Doe",
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v5",
+              templateId: 4,
+              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
+            },
+          ]
+        },
+      },
+      loading: false
     },
   },
   {
@@ -238,15 +287,15 @@ const mocks = [
           selectOwnerURIs: ["http://nsf.gov", "http://nih.gov"],
           bestPractice: false
         },
-        "term": ""
+        term: ""
       },
     },
     result: {
       data: {
         publishedTemplates: {
-          limit: 10,
+          limit: 5,
           nextCursor: null,
-          totalCount: 4,
+          totalCount: 10,
           availableSortFields: ['vt.bestPractice'],
           currentOffset: 1,
           hasNextPage: true,
@@ -351,6 +400,264 @@ const mocks = [
           ]
         },
       },
+      loading: false
+    },
+  },
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: ["http://nsf.gov"],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          limit: 5,
+          nextCursor: null,
+          totalCount: 10,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: true,
+          hasPreviousPage: true,
+          items: [
+            {
+              bestPractice: false,
+              description: "Template 1",
+              id: "1",
+              name: "Agency for Healthcare Research and Quality",
+              visibility: "PUBLIC",
+              ownerDisplayName: "National Science Foundation (nsf.gov)",
+              ownerURI: "http://nsf.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "John Doe",
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v5",
+              templateId: 4,
+              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
+            },
+            {
+              bestPractice: false,
+              description: "Arctic Data Center",
+              id: "20",
+              name: "Arctic Data Center: NSF Polar Programs",
+              visibility: "PUBLIC",
+              ownerDisplayName: "National Science Foundation (nsf.gov)",
+              ownerURI: "http://nsf.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: 'John Doe',
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v5",
+              templateId: 5,
+              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
+            },
+            {
+              bestPractice: false,
+              description: "Develop data plans",
+              id: "10",
+              name: "Data Curation Centre",
+              visibility: "PUBLIC",
+              ownerDisplayName: "National Institute of Health",
+              ownerURI: "http://nih.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: 'John Doe',
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v2",
+              templateId: 3,
+              ownerSearchName: "National Institute of Health | nih.gov | NIH"
+            },
+            {
+              bestPractice: false,
+              description: "Develop data plans",
+              id: "40",
+              name: "Practice Template",
+              visibility: "PUBLIC",
+              ownerDisplayName: "National Institute of Health",
+              ownerURI: "http://nih.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: 'John Doe',
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v3",
+              templateId: 2,
+              ownerSearchName: "National Institute of Health | nih.gov | NIH"
+            },
+            {
+              bestPractice: false,
+              description: "Develop data plans",
+              id: "50",
+              name: "Detailed DMP Template",
+              visibility: "PUBLIC",
+              ownerDisplayName: "National Institute of Health",
+              ownerURI: "http://nih.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: 'John Doe',
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v5",
+              templateId: 1,
+              ownerSearchName: "National Institute of Health | nih.gov | NIH"
+            },
+            {
+              bestPractice: true,
+              description: "Best Practice Template",
+              id: "12",
+              name: "Best Practice Template",
+              visibility: "PUBLIC",
+              ownerDisplayName: null,
+              ownerURI: "http://nih.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: 'John Doe',
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v6",
+              templateId: 7,
+              ownerSearchName: "National Institute of Health | nih.gov | NIH"
+            },
+          ]
+        },
+      },
+      loading: false
+    },
+  },
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 5,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: ["http://nsf.gov"],
+          bestPractice: false
+        },
+        term: ""
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          limit: 5,
+          nextCursor: null,
+          totalCount: 10,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: true,
+          hasPreviousPage: true,
+          items: [
+            {
+              bestPractice: false,
+              description: "Template 2",
+              id: "1",
+              name: "Template 2",
+              visibility: "PUBLIC",
+              ownerDisplayName: "Template 2",
+              ownerURI: "http://template.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "Jane Smith",
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v5",
+              templateId: 4,
+              ownerSearchName: "Template 2"
+            },
+          ]
+        },
+      },
+      loading: false
+    },
+  },
+  // For search for NSF
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false
+        },
+        term: "NSF"
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          limit: 5,
+          nextCursor: null,
+          totalCount: 10,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: true,
+          hasPreviousPage: true,
+          items: [
+            {
+              bestPractice: false,
+              description: "NSF SEARCH",
+              id: "1",
+              name: "NSF Search",
+              visibility: "PUBLIC",
+              ownerDisplayName: "National Science Foundation (nsf.gov)",
+              ownerURI: "http://nsf.gov",
+              modified: "2021-10-25 18:42:37",
+              modifiedByName: "John Doe",
+              modifiedById: 14,
+              ownerId: 122,
+              version: "v5",
+              templateId: 4,
+              ownerSearchName: "National Science Foundation | nsf.gov | NSF"
+            },
+          ]
+        },
+      },
+      loading: false
+    },
+  },
+  // For search for test
+  {
+    request: {
+      query: PublishedTemplatesDocument,
+      variables: {
+        paginationOptions: {
+          offset: 0,
+          limit: 5,
+          type: "OFFSET",
+          sortDir: "DESC",
+          selectOwnerURIs: [],
+          bestPractice: false
+        },
+        term: "test"
+      },
+    },
+    result: {
+      data: {
+        publishedTemplates: {
+          limit: 5,
+          nextCursor: null,
+          totalCount: 10,
+          availableSortFields: ['vt.bestPractice'],
+          currentOffset: 1,
+          hasNextPage: true,
+          hasPreviousPage: true,
+          items: []
+        },
+      },
+      loading: false
     },
   },
   // Initial ProjectFundings query
@@ -399,6 +706,7 @@ const mocks = [
           }
         ]
       },
+      loading: false
     },
   },
   // AddPlan mutation
@@ -414,17 +722,27 @@ const mocks = [
       data: {
         addPlan: {
           id: 7,
-          "__typename": "Plan"
+          __typename: "Plan"
         }
       },
     },
   },
 ]
 
-describe('PlanCreate Component', () => {
+describe('PlanCreate Component using base mock', () => {
   const mockUseParams = useParams as jest.Mock;
+  const mockUseTranslations = useTranslations as jest.Mock;
+  const mockUseFormatter = useFormatter as jest.Mock;
+
 
   beforeEach(() => {
+    mockUseTranslations.mockImplementation(() => {
+      return jest.fn((key) => key);
+    });
+
+    mockUseFormatter.mockImplementation(() => ({
+      dateTime: jest.fn(() => '01-01-2023'),
+    }));
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     mockScrollTo();
     mockUseParams.mockReturnValue({ projectId: '1' });
@@ -438,8 +756,10 @@ describe('PlanCreate Component', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks()
-  });
+    jest.clearAllMocks();
+    cleanup();
+  })
+
 
   it('should render PlanCreate component with funder checkbox', async () => {
     await act(async () => {
@@ -511,6 +831,177 @@ describe('PlanCreate Component', () => {
     })
   });
 
+  it('should handle no items found in search', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    await waitFor(() => {
+      const searchInput = screen.getByLabelText('Template search');
+      // Enter search term
+      fireEvent.change(searchInput, { target: { value: 'test' } });
+      // Click search button
+      const searchButton = screen.getByText('buttons.search');
+      fireEvent.click(searchButton);
+
+      expect(searchInput).toHaveValue('test');
+    });
+    // There should be two matches to the search for 'test'
+    await waitFor(() => {
+      const heading3 = screen.queryAllByRole('heading', { level: 3 });
+      expect(heading3).toHaveLength(0);
+      expect(screen.getByText('messaging.noItemsFound')).toBeInTheDocument();
+    })
+  });
+
+  it('should handle page navigation', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    await waitFor(() => {
+      // We should have two checkboxes for project funders checked
+      const nihCheckbox = screen.getByRole('checkbox', { name: /National Institute of Health/i });
+      expect(nihCheckbox).toBeInTheDocument();
+
+      fireEvent.click(nihCheckbox);
+    })
+
+    await act(async () => {
+      const nsfCheckbox = screen.getByRole('checkbox', { name: /National Science Foundation \(nsf.gov\)/i });
+      expect(nsfCheckbox).toBeInTheDocument();
+      fireEvent.click(nsfCheckbox);
+    })
+
+    const nextBtn = screen.getAllByRole('button', { name: "labels.nextPage" });
+    fireEvent.click(nextBtn[0]);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: "Page 2" })).toBeInTheDocument();
+    })
+  })
+
+  it('should return matching templates on search item', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    await waitFor(() => {
+      const searchInput = screen.getByLabelText('Template search');
+      // Enter matching search term
+      fireEvent.change(searchInput, { target: { value: 'NSF' } });
+
+      // Click search button
+      const searchButton = screen.getByText('buttons.search');
+      fireEvent.click(searchButton);
+    })
+
+    await waitFor(() => {
+      // Should bring up this matching template
+      expect(screen.getByRole('heading', { level: 3, name: /NSF Search/i })).toBeInTheDocument();
+    });
+
+    //Empty out the search text
+    const searchInput = screen.getByLabelText('Template search');
+    fireEvent.change(searchInput, { target: { value: '' } });
+
+    await waitFor(() => {
+      // Should expect to see a template from initial load
+      screen.getByRole('heading', { level: 3, name: /Arctic Data Center: NSF Polar Programs/i })
+    })
+  });
+
+  it('should rest templates if user clicks on \'clear filter\' link', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={mocks} addTypename={false}>
+          <PlanCreate />
+        </MockedProvider>
+      );
+    });
+
+    await waitFor(() => {
+      const searchInput = screen.getByLabelText('Template search');
+      // Enter matching search term
+      fireEvent.change(searchInput, { target: { value: 'NSF' } });
+
+      // Click search button
+      const searchButton = screen.getByText('buttons.search');
+      fireEvent.click(searchButton);
+    })
+
+    await waitFor(() => {
+      // Should bring up this matching template
+      expect(screen.getByRole('heading', { level: 3, name: /NSF Search/i })).toBeInTheDocument();
+    });
+
+    //Click clear filter button
+    const clearFilterBtn = screen.getByTestId('clear-filter');
+    fireEvent.click(clearFilterBtn);
+
+    await waitFor(() => {
+      // Should expect to see a template from initial load
+      screen.getByRole('heading', { level: 3, name: /Arctic Data Center: NSF Polar Programs/i })
+    })
+  });
+
+  it('should pass axe accessibility test', async () => {
+    const { container } = render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <PlanCreate />
+      </MockedProvider>
+    );
+
+    await act(async () => {
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+  })
+});
+
+
+describe('Testing scenarios that don\'t use the base mock', () => {
+  const mockUseParams = useParams as jest.Mock;
+  const mockUseTranslations = useTranslations as jest.Mock;
+  const mockUseFormatter = useFormatter as jest.Mock;
+
+
+  beforeEach(() => {
+    mockUseTranslations.mockImplementation(() => {
+      return jest.fn((key) => key);
+    });
+
+    mockUseFormatter.mockImplementation(() => ({
+      dateTime: jest.fn(() => '01-01-2023'),
+    }));
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+    mockScrollTo();
+    mockUseParams.mockReturnValue({ projectId: '1' });
+    // mock router
+    mockRouter = { push: jest.fn() };
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+
+    // Mock Toast
+    (useToast as jest.Mock).mockReturnValue(mockToast);
+
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    cleanup();
+  })
 
   it('should not show any checkboxes if no project funders and no best practice', async () => {
     const mocksWithNoProjectFunders = [
@@ -527,7 +1018,7 @@ describe('PlanCreate Component', () => {
               selectOwnerURIs: [],
               bestPractice: false
             },
-            "term": ""
+            term: ""
           },
         },
         result: {
@@ -554,13 +1045,13 @@ describe('PlanCreate Component', () => {
               selectOwnerURIs: [],
               bestPractice: false
             },
-            "term": ""
+            term: ""
           },
         },
         result: {
           data: {
             publishedTemplates: {
-              limit: 10,
+              limit: 5,
               nextCursor: null,
               totalCount: 4,
               availableSortFields: ['vt.bestPractice'],
@@ -666,7 +1157,7 @@ describe('PlanCreate Component', () => {
           data: {
             addPlan: {
               id: 7,
-              "__typename": "Plan"
+              __typename: "Plan"
             }
           },
         },
@@ -702,7 +1193,7 @@ describe('PlanCreate Component', () => {
               selectOwnerURIs: [],
               bestPractice: false
             },
-            "term": ""
+            term: ""
           },
         },
         result: {
@@ -729,13 +1220,13 @@ describe('PlanCreate Component', () => {
               selectOwnerURIs: [],
               bestPractice: false
             },
-            "term": ""
+            term: ""
           },
         },
         result: {
           data: {
             publishedTemplates: {
-              limit: 10,
+              limit: 5,
               nextCursor: null,
               totalCount: 4,
               availableSortFields: ['vt.bestPractice'],
@@ -793,13 +1284,13 @@ describe('PlanCreate Component', () => {
               selectOwnerURIs: [],
               bestPractice: true
             },
-            "term": ""
+            term: ""
           },
         },
         result: {
           data: {
             publishedTemplates: {
-              limit: 10,
+              limit: 5,
               nextCursor: null,
               totalCount: 4,
               availableSortFields: ['vt.bestPractice'],
@@ -871,7 +1362,7 @@ describe('PlanCreate Component', () => {
           data: {
             addPlan: {
               id: 7,
-              "__typename": "Plan"
+              __typename: "Plan"
             }
           },
         },
@@ -896,97 +1387,40 @@ describe('PlanCreate Component', () => {
       expect(listItems).toHaveLength(2);
       expect(screen.getByRole('heading', { level: 3, name: "Data Curation Centre" })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 3, name: "Best Practice Template" })).toBeInTheDocument();
-
     })
   });
+})
+
+describe('Query errors', () => {
+  const mockUseParams = useParams as jest.Mock;
+  const mockUseTranslations = useTranslations as jest.Mock;
+  const mockUseFormatter = useFormatter as jest.Mock;
 
 
-  it('should display loading state', async () => {
-    const mocksLoading = [
-      // PublishedTemplatesMetaData query
-      {
-        request: {
-          query: PublishedTemplatesMetaDataDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: false
-            },
-            "term": ""
-          },
-        },
-        result: {
-          data: null,
-          loading: true,
-          error: null
-        },
-      },
-      {
-        request: {
-          query: PublishedTemplatesDocument,
-          variables: {
-            paginationOptions: {
-              offset: 0,
-              limit: 5,
-              type: "OFFSET",
-              sortDir: "DESC",
-              selectOwnerURIs: [],
-              bestPractice: false
-            },
-            "term": ""
-          },
-        },
-        result: {
-          data: null,
-          loading: true,
-          error: null
-        },
-      },
-      {
-        request: {
-          query: ProjectFundingsDocument,
-          variables: {
-            projectId: 1
-          },
-        },
-        result: {
-          data: {
-            projectFundings: []
-          },
-        },
-      },
-      // AddPlan mutation
-      {
-        request: {
-          query: AddPlanDocument,
-          variables: {
-            projectId: 1,
-            versionedTemplateId: 1
-          },
-        },
-        result: {
-          data: {
-            addPlan: {
-              id: 7,
-              "__typename": "Plan"
-            }
-          },
-        },
-      },
-    ];
-    await act(async () => {
-      render(
-        <MockedProvider mocks={mocksLoading} addTypename={false}>
-          <PlanCreate />
-        </MockedProvider>
-      );
+  beforeEach(() => {
+    mockUseTranslations.mockImplementation(() => {
+      return jest.fn((key) => key);
     });
-    expect(screen.getByText(/...messaging.loading/i)).toBeInTheDocument();
+
+    mockUseFormatter.mockImplementation(() => ({
+      dateTime: jest.fn(() => '01-01-2023'),
+    }));
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+    mockScrollTo();
+    mockUseParams.mockReturnValue({ projectId: '1' });
+    // mock router
+    mockRouter = { push: jest.fn() };
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+
+    // Mock Toast
+    (useToast as jest.Mock).mockReturnValue(mockToast);
+
   });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    cleanup();
+  })
 
   it('should display error state', async () => {
     const mocksError = [
@@ -1003,7 +1437,7 @@ describe('PlanCreate Component', () => {
               selectOwnerURIs: [],
               bestPractice: false
             },
-            "term": ""
+            term: ""
           },
         },
         error: new Error("There was an error"),
@@ -1020,7 +1454,7 @@ describe('PlanCreate Component', () => {
               selectOwnerURIs: [],
               bestPractice: false
             },
-            "term": ""
+            term: ""
           },
         },
         error: new Error("There was an error"),
@@ -1037,7 +1471,7 @@ describe('PlanCreate Component', () => {
               selectOwnerURIs: [],
               bestPractice: false
             },
-            "term": ""
+            term: ""
           },
         },
         error: new Error("There was an error"),
@@ -1078,103 +1512,4 @@ describe('PlanCreate Component', () => {
       expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1');
     });
   });
-
-  // it('should handle no items found in search', async () => {
-  //   mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
-  //   mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
-  //   await act(async () => {
-  //     render(
-  //       <PlanCreate />
-  //     );
-  //   });
-  //   const searchInput = screen.getByLabelText('Template search');
-  //   // Enter search term
-  //   fireEvent.change(searchInput, { target: { value: 'test' } });
-  //   // Click search button
-  //   const searchButton = screen.getByText('buttons.search');
-  //   fireEvent.click(searchButton);
-
-  //   expect(searchInput).toHaveValue('test');
-
-  //   // There should be no matches to the search for 'test'
-  //   await waitFor(() => {
-  //     const heading3 = screen.queryAllByRole('heading', { level: 3 });
-  //     expect(heading3).toHaveLength(0);
-  //     expect(screen.getByText('messaging.noItemsFound')).toBeInTheDocument();
-  //   })
-
-  // });
-
-  // it('should return matching templates on search item', async () => {
-  //   mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
-  //   mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
-  //   await act(async () => {
-  //     render(
-  //       <PlanCreate />
-  //     );
-  //   });
-
-  //   const searchInput = screen.getByLabelText('Template search');
-  //   // Enter matching search term
-  //   fireEvent.change(searchInput, { target: { value: 'Arctic' } });
-
-  //   // Click search button
-  //   const searchButton = screen.getByText('buttons.search');
-  //   fireEvent.click(searchButton);
-
-
-  //   await waitFor(() => {
-  //     // Should bring up this matching template
-  //     expect(screen.getByRole('heading', { level: 3, name: /Arctic Data Center: NSF Polar Programs/i })).toBeInTheDocument();
-  //   });
-  // });
-
-  // it('should handle Load More functionality', async () => {
-  //   mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
-  //   mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
-  //   await act(async () => {
-  //     render(
-  //       <PlanCreate />
-  //     );
-  //   });
-
-  //   // Get all checkboxes with name="funders"
-  //   const funderCheckboxes = screen.getAllByRole('checkbox').filter(
-  //     (checkbox) => checkbox.getAttribute('name') === 'funders'
-  //   );
-
-  //   // Uncheck each one if it's checked
-  //   for (const checkbox of funderCheckboxes) {
-  //     if ((checkbox as HTMLInputElement).checked) {
-  //       await act(async () => {
-  //         fireEvent.click(checkbox);
-  //       });
-  //       expect((checkbox as HTMLInputElement).checked).toBe(false); // Confirm it's unchecked
-  //     }
-  //   }
-
-  //   const loadMoreButton = screen.getByRole('button', { name: /buttons.loadMore/i });
-  //   await waitFor(() => {
-  //     // Should bring up this matching template
-  //     expect(loadMoreButton).toBeInTheDocument();
-  //     fireEvent.click(loadMoreButton);
-  //   });
-
-  //   const listItems = screen.getAllByRole('listitem').filter(item => item.classList.contains('templateItem'));
-  //   expect(listItems).toHaveLength(6);
-  // });
-
-
-  // it('should pass axe accessibility test', async () => {
-  //   mockUseProjectFundingsQuery.mockReturnValue({ data: { projectFundings: mockProjectFundings }, loading: false, error: null });
-  //   mockUsePublishedTemplatesQuery.mockReturnValue({ data: { publishedTemplates: mockPublishedTemplates }, loading: false, error: null });
-
-  //   const { container } = render(
-  //     <PlanCreate />
-  //   );
-  //   await act(async () => {
-  //     const results = await axe(container);
-  //     expect(results).toHaveNoViolations();
-  //   });
-  // });
 });

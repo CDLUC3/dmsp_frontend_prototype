@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -37,7 +37,7 @@ import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
-import { unique } from 'next/dist/build/utils';
+import { TemplateItemProps } from '@/app/types';
 
 const LIMIT = 5;
 
@@ -79,7 +79,7 @@ const PlanCreate: React.FC = () => {
   const [selectedOwnerURIs, setSelectedOwnerURIs] = useState<string[]>([]);
   const [hasBestPractice, setHasBestPractice] = useState<boolean>(false);
   const [selectedFunders, setSelectedFunders] = useState<string[]>([]);
-  //const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
+  const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
   const [funders, setFunders] = useState<ProjectFundersInterface[]>([]);
   const [selectedFilterItems, setSelectedFilterItems] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -288,15 +288,12 @@ const PlanCreate: React.FC = () => {
           type: "OFFSET",
           sortDir: "DESC",
           selectOwnerURIs: selectedOwnerURIs,
-          bestPractice: bestPractice
+          bestPractice
         },
         term: searchTerm,
       }
     });
   };
-
-  // Handle async transformation with state and useEffect
-  const [publicTemplatesList, setPublicTemplatesList] = useState<any[]>([]);
 
   // Process templates when publishedTemplates changes
   useEffect(() => {
@@ -336,8 +333,6 @@ const PlanCreate: React.FC = () => {
     let fundersData: { name: string; uri: string }[] = [];
     let funderURIs: string[] = [];
 
-    console.log("PROJECT FUNDINGS", projectFundings?.projectFundings);
-    console.log("UNIQUE AFFILIATIONS", uniqueAffiliations);
     if (projectFundings?.projectFundings && uniqueAffiliations.length > 0) {
       const matchingAffiliations = projectFundings.projectFundings.filter(
         (item) =>
@@ -394,26 +389,19 @@ const PlanCreate: React.FC = () => {
     initialSelectionApplied
   ]);
 
-  // If loading issues then display loading
-  //TODO: Eventually use loading spinner
-  if (loading || projectFundingsLoading || templatesMetaDataLoading) {
-    return <div>....{Global('messaging.loading')}</div>
-  }
+  useEffect(() => {
+    if (publishedTemplatesError || projectFundingsError || templatesMetaDataError) {
+      logECS('error', 'Plan Create queries', {
+        error: "Error running queries",
+        url: {
+          path: routePath('projects.dmp.create', { projectId })
+        }
+      });
+      toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
+      router.push(routePath('projects.show', { projectId }));
+    }
+  }, [publishedTemplatesError, projectFundingsError, templatesMetaDataError]);
 
-  // If error making graphql query call, then redirect user to previous Projects Overview page with error message
-  if (publishedTemplatesError || projectFundingsError || templatesMetaDataError) {
-    logECS('error', 'Plan Create queries', {
-      error: "Error running queries",
-      url: {
-        path: routePath('projects.dmp.create', { projectId })
-      }
-    });
-    toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
-    console.log("ROUTER IS GOING TO BE PUSHED");
-    const path = routePath('projects.show', { projectId });
-    console.log("PATH", path);
-    router.push(routePath('projects.show', { projectId }))
-  }
   return (
     <>
       <PageHeader
@@ -486,12 +474,12 @@ const PlanCreate: React.FC = () => {
 
           {searchTerm.length > 0 && (
             <div className="clear-filter">
-              <div className="search-match-text"><Button onPress={resetSearch} className="search-match-text link">{Global('links.clearFilter')}</Button></div>
+              <div className="search-match-text"><Button data-testid="clear-filter" onPress={resetSearch} className="search-match-text link">{Global('links.clearFilter')}</Button></div>
             </div>
           )}
 
 
-          {publicTemplatesList?.length > 0 && (
+          {(publicTemplatesList?.length > 0) ? (
             <>
               {/**Only display pagination if there is more than one page */}
               {publicTemplatesList?.length && (
@@ -526,6 +514,8 @@ const PlanCreate: React.FC = () => {
                   handlePageClick={handlePageClick}
                 />)}
             </>
+          ) : (
+            <p>{Global('messaging.noItemsFound')}</p>
           )}
 
         </ContentContainer>
