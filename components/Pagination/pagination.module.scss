@@ -18,7 +18,7 @@
 
     &:hover:not([disabled]),
     &:focus-visible {
-      background-color: #333;
+      background-color: var(--slate-500);
       color: var(--slate-100);
       outline: 2px solid #fff;
       outline-offset: 2px;
@@ -29,8 +29,8 @@
     }
 
     &[disabled] {
-      background-color: #ccc;
-      color: #666;
+      background-color: var(--slate-200);
+      color: var(--slate-900);
       cursor: not-allowed;
     }
   }
@@ -64,7 +64,7 @@
     &:focus-visible {
       background-color: var(--slate-200);
             color: var(--slate-900);
-      outline: 2px solid #fff;
+      outline: 2px solid var(--slate-100);
       outline-offset: 2px;
     }
   }
