@@ -39,6 +39,7 @@ import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
 import { TemplateItemProps } from '@/app/types';
 
+// # of templates displayed per page
 const LIMIT = 5;
 
 interface ProjectFundersInterface {
