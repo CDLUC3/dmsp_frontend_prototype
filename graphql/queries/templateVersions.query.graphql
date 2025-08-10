@@ -46,8 +46,6 @@ query PublishedTemplates($paginationOptions: PaginationOptions, $term: String) {
     currentOffset
     hasNextPage
     hasPreviousPage
-    hasBestPracticeTemplates
-    availableAffiliations
     items {
       id
       templateId
@@ -64,5 +62,12 @@ query PublishedTemplates($paginationOptions: PaginationOptions, $term: String) {
       ownerDisplayName
       ownerSearchName
     }
+  }
+}
+
+query PublishedTemplatesMetaData($paginationOptions: PaginationOptions, $term: String) {
+  publishedTemplatesMetaData(paginationOptions: $paginationOptions, term: $term) {
+    hasBestPracticeTemplates
+    availableAffiliations
   }
 }

@@ -1446,8 +1446,6 @@ export type PaginationOptions = {
   bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
   /** The cursor to start the pagination from (used for cursor infinite scroll/load more only!) */
   cursor?: InputMaybe<Scalars['String']['input']>;
-  /** Specify that you want additional metadata, like whether the result set includes bestPractice options */
-  includeMetadata?: InputMaybe<Scalars['Boolean']['input']>;
   /** The number of items to return */
   limit?: InputMaybe<Scalars['Int']['input']>;
   /** The number of items to skip before starting the pagination (used for standard offset pagination only!) */
@@ -2141,16 +2139,20 @@ export type ProjectSearchResults = PaginatedQueryResults & {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-export type PublishedTemplateSearchResults = PaginatedQueryResults & {
-  __typename?: 'PublishedTemplateSearchResults';
+export type PublishedTemplateMetaDataResults = {
+  __typename?: 'PublishedTemplateMetaDataResults';
   /** The available affiliations in the result set */
   availableAffiliations?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  /** Whether the result set includes bestPractice templates */
+  hasBestPracticeTemplates?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type PublishedTemplateSearchResults = PaginatedQueryResults & {
+  __typename?: 'PublishedTemplateSearchResults';
   /** The sortFields that are available for this query (for standard offset pagination only!) */
   availableSortFields?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   /** The current offset of the results (for standard offset pagination) */
   currentOffset?: Maybe<Scalars['Int']['output']>;
-  /** Whether the result set includes bestPractice templates */
-  hasBestPracticeTemplates?: Maybe<Scalars['Boolean']['output']>;
   /** Whether or not there is a next page */
   hasNextPage?: Maybe<Scalars['Boolean']['output']>;
   /** Whether or not there is a previous page */
@@ -2258,6 +2260,8 @@ export type Query = {
   publishedSections?: Maybe<VersionedSectionSearchResults>;
   /** Search for VersionedTemplate whose name or owning Org's name contains the search term */
   publishedTemplates?: Maybe<PublishedTemplateSearchResults>;
+  /** Search for templates for lightweight info on what unique affiliations are in the data set, and whether any of them have best practice */
+  publishedTemplatesMetaData?: Maybe<PublishedTemplateMetaDataResults>;
   /** Get the specific Question based on questionId */
   question?: Maybe<Question>;
   /** Get the QuestionConditions that belong to a specific question */
@@ -2492,6 +2496,12 @@ export type QueryPublishedSectionsArgs = {
 
 
 export type QueryPublishedTemplatesArgs = {
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  term?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublishedTemplatesMetaDataArgs = {
   paginationOptions?: InputMaybe<PaginationOptions>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
@@ -4256,7 +4266,15 @@ export type PublishedTemplatesQueryVariables = Exact<{
 }>;
 
 
-export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: { __typename?: 'PublishedTemplateSearchResults', limit?: number | null, nextCursor?: string | null, totalCount?: number | null, availableSortFields?: Array<string | null> | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, hasBestPracticeTemplates?: boolean | null, availableAffiliations?: Array<string | null> | null, items?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null } | null };
+export type PublishedTemplatesQuery = { __typename?: 'Query', publishedTemplates?: { __typename?: 'PublishedTemplateSearchResults', limit?: number | null, nextCursor?: string | null, totalCount?: number | null, availableSortFields?: Array<string | null> | null, currentOffset?: number | null, hasNextPage?: boolean | null, hasPreviousPage?: boolean | null, items?: Array<{ __typename?: 'VersionedTemplateSearchResult', id?: number | null, templateId?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, bestPractice?: boolean | null, version?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null, ownerId?: number | null, ownerURI?: string | null, ownerDisplayName?: string | null, ownerSearchName?: string | null } | null> | null } | null };
+
+export type PublishedTemplatesMetaDataQueryVariables = Exact<{
+  paginationOptions?: InputMaybe<PaginationOptions>;
+  term?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type PublishedTemplatesMetaDataQuery = { __typename?: 'Query', publishedTemplatesMetaData?: { __typename?: 'PublishedTemplateMetaDataResults', hasBestPracticeTemplates?: boolean | null, availableAffiliations?: Array<string | null> | null } | null };
 
 export type TemplatesQueryVariables = Exact<{
   term?: InputMaybe<Scalars['String']['input']>;
@@ -7451,8 +7469,6 @@ export const PublishedTemplatesDocument = gql`
     currentOffset
     hasNextPage
     hasPreviousPage
-    hasBestPracticeTemplates
-    availableAffiliations
     items {
       id
       templateId
@@ -7506,6 +7522,48 @@ export type PublishedTemplatesQueryHookResult = ReturnType<typeof usePublishedTe
 export type PublishedTemplatesLazyQueryHookResult = ReturnType<typeof usePublishedTemplatesLazyQuery>;
 export type PublishedTemplatesSuspenseQueryHookResult = ReturnType<typeof usePublishedTemplatesSuspenseQuery>;
 export type PublishedTemplatesQueryResult = Apollo.QueryResult<PublishedTemplatesQuery, PublishedTemplatesQueryVariables>;
+export const PublishedTemplatesMetaDataDocument = gql`
+    query PublishedTemplatesMetaData($paginationOptions: PaginationOptions, $term: String) {
+  publishedTemplatesMetaData(paginationOptions: $paginationOptions, term: $term) {
+    hasBestPracticeTemplates
+    availableAffiliations
+  }
+}
+    `;
+
+/**
+ * __usePublishedTemplatesMetaDataQuery__
+ *
+ * To run a query within a React component, call `usePublishedTemplatesMetaDataQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublishedTemplatesMetaDataQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublishedTemplatesMetaDataQuery({
+ *   variables: {
+ *      paginationOptions: // value for 'paginationOptions'
+ *      term: // value for 'term'
+ *   },
+ * });
+ */
+export function usePublishedTemplatesMetaDataQuery(baseOptions?: Apollo.QueryHookOptions<PublishedTemplatesMetaDataQuery, PublishedTemplatesMetaDataQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PublishedTemplatesMetaDataQuery, PublishedTemplatesMetaDataQueryVariables>(PublishedTemplatesMetaDataDocument, options);
+      }
+export function usePublishedTemplatesMetaDataLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedTemplatesMetaDataQuery, PublishedTemplatesMetaDataQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PublishedTemplatesMetaDataQuery, PublishedTemplatesMetaDataQueryVariables>(PublishedTemplatesMetaDataDocument, options);
+        }
+export function usePublishedTemplatesMetaDataSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedTemplatesMetaDataQuery, PublishedTemplatesMetaDataQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PublishedTemplatesMetaDataQuery, PublishedTemplatesMetaDataQueryVariables>(PublishedTemplatesMetaDataDocument, options);
+        }
+export type PublishedTemplatesMetaDataQueryHookResult = ReturnType<typeof usePublishedTemplatesMetaDataQuery>;
+export type PublishedTemplatesMetaDataLazyQueryHookResult = ReturnType<typeof usePublishedTemplatesMetaDataLazyQuery>;
+export type PublishedTemplatesMetaDataSuspenseQueryHookResult = ReturnType<typeof usePublishedTemplatesMetaDataSuspenseQuery>;
+export type PublishedTemplatesMetaDataQueryResult = Apollo.QueryResult<PublishedTemplatesMetaDataQuery, PublishedTemplatesMetaDataQueryVariables>;
 export const TemplatesDocument = gql`
     query Templates($term: String, $paginationOptions: PaginationOptions) {
   myTemplates(term: $term, paginationOptions: $paginationOptions) {

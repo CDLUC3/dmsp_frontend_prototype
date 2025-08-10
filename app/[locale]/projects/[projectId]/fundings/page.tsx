@@ -40,6 +40,8 @@ const ProjectsProjectFunding = () => {
     fetchPolicy: 'network-only'
   });
 
+  console.log("Project Fundings", funders);
+
   const handleAddFunding = () => {
     router.push(routePath('projects.fundings.search', {
       projectId: projectId as string,

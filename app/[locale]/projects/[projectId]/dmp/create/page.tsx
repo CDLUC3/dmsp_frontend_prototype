@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -27,6 +27,7 @@ import Pagination from '@/components/Pagination';
 import {
   useAddPlanMutation,
   useProjectFundingsQuery,
+  usePublishedTemplatesMetaDataQuery,
   usePublishedTemplatesLazyQuery
 } from '@/generated/graphql';
 
@@ -34,10 +35,11 @@ import {
 import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { TemplateItemProps } from '@/app/types';
+import { useToast } from '@/context/ToastContext';
 import { useFormatDate } from '@/hooks/useFormatDate';
+import { unique } from 'next/dist/build/utils';
 
-const LIMIT = 10;
+const LIMIT = 5;
 
 interface ProjectFundersInterface {
   name: string;
@@ -61,6 +63,7 @@ const PlanCreate: React.FC = () => {
   const formatDate = useFormatDate();
   const params = useParams();
   const router = useRouter();
+  const toastState = useToast(); // Access the toast state from context
 
   // Get projectId from the URL
   const projectId = String(params.projectId);
@@ -76,9 +79,8 @@ const PlanCreate: React.FC = () => {
   const [selectedOwnerURIs, setSelectedOwnerURIs] = useState<string[]>([]);
   const [hasBestPractice, setHasBestPractice] = useState<boolean>(false);
   const [selectedFunders, setSelectedFunders] = useState<string[]>([]);
-  const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
+  //const [publicTemplatesList, setPublicTemplatesList] = useState<TemplateItemProps[]>([]);
   const [funders, setFunders] = useState<ProjectFundersInterface[]>([]);
-  const [uniqueAffiliations, setUniqueAffiliations] = useState<string[]>([]);
   const [selectedFilterItems, setSelectedFilterItems] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
@@ -94,13 +96,28 @@ const PlanCreate: React.FC = () => {
 
 
   // Published templates lazy query
-  const [fetchPublishedTemplates, { data: publishedTemplates, loading }] = usePublishedTemplatesLazyQuery();
+  const [fetchPublishedTemplates, { data: publishedTemplates, loading, error: publishedTemplatesError }] = usePublishedTemplatesLazyQuery();
 
   // Get Project Funders data
   const { data: projectFundings, loading: projectFundingsLoading, error: projectFundingsError } = useProjectFundingsQuery({
     variables: { projectId: Number(projectId) },
   });
 
+
+  // Get meta data about the available published templates
+  const { data: templateMetaData, loading: templatesMetaDataLoading, error: templatesMetaDataError } = usePublishedTemplatesMetaDataQuery({
+    variables: {
+      paginationOptions: {
+        offset: 0,
+        limit: LIMIT,
+        type: "OFFSET",
+        sortDir: "DESC",
+        selectOwnerURIs: [],
+        bestPractice: false
+      },
+      term: ""
+    }
+  });
 
   // Initialize the addPlan mutation
   const [addPlanMutation] = useAddPlanMutation({
@@ -270,7 +287,6 @@ const PlanCreate: React.FC = () => {
           limit: LIMIT,
           type: "OFFSET",
           sortDir: "DESC",
-          includeMetadata: true,
           selectOwnerURIs: selectedOwnerURIs,
           bestPractice: bestPractice
         },
@@ -279,49 +295,49 @@ const PlanCreate: React.FC = () => {
     });
   };
 
-  // Load published templates
-  useEffect(() => {
-    const callFetchTemplates = async () => {
-      await fetchTemplates({ page: currentPage });
-    }
+  // Handle async transformation with state and useEffect
+  const [publicTemplatesList, setPublicTemplatesList] = useState<any[]>([]);
 
-    callFetchTemplates();
-  }, []);
-
+  // Process templates when publishedTemplates changes
   useEffect(() => {
     const processTemplates = async () => {
-      const affiliations = publishedTemplates?.publishedTemplates?.availableAffiliations?.filter(
-        (affiliation): affiliation is string => affiliation !== null
-      ) || [];
-
-      if (publishedTemplates && publishedTemplates?.publishedTemplates && publishedTemplates?.publishedTemplates?.items) {
-        const publicTemplates = await transformTemplates(publishedTemplates?.publishedTemplates?.items);
-        setPublicTemplatesList(publicTemplates);
-        const totalCount = publishedTemplates?.publishedTemplates?.totalCount ? publishedTemplates?.publishedTemplates?.totalCount : 0;
-        // Calculate total pages based on total records and records per page
+      if (publishedTemplates?.publishedTemplates?.items) {
+        const transformedTemplates = await transformTemplates(publishedTemplates.publishedTemplates.items);
+        setPublicTemplatesList(transformedTemplates);
+        const totalCount = publishedTemplates?.publishedTemplates?.totalCount ?? 0;
         const totalPages = Math.ceil(totalCount / LIMIT);
         setTotalPages(totalPages);
-        setHasNextPage(publishedTemplates?.publishedTemplates?.hasNextPage ? publishedTemplates?.publishedTemplates?.hasNextPage : false);
-        setHasPreviousPage(publishedTemplates?.publishedTemplates?.hasPreviousPage ? publishedTemplates?.publishedTemplates?.hasPreviousPage : false);
-        setUniqueAffiliations(affiliations);
+        const hasNextPage = publishedTemplates?.publishedTemplates?.hasNextPage ?? false;
+        setHasNextPage(hasNextPage);
+        const hasPreviousPage = publishedTemplates?.publishedTemplates?.hasPreviousPage ?? false;
+        setHasPreviousPage(hasPreviousPage);
+      } else {
+        setPublicTemplatesList([]);
       }
     };
     processTemplates();
-  }, [publishedTemplates, projectFundings]);
+  }, [publishedTemplates]);
 
+
+
+  // Single useEffect for initial data fetching
   useEffect(() => {
     // Wait until both GraphQL queries finish
     if (loading || projectFundingsLoading) return;
     if (userHasInteracted || initialSelectionApplied) return;
 
-    const hasBestPractice =
-      publishedTemplates?.publishedTemplates?.hasBestPracticeTemplates ?? false;
-    setHasBestPractice(hasBestPractice);
+    const uniqueAffiliations = templateMetaData?.publishedTemplatesMetaData?.availableAffiliations?.filter(
+      (affiliation): affiliation is string => affiliation !== null
+    ) || [];
 
+    const hasBestPracticeTemplates = templateMetaData?.publishedTemplatesMetaData?.hasBestPracticeTemplates ?? false;
+    setHasBestPractice(hasBestPracticeTemplates);
     // Get matching funders directly from `projectFundings` + `uniqueAffiliations`
     let fundersData: { name: string; uri: string }[] = [];
     let funderURIs: string[] = [];
 
+    console.log("PROJECT FUNDINGS", projectFundings?.projectFundings);
+    console.log("UNIQUE AFFILIATIONS", uniqueAffiliations);
     if (projectFundings?.projectFundings && uniqueAffiliations.length > 0) {
       const matchingAffiliations = projectFundings.projectFundings.filter(
         (item) =>
@@ -352,7 +368,7 @@ const PlanCreate: React.FC = () => {
         setBestPractice(false);
         setSelectedOwnerURIs(funderURIs);
         await fetchTemplates({ selectedOwnerURIs: funderURIs });
-      } else if (hasBestPractice) {
+      } else if (hasBestPracticeTemplates) {
         // No funders, but best practice exists
         setSelectedFilterItems(["DMP Best Practice"]);
         setBestPractice(true);
@@ -364,19 +380,40 @@ const PlanCreate: React.FC = () => {
       }
       setInitialSelectionApplied(true);
     };
+    if (!initialSelectionApplied) {
+      setSelectionsAndFetch();
 
-    setSelectionsAndFetch();
+    }
+
   }, [
     loading,
+    templateMetaData,
     projectFundingsLoading,
-    publishedTemplates,
-    projectFundings,
-    uniqueAffiliations,
+    templatesMetaDataLoading,
     userHasInteracted,
-    initialSelectionApplied,
-    currentPage,
+    initialSelectionApplied
   ]);
 
+  // If loading issues then display loading
+  //TODO: Eventually use loading spinner
+  if (loading || projectFundingsLoading || templatesMetaDataLoading) {
+    return <div>....{Global('messaging.loading')}</div>
+  }
+
+  // If error making graphql query call, then redirect user to previous Projects Overview page with error message
+  if (publishedTemplatesError || projectFundingsError || templatesMetaDataError) {
+    logECS('error', 'Plan Create queries', {
+      error: "Error running queries",
+      url: {
+        path: routePath('projects.dmp.create', { projectId })
+      }
+    });
+    toastState.add(Global("messaging.somethingWentWrong"), { type: 'error' });
+    console.log("ROUTER IS GOING TO BE PUSHED");
+    const path = routePath('projects.show', { projectId });
+    console.log("PATH", path);
+    router.push(routePath('projects.show', { projectId }))
+  }
   return (
     <>
       <PageHeader
@@ -385,8 +422,9 @@ const PlanCreate: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={`/projects/${projectId}`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
             <Breadcrumb>{PlanCreate('title')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -416,7 +454,6 @@ const PlanCreate: React.FC = () => {
             </SearchField>
 
             {/**Only show filters if there are funders. If no funders, then show best practice filter if the results include them  */}
-
             {funders.length > 0 && (
               <CheckboxGroupComponent
                 name="funders"
@@ -434,6 +471,7 @@ const PlanCreate: React.FC = () => {
             {funders.length === 0 && hasBestPractice && (
               <CheckboxGroupComponent
                 name="bestPractices"
+                ariaLabel="best practices"
                 value={selectedFilterItems}
                 onChange={(value) => handleCheckboxChange(value, 'bestPractice')}
                 checkboxGroupLabel={PlanCreate('checkbox.filterByBestPracticesLabel')}

@@ -1,0 +1,84 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: var(--fs-small);
+
+  // Navigation buttons
+  button {
+    margin: 0 0.3rem;
+    padding: 0.1rem 0.5rem;
+    background-color: var(--slate-500);
+    color: var(--slate-100);
+    border: none;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+
+    &:hover:not([disabled]),
+    &:focus-visible {
+      background-color: #333;
+      color: var(--slate-100);
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    &:active:not([disabled]) {
+      transform: scale(0.97);
+    }
+
+    &[disabled] {
+      background-color: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+  }
+
+  // Numbered page links
+  a {
+    border-radius: 0.4rem;
+    color: var(--slate-900);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+        font-weight: 700;
+    padding: 0.1rem 0.5rem;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--slate-200);
+      outline: 2px solid var(--slate-900);
+      outline-offset: 2px;
+    }
+  }
+
+  // Current page styling
+  .current {
+    background-color: var(--highlight-background);
+    color: #fff;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--slate-200);
+            color: var(--slate-900);
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+  }
+
+  // Page list layout
+  ol {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 0.7rem;
+
+    li {
+      display: inline-block;
+    }
+  }
+}
