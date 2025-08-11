@@ -20,7 +20,7 @@
     &:focus-visible {
       background-color: var(--slate-500);
       color: var(--slate-100);
-      outline: 2px solid #fff;
+      outline: 2px solid var(--slate-100);
       outline-offset: 2px;
     }
 

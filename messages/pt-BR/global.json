@@ -126,7 +126,7 @@
     "addManuallyLabel": "Adicionar professor manualmente",
     "messages": {
       "success": {
-        "addProjectFunding": "Adicionou o financiador ao projeto com sucesso."
+        "addProjectFunding": "O financiador foi adicionado ao projeto com sucesso."
       }
     }
   },
@@ -177,7 +177,7 @@
       "projects": "Projetos",
       "projectOverview": "Visão geral do projeto",
       "projectFunding": "Orçamento do projeto",
-      "projectFundingSearch": "Pesquisa de financiamento de projetos",
+      "projectFundingSearch": "Pesquisa de financiamento de projeto",
       "planOverview": "Resumo do plano",
       "planFunding": "Financiamento do plano",
       "feedback": "Registrar",
@@ -195,8 +195,8 @@
     "editTitle": "Editar título",
     "bestPractice": "Melhores práticas por",
     "dataDescription": "Descrição dos dados",
-    "dataFormat": "Formato de dados",
-    "dataVolume": "Volume de dados",
+    "dataFormat": "Formato de dados:",
+    "dataVolume": "Volume dos dados",
     "buttons": {
       "search": "Buscar",
       "select": "Select",
@@ -218,14 +218,16 @@
       "preview": "Pré-visualizar",
       "publish": "Publicar",
       "close": "Fechar",
-      "loadMore": "Carregar mais..."
+      "loadMore": "Carregar mais"
     },
     "labels": {
       "searchByKeyword": "Pesquisar por palavra-chave",
       "startDate": "Data de início",
       "endDate": "Data final",
       "funderSearch": "Pesquisar por nome do financiador",
-      "requiredField": "Marcar como obrigatório?"
+      "requiredField": "Marcar como obrigatório?",
+      "previousPage": "Página anterior",
+      "nextPage": "Próxima página"
     },
     "helpText": {
       "searchHelpText": "Pesquisar por organização de pesquisa, estação de campo ou laboratório, descrição de modelo, etc.",
@@ -244,7 +246,9 @@
       "update": "Atualização",
       "expand": "Expandir",
       "collapse": "Recolher",
-      "editTitle": "Editar título"
+      "editTitle": "Editar título",
+      "prev": "Voltar",
+      "next": "Seguinte"
     },
     "messaging": {
       "loading": "Baixar",
@@ -260,7 +264,8 @@
         "invalidQuestionType": "Tipo de questão inválido encontrado.",
         "questionUnexpectedFormat": "Formato inesperado para question.json.",
         "questionJSONFParseFailed": "JSON.parse falhou."
-      }
+      },
+      "numDisplaying": "Mostrando {num} de {total}"
     },
     "tabs": {
       "editQuestion": "Editar pergunta",
@@ -276,8 +281,8 @@
       "textArea": "Área de texto",
       "radioButtons": "Botão de opção",
       "checkBoxes": "Caixa de verificação",
-      "selectBox": "Selecione",
-      "multiselectBox": "Seleção múltipla",
+      "selectBox": "Select",
+      "multiselectBox": "Caixa multi-seleção",
       "boolean": "Boleano",
       "number": "Número",
       "numberRange": "Intervalo de números",
@@ -288,7 +293,7 @@
       "dateRange": "Intervalo de datas",
       "filteredSearch": "Pesquisa com filtros",
       "table": "Tabela",
-      "affiliationSearch": "Pesquisa de Afiliação"
+      "affiliationSearch": "Affiliation search"
     }
   }
 }
