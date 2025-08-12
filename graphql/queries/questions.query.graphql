@@ -58,6 +58,20 @@ query PublishedQuestions($versionedSectionId: Int!) {
   }
 }
 
+query PublishedQuestionsWithAnsweredFlag($versionedSectionId: Int!, $planId: Int!) {
+  publishedQuestionsWithAnsweredFlag(versionedSectionId: $versionedSectionId, planId: $planId) {
+    id
+    questionText
+    displayOrder
+    guidanceText
+    requirementText
+    sampleText
+    versionedSectionId
+    versionedTemplateId
+    hasAnswer
+  }
+}
+
 query PublishedQuestion($versionedQuestionId: Int!) {
   publishedQuestion(versionedQuestionId: $versionedQuestionId) {
     id

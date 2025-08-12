@@ -2242,6 +2242,8 @@ export type Query = {
   publishedQuestion?: Maybe<VersionedQuestion>;
   /** Search for VersionedQuestions that belong to Section specified by sectionId */
   publishedQuestions?: Maybe<Array<Maybe<VersionedQuestion>>>;
+  /** Search for VersionedQuestions that belong to Section specified by sectionId, with an answered flag for a plan */
+  publishedQuestionsWithAnsweredFlag?: Maybe<Array<Maybe<VersionedQuestionWithFilled>>>;
   /** Fetch a specific VersionedSection */
   publishedSection?: Maybe<VersionedSection>;
   /** Search for VersionedSection whose name contains the search term */
@@ -2466,6 +2468,12 @@ export type QueryPublishedQuestionArgs = {
 
 
 export type QueryPublishedQuestionsArgs = {
+  versionedSectionId: Scalars['Int']['input'];
+};
+
+
+export type QueryPublishedQuestionsWithAnsweredFlagArgs = {
+  planId: Scalars['Int']['input'];
   versionedSectionId: Scalars['Int']['input'];
 };
 
@@ -3572,6 +3580,49 @@ export type VersionedQuestionErrors = {
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
 };
 
+/** A snapshot of a Question when it became published. */
+export type VersionedQuestionWithFilled = {
+  __typename?: 'VersionedQuestionWithFilled';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The display order of the VersionedQuestion */
+  displayOrder?: Maybe<Scalars['Int']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<VersionedQuestionErrors>;
+  /** Guidance to complete the question */
+  guidanceText?: Maybe<Scalars['String']['output']>;
+  /** Indicates whether the question has an answer */
+  hasAnswer?: Maybe<Scalars['Boolean']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The JSON representation of the question type */
+  json?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** Id of the original question that was versioned */
+  questionId: Scalars['Int']['output'];
+  /** This will be used as a sort of title for the Question */
+  questionText?: Maybe<Scalars['String']['output']>;
+  /** To indicate whether the question is required to be completed */
+  required?: Maybe<Scalars['Boolean']['output']>;
+  /** Requirements associated with the Question */
+  requirementText?: Maybe<Scalars['String']['output']>;
+  /** Sample text to possibly provide a starting point or example to answer question */
+  sampleText?: Maybe<Scalars['String']['output']>;
+  /** Whether or not the sample text should be used as the default answer for this question */
+  useSampleTextAsDefault?: Maybe<Scalars['Boolean']['output']>;
+  /** The conditional logic associated with this VersionedQuestion */
+  versionedQuestionConditions?: Maybe<Array<VersionedQuestionCondition>>;
+  /** The unique id of the VersionedSection that the VersionedQuestion belongs to */
+  versionedSectionId: Scalars['Int']['output'];
+  /** The unique id of the VersionedTemplate that the VersionedQuestion belongs to */
+  versionedTemplateId: Scalars['Int']['output'];
+};
+
 /** A snapshot of a Section when it became published. */
 export type VersionedSection = {
   __typename?: 'VersionedSection';
@@ -4168,6 +4219,14 @@ export type PublishedQuestionsQueryVariables = Exact<{
 
 
 export type PublishedQuestionsQuery = { __typename?: 'Query', publishedQuestions?: Array<{ __typename?: 'VersionedQuestion', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number } | null> | null };
+
+export type PublishedQuestionsWithAnsweredFlagQueryVariables = Exact<{
+  versionedSectionId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
+}>;
+
+
+export type PublishedQuestionsWithAnsweredFlagQuery = { __typename?: 'Query', publishedQuestionsWithAnsweredFlag?: Array<{ __typename?: 'VersionedQuestionWithFilled', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number, hasAnswer?: boolean | null } | null> | null };
 
 export type PublishedQuestionQueryVariables = Exact<{
   versionedQuestionId: Scalars['Int']['input'];
@@ -6867,6 +6926,58 @@ export type PublishedQuestionsQueryHookResult = ReturnType<typeof usePublishedQu
 export type PublishedQuestionsLazyQueryHookResult = ReturnType<typeof usePublishedQuestionsLazyQuery>;
 export type PublishedQuestionsSuspenseQueryHookResult = ReturnType<typeof usePublishedQuestionsSuspenseQuery>;
 export type PublishedQuestionsQueryResult = Apollo.QueryResult<PublishedQuestionsQuery, PublishedQuestionsQueryVariables>;
+export const PublishedQuestionsWithAnsweredFlagDocument = gql`
+    query PublishedQuestionsWithAnsweredFlag($versionedSectionId: Int!, $planId: Int!) {
+  publishedQuestionsWithAnsweredFlag(
+    versionedSectionId: $versionedSectionId
+    planId: $planId
+  ) {
+    id
+    questionText
+    displayOrder
+    guidanceText
+    requirementText
+    sampleText
+    versionedSectionId
+    versionedTemplateId
+    hasAnswer
+  }
+}
+    `;
+
+/**
+ * __usePublishedQuestionsWithAnsweredFlagQuery__
+ *
+ * To run a query within a React component, call `usePublishedQuestionsWithAnsweredFlagQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublishedQuestionsWithAnsweredFlagQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublishedQuestionsWithAnsweredFlagQuery({
+ *   variables: {
+ *      versionedSectionId: // value for 'versionedSectionId'
+ *      planId: // value for 'planId'
+ *   },
+ * });
+ */
+export function usePublishedQuestionsWithAnsweredFlagQuery(baseOptions: Apollo.QueryHookOptions<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables> & ({ variables: PublishedQuestionsWithAnsweredFlagQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>(PublishedQuestionsWithAnsweredFlagDocument, options);
+      }
+export function usePublishedQuestionsWithAnsweredFlagLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>(PublishedQuestionsWithAnsweredFlagDocument, options);
+        }
+export function usePublishedQuestionsWithAnsweredFlagSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>(PublishedQuestionsWithAnsweredFlagDocument, options);
+        }
+export type PublishedQuestionsWithAnsweredFlagQueryHookResult = ReturnType<typeof usePublishedQuestionsWithAnsweredFlagQuery>;
+export type PublishedQuestionsWithAnsweredFlagLazyQueryHookResult = ReturnType<typeof usePublishedQuestionsWithAnsweredFlagLazyQuery>;
+export type PublishedQuestionsWithAnsweredFlagSuspenseQueryHookResult = ReturnType<typeof usePublishedQuestionsWithAnsweredFlagSuspenseQuery>;
+export type PublishedQuestionsWithAnsweredFlagQueryResult = Apollo.QueryResult<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>;
 export const PublishedQuestionDocument = gql`
     query PublishedQuestion($versionedQuestionId: Int!) {
   publishedQuestion(versionedQuestionId: $versionedQuestionId) {
