@@ -19,6 +19,7 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed a bug on `Section` page where `question` text was used, when we should be referring to `section` instead [#666]
 - Added `Load more` functionality for `/projects` page, using the new pagination [#647]
 - Addressed issue where templates on `/projects/7/dmp/create` were showing `Not published`. They are all `versionedTemplates` so they are `published` [#646] d
 - Fixed bug when hovering over the `Back` button turns text white (essentially invisible) [#651]
