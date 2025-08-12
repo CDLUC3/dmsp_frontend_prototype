@@ -1,5 +1,6 @@
 
 ### Added
+- Added `.js` extension to `import nextJest from "next/jest.js";` in `jest.config.ts` to remove errors when running `npm test`[#662]
 - Added JSON mocks to `__mocks__` for all types of versioned questions (for use with the project/plan pages)
 - Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
 - Added auto-save to the `Question Answer` page [#585]
