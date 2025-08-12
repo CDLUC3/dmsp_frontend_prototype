@@ -38,8 +38,10 @@ const PlanOverviewSectionPage: React.FC = () => {
   const dmpId = params.dmpid as string;
   const projectId = params.projectId as string;
 
-  // State for navigation visibility
-  const [showNavigation, setShowNavigation] = useState(true);
+  // State for navigation positioning with sticky-like behavior
+  const [navPosition, setNavPosition] = useState({ left: '20px', top: '20px', display: 'block' });
+  // Store the initial navigation position to prevent upward movement
+  const [initialNavTop, setInitialNavTop] = useState<number | null>(null);
 
   // Validate that dmpId is a valid number
   const planId = parseInt(dmpId);
@@ -59,24 +61,176 @@ const PlanOverviewSectionPage: React.FC = () => {
     skip: !planId
   });
 
-  // Hide navigation when close to footer
+  // Calculate navigation position and visibility
   useEffect(() => {
-    const handleScroll = () => {
+
+    const calculateNavPosition = () => {
+      const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       const scrollTop = window.scrollY;
 
+      // Calculate if navigation would overlap with footer
+      // Assume nav height is roughly 200px (estimated based on content)
+      const estimatedNavHeight = 200;
       const distanceToBottom = documentHeight - scrollTop - windowHeight;
+      const shouldShowNavigation = distanceToBottom > (estimatedNavHeight + 30);
 
-      // Hide if we're within 200px of the bottom
-      setShowNavigation(distanceToBottom > 200);
+      // Calculate the position for the navigation
+      // The #App container has max-width: 1200px and is centered
+      const appMaxWidth = 1200;
+      const navWidth = 180;
+      const marginBuffer = 20; // Space between nav and content
+
+      // Find the LayoutWithPanel to align with the content area
+      const layoutWithPanel = document.querySelector('.layout-with-panel') ||
+                             document.querySelector('[data-testid="layout-with-panel"]');
+
+      // Calculate positioning based on the actual LayoutWithPanel if possible
+      let navLeftPosition;
+      
+      if (layoutWithPanel) {
+        const layoutRect = layoutWithPanel.getBoundingClientRect();
+        const contentContainer = layoutWithPanel.querySelector('.layout-content-container');
+        
+        if (contentContainer) {
+          const contentRect = contentContainer.getBoundingClientRect();
+          // Position nav to the left of the content container
+          navLeftPosition = contentRect.left - navWidth - marginBuffer;
+        } else {
+          // Fallback: use layout container's left edge
+          navLeftPosition = layoutRect.left - navWidth - marginBuffer;
+        }
+      } else {
+        // Original fallback calculation
+        const contentLeftEdge = Math.max((windowWidth - appMaxWidth) / 2, 0);
+        navLeftPosition = contentLeftEdge - navWidth - marginBuffer;
+      }
+
+      // Check if there's enough space for the navigation
+      // We need space for nav (180px) + margin (20px) + some buffer (20px)
+      const minRequiredWidth = appMaxWidth + navWidth + marginBuffer + 40;
+      const hasEnoughSpace = windowWidth >= minRequiredWidth && navLeftPosition > 0;
+
+      // Calculate static-then-sticky top position (never moves up)
+      let navTopPosition = '20px';
+      let newInitialNavTop = initialNavTop;
+      
+      if (layoutWithPanel) {
+        const layoutRect = layoutWithPanel.getBoundingClientRect();
+        
+        // Set initial position if not already set
+        if (initialNavTop === null) {
+          // Position nav at top of layout + 20px buffer
+          const initialTop = Math.max(layoutRect.top + scrollTop + 20, 20);
+          newInitialNavTop = initialTop;
+          navTopPosition = `${Math.round(initialTop)}px`;
+        } else {
+          // True sticky behavior: nav follows content but never goes above threshold
+          const layoutTop = layoutRect.top;
+          const stickyThreshold = 20;
+          
+          // Calculate where the nav wants to be relative to the layout
+          const desiredTop = layoutTop + stickyThreshold;
+          
+          // But never let it go above the sticky threshold
+          const finalTop = Math.max(desiredTop, stickyThreshold);
+          
+          navTopPosition = `${Math.round(finalTop)}px`;
+        }
+      } else {
+        // Fallback: if LayoutWithPanel not found, try to find PageHeader as secondary option
+        const pageHeader = document.querySelector('.pageheader-container') || 
+                          document.querySelector('.template-editor-header') ||
+                          document.querySelector('[class*="pageheader"]');
+        
+        if (pageHeader) {
+          const headerRect = pageHeader.getBoundingClientRect();
+          
+          if (initialNavTop === null) {
+            // Position nav at bottom of header + 20px buffer
+            const initialTop = Math.max(headerRect.bottom + scrollTop + 20, 20);
+            newInitialNavTop = initialTop;
+            navTopPosition = `${Math.round(initialTop)}px`;
+          } else {
+            const headerBottom = headerRect.bottom;
+            navTopPosition = headerBottom <= 0 ? '20px' : `${Math.round(initialNavTop)}px`;
+          }
+        } else {
+          // Final fallback: use a reasonable default position
+          if (initialNavTop === null) {
+            const fallbackTop = 120;
+            newInitialNavTop = fallbackTop;
+            navTopPosition = `${fallbackTop}px`;
+          } else {
+            navTopPosition = `${Math.round(initialNavTop)}px`;
+          }
+        }
+      }
+
+      // Batch state updates to prevent multiple re-renders
+      if (newInitialNavTop !== initialNavTop) {
+        setInitialNavTop(newInitialNavTop);
+      }
+      
+      setNavPosition({
+        left: hasEnoughSpace ? `${navLeftPosition}px` : '20px',
+        top: navTopPosition,
+        display: shouldShowNavigation && hasEnoughSpace ? 'block' : 'none'
+      });
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Check initial state
+    // Throttle scroll to prevent excessive calculations and reduce movement
+    let isScrolling = false;
+    let scrollTimeout: NodeJS.Timeout;
+    const handleScroll = () => {
+      if (!isScrolling) {
+        requestAnimationFrame(() => {
+          calculateNavPosition();
+          isScrolling = false;
+        });
+        isScrolling = true;
+      }
+      
+      // Additional debouncing for final position
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        calculateNavPosition();
+      }, 50);
+    };
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    const handleResize = () => {
+      // Reset initial position on resize to recalculate properly
+      setInitialNavTop(null);
+      calculateNavPosition();
+    };
+
+    // Multiple calculation attempts to ensure proper positioning
+    const calculateWithRetry = () => {
+      calculateNavPosition();
+      // Try again after a short delay if PageHeader wasn't found initially
+      if (initialNavTop === null) {
+        setTimeout(calculateNavPosition, 200);
+        setTimeout(calculateNavPosition, 500);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('load', calculateNavPosition, { passive: true });
+    
+    // Calculate initial position with multiple attempts
+    calculateWithRetry();
+
+    return () => {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('load', calculateNavPosition);
+    };
+  }, [initialNavTop]); // Add initialNavTop to dependencies
 
   // Simple error handling - check for invalid DMP ID
   if (isNaN(planId)) {
@@ -124,20 +278,20 @@ const PlanOverviewSectionPage: React.FC = () => {
         description=""
         showBackButton={true}
         breadcrumbs={
-          <Breadcrumbs aria-label={t('navigation.navigation')}>
+          <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
             <Breadcrumb>
               <Link href={routePath('app.home')}>
-                {t('navigation.home')}
+                {Global('breadcrumbs.home')}
               </Link>
             </Breadcrumb>
             <Breadcrumb>
               <Link href={routePath('projects.index')}>
-                {t('navigation.projects')}
+                {Global('breadcrumbs.projects')}
               </Link>
             </Breadcrumb>
             <Breadcrumb>
               <Link href={routePath('projects.show', { projectId })}>
-                {planData?.plan?.project?.title || 'Project'}
+                {Global('breadcrumbs.project')}
               </Link>
             </Breadcrumb>
             <Breadcrumb>
@@ -145,11 +299,11 @@ const PlanOverviewSectionPage: React.FC = () => {
                 projectId,
                 dmpId
               })}>
-                {plan.title}
+                {Global('breadcrumbs.planOverview')}
               </Link>
             </Breadcrumb>
             <Breadcrumb>
-              {sectionData?.publishedSection?.name || "Data and Metadata Formats"}
+              {Global('breadcrumbs.section')}
             </Breadcrumb>
           </Breadcrumbs>
         }
@@ -157,50 +311,56 @@ const PlanOverviewSectionPage: React.FC = () => {
         className="page-project-list"
       />
 
+      {/* Plan navigation positioned outside content flow */}
+      <nav
+        className={styles.planNavigation}
+        style={{ 
+          display: navPosition.display,
+          left: navPosition.left,
+          top: navPosition.top
+        }}
+        aria-labelledby="plan-nav-title"
+      >
+        <h2 id="plan-nav-title" className={styles.srOnly}>Plan Navigation</h2>
+
+        <Link
+          href={routePath('projects.dmp.show', { projectId, dmpId })}
+          className={styles.planOverviewLink}
+          aria-label="Go to plan overview"
+        >
+          {Global('breadcrumbs.planOverview')}
+        </Link>
+
+        {planSections.length > 0 && (
+          <ul className={styles.sectionsList} role="list" aria-label="Plan sections">
+            {planSections.map((section) => (
+              <li key={section.versionedSectionId}>
+                <Link
+                  href={routePath('projects.dmp.versionedSection', {
+                    projectId,
+                    dmpId,
+                    versionedSectionId: section.versionedSectionId
+                  })}
+                  className={`${styles.sectionLink} ${section.versionedSectionId === versionedSectionId ? styles.currentSection : ''
+                    }`}
+                  aria-label={`Go to ${section.title} section`}
+                  aria-current={section.versionedSectionId === versionedSectionId ? 'page' : undefined}
+                >
+                  {section.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </nav>
+
       <LayoutWithPanel>
         <ContentContainer>
           <div className={styles.contentWrapper}>
-            {/* Subtle plan navigation for very large screens */}
-            <nav
-              className={styles.planNavigation}
-              style={{ display: showNavigation ? 'block' : 'none' }}
-              aria-labelledby="plan-nav-title"
-            >
-              <h2 id="plan-nav-title" className={styles.srOnly}>Plan Navigation</h2>
-
-              <Link
-                href={routePath('projects.dmp.show', { projectId, dmpId })}
-                className={styles.planOverviewLink}
-                aria-label="Go to plan overview"
-              >
-                Plan Overview
-              </Link>
-
-              {planSections.length > 0 && (
-                <ul className={styles.sectionsList} role="list" aria-label="Plan sections">
-                  {planSections.map((section) => (
-                    <li key={section.versionedSectionId}>
-                      <Link
-                        href={routePath('projects.dmp.show', {
-                          projectId,
-                          dmpId
-                        })}
-                        className={`${styles.sectionLink} ${section.versionedSectionId === versionedSectionId ? styles.currentSection : ''
-                          }`}
-                        aria-label={`Go to ${section.title} section`}
-                        aria-current={section.versionedSectionId === versionedSectionId ? 'page' : undefined}
-                      >
-                        {section.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </nav>
 
             <div className="container">
               <section aria-label={"Requirements"}>
-                <h4>Requirements by {plan.funder_name}</h4>
+                <h4 className="mt-0">Requirements by {plan.funder_name}</h4>
                 <p>
                   (DUMMY DATA) The Arctic Data Center requires when submitting to the Center,
                   include methods to create these types of data.

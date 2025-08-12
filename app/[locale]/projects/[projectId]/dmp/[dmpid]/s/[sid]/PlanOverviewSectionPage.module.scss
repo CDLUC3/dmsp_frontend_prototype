@@ -57,20 +57,15 @@
 }
 
 
-/* Plan Navigation - Subtle sidebar for very large screens only */
+/* Plan Navigation - Fixed positioned sidebar with smooth sticky-like behavior */
 .planNavigation {
-  display: none;
   position: fixed;
-  left: 20px;
-  top: 20%;
   width: 180px;
   font-size: 13px;
   z-index: 1000;
-
-  /* Show when there's room for 1200px container + sidebar + margins */
-  @media (min-width: 1620px) {
-    display: block;
-  }
+  /* Subtle transition only for opacity/visibility changes, not position */
+  transition: opacity 0.1s ease-out;
+  /* Display, left position, and top position are controlled by JavaScript */
 }
 
 /* Content wrapper with relative positioning for the absolute nav */
@@ -82,15 +77,17 @@
 .planOverviewLink {
   display: block;
   color: var(--gray-700);
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: var(--gray-300);
   font-weight: 500;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
   padding: var(--space-1) 0;
-  font-size: 13px;
+  font-size: 14px;
+  position: relative;
 
   &:hover {
     color: var(--blue-600);
-    text-decoration: underline;
+    text-decoration-color: var(--blue-600);
   }
 }
 
@@ -98,23 +95,50 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  position: relative;
+  margin-left: var(--space-3);
+
+  // Add a vertical line that appears to emanate from Plan Overview
+  &::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: -8px; // Start slightly higher to connect visually to Plan Overview
+    bottom: 0;
+    width: 1px;
+    background-color: var(--gray-100);
+  }
 
   li {
     margin-bottom: var(--space-1);
+    position: relative;
+
+    // Add horizontal connector lines aligned to middle of first line
+    &::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: calc(var(--space-1) + 0.35em); // Align to middle of first line of text
+      width: 8px;
+      height: 1px;
+      background-color: var(--gray-100);
+    }
   }
 }
 
 .sectionLink {
   display: block;
   color: var(--gray-600);
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: var(--gray-200);
   padding: var(--space-1) 0;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.4;
+  font-weight: 400;
 
   &:hover {
     color: var(--blue-600);
-    text-decoration: underline;
+    text-decoration-color: var(--blue-600);
   }
 }
 

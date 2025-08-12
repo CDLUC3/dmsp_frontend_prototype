@@ -51,7 +51,7 @@ import { useToast } from '@/context/ToastContext';
 // Utils
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { QuestionTypeMap } from '@dmptool/types';
+import { QuestionType } from '@dmptool/types';
 
 import {
   Question,
@@ -82,7 +82,7 @@ interface FormDataInterface {
   numberRange: { startNumber: number | null; endNumber: number | null };
 }
 
-type AnyParsedQuestion = QuestionTypeMap[keyof QuestionTypeMap];
+type AnyParsedQuestion = QuestionType;
 
 interface MutationErrorsInterface {
   acronyms: string | null;
@@ -1056,15 +1056,17 @@ const PlanOverviewQuestionPage: React.FC = () => {
             description=""
             showBackButton={true}
             breadcrumbs={
-              <Breadcrumbs aria-label={PlanOverview('navigation.navigation')}>
+              <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
                 <Breadcrumb><Link
-                    href="/en-US">{PlanOverview('navigation.home')}</Link></Breadcrumb>
+                    href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
                 <Breadcrumb><Link
-                    href="/en-US/projects">{PlanOverview('navigation.projects')}</Link></Breadcrumb>
-                <Breadcrumb><Link href={`/en-US/projects/${projectId}/`}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+                    href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+                <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
                 <Breadcrumb><Link
-                    href={`/en-US/projects/${projectId}/dmp/${dmpId}/`}>{plan?.title}</Link></Breadcrumb>
-                <Breadcrumb>{Global('breadcrumbs.questionDetails')}</Breadcrumb>
+                    href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
+                <Breadcrumb><Link
+                    href={routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId })}>{Global('breadcrumbs.section')}</Link></Breadcrumb>
+                <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
               </Breadcrumbs>
             }
             actions={null}

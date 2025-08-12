@@ -36,6 +36,8 @@ jest.mock('next/navigation', () => ({
   notFound: jest.fn(),
 }));
 
+
+
 const mockParams = {
   projectId: '123',
   dmpid: '456',
@@ -281,6 +283,31 @@ const emptyQuestionsMocks = [
 describe('PlanOverviewSectionPage', () => {
   beforeEach(() => {
     (useParams as jest.Mock).mockReturnValue(mockParams);
+    
+    // Mock DOM methods for navigation positioning
+    Object.defineProperty(window, 'innerWidth', { value: 1200, writable: true });
+    Object.defineProperty(window, 'innerHeight', { value: 800, writable: true });
+    Object.defineProperty(window, 'scrollY', { value: 0, writable: true });
+    Object.defineProperty(document.documentElement, 'scrollHeight', { value: 1000, writable: true });
+    
+    // Mock querySelector to return mock elements
+    const mockLayoutElement = {
+      getBoundingClientRect: () => ({ top: 100, left: 200, right: 800, bottom: 700 }),
+      querySelector: () => ({ getBoundingClientRect: () => ({ left: 220, right: 780 }) })
+    };
+    
+    jest.spyOn(document, 'querySelector').mockImplementation((selector) => {
+      if (selector.includes('layout-with-panel')) return mockLayoutElement;
+      return null;
+    });
+    
+    // Mock timers to prevent async state updates during tests
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
   it('should render the page with questions and section data', async () => {
