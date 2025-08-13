@@ -225,7 +225,9 @@
       "startDate": "Start date",
       "endDate": "End date",
       "funderSearch": "Search by funder name",
-      "requiredField": "Mark as required?"
+      "requiredField": "Mark as required?",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
@@ -244,7 +246,9 @@
       "update": "Update",
       "expand": "Expand",
       "collapse": "Collapse",
-      "editTitle": "Edit title"
+      "editTitle": "Edit title",
+      "prev": "Previous",
+      "next": "Next"
     },
     "messaging": {
       "loading": "Loading",

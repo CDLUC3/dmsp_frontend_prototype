@@ -156,6 +156,28 @@
       }
     }
   },
+  "ProjectsProjectFundingAdd": {
+    "title": "Adicionar detalhes de financiamento",
+    "description": "Adicionar manualmente uma nova fonte de financiamento",
+    "labels": {
+      "funderName": "Nome da planta",
+      "fundingStatus": "Status do financiamento",
+      "grantNumber": "Conceder número/url",
+      "projectNumber": "Número ou ID do projeto",
+      "opportunity": "No. de Prêmio Oportunidade/Federal"
+    },
+    "messages": {
+      "errors": {
+        "projectFundingUpdateFailed": "Erro ao atualizar detalhes do financiador do projeto",
+        "fundingGrantId": "Valor de ID do financiador inválido",
+        "fundingProjectNumber": "Valor inválido do número do projeto financiador",
+        "fundingName": "Valor do nome do financiador inválido"
+      },
+      "success": {
+        "projectFundingUpdated": "Detalhes do financiador do projeto atualizados com sucesso"
+      }
+    }
+  },
   "ProjectsProjectMembers": {
     "title": "Membros do Projeto",
     "description": "Defina contribuidores e membros da equipe e seu papel neste projeto.",
