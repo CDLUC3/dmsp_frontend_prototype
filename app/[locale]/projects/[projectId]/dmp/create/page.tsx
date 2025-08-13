@@ -482,17 +482,6 @@ const PlanCreate: React.FC = () => {
 
           {(publicTemplatesList?.length > 0) ? (
             <>
-              {/**Only display pagination if there is more than one page */}
-              {publicTemplatesList?.length && (
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  hasPreviousPage={hasPreviousPage}
-                  hasNextPage={hasNextPage}
-                  handlePageClick={handlePageClick}
-                />
-              )}
-
               {/**Display list of published templates */}
               <section className="mb-8" aria-labelledby="public-templates">
                 <div className="template-list" role="list" aria-label="Public templates">
