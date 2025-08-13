@@ -58,7 +58,7 @@
       "updateSection": "Editar: {title}"
     },
     "errors": {
-      "invalidDmpId": "ID DMP inválido: O ID DMP fornecido não é válido.",
+      "invalidDmpId": "ID DMP inválido: O ID de DMP fornecido não é válido.",
       "sectionNotFound": "Seção não encontrada: Esta seção não pertence ao plano atual."
     },
     "status": {
