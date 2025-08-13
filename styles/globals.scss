@@ -248,3 +248,17 @@ body {
     top: 0;
   }
 }
+
+.clear-filter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.search-match-text {
+  font-size: var(--fs-small);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+}

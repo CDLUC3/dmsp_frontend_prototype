@@ -304,6 +304,7 @@ export interface CheckboxGroupProps {
   errorMessage?: string;
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
+  ariaLabel?: string;
 }
 
 export interface ProjectMemberErrorInterface {

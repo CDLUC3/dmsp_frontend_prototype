@@ -124,20 +124,27 @@ const MOCKS = [
       data: {
         updatePlanFunding: [
           {
+            __typename: "PlanFunding",
             errors: {
+              __typename: "PlanFundingErrors",
               ProjectFundingId: null,
               general: null,
+              planId: null, 
             },
             projectFunding: {
+              __typename: "ProjectFunding",
               id: 111,
             }
           },
           {
             errors: {
+              __typename: "PlanFundingErrors",
               ProjectFundingId: null,
               general: null,
+              planId: null
             },
             projectFunding: {
+              __typename: "ProjectFunding",
               id: 222,
             }
           },
@@ -160,11 +167,15 @@ const MOCKS = [
       data: {
         updatePlanFunding: [
           {
+            __typename: "PlanFunding",
             errors: {
+              __typename: "PlanFundingErrors",
               ProjectFundingId: null,
               general: "This should throw an error",
+              planId: null, 
             },
             projectFunding: {
+              __typename: "ProjectFunding",
               id: 222,
             }
 
@@ -198,11 +209,15 @@ const MOCKS = [
       data: {
         updatePlanFunding: [
           {
+            __typename: "PlanFunding",
             errors: {
+              __typename: "PlanFundingErrors",
               ProjectFundingId: null,
               general: "This should throw an error",
+              planId: null, 
             },
             projectFunding: {
+              __typename: "ProjectFunding",
               id: null,
             }
 
