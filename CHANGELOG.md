@@ -1,5 +1,6 @@
 
 ### Added
+- Added `.js` extension to `import nextJest from "next/jest.js";` in `jest.config.ts` to remove errors when running `npm test`[#662]
 - Added `Pagination` component to be used on different pages with a large number of search results [#686]
 - Added JSON mocks to `__mocks__` for all types of versioned questions (for use with the project/plan pages)
 - Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
@@ -22,6 +23,8 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Updated the `stripHtmlTags` function to include an option to strip only specific tags [#662]
+- Updated the `Question details` page to strip the `questionText` of `HTML` tags [#662]
 - Added `Load more` functionality for `/projects` page, using the new pagination [#647]
 - Addressed issue where templates on `/projects/7/dmp/create` were showing `Not published`. They are all `versionedTemplates` so they are `published` [#646] d
 - Fixed bug when hovering over the `Back` button turns text white (essentially invisible) [#651]
