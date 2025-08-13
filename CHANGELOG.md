@@ -23,6 +23,7 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed a bug on `Section` page where `question` text was used, when we should be referring to `section` instead [#666]
 - Updated the `stripHtmlTags` function to include an option to strip only specific tags [#662]
 - Updated the `Question details` page to strip the `questionText` of `HTML` tags [#662]
 - Added `Load more` functionality for `/projects` page, using the new pagination [#647]
