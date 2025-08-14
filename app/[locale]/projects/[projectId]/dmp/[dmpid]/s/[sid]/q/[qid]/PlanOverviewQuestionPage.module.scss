@@ -55,7 +55,6 @@
   gap: 0.5rem;
 }
 
-
 /*Button styles*/
 // Wrapper for multiple buttons in a row
 .buttonsRow {
@@ -140,7 +139,7 @@
 // lighter font colors
 .deEmphasize {
   color: var(--text-color-placeholder);
-  font-weight: 300;
+  font-weight: 300 !important;
   font-size: var(--fs-small);
 }
 
@@ -194,3 +193,15 @@
   gap: 0.25rem;
 }
 /*End 'Required by funder' info icon tooltip*/
+
+.comment {
+  margin-bottom: 3rem;
+}
+
+.leaveComment {
+  border-top: 1px solid black;
+  margin-top: 2rem;
+  background-color: white;
+  position: sticky;
+  bottom: 0;
+}

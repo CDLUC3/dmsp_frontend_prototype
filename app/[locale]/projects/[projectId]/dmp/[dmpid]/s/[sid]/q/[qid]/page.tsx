@@ -52,6 +52,7 @@ import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
+import { formatRelativeFromTimestamp } from '@/utils/dateUtils';
 import { QuestionTypeMap } from '@dmptool/types';
 
 import {
@@ -122,6 +123,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const projectId = params.projectId as string;
   const versionedSectionId = params.sid as string;
   const versionedQuestionId = params.qid as string;
+  const locale = params.locale as string;
   const toastState = useToast(); // Access the toast state from context
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
@@ -194,6 +196,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
+
   // Get Plan using planId
   const { data: planData, loading: planQueryLoading, error: planQueryError } = usePlanQuery(
     {
@@ -202,7 +205,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
-  // Get loadAnswer to call later, after we set the versionedQuestionId
+  // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useAnswerByVersionedQuestionIdQuery(
     {
       variables: {
@@ -212,7 +215,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       }
     }
   );
-
 
   // Show Success Message
   const showSuccessToast = () => {
@@ -970,6 +972,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+
+  useEffect(() => {
+    console.log("ANSWER Data", answerData)
+  }, [answerData])
+
+
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
     questionType,
@@ -1302,26 +1310,25 @@ const PlanOverviewQuestionPage: React.FC = () => {
           onClose={closeCurrentDrawer}
           returnFocusRef={openCommentsButtonRef}
           className={styles.drawerPanelWrapper}
+          title={PlanOverview('headings.comments')}
         >
-          <h2>{PlanOverview('headings.comments')}</h2>
           <div className={styles.comment}>
-            <h4>John Smith</h4>
-            <p className={styles.deEmphasize}>2 days ago</p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-              laboris nisi ut aliquip ex ea commodo consequat.
-            </p>
-          </div>
-
-          <div className={styles.comment}>
-            <h4>John Smith</h4>
-            <p className={styles.deEmphasize}>2 days ago</p>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-              ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-              laboris nisi ut aliquip ex ea commodo consequat.
-            </p>
+            {answerData?.answerByVersionedQuestionId?.comments?.map((comment, index) => {
+              const formattedCreatedDate = comment.created ? formatRelativeFromTimestamp(comment.created, locale) : '';
+              return (
+                <div key={index}>
+                  <div>
+                    <h4>{comment?.user?.givenName}{' '}{comment?.user?.surName}</h4>
+                    <p className={styles.deEmphasize}>{formattedCreatedDate}{(comment.created !== comment.modified) ? `(edited)` : ''}</p>
+                    <p>{comment.commentText}</p>
+                    <div>
+                      <Button className={`${styles.deEmphasize} link`} type="button">Edit</Button>
+                      <Button className={`${styles.deEmphasize} link`} type="button">Delete</Button>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
 
           <div className={styles.leaveComment}>

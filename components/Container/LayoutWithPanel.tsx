@@ -143,6 +143,7 @@ export const SidebarPanel: React.FC<SidebarPanelProps> = ({
 interface DrawerPanelProps extends ContentContainerProps {
   isOpen?: boolean;
   onClose?: () => void;
+  title?: string;
   returnFocusRef?: React.RefObject<HTMLElement>;
 }
 
@@ -150,6 +151,7 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
   children,
   id = '',
   className = '',
+  title = '',
   isOpen = false,
   onClose,
   returnFocusRef
@@ -257,47 +259,57 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
           data-testid="drawer-panel"
         >
           <ContentContainer className="drawer-content">
-            <Button
-              ref={closeButtonRef}
-              className="close-action"
-              aria-label={Global('buttons.close')}
-              onPress={handleClose}
-              data-testid="close-action"
-            >
-              <DmpIcon icon="close" />
-            </Button>
+            <div className="close-action-container">
+              <Button
+                ref={closeButtonRef}
+                className="close-action"
+                aria-label={Global('buttons.close')}
+                onPress={handleClose}
+                data-testid="close-action"
+              >
+                <DmpIcon icon="right-panel_close" />
+                {' '}{Global('buttons.close')}
+              </Button>
+            </div>
+            <h2>{title}</h2>
             {/* Add a scrollable wrapper for the desktop version, so that user can scroll the drawer panel */}
             <div className="drawer-scrollable-content">
               {children}
             </div>
-          </ContentContainer>
-        </div>
+          </ContentContainer >
+        </div >
       )}
 
-      {!isMobile && (
-        <div
-          id={id}
-          ref={drawerRef}
-          className={`layout-drawer-panel ${className} ${stateOpen ? "state-open" : "state-closed"}`}
-          tabIndex={stateOpen ? 0 : -1}
-          aria-hidden={!stateOpen}
-          data-testid="drawer-panel"
-        >
-          <Button
-            ref={closeButtonRef}
-            className="close-action"
-            aria-label={Global('buttons.close')}
-            onPress={handleClose}
-            data-testid="close-action"
+      {
+        !isMobile && (
+          <div
+            id={id}
+            ref={drawerRef}
+            className={`layout-drawer-panel ${className} ${stateOpen ? "state-open" : "state-closed"}`}
+            tabIndex={stateOpen ? 0 : -1}
+            aria-hidden={!stateOpen}
+            data-testid="drawer-panel"
           >
-            <DmpIcon icon="close" />
-          </Button>
-          {/* Add a scrollable wrapper for the desktop version so that user can scroll the drawer panel*/}
-          <div className="drawer-scrollable-content">
-            {children}
+            <div className="close-action-container">
+              <Button
+                ref={closeButtonRef}
+                className="close-action"
+                aria-label={Global('buttons.close')}
+                onPress={handleClose}
+                data-testid="close-action"
+              >
+                <DmpIcon icon="right-panel_close" />
+                {' '}{Global('buttons.close')}
+              </Button>
+            </div>
+            <h2>{title}</h2>
+            {/* Add a scrollable wrapper for the desktop version so that user can scroll the drawer panel*/}
+            <div className="drawer-scrollable-content">
+              {children}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
     </>
   );
 }

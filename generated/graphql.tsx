@@ -463,6 +463,8 @@ export type AnswerComment = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** User who made the comment */
+  user?: Maybe<User>;
 };
 
 /** A collection of errors related to the Answer Comment */
@@ -742,7 +744,9 @@ export type Mutation = {
   addAffiliation?: Maybe<Affiliation>;
   /** Answer a question */
   addAnswer?: Maybe<Answer>;
-  /** Add a comment to an answer within a round of feedback */
+  /** Add comment for an answer  */
+  addAnswerComment?: Maybe<AnswerComment>;
+  /** Add feedback comment for an answer within a round of feedback */
   addFeedbackComment?: Maybe<PlanFeedbackComment>;
   /** Add a new License (don't make the URI up! should resolve to an taxonomy HTML/JSON representation of the object) */
   addLicense?: Maybe<License>;
@@ -808,7 +812,9 @@ export type Mutation = {
   publishPlan?: Maybe<Plan>;
   /** Delete an Affiliation (only applicable to AffiliationProvenance == DMPTOOL) */
   removeAffiliation?: Maybe<Affiliation>;
-  /** Remove a comment to an answer within a round of feedback */
+  /** Remove answer comment */
+  removeAnswerComment?: Maybe<AnswerComment>;
+  /** Remove feedback comment for an answer within a round of feedback */
   removeFeedbackComment?: Maybe<PlanFeedbackComment>;
   /** Delete a License */
   removeLicense?: Maybe<License>;
@@ -860,6 +866,10 @@ export type Mutation = {
   updateAffiliation?: Maybe<Affiliation>;
   /** Edit an answer */
   updateAnswer?: Maybe<Answer>;
+  /** Update comment for an answer  */
+  updateAnswerComment?: Maybe<AnswerComment>;
+  /** Update feedback comment for an answer within a round of feedback */
+  updateFeedbackComment?: Maybe<PlanFeedbackComment>;
   /** Update a License record */
   updateLicense?: Maybe<License>;
   /** Update the member role */
@@ -929,10 +939,17 @@ export type MutationAddAnswerArgs = {
 };
 
 
+export type MutationAddAnswerCommentArgs = {
+  answerId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+};
+
+
 export type MutationAddFeedbackCommentArgs = {
   answerId: Scalars['Int']['input'];
   commentText: Scalars['String']['input'];
   planFeedbackId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -1065,6 +1082,7 @@ export type MutationArchiveTemplateArgs = {
 
 export type MutationCompleteFeedbackArgs = {
   planFeedbackId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
   summaryText?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1122,8 +1140,15 @@ export type MutationRemoveAffiliationArgs = {
 };
 
 
+export type MutationRemoveAnswerCommentArgs = {
+  answerCommentId: Scalars['Int']['input'];
+  answerId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveFeedbackCommentArgs = {
-  PlanFeedbackCommentId: Scalars['Int']['input'];
+  planFeedbackCommentId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -1243,6 +1268,20 @@ export type MutationUpdateAffiliationArgs = {
 export type MutationUpdateAnswerArgs = {
   answerId: Scalars['Int']['input'];
   json?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateAnswerCommentArgs = {
+  answerCommentId: Scalars['Int']['input'];
+  answerId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateFeedbackCommentArgs = {
+  commentText: Scalars['String']['input'];
+  planFeedbackCommentId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -1543,8 +1582,6 @@ export type PlanErrors = {
 /** A round of administrative feedback for a Data Managament Plan (DMP) */
 export type PlanFeedback = {
   __typename?: 'PlanFeedback';
-  /** An overall summary that can be sent to the user upon completion */
-  adminSummary?: Maybe<Scalars['String']['output']>;
   /** The timestamp that the feedback was marked as complete */
   completed?: Maybe<Scalars['String']['output']>;
   /** The admin who completed the feedback round */
@@ -1564,11 +1601,13 @@ export type PlanFeedback = {
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The plan the user wants feedback on */
-  plan: Plan;
+  plan?: Maybe<Plan>;
   /** The timestamp of when the user requested the feedback */
-  requested: Scalars['String']['output'];
+  requested?: Maybe<Scalars['String']['output']>;
   /** The user who requested the round of feedback */
-  requestedBy: User;
+  requestedBy?: Maybe<User>;
+  /** An overall summary that can be sent to the user upon completion */
+  summaryText?: Maybe<Scalars['String']['output']>;
 };
 
 export type PlanFeedbackComment = {
@@ -1578,7 +1617,7 @@ export type PlanFeedbackComment = {
   /** The answer the comment is related to */
   answer?: Maybe<Answer>;
   /** The comment */
-  comment?: Maybe<Scalars['String']['output']>;
+  commentText?: Maybe<Scalars['String']['output']>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
@@ -1606,13 +1645,13 @@ export type PlanFeedbackCommentErrors = {
 /** A collection of errors related to the PlanFeedback */
 export type PlanFeedbackErrors = {
   __typename?: 'PlanFeedbackErrors';
-  adminSummary?: Maybe<Scalars['String']['output']>;
   completedById?: Maybe<Scalars['String']['output']>;
   feedbackComments?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   planId?: Maybe<Scalars['String']['output']>;
   requestedById?: Maybe<Scalars['String']['output']>;
+  summaryText?: Maybe<Scalars['String']['output']>;
 };
 
 /** Funding associated with a plan */
@@ -2178,7 +2217,7 @@ export type Query = {
   affiliationTypes?: Maybe<Array<Scalars['String']['output']>>;
   /** Perform a search for Affiliations matching the specified name */
   affiliations?: Maybe<AffiliationSearchResults>;
-  /** Get the sepecific answer */
+  /** Get the specific answer */
   answer?: Maybe<Answer>;
   /** Get an answer by versionedQuestionId */
   answerByVersionedQuestionId?: Maybe<Answer>;
@@ -2406,6 +2445,7 @@ export type QueryPlanFeedbackArgs = {
 
 export type QueryPlanFeedbackCommentsArgs = {
   planFeedbackId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -4080,7 +4120,7 @@ export type AnswerByVersionedQuestionIdQueryVariables = Exact<{
 }>;
 
 
-export type AnswerByVersionedQuestionIdQuery = { __typename?: 'Query', answerByVersionedQuestionId?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, versionedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null } | null, plan?: { __typename?: 'Plan', id?: number | null } | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null, planId?: string | null, versionedSectionId?: string | null, versionedQuestionId?: string | null, json?: string | null } | null } | null };
+export type AnswerByVersionedQuestionIdQuery = { __typename?: 'Query', answerByVersionedQuestionId?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, created?: string | null, versionedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null } | null, plan?: { __typename?: 'Plan', id?: number | null } | null, comments?: Array<{ __typename?: 'AnswerComment', id?: number | null, commentText: string, answerId: number, created?: string | null, modified?: string | null, user?: { __typename?: 'User', surName?: string | null, givenName?: string | null } | null }> | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null, planId?: string | null, versionedSectionId?: string | null, versionedQuestionId?: string | null, json?: string | null } | null } | null };
 
 export type ProjectFundingsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -5992,7 +6032,19 @@ export const AnswerByVersionedQuestionIdDocument = gql`
     plan {
       id
     }
+    comments {
+      id
+      commentText
+      answerId
+      created
+      modified
+      user {
+        surName
+        givenName
+      }
+    }
     modified
+    created
     errors {
       general
       planId

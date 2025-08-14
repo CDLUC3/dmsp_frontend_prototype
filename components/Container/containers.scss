@@ -149,6 +149,7 @@
   height: 100vh;
   z-index: 10;
   background-color: white;
+  padding: var(--space-5);
   transition: transform 0.3s ease-in-out;
   transform: translateX(100%); // hide offscreen
   display: flex;
@@ -168,8 +169,6 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--layout-content-padding, var(--brand-space2));
-  padding-top: 4rem; // Space for close button
   overscroll-behavior: contain;
   
   > :first-child { 
@@ -199,20 +198,13 @@
   
 // Close button in the drawer panel
 .close-action {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
   background: #fff;
-  border: 2px solid #000;
   color: #000;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  padding: 0;
+  padding: 0.25rem;
   z-index: 21;
   transition: background 0.2s ease-in-out;
 
@@ -240,12 +232,6 @@
     box-shadow: 0 0 0 3px var(--focus-ring, #3b82f6);
   }
 
-  svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: #000;
-  }
-
   .dmp-icon {
     // override existing styles for dmp-icon because the icon, in this case, 
     //is sharing same position as the circle around it
@@ -261,4 +247,12 @@
       }
   }
 
+}
+
+.close-action-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: right;
+  width: 100%;
 }
