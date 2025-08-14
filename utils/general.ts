@@ -34,13 +34,34 @@ export const stripHtml = (htmlString: string | null | undefined): string => {
 };
 
 /**
- * Removes all content enclosed in "<" and ">" brackets, including the brackets themselves.
- * @param input - The string to sanitize.
- * @returns The sanitized string.
+ * Strips HTML tags from a string.
+ * If `tagsToRemove` is provided, only those tags are stripped (inner text is preserved).
+ * If not provided, all HTML tags are stripped.
  */
-export const stripHtmlTags = (input: string): string => {
-  return input.replace(/<[^>]*>/g, '');
+export const stripHtmlTags = (input: string | null | undefined, tagsToRemove?: string[]): string => {
+  if (input && input.length > 0) {
+    if (tagsToRemove && tagsToRemove.length > 0) {
+      // Remove only the specified tags
+      const pattern = `<\\/?(?:${tagsToRemove.join('|')})\\b[^>]*>`;
+      const regex = new RegExp(pattern, 'gi');
+      return input.replace(regex, ' ');
+    } else {
+      // Remove all tags
+      return input.replace(/<[^>]*>/g, ' ');
+    }
+  }
+  return '';
 };
+
+// Examples:
+//console.log(stripHtmlTags('<p>Hello <b>world</b></p>')); 
+// "Hello world"
+
+//console.log(stripHtmlTags('<p>Hello <b>world</b></p>', ['p','b'])); 
+// "Hello world"
+
+
+
 
 export const toTitleCase = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 

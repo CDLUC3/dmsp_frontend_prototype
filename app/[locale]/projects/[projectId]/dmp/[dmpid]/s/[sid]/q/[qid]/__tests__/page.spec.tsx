@@ -213,6 +213,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     // Check that question card is in the page with correct question details
     expect(screen.getByTestId('question-card')).toBeInTheDocument();
+    // Should strip out HTML tags for the Question Text
     expect(screen.getByRole('heading', { level: 2, name: 'Text area question' })).toBeInTheDocument();
     const requirementsByFunder = screen.getByText('page.requiredByFunder');
     expect(requirementsByFunder).toBeInTheDocument();
