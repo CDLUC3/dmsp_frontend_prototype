@@ -14,7 +14,6 @@ import {
 } from "@/components/Container";
 import {
   usePublishedQuestionsQuery,
-  usePublishedQuestionsWithAnsweredFlagQuery,
   usePublishedSectionQuery,
   usePlanQuery,
 } from '@/generated/graphql';
@@ -28,7 +27,7 @@ interface VersionedQuestion {
   id: string;
   title: string;
   link: string;
-  hasAnswer: boolean;
+  isAnswered: boolean;
 }
 
 const PlanOverviewSectionPage: React.FC = () => {
@@ -45,8 +44,8 @@ const PlanOverviewSectionPage: React.FC = () => {
   // Validate that dmpId is a valid number
   const planId = parseInt(dmpId);
 
-  const { data: questionsData, loading: questionsLoading, error: questionsError } = usePublishedQuestionsWithAnsweredFlagQuery({
-    variables: { versionedSectionId, planId },
+  const { data: questionsData, loading: questionsLoading, error: questionsError } = usePublishedQuestionsQuery({
+    variables: { versionedSectionId },
     skip: !versionedSectionId
   });
 
@@ -103,13 +102,13 @@ const PlanOverviewSectionPage: React.FC = () => {
   }
 
   // Check for questions - show message if none
-  const questions: VersionedQuestion[] = questionsData?.publishedQuestionsWithAnswerFlag?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
+  const questions: VersionedQuestion[] = questionsData?.publishedQuestions?.filter((question): question is NonNullable<typeof question> => question !== null).map((question) => ({
     id: question.id?.toString() || '',
     title: question.questionText || '',
     link: routePath('projects.dmp.versionedQuestion.detail', {
       projectId, dmpId, versionedSectionId, versionedQuestionId: String(question.id)
     }),
-    hasAnswer: false
+    isAnswered: false
   })) || [];
 
   const plan = {
@@ -244,25 +243,25 @@ const PlanOverviewSectionPage: React.FC = () => {
                         <p aria-live="polite">
                           <span
                             className={styles.progressIndicator}
-                            aria-label={`Question status: ${question.hasAnswer ? 'Completed' : 'Not started'}`}
+                            aria-label={`Question status: ${question.isAnswered ? 'Completed' : 'Not started'}`}
                           >
                             <DmpIcon
-                              icon={question.hasAnswer ? 'check_circle' : 'cancel'}
-                              classes={`${styles.progressIcon} ${!question.hasAnswer ? styles.progressIconInactive : ''}`}
+                              icon={question.isAnswered ? 'check_circle' : 'cancel'}
+                              classes={`${styles.progressIcon} ${!question.isAnswered ? styles.progressIconInactive : ''}`}
                             />
-                            {question.hasAnswer ? t('question.answered') : t('question.notAnswered')}
+                            {question.isAnswered ? t('question.answered') : t('question.notAnswered')}
                           </span>
                         </p>
                       </div>
                       <Link
                         href={question.link}
                         aria-label={t('sections.ariaLabel', {
-                          action: question.hasAnswer ? t('sections.update') : t('sections.start'),
+                          action: question.isAnswered ? t('sections.update') : t('sections.start'),
                           title: question.title
                         })}
                         className="react-aria-Button react-aria-Button--secondary"
                       >
-                        {question.hasAnswer ? t('sections.update') : t('sections.start')}
+                        {question.isAnswered ? t('sections.update') : t('sections.start')}
                       </Link>
                     </div>
                   </section>
