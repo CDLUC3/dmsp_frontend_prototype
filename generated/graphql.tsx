@@ -2252,10 +2252,8 @@ export type Query = {
   publishedConditionsForQuestion?: Maybe<Array<Maybe<VersionedQuestionCondition>>>;
   /** Get a specific VersionedQuestion based on versionedQuestionId */
   publishedQuestion?: Maybe<VersionedQuestion>;
-  /** Search for VersionedQuestions that belong to Section specified by sectionId */
-  publishedQuestions?: Maybe<Array<Maybe<VersionedQuestion>>>;
-  /** Search for VersionedQuestions that belong to Section specified by sectionId, with an answered flag for a plan */
-  publishedQuestionsWithAnsweredFlag?: Maybe<Array<Maybe<VersionedQuestionWithFilled>>>;
+  /** Search for VersionedQuestions that belong to Section specified by sectionId and answer status for a plan */
+  publishedQuestions?: Maybe<Array<Maybe<VersionedQuestionWithFilled>>>;
   /** Fetch a specific VersionedSection */
   publishedSection?: Maybe<VersionedSection>;
   /** Search for VersionedSection whose name contains the search term */
@@ -2482,11 +2480,6 @@ export type QueryPublishedQuestionArgs = {
 
 
 export type QueryPublishedQuestionsArgs = {
-  versionedSectionId: Scalars['Int']['input'];
-};
-
-
-export type QueryPublishedQuestionsWithAnsweredFlagArgs = {
   planId: Scalars['Int']['input'];
   versionedSectionId: Scalars['Int']['input'];
 };
@@ -3600,7 +3593,7 @@ export type VersionedQuestionErrors = {
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
 };
 
-/** A snapshot of a Question when it became published. */
+/** A snapshot of a Question when it became published, but includes extra information about if answer is filled. */
 export type VersionedQuestionWithFilled = {
   __typename?: 'VersionedQuestionWithFilled';
   /** The timestamp when the Object was created */
@@ -4234,19 +4227,12 @@ export type QuestionQueryVariables = Exact<{
 export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, isDirty?: boolean | null, required?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, sectionId?: string | null, templateId?: string | null } | null } | null };
 
 export type PublishedQuestionsQueryVariables = Exact<{
-  versionedSectionId: Scalars['Int']['input'];
-}>;
-
-
-export type PublishedQuestionsQuery = { __typename?: 'Query', publishedQuestions?: Array<{ __typename?: 'VersionedQuestion', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number } | null> | null };
-
-export type PublishedQuestionsWithAnsweredFlagQueryVariables = Exact<{
-  versionedSectionId: Scalars['Int']['input'];
   planId: Scalars['Int']['input'];
+  versionedSectionId: Scalars['Int']['input'];
 }>;
 
 
-export type PublishedQuestionsWithAnsweredFlagQuery = { __typename?: 'Query', publishedQuestionsWithAnsweredFlag?: Array<{ __typename?: 'VersionedQuestionWithFilled', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number, hasAnswer?: boolean | null } | null> | null };
+export type PublishedQuestionsQuery = { __typename?: 'Query', publishedQuestions?: Array<{ __typename?: 'VersionedQuestionWithFilled', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number, hasAnswer?: boolean | null } | null> | null };
 
 export type PublishedQuestionQueryVariables = Exact<{
   versionedQuestionId: Scalars['Int']['input'];
@@ -6911,8 +6897,8 @@ export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery
 export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
 export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
 export const PublishedQuestionsDocument = gql`
-    query PublishedQuestions($versionedSectionId: Int!) {
-  publishedQuestions(versionedSectionId: $versionedSectionId) {
+    query PublishedQuestions($planId: Int!, $versionedSectionId: Int!) {
+  publishedQuestions(planId: $planId, versionedSectionId: $versionedSectionId) {
     id
     questionText
     displayOrder
@@ -6921,6 +6907,7 @@ export const PublishedQuestionsDocument = gql`
     sampleText
     versionedSectionId
     versionedTemplateId
+    hasAnswer
   }
 }
     `;
@@ -6937,6 +6924,7 @@ export const PublishedQuestionsDocument = gql`
  * @example
  * const { data, loading, error } = usePublishedQuestionsQuery({
  *   variables: {
+ *      planId: // value for 'planId'
  *      versionedSectionId: // value for 'versionedSectionId'
  *   },
  * });
@@ -6957,58 +6945,6 @@ export type PublishedQuestionsQueryHookResult = ReturnType<typeof usePublishedQu
 export type PublishedQuestionsLazyQueryHookResult = ReturnType<typeof usePublishedQuestionsLazyQuery>;
 export type PublishedQuestionsSuspenseQueryHookResult = ReturnType<typeof usePublishedQuestionsSuspenseQuery>;
 export type PublishedQuestionsQueryResult = Apollo.QueryResult<PublishedQuestionsQuery, PublishedQuestionsQueryVariables>;
-export const PublishedQuestionsWithAnsweredFlagDocument = gql`
-    query PublishedQuestionsWithAnsweredFlag($versionedSectionId: Int!, $planId: Int!) {
-  publishedQuestionsWithAnsweredFlag(
-    versionedSectionId: $versionedSectionId
-    planId: $planId
-  ) {
-    id
-    questionText
-    displayOrder
-    guidanceText
-    requirementText
-    sampleText
-    versionedSectionId
-    versionedTemplateId
-    hasAnswer
-  }
-}
-    `;
-
-/**
- * __usePublishedQuestionsWithAnsweredFlagQuery__
- *
- * To run a query within a React component, call `usePublishedQuestionsWithAnsweredFlagQuery` and pass it any options that fit your needs.
- * When your component renders, `usePublishedQuestionsWithAnsweredFlagQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePublishedQuestionsWithAnsweredFlagQuery({
- *   variables: {
- *      versionedSectionId: // value for 'versionedSectionId'
- *      planId: // value for 'planId'
- *   },
- * });
- */
-export function usePublishedQuestionsWithAnsweredFlagQuery(baseOptions: Apollo.QueryHookOptions<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables> & ({ variables: PublishedQuestionsWithAnsweredFlagQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>(PublishedQuestionsWithAnsweredFlagDocument, options);
-      }
-export function usePublishedQuestionsWithAnsweredFlagLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>(PublishedQuestionsWithAnsweredFlagDocument, options);
-        }
-export function usePublishedQuestionsWithAnsweredFlagSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>(PublishedQuestionsWithAnsweredFlagDocument, options);
-        }
-export type PublishedQuestionsWithAnsweredFlagQueryHookResult = ReturnType<typeof usePublishedQuestionsWithAnsweredFlagQuery>;
-export type PublishedQuestionsWithAnsweredFlagLazyQueryHookResult = ReturnType<typeof usePublishedQuestionsWithAnsweredFlagLazyQuery>;
-export type PublishedQuestionsWithAnsweredFlagSuspenseQueryHookResult = ReturnType<typeof usePublishedQuestionsWithAnsweredFlagSuspenseQuery>;
-export type PublishedQuestionsWithAnsweredFlagQueryResult = Apollo.QueryResult<PublishedQuestionsWithAnsweredFlagQuery, PublishedQuestionsWithAnsweredFlagQueryVariables>;
 export const PublishedQuestionDocument = gql`
     query PublishedQuestion($versionedQuestionId: Int!) {
   publishedQuestion(versionedQuestionId: $versionedQuestionId) {
