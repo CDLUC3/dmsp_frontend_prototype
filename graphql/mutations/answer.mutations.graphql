@@ -41,3 +41,27 @@ mutation UpdateAnswer($answerId: Int!, $json: String) {
     }
   }
 }
+
+mutation RemoveAnswerComment($answerCommentId: Int!, $answerId: Int!) {
+  removeAnswerComment(answerCommentId: $answerCommentId, answerId: $answerId) {
+    id
+    errors {
+      general
+    }
+    answerId
+    commentText
+  }
+}
+
+mutation UpdateAnswerComment($answerCommentId: Int!, $answerId: Int!, $commentText: String!) {
+  updateAnswerComment(answerCommentId: $answerCommentId, answerId: $answerId, commentText: $commentText) {
+    commentText
+    answerId
+    id
+    errors {
+      general
+      commentText
+      answerId
+    }
+  }
+}

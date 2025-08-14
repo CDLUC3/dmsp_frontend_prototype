@@ -19,6 +19,20 @@ query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQue
         givenName
       }
     }
+    feedbackComments {
+      id
+      commentText
+      created
+      answerId
+      modified
+      PlanFeedback {
+        id
+      }
+      user {
+        surName
+        givenName
+      }
+    }
     modified
     created
     errors {

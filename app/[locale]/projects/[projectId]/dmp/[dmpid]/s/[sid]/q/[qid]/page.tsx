@@ -31,6 +31,7 @@ import {
 } from "@/components/Container";
 
 import {
+  useMeQuery,
   usePlanQuery,
   usePublishedQuestionQuery,
   useAnswerByVersionedQuestionIdQuery,
@@ -61,7 +62,11 @@ import {
 
 import {
   addAnswerAction,
-  updateAnswerAction
+  updateAnswerAction,
+  removeAnswerCommentAction,
+  removeFeedbackCommentAction,
+  updateAnswerCommentAction,
+  updateFeedbackCommentAction
 } from './actions';
 
 interface FormDataInterface {
@@ -115,6 +120,31 @@ interface PlanData {
   funderName: string;
   title: string;
 }
+interface User {
+  __typename?: "User";
+  surName?: string | null;
+  givenName?: string | null;
+}
+
+
+// Simple merged comment interface - more flexible approach
+interface MergedComment {
+  __typename?: "AnswerComment" | "PlanFeedbackComment";
+  id?: number | null;
+  commentText?: string | null;
+  answerId?: number | null;
+  created?: string | null;
+  type: 'answer' | 'feedback';
+  isAnswerComment: boolean;
+  isFeedbackComment: boolean;
+
+  // Optional fields that may exist on either type
+  user?: User | null;
+  modified?: string | null;
+  PlanFeedback?: any | null;
+}
+
+
 
 const PlanOverviewQuestionPage: React.FC = () => {
   const params = useParams();
@@ -134,6 +164,13 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [questionType, setQuestionType] = useState<string>('');
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
   const [errors, setErrors] = useState<string[]>([]);
+
+
+  // Comments states
+  const [mergedComments, setMergedComments] = useState<MergedComment[]>([]);
+  const [editingCommentId, setEditingCommentId] = useState<number | null | undefined>(null);
+  const [editingCommentText, setEditingCommentText] = useState<string>('');
+
 
   // Drawer states
   const [isSideBarPanelOpen, setIsSideBarPanelOpen] = useState<boolean>(true);
@@ -195,6 +232,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
       }
     }
   );
+
+  // Run me query to get user's name
+  const { data: me } = useMeQuery();
 
 
   // Get Plan using planId
@@ -309,6 +349,149 @@ const PlanOverviewQuestionPage: React.FC = () => {
     // message user
     toastState.add('Comment sent', { type: 'success', timeout: 3000 });
   }
+
+
+  // Call Server Action removeAnswerCommentAction or removeFeedbackCommentAction to delete comment
+  const deleteComment = async (comment: MergedComment) => {
+
+    try {
+      const response = comment.isAnswerComment
+        ? await removeAnswerCommentAction({
+          answerId: Number(comment?.answerId),
+          answerCommentId: Number(comment?.id)
+        })
+        : await removeFeedbackCommentAction({
+          planId: Number(dmpId),
+          planFeedbackCommentId: Number(comment?.id)
+        });
+
+      if (response.redirect) {
+        router.push(response.redirect);
+      }
+
+      return {
+        success: response.success,
+        errors: response.errors,
+        data: response.data
+      }
+    } catch (error) {
+      logECS('error', 'deleteComment', {
+        error,
+        url: {
+          path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
+        }
+      });
+    }
+
+    return {
+      success: false,
+      errors: [Global('messaging.somethingWentWrong')],
+      data: null
+    };
+  }
+
+  // Call Server Action updateAnswerCommentAction or updateFeedbackCommentAction to delete comment
+  const updateComment = async (comment: MergedComment) => {
+
+    try {
+      const response = comment.isAnswerComment
+        ? await updateAnswerCommentAction({
+          answerId: Number(comment?.answerId),
+          answerCommentId: Number(comment?.id),
+          commentText: comment?.commentText ?? ''
+        })
+        : await updateFeedbackCommentAction({
+          planId: Number(dmpId),
+          planFeedbackCommentId: Number(comment?.id),
+          commentText: comment?.commentText ?? ''
+        });
+
+      if (response.redirect) {
+        router.push(response.redirect);
+      }
+
+      return {
+        success: response.success,
+        errors: response.errors,
+        data: response.data
+      }
+    } catch (error) {
+      logECS('error', 'deleteComment', {
+        error,
+        url: {
+          path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
+        }
+      });
+    }
+
+    return {
+      success: false,
+      errors: [Global('messaging.somethingWentWrong')],
+      data: null
+    };
+  }
+
+  // Handler functions for delete and edit
+  const handleDeleteComment = async (comment: MergedComment) => {
+    const result = await deleteComment(comment);
+
+    if (!result.success) {
+      const errors = result.errors;
+      if (errors) {
+        setErrors(errors)
+      }
+    } else {
+      // On success
+      if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
+        const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
+        const extractedErrors = getExtractedErrorValues(mutationErrors);
+        // Handle errors as an object with general or field-level errors
+        setErrors(extractedErrors)
+
+      } else {
+        // Will comments update automatically or do we need to refetch answers?
+      }
+    }
+
+  };
+
+
+  // Handler functions for edit and save
+  const handleEditComment = (comment: MergedComment) => {
+    setEditingCommentId(comment?.id);
+    setEditingCommentText(comment?.commentText || '');
+  };
+
+  const handleUpdateComment = async (comment: MergedComment) => {
+    const result = await updateComment(comment);
+
+    if (!result.success) {
+      const errors = result.errors;
+      if (errors) {
+        setErrors(errors)
+      }
+    } else {
+      // On success
+      if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
+        const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
+        const extractedErrors = getExtractedErrorValues(mutationErrors);
+        // Handle errors as an object with general or field-level errors
+        setErrors(extractedErrors)
+
+      } else {
+        // Reset editing state after successful save
+        setEditingCommentId(null);
+        setEditingCommentText('');
+        // Will comments update automatically or do we need to refetch answers?
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditingCommentText('');
+  };
+
 
   const convertToHTML = (htmlString: string | null | undefined) => {
     if (htmlString) {
@@ -910,6 +1093,39 @@ const PlanOverviewQuestionPage: React.FC = () => {
         prefillAnswer(parsed.answer, questionType);
       }
     }
+    // Combine both answerComments and feedbackComments into one, and save in state after ordering
+    const answerComments = answerData?.answerByVersionedQuestionId?.comments;
+    const feedbackComments = answerData?.answerByVersionedQuestionId?.feedbackComments;
+
+    // Merge both sets of comments into one variable
+    const mergedAnswerFeedbackComments: MergedComment[] = [
+      ...(answerComments || []).map(comment => ({
+        ...comment,
+        type: 'answer' as const,
+        isAnswerComment: true as const,
+        isFeedbackComment: false as const
+      })),
+      ...(feedbackComments || []).map(comment => ({
+        ...comment,
+        type: 'feedback' as const,
+        isAnswerComment: false as const,
+        isFeedbackComment: true as const
+      }))
+    ].sort((a, b) => {
+      // Handle null/undefined timestamps
+      if (!a.created && !b.created) return 0;
+      if (!a.created) return 1;
+      if (!b.created) return -1;
+
+      // Convert timestamp strings to numbers and sort
+      return parseInt(a.created, 10) - parseInt(b.created, 10); // Oldest first
+    });
+
+    // Sort based on 
+
+    setMergedComments(mergedAnswerFeedbackComments);
+
+
   }, [answerData, questionType]);
 
 
@@ -972,10 +1188,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-
   useEffect(() => {
-    console.log("ANSWER Data", answerData)
-  }, [answerData])
+    console.log("MERGED Comments", mergedComments)
+  }, [mergedComments])
 
 
   // Render the question using the useRenderQuestionField helper
@@ -1312,19 +1527,73 @@ const PlanOverviewQuestionPage: React.FC = () => {
           className={styles.drawerPanelWrapper}
           title={PlanOverview('headings.comments')}
         >
-          <div className={styles.comment}>
-            {answerData?.answerByVersionedQuestionId?.comments?.map((comment, index) => {
+          <div>
+            {mergedComments?.map((comment, index) => {
               const formattedCreatedDate = comment.created ? formatRelativeFromTimestamp(comment.created, locale) : '';
+              const isEditing = editingCommentId === comment.id;
+
               return (
-                <div key={index}>
-                  <div>
-                    <h4>{comment?.user?.givenName}{' '}{comment?.user?.surName}</h4>
-                    <p className={styles.deEmphasize}>{formattedCreatedDate}{(comment.created !== comment.modified) ? `(edited)` : ''}</p>
+                <div key={`${comment.type}-${comment.id}-${index}`} className={styles.comment}>
+                  <h4>
+                    {comment?.user?.givenName}{' '}{comment?.user?.surName}{' '}
+                    <span className={styles.deEmphasize}>
+                      {comment?.isFeedbackComment ? `(${t('admin')})` : ''}
+                    </span>
+                  </h4>
+                  <p className={`${styles.deEmphasize} ${styles.createdDate}`}>
+                    {formattedCreatedDate}{' '}
+                    {(comment.created !== comment.modified) ? `(${t('edited')})` : ''}
+                  </p>
+
+                  {/* Conditional rendering: textarea when editing, paragraph when not */}
+                  {isEditing ? (
+                    <textarea
+                      value={editingCommentText}
+                      onChange={(e) => setEditingCommentText(e.target.value)}
+                      className={styles.editTextarea}
+                      rows={3}
+                      autoFocus
+                    />
+                  ) : (
                     <p>{comment.commentText}</p>
-                    <div>
-                      <Button className={`${styles.deEmphasize} link`} type="button">Edit</Button>
-                      <Button className={`${styles.deEmphasize} link`} type="button">Delete</Button>
-                    </div>
+                  )}
+
+                  <div>
+                    {isEditing ? (
+                      <>
+                        <Button
+                          className={`${styles.deEmphasize} link`}
+                          type="button"
+                          onPress={() => handleUpdateComment(comment)}
+                        >
+                          {Global('buttons.save')}
+                        </Button>
+                        <Button
+                          className={`${styles.deEmphasize} link`}
+                          type="button"
+                          onPress={handleCancelEdit}
+                        >
+                          {Global('buttons.cancel')}
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          className={`${styles.deEmphasize} link`}
+                          type="button"
+                          onPress={() => handleEditComment(comment)}
+                        >
+                          {Global('buttons.edit')}
+                        </Button>
+                        <Button
+                          className={`${styles.deEmphasize} link`}
+                          type="button"
+                          onPress={() => handleDeleteComment(comment)}
+                        >
+                          {Global('buttons.delete')}
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               )
@@ -1335,7 +1604,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             <h2>{PlanOverview('headings.leaveAComment')}</h2>
             <Form onSubmit={(e) => handleAddComment(e)}>
               <TextField>
-                <Label>Frederick Cook (you)</Label>
+                <Label>{me ? (`${me?.me?.givenName} ${me?.me?.surName}`) : ''}{' '}{`(${t('you')})`}</Label>
                 <TextArea />
               </TextField>
               <div>

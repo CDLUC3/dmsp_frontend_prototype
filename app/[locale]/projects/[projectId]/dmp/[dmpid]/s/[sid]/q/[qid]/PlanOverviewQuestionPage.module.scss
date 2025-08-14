@@ -195,7 +195,15 @@
 /*End 'Required by funder' info icon tooltip*/
 
 .comment {
-  margin-bottom: 3rem;
+  margin-bottom: var(--space-8);
+
+  h4 {
+    margin: 0;
+  }
+
+  .createdDate {
+    margin: 0;
+  }
 }
 
 .leaveComment {

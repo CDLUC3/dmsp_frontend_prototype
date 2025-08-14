@@ -193,7 +193,10 @@
       "savedJustNow": "Salvo há pouco",
       "lastSavedOneMinuteAgo": "Última salvo há 1 minuto",
       "lastSaves": "Salvo há {minutes} minutos atrás"
-    }
+    },
+    "you": "você",
+    "admin": "administrador",
+    "edited": "editado"
   },
   "ProjectsProjectFunding": {
     "buttons": {
