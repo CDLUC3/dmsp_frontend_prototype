@@ -51,8 +51,30 @@ describe('RadioButtonsQuestionComponent', () => {
 
     expect(screen.getByText('Starting number')).toBeInTheDocument();
     expect(screen.getByText('Ending number')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('2023-01-01')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('2023-12-31')).toBeInTheDocument();
+
+    // These are now very specific because the selector was two broad matching both
+    // a text element and a hidden input element and produced errors in the tests.
+    const beginInput = screen
+        .getAllByDisplayValue('2023-01-01')
+        .find(
+            el =>
+                el.classList.contains('react-aria-Input') &&
+                el.getAttribute('name') === 'startDate' &&
+                el.getAttribute('type') === 'text'
+        );
+
+    expect(beginInput).toBeInTheDocument();
+
+    const endInput = screen
+        .getAllByDisplayValue('2023-12-31')
+        .find(
+            el =>
+                el.classList.contains('react-aria-Input') &&
+                el.getAttribute('name') === 'endDate' &&
+                el.getAttribute('type') === 'text'
+        );
+
+    expect(endInput).toBeInTheDocument();
   });
 
   it('should call mockHandleDateChange when start input value change', async () => {
