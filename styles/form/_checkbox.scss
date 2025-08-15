@@ -1,3 +1,4 @@
+@use '@/styles/responsive.scss' as r;
 
 .react-aria-Checkbox {
   --selected-color: var(--highlight-background);
@@ -92,7 +93,7 @@
   margin-bottom: 2rem;
   font-size: var(--fs-base);
 
-  @media (max-width: 768px) {
+  @include r.device(md) {
     grid-template-columns: 1fr;
   }
 
@@ -126,10 +127,10 @@
   .checkbox-wrapper {
     display: inline-flex;
     white-space: nowrap;
-    align-items: start;
+    align-items: flex-start;
     gap: 0.25rem;
 
-    @media (max-width: 768px) {
+    @include r.device(md) {
       white-space: wrap;
     }
   }
@@ -155,7 +156,7 @@
     .react-aria-Checkbox {
       margin-bottom: 0;
       display: inline-flex;
-      align-items: start;
+      align-items: flex-start;
       gap: 0.5rem;
     }
   }
