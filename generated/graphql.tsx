@@ -2252,8 +2252,8 @@ export type Query = {
   publishedConditionsForQuestion?: Maybe<Array<Maybe<VersionedQuestionCondition>>>;
   /** Get a specific VersionedQuestion based on versionedQuestionId */
   publishedQuestion?: Maybe<VersionedQuestion>;
-  /** Search for VersionedQuestions that belong to Section specified by sectionId */
-  publishedQuestions?: Maybe<Array<Maybe<VersionedQuestion>>>;
+  /** Search for VersionedQuestions that belong to Section specified by sectionId and answer status for a plan */
+  publishedQuestions?: Maybe<Array<Maybe<VersionedQuestionWithFilled>>>;
   /** Fetch a specific VersionedSection */
   publishedSection?: Maybe<VersionedSection>;
   /** Search for VersionedSection whose name contains the search term */
@@ -2480,6 +2480,7 @@ export type QueryPublishedQuestionArgs = {
 
 
 export type QueryPublishedQuestionsArgs = {
+  planId: Scalars['Int']['input'];
   versionedSectionId: Scalars['Int']['input'];
 };
 
@@ -3592,6 +3593,49 @@ export type VersionedQuestionErrors = {
   versionedTemplateId?: Maybe<Scalars['String']['output']>;
 };
 
+/** A snapshot of a Question when it became published, but includes extra information about if answer is filled. */
+export type VersionedQuestionWithFilled = {
+  __typename?: 'VersionedQuestionWithFilled';
+  /** The timestamp when the Object was created */
+  created?: Maybe<Scalars['String']['output']>;
+  /** The user who created the Object */
+  createdById?: Maybe<Scalars['Int']['output']>;
+  /** The display order of the VersionedQuestion */
+  displayOrder?: Maybe<Scalars['Int']['output']>;
+  /** Errors associated with the Object */
+  errors?: Maybe<VersionedQuestionErrors>;
+  /** Guidance to complete the question */
+  guidanceText?: Maybe<Scalars['String']['output']>;
+  /** Indicates whether the question has an answer */
+  hasAnswer?: Maybe<Scalars['Boolean']['output']>;
+  /** The unique identifer for the Object */
+  id?: Maybe<Scalars['Int']['output']>;
+  /** The JSON representation of the question type */
+  json?: Maybe<Scalars['String']['output']>;
+  /** The timestamp when the Object was last modifed */
+  modified?: Maybe<Scalars['String']['output']>;
+  /** The user who last modified the Object */
+  modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** Id of the original question that was versioned */
+  questionId: Scalars['Int']['output'];
+  /** This will be used as a sort of title for the Question */
+  questionText?: Maybe<Scalars['String']['output']>;
+  /** To indicate whether the question is required to be completed */
+  required?: Maybe<Scalars['Boolean']['output']>;
+  /** Requirements associated with the Question */
+  requirementText?: Maybe<Scalars['String']['output']>;
+  /** Sample text to possibly provide a starting point or example to answer question */
+  sampleText?: Maybe<Scalars['String']['output']>;
+  /** Whether or not the sample text should be used as the default answer for this question */
+  useSampleTextAsDefault?: Maybe<Scalars['Boolean']['output']>;
+  /** The conditional logic associated with this VersionedQuestion */
+  versionedQuestionConditions?: Maybe<Array<VersionedQuestionCondition>>;
+  /** The unique id of the VersionedSection that the VersionedQuestion belongs to */
+  versionedSectionId: Scalars['Int']['output'];
+  /** The unique id of the VersionedTemplate that the VersionedQuestion belongs to */
+  versionedTemplateId: Scalars['Int']['output'];
+};
+
 /** A snapshot of a Section when it became published. */
 export type VersionedSection = {
   __typename?: 'VersionedSection';
@@ -4183,11 +4227,12 @@ export type QuestionQueryVariables = Exact<{
 export type QuestionQuery = { __typename?: 'Query', question?: { __typename?: 'Question', id?: number | null, guidanceText?: string | null, displayOrder?: number | null, questionText?: string | null, json?: string | null, requirementText?: string | null, sampleText?: string | null, useSampleTextAsDefault?: boolean | null, sectionId: number, templateId: number, isDirty?: boolean | null, required?: boolean | null, errors?: { __typename?: 'QuestionErrors', general?: string | null, questionText?: string | null, requirementText?: string | null, sampleText?: string | null, displayOrder?: string | null, questionConditionIds?: string | null, sectionId?: string | null, templateId?: string | null } | null } | null };
 
 export type PublishedQuestionsQueryVariables = Exact<{
+  planId: Scalars['Int']['input'];
   versionedSectionId: Scalars['Int']['input'];
 }>;
 
 
-export type PublishedQuestionsQuery = { __typename?: 'Query', publishedQuestions?: Array<{ __typename?: 'VersionedQuestion', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number } | null> | null };
+export type PublishedQuestionsQuery = { __typename?: 'Query', publishedQuestions?: Array<{ __typename?: 'VersionedQuestionWithFilled', id?: number | null, questionText?: string | null, displayOrder?: number | null, guidanceText?: string | null, requirementText?: string | null, sampleText?: string | null, versionedSectionId: number, versionedTemplateId: number, hasAnswer?: boolean | null } | null> | null };
 
 export type PublishedQuestionQueryVariables = Exact<{
   versionedQuestionId: Scalars['Int']['input'];
@@ -6852,8 +6897,8 @@ export type QuestionLazyQueryHookResult = ReturnType<typeof useQuestionLazyQuery
 export type QuestionSuspenseQueryHookResult = ReturnType<typeof useQuestionSuspenseQuery>;
 export type QuestionQueryResult = Apollo.QueryResult<QuestionQuery, QuestionQueryVariables>;
 export const PublishedQuestionsDocument = gql`
-    query PublishedQuestions($versionedSectionId: Int!) {
-  publishedQuestions(versionedSectionId: $versionedSectionId) {
+    query PublishedQuestions($planId: Int!, $versionedSectionId: Int!) {
+  publishedQuestions(planId: $planId, versionedSectionId: $versionedSectionId) {
     id
     questionText
     displayOrder
@@ -6862,6 +6907,7 @@ export const PublishedQuestionsDocument = gql`
     sampleText
     versionedSectionId
     versionedTemplateId
+    hasAnswer
   }
 }
     `;
@@ -6878,6 +6924,7 @@ export const PublishedQuestionsDocument = gql`
  * @example
  * const { data, loading, error } = usePublishedQuestionsQuery({
  *   variables: {
+ *      planId: // value for 'planId'
  *      versionedSectionId: // value for 'versionedSectionId'
  *   },
  * });

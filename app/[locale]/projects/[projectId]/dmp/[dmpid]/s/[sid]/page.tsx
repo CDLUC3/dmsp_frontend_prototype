@@ -27,7 +27,7 @@ interface VersionedQuestion {
   id: string;
   title: string;
   link: string;
-  isAnswered: boolean;
+  hasAnswer: boolean;
 }
 
 const PlanOverviewSectionPage: React.FC = () => {
@@ -45,7 +45,7 @@ const PlanOverviewSectionPage: React.FC = () => {
   const planId = parseInt(dmpId);
 
   const { data: questionsData, loading: questionsLoading, error: questionsError } = usePublishedQuestionsQuery({
-    variables: { versionedSectionId },
+    variables: { planId, versionedSectionId },
     skip: !versionedSectionId
   });
 
@@ -108,7 +108,7 @@ const PlanOverviewSectionPage: React.FC = () => {
     link: routePath('projects.dmp.versionedQuestion.detail', {
       projectId, dmpId, versionedSectionId, versionedQuestionId: String(question.id)
     }),
-    isAnswered: false
+    hasAnswer: question.hasAnswer || false
   })) || [];
 
   const plan = {
@@ -243,25 +243,25 @@ const PlanOverviewSectionPage: React.FC = () => {
                         <p aria-live="polite">
                           <span
                             className={styles.progressIndicator}
-                            aria-label={`Question status: ${question.isAnswered ? 'Completed' : 'Not started'}`}
+                            aria-label={`Question status: ${question.hasAnswer ? 'Completed' : 'Not started'}`}
                           >
                             <DmpIcon
-                              icon={question.isAnswered ? 'check_circle' : 'cancel'}
-                              classes={`${styles.progressIcon} ${!question.isAnswered ? styles.progressIconInactive : ''}`}
+                              icon={question.hasAnswer ? 'check_circle' : 'cancel'}
+                              classes={`${styles.progressIcon} ${!question.hasAnswer ? styles.progressIconInactive : ''}`}
                             />
-                            {question.isAnswered ? t('question.answered') : t('question.notAnswered')}
+                            {question.hasAnswer ? t('question.answered') : t('question.notAnswered')}
                           </span>
                         </p>
                       </div>
                       <Link
                         href={question.link}
                         aria-label={t('sections.ariaLabel', {
-                          action: question.isAnswered ? t('sections.update') : t('sections.start'),
+                          action: question.hasAnswer ? t('sections.update') : t('sections.start'),
                           title: question.title
                         })}
                         className="react-aria-Button react-aria-Button--secondary"
                       >
-                        {question.isAnswered ? t('sections.update') : t('sections.start')}
+                        {question.hasAnswer ? t('sections.update') : t('sections.start')}
                       </Link>
                     </div>
                   </section>
