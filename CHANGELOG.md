@@ -10,6 +10,7 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Update the section questions to show Answered/Not Answered status and buttons Start/Update [#670]
 - Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
 - Updated unit test for `Plan Create` to use new `MockProvider` [#686]
 - Updated all plan pages to use the proper section and question ids. They were using `Section.id` and `Question.id` but should be using `VersionedSection.id` and `VersionedQuestion.id` since the plan is based on a published template and so should be referencing the components of the published version
@@ -23,6 +24,8 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Flapping test `should render PlanCreate component with funder checkbox` required additional clearing of mocks to perform consistently.
+- Bad test on DateRangeQuestionComponent tests that were consistently failing because of multiple matches in my environment.
 - Fixed a bug on `Section` page where `question` text was used, when we should be referring to `section` instead [#666]
 - Updated the `stripHtmlTags` function to include an option to strip only specific tags [#662]
 - Updated the `Question details` page to strip the `questionText` of `HTML` tags [#662]
