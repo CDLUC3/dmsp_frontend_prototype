@@ -3864,6 +3864,14 @@ export type UpdateAnswerCommentMutationVariables = Exact<{
 
 export type UpdateAnswerCommentMutation = { __typename?: 'Mutation', updateAnswerComment?: { __typename?: 'AnswerComment', commentText: string, answerId: number, id?: number | null, errors?: { __typename?: 'AnswerCommentErrors', general?: string | null, commentText?: string | null, answerId?: string | null } | null } | null };
 
+export type AddAnswerCommentMutationVariables = Exact<{
+  answerId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+}>;
+
+
+export type AddAnswerCommentMutation = { __typename?: 'Mutation', addAnswerComment?: { __typename?: 'AnswerComment', commentText: string, id?: number | null, answerId: number, errors?: { __typename?: 'AnswerCommentErrors', general?: string | null } | null } | null };
+
 export type RemoveFeedbackCommentMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
   planFeedbackCommentId: Scalars['Int']['input'];
@@ -3880,6 +3888,16 @@ export type UpdateFeedbackCommentMutationVariables = Exact<{
 
 
 export type UpdateFeedbackCommentMutation = { __typename?: 'Mutation', updateFeedbackComment?: { __typename?: 'PlanFeedbackComment', answerId?: number | null, commentText?: string | null, id?: number | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null } | null };
+
+export type AddFeedbackCommentMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  planFeedbackId: Scalars['Int']['input'];
+  answerId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+}>;
+
+
+export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null } | null };
 
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4610,6 +4628,45 @@ export function useUpdateAnswerCommentMutation(baseOptions?: Apollo.MutationHook
 export type UpdateAnswerCommentMutationHookResult = ReturnType<typeof useUpdateAnswerCommentMutation>;
 export type UpdateAnswerCommentMutationResult = Apollo.MutationResult<UpdateAnswerCommentMutation>;
 export type UpdateAnswerCommentMutationOptions = Apollo.BaseMutationOptions<UpdateAnswerCommentMutation, UpdateAnswerCommentMutationVariables>;
+export const AddAnswerCommentDocument = gql`
+    mutation AddAnswerComment($answerId: Int!, $commentText: String!) {
+  addAnswerComment(answerId: $answerId, commentText: $commentText) {
+    commentText
+    id
+    answerId
+    errors {
+      general
+    }
+  }
+}
+    `;
+export type AddAnswerCommentMutationFn = Apollo.MutationFunction<AddAnswerCommentMutation, AddAnswerCommentMutationVariables>;
+
+/**
+ * __useAddAnswerCommentMutation__
+ *
+ * To run a mutation, you first call `useAddAnswerCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAnswerCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAnswerCommentMutation, { data, loading, error }] = useAddAnswerCommentMutation({
+ *   variables: {
+ *      answerId: // value for 'answerId'
+ *      commentText: // value for 'commentText'
+ *   },
+ * });
+ */
+export function useAddAnswerCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddAnswerCommentMutation, AddAnswerCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddAnswerCommentMutation, AddAnswerCommentMutationVariables>(AddAnswerCommentDocument, options);
+      }
+export type AddAnswerCommentMutationHookResult = ReturnType<typeof useAddAnswerCommentMutation>;
+export type AddAnswerCommentMutationResult = Apollo.MutationResult<AddAnswerCommentMutation>;
+export type AddAnswerCommentMutationOptions = Apollo.BaseMutationOptions<AddAnswerCommentMutation, AddAnswerCommentMutationVariables>;
 export const RemoveFeedbackCommentDocument = gql`
     mutation RemoveFeedbackComment($planId: Int!, $planFeedbackCommentId: Int!) {
   removeFeedbackComment(
@@ -4696,6 +4753,51 @@ export function useUpdateFeedbackCommentMutation(baseOptions?: Apollo.MutationHo
 export type UpdateFeedbackCommentMutationHookResult = ReturnType<typeof useUpdateFeedbackCommentMutation>;
 export type UpdateFeedbackCommentMutationResult = Apollo.MutationResult<UpdateFeedbackCommentMutation>;
 export type UpdateFeedbackCommentMutationOptions = Apollo.BaseMutationOptions<UpdateFeedbackCommentMutation, UpdateFeedbackCommentMutationVariables>;
+export const AddFeedbackCommentDocument = gql`
+    mutation AddFeedbackComment($planId: Int!, $planFeedbackId: Int!, $answerId: Int!, $commentText: String!) {
+  addFeedbackComment(
+    planId: $planId
+    planFeedbackId: $planFeedbackId
+    answerId: $answerId
+    commentText: $commentText
+  ) {
+    id
+    answerId
+    errors {
+      general
+    }
+  }
+}
+    `;
+export type AddFeedbackCommentMutationFn = Apollo.MutationFunction<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>;
+
+/**
+ * __useAddFeedbackCommentMutation__
+ *
+ * To run a mutation, you first call `useAddFeedbackCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddFeedbackCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addFeedbackCommentMutation, { data, loading, error }] = useAddFeedbackCommentMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      planFeedbackId: // value for 'planFeedbackId'
+ *      answerId: // value for 'answerId'
+ *      commentText: // value for 'commentText'
+ *   },
+ * });
+ */
+export function useAddFeedbackCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>(AddFeedbackCommentDocument, options);
+      }
+export type AddFeedbackCommentMutationHookResult = ReturnType<typeof useAddFeedbackCommentMutation>;
+export type AddFeedbackCommentMutationResult = Apollo.MutationResult<AddFeedbackCommentMutation>;
+export type AddFeedbackCommentMutationOptions = Apollo.BaseMutationOptions<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>;
 export const AddPlanDocument = gql`
     mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {

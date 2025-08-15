@@ -192,7 +192,10 @@
       "unsavedChanges": "Unsaved changes",
       "savedJustNow": "Saved just now",
       "lastSavedOneMinuteAgo": "Last saved 1 minute ago",
-      "lastSaves": "Last saved {minutes} minutes ago"
+      "lastSaves": "Last saved {minutes} minutes ago",
+      "noComments": "There are no comments",
+      "sampleTextAdded": "Sample text added",
+      "commentSent": "Comment sent"
     },
     "you": "you",
     "admin": "Admin",

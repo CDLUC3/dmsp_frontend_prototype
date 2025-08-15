@@ -65,3 +65,14 @@ mutation UpdateAnswerComment($answerCommentId: Int!, $answerId: Int!, $commentTe
     }
   }
 }
+
+mutation AddAnswerComment($answerId: Int!, $commentText: String!) {
+  addAnswerComment(answerId: $answerId, commentText: $commentText) {
+    commentText
+    id
+    answerId
+    errors {
+      general
+    }
+  }
+}

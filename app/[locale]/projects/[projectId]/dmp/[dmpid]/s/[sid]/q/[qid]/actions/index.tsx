@@ -4,3 +4,5 @@ export { removeAnswerCommentAction } from './removeAnswerCommentAction';
 export { removeFeedbackCommentAction } from './removeFeedbackCommentAction';
 export { updateFeedbackCommentAction } from './updateFeedbackCommentAction';
 export { updateAnswerCommentAction } from './updateAnswerCommentAction';
+export { addAnswerCommentAction } from './addAnswerCommentAction';
+export { addFeedbackCommentAction } from './addFeedbackCommentAction';
