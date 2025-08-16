@@ -4,6 +4,7 @@ query Me{
     givenName
     surName
     languageId
+    role
     emails {
       id
       email

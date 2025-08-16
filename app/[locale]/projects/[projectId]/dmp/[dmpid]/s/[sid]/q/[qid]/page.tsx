@@ -118,13 +118,20 @@ interface MutationErrorsInterface {
   versionedQuestionId: string | null;
   versionedSectionId: string | null;
 }
+
 interface PlanData {
   funder: string;
   funderName: string;
   title: string;
+  openFeedbackRounds: boolean;
+  feedbackId?: number | null;
+  orgId: string;
+  collaborators: number[];
+  planOwner: number | null;
 }
 interface User {
   __typename?: "User";
+  id?: number | null;
   surName?: string | null;
   givenName?: string | null;
 }
@@ -161,6 +168,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
+  // To scroll to bottom of comment list whenever new comment added
+  const commentsEndRef = useRef<HTMLDivElement | null>(null);
+
+
   // VersionedQuestion, plan and versionedSection states
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
@@ -175,6 +186,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const [editingCommentText, setEditingCommentText] = useState<string>('');
   const [newCommentText, setNewCommentText] = useState<string>('');
   const [answerId, setAnswerId] = useState<number | null>(null);
+  const [canAddComments, setCanAddComments] = useState<boolean>(false);
 
 
   // Drawer states
@@ -240,8 +252,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Run me query to get user's name
   const { data: me } = useMeQuery();
-
-  console.log("ME", me);
 
   // Get Plan using planId
   const { data: planData, loading: planQueryLoading, error: planQueryError } = usePlanQuery(
@@ -347,68 +357,96 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Call Server Action addAnswerCommentAction or addFeedbackCommentAction to add comment
   const addComment = async (comment: MergedComment) => {
+    let response;
+    try {
+      if (comment.isAnswerComment) {
+        response = await addAnswerCommentAction({
+          answerId: Number(comment?.answerId),
+          commentText: comment?.commentText ?? ''
+        });
+      } else if (plan?.feedbackId) {
+        response = await addFeedbackCommentAction({
+          planId: Number(dmpId),
+          planFeedbackId: plan.feedbackId,
+          answerId: Number(comment?.answerId),
+          commentText: comment?.commentText ?? ''
+        });
+      }
 
-    // try {
-    //   const response = comment.isAnswerComment
-    //     ? await addAnswerCommentAction({
-    //       answerId: Number(comment?.answerId),
-    //       commentText: comment?.commentText ?? ''
-    //     })
-    //     : await addFeedbackCommentAction({
-    //       planId: Number(dmpId),
-    //       planFeedbackId: comment?.planFeedbackId,
-    //       answerId: Number(comment?.answerId),
-    //       commentText: comment?.commentText ?? ''
-    //     });
+      if (response?.redirect) {
+        router.push(response.redirect);
+      }
 
-    //   if (response.redirect) {
-    //     router.push(response.redirect);
-    //   }
-
-    //   return {
-    //     success: response.success,
-    //     errors: response.errors,
-    //     data: response.data
-    //   }
-    // } catch (error) {
-    //   logECS('error', 'addComment', {
-    //     error,
-    //     url: {
-    //       path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
-    //     }
-    //   });
-    // }
-
-    return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: null
-    };
+      if (response) {
+        return {
+          success: response.success,
+          errors: response.errors,
+          data: response.data
+        };
+      }
+      return {
+        success: false,
+        errors: [Global('messaging.somethingWentWrong')],
+        data: null
+      };
+    } catch (error) {
+      logECS('error', 'addComment', {
+        error,
+        url: {
+          path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
+        }
+      });
+    }
   }
+
+
 
   // When the user adds a comment in the Comments drawer panel
   const handleAddComment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    let optimisticComment: MergedComment;
     const tempId = Date.now() * -1;
 
-    const optimisticComment: MergedComment = {
-      __typename: 'AnswerComment',
-      id: tempId,
-      commentText: newCommentText,
-      answerId: answerId,
-      created: new Date().getTime().toString(),
-      modified: null,
-      type: 'answer',
-      isAnswerComment: true,
-      isFeedbackComment: false,
-      user: {
-        __typename: 'User',
-        givenName: me?.me?.givenName,
-        surName: me?.me?.surName
-      },
-      PlanFeedback: null
-    };
+    // If user is an admin and there is an open round of feedback, then save to feedback comments
+    if ((['ADMIN', 'SUPERADMIN'].includes(me?.me?.role as string)) && plan?.orgId && plan?.openFeedbackRounds) {
+      optimisticComment = {
+        __typename: 'PlanFeedbackComment',
+        id: tempId,
+        commentText: newCommentText,
+        answerId: answerId,
+        created: new Date().getTime().toString(),
+        modified: null,
+        type: 'feedback',
+        isAnswerComment: false,
+        isFeedbackComment: true,
+        user: {
+          __typename: 'User',
+          id: me?.me?.id,
+          givenName: me?.me?.givenName,
+          surName: me?.me?.surName
+        },
+        PlanFeedback: null
+      };
+    } else {
+      optimisticComment = {
+        __typename: 'AnswerComment',
+        id: tempId,
+        commentText: newCommentText,
+        answerId: answerId,
+        created: new Date().getTime().toString(),
+        modified: null,
+        type: 'answer',
+        isAnswerComment: true,
+        isFeedbackComment: false,
+        user: {
+          __typename: 'User',
+          id: me?.me?.id,
+          givenName: me?.me?.givenName,
+          surName: me?.me?.surName
+        },
+        PlanFeedback: null
+      };
+    }
 
     const originalComments = [...mergedComments];
 
@@ -417,42 +455,35 @@ const PlanOverviewQuestionPage: React.FC = () => {
       return parseInt(a.created || '0', 10) - parseInt(b.created || '0', 10);
     }));
 
+    //Empty out the "Leave comment" field
+    setNewCommentText('');
+
     // Call mutation
     const result = await addComment(optimisticComment);
 
-    if (!result.success) {
+    if (!result?.success) {
       // Rollback: restore the original comments array
       setMergedComments(originalComments);
 
-      const errors = result.errors;
+      const errors = result?.errors;
       if (errors) {
         setErrors(errors)
       }
     } else {
       // On success
-      // if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
-      //   const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
-      //   const extractedErrors = getExtractedErrorValues(mutationErrors);
-      //   // Rollback: restore the original comments array
-      //   setMergedComments(originalComments);
+      if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
+        const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
+        const extractedErrors = getExtractedErrorValues(mutationErrors);
+        // Rollback: restore the original comments array
+        setMergedComments(originalComments);
 
-      //   // Handle errors as an object with general or field-level errors
-      //   setErrors(extractedErrors)
+        // Handle errors as an object with general or field-level errors
+        setErrors(extractedErrors)
 
-      // } else {
-      //   // Will comments update automatically or do we need to refetch answers?
-      // }
+      }
     }
 
-    // Close comments drawer
-    closeCurrentDrawer();
-
-    // Return focus to sample text button
-    if (openCommentsButtonRef.current) {
-      openCommentsButtonRef.current.focus();
-    }
-
-    // message user
+    // message user when comment successfully added
     toastState.add(t('messages.commentSent'), { type: 'success', timeout: 3000 });
   }
 
@@ -527,10 +558,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
         // Handle errors as an object with general or field-level errors
         setErrors(extractedErrors)
 
-      } else {
-        // Will comments update automatically or do we need to refetch answers?
       }
     }
+
+    // message user when comment successfully deleted
+    toastState.add(t('messages.commentDeleted'), { type: 'success', timeout: 3000 });
   };
 
 
@@ -633,6 +665,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
         setCommentsDrawerOpen(true);
       }
     }
+    // message user when comment successfully updated
+    toastState.add(t('messages.commentUpdated'), { type: 'success', timeout: 3000 });
   };
 
   const handleCancelEdit = () => {
@@ -1225,15 +1259,23 @@ const PlanOverviewQuestionPage: React.FC = () => {
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
-        title: planData?.plan?.project?.title ?? ''
+        title: planData?.plan?.project?.title ?? '',
+        openFeedbackRounds: planData?.plan?.feedback?.some(f => f.completed == null) ?? false, // If any of the feedback rounds have not yet been completed
+        feedbackId: planData?.plan?.feedback?.find(item => item.completed === null)?.id, //Get first feedback id where it has not yet been completed
+        orgId: planData?.plan?.versionedTemplate?.owner?.uri ?? '', //affiliation id for plan
+        collaborators: planData?.plan?.project?.collaborators
+          ?.map(c => c?.user?.id)
+          .filter((id): id is number => id != null) ?? [], //filter out any null or undefined for projectCollaborators
+        planOwner: planData?.plan?.createdById ?? null, //plan owner
       }
+
       setPlan(planInfo);
     };
   }, [planData]);
 
 
-  //Wait for answerData and questionType, then prefill the question with existing answer
   useEffect(() => {
+    //Wait for answerData and questionType, then prefill the question with existing answer
     const json = answerData?.answerByVersionedQuestionId?.json;
     if (json && questionType) {
       const parsed = JSON.parse(json);
@@ -1241,6 +1283,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         prefillAnswer(parsed.answer, questionType);
       }
     }
+
     // Combine both answerComments and feedbackComments into one, and save in state after ordering
     const answerComments = answerData?.answerByVersionedQuestionId?.comments;
     const feedbackComments = answerData?.answerByVersionedQuestionId?.feedbackComments;
@@ -1269,8 +1312,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       return parseInt(a.created, 10) - parseInt(b.created, 10); // Oldest first
     });
 
-    // Sort based on 
-
     setMergedComments(mergedAnswerFeedbackComments);
     setAnswerId(answerData?.answerByVersionedQuestionId?.id ?? null);
 
@@ -1294,7 +1335,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
     return () => clearTimeout(autoSaveTimeoutRef.current);
   }, [formData, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
-
 
 
   // Auto-save on window blur and before unload
@@ -1337,9 +1377,34 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    console.log("answer comments", answerData?.answerByVersionedQuestionId?.comments);
-    console.log("Answer data", answerData?.answerByVersionedQuestionId);
-  }, [answerData])
+    if (me && plan) {
+      // Is this user an admin?
+      if (['ADMIN', 'SUPERADMIN'].includes(me?.me?.role as string)) {
+        // Does this admin belong to the same org as plan, and are there any feedback rounds open?
+        const meURI = me?.me?.affiliation?.uri;
+        const orgId = plan?.orgId;
+        if ((meURI === orgId) && plan?.openFeedbackRounds) {
+          setCanAddComments(true);
+        }
+        // If the current user is a project collaborator
+      } else if (plan?.collaborators.includes(me?.me?.id as number)) {
+        setCanAddComments(true);
+        // The user is the owner of the plan
+      } else if ((plan?.planOwner === me?.me?.id)) {
+        setCanAddComments(true);
+      } else {
+        setCanAddComments(false)
+      }
+    }
+
+  }, [me, planData, plan])
+
+
+  useEffect(() => {
+    if (commentsEndRef.current) {
+      commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [mergedComments]); // run whenever comments change
 
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
@@ -1459,6 +1524,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
             {/**Requirements by organization */}
             <section aria-label={"Requirements"}>
+              {/**TODO: need to get this data from backend */}
               <h3 className={"h4"}>Requirements by University of California</h3>
               <p>
                 The university requires data and metadata to be cleared by the ethics
@@ -1498,8 +1564,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
                 )}
                 <div>
                   <div className={styles.buttonsRow}>
-                    {/**Only include sample text button for textArea question types */}
-                    {questionType === 'textArea' && (
+                    {/**Only include sample text button for textArea question types and if sampleText is not empty */}
+                    {(questionType === 'textArea' && question?.sampleText) && (
                       <div className="">
                         <Button
                           ref={openSampleTextButtonRef}
@@ -1518,7 +1584,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
                         className={`${styles.buttonSmall} ${mergedComments.length > 0 ? styles.buttonWithComments : null}`}
                         onPress={toggleCommentsDrawer}
                       >
-                        4 Comments
+                        {t('buttons.commentWithNumber', { number: mergedComments.length })}
                       </Button>
                     </div>
                   </div>
@@ -1675,7 +1741,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           className={styles.drawerPanelWrapper}
           title={PlanOverview('headings.comments')}
         >
-          <div>
+
+          <div className={styles.commentsWrapper}>
             {mergedComments?.map((comment, index) => {
               const formattedCreatedDate = comment.created ? formatRelativeFromTimestamp(comment.created, locale) : '';
               const isEditing = editingCommentId === comment.id;
@@ -1700,7 +1767,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
                       onChange={(e) => setEditingCommentText(e.target.value)}
                       className={styles.editTextarea}
                       rows={3}
-                      autoFocus
+                      ref={(el) => {
+                        if (el) {
+                          el.focus({ preventScroll: true }); {/**focus the text without scrolling. If we use autofocus, it will scroll the field behind the sticky Add Comment section */ }
+                        }
+                      }}
                     />
                   ) : (
                     <p>{comment.commentText}</p>
@@ -1726,43 +1797,58 @@ const PlanOverviewQuestionPage: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        <Button
-                          className={`${styles.deEmphasize} link`}
-                          type="button"
-                          onPress={() => handleEditComment(comment)}
-                        >
-                          {Global('buttons.edit')}
-                        </Button>
-                        <Button
-                          className={`${styles.deEmphasize} link`}
-                          type="button"
-                          onPress={() => handleDeleteComment(comment)}
-                        >
-                          {Global('buttons.delete')}
-                        </Button>
+                        {/**Only display edit button if it's the user's own comment */}
+                        {comment?.user?.id === me?.me?.id && (
+                          <Button
+                            className={`${styles.deEmphasize} link`}
+                            type="button"
+                            onPress={() => handleEditComment(comment)}
+                          >
+                            {Global('buttons.edit')}
+                          </Button>
+                        )}
+
+                        {/**Only display the delete button for owner of plan or the user who entered the comment */}
+                        {(comment?.user?.id === me?.me?.id || plan?.planOwner === me?.me?.id) && (
+                          <Button
+                            className={`${styles.deEmphasize} link`}
+                            type="button"
+                            onPress={() => handleDeleteComment(comment)}
+                          >
+                            {Global('buttons.delete')}
+                          </Button>
+                        )}
+
                       </>
                     )}
                   </div>
                 </div>
               )
             })}
+            <div ref={commentsEndRef} />
           </div>
 
-          <div className={styles.leaveComment}>
-            <h2>{PlanOverview('headings.leaveAComment')}</h2>
-            <Form onSubmit={(e) => handleAddComment(e)}>
-              <TextField>
-                <Label>{me ? (`${me?.me?.givenName} ${me?.me?.surName}`) : ''}{' '}{`(${t('you')})`}</Label>
-                <TextArea
-                  onChange={(e) => setNewCommentText(e.target.value)}
-                />
-              </TextField>
-              <div>
-                <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
-                <p>{PlanOverview('page.participantsWillBeNotified')}</p>
-              </div>
-            </Form>
-          </div>
+
+          {/**Can only add comments if the user has the correct permissions */}
+          {canAddComments && (
+            <div className={styles.leaveComment}>
+              <h2>{PlanOverview('headings.leaveAComment')}</h2>
+              <Form onSubmit={(e) => handleAddComment(e)}>
+                <TextField>
+                  <Label>{me ? (`${me?.me?.givenName} ${me?.me?.surName}`) : ''}{' '}{`(${t('you')})`}</Label>
+                  <TextArea
+                    onChange={e => setNewCommentText(e.target.value)}
+                    value={newCommentText}
+                  />
+                </TextField>
+                <div>
+                  <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
+                  <p>{PlanOverview('page.participantsWillBeNotified')}</p>
+                </div>
+              </Form>
+            </div>
+          )}
+
         </DrawerPanel>
       </LayoutWithPanel >
     </>

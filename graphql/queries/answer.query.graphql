@@ -15,6 +15,7 @@ query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQue
       created
       modified
       user {
+        id
         surName
         givenName
       }
@@ -29,6 +30,7 @@ query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQue
         id
       }
       user {
+        id
         surName
         givenName
       }

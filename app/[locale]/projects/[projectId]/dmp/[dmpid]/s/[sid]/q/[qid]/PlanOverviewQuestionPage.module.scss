@@ -144,9 +144,20 @@
 }
 
 .drawerPanelWrapper {
-  min-height: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden; // Prevent outer scrolling
+  
+  // Override the DrawerPanel's default scrolling behavior
+  // Target the drawer-scrollable-content that wraps this component so that we can scroll comments list
+  // without seeing the scrollbar run alongside the sticky "Leave a comment" section
+  :global(.drawer-scrollable-content) {
+    overflow: hidden !important; // Disable the drawer's scrolling
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
 }
 
 /* For link to jump down to Guidance section*/
@@ -206,10 +217,33 @@
   }
 }
 
+.commentsWrapper {
+  flex: 1;
+  overflow-y: auto; // Only comments scroll
+  padding-right: 0.5rem; // To avoid scrollbar overlap
+  padding-bottom: 1rem; // Add some breathing room at bottom
+  min-height: 0; // Important: allows flex item to shrink below content size
+}
+
 .leaveComment {
-  border-top: 1px solid black;
-  margin-top: 2rem;
+  border-top: 1px solid var(--border-color, #e2e8f0); // Use a CSS variable or lighter color
   background-color: white;
-  position: sticky;
-  bottom: 0;
+  flex-shrink: 0; // Prevent shrinking
+  padding: 1rem;
+  position: sticky; // Keep this
+  bottom: 0; // Stick to bottom
+  z-index: 1; // Ensure it stays on top
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); // Optional: add subtle shadow for separation
+}
+
+.comment {
+  margin-bottom: var(--space-8);
+
+  h4 {
+    margin: 0;
+  }
+
+  .createdDate {
+    margin: 0;
+  }
 }

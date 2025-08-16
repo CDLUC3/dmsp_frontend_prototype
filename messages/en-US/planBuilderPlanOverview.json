@@ -195,7 +195,12 @@
       "lastSaves": "Last saved {minutes} minutes ago",
       "noComments": "There are no comments",
       "sampleTextAdded": "Sample text added",
-      "commentSent": "Comment sent"
+      "commentSent": "Comment successfully added",
+      "commentedDeleted": "Comment successfully deleted",
+      "commentUpdated": "Comment successfully updated"
+    },
+    "buttons": {
+      "commentWithNumber": "{number} Comments"
     },
     "you": "you",
     "admin": "Admin",
