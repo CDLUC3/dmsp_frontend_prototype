@@ -164,18 +164,6 @@
   }
 }
 
-// Scrollable content for both mobile and desktop
-.drawer-scrollable-content {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  
-  > :first-child { 
-    margin-top: 0; 
-  }
-}
-
 // Add mask to rest of content when drawer panel is open
 .layout-mask::before { 
   content: "";

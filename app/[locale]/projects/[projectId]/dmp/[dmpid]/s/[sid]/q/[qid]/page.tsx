@@ -127,7 +127,7 @@ interface PlanData {
   feedbackId?: number | null;
   orgId: string;
   collaborators: number[];
-  planOwner: number | null;
+  planOwners: number[] | null;
 }
 interface User {
   __typename?: "User";
@@ -1256,6 +1256,19 @@ const PlanOverviewQuestionPage: React.FC = () => {
         router.push('/not-found')
       }
 
+      const planOwners = [
+        // Include the original plan creator if it exists
+        ...(planData?.plan?.createdById ? [planData.plan.createdById] : []),
+        // Include collaborators with role="OWN"
+        ...(planData?.plan?.project?.collaborators
+          ?.filter(c => c?.accessLevel === "OWN")
+          ?.map(c => c?.user?.id)
+          ?.filter((id): id is number => id != null) ?? [])
+      ];
+
+      // Remove duplicates from planOwners in case the creator is also listed as a collaborator with OWN role
+      const uniquePlanOwners = [...new Set(planOwners)];
+
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
@@ -1266,7 +1279,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         collaborators: planData?.plan?.project?.collaborators
           ?.map(c => c?.user?.id)
           .filter((id): id is number => id != null) ?? [], //filter out any null or undefined for projectCollaborators
-        planOwner: planData?.plan?.createdById ?? null, //plan owner
+        planOwners: planOwners ?? null, //plan owner
       }
 
       setPlan(planInfo);
@@ -1389,8 +1402,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
         // If the current user is a project collaborator
       } else if (plan?.collaborators.includes(me?.me?.id as number)) {
         setCanAddComments(true);
-        // The user is the owner of the plan
-      } else if ((plan?.planOwner === me?.me?.id)) {
+        // The user is the owner of the plan or is a project collaborator with role="OWN"
+      } else if (plan?.planOwners?.includes(me?.me?.id as number)) {
         setCanAddComments(true);
       } else {
         setCanAddComments(false)
@@ -1834,16 +1847,18 @@ const PlanOverviewQuestionPage: React.FC = () => {
             <div className={styles.leaveComment}>
               <h2>{PlanOverview('headings.leaveAComment')}</h2>
               <Form onSubmit={(e) => handleAddComment(e)}>
-                <TextField>
+                <TextField className={styles.commentTextField}>
                   <Label>{me ? (`${me?.me?.givenName} ${me?.me?.surName}`) : ''}{' '}{`(${t('you')})`}</Label>
                   <TextArea
                     onChange={e => setNewCommentText(e.target.value)}
                     value={newCommentText}
                   />
                 </TextField>
-                <div>
-                  <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
-                  <p>{PlanOverview('page.participantsWillBeNotified')}</p>
+                <div className={styles.addCommentButton}>
+                  <div>
+                    <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
+                  </div>
+                  <p className="font-small">{PlanOverview('page.participantsWillBeNotified')}</p>
                 </div>
               </Form>
             </div>

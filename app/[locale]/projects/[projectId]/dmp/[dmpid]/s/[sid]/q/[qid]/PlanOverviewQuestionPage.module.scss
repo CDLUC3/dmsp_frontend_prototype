@@ -148,16 +148,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden; // Prevent outer scrolling
-  
-  // Override the DrawerPanel's default scrolling behavior
-  // Target the drawer-scrollable-content that wraps this component so that we can scroll comments list
-  // without seeing the scrollbar run alongside the sticky "Leave a comment" section
-  :global(.drawer-scrollable-content) {
-    overflow: hidden !important; // Disable the drawer's scrolling
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
+
 }
 
 /* For link to jump down to Guidance section*/
@@ -229,11 +220,15 @@
   border-top: 1px solid var(--border-color, #e2e8f0); // Use a CSS variable or lighter color
   background-color: white;
   flex-shrink: 0; // Prevent shrinking
-  padding: 1rem;
+  padding: 0 1rem;
   position: sticky; // Keep this
   bottom: 0; // Stick to bottom
   z-index: 1; // Ensure it stays on top
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); // Optional: add subtle shadow for separation
+
+  .commentTextField {
+  margin-bottom: 0.5rem;
+  }
 }
 
 .comment {
@@ -246,4 +241,10 @@
   .createdDate {
     margin: 0;
   }
+}
+
+.addCommentButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }

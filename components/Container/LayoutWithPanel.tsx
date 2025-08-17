@@ -272,10 +272,7 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
               </Button>
             </div>
             <h2>{title}</h2>
-            {/* Add a scrollable wrapper for the desktop version, so that user can scroll the drawer panel */}
-            <div className="drawer-scrollable-content">
-              {children}
-            </div>
+            {children}
           </ContentContainer >
         </div >
       )}
@@ -303,10 +300,7 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
               </Button>
             </div>
             <h2>{title}</h2>
-            {/* Add a scrollable wrapper for the desktop version so that user can scroll the drawer panel*/}
-            <div className="drawer-scrollable-content">
-              {children}
-            </div>
+            {children}
           </div>
         )
       }
