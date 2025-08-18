@@ -45,6 +45,7 @@ import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON'
 import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
+import CommentsDrawer from './CommentsDrawer';
 
 // Context
 import { useToast } from '@/context/ToastContext';
@@ -485,6 +486,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
     // message user when comment successfully added
     toastState.add(t('messages.commentSent'), { type: 'success', timeout: 3000 });
+
+    // Scroll to bottom of comments list to focus on the new comment
+    if (commentsEndRef.current) {
+      commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }
 
 
@@ -1279,7 +1285,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         collaborators: planData?.plan?.project?.collaborators
           ?.map(c => c?.user?.id)
           .filter((id): id is number => id != null) ?? [], //filter out any null or undefined for projectCollaborators
-        planOwners: planOwners ?? null, //plan owner
+        planOwners: uniquePlanOwners ?? null, //plan owner
       }
 
       setPlan(planInfo);
@@ -1412,12 +1418,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   }, [me, planData, plan])
 
-
-  useEffect(() => {
-    if (commentsEndRef.current) {
-      commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [mergedComments]); // run whenever comments change
 
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
@@ -1747,124 +1747,29 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
 
         {/**Comments drawer */}
-        <DrawerPanel
-          isOpen={isCommentsDrawerOpen}
-          onClose={closeCurrentDrawer}
-          returnFocusRef={openCommentsButtonRef}
-          className={styles.drawerPanelWrapper}
-          title={PlanOverview('headings.comments')}
-        >
-
-          <div className={styles.commentsWrapper}>
-            {mergedComments?.map((comment, index) => {
-              const formattedCreatedDate = comment.created ? formatRelativeFromTimestamp(comment.created, locale) : '';
-              const isEditing = editingCommentId === comment.id;
-
-              return (
-                <div key={`${comment.type}-${comment.id}-${index}`} className={styles.comment}>
-                  <h4>
-                    {comment?.user?.givenName}{' '}{comment?.user?.surName}{' '}
-                    <span className={styles.deEmphasize}>
-                      {comment?.isFeedbackComment ? `(${t('admin')})` : ''}
-                    </span>
-                  </h4>
-                  <p className={`${styles.deEmphasize} ${styles.createdDate}`}>
-                    {formattedCreatedDate}{' '}
-                    {(comment.created !== comment.modified) ? `(${t('edited')})` : ''}
-                  </p>
-
-                  {/* Conditional rendering: textarea when editing, paragraph when not */}
-                  {isEditing ? (
-                    <textarea
-                      value={editingCommentText}
-                      onChange={(e) => setEditingCommentText(e.target.value)}
-                      className={styles.editTextarea}
-                      rows={3}
-                      ref={(el) => {
-                        if (el) {
-                          el.focus({ preventScroll: true }); {/**focus the text without scrolling. If we use autofocus, it will scroll the field behind the sticky Add Comment section */ }
-                        }
-                      }}
-                    />
-                  ) : (
-                    <p>{comment.commentText}</p>
-                  )}
-
-                  <div>
-                    {isEditing ? (
-                      <>
-                        <Button
-                          className={`${styles.deEmphasize} link`}
-                          type="button"
-                          onPress={() => handleUpdateComment(comment)}
-                        >
-                          {Global('buttons.save')}
-                        </Button>
-                        <Button
-                          className={`${styles.deEmphasize} link`}
-                          type="button"
-                          onPress={handleCancelEdit}
-                        >
-                          {Global('buttons.cancel')}
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        {/**Only display edit button if it's the user's own comment */}
-                        {comment?.user?.id === me?.me?.id && (
-                          <Button
-                            className={`${styles.deEmphasize} link`}
-                            type="button"
-                            onPress={() => handleEditComment(comment)}
-                          >
-                            {Global('buttons.edit')}
-                          </Button>
-                        )}
-
-                        {/**Only display the delete button for owner of plan or the user who entered the comment */}
-                        {(comment?.user?.id === me?.me?.id || plan?.planOwner === me?.me?.id) && (
-                          <Button
-                            className={`${styles.deEmphasize} link`}
-                            type="button"
-                            onPress={() => handleDeleteComment(comment)}
-                          >
-                            {Global('buttons.delete')}
-                          </Button>
-                        )}
-
-                      </>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-            <div ref={commentsEndRef} />
-          </div>
+        <CommentsDrawer
+          isCommentsDrawerOpen={isCommentsDrawerOpen}
+          closeCurrentDrawer={closeCurrentDrawer}
+          openCommentsButtonRef={openCommentsButtonRef}
+          mergedComments={mergedComments}
+          editingCommentId={editingCommentId}
+          editingCommentText={editingCommentText}
+          setEditingCommentText={setEditingCommentText}
+          handleUpdateComment={handleUpdateComment}
+          handleAddComment={handleAddComment}
+          handleCancelEdit={handleCancelEdit}
+          handleEditComment={handleEditComment}
+          handleDeleteComment={handleDeleteComment}
+          me={me}
+          planOwners={plan?.planOwners}
+          locale={locale}
+          commentsEndRef={commentsEndRef}
+          canAddComments={canAddComments}
+          setNewCommentText={setNewCommentText}
+          newCommentText={newCommentText}
+        />
 
 
-          {/**Can only add comments if the user has the correct permissions */}
-          {canAddComments && (
-            <div className={styles.leaveComment}>
-              <h2>{PlanOverview('headings.leaveAComment')}</h2>
-              <Form onSubmit={(e) => handleAddComment(e)}>
-                <TextField className={styles.commentTextField}>
-                  <Label>{me ? (`${me?.me?.givenName} ${me?.me?.surName}`) : ''}{' '}{`(${t('you')})`}</Label>
-                  <TextArea
-                    onChange={e => setNewCommentText(e.target.value)}
-                    value={newCommentText}
-                  />
-                </TextField>
-                <div className={styles.addCommentButton}>
-                  <div>
-                    <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
-                  </div>
-                  <p className="font-small">{PlanOverview('page.participantsWillBeNotified')}</p>
-                </div>
-              </Form>
-            </div>
-          )}
-
-        </DrawerPanel>
       </LayoutWithPanel >
     </>
   );

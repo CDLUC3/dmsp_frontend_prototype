@@ -196,7 +196,7 @@
       "noComments": "There are no comments",
       "sampleTextAdded": "Sample text added",
       "commentSent": "Comment successfully added",
-      "commentedDeleted": "Comment successfully deleted",
+      "commentDeleted": "Comment successfully deleted",
       "commentUpdated": "Comment successfully updated"
     },
     "buttons": {
