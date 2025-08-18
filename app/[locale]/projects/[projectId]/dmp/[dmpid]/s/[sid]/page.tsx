@@ -243,7 +243,7 @@ const PlanOverviewSectionPage: React.FC = () => {
                         <p aria-live="polite">
                           <span
                             className={styles.progressIndicator}
-                            aria-label={`Question status: ${question.hasAnswer ? 'Completed' : 'Not started'}`}
+                            aria-label={`Question status: ${question.hasAnswer ? t('question.answered') : t('question.notAnswered')}`}
                           >
                             <DmpIcon
                               icon={question.hasAnswer ? 'check_circle' : 'cancel'}
