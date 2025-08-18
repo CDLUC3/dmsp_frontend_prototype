@@ -3900,7 +3900,7 @@ export type AddFeedbackCommentMutationVariables = Exact<{
 }>;
 
 
-export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null } | null };
+export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null, PlanFeedback?: { __typename?: 'PlanFeedback', id?: number | null } | null } | null };
 
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4768,6 +4768,9 @@ export const AddFeedbackCommentDocument = gql`
     answerId
     errors {
       general
+    }
+    PlanFeedback {
+      id
     }
   }
 }

@@ -441,3 +441,26 @@ export interface AffiliationSearchQuestionProps {
   handleAffiliationChange: (id: string, value: string) => Promise<void>
   handleOtherAffiliationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
+
+interface User {
+  __typename?: "User";
+  id?: number | null;
+  surName?: string | null;
+  givenName?: string | null;
+}
+
+export interface MergedComment {
+  __typename?: "AnswerComment" | "PlanFeedbackComment";
+  id?: number | null;
+  commentText?: string | null;
+  answerId?: number | null;
+  created?: string | null;
+  type: 'answer' | 'feedback';
+  isAnswerComment: boolean;
+  isFeedbackComment: boolean;
+
+  // Optional fields that may exist on either type
+  user?: User | null;
+  modified?: string | null;
+  PlanFeedback?: any | null;
+}

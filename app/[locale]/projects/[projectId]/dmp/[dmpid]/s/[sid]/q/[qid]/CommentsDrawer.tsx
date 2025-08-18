@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Form,
@@ -14,37 +14,10 @@ import {
 } from '@/generated/graphql';
 import styles from './PlanOverviewQuestionPage.module.scss';
 import { useTranslations } from "next-intl";
-import {
+import { DrawerPanel } from "@/components/Container";
+import CommentList from './CommentList';
+import { MergedComment } from '@/app/types';
 
-  DrawerPanel
-} from "@/components/Container";
-
-// Utils
-import { formatRelativeFromTimestamp } from '@/utils/dateUtils';
-
-interface User {
-  __typename?: "User";
-  id?: number | null;
-  surName?: string | null;
-  givenName?: string | null;
-}
-
-// Simple merged comment interface - more flexible approach
-interface MergedComment {
-  __typename?: "AnswerComment" | "PlanFeedbackComment";
-  id?: number | null;
-  commentText?: string | null;
-  answerId?: number | null;
-  created?: string | null;
-  type: 'answer' | 'feedback';
-  isAnswerComment: boolean;
-  isFeedbackComment: boolean;
-
-  // Optional fields that may exist on either type
-  user?: User | null;
-  modified?: string | null;
-  PlanFeedback?: any | null;
-}
 
 interface CommentsDrawerProps {
   isCommentsDrawerOpen: boolean;
@@ -63,9 +36,9 @@ interface CommentsDrawerProps {
   locale: string;
   commentsEndRef: React.RefObject<HTMLDivElement>;
   canAddComments: boolean;
-  newCommentText: string;
-  setNewCommentText: (text: string) => void;
-  handleAddComment: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  // newCommentText: string;
+  // setNewCommentText: (text: string) => void;
+  handleAddComment: (e: React.FormEvent<HTMLFormElement>, newComment: string) => Promise<void>;
 }
 
 
@@ -86,16 +59,24 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
   locale,
   commentsEndRef,
   canAddComments,
-  newCommentText,
-  setNewCommentText,
   handleAddComment,
 }) => {
+
+  const [newCommentText, setNewCommentText] = useState<string>('');
 
   // Localization
   const Global = useTranslations('Global');
   const PlanOverview = useTranslations('PlanOverview');
   const t = useTranslations('PlanOverviewQuestionPage');
 
+  const addCommentHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!newCommentText.trim()) {
+      return; // Prevent adding empty comments
+    }
+    await handleAddComment(e, newCommentText);
+    setNewCommentText(''); // Clear the textarea after adding a comment
+  };
 
   return (
     <>
@@ -109,88 +90,22 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
       >
 
         <div className={styles.commentsWrapper}>
-          {mergedComments?.map((comment, index) => {
-            const formattedCreatedDate = comment.created ? formatRelativeFromTimestamp(comment.created, locale) : '';
-            const isEditing = editingCommentId === comment.id;
-
-            return (
-              <div key={`${comment.type}-${comment.id}-${index}`} className={styles.comment}>
-                <h4>
-                  {comment?.user?.givenName}{' '}{comment?.user?.surName}{' '}
-                  <span className={styles.deEmphasize}>
-                    {comment?.isFeedbackComment ? `(${t('admin')})` : ''}
-                  </span>
-                </h4>
-                <p className={`${styles.deEmphasize} ${styles.createdDate}`}>
-                  {formattedCreatedDate}{' '}
-                  {(comment.created !== comment.modified) ? `(${t('edited')})` : ''}
-                </p>
-
-                {/* Conditional rendering: textarea when editing, paragraph when not */}
-                {isEditing ? (
-                  <TextArea
-                    value={editingCommentText}
-                    onChange={(e) => setEditingCommentText(e.target.value)}
-                    className={styles.editTextarea}
-                    rows={3}
-                    ref={(el) => {
-                      if (el) {
-                        el.focus({ preventScroll: true }); {/**focus the text without scrolling. If we use autofocus, it will scroll the field behind the sticky Add Comment section */ }
-                      }
-                    }}
-                  />
-                ) : (
-                  <p>{comment.commentText}</p>
-                )}
-
-                <div>
-                  {isEditing ? (
-                    <>
-                      <Button
-                        className={`${styles.deEmphasize} link`}
-                        type="button"
-                        onPress={() => handleUpdateComment(comment)}
-                      >
-                        {Global('buttons.save')}
-                      </Button>
-                      <Button
-                        className={`${styles.deEmphasize} link`}
-                        type="button"
-                        onPress={handleCancelEdit}
-                      >
-                        {Global('buttons.cancel')}
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      {/**Only display edit button if it's the user's own comment */}
-                      {comment?.user?.id === me?.me?.id && (
-                        <Button
-                          className={`${styles.deEmphasize} link`}
-                          type="button"
-                          onPress={() => handleEditComment(comment)}
-                        >
-                          {Global('buttons.edit')}
-                        </Button>
-                      )}
-
-                      {/**Only display the delete button for the user who created the comment or a project collaborator with role 'OWN' */}
-                      {((comment?.user?.id === me?.me?.id) || planOwners?.includes(me?.me?.id as number)) && (
-                        <Button
-                          className={`${styles.deEmphasize} link`}
-                          type="button"
-                          onPress={() => handleDeleteComment(comment)}
-                        >
-                          {Global('buttons.delete')}
-                        </Button>
-                      )}
-
-                    </>
-                  )}
-                </div>
-              </div>
-            )
-          })}
+          {/** Comments list */}
+          <CommentList
+            comments={mergedComments}
+            editingCommentId={editingCommentId}
+            editingCommentText={editingCommentText}
+            me={me}
+            planOwners={planOwners}
+            t={t}
+            Global={Global}
+            handleEditComment={handleEditComment}
+            handleUpdateComment={handleUpdateComment}
+            handleCancelEdit={handleCancelEdit}
+            handleDeleteComment={handleDeleteComment}
+            locale={locale}
+            setEditingCommentText={setEditingCommentText}
+          />
           <div ref={commentsEndRef} />
         </div>
 
@@ -199,7 +114,7 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
         {canAddComments && (
           <div className={styles.leaveComment}>
             <h2>{PlanOverview('headings.leaveAComment')}</h2>
-            <Form onSubmit={(e) => handleAddComment(e)}>
+            <Form onSubmit={(e) => addCommentHandler(e)}>
               <TextField className={styles.commentTextField}>
                 <Label>{me ? (`${me?.me?.givenName} ${me?.me?.surName}`) : ''}{' '}{`(${t('you')})`}</Label>
                 <TextArea

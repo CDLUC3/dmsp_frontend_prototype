@@ -11,12 +11,9 @@ import {
   Dialog,
   DialogTrigger,
   Form,
-  Label,
   Link,
   OverlayArrow,
   Popover,
-  TextArea,
-  TextField
 } from "react-aria-components";
 import { CalendarDate, DateValue } from "@internationalized/date";
 import DOMPurify from 'dompurify';
@@ -54,24 +51,21 @@ import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
 import { stripHtmlTags } from '@/utils/general';
-import { formatRelativeFromTimestamp } from '@/utils/dateUtils';
 import { QuestionTypeMap } from '@dmptool/types';
 
 import {
   Question,
+  MergedComment
 } from '@/app/types';
 
 // server action mutations
 import {
   addAnswerAction,
-  addAnswerCommentAction,
-  addFeedbackCommentAction,
   updateAnswerAction,
-  removeAnswerCommentAction,
-  removeFeedbackCommentAction,
-  updateAnswerCommentAction,
-  updateFeedbackCommentAction
 } from './actions';
+
+//hooks
+import { useComments } from './hooks/useComments';
 
 interface FormDataInterface {
   otherField: boolean;
@@ -130,31 +124,6 @@ interface PlanData {
   collaborators: number[];
   planOwners: number[] | null;
 }
-interface User {
-  __typename?: "User";
-  id?: number | null;
-  surName?: string | null;
-  givenName?: string | null;
-}
-
-
-// Simple merged comment interface - more flexible approach
-interface MergedComment {
-  __typename?: "AnswerComment" | "PlanFeedbackComment";
-  id?: number | null;
-  commentText?: string | null;
-  answerId?: number | null;
-  created?: string | null;
-  type: 'answer' | 'feedback';
-  isAnswerComment: boolean;
-  isFeedbackComment: boolean;
-
-  // Optional fields that may exist on either type
-  user?: User | null;
-  modified?: string | null;
-  PlanFeedback?: any | null;
-}
-
 
 
 const PlanOverviewQuestionPage: React.FC = () => {
@@ -169,26 +138,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  // To scroll to bottom of comment list whenever new comment added
-  const commentsEndRef = useRef<HTMLDivElement | null>(null);
-
-
   // VersionedQuestion, plan and versionedSection states
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
   const [questionType, setQuestionType] = useState<string>('');
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
-  const [errors, setErrors] = useState<string[]>([]);
-
-
-  // Comments states
-  const [mergedComments, setMergedComments] = useState<MergedComment[]>([]);
-  const [editingCommentId, setEditingCommentId] = useState<number | null | undefined>(null);
-  const [editingCommentText, setEditingCommentText] = useState<string>('');
-  const [newCommentText, setNewCommentText] = useState<string>('');
   const [answerId, setAnswerId] = useState<number | null>(null);
-  const [canAddComments, setCanAddComments] = useState<boolean>(false);
 
+  const [errors, setErrors] = useState<string[]>([]);
 
   // Drawer states
   const [isSideBarPanelOpen, setIsSideBarPanelOpen] = useState<boolean>(true);
@@ -274,6 +231,41 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
+
+  // Comments state and handlers hook
+  const {
+    // State
+    mergedComments,
+    editingCommentId,
+    editingCommentText,
+    canAddComments,
+    errors: commentErrors,
+    commentsEndRef,
+
+    // Setters
+    setEditingCommentText,
+    setCommentsFromData,
+    updateCanAddComments,
+
+    // Handlers
+    handleAddComment,
+    handleDeleteComment,
+    handleEditComment,
+    handleUpdateComment,
+    handleCancelEdit
+  } = useComments({
+    dmpId,
+    projectId,
+    versionedSectionId,
+    versionedQuestionId,
+    planFeedbackId: plan?.feedbackId,
+    me,
+    planOrgId: plan?.orgId,
+    openFeedbackRounds: plan?.openFeedbackRounds,
+    planOwners: plan?.planOwners,
+    collaborators: plan?.collaborators
+  });
+
   // Show Success Message
   const showSuccessToast = () => {
     const successMessage = t('messages.success.questionSaved');
@@ -356,330 +348,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   }
 
-  // Call Server Action addAnswerCommentAction or addFeedbackCommentAction to add comment
-  const addComment = async (comment: MergedComment) => {
-    let response;
-    try {
-      if (comment.isAnswerComment) {
-        response = await addAnswerCommentAction({
-          answerId: Number(comment?.answerId),
-          commentText: comment?.commentText ?? ''
-        });
-      } else if (plan?.feedbackId) {
-        response = await addFeedbackCommentAction({
-          planId: Number(dmpId),
-          planFeedbackId: plan.feedbackId,
-          answerId: Number(comment?.answerId),
-          commentText: comment?.commentText ?? ''
-        });
-      }
-
-      if (response?.redirect) {
-        router.push(response.redirect);
-      }
-
-      if (response) {
-        return {
-          success: response.success,
-          errors: response.errors,
-          data: response.data
-        };
-      }
-      return {
-        success: false,
-        errors: [Global('messaging.somethingWentWrong')],
-        data: null
-      };
-    } catch (error) {
-      logECS('error', 'addComment', {
-        error,
-        url: {
-          path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
-        }
-      });
-    }
-  }
-
-
-
-  // When the user adds a comment in the Comments drawer panel
-  const handleAddComment = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    let optimisticComment: MergedComment;
-    const tempId = Date.now() * -1;
-
-    // If user is an admin and there is an open round of feedback, then save to feedback comments
-    if ((['ADMIN', 'SUPERADMIN'].includes(me?.me?.role as string)) && plan?.orgId && plan?.openFeedbackRounds) {
-      optimisticComment = {
-        __typename: 'PlanFeedbackComment',
-        id: tempId,
-        commentText: newCommentText,
-        answerId: answerId,
-        created: new Date().getTime().toString(),
-        modified: null,
-        type: 'feedback',
-        isAnswerComment: false,
-        isFeedbackComment: true,
-        user: {
-          __typename: 'User',
-          id: me?.me?.id,
-          givenName: me?.me?.givenName,
-          surName: me?.me?.surName
-        },
-        PlanFeedback: null
-      };
-    } else {
-      optimisticComment = {
-        __typename: 'AnswerComment',
-        id: tempId,
-        commentText: newCommentText,
-        answerId: answerId,
-        created: new Date().getTime().toString(),
-        modified: null,
-        type: 'answer',
-        isAnswerComment: true,
-        isFeedbackComment: false,
-        user: {
-          __typename: 'User',
-          id: me?.me?.id,
-          givenName: me?.me?.givenName,
-          surName: me?.me?.surName
-        },
-        PlanFeedback: null
-      };
-    }
-
-    const originalComments = [...mergedComments];
-
-    // Add to end and sort
-    setMergedComments(prev => [...prev, optimisticComment].sort((a, b) => {
-      return parseInt(a.created || '0', 10) - parseInt(b.created || '0', 10);
-    }));
-
-    //Empty out the "Leave comment" field
-    setNewCommentText('');
-
-    // Call mutation
-    const result = await addComment(optimisticComment);
-
-    if (!result?.success) {
-      // Rollback: restore the original comments array
-      setMergedComments(originalComments);
-
-      const errors = result?.errors;
-      if (errors) {
-        setErrors(errors)
-      }
-    } else {
-      // On success
-      if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
-        const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
-        const extractedErrors = getExtractedErrorValues(mutationErrors);
-        // Rollback: restore the original comments array
-        setMergedComments(originalComments);
-
-        // Handle errors as an object with general or field-level errors
-        setErrors(extractedErrors)
-
-      }
-    }
-
-    // message user when comment successfully added
-    toastState.add(t('messages.commentSent'), { type: 'success', timeout: 3000 });
-
-    // Scroll to bottom of comments list to focus on the new comment
-    if (commentsEndRef.current) {
-      commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }
-
-
-  // Call Server Action removeAnswerCommentAction or removeFeedbackCommentAction to delete comment
-  const deleteComment = async (comment: MergedComment) => {
-
-    try {
-      const response = comment.isAnswerComment
-        ? await removeAnswerCommentAction({
-          answerId: Number(comment?.answerId),
-          answerCommentId: Number(comment?.id)
-        })
-        : await removeFeedbackCommentAction({
-          planId: Number(dmpId),
-          planFeedbackCommentId: Number(comment?.id)
-        });
-
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      }
-    } catch (error) {
-      logECS('error', 'deleteComment', {
-        error,
-        url: {
-          path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
-        }
-      });
-    }
-
-    return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: null
-    };
-  }
-
-  // Handler functions for delete and edit
-  const handleDeleteComment = async (comment: MergedComment) => {
-
-    // Store original comments array for potential rollback
-    const originalComments = [...mergedComments];
-
-    // Optimistically remove the comment from UI immediately
-    setMergedComments(prev => prev.filter(c => c.id !== comment.id));
-
-    // Call mutation
-    const result = await deleteComment(comment);
-
-    if (!result.success) {
-      // Rollback: restore the original comments array
-      setMergedComments(originalComments);
-
-      const errors = result.errors;
-      if (errors) {
-        setErrors(errors)
-      }
-    } else {
-      // On success
-      if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
-        const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
-        const extractedErrors = getExtractedErrorValues(mutationErrors);
-        // Rollback: restore the original comments array
-        setMergedComments(originalComments);
-
-        // Handle errors as an object with general or field-level errors
-        setErrors(extractedErrors)
-
-      }
-    }
-
-    // message user when comment successfully deleted
-    toastState.add(t('messages.commentDeleted'), { type: 'success', timeout: 3000 });
-  };
-
-
-  // Handler functions for edit and save
-  const handleEditComment = (comment: MergedComment) => {
-    setEditingCommentId(comment?.id);
-    setEditingCommentText(comment?.commentText || '');
-  };
-
-  // Call Server Action updateAnswerCommentAction or updateFeedbackCommentAction to delete comment
-  const updateComment = async (comment: MergedComment) => {
-
-    try {
-      const response = comment.isAnswerComment
-        ? await updateAnswerCommentAction({
-          answerId: Number(comment?.answerId),
-          answerCommentId: Number(comment?.id),
-          commentText: editingCommentText
-        })
-        : await updateFeedbackCommentAction({
-          planId: Number(dmpId),
-          planFeedbackCommentId: Number(comment?.id),
-          commentText: editingCommentText
-        });
-
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      }
-    } catch (error) {
-      logECS('error', 'deleteComment', {
-        error,
-        url: {
-          path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
-        }
-      });
-    }
-
-    return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: null
-    };
-  }
-
-  const handleUpdateComment = async (comment: MergedComment) => {
-    // Store original for rollback
-    const originalComment = { ...comment };
-
-    // Optimistically update merged comments immediately
-    setMergedComments(prev =>
-      prev.map(c =>
-        c.id === comment.id
-          ? {
-            ...c,
-            commentText: editingCommentText,
-            modified: new Date().getTime().toString()
-          }
-          : c
-      )
-    );
-
-    // Call mutation
-    const result = await updateComment(comment);
-
-    if (!result.success) {
-      // Rollback optimistic update on failure
-      setMergedComments(prev =>
-        prev.map(c => c.id === comment.id ? originalComment : c)
-      );
-
-      const errors = result.errors;
-      if (errors) {
-        setErrors(errors)
-      }
-    } else {
-      // On success
-      if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
-        // Rollback and show field errors
-        setMergedComments(prev =>
-          prev.map(c => c.id === comment.id ? originalComment : c)
-        );
-        const mutationErrors = result.data.errors as unknown as MutationErrorsInterface;
-        const extractedErrors = getExtractedErrorValues(mutationErrors);
-        // Handle errors as an object with general or field-level errors
-        setErrors(extractedErrors)
-
-      } else {
-        // Reset editing state after successful save
-        setEditingCommentId(null);
-        setEditingCommentText('');
-        // Optimistic updates
-
-        // Keep drawer open so the user can see that they comment changed
-        setCommentsDrawerOpen(true);
-      }
-    }
-    // message user when comment successfully updated
-    toastState.add(t('messages.commentUpdated'), { type: 'success', timeout: 3000 });
-  };
-
-  const handleCancelEdit = () => {
-    setEditingCommentId(null);
-    setEditingCommentText('');
-  };
-
 
   const convertToHTML = (htmlString: string | null | undefined) => {
     if (htmlString) {
@@ -691,9 +359,19 @@ const PlanOverviewQuestionPage: React.FC = () => {
     return null;
   };
 
+  const updateCommentHandler = async (comment: MergedComment) => {
+    handleUpdateComment(comment);
+    // Keep drawer open so the user can see that they comment changed
+    setCommentsDrawerOpen(true);
+  }
+
+
+  const addCommentHandler = async (e: React.FormEvent<HTMLFormElement>, newComment: string) => {
+    e.preventDefault();
+    handleAddComment(e, answerId!, newComment);
+  }
 
   // Handling changes to different question types
-
   const handleAffiliationChange = async (id: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -1307,31 +985,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
     const answerComments = answerData?.answerByVersionedQuestionId?.comments;
     const feedbackComments = answerData?.answerByVersionedQuestionId?.feedbackComments;
 
-    // Merge both sets of comments into one variable
-    const mergedAnswerFeedbackComments: MergedComment[] = [
-      ...(answerComments || []).map(comment => ({
-        ...comment,
-        type: 'answer' as const,
-        isAnswerComment: true as const,
-        isFeedbackComment: false as const
-      })),
-      ...(feedbackComments || []).map(comment => ({
-        ...comment,
-        type: 'feedback' as const,
-        isAnswerComment: false as const,
-        isFeedbackComment: true as const
-      }))
-    ].sort((a, b) => {
-      // Handle null/undefined timestamps
-      if (!a.created && !b.created) return 0;
-      if (!a.created) return 1;
-      if (!b.created) return -1;
+    // Set comments from both answer and feedback comments into mergedComments state
+    setCommentsFromData(answerComments, feedbackComments);
 
-      // Convert timestamp strings to numbers and sort
-      return parseInt(a.created, 10) - parseInt(b.created, 10); // Oldest first
-    });
-
-    setMergedComments(mergedAnswerFeedbackComments);
     setAnswerId(answerData?.answerByVersionedQuestionId?.id ?? null);
 
   }, [answerData, questionType]);
@@ -1396,28 +1052,21 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (me && plan) {
-      // Is this user an admin?
-      if (['ADMIN', 'SUPERADMIN'].includes(me?.me?.role as string)) {
-        // Does this admin belong to the same org as plan, and are there any feedback rounds open?
-        const meURI = me?.me?.affiliation?.uri;
-        const orgId = plan?.orgId;
-        if ((meURI === orgId) && plan?.openFeedbackRounds) {
-          setCanAddComments(true);
-        }
-        // If the current user is a project collaborator
-      } else if (plan?.collaborators.includes(me?.me?.id as number)) {
-        setCanAddComments(true);
-        // The user is the owner of the plan or is a project collaborator with role="OWN"
-      } else if (plan?.planOwners?.includes(me?.me?.id as number)) {
-        setCanAddComments(true);
-      } else {
-        setCanAddComments(false)
-      }
-    }
-
+    // Set whether current user can add comments based on their role and plan data
+    updateCanAddComments();
   }, [me, planData, plan])
 
+  // Set errors from commentErrors state
+  useEffect(() => {
+    setErrors((prevErrors) => {
+      // If there are no errors, return an empty array
+      if (!commentErrors || commentErrors.length === 0) {
+        return [];
+      }
+      // Otherwise, include the comment errors
+      return prevErrors.concat(commentErrors);
+    });
+  }, [commentErrors])
 
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
@@ -1755,8 +1404,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
           editingCommentId={editingCommentId}
           editingCommentText={editingCommentText}
           setEditingCommentText={setEditingCommentText}
-          handleUpdateComment={handleUpdateComment}
-          handleAddComment={handleAddComment}
+          handleUpdateComment={updateCommentHandler}
+          handleAddComment={addCommentHandler}
           handleCancelEdit={handleCancelEdit}
           handleEditComment={handleEditComment}
           handleDeleteComment={handleDeleteComment}
@@ -1765,8 +1414,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
           locale={locale}
           commentsEndRef={commentsEndRef}
           canAddComments={canAddComments}
-          setNewCommentText={setNewCommentText}
-          newCommentText={newCommentText}
         />
 
 

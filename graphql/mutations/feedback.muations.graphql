@@ -19,11 +19,11 @@ mutation UpdateFeedbackComment($planId: Int!, $planFeedbackCommentId: Int!, $com
     }
   }
 }
-
 mutation AddFeedbackComment($planId: Int!, $planFeedbackId: Int!, $answerId: Int!, $commentText: String!) {
   addFeedbackComment(planId: $planId, planFeedbackId: $planFeedbackId, answerId: $answerId, commentText: $commentText) {
     id
     answerId
+    commentText
     errors {
       general
     }
