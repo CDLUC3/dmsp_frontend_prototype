@@ -95,7 +95,6 @@ export const useComments = ({
   const [mergedComments, setMergedComments] = useState<MergedComment[]>([]);
   const [editingCommentId, setEditingCommentId] = useState<number | null | undefined>(null);
   const [editingCommentText, setEditingCommentText] = useState<string>('');
-  const [newCommentText, setNewCommentText] = useState<string>('');
   const [canAddComments, setCanAddComments] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
 
@@ -142,132 +141,86 @@ export const useComments = ({
   // Add comment action
   const addComment = async (comment: MergedComment) => {
     let response;
-    try {
-      if (comment.isAnswerComment) {
-        response = await addAnswerCommentAction({
-          answerId: Number(comment?.answerId),
-          commentText: comment?.commentText ?? ''
-        });
-      } else if (planFeedbackId) {
-        response = await addFeedbackCommentAction({
-          planId: Number(dmpId),
-          planFeedbackId,
-          answerId: Number(comment?.answerId),
-          commentText: comment?.commentText ?? ''
-        });
-      }
-
-      if (response?.redirect) {
-        router.push(response.redirect);
-      }
-
-      if (response) {
-        return {
-          success: response.success,
-          errors: response.errors,
-          data: response.data
-        };
-      }
-      return {
-        success: false,
-        errors: [Global('messaging.somethingWentWrong')],
-        data: null
-      };
-    } catch (error) {
-      logECS('error', 'addComment', {
-        error,
-        url: {
-          path: routePath('projects.dmp.versionedQuestion.detail', {
-            projectId, dmpId, versionedSectionId, versionedQuestionId
-          })
-        }
+    if (comment.isAnswerComment) {
+      response = await addAnswerCommentAction({
+        answerId: Number(comment?.answerId),
+        commentText: comment?.commentText ?? ''
       });
-      return {
-        success: false,
-        errors: [Global('messaging.somethingWentWrong')],
-        data: null
-      };
+    } else if (planFeedbackId) {
+      response = await addFeedbackCommentAction({
+        planId: Number(dmpId),
+        planFeedbackId,
+        answerId: Number(comment?.answerId),
+        commentText: comment?.commentText ?? ''
+      });
     }
+
+    if (response?.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response?.success ?? false,
+      errors: response?.errors ?? [Global('messaging.somethingWentWrong')],
+      data: response?.data ?? null
+    };
   };
+
 
   // Delete comment action
   const deleteComment = async (comment: MergedComment) => {
-    try {
-      const response = comment.isAnswerComment
-        ? await removeAnswerCommentAction({
-          answerId: Number(comment?.answerId),
-          answerCommentId: Number(comment?.id)
-        })
-        : await removeFeedbackCommentAction({
-          planId: Number(dmpId),
-          planFeedbackCommentId: Number(comment?.id)
-        });
+    let response;
 
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      };
-    } catch (error) {
-      logECS('error', 'deleteComment', {
-        error,
-        url: {
-          path: routePath('projects.dmp.versionedQuestion.detail', {
-            projectId, dmpId, versionedSectionId, versionedQuestionId
-          })
-        }
+    if (comment.isAnswerComment) {
+      response = await removeAnswerCommentAction({
+        answerId: Number(comment?.answerId),
+        answerCommentId: Number(comment?.id)
       });
-      return {
-        success: false,
-        errors: [Global('messaging.somethingWentWrong')],
-        data: null
-      };
+    } else if (planFeedbackId) {
+      response = await removeFeedbackCommentAction({
+        planId: Number(dmpId),
+        planFeedbackCommentId: Number(comment?.id)
+      });
     }
+
+    if (response?.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response?.success ?? false,
+      errors: response?.errors ?? [Global('messaging.somethingWentWrong')],
+      data: response?.data ?? null
+    };
   };
 
   // Update comment action
   const updateComment = async (comment: MergedComment) => {
-    try {
-      const response = comment.isAnswerComment
-        ? await updateAnswerCommentAction({
-          answerId: Number(comment?.answerId),
-          answerCommentId: Number(comment?.id),
-          commentText: editingCommentText
-        })
-        : await updateFeedbackCommentAction({
-          planId: Number(dmpId),
-          planFeedbackCommentId: Number(comment?.id),
-          commentText: editingCommentText
-        });
 
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      };
-    } catch (error) {
-      logECS('error', 'updateComment', {
-        error,
-        url: {
-          path: routePath('projects.dmp.versionedQuestion.detail', {
-            projectId, dmpId, versionedSectionId, versionedQuestionId
-          })
-        }
+    let response;
+    if (comment.isAnswerComment) {
+      response = await updateAnswerCommentAction({
+        answerId: Number(comment?.answerId),
+        answerCommentId: Number(comment?.id),
+        commentText: editingCommentText
       });
-      return {
-        success: false,
-        errors: [Global('messaging.somethingWentWrong')],
-        data: null
-      };
+    } else if (planFeedbackId) {
+      response = await updateFeedbackCommentAction({
+        planId: Number(dmpId),
+        planFeedbackCommentId: Number(comment?.id),
+        commentText: editingCommentText
+      });
     }
+
+    if (response?.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response?.success ?? false,
+      errors: response?.errors ?? [Global('messaging.somethingWentWrong')],
+      data: response?.data ?? null
+    };
   };
 
   // Event handlers
@@ -324,8 +277,6 @@ export const useComments = ({
       return parseInt(a.created || '0', 10) - parseInt(b.created || '0', 10);
     }));
 
-    setNewCommentText('');
-
     // Call mutation
     const result = await addComment(optimisticComment);
 
@@ -363,6 +314,7 @@ export const useComments = ({
   };
 
   const handleDeleteComment = async (comment: MergedComment) => {
+
     const originalComments = [...mergedComments];
 
     // Optimistic update
@@ -392,24 +344,25 @@ export const useComments = ({
   };
 
   const handleUpdateComment = async (comment: MergedComment) => {
+    const updatedComment: MergedComment = {
+      ...comment,
+      commentText: editingCommentText,
+      modified: new Date().getTime().toString(),
+    };
+
     const originalComment = { ...comment };
 
     // Optimistic update
     setMergedComments(prev =>
       prev.map(c =>
-        c.id === comment.id
-          ? {
-            ...c,
-            commentText: editingCommentText,
-            modified: new Date().getTime().toString()
-          }
-          : c
+        c.id === comment.id ? updatedComment : c
       )
     );
 
     const result = await updateComment(comment);
 
     if (!result.success) {
+      // Rollback optimistic update
       setMergedComments(prev =>
         prev.map(c => c.id === comment.id ? originalComment : c)
       );
@@ -418,6 +371,7 @@ export const useComments = ({
         setErrors(errors);
       }
     } else if (result.data?.errors && hasFieldLevelErrors(result.data.errors as unknown as MutationErrorsInterface)) {
+      // Rollback optimistic update
       setMergedComments(prev =>
         prev.map(c => c.id === comment.id ? originalComment : c)
       );

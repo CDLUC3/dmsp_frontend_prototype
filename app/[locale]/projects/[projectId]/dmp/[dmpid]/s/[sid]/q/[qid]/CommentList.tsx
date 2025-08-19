@@ -1,21 +1,22 @@
 import React from 'react';
-import { formatRelativeFromTimestamp } from '@/utils/dateUtils';
 import {
   Button,
   TextArea,
 } from "react-aria-components";
+import { useTranslations } from "next-intl";
 import { MergedComment } from '@/app/types';
+import { MeQuery } from '@/generated/graphql';
+import { formatRelativeFromTimestamp } from '@/utils/dateUtils';
+
 import styles from './PlanOverviewQuestionPage.module.scss';
 
 
 interface CommentListProps {
-  comments: any[];
+  comments: MergedComment[];
   editingCommentId: number | null | undefined;
   editingCommentText: string;
-  me: any;
+  me: MeQuery | null | undefined;
   planOwners: number[] | null | undefined;
-  t: any;
-  Global: any;
   handleEditComment: (comment: MergedComment) => void;
   handleUpdateComment: (comment: MergedComment) => void;
   handleCancelEdit: () => void;
@@ -31,8 +32,6 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
     editingCommentText,
     me,
     planOwners,
-    t,
-    Global,
     handleEditComment,
     handleUpdateComment,
     handleCancelEdit,
@@ -40,6 +39,11 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
     locale,
     setEditingCommentText,
   } = props;
+
+
+  // Localization
+  const Global = useTranslations('Global');
+  const t = useTranslations('PlanOverviewQuestionPage');
 
 
   const updateCommentHandler = (comment: MergedComment) => {

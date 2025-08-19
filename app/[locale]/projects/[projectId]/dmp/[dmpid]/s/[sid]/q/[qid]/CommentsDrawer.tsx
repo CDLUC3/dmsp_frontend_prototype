@@ -19,7 +19,7 @@ import CommentList from './CommentList';
 import { MergedComment } from '@/app/types';
 
 
-interface CommentsDrawerProps {
+export interface CommentsDrawerProps {
   isCommentsDrawerOpen: boolean;
   closeCurrentDrawer: () => void;
   openCommentsButtonRef: React.RefObject<HTMLButtonElement>;
@@ -36,8 +36,6 @@ interface CommentsDrawerProps {
   locale: string;
   commentsEndRef: React.RefObject<HTMLDivElement>;
   canAddComments: boolean;
-  // newCommentText: string;
-  // setNewCommentText: (text: string) => void;
   handleAddComment: (e: React.FormEvent<HTMLFormElement>, newComment: string) => Promise<void>;
 }
 
@@ -97,8 +95,6 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
             editingCommentText={editingCommentText}
             me={me}
             planOwners={planOwners}
-            t={t}
-            Global={Global}
             handleEditComment={handleEditComment}
             handleUpdateComment={handleUpdateComment}
             handleCancelEdit={handleCancelEdit}
@@ -116,10 +112,11 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
             <h2>{PlanOverview('headings.leaveAComment')}</h2>
             <Form onSubmit={(e) => addCommentHandler(e)}>
               <TextField className={styles.commentTextField}>
-                <Label>{me ? (`${me?.me?.givenName} ${me?.me?.surName}`) : ''}{' '}{`(${t('you')})`}</Label>
+                <Label htmlFor="new-comment-textarea">{me ? (`${me?.me?.givenName} ${me?.me?.surName}`) : ''}{' '}{`(${t('you')})`}</Label>
                 <TextArea
                   onChange={e => setNewCommentText(e.target.value)}
                   value={newCommentText}
+                  id="new-comment-textarea"
                   data-testid="new-comment-textarea"
                 />
               </TextField>
