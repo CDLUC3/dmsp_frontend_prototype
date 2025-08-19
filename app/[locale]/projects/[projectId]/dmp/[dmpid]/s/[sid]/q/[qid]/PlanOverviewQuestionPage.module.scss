@@ -196,21 +196,12 @@
 }
 /*End 'Required by funder' info icon tooltip*/
 
-.comment {
-  margin-bottom: var(--space-8);
 
-  h4 {
-    margin: 0;
-  }
-
-  .createdDate {
-    margin: 0;
-  }
-}
+/* Comments Drawer Styles */
 
 .commentsWrapper {
   flex: 1;
-  overflow-y: auto; // Only comments scroll
+  overflow-y: auto; // Limit scrolling to only the comments list
   padding-right: 0.5rem; // To avoid scrollbar overlap
   padding-bottom: 1rem; // Add some breathing room at bottom
   min-height: 0; // Important: allows flex item to shrink below content size
@@ -221,10 +212,10 @@
   background-color: white;
   flex-shrink: 0; // Prevent shrinking
   padding: 0 1rem;
-  position: sticky; // Keep this
+  position: sticky;
   bottom: 0; // Stick to bottom
   z-index: 1; // Ensure it stays on top
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1); // Optional: add subtle shadow for separation
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
 
   .commentTextField {
   margin-bottom: 0.5rem;
@@ -248,3 +239,5 @@
   flex-direction: row;
   align-items: center;
 }
+
+/* End Comments Drawer Styles */

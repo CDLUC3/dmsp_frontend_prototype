@@ -8,7 +8,6 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
 
-
 // Mock the date utils
 jest.mock("@/utils/dateUtils", () => ({
   formatRelativeFromTimestamp: (timestamp: string, locale: string) => {
@@ -179,7 +178,7 @@ describe("CommentList", () => {
 
     const props = {
       ...defaultProps,
-      me: { me: meResearcher }, // Correct shape
+      me: { me: meResearcher },
       planOwners: [1], // Not a plan owner
     };
 

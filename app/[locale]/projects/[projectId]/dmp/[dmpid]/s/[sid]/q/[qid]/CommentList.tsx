@@ -61,7 +61,6 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
   return (
     <>
       {comments?.map((comment, index) => {
-        // Replace useMemo with a simple variable
         const formattedCreatedDate = comment.created
           ? formatRelativeFromTimestamp(comment.created, locale)
           : "";
@@ -89,7 +88,7 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
                 rows={3}
                 ref={(el) => {
                   if (el) {
-                    el.focus({ preventScroll: true }); {/**focus the text without scrolling. If we use autofocus, it will scroll the field behind the sticky Add Comment section */ }
+                    el.focus({ preventScroll: true }); {/**This is important: focus the text without scrolling. If we use autofocus, it will scroll the field behind the sticky Add Comment section */ }
                   }
                 }}
               />

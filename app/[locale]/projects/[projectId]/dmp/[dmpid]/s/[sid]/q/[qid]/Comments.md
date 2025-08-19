@@ -2,7 +2,7 @@
 
 There are a lot of rules around who can add, edit and delete comments on this page.
 
-The `Leave a comment` section is sticky at the bottom of the Drawer panel. The `Comments` header and `Close` button also remain at the top. The list of comments is scrollable, with lengthy comments having their own scroll
+The `Leave a comment` section is sticky at the bottom of the Drawer panel. The `Comments` header and `Close` button also remain at the top. The list of comments is scrollable, with lengthy comments having their own `Expand/Collapse` links.
 
 ## Initital page load
 When there are comments from either the `answerComments` or `feedbackComments` table for the given `answerId`, a user will see the `Comments` button showing the # of comments associated with the current `answerId`.

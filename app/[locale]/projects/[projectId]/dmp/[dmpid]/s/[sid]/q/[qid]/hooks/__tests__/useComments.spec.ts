@@ -6,7 +6,7 @@ import { UserRole } from '@/generated/graphql';
 import { useComments, AnswerComment, FeedbackComment } from '../useComments';
 import { MergedComment } from '@/app/types';
 
-// Mocks
+
 // Mock the useRouter from next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -16,7 +16,7 @@ jest.mock('next-intl', () => ({
 }));
 const mockToast = { add: jest.fn() };
 
-
+// Mock Server Actions
 jest.mock('../../actions', () => ({
   addAnswerCommentAction: jest.fn().mockResolvedValue({ success: true, errors: [], data: { id: 123 } }),
   addFeedbackCommentAction: jest.fn().mockResolvedValue({ success: true, errors: [], data: { id: 456 } }),
@@ -207,7 +207,6 @@ describe('useComments', () => {
       await result.current.handleDeleteComment(feedbackComment);
     });
 
-    // Assertions
     expect(actions.removeFeedbackCommentAction).toHaveBeenCalledWith({
       planId: Number(1),
       planFeedbackCommentId: 456
@@ -347,7 +346,7 @@ describe('useComments', () => {
     });
 
     const saved = result.current.mergedComments[0];
-    expect(saved.id).toBe(123); // from your mock
+    expect(saved.id).toBe(123);
   });
 
   it('should delete comment successfully and show toast', async () => {

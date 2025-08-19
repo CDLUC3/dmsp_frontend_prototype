@@ -9,7 +9,7 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
 
-// Mock translations so we don't have to set up next-intl
+// Mock translations
 jest.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key, // return key as translation
 }));
