@@ -124,6 +124,8 @@ describe("CommentsDrawer", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Mock scrollIntoView for all elements
+    window.HTMLElement.prototype.scrollIntoView = jest.fn();
   });
 
   it("should render merged comments when drawer is open", () => {

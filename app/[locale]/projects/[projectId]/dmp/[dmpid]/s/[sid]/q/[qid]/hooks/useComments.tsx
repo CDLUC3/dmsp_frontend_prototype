@@ -1,5 +1,5 @@
 // hooks/useComments.ts
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/context/ToastContext';
@@ -90,9 +90,6 @@ export const useComments = ({
   const [editingCommentText, setEditingCommentText] = useState<string>('');
   const [canAddComments, setCanAddComments] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
-
-  // Ref for scrolling to bottom of comments
-  const commentsEndRef = useRef<HTMLDivElement | null>(null);
 
   // Helper functions
   const hasFieldLevelErrors = (mutationErrors: MutationErrorsInterface): boolean => {
@@ -286,10 +283,6 @@ export const useComments = ({
       setErrors(extractedErrors);
     } else {
       toastState.add(t('messages.commentSent'), { type: 'success', timeout: 3000 });
-      // Scroll to bottom of comments list
-      if (commentsEndRef.current) {
-        commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
-      }
 
       // Take the optimistic comment and replace tempId with actual ID from server
       const savedComment = result?.data as AddCommentData;
@@ -418,7 +411,6 @@ export const useComments = ({
     editingCommentText,
     canAddComments,
     errors,
-    commentsEndRef,
 
     // Setters
     setEditingCommentText,

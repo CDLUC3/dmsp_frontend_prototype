@@ -137,6 +137,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
 
+  // Ref for scrolling to bottom of comments
+  const commentsEndRef = useRef<HTMLDivElement | null>(null);
+
+
   // VersionedQuestion, plan and versionedSection states
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
@@ -239,7 +243,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     editingCommentText,
     canAddComments,
     errors: commentErrors,
-    commentsEndRef,
 
     // Setters
     setEditingCommentText,

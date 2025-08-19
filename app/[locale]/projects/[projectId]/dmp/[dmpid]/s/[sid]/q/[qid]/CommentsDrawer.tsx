@@ -73,6 +73,11 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
     }
     await handleAddComment(e, newCommentText);
     setNewCommentText(''); // Clear the textarea after adding a comment
+    // Scroll to bottom of comments list
+    if (commentsEndRef.current) {
+      commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+
   };
 
   return (
