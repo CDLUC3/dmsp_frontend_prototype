@@ -81,11 +81,6 @@ describe('ProjectsCreateProject', () => {
     expect(screen.getByRole('heading', { level: 1, name: /pageTitle/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/form.projectTitle/i)).toBeInTheDocument();
     expect(screen.getByText(/form.projectTitleHelpText/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.newOrExisting/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.radioExistingLabel/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.radioExistingHelpText/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.radioNewLabel/i)).toBeInTheDocument();
-    expect(screen.getByText(/form.radioNewHelpText/i)).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxLabel/i)).toBeInTheDocument();
     expect(screen.getByText(/form.checkboxHelpText/i)).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: /form.checkboxLabel/i })).toBeInTheDocument();
@@ -113,7 +108,6 @@ describe('ProjectsCreateProject', () => {
     });
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Test Project' } });
-    fireEvent.click(screen.getByLabelText('form.radioNewLabel'));
     fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
@@ -148,7 +142,6 @@ describe('ProjectsCreateProject', () => {
     });
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: '' } });
-    fireEvent.click(screen.getByLabelText('form.radioNewLabel'));
     fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 
@@ -180,7 +173,6 @@ describe('ProjectsCreateProject', () => {
 
 
     fireEvent.change(screen.getByLabelText(/form.projectTitle/i), { target: { value: 'Test Project' } });
-    fireEvent.click(screen.getByLabelText('form.radioExistingLabel'));
     fireEvent.click(screen.getByLabelText(/form.checkboxLabel/i));
     fireEvent.click(screen.getByRole('button', { name: /buttons.continue/i }));
 

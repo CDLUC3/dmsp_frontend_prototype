@@ -24,7 +24,6 @@ import {
 import {
   CheckboxGroupComponent,
   FormInput,
-  RadioGroupComponent
 } from '@/components/Form';
 import ErrorMessages from '@/components/ErrorMessages';
 
@@ -40,13 +39,11 @@ interface CreateProjectResponse {
 }
 interface CreateProjectInterface {
   projectName: string;
-  radioGroup?: string;
   checkboxGroup?: string[];
 }
 
 interface CreateProjectErrorsInterface {
   projectName: string;
-  radioGroup?: string;
   checkboxGroup?: string;
 }
 
@@ -59,12 +56,10 @@ const ProjectsCreateProject = () => {
 
   const [fieldErrors, setFieldErrors] = useState<CreateProjectErrorsInterface>({
     projectName: '',
-    radioGroup: '',
     checkboxGroup: '',
   });
   const [formData, setFormData] = useState<CreateProjectInterface>({
     projectName: '',
-    radioGroup: '',
     checkboxGroup: [],
   })
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -73,22 +68,6 @@ const ProjectsCreateProject = () => {
   // localization keys
   const Global = useTranslations('Global');
   const CreateProject = useTranslations('ProjectsCreateProject');
-
-  const radioData = {
-    radioGroupLabel: CreateProject('form.newOrExisting'),
-    radioButtonData: [
-      {
-        value: 'previous',
-        label: CreateProject('form.radioExistingLabel'),
-        description: CreateProject('form.radioExistingHelpText'),
-      },
-      {
-        value: 'new',
-        label: CreateProject('form.radioNewLabel'),
-        description: CreateProject('form.radioNewHelpText')
-      }
-    ]
-  }
 
   const checkboxData = [
     {
@@ -114,10 +93,6 @@ const ProjectsCreateProject = () => {
     handleUpdate(name, value);
   };
 
-  // Handle changes from RadioGroup
-  const handleRadioChange = (value: string) => {
-    handleUpdate('radioGroup', value);
-  };
 
   // Handle changes from CheckboxGroup
   const handleCheckboxChange = (value: string[]) => {
@@ -151,7 +126,6 @@ const ProjectsCreateProject = () => {
   const isFormValid = (): boolean => {
     const errors: CreateProjectErrorsInterface = {
       projectName: '',
-      radioGroup: '',
       checkboxGroup: '',
     };
 
@@ -273,14 +247,6 @@ const ProjectsCreateProject = () => {
               isInvalid={(!formData.projectName || !!fieldErrors.projectName) && formSubmitted}
               errorMessage={fieldErrors.projectName.length > 0 ? fieldErrors.projectName : CreateProject('messages.errors.title')}
               id="projectName"
-            />
-
-            <RadioGroupComponent
-              name="radioGroup"
-              value={formData.radioGroup ?? ''}
-              radioGroupLabel={radioData.radioGroupLabel}
-              radioButtonData={radioData.radioButtonData}
-              onChange={handleRadioChange}
             />
 
             <CheckboxGroupComponent
