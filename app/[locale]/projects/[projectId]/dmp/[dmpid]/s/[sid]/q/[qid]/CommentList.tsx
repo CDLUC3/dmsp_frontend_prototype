@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { MergedComment } from '@/app/types';
 import { MeQuery } from '@/generated/graphql';
 import { formatRelativeFromTimestamp } from '@/utils/dateUtils';
+import ExpandableContentSection from '@/components/ExpandableContentSection';
 
 import styles from './PlanOverviewQuestionPage.module.scss';
 
@@ -85,7 +86,6 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
               <TextArea
                 value={editingCommentText}
                 onChange={(e) => setEditingCommentText(e.target.value)}
-                className={styles.editTextarea}
                 rows={3}
                 ref={(el) => {
                   if (el) {
@@ -94,7 +94,18 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
                 }}
               />
             ) : (
-              <p>{comment.commentText}</p>
+              <>
+                {/**When comments are lengthy, this is a way we can set a character limit, and show the Expand/Collapse links */}
+                <ExpandableContentSection
+                  id={`comment-text-${index}`}
+                  heading=""
+                  expandLabel={Global('links.expand')}
+                  summaryCharLimit={250}
+                >
+                  <p>{comment.commentText}</p>
+
+                </ExpandableContentSection>
+              </>
             )}
 
             <div>

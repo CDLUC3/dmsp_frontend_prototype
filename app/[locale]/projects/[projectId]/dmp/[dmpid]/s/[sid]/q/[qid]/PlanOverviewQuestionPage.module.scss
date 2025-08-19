@@ -241,19 +241,6 @@
   .createdDate {
     margin: 0;
   }
-
-  p {
-    max-height: 8rem; // so that users can scroll a long comment
-    overflow-y: auto;
-    white-space: pre-wrap; // preserve whitespace and line breaks
-    word-wrap: break-word; // break long words to fit within container
-    width: 90%; //to avoid overlap of scrollbars
-  }
-
-  .editTextarea {
-    max-height: 8rem;
-    overflow-y: auto;
-  }
 }
 
 .addCommentButton {

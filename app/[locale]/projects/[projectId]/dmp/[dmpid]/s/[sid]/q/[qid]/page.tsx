@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import classNames from 'classnames';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -296,19 +295,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setIsSideBarPanelOpen(true);
     setSampleTextDrawerOpen(false);
     setCommentsDrawerOpen(false);
-  }
-
-  // Close all drawer panels. One scenario is when the user clicks on the masked content.
-  const closeDrawers = (e?: React.MouseEvent<HTMLDivElement, MouseEvent> | React.MouseEvent<Element, MouseEvent>) => {
-    setIsSideBarPanelOpen(true);
-
-    // Only close if clicking on the mask/backdrop, not the drawer content
-    if (e && e.target === e.currentTarget) {
-      if (isCommentsDrawerOpen || isSampleTextDrawerOpen) {
-        setSampleTextDrawerOpen(false);
-        setCommentsDrawerOpen(false);
-      }
-    }
   }
 
   function buildSetContent<T extends keyof FormDataInterface>(
@@ -1055,14 +1041,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Set errors from commentErrors state
   useEffect(() => {
-    setErrors((prevErrors) => {
-      // If there are no errors, return an empty array
-      if (!commentErrors || commentErrors.length === 0) {
-        return [];
-      }
-      // Otherwise, include the comment errors
-      return prevErrors.concat(commentErrors);
-    });
+    setErrors((prevErrors) => [...prevErrors, ...commentErrors]);
   }, [commentErrors])
 
   // Render the question using the useRenderQuestionField helper
@@ -1167,10 +1146,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
       <ErrorMessages errors={errors} ref={errorRef} />
 
-      <LayoutWithPanel
-        onClick={e => closeDrawers(e)}
-        className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}
-      >
+      <LayoutWithPanel>
         <ContentContainer>
           <div className="container">
             {/**Requirements by funder */}
@@ -1369,6 +1345,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
             </p>
           </ExpandableContentSection>
         </SidebarPanel>
+
 
         {/** Sample text drawer. Only include for question types = Text Area */}
         {
