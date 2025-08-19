@@ -1,5 +1,7 @@
 
 ### Added
+- Added `.js` extension to `import nextJest from "next/jest.js";` in `jest.config.ts` to remove errors when running `npm test`[#662]
+- Added `Pagination` component to be used on different pages with a large number of search results [#686]
 - Added JSON mocks to `__mocks__` for all types of versioned questions (for use with the project/plan pages)
 - Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
 - Added auto-save to the `Question Answer` page [#585]
@@ -8,6 +10,8 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
+- Updated unit test for `Plan Create` to use new `MockProvider` [#686]
 - Updated all plan pages to use the proper section and question ids. They were using `Section.id` and `Question.id` but should be using `VersionedSection.id` and `VersionedQuestion.id` since the plan is based on a published template and so should be referencing the components of the published version
 - Renamed existing `__mocks__` to be clear that they represent non-versioned questions (for use with the template pages)
 - Update `@dmptool/types` version [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
@@ -20,6 +24,9 @@
 
 ### Fixed
 - Fixed issue with saved data not loading on the `Funding Detail` page after saving [#659]
+- Fixed a bug on `Section` page where `question` text was used, when we should be referring to `section` instead [#666]
+- Updated the `stripHtmlTags` function to include an option to strip only specific tags [#662]
+- Updated the `Question details` page to strip the `questionText` of `HTML` tags [#662]
 - Added `Load more` functionality for `/projects` page, using the new pagination [#647]
 - Addressed issue where templates on `/projects/7/dmp/create` were showing `Not published`. They are all `versionedTemplates` so they are `published` [#646] d
 - Fixed bug when hovering over the `Back` button turns text white (essentially invisible) [#651]
