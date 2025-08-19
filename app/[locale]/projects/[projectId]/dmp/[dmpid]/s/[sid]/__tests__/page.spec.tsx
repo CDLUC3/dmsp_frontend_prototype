@@ -383,7 +383,7 @@ describe('PlanOverviewSectionPage', () => {
 
     // Check progress indicator
     const progressIndicator = firstCard.querySelector('.progressIndicator');
-    expect(progressIndicator).toHaveAttribute('aria-label', 'Question status: Not started');
+    expect(progressIndicator).toHaveAttribute('aria-label', 'Question status: question.notAnswered');
 
     // Check action button
     const actionButton = firstCard.querySelector('a[href*="/q/1"]');
@@ -436,8 +436,8 @@ describe('PlanOverviewSectionPage', () => {
       expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
     });
 
-    expect(screen.getAllByLabelText('Question status: Completed')).toHaveLength(1);
-    expect(screen.getAllByLabelText('Question status: Not started')).toHaveLength(2);
+    expect(screen.getAllByLabelText('Question status: question.answered')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Question status: question.notAnswered')).toHaveLength(2);
   });
 
   it('should handle missing section data gracefully', async () => {
