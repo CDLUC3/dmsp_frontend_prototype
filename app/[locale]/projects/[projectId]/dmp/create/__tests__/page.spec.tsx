@@ -736,6 +736,11 @@ describe('PlanCreate Component using base mock', () => {
 
 
   beforeEach(() => {
+    // for this test to stop flapping (failing randomly) when run in the test suite (with `npm run test`) I had to add
+    // these two lines, though it always succeeded when run individually outside the test suite
+    jest.clearAllMocks();
+    cleanup();
+
     mockUseTranslations.mockImplementation(() => {
       return jest.fn((key) => key);
     });
