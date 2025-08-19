@@ -92,6 +92,11 @@ const ProjectsProjectFundingEdit = () => {
   const { data, loading, error: queryError, refetch } = useProjectFundingQuery(
     {
       variables: { projectFundingId: Number(projectFundingId) },
+      /*Needed to add this fetchPolicy so that users get fresh data when coming back to this page after editing because it was
+      previously showing stale data. I believe that it's ok to use this here because:
+      - Edit pages typically are low traffic
+      - Data accuracy is critical on form pages and we don't want users overwriting their changes*/
+      fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true
     }
   );
