@@ -16,24 +16,6 @@ jest.mock("@/utils/dateUtils", () => ({
   },
 }));
 
-// Mock react-aria-components
-jest.mock("react-aria-components", () => ({
-  Button: ({ children, onPress, className, type }: any) => (
-    <button onClick={onPress} className={className} type={type}>
-      {children}
-    </button>
-  ),
-  TextArea: React.forwardRef<HTMLTextAreaElement, any>(({ onChange, value, className, rows, ...props }, ref) => (
-    <textarea
-      onChange={onChange}
-      value={value}
-      className={className}
-      rows={rows}
-      ref={ref}
-      {...props}
-    />
-  )),
-}));
 
 const mockComments: MergedComment[] = [
   {
@@ -184,9 +166,20 @@ describe("CommentList", () => {
   });
 
   it("should not show edit/delete buttons for non-owned comments when user is not plan owner", () => {
+    const meResearcher = {
+      id: 99,
+      givenName: "Other",
+      surName: "User",
+      languageId: "en",
+      role: UserRole.Admin,
+      emails: [],
+      errors: {},
+      affiliation: { id: 1, name: "Test Org", searchName: "test-org", uri: "https://test.org" }
+    };
+
     const props = {
       ...defaultProps,
-      me: { me: { id: 99, givenName: "Other", surName: "User" } }, // Different user
+      me: { me: meResearcher }, // Correct shape
       planOwners: [1], // Not a plan owner
     };
 

@@ -2,7 +2,8 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useToast } from '@/context/ToastContext';
 import { useRouter } from 'next/navigation';
 import * as actions from '../../actions';
-import { useComments } from '../useComments';
+import { UserRole } from '@/generated/graphql';
+import { useComments, AnswerComment, FeedbackComment } from '../useComments';
 import { MergedComment } from '@/app/types';
 
 // Mocks
@@ -42,8 +43,28 @@ describe('useComments', () => {
       id: 1,
       givenName: 'Test',
       surName: 'User',
-      role: 'ADMIN',
-      affiliation: { uri: 'org1' }
+      role: UserRole.Admin,
+      languageId: 'en',
+      emails: [
+        {
+          id: 1,
+          email: "test@example.com",
+          isPrimary: true,
+          isConfirmed: true
+        }
+      ],
+      errors: {
+        general: null,
+        email: null,
+        password: null,
+        role: null
+      },
+      affiliation: {
+        id: 1,
+        name: "Test Organization",
+        searchName: "test-organization",
+        uri: "https://test.org"
+      },
     }
   };
 
@@ -51,9 +72,6 @@ describe('useComments', () => {
     const { result } = renderHook(() =>
       useComments({
         dmpId: '1',
-        projectId: '1',
-        versionedSectionId: '1',
-        versionedQuestionId: '1',
         planFeedbackId: 10,
         me,
         planOrgId: 'org1',
@@ -71,8 +89,9 @@ describe('useComments', () => {
 
     // Simulate adding a comment
     await act(async () => {
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
       await result.current.handleAddComment(
-        { preventDefault: () => { } } as any,
+        fakeEvent,
         1,
         'New comment'
       );
@@ -92,14 +111,19 @@ describe('useComments', () => {
     });
 
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     // First, add a comment so there's something to delete
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Comment to delete');
-    });
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
 
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Comment to delete'
+      );
+    });
     // Grab the comment that was just added
     const commentToDelete = result.current.mergedComments[0];
     expect(commentToDelete).toBeDefined();
@@ -124,12 +148,18 @@ describe('useComments', () => {
 
 
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     // First, add a comment so there's something to delete
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Comment to delete');
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
+
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Comment to delete'
+      );
     });
 
     // Grab the comment that was just added
@@ -156,9 +186,6 @@ describe('useComments', () => {
     const { result } = renderHook(() =>
       useComments({
         dmpId: '1',
-        projectId: '1',
-        versionedSectionId: '1',
-        versionedQuestionId: '1',
         me,
         planFeedbackId
       })
@@ -199,9 +226,6 @@ describe('useComments', () => {
     const { result } = renderHook(() =>
       useComments({
         dmpId: '1',
-        projectId: '1',
-        versionedSectionId: '1',
-        versionedQuestionId: '1',
         me,
         planFeedbackId,
         planOrgId: 'org1',
@@ -245,11 +269,16 @@ describe('useComments', () => {
       data: {},
     });
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Failing comment');
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Failing comment'
+      );
     });
 
     expect(result.current.mergedComments.length).toBe(0);
@@ -264,13 +293,17 @@ describe('useComments', () => {
       redirect: '/new-url'
     });
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Failing comment');
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Failing comment'
+      );
     });
-
     // Verify that router.push was called with "/new-url"
     expect(mockRouter.push).toHaveBeenCalledWith('/new-url');
   });
@@ -283,11 +316,16 @@ describe('useComments', () => {
     });
 
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Bad comment');
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Bad comment'
+      );
     });
 
     expect(result.current.mergedComments.length).toBe(0);
@@ -296,11 +334,16 @@ describe('useComments', () => {
 
   it('should replace tempId with real id on successful add', async () => {
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Real id comment');
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Real id comment'
+      );
     });
 
     const saved = result.current.mergedComments[0];
@@ -309,11 +352,16 @@ describe('useComments', () => {
 
   it('should delete comment successfully and show toast', async () => {
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Delete me');
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Delete me'
+      );
     });
 
     await waitFor(() => {
@@ -346,12 +394,17 @@ describe('useComments', () => {
 
   it('should update comment successfully and clear edit state', async () => {
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     // Add a comment
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Old text');
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Old text'
+      );
     });
     const comment = result.current.mergedComments[0];
 
@@ -380,11 +433,16 @@ describe('useComments', () => {
       data: {},
     });
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Initial text');
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Initial text'
+      );
     });
     const comment = result.current.mergedComments[0];
 
@@ -412,11 +470,16 @@ describe('useComments', () => {
       redirect: '/new-url'
     });
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
     await act(async () => {
-      await result.current.handleAddComment({ preventDefault: () => { } } as any, 1, 'Initial text');
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Initial text'
+      );
     });
     const comment = result.current.mergedComments[0];
 
@@ -435,15 +498,24 @@ describe('useComments', () => {
 
   });
 
-  it('should enter and cancel edit mode', () => {
+  it('should enter and cancel edit mode', async () => {
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
-    const fakeComment = { id: 99, commentText: 'test' } as any;
+    await act(async () => {
+      const fakeEvent = { preventDefault: () => { } } as unknown as React.FormEvent<HTMLFormElement>;
 
-    act(() => result.current.handleEditComment(fakeComment));
-    expect(result.current.editingCommentId).toBe(99);
+      await result.current.handleAddComment(
+        fakeEvent,
+        1,
+        'Comment to delete'
+      );
+    });
+    // Grab the comment that was just added
+    const commentToEdit = result.current.mergedComments[0];
+    act(() => result.current.handleEditComment(commentToEdit));
+    expect(result.current.editingCommentId).toBe(123);
 
     act(() => result.current.handleCancelEdit());
     expect(result.current.editingCommentId).toBe(null);
@@ -452,11 +524,11 @@ describe('useComments', () => {
 
   it('should merge and sort answer + feedback comments', () => {
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me })
+      useComments({ dmpId: '1', me })
     );
 
-    const answerComments = [{ id: 1, commentText: 'Answer', created: '10', answerId: 1 }] as any;
-    const feedbackComments = [{ id: 2, commentText: 'Feedback', created: '5' }] as any;
+    const answerComments = [{ id: 1, commentText: 'Answer', created: '10', answerId: 1 }] as AnswerComment[];
+    const feedbackComments = [{ id: 2, commentText: 'Feedback', created: '5' }] as FeedbackComment[];
 
     act(() => result.current.setCommentsFromData(answerComments, feedbackComments));
 
@@ -465,10 +537,17 @@ describe('useComments', () => {
   });
 
   it('should set canAddComments true for collaborator', () => {
+    const meResearcher = {
+      me: {
+        ...me.me,
+        id: 2,
+        role: UserRole.Researcher
+      }
+    };
     const { result } = renderHook(() =>
       useComments({
-        dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1',
-        me: { me: { id: 2, role: 'USER' } },
+        dmpId: '1',
+        me: meResearcher,
         collaborators: [2]
       })
     );
@@ -478,8 +557,15 @@ describe('useComments', () => {
   });
 
   it('should set canAddComments false when user not allowed', () => {
+    const meResearcher = {
+      me: {
+        ...me.me,
+        id: 3,
+        role: UserRole.Researcher
+      }
+    };
     const { result } = renderHook(() =>
-      useComments({ dmpId: '1', projectId: '1', versionedSectionId: '1', versionedQuestionId: '1', me: { me: { id: 3, role: 'USER' } } })
+      useComments({ dmpId: '1', me: meResearcher })
     );
 
     act(() => result.current.updateCanAddComments());

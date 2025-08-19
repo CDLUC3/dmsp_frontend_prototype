@@ -3,8 +3,6 @@ import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/context/ToastContext';
-import logECS from '@/utils/clientLogger';
-import { routePath } from '@/utils/routes';
 import {
   addAnswerCommentAction,
   addFeedbackCommentAction,
@@ -15,6 +13,7 @@ import {
 } from '../actions';
 
 import { MergedComment } from '@/app/types';
+import { MeQuery } from '@/generated/graphql';
 
 type AddCommentData = {
   id: number;
@@ -23,7 +22,7 @@ type AddCommentData = {
   errors?: { [key: string]: string | null } | null;
 };
 
-interface AnswerComment {
+export interface AnswerComment {
   __typename?: "AnswerComment";
   id?: number | null;
   commentText: string;
@@ -38,7 +37,7 @@ interface AnswerComment {
   } | null | undefined;
 }
 
-interface FeedbackComment {
+export interface FeedbackComment {
   __typename?: "PlanFeedbackComment";
   id?: number | null;
   commentText?: string | null;
@@ -59,11 +58,8 @@ interface FeedbackComment {
 
 interface UseCommentsProps {
   dmpId: string;
-  projectId: string;
-  versionedSectionId: string;
-  versionedQuestionId: string;
   planFeedbackId?: number | null;
-  me?: any;
+  me?: MeQuery | null | undefined;
   planOrgId?: string;
   openFeedbackRounds?: boolean;
   planOwners?: number[] | null;
@@ -76,9 +72,6 @@ interface MutationErrorsInterface {
 
 export const useComments = ({
   dmpId,
-  projectId,
-  versionedSectionId,
-  versionedQuestionId,
   planFeedbackId,
   me,
   planOrgId,
@@ -235,7 +228,7 @@ export const useComments = ({
         __typename: 'PlanFeedbackComment',
         id: tempId,
         commentText: newComment,
-        answerId: answerId,
+        answerId,
         created: new Date().getTime().toString(),
         modified: new Date().getTime().toString(),
         type: 'feedback',
@@ -254,7 +247,7 @@ export const useComments = ({
         __typename: 'AnswerComment',
         id: tempId,
         commentText: newComment,
-        answerId: answerId,
+        answerId,
         created: new Date().getTime().toString(),
         modified: new Date().getTime().toString(),
         type: 'answer',
@@ -424,7 +417,7 @@ export const useComments = ({
     editingCommentId,
     editingCommentText,
     canAddComments,
-    errors: errors,
+    errors,
     commentsEndRef,
 
     // Setters

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { PlanSectionProgress, TemplateVisibility } from "@/generated/graphql";
+import { PlanSectionProgress, TemplateVisibility, PlanFeedback } from "@/generated/graphql";
 import { AffiliationSearchQuestionType, AnyQuestionType } from '@dmptool/types';
 
 export interface EmailInterface {
@@ -462,5 +462,5 @@ export interface MergedComment {
   // Optional fields that may exist on either type
   user?: User | null;
   modified?: string | null;
-  PlanFeedback?: any | null;
+  PlanFeedback?: PlanFeedback | null;
 }

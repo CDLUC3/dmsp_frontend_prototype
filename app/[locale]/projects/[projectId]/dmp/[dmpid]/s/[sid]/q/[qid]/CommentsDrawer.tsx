@@ -63,7 +63,6 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
   const [newCommentText, setNewCommentText] = useState<string>('');
 
   // Localization
-  const Global = useTranslations('Global');
   const PlanOverview = useTranslations('PlanOverview');
   const t = useTranslations('PlanOverviewQuestionPage');
 

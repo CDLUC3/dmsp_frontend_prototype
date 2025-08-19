@@ -16,6 +16,7 @@ jest.mock("next-intl", () => ({
 
 // Mock DrawerPanel (to avoid focusing/portal complexity)
 jest.mock("@/components/Container", () => ({
+  /*eslint-disable @typescript-eslint/no-explicit-any */
   DrawerPanel: ({ children, title, isOpen }: any) =>
     isOpen ? (
       <div data-testid="drawer">
@@ -26,32 +27,18 @@ jest.mock("@/components/Container", () => ({
 }));
 
 // Mock CommentList to simplify
-jest.mock("../CommentList", () => (props: any) => (
-  <div data-testid="comment-list">
-    {props.comments.map((c: MergedComment) => (
-      <p key={c.id}>{c.commentText}</p>
-    ))}
-  </div>
-));
-
-// Mock react-aria-components
-jest.mock("react-aria-components", () => ({
-  Button: ({ children, onClick, type, className }: any) => (
-    <button onClick={onClick} type={type} className={className}>
-      {children}
-    </button>
-  ),
-  Form: ({ children, onSubmit }: any) => (
-    <form onSubmit={onSubmit}>{children}</form>
-  ),
-  Label: ({ children, htmlFor }: any) => <label htmlFor={htmlFor}>{children}</label>,
-  TextArea: ({ onChange, value, ...props }: any) => (
-    <textarea onChange={onChange} value={value} {...props} />
-  ),
-  TextField: ({ children, className }: any) => (
-    <div className={className}>{children}</div>
-  ),
-}));
+jest.mock("../CommentList", () => {
+  /*eslint-disable @typescript-eslint/no-explicit-any */
+  const MockCommentList = (props: any) => (
+    <div data-testid="comment-list">
+      {props.comments.map((c: MergedComment) => (
+        <p key={c.id}>{c.commentText}</p>
+      ))}
+    </div>
+  );
+  MockCommentList.displayName = "MockCommentList";
+  return MockCommentList;
+});
 
 const mergedComments: MergedComment[] = [
   {
@@ -82,7 +69,7 @@ const mergedComments: MergedComment[] = [
   },
 ];
 
-// Create a minimal mock that matches the MeQuery structure
+// MeQuery mock
 const createMockMeQuery = (overrides = {}) => ({
   me: {
     id: 1,
@@ -198,7 +185,6 @@ describe("CommentsDrawer", () => {
     const user = userEvent.setup();
     render(<CommentsDrawer {...defaultProps} />);
 
-    const textarea = screen.getByTestId("new-comment-textarea");
     const submitButton = screen.getByRole("button", { name: "buttons.comment" });
 
     // Try to submit with empty textarea

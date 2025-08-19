@@ -7,6 +7,7 @@ import {
   useAnswerByVersionedQuestionIdQuery,
   usePublishedQuestionQuery,
   usePlanQuery,
+  useMeQuery
 } from '@/generated/graphql';
 import {
   addAnswerAction,
@@ -18,7 +19,7 @@ import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 import mockAnswerData from '../__mocks__/mockAnswerData.json';
 import mockPlanData from '../__mocks__/mockPlanData.json';
 import mockPublishedQuestion from '../__mocks__/mockPublishedQuestion.json';
-
+import mockMeData from '../__mocks__/mockMeQuery.json';
 // Mocked question data
 import mockCheckboxQuestion from '../__mocks__/mockCheckboxQuestion.json';
 import mockQuestionDataForBoolean from '@/__mocks__/common/mockPublishedQuestionDataForBoolean.json';
@@ -106,6 +107,7 @@ expect.extend(toHaveNoViolations);
 
 // Mock the GraphQL query and mutation hooks
 jest.mock("@/generated/graphql", () => ({
+  useMeQuery: jest.fn(),
   usePlanQuery: jest.fn(),
   usePublishedQuestionQuery: jest.fn(),
   useAnswerByVersionedQuestionIdQuery: jest.fn(),
@@ -156,6 +158,11 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
 
     jest.useFakeTimers();
+
+    (useMeQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce(mockMeData),
+      { loading: false, error: undefined },
+    ]);
 
     (usePlanQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockPlanData),

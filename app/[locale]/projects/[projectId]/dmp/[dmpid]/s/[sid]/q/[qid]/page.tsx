@@ -255,9 +255,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     handleCancelEdit
   } = useComments({
     dmpId,
-    projectId,
-    versionedSectionId,
-    versionedQuestionId,
     planFeedbackId: plan?.feedbackId,
     me,
     planOrgId: plan?.orgId,
