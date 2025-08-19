@@ -84,8 +84,12 @@
   "ProjectsCreateProjectFunding": {
     "title": "Vocês já têm financiamento para este projeto?",
     "form": {
-      "radioFundingLabel": "Vocês já têm financiamento para este projeto?",
-      "radioFundingDescription": "Se sim, tentaremos pesquisar o projeto e obter informações associadas para você revisar e editar."
+      "radioFundingLabel": "Você já tem financiamento para este projeto?",
+      "radioFundingDescription": "Você pode atualizar ou remover tudo isso mais tarde, então não se preocupe se ainda estiver esperando os detalhes finais ou um número de prêmio.",
+      "radioYesLabel": "Sim, recebi financiamento",
+      "radioYesDescription": "Ajudaremos você a vincular o projeto a um financiador agora mesmo. Você poderá selecionar um financiador e, se disponível, coletaremos os detalhes relevantes. Tudo poderá ser revisado ou alterado posteriormente.",
+      "radioNoLabel": "Não - Pular por enquanto",
+      "radioNoDescription": "Você ainda pode prosseguir. Se receber financiamento posteriormente, poderá vinculá-lo a este projeto."
     }
   },
   "ProjectsProjectDetail": {
