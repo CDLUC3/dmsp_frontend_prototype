@@ -66,12 +66,7 @@
     "pageTitle": "Create a new project",
     "form": {
       "projectTitle": "What is the title for the project? (required)",
-      "projectTitleHelpText": "This should be the formal title if you have already applied for funding, as it will be used to find your Project in the Funder’s database. This can be changed later.",
-      "newOrExisting": "New or existing project?",
-      "radioExistingLabel": "The project already exists or might exist",
-      "radioExistingHelpText": "We will search for the project and pull in associated information for you to review and edit if possible, otherwise create a brand new project",
-      "radioNewLabel": "New project",
-      "radioNewHelpText": "Enter all project details yourself.",
+      "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency.",
       "checkboxGroupLabel": "This project is mock project for testing, practice, or educational purposes",
       "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
       "checkboxLabel": "Yes, set this project to a mock or a test project.",
