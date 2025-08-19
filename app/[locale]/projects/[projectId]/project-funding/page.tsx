@@ -53,11 +53,13 @@ const ProjectsCreateProjectFunding = () => {
     radioButtonData: [
       {
         value: 'yes',
-        label: Global('form.yesLabel'),
+        label: ProjectFunding('form.radioYesLabel'),
+        description: ProjectFunding('form.radioYesDescription'),
       },
       {
         value: 'no',
-        label: Global('form.noLabel'),
+        label: ProjectFunding('form.radioNoLabel'),
+        description: ProjectFunding('form.radioNoDescription'),
       }
     ]
   }

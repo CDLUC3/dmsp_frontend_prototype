@@ -85,7 +85,11 @@
     "title": "Do you already have funding for this project?",
     "form": {
       "radioFundingLabel": "Do you already have funding for this project?",
-      "radioFundingDescription": "If yes, we will try to search for the project and pull in associated information for you to review and edit."
+      "radioFundingDescription": "You can update or remove all of this later, so don't worry if you are still waiting on final details or an award number.",
+      "radioYesLabel": "Yes - I've been awarded funding",
+      "radioYesDescription": "We'll help you link the project to a funder now. You'll be able to select a funder and, if available, we'll pull in relevant details. Everything can be reviewed or changed later.",
+      "radioNoLabel": "No - Skip for now",
+      "radioNoDescription": "You can still proceed. If you receive funding later, you'll be able to link it to this project."
     }
   },
   "ProjectsProjectDetail": {
