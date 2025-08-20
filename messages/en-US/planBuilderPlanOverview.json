@@ -45,6 +45,11 @@
       "count": "{count} outputs",
       "edit": "Adjust for this plan"
     },
+    "relatedWorks": {
+      "title": "Related works for this plan",
+      "count": "{count} works",
+      "edit": "Adjust for this plan"
+    },
     "question": {
       "answered": "Answered",
       "notAnswered": "Not answered"

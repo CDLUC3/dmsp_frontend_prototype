@@ -15,6 +15,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectMembers.module.scss';
+import { orcidToUrl } from "@/lib/idToUrl";
 
 interface ProjectMemberInterface {
   id: number | null;
@@ -144,7 +145,7 @@ const ProjectsProjectMembers = () => {
                           <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
                         </span>
                         <a
-                          href={`https://orcid.org/${member.orcid}`}
+                          href={orcidToUrl(member.orcid)}
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label={`ORCID profile for ${member.fullName}`}

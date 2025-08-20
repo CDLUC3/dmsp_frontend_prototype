@@ -1,5 +1,6 @@
 
 ### Added
+- Added `RelatedWorks` page and associated components `RelatedWorksList`, `RelatedWorksListItem`, `ExpandableNameList` and `LinkFilter`.
 - Added a `dialog` when removing `project members` so we can message them about the member being removed from all plans and allow users to confirm they want to delete this member [#737]
 - Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
 - Added new mutations to `add`, `update`, and `delete` comments [#321]
@@ -14,6 +15,8 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Use `orcidToUrl` helper function to generate full ORCID URLs.
+- Moved expand button from `RelatedWorksList` into its own component `ExpandButton`.
 - Update the section questions to show Answered/Not Answered status and buttons Start/Update [#670]
 - Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
 - Updated unit test for `Plan Create` to use new `MockProvider` [#686]
@@ -28,6 +31,9 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Make `Tab` use `cursor: pointer`.
+- Fix styling of `Toggle Switch` as toggle button was vertically off-centre.
+- Fix styling of `Select` by setting `overflow: auto` on `ListBox` so that the list can scroll, and make `ListBoxItem` use `cursor: pointer`.
 - Fixed issue with some breaking unit tests due to different timezones [#739]
 - Fixed some issues on the `Project details` page [#734]
 - Fixed issue with entered Affiliation `label` and `help` text not displaying on the `Question Preview` page

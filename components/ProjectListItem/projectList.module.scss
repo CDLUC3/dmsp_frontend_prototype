@@ -47,7 +47,7 @@
   color: var(--slate-900) !important;
   text-decoration: underline;
   font-size: var(--fs-base);
-  line-height: 1;
+  line-height: 1.25rem;
   font-family: var(--font-sans);
 }
 
@@ -57,30 +57,6 @@
 
 .projectExpandedContent {
   margin-top: 1.5rem;
-}
-
-.expandButton {
-  font-family: var(--font-sans);
-  background: none;
-  border: none;
-  font-size: var(--fs-base);
-  line-height: 1;
-  cursor: pointer;
-  color: var(--slate-900) !important;
-  text-decoration: underline;
-  border: none;
-  padding: 0;
-  margin: 0;
-  background: transparent!important;
-}
-
-.expandIcon {
-  margin-left: 5px;
-  transition: transform 0.3s ease; /* Smooth transition */
-}
-
-.expanded {
-  transform: rotate(180deg); /* Rotate the arrow when expanded */
 }
 
 .statusInfo {

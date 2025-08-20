@@ -1,0 +1,15 @@
+.collapseButton {
+  all: unset;
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+button.collapseButton:hover {
+  background-color: transparent;
+  color: var(--text-color);
+}
+
+button.collapseButton:focus {
+  transform: none;
+}

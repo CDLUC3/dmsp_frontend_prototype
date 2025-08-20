@@ -1,0 +1,63 @@
+@use "@/styles/responsive.scss" as r;
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.filters {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+
+  @include r.device(sm) {
+    gap: 1rem;
+  }
+
+  @include r.device(md) {
+    gap: 1.5rem;
+  }
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filterLabel {
+  font-weight: 600;
+}
+
+.spacer {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.filterByType :global(.react-aria-Select) {
+  margin-bottom: 0;
+
+  :global(.react-aria-Button) {
+    width: 13rem;
+  }
+}
+
+.sortBy :global(.react-aria-Select) {
+  margin-bottom: 0;
+
+  :global(.react-aria-Button) {
+    width: 14rem;
+  }
+}
+
+.list > *:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.footer {
+  margin-top: 2.5rem;
+}
