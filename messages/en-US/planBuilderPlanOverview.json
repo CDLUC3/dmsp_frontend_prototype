@@ -45,6 +45,11 @@
       "count": "{count} outputs",
       "edit": "Adjust for this plan"
     },
+    "relatedWorks": {
+      "title": "Related works for this plan",
+      "count": "{count} works",
+      "edit": "Adjust for this plan"
+    },
     "question": {
       "answered": "Answered",
       "notAnswered": "Not answered"
@@ -198,6 +203,21 @@
   "ProjectsProjectFunding": {
     "buttons": {
       "addFundingSource": "Add a funding source"
+    },
+    "messages": {
+      "errors": {
+        "funderNumberNotFound": "Funder's project number not found."
+      }
+    }
+  },
+  "RelatedWorks": {
+    "buttons": {
+      "addRelatedWorkManually": "Add Related Work"
+    },
+    "tabs": {
+      "pending": "Pending",
+      "related": "Marked as Related",
+      "discarded": "Discarded"
     },
     "messages": {
       "errors": {
