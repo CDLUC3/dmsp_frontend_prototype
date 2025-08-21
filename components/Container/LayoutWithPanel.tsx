@@ -173,26 +173,6 @@ export const DrawerPanel: React.FC<DrawerPanelProps> = ({
     setStateOpen(isOpen);
   }, [isOpen]);
 
-  // Prevent background scrolling when drawer is open
-  useEffect(() => {
-    if (stateOpen) {
-      // Store current scroll position
-      const scrollY = window.scrollY;
-
-      // Lock background scroll
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-
-      return () => {
-        // Restore background scroll when drawer closes
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [stateOpen]);
 
   useEffect(() => {
     if (stateOpen) {

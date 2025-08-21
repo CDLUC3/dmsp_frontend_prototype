@@ -282,11 +282,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Toggle the comments drawer open and closed
   const toggleCommentsDrawer = () => {
-    // If no comments available, then show toast message instead of open drawer panel
-    if (mergedComments.length === 0) {
-      toastState.add(t('messages.noComments'), { type: 'info', timeout: 3000 });
-      return;
-    }
     const newDrawerState = !isSampleTextDrawerOpen;
 
     setCommentsDrawerOpen(newDrawerState);
@@ -1204,19 +1199,18 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   <div className={styles.buttonsRow}>
                     {/**Only include sample text button for textArea question types and if sampleText is not empty */}
                     {(questionType === 'textArea' && question?.sampleText) && (
-                      <div className="">
-                        <Button
-                          ref={openSampleTextButtonRef}
-                          className={`${styles.buttonSmall} tertiary`}
-                          data-secondary
-                          onPress={toggleSampleTextDrawer}
-                        >
-                          {PlanOverview('page.viewSampleAnswer')}
-                        </Button>
-                      </div>
+                      <Button
+                        ref={openSampleTextButtonRef}
+                        className={`${styles.buttonSmall} tertiary`}
+                        data-secondary
+                        onPress={toggleSampleTextDrawer}
+                      >
+                        {PlanOverview('page.viewSampleAnswer')}
+                      </Button>
                     )}
 
-                    <div className="">
+                    {/**Only show comments if an answer has been saved so far */}
+                    {answerId && (
                       <Button
                         ref={openCommentsButtonRef}
                         className={`${styles.buttonSmall} ${mergedComments.length > 0 ? styles.buttonWithComments : null}`}
@@ -1224,7 +1218,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
                       >
                         {t('buttons.commentWithNumber', { number: mergedComments.length })}
                       </Button>
-                    </div>
+                    )}
+
                   </div>
                   {parsed && questionField}
 
