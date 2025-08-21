@@ -76,6 +76,7 @@ query PublishedQuestion($versionedQuestionId: Int!) {
     json
     requirementText
     sampleText
+    useSampleTextAsDefault
     versionedSectionId
     versionedTemplateId
     required

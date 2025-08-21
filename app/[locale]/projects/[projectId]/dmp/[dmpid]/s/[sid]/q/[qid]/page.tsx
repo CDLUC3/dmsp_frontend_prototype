@@ -979,7 +979,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleTextChange,
     },
     textAreaProps: {
-      content: formData.textAreaContent,
+      content:
+        !formData.textAreaContent &&
+          question?.useSampleTextAsDefault &&
+          !!question?.sampleText
+          ? question.sampleText
+          : formData.textAreaContent,
       setContent: buildSetContent('textAreaContent', setFormData),
       handleTextAreaChange
     },
