@@ -51,9 +51,9 @@ export default function Pending() {
     {
       doi: "10.1126/fake.2025.084512",
       type: "article",
-      score: 1.0,
+      score: 0.3,
       title: "NeuroSynthetics: Toward Biologically-Inspired Cognitive Robotics",
-      publicationDate: new Date(2025, 4, 15),
+      publicationDate: new Date(2020, 4, 15),
       containerTitle: "Journal of Future Robotics Research",
       authors: [
         {
@@ -162,9 +162,9 @@ export default function Pending() {
     {
       doi: "10.1016/fake.2025.293748",
       type: "article",
-      score: 1.0,
+      score: 0.6,
       title: "Synthetic Empathy: Emotional Intelligence in Autonomous Agents",
-      publicationDate: new Date(2025, 2, 10),
+      publicationDate: new Date(2024, 2, 10),
       containerTitle: "Artificial Intelligence & Society",
       authors: [
         {
@@ -207,7 +207,7 @@ export default function Pending() {
     {
       doi: "10.5555/fake.2025.778899",
       type: "article",
-      score: 1.0,
+      score: 0.8,
       title: "Quantum-Tuned Perception Systems for Next-Gen Robots",
       publicationDate: new Date(2025, 6, 28),
       containerTitle: "IEEE Transactions on Robotics",
@@ -256,7 +256,7 @@ export default function Pending() {
 
   return (
     <>
-      {works.map((work) => (
+      {works.sort(work => work.score).reverse().map((work) => (
         <RelatedWorksListItem
           key={work.doi}
           item={work}
