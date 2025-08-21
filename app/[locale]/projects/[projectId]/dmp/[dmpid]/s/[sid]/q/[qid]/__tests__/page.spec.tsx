@@ -63,15 +63,15 @@ beforeEach(() => {
   // Cannot get the escaping to work in the mock JSON file, so doing it programmatically here
   const affiliationQuery = 'query Affiliations($name: String!){ ' +
     'affiliations(name: $name) { ' +
-      'totalCount ' +
-      'nextCursor ' +
-      'items { ' +
-        'id ' +
-        'displayName ' +
-        'uri ' +
-      '} ' +
+    'totalCount ' +
+    'nextCursor ' +
+    'items { ' +
+    'id ' +
+    'displayName ' +
+    'uri ' +
     '} ' +
-  '}';
+    '} ' +
+    '}';
 
   const json: AffiliationSearchQuestionType = {
     type: 'affiliationSearch',
@@ -246,6 +246,32 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(bestPracticeDataFormat).toBeInTheDocument();
     const bestPracticeDataVolume = screen.getByRole('heading', { level: 3, name: 'dataVolume' });
     expect(bestPracticeDataVolume).toBeInTheDocument();
+  })
+
+  it('should load sampleText in textArea if useSampleTextAsDefault is true and sampleText exists in question', async () => {
+
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: mockAnswerDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    // Check that the textArea question field is in page
+    const textAreaQuestion = screen.getByLabelText('question-text-editor');
+    expect(textAreaQuestion).toBeInTheDocument();
+    expect(screen.getByText((content) => content.includes('Sample text'))).toBeInTheDocument();
   })
 
   it('should load correct question content for checkbox question', async () => {
