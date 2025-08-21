@@ -138,8 +138,8 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
                     </Button>
                   )}
 
-                  {/**Only display the delete button for the user who created the comment or a project collaborator with role 'OWN' */}
-                  {((comment?.user?.id === me?.me?.id) || planOwners?.includes(me?.me?.id as number)) && (
+                  {/**Only display the delete button for the user who created the comment*/}
+                  {(comment?.user?.id === me?.me?.id) && (
                     <Button
                       className={`${styles.deEmphasize} link`}
                       type="button"

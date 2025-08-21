@@ -125,7 +125,10 @@ const planMock = {
       id: 789,
       name: 'Test Template',
     },
-    name: 'Test Template'
+    name: 'Test Template',
+    owner: {
+      uri: 'https://example.com/owner',
+    }
   },
   fundings: {
     id: 1,
@@ -148,6 +151,12 @@ const planMock = {
       }
     ],
     title: 'Test Project',
+    collaborators: {
+      accessLevel: 'OWN',
+      user: {
+        id: 1
+      },
+    }
   },
   members: [],
   versionedSections: [
@@ -160,9 +169,15 @@ const planMock = {
     },
   ],
   created: '2024-01-01',
+  createdById: 1,
   modified: '2024-01-01',
+  modifiedById: 1,
   dmpId: 'doi-456',
-  registered: true
+  registered: true,
+  feedback: {
+    id: 789,
+    completed: null
+  }
 };
 
 const mocks = [
