@@ -1382,7 +1382,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
           handleEditComment={handleEditComment}
           handleDeleteComment={handleDeleteComment}
           me={me}
-          planOwners={plan?.planOwners}
           locale={locale}
           commentsEndRef={commentsEndRef}
           canAddComments={canAddComments}

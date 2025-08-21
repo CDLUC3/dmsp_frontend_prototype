@@ -17,7 +17,6 @@ interface CommentListProps {
   editingCommentId: number | null | undefined;
   editingCommentText: string;
   me: MeQuery | null | undefined;
-  planOwners: number[] | null | undefined;
   handleEditComment: (comment: MergedComment) => void;
   handleUpdateComment: (comment: MergedComment) => void;
   handleCancelEdit: () => void;
@@ -32,7 +31,6 @@ const CommentList = React.memo(function CommentList(props: CommentListProps) {
     editingCommentId,
     editingCommentText,
     me,
-    planOwners,
     handleEditComment,
     handleUpdateComment,
     handleCancelEdit,
