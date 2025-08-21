@@ -441,3 +441,32 @@ export interface AffiliationSearchQuestionProps {
   handleAffiliationChange: (id: string, value: string) => Promise<void>
   handleOtherAffiliationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
+
+export interface RelatedWorksItemProps {
+  doi: string;
+  type: string;
+  score: number;
+  title: string
+  publicationDate: Date | null;
+  containerTitle: string | null;
+  authors: {
+    firstInitial: string | null;
+    givenName: string | null;
+    middleInitial: string | null;
+    middleName: string | null;
+    surname: string | null;
+    full: string | null;
+    orcid: string | null;
+  }[];
+  affiliations: {
+    id: string | null;
+    name: string | null;
+  }[];
+  funders: {
+    id: string | null;
+    name: string | null;
+  }[];
+  awardIds: string[];
+  dateFound: Date;
+  defaultExpanded: boolean;
+}

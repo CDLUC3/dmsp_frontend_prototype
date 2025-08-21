@@ -1,0 +1,114 @@
+@use '@/styles/responsive.scss' as *;
+
+.relatedWorksItem {
+  padding: 1.25rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--card-border-radius);
+  background: var(--bg-white);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+}
+
+.overview {
+  display: flex;
+  flex-direction: column;
+}
+
+.overviewHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  @include device(md) {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+.overviewTitle {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    padding: 0 0 0.2rem;
+    line-height: var(--lh-tight) !important;
+    a {
+      color: var(--slate-900);
+      font-size: var(--fs-lg);
+      font-weight: var(--fw-bold);
+      line-height: var(--lh-tight) !important;
+    }
+  }
+
+  h4 {
+    color: var(--gray-900);
+    font-size: var(--fs-base);
+    font-weight: var(--fw-base);
+    line-height: var(--lh-tight);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+}
+
+.overviewActions {
+  padding-top: 0.1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.overviewFooter {
+  display: flex;
+  gap: 1rem;
+  color: var(--gray-500);
+  font-size: var(--fs-small);
+  font-weight: var(--fw-base);
+  padding-top: 1rem;
+}
+
+.confidence {
+  line-height: 1;
+  color: var(--slate-900);
+  font-weight: var(--fw-bold);
+  padding-top: 0.1rem;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  color: var(--slate-900) !important;
+  text-decoration: underline;
+  padding: 0;
+  margin: 0;
+  background: transparent !important;
+}
+
+.expandIcon {
+  margin-left: 5px;
+  transition: transform 0.3s ease; /* Smooth transition */
+}
+
+.expanded {
+  transform: rotate(180deg); /* Rotate the arrow when expanded */
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

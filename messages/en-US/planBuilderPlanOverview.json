@@ -212,12 +212,17 @@
   },
   "RelatedWorks": {
     "buttons": {
-      "addRelatedWorkManually": "Add Related Work"
+      "addRelatedWorkManually": "Add Related Work",
+      "review": "Review",
+      "reviewCollapse": "Collapse"
     },
     "tabs": {
       "pending": "Pending",
       "related": "Marked as Related",
       "discarded": "Discarded"
+    },
+    "links": {
+      "title": "Open published version of this paper"
     },
     "messages": {
       "errors": {

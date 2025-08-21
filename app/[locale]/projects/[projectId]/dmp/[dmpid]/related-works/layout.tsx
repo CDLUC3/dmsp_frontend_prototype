@@ -38,7 +38,7 @@ const RelatedWorksLayout = ({
           <>
             <Button
               onPress={() => {}}
-              className="secondary"
+              className="primary"
               aria-label="Add a related work"
             >
               {t("buttons.addRelatedWorkManually")}
