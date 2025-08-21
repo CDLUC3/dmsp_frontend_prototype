@@ -1,6 +1,7 @@
 "use client";
 
 import RelatedWorksListItem from "@/components/RelatedWorksListItem";
+import styles from './RelatedWorksList.module.scss';
 
 // interface RelatedWork {
 //   doi: string;
@@ -255,13 +256,13 @@ export default function Pending() {
   ];
 
   return (
-    <>
+    <div className={styles.listContainer}>
       {works.sort(work => work.score).reverse().map((work) => (
         <RelatedWorksListItem
           key={work.doi}
           item={work}
         />
       ))}
-    </>
+    </div>
   );
 }

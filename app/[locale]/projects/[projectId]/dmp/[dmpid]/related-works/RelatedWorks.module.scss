@@ -1,0 +1,24 @@
+
+.tabWrapper {
+
+}
+
+.tabWrapper :global(.react-aria-Tab) {
+  font-weight: 600;
+  font-size: var(--fs-xl);
+  line-height: 1.75rem;
+  color: var(--slate-900);
+  padding: 0.5rem 1rem !important;
+  border: 0 !important;
+}
+
+.tabWrapper :global(.react-aria-Tab[data-selected]) {
+  background-color: #EAEAEA;
+}
+
+.tabWrapper :global(.react-aria-TabPanel) {
+  background-color: #EAEAEA;
+  border-top-left-radius: 0;
+  padding: 1.2rem 1.2rem 1.5rem;
+  box-shadow: none;
+}

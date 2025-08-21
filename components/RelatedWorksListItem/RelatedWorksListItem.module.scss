@@ -2,7 +2,6 @@
 
 .relatedWorksItem {
   padding: 1.25rem 1rem;
-  margin-bottom: 1rem;
   border-radius: var(--card-border-radius);
   background: var(--bg-white);
   box-shadow: var(--card-shadow);
@@ -35,6 +34,12 @@
     margin: 0;
     padding: 0 0 0.2rem;
     line-height: var(--lh-tight) !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
     a {
       color: var(--slate-900);
       font-size: var(--fs-lg);
@@ -44,9 +49,9 @@
   }
 
   h4 {
-    color: var(--gray-900);
+    color: #313131;
     font-size: var(--fs-base);
-    font-weight: var(--fw-base);
+    font-weight: var(--fw-normal);
     line-height: var(--lh-tight);
     margin: 0;
     white-space: nowrap;
@@ -68,7 +73,7 @@
   gap: 1rem;
   color: var(--gray-500);
   font-size: var(--fs-small);
-  font-weight: var(--fw-base);
+  font-weight: var(--fw-normal);
   padding-top: 1rem;
 }
 
@@ -93,7 +98,8 @@
 }
 
 .expandIcon {
-  margin-left: 5px;
+  margin-top: 2px;
+  margin-left: 0;
   transition: transform 0.3s ease; /* Smooth transition */
 }
 
