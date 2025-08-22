@@ -57,6 +57,7 @@
 - Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
 - Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
+- Allow for tags in the checkbox group to wrap when the screen size is small. [#489]
 
 ### Removed
 - Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
