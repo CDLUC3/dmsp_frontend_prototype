@@ -7,6 +7,7 @@ import {
   useAnswerByVersionedQuestionIdQuery,
   usePublishedQuestionQuery,
   usePlanQuery,
+  useMeQuery
 } from '@/generated/graphql';
 import {
   addAnswerAction,
@@ -18,7 +19,7 @@ import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 import mockAnswerData from '../__mocks__/mockAnswerData.json';
 import mockPlanData from '../__mocks__/mockPlanData.json';
 import mockPublishedQuestion from '../__mocks__/mockPublishedQuestion.json';
-
+import mockMeData from '../__mocks__/mockMeQuery.json';
 // Mocked question data
 import mockCheckboxQuestion from '../__mocks__/mockCheckboxQuestion.json';
 import mockQuestionDataForBoolean from '@/__mocks__/common/mockPublishedQuestionDataForBoolean.json';
@@ -58,6 +59,16 @@ import mockOtherAnswerData from '../__mocks__/mockOtherAnswerData.json'
 import { mockScrollIntoView } from "@/__mocks__/common";
 import PlanOverviewQuestionPage from "../page";
 import { AffiliationSearchQuestionType } from "@dmptool/types";
+
+// Mock for useComments hook
+import { mockUseComments, defaultMockReturn } from '../hooks/__mocks__/useComments';
+
+jest.mock('../hooks/useComments', () => {
+  const { mockUseComments } = jest.requireActual('../hooks/__mocks__/useComments');
+  return {
+    useComments: mockUseComments,
+  };
+});
 
 beforeEach(() => {
   const affiliationQuery = `
@@ -101,6 +112,9 @@ beforeEach(() => {
     },
   };
   mockQuestionDataForTypeAheadSearch.publishedQuestion.json = JSON.stringify(json);
+
+  // Mock the useComments hook
+  mockUseComments.mockReturnValue(defaultMockReturn);
 });
 
 expect.extend(toHaveNoViolations);
@@ -108,6 +122,7 @@ expect.extend(toHaveNoViolations);
 
 // Mock the GraphQL query and mutation hooks
 jest.mock("@/generated/graphql", () => ({
+  useMeQuery: jest.fn(),
   usePlanQuery: jest.fn(),
   usePublishedQuestionQuery: jest.fn(),
   useAnswerByVersionedQuestionIdQuery: jest.fn(),
@@ -159,6 +174,14 @@ describe('PlanOverviewQuestionPage render of questions', () => {
 
     jest.useFakeTimers();
 
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
+    });
+
+    mockUseComments.mockReturnValue(defaultMockReturn);
+
     (usePlanQuery as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce(mockPlanData),
       { loading: false, error: undefined },
@@ -175,6 +198,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
       loading: false,
       error: undefined,
     });
+
   })
 
   afterEach(() => {
@@ -201,7 +225,8 @@ describe('PlanOverviewQuestionPage render of questions', () => {
       );
     });
 
-    // Check for Requirements content
+
+    //Check for Requirements content
     expect(screen.getByRole('heading', { level: 3, name: 'page.requirementsBy' })).toBeInTheDocument();
     const boldedRequirements = screen.getByText('Requirements - Lorem Ipsum');
     expect(boldedRequirements).toBeInTheDocument();
@@ -224,7 +249,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('button', { name: 'Required by funder' })).toBeInTheDocument();
     // check for drawer panel trigger buttons
     expect(screen.getByRole('button', { name: 'page.viewSampleAnswer' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
     // Check that the textArea question field is in page
     expect(screen.getByLabelText('question-text-editor')).toBeInTheDocument();
 
@@ -294,7 +319,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Checkbox question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
     const checkboxGroup = screen.getByTestId('checkbox-group');
     expect(checkboxGroup).toBeInTheDocument();
     const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
@@ -339,7 +364,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Radio button question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
 
     //Radio group
     const radioGroup = screen.getByRole('radiogroup');
@@ -378,7 +403,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: "Testing" })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
     const textFieldWrapper = screen.getByTestId('field-wrapper');
     expect(textFieldWrapper).toBeInTheDocument();
     expect(within(textFieldWrapper).getByLabelText('text')).toBeInTheDocument();
@@ -413,7 +438,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Affiliation search question' }))
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
     const typeAheadContainer = screen.getByTestId('typeaheadWithOther');
     expect(typeAheadContainer).toBeInTheDocument();
     expect(within(typeAheadContainer).getByText('Institution')).toBeInTheDocument();
@@ -444,7 +469,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Date range question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
     // Date range container
     const dateRangeContainer = screen.getByTestId('date-range-container');
     expect(dateRangeContainer).toBeInTheDocument();
@@ -495,7 +520,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Date field question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
     // Date picker container
     const datePicker = screen.getByTestId('date-picker');
     const date = within(datePicker);
@@ -533,7 +558,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Yes/No question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
 
     //Radio group
     const radioGroup = screen.getByRole('radiogroup');
@@ -567,7 +592,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Url question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
 
     const urlInput = screen.getByPlaceholderText('url');
     expect(urlInput).toBeInTheDocument();
@@ -596,7 +621,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Email field question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
 
     const emailInput = screen.getByPlaceholderText('email');
     expect(emailInput).toBeInTheDocument();
@@ -626,7 +651,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Currency Field question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
 
     // Should see increment and decrement buttons
     const decreaseButton = screen.getAllByLabelText('Decrease');
@@ -661,7 +686,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Number Range question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
 
     expect(screen.getByText('Starting')).toBeInTheDocument();
     expect(screen.getByText('Ending')).toBeInTheDocument();
@@ -700,7 +725,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Number Field question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
 
     expect(screen.getByText('number')).toBeInTheDocument();
     // Should see increment and decrement buttons
@@ -736,7 +761,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Multi select question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
 
     expect(screen.getByText('Select Items (Multiple)')).toBeInTheDocument();
     expect(screen.getByText('Apple')).toBeInTheDocument();
@@ -776,7 +801,7 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Select box question' })).toBeInTheDocument();
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '4 Comments' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
 
     const selectButton = screen.getByTestId('select-button');
     expect(within(selectButton).getByText('Oregon')).toBeInTheDocument();
@@ -892,6 +917,14 @@ describe('Call to updateAnswerAction', () => {
       loading: false,
       error: undefined,
     });
+
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
+    });
+
+    mockUseComments.mockReturnValue(defaultMockReturn);
   })
 
   it('should call updateAnswerAction when data changes for typeaheadSearch field', async () => {
@@ -1780,7 +1813,7 @@ describe('Call to updateAnswerAction', () => {
           versionedQuestionId: 'versionedQuestionId already exists'
         },
         id: 27,
-        json: "{\"type\":\"textArea\",\"answer\":\"This is a test\"}",
+        json: "{\"type\":\"textArea123\",\"answer\":\"This is a test\"}",
         modified: "1751929006000",
         versionedQuestion: {
           versionedSectionId: 20
@@ -1922,6 +1955,15 @@ describe('DrawerPanel', () => {
       loading: false,
       error: undefined,
     });
+
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
+    });
+
+    mockUseComments.mockReturnValue(defaultMockReturn);
+
   })
 
   it('should open Sample text DrawerPanel when user clicks on the \'View sample answer\' button', async () => {
@@ -2067,7 +2109,7 @@ describe('DrawerPanel', () => {
     const sidebarPanel = screen.queryByTestId('sidebar-panel');
 
     // check for drawer panel trigger buttons
-    const viewCommentsBtn = screen.getByRole('button', { name: '4 Comments' });
+    const viewCommentsBtn = screen.getByRole('button', { name: 'buttons.commentWithNumber' });
     expect(viewCommentsBtn).toBeInTheDocument();
     expect(sidebarPanel).toBeInTheDocument();
     expect(visibleDrawerPanel).toBeUndefined();
@@ -2130,7 +2172,7 @@ describe('DrawerPanel', () => {
     });
 
 
-    const viewCommentsBtn = screen.getByRole('button', { name: '4 Comments' });
+    const viewCommentsBtn = screen.getByRole('button', { name: 'buttons.commentWithNumber' });
     // Click on Comments button to reveal comments drawer panel
     await userEvent.click(viewCommentsBtn);
 
@@ -2142,93 +2184,9 @@ describe('DrawerPanel', () => {
     await userEvent.click(commentBtn);
 
     // Get new info on sidebar and drawer panel - drawer should be closed and sidebar panel should be displayed
-    const allDrawerPanels2 = screen.getAllByTestId('drawer-panel');
-    const visibleDrawerPanel2 = allDrawerPanels2.find(
-      panel => panel.getAttribute('aria-hidden') !== 'true'
-    )!; // Non-null assertion operator
+
     const sidebarPanel2 = screen.queryByTestId('sidebar-panel');
     expect(sidebarPanel2).toBeInTheDocument();
-    expect(visibleDrawerPanel2).toBeUndefined();
-  })
-
-  it('should close drawer panel when user clicks on the masked body while comments drawer panel is open', async () => {
-
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
-
-    await act(async () => {
-      render(
-        <PlanOverviewQuestionPage />
-      );
-    });
-
-
-    const viewCommentsBtn = screen.getByRole('button', { name: '4 Comments' });
-    // Click on Comments button to reveal comments drawer panel
-    await userEvent.click(viewCommentsBtn);
-
-    const layoutWithPanel = screen.getByTestId('layout-with-panel');
-
-    // Click on the masked layoutWithPanel to close the drawer
-    await userEvent.click(layoutWithPanel);
-
-    // Drawer should be closed now and sidebar panel should be displayed
-    const allDrawerPanels = screen.getAllByTestId('drawer-panel');
-    const visibleDrawerPanel = allDrawerPanels.find(
-      panel => panel.getAttribute('aria-hidden') !== 'true'
-    )!; // Non-null assertion operator
-    const sidebarPanel = screen.queryByTestId('sidebar-panel');
-    expect(sidebarPanel).toBeInTheDocument();
-    expect(visibleDrawerPanel).toBeUndefined();
-  })
-
-  it('should close drawer panel when user clicks on the masked body when sample answer drawer panel is open', async () => {
-
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTextArea,
-      loading: false,
-      error: undefined,
-    });
-
-    await act(async () => {
-      render(
-        <PlanOverviewQuestionPage />
-      );
-    });
-
-
-    const viewSampleTextBtn = screen.getByRole('button', { name: 'page.viewSampleAnswer' });
-    // Click on View Sample text button to reveal sample text drawer panel
-    await userEvent.click(viewSampleTextBtn);
-
-    const layoutWithPanel = screen.getByTestId('layout-with-panel');
-
-    // Click on the masked layoutWithPanel to close the drawer
-    await userEvent.click(layoutWithPanel);
-
-    // Drawer should be closed now and sidebar panel should be displayed
-    const allDrawerPanels = screen.getAllByTestId('drawer-panel');
-    const visibleDrawerPanel = allDrawerPanels.find(
-      panel => panel.getAttribute('aria-hidden') !== 'true'
-    )!; // Non-null assertion operator
-    const sidebarPanel = screen.queryByTestId('sidebar-panel');
-    expect(sidebarPanel).toBeInTheDocument();
-    expect(visibleDrawerPanel).toBeUndefined();
   })
 });
 

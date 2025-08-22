@@ -1,5 +1,8 @@
 
 ### Added
+- Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
+- Added new mutations to `add`, `update`, and `delete` comments [#321]
+- Added new `CommentList` and `CommentsDrawer` components, and `useComments` hook for the comments list [#321]
 - Added `.js` extension to `import nextJest from "next/jest.js";` in `jest.config.ts` to remove errors when running `npm test`[#662]
 - Added `Pagination` component to be used on different pages with a large number of search results [#686]
 - Added JSON mocks to `__mocks__` for all types of versioned questions (for use with the project/plan pages)
@@ -25,6 +28,7 @@
 
 ### Fixed
 - Update `PlanOverviewQuestionPage` to make sure that `sample text` displays initially when it is present and `useSampleTextAsDefault` is set to true [#677]
+- Updated `SectionTypeSelectPage` to only show the `Org section` and `best Practice section` headers if there are any to display [#702]
 - Fixed issue with saved data not loading on the `Funding Detail` page after saving [#659]
 - Flapping test `should render PlanCreate component with funder checkbox` required additional clearing of mocks to perform consistently.
 - Bad test on DateRangeQuestionComponent tests that were consistently failing because of multiple matches in my environment.
@@ -54,6 +58,7 @@
 - Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
 - Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
+- Allow for tags in the checkbox group to wrap when the screen size is small. [#489]
 
 ### Removed
 - Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
