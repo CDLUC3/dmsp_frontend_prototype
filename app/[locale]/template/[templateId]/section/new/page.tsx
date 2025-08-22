@@ -242,6 +242,16 @@ const SectionTypeSelectPage: React.FC = () => {
     return null;
   };
 
+  const hasOrgSections =
+    (filteredSections && filteredSections.some(s => s?.bestPractice === false)) ||
+    (sections && sections.some(s => s?.bestPractice === false));
+
+  const hasBestPracticeSections =
+    (filteredBestPracticeSections && filteredBestPracticeSections.some(s => s?.bestPractice === true)) ||
+    (bestPracticeSections && bestPracticeSections.some(s => s?.bestPractice === true));
+
+
+
   // Show loading message
   if (loading) {
     return <div>{Global('messaging.loading')}...</div>;
@@ -293,9 +303,11 @@ const SectionTypeSelectPage: React.FC = () => {
           </div>
 
           <div>
-            <h2>
-              {AddNewSection('headings.previouslyCreatedSections')}
-            </h2>
+
+            {/* Only show heading if there are org sections and not both */}
+            {hasOrgSections && (
+              <h2>{AddNewSection('headings.previouslyCreatedSections')}</h2>
+            )}
 
             {/*Organization Sections */}
             <div className="card-grid-list">
@@ -374,10 +386,10 @@ const SectionTypeSelectPage: React.FC = () => {
                   : renderLoadMore(sections, 'sections')}
               </div>
             )}
-
-            <h2>
-              {AddNewSection('headings.bestPracticeSections')}
-            </h2>
+            {/* Only show heading if there are best practice sections and not both */}
+            {hasBestPracticeSections && (
+              <h2>{AddNewSection('headings.bestPracticeSections')}</h2>
+            )}
 
             {/*Best Practice sections */}
             <div className="card-grid-list">
