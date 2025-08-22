@@ -59,14 +59,14 @@ describe('ProjectsCreateProjectFunding', () => {
     expect(screen.getByText('breadcrumbs.home')).toBeInTheDocument();
     expect(screen.getByText('breadcrumbs.projects')).toBeInTheDocument();
     expect(screen.getByText('form.radioFundingLabel')).toBeInTheDocument();
-    expect(screen.getByText('form.yesLabel')).toBeInTheDocument();
-    expect(screen.getByText('form.noLabel')).toBeInTheDocument();
+    expect(screen.getByText('form.radioYesLabel')).toBeInTheDocument();
+    expect(screen.getByText('form.radioNoLabel')).toBeInTheDocument();
     expect(screen.getByText('buttons.continue')).toBeInTheDocument();
   });
 
   it('should handle form submission with "yes" selected', async () => {
     render(<ProjectsCreateProjectFunding />);
-    fireEvent.click(screen.getByLabelText('form.yesLabel'));
+    fireEvent.click(screen.getByLabelText('form.radioYesLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
       expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/funding-search');
@@ -75,7 +75,7 @@ describe('ProjectsCreateProjectFunding', () => {
 
   it('should handle form submission with "no" selected', async () => {
     render(<ProjectsCreateProjectFunding />);
-    fireEvent.click(screen.getByLabelText('form.noLabel'));
+    fireEvent.click(screen.getByLabelText('form.radioNoLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
       expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123')
