@@ -60,18 +60,20 @@ import PlanOverviewQuestionPage from "../page";
 import { AffiliationSearchQuestionType } from "@dmptool/types";
 
 beforeEach(() => {
-  // Cannot get the escaping to work in the mock JSON file, so doing it programmatically here
-  const affiliationQuery = 'query Affiliations($name: String!){ ' +
-    'affiliations(name: $name) { ' +
-    'totalCount ' +
-    'nextCursor ' +
-    'items { ' +
-    'id ' +
-    'displayName ' +
-    'uri ' +
-    '} ' +
-    '} ' +
-    '}';
+  const affiliationQuery = `
+  query Affiliations($name: String!) {
+    affiliations(name: $name) {
+      totalCount
+      nextCursor
+      items {
+        id
+        displayName
+        uri
+      }
+    }
+  }
+`;
+
 
   const json: AffiliationSearchQuestionType = {
     type: 'affiliationSearch',
