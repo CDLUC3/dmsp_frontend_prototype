@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useAddQuestionMutation,
   useQuestionsDisplayOrderQuery,
-  useTemplateQuery,
+  useTemplateQuery, // Added for when we test contents of Question Preview
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -17,7 +17,7 @@ import { AffiliationSearchQuestionType } from "@dmptool/types";
 expect.extend(toHaveNoViolations);
 
 
-// Mock the Apollo client creation since TypeAheadWithOther creates its own client
+// Mock the Apollo client creation since TypeAheadWithOther creates its own client. This is for when the Question Preview component opens
 jest.mock('@/lib/graphql/client/apollo-client', () => ({
   createApolloClient: jest.fn(() => ({
     query: jest.fn().mockResolvedValue({
@@ -166,7 +166,7 @@ describe("QuestionAdd", () => {
       error: undefined,
     });
 
-    (useTemplateQuery as jest.Mock).mockReturnValue({
+    (useTemplateQuery as jest.Mock).mockReturnValue({ // Added for when we test contents of Question preview
       data: mockTemplateData,
       loading: false,
       error: undefined,
@@ -1092,7 +1092,7 @@ describe("QuestionAdd", () => {
     });
   })
 
-  it('should call handleTypeAheadSearchLabelChange when typeaheadSearch label value changes', async () => {
+  it('should call handleTypeAheadSearchLabelChange when typeaheadSearch label value changes and pass correct value to Question Preview', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -1170,7 +1170,7 @@ describe("QuestionAdd", () => {
     });
   });
 
-  it('should call handleTypeAheadHelpTextChange when typeaheadSearch help text value changes', async () => {
+  it('should call handleTypeAheadHelpTextChange when typeaheadSearch help text value changes and pass correct value to Question Preview', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
