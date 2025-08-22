@@ -39,8 +39,6 @@ function Header() {
 
 
   const handleLogout = async (e: MouseEvent<HTMLAnchorElement>) => {
-    console.log("handleLogout called")
-
     e.preventDefault();
 
 

@@ -429,6 +429,8 @@ export type Answer = {
   createdById?: Maybe<Scalars['Int']['output']>;
   /** Errors associated with the Object */
   errors?: Maybe<AffiliationErrors>;
+  /** The feedback comments associated with the answer */
+  feedbackComments?: Maybe<Array<PlanFeedbackComment>>;
   /** The unique identifer for the Object */
   id?: Maybe<Scalars['Int']['output']>;
   /** The answer to the question */
@@ -463,6 +465,8 @@ export type AnswerComment = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** User who made the comment */
+  user?: Maybe<User>;
 };
 
 /** A collection of errors related to the Answer Comment */
@@ -742,7 +746,9 @@ export type Mutation = {
   addAffiliation?: Maybe<Affiliation>;
   /** Answer a question */
   addAnswer?: Maybe<Answer>;
-  /** Add a comment to an answer within a round of feedback */
+  /** Add comment for an answer  */
+  addAnswerComment?: Maybe<AnswerComment>;
+  /** Add feedback comment for an answer within a round of feedback */
   addFeedbackComment?: Maybe<PlanFeedbackComment>;
   /** Add a new License (don't make the URI up! should resolve to an taxonomy HTML/JSON representation of the object) */
   addLicense?: Maybe<License>;
@@ -808,7 +814,9 @@ export type Mutation = {
   publishPlan?: Maybe<Plan>;
   /** Delete an Affiliation (only applicable to AffiliationProvenance == DMPTOOL) */
   removeAffiliation?: Maybe<Affiliation>;
-  /** Remove a comment to an answer within a round of feedback */
+  /** Remove answer comment */
+  removeAnswerComment?: Maybe<AnswerComment>;
+  /** Remove feedback comment for an answer within a round of feedback */
   removeFeedbackComment?: Maybe<PlanFeedbackComment>;
   /** Delete a License */
   removeLicense?: Maybe<License>;
@@ -860,6 +868,10 @@ export type Mutation = {
   updateAffiliation?: Maybe<Affiliation>;
   /** Edit an answer */
   updateAnswer?: Maybe<Answer>;
+  /** Update comment for an answer  */
+  updateAnswerComment?: Maybe<AnswerComment>;
+  /** Update feedback comment for an answer within a round of feedback */
+  updateFeedbackComment?: Maybe<PlanFeedbackComment>;
   /** Update a License record */
   updateLicense?: Maybe<License>;
   /** Update the member role */
@@ -929,10 +941,17 @@ export type MutationAddAnswerArgs = {
 };
 
 
+export type MutationAddAnswerCommentArgs = {
+  answerId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+};
+
+
 export type MutationAddFeedbackCommentArgs = {
   answerId: Scalars['Int']['input'];
   commentText: Scalars['String']['input'];
   planFeedbackId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -1065,6 +1084,7 @@ export type MutationArchiveTemplateArgs = {
 
 export type MutationCompleteFeedbackArgs = {
   planFeedbackId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
   summaryText?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1122,8 +1142,15 @@ export type MutationRemoveAffiliationArgs = {
 };
 
 
+export type MutationRemoveAnswerCommentArgs = {
+  answerCommentId: Scalars['Int']['input'];
+  answerId: Scalars['Int']['input'];
+};
+
+
 export type MutationRemoveFeedbackCommentArgs = {
-  PlanFeedbackCommentId: Scalars['Int']['input'];
+  planFeedbackCommentId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -1243,6 +1270,20 @@ export type MutationUpdateAffiliationArgs = {
 export type MutationUpdateAnswerArgs = {
   answerId: Scalars['Int']['input'];
   json?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationUpdateAnswerCommentArgs = {
+  answerCommentId: Scalars['Int']['input'];
+  answerId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateFeedbackCommentArgs = {
+  commentText: Scalars['String']['input'];
+  planFeedbackCommentId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -1470,6 +1511,7 @@ export enum PaginationType {
 /** A Data Managament Plan (DMP) */
 export type Plan = {
   __typename?: 'Plan';
+  /** Answers associated with the plan */
   answers?: Maybe<Array<Answer>>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
@@ -1481,6 +1523,8 @@ export type Plan = {
   errors?: Maybe<PlanErrors>;
   /** Whether or not the plan is featured on the public plans page */
   featured?: Maybe<Scalars['Boolean']['output']>;
+  /** Feedback associated with the plan */
+  feedback?: Maybe<Array<PlanFeedback>>;
   /** The funding for the plan */
   fundings?: Maybe<Array<PlanFunding>>;
   /** The unique identifer for the Object */
@@ -1543,8 +1587,6 @@ export type PlanErrors = {
 /** A round of administrative feedback for a Data Managament Plan (DMP) */
 export type PlanFeedback = {
   __typename?: 'PlanFeedback';
-  /** An overall summary that can be sent to the user upon completion */
-  adminSummary?: Maybe<Scalars['String']['output']>;
   /** The timestamp that the feedback was marked as complete */
   completed?: Maybe<Scalars['String']['output']>;
   /** The admin who completed the feedback round */
@@ -1564,21 +1606,23 @@ export type PlanFeedback = {
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** The plan the user wants feedback on */
-  plan: Plan;
+  plan?: Maybe<Plan>;
   /** The timestamp of when the user requested the feedback */
-  requested: Scalars['String']['output'];
+  requested?: Maybe<Scalars['String']['output']>;
   /** The user who requested the round of feedback */
-  requestedBy: User;
+  requestedBy?: Maybe<User>;
+  /** An overall summary that can be sent to the user upon completion */
+  summaryText?: Maybe<Scalars['String']['output']>;
 };
 
 export type PlanFeedbackComment = {
   __typename?: 'PlanFeedbackComment';
   /** The round of plan feedback the comment belongs to */
   PlanFeedback?: Maybe<PlanFeedback>;
-  /** The answer the comment is related to */
-  answer?: Maybe<Answer>;
+  /** The answerId the comment is related to */
+  answerId?: Maybe<Scalars['Int']['output']>;
   /** The comment */
-  comment?: Maybe<Scalars['String']['output']>;
+  commentText?: Maybe<Scalars['String']['output']>;
   /** The timestamp when the Object was created */
   created?: Maybe<Scalars['String']['output']>;
   /** The user who created the Object */
@@ -1591,6 +1635,8 @@ export type PlanFeedbackComment = {
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
   modifiedById?: Maybe<Scalars['Int']['output']>;
+  /** User who made the comment */
+  user?: Maybe<User>;
 };
 
 /** A collection of errors related to the PlanFeedbackComment */
@@ -1606,13 +1652,13 @@ export type PlanFeedbackCommentErrors = {
 /** A collection of errors related to the PlanFeedback */
 export type PlanFeedbackErrors = {
   __typename?: 'PlanFeedbackErrors';
-  adminSummary?: Maybe<Scalars['String']['output']>;
   completedById?: Maybe<Scalars['String']['output']>;
   feedbackComments?: Maybe<Scalars['String']['output']>;
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
   planId?: Maybe<Scalars['String']['output']>;
   requestedById?: Maybe<Scalars['String']['output']>;
+  summaryText?: Maybe<Scalars['String']['output']>;
 };
 
 /** Funding associated with a plan */
@@ -2178,7 +2224,7 @@ export type Query = {
   affiliationTypes?: Maybe<Array<Scalars['String']['output']>>;
   /** Perform a search for Affiliations matching the specified name */
   affiliations?: Maybe<AffiliationSearchResults>;
-  /** Get the sepecific answer */
+  /** Get the specific answer */
   answer?: Maybe<Answer>;
   /** Get an answer by versionedQuestionId */
   answerByVersionedQuestionId?: Maybe<Answer>;
@@ -2406,6 +2452,7 @@ export type QueryPlanFeedbackArgs = {
 
 export type QueryPlanFeedbackCommentsArgs = {
   planFeedbackId: Scalars['Int']['input'];
+  planId: Scalars['Int']['input'];
 };
 
 
@@ -3847,6 +3894,58 @@ export type UpdateAnswerMutationVariables = Exact<{
 
 export type UpdateAnswerMutation = { __typename?: 'Mutation', updateAnswer?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, errors?: { __typename?: 'AffiliationErrors', acronyms?: string | null, aliases?: string | null, contactEmail?: string | null, contactName?: string | null, displayName?: string | null, feedbackEmails?: string | null, feedbackMessage?: string | null, fundrefId?: string | null, general?: string | null, homepage?: string | null, json?: string | null, logoName?: string | null, logoURI?: string | null, name?: string | null, planId?: string | null, provenance?: string | null, searchName?: string | null, ssoEntityId?: string | null, subHeaderLinks?: string | null, types?: string | null, uri?: string | null, versionedQuestionId?: string | null, versionedSectionId?: string | null } | null, versionedQuestion?: { __typename?: 'VersionedQuestion', versionedSectionId: number } | null } | null };
 
+export type RemoveAnswerCommentMutationVariables = Exact<{
+  answerCommentId: Scalars['Int']['input'];
+  answerId: Scalars['Int']['input'];
+}>;
+
+
+export type RemoveAnswerCommentMutation = { __typename?: 'Mutation', removeAnswerComment?: { __typename?: 'AnswerComment', id?: number | null, answerId: number, commentText: string, errors?: { __typename?: 'AnswerCommentErrors', general?: string | null } | null } | null };
+
+export type UpdateAnswerCommentMutationVariables = Exact<{
+  answerCommentId: Scalars['Int']['input'];
+  answerId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+}>;
+
+
+export type UpdateAnswerCommentMutation = { __typename?: 'Mutation', updateAnswerComment?: { __typename?: 'AnswerComment', commentText: string, answerId: number, id?: number | null, errors?: { __typename?: 'AnswerCommentErrors', general?: string | null, commentText?: string | null, answerId?: string | null } | null } | null };
+
+export type AddAnswerCommentMutationVariables = Exact<{
+  answerId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+}>;
+
+
+export type AddAnswerCommentMutation = { __typename?: 'Mutation', addAnswerComment?: { __typename?: 'AnswerComment', commentText: string, id?: number | null, answerId: number, errors?: { __typename?: 'AnswerCommentErrors', general?: string | null } | null } | null };
+
+export type RemoveFeedbackCommentMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  planFeedbackCommentId: Scalars['Int']['input'];
+}>;
+
+
+export type RemoveFeedbackCommentMutation = { __typename?: 'Mutation', removeFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, commentText?: string | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null } | null };
+
+export type UpdateFeedbackCommentMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  planFeedbackCommentId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+}>;
+
+
+export type UpdateFeedbackCommentMutation = { __typename?: 'Mutation', updateFeedbackComment?: { __typename?: 'PlanFeedbackComment', answerId?: number | null, commentText?: string | null, id?: number | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null } | null };
+
+export type AddFeedbackCommentMutationVariables = Exact<{
+  planId: Scalars['Int']['input'];
+  planFeedbackId: Scalars['Int']['input'];
+  answerId: Scalars['Int']['input'];
+  commentText: Scalars['String']['input'];
+}>;
+
+
+export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null, PlanFeedback?: { __typename?: 'PlanFeedback', id?: number | null } | null } | null };
+
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
   versionedTemplateId: Scalars['Int']['input'];
@@ -4124,7 +4223,7 @@ export type AnswerByVersionedQuestionIdQueryVariables = Exact<{
 }>;
 
 
-export type AnswerByVersionedQuestionIdQuery = { __typename?: 'Query', answerByVersionedQuestionId?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, versionedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null } | null, plan?: { __typename?: 'Plan', id?: number | null } | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null, planId?: string | null, versionedSectionId?: string | null, versionedQuestionId?: string | null, json?: string | null } | null } | null };
+export type AnswerByVersionedQuestionIdQuery = { __typename?: 'Query', answerByVersionedQuestionId?: { __typename?: 'Answer', id?: number | null, json?: string | null, modified?: string | null, created?: string | null, versionedQuestion?: { __typename?: 'VersionedQuestion', id?: number | null } | null, plan?: { __typename?: 'Plan', id?: number | null } | null, comments?: Array<{ __typename?: 'AnswerComment', id?: number | null, commentText: string, answerId: number, created?: string | null, modified?: string | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, feedbackComments?: Array<{ __typename?: 'PlanFeedbackComment', id?: number | null, commentText?: string | null, created?: string | null, answerId?: number | null, modified?: string | null, PlanFeedback?: { __typename?: 'PlanFeedback', id?: number | null } | null, user?: { __typename?: 'User', id?: number | null, surName?: string | null, givenName?: string | null } | null }> | null, errors?: { __typename?: 'AffiliationErrors', general?: string | null, planId?: string | null, versionedSectionId?: string | null, versionedQuestionId?: string | null, json?: string | null } | null } | null };
 
 export type ProjectFundingsQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4160,7 +4259,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4346,7 +4445,7 @@ export type TemplateCollaboratorsQuery = { __typename?: 'Query', template?: { __
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id?: number | null, givenName?: string | null, surName?: string | null, languageId: string, role: UserRole, emails?: Array<{ __typename?: 'UserEmail', id?: number | null, email: string, isPrimary: boolean, isConfirmed: boolean } | null> | null, errors?: { __typename?: 'UserErrors', general?: string | null, email?: string | null, password?: string | null, role?: string | null } | null, affiliation?: { __typename?: 'Affiliation', id?: number | null, name: string, searchName: string, uri: string } | null } | null };
 
 
 export const AddAffiliationDocument = gql`
@@ -4492,6 +4591,264 @@ export function useUpdateAnswerMutation(baseOptions?: Apollo.MutationHookOptions
 export type UpdateAnswerMutationHookResult = ReturnType<typeof useUpdateAnswerMutation>;
 export type UpdateAnswerMutationResult = Apollo.MutationResult<UpdateAnswerMutation>;
 export type UpdateAnswerMutationOptions = Apollo.BaseMutationOptions<UpdateAnswerMutation, UpdateAnswerMutationVariables>;
+export const RemoveAnswerCommentDocument = gql`
+    mutation RemoveAnswerComment($answerCommentId: Int!, $answerId: Int!) {
+  removeAnswerComment(answerCommentId: $answerCommentId, answerId: $answerId) {
+    id
+    errors {
+      general
+    }
+    answerId
+    commentText
+  }
+}
+    `;
+export type RemoveAnswerCommentMutationFn = Apollo.MutationFunction<RemoveAnswerCommentMutation, RemoveAnswerCommentMutationVariables>;
+
+/**
+ * __useRemoveAnswerCommentMutation__
+ *
+ * To run a mutation, you first call `useRemoveAnswerCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveAnswerCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeAnswerCommentMutation, { data, loading, error }] = useRemoveAnswerCommentMutation({
+ *   variables: {
+ *      answerCommentId: // value for 'answerCommentId'
+ *      answerId: // value for 'answerId'
+ *   },
+ * });
+ */
+export function useRemoveAnswerCommentMutation(baseOptions?: Apollo.MutationHookOptions<RemoveAnswerCommentMutation, RemoveAnswerCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveAnswerCommentMutation, RemoveAnswerCommentMutationVariables>(RemoveAnswerCommentDocument, options);
+      }
+export type RemoveAnswerCommentMutationHookResult = ReturnType<typeof useRemoveAnswerCommentMutation>;
+export type RemoveAnswerCommentMutationResult = Apollo.MutationResult<RemoveAnswerCommentMutation>;
+export type RemoveAnswerCommentMutationOptions = Apollo.BaseMutationOptions<RemoveAnswerCommentMutation, RemoveAnswerCommentMutationVariables>;
+export const UpdateAnswerCommentDocument = gql`
+    mutation UpdateAnswerComment($answerCommentId: Int!, $answerId: Int!, $commentText: String!) {
+  updateAnswerComment(
+    answerCommentId: $answerCommentId
+    answerId: $answerId
+    commentText: $commentText
+  ) {
+    commentText
+    answerId
+    id
+    errors {
+      general
+      commentText
+      answerId
+    }
+  }
+}
+    `;
+export type UpdateAnswerCommentMutationFn = Apollo.MutationFunction<UpdateAnswerCommentMutation, UpdateAnswerCommentMutationVariables>;
+
+/**
+ * __useUpdateAnswerCommentMutation__
+ *
+ * To run a mutation, you first call `useUpdateAnswerCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAnswerCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAnswerCommentMutation, { data, loading, error }] = useUpdateAnswerCommentMutation({
+ *   variables: {
+ *      answerCommentId: // value for 'answerCommentId'
+ *      answerId: // value for 'answerId'
+ *      commentText: // value for 'commentText'
+ *   },
+ * });
+ */
+export function useUpdateAnswerCommentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAnswerCommentMutation, UpdateAnswerCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAnswerCommentMutation, UpdateAnswerCommentMutationVariables>(UpdateAnswerCommentDocument, options);
+      }
+export type UpdateAnswerCommentMutationHookResult = ReturnType<typeof useUpdateAnswerCommentMutation>;
+export type UpdateAnswerCommentMutationResult = Apollo.MutationResult<UpdateAnswerCommentMutation>;
+export type UpdateAnswerCommentMutationOptions = Apollo.BaseMutationOptions<UpdateAnswerCommentMutation, UpdateAnswerCommentMutationVariables>;
+export const AddAnswerCommentDocument = gql`
+    mutation AddAnswerComment($answerId: Int!, $commentText: String!) {
+  addAnswerComment(answerId: $answerId, commentText: $commentText) {
+    commentText
+    id
+    answerId
+    errors {
+      general
+    }
+  }
+}
+    `;
+export type AddAnswerCommentMutationFn = Apollo.MutationFunction<AddAnswerCommentMutation, AddAnswerCommentMutationVariables>;
+
+/**
+ * __useAddAnswerCommentMutation__
+ *
+ * To run a mutation, you first call `useAddAnswerCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddAnswerCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addAnswerCommentMutation, { data, loading, error }] = useAddAnswerCommentMutation({
+ *   variables: {
+ *      answerId: // value for 'answerId'
+ *      commentText: // value for 'commentText'
+ *   },
+ * });
+ */
+export function useAddAnswerCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddAnswerCommentMutation, AddAnswerCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddAnswerCommentMutation, AddAnswerCommentMutationVariables>(AddAnswerCommentDocument, options);
+      }
+export type AddAnswerCommentMutationHookResult = ReturnType<typeof useAddAnswerCommentMutation>;
+export type AddAnswerCommentMutationResult = Apollo.MutationResult<AddAnswerCommentMutation>;
+export type AddAnswerCommentMutationOptions = Apollo.BaseMutationOptions<AddAnswerCommentMutation, AddAnswerCommentMutationVariables>;
+export const RemoveFeedbackCommentDocument = gql`
+    mutation RemoveFeedbackComment($planId: Int!, $planFeedbackCommentId: Int!) {
+  removeFeedbackComment(
+    planId: $planId
+    planFeedbackCommentId: $planFeedbackCommentId
+  ) {
+    id
+    errors {
+      general
+    }
+    answerId
+    commentText
+  }
+}
+    `;
+export type RemoveFeedbackCommentMutationFn = Apollo.MutationFunction<RemoveFeedbackCommentMutation, RemoveFeedbackCommentMutationVariables>;
+
+/**
+ * __useRemoveFeedbackCommentMutation__
+ *
+ * To run a mutation, you first call `useRemoveFeedbackCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveFeedbackCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeFeedbackCommentMutation, { data, loading, error }] = useRemoveFeedbackCommentMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      planFeedbackCommentId: // value for 'planFeedbackCommentId'
+ *   },
+ * });
+ */
+export function useRemoveFeedbackCommentMutation(baseOptions?: Apollo.MutationHookOptions<RemoveFeedbackCommentMutation, RemoveFeedbackCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveFeedbackCommentMutation, RemoveFeedbackCommentMutationVariables>(RemoveFeedbackCommentDocument, options);
+      }
+export type RemoveFeedbackCommentMutationHookResult = ReturnType<typeof useRemoveFeedbackCommentMutation>;
+export type RemoveFeedbackCommentMutationResult = Apollo.MutationResult<RemoveFeedbackCommentMutation>;
+export type RemoveFeedbackCommentMutationOptions = Apollo.BaseMutationOptions<RemoveFeedbackCommentMutation, RemoveFeedbackCommentMutationVariables>;
+export const UpdateFeedbackCommentDocument = gql`
+    mutation UpdateFeedbackComment($planId: Int!, $planFeedbackCommentId: Int!, $commentText: String!) {
+  updateFeedbackComment(
+    planId: $planId
+    planFeedbackCommentId: $planFeedbackCommentId
+    commentText: $commentText
+  ) {
+    answerId
+    commentText
+    id
+    errors {
+      general
+    }
+  }
+}
+    `;
+export type UpdateFeedbackCommentMutationFn = Apollo.MutationFunction<UpdateFeedbackCommentMutation, UpdateFeedbackCommentMutationVariables>;
+
+/**
+ * __useUpdateFeedbackCommentMutation__
+ *
+ * To run a mutation, you first call `useUpdateFeedbackCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFeedbackCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFeedbackCommentMutation, { data, loading, error }] = useUpdateFeedbackCommentMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      planFeedbackCommentId: // value for 'planFeedbackCommentId'
+ *      commentText: // value for 'commentText'
+ *   },
+ * });
+ */
+export function useUpdateFeedbackCommentMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFeedbackCommentMutation, UpdateFeedbackCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateFeedbackCommentMutation, UpdateFeedbackCommentMutationVariables>(UpdateFeedbackCommentDocument, options);
+      }
+export type UpdateFeedbackCommentMutationHookResult = ReturnType<typeof useUpdateFeedbackCommentMutation>;
+export type UpdateFeedbackCommentMutationResult = Apollo.MutationResult<UpdateFeedbackCommentMutation>;
+export type UpdateFeedbackCommentMutationOptions = Apollo.BaseMutationOptions<UpdateFeedbackCommentMutation, UpdateFeedbackCommentMutationVariables>;
+export const AddFeedbackCommentDocument = gql`
+    mutation AddFeedbackComment($planId: Int!, $planFeedbackId: Int!, $answerId: Int!, $commentText: String!) {
+  addFeedbackComment(
+    planId: $planId
+    planFeedbackId: $planFeedbackId
+    answerId: $answerId
+    commentText: $commentText
+  ) {
+    id
+    answerId
+    errors {
+      general
+    }
+    PlanFeedback {
+      id
+    }
+  }
+}
+    `;
+export type AddFeedbackCommentMutationFn = Apollo.MutationFunction<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>;
+
+/**
+ * __useAddFeedbackCommentMutation__
+ *
+ * To run a mutation, you first call `useAddFeedbackCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddFeedbackCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addFeedbackCommentMutation, { data, loading, error }] = useAddFeedbackCommentMutation({
+ *   variables: {
+ *      planId: // value for 'planId'
+ *      planFeedbackId: // value for 'planFeedbackId'
+ *      answerId: // value for 'answerId'
+ *      commentText: // value for 'commentText'
+ *   },
+ * });
+ */
+export function useAddFeedbackCommentMutation(baseOptions?: Apollo.MutationHookOptions<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>(AddFeedbackCommentDocument, options);
+      }
+export type AddFeedbackCommentMutationHookResult = ReturnType<typeof useAddFeedbackCommentMutation>;
+export type AddFeedbackCommentMutationResult = Apollo.MutationResult<AddFeedbackCommentMutation>;
+export type AddFeedbackCommentMutationOptions = Apollo.BaseMutationOptions<AddFeedbackCommentMutation, AddFeedbackCommentMutationVariables>;
 export const AddPlanDocument = gql`
     mutation AddPlan($projectId: Int!, $versionedTemplateId: Int!) {
   addPlan(projectId: $projectId, versionedTemplateId: $versionedTemplateId) {
@@ -6037,7 +6394,35 @@ export const AnswerByVersionedQuestionIdDocument = gql`
     plan {
       id
     }
+    comments {
+      id
+      commentText
+      answerId
+      created
+      modified
+      user {
+        id
+        surName
+        givenName
+      }
+    }
+    feedbackComments {
+      id
+      commentText
+      created
+      answerId
+      modified
+      PlanFeedback {
+        id
+      }
+      user {
+        id
+        surName
+        givenName
+      }
+    }
     modified
+    created
     errors {
       general
       planId
@@ -6311,6 +6696,9 @@ export const PlanDocument = gql`
         name
       }
       name
+      owner {
+        uri
+      }
     }
     fundings {
       id
@@ -6331,6 +6719,12 @@ export const PlanDocument = gql`
         funderOpportunityNumber
       }
       title
+      collaborators {
+        user {
+          id
+        }
+        accessLevel
+      }
     }
     members {
       isPrimaryContact
@@ -6352,10 +6746,15 @@ export const PlanDocument = gql`
       totalQuestions
     }
     created
+    createdById
     modified
     dmpId
     registered
     title
+    feedback {
+      id
+      completed
+    }
   }
 }
     `;
@@ -7812,6 +8211,7 @@ export const MeDocument = gql`
     givenName
     surName
     languageId
+    role
     emails {
       id
       email

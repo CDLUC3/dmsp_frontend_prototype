@@ -1,5 +1,8 @@
 
 ### Added
+- Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
+- Added new mutations to `add`, `update`, and `delete` comments [#321]
+- Added new `CommentList` and `CommentsDrawer` components, and `useComments` hook for the comments list [#321]
 - Added `.js` extension to `import nextJest from "next/jest.js";` in `jest.config.ts` to remove errors when running `npm test`[#662]
 - Added `Pagination` component to be used on different pages with a large number of search results [#686]
 - Added JSON mocks to `__mocks__` for all types of versioned questions (for use with the project/plan pages)
