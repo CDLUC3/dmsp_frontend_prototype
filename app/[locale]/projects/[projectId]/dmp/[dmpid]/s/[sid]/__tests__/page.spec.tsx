@@ -441,9 +441,9 @@ describe('PlanOverviewSectionPage', () => {
 
   it('should generate correct completed description for questions', async () => {
     render(
-        <MockedProvider mocks={mocks} addTypename={false}>
-          <PlanOverviewSectionPage />
-        </MockedProvider>
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <PlanOverviewSectionPage />
+      </MockedProvider>
     );
 
     // Wait for data to load
@@ -597,6 +597,7 @@ describe('PlanOverviewSectionPage', () => {
                 sampleText: 'Sample for question 1',
                 versionedSectionId: 456,
                 versionedTemplateId: 789,
+                hasAnswer: false,
               },
             ],
           },
