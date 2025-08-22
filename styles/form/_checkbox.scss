@@ -129,21 +129,6 @@
     align-items: flex-start;
     gap: 0.25rem;
   }
-
-  @media (max-width: 460px) {
-    .checkbox-label {
-      display: flex;
-      flex: 1;
-    }
-
-    .checkbox-wrapper {
-      flex: 1;
-
-      > div {
-        flex: 1;
-      }
-    }
-  }
 }
 
 .react-aria-CheckboxGroup {
