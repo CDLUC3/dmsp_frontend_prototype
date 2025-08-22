@@ -201,11 +201,34 @@ const QuestionAdd = ({
   // Handler for typeahead search label changes
   const handleTypeAheadSearchLabelChange = (value: string) => {
     setTypeaheadSearchLabel(value);
+    // Update the label in the question JSON and sync to question state
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
+      const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+
+      if (updatedParsed?.attributes) {
+        updatedParsed.attributes.label = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updatedParsed),
+        }));
+      }
+    }
   };
 
   // Handler for typeahead help text changes
   const handleTypeAheadHelpTextChange = (value: string) => {
     setTypeAheadHelpText(value);
+    if (parsedQuestionJSON && (parsedQuestionJSON?.type === "affiliationSearch")) {
+      const updatedParsed = structuredClone(parsedQuestionJSON); // To avoid mutating state directly
+
+      if (updatedParsed?.attributes) {
+        updatedParsed.attributes.help = value;
+        setQuestion(prev => ({
+          ...prev,
+          json: JSON.stringify(updatedParsed),
+        }));
+      }
+    }
   };
 
   // Handle changes from RadioGroup
@@ -281,8 +304,8 @@ const QuestionAdd = ({
       return;
     }
     return questionTypeHandlers[questionType as keyof typeof questionTypeHandlers](
-        parsed,
-        userInput
+      parsed,
+      userInput
     );
   };
 
