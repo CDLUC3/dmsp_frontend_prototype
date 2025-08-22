@@ -1,12 +1,14 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "react-aria-components";
-import { RelatedWorksItemProps } from "@/app/types";
+import { Button, Checkbox } from "react-aria-components";
+import { Author, RelatedWork, Work } from "@/app/types";
 import { format } from "date-fns";
 import styles from "./RelatedWorksListItem.module.scss";
+import DOMPurify from "dompurify";
 
-function RelatedWorksListItem({ item }: { item: RelatedWorksItemProps }) {
-  const [expanded, setExpanded] = useState<boolean>(item.defaultExpanded);
+function RelatedWorksListItem({ item }: { item: RelatedWork }) {
+  const work = item.work;
+  const [expanded, setExpanded] = useState<boolean>(false);
   const t = useTranslations("RelatedWorks");
   const Global = useTranslations("Global");
   const toggleExpand = () => {
@@ -14,11 +16,12 @@ function RelatedWorksListItem({ item }: { item: RelatedWorksItemProps }) {
   };
 
   // Create unique IDs for ARIA relationships
-  const expandedContentId = `${item.title.toLowerCase().replace(/\s+/g, "-")}-content`;
-  const headingId = `${item.title.toLowerCase().replace(/\s+/g, "-")}-heading`;
+  const expandedContentId = `${work.title.toLowerCase().replace(/\s+/g, "-")}-content`;
+  const headingId = `${work.title.toLowerCase().replace(/\s+/g, "-")}-heading`;
 
+  const maxItems = 10;
   const maxAuthorChars = 40;
-  const { authorNames, containerTitle, publicationYear } = formatSubtitle(item, maxAuthorChars);
+  const { authorNames, containerTitle, publicationYear } = formatSubtitle(work, maxAuthorChars);
 
   return (
     <div
@@ -31,18 +34,18 @@ function RelatedWorksListItem({ item }: { item: RelatedWorksItemProps }) {
             <div>
               <section aria-labelledby="project-title">
                 <h3 id={headingId}>
-                  {item.doi ? (
+                  {work.doi ? (
                     <a
-                      href={doiToUrl(item.doi)}
-                      aria-label={`${t("links.title")} ${item.title}`}
+                      href={doiToUrl(work.doi)}
+                      aria-label={`${t("links.title")} ${work.title}`}
                       className={styles.titleLink}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {item.title}
+                      {work.title}
                     </a>
                   ) : (
-                    item.title
+                    work.title
                   )}
                 </h3>
                 <h4>
@@ -59,12 +62,12 @@ function RelatedWorksListItem({ item }: { item: RelatedWorksItemProps }) {
               id="confidence"
               className={styles.confidence}
             >
-              Confidence: {formatConfidence(item.score)}
+              Confidence: {formatConfidence(work.score)}
             </span>
             <Button
               aria-expanded={expanded}
               aria-controls={expandedContentId}
-              aria-label={`${expanded ? t("buttons.reviewCollapse") : t("buttons.review")} details for ${item.title}`}
+              aria-label={`${expanded ? t("buttons.reviewCollapse") : t("buttons.review")} details for ${work.title}`}
               onPress={toggleExpand}
               className={styles.expandButton}
             >
@@ -90,14 +93,258 @@ function RelatedWorksListItem({ item }: { item: RelatedWorksItemProps }) {
 
         <div className={styles.overviewFooter}>
           <span>Date found: {formatDate(item.dateFound)}</span>
-          {item.type !== null && <span>Type: {formatType(item.type)}</span>}
+          {work.type !== null && <span>Type: {formatType(work.type)}</span>}
         </div>
       </div>
 
-      {expanded && <p>Details</p>}
+      {expanded && (
+        <div className={styles.details}>
+          <span className={styles.reviewInstructions}>{t("details.reviewInstructions")}</span>
+          <div className={styles.detailsList}>
+            <div className={styles.detailsItem}>
+              <h5>DOI</h5>
+              <a
+                href={doiToUrl(work.doi)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {work.doi}
+              </a>
+            </div>
+
+            {item.match.title !== null && (
+              <div className={styles.detailsItem}>
+                <h5>Title</h5>
+                <span dangerouslySetInnerHTML={{ __html: sanitiseHighlight(item.match.title) }} />
+              </div>
+            )}
+
+            {item.match.abstract.length > 0 && (
+              <div className={styles.detailsItem}>
+                <h5>Abstract</h5>
+                {item.match.abstract.map((abstr, i) => (
+                  <span
+                    key={i}
+                    dangerouslySetInnerHTML={{ __html: sanitiseHighlight(abstr) }}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className={styles.detailsItem}>
+              <h5>Award IDs</h5>
+              <ItemList
+                items={work.awardIds}
+                matches={item.match.awardIds}
+                maxItems={maxItems}
+                renderItem={(awardId, isMatch) => {
+                  return (
+                    <span className={isMatch ? styles.match : undefined}>
+                      {awardId}
+                    </span>
+                  );
+                }}
+              />
+            </div>
+
+            <div className={styles.detailsItem}>
+              <h5>Authors</h5>
+              <ItemList
+                items={work.authors}
+                matches={item.match.authors}
+                maxItems={maxItems}
+                renderItem={(author, isMatch) => {
+                  return (
+                    <>
+                      {author.orcid === null && <span className={isMatch ? styles.match : undefined}>{formatAuthorNameFirstLast(author)}</span>}
+                      {author.orcid !== null && (
+                        <a
+                          href={orcidToUrl(author.orcid)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={isMatch ? styles.match : undefined}
+                        >
+                          {formatAuthorNameFirstLast(author)}
+                        </a>
+                      )}
+                    </>
+                  );
+                }}
+              />
+            </div>
+
+            <div className={styles.detailsItem}>
+              <h5>Institutions</h5>
+              <ItemList
+                items={work.institutions}
+                matches={item.match.institutions}
+                maxItems={maxItems}
+                renderItem={(institution, isMatch) => {
+                  return (
+                    <>
+                      {institution.ror === null && <span className={isMatch ? styles.match : undefined}>{institution.name}</span>}
+                      {institution.ror !== null && (
+                        <a
+                          href={rorToUrl(institution.ror)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={isMatch ? styles.match : undefined}
+                        >
+                          {institution.name}
+                        </a>
+                      )}
+                    </>
+                  );
+                }}
+              />
+            </div>
+
+            <div className={styles.detailsItem}>
+              <h5>Funders</h5>
+              <ItemList
+                items={work.funders}
+                matches={item.match.funders}
+                maxItems={maxItems}
+                renderItem={(funder, isMatch) => {
+                  return (
+                    <>
+                      {funder.ror === null && <span className={isMatch ? styles.match : undefined}>{funder.name}</span>}
+                      {funder.ror !== null && (
+                        <a
+                          href={rorToUrl(funder.ror)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={isMatch ? styles.match : undefined}
+                        >
+                          {funder.name}
+                        </a>
+                      )}
+                    </>
+                  );
+                }}
+              />
+            </div>
+
+            <div className={styles.detailsItem}>
+              <h5>Sources</h5>
+              <ItemList
+                items={work.sources}
+                matches={[]}
+                maxItems={maxItems}
+                renderItem={(source) => {
+                  return (
+                    <>
+                      {source.url === null && <span>{source.name}</span>}
+                      {source.url !== null && (
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {source.name}
+                        </a>
+                      )}
+                    </>
+                  );
+                }}
+              />
+            </div>
+          </div>
+
+          <div className={styles.reviewActions}>
+            <div>
+              <Button
+                onPress={() => {}}
+                className="primary"
+                aria-label="Discard related work"
+              >
+                {t("buttons.discard")}
+              </Button>
+
+              <Button
+                onPress={() => {}}
+                className="primary"
+                aria-label="Accept related work"
+              >
+                {t("buttons.accept")}
+              </Button>
+            </div>
+
+            <Checkbox value="show">
+              <div className="checkbox">
+                <svg
+                  viewBox="0 0 18 18"
+                  aria-hidden="true"
+                >
+                  <polyline points="1 9 7 14 15 4" />
+                </svg>
+              </div>
+              {t("checkboxes.onlyShowMatched")}
+            </Checkbox>
+          </div>
+
+          <span className={styles.discardInstructions}>{t("details.discardInstructions")}</span>
+        </div>
+      )}
     </div>
   );
 }
+
+type ItemListProps<T> = {
+  items: T[];
+  matches: number[];
+  maxItems: number;
+  renderItem: (item: T, isMatch: boolean | null) => React.ReactNode;
+};
+
+const sanitiseHighlight = (dirty: string): string => {
+  return DOMPurify.sanitize(dirty, {
+    ALLOWED_TAGS: ["mark"],
+    ALLOWED_ATTR: [],
+  });
+};
+
+function ItemList<T>({ items, matches, maxItems, renderItem }: ItemListProps<T>) {
+  const tooMany = items.length > maxItems;
+  const remainder = items.length - maxItems;
+  const [isOpen, setOpen] = useState(!tooMany);
+  const visible = items.slice(0, tooMany && !isOpen ? maxItems : items.length);
+  const matchSet = new Set(matches);
+
+  return (
+    <>
+      {visible.map((item, i) => {
+        return (
+          <>
+            <React.Fragment key={i}>
+              {renderItem(item, matchSet.has(i))}
+              {i < items.length - 1 ? ", " : " "}
+            </React.Fragment>
+          </>
+        );
+      })}
+      {!isOpen && tooMany && (
+        <span
+          className={styles.collapse}
+          onClick={() => setOpen(true)}
+        >
+          +{remainder} more
+        </span>
+      )}
+      {isOpen && tooMany && (
+        <span
+          className={styles.collapse}
+          onClick={() => setOpen(false)}
+        >
+          {"less"}
+        </span>
+      )}
+    </>
+  );
+}
+
+// <span style={{"filter": "grayscale(100%)"}}>👤</span>
+// <span style={{"filter": "grayscale(100%)"}}>🆔</span>
 
 const doiToUrl = (doi: string): string => {
   return `https://doi.org/${doi}`;
@@ -133,34 +380,48 @@ const formatConfidence = (score: number): string => {
   }
 };
 
+const formatAuthorNameAbrev = (author: Author): string | null => {
+  const parts = [];
+
+  if (author.firstInitial && author.surname) {
+    // Combine initials
+    const initials = [];
+    if (author.firstInitial) {
+      initials.push(author.firstInitial);
+    }
+    if (author.middleInitial) {
+      initials.push(author.middleInitial);
+    }
+    parts.push(initials.join("")); // Join initials
+    parts.push(author.surname); // Add surname
+  } else if (author.full) {
+    // Fallback to full name
+    parts.push(author.full);
+  }
+
+  return parts.length > 0 ? parts.join(" ").trim() : null;
+};
+
+const formatAuthorNameFirstLast = (author: Author): string | null => {
+  const parts = [];
+
+  if (author.givenName && author.surname) {
+    parts.push(author.givenName);
+    parts.push(author.surname);
+  } else if (author.full) {
+    // Fallback to full name
+    parts.push(author.full);
+  }
+
+  return parts.length > 0 ? parts.join(" ").trim() : null;
+};
+
 const formatSubtitle = (
-  item: RelatedWorksItemProps,
+  work: Work,
   maxAuthorChars: number,
 ): { authorNames: string; containerTitle: string; publicationYear: string } => {
   // Build author names
-  const names = item.authors
-    .map((author) => {
-      const parts = [];
-
-      if (author.firstInitial && author.surname) {
-        // Combine initials
-        const initials = [];
-        if (author.firstInitial) {
-          initials.push(author.firstInitial);
-        }
-        if (author.middleInitial) {
-          initials.push(author.middleInitial);
-        }
-        parts.push(initials.join("")); // Join initials
-        parts.push(author.surname); // Add surname
-      } else if (author.full) {
-        // Fallback to full name
-        parts.push(author.full);
-      }
-
-      return parts.length > 0 ? parts.join(" ").trim() : null;
-    })
-    .filter((n): n is string => !!n);
+  const names = work.authors.map(formatAuthorNameAbrev).filter((n): n is string => !!n);
 
   // Choose what names to display based on the total character length
   const authorNames = [];
@@ -176,12 +437,12 @@ const formatSubtitle = (
 
   // Build container title
   let containerTitle = "";
-  if (item.containerTitle) {
-    containerTitle = ` ${item.containerTitle}${item.publicationDate ? ", " : "."}`;
+  if (work.containerTitle) {
+    containerTitle = ` ${work.containerTitle}${work.publicationDate ? ", " : "."}`;
   }
 
   // Build publication year
-  const publicationYear = item.publicationDate ? `${item.publicationDate.getFullYear()}.` : "";
+  const publicationYear = work.publicationDate ? `${work.publicationDate.getFullYear()}.` : "";
 
   return { authorNames: authorNames.join(", ") + ".", containerTitle, publicationYear };
 };

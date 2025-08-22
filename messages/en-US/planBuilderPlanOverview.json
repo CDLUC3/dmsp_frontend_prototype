@@ -214,7 +214,9 @@
     "buttons": {
       "addRelatedWorkManually": "Add Related Work",
       "review": "Review",
-      "reviewCollapse": "Collapse"
+      "reviewCollapse": "Collapse",
+      "accept": "Accept",
+      "discard": "Discard"
     },
     "tabs": {
       "pending": "Pending",
@@ -223,6 +225,13 @@
     },
     "links": {
       "title": "Open published version of this paper"
+    },
+    "details": {
+      "reviewInstructions": "Review the information about this potentially related work below, and then approve it as related or reject it as unrelated.",
+      "discardInstructions": "If you discard this related work, you can recover it later from the Discarded tab."
+    },
+    "checkboxes": {
+      "onlyShowMatched": "Only show matched fields"
     },
     "messages": {
       "errors": {

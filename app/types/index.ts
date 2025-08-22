@@ -442,31 +442,111 @@ export interface AffiliationSearchQuestionProps {
   handleOtherAffiliationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export interface RelatedWorksItemProps {
+export interface Author {
+  firstInitial: string | null;
+  givenName: string | null;
+  middleInitial: string | null;
+  middleName: string | null;
+  surname: string | null;
+  full: string | null;
+  orcid: string | null;
+}
+
+export interface Institution {
+  ror: string | null;
+  name: string | null;
+}
+
+export interface Funder {
+  ror: string | null;
+  name: string | null;
+}
+
+export interface Source {
+  name: string;
+  url: string;
+}
+
+export interface Work {
   doi: string;
   type: string;
   score: number;
   title: string
   publicationDate: Date | null;
   containerTitle: string | null;
-  authors: {
-    firstInitial: string | null;
-    givenName: string | null;
-    middleInitial: string | null;
-    middleName: string | null;
-    surname: string | null;
-    full: string | null;
-    orcid: string | null;
-  }[];
-  affiliations: {
-    id: string | null;
-    name: string | null;
-  }[];
-  funders: {
-    id: string | null;
-    name: string | null;
-  }[];
+  authors: Author[];
+  institutions: Institution[];
+  funders: Funder[];
   awardIds: string[];
-  dateFound: Date;
-  defaultExpanded: boolean;
+  sources: Source[];
 }
+
+export enum Status {
+  Pending = "pending",
+  Related = "related",
+  Discarded = "discarded",
+}
+
+export interface Match {
+  doi: boolean;
+  title: string | null;
+  abstract: string[];
+  awardIds: number[];
+  authors: number[];
+  institutions: number[];
+  funders: number[];
+}
+
+
+export interface RelatedWork {
+  dmpDoi: string;
+  work: Work;
+  dateFound: Date;
+  status: Status;
+  match: Match;
+}
+
+
+// interface RelatedWork {
+//   doi: string;
+//   publicationDate: string;
+//   // TODO: need a venue / journal etc
+//   type: string;
+//   title: string;
+//   authors: Author[];
+//   institutions: Institution[];
+//   funders: Funder[];
+//   awards: Award[];
+//   sources: Source[];
+//   score: number;
+//
+//   // : {
+//   //   name: string; // openalex, datacite, crossref
+//   //   work_id: string; // openalex / datacite id
+//   //   url: string; //
+//   // },
+//   match: {
+//     doi: {
+//       score: number;
+//     },
+//     authors: {
+//       score: number;
+//       entities: {
+//         score: number;
+//         orcid: Match;
+//         surname: Match;
+//       }
+//     },
+//     institutions: {
+//       score: number;
+//     },
+//     funders: {
+//       score: number;
+//     },
+//     awards: {
+//       score: number;
+//     },
+//     content: {
+//       score: number;
+//     }
+//   }
