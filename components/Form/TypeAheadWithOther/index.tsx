@@ -296,7 +296,7 @@ const TypeAheadWithOther = ({
         <Input
           name={fieldName}
           type="text"
-          value={inputValue ? inputValue : initialInputValue}
+          value={inputValue !== undefined ? inputValue : initialInputValue}
           role="textbox"
           aria-controls="results"
           aria-activedescendant={activeDescendentId}
