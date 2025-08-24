@@ -13,9 +13,7 @@ jest.mock('@/utils/clientLogger', () => ({
 }));
 
 expect.extend(toHaveNoViolations);
-const mockQuery = jest.fn();
 const mockSetOtherField = jest.fn();
-const mockClient = { query: mockQuery };
 const mockOnSearch = jest.fn();
 
 describe('TypeAheadWithOther', () => {

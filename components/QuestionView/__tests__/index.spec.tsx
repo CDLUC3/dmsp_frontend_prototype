@@ -25,6 +25,7 @@ import {
   TextQuestionType,
   URLQuestionType
 } from "@dmptool/types";
+import { TypeAheadInputProps } from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
 expect.extend(toHaveNoViolations);
@@ -35,7 +36,7 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
     suggestions: mocksAffiliations,
     handleSearch: jest.fn(),
   })),
-  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData }: any) => (
+  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData }: TypeAheadInputProps) => (
     <div>
       <label>
         {label}
@@ -45,7 +46,7 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
           name={fieldName}
           role="textbox"
           value="Test Institution"
-          onChange={(e) => updateFormData?.(e)}
+          onChange={() => updateFormData?.('1', 'Test University')}
         />
       </label>
       <ul role="listbox">
@@ -750,11 +751,9 @@ describe("QuestionView", () => {
       />
     );
     expect(screen.getByTestId('card-body').textContent).toContain('Enter a search term to find your affiliation');
-    screen.debug(undefined, Infinity);
     const searchInput = screen.getByRole('textbox');
     expect(searchInput).toBeInTheDocument();
     expect(searchInput).toHaveValue('Test Institution');
-    const input = screen.getByLabelText('Enter a search term to find your affiliation');
   });
 
   it('should not execute logic when question is undefined', () => {

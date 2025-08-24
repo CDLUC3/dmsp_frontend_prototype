@@ -13,7 +13,7 @@ import classNames from 'classnames';
 import styles from './typeaheadWithOther.module.scss';
 
 
-type TypeAheadInputProps = {
+export type TypeAheadInputProps = {
   label: string;
   placeholder?: string;
   helpText?: string;
@@ -27,7 +27,6 @@ type TypeAheadInputProps = {
   otherText?: string;
   suggestions: SuggestionInterface[];
   onSearch: (searchTerm: string) => void;
-
 }
 
 const TypeAheadWithOther = ({
@@ -45,7 +44,6 @@ const TypeAheadWithOther = ({
   otherText = "Other",
 }: TypeAheadInputProps) => {
 
-  const [initialInputValue, setInitialInputValue] = useState<string>(''); // Needed to set initial input value without triggering search
   const [inputValue, setInputValue] = useState<string>(value ?? "");
   const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
   const [currentListItemFocused, setCurrentListItemFocused] = useState(-1);
@@ -75,7 +73,6 @@ const TypeAheadWithOther = ({
     setOpen(true);
     setOtherField(false);
     setInputValue('');
-    setInitialInputValue('');
     updateFormData('', ''); // Clear the form data when input is clicked
   }
 
@@ -268,6 +265,7 @@ const TypeAheadWithOther = ({
               className={`${styles.otherOption} ${styles.autocompleteItem}`}
               id="autocompleteItem-0"
               role="option"
+              aria-selected={currentListItemFocused === 0}
               data-value="other"
               tabIndex={-1}>
               {otherText}
@@ -281,6 +279,7 @@ const TypeAheadWithOther = ({
                     className={styles.autocompleteItem}
                     id={`autocompleteItem-${index + 1}`}
                     role='option'
+                    aria-selected={currentListItemFocused === index + 1}
                     data-id={suggestion?.uri}
                     onClick={handleSelection}
                     tabIndex={-1}

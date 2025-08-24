@@ -13,9 +13,6 @@ import {
   addAnswerAction,
   updateAnswerAction
 } from '../actions';
-
-import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
-
 import mockAnswerData from '../__mocks__/mockAnswerData.json';
 import mockPlanData from '../__mocks__/mockPlanData.json';
 import mockPublishedQuestion from '../__mocks__/mockPublishedQuestion.json';
@@ -62,6 +59,7 @@ import { AffiliationSearchQuestionType } from "@dmptool/types";
 
 // Mock for useComments hook
 import { mockUseComments, defaultMockReturn } from '../hooks/__mocks__/useComments';
+import { TypeAheadInputProps } from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
@@ -70,7 +68,7 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
     suggestions: mocksAffiliations,
     handleSearch: jest.fn(),
   })),
-  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData, value }: any) => {
+  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData, value }: TypeAheadInputProps) => {
     const [inputValue, setInputValue] = React.useState(value || '');
 
     return (

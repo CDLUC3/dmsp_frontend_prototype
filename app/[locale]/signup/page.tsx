@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from "next-intl";
 import {
@@ -14,20 +14,10 @@ import {
   Text,
   TextField,
 } from "react-aria-components";
-
-import {
-  useAffiliationsLazyQuery,
-} from '@/generated/graphql';
-
 import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
 import { handleErrors } from '@/utils/errorHandler';
 import { useAuthContext } from '@/context/AuthContext';
-
-// Interfaces
-import {
-  SuggestionInterface,
-} from '@/app/types';
 
 //Components
 import {
@@ -37,7 +27,6 @@ import {
 } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
-import { debounce } from '@/hooks/debounce';
 
 import styles from './signup.module.scss';
 

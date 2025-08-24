@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Button,
@@ -64,7 +64,6 @@ import { BrandColor, Example, handleDelete } from "./sg-components";
 import TypeAheadInput from '@/components/TypeAheadInput';
 import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 import {
-  useAffiliationsLazyQuery,
   AffiliationsDocument,
   AffiliationSearch,
   AffiliationSearchResults,
@@ -81,11 +80,6 @@ import { useToast } from '@/context/ToastContext';
 
 import QuestionPreview from '@/components/QuestionPreview';
 import FunderSearch from '@/components/FunderSearch';
-import { debounce } from '@/hooks/debounce';
-
-import {
-  SuggestionInterface,
-} from '@/app/types';
 
 function Page() {
   const [otherField, setOtherField] = useState(false);

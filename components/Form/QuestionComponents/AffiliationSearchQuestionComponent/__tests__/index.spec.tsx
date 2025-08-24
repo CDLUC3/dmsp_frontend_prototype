@@ -3,6 +3,7 @@ import type { AffiliationSearchQuestionType } from '@dmptool/types';
 import { fireEvent, render, screen } from '@/utils/test-utils';
 
 import { AffiliationSearchQuestionComponent } from '@/components/Form/QuestionComponents';
+import { TypeAheadInputProps } from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
 // Mock the TypeAheadWithOther component since it's already tested as part of the component itself
@@ -12,7 +13,7 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
     suggestions: mocksAffiliations,
     handleSearch: jest.fn(),
   })),
-  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData }: any) => (
+  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData }: TypeAheadInputProps) => (
     <div>
       <label>
         {label}
@@ -22,7 +23,7 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
           name={fieldName}
           role="textbox"
           value="Test Institution"
-          onChange={(e) => updateFormData?.(e)}
+          onChange={(e) => updateFormData('1', 'Test University')}
         />
       </label>
       <ul role="listbox">
