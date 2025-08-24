@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -17,7 +17,6 @@ import {
 
 // GraphQL queries and mutations
 import {
-  useAffiliationsLazyQuery,
   useLanguagesQuery,
   useMeQuery,
   UserErrors,
@@ -27,7 +26,7 @@ import {
 // Components
 import PageHeader from '@/components/PageHeader';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 import { FormSelect } from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
 import {
@@ -39,14 +38,12 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 // Interfaces
 import {
-  SuggestionInterface,
   EmailInterface,
   LanguageInterface,
   ProfileDataInterface
 } from '@/app/types';
 
 // Utils and other
-import { debounce } from '@/hooks/debounce';
 import logECS from '@/utils/clientLogger';
 import { refreshAuthTokens } from "@/utils/authHelper";
 import { useToast } from '@/context/ToastContext';
@@ -66,7 +63,6 @@ const ProfilePage: React.FC = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
   //To control display of showSuccess toast message
   const hasShownToastRef = useRef(false);
-  const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
 
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
@@ -80,13 +76,13 @@ const ProfilePage: React.FC = () => {
     languageId: '',
     languageName: '',
   })
+  const { suggestions, handleSearch } = useAffiliationSearch();
   const [isEditing, setIsEditing] = useState(false);
   // Errors returned from request
   const [errors, setErrors] = useState<UserErrors>({});
   const [emailAddresses, setEmailAddresses] = useState<EmailInterface[]>([]);
   const [languages, setLanguages] = useState<LanguageInterface[]>([]);
 
-  const [fetchAffiliations] = useAffiliationsLazyQuery();
   const switchLanguage = async (newLocale: string, showToast = false) => {
     if (newLocale !== currentLocale) {
       const params = new URLSearchParams();
@@ -108,32 +104,6 @@ const ProfilePage: React.FC = () => {
   // Run queries
   const { data: languageData } = useLanguagesQuery();
   const { data, loading: queryLoading, error: queryError, refetch } = useMeQuery();
-
-
-  const handleSearch = useCallback(debounce(async (term: string) => {
-
-    if (!term) {
-      setSuggestions([]);
-      return;
-    }
-
-    const { data } = await fetchAffiliations({
-      variables: {
-        name: term.toLowerCase(),
-      },
-    });
-
-    if (data?.affiliations?.items) {
-      const affiliations = data?.affiliations?.items
-        .filter((item): item is NonNullable<typeof item> => item !== null)
-        .map((item) => ({
-          id: String(item.id) ?? undefined,
-          displayName: item.displayName,
-          uri: item.uri,
-        }));
-      setSuggestions(affiliations);
-    }
-  }, 300), []);
 
   // Client-side validation of fields
   const validateField = (name: string, value: string) => {

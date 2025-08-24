@@ -1,15 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { useTranslations } from 'next-intl';
-import { gql } from 'graphql-tag';
-
-
 import { FormInput } from '@/components/Form';
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import {
-  useAffiliationsLazyQuery,
-} from '@/generated/graphql';
-import { AffiliationSearchQuestionProps, SuggestionInterface } from '@/app/types';
-import { debounce } from '@/hooks/debounce';
+import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
+import { AffiliationSearchQuestionProps } from '@/app/types';
 
 
 const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProps> = ({
@@ -22,35 +15,8 @@ const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProp
   handleOtherAffiliationChange
 }) => {
   const Signup = useTranslations('SignupPage');
-  const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
+  const { suggestions, handleSearch } = useAffiliationSearch();
 
-  const [fetchAffiliations] = useAffiliationsLazyQuery();
-
-  const handleSearch = useCallback(debounce(async (term: string) => {
-    if (!term) {
-      setSuggestions([]);
-      return;
-    }
-
-    const { data } = await fetchAffiliations({
-      variables: {
-        name: term.toLowerCase(),
-      },
-    });
-
-    if (data?.affiliations?.items) {
-      const affiliations = data?.affiliations?.items
-        .filter((item): item is NonNullable<typeof item> => item !== null)
-        .map((item) => ({
-          id: String(item.id) ?? undefined,
-          displayName: item.displayName,
-          uri: item.uri,
-        }));
-      setSuggestions(affiliations);
-    }
-  }, 300), [fetchAffiliations]);
-
-  console.log("IN AFFILIATION SEARCH QUESTION", affiliationData?.affiliationName);
   return (
     <>
       <TypeAheadWithOther

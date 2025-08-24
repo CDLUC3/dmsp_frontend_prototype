@@ -3,10 +3,8 @@ import "@testing-library/jest-dom";
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import { GET_AFFILIATIONS } from '@/lib/graphql/queries/affiliations';
-import logECS from '@/utils/clientLogger';
-import mocksAffiliations from '../__mocks__/mocksAffiliations.json';
+import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
+import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
 jest.mock('@/lib/graphql/client/apollo-client');
 jest.mock('@/utils/clientLogger', () => ({

@@ -36,7 +36,7 @@ import {
   ToolbarContainer,
 } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 import { debounce } from '@/hooks/debounce';
 
 import styles from './signup.module.scss';
@@ -102,34 +102,7 @@ const SignUpPage: React.FC = () => {
   const [otherField, setOtherField] = useState<boolean>(false);
   const [otherAffiliation, setOtherAffiliation] = useState<string>("");
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-  const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
-
-  const [fetchAffiliations, { data: affiliationsData }] = useAffiliationsLazyQuery();
-
-
-  const handleSearch = useCallback(debounce(async (term: string) => {
-    if (!term) {
-      setSuggestions([]);
-      return;
-    }
-
-    const { data } = await fetchAffiliations({
-      variables: {
-        name: term.toLowerCase(),
-      },
-    });
-
-    if (data?.affiliations?.items) {
-      const affiliations = data?.affiliations?.items
-        .filter((item): item is NonNullable<typeof item> => item !== null)
-        .map((item) => ({
-          id: String(item.id) ?? undefined,
-          displayName: item.displayName,
-          uri: item.uri,
-        }));
-      setSuggestions(affiliations);
-    }
-  }, 300), []);
+  const { suggestions, handleSearch } = useAffiliationSearch();
 
   async function handleSignUp() {
     setIsWorking(true);
