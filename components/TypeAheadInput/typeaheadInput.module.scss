@@ -2,9 +2,10 @@
 .autocompleteResults {
     visibility: hidden;
     position: absolute;
-    top: 61px;
+    top: 75px;
+    right: 1px;
     margin-top: 0;
-    width: 100%;
+    width: 100% !important;
     overflow-y: auto;
     border: none;
     background-color: white;
@@ -12,7 +13,7 @@
     outline: none;
     padding: 0;
     max-height: 200px;
-    z-index: 1;
+    z-index: 10;
 
     &.visible {
         visibility: visible;
@@ -20,7 +21,7 @@
     }
   }
 
-  .autocompleteResults > li.other-option {
+  .autocompleteResults > li.otherOption {
     position: sticky;
     top: 0;
     background-color: white;
@@ -47,10 +48,17 @@
     margin-top: 5px;
   }
 
+  .autocompleteContainer {
+    position: relative;
+    min-height: 85px;
+    margin-bottom: 2rem;
+    max-width: 600px;
+  }
+
   .autocompleteDropdownArrow {
     position: absolute;
     right: 0;
-    top: 33%;
+    top: 40%;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -65,12 +73,6 @@
     &.expanded {
         transform: rotate(-180deg);
       }
-  }
-
-
-  .autocompleteContainer {
-    position: relative;
-    width: fit-content;
   }
 
   .autocompleteItem {
@@ -114,9 +116,20 @@
 }
 
 .autocompleteContainer .searchInput {
-    max-width: 396px;
+    max-width: 100%;
     overflow:hidden;
-    padding-right: 25px;
+    padding-right: var(--space-5);
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.errorMessage{
+  font-size: var(--fs-xsmall);
+  color: var(--brand-error);
+}
+
+.fieldError {
+  input {
+    border: 1px solid var(--brand-error);
+  }
 }
