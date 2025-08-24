@@ -64,7 +64,6 @@ import { BrandColor, Example, handleDelete } from "./sg-components";
 import TypeAheadInput from '@/components/TypeAheadInput';
 import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 import {
-  AffiliationsDocument,
   AffiliationSearch,
   AffiliationSearchResults,
 } from '@/generated/graphql';
@@ -1670,7 +1669,10 @@ function Page() {
               <TypeAheadInput
                 label="Example input"
                 fieldName="test"
-                graphqlQuery={AffiliationsDocument}
+                required={true}
+                updateFormData={() => console.log('updating form')}
+                suggestions={suggestions}
+                onSearch={handleSearch}
                 helpText="Help text describing what types of data the user can search for"
               />
             </Example>
