@@ -23,7 +23,7 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
           name={fieldName}
           role="textbox"
           value="Test Institution"
-          onChange={(e) => updateFormData('1', 'Test University')}
+          onChange={() => updateFormData('1', 'Test University')}
         />
       </label>
       <ul role="listbox">
