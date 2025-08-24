@@ -1,12 +1,9 @@
 import React from 'react';
 import type { AffiliationSearchQuestionType } from '@dmptool/types';
-import { act, fireEvent, render, screen } from '@/utils/test-utils';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { fireEvent, render, screen } from '@/utils/test-utils';
 
 import { AffiliationSearchQuestionComponent } from '@/components/Form/QuestionComponents';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
-
-expect.extend(toHaveNoViolations);
 
 // Mock the TypeAheadWithOther component since it's already tested as part of the component itself
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({

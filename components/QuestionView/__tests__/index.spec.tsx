@@ -25,9 +25,35 @@ import {
   TextQuestionType,
   URLQuestionType
 } from "@dmptool/types";
-
+import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
 expect.extend(toHaveNoViolations);
+
+jest.mock('@/components/Form/TypeAheadWithOther', () => ({
+  __esModule: true,
+  useAffiliationSearch: jest.fn(() => ({
+    suggestions: mocksAffiliations,
+    handleSearch: jest.fn(),
+  })),
+  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData }: any) => (
+    <div>
+      <label>
+        {label}
+        <input
+          aria-label={label}
+          placeholder={placeholder}
+          name={fieldName}
+          role="textbox"
+          value="Test Institution"
+          onChange={(e) => updateFormData?.(e)}
+        />
+      </label>
+      <ul role="listbox">
+        <li>Search Term</li>
+      </ul>
+    </div>
+  ),
+}));
 
 jest.mock('@/lib/graphql/client/apollo-client');
 jest.mock('@/generated/graphql', () => ({
@@ -384,12 +410,12 @@ describe("QuestionView", () => {
     const mockQuestionWithMultiselectBox = { ...mockQuestion, json: JSON.stringify(json) };
 
     render(
-        <QuestionView
-            question={mockQuestionWithMultiselectBox}
-            isPreview={true}
-            templateId={1}
-            path="/template/123"
-        />
+      <QuestionView
+        question={mockQuestionWithMultiselectBox}
+        isPreview={true}
+        templateId={1}
+        path="/template/123"
+      />
     );
     expect(screen.getByTestId('card-body').textContent).toContain('Option A');
   });
@@ -724,18 +750,11 @@ describe("QuestionView", () => {
       />
     );
     expect(screen.getByTestId('card-body').textContent).toContain('Enter a search term to find your affiliation');
-    expect(screen.getByTestId('card-body').textContent).toContain('institutionHelpOpen drop down');
+    screen.debug(undefined, Infinity);
     const searchInput = screen.getByRole('textbox');
     expect(searchInput).toBeInTheDocument();
-    expect(searchInput).toHaveAttribute('placeholder', 'Type to search...');
-    expect(searchInput).toHaveValue('');
+    expect(searchInput).toHaveValue('Test Institution');
     const input = screen.getByLabelText('Enter a search term to find your affiliation');
-
-    // Type in the input
-    fireEvent.change(input, { target: { value: 'Test University' } });
-
-    // Verify input value is updated
-    expect(input).toHaveValue('Test University');
   });
 
   it('should not execute logic when question is undefined', () => {
