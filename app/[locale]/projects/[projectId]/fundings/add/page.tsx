@@ -197,7 +197,6 @@ const AddProjectFunderManually = () => {
           },
         });
 
-        console.log("***ADD AFFILIATION RESULT", addAffiliation);
         const data = result?.data;
         affiliationId = data?.addAffiliation?.uri as string;
 
