@@ -1,24 +1,19 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react';
-import { DocumentNode } from '@apollo/client';
 import {
   Input,
   Label,
   Text,
   TextField,
 } from "react-aria-components";
-import { createApolloClient } from '@/lib/graphql/client/apollo-client';
 import Spinner from '@/components/Spinner';
+import { SuggestionInterface } from '@/app/types';
 import classNames from 'classnames';
 import styles from './typeaheadWithOther.module.scss';
 
 
-import logECS from '@/utils/clientLogger';
-
 type TypeAheadInputProps = {
-  graphqlQuery: DocumentNode;
-  resultsKey: string;
   label: string;
   placeholder?: string;
   helpText?: string;
@@ -30,16 +25,12 @@ type TypeAheadInputProps = {
   value?: string;
   className?: string;
   otherText?: string;
-}
+  suggestions: SuggestionInterface[];
+  onSearch: (searchTerm: string) => void;
 
-type SuggestionInterface = {
-  id: string;
-  displayName: string;
-  uri: string;
 }
 
 const TypeAheadWithOther = ({
-  graphqlQuery,
   label,
   placeholder,
   helpText,
@@ -49,14 +40,14 @@ const TypeAheadWithOther = ({
   updateFormData,
   value,
   className,
-  resultsKey,
+  suggestions,
+  onSearch,
   otherText = "Other",
 }: TypeAheadInputProps) => {
+
   const [initialInputValue, setInitialInputValue] = useState<string>(''); // Needed to set initial input value without triggering search
-  const [inputValue, setInputValue] = useState<string>('');
-  const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
+  const [inputValue, setInputValue] = useState<string>(value ?? "");
   const [showSuggestionSpinner, setShowSuggestionSpinner] = useState(false);
-  const [debouncedValue, setDebouncedValue] = useState(inputValue);
   const [currentListItemFocused, setCurrentListItemFocused] = useState(-1);
   const [activeDescendentId, setActiveDescendentId] = useState<string>("");
   const [open, setOpen] = useState(false);
@@ -64,28 +55,21 @@ const TypeAheadWithOther = ({
   const listRef = useRef<HTMLUListElement | null>(null);
   const listItemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-
-  const client = createApolloClient();
-
-  useEffect(() => {
-    if (!client) {
-      logECS('error', 'Apollo client creation failed', {
-        source: 'TypeAheadInput component',
-      });
-      return;
-    }
-  }, [client]);
-
-  const handleUpdate = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    //set previous error to empty string
-    error = '';
+  const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowSuggestionSpinner(true);
+    setOpen(true);
     const value = e.target.value;
     const dataId = (e.target as HTMLElement).dataset.id || '';
-    setInputValue(value);
 
+    setInputValue(value);
     updateFormData(dataId, value);
 
-  }
+    if (onSearch) {
+      onSearch(value);
+    }
+
+    setShowSuggestionSpinner(false);
+  };
 
   const handleInputClick = () => {
     setOpen(true);
@@ -96,28 +80,25 @@ const TypeAheadWithOther = ({
   }
 
   const handleSelection = async (e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLLIElement>) => {
-    setOpen(false);
-    const item = (e.target as HTMLLIElement | HTMLInputElement).innerText?.toString() ||
-      (e.target as HTMLLIElement | HTMLInputElement).value?.toString();
-    const activeDescendentId = (e.target as HTMLLIElement | HTMLInputElement).id;
+    const li = (e.target as HTMLElement).closest('li'); // always get the <li>
+    if (!li) return;
 
-    const dataId = (e.target as HTMLElement).dataset.id || '';
-    const dataValue = (e.target as HTMLElement).dataset.value;
+    setOpen(false);
+    const item = (li.textContent ?? '').trim();
+    const activeDescendentId = li.id;
+
+    const dataId = li.dataset.id || '';
+    const dataValue = li.dataset.value;
+
     updateFormData(dataId, item);
 
     setInputValue(item);
     setCurrentListItemFocused(-1);
     setActiveDescendentId(activeDescendentId);
 
-    if (inputRef && inputRef.current) {
-      inputRef.current.focus();
-    }
+    inputRef.current?.focus();
 
-    if (dataValue === "other") {
-      setOtherField(true);
-    } else {
-      setOtherField(false);
-    }
+    setOtherField(dataValue === 'other');
   }
 
   const focusListItem = (index: number) => {
@@ -179,80 +160,16 @@ const TypeAheadWithOther = ({
           if (inputRef && inputRef.current) {
             inputRef.current.focus();
           }
-
         }
-
         break;
     }
   }
 
   useEffect(() => {
-    // Set the initial value of the typeahead search to populate it with existing entry if any
-    if (value) {
-      setInitialInputValue(value);
+    if (onSearch) {
+      onSearch(inputValue);
     }
-  }, [value])
-
-  useEffect(() => {
-    if (!error) {
-      const handler = setTimeout(() => {
-        setDebouncedValue(inputValue);
-      }, 300);
-      return () => {
-        clearTimeout(handler);
-      };
-    }
-
   }, [inputValue]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-
-    const fetchSuggestions = async (searchTerm: string) => {
-      try {
-        const { data } = await client.query({
-          query: graphqlQuery,
-          variables: { name: searchTerm },
-          context: { fetchOptions: { signal } }
-        });
-
-        // split the resultsKey on dot and get each key in the path. This allows keys like:
-        //   "afffiliations", "affiliations.items", etc.
-        const keys = resultsKey.split('.');
-        // reduce the data object to get the value of the resultsKey
-        const results = keys.reduce((acc, key) => {
-          if (acc && acc[key]) {
-            return acc[key];
-          }
-          return null;
-        }, data);
-
-        if (!signal.aborted) {
-          if (!resultsKey) {
-            throw Error("'resultsKey' property is missing on typeahead field, please provide the key that contain the results data.");
-          }
-          setSuggestions(results || []);
-          setOpen(true);
-        }
-
-      } catch (error) {
-        if (!signal.aborted) {
-          console.error('Error fetching suggestions:', error);
-        }
-      } finally {
-        if (!signal.aborted) {
-          setShowSuggestionSpinner(false);
-        }
-      }
-    }
-    if (debouncedValue !== '' && debouncedValue !== otherText) {
-      setShowSuggestionSpinner(true);
-      fetchSuggestions(debouncedValue);
-    }
-
-    return () => controller.abort();
-  }, [debouncedValue]);
 
   useEffect(() => {
     // Function to handle click outside the input and list
@@ -275,15 +192,6 @@ const TypeAheadWithOther = ({
     };
   }, []);
 
-  // Ensure the component always renders
-  if (!client) {
-    return (
-      <div className={styles.errorContainer}>
-        <p>Error: Unable to initialize Apollo client.</p>
-      </div>
-    );
-  }
-
   return (
     <div className={`${styles.autocompleteContainer} ${styles.expanded} ${className} form-row`} aria-expanded={open} role="combobox" aria-controls="results">
       <TextField
@@ -296,7 +204,7 @@ const TypeAheadWithOther = ({
         <Input
           name={fieldName}
           type="text"
-          value={inputValue ? inputValue : initialInputValue}
+          value={inputValue}
           role="textbox"
           aria-controls="results"
           aria-activedescendant={activeDescendentId}
@@ -359,7 +267,7 @@ const TypeAheadWithOther = ({
               onClick={handleSelection}
               className={`${styles.otherOption} ${styles.autocompleteItem}`}
               id="autocompleteItem-0"
-              role="listitem"
+              role="option"
               data-value="other"
               tabIndex={-1}>
               {otherText}
@@ -372,7 +280,7 @@ const TypeAheadWithOther = ({
                     key={index}
                     className={styles.autocompleteItem}
                     id={`autocompleteItem-${index + 1}`}
-                    role='listitem'
+                    role='option'
                     data-id={suggestion?.uri}
                     onClick={handleSelection}
                     tabIndex={-1}

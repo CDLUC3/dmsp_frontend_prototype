@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from "next-intl";
 import {
@@ -15,11 +15,19 @@ import {
   TextField,
 } from "react-aria-components";
 
-import { AffiliationsDocument } from '@/generated/graphql';
+import {
+  useAffiliationsLazyQuery,
+} from '@/generated/graphql';
+
 import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
 import { handleErrors } from '@/utils/errorHandler';
 import { useAuthContext } from '@/context/AuthContext';
+
+// Interfaces
+import {
+  SuggestionInterface,
+} from '@/app/types';
 
 //Components
 import {
@@ -29,6 +37,7 @@ import {
 } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+import { debounce } from '@/hooks/debounce';
 
 import styles from './signup.module.scss';
 
@@ -93,7 +102,34 @@ const SignUpPage: React.FC = () => {
   const [otherField, setOtherField] = useState<boolean>(false);
   const [otherAffiliation, setOtherAffiliation] = useState<string>("");
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
+  const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
 
+  const [fetchAffiliations, { data: affiliationsData }] = useAffiliationsLazyQuery();
+
+
+  const handleSearch = useCallback(debounce(async (term: string) => {
+    if (!term) {
+      setSuggestions([]);
+      return;
+    }
+
+    const { data } = await fetchAffiliations({
+      variables: {
+        name: term.toLowerCase(),
+      },
+    });
+
+    if (data?.affiliations?.items) {
+      const affiliations = data?.affiliations?.items
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+        .map((item) => ({
+          id: String(item.id) ?? undefined,
+          displayName: item.displayName,
+          uri: item.uri,
+        }));
+      setSuggestions(affiliations);
+    }
+  }, 300), []);
 
   async function handleSignUp() {
     setIsWorking(true);
@@ -295,12 +331,12 @@ const SignUpPage: React.FC = () => {
                 label={t('institution')}
                 required={true}
                 fieldName="institution"
-                graphqlQuery={AffiliationsDocument}
-                resultsKey="affiliations.items"
                 setOtherField={setOtherField}
                 helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}
                 error={fieldErrors?.affiliationId}
+                suggestions={suggestions}
+                onSearch={handleSearch}
               />
               {otherField && (
                 <TextField

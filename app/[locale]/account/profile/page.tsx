@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ import {
 
 // GraphQL queries and mutations
 import {
-  AffiliationsDocument,
+  useAffiliationsLazyQuery,
   useLanguagesQuery,
   useMeQuery,
   UserErrors,
@@ -39,17 +39,20 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 // Interfaces
 import {
+  SuggestionInterface,
   EmailInterface,
   LanguageInterface,
   ProfileDataInterface
 } from '@/app/types';
 
 // Utils and other
+import { debounce } from '@/hooks/debounce';
 import logECS from '@/utils/clientLogger';
 import { refreshAuthTokens } from "@/utils/authHelper";
 import { useToast } from '@/context/ToastContext';
 import styles from './profile.module.scss';
 import { routePath } from '@/utils/routes';
+
 
 const ProfilePage: React.FC = () => {
   const t = useTranslations('UserProfile');
@@ -63,6 +66,8 @@ const ProfilePage: React.FC = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
   //To control display of showSuccess toast message
   const hasShownToastRef = useRef(false);
+  const [suggestions, setSuggestions] = useState<SuggestionInterface[]>([]);
+
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -81,6 +86,7 @@ const ProfilePage: React.FC = () => {
   const [emailAddresses, setEmailAddresses] = useState<EmailInterface[]>([]);
   const [languages, setLanguages] = useState<LanguageInterface[]>([]);
 
+  const [fetchAffiliations] = useAffiliationsLazyQuery();
   const switchLanguage = async (newLocale: string, showToast = false) => {
     if (newLocale !== currentLocale) {
       const params = new URLSearchParams();
@@ -103,6 +109,32 @@ const ProfilePage: React.FC = () => {
   const { data: languageData } = useLanguagesQuery();
   const { data, loading: queryLoading, error: queryError, refetch } = useMeQuery();
 
+
+  const handleSearch = useCallback(debounce(async (term: string) => {
+
+    if (!term) {
+      setSuggestions([]);
+      return;
+    }
+
+    const { data } = await fetchAffiliations({
+      variables: {
+        name: term.toLowerCase(),
+      },
+    });
+
+    if (data?.affiliations?.items) {
+      const affiliations = data?.affiliations?.items
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+        .map((item) => ({
+          id: String(item.id) ?? undefined,
+          displayName: item.displayName,
+          uri: item.uri,
+        }));
+      setSuggestions(affiliations);
+    }
+  }, 300), []);
+
   // Client-side validation of fields
   const validateField = (name: string, value: string) => {
     let error = '';
@@ -118,7 +150,7 @@ const ProfilePage: React.FC = () => {
         }
         break;
       case 'affiliationId':
-        if (!value || value.length <= 2) {
+        if (formData['affiliationName'] !== 'Other' && (!value || value.length <= 2)) {
           error = t('messages.errors.affiliationValidation');
         }
         break;
@@ -320,6 +352,13 @@ const ProfilePage: React.FC = () => {
 
         setOriginalData(newOriginalData);
 
+        // 👇 derive whether "Other" field should be shown
+        if (newOriginalData.affiliationName === 'Other') {
+          setOtherField(true);
+        } else {
+          setOtherField(false);
+        }
+
         setFormData((prev) => ({
           ...prev,
           ...newOriginalData,
@@ -445,14 +484,14 @@ const ProfilePage: React.FC = () => {
                           <TypeAheadWithOther
                             label={t('institution')}
                             fieldName="institution"
-                            graphqlQuery={AffiliationsDocument}
-                            resultsKey="affiliations.items"
                             setOtherField={setOtherField}
                             required={true}
                             error={errors['affiliationId'] ?? ''}
                             helpText={t('helpTextSearchForInstitution')}
                             updateFormData={updateAffiliationFormData}
                             value={formData.affiliationName}
+                            suggestions={suggestions}
+                            onSearch={handleSearch}
                           />
                           {otherField && (
                             <div className={`${styles.formRow} ${styles.oneItemRow}`}>

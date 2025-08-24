@@ -4,9 +4,9 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
 import { GET_AFFILIATIONS } from '@/lib/graphql/queries/affiliations';
 import logECS from '@/utils/clientLogger';
+import mocksAffiliations from '../__mocks__/mocksAffiliations.json';
 
 jest.mock('@/lib/graphql/client/apollo-client');
 jest.mock('@/utils/clientLogger', () => ({
@@ -18,11 +18,11 @@ expect.extend(toHaveNoViolations);
 const mockQuery = jest.fn();
 const mockSetOtherField = jest.fn();
 const mockClient = { query: mockQuery };
+const mockOnSearch = jest.fn();
 
 describe('TypeAheadWithOther', () => {
 
   beforeEach(() => {
-    (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
     jest.useFakeTimers();
   });
 
@@ -34,8 +34,6 @@ describe('TypeAheadWithOther', () => {
   it('should render initial state correctly', () => {
     render(
       <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
         label="Institution"
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
@@ -44,6 +42,8 @@ describe('TypeAheadWithOther', () => {
         error=""
         updateFormData={() => true}
         value="text"
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
       />
     );
 
@@ -55,8 +55,6 @@ describe('TypeAheadWithOther', () => {
   it('should pass axe accessibility test', async () => {
     const { container } = render(
       <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
         label="Institution"
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
@@ -65,6 +63,8 @@ describe('TypeAheadWithOther', () => {
         error=""
         updateFormData={() => true}
         value="input value"
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
       />
     );
     jest.useRealTimers();
@@ -74,19 +74,8 @@ describe('TypeAheadWithOther', () => {
   })
 
   it('should fetch and display suggestions', async () => {
-    mockClient.query.mockResolvedValueOnce({
-      data: {
-        affiliations: [
-          { id: '1', displayName: 'Test University' },
-          { id: '2', displayName: 'Test Institution' }
-        ]
-      }
-    });
-
     render(
       <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
         label="Institution"
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
@@ -95,12 +84,10 @@ describe('TypeAheadWithOther', () => {
         error=""
         updateFormData={() => true}
         value="input value"
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
       />
     );
-
-    await waitFor(() => {
-      expect(apolloClientModule.createApolloClient).toHaveBeenCalled();
-    });
 
     const input = screen.getByLabelText('Institution');
 
@@ -110,8 +97,8 @@ describe('TypeAheadWithOther', () => {
     })
 
     await waitFor(() => {
-      expect(mockQuery).toHaveBeenCalledTimes(1);
-    })
+      expect(mockOnSearch).toHaveBeenCalled();
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Test University')).toBeInTheDocument();
@@ -120,19 +107,8 @@ describe('TypeAheadWithOther', () => {
   });
 
   it('should display error message when passed in', async () => {
-    mockClient.query.mockResolvedValueOnce({
-      data: {
-        affiliations: [
-          { id: '1', displayName: 'Test University' },
-          { id: '2', displayName: 'Test Institution' }
-        ]
-      }
-    });
-
     render(
       <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
         label="Institution"
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
@@ -141,12 +117,10 @@ describe('TypeAheadWithOther', () => {
         error="Institution field is required"
         updateFormData={() => true}
         value="input value"
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
       />
     );
-
-    await waitFor(() => {
-      expect(apolloClientModule.createApolloClient).toHaveBeenCalled();
-    });
 
     const input = screen.getByLabelText('Institution');
 
@@ -165,8 +139,6 @@ describe('TypeAheadWithOther', () => {
 
     render(
       <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
         label="Institution"
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
@@ -175,6 +147,8 @@ describe('TypeAheadWithOther', () => {
         error=""
         updateFormData={mockUpdateFormData}
         value="Initial Value" // Start with a value
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
       />
     );
 
@@ -202,13 +176,13 @@ describe('TypeAheadWithOther', () => {
 
     render(
       <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
         label="Institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
         required={false}
         updateFormData={mockUpdateFormData}
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
       />
     );
 
@@ -227,24 +201,15 @@ describe('TypeAheadWithOther', () => {
   it('should focus input when alphanumeric key is pressed', async () => {
     const mockUpdateFormData = jest.fn();
 
-    // Mock GraphQL response to show suggestions
-    mockClient.query.mockResolvedValueOnce({
-      data: {
-        affiliations: [
-          { id: '1', displayName: 'Test University', uri: 'test-uri-1' }
-        ]
-      }
-    });
-
     render(
       <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
         label="Institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
         required={false}
         updateFormData={mockUpdateFormData}
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
       />
     );
 
@@ -276,53 +241,49 @@ describe('TypeAheadWithOther', () => {
     focusSpy.mockRestore();
   });
 
-  it('should not display suggestions when there are no matching results', async () => {
-    mockClient.query.mockResolvedValueOnce({
-      data: {
-        affiliations: []
-      }
-    });
+  it('should setOtherField(true) when "Other" option is selected', async () => {
+    const mockUpdateFormData = jest.fn();
 
     render(
       <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
         label="Institution"
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
         fieldName="test"
         required={false}
         error=""
-        updateFormData={() => true}
+        updateFormData={mockUpdateFormData}
         value="input value"
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
+        otherText="Other (organization not listed)"
       />
     );
 
-    act(() => { //make sure all updates related to React are completed
-      fireEvent.change(screen.getByLabelText('Institution'), { target: { value: 'Test' } });
-      jest.advanceTimersByTime(1000);// This is to take the debounce into consideration
-    })
+    const input = screen.getByLabelText('Institution');
+
+    // Type to show suggestions (forces dropdown open)
+    fireEvent.change(input, { target: { value: 'x' } });
 
     await waitFor(() => {
-      expect(screen.queryByText('Test University')).not.toBeInTheDocument();
+      expect(screen.getByText('Other (organization not listed)')).toBeInTheDocument();
     });
+
+    // Click the "Other" option
+    fireEvent.click(screen.getByText('Other (organization not listed)'));
+
+    // Check last call to updateFormData
+    const lastCall = mockUpdateFormData.mock.calls.at(-1);
+    expect(lastCall).toEqual(['', 'Other (organization not listed)']);
+
+    expect(mockSetOtherField).toHaveBeenCalledWith(true);
+    expect(input).toHaveValue('Other (organization not listed)');
   });
 
-
   it('should handle keyboard navigation in suggestions list', async () => {
-    mockClient.query.mockResolvedValueOnce({
-      data: {
-        affiliations: [
-          { id: '1', displayName: 'Test University' },
-          { id: '2', displayName: 'Test Institution' }
-        ]
-      }
-    });
 
     render(
       <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
         label="Institution"
         helpText="Search for an institution"
         setOtherField={mockSetOtherField}
@@ -332,6 +293,8 @@ describe('TypeAheadWithOther', () => {
         updateFormData={() => true}
         otherText="Other(organization not listed)"
         value="input value"
+        suggestions={mocksAffiliations}
+        onSearch={mockOnSearch}
       />
     );
 
@@ -358,20 +321,9 @@ describe('TypeAheadWithOther', () => {
   });
 
   it('should correctly handle use of \'Enter\' key for selecting an item from the dropdown', async () => {
-    mockClient.query.mockResolvedValueOnce({
-      data: {
-        affiliations: [
-          { id: '1', displayName: 'Test University' },
-          { id: '2', displayName: 'Test Institution' }
-        ]
-      }
-    });
-
     await act(async () => {
       render(
         <TypeAheadWithOther
-          graphqlQuery={GET_AFFILIATIONS}
-          resultsKey="affiliations"
           label="Institution"
           helpText="Search for an institution"
           setOtherField={mockSetOtherField}
@@ -380,6 +332,8 @@ describe('TypeAheadWithOther', () => {
           error=""
           updateFormData={() => true}
           value="input value"
+          suggestions={mocksAffiliations}
+          onSearch={mockOnSearch}
         />
       );
     });
@@ -412,35 +366,4 @@ describe('TypeAheadWithOther', () => {
 
     expect(input).toHaveValue('Test University');
   });
-
-  it('should log an error if apollo client is not defined', () => {
-    (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => { });
-    mockClient.query.mockResolvedValueOnce({
-      data: {
-        affiliations: [
-          { id: '1', displayName: 'Test University' },
-          { id: '2', displayName: 'Test Institution' }
-        ]
-      }
-    });
-
-    render(
-      <TypeAheadWithOther
-        graphqlQuery={GET_AFFILIATIONS}
-        resultsKey="affiliations"
-        label="Institution"
-        helpText="Search for an institution"
-        setOtherField={mockSetOtherField}
-        fieldName="test"
-        required={false}
-        error=""
-        updateFormData={() => true}
-        value="input value"
-      />
-    );
-
-    expect(logECS).toHaveBeenCalledWith('error', 'Apollo client creation failed', {
-      source: 'TypeAheadInput component'
-    });
-  })
 });
