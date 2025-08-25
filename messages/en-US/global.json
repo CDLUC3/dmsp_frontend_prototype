@@ -85,7 +85,8 @@
         "givenNameValidation": "Name must be at least 2 characters",
         "surNameValidation": "Surname must be at least 2 characters",
         "affiliationValidation": "Institution name cannot be blank and must be at least 2 characters long",
-        "otherAffiliationValidation": "Other institution name cannot be blank and must be at least 2 characters long"
+        "otherAffiliationValidation": "Other institution name cannot be blank and must be at least 2 characters long",
+        "errorUpdatingProfile": "Error when updating profile"
       }
     }
   },
