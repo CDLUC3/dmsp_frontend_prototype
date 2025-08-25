@@ -13,6 +13,7 @@ import {
   ProjectFundingErrors,
 } from '@/generated/graphql';
 import { FunderSearchResults } from '@/app/types';
+import { checkErrors } from '@/utils/errorHandler';
 import logECS from "@/utils/clientLogger";
 
 import {
@@ -62,32 +63,6 @@ const CreateProjectSearchFunder = () => {
     });
   }, []);
 
-  /**
-   * Handle specific errors that we care about in this component.
-   * @param {ProjectFunderErrors} errs - The errors from the graphql response
-   */
-  function checkErrors(errs: ProjectFundingErrors): string[] {
-    const noErrors = Object.values(errs).every(val => val === null);
-    if (noErrors) return [];
-
-    const typedKeys: (keyof ProjectFundingErrors)[] = [
-      "affiliationId",
-      "general",
-      "projectId",
-      "status",
-    ];
-    const newErrors: string[] = [];
-
-    for (const k of typedKeys) {
-      const errVal = errs[k];
-      if (errVal) {
-        newErrors.push(errVal);
-      }
-    }
-
-    return newErrors
-  }
-
   async function handleSelectFunder(funder: AffiliationSearch | FunderPopularityResult) {
     const projectId = params.projectId as string;
     const input = {
@@ -97,14 +72,21 @@ const CreateProjectSearchFunder = () => {
 
     addProjectFunding({ variables: { input } })
       .then((result) => {
-        const errs = checkErrors(result?.data?.addProjectFunding?.errors as ProjectFundingErrors);
-        if (errs.length > 0) {
-          setErrors(errs);
+        const [hasErrors, errs] = checkErrors(
+          result?.data?.addProjectFunding?.errors as ProjectFundingErrors,
+          ['general']
+        );
+
+        if (hasErrors) {
+          setErrors([String(errs.general)]);
         } else {
           if (funder.apiTarget) {
-            router.push(routePath('projects.create.projects.search', {
-              projectId,
-            }));
+            // router.push(routePath('projects.create.funding.check'), {
+            //   projectId: projectId,
+            // });
+            // TODO::FIXME:: for some reason the above route don't work.
+            // So I'm using a hard-coded path here.
+            router.push(`/projects/${projectId}/project-funding`);
           } else {
             router.push(routePath('projects.project.info', {
               projectId,

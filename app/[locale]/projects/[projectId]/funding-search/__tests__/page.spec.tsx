@@ -556,7 +556,7 @@ describe("CreateProjectSearchFunder", () => {
     fireEvent.click(selectBtn);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/projects-search/));
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/project-funding/));
     });
   });
 
