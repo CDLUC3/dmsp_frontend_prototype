@@ -3,15 +3,16 @@ import React, { useState } from "react";
 import { RadioGroup, Radio } from "react-aria-components";
 
 interface LinkFilterProps {
+  label: string;
   categories: { label: string; id: string; count?: null | number }[];
 }
 
-const LinkFilter = ({ categories }: LinkFilterProps) => {
-  const [category, setCategory] = useState(categories[0].id);
+const LinkFilter = ({ label, categories }: LinkFilterProps) => {
+  const [category, setCategory] = useState(categories.length ? categories[0].id: null);
 
   return (
     <div className={styles.container}>
-      <span className={styles.label}>Filter by Confidence</span>
+      <span className={styles.label}>{label}</span>
       <RadioGroup
         aria-label="Priority filter"
         orientation="horizontal"
@@ -24,7 +25,7 @@ const LinkFilter = ({ categories }: LinkFilterProps) => {
         {categories.map((category, i) => {
           let label = category.label;
           if (category.count != null) {
-            label += ` (${category.count})`;
+            label += `(${category.count})`;
           }
 
           return (

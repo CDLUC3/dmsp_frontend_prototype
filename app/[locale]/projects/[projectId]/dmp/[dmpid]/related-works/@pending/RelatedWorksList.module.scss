@@ -14,13 +14,13 @@
 
 .filterByType :global(.react-aria-Select) {
   :global(.react-aria-Button) {
-    width: 11rem;
+    width: 13rem;
   }
 }
 
 .whatMatched :global(.react-aria-Select) {
   :global(.react-aria-Button) {
-    width: 11rem;
+    width: 12rem;
   }
 }
 
@@ -31,4 +31,3 @@
 .footer {
   margin-top: 2.5rem;
 }
-

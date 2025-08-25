@@ -478,7 +478,7 @@ export interface Work {
   institutions: Institution[];
   funders: Funder[];
   awardIds: string[];
-  sources: Source[];
+  source: Source;
 }
 
 export enum Status {

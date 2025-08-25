@@ -13,8 +13,8 @@
 }
 
 .separator {
-  margin-left: 0.2rem;
-  margin-right: 0.2rem;
+  margin-left: 0.1rem;
+  margin-right: 0.1rem;
 }
 
 .radio {
@@ -22,8 +22,6 @@
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
-  text-decoration: underline;
-
 }
 
 .radioLabelHidden {
@@ -39,10 +37,11 @@
   font-weight: var(--fw-normal);
   transform: translateX(-50%);
   text-wrap: nowrap;
+  text-decoration: underline;
 }
 
 .radio[data-selected="true"] .radioLabel {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 

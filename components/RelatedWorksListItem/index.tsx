@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Checkbox } from "react-aria-components";
+import { Button } from "react-aria-components";
 import { Author, RelatedWork, Work } from "@/app/types";
 import { format } from "date-fns";
 import styles from "./RelatedWorksListItem.module.scss";
 import DOMPurify from "dompurify";
 
-function RelatedWorksListItem({ item }: { item: RelatedWork }) {
+interface RelatedWorksListItemProps {
+  item: RelatedWork;
+  whatMatched: string | null;
+}
+
+function RelatedWorksListItem({ item, whatMatched }: RelatedWorksListItemProps) {
   const work = item.work;
   const [expanded, setExpanded] = useState<boolean>(false);
   const t = useTranslations("RelatedWorks");
-  const Global = useTranslations("Global");
   const toggleExpand = () => {
     setExpanded((prevExpanded) => !prevExpanded);
   };
@@ -38,7 +42,6 @@ function RelatedWorksListItem({ item }: { item: RelatedWork }) {
                     <a
                       href={doiToUrl(work.doi)}
                       aria-label={`${t("links.title")} ${work.title}`}
-                      className={styles.titleLink}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -94,6 +97,17 @@ function RelatedWorksListItem({ item }: { item: RelatedWork }) {
         <div className={styles.overviewFooter}>
           <span>Date found: {formatDate(item.dateFound)}</span>
           {work.type !== null && <span>Type: {formatType(work.type)}</span>}
+          <span>
+            Source:{" "}
+            <a
+              href={work.source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.sourceUrl}
+            >
+              {work.source.name}
+            </a>
+          </span>
         </div>
       </div>
 
@@ -101,154 +115,163 @@ function RelatedWorksListItem({ item }: { item: RelatedWork }) {
         <div className={styles.details}>
           <span className={styles.reviewInstructions}>{t("details.reviewInstructions")}</span>
           <div className={styles.detailsList}>
-            <div className={styles.detailsItem}>
-              <h5>DOI</h5>
-              <a
-                href={doiToUrl(work.doi)}
-                target="_blank"
-                rel="noopener noreferrer"
+            {(item.match.doi || whatMatched !== "matched-only") && (
+              <div
+                className={[
+                  styles.detailsItem,
+                  whatMatched === "highlight" ? styles.showContentHighlights : styles.hideContentHighlights,
+                ].join(" ")}
               >
-                {work.doi}
-              </a>
-            </div>
+                <h5>DOI</h5>
+                <a
+                  href={doiToUrl(work.doi)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {item.match.doi && <mark>{work.doi}</mark>}
+                  {!item.match.doi && <>{work.doi}</>}
+                </a>
+              </div>
+            )}
 
             {item.match.title !== null && (
-              <div className={styles.detailsItem}>
+              <div
+                className={[
+                  styles.detailsItem,
+                  whatMatched === "highlight" ? styles.showContentHighlights : styles.hideContentHighlights,
+                ].join(" ")}
+              >
                 <h5>Title</h5>
                 <span dangerouslySetInnerHTML={{ __html: sanitiseHighlight(item.match.title) }} />
               </div>
             )}
+            {item.match.title === null && whatMatched !== "matched-only" && (
+              <div
+                className={[
+                  styles.detailsItem,
+                  whatMatched === "highlight" ? styles.showContentHighlights : styles.hideContentHighlights,
+                ].join(" ")}
+              >
+                <h5>Title</h5>
+                <span>{item.work.title}</span>
+              </div>
+            )}
 
             {item.match.abstract.length > 0 && (
-              <div className={styles.detailsItem}>
+              <div
+                className={[
+                  styles.detailsItem,
+                  whatMatched === "highlight" ? styles.showContentHighlights : styles.hideContentHighlights,
+                ].join(" ")}
+              >
                 <h5>Abstract</h5>
-                {item.match.abstract.map((abstr, i) => (
+                {item.match.abstract.map((abs, i) => (
                   <span
                     key={i}
-                    dangerouslySetInnerHTML={{ __html: sanitiseHighlight(abstr) }}
+                    dangerouslySetInnerHTML={{ __html: sanitiseHighlight(abs) }}
                   />
                 ))}
               </div>
             )}
 
-            <div className={styles.detailsItem}>
-              <h5>Award IDs</h5>
-              <ItemList
-                items={work.awardIds}
-                matches={item.match.awardIds}
-                maxItems={maxItems}
-                renderItem={(awardId, isMatch) => {
-                  return (
-                    <span className={isMatch ? styles.match : undefined}>
-                      {awardId}
-                    </span>
-                  );
-                }}
-              />
-            </div>
+            <ItemList
+              label="Award IDs"
+              items={work.awardIds}
+              matches={item.match.awardIds}
+              maxItems={maxItems}
+              showMatchedOnly={whatMatched === "matched-only"}
+              renderItem={(awardId, isMatch) => {
+                return (
+                  <span className={isMatch && whatMatched === "highlight" ? styles.match : undefined}>{awardId}</span>
+                );
+              }}
+            />
 
-            <div className={styles.detailsItem}>
-              <h5>Authors</h5>
-              <ItemList
-                items={work.authors}
-                matches={item.match.authors}
-                maxItems={maxItems}
-                renderItem={(author, isMatch) => {
-                  return (
-                    <>
-                      {author.orcid === null && <span className={isMatch ? styles.match : undefined}>{formatAuthorNameFirstLast(author)}</span>}
-                      {author.orcid !== null && (
-                        <a
-                          href={orcidToUrl(author.orcid)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={isMatch ? styles.match : undefined}
-                        >
-                          {formatAuthorNameFirstLast(author)}
-                        </a>
-                      )}
-                    </>
-                  );
-                }}
-              />
-            </div>
+            <ItemList
+              label="Authors"
+              items={work.authors}
+              matches={item.match.authors}
+              maxItems={maxItems}
+              showMatchedOnly={whatMatched === "matched-only"}
+              renderItem={(author, isMatch) => {
+                const highlightMatch = isMatch && whatMatched === "highlight";
+                return (
+                  <>
+                    {author.orcid === null && (
+                      <span className={highlightMatch ? styles.match : undefined}>
+                        {formatAuthorNameFirstLast(author)}
+                      </span>
+                    )}
+                    {author.orcid !== null && (
+                      <a
+                        href={orcidToUrl(author.orcid)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={highlightMatch ? styles.match : undefined}
+                      >
+                        {formatAuthorNameFirstLast(author)}
+                      </a>
+                    )}
+                  </>
+                );
+              }}
+            />
 
-            <div className={styles.detailsItem}>
-              <h5>Institutions</h5>
-              <ItemList
-                items={work.institutions}
-                matches={item.match.institutions}
-                maxItems={maxItems}
-                renderItem={(institution, isMatch) => {
-                  return (
-                    <>
-                      {institution.ror === null && <span className={isMatch ? styles.match : undefined}>{institution.name}</span>}
-                      {institution.ror !== null && (
-                        <a
-                          href={rorToUrl(institution.ror)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={isMatch ? styles.match : undefined}
-                        >
-                          {institution.name}
-                        </a>
-                      )}
-                    </>
-                  );
-                }}
-              />
-            </div>
+            <ItemList
+              label="Institutions"
+              items={work.institutions}
+              matches={item.match.institutions}
+              maxItems={maxItems}
+              showMatchedOnly={whatMatched === "matched-only"}
+              renderItem={(institution, isMatch) => {
+                const highlightMatch = isMatch && whatMatched === "highlight";
+                return (
+                  <>
+                    {institution.ror === null && (
+                      <span className={highlightMatch ? styles.match : undefined}>{institution.name}</span>
+                    )}
+                    {institution.ror !== null && (
+                      <a
+                        href={rorToUrl(institution.ror)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={highlightMatch ? styles.match : undefined}
+                      >
+                        {institution.name}
+                      </a>
+                    )}
+                  </>
+                );
+              }}
+            />
 
-            <div className={styles.detailsItem}>
-              <h5>Funders</h5>
-              <ItemList
-                items={work.funders}
-                matches={item.match.funders}
-                maxItems={maxItems}
-                renderItem={(funder, isMatch) => {
-                  return (
-                    <>
-                      {funder.ror === null && <span className={isMatch ? styles.match : undefined}>{funder.name}</span>}
-                      {funder.ror !== null && (
-                        <a
-                          href={rorToUrl(funder.ror)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={isMatch ? styles.match : undefined}
-                        >
-                          {funder.name}
-                        </a>
-                      )}
-                    </>
-                  );
-                }}
-              />
-            </div>
-
-            <div className={styles.detailsItem}>
-              <h5>Sources</h5>
-              <ItemList
-                items={work.sources}
-                matches={[]}
-                maxItems={maxItems}
-                renderItem={(source) => {
-                  return (
-                    <>
-                      {source.url === null && <span>{source.name}</span>}
-                      {source.url !== null && (
-                        <a
-                          href={source.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {source.name}
-                        </a>
-                      )}
-                    </>
-                  );
-                }}
-              />
-            </div>
+            <ItemList
+              label="Funders"
+              items={work.funders}
+              matches={item.match.funders}
+              maxItems={maxItems}
+              showMatchedOnly={whatMatched === "matched-only"}
+              renderItem={(funder, isMatch) => {
+                const highlightMatch = isMatch && whatMatched === "highlight";
+                return (
+                  <>
+                    {funder.ror === null && (
+                      <span className={highlightMatch ? styles.match : undefined}>{funder.name}</span>
+                    )}
+                    {funder.ror !== null && (
+                      <a
+                        href={rorToUrl(funder.ror)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={highlightMatch ? styles.match : undefined}
+                      >
+                        {funder.name}
+                      </a>
+                    )}
+                  </>
+                );
+              }}
+            />
           </div>
 
           <div className={styles.reviewActions}>
@@ -269,18 +292,6 @@ function RelatedWorksListItem({ item }: { item: RelatedWork }) {
                 {t("buttons.accept")}
               </Button>
             </div>
-
-            <Checkbox value="show">
-              <div className="checkbox">
-                <svg
-                  viewBox="0 0 18 18"
-                  aria-hidden="true"
-                >
-                  <polyline points="1 9 7 14 15 4" />
-                </svg>
-              </div>
-              {t("checkboxes.onlyShowMatched")}
-            </Checkbox>
           </div>
 
           <span className={styles.discardInstructions}>{t("details.discardInstructions")}</span>
@@ -291,10 +302,12 @@ function RelatedWorksListItem({ item }: { item: RelatedWork }) {
 }
 
 type ItemListProps<T> = {
+  label: string;
   items: T[];
   matches: number[];
   maxItems: number;
   renderItem: (item: T, isMatch: boolean | null) => React.ReactNode;
+  showMatchedOnly: boolean;
 };
 
 const sanitiseHighlight = (dirty: string): string => {
@@ -304,23 +317,36 @@ const sanitiseHighlight = (dirty: string): string => {
   });
 };
 
-function ItemList<T>({ items, matches, maxItems, renderItem }: ItemListProps<T>) {
+function ItemList<T>({ label, items, matches, maxItems, renderItem, showMatchedOnly = false }: ItemListProps<T>) {
   const tooMany = items.length > maxItems;
   const remainder = items.length - maxItems;
   const [isOpen, setOpen] = useState(!tooMany);
   const visible = items.slice(0, tooMany && !isOpen ? maxItems : items.length);
   const matchSet = new Set(matches);
 
+  if (items.length === 0 || matches.length === 0) {
+    return null;
+  }
+
   return (
-    <>
-      {visible.map((item, i) => {
-        return (
-          <React.Fragment key={i}>
-            {renderItem(item, matchSet.has(i))}
-            {i < items.length - 1 ? ", " : " "}
-          </React.Fragment>
-        );
-      })}
+    <div className={styles.detailsItem}>
+      <h5>{label}</h5>
+      {visible
+        .map((item, i) => {
+          const isMatch = matchSet.has(i);
+          return { item, isMatch };
+        })
+        .filter((result) => {
+          return !showMatchedOnly || (showMatchedOnly && result.isMatch);
+        })
+        .map((result, i, array) => {
+          return (
+            <React.Fragment key={i}>
+              {renderItem(result.item, result.isMatch)}
+              {i < array.length - 1 ? ", " : " "}
+            </React.Fragment>
+          );
+        })}
       {!isOpen && tooMany && (
         <span
           className={styles.collapse}
@@ -337,12 +363,9 @@ function ItemList<T>({ items, matches, maxItems, renderItem }: ItemListProps<T>)
           {"less"}
         </span>
       )}
-    </>
+    </div>
   );
 }
-
-// <span style={{"filter": "grayscale(100%)"}}>👤</span>
-// <span style={{"filter": "grayscale(100%)"}}>🆔</span>
 
 const doiToUrl = (doi: string): string => {
   return `https://doi.org/${doi}`;
