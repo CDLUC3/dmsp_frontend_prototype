@@ -248,6 +248,7 @@ const AddProjectFunderManually = () => {
       if (hasErrors) {
         setFieldErrors({
           ...fieldErrors,
+          ...(errs.affiliationId != null && { affiliationId: String(errs.affiliationId) }),
           ...(errs.grantId != null && { funderGrantId: String(errs.grantId) }),
           ...(errs.funderOpportunityNumber != null && { funderOpportunityNumber: String(errs.funderOpportunityNumber) }),
           ...(errs.funderProjectNumber != null && { funderProjectNumber: String(errs.funderProjectNumber) }),
