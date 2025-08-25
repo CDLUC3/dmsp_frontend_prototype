@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { PlanSectionProgress, TemplateVisibility, PlanFeedback } from "@/generated/graphql";
+import { PlanSectionProgress, TemplateVisibility, PlanFeedback, ProjectFundingStatus } from "@/generated/graphql";
 import { AffiliationSearchQuestionType, AnyQuestionType } from '@dmptool/types';
 
 export interface EmailInterface {
@@ -471,3 +471,12 @@ export type SuggestionInterface = {
   uri: string;
 }
 
+export interface ProjectFundingInterface {
+  affiliationName: string;
+  affiliationId: string;
+  otherAffiliationName: string;
+  fundingStatus: ProjectFundingStatus;
+  funderGrantId: string;
+  funderOpportunityNumber: string;
+  funderProjectNumber: string;
+}

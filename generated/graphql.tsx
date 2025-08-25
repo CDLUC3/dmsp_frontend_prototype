@@ -3944,7 +3944,7 @@ export type AddFeedbackCommentMutationVariables = Exact<{
 }>;
 
 
-export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null, PlanFeedback?: { __typename?: 'PlanFeedback', id?: number | null } | null } | null };
+export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, commentText?: string | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null } | null };
 
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4273,7 +4273,7 @@ export type ProjectFundingQueryVariables = Exact<{
 }>;
 
 
-export type ProjectFundingQuery = { __typename?: 'Query', projectFunding?: { __typename?: 'ProjectFunding', status?: ProjectFundingStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string } | null } | null };
+export type ProjectFundingQuery = { __typename?: 'Query', projectFunding?: { __typename?: 'ProjectFunding', status?: ProjectFundingStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, uri: string } | null } | null };
 
 export type ProjectMembersQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4811,11 +4811,9 @@ export const AddFeedbackCommentDocument = gql`
   ) {
     id
     answerId
+    commentText
     errors {
       general
-    }
-    PlanFeedback {
-      id
     }
   }
 }
@@ -6853,6 +6851,7 @@ export const ProjectFundingDocument = gql`
     affiliation {
       name
       displayName
+      uri
     }
     status
     grantId

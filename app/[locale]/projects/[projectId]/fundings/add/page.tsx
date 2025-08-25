@@ -26,6 +26,7 @@ import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 import { FormInput, FormSelect } from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
+import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 
 import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
@@ -35,14 +36,17 @@ import styles from './addFunderManually.module.scss';
 
 
 interface FieldErrorsInterface {
-  funderName: string;
+  affiliationId: string;
+  otherAffiliationName: string;
   funderGrantId: string;
   funderOpportunityNumber: string;
   funderProjectNumber: string;
 }
 
 interface ProjectFundingInterface {
-  funderName: string;
+  affiliationName: string;
+  affiliationId: string;
+  otherAffiliationName: string;
   fundingStatus: ProjectFundingStatus;
   funderGrantId: string;
   funderOpportunityNumber: string;
@@ -61,11 +65,16 @@ const AddProjectFunderManually = () => {
   const params = useParams();
   const projectId = Number(params.projectId);
 
+  // For TypeAhead component
+  const { suggestions, handleSearch } = useAffiliationSearch();
+
   const [addAffiliation] = useAddAffiliationMutation();
   const [addProjectFunding] = useAddProjectFundingMutation();
 
   const [fundingData, setFundingData] = useState<ProjectFundingInterface>({
-    funderName: '',
+    affiliationName: '',
+    affiliationId: '',
+    otherAffiliationName: '',
     fundingStatus: ProjectFundingStatus.Planned,
     funderGrantId: '',
     funderOpportunityNumber: '',
@@ -78,17 +87,36 @@ const AddProjectFunderManually = () => {
   }));
 
   const [errors, setErrors] = useState<string[]>([]);
+  const [otherField, setOtherField] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrorsInterface>({
-    funderName: '',
+    affiliationId: '',
+    otherAffiliationName: '',
     funderGrantId: '',
     funderOpportunityNumber: '',
     funderProjectNumber: ''
   });
 
+  const updateAffiliationFormData = async (id: string, value: string) => {
+    clearActiveFieldError('affiliationId')
+    // Clear previous error messages
+    clearAllFieldErrors();
+    setErrors([]);
+    return setFundingData({ ...fundingData, affiliationName: value, affiliationId: id });
+  }
+
+  // Clear any errors for the current active field
+  const clearActiveFieldError = (name: string) => {
+    // Clear error for active field
+    setFieldErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: ''
+    }));
+  }
 
   function clearAllFieldErrors() {
     setFieldErrors({
-      funderName: '',
+      affiliationId: '',
+      otherAffiliationName: '',
       funderGrantId: '',
       funderOpportunityNumber: '',
       funderProjectNumber: ''
@@ -145,75 +173,102 @@ const AddProjectFunderManually = () => {
 
   // Handle any changes to form field values
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // Clear previous error messages
+    clearAllFieldErrors();
+    setErrors([]);
     const { name, value } = e.target;
     setFundingData({ ...fundingData, [name]: value });
   }
 
-  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     // Clear previous error messages
     clearAllFieldErrors();
     setErrors([]);
 
-    // First we need to add the Affiliation
-    addAffiliation({
-      variables: {
-        input: {
-          funder: true,
-          name: fundingData.funderName,
-        },
-      }
-    }).then((result) => {
-      const data = result!.data!;
-      const affiliationId = data!.addAffiliation!.uri;
+    // First check that if the user has opted to enter "Other", then that value cannot be blank
+    if (otherField && !fundingData.otherAffiliationName.trim()) {
+      setFieldErrors(prev => ({
+        ...prev,
+        otherAffiliationName: addFunding('messages.errors.requiredOtherAffiliation')
+      }));
+      setErrors([addFunding('messages.errors.projectFundingUpdateFailed')]);
+      return;
+    }
 
-      const [hasErrors, errs] = hasAffiliationErrors(data?.addAffiliation?.errors as AffiliationErrors);
-      if (hasErrors) {
-        setFieldErrors({
-          ...fieldErrors,
-          funderName: String(errs.name),
-        });
-        setErrors([addFunding('messages.errors.projectFundingUpdateFailed')]);
-      } else {
-        return addProjectFunding({
+    try {
+      let affiliationId: string;
+
+      if (otherField) {
+        // Only call addAffiliation if "otherField" is true, because otherwise it's an existing affiliation and we
+        // want to use the existing affiliationId
+        const result = await addAffiliation({
           variables: {
             input: {
-              projectId,
-              affiliationId,
-              funderOpportunityNumber: fundingData.funderOpportunityNumber,
-              funderProjectNumber: fundingData.funderProjectNumber,
-              grantId: fundingData.funderGrantId,
-              status: fundingData.fundingStatus,
+              funder: true,
+              name: fundingData.otherAffiliationName,
             },
           },
         });
-      }
-    }).then((result) => {
-      if (result && result.data) {
-        const data = result.data;
-        const [hasErrors, errs] = hasProjectFundingErrors(data?.addProjectFunding?.errors as ProjectFundingErrors);
+
+        const data = result?.data;
+        affiliationId = data?.addAffiliation?.uri as string;
+
+        const [hasErrors, errs] = hasAffiliationErrors(data?.addAffiliation?.errors as AffiliationErrors);
         if (hasErrors) {
           setFieldErrors({
             ...fieldErrors,
-            funderGrantId: String(errs.grantId),
-            funderOpportunityNumber: String(errs.funderOpportunityNumber),
-            funderProjectNumber: String(errs.funderProjectNumber),
+            affiliationId: String(errs.name),
           });
           setErrors([addFunding('messages.errors.projectFundingUpdateFailed')]);
-        } else {
-          showSuccessToast();
-          router.push(routePath('projects.fundings.index', {projectId}));
+          return; // stop if affiliation failed
         }
+      } else {
+        // Otherwise just use the affiliationId of selecting existing affiliation
+        affiliationId = fundingData.affiliationId;
       }
-    }).catch((err) => {
+
+      // Now always call addProjectFunding to add it to the project
+      const result = await addProjectFunding({
+        variables: {
+          input: {
+            projectId,
+            affiliationId,
+            funderOpportunityNumber: fundingData.funderOpportunityNumber,
+            funderProjectNumber: fundingData.funderProjectNumber,
+            grantId: fundingData.funderGrantId,
+            status: fundingData.fundingStatus,
+          },
+        },
+      });
+
+      const data = result?.data;
+      const [hasErrors, errs] = hasProjectFundingErrors(data?.addProjectFunding?.errors as ProjectFundingErrors);
+      if (hasErrors) {
+        setFieldErrors({
+          ...fieldErrors,
+          ...(errs.grantId != null && { funderGrantId: String(errs.grantId) }),
+          ...(errs.funderOpportunityNumber != null && { funderOpportunityNumber: String(errs.funderOpportunityNumber) }),
+          ...(errs.funderProjectNumber != null && { funderProjectNumber: String(errs.funderProjectNumber) }),
+        });
+
+        setErrors([addFunding('messages.errors.projectFundingUpdateFailed')]);
+      } else {
+        showSuccessToast();
+        router.push(routePath('projects.fundings.index', { projectId }));
+      }
+    } catch (err) {
       logECS('error', 'addProjectFunderManually', {
         err,
         url: { path: '/projects/[projectId]/fundings/add' }
       });
-      setErrors(prevErrors => [...prevErrors, addFunding('messages.errors.projectFundingUpdateFailed')]);
-    });
-  };
+      setErrors(prevErrors => [
+        ...prevErrors,
+        addFunding('messages.errors.projectFundingUpdateFailed'),
+      ]);
+    }
+  }
 
   return (
     <>
@@ -225,9 +280,9 @@ const AddProjectFunderManually = () => {
         breadcrumbs={
           <Breadcrumbs>
             <Breadcrumb><Link href={routePath('app.home')}>{global('breadcrumbs.home')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.index', {projectId})}>{global('breadcrumbs.projects')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.show', {projectId})}>{global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb><Link href={routePath('projects.fundings.index', {projectId})}>{global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.index', { projectId })}>{global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.fundings.index', { projectId })}>{global('breadcrumbs.projectFunding')}</Link></Breadcrumb>
             <Breadcrumb>{addFunding('title')}</Breadcrumb>
           </Breadcrumbs>
         }
@@ -237,16 +292,32 @@ const AddProjectFunderManually = () => {
         <ContentContainer>
           <ErrorMessages errors={errors} ref={errorRef} />
           <Form onSubmit={handleFormSubmit}>
-            <FormInput
-              name="funderName"
-              type="text"
-              isRequired={true}
+            <TypeAheadWithOther
               label={addFunding('labels.funderName')}
-              value={fundingData.funderName}
-              onChange={handleInputChange}
-              isInvalid={(!fundingData.funderName || !!fieldErrors.funderName)}
-              errorMessage={fieldErrors.funderName.length > 0 ? fieldErrors.funderName : addFunding('messages.errors.fundingName')}
+              fieldName="funderName"
+              setOtherField={setOtherField}
+              required={true}
+              error={fieldErrors.affiliationId}
+              updateFormData={updateAffiliationFormData}
+              value={fundingData.affiliationName}
+              suggestions={suggestions}
+              onSearch={handleSearch}
             />
+            {otherField && (
+              <div className={`${styles.formRow} ${styles.oneItemRow}`}>
+                <FormInput
+                  name="otherAffiliationName"
+                  type="text"
+                  label="Other Institution"
+                  placeholder={fundingData.otherAffiliationName}
+                  value={fundingData.otherAffiliationName}
+                  onChange={handleInputChange}
+                  isInvalid={!!fieldErrors['otherAffiliationName']}
+                  errorMessage={fieldErrors['otherAffiliationName'] ?? ''}
+                />
+
+              </div>
+            )}
 
             <FormSelect
               label={addFunding('labels.fundingStatus')}
@@ -254,7 +325,7 @@ const AddProjectFunderManually = () => {
               name="fundingStatus"
               items={fundingStatuses}
               selectClasses={styles.fundingStatusSelect}
-              onChange={value => setFundingData({ ...fundingData, fundingStatus: value as ProjectFundingStatus})}
+              onChange={value => setFundingData({ ...fundingData, fundingStatus: value as ProjectFundingStatus })}
               selectedKey={fundingData.fundingStatus}
             >
               {fundingStatuses && fundingStatuses.map((status) => {

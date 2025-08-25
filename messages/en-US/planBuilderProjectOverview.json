@@ -149,7 +149,8 @@
         "projectFundingUpdateFailed": "Error updating project funding details",
         "fundingGrantId": "Invalid funder grant ID value",
         "fundingProjectNumber": "Invalid funder project number value",
-        "fundingName": "Invalid funder name value"
+        "fundingName": "Invalid funder name value",
+        "requiredOtherAffiliation": "Invalid name value"
       },
       "success": {
         "projectFundingUpdated": "Successfully updated project funding details"
@@ -171,7 +172,8 @@
         "projectFundingUpdateFailed": "Error updating project funding details",
         "fundingGrantId": "Invalid funder grant ID value",
         "fundingProjectNumber": "Invalid funder project number value",
-        "fundingName": "Invalid funder name value"
+        "fundingName": "Invalid funder name value",
+        "requiredOtherAffiliation": "Invalid name value"
       },
       "success": {
         "projectFundingUpdated": "Successfully updated project funding details"
