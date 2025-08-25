@@ -1,36 +1,67 @@
-import React, { ReactNode } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import React from 'react';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
+// import { RichTranslationValues } from 'next-intl';
+import { ProjectFundingsApiDocument } from '@/generated/graphql';
+import { MockedProvider } from '@apollo/client/testing';
+
+import { useParams, useRouter } from 'next/navigation';
 import ProjectsCreateProjectFunding from '../page';
-import { RichTranslationValues } from 'next-intl';
+
 
 expect.extend(toHaveNoViolations);
+
+
+const withAPIMocks = [
+  {
+    request: {
+      query: ProjectFundingsApiDocument,
+      variables: {
+        projectId: 123,
+      },
+    },
+
+    result: {
+      data: {
+        project: {
+          fundings: [{
+            affiliation: {
+              apiTarget: '/api/target',
+            },
+          }],
+        }
+      }
+    },
+  },
+];
+
+const withoutAPIMocks = [
+  {
+    request: {
+      query: ProjectFundingsApiDocument,
+      variables: {
+        projectId: 123,
+      },
+    },
+
+    result: {
+      data: {
+        project: {
+          fundings: [{
+            affiliation: {
+              apiTarget: null,
+            }
+          }],
+        }
+      }
+    },
+  },
+];
 
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
   useParams: jest.fn(),
-}));
-type MockUseTranslations = {
-  (key: string, ...args: unknown[]): string;
-  rich: (key: string, values?: RichTranslationValues) => ReactNode;
-};
-
-jest.mock('next-intl', () => ({
-  useTranslations: jest.fn(() => {
-    const mockUseTranslations: MockUseTranslations = ((key: string) => key) as MockUseTranslations;
-
-    mockUseTranslations.rich = (key, values) => {
-      const p = values?.p;
-      if (typeof p === 'function') {
-        return p(key); // Can return JSX
-      }
-      return key; // fallback
-    };
-
-    return mockUseTranslations;
-  }),
 }));
 
 
@@ -51,7 +82,9 @@ describe('ProjectsCreateProjectFunding', () => {
   it('should render the component', async () => {
     await act(async () => {
       render(
-        <ProjectsCreateProjectFunding />
+        <MockedProvider mocks={withoutAPIMocks} addTypename={false}>
+          <ProjectsCreateProjectFunding />
+        </MockedProvider>
       );
     });
 
@@ -64,27 +97,59 @@ describe('ProjectsCreateProjectFunding', () => {
     expect(screen.getByText('buttons.continue')).toBeInTheDocument();
   });
 
-  it('should handle form submission with "yes" selected', async () => {
-    render(<ProjectsCreateProjectFunding />);
+  it('should handle funding "yes" selected (no API)', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={withoutAPIMocks} addTypename={false}>
+          <ProjectsCreateProjectFunding />
+        </MockedProvider>
+      );
+    });
+
     fireEvent.click(screen.getByLabelText('form.radioYesLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/funding-search');
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/project');
+    })
+  });
+
+  it('should handle funding "yes" selected (with API)', async () => {
+    await act(async () => {
+      render(
+        <MockedProvider mocks={withAPIMocks} addTypename={false}>
+          <ProjectsCreateProjectFunding />
+        </MockedProvider>
+      );
+    });
+
+    fireEvent.click(screen.getByLabelText('form.radioYesLabel'));
+    fireEvent.click(screen.getByText('buttons.continue'));
+    await waitFor(() => {
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/projects-search');
     })
   });
 
   it('should handle form submission with "no" selected', async () => {
-    render(<ProjectsCreateProjectFunding />);
+    await act(async () => {
+      render(
+        <MockedProvider mocks={withoutAPIMocks} addTypename={false}>
+          <ProjectsCreateProjectFunding />
+        </MockedProvider>
+      );
+    });
+
     fireEvent.click(screen.getByLabelText('form.radioNoLabel'));
     fireEvent.click(screen.getByText('buttons.continue'));
     await waitFor(() => {
-      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123')
+      expect(mockUseRouter().push).toHaveBeenCalledWith('/en-US/projects/123/project')
     })
   });
 
   it('should pass axe accessibility test', async () => {
     const { container } = render(
-      <ProjectsCreateProjectFunding />
+      <MockedProvider mocks={withoutAPIMocks} addTypename={false}>
+        <ProjectsCreateProjectFunding />
+      </MockedProvider>
     );
     await act(async () => {
       const results = await axe(container);
