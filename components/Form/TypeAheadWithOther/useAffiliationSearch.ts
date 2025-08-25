@@ -23,7 +23,7 @@ export function useAffiliationSearch() {
         const affiliations = data.affiliations.items
           .filter((item): item is NonNullable<typeof item> => item !== null)
           .map((item) => ({
-            id: String(item.id) ?? undefined,
+            id: item.id != null ? String(item.id) : '',
             displayName: item.displayName,
             uri: item.uri,
           }));

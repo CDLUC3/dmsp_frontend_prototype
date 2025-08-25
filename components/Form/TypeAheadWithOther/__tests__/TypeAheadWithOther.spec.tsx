@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
+import { TypeAheadWithOther } from '@/components/Form/TypeAheadWithOther';
 import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
 jest.mock('@/lib/graphql/client/apollo-client');
