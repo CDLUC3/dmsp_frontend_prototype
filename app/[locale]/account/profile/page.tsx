@@ -176,7 +176,7 @@ const ProfilePage: React.FC = () => {
         // Handle other types of errors
         setErrors(prevErrors => ({
           ...prevErrors,
-          general: 'Error when updating profile'
+          general: t('messages.errors.errorUpdatingProfile')
         }));
       }
     }

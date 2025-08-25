@@ -394,7 +394,7 @@ describe('ProfilePage', () => {
     });
 
     // Check if the error message is displayed
-    const errorMsg = screen.getByText(/Error when updating profile/i);
+    const errorMsg = screen.getByText('messages.errors.errorUpdatingProfile');
     expect(errorMsg).toBeInTheDocument();
   })
 
