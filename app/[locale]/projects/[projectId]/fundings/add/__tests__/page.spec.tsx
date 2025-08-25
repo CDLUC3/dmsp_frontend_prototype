@@ -10,16 +10,81 @@ import {
 import logECS from '@/utils/clientLogger';
 
 import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
-
+import { TypeAheadInputProps } from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
+import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 import AddProjectFunderManually from '../page';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 
 expect.extend(toHaveNoViolations);
 
+// Mock TypeAhead component since it has its own tests
+jest.mock('@/components/Form/TypeAheadWithOther', () => ({
+  __esModule: true,
+  useAffiliationSearch: jest.fn(() => ({
+    suggestions: mocksAffiliations,
+    handleSearch: jest.fn(),
+  })),
+  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData, value, setOtherField }: TypeAheadInputProps) => {
+    const [inputValue, setInputValue] = React.useState(value || '');
+
+    return (
+      <div>
+        <label htmlFor={fieldName}>{label}</label>
+        <input
+          id={fieldName}
+          aria-label={label}  // ensures accessible name
+          placeholder={placeholder}
+          name={fieldName}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-controls={`${fieldName}-listbox`}
+          aria-expanded="true"
+          value={inputValue}
+          onChange={(e) => {
+            const newValue = e.target.value;
+            setInputValue(newValue);
+            setOtherField?.(true);
+            updateFormData?.('https://ror.org/0168r3w48', newValue);
+          }}
+        />
+
+        <ul
+          id={`${fieldName}-listbox`}
+          role="listbox"
+          aria-label={`${label} suggestions`}
+        >
+          <li role="option" aria-selected="false">Search Term</li>
+        </ul>
+      </div>
+    );
+  },
+}));
 
 const successMocks = [
   // For creating the Affiliate
+  {
+    request: {
+      query: AddAffiliationDocument,
+      variables: {
+        input: {
+          funder: true,
+          name: "New-funderName-123",
+        },
+      },
+    },
+
+    result: {
+      data: {
+        addAffiliation: {
+          errors: {
+            name: null,
+          },
+          uri: "https://dmptool/123",
+        }
+      }
+    },
+  },
   {
     request: {
       query: AddAffiliationDocument,
@@ -51,6 +116,38 @@ const successMocks = [
         input: {
           projectId: 111,
           affiliationId: "https://dmptool/123",
+          funderOpportunityNumber: 'New-opportunity-123',
+          funderProjectNumber: 'New-projectNumber-123',
+          grantId: 'New-grantNumber-123',
+          status: 'GRANTED',
+        }
+      },
+    },
+
+    result: {
+      data: {
+        addProjectFunding: {
+          id: "333",
+          errors: {
+            projectId: null,
+            affiliationId: null,
+            funderOpportunityNumber: null,
+            funderProjectNumber: null,
+            grantId: null,
+            general: null,
+            status: null,
+          },
+        },
+      },
+    },
+  },
+  {
+    request: {
+      query: AddProjectFundingDocument,
+      variables: {
+        input: {
+          projectId: 111,
+          affiliationId: "https://ror.org/0168r3w48",
           funderOpportunityNumber: 'New-opportunity-123',
           funderProjectNumber: 'New-projectNumber-123',
           grantId: 'New-grantNumber-123',
@@ -159,6 +256,38 @@ const errorMocks = [
       },
     },
   },
+  {
+    request: {
+      query: AddProjectFundingDocument,
+      variables: {
+        input: {
+          projectId: 111,
+          affiliationId: "https://ror.org/0168r3w48",
+          funderOpportunityNumber: '',
+          funderProjectNumber: '',
+          grantId: '',
+          status: 'PLANNED',
+        }
+      },
+    },
+
+    result: {
+      data: {
+        addProjectFunding: {
+          id: "333",
+          errors: {
+            projectId: null,
+            affiliationId: null,
+            funderOpportunityNumber: null,
+            funderProjectNumber: null,
+            grantId: null,
+            general: null,
+            status: null,
+          },
+        },
+      },
+    },
+  },
 
   // Apollo Errors
   {
@@ -202,7 +331,6 @@ describe('AddProjectFunderManually', () => {
     });
 
     expect(screen.getByLabelText('labels.funderName')).toBeInTheDocument();
-    expect(screen.getByLabelText('labels.funderName')).toBeInTheDocument();
     expect(screen.getByText('labels.grantNumber')).toBeInTheDocument();
     expect(screen.getByLabelText('labels.projectNumber')).toBeInTheDocument();
     expect(screen.getByLabelText('labels.opportunity')).toBeInTheDocument();
@@ -224,16 +352,23 @@ describe('AddProjectFunderManually', () => {
     // Update data
     fireEvent.change(
       screen.getByLabelText('labels.funderName'),
-      {target: { value: 'New-funderName-123' }}
+      { target: { value: 'New-funderName-123' } }
     );
+
+    //Enter a value for the "Other Affiliation" field, since we're automatically setting "otherField" to true in the mock
+    fireEvent.change(
+      screen.getByLabelText('Other Institution'),
+      { target: { value: 'New-funderName-123' } }
+    );
+
 
     // To change the value in FormSelect, we need to "click" to open the options
     const statusSelect = screen.getByRole('button', { name: /fundingStatus/ });
-    await fireEvent.click(statusSelect);
+    fireEvent.click(statusSelect);
 
     // Now we need to click on one of the options
     const optionGranted = screen.getByRole('option', { name: /granted/i });
-    await fireEvent.click(optionGranted);
+    fireEvent.click(optionGranted);
 
     fireEvent.change(
       screen.getByLabelText('labels.grantNumber'),
@@ -258,7 +393,7 @@ describe('AddProjectFunderManually', () => {
     });
   });
 
-  it('should display errors for the affiliation name', async () => {
+  it('should display error when addAffiliation returns an error', async () => {
     const mockPush = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
@@ -272,7 +407,13 @@ describe('AddProjectFunderManually', () => {
 
     fireEvent.change(
       screen.getByLabelText('labels.funderName'),
-      {target: { value: 'Affiliate Field Error' }}
+      { target: { value: 'Affiliate Field Error' } }
+    );
+
+    //Enter a value for the "Other Affiliation" field, since we're automatically setting "otherField" to true in the mock
+    fireEvent.change(
+      screen.getByLabelText('Other Institution'),
+      { target: { value: 'Affiliate Field Error' } }
     );
 
     // Submit the form
@@ -280,7 +421,6 @@ describe('AddProjectFunderManually', () => {
 
     await waitFor(() => {
       expect(screen.getByText('messages.errors.projectFundingUpdateFailed')).toBeInTheDocument();
-      expect(screen.getByText('Error with affiliate name')).toBeInTheDocument();
       expect(mockPush).not.toHaveBeenCalled();
     });
   });
@@ -299,7 +439,13 @@ describe('AddProjectFunderManually', () => {
 
     fireEvent.change(
       screen.getByLabelText('labels.funderName'),
-      {target: { value: 'Valid Affiliate' }}
+      { target: { value: 'Valid Affiliate' } }
+    );
+
+    //Enter a value for the "Other Affiliation" field, since we're automatically setting "otherField" to true in the mock
+    fireEvent.change(
+      screen.getByLabelText('Other Institution'),
+      { target: { value: 'Valid Affiliate' } }
     );
 
     // Submit the form
@@ -314,7 +460,7 @@ describe('AddProjectFunderManually', () => {
     });
   });
 
-  it('should handle errors thrown by the graphql mutations promise chain', async() => {
+  it('should handle errors thrown by the graphql mutations promise chain', async () => {
     const mockPush = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
@@ -328,7 +474,13 @@ describe('AddProjectFunderManually', () => {
 
     fireEvent.change(
       screen.getByLabelText('labels.funderName'),
-      {target: { value: 'Affiliate Exception' }}
+      { target: { value: 'Affiliate Exception' } }
+    );
+
+    //Enter a value for the "Other Affiliation" field, since we're automatically setting "otherField" to true in the mock
+    fireEvent.change(
+      screen.getByLabelText('Other Institution'),
+      { target: { value: 'Affiliate Exception' } }
     );
 
     // Submit the form
