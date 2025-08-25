@@ -81,12 +81,9 @@ const CreateProjectSearchFunder = () => {
           setErrors([String(errs.general)]);
         } else {
           if (funder.apiTarget) {
-            // router.push(routePath('projects.create.funding.check'), {
-            //   projectId: projectId,
-            // });
-            // TODO::FIXME:: for some reason the above route don't work.
-            // So I'm using a hard-coded path here.
-            router.push(`/projects/${projectId}/project-funding`);
+            router.push(routePath('projects.create.funding.check', {
+              projectId,
+            }));
           } else {
             router.push(routePath('projects.project.info', {
               projectId,
