@@ -1,4 +1,4 @@
-@use '@/styles/responsive.scss' as *;
+@use "@/styles/responsive.scss" as *;
 
 .relatedWorksItem {
   padding: 1.25rem 1rem;
@@ -128,7 +128,6 @@
 }
 
 .detailsList {
-
 }
 
 .detailsList > *:not(:last-child) {

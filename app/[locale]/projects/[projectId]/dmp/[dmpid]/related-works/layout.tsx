@@ -6,7 +6,7 @@ import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 import { Breadcrumb, Breadcrumbs, Button, Link, Tab, TabList, TabPanel, Tabs } from "react-aria-components";
 import { useTranslations } from "next-intl";
-import styles from './RelatedWorks.module.scss';
+import styles from "./RelatedWorks.module.scss";
 
 const RelatedWorksLayout = ({
   pending,
@@ -51,8 +51,8 @@ const RelatedWorksLayout = ({
       <LayoutContainer>
         <ContentContainer className={`layout-content-container-full ${styles.tabWrapper}`}>
           <Tabs>
-            <TabList aria-label="View related works" >
-              <Tab id="pending" >{t("tabs.pending")}</Tab>
+            <TabList aria-label="View related works">
+              <Tab id="pending">{t("tabs.pending")}</Tab>
               <Tab id="related">{t("tabs.related")}</Tab>
               <Tab id="discarded">{t("tabs.discarded")}</Tab>
             </TabList>

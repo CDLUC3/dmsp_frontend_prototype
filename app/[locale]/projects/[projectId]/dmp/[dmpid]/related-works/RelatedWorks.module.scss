@@ -1,6 +1,4 @@
-
 .tabWrapper {
-
 }
 
 .tabWrapper :global(.react-aria-Tab) {
@@ -13,11 +11,11 @@
 }
 
 .tabWrapper :global(.react-aria-Tab[data-selected]) {
-  background-color: #EAEAEA;
+  background-color: #eaeaea;
 }
 
 .tabWrapper :global(.react-aria-TabPanel) {
-  background-color: #EAEAEA;
+  background-color: #eaeaea;
   border-top-left-radius: 0;
   padding: 1.2rem 1.2rem 1.5rem;
   box-shadow: none;

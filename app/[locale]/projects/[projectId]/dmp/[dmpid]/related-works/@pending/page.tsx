@@ -1,14 +1,10 @@
 "use client";
 
-import RelatedWorksListItem from "@/components/RelatedWorksListItem";
-import styles from "./RelatedWorksList.module.scss";
 import { Status } from "@/app/types";
-import Pagination from "@/components/Pagination";
-import React, { useState } from "react";
-import { Button, FieldError, Label, ListBox, ListBoxItem, Popover, Select, SelectValue } from "react-aria-components";
-import LinkFilter from "@/components/LinkFilter";
+import React from "react";
+import { RelatedWorksList } from "@/components/RelatedWorksList";
 
-const works = [
+const PENDING = [
   {
     dmpDoi: "",
     work: {
@@ -119,7 +115,7 @@ const works = [
         { ror: "01cwqze88", name: "National Institutes of Health" },
       ],
       awardIds: ["2357894", "R01 HL201245-02"],
-      source: { name: "OpenAlex", url: "https://openalex.org/works/w2060245136" }
+      source: { name: "OpenAlex", url: "https://openalex.org/works/w2060245136" },
     },
     dateFound: new Date(2025, 7, 21),
     status: Status.Pending,
@@ -177,8 +173,7 @@ const works = [
       ],
       funders: [{ ror: "021nxhr62", name: "U.S. National Science Foundation" }],
       awardIds: ["2145023"],
-      source:
-        { name: "OpenAlex", url: "https://openalex.org/works/w2060245136" }
+      source: { name: "OpenAlex", url: "https://openalex.org/works/w2060245136" },
     },
     dateFound: new Date(2025, 7, 21),
     status: Status.Pending,
@@ -332,8 +327,7 @@ const works = [
         { ror: "01cwqze88", name: "National Institutes of Health" },
       ],
       awardIds: ["2139987", "R01 NS987654-01"],
-      source:
-        { name: "DataCite", url: "https://commons.datacite.org/doi.org/10.5555/fake.2025.778899" }
+      source: { name: "DataCite", url: "https://commons.datacite.org/doi.org/10.5555/fake.2025.778899" },
     },
     dateFound: new Date(2025, 7, 21),
     status: Status.Pending,
@@ -353,9 +347,7 @@ const works = [
 ];
 
 export default function Pending() {
-  const [whatMatched, setWhatMatched] = useState<string | null>(null);
-
-  const sortedWorks = works;
+  const sortedWorks = PENDING;
   sortedWorks.sort((a, b) => {
     if (a.work.score > b.work.score) {
       return -1;
@@ -365,159 +357,5 @@ export default function Pending() {
     return 0;
   });
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.filters}>
-        <FilterByConfidence />
-        <FilterByType />
-        <WhatMatched whatMatched={whatMatched} setWhatMatched={setWhatMatched} />
-      </div>
-
-      <div className={styles.list}>
-        {sortedWorks
-          .map((work) => (
-            <RelatedWorksListItem
-              key={work.work.doi}
-              item={work}
-              whatMatched={whatMatched}
-            />
-          ))}
-      </div>
-      <div className={styles.footer}>
-        <Pagination
-          currentPage={1}
-          totalPages={10}
-          hasPreviousPage={false}
-          hasNextPage={true}
-          handlePageClick={(page: number) => {}}
-        />
-      </div>
-    </div>
-  );
+  return <RelatedWorksList works={sortedWorks} />;
 }
-
-interface FilterByConfidenceProps {}
-
-const FilterByConfidence = ({}: FilterByConfidenceProps) => {
-  const categories = [
-    { label: "All", id: "all" },
-    { label: "High", id: "high", count: 1 },
-    { label: "Medium", id: "medium", count: 1 },
-    { label: "Low", id: "low", count: 1 },
-  ];
-  return (
-    <LinkFilter
-      label={"Filter by Confidence"}
-      categories={categories}
-    />
-  );
-};
-
-interface FilterByTypeProps {}
-
-const FilterByType = ({}: FilterByTypeProps) => {
-  const workTypes = [
-    { label: "Article", id: "article" },
-    { label: "Audio Visual", id: "audio-visual" },
-    { label: "Book", id: "book" },
-    { label: "Book Chapter", id: "book-chapter" },
-    { label: "Collection", id: "collection" },
-    { label: "Data Paper", id: "data-paper" },
-    { label: "Dataset", id: "dataset" },
-    { label: "Dissertation", id: "dissertation" },
-    { label: "Editorial", id: "editorial" },
-    { label: "Erratum", id: "erratum" },
-    { label: "Event", id: "event" },
-    { label: "Grant", id: "grant" },
-    { label: "Image", id: "image" },
-    { label: "Interactive Resource", id: "interactive-resource" },
-    { label: "Letter", id: "letter" },
-    { label: "Libguides", id: "libguides" },
-    { label: "Model", id: "model" },
-    { label: "Other", id: "other" },
-    { label: "Paratext", id: "paratext" },
-    { label: "Peer Review", id: "peer-review" },
-    { label: "Physical Object", id: "physical-object" },
-    { label: "Preprint", id: "preprint" },
-    { label: "Reference Entry", id: "reference-entry" },
-    { label: "Report", id: "report" },
-    { label: "Retraction", id: "retraction" },
-    { label: "Review", id: "review" },
-    { label: "Service", id: "service" },
-    { label: "Software", id: "software" },
-    { label: "Sound", id: "sound" },
-    { label: "Standard", id: "standard" },
-    { label: "Supplementary Materials", id: "supplementary-materials" },
-    { label: "Text", id: "text" },
-    { label: "Workflow", id: "workflow" },
-  ];
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const placeholder = "Filter by Type";
-
-  return (
-    <div className={styles.filterByType}>
-      <Select
-        placeholder={placeholder}
-        selectedKey={selectedKey}
-        onSelectionChange={(key) => {
-          setSelectedKey(key !== "" ? (key as string) : null);
-        }}
-      >
-        <Label>Filter by Type</Label>
-        <Button>
-          <SelectValue />
-          <span aria-hidden="true">▼</span>
-        </Button>
-        <Popover>
-          <ListBox>
-            <ListBoxItem id="" style={{fontStyle: "italic"}}>{placeholder}</ListBoxItem>
-            {workTypes.map((workType) => (
-              <ListBoxItem
-                key={workType.id}
-                id={workType.id}
-              >
-                {workType.label}
-              </ListBoxItem>
-            ))}
-          </ListBox>
-        </Popover>
-        <FieldError />
-      </Select>
-    </div>
-  );
-};
-
-interface WhatMatchedProps {
-  whatMatched: string | null;
-  setWhatMatched: (whatMatched: string | null) => void;
-}
-
-const WhatMatched = ({whatMatched, setWhatMatched}: WhatMatchedProps) => {
-  const placeholder = "What Matched";
-
-  return (
-    <div className={styles.whatMatched}>
-      <Select
-        placeholder={placeholder}
-        selectedKey={whatMatched}
-        onSelectionChange={(key) => {
-          setWhatMatched(key !== "" ? (key as string) : null);
-        }}
-      >
-        <Label>What Matched?</Label>
-        <Button>
-          <SelectValue />
-          <span aria-hidden="true">▼</span>
-        </Button>
-        <Popover>
-          <ListBox>
-            <ListBoxItem id="" style={{fontStyle: "italic"}}>{placeholder}</ListBoxItem>
-            <ListBoxItem id="highlight">Highlight</ListBoxItem>
-            <ListBoxItem id="matched-only">Matched Only</ListBoxItem>
-          </ListBox>
-        </Popover>
-        <FieldError />
-      </Select>
-    </div>
-  );
-};
