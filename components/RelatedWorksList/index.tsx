@@ -66,6 +66,7 @@ const FilterByConfidence = ({}: FilterByConfidenceProps) => {
 interface FilterByTypeProps {}
 
 const FilterByType = ({}: FilterByTypeProps) => {
+  // TODO: probably want the displayed types to change based on what types have been returned to user
   const workTypes = [
     { label: "Article", id: "article" },
     { label: "Audio Visual", id: "audio-visual" },

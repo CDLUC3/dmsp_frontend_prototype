@@ -64,7 +64,7 @@ const RELATED = [
       },
     },
     dateFound: new Date(2025, 7, 21),
-    status: Status.Pending,
+    status: Status.Related,
     match: {
       doi: true,
       title: "Real-Time <mark>Sim2Real</mark> Transfer for <mark>Bipedal Robot</mark> <mark>Gait Adaptation</mark>",

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "react-aria-components";
-import { Author, RelatedWork, Work } from "@/app/types";
+import { Author, RelatedWork, Status, Work } from "@/app/types";
 import { format } from "date-fns";
 import styles from "./RelatedWorksListItem.module.scss";
 import DOMPurify from "dompurify";
@@ -276,21 +276,25 @@ function RelatedWorksListItem({ item, whatMatched }: RelatedWorksListItemProps) 
 
           <div className={styles.reviewActions}>
             <div>
-              <Button
-                onPress={() => {}}
-                className="primary"
-                aria-label="Discard related work"
-              >
-                {t("buttons.discard")}
-              </Button>
+              {[Status.Pending, Status.Related].includes(item.status) && (
+                <Button
+                  onPress={() => {}}
+                  className={item.status === Status.Pending ? "primary" : "secondary"}
+                  aria-label="Discard related work"
+                >
+                  {t("buttons.discard")}
+                </Button>
+              )}
 
-              <Button
-                onPress={() => {}}
-                className="primary"
-                aria-label="Accept related work"
-              >
-                {t("buttons.accept")}
-              </Button>
+              {[Status.Discarded, Status.Pending].includes(item.status) && (
+                <Button
+                  onPress={() => {}}
+                  className={item.status === Status.Pending ? "primary" : "secondary"}
+                  aria-label="Accept related work"
+                >
+                  {t("buttons.accept")}
+                </Button>
+              )}
             </div>
           </div>
 
