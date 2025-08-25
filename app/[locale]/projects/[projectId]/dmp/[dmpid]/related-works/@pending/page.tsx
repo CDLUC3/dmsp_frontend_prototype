@@ -2,7 +2,11 @@
 
 import RelatedWorksListItem from "@/components/RelatedWorksListItem";
 import styles from "./RelatedWorksList.module.scss";
-import { Status } from "@/app/types";
+import {Status} from "@/app/types";
+import Pagination from "@/components/Pagination";
+import React from "react";
+import {Button, FieldError, Label, ListBox, ListBoxItem, Popover, Select, SelectValue} from "react-aria-components";
+import LinkFilter from "@/components/LinkFilter";
 
 export default function Pending() {
   const works = [
@@ -357,17 +361,109 @@ export default function Pending() {
     },
   ];
 
+const workTypes = [
+    { label: 'Article', id: 'article' },
+    { label: 'Audio Visual', id: 'audio-visual' },
+    { label: 'Book', id: 'book' },
+    { label: 'Book Chapter', id: 'book-chapter' },
+    { label: 'Collection', id: 'collection' },
+    { label: 'Data Paper', id: 'data-paper' },
+    { label: 'Dataset', id: 'dataset' },
+    { label: 'Dissertation', id: 'dissertation' },
+    { label: 'Editorial', id: 'editorial' },
+    { label: 'Erratum', id: 'erratum' },
+    { label: 'Event', id: 'event' },
+    { label: 'Grant', id: 'grant' },
+    { label: 'Image', id: 'image' },
+    { label: 'Interactive Resource', id: 'interactive-resource' },
+    { label: 'Letter', id: 'letter' },
+    { label: 'Libguides', id: 'libguides' },
+    { label: 'Model', id: 'model' },
+    { label: 'Other', id: 'other' },
+    { label: 'Paratext', id: 'paratext' },
+    { label: 'Peer Review', id: 'peer-review' },
+    { label: 'Physical Object', id: 'physical-object' },
+    { label: 'Preprint', id: 'preprint' },
+    { label: 'Reference Entry', id: 'reference-entry' },
+    { label: 'Report', id: 'report' },
+    { label: 'Retraction', id: 'retraction' },
+    { label: 'Review', id: 'review' },
+    { label: 'Service', id: 'service' },
+    { label: 'Software', id: 'software' },
+    { label: 'Sound', id: 'sound' },
+    { label: 'Standard', id: 'standard' },
+    { label: 'Supplementary Materials', id: 'supplementary-materials' },
+    { label: 'Text', id: 'text' },
+    { label: 'Workflow', id: 'workflow' },
+  ] as const;
+
   return (
-    <div className={styles.listContainer}>
-      {works
-        .sort((work) => work.work.score)
-        .reverse()
-        .map((work) => (
-          <RelatedWorksListItem
-            key={work.work.doi}
-            item={work}
+      <div className={styles.container}>
+        <div className={styles.filters}>
+          <LinkFilter categories={[{label: "All", id: "all"}, {label: "High", id: "high", count: 1}, {label: "Medium", id: "medium", count: 1}, {label: "Low", id: "low", count: 1}]} />
+
+          <div className={styles.filterByType}>
+            <Select placeholder="Filter by Type" >
+              <Label>Filter by Type</Label>
+              <Button>
+                <SelectValue />
+                <span aria-hidden="true">▼</span>
+              </Button>
+              <Popover>
+                <ListBox>
+                  <ListBoxItem id="">Reset</ListBoxItem>
+                  {
+                    workTypes.map(workType => (
+                        <ListBoxItem key={workType.id} id={workType.id} >{workType.label}</ListBoxItem>
+                    ))
+                  }
+                </ListBox>
+              </Popover>
+              <FieldError />
+            </Select>
+          </div>
+
+          <div className={styles.whatMatched}>
+            <Select placeholder="What Matched?" >
+              <Label>What Matched?</Label>
+              <Button>
+                <SelectValue />
+                <span aria-hidden="true">▼</span>
+              </Button>
+              <Popover>
+                <ListBox>
+                  <ListBoxItem id="">Reset</ListBoxItem>
+                  <ListBoxItem id="highlight-matches">Highlight</ListBoxItem>
+                  <ListBoxItem id="show-only-matches">Matched Only</ListBoxItem>
+                </ListBox>
+              </Popover>
+              <FieldError />
+            </Select>
+          </div>
+        </div>
+
+        <div className={styles.list}>
+          {works
+              .sort((work) => work.work.score)
+              .reverse()
+              .map((work) => (
+                  <RelatedWorksListItem
+                      key={work.work.doi}
+                      item={work}
+                  />
+              ))}
+        </div>
+        <div className={styles.footer}>
+          <Pagination
+              currentPage={1}
+              totalPages={10}
+              hasPreviousPage={false}
+              hasNextPage={true}
+              handlePageClick={(page: number)=> {}}
           />
-        ))}
-    </div>
+        </div>
+      </div>
+
+
   );
 }

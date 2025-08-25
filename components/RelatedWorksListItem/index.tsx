@@ -315,12 +315,10 @@ function ItemList<T>({ items, matches, maxItems, renderItem }: ItemListProps<T>)
     <>
       {visible.map((item, i) => {
         return (
-          <>
-            <React.Fragment key={i}>
-              {renderItem(item, matchSet.has(i))}
-              {i < items.length - 1 ? ", " : " "}
-            </React.Fragment>
-          </>
+          <React.Fragment key={i}>
+            {renderItem(item, matchSet.has(i))}
+            {i < items.length - 1 ? ", " : " "}
+          </React.Fragment>
         );
       })}
       {!isOpen && tooMany && (

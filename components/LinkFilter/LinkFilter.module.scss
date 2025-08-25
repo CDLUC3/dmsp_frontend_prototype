@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: bold;
+  margin-bottom: 1.3rem;
+}
+
+.radioGroup {
+  display: flex;
+}
+
+.separator {
+  margin-left: 0.2rem;
+  margin-right: 0.2rem;
+}
+
+.radio {
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  text-decoration: underline;
+
+}
+
+.radioLabelHidden {
+  text-decoration: underline;
+  font-weight: var(--fw-bold);
+  visibility: hidden;
+}
+
+.radioLabel {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  font-weight: var(--fw-normal);
+  transform: translateX(-50%);
+  text-wrap: nowrap;
+}
+
+.radio[data-selected="true"] .radioLabel {
+  font-weight: 600;
+}
+
+
