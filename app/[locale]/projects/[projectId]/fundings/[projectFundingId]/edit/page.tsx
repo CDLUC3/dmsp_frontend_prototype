@@ -14,7 +14,6 @@ import {
 } from "react-aria-components";
 
 import {
-  AffiliationErrors,
   ProjectFundingErrors,
   ProjectFundingStatus,
   useProjectFundingQuery,
@@ -26,31 +25,41 @@ import PageHeader from "@/components/PageHeader";
 import { ContentContainer, LayoutContainer } from "@/components/Container";
 import { FormInput, FormSelect } from "@/components/Form";
 import ErrorMessages from '@/components/ErrorMessages';
-import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 
 import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
+import { extractErrors } from '@/utils/errorHandler';
 import { useToast } from '@/context/ToastContext';
+
+import {
+  removeProjectFundingAction
+} from './actions';
 
 import styles from './projectFunding.module.scss';
 
 interface ProjectFundingFormErrorsInterface {
-  affiliationId: string;
-  otherAffiliationName: string;
   funderGrantId: string;
   funderOpportunityNumber: string;
   funderProjectNumber: string;
 }
 
 interface ProjectFundingInterface {
-  affiliationName: string;
-  affiliationId: string;
-  otherAffiliationName: string;
+  funderName: string;
   fundingStatus: ProjectFundingStatus;
   funderGrantId: string;
   funderOpportunityNumber: string;
   funderProjectNumber: string;
+}
+
+type RemoveFundingErrors = {
+  general?: string;
+  status?: string;
+  affiliationId?: string;
+  funderOpportunityNumber?: string;
+  funderProjectNumber?: string;
+  grantId?: string;
+  projectId?: string;
 }
 
 const ProjectsProjectFundingEdit = () => {
@@ -68,13 +77,8 @@ const ProjectsProjectFundingEdit = () => {
   const projectId = String(params.projectId);
   const projectFundingId = String(params.projectFundingId);
 
-  // For TypeAhead component
-  const { suggestions, handleSearch } = useAffiliationSearch();
-
   const [projectFunding, setProjectFunding] = useState<ProjectFundingInterface>({
-    affiliationName: '',
-    affiliationId: '',
-    otherAffiliationName: '',
+    funderName: '',
     fundingStatus: ProjectFundingStatus.Planned,
     funderGrantId: '',
     funderOpportunityNumber: '',
@@ -82,15 +86,12 @@ const ProjectsProjectFundingEdit = () => {
   });
 
   const [fieldErrors, setFieldErrors] = useState<ProjectFundingFormErrorsInterface>({
-    affiliationId: '',
-    otherAffiliationName: '',
     funderGrantId: '',
     funderOpportunityNumber: '',
     funderProjectNumber: ''
   });
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  const [otherField, setOtherField] = useState(false);
 
   // Localization keys
   const EditFunding = useTranslations('ProjectsProjectFundingEdit');
@@ -118,42 +119,9 @@ const ProjectsProjectFundingEdit = () => {
   // Initialize useUpdateProjectMutation
   const [updateProjectFundingMutation] = useUpdateProjectFundingMutation();
 
-
-  const updateAffiliationFormData = async (id: string, value: string) => {
-    clearActiveFieldError('affiliationId')
-    // Clear previous error messages
-    clearAllFieldErrors();
-    setErrorMessages([]);
-    return setProjectFunding({ ...projectFunding, affiliationName: value, affiliationId: id });
-  }
-
-  const updateProjectFundingContent = (
-    key: string,
-    value: string
-  ) => {
-    // Clear previous error messages
-    clearAllFieldErrors();
-    setErrorMessages([]);
-    setProjectFunding((prevContents) => ({
-      ...prevContents,
-      [key]: value,
-    }));
-  };
-
-  // Clear any errors for the current active field
-  const clearActiveFieldError = (name: string) => {
-    // Clear error for active field
-    setFieldErrors(prevErrors => ({
-      ...prevErrors,
-      [name]: ''
-    }));
-  }
-
   const clearAllFieldErrors = () => {
     //Remove all field errors
     setFieldErrors({
-      affiliationId: '',
-      otherAffiliationName: '',
       funderGrantId: '',
       funderOpportunityNumber: '',
       funderProjectNumber: ''
@@ -167,6 +135,16 @@ const ProjectsProjectFundingEdit = () => {
     // Scroll to top of page
     scrollToTop(topRef);
   }
+
+  const updateProjectFundingContent = (
+    key: string,
+    value: string
+  ) => {
+    setProjectFunding((prevContents) => ({
+      ...prevContents,
+      [key]: value,
+    }));
+  };
 
   // Make GraphQL mutation request to update projectFunding table
   const updateProjectFunding = async (): Promise<[ProjectFundingErrors, boolean]> => {
@@ -218,16 +196,6 @@ const ProjectsProjectFundingEdit = () => {
     clearAllFieldErrors();
     setErrorMessages([]);
 
-    // First check that if the user has opted to enter "Other", then that value cannot be blank
-    if (otherField && !projectFunding.otherAffiliationName.trim()) {
-      setFieldErrors(prev => ({
-        ...prev,
-        otherAffiliationName: EditFunding('messages.errors.requiredOtherAffiliation')
-      }));
-      setErrorMessages([EditFunding('messages.errors.projectFundingUpdateFailed')]);
-      return;
-    }
-
     // Create new section
     const [errors, success] = await updateProjectFunding();
 
@@ -235,33 +203,78 @@ const ProjectsProjectFundingEdit = () => {
       // Check if there are any errors (always exclude the GraphQL `_typename` entry)
       if (errors) {
         setFieldErrors({
-          affiliationId: errors.affiliationId ?? '',
-          otherAffiliationName: '',
-          funderGrantId: errors.grantId ?? '',
-          funderOpportunityNumber: errors.funderOpportunityNumber ?? '',
-          funderProjectNumber: errors.funderProjectNumber ?? ''
+          funderGrantId: errors.grantId || '',
+          funderOpportunityNumber: errors.funderOpportunityNumber || '',
+          funderProjectNumber: errors.funderProjectNumber || ''
         });
       }
       setErrorMessages([errors.general || EditFunding('messages.errors.projectFundingUpdateFailed')]);
+
     } else {
       // Show success message
       showSuccessToast();
       // Redirect back to the project funding page
-      router.push(`/projects/${projectId}/fundings`);
+      router.push(routePath('projects.fundings.index', { projectId }));
     }
   };
 
+  // Call Server Action removeProjectFundingAction to run the removeProjectFundingMutation
+  const deleteFunding = async () => {
+    // Don't need a try-catch block here, as the error is handled in the action
+    const response = await removeProjectFundingAction({
+      projectFundingId: Number(projectFundingId),
+    })
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
+  }
+
+  const handleDeleteFunding = async () => {
+    const result = await deleteFunding();
+
+    if (!result.success) {
+      const errors = result.errors;
+      if (errors) {
+        setErrorMessages(prev => prev.concat(errors));
+      }
+    } else {
+      if (result?.data?.errors) {
+        const errs = extractErrors<RemoveFundingErrors>(result?.data?.errors, ['general', 'status', 'affiliationId', 'funderOpportunityNumber', 'funderProjectNumber', 'projectId']);
+        if (errs.length > 0) {
+          setErrorMessages(prev => prev.concat(errs));
+        } else {
+          const successMessage = EditFunding('messages.success.removedFunding');
+          toastState.add(successMessage, { type: 'success' });
+          // Redirect back to the project funding page
+          router.push(routePath('projects.fundings.index', { projectId }));
+        }
+      }
+    }
+  }
+
+  const handleAddFunding = async () => {
+    const successMessage = EditFunding('messages.info.redirectingToAddFunderPage');
+    toastState.add(successMessage, { type: 'success' });
+    // Redirect to Add Funding page
+    router.push(routePath('projects.fundings.add', { projectId }));
+  }
+
   useEffect(() => {
-    // set initial project data in state
+    // set project data in state
     if (data && data.projectFunding) {
       setProjectFunding({
-        affiliationName: data.projectFunding?.affiliation?.displayName ?? '',
-        affiliationId: data.projectFunding?.affiliation?.uri ?? '',
-        otherAffiliationName: '',
-        fundingStatus: data.projectFunding.status ?? ProjectFundingStatus.Planned,
-        funderGrantId: data.projectFunding?.grantId ?? '',
-        funderOpportunityNumber: data.projectFunding?.funderOpportunityNumber ?? '',
-        funderProjectNumber: data.projectFunding?.funderProjectNumber ?? ''
+        funderName: data.projectFunding?.affiliation?.name || '',
+        fundingStatus: data.projectFunding.status || ProjectFundingStatus.Planned,
+        funderGrantId: data.projectFunding?.grantId || '',
+        funderOpportunityNumber: data.projectFunding?.funderOpportunityNumber || '',
+        funderProjectNumber: data.projectFunding?.funderProjectNumber || ''
       });
     }
   }, [data]);
@@ -298,31 +311,14 @@ const ProjectsProjectFundingEdit = () => {
         <ContentContainer>
           <ErrorMessages errors={errorMessages} ref={errorRef} />
           <Form onSubmit={handleFormSubmit}>
-            <TypeAheadWithOther
+            <FormInput
+              name="funderName"
+              type="text"
+              isRequired={false}
               label={EditFunding('labels.funderName')}
-              fieldName="funderName"
-              setOtherField={setOtherField}
-              required={true}
-              error={fieldErrors.affiliationId}
-              updateFormData={updateAffiliationFormData}
-              value={projectFunding.affiliationName}
-              suggestions={suggestions}
-              onSearch={handleSearch}
+              value={projectFunding.funderName}
+              disabled={true}
             />
-            {otherField && (
-              <div className={`${styles.formRow} ${styles.oneItemRow}`}>
-                <FormInput
-                  name="otherAffiliationName"
-                  type="text"
-                  label="Other Institution"
-                  placeholder={projectFunding.otherAffiliationName}
-                  value={projectFunding.otherAffiliationName}
-                  onChange={(e) => updateProjectFundingContent('otherAffiliationName', e.target.value)}
-                  isInvalid={!!fieldErrors['otherAffiliationName']}
-                  errorMessage={fieldErrors['otherAffiliationName'] ?? ''}
-                />
-              </div>
-            )}
 
             <FormSelect
               label={EditFunding('labels.fundingStatus')}
@@ -373,8 +369,23 @@ const ProjectsProjectFundingEdit = () => {
               onChange={(e) => updateProjectFundingContent('funderOpportunityNumber', e.target.value)}
             />
 
-            <Button type="submit" className="submit-button">{Global('buttons.saveChanges')}</Button>
+            <div className={styles.buttonsContainer}>
+              <Button type="submit" className="submit-button">{Global('buttons.saveChanges')}</Button>
+              <Button type="button" className="secondary" onPress={handleAddFunding}>{Global('buttons.addAnother')}</Button>
+            </div>
           </Form>
+
+          <div className={styles.deleteWrapper}>
+            <h2>{EditFunding('headings.deleteFunder')}</h2>
+            <p>
+              {EditFunding.rich('para1Delete', {
+                strong: (chunks) => <strong>{chunks}</strong>
+              })}
+            </p>
+            <p>{EditFunding('para2Delete')}</p>
+
+            <Button type="button" className="danger" onPress={handleDeleteFunding}>{EditFunding('buttons.removeFunder')}</Button>
+          </div>
         </ContentContainer>
       </LayoutContainer>
     </>
