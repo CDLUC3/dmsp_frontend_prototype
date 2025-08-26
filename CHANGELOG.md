@@ -27,6 +27,7 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed issue with entered Affiliation `label` and `help` text not displaying on the `Question Preview` page
 - Update `PlanOverviewQuestionPage` to make sure that `sample text` displays initially when it is present and `useSampleTextAsDefault` is set to true [#677]
 - Updated `SectionTypeSelectPage` to only show the `Org section` and `best Practice section` headers if there are any to display [#702]
 - Fixed issue with saved data not loading on the `Funding Detail` page after saving [#659]

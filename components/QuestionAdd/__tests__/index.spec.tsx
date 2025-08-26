@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
 import {
   useAddQuestionMutation,
   useQuestionsDisplayOrderQuery,
+  useTemplateQuery, // Added for when we test contents of Question Preview
 } from '@/generated/graphql';
 
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -10,10 +11,30 @@ import { useParams, useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
 import QuestionAdd from '@/components/QuestionAdd';
 import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
-import {AffiliationSearchQuestionType} from "@dmptool/types";
+import { AffiliationSearchQuestionType } from "@dmptool/types";
 
 
 expect.extend(toHaveNoViolations);
+
+
+// Mock the Apollo client creation since TypeAheadWithOther creates its own client. This is for when the Question Preview component opens
+jest.mock('@/lib/graphql/client/apollo-client', () => ({
+  createApolloClient: jest.fn(() => ({
+    query: jest.fn().mockResolvedValue({
+      data: {
+        affiliations: {
+          items: [
+            {
+              id: '1',
+              displayName: 'University of California',
+              uri: 'https://example.com/uc'
+            }
+          ]
+        }
+      }
+    })
+  }))
+}));
 
 jest.mock('@/components/hooks/getParsedQuestionJSON', () => {
   const actual = jest.requireActual('@/components/hooks/getParsedQuestionJSON');
@@ -28,6 +49,7 @@ jest.mock('@/components/hooks/getParsedQuestionJSON', () => {
 jest.mock("@/generated/graphql", () => ({
   useQuestionsDisplayOrderQuery: jest.fn(),
   useAddQuestionMutation: jest.fn(),
+  useTemplateQuery: jest.fn()
 }));
 
 jest.mock('next/navigation', () => ({
@@ -73,6 +95,32 @@ jest.mock('next-intl', () => ({
   }),
 }));
 
+const mockTemplateData = {
+
+  template: {
+    __typename: "Template",
+    id: 15,
+    name: "National Center for Sustainable Transportation - Project Data Management Plan",
+    description: "<p>This template is for projects funded by the National Center for Sustainable Transportation. Use of this template is <em>not</em> limited to researchers at the University of California, Davis.</p>",
+    errors: {
+      __typename: "TemplateErrors",
+      general: null,
+      name: null,
+      ownerId: null
+    },
+    latestPublishVersion: "v15",
+    latestPublishDate: "1755815345000",
+    created: "2023-09-13 17:47:34",
+    sections: [],
+    owner: {
+      displayName: "University of Example"
+    },
+    visibility: "ORGANIZATION",
+    bestPractice: false,
+    isDirty: true
+  }
+}
+
 const mockQuestionDisplayData = {
   questions: [
     {
@@ -117,7 +165,25 @@ describe("QuestionAdd", () => {
       loading: false,
       error: undefined,
     });
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({ // Added for when we test contents of Question preview
+      data: mockTemplateData,
+      loading: false,
+      error: undefined,
+    });
   });
+
+  afterEach(() => {
+    // Clean up any modals or DOM pollution
+    document.body.innerHTML = '';
+
+    // Clear all mocks to prevent state bleeding
+    jest.clearAllMocks();
+
+    // Reset any global state that might have been modified
+    window.location.hash = '';
+  });
+
 
   it("should render correct fields and content", async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
@@ -1026,18 +1092,19 @@ describe("QuestionAdd", () => {
     });
   })
 
-  it('should call handleTypeAheadSearchLabelChange when typeaheadSearch label value changes', () => {
+  it('should call handleTypeAheadSearchLabelChange when typeaheadSearch label value changes and pass correct value to Question Preview', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
     ]);
+
     const json: AffiliationSearchQuestionType = {
       meta: {
         schemaVersion: "1.0"
       },
       type: "affiliationSearch",
       attributes: {
-        label: "Enter the search term to find your affiliation",
+        label: "Affiliation search label",
       },
       graphQL: {
         query: "\nquery Affiliations($name: String!){\n  affiliations(name: $name) {\n    totalCount\n    nextCursor\n    items {\n      id\n      displayName\n      uri\n    }\n  }\n}",
@@ -1064,24 +1131,46 @@ describe("QuestionAdd", () => {
     };
     const mockTypeAheadJSON = JSON.stringify(json);
 
-    render(
-      <QuestionAdd
-        questionType="affiliationSearch"
-        questionName="Affiliation Search"
-        questionJSON={mockTypeAheadJSON}
-        sectionId="1"
-      />);
+    await act(async () => {
+      render(
+        <QuestionAdd
+          questionType="affiliationSearch"
+          questionName="Affiliation Search"
+          questionJSON={mockTypeAheadJSON}
+          sectionId="1"
+        />
+      );
+    });
 
     // Find the label input rendered by AffiliationSearch
     const labelInput = screen.getByPlaceholderText('Enter search label');
 
     // Simulate user typing
-    fireEvent.change(labelInput, { target: { value: 'New Institution Label' } });
+    await act(async () => {
+      fireEvent.change(labelInput, { target: { value: 'New Institution Label' } });
+    });
 
     expect(labelInput).toHaveValue('New Institution Label');
+
+    // Click the preview button
+    const previewButton = screen.getByRole('button', { name: /buttons.previewQuestion/i });
+
+    await act(async () => {
+      fireEvent.click(previewButton);
+    });
+
+    // Wait for the modal to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('modal-overlay')).toBeInTheDocument();
+    });
+
+    // Check if the new label appears in the preview
+    await waitFor(() => {
+      expect(screen.getByText('New Institution Label')).toBeInTheDocument();
+    });
   });
 
-  it('should call handleTypeAheadHelpTextChange when typeaheadSearch help text value changes', () => {
+  it('should call handleTypeAheadHelpTextChange when typeaheadSearch help text value changes and pass correct value to Question Preview', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
       { loading: false, error: undefined },
@@ -1092,7 +1181,7 @@ describe("QuestionAdd", () => {
       },
       type: "affiliationSearch",
       attributes: {
-        label: "Enter the search term to find your affiliation",
+        help: "Enter the search term to find your affiliation",
       },
       graphQL: {
         query: "\nquery Affiliations($name: String!){\n  affiliations(name: $name) {\n    totalCount\n    nextCursor\n    items {\n      id\n      displayName\n      uri\n    }\n  }\n}",
@@ -1134,8 +1223,68 @@ describe("QuestionAdd", () => {
     fireEvent.change(helpTextInput, { target: { value: 'Enter a search term' } });
 
     expect(helpTextInput).toHaveValue('Enter a search term');
+
+    // Click the preview button
+    const previewButton = screen.getByRole('button', { name: /buttons.previewQuestion/i });
+
+    await act(async () => {
+      fireEvent.click(previewButton);
+    });
+
+    // Wait for the modal to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('modal-overlay')).toBeInTheDocument();
+    });
+
+    // Check if the new label appears in the preview
+    await waitFor(() => {
+      expect(screen.getByText('Enter a search term')).toBeInTheDocument();
+    });
   });
 
+});
+
+describe("Accessibility", () => {
+  let mockRouter;
+  beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+    window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
+    const mockTemplateId = 123;
+    const mockUseParams = useParams as jest.Mock;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ templateId: `${mockTemplateId}` });
+
+    // Mock the router
+    mockRouter = { push: jest.fn() };
+    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+
+    (useQuestionsDisplayOrderQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDisplayData,
+      loading: false,
+      error: undefined,
+    });
+
+    (useTemplateQuery as jest.Mock).mockReturnValue({
+      data: mockTemplateData,
+      loading: false,
+      error: undefined,
+    });
+  });
+
+  afterEach(() => {
+    // Clean up DOM
+    document.body.innerHTML = '';
+
+    // Reset all mocks
+    jest.clearAllMocks();
+  });
   it('should pass axe accessibility test', async () => {
     (useAddQuestionMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
@@ -1171,11 +1320,20 @@ describe("QuestionAdd", () => {
       expect(results).toHaveNoViolations();
     });
   });
-});
+
+})
 
 describe("Error handling", () => {
   let mockRouter;
   beforeEach(() => {
+
+    // Clean up DOM
+    document.body.innerHTML = '';
+
+    // Reset all mocks
+    jest.clearAllMocks();
+
+
     HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
     window.scrollTo = jest.fn(); // Called by the wrapping PageHeader
     const mockTemplateId = 123;
