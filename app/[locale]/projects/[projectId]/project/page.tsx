@@ -345,7 +345,7 @@ const ProjectsProjectDetail = () => {
             />
 
             <FormTextArea
-              name="proejctAbstract"
+              name="projectAbstract"
               isRequired={false}
               richText={false}
               label={ProjectDetail('labels.projectAbstract')}
