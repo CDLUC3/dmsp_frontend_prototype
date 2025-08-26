@@ -115,7 +115,8 @@
     "helpText": {
       "selectResearchDomain": "First select a research domain",
       "selectedRDomain": "Selected: {domains}",
-      "selectedCategory": "Selected category: {category}"
+      "selectedCategory": "Selected category: {category}",
+      "childDropdownUpdated": "Subdomain dropdown updated with {childOptionsList} options for {selectedParent}."
     },
     "descriptions": {
       "mockProject": "For testing/educational purposes: cannot request feedback or publish plan, excluded from statistics.",

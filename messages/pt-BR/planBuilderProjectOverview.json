@@ -115,7 +115,8 @@
     "helpText": {
       "selectResearchDomain": "Primeiro selecione um domínio de pesquisa",
       "selectedRDomain": "Selecionado: {domains}",
-      "selectedCategory": "Categoria selecionada: {category}"
+      "selectedCategory": "Categoria selecionada: {category}",
+      "childDropdownUpdated": "Lista suspensa de subdomínios atualizada com opções {childOptionsList} para {selectedParent}"
     },
     "paragraphs": {
       "para1": "Já tem uma ajuda? Não tem o projeto correto? Use os projetos de pesquisa para encontrar o projeto. Se as principais informações serão preenchidas para você."

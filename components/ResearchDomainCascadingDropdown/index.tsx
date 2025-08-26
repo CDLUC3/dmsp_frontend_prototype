@@ -91,10 +91,21 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
 
   useEffect(() => {
     if (myChildDomains?.childResearchDomains) {
-      setChildOptionsList(myChildDomains.childResearchDomains.map(domain => ({
+      const subDomains = myChildDomains.childResearchDomains.map(domain => ({
         id: domain?.id ? domain.id.toString() : '',
         name: domain?.description ? domain.description : ''
-      })));
+      }))
+
+      setChildOptionsList(subDomains);
+
+      // Update live region when subdomains change
+      if (statusRef.current) {
+        if (subDomains.length > 0) {
+          statusRef.current.textContent = ProjectDetail('helpText.childDropdownUpdated', { childOptionsList: subDomains.length, selectedParent: selectedParentName });
+        } else {
+          statusRef.current.textContent = '';
+        }
+      }
     } else {
       setChildOptionsList([]);
     }
@@ -115,19 +126,6 @@ const ResearchDomainCascadingDropdown: React.FC<CascadingDropdownProps> = ({ pro
 
     handleResearchDomains();
   }, [myResearchDomains]);
-
-  // Update the live region when child options change
-  useEffect(() => {
-    if (statusRef.current) {
-      if (childOptionsList.length > 0) {
-        statusRef.current.textContent = `Child dropdown updated with ${childOptionsList.length} options for ${selectedParent}.`;
-      } else if (selectedParent) {
-        statusRef.current.textContent = `No child options available for ${selectedParent}.`;
-      } else {
-        statusRef.current.textContent = '';
-      }
-    }
-  }, [childOptionsList, selectedParent]);
 
 
   // We need this useEffect to update the selectedParent and selectedChild data passed into component, 
