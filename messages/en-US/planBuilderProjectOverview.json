@@ -94,10 +94,14 @@
     }
   },
   "ProjectsProjectDetail": {
-    "title": "Plan: Select a DMP template",
-    "description": "Select a template to use when creating your DMP.",
+    "title": "Project Details",
+    "description": "Enter your Project Details, then hit Save below",
     "mockProject": "Mock project",
     "realProject": "Real project",
+    "placeholder": {
+      "selectDomain": "Select a domain",
+      "selectSubDomain": "Select a subdomain"
+    },
     "labels": {
       "projectName": "Project name",
       "projectType": "Project type",
@@ -105,17 +109,20 @@
       "researchDomain": "Research domain",
       "mockProject": "Mock project",
       "realProject": "Real project",
-      "childDomain": "Select a {name}:",
+      "childDomain": "Select a subdomain for {name}:",
       "item": "Item"
     },
     "helpText": {
-      "selectResearchDomain": "First select a research domain"
+      "selectResearchDomain": "First select a research domain",
+      "selectedRDomain": "Selected: {domains}",
+      "selectedCategory": "Selected category: {category}"
+    },
+    "descriptions": {
+      "mockProject": "For testing/educational purposes: cannot request feedback or publish plan, excluded from statistics.",
+      "realProject": "Full functionality. Cannot be changed back to Mock project."
     },
     "paragraphs": {
-      "para1": "Have a grant already? Not the right project? Use Search projects to find the project. If found key information will be filled in for you.",
-      "mockProject": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
-      "mockProjectDescription": "Remain in a testing or educational environment. Your project will continue to operate in mock mode, allowing you to create plans and experiments without the ability to receive feedback or publish. You may upgrade at any time in the future.",
-      "realProjectDescription": "Convert to a real project, and remove the mock project status. By doing so, you will gain access to feedback, publishing capabilities, and additional features. However, this decision is permanent and cannot be reversed. Proceed only if you are certain you no longer need a mock environment."
+      "para1": "Have a grant already? Not the right project? Use Search projects to find the project. If found key information will be filled in for you."
     },
     "buttons": {
       "searchProjects": "Search projects"

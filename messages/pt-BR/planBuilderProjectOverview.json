@@ -94,10 +94,14 @@
     }
   },
   "ProjectsProjectDetail": {
-    "title": "Plano: Selecione um modelo DMP",
-    "description": "Selecione um modelo para usar ao criar o DMP.",
+    "title": "Detalhes do projeto",
+    "description": "Insira os detalhes do seu projeto e clique em Salvar abaixo",
     "mockProject": "Projeto fictício",
     "realProject": "Projeto real",
+    "placeholder": {
+      "selectDomain": "Selecione um domínio",
+      "selectSubDomain": "Selecione um subdomínio"
+    },
     "labels": {
       "projectName": "Nome do Projeto",
       "projectType": "Tipo do projeto",
@@ -105,17 +109,16 @@
       "researchDomain": "Domínio de pesquisa",
       "mockProject": "Projeto fictício",
       "realProject": "Projeto real",
-      "childDomain": "Selecione um {name}",
+      "childDomain": "Selecione um subdomínio para {name}:",
       "item": "Produto"
     },
     "helpText": {
-      "selectResearchDomain": "Primeiro selecione um domínio de pesquisa"
+      "selectResearchDomain": "Primeiro selecione um domínio de pesquisa",
+      "selectedRDomain": "Selecionado: {domains}",
+      "selectedCategory": "Categoria selecionada: {category}"
     },
     "paragraphs": {
-      "para1": "Já tem uma ajuda? Não tem o projeto correto? Use os projetos de pesquisa para encontrar o projeto. Se as principais informações serão preenchidas para você.",
-      "mockProject": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",
-      "mockProjectDescription": "Continuem num ambiente de testes ou educacionais. Seu projeto continuará operando em modo de simulação, permitindo que você crie planos e experimentos sem a capacidade de receber comentários ou publicar. Você pode melhorar a qualquer momento no futuro.",
-      "realProjectDescription": "Converta para um projeto real e remova o status do projeto fictício. Ao fazê-lo, você terá acesso ao feedback, capacidades de publicação e recursos adicionais. No entanto, esta decisão é permanente e não pode ser revertida. Prossiga apenas se tiver certeza de que não precisa mais de um ambiente simulado."
+      "para1": "Já tem uma ajuda? Não tem o projeto correto? Use os projetos de pesquisa para encontrar o projeto. Se as principais informações serão preenchidas para você."
     },
     "buttons": {
       "searchProjects": "Pesquisar projetos"
