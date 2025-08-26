@@ -1,7 +1,6 @@
 import React from 'react';
 import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-// import { RichTranslationValues } from 'next-intl';
 import { ProjectFundingsApiDocument } from '@/generated/graphql';
 import { MockedProvider } from '@apollo/client/testing';
 
