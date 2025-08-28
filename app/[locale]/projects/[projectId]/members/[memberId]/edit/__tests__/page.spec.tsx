@@ -388,7 +388,6 @@ describe("ProjectsProjectMembersEdit", () => {
     });
 
     // Click delete button
-    const dialog = screen.getByRole('dialog');
     const deleteButton = screen.getByRole('button', { name: 'buttons.delete' });
 
     await act(async () => {
@@ -426,7 +425,6 @@ describe("ProjectsProjectMembersEdit", () => {
     });
 
     // Click delete button
-    const dialog = screen.getByRole('dialog');
     const deleteButton = screen.getByRole('button', { name: 'buttons.delete' });
 
     await act(async () => {
