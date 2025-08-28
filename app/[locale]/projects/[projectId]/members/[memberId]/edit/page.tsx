@@ -394,7 +394,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                     setFieldErrors(prev => ({ ...prev, givenName: '' }));
                   }}
                   isInvalid={fieldErrors.givenName.length !== 0}
-                  errorMessage={` ${fieldErrors.givenName} Test`}
+                  errorMessage={fieldErrors.givenName}
                 />
 
                 <FormInput
