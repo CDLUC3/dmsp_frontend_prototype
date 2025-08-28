@@ -1,5 +1,6 @@
 
 ### Added
+- Added a `dialog` when removing `project members` so we can message them about the member being removed from all plans and allow users to confirm they want to delete this member [#737]
 - Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
 - Added new mutations to `add`, `update`, and `delete` comments [#321]
 - Added new `CommentList` and `CommentsDrawer` components, and `useComments` hook for the comments list [#321]

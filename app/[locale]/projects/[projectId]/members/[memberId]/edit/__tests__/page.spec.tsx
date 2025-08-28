@@ -1,5 +1,5 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
@@ -283,11 +283,80 @@ describe("ProjectsProjectMembersEdit", () => {
       );
     });
 
-    const removeButton = screen.getByRole('button', { name: /form.labels.removeMemberFromProject/i });
-    fireEvent.click(removeButton);
+    const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
+
+    await act(async () => {
+      fireEvent.click(removeButton);
+    })
+
+    await waitFor(() => {
+      // Modal should open
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      const heading = screen.getByRole('heading', { level: 3 });
+      expect(heading).toBeInTheDocument();
+      expect(heading).toHaveTextContent('headings.removeProjectMember');
+      // Get buttons within the modal/dialog
+      const dialog = screen.getByRole('dialog');
+      const modalButtons = within(dialog).getAllByRole('button');
+      expect(modalButtons).toHaveLength(2);
+      expect(modalButtons[0]).toHaveTextContent('buttons.cancel');
+      expect(modalButtons[1]).toHaveTextContent('buttons.delete');
+    });
+
+    // Click delete button
+    const dialog = screen.getByRole('dialog');
+    const deleteButton = within(dialog).getByRole('button', { name: 'buttons.delete' });
+
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
 
     await waitFor(() => {
       expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/members');
+    });
+  });
+
+  it("should handle cancel button in Remove Member modal", async () => {
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
+      { loading: false, error: undefined },
+    ]);
+
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectMembersEdit />
+      );
+    });
+
+    const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
+
+    await act(async () => {
+      fireEvent.click(removeButton);
+    })
+
+    await waitFor(() => {
+      // Modal should open
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Click delete button
+    const dialog = screen.getByRole('dialog');
+    const modalButtons = within(dialog).getAllByRole('button');
+    expect(modalButtons).toHaveLength(2);
+    expect(modalButtons[0]).toHaveTextContent('buttons.cancel');
+    expect(modalButtons[1]).toHaveTextContent('buttons.delete');
+
+    await act(async () => {
+      fireEvent.click(modalButtons[0]);
+    });
+
+    await waitFor(() => {
+      expect(dialog).not.toBeInTheDocument();
     });
   });
 
@@ -307,8 +376,24 @@ describe("ProjectsProjectMembersEdit", () => {
       );
     });
 
-    const removeButton = screen.getByRole('button', { name: /form.labels.removeMemberFromProject/i });
-    fireEvent.click(removeButton);
+    const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
+
+    await act(async () => {
+      fireEvent.click(removeButton);
+    })
+
+    await waitFor(() => {
+      // Modal should open
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Click delete button
+    const dialog = screen.getByRole('dialog');
+    const deleteButton = screen.getByRole('button', { name: 'buttons.delete' });
+
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
 
     expect(await screen.findByText('Error removing member')).toBeInTheDocument();
   });
@@ -329,8 +414,24 @@ describe("ProjectsProjectMembersEdit", () => {
       );
     });
 
-    const removeButton = screen.getByRole('button', { name: /form.labels.removeMemberFromProject/i });
-    fireEvent.click(removeButton);
+    const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
+
+    await act(async () => {
+      fireEvent.click(removeButton);
+    })
+
+    await waitFor(() => {
+      // Modal should open
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Click delete button
+    const dialog = screen.getByRole('dialog');
+    const deleteButton = screen.getByRole('button', { name: 'buttons.delete' });
+
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
 
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
