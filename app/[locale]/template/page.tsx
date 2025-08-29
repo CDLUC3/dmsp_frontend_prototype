@@ -15,7 +15,7 @@ import {
 import { useFormatter, useTranslations } from 'next-intl';
 
 //GraphQL
-import { useTemplatesQuery, } from '@/generated/graphql';
+import { useTemplatesQuery } from '@/generated/graphql';
 
 // Components
 import PageHeader from '@/components/PageHeader';

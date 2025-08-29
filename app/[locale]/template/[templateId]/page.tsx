@@ -292,7 +292,7 @@ const TemplateEditPage: React.FC = () => {
   function handleVisibilityChange(value: string) {
     if (value == "public") {
       setVisibilityText(PublishTemplate('bullet.publishingTemplate3'));
-    } else if (value == "private") {
+    } else if (value == "organization") {
       setVisibilityText(PublishTemplate('bullet.publishingTemplate3Private'));
     }
   }
@@ -678,7 +678,7 @@ const TemplateEditPage: React.FC = () => {
                 </Radio>
                 <Radio
                   data-testid="visPrivate"
-                  value="private"
+                  value="organization"
                   className={`${styles.radioBtn} react-aria-Radio`}
                 >
                   <div>
