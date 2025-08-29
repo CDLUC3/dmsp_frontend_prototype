@@ -209,13 +209,16 @@
       "projectMembers": "Membros de projeto"
     },
     "buttons": {
-      "removeMember": "Remover membro"
+      "removeMember": "Remover membro",
+      "removing": "Removendo"
     },
     "headings": {
-      "h2RemoveMember": "Remover membro"
+      "h2RemoveMember": "Remover membro",
+      "removeProjectMember": "Remover membro do projeto"
     },
     "paragraphs": {
-      "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível."
+      "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível.",
+      "modalInfo": "Observe que, se você remover este membro do projeto, ele também será removido de todos os planos associados. Além disso, se este for o único membro do projeto, ele não poderá ser excluído."
     },
     "form": {
       "errors": {

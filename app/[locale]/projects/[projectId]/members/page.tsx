@@ -43,6 +43,7 @@ const ProjectsProjectMembers = () => {
   const { data, loading, error: queryError } = useProjectMembersQuery(
     {
       variables: { projectId: Number(projectId) },
+      fetchPolicy: 'network-only',// So that when members are deleted the page refreshes 
       notifyOnNetworkStatusChange: true
     }
   );

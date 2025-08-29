@@ -12,28 +12,35 @@ import { useToast } from '@/context/ToastContext';
 import QuestionAdd from '@/components/QuestionAdd';
 import * as getParsedJSONModule from '@/components/hooks/getParsedQuestionJSON';
 import { AffiliationSearchQuestionType } from "@dmptool/types";
-
+import { TypeAheadInputProps } from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
+import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
 expect.extend(toHaveNoViolations);
 
-
-// Mock the Apollo client creation since TypeAheadWithOther creates its own client. This is for when the Question Preview component opens
-jest.mock('@/lib/graphql/client/apollo-client', () => ({
-  createApolloClient: jest.fn(() => ({
-    query: jest.fn().mockResolvedValue({
-      data: {
-        affiliations: {
-          items: [
-            {
-              id: '1',
-              displayName: 'University of California',
-              uri: 'https://example.com/uc'
-            }
-          ]
-        }
-      }
-    })
-  }))
+jest.mock('@/components/Form/TypeAheadWithOther', () => ({
+  __esModule: true,
+  useAffiliationSearch: jest.fn(() => ({
+    suggestions: mocksAffiliations,
+    handleSearch: jest.fn(),
+  })),
+  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData }: TypeAheadInputProps) => (
+    <div>
+      <label>
+        {label}
+        <input
+          aria-label={label}
+          placeholder={placeholder}
+          name={fieldName}
+          role="textbox"
+          value="Test Institution"
+          onChange={() => updateFormData?.('1', 'Test University')}
+        />
+      </label>
+      <ul role="listbox">
+        <li>Search Term</li>
+      </ul>
+    </div>
+  ),
 }));
 
 jest.mock('@/components/hooks/getParsedQuestionJSON', () => {
@@ -1238,7 +1245,7 @@ describe("QuestionAdd", () => {
 
     // Check if the new label appears in the preview
     await waitFor(() => {
-      expect(screen.getByText('Enter a search term')).toBeInTheDocument();
+      expect(screen.getByText('Search Term')).toBeInTheDocument();
     });
   });
 

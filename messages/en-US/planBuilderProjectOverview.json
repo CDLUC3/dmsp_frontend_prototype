@@ -213,13 +213,16 @@
       "projectMembers": "Project members"
     },
     "buttons": {
-      "removeMember": "Remove member"
+      "removeMember": "Remove member",
+      "removing": "Removing"
     },
     "headings": {
-      "h2RemoveMember": "Remove member"
+      "h2RemoveMember": "Remove member",
+      "removeProjectMember": "Remove project member"
     },
     "paragraphs": {
-      "removeMember": "Removing this member means they will no longer be able to access this plan. This is not reversible."
+      "removeMember": "Removing this member means they will no longer be able to access this plan. This is not reversible.",
+      "modalInfo": "Please note that if you remove this project member, the member will also be removed from any associated plans. Also, if this is the only member under the project, it cannot be deleted."
     },
     "form": {
       "errors": {
