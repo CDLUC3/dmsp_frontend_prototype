@@ -8,12 +8,14 @@ import { useCsrf } from '@/context/CsrfContext';
 //Need to import this useRouter after the jest.mock is in place
 import { useRouter } from 'next/navigation';
 import { fetchCsrfToken } from "@/utils/authHelper";
+import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
+
 
 
 // Mock TypeAheadWithOther component
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
-  default: ({ updateFormData }: { updateFormData: (name: string, value: string) => void }) => (
+  TypeAheadWithOther: ({ updateFormData }: { updateFormData: (name: string, value: string) => void }) => (
     <div data-testid="type-ahead">
       <input
         data-testid="institution"
@@ -29,8 +31,11 @@ jest.mock('@/components/Form/TypeAheadWithOther', () => ({
       />
     </div>
   ),
+  useAffiliationSearch: jest.fn(() => ({
+    suggestions: mocksAffiliations,
+    handleSearch: jest.fn(),
+  })),
 }));
-
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn()

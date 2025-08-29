@@ -10,27 +10,30 @@ import {
 import Spinner from '@/components/Spinner';
 import { SuggestionInterface } from '@/app/types';
 import classNames from 'classnames';
-import styles from './typeaheadInput.module.scss';
+import styles from './typeaheadWithOther.module.scss';
 
 
 export type TypeAheadInputProps = {
   label: string;
   placeholder?: string;
   helpText?: string;
+  setOtherField: (value: boolean) => void;
   fieldName: string;
   required: boolean;
   error?: string;
   updateFormData: (id: string, value: string) => void; //Function to update the typeahead field value in the parent form data
   value?: string;
   className?: string;
+  otherText?: string;
   suggestions: SuggestionInterface[];
   onSearch: (searchTerm: string) => void;
 }
 
-const TypeAheadInput = ({
+const TypeAheadWithOther = ({
   label,
   placeholder,
   helpText,
+  setOtherField,
   fieldName,
   error,
   updateFormData,
@@ -38,6 +41,7 @@ const TypeAheadInput = ({
   className,
   suggestions,
   onSearch,
+  otherText = "Other",
 }: TypeAheadInputProps) => {
 
   const [inputValue, setInputValue] = useState<string>(value ?? "");
@@ -67,6 +71,7 @@ const TypeAheadInput = ({
 
   const handleInputClick = () => {
     setOpen(true);
+    setOtherField(false);
     setInputValue('');
     updateFormData('', ''); // Clear the form data when input is clicked
   }
@@ -80,6 +85,7 @@ const TypeAheadInput = ({
     const activeDescendentId = li.id;
 
     const dataId = li.dataset.id || '';
+    const dataValue = li.dataset.value;
 
     updateFormData(dataId, item);
 
@@ -88,6 +94,8 @@ const TypeAheadInput = ({
     setActiveDescendentId(activeDescendentId);
 
     inputRef.current?.focus();
+
+    setOtherField(dataValue === 'other');
   }
 
   const focusListItem = (index: number) => {
@@ -115,22 +123,19 @@ const TypeAheadInput = ({
     switch (e.key) {
       case "ArrowDown":
         // Allow user to navigate through list items using down arrow key
-        if (currentListItemFocused <= listItems.length - 1) {
-          if (currentListItemFocused < 0) {
-            focusListItem(1)
-          } else {
-            focusListItem(currentListItemFocused + 1);
-          }
+        if (currentListItemFocused < listItems.length - 1) {
+          focusListItem(currentListItemFocused + 1);
         }
         break;
 
       case "ArrowUp":
         // Allow user to navigate through list items using up arrow key
-        if (currentListItemFocused > 1) {
+        if (currentListItemFocused > 0) {
           focusListItem(currentListItemFocused - 1);
         } else {
           setCurrentListItemFocused(-1);
           setActiveDescendentId("");
+          setOtherField(false);
           if (inputRef && inputRef.current) {
             inputRef.current.focus();
           }
@@ -168,9 +173,7 @@ const TypeAheadInput = ({
     const handleClickOutside = (e: MouseEvent) => {
       if (
         inputRef.current &&
-        !inputRef.current.contains(e.target as Node) &&
-        listRef.current &&
-        !listRef.current.contains(e.target as Node)
+        !inputRef.current.contains(e.target as Node)
       ) {
         setOpen(false); // Hide the list
         setCurrentListItemFocused(-1); //Reset so that next search doesn't start with focus on the wrong option
@@ -185,7 +188,6 @@ const TypeAheadInput = ({
       document.removeEventListener('click', handleClickOutside);
     };
   }, []);
-
 
   return (
     <div className={`${styles.autocompleteContainer} ${styles.expanded} ${className} form-row`} aria-expanded={open} role="combobox" aria-controls="results">
@@ -254,6 +256,20 @@ const TypeAheadInput = ({
       >
         {suggestions && suggestions.length > 0 && (
           <>
+            <li
+              key="other"
+              ref={(el) => {
+                listItemRefs.current[0] = el;
+              }}
+              onClick={handleSelection}
+              className={`${styles.otherOption} ${styles.autocompleteItem}`}
+              id="autocompleteItem-0"
+              role="option"
+              aria-selected={currentListItemFocused === 0}
+              data-value="other"
+              tabIndex={-1}>
+              {otherText}
+            </li>
 
             {suggestions?.map((suggestion, index) => {
               if (suggestion.displayName !== '') {
@@ -281,4 +297,4 @@ const TypeAheadInput = ({
   );
 };
 
-export default TypeAheadInput;
+export default TypeAheadWithOther;

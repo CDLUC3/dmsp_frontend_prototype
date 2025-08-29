@@ -11,6 +11,7 @@ import {
 } from '@/generated/graphql';
 
 import { mockScrollIntoView, mockScrollTo } from '@/__mocks__/common';
+import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
 
 expect.extend(toHaveNoViolations);
 
@@ -40,10 +41,15 @@ jest.mock('@/components/UpdateEmailAddress', () => ({
   default: () => <div data-testid="update-email-address">Mocked UpdateEmailAddress Component</div>,
 }));
 
-// Mock TypeAheadWithOther component
 jest.mock('@/components/Form/TypeAheadWithOther', () => ({
   __esModule: true,
-  default: () => <div data-testid="type-ahead">Mocked Institution Field</div>,
+  TypeAheadWithOther: () => (
+    <div data-testid="type-ahead">Mocked Institution Field</div>
+  ),
+  useAffiliationSearch: jest.fn(() => ({
+    suggestions: mocksAffiliations,
+    handleSearch: jest.fn(),
+  })),
 }));
 
 jest.mock('@/i18n/routing', () => ({
@@ -388,7 +394,7 @@ describe('ProfilePage', () => {
     });
 
     // Check if the error message is displayed
-    const errorMsg = screen.getByText(/Error when updating profile/i);
+    const errorMsg = screen.getByText('messages.errors.errorUpdatingProfile');
     expect(errorMsg).toBeInTheDocument();
   })
 
