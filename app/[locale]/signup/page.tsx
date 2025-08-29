@@ -14,8 +14,6 @@ import {
   Text,
   TextField,
 } from "react-aria-components";
-
-import { AffiliationsDocument } from '@/generated/graphql';
 import { useCsrf } from '@/context/CsrfContext';
 import logECS from '@/utils/clientLogger';
 import { handleErrors } from '@/utils/errorHandler';
@@ -28,7 +26,7 @@ import {
   ToolbarContainer,
 } from '@/components/Container';
 import ErrorMessages from '@/components/ErrorMessages';
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 
 import styles from './signup.module.scss';
 
@@ -93,7 +91,7 @@ const SignUpPage: React.FC = () => {
   const [otherField, setOtherField] = useState<boolean>(false);
   const [otherAffiliation, setOtherAffiliation] = useState<string>("");
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-
+  const { suggestions, handleSearch } = useAffiliationSearch();
 
   async function handleSignUp() {
     setIsWorking(true);
@@ -295,12 +293,12 @@ const SignUpPage: React.FC = () => {
                 label={t('institution')}
                 required={true}
                 fieldName="institution"
-                graphqlQuery={AffiliationsDocument}
-                resultsKey="affiliations.items"
                 setOtherField={setOtherField}
                 helpText={t('institutionHelp')}
                 updateFormData={updateAffiliations}
                 error={fieldErrors?.affiliationId}
+                suggestions={suggestions}
+                onSearch={handleSearch}
               />
               {otherField && (
                 <TextField

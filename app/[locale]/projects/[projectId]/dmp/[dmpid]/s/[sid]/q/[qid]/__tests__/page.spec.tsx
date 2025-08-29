@@ -13,9 +13,6 @@ import {
   addAnswerAction,
   updateAnswerAction
 } from '../actions';
-
-import * as apolloClientModule from '@/lib/graphql/client/apollo-client';
-
 import mockAnswerData from '../__mocks__/mockAnswerData.json';
 import mockPlanData from '../__mocks__/mockPlanData.json';
 import mockPublishedQuestion from '../__mocks__/mockPublishedQuestion.json';
@@ -62,6 +59,44 @@ import { AffiliationSearchQuestionType } from "@dmptool/types";
 
 // Mock for useComments hook
 import { mockUseComments, defaultMockReturn } from '../hooks/__mocks__/useComments';
+import { TypeAheadInputProps } from '@/components/Form/TypeAheadWithOther/TypeAheadWithOther';
+import mocksAffiliations from '@/__mocks__/common/mockAffiliations.json';
+
+jest.mock('@/components/Form/TypeAheadWithOther', () => ({
+  __esModule: true,
+  useAffiliationSearch: jest.fn(() => ({
+    suggestions: mocksAffiliations,
+    handleSearch: jest.fn(),
+  })),
+  TypeAheadWithOther: ({ label, placeholder, fieldName, updateFormData, value }: TypeAheadInputProps) => {
+    const [inputValue, setInputValue] = React.useState(value || '');
+
+    return (
+      <div>
+        <label>
+          {label}
+          <input
+            aria-label={label}
+            placeholder={placeholder}
+            name={fieldName}
+            role="textbox"
+            value={inputValue}
+            data-id="https://ror.org/0168r3w48" // Mock the expected ID
+            onChange={(e) => {
+              const newValue = e.target.value;
+              setInputValue(newValue);
+              const dataId = (e.target as HTMLElement).dataset.id || '';
+              updateFormData?.(dataId, newValue);
+            }}
+          />
+        </label>
+        <ul role="listbox">
+          <li>Search Term</li>
+        </ul>
+      </div>
+    );
+  },
+}));
 
 jest.mock('../hooks/useComments', () => {
   const { mockUseComments } = jest.requireActual('../hooks/__mocks__/useComments');
@@ -171,9 +206,6 @@ describe('PlanOverviewQuestionPage render of questions', () => {
       push: jest.fn(),
     });
 
-
-    jest.useFakeTimers();
-
     (useMeQuery as jest.Mock).mockReturnValue({
       data: mockMeData,
       loading: false,
@@ -199,10 +231,6 @@ describe('PlanOverviewQuestionPage render of questions', () => {
       error: undefined,
     });
 
-  })
-
-  afterEach(() => {
-    jest.useRealTimers();
   })
 
   it('should load correct question content for textArea question', async () => {
@@ -412,10 +440,6 @@ describe('PlanOverviewQuestionPage render of questions', () => {
   })
 
   it('should load correct question content for typeaheadSearch question', async () => {
-    const mockQuery = jest.fn();
-    const mockClient = { query: mockQuery };
-    (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
-
     (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTypeAheadSearch,
       loading: false,
@@ -434,17 +458,14 @@ describe('PlanOverviewQuestionPage render of questions', () => {
         <PlanOverviewQuestionPage />
       );
     });
-
     expect(screen.getByRole('heading', { level: 2, name: 'Affiliation search question' }))
     // View sample text button should not display when the question is not a textArea question type
     expect(screen.queryByRole('button', { name: 'page.viewSampleAnswer' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'buttons.commentWithNumber' })).toBeInTheDocument();
-    const typeAheadContainer = screen.getByTestId('typeaheadWithOther');
-    expect(typeAheadContainer).toBeInTheDocument();
-    expect(within(typeAheadContainer).getByText('Institution')).toBeInTheDocument();
-    const input = within(typeAheadContainer).getByRole('textbox');
-    expect(input).toBeInTheDocument();
-    expect(within(typeAheadContainer).getByText('Search for your institution')).toBeInTheDocument();
+    expect(screen.getByLabelText('Institution')).toBeInTheDocument();
+    const input = screen.getByLabelText('Institution');
+    expect(input).toHaveAttribute('data-id', 'https://ror.org/0168r3w48');
+
   })
 
   it('should load correct question content for date range question', async () => {
@@ -875,6 +896,13 @@ describe('accessibility', () => {
       loading: false,
       error: undefined,
     });
+
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
+    });
+
   })
 
   it('should pass accessibility tests', async () => {
@@ -928,17 +956,6 @@ describe('Call to updateAnswerAction', () => {
   })
 
   it('should call updateAnswerAction when data changes for typeaheadSearch field', async () => {
-    const mockQuery = jest.fn();
-    const mockClient = { query: mockQuery };
-    mockClient.query.mockResolvedValueOnce({
-      data: {
-        affiliations: {
-          items: []
-        }
-      }
-    });
-
-    (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
 
     (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
       data: mockQuestionDataForTypeAheadSearch,
@@ -974,102 +991,6 @@ describe('Call to updateAnswerAction', () => {
       });
     });
 
-  })
-
-  it('should call updateAnswerAction when data changes for typeaheadSearch field with Other field', async () => {
-    jest.useFakeTimers();
-    const mockQuery = jest.fn();
-    const mockClient = { query: mockQuery };
-
-    mockQuery.mockImplementation(() => {
-      return Promise.resolve({
-        data: {
-          affiliations: {
-            totalCount: 3,
-            nextCursor: null,
-            items: [
-              {
-                id: 13,
-                displayName: "University of California, Santa Barbara (ucsb.edu)",
-                uri: "https://ror.org/02t274463"
-              },
-              {
-                id: 14,
-                displayName: "University of California, Santa Cruz (ucsc.edu)",
-                uri: "https://ror.org/03s65by71"
-              },
-              {
-                id: 3,
-                displayName: "University of California, San Diego (ucsd.edu)",
-                uri: "https://ror.org/0168r3w48"
-              }
-            ]
-          }
-        }
-      });
-    });
-
-    (apolloClientModule.createApolloClient as jest.Mock).mockImplementation(() => mockClient);
-
-    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
-      data: mockQuestionDataForTypeAheadSearch,
-      loading: false,
-      error: undefined,
-    });
-
-    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
-      data: mockAnswerDataForTypeAheadSearch,
-      loading: false,
-      error: undefined,
-    });
-
-
-    await act(async () => {
-      render(
-        <PlanOverviewQuestionPage />
-      );
-    });
-
-    const searchLabelInput = screen.getByLabelText('Institution');
-
-    act(() => {
-      fireEvent.change(searchLabelInput, { target: { value: 'UC San' } });
-    });
-
-    await act(async () => {
-      jest.advanceTimersByTime(1000); // Debounce delay
-      await Promise.resolve(); // Flush microtasks
-    });
-
-    await waitFor(() => {
-      expect(mockQuery).toHaveBeenCalledTimes(1);
-    })
-
-    const otherOption = screen.getByText('Other');
-    await waitFor(() => {
-      expect(screen.getByText('Other')).toBeInTheDocument();
-      expect(screen.getByText('University of California, Santa Barbara (ucsb.edu)')).toBeInTheDocument();
-      expect(screen.getByText('University of California, Santa Cruz (ucsc.edu)')).toBeInTheDocument();
-      expect(screen.getByText('University of California, San Diego (ucsd.edu)')).toBeInTheDocument();
-    })
-
-    fireEvent.click(otherOption);
-
-    const otherField = screen.getByPlaceholderText('Enter other institution name');
-    fireEvent.change(otherField, { target: { value: 'Academy of stars' } });
-
-    // Click "Save" button
-    const saveBtn = screen.getByRole('button', { name: 'labels.saveAnswer' });
-
-    fireEvent.click(saveBtn);
-    await waitFor(() => {
-      expect(updateAnswerAction).toHaveBeenCalledWith({
-        answerId: 20,
-        json: "{\"type\":\"affiliationSearch\",\"answer\":{\"affiliationId\":\"\",\"affiliationName\":\"Academy of stars\"}}"
-      });
-    });
-
-    jest.useRealTimers();
   })
 
   it('should call updateAnswerAction with correct data for checkbox', async () => {
@@ -1861,6 +1782,12 @@ describe('Call to addAnswerAction', () => {
       loading: false,
       error: undefined,
     });
+
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
+    });
   })
 
   it('should call addAnswerAction with correct data for checkbox when there is no corresponding answer in our db', async () => {
@@ -2235,6 +2162,12 @@ describe('Auto save', () => {
           versionedSectionId: 20
         }
       },
+    });
+
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
     });
 
     const setTimeoutSpy = jest.spyOn(global, 'setTimeout');

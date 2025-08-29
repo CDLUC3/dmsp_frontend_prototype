@@ -234,7 +234,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
-
   // Comments state and handlers hook
   const {
     // State
@@ -621,7 +620,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
               affiliationName: answer.affiliationName
             },
             otherField: answer.isOther,
-            otherAffiliationName: answer.affiliationName
+            otherAffiliationName: ''
           }));
         }
         break;

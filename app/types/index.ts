@@ -464,3 +464,10 @@ export interface MergedComment {
   modified?: string | null;
   PlanFeedback?: PlanFeedback | null;
 }
+
+export type SuggestionInterface = {
+  id: string;
+  displayName: string;
+  uri: string;
+}
+

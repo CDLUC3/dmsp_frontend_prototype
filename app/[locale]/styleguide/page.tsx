@@ -62,9 +62,8 @@ import {
 import { BrandColor, Example, handleDelete } from "./sg-components";
 
 import TypeAheadInput from '@/components/TypeAheadInput';
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 import {
-  AffiliationsDocument,
   AffiliationSearch,
   AffiliationSearchResults,
 } from '@/generated/graphql';
@@ -81,11 +80,12 @@ import { useToast } from '@/context/ToastContext';
 import QuestionPreview from '@/components/QuestionPreview';
 import FunderSearch from '@/components/FunderSearch';
 
-
 function Page() {
   const [otherField, setOtherField] = useState(false);
+  const { suggestions, handleSearch } = useAffiliationSearch();
   const toastState = useToast(); // Access the toast state from context
   const router = useRouter();
+
   // NOTE: This text is just for testing the richtext editors
   const html = String.raw;
   const richtextDefault = html`
@@ -1669,7 +1669,10 @@ function Page() {
               <TypeAheadInput
                 label="Example input"
                 fieldName="test"
-                graphqlQuery={AffiliationsDocument}
+                required={true}
+                updateFormData={() => console.log('updating form')}
+                suggestions={suggestions}
+                onSearch={handleSearch}
                 helpText="Help text describing what types of data the user can search for"
               />
             </Example>
@@ -1685,13 +1688,13 @@ function Page() {
               <TypeAheadWithOther
                 label="Institution"
                 fieldName="institution"
-                graphqlQuery={AffiliationsDocument}
-                resultsKey="affiliations"
                 setOtherField={setOtherField}
                 required={true}
                 helpText="Search for your institution"
                 updateFormData={() => console.log('updating form')}
                 value="UCOP"
+                suggestions={suggestions}
+                onSearch={handleSearch}
               />
               {otherField && (
                 <TextField type="text" name="institution">

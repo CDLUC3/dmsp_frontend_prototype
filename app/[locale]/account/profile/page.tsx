@@ -17,7 +17,6 @@ import {
 
 // GraphQL queries and mutations
 import {
-  AffiliationsDocument,
   useLanguagesQuery,
   useMeQuery,
   UserErrors,
@@ -27,7 +26,7 @@ import {
 // Components
 import PageHeader from '@/components/PageHeader';
 import UpdateEmailAddress from '@/components/UpdateEmailAddress';
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
+import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 import { FormSelect } from '@/components/Form/FormSelect';
 import FormInput from '@/components/Form/FormInput';
 import {
@@ -51,6 +50,7 @@ import { useToast } from '@/context/ToastContext';
 import styles from './profile.module.scss';
 import { routePath } from '@/utils/routes';
 
+
 const ProfilePage: React.FC = () => {
   const t = useTranslations('UserProfile');
   const toastState = useToast(); // Access the toast state from context
@@ -63,6 +63,7 @@ const ProfilePage: React.FC = () => {
   const errorRef = useRef<HTMLDivElement | null>(null);
   //To control display of showSuccess toast message
   const hasShownToastRef = useRef(false);
+
   const [otherField, setOtherField] = useState(false);
   // We need to save the original data for when users cancel their form updates
   const [originalData, setOriginalData] = useState<ProfileDataInterface>();
@@ -75,6 +76,7 @@ const ProfilePage: React.FC = () => {
     languageId: '',
     languageName: '',
   })
+  const { suggestions, handleSearch } = useAffiliationSearch();
   const [isEditing, setIsEditing] = useState(false);
   // Errors returned from request
   const [errors, setErrors] = useState<UserErrors>({});
@@ -118,7 +120,7 @@ const ProfilePage: React.FC = () => {
         }
         break;
       case 'affiliationId':
-        if (!value || value.length <= 2) {
+        if (formData['affiliationName'] !== 'Other' && (!value || value.length <= 2)) {
           error = t('messages.errors.affiliationValidation');
         }
         break;
@@ -174,7 +176,7 @@ const ProfilePage: React.FC = () => {
         // Handle other types of errors
         setErrors(prevErrors => ({
           ...prevErrors,
-          general: 'Error when updating profile'
+          general: t('messages.errors.errorUpdatingProfile')
         }));
       }
     }
@@ -320,6 +322,13 @@ const ProfilePage: React.FC = () => {
 
         setOriginalData(newOriginalData);
 
+        // 👇 derive whether "Other" field should be shown
+        if (newOriginalData.affiliationName === 'Other') {
+          setOtherField(true);
+        } else {
+          setOtherField(false);
+        }
+
         setFormData((prev) => ({
           ...prev,
           ...newOriginalData,
@@ -445,14 +454,14 @@ const ProfilePage: React.FC = () => {
                           <TypeAheadWithOther
                             label={t('institution')}
                             fieldName="institution"
-                            graphqlQuery={AffiliationsDocument}
-                            resultsKey="affiliations.items"
                             setOtherField={setOtherField}
                             required={true}
                             error={errors['affiliationId'] ?? ''}
                             helpText={t('helpTextSearchForInstitution')}
                             updateFormData={updateAffiliationFormData}
                             value={formData.affiliationName}
+                            suggestions={suggestions}
+                            onSearch={handleSearch}
                           />
                           {otherField && (
                             <div className={`${styles.formRow} ${styles.oneItemRow}`}>
