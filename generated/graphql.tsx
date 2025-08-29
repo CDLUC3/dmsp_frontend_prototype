@@ -1936,6 +1936,12 @@ export type ProjectErrors = {
   title?: Maybe<Scalars['String']['output']>;
 };
 
+/** Project search filter options */
+export type ProjectFilterOptions = {
+  /** Filter results by the plan's status */
+  status?: InputMaybe<PlanStatus>;
+};
+
 /** Funding that is supporting a research project */
 export type ProjectFunding = {
   __typename?: 'ProjectFunding';
@@ -2429,6 +2435,7 @@ export type QueryMetadataStandardsArgs = {
 
 
 export type QueryMyProjectsArgs = {
+  filterOptions?: InputMaybe<ProjectFilterOptions>;
   paginationOptions?: InputMaybe<PaginationOptions>;
   term?: InputMaybe<Scalars['String']['input']>;
 };
@@ -3944,7 +3951,7 @@ export type AddFeedbackCommentMutationVariables = Exact<{
 }>;
 
 
-export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null, PlanFeedback?: { __typename?: 'PlanFeedback', id?: number | null } | null } | null };
+export type AddFeedbackCommentMutation = { __typename?: 'Mutation', addFeedbackComment?: { __typename?: 'PlanFeedbackComment', id?: number | null, answerId?: number | null, commentText?: string | null, errors?: { __typename?: 'PlanFeedbackCommentErrors', general?: string | null } | null } | null };
 
 export type AddPlanMutationVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4343,14 +4350,14 @@ export type PublishedQuestionQuery = { __typename?: 'Query', publishedQuestion?:
 export type TopLevelResearchDomainsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TopLevelResearchDomainsQuery = { __typename?: 'Query', topLevelResearchDomains?: Array<{ __typename?: 'ResearchDomain', name: string, id?: number | null } | null> | null };
+export type TopLevelResearchDomainsQuery = { __typename?: 'Query', topLevelResearchDomains?: Array<{ __typename?: 'ResearchDomain', name: string, description?: string | null, id?: number | null } | null> | null };
 
 export type ChildResearchDomainsQueryVariables = Exact<{
   parentResearchDomainId: Scalars['Int']['input'];
 }>;
 
 
-export type ChildResearchDomainsQuery = { __typename?: 'Query', childResearchDomains?: Array<{ __typename?: 'ResearchDomain', id?: number | null, name: string } | null> | null };
+export type ChildResearchDomainsQuery = { __typename?: 'Query', childResearchDomains?: Array<{ __typename?: 'ResearchDomain', id?: number | null, name: string, description?: string | null } | null> | null };
 
 export type SectionVersionsQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
@@ -4811,11 +4818,9 @@ export const AddFeedbackCommentDocument = gql`
   ) {
     id
     answerId
+    commentText
     errors {
       general
-    }
-    PlanFeedback {
-      id
     }
   }
 }
@@ -7406,6 +7411,7 @@ export const TopLevelResearchDomainsDocument = gql`
     query TopLevelResearchDomains {
   topLevelResearchDomains {
     name
+    description
     id
   }
 }
@@ -7447,6 +7453,7 @@ export const ChildResearchDomainsDocument = gql`
   childResearchDomains(parentResearchDomainId: $parentResearchDomainId) {
     id
     name
+    description
   }
 }
     `;
