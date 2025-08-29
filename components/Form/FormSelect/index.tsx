@@ -31,6 +31,7 @@ interface MySelectProps<T extends SelectItem>
   selectClasses?: string;
   onChange?: (value: string) => void;
   items?: T[];
+  placeHolder?: string;
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
 
@@ -44,6 +45,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
     selectClasses,
     onChange,
     items,
+    placeholder,
     ...rest
   } = props;
 
@@ -62,6 +64,7 @@ export const FormSelect = forwardRef<HTMLButtonElement, MySelectProps<SelectItem
       className={`${selectClasses} ${styles.mySelect} react-aria-Select`}
       aria-label={ariaLabel}
       onSelectionChange={handleSelectionChange}
+      placeholder={placeholder}
     >
       {(state) => (
         <>

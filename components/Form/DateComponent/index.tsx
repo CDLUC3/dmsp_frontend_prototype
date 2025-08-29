@@ -58,22 +58,22 @@ const DateComponent: React.FC<DateComponentProps> = ({
         {(segment) => <DateSegment segment={segment} />}
       </DateInput>
       <Button>
-        <DmpIcon 
-          icon="solid-down_arrow" 
+        <DmpIcon
+          icon="solid-down_arrow"
           classes={styles.arrow}
-         />
-        </Button>
+        />
+      </Button>
     </Group>
     <Popover>
       <Dialog>
         <Calendar>
           <header>
             <Button slot="previous">
-              <DmpIcon 
+              <DmpIcon
                 icon="solid-left_arrow"
                 classes={styles.arrow}
-               />
-              </Button>
+              />
+            </Button>
             <Heading className={styles.dateHeading} />
             <Button slot="next">
               <DmpIcon
