@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "./ExpandableNameList.module.scss";
+import { Button } from "react-aria-components";
 
 type ExpandableNameListProps<T> = {
   items: T[];
@@ -37,13 +38,13 @@ export default function ExpandableNameList<T>({ items, matches, maxItems, render
           );
         })}
       {tooMany && (
-        <button
-          className={styles.collapseButton}
+        <Button
+          className={`${styles.collapseButton} link`}
           aria-expanded={isOpen}
           onClick={() => setOpen(!isOpen)}
         >
           {label}
-        </button>
+        </Button>
       )}
     </>
   );

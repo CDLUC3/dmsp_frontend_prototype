@@ -6,7 +6,6 @@ import React, { useCallback } from "react";
 import {
   Button,
   FieldError,
-  Label,
   ListBox,
   ListBoxItem,
   Popover,
@@ -32,18 +31,8 @@ export const RelatedWorksList = ({ status }: RelatedWorksListProps) => {
   // TODO: each list can probably be independent when hooked up the GraphQL API, so useRelatedWorksContext will
   // be unnecessary then.
   const { works, setWorks } = useRelatedWorksContext();
-  const {
-    confidence,
-    setConfidence,
-    type,
-    setType,
-    highlightMatches,
-    setHighlightMatches,
-    page,
-    setPage,
-    sortBy,
-    setSortBy,
-  } = useRelatedWorksListContext();
+  const { confidence, setConfidence, type, setType, highlightMatches, setHighlightMatches, page, sortBy, setSortBy } =
+    useRelatedWorksListContext();
 
   // TODO: these will call the GraphQL API
   const acceptWork = useCallback(
@@ -67,15 +56,31 @@ export const RelatedWorksList = ({ status }: RelatedWorksListProps) => {
     [works],
   );
 
+  // Status counts
+  // TODO: these will be computed by the GraphQL API
+  const statusInitialValue: { [key: string]: number } = {
+    [Status.Pending]: 0,
+    [Status.Related]: 0,
+    [Status.Discarded]: 0,
+  };
+  const statusCounts = works.reduce((acc, work) => {
+    acc[work.status] += 1;
+    return acc;
+  }, statusInitialValue);
+
   // Confidence items
   // TODO: these will be computed by the GraphQL API
-  const initialValue: { [key: string]: number } = { [Confidence.High]: 0, [Confidence.Medium]: 0, [Confidence.Low]: 0 };
+  const confidenceInitialValue: { [key: string]: number } = {
+    [Confidence.High]: 0,
+    [Confidence.Medium]: 0,
+    [Confidence.Low]: 0,
+  };
   const confidenceCounts = works
     .filter((work) => work.status === status)
     .reduce((acc, work) => {
       acc[scoreToConfidence(work.score)] += 1;
       return acc;
-    }, initialValue);
+    }, confidenceInitialValue);
   const confidenceItems = Object.values(Confidence).map((key: string) => ({
     id: key,
     label: dataTypes(`confidence.${key}`),
@@ -85,10 +90,17 @@ export const RelatedWorksList = ({ status }: RelatedWorksListProps) => {
   // Work type items
   // Filter based on available work types
   // TODO: available work types needs to be supplied by GraphQL query
-  const workTypeSet = new Set(works.filter((work) => work.status === status).map((work) => work.work.type as string));
+  const typeCounts = new Map<string, number>(works.map((work) => [work.work.type, 0]));
+  works.forEach((work) => {
+    if (work.status === status) {
+      const type = work.work.type as string;
+      typeCounts.set(type, (typeCounts.get(type) || 0) + 1);
+    }
+  });
+  const workTypeSet = new Set(typeCounts.keys());
   const typeItems = Object.values(WorkType)
     .filter((key: string) => workTypeSet.has(key))
-    .map((key: string) => ({ id: key, label: dataTypes(`workType.${key}`) }));
+    .map((key: string) => ({ id: key, label: `${dataTypes(`workType.${key}`)} (${typeCounts.get(key)})` }));
 
   // Filter and sort works
   // TODO: this will be done with GraphQL
@@ -201,6 +213,24 @@ export const RelatedWorksList = ({ status }: RelatedWorksListProps) => {
             discardWork={discardWork}
           />
         ))}
+        {status == Status.Pending && statusCounts[Status.Pending] == 0 && (
+          <div className={styles.noResults}>{t("messages.noPendingResults")}</div>
+        )}
+        {status == Status.Pending && statusCounts[Status.Pending] > 0 && filteredWorks.length == 0 && (
+          <div className={styles.noResults}>{t("messages.noPendingFilteredResults")}</div>
+        )}
+        {status == Status.Related && statusCounts[Status.Related] == 0 && (
+          <div className={styles.noResults}>{t("messages.noRelatedResults")}</div>
+        )}
+        {status == Status.Related && statusCounts[Status.Related] > 0 && filteredWorks.length == 0 && (
+          <div className={styles.noResults}>{t("messages.noRelatedFilteredResults")}</div>
+        )}
+        {status == Status.Discarded && statusCounts[Status.Discarded] == 0 && (
+          <div className={styles.noResults}>{t("messages.noDiscardedResults")}</div>
+        )}
+        {status == Status.Discarded && statusCounts[Status.Discarded] > 0 && filteredWorks.length == 0 && (
+          <div className={styles.noResults}>{t("messages.noDiscardedFilteredResults")}</div>
+        )}
       </div>
       <div className={styles.footer}>
         <Pagination
@@ -208,14 +238,15 @@ export const RelatedWorksList = ({ status }: RelatedWorksListProps) => {
           totalPages={1}
           hasPreviousPage={false}
           hasNextPage={false}
-          handlePageClick={(page: number) => {}}
+          handlePageClick={() => {}}
         />
       </div>
     </div>
   );
 };
 
-// TODO: delete, not required when querying with GraphQL
+// TODO delete this function after integration with GraphQL
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function get(obj: any, path: string, defaultValue?: any) {
   return path.split(".").reduce((acc, key) => acc?.[key], obj) ?? defaultValue;
 }
@@ -243,6 +274,7 @@ const Select = ({
   return (
     <div className={containerClassName}>
       <ReactAriaSelect
+        aria-label={placeholder}
         placeholder={placeholder}
         selectedKey={selectedKey}
         onSelectionChange={(key) => {

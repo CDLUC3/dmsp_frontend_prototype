@@ -9,14 +9,14 @@ expect.extend(toHaveNoViolations);
 
 function ExpandableNameListHarness({ maxItems }: { maxItems: number }) {
   return (
-      <ExpandableNameList
-          items={[{ name: "One" }, { name: "Two" }, { name: "Three" }]}
-          matches={[0, 1]}
-          maxItems={maxItems}
-          renderItem={(item, isMatch) => {
-            return <span>{item.name}</span>;
-          }}
-      />
+    <ExpandableNameList
+      items={[{ name: "One" }, { name: "Two" }, { name: "Three" }]}
+      matches={[0, 1]}
+      maxItems={maxItems}
+      renderItem={(item) => {
+        return <span>{item.name}</span>;
+      }}
+    />
   );
 }
 
@@ -25,7 +25,6 @@ describe("ExpandableNameList", () => {
     render(<ExpandableNameListHarness maxItems={3} />);
 
     // Test that all items are shown
-
     expect(screen.getByText("One")).toBeInTheDocument();
     expect(screen.getByText("Two")).toBeInTheDocument();
     expect(screen.getByText("Three")).toBeInTheDocument();

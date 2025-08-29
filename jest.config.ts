@@ -5,7 +5,7 @@ const createJestConfig = nextJest({
   dir: "./",
 });
 
-const config = {
+const customJestConfig = {
   testEnvironment: "jest-environment-jsdom",
   moduleDirectories: ["node_modules", "<rootDir>/"],
   moduleNameMapper: {
@@ -42,10 +42,6 @@ const config = {
     }
   },
   coverageDirectory: "coverage",
-  // Updated transformIgnorePatterns to handle next-intl and its dependencies
-  transformIgnorePatterns: [
-    'node_modules/(?!(next-intl|@formatjs|intl-messageformat|.*\\.mjs$)/)',
-  ],
   // Add extensionsToTreatAsEsm and globals for better ESM support
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   globals: {
@@ -58,5 +54,16 @@ const config = {
   },
 } satisfies Config;
 
-// Use export default for TypeScript
-export default createJestConfig(config);
+
+// createJestConfig seems to add its own transformIgnorePatterns that conflict with our own transformIgnorePatterns
+// so this approach makes sure that only our config is applied
+export default async () => {
+  const config = await createJestConfig(customJestConfig)();
+
+  // Updated transformIgnorePatterns to handle next-intl and its dependencies
+  config.transformIgnorePatterns = [
+    'node_modules/(?!(use-intl|next-intl|@formatjs|intl-messageformat|.*\\.mjs$)/)',
+  ]
+
+  return config;
+};

@@ -6,7 +6,7 @@
 .label {
   color: var(--slate-900);
   font-weight: bold;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .radioGroup {
@@ -14,7 +14,7 @@
 }
 
 .separator {
-  margin-left: 0.1rem;
+  margin-left: var(--space-1);
   margin-right: 0.1rem;
 }
 

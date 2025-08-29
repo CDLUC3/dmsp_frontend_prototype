@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { axe, toHaveNoViolations } from "jest-axe";
 import RelatedWorks from "../page";
 import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
 
 expect.extend(toHaveNoViolations);
 
@@ -13,6 +14,18 @@ jest.mock("next/navigation", () => ({
 }));
 
 const mockUseRouter = useRouter as jest.Mock;
+
+function RelatedWorksHarness() {
+  return (
+    <NextIntlClientProvider
+      locale={"en"}
+      timeZone={"UTC"}
+      messages={{}}
+    >
+      <RelatedWorks />
+    </NextIntlClientProvider>
+  );
+}
 
 describe("RelatedWorks", () => {
   beforeEach(() => {
@@ -27,19 +40,19 @@ describe("RelatedWorks", () => {
   });
 
   it("should render the page header with correct title and description", () => {
-    render(<RelatedWorks />);
+    render(<RelatedWorksHarness />);
     expect(screen.getByText("header.title")).toBeInTheDocument();
     expect(screen.getByText("header.description")).toBeInTheDocument();
   });
 
   it("should render the breadcrumb links", () => {
-    render(<RelatedWorks />);
+    render(<RelatedWorksHarness />);
     expect(screen.getByText("Home")).toBeInTheDocument();
     expect(screen.getByText("Projects")).toBeInTheDocument();
   });
 
   it("should render tabs", () => {
-    render(<RelatedWorks />);
+    render(<RelatedWorksHarness />);
 
     expect(screen.getByRole("tab", { name: "tabs.pending" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "tabs.related" })).toBeInTheDocument();
@@ -47,14 +60,14 @@ describe("RelatedWorks", () => {
   });
 
   it("should render pending research outputs", () => {
-    render(<RelatedWorks />);
+    render(<RelatedWorksHarness />);
     expect(screen.getByText("Quantum-Tuned Perception Systems for Next-Gen Robots")).toBeInTheDocument();
     expect(screen.getByText("Synthetic Empathy: Emotional Intelligence in Autonomous Agents")).toBeInTheDocument();
     expect(screen.getByText("NeuroSynthetics: Toward Biologically-Inspired Cognitive Robotics")).toBeInTheDocument();
   });
 
   it("should render related research outputs", async () => {
-    render(<RelatedWorks />);
+    render(<RelatedWorksHarness />);
 
     // Click related tab
     await userEvent.click(screen.getByRole("tab", { name: "tabs.related" }));
@@ -64,7 +77,7 @@ describe("RelatedWorks", () => {
   });
 
   it("should render discarded research outputs", async () => {
-    render(<RelatedWorks />);
+    render(<RelatedWorksHarness />);
 
     // Click discarded tab
     await userEvent.click(screen.getByRole("tab", { name: "tabs.discarded" }));
@@ -78,13 +91,13 @@ describe("RelatedWorks", () => {
   });
 
   it("should render the add related work button", () => {
-    render(<RelatedWorks />);
+    render(<RelatedWorksHarness />);
     const addButton = screen.getByRole("button", { name: "buttons.addRelatedWorkManually" });
     expect(addButton).toBeInTheDocument();
   });
 
   it("should pass accessibility tests", async () => {
-    const { container } = render(<RelatedWorks />);
+    const { container } = render(<RelatedWorksHarness />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

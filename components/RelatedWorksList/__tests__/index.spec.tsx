@@ -7,17 +7,55 @@ import { axe, toHaveNoViolations } from "jest-axe";
 import { RelatedWorksSortBy, Status } from "@/app/types";
 import { RelatedWorksListProvider } from "@/providers/relatedWorksListProvider";
 import { RelatedWorksProvider } from "@/providers/relatedWorksProvider";
+import { NextIntlClientProvider } from "next-intl";
 
 expect.extend(toHaveNoViolations);
+
+interface TestProvidersProps {
+  children: React.ReactNode;
+  defaultSortBy?: RelatedWorksSortBy;
+}
+
+const expectedDateFormat = (date: Date | null) => {
+  if (!date) {
+    return "";
+  }
+  const systemLocale = Intl.DateTimeFormat().resolvedOptions().locale;
+  return new Intl.DateTimeFormat(systemLocale, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+    .format(date)
+    .replace(/\//g, "-");
+};
+
+export const TestProviders: React.FC<TestProvidersProps> = ({
+  children,
+  defaultSortBy = RelatedWorksSortBy.ConfidenceHigh,
+}) => {
+  const detectedLocale = Intl.DateTimeFormat().resolvedOptions().locale;
+  const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  return (
+    <NextIntlClientProvider
+      locale={detectedLocale}
+      timeZone={detectedTimeZone}
+      messages={{}}
+    >
+      <RelatedWorksProvider>
+        <RelatedWorksListProvider defaultSortBy={defaultSortBy}>{children}</RelatedWorksListProvider>
+      </RelatedWorksProvider>
+    </NextIntlClientProvider>
+  );
+};
 
 describe("RelatedWorksList", () => {
   it("should render three pending items", () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
-          <RelatedWorksList status={Status.Pending} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
+        <RelatedWorksList status={Status.Pending} />
+      </TestProviders>,
     );
 
     expectDois("related-works-list", [
@@ -29,11 +67,9 @@ describe("RelatedWorksList", () => {
 
   it("should render two related items", async () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.PublishedNew}>
-          <RelatedWorksList status={Status.Related} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.PublishedNew}>
+        <RelatedWorksList status={Status.Related} />
+      </TestProviders>,
     );
 
     expectDois("related-works-list", ["10.5555/fake.2025.661100", "10.5555/fake.2025.443322"]);
@@ -41,11 +77,9 @@ describe("RelatedWorksList", () => {
 
   it("should render two discarded items", async () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ReviewedNew}>
-          <RelatedWorksList status={Status.Discarded} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.ReviewedNew}>
+        <RelatedWorksList status={Status.Discarded} />
+      </TestProviders>,
     );
 
     expectDois("related-works-list", ["10.3847/fake.2025.245187", "10.1016/fake.2025.998877"]);
@@ -53,11 +87,9 @@ describe("RelatedWorksList", () => {
 
   it("should filter by confidence", async () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
-          <RelatedWorksList status={Status.Pending} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
+        <RelatedWorksList status={Status.Pending} />
+      </TestProviders>,
     );
 
     // High
@@ -78,15 +110,13 @@ describe("RelatedWorksList", () => {
 
   it("should filter by type", async () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
-          <RelatedWorksList status={Status.Pending} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
+        <RelatedWorksList status={Status.Pending} />
+      </TestProviders>,
     );
 
-    await userEvent.click(screen.getByRole("button", { name: "filters.filterByType" }));
-    await userEvent.click(screen.getByRole("option", { name: "workType.article" }));
+    await userEvent.click(screen.getByRole("button", { name: "filters.filterByType filters.filterByType" }));
+    await userEvent.click(screen.getByRole("option", { name: /workType\.article \(\d+\)/i }));
 
     const listItems = within(screen.getByTestId("related-works-list")).queryAllByRole("listitem");
     expect(listItems.length).toBe(1);
@@ -95,22 +125,20 @@ describe("RelatedWorksList", () => {
 
   it("should sort by confidence", async () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
-          <RelatedWorksList status={Status.Pending} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
+        <RelatedWorksList status={Status.Pending} />
+      </TestProviders>,
     );
 
     // Confidence: High (default)
-    await assertSortBy("filters.sortBy.confidence-high", "filters.sortBy.confidence-high", "confidence", [
+    await assertSortBy("filters.sortBy.confidence-high filters.sort", "filters.sortBy.confidence-high", "confidence", [
       "fieldNames.confidence: confidence.high",
       "fieldNames.confidence: confidence.medium",
       "fieldNames.confidence: confidence.low",
     ]);
 
     // Confidence: Low
-    await assertSortBy("filters.sortBy.confidence-high", "filters.sortBy.confidence-low", "confidence", [
+    await assertSortBy("filters.sortBy.confidence-high filters.sort", "filters.sortBy.confidence-low", "confidence", [
       "fieldNames.confidence: confidence.low",
       "fieldNames.confidence: confidence.medium",
       "fieldNames.confidence: confidence.high",
@@ -119,68 +147,63 @@ describe("RelatedWorksList", () => {
 
   it("should sort by date found", async () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
-          <RelatedWorksList status={Status.Pending} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
+        <RelatedWorksList status={Status.Pending} />
+      </TestProviders>,
     );
 
     // Date Found: New
-    await assertSortBy("filters.sortBy.confidence-high", "filters.sortBy.date-found-new", "dateFound", [
-      "fieldNames.dateFound: 2025-08-21",
-      "fieldNames.dateFound: 2025-08-15",
-      "fieldNames.dateFound: 2025-08-01",
+    await assertSortBy("filters.sortBy.confidence-high filters.sort", "filters.sortBy.date-found-new", "dateFound", [
+      `fieldNames.dateFound: ${expectedDateFormat(new Date(2025, 7, 21))}`,
+      `fieldNames.dateFound: ${expectedDateFormat(new Date(2025, 7, 15))}`,
+      `fieldNames.dateFound: ${expectedDateFormat(new Date(2025, 7, 1))}`,
     ]);
 
     // Date Found: Old
-    await assertSortBy("filters.sortBy.date-found-new", "filters.sortBy.date-found-old", "dateFound", [
-      "fieldNames.dateFound: 2025-08-01",
-      "fieldNames.dateFound: 2025-08-15",
-      "fieldNames.dateFound: 2025-08-21",
+    await assertSortBy("filters.sortBy.date-found-new filters.sort", "filters.sortBy.date-found-old", "dateFound", [
+      `fieldNames.dateFound: ${expectedDateFormat(new Date(2025, 7, 1))}`,
+      `fieldNames.dateFound: ${expectedDateFormat(new Date(2025, 7, 15))}`,
+      `fieldNames.dateFound: ${expectedDateFormat(new Date(2025, 7, 21))}`,
     ]);
   });
 
   it("should sort by reviewed", async () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.PublishedNew}>
-          <RelatedWorksList status={Status.Related} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.PublishedNew}>
+        <RelatedWorksList status={Status.Related} />
+      </TestProviders>,
     );
 
     // Reviewed: New
-    await assertSortBy("filters.sortBy.published-new", "filters.sortBy.reviewed-new", "dateReviewed", [
-      "fieldNames.dateReviewed: 2025-07-02",
-      "fieldNames.dateReviewed: 2025-04-02",
+    await assertSortBy("filters.sortBy.published-new filters.sort", "filters.sortBy.reviewed-new", "dateReviewed", [
+      `fieldNames.dateReviewed: ${expectedDateFormat(new Date(2025, 6, 2))}`,
+      `fieldNames.dateReviewed: ${expectedDateFormat(new Date(2025, 3, 2))}`,
     ]);
 
     // Reviewed: Old
-    await assertSortBy("filters.sortBy.reviewed-new", "filters.sortBy.reviewed-old", "dateReviewed", [
-      "fieldNames.dateReviewed: 2025-04-02",
-      "fieldNames.dateReviewed: 2025-07-02",
+    await assertSortBy("filters.sortBy.reviewed-new filters.sort", "filters.sortBy.reviewed-old", "dateReviewed", [
+      `fieldNames.dateReviewed: ${expectedDateFormat(new Date(2025, 3, 2))}`,
+      `fieldNames.dateReviewed: ${expectedDateFormat(new Date(2025, 6, 2))}`,
     ]);
   });
 
   it("should sort by published date", async () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
-          <RelatedWorksList status={Status.Pending} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
+        <RelatedWorksList status={Status.Pending} />
+      </TestProviders>,
     );
 
     // Published: New
-    await assertSortBy("filters.sortBy.confidence-high", "filters.sortBy.published-new", "publicationYear", [
-      "2025.",
-      "2024.",
-      "2020.",
-    ]);
+    await assertSortBy(
+      "filters.sortBy.confidence-high filters.sort",
+      "filters.sortBy.published-new",
+      "publicationYear",
+      ["2025.", "2024.", "2020."],
+    );
 
     // Published: Old
-    await assertSortBy("filters.sortBy.published-new", "filters.sortBy.published-old", "publicationYear", [
+    await assertSortBy("filters.sortBy.published-new filters.sort", "filters.sortBy.published-old", "publicationYear", [
       "2020.",
       "2024.",
       "2025.",
@@ -189,11 +212,9 @@ describe("RelatedWorksList", () => {
 
   it("should highlight matches", async () => {
     render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
-          <RelatedWorksList status={Status.Pending} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
+        <RelatedWorksList status={Status.Pending} />
+      </TestProviders>,
     );
 
     // Expand first item
@@ -223,11 +244,9 @@ describe("RelatedWorksList", () => {
 
   it("should pass axe accessibility test", async () => {
     const { container } = render(
-      <RelatedWorksProvider>
-        <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
-          <RelatedWorksList status={Status.Pending} />
-        </RelatedWorksListProvider>
-      </RelatedWorksProvider>,
+      <TestProviders defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>
+        <RelatedWorksList status={Status.Pending} />
+      </TestProviders>,
     );
 
     await act(async () => {

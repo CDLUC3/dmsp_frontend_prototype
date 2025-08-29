@@ -1,6 +1,6 @@
 import styles from "./LinkFilter.module.scss";
 import React from "react";
-import { Radio, RadioGroup, Label } from "react-aria-components";
+import { Radio, RadioGroup } from "react-aria-components";
 import { RadioGroupProps } from "@react-types/radio";
 
 interface LinkFilterProps extends RadioGroupProps {
@@ -19,8 +19,9 @@ export type LinkFilterItem = {
 const LinkFilter = ({ label, selected, setSelected, items, ...rest }: LinkFilterProps) => {
   return (
     <div className={styles.container}>
-      {label != null && <Label className={styles.label}>{label}</Label>}
+      {label != null && <span className={styles.label}>{label}</span>}
       <RadioGroup
+        aria-label={label}
         orientation="horizontal"
         value={selected}
         onChange={(value) => {

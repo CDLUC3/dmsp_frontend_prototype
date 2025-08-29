@@ -21,15 +21,23 @@
       "sort": "Sort",
       "reset": "Reset",
       "sortBy": {
-        "confidence-high": "Confidence: High",
-        "confidence-low": "Confidence: Low",
-        "reviewed-new": "Reviewed: New",
-        "reviewed-old": "Reviewed: Old",
-        "published-new": "Published: New",
-        "published-old": "Published: Old",
-        "date-found-new": "Date Found: New",
-        "date-found-old": "Date Found: Old"
+        "confidence-high": "Confidence: High to Low",
+        "confidence-low": "Confidence: Low to High",
+        "reviewed-new": "Reviewed: New to Old",
+        "reviewed-old": "Reviewed: Old to New",
+        "published-new": "Published: New to Old",
+        "published-old": "Published: Old to New",
+        "date-found-new": "Date Found: New to Old",
+        "date-found-old": "Date Found: Old to New"
       }
+    },
+    "messages": {
+      "noPendingResults": "No pending works found.\n You have no pending works to review.",
+      "noPendingFilteredResults": "No pending works found.\nNo pending works match your current filters.",
+      "noRelatedResults": "No related works found.\nYou haven’t marked any works as related yet. Check the Pending tab to get started.",
+      "noRelatedFilteredResults": "No related works found.\nNo related works match your current filters.",
+      "noDiscardedResults": "No discarded works found.\nYou haven’t discarded any works.",
+      "noDiscardedFilteredResults": "No discarded works found.\nNo discarded works match your current filters."
     }
   },
   "RelatedWorksListItem": {

@@ -47,12 +47,14 @@ const RelatedWorksPage = () => {
           <Tabs>
             <TabList aria-label="View related works">
               <Tab id="pending">
-                <h2>{t("tabs.pending")}</h2>
+                <h2 className="h3 m-0">{t("tabs.pending")}</h2>
               </Tab>
               <Tab id="related">
-                <h2>{t("tabs.related")}</h2>
+                <h2 className="h3 m-0">{t("tabs.related")}</h2>
               </Tab>
-              <Tab id="discarded">{t("tabs.discarded")}</Tab>
+              <Tab id="discarded">
+                <h2 className="h3 m-0">{t("tabs.discarded")}</h2>
+              </Tab>
             </TabList>
             <RelatedWorksProvider>
               <RelatedWorksListProvider defaultSortBy={RelatedWorksSortBy.ConfidenceHigh}>

@@ -740,7 +740,7 @@ const TemplateEditPage: React.FC = () => {
           </div>
         </Dialog>
       </Modal>
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
+      <div aria-live="polite" aria-atomic="true" className="hidden-accessibly">
         {announcement}
       </div>
     </div >

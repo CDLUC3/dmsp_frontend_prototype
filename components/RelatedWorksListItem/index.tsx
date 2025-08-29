@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "react-aria-components";
 import { Author, RelatedWork, Status, Work } from "@/app/types";
-import { format } from "date-fns";
 import styles from "./RelatedWorksListItem.module.scss";
 import DOMPurify from "dompurify";
 import ExpandButton from "@/components/ExpandButton";
@@ -33,6 +32,10 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
   const expandedContentId = `${work.title.toLowerCase().replace(/\s+/g, "-")}-content`;
   const headingId = `${work.title.toLowerCase().replace(/\s+/g, "-")}-heading`;
   const { authorNames, containerTitle, publicationYear } = formatSubtitle(work, MAX_AUTHOR_CHARS);
+
+  // Format dates
+  const dateFound = useFormatDate(item.dateFound);
+  const dateReviewed = useFormatDate(item.dateReviewed);
 
   return (
     <div
@@ -90,12 +93,12 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
         <div className={styles.overviewFooter}>
           {item.status === Status.Pending && (
             <span data-testid="dateFound">
-              {t("fieldNames.dateFound")}: {formatDate(item.dateFound)}
+              {t("fieldNames.dateFound")}: {dateFound}
             </span>
           )}
           {[Status.Related, Status.Discarded].includes(item.status) && (
             <span data-testid="dateReviewed">
-              {t("fieldNames.dateReviewed")}: {formatDate(item.dateReviewed)}
+              {t("fieldNames.dateReviewed")}: {dateReviewed}
             </span>
           )}
           {work.type !== null && (
@@ -117,203 +120,213 @@ function RelatedWorksListItem({ item, highlightMatches, acceptWork, discardWork 
         </div>
       </div>
 
-      {expanded && (
-        <div
-          role="details"
-          className={styles.details}
-        >
-          <span className={styles.reviewInstructions}>{t("instructions.review")}</span>
-          <div className={styles.detailsList}>
-            <div className={styles.detailsItem}>
-              <h5>{t("fieldNames.doi")}</h5>
-              <a
-                href={doiToUrl(work.doi)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}
-              >
-                {item.match.doi && <mark>{work.doi}</mark>}
-                {!item.match.doi && <>{work.doi}</>}
-              </a>
+      {expanded &&
+        (() => {
+          const doiUrl = (
+            <a
+              href={doiToUrl(work.doi)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {work.doi}
+            </a>
+          );
+
+          return (
+            <div
+              role="details"
+              className={styles.details}
+            >
+              <span className={styles.reviewInstructions}>{t("instructions.review")}</span>
+              <div className={styles.detailsList}>
+                <div className={styles.detailsItem}>
+                  <h5>{t("fieldNames.doi")}</h5>
+                  <span className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}>
+                    {item.match.doi && <mark>{doiUrl}</mark>}
+                    {!item.match.doi && <>{doiUrl}</>}
+                  </span>
+                </div>
+
+                {item.match.title !== null && (
+                  <div className={styles.detailsItem}>
+                    <h5>{t("fieldNames.title")}</h5>
+                    <span
+                      dangerouslySetInnerHTML={{ __html: sanitiseHighlight(item.match.title) }}
+                      className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}
+                    />
+                  </div>
+                )}
+                {item.match.title === null && (
+                  <div className={styles.detailsItem}>
+                    <h5>Title</h5>
+                    <span className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}>
+                      {item.work.title}
+                    </span>
+                  </div>
+                )}
+
+                {item.match.abstract.length > 0 && (
+                  <div className={styles.detailsItem}>
+                    <h5>{t("fieldNames.abstract")}</h5>
+                    {item.match.abstract.map((abs, i) => (
+                      <span
+                        className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}
+                        key={i}
+                        dangerouslySetInnerHTML={{ __html: sanitiseHighlight(abs) }}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {work.awardIds.length > 0 && (
+                  <div className={styles.detailsItem}>
+                    <h5>{t("fieldNames.awardIds")}</h5>
+                    <ExpandableNameList
+                      items={work.awardIds}
+                      matches={item.match.awardIds}
+                      maxItems={MAX_ITEMS}
+                      renderItem={(awardId, isMatch) => {
+                        return (
+                          <span className={isMatch && highlightMatches ? styles.match : undefined}>{awardId}</span>
+                        );
+                      }}
+                    />
+                  </div>
+                )}
+
+                {work.authors.length > 0 && (
+                  <div className={styles.detailsItem}>
+                    <h5>{t("fieldNames.authors")}</h5>
+                    <ExpandableNameList
+                      items={work.authors}
+                      matches={item.match.authors}
+                      maxItems={MAX_ITEMS}
+                      renderItem={(author, isMatch) => {
+                        const highlightMatch = isMatch && highlightMatches;
+                        return (
+                          <>
+                            {author.orcid === null && (
+                              <span className={highlightMatch ? styles.match : undefined}>
+                                {formatAuthorNameFirstLast(author)}
+                              </span>
+                            )}
+                            {author.orcid !== null && (
+                              <a
+                                href={orcidToUrl(author.orcid)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={highlightMatch ? styles.match : undefined}
+                              >
+                                {formatAuthorNameFirstLast(author)}
+                              </a>
+                            )}
+                          </>
+                        );
+                      }}
+                    />
+                  </div>
+                )}
+
+                {work.institutions.length > 0 && (
+                  <div className={styles.detailsItem}>
+                    <h5>{t("fieldNames.institutions")}</h5>
+                    <ExpandableNameList
+                      items={work.institutions}
+                      matches={item.match.institutions}
+                      maxItems={MAX_ITEMS}
+                      renderItem={(institution, isMatch) => {
+                        const highlightMatch = isMatch && highlightMatches;
+                        return (
+                          <>
+                            {institution.ror === null && (
+                              <span className={highlightMatch ? styles.match : undefined}>{institution.name}</span>
+                            )}
+                            {institution.ror !== null && (
+                              <a
+                                href={rorToUrl(institution.ror)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={highlightMatch ? styles.match : undefined}
+                              >
+                                {institution.name}
+                              </a>
+                            )}
+                          </>
+                        );
+                      }}
+                    />
+                  </div>
+                )}
+
+                {work.funders.length > 0 && (
+                  <div className={styles.detailsItem}>
+                    <h5>{t("fieldNames.funders")}</h5>
+
+                    <ExpandableNameList
+                      items={work.funders}
+                      matches={item.match.funders}
+                      maxItems={MAX_ITEMS}
+                      renderItem={(funder, isMatch) => {
+                        const highlightMatch = isMatch && highlightMatches;
+                        return (
+                          <>
+                            {funder.ror === null && (
+                              <span className={highlightMatch ? styles.match : undefined}>{funder.name}</span>
+                            )}
+                            {funder.ror !== null && (
+                              <a
+                                href={rorToUrl(funder.ror)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={highlightMatch ? styles.match : undefined}
+                              >
+                                {funder.name}
+                              </a>
+                            )}
+                          </>
+                        );
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.reviewActions}>
+                <div>
+                  {[Status.Pending, Status.Related].includes(item.status) && (
+                    <Button
+                      onPress={() => {
+                        setFadeOut(true);
+                        setTimeout(() => {
+                          discardWork(work.doi);
+                        }, FADEOUT_TIMEOUT);
+                      }}
+                      className={item.status === Status.Pending ? "primary" : "secondary"}
+                    >
+                      {t("buttons.discard")}
+                    </Button>
+                  )}
+
+                  {[Status.Discarded, Status.Pending].includes(item.status) && (
+                    <Button
+                      onPress={() => {
+                        setFadeOut(true);
+                        setTimeout(() => {
+                          acceptWork(work.doi);
+                        }, FADEOUT_TIMEOUT);
+                      }}
+                      className={item.status === Status.Pending ? "primary" : "secondary"}
+                    >
+                      {t("buttons.accept")}
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <span className={styles.actionInstructions}>{t(`instructions.actions.${item.status}`)}</span>
             </div>
-
-            {item.match.title !== null && (
-              <div className={styles.detailsItem}>
-                <h5>{t("fieldNames.title")}</h5>
-                <span
-                  dangerouslySetInnerHTML={{ __html: sanitiseHighlight(item.match.title) }}
-                  className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}
-                />
-              </div>
-            )}
-            {item.match.title === null && (
-              <div className={styles.detailsItem}>
-                <h5>Title</h5>
-                <span className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}>
-                  {item.work.title}
-                </span>
-              </div>
-            )}
-
-            {item.match.abstract.length > 0 && (
-              <div className={styles.detailsItem}>
-                <h5>{t("fieldNames.abstract")}</h5>
-                {item.match.abstract.map((abs, i) => (
-                  <span
-                    className={highlightMatches ? styles.showContentHighlights : styles.hideContentHighlights}
-                    key={i}
-                    dangerouslySetInnerHTML={{ __html: sanitiseHighlight(abs) }}
-                  />
-                ))}
-              </div>
-            )}
-
-            {work.awardIds.length > 0 && (
-              <div className={styles.detailsItem}>
-                <h5>{t("fieldNames.awardIds")}</h5>
-                <ExpandableNameList
-                  items={work.awardIds}
-                  matches={item.match.awardIds}
-                  maxItems={MAX_ITEMS}
-                  renderItem={(awardId, isMatch) => {
-                    return <span className={isMatch && highlightMatches ? styles.match : undefined}>{awardId}</span>;
-                  }}
-                />
-              </div>
-            )}
-
-            {work.authors.length > 0 && (
-              <div className={styles.detailsItem}>
-                <h5>{t("fieldNames.authors")}</h5>
-                <ExpandableNameList
-                  items={work.authors}
-                  matches={item.match.authors}
-                  maxItems={MAX_ITEMS}
-                  renderItem={(author, isMatch) => {
-                    const highlightMatch = isMatch && highlightMatches;
-                    return (
-                      <>
-                        {author.orcid === null && (
-                          <span className={highlightMatch ? styles.match : undefined}>
-                            {formatAuthorNameFirstLast(author)}
-                          </span>
-                        )}
-                        {author.orcid !== null && (
-                          <a
-                            href={orcidToUrl(author.orcid)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={highlightMatch ? styles.match : undefined}
-                          >
-                            {formatAuthorNameFirstLast(author)}
-                          </a>
-                        )}
-                      </>
-                    );
-                  }}
-                />
-              </div>
-            )}
-
-            {work.institutions.length > 0 && (
-              <div className={styles.detailsItem}>
-                <h5>{t("fieldNames.institutions")}</h5>
-                <ExpandableNameList
-                  items={work.institutions}
-                  matches={item.match.institutions}
-                  maxItems={MAX_ITEMS}
-                  renderItem={(institution, isMatch) => {
-                    const highlightMatch = isMatch && highlightMatches;
-                    return (
-                      <>
-                        {institution.ror === null && (
-                          <span className={highlightMatch ? styles.match : undefined}>{institution.name}</span>
-                        )}
-                        {institution.ror !== null && (
-                          <a
-                            href={rorToUrl(institution.ror)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={highlightMatch ? styles.match : undefined}
-                          >
-                            {institution.name}
-                          </a>
-                        )}
-                      </>
-                    );
-                  }}
-                />
-              </div>
-            )}
-
-            {work.funders.length > 0 && (
-              <div className={styles.detailsItem}>
-                <h5>{t("fieldNames.funders")}</h5>
-
-                <ExpandableNameList
-                  items={work.funders}
-                  matches={item.match.funders}
-                  maxItems={MAX_ITEMS}
-                  renderItem={(funder, isMatch) => {
-                    const highlightMatch = isMatch && highlightMatches;
-                    return (
-                      <>
-                        {funder.ror === null && (
-                          <span className={highlightMatch ? styles.match : undefined}>{funder.name}</span>
-                        )}
-                        {funder.ror !== null && (
-                          <a
-                            href={rorToUrl(funder.ror)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={highlightMatch ? styles.match : undefined}
-                          >
-                            {funder.name}
-                          </a>
-                        )}
-                      </>
-                    );
-                  }}
-                />
-              </div>
-            )}
-          </div>
-
-          <div className={styles.reviewActions}>
-            <div>
-              {[Status.Pending, Status.Related].includes(item.status) && (
-                <Button
-                  onPress={() => {
-                    setFadeOut(true);
-                    setTimeout(() => {
-                      discardWork(work.doi);
-                    }, FADEOUT_TIMEOUT);
-                  }}
-                  className={item.status === Status.Pending ? "primary" : "secondary"}
-                >
-                  {t("buttons.discard")}
-                </Button>
-              )}
-
-              {[Status.Discarded, Status.Pending].includes(item.status) && (
-                <Button
-                  onPress={() => {
-                    setFadeOut(true);
-                    setTimeout(() => {
-                      acceptWork(work.doi);
-                    }, FADEOUT_TIMEOUT);
-                  }}
-                  className={item.status === Status.Pending ? "primary" : "secondary"}
-                >
-                  {t("buttons.accept")}
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <span className={styles.actionInstructions}>{t(`instructions.actions.${item.status}`)}</span>
-        </div>
-      )}
+          );
+        })()}
     </div>
   );
 }
@@ -325,11 +338,20 @@ const sanitiseHighlight = (dirty: string): string => {
   });
 };
 
-const formatDate = (date: Date | null): string => {
+const useFormatDate = (date: Date | null) => {
+  const formatter = useFormatter();
   if (date == null) {
     return "";
   }
-  return format(date, "yyyy-MM-dd");
+
+  const formattedDate = formatter.dateTime(date, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  // Replace slashes with hyphens
+  return formattedDate.replace(/\//g, "-");
 };
 
 const formatAuthorNameAbrev = (author: Author): string | null => {

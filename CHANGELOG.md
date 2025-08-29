@@ -16,7 +16,7 @@
 
 ### Updated
 - Use `orcidToUrl` helper function to generate full ORCID URLs.
-- Moved expand button from `RelatedWorksList` into its own component `ExpandButton`.
+- Moved expand button from `ResearchOutputsList` into its own component `ExpandButton`.
 - Update the section questions to show Answered/Not Answered status and buttons Start/Update [#670]
 - Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
 - Updated unit test for `Plan Create` to use new `MockProvider` [#686]
