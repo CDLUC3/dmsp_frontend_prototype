@@ -10,8 +10,13 @@ expect.extend(toHaveNoViolations);
 
 // Mock the date utils
 jest.mock("@/utils/dateUtils", () => ({
-  formatRelativeFromTimestamp: (timestamp: string, locale: string) => {
-    return `${new Date(parseInt(timestamp)).toLocaleDateString()} (${locale})`;
+  formatRelativeFromTimestamp: (timestamp: string) => {
+    return `${new Date(parseInt(timestamp)).toLocaleDateString('en-US', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
+    })} (en)`;
   },
 }));
 
@@ -133,8 +138,8 @@ describe("CommentList", () => {
     render(<CommentList {...defaultProps} />);
 
     expect(screen.getByText(/1\/1\/2023 \(en\)/)).toBeInTheDocument();
-    expect(screen.getByText(/1\/3\/2023 \(en\)/)).toBeInTheDocument();
-    expect(screen.getByText(/12\/31\/2022 \(en\)/)).toBeInTheDocument();
+    expect(screen.getByText(/1\/2\/2023 \(en\)/)).toBeInTheDocument();
+    expect(screen.getByText(/1\/4\/2023 \(en\)/)).toBeInTheDocument();
   });
 
   it("should show edited indicator when comment was modified", () => {
