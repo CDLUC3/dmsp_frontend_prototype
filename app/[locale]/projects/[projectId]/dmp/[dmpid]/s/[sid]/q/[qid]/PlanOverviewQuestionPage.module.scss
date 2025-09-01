@@ -41,7 +41,8 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-end;
-    .react-aria-Button{
+
+    .react-aria-Button {
       justify-items: flex-end;
       margin-bottom: var(--space-2);
     }
@@ -61,7 +62,7 @@
 .buttonsRow {
   display: flex;
   flex-direction: row;
-  justify-content:space-between;
+  justify-content: space-between;
   margin-top: 2rem;
   margin-bottom: 1rem;
   max-width: 600px;
@@ -74,15 +75,15 @@
   font-size: 0.75rem;
 }
 
-  /* We want buttons to be side by side on larger screens
+/* We want buttons to be side by side on larger screens
   but stack on top of each other on mobile*/
-  .modalAction {
+.modalAction {
   display: flex;
-  flex-direction: column;  // stack buttons on mobile
+  flex-direction: column; // stack buttons on mobile
   gap: 1rem;
   margin-top: 1rem;
 
-  > div {
+  >div {
     width: 100%; // buttons fill width on mobile
   }
 
@@ -101,7 +102,7 @@
     flex-direction: row-reverse; // Reverse order: Save on right
     justify-content: space-between;
 
-    > div {
+    >div {
       width: auto; // let buttons size to content
       flex: 0 0 auto;
     }
@@ -128,12 +129,13 @@
   border-radius: 50%;
   border: none;
 }
+
 /*End Button styles*/
 
 // sample text font size should be smaller than main content
 .sampleText {
   p {
-  font-size: var(--fs-small);
+    font-size: var(--fs-small);
   }
 }
 
@@ -152,15 +154,16 @@
 
 /* For link to jump down to Guidance section*/
 .guidanceLink {
-      font-size: var(--fs-small);
-      color: var(--slate-800);
-      margin-top: var(--space-1);
-      display: inline-block;
+  font-size: var(--fs-small);
+  color: var(--slate-800);
+  margin-top: var(--space-1);
+  display: inline-block;
 }
 
 .guidanceLinkWrapper {
   display: flex;
 }
+
 /* End For link to jump down to Guidance section*/
 
 
@@ -193,4 +196,15 @@
   align-items: center;
   gap: 0.25rem;
 }
+
 /*End 'Required by funder' info icon tooltip*/
+
+
+.pageQuestionPageTitle h1 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  -webkit-line-clamp: 3;
+}

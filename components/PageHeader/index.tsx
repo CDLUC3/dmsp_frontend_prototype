@@ -54,7 +54,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <div className="pageheader-container">
         {/* Title and description section */}
         <div className="">
-          <h1 className="pageheader-title">{plainTitle}</h1>
+          <h1 className="pageheader-title" aria-label={plainTitle}>{plainTitle}</h1>
           {description && (
             <p className="pageheader-intro">
               {description}

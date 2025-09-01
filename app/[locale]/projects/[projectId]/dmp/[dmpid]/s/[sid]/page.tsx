@@ -42,6 +42,9 @@ const PlanOverviewSectionPage: React.FC = () => {
   const [navPosition, setNavPosition] = useState({ left: '20px', top: '20px', display: 'block' });
   // Store the initial navigation position to prevent upward movement
   const [initialNavTop, setInitialNavTop] = useState<number | null>(null);
+  // Mobile navigation state
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   // Validate that dmpId is a valid number
   const planId = parseInt(dmpId);
@@ -63,6 +66,14 @@ const PlanOverviewSectionPage: React.FC = () => {
 
   // Calculate navigation position and visibility
   useEffect(() => {
+    const checkMobile = () => {
+      const windowWidth = window.innerWidth;
+      const isMobileView = windowWidth < 1024; // Adjust breakpoint as needed
+      setIsMobile(isMobileView);
+      if (isMobileView) {
+        setIsMobileNavOpen(false); // Close mobile nav when switching to mobile
+      }
+    };
 
     const calculateNavPosition = () => {
       const windowWidth = window.innerWidth;
@@ -202,6 +213,7 @@ const PlanOverviewSectionPage: React.FC = () => {
     const handleResize = () => {
       // Reset initial position on resize to recalculate properly
       setInitialNavTop(null);
+      checkMobile();
       calculateNavPosition();
     };
 
@@ -219,6 +231,8 @@ const PlanOverviewSectionPage: React.FC = () => {
     window.addEventListener('resize', handleResize);
     window.addEventListener('load', calculateNavPosition, { passive: true });
     
+    // Check if mobile on initial load
+    checkMobile();
     // Calculate initial position with multiple attempts
     calculateWithRetry();
 
@@ -311,48 +325,110 @@ const PlanOverviewSectionPage: React.FC = () => {
         className="page-project-list"
       />
 
-      {/* Plan navigation positioned outside content flow */}
-      <nav
-        className={styles.planNavigation}
-        style={{ 
-          display: navPosition.display,
-          left: navPosition.left,
-          top: navPosition.top
-        }}
-        aria-labelledby="plan-nav-title"
-      >
-        <h2 id="plan-nav-title" className={styles.srOnly}>Plan Navigation</h2>
-
-        <Link
-          href={routePath('projects.dmp.show', { projectId, dmpId })}
-          className={styles.planOverviewLink}
-          aria-label="Go to plan overview"
+      {/* Desktop navigation positioned outside content flow */}
+      {!isMobile && (
+        <nav
+          className={styles.planNavigation}
+          style={{ 
+            display: navPosition.display,
+            left: navPosition.left,
+            top: navPosition.top
+          }}
+          aria-labelledby="plan-nav-title"
         >
-          {Global('breadcrumbs.planOverview')}
-        </Link>
+          <h2 id="plan-nav-title" className={styles.srOnly}>Plan Navigation</h2>
 
-        {planSections.length > 0 && (
-          <ul className={styles.sectionsList} role="list" aria-label="Plan sections">
-            {planSections.map((section) => (
-              <li key={section.versionedSectionId}>
-                <Link
-                  href={routePath('projects.dmp.versionedSection', {
-                    projectId,
-                    dmpId,
-                    versionedSectionId: section.versionedSectionId
-                  })}
-                  className={`${styles.sectionLink} ${section.versionedSectionId === versionedSectionId ? styles.currentSection : ''
-                    }`}
-                  aria-label={`Go to ${section.title} section`}
-                  aria-current={section.versionedSectionId === versionedSectionId ? 'page' : undefined}
-                >
-                  {section.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </nav>
+          <Link
+            href={routePath('projects.dmp.show', { projectId, dmpId })}
+            className={styles.planOverviewLink}
+            aria-label="Go to plan overview"
+          >
+            {Global('breadcrumbs.planOverview')}
+          </Link>
+
+          {planSections.length > 0 && (
+            <ul className={styles.sectionsList} role="list" aria-label="Plan sections">
+              {planSections.map((section) => (
+                <li key={section.versionedSectionId}>
+                  <Link
+                    href={routePath('projects.dmp.versionedSection', {
+                      projectId,
+                      dmpId,
+                      versionedSectionId: section.versionedSectionId
+                    })}
+                    className={`${styles.sectionLink} ${section.versionedSectionId === versionedSectionId ? styles.currentSection : ''
+                      }`}
+                    aria-label={`Go to ${section.title} section`}
+                    aria-current={section.versionedSectionId === versionedSectionId ? 'page' : undefined}
+                  >
+                    {section.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </nav>
+      )}
+
+      {/* Mobile navigation - collapsible panel */}
+      {isMobile && (
+        <div className={styles.mobileNavContainer}>
+          <button
+            className={styles.mobileNavToggle}
+            onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+            aria-expanded={isMobileNavOpen}
+            aria-controls="mobile-nav-panel"
+            aria-label={isMobileNavOpen ? 'Close sections navigation' : 'Open sections navigation'}
+          >
+            <span className={styles.toggleText}>Sections</span>
+            <span className={`${styles.toggleIcon} ${isMobileNavOpen ? styles.toggleIconOpen : ''}`}>
+              ▼
+            </span>
+          </button>
+          
+          <div 
+            id="mobile-nav-panel"
+            className={`${styles.mobileNavPanel} ${isMobileNavOpen ? styles.mobileNavPanelOpen : ''}`}
+            aria-hidden={!isMobileNavOpen}
+          >
+            <nav aria-labelledby="mobile-plan-nav-title">
+              <h2 id="mobile-plan-nav-title" className={styles.srOnly}>Plan Navigation</h2>
+              
+              <Link
+                href={routePath('projects.dmp.show', { projectId, dmpId })}
+                className={styles.mobilePlanOverviewLink}
+                aria-label="Go to plan overview"
+                onClick={() => setIsMobileNavOpen(false)}
+              >
+                {Global('breadcrumbs.planOverview')}
+              </Link>
+
+              {planSections.length > 0 && (
+                <ul className={styles.mobileSectionsList} role="list" aria-label="Plan sections">
+                  {planSections.map((section) => (
+                    <li key={section.versionedSectionId}>
+                      <Link
+                        href={routePath('projects.dmp.versionedSection', {
+                          projectId,
+                          dmpId,
+                          versionedSectionId: section.versionedSectionId
+                        })}
+                        className={`${styles.mobileSectionLink} ${section.versionedSectionId === versionedSectionId ? styles.currentSection : ''
+                          }`}
+                        aria-label={`Go to ${section.title} section`}
+                        aria-current={section.versionedSectionId === versionedSectionId ? 'page' : undefined}
+                        onClick={() => setIsMobileNavOpen(false)}
+                      >
+                        {section.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </nav>
+          </div>
+        </div>
+      )}
 
       <LayoutWithPanel>
         <ContentContainer>

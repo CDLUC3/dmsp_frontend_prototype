@@ -1052,7 +1052,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   return (
       <>
         <PageHeader
-            title={plan?.title ?? ''}
+            title={question?.questionText ?? 'Question'}
             description=""
             showBackButton={true}
             breadcrumbs={
@@ -1070,7 +1070,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
               </Breadcrumbs>
             }
             actions={null}
-            className="page-project-list"
+        className={styles.pageQuestionPageTitle}
         />
 
         <ErrorMessages errors={errors} ref={errorRef} />
@@ -1091,7 +1091,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
               {/**Requirements by organization */}
               <section aria-label={"Requirements"}>
-                <h3 className={"h4"}>Requirements by University of California</h3>
+                <h3 className={"h4 mt-0"}>Requirements by University of California</h3>
                 <p>
                   The university requires data and metadata to be cleared by the ethics
                   committee before being submitted to funder.

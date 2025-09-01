@@ -136,6 +136,14 @@
   line-height: 1.4;
   font-weight: 400;
 
+  &:visited {
+    color: var(--gray-600);
+    text-decoration-color: var(--gray-200);
+  }
+
+
+
+
   &:hover {
     color: var(--blue-600);
     text-decoration-color: var(--blue-600);
@@ -159,4 +167,76 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Mobile Navigation Styles */
+.mobileNavContainer {
+  margin-bottom: var(--space-3);
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+.mobileNavToggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--layout-content-padding, var(--brand-space2));
+  background: none;
+  border: none;
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: var(--gray-600);
+  cursor: pointer;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.toggleIcon {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+  color: var(--gray-400);
+}
+
+.toggleIconOpen {
+  transform: rotate(180deg);
+}
+
+.mobileNavPanel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.mobileNavPanelOpen {
+  max-height: 300px;
+}
+
+.mobilePlanOverviewLink {
+  display: block;
+  color: var(--gray-600);
+  padding: var(--space-2) var(--layout-content-padding, var(--brand-space2));
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.mobileSectionsList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mobileSectionLink {
+  display: block;
+  color: var(--gray-500);
+  text-decoration: none;
+  padding: var(--space-2) var(--layout-content-padding, var(--brand-space2)) var(--space-2) calc(var(--layout-content-padding, var(--brand-space2)) + var(--space-3));
+  font-size: var(--fs-sm);
+
+  &.currentSection {
+    color: var(--gray-700);
+    font-weight: 500;
+  }
 }

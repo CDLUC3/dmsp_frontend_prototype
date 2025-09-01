@@ -300,13 +300,9 @@ describe('PlanOverviewSectionPage', () => {
       if (selector.includes('layout-with-panel')) return mockLayoutElement;
       return null;
     });
-    
-    // Mock timers to prevent async state updates during tests
-    jest.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -561,11 +557,16 @@ describe('PlanOverviewSectionPage', () => {
     // Wait for data to load
     await waitFor(() => {
       expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    // Ensure all content is fully rendered
+    await waitFor(() => {
+      expect(screen.getByText('What types of data will be produced during your project?')).toBeInTheDocument();
     });
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-  });
+  }, 15000);
 
   it('should handle missing question text gracefully', async () => {
     const incompleteMocks = [

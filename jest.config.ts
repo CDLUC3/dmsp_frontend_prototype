@@ -15,6 +15,9 @@ const config = {
     '^@fortawesome/.*$': '<rootDir>/__mocks__/styleMock.js',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  fakeTimers: {
+    enableGlobally: true,
+  },
   collectCoverage: true,
   collectCoverageFrom: [
     "app/**",  // Include all pages
