@@ -1,0 +1,31 @@
+mutation RemoveFeedbackComment($planId: Int!, $planFeedbackCommentId: Int!) {
+  removeFeedbackComment(planId: $planId, planFeedbackCommentId: $planFeedbackCommentId) {
+    id
+    errors {
+      general
+    }
+    answerId
+    commentText
+  }
+}
+
+mutation UpdateFeedbackComment($planId: Int!, $planFeedbackCommentId: Int!, $commentText: String!) {
+  updateFeedbackComment(planId: $planId, planFeedbackCommentId: $planFeedbackCommentId, commentText: $commentText) {
+    answerId
+    commentText
+    id
+    errors {
+      general
+    }
+  }
+}
+mutation AddFeedbackComment($planId: Int!, $planFeedbackId: Int!, $answerId: Int!, $commentText: String!) {
+  addFeedbackComment(planId: $planId, planFeedbackId: $planFeedbackId, answerId: $answerId, commentText: $commentText) {
+    id
+    answerId
+    commentText
+    errors {
+      general
+    }
+  }
+}

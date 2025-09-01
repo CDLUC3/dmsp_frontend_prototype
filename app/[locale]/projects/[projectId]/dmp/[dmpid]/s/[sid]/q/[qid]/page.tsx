@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import classNames from 'classnames';
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -11,12 +10,9 @@ import {
   Dialog,
   DialogTrigger,
   Form,
-  Label,
   Link,
   OverlayArrow,
   Popover,
-  TextArea,
-  TextField
 } from "react-aria-components";
 import { CalendarDate, DateValue } from "@internationalized/date";
 import DOMPurify from 'dompurify';
@@ -31,6 +27,7 @@ import {
 } from "@/components/Container";
 
 import {
+  useMeQuery,
   usePlanQuery,
   usePublishedQuestionQuery,
   useAnswerByVersionedQuestionIdQuery,
@@ -44,6 +41,7 @@ import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON'
 import { DmpIcon } from "@/components/Icons";
 import { useRenderQuestionField } from '@/components/hooks/useRenderQuestionField';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
+import CommentsDrawer from './CommentsDrawer';
 
 // Context
 import { useToast } from '@/context/ToastContext';
@@ -51,16 +49,22 @@ import { useToast } from '@/context/ToastContext';
 // Utils
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { QuestionType } from '@dmptool/types';
+import { stripHtmlTags } from '@/utils/general';
+import { QuestionTypeMap } from '@dmptool/types';
 
 import {
   Question,
+  MergedComment
 } from '@/app/types';
 
+// server action mutations
 import {
   addAnswerAction,
-  updateAnswerAction
+  updateAnswerAction,
 } from './actions';
+
+//hooks
+import { useComments } from './hooks/useComments';
 
 interface FormDataInterface {
   otherField: boolean;
@@ -108,11 +112,18 @@ interface MutationErrorsInterface {
   versionedQuestionId: string | null;
   versionedSectionId: string | null;
 }
+
 interface PlanData {
   funder: string;
   funderName: string;
   title: string;
+  openFeedbackRounds: boolean;
+  feedbackId?: number | null;
+  orgId: string;
+  collaborators: number[];
+  planOwners: number[] | null;
 }
+
 
 const PlanOverviewQuestionPage: React.FC = () => {
   const params = useParams();
@@ -121,15 +132,22 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const projectId = params.projectId as string;
   const versionedSectionId = params.sid as string;
   const versionedQuestionId = params.qid as string;
+  const locale = params.locale as string;
   const toastState = useToast(); // Access the toast state from context
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Ref for scrolling to bottom of comments
+  const commentsEndRef = useRef<HTMLDivElement | null>(null);
+
 
   // VersionedQuestion, plan and versionedSection states
   const [question, setQuestion] = useState<Question>();
   const [plan, setPlan] = useState<PlanData>();
   const [questionType, setQuestionType] = useState<string>('');
   const [parsed, setParsed] = useState<AnyParsedQuestion>();
+  const [answerId, setAnswerId] = useState<number | null>(null);
+
   const [errors, setErrors] = useState<string[]>([]);
 
   // Drawer states
@@ -193,6 +211,9 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
+  // Run me query to get user's name
+  const { data: me } = useMeQuery();
+
   // Get Plan using planId
   const { data: planData, loading: planQueryLoading, error: planQueryError } = usePlanQuery(
     {
@@ -201,17 +222,47 @@ const PlanOverviewQuestionPage: React.FC = () => {
     }
   );
 
-  // Get loadAnswer to call later, after we set the versionedQuestionId
+  // Get answer data
   const { data: answerData, loading: answerLoading, error: answerError } = useAnswerByVersionedQuestionIdQuery(
     {
       variables: {
         projectId: Number(projectId),
         planId: Number(dmpId),
         versionedQuestionId: Number(versionedQuestionId)
-      }
+      },
+      notifyOnNetworkStatusChange: true
     }
   );
 
+  // Comments state and handlers hook
+  const {
+    // State
+    mergedComments,
+    editingCommentId,
+    editingCommentText,
+    canAddComments,
+    errors: commentErrors,
+
+    // Setters
+    setEditingCommentText,
+    setCommentsFromData,
+    updateCanAddComments,
+
+    // Handlers
+    handleAddComment,
+    handleDeleteComment,
+    handleEditComment,
+    handleUpdateComment,
+    handleCancelEdit
+  } = useComments({
+    dmpId,
+    planFeedbackId: plan?.feedbackId,
+    me,
+    planOrgId: plan?.orgId,
+    openFeedbackRounds: plan?.openFeedbackRounds,
+    planOwners: plan?.planOwners,
+    collaborators: plan?.collaborators
+  });
 
   // Show Success Message
   const showSuccessToast = () => {
@@ -241,19 +292,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setIsSideBarPanelOpen(true);
     setSampleTextDrawerOpen(false);
     setCommentsDrawerOpen(false);
-  }
-
-  // Close all drawer panels. One scenario is when the user clicks on the masked content.
-  const closeDrawers = (e?: React.MouseEvent<HTMLDivElement, MouseEvent> | React.MouseEvent<Element, MouseEvent>) => {
-    setIsSideBarPanelOpen(true);
-
-    // Only close if clicking on the mask/backdrop, not the drawer content
-    if (e && e.target === e.currentTarget) {
-      if (isCommentsDrawerOpen || isSampleTextDrawerOpen) {
-        setSampleTextDrawerOpen(false);
-        setCommentsDrawerOpen(false);
-      }
-    }
   }
 
   function buildSetContent<T extends keyof FormDataInterface>(
@@ -286,40 +324,34 @@ const PlanOverviewQuestionPage: React.FC = () => {
       }
 
       // message user
-      toastState.add('Sample text added', { type: 'success', timeout: 3000 });
+      toastState.add(t('messages.sampleTextAdded'), { type: 'success', timeout: 3000 });
     }
   }
 
-  // When the user adds a comment in the Comments drawer panel
-  const handleAddComment = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    /*TODO: when the backend has been updated, we will be able to update this function*/
-    // Close comments drawer
-    closeCurrentDrawer();
-
-    // Return focus to sample text button
-    if (openCommentsButtonRef.current) {
-      openCommentsButtonRef.current.focus();
-    }
-
-    // message user
-    toastState.add('Comment sent', { type: 'success', timeout: 3000 });
-  }
 
   const convertToHTML = (htmlString: string | null | undefined) => {
     if (htmlString) {
       const sanitizedHTML = DOMPurify.sanitize(htmlString);
       return (
-          <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
+        <div dangerouslySetInnerHTML={{ __html: sanitizedHTML }} />
       );
     }
     return null;
   };
 
+  const updateCommentHandler = async (comment: MergedComment) => {
+    handleUpdateComment(comment);
+    // Keep drawer open so the user can see that they comment changed
+    setCommentsDrawerOpen(true);
+  }
+
+
+  const addCommentHandler = async (e: React.FormEvent<HTMLFormElement>, newComment: string) => {
+    e.preventDefault();
+    handleAddComment(e, answerId!, newComment);
+  }
 
   // Handling changes to different question types
-
   const handleAffiliationChange = async (id: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -419,7 +451,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Handler for date change
   const handleDateChange = (
-      value: string | DateValue | CalendarDate | null
+    value: string | DateValue | CalendarDate | null
   ) => {
     setFormData(prev => ({
       ...prev,
@@ -430,8 +462,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Handler for date range changes
   const handleDateRangeChange = (
-      key: string,
-      value: string | DateValue | CalendarDate | null
+    key: string,
+    value: string | DateValue | CalendarDate | null
   ) => {
     setFormData(prev => ({
       ...prev,
@@ -517,8 +549,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
         break;
       case 'multiselectBox':
         setFormData(prev => ({
-        ...prev,
-        selectedMultiSelectValues: new Set(answer)
+          ...prev,
+          selectedMultiSelectValues: new Set(answer)
         }));
         break;
       case 'boolean':
@@ -588,7 +620,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
               affiliationName: answer.affiliationName
             },
             otherField: answer.isOther,
-            otherAffiliationName: answer.affiliationName
+            otherAffiliationName: ''
           }));
         }
         break;
@@ -710,14 +742,14 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // GraphQL mutation returns errors
   const hasFieldLevelErrors = (mutationErrors: MutationErrorsInterface): boolean => {
     return Object.values(mutationErrors).some(
-        value => value !== null && value !== undefined
+      value => value !== null && value !== undefined
     );
   };
 
   // Extract the errors from the graphql mutation result
   const getExtractedErrorValues = (mutationErrors: MutationErrorsInterface): string[] => {
     return Object.values(mutationErrors).filter(
-        (value) => value !== null && value !== undefined
+      (value) => value !== null && value !== undefined
     );
   };
 
@@ -735,16 +767,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
     if (selectedQuestion) {
       try {
         const response = isUpdate
-            ? await updateAnswerAction({
-              answerId: Number(answerData?.answerByVersionedQuestionId?.id),
-              json: JSON.stringify(jsonPayload),
-            })
-            : await addAnswerAction({
-              planId: Number(dmpId),
-              versionedSectionId: Number(versionedSectionId),
-              versionedQuestionId: Number(versionedQuestionId),
-              json: JSON.stringify(jsonPayload),
-            });
+          ? await updateAnswerAction({
+            answerId: Number(answerData?.answerByVersionedQuestionId?.id),
+            json: JSON.stringify(jsonPayload),
+          })
+          : await addAnswerAction({
+            planId: Number(dmpId),
+            versionedSectionId: Number(versionedSectionId),
+            versionedQuestionId: Number(versionedQuestionId),
+            json: JSON.stringify(jsonPayload),
+          });
 
         if (response.redirect) {
           router.push(response.redirect);
@@ -888,18 +920,39 @@ const PlanOverviewQuestionPage: React.FC = () => {
         router.push('/not-found')
       }
 
+      const planOwners = [
+        // Include the original plan creator if it exists
+        ...(planData?.plan?.createdById ? [planData.plan.createdById] : []),
+        // Include collaborators with role="OWN"
+        ...(planData?.plan?.project?.collaborators
+          ?.filter(c => c?.accessLevel === "OWN")
+          ?.map(c => c?.user?.id)
+          ?.filter((id): id is number => id != null) ?? [])
+      ];
+
+      // Remove duplicates from planOwners in case the creator is also listed as a collaborator with OWN role
+      const uniquePlanOwners = [...new Set(planOwners)];
+
       const planInfo = {
         funder: planData?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
         funderName: planData?.plan?.project?.fundings?.[0]?.affiliation?.name ?? '',
-        title: planData?.plan?.project?.title ?? ''
+        title: planData?.plan?.project?.title ?? '',
+        openFeedbackRounds: planData?.plan?.feedback?.some(f => f.completed == null) ?? false, // If any of the feedback rounds have not yet been completed
+        feedbackId: planData?.plan?.feedback?.find(item => item.completed === null)?.id, //Get first feedback id where it has not yet been completed
+        orgId: planData?.plan?.versionedTemplate?.owner?.uri ?? '', //affiliation id for plan
+        collaborators: planData?.plan?.project?.collaborators
+          ?.map(c => c?.user?.id)
+          .filter((id): id is number => id != null) ?? [], //filter out any null or undefined for projectCollaborators
+        planOwners: uniquePlanOwners ?? null, //plan owner
       }
+
       setPlan(planInfo);
     };
   }, [planData]);
 
 
-  //Wait for answerData and questionType, then prefill the question with existing answer
   useEffect(() => {
+    //Wait for answerData and questionType, then prefill the question with existing answer
     const json = answerData?.answerByVersionedQuestionId?.json;
     if (json && questionType) {
       const parsed = JSON.parse(json);
@@ -907,6 +960,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
         prefillAnswer(parsed.answer, questionType);
       }
     }
+
+    // Combine both answerComments and feedbackComments into one, and save in state after ordering
+    const answerComments = answerData?.answerByVersionedQuestionId?.comments;
+    const feedbackComments = answerData?.answerByVersionedQuestionId?.feedbackComments;
+
+    // Set comments from both answer and feedback comments into mergedComments state
+    setCommentsFromData(answerComments, feedbackComments);
+
+    setAnswerId(answerData?.answerByVersionedQuestionId?.id ?? null);
+
   }, [answerData, questionType]);
 
 
@@ -927,7 +990,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
     return () => clearTimeout(autoSaveTimeoutRef.current);
   }, [formData, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
-
 
 
   // Auto-save on window blur and before unload
@@ -969,6 +1031,16 @@ const PlanOverviewQuestionPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Set whether current user can add comments based on their role and plan data
+    updateCanAddComments();
+  }, [me, planData, plan])
+
+  // Set errors from commentErrors state
+  useEffect(() => {
+    setErrors((prevErrors) => [...prevErrors, ...commentErrors]);
+  }, [commentErrors])
+
   // Render the question using the useRenderQuestionField helper
   const questionField = useRenderQuestionField({
     questionType,
@@ -978,7 +1050,12 @@ const PlanOverviewQuestionPage: React.FC = () => {
       handleTextChange,
     },
     textAreaProps: {
-      content: formData.textAreaContent,
+      content:
+        !formData.textAreaContent &&
+          question?.useSampleTextAsDefault &&
+          !!question?.sampleText
+          ? question.sampleText
+          : formData.textAreaContent,
       setContent: buildSetContent('textAreaContent', setFormData),
       handleTextAreaChange
     },
@@ -1073,276 +1150,254 @@ const PlanOverviewQuestionPage: React.FC = () => {
         className={styles.pageQuestionPageTitle}
         />
 
-        <ErrorMessages errors={errors} ref={errorRef} />
+      <ErrorMessages errors={errors} ref={errorRef} />
 
-        <LayoutWithPanel
-            onClick={e => closeDrawers(e)}
-            className={classNames('layout-mask', { 'drawer-open': isSampleTextDrawerOpen || isCommentsDrawerOpen })}
-        >
-          <ContentContainer>
-            <div className="container">
-              {/**Requirements by funder */}
-              {question?.requirementText && (
-                  <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
-                    <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
-                    {convertToHTML(question?.requirementText)}
-                  </section>
-              )}
+      <LayoutWithPanel>
+        <ContentContainer>
+          <div className="container">
+            {/**Requirements by funder */}
+            {question?.requirementText && (
+              <section aria-label={PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}>
+                <h3 className={"h4"}>{PlanOverview('page.requirementsBy', { funder: plan?.funder ?? '' })}</h3>
+                {convertToHTML(question?.requirementText)}
+              </section>
+            )}
 
-              {/**Requirements by organization */}
-              <section aria-label={"Requirements"}>
-                <h3 className={"h4 mt-0"}>Requirements by University of California</h3>
+            {/**Requirements by organization */}
+            <section aria-label={"Requirements"}>
+              {/**TODO: need to get this data from backend */}
+              <h3 className={"h4 mt-0"}>Requirements by University of California</h3>
+              <p>
+                The university requires data and metadata to be cleared by the ethics
+                committee before being submitted to funder.
+              </p>
+            </section>
+
+            <p className={styles.guidanceLinkWrapper}>
+              <DmpIcon icon="down_arrow" />
+              <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
+            </p>
+            <Form onSubmit={handleSubmit}>
+              <Card data-testid='question-card'>
+                <span>Question</span>
+                <h2 id="question-title" className="h3">
+                  {stripHtmlTags(question?.questionText)}
+                </h2>
+                {question?.required && (
+                  <div className={styles.requiredWrapper}>
+                    <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
+                    <DialogTrigger>
+                      <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
+                      <Popover>
+                        <OverlayArrow>
+                          <svg width={12} height={12} viewBox="0 0 12 12">
+                            <path d="M0 0 L6 6 L12 0" />
+                          </svg>
+                        </OverlayArrow>
+                        <Dialog>
+                          <div className="flex-col">
+                            {PlanOverview('page.requiredByFunderInfo')}
+                          </div>
+                        </Dialog>
+                      </Popover>
+                    </DialogTrigger>
+                  </div>
+                )}
+                <div>
+                  <div className={styles.buttonsRow}>
+                    {/**Only include sample text button for textArea question types and if sampleText is not empty */}
+                    {(questionType === 'textArea' && question?.sampleText) && (
+                      <Button
+                        ref={openSampleTextButtonRef}
+                        className={`${styles.buttonSmall} tertiary`}
+                        data-secondary
+                        onPress={toggleSampleTextDrawer}
+                      >
+                        {PlanOverview('page.viewSampleAnswer')}
+                      </Button>
+                    )}
+
+                    {/**Only show comments if an answer has been saved so far */}
+                    {answerId && (
+                      <Button
+                        ref={openCommentsButtonRef}
+                        className={`${styles.buttonSmall} ${mergedComments.length > 0 ? styles.buttonWithComments : null}`}
+                        onPress={toggleCommentsDrawer}
+                      >
+                        {t('buttons.commentWithNumber', { number: mergedComments.length })}
+                      </Button>
+                    )}
+
+                  </div>
+                  {parsed && questionField}
+
+                </div>
+                <div className="lastSaved mt-5"
+                  aria-live="polite"
+                  role="status">
+                  {getLastSavedText()}
+                </div>
+              </Card>
+
+              <section aria-label={"Guidance"} id="guidance">
+                <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { funder: plan?.funder ?? '' })}</h3>
+
+                {convertToHTML(question?.guidanceText)}
+
+
+                <h3 className={"h4"}>Guidance by University of California</h3>
                 <p>
-                  The university requires data and metadata to be cleared by the ethics
-                  committee before being submitted to funder.
+                  This is the most detailed section of the data management plan.
+                  Describe the categories of data being collected and how they tie
+                  into the data associated with the methods used to collect that
+                  data.
+                </p>
+                <p>
+                  Expect this section to be the most detailed section, taking up a
+                  large portion of your data management plan document.
                 </p>
               </section>
-
-              <p className={styles.guidanceLinkWrapper}>
-                <DmpIcon icon="down_arrow" />
-                <Link href="#guidance" className={`${styles.guidanceLink} react-aria-Link`}>{PlanOverview('page.jumpToGuidance')}</Link>
-              </p>
-              <Form onSubmit={handleSubmit}>
-                <Card data-testid='question-card'>
-                  <span>Question</span>
-                  <h2 id="question-title" className="h3">
-                    {question?.questionText}
-                  </h2>
-                  {question?.required && (
-                      <div className={styles.requiredWrapper}>
-                        <div><strong>{PlanOverview('page.requiredByFunder')}</strong></div>
-                        <DialogTrigger>
-                          <Button className={`${styles.popOverButton} react-aria-Button`} aria-label="Required by funder"><div className={styles.infoIcon}><DmpIcon icon="info" /></div></Button>
-                          <Popover>
-                            <OverlayArrow>
-                              <svg width={12} height={12} viewBox="0 0 12 12">
-                                <path d="M0 0 L6 6 L12 0" />
-                              </svg>
-                            </OverlayArrow>
-                            <Dialog>
-                              <div className="flex-col">
-                                {PlanOverview('page.requiredByFunderInfo')}
-                              </div>
-                            </Dialog>
-                          </Popover>
-                        </DialogTrigger>
-                      </div>
-                  )}
-                  <div>
-                    <div className={styles.buttonsRow}>
-                      {/**Only include sample text button for textArea question types */}
-                      {questionType === 'textArea' && (
-                          <div className="">
-                            <Button
-                                ref={openSampleTextButtonRef}
-                                className={`${styles.buttonSmall} tertiary`}
-                                data-secondary
-                                onPress={toggleSampleTextDrawer}
-                            >
-                              {PlanOverview('page.viewSampleAnswer')}
-                            </Button>
-                          </div>
-                      )}
-
-                      <div className="">
-                        <Button
-                            ref={openCommentsButtonRef}
-                            className={`${styles.buttonSmall} ${styles.buttonWithComments}`}
-                            onPress={toggleCommentsDrawer}
-                        >
-                          4 Comments
-                        </Button>
-                      </div>
-                    </div>
-                    {parsed && questionField}
-
-                  </div>
-                  <div className="lastSaved mt-5"
-                       aria-live="polite"
-                       role="status">
-                    {getLastSavedText()}
-                  </div>
-                </Card>
-
-                <section aria-label={"Guidance"} id="guidance">
-                  <h3 className={"h4"}>{PlanOverview('page.guidanceBy', { funder: plan?.funder ?? '' })}</h3>
-
-                  {convertToHTML(question?.guidanceText)}
-
-
-                  <h3 className={"h4"}>Guidance by University of California</h3>
-                  <p>
-                    This is the most detailed section of the data management plan.
-                    Describe the categories of data being collected and how they tie
-                    into the data associated with the methods used to collect that
-                    data.
-                  </p>
-                  <p>
-                    Expect this section to be the most detailed section, taking up a
-                    large portion of your data management plan document.
-                  </p>
-                </section>
-                <div className={styles.modalAction}>
-                  <div>
-                    <Button
-                        type="submit"
-                        data-secondary
-                        className="primary"
-                        aria-label={PlanOverview('labels.saveAnswer')}
-                        aria-disabled={isSubmitting}
-                    >
-                      {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
-                    </Button>
-                  </div>
-                  <div>
-                    <Button
-                        className="secondary"
-                        aria-label={PlanOverview('labels.returnToSection')}
-                        onPress={() => handleBackToSection()}
-                    >
-                      {PlanOverview('buttons.backToSection')}
-                    </Button>
-                  </div>
-
-                </div>
-              </Form>
-            </div>
-          </ContentContainer >
-
-          <SidebarPanel isOpen={isSideBarPanelOpen}>
-
-            <div className={styles.headerWithLogo}>
-              <h2 className="h4">{Global('bestPractice')}</h2>
-              <Image
-                  className={styles.Logo}
-                  src="/images/DMP-logo.svg"
-                  width="140"
-                  height="16"
-                  alt="DMP Tool"
-              />
-            </div>
-
-
-            <ExpandableContentSection
-                id="data-description"
-                heading={Global('dataDescription')}
-                expandLabel={Global('links.expand')}
-                summaryCharLimit={200}
-            >
-              <p>
-                Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
-              </p>
-              <p>
-                Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
-              </p>
-              <p>
-                Indicate which data are of long-term value and should be shared and/or preserved.
-
-              </p>
-              <p>
-                If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
-
-              </p>
-
-            </ExpandableContentSection>
-
-            <ExpandableContentSection
-                id="data-format"
-                heading={Global('dataFormat')}
-                expandLabel={Global('links.expand')}
-                summaryCharLimit={200}
-
-            >
-              <p>
-                Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
-              </p>
-
-            </ExpandableContentSection>
-
-            <ExpandableContentSection
-                id="data-volume"
-                heading={Global('dataVolume')}
-                expandLabel={Global('links.expand')}
-                summaryCharLimit={200}
-            >
-              <p>
-                Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
-              </p>
-              <p>
-                Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
-              </p>
-              <p>
-                Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
-              </p>
-            </ExpandableContentSection>
-          </SidebarPanel>
-
-          {/** Sample text drawer. Only include for question types = Text Area */}
-          {
-              questionType === 'textArea' && (
-                  <DrawerPanel
-                      isOpen={isSampleTextDrawerOpen}
-                      onClose={closeCurrentDrawer}
-                      returnFocusRef={openSampleTextButtonRef}
-                      className={styles.drawerPanelWrapper}
-                  >
-                    <h3>{question?.questionText}</h3>
-                    <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
-                    <div className={styles.sampleText}>
-                      {convertToHTML(question?.sampleText)}
-                    </div>
-                    <div className="">
-                      <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
-                    </div>
-                  </DrawerPanel>
-              )
-          }
-
-
-          {/**Comments drawer */}
-          <DrawerPanel
-              isOpen={isCommentsDrawerOpen}
-              onClose={closeCurrentDrawer}
-              returnFocusRef={openCommentsButtonRef}
-              className={styles.drawerPanelWrapper}
-          >
-            <h2>{PlanOverview('headings.comments')}</h2>
-            <div className={styles.comment}>
-              <h4>John Smith</h4>
-              <p className={styles.deEmphasize}>2 days ago</p>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat.
-              </p>
-            </div>
-
-            <div className={styles.comment}>
-              <h4>John Smith</h4>
-              <p className={styles.deEmphasize}>2 days ago</p>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat.
-              </p>
-            </div>
-
-            <div className={styles.leaveComment}>
-              <h2>{PlanOverview('headings.leaveAComment')}</h2>
-              <Form onSubmit={(e) => handleAddComment(e)}>
-                <TextField>
-                  <Label>Frederick Cook (you)</Label>
-                  <TextArea />
-                </TextField>
+              <div className={styles.modalAction}>
                 <div>
-                  <Button type="submit" className={`${styles.buttonSmall}`}>{PlanOverview('buttons.comment')}</Button>
-                  <p>{PlanOverview('page.participantsWillBeNotified')}</p>
+                  <Button
+                    type="submit"
+                    data-secondary
+                    className="primary"
+                    aria-label={PlanOverview('labels.saveAnswer')}
+                    aria-disabled={isSubmitting}
+                  >
+                    {isSubmitting ? Global('buttons.saving') : Global('buttons.save')}
+                  </Button>
                 </div>
-              </Form>
-            </div>
-          </DrawerPanel>
-        </LayoutWithPanel >
-      </>
+                <div>
+                  <Button
+                    className="secondary"
+                    aria-label={PlanOverview('labels.returnToSection')}
+                    onPress={() => handleBackToSection()}
+                  >
+                    {PlanOverview('buttons.backToSection')}
+                  </Button>
+                </div>
+
+              </div>
+            </Form>
+          </div>
+        </ContentContainer >
+
+        <SidebarPanel isOpen={isSideBarPanelOpen}>
+
+          <div className={styles.headerWithLogo}>
+            <h2 className="h4">{Global('bestPractice')}</h2>
+            <Image
+              className={styles.Logo}
+              src="/images/DMP-logo.svg"
+              width="140"
+              height="16"
+              alt="DMP Tool"
+            />
+          </div>
+
+
+          <ExpandableContentSection
+            id="data-description"
+            heading={Global('dataDescription')}
+            expandLabel={Global('links.expand')}
+            summaryCharLimit={200}
+          >
+            <p>
+              Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data, physical samples, etc.
+            </p>
+            <p>
+              Consider how your data could complement and integrate with existing data, or whether there are any existing data or methods that you could reuse.
+            </p>
+            <p>
+              Indicate which data are of long-term value and should be shared and/or preserved.
+
+            </p>
+            <p>
+              If purchasing or reusing existing data, explain how issues such as copyright and IPR have been addressed. You should aim to minimize any restrictions on the reuse (and subsequent sharing) of third-party data.
+
+            </p>
+
+          </ExpandableContentSection>
+
+          <ExpandableContentSection
+            id="data-format"
+            heading={Global('dataFormat')}
+            expandLabel={Global('links.expand')}
+            summaryCharLimit={200}
+
+          >
+            <p>
+              Clearly note what format(s) your data will be in, e.g., plain text (.txt), comma-separated values (.csv), geo-referenced TIFF (.tif, .tfw).
+            </p>
+
+          </ExpandableContentSection>
+
+          <ExpandableContentSection
+            id="data-volume"
+            heading={Global('dataVolume')}
+            expandLabel={Global('links.expand')}
+            summaryCharLimit={200}
+          >
+            <p>
+              Note what volume of data you will create in MB/GB/TB. Indicate the proportions of raw data, processed data, and other secondary outputs (e.g., reports).
+            </p>
+            <p>
+              Consider the implications of data volumes in terms of storage, access, and preservation. Do you need to include additional costs?
+            </p>
+            <p>
+              Consider whether the scale of the data will pose challenges when sharing or transferring data between sites; if so, how will you address these challenges?
+            </p>
+          </ExpandableContentSection>
+        </SidebarPanel>
+
+
+        {/** Sample text drawer. Only include for question types = Text Area */}
+        {
+          questionType === 'textArea' && (
+            <DrawerPanel
+              isOpen={isSampleTextDrawerOpen}
+              onClose={closeCurrentDrawer}
+              returnFocusRef={openSampleTextButtonRef}
+              className={styles.drawerPanelWrapper}
+            >
+              <h3>{question?.questionText}</h3>
+              <h4 className={`${styles.deEmphasize} h5`}>{PlanOverview('page.funderSampleText', { funder: plan?.funderName ?? '' })}</h4>
+              <div className={styles.sampleText}>
+                {convertToHTML(question?.sampleText)}
+              </div>
+              <div className="">
+                <Button className={`${styles.buttonSmall}`} onPress={() => handleUseAnswer(question?.sampleText)}>{PlanOverview('buttons.useAnswer')}</Button>
+              </div>
+            </DrawerPanel>
+          )
+        }
+
+
+        {/**Comments drawer */}
+        <CommentsDrawer
+          isCommentsDrawerOpen={isCommentsDrawerOpen}
+          closeCurrentDrawer={closeCurrentDrawer}
+          openCommentsButtonRef={openCommentsButtonRef}
+          mergedComments={mergedComments}
+          editingCommentId={editingCommentId}
+          editingCommentText={editingCommentText}
+          setEditingCommentText={setEditingCommentText}
+          handleUpdateComment={updateCommentHandler}
+          handleAddComment={addCommentHandler}
+          handleCancelEdit={handleCancelEdit}
+          handleEditComment={handleEditComment}
+          handleDeleteComment={handleDeleteComment}
+          me={me}
+          locale={locale}
+          commentsEndRef={commentsEndRef}
+          canAddComments={canAddComments}
+        />
+
+
+      </LayoutWithPanel >
+    </>
   );
 }
 

@@ -8,7 +8,35 @@ query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQue
     plan {
       id
     }
+     comments {
+      id
+      commentText
+      answerId
+      created
+      modified
+      user {
+        id
+        surName
+        givenName
+      }
+    }
+    feedbackComments {
+      id
+      commentText
+      created
+      answerId
+      modified
+      PlanFeedback {
+        id
+      }
+      user {
+        id
+        surName
+        givenName
+      }
+    }
     modified
+    created
     errors {
       general
       planId

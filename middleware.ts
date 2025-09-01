@@ -101,7 +101,12 @@ export async function middleware(request: NextRequest) {
   //Refresh tokens if necessary
   if (!accessToken && refreshToken) {
     try {
-      await refreshAuthTokens(cookies);
+      const refreshResult = await refreshAuthTokens(cookies);
+
+      // If refresh helper tells us to redirect, do it now
+      if (refreshResult?.shouldRedirect) {
+        return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+      }
     } catch (error) {
       logECS('error', 'refreshing', {
         error,

@@ -56,7 +56,6 @@
   gap: 0.5rem;
 }
 
-
 /*Button styles*/
 // Wrapper for multiple buttons in a row
 .buttonsRow {
@@ -142,14 +141,16 @@
 // lighter font colors
 .deEmphasize {
   color: var(--text-color-placeholder);
-  font-weight: 300;
+  font-weight: 300 !important;
   font-size: var(--fs-small);
 }
 
 .drawerPanelWrapper {
-  min-height: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden; // Prevent outer scrolling
+
 }
 
 /* For link to jump down to Guidance section*/
@@ -198,6 +199,52 @@
 }
 
 /*End 'Required by funder' info icon tooltip*/
+
+
+/* Comments Drawer Styles */
+
+.commentsWrapper {
+  flex: 1;
+  overflow-y: auto; // Limit scrolling to only the comments list
+  padding-right: 0.5rem; // To avoid scrollbar overlap
+  padding-bottom: 1rem; // Add some breathing room at bottom
+  min-height: 0; // Important: allows flex item to shrink below content size
+}
+
+.leaveComment {
+  border-top: 1px solid var(--border-color, #e2e8f0); // Use a CSS variable or lighter color
+  background-color: white;
+  flex-shrink: 0; // Prevent shrinking
+  padding: 0 1rem;
+  position: sticky;
+  bottom: 0; // Stick to bottom
+  z-index: 1; // Ensure it stays on top
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+
+  .commentTextField {
+  margin-bottom: 0.5rem;
+  }
+}
+
+.comment {
+  margin-bottom: var(--space-8);
+
+  h4 {
+    margin: 0;
+  }
+
+  .createdDate {
+    margin: 0;
+  }
+}
+
+.addCommentButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* End Comments Drawer Styles */
 
 
 .pageQuestionPageTitle h1 {

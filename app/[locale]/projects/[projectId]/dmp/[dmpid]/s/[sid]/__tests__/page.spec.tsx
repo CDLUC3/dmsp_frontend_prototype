@@ -54,6 +54,7 @@ const versionedQuestionsMock = [
     sampleText: 'Sample for question 1',
     versionedSectionId: 456,
     versionedTemplateId: 789,
+    hasAnswer: false,
   },
   {
     id: 2,
@@ -64,6 +65,7 @@ const versionedQuestionsMock = [
     sampleText: 'Sample for question 2',
     versionedSectionId: 456,
     versionedTemplateId: 789,
+    hasAnswer: true,
   },
   {
     id: 3,
@@ -74,6 +76,7 @@ const versionedQuestionsMock = [
     sampleText: 'Sample for question 3',
     versionedSectionId: 456,
     versionedTemplateId: 789,
+    hasAnswer: false,
   },
 ];
 
@@ -127,7 +130,10 @@ const planMock = {
       id: 789,
       name: 'Test Template',
     },
-    name: 'Test Template'
+    name: 'Test Template',
+    owner: {
+      uri: 'https://example.com/owner',
+    }
   },
   fundings: {
     id: 1,
@@ -150,6 +156,12 @@ const planMock = {
       }
     ],
     title: 'Test Project',
+    collaborators: {
+      accessLevel: 'OWN',
+      user: {
+        id: 1
+      },
+    }
   },
   members: [],
   versionedSections: [
@@ -162,9 +174,15 @@ const planMock = {
     },
   ],
   created: '2024-01-01',
+  createdById: 1,
   modified: '2024-01-01',
+  modifiedById: 1,
   dmpId: 'doi-456',
-  registered: true
+  registered: true,
+  feedback: {
+    id: 789,
+    completed: null
+  }
 };
 
 const mocks = [
@@ -172,7 +190,7 @@ const mocks = [
   {
     request: {
       query: PublishedQuestionsDocument,
-      variables: { versionedSectionId: 456 },
+      variables: { planId: 456, versionedSectionId: 456 },
     },
     result: {
       data: {
@@ -211,7 +229,7 @@ const errorMocks = [
   {
     request: {
       query: PublishedQuestionsDocument,
-      variables: { versionedSectionId: 456 },
+      variables: { planId: 456, versionedSectionId: 456 },
     },
     error: new Error('Failed to fetch questions'),
   },
@@ -246,7 +264,7 @@ const emptyQuestionsMocks = [
   {
     request: {
       query: PublishedQuestionsDocument,
-      variables: { versionedSectionId: 456 },
+      variables: { planId: 456, versionedSectionId: 456 },
     },
     result: {
       data: {
@@ -403,7 +421,7 @@ describe('PlanOverviewSectionPage', () => {
 
     // Check progress indicator
     const progressIndicator = firstCard.querySelector('.progressIndicator');
-    expect(progressIndicator).toHaveAttribute('aria-label', 'Question status: Not started');
+    expect(progressIndicator).toHaveAttribute('aria-label', 'Question status: question.notAnswered');
 
     // Check action button
     const actionButton = firstCard.querySelector('a[href*="/q/1"]');
@@ -424,7 +442,10 @@ describe('PlanOverviewSectionPage', () => {
 
     // Check that links are generated correctly
     const questionLinks = screen.getAllByText('sections.start');
-    expect(questionLinks).toHaveLength(3);
+    expect(questionLinks).toHaveLength(2);
+
+    const questionLinksUpdate = screen.getAllByText('sections.update');
+    expect(questionLinksUpdate).toHaveLength(1);
 
     expect(questionLinks[0]).toHaveAttribute(
       'href',
@@ -432,12 +453,29 @@ describe('PlanOverviewSectionPage', () => {
     );
     expect(questionLinks[1]).toHaveAttribute(
       'href',
-      '/en-US/projects/123/dmp/456/s/456/q/2'
-    );
-    expect(questionLinks[2]).toHaveAttribute(
-      'href',
       '/en-US/projects/123/dmp/456/s/456/q/3'
     );
+
+    expect(questionLinksUpdate[0]).toHaveAttribute(
+      'href',
+      '/en-US/projects/123/dmp/456/s/456/q/2'
+    );
+  });
+
+  it('should generate correct completed description for questions', async () => {
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <PlanOverviewSectionPage />
+      </MockedProvider>
+    );
+
+    // Wait for data to load
+    await waitFor(() => {
+      expect(screen.queryByText('Loading questions...')).not.toBeInTheDocument();
+    });
+
+    expect(screen.getAllByLabelText('Question status: question.answered')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Question status: question.notAnswered')).toHaveLength(2);
   });
 
   it('should handle missing section data gracefully', async () => {
@@ -445,7 +483,7 @@ describe('PlanOverviewSectionPage', () => {
       {
         request: {
           query: PublishedQuestionsDocument,
-          variables: { versionedSectionId: 456 },
+          variables: { planId: 456, versionedSectionId: 456 },
         },
         result: {
           data: {
@@ -497,7 +535,7 @@ describe('PlanOverviewSectionPage', () => {
       {
         request: {
           query: PublishedQuestionsDocument,
-          variables: { versionedSectionId: 456 },
+          variables: { planId: 456, versionedSectionId: 456 },
         },
         result: {
           data: {
@@ -573,7 +611,7 @@ describe('PlanOverviewSectionPage', () => {
       {
         request: {
           query: PublishedQuestionsDocument,
-          variables: { versionedSectionId: 456 },
+          variables: { planId: 456, versionedSectionId: 456 },
         },
         result: {
           data: {
@@ -587,6 +625,7 @@ describe('PlanOverviewSectionPage', () => {
                 sampleText: 'Sample for question 1',
                 versionedSectionId: 456,
                 versionedTemplateId: 789,
+                hasAnswer: false,
               },
             ],
           },

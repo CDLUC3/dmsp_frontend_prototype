@@ -58,7 +58,7 @@
       "updateSection": "Editar: {title}"
     },
     "errors": {
-      "invalidDmpId": "ID DMP inválido: O ID DMP fornecido não é válido.",
+      "invalidDmpId": "ID DMP inválido: O ID de DMP fornecido não é válido.",
       "sectionNotFound": "Seção não encontrada: Esta seção não pertence ao plano atual."
     },
     "status": {
@@ -192,8 +192,19 @@
       "unsavedChanges": "Alterações não Salvas",
       "savedJustNow": "Salvo há pouco",
       "lastSavedOneMinuteAgo": "Última salvo há 1 minuto",
-      "lastSaves": "Salvo há {minutes} minutos atrás"
-    }
+      "lastSaves": "Salvo há {minutes} minutos atrás",
+      "noComments": "Não há comentários",
+      "sampleTextAdded": "Exemplo de texto adicionado",
+      "commentSent": "Comentário enviado",
+      "commentDeleted": "Comentário excluído com sucesso",
+      "commentUpdated": "Comentário atualizado com sucesso"
+    },
+    "buttons": {
+      "commentWithNumber": "{number} Comentários"
+    },
+    "you": "você",
+    "admin": "administrador",
+    "edited": "editado"
   },
   "ProjectsProjectFunding": {
     "buttons": {

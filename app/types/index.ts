@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { PlanSectionProgress, TemplateVisibility } from "@/generated/graphql";
+import { PlanSectionProgress, TemplateVisibility, PlanFeedback } from "@/generated/graphql";
 import { AffiliationSearchQuestionType, AnyQuestionType } from '@dmptool/types';
 
 export interface EmailInterface {
@@ -304,6 +304,7 @@ export interface CheckboxGroupProps {
   errorMessage?: string;
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
+  ariaLabel?: string;
 }
 
 export interface ProjectMemberErrorInterface {
@@ -440,3 +441,33 @@ export interface AffiliationSearchQuestionProps {
   handleAffiliationChange: (id: string, value: string) => Promise<void>
   handleOtherAffiliationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
+
+interface User {
+  __typename?: "User";
+  id?: number | null;
+  surName?: string | null;
+  givenName?: string | null;
+}
+
+export interface MergedComment {
+  __typename?: "AnswerComment" | "PlanFeedbackComment";
+  id?: number | null;
+  commentText?: string | null;
+  answerId?: number | null;
+  created?: string | null;
+  type: 'answer' | 'feedback';
+  isAnswerComment: boolean;
+  isFeedbackComment: boolean;
+
+  // Optional fields that may exist on either type
+  user?: User | null;
+  modified?: string | null;
+  PlanFeedback?: PlanFeedback | null;
+}
+
+export type SuggestionInterface = {
+  id: string;
+  displayName: string;
+  uri: string;
+}
+

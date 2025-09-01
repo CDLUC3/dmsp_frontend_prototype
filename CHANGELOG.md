@@ -1,5 +1,11 @@
 
 ### Added
+- Added a `dialog` when removing `project members` so we can message them about the member being removed from all plans and allow users to confirm they want to delete this member [#737]
+- Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
+- Added new mutations to `add`, `update`, and `delete` comments [#321]
+- Added new `CommentList` and `CommentsDrawer` components, and `useComments` hook for the comments list [#321]
+- Added `.js` extension to `import nextJest from "next/jest.js";` in `jest.config.ts` to remove errors when running `npm test`[#662]
+- Added `Pagination` component to be used on different pages with a large number of search results [#686]
 - Added JSON mocks to `__mocks__` for all types of versioned questions (for use with the project/plan pages)
 - Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
 - Added auto-save to the `Question Answer` page [#585]
@@ -8,6 +14,9 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Update the section questions to show Answered/Not Answered status and buttons Start/Update [#670]
+- Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
+- Updated unit test for `Plan Create` to use new `MockProvider` [#686]
 - Updated all plan pages to use the proper section and question ids. They were using `Section.id` and `Question.id` but should be using `VersionedSection.id` and `VersionedQuestion.id` since the plan is based on a published template and so should be referencing the components of the published version
 - Renamed existing `__mocks__` to be clear that they represent non-versioned questions (for use with the template pages)
 - Update `@dmptool/types` version [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
@@ -19,6 +28,17 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed issue with some breaking unit tests due to different timezones [#739]
+- Fixed some issues on the `Project details` page [#734]
+- Fixed issue with entered Affiliation `label` and `help` text not displaying on the `Question Preview` page
+- Update `PlanOverviewQuestionPage` to make sure that `sample text` displays initially when it is present and `useSampleTextAsDefault` is set to true [#677]
+- Updated `SectionTypeSelectPage` to only show the `Org section` and `best Practice section` headers if there are any to display [#702]
+- Fixed issue with saved data not loading on the `Funding Detail` page after saving [#659]
+- Flapping test `should render PlanCreate component with funder checkbox` required additional clearing of mocks to perform consistently.
+- Bad test on DateRangeQuestionComponent tests that were consistently failing because of multiple matches in my environment.
+- Fixed a bug on `Section` page where `question` text was used, when we should be referring to `section` instead [#666]
+- Updated the `stripHtmlTags` function to include an option to strip only specific tags [#662]
+- Updated the `Question details` page to strip the `questionText` of `HTML` tags [#662]
 - Added `Load more` functionality for `/projects` page, using the new pagination [#647]
 - Addressed issue where templates on `/projects/7/dmp/create` were showing `Not published`. They are all `versionedTemplates` so they are `published` [#646] d
 - Fixed bug when hovering over the `Back` button turns text white (essentially invisible) [#651]
@@ -42,6 +62,7 @@
 - Updated the `Plan Overview` page so that it uses the `Plan` title instead of the `template` title [#303]
 - Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
+- Allow for tags in the checkbox group to wrap when the screen size is small. [#489]
 
 ### Removed
 - Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
