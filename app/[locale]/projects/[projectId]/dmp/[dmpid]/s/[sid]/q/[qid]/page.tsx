@@ -1127,28 +1127,30 @@ const PlanOverviewQuestionPage: React.FC = () => {
   }
 
   return (
-      <>
-        <PageHeader
-            title={question?.questionText ?? 'Question'}
-            description=""
-            showBackButton={true}
-            breadcrumbs={
-              <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
-                <Breadcrumb><Link
-                    href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
-                <Breadcrumb><Link
-                    href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
-                <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
-                <Breadcrumb><Link
-                    href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
-                <Breadcrumb><Link
-                    href={routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId })}>{Global('breadcrumbs.section')}</Link></Breadcrumb>
-                <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
-              </Breadcrumbs>
-            }
-            actions={null}
+    <>
+      <PageHeader
+        title={question?.questionText && stripHtmlTags(question.questionText).length > 140
+          ? `${stripHtmlTags(question.questionText).substring(0, 140)}...`
+          : stripHtmlTags(question?.questionText) ?? 'Question'}
+        description=""
+        showBackButton={true}
+        breadcrumbs={
+          <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
+            <Breadcrumb><Link
+              href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href={routePath('projects.dmp.show', { projectId, dmpId })}>{Global('breadcrumbs.planOverview')}</Link></Breadcrumb>
+            <Breadcrumb><Link
+              href={routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId })}>{Global('breadcrumbs.section')}</Link></Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.question')}</Breadcrumb>
+          </Breadcrumbs>
+        }
+        actions={null}
         className={styles.pageQuestionPageTitle}
-        />
+      />
 
       <ErrorMessages errors={errors} ref={errorRef} />
 
