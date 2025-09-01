@@ -734,6 +734,27 @@ describe("CreateProjectSearchFunder", () => {
     });
   });
 
+
+  it("should allow proceeding without a funder", async () => {
+    const mockPush = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    const noFunderBtn = screen.getByText('noFunderButtonLabel');
+    expect(noFunderBtn).toBeInTheDocument();
+    fireEvent.click(noFunderBtn);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/project/));
+    });
+  });
+
+
   it('should pass accessibility tests', async () => {
     const { container } = render(
       <MockedProvider mocks={mocks} addTypename={false}>

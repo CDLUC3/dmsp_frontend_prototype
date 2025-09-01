@@ -108,6 +108,13 @@ const CreateProjectSearchFunder = () => {
     }));
   };
 
+  async function handleNoFundingSource() {
+    const projectId = params.projectId as string;
+    router.push(routePath('projects.project.info', {
+      projectId,
+    }));
+  }
+
   function onResults(results: FunderSearchResults, isNew: boolean) {
     let validResults: AffiliationSearch[];
 
@@ -252,6 +259,18 @@ const CreateProjectSearchFunder = () => {
               </Button>
             </section>
           )}
+
+          <section aria-labelledby="no-funder-section" className="mt-8">
+            <h3>{trans('noFunderHeading')}</h3>
+            <p>{trans('noFunderText')}</p>
+            <Button
+              className="no-funder-button"
+              onPress={() => handleNoFundingSource()}
+              aria-label={trans('noFunderButtonLabel')}
+            >
+              {trans('noFunderButtonLabel')}
+            </Button>
+          </section>
 
         </ContentContainer>
       </LayoutContainer>
