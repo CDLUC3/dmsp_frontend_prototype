@@ -14,6 +14,7 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Updated the `Publish Preview` dialog to show the progress from the resolver so it doesn't have to add progress for all sections but get it directly [#720]
 - Update the section questions to show Answered/Not Answered status and buttons Start/Update [#670]
 - Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
 - Updated unit test for `Plan Create` to use new `MockProvider` [#686]
