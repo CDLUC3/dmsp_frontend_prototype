@@ -98,12 +98,14 @@ const routes = {
   'template.edit': '/template/:templateId/edit',
 
   // account/profile
+  'account.index': '/account',
   'account.profile': '/account/profile',
   'account.password': '/account/update-password',
   'account.connections': '/account/connections',
   'account.notifications': '/account/notifications',
 
   // Admin routes
+  'admin.index': '/admin/',
   'admin.notifications': '/admin/notifications',
   'admin.templates': '/admin/templates',
   'admin.templateCustomizations': '/admin/template-customizations',

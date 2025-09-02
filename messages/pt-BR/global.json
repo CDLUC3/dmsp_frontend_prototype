@@ -219,6 +219,31 @@
       }
     }
   },
+  "Account": {
+    "sections": {
+      "userProfile": {
+        "title": "Perfil do Usuário",
+        "items": {
+          "profile": {
+            "title": "Perfil",
+            "description": "Atualize suas informações pessoais, preferências de e-mail e configurações de idioma"
+          },
+          "password": {
+            "title": "Atualizar Senha",
+            "description": "Altere sua senha de conta e configurações de segurança"
+          },
+          "connections": {
+            "title": "Conexões",
+            "description": "Gerencie seu ORCID iD e conexões institucionais"
+          },
+          "notifications": {
+            "title": "Notificações",
+            "description": "Configure suas preferências de notificação e configurações de e-mail"
+          }
+        }
+      }
+    }
+  },
   "Global": {
     "breadcrumbs": {
       "navigation": "Navegação de Breadcrumb",

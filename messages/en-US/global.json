@@ -220,6 +220,31 @@
       }
     }
   },
+  "Account": {
+    "sections": {
+      "userProfile": {
+        "title": "User Profile",
+        "items": {
+          "profile": {
+            "title": "Profile",
+            "description": "Update your personal information, email preferences, and language settings"
+          },
+          "password": {
+            "title": "Update Password",
+            "description": "Change your account password and security settings"
+          },
+          "connections": {
+            "title": "Connections",
+            "description": "Manage your ORCID iD and institutional connections"
+          },
+          "notifications": {
+            "title": "Notifications",
+            "description": "Configure your notification preferences and email settings"
+          }
+        }
+      }
+    }
+  },
   "Global": {
     "breadcrumbs": {
       "navigation": "Breadcrumb navigation",
