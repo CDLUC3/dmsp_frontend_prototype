@@ -179,7 +179,7 @@
   },
   "ProjectsProjectFundingAdd": {
     "title": "Add Funding Details",
-    "description": "Manually add a new fundting source",
+    "description": "Manually add a new funding source",
     "labels": {
       "funderName": "Funder name",
       "fundingStatus": "Funding Status",
