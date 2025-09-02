@@ -292,7 +292,7 @@ describe("TemplateEditPage", () => {
     });
 
 
-    // Should show visibility "Organization" as selected
+    // Should show visibility "Organization" as selected, since the template was previously published with that visibility setting
     const privateOption = screen.getByTestId('visPrivate');
     expect(privateOption).toHaveAttribute('data-selected', 'true');
 

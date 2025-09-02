@@ -43,8 +43,6 @@ const TemplateList: React.FC<TemplateListProps> = ({
   handleLoadMore,
   resetSearch
 }) => {
-
-  console.log("TEMPLATES", templates);
   const nextSectionRef = useRef<HTMLDivElement>(null);
   //Localization keys
   const SelectTemplate = useTranslations('TemplateSelectTemplatePage');

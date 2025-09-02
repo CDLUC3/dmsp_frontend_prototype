@@ -70,6 +70,8 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
               </span>
             )}
 
+            {/**Since this component is shared across different pages, we want to change the arrangement of visibility 
+             text if it's coming from /template page or the Plan Create page */}
             {item.latestPublishVisibility ? (
               <span className="ms-2">
                 {Global('visibility')}: {toTitleCase(item.latestPublishVisibility)}
