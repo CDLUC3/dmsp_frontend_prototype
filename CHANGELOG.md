@@ -28,6 +28,7 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed `sass` errors resulting from latest version updates [#751]
 - Fixed issue with some breaking unit tests due to different timezones [#739]
 - Fixed some issues on the `Project details` page [#734]
 - Fixed issue with entered Affiliation `label` and `help` text not displaying on the `Question Preview` page
@@ -68,6 +69,9 @@
 - Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Remove the old QuestinType` graphQL query [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+
+### Chore
+- Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on July 21, 2025
