@@ -98,7 +98,7 @@ const TemplateListPage: React.FC = () => {
       return [item.title,
       item.funder,
       item.publishStatus,
-      item.visibility,
+      item.latestPublishVisibility,
       item.description
       ]
         .filter(Boolean)
@@ -149,7 +149,7 @@ const TemplateListPage: React.FC = () => {
               publishStatus: (template?.isDirty) ? 'Unpublished' : 'Published',
               publishDate: (template?.latestPublishDate) ? formatDate(template?.latestPublishDate) : null,
               defaultExpanded: false,
-              visibility: toSentenceCase(template?.visibility ? template?.visibility?.toString() : '')
+              latestPublishVisibility: toSentenceCase(template?.latestPublishVisibility ? template?.latestPublishVisibility?.toString() : '')
             }
           }));
 

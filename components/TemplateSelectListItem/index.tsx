@@ -20,6 +20,7 @@ interface TemplateSelectListItemProps {
     publishStatus?: string | null;
     publishDate?: string | null;
     visibility?: string | null;
+    latestPublishVisibility?: string | null;
     hasAdditionalGuidance?: boolean;
   }
 }
@@ -69,9 +70,15 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
               </span>
             )}
 
-            <span className={styles.separator}>
-              {Global('visibility')}: {item.visibility ? toTitleCase(item.visibility) : ''}
-            </span>
+            {item.latestPublishVisibility ? (
+              <span className="ms-2">
+                {Global('visibility')}: {toTitleCase(item.latestPublishVisibility)}
+              </span>
+            ) : item.visibility ? (
+              <span className={styles.separator}>
+                {Global('visibility')}: {toTitleCase(item.visibility)}
+              </span>
+            ) : null}
           </div>
 
           {item.hasAdditionalGuidance && (

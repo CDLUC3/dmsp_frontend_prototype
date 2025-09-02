@@ -106,7 +106,7 @@ const mockSectionData = {
 const mockTemplateData: {
   name: string;
   id: number | null; // Allow `id` to be `number` or `null`
-  visibility: string;
+  latestPublishVisibility: string;
   description: string;
   errors: null;
   latestPublishVersion: string;
@@ -127,7 +127,7 @@ const mockTemplateData: {
 } = {
   name: "DMP Template from Dataverse",
   id: 15,
-  visibility: "ORGANIZATION",
+  latestPublishVisibility: "ORGANIZATION",
   description: "DMP Template from Dataverse",
   errors: null,
   latestPublishVersion: "v1",
@@ -285,9 +285,16 @@ describe("TemplateEditPage", () => {
 
     // Open publish modal
     const publishTemplateButton = screen.getByRole('button', { name: 'button.publishTemplate' });
+
+    // Click to open publish modal
     await act(async () => {
       fireEvent.click(publishTemplateButton);
     });
+
+
+    // Should show visibility "Organization" as selected
+    const privateOption = screen.getByTestId('visPrivate');
+    expect(privateOption).toHaveAttribute('data-selected', 'true');
 
 
     // Fill in change log
@@ -505,7 +512,7 @@ describe("TemplateEditPage", () => {
         },
         id: 15,
         name: 'Changed title',
-        visibility: 'ORGANIZATION',
+        latestPublishVisibility: 'ORGANIZATION',
       },
     });
 
@@ -699,7 +706,7 @@ describe("TemplateEditPage", () => {
         },
         id: 15,
         name: 'New Template Title',
-        visibility: 'ORGANIZATION',
+        latestPublishVisibility: 'ORGANIZATION',
       },
     });
 
@@ -730,7 +737,6 @@ describe("TemplateEditPage", () => {
       expect(updateTemplateAction).toHaveBeenCalledWith({
         templateId: 15,
         name: 'New Template Title', // Ensure the updated title is passed
-        visibility: 'ORGANIZATION',
       });
     });
   });
@@ -759,7 +765,7 @@ describe("TemplateEditPage", () => {
         },
         id: 15,
         name: 'New Template Title',
-        visibility: 'ORGANIZATION',
+        latestPublishVisibility: 'ORGANIZATION',
       },
     });
 
