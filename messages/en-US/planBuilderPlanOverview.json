@@ -215,5 +215,44 @@
         "funderNumberNotFound": "Funder's project number not found."
       }
     }
+  },
+  "ProjectsProjectPlanFeedback": {
+    "title": "Request feedback",
+    "description": "You can get feedback from University of California support team, please read the following message from the team.",
+    "form": {
+      "label": "Send message to University of California support team",
+      "placeholder": "Can you review my plan for any mistakes",
+      "submitButton": "Request Feedback",
+      "successMessage": "Request sent"
+    },
+    "teamFeedback": {
+      "title": "Feedback from team members",
+      "description": "You can get feedback from team members by leaving comments",
+      "updateAccessButton": "Update access settings"
+    },
+    "sidebar": {
+      "universitySupport": {
+        "title": "Feedback from the University Support Team",
+        "description": "You can request feedback from your university's research support staff (such as data stewards, research facilitators, or librarians).",
+        "expertsCanTitle": "These experts can:",
+        "expertsCan": [
+          "Check that your plan meets funder requirements",
+          "Suggest improvements to data storage, sharing, or ethical handling",
+          "Help you prepare a stronger, more compliant submission"
+        ],
+        "requestInfo": "To request their feedback and they'll be notified and will review your plan when available."
+      },
+      "teamMembers": {
+        "title": "Feedback from Team Members",
+        "description": "You can invite colleagues or collaborators to review your plan and leave comments directly on specific sections.",
+        "usefulWhenTitle": "This is especially useful when:",
+        "usefulWhen": [
+          "You're co-authoring the plan with others",
+          "You want input from people familiar with your research or data",
+          "You'd like to clarify responsibilities or fill in any missing details"
+        ],
+        "encourageInfo": "Encourage your team to leave constructive comments or suggestions, this makes the collaborative process much smoother and ensures nothing is overlooked."
+      }
+    }
   }
 }

@@ -171,7 +171,7 @@ const PlanOverviewPage: React.FC = () => {
   const MEMBERS_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
   const RESEARCH_OUTPUT_URL = routePath('projects.dmp.research-outputs', { projectId, dmpId: planId });
   const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
-  const FEEDBACK_URL = routePath('projects.collaboration', { projectId });
+  const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId, dmpId: planId });
   const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
 
   // Set radio button data
