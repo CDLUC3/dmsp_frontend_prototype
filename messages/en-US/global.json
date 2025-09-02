@@ -157,6 +157,69 @@
   "Back": {
     "btnBack": "Back"
   },
+  "Admin": {
+    "sections": {
+      "organisationTemplatesAndPlans": {
+        "title": "Organisation Templates and Plans",
+        "items": {
+          "notifications": {
+            "title": "Notifications",
+            "description": "View current and past notifications"
+          },
+          "organizationTemplates": {
+            "title": "Organization Templates",
+            "description": "Manage your organisation templates and publish for the public"
+          },
+          "templateCustomizations": {
+            "title": "Template Customizations",
+            "description": "Add an overlay on top of funder templates"
+          },
+          "guidance": {
+            "title": "Guidance",
+            "description": "Add guidance that apply to all funders templates"
+          },
+          "projectAndPlans": {
+            "title": "Project & Plans",
+            "description": "Manage your organisation projects and plans"
+          }
+        }
+      },
+      "organizationSettings": {
+        "title": "Organization's settings",
+        "items": {
+          "editOrganizationDetails": {
+            "title": "Edit organization details",
+            "description": "Update your organization name, abbreviation, institution etc"
+          },
+          "schoolsDepartments": {
+            "title": "Schools/Departments",
+            "description": "Manage your different departments, faculties, schools or divisions"
+          },
+          "manageUserAccounts": {
+            "title": "Manage user accounts",
+            "description": "Manage user accounts"
+          },
+          "customizeEmailText": {
+            "title": "Customize email text",
+            "description": "Manage your notification preferences"
+          },
+          "requestFeedbackOptions": {
+            "title": "Request feedback options",
+            "description": "Manage your organisations request feedback options"
+          }
+        }
+      },
+      "reporting": {
+        "title": "Reporting",
+        "items": {
+          "usageStatistics": {
+            "title": "Usage Statistics",
+            "description": "View usage statistics and reports"
+          }
+        }
+      }
+    }
+  },
   "Global": {
     "breadcrumbs": {
       "navigation": "Breadcrumb navigation",

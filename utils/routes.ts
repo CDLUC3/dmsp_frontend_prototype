@@ -103,6 +103,19 @@ const routes = {
   'account.connections': '/account/connections',
   'account.notifications': '/account/notifications',
 
+  // Admin routes
+  'admin.notifications': '/admin/notifications',
+  'admin.templates': '/admin/templates',
+  'admin.templateCustomizations': '/admin/template-customizations',
+  'admin.guidance': '/admin/guidance',
+  'admin.projects': '/admin/projects',
+  'admin.organizationDetails': '/admin/organization-details',
+  'admin.departments': '/admin/departments',
+  'admin.users': '/admin/users',
+  'admin.emailPreferences': '/admin/email-preferences',
+  'admin.feedbackOptions': '/admin/feedback-options',
+  'admin.statistics': '/admin/statistics',
+
 
   // Help pages
   'help.dmp.download': '/help/dmp/download',
