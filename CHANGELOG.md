@@ -1,8 +1,10 @@
 ### Added
 
+- added profile overview page
+- added "homepage" which is our temp home page just to add the admin link and made it nicer
 - Added admin overview page
 - Added component for `PageLinkCard`
-- Added comprehensive admin route definitions to `utils/routes.ts`
+- Added  admin route definitions to `utils/routes.ts`
 
 ### Updated
 
