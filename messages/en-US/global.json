@@ -221,7 +221,8 @@
       "preview": "Preview",
       "publish": "Publish",
       "close": "Close",
-      "loadMore": "Load more"
+      "loadMore": "Load more",
+      "goToProject": "Go to project"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",

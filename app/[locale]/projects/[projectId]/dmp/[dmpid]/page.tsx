@@ -171,7 +171,7 @@ const PlanOverviewPage: React.FC = () => {
   const MEMBERS_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
   const RESEARCH_OUTPUT_URL = routePath('projects.dmp.research-outputs', { projectId, dmpId: planId });
   const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
-  const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId, dmpId: planId });
+  const FEEDBACK_URL = routePath('projects.collaboration', { projectId });
   const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
 
   // Set radio button data
@@ -463,7 +463,7 @@ const PlanOverviewPage: React.FC = () => {
               isPrimaryContact: member?.isPrimaryContact ?? false,
               role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
             })) ?? [],
-          versionedSections:  data?.plan?.versionedSections ?? [],
+          versionedSections: data?.plan?.versionedSections ?? [],
           percentageAnswered: calculatePercentageAnswered(data?.plan?.versionedSections ?? []) ?? 0,
         },
       })
@@ -562,7 +562,7 @@ const PlanOverviewPage: React.FC = () => {
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb>{state.planData.title}</Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.planOverview')}</Breadcrumb>
           </Breadcrumbs>
         }
         onTitleChange={handleTitleChange}
@@ -684,8 +684,8 @@ const PlanOverviewPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={`${styles.statusPanelContent} ${styles.sidePanel} `}>
-            <div className={`${styles.buttonContainer} mb - 5`}>
+          <div className={`statusPanelContent sidePanel`}>
+            <div className={`buttonContainer withBorder  mb-5`}>
               <Button className="secondary">{Global('buttons.preview')}</Button>
               <Button
                 onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })}
@@ -693,18 +693,18 @@ const PlanOverviewPage: React.FC = () => {
                 {Global('buttons.publish')}
               </Button>
             </div>
-            <div className={styles.sidePanelContent}>
-              <div className={`${styles.panelRow} mb-5`}>
+            <div className="sidePanelContent">
+              <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t('status.feedback.title')}</h3>
                 </div>
-                <Link className={styles.sidePanelLink} href={FEEDBACK_URL} aria-label={Global('links.request')} >
+                <Link className="sidePanelLink" href={FEEDBACK_URL} aria-label={Global('links.request')} >
                   {Global('links.request')}
                 </Link >
               </div >
               {state.isEditingPlanStatus ? (
                 <div>
-                  <Form onSubmit={handlePlanStatusForm} className={styles.statusForm}>
+                  <Form onSubmit={handlePlanStatusForm} className="statusForm">
                     <FormSelect
                       label={t('status.title')}
                       ariaLabel={t('status.select.label')}
@@ -722,18 +722,18 @@ const PlanOverviewPage: React.FC = () => {
                   </Form>
                 </div>
               ) : (
-                <div className={`${styles.panelRow} mb-5`}>
+                <div className={`panelRow mb-5`}>
                   <div>
                     <h3>{t('status.title')}</h3>
                     <p>{toTitleCase(state.planData.status)}</p>
                   </div>
-                  <Button className={`${styles.buttonLink} link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
+                  <Button className={`buttonLink link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
                     {Global('buttons.linkUpdate')}
                   </Button>
                 </div>
               )}
 
-              <div className={`${styles.panelRow} mb-5`}>
+              <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t('status.publish.title')}</h3>
                   <p>{state.planData.registered ? PUBLISHED : UNPUBLISHED}</p>
@@ -742,7 +742,7 @@ const PlanOverviewPage: React.FC = () => {
                   {t('status.publish.label')}
                 </Link>
               </div>
-              <div className={`${styles.panelRow} mb-5`}>
+              <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t('status.download.title')}</h3>
                 </div>

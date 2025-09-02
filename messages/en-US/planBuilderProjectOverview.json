@@ -14,20 +14,20 @@
     "edit": "Edit",
     "editProject": "Edit project details",
     "fundings": "Funding sources",
-    "fundingCount": "{count} Funding Source(s)",
+    "fundingCount": "{count, plural, =0 {0 funding sources} one {1 funding source} other {{count} funding sources}}",
     "fundingInfo": "{name} ({id})",
     "editFundings": "Edit funding details",
     "editFundingDetails": "Edit funding details",
     "projectMembers": "Project members",
-    "memberCount": "{count} team members",
+    "memberCount": "{count, plural, =0 {0 team members} one {1 team member} other {{count} team members}}",
     "memberInfo": "{name} ({role})",
     "editMembers": "Edit project members",
     "editProjectMembers": "Edit project members",
     "researchOutputs": "Research outputs",
-    "outputCount": "{count} Outputs",
+    "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
     "editOutputs": "Edit research outputs",
     "editResearchOutputs": "Edit research outputs",
-    "plans": "Plan(s)",
+    "plans": "Plans",
     "planActions": "Plan actions",
     "upload": "Upload plan",
     "uploadPlan": "Upload a new plan",
@@ -49,6 +49,18 @@
     "created": "Created",
     "messages": {
       "errorGettingProject": "Error getting project details"
+    },
+    "status": {
+      "collaboration": {
+        "title": "Collaboration",
+        "description": "{total, plural, =0 {0 collaborators} one {1 collaborator} other {{total} collaborators}}",
+        "link_text": "Manage access"
+      },
+      "feedback": {
+        "title": "Feedback",
+        "description": "",
+        "link_text": "Request"
+      }
     }
   },
   "ProjectsListPage": {
@@ -252,7 +264,7 @@
       }
     }
   },
-  "ProjectsProjectPlanFeedbackInvite": {
+  "ProjectsProjectCollaborationInvite": {
     "title": "Who should have access to this plan?",
     "breadcrumbs": {
       "manageAccess": "Manage access"
