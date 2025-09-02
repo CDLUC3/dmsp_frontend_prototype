@@ -3881,7 +3881,7 @@ export type AddAffiliationMutationVariables = Exact<{
 }>;
 
 
-export type AddAffiliationMutation = { __typename?: 'Mutation', addAffiliation?: { __typename?: 'Affiliation', uri: string, errors?: { __typename?: 'AffiliationErrors', name?: string | null } | null } | null };
+export type AddAffiliationMutation = { __typename?: 'Mutation', addAffiliation?: { __typename?: 'Affiliation', uri: string, errors?: { __typename?: 'AffiliationErrors', general?: string | null, name?: string | null } | null } | null };
 
 export type AddAnswerMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4466,6 +4466,7 @@ export const AddAffiliationDocument = gql`
     mutation AddAffiliation($input: AffiliationInput!) {
   addAffiliation(input: $input) {
     errors {
+      general
       name
     }
     uri

@@ -4,6 +4,8 @@ import React, { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { routePath } from '@/utils/routes';
+import { ApolloError } from '@apollo/client';
+
 import {
   Breadcrumb,
   Breadcrumbs,
@@ -33,7 +35,6 @@ import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 
 import styles from './addFunderManually.module.scss';
-
 
 interface FieldErrorsInterface {
   affiliationId: string;
@@ -180,6 +181,7 @@ const AddProjectFunderManually = () => {
     setFundingData({ ...fundingData, [name]: value });
   }
 
+  // Handle Form Submittal
   async function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -197,10 +199,11 @@ const AddProjectFunderManually = () => {
       return;
     }
 
-    try {
-      let affiliationId: string;
 
-      if (otherField) {
+    let affiliationId: string;
+
+    if (otherField) {
+      try {
         // Only call addAffiliation if "otherField" is true, because otherwise it's an existing affiliation and we
         // want to use the existing affiliationId
         const result = await addAffiliation({
@@ -221,14 +224,34 @@ const AddProjectFunderManually = () => {
             ...fieldErrors,
             affiliationId: String(errs.name),
           });
-          setErrors([addFunding('messages.errors.projectFundingUpdateFailed')]);
+          setErrors([errs.general ?? addFunding('messages.errors.projectFundingUpdateFailed')]);
           return; // stop if affiliation failed
         }
-      } else {
-        // Otherwise just use the affiliationId of selecting existing affiliation
-        affiliationId = fundingData.affiliationId;
+      } catch (err) {
+        if (err instanceof ApolloError) {
+          logECS("error", "addAffiliation", {
+            err,
+            url: { path: "/projects/[projectId]/fundings/add" },
+          });
+          setErrors(prev => [
+            ...prev,
+            err.message
+          ]);
+          return;
+        } else {
+          setErrors(prev => [
+            ...prev,
+            addFunding("messages.errors.projectFundingUpdateFailed"),
+          ]);
+          return;
+        }
       }
+    } else {
+      // Otherwise just use the affiliationId of selecting existing affiliation
+      affiliationId = fundingData.affiliationId;
+    }
 
+    try {
       // Now always call addProjectFunding to add it to the project
       const result = await addProjectFunding({
         variables: {
@@ -254,20 +277,29 @@ const AddProjectFunderManually = () => {
           ...(errs.funderProjectNumber != null && { funderProjectNumber: String(errs.funderProjectNumber) }),
         });
 
-        setErrors([addFunding('messages.errors.projectFundingUpdateFailed')]);
-      } else {
-        showSuccessToast();
-        router.push(routePath('projects.fundings.index', { projectId }));
+        setErrors([errs.general ?? addFunding('messages.errors.projectFundingUpdateFailed')]);
+        return;
       }
+      // Success
+      showSuccessToast();
+      router.push(routePath('projects.fundings.index', { projectId }));
+
     } catch (err) {
-      logECS('error', 'addProjectFunderManually', {
-        err,
-        url: { path: '/projects/[projectId]/fundings/add' }
-      });
-      setErrors(prevErrors => [
-        ...prevErrors,
-        addFunding('messages.errors.projectFundingUpdateFailed'),
-      ]);
+      if (err instanceof ApolloError) {
+        logECS("error", "addProjectFunding", {
+          err,
+          url: { path: "/projects/[projectId]/fundings/add" },
+        });
+        setErrors(prev => [
+          ...prev,
+          err.message
+        ]);
+      } else {
+        setErrors(prev => [
+          ...prev,
+          addFunding("messages.errors.projectFundingUpdateFailed"),
+        ]);
+      }
     }
   }
 

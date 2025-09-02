@@ -1243,7 +1243,6 @@ describe("QuestionAdd", () => {
       expect(screen.getByTestId('modal-overlay')).toBeInTheDocument();
     });
 
-    screen.debug(undefined, Infinity);
     // Check if the new label appears in the preview
     await waitFor(() => {
       expect(screen.getByText('Search Term')).toBeInTheDocument();

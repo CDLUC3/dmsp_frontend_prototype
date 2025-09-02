@@ -79,6 +79,7 @@ const successMocks = [
         addAffiliation: {
           errors: {
             name: null,
+            general: null
           },
           uri: "https://dmptool/123",
         }
@@ -101,6 +102,7 @@ const successMocks = [
         addAffiliation: {
           errors: {
             name: null,
+            general: null
           },
           uri: "https://dmptool/123",
         }
@@ -193,6 +195,7 @@ const errorMocks = [
         addAffiliation: {
           errors: {
             name: "Error with affiliate name",
+            general: null
           },
           uri: null,
         }
@@ -216,6 +219,7 @@ const errorMocks = [
         addAffiliation: {
           errors: {
             name: null,
+            general: null
           },
           uri: "https://dmptool/123",
         }
@@ -487,14 +491,14 @@ describe('AddProjectFunderManually', () => {
     fireEvent.submit(screen.getByRole('button', { name: /buttons.saveChanges/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('messages.errors.projectFundingUpdateFailed')).toBeInTheDocument();
+      expect(screen.getByText('Server Error')).toBeInTheDocument();
       expect(mockPush).not.toHaveBeenCalled();
     });
 
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
         'error',
-        'addProjectFunderManually',
+        'addAffiliation',
         expect.objectContaining({
           err: expect.anything(),
           url: { path: '/projects/[projectId]/fundings/add' },
