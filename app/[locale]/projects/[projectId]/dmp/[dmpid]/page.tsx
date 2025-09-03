@@ -378,14 +378,6 @@ const PlanOverviewPage: React.FC = () => {
     }
   };
 
-  const calculatePercentageAnswered = (sections: PlanSectionProgress[]) => {
-    if (sections.length === 0) return 0;
-    const totalAnswered = sections.reduce((sum, section) => sum + section.answeredQuestions, 0);
-    const totalQuestions = sections.reduce((sum, section) => sum + section.totalQuestions, 0);
-    const overallPercentage = totalQuestions > 0 ? (totalAnswered / totalQuestions) * 100 : 0;
-    return Math.round(overallPercentage);
-  }
-
   // Call Server Action updatePlanTitleAction to run the updatePlanTitleMutation
   const updateTitle = async (title: string) => {
     // Don't need a try-catch block here, as the error is handled in the action
@@ -468,7 +460,7 @@ const PlanOverviewPage: React.FC = () => {
               role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
             })) ?? [],
           versionedSections:  data?.plan?.versionedSections ?? [],
-          percentageAnswered: calculatePercentageAnswered(data?.plan?.versionedSections ?? []) ?? 0,
+          percentageAnswered: data?.plan?.progress?.percentComplete ?? 0,
         },
       })
       dispatch({

@@ -17,6 +17,10 @@
 ### Updated
 - Use `orcidToUrl` helper function to generate full ORCID URLs.
 - Moved expand button from `ResearchOutputsList` into its own component `ExpandButton`.
+- Updated `template.visibility` to `template.latestPublishVisibility` to match backend changes [#715]
+- Update the Publish modal so that a `visibility` radio option is defaulted to previously set one in the last publish date [#715]
+- Updated the template cards so that if `template.latestPublishVisibility` then we remove the `dot` separateor [#715]
+- Updated the `Publish Preview` dialog to show the progress from the resolver so it doesn't have to add progress for all sections but get it directly [#720]
 - Update the section questions to show Answered/Not Answered status and buttons Start/Update [#670]
 - Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
 - Updated unit test for `Plan Create` to use new `MockProvider` [#686]
@@ -34,6 +38,9 @@
 - Make `Tab` use `cursor: pointer`.
 - Fix styling of `Toggle Switch` as toggle button was vertically off-centre.
 - Fix styling of `Select` by setting `overflow: auto` on `ListBox` so that the list can scroll, and make `ListBoxItem` use `cursor: pointer`.
+- Updated `Add Funder` page to use an `affiliationSearch` for the `funder name`. Updated `Edit Funding Details` page to disable the `funder name` on the form, and to add the `Add another` and `Remove funder` buttons [#656]
+- Fixed issue where publishing a template with visibility `ORGANIZATION` was breaking because frontend is passing the invalid enum of `PRIVATE` instead of `ORGANIZATION` [#715]
+- Fixed `sass` errors resulting from latest version updates [#751]
 - Fixed issue with some breaking unit tests due to different timezones [#739]
 - Fixed some issues on the `Project details` page [#734]
 - Fixed issue with entered Affiliation `label` and `help` text not displaying on the `Question Preview` page
@@ -75,6 +82,9 @@
 - Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Remove the old QuestinType` graphQL query [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+
+### Chore
+- Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on July 21, 2025

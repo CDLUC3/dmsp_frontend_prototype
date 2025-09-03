@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { PlanSectionProgress, TemplateVisibility, PlanFeedback } from "@/generated/graphql";
+import { PlanSectionProgress, TemplateVisibility, PlanFeedback, ProjectFundingStatus } from "@/generated/graphql";
 import { AffiliationSearchQuestionType, AnyQuestionType } from '@dmptool/types';
 
 export interface EmailInterface {
@@ -32,7 +32,7 @@ export interface TemplateSearchResultInterface {
   id?: number | null;
   name?: string | null;
   description?: string | null;
-  visibility?: TemplateVisibility | null;
+  latestPublishVisibility?: TemplateVisibility | null;
   isDirty?: boolean | null;
   latestPublishVersion?: string | null;
   latestPublishDate?: string | null;
@@ -75,7 +75,7 @@ export interface TemplateItemProps {
   publishStatus?: string | null;
   publishDate?: string | null;
   bestPractices?: boolean;
-  visibility?: string | null;
+  latestPublishVisibility?: string | null;
 }
 
 export interface PaginatedVersionedTemplateSearchResultsInterface {
@@ -469,6 +469,16 @@ export type SuggestionInterface = {
   id: string;
   displayName: string;
   uri: string;
+}
+
+export interface ProjectFundingInterface {
+  affiliationName: string;
+  affiliationId: string;
+  otherAffiliationName: string;
+  fundingStatus: ProjectFundingStatus;
+  funderGrantId: string;
+  funderOpportunityNumber: string;
+  funderProjectNumber: string;
 }
 
 export interface Author {

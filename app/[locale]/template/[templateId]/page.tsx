@@ -49,7 +49,6 @@ import styles from './templateEditPage.module.scss';
 interface TemplateInfoInterface {
   templateId: number | null;
   name: string;
-  visibility: TemplateVisibility;
 }
 
 type UpdateTemplateErrors = {
@@ -67,7 +66,6 @@ const TemplateEditPage: React.FC = () => {
   const [templateInfo, setTemplateInfoState] = useState<TemplateInfoInterface>({
     templateId: null,
     name: '',
-    visibility: TemplateVisibility.Organization,
   });
   //Track local section order - using optimistic rendering
   const [localSections, setLocalSections] = useState<Section[]>([]);
@@ -162,12 +160,12 @@ const TemplateEditPage: React.FC = () => {
   const saveTemplate = async (
     versionType: TemplateVersionType,
     comment: string | undefined,
-    visibility: TemplateVisibility
+    latestPublishVisibility: TemplateVisibility
   ) => {
 
     setErrorMessages([]); // Clear previous errors
 
-    if (!visibility) {
+    if (!latestPublishVisibility) {
       setErrorMessages([EditTemplate('errors.saveTemplateError')]);
       return;
     }
@@ -178,7 +176,7 @@ const TemplateEditPage: React.FC = () => {
           templateId: Number(templateId),
           comment: comment?.length ? comment : null,
           versionType,
-          visibility,
+          latestPublishVisibility,
         },
       });
 
@@ -215,10 +213,10 @@ const TemplateEditPage: React.FC = () => {
     const formData = new FormData(form);
 
     // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
-    const visibility = formData.get('visibility')?.toString().toUpperCase() as TemplateVisibility;
+    const latestPublishVisibility = formData.get('visibility')?.toString().toUpperCase() as TemplateVisibility;
     const changeLog = formData.get('change_log')?.toString();
 
-    await saveTemplate(TemplateVersionType.Published, changeLog, visibility);
+    await saveTemplate(TemplateVersionType.Published, changeLog, latestPublishVisibility);
   };
 
   const handlePressPublishTemplate = () => {
@@ -247,7 +245,6 @@ const TemplateEditPage: React.FC = () => {
     const response = await updateTemplateAction({
       templateId: templateInfo.templateId,
       name: templateInfo.name,
-      visibility: templateInfo.visibility,
     });
 
 
@@ -292,7 +289,7 @@ const TemplateEditPage: React.FC = () => {
   function handleVisibilityChange(value: string) {
     if (value == "public") {
       setVisibilityText(PublishTemplate('bullet.publishingTemplate3'));
-    } else if (value == "private") {
+    } else if (value == "organization") {
       setVisibilityText(PublishTemplate('bullet.publishingTemplate3Private'));
     }
   }
@@ -465,7 +462,6 @@ const TemplateEditPage: React.FC = () => {
       setTemplateInfoState({
         templateId: data.template.id ? Number(data.template.id) : null,
         name: data.template.name || '',
-        visibility: data.template.visibility || null,
       });
     }
 
@@ -661,6 +657,13 @@ const TemplateEditPage: React.FC = () => {
               <RadioGroup
                 name="visibility"
                 onChange={handleVisibilityChange}
+                defaultValue={
+                  template.latestPublishDate
+                    ? (template.latestPublishVisibility === 'PUBLIC' ? 'public' :
+                      template.latestPublishVisibility === 'ORGANIZATION' ? 'organization' :
+                        undefined)
+                    : undefined
+                }
               >
                 <Label>{PublishTemplate('heading.visibilitySettings')}</Label>
                 <Text slot="description" className="help">
@@ -678,7 +681,7 @@ const TemplateEditPage: React.FC = () => {
                 </Radio>
                 <Radio
                   data-testid="visPrivate"
-                  value="private"
+                  value="organization"
                   className={`${styles.radioBtn} react-aria-Radio`}
                 >
                   <div>
