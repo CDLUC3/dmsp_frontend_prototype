@@ -1538,6 +1538,8 @@ export type Plan = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** Anticipated research outputs */
   outputs?: Maybe<Array<PlanOutput>>;
+  /** The progress the user has made within the plan */
+  progress?: Maybe<PlanProgress>;
   /** The project the plan is associated with */
   project?: Maybe<Project>;
   /** The timestamp for when the Plan was registered */
@@ -1751,6 +1753,16 @@ export type PlanOutputErrors = {
   __typename?: 'PlanOutputErrors';
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+};
+
+export type PlanProgress = {
+  __typename?: 'PlanProgress';
+  /** The total number of questions the user has answered */
+  answeredQuestions: Scalars['Int']['output'];
+  /** The percentage of questions the user has answered */
+  percentComplete: Scalars['Float']['output'];
+  /** The total number of questions in the plan */
+  totalQuestions: Scalars['Int']['output'];
 };
 
 export type PlanSearchResult = {
@@ -4264,7 +4276,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -6752,6 +6764,11 @@ export const PlanDocument = gql`
       displayOrder
       versionedSectionId
       title
+      totalQuestions
+    }
+    progress {
+      answeredQuestions
+      percentComplete
       totalQuestions
     }
     created
