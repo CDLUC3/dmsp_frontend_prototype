@@ -1,5 +1,6 @@
 
 ### Added
+- Added shared `dmptool-network` to the `docker-compose.yaml` file to allow nextJS server side actions to be able to reach the local apollo server
 - Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
 - Added new mutations to `add`, `update`, and `delete` comments [#321]
 - Added new `CommentList` and `CommentsDrawer` components, and `useComments` hook for the comments list [#321]
