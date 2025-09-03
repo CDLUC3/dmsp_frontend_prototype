@@ -245,7 +245,7 @@ const SectionEditContainer: React.FC<SectionEditContainerProps> = ({
       <div role="listitem">
         <AddQuestionButton href={`/template/${templateId}/q/new?section_id=${section.id}`} />
       </div>
-      <div aria-live="polite" aria-atomic="true" className="sr-only">
+      <div aria-live="polite" aria-atomic="true" className="hidden-accessibly">
         {announcement}
       </div>
     </div>

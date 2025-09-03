@@ -173,6 +173,7 @@ const PlanOverviewPage: React.FC = () => {
   const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
   const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId, dmpId: planId });
   const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
+  const RELATED_WORKS_URL = routePath('projects.dmp.relatedWorks', { projectId, dmpId: planId });
 
   // Set radio button data
   const radioData = {
@@ -200,6 +201,9 @@ const PlanOverviewPage: React.FC = () => {
 
   //TODO: Get research output count from backend
   const researchOutputCount = 3;
+
+  //TODO: Get related works count from backend
+  const relatedWorksCount = 3;
 
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
@@ -623,8 +627,24 @@ const PlanOverviewPage: React.FC = () => {
                   {t('outputs.edit')}
                 </Link>
               </section>
-            </div>
 
+              <section className={styles.planOverviewItem}
+                       aria-labelledby="related-works-title">
+                <div className={styles.planOverviewItemContent}>
+                  <h2 id="related-works-title"
+                      className={styles.planOverviewItemTitle}>
+                    {t('relatedWorks.title')}
+                  </h2>
+                  <p className={styles.planOverviewItemHeading}>
+                    {t('relatedWorks.count', { count: relatedWorksCount })}
+                  </p>
+                </div>
+                <Link href={RELATED_WORKS_URL}
+                      aria-label={t('relatedWorks.edit')}>
+                  {t('relatedWorks.edit')}
+                </Link>
+              </section>
+            </div>
 
             {state.planData.versionedSections.map((versionedSection) => (
               <section

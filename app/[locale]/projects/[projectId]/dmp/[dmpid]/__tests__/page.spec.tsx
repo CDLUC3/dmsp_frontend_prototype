@@ -117,6 +117,10 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.edit')).toBeInTheDocument();
     expect(screen.getByText('outputs.title')).toBeInTheDocument();
     expect(screen.getByText('outputs.count')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'outputs.edit' })).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.title')).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.count')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'relatedWorks.edit' })).toBeInTheDocument();
 
     // Check that sections rendered
     expect(screen.getByRole('heading', { name: 'Roles & Responsibilities' })).toBeInTheDocument();
@@ -167,6 +171,9 @@ describe('PlanOverviewPage', () => {
     expect(screen.getByText('members.edit')).toBeInTheDocument();
     expect(screen.getByText('outputs.title')).toBeInTheDocument();
     expect(screen.getByText('outputs.count')).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.title')).toBeInTheDocument();
+    expect(screen.getByText('relatedWorks.count')).toBeInTheDocument();
+
     // Check that sections rendered
     expect(screen.getByRole('heading', { name: 'Roles & Responsibilities' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Metadata' })).toBeInTheDocument();

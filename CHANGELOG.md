@@ -1,5 +1,6 @@
 
 ### Added
+- Added `RelatedWorks` page and associated components `RelatedWorksList`, `RelatedWorksListItem`, `ExpandableNameList` and `LinkFilter`.
 - Added a `dialog` when removing `project members` so we can message them about the member being removed from all plans and allow users to confirm they want to delete this member [#737]
 - Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
 - Added new mutations to `add`, `update`, and `delete` comments [#321]
@@ -14,6 +15,8 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Use `orcidToUrl` helper function to generate full ORCID URLs.
+- Moved expand button from `ResearchOutputsList` into its own component `ExpandButton`.
 - Updated `template.visibility` to `template.latestPublishVisibility` to match backend changes [#715]
 - Update the Publish modal so that a `visibility` radio option is defaulted to previously set one in the last publish date [#715]
 - Updated the template cards so that if `template.latestPublishVisibility` then we remove the `dot` separateor [#715]
@@ -32,6 +35,9 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Make `Tab` use `cursor: pointer`.
+- Fix styling of `Toggle Switch` as toggle button was vertically off-centre.
+- Fix styling of `Select` by setting `overflow: auto` on `ListBox` so that the list can scroll, and make `ListBoxItem` use `cursor: pointer`.
 - Updated `Add Funder` page to use an `affiliationSearch` for the `funder name`. Updated `Edit Funding Details` page to disable the `funder name` on the form, and to add the `Add another` and `Remove funder` buttons [#656]
 - Fixed issue where publishing a template with visibility `ORGANIZATION` was breaking because frontend is passing the invalid enum of `PRIVATE` instead of `ORGANIZATION` [#715]
 - Fixed `sass` errors resulting from latest version updates [#751]
