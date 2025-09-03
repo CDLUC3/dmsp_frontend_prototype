@@ -32,6 +32,8 @@
 
 ### Fixed
 - Fixed issue where publishing a template with visibility `ORGANIZATION` was breaking because frontend is passing the invalid enum of `PRIVATE` instead of `ORGANIZATION` [#715]
+- Fixed `sass` errors resulting from latest version updates [#751]
+- Fixed issue with some breaking unit tests due to different timezones [#739]
 - Fixed some issues on the `Project details` page [#734]
 - Fixed issue with entered Affiliation `label` and `help` text not displaying on the `Question Preview` page
 - Update `PlanOverviewQuestionPage` to make sure that `sample text` displays initially when it is present and `useSampleTextAsDefault` is set to true [#677]
@@ -66,11 +68,15 @@
 - Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
 - Allow for tags in the checkbox group to wrap when the screen size is small. [#489]
+- Changed the create-project flow [#681]
 
 ### Removed
 - Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Remove the old QuestinType` graphQL query [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+
+### Chore
+- Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================
 ## All changes above the line happened after the merge to the main branch on July 21, 2025

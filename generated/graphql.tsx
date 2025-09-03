@@ -4309,6 +4309,13 @@ export type ProjectQueryVariables = Exact<{
 
 export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, fundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, members?: Array<{ __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, outputs?: Array<{ __typename?: 'ProjectOutput', title: string }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null, parentResearchDomainId?: number | null } | null, plans?: Array<{ __typename?: 'PlanSearchResult', templateTitle?: string | null, id?: number | null, funding?: string | null, dmpId?: string | null, modified?: string | null, created?: string | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null }> | null } | null };
 
+export type ProjectFundingsApiQueryVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+}>;
+
+
+export type ProjectFundingsApiQuery = { __typename?: 'Query', project?: { __typename?: 'Project', fundings?: Array<{ __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', apiTarget?: string | null } | null }> | null } | null };
+
 export type QuestionsDisplayOrderQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
 }>;
@@ -7148,6 +7155,50 @@ export type ProjectQueryHookResult = ReturnType<typeof useProjectQuery>;
 export type ProjectLazyQueryHookResult = ReturnType<typeof useProjectLazyQuery>;
 export type ProjectSuspenseQueryHookResult = ReturnType<typeof useProjectSuspenseQuery>;
 export type ProjectQueryResult = Apollo.QueryResult<ProjectQuery, ProjectQueryVariables>;
+export const ProjectFundingsApiDocument = gql`
+    query ProjectFundingsApi($projectId: Int!) {
+  project(projectId: $projectId) {
+    fundings {
+      affiliation {
+        apiTarget
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useProjectFundingsApiQuery__
+ *
+ * To run a query within a React component, call `useProjectFundingsApiQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectFundingsApiQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectFundingsApiQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectFundingsApiQuery(baseOptions: Apollo.QueryHookOptions<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables> & ({ variables: ProjectFundingsApiQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>(ProjectFundingsApiDocument, options);
+      }
+export function useProjectFundingsApiLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>(ProjectFundingsApiDocument, options);
+        }
+export function useProjectFundingsApiSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>(ProjectFundingsApiDocument, options);
+        }
+export type ProjectFundingsApiQueryHookResult = ReturnType<typeof useProjectFundingsApiQuery>;
+export type ProjectFundingsApiLazyQueryHookResult = ReturnType<typeof useProjectFundingsApiLazyQuery>;
+export type ProjectFundingsApiSuspenseQueryHookResult = ReturnType<typeof useProjectFundingsApiSuspenseQuery>;
+export type ProjectFundingsApiQueryResult = Apollo.QueryResult<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>;
 export const QuestionsDisplayOrderDocument = gql`
     query QuestionsDisplayOrder($sectionId: Int!) {
   questions(sectionId: $sectionId) {
