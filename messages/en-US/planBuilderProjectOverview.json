@@ -156,16 +156,29 @@
         "projectFundingUpdateFailed": "Error updating project funding details",
         "fundingGrantId": "Invalid funder grant ID value",
         "fundingProjectNumber": "Invalid funder project number value",
-        "fundingName": "Invalid funder name value"
+        "fundingName": "Invalid funder name value",
+        "requiredOtherAffiliation": "Invalid name value"
       },
       "success": {
-        "projectFundingUpdated": "Successfully updated project funding details"
+        "projectFundingUpdated": "Successfully updated project funding details",
+        "removedFunding": "Successfully removed project funding."
+      },
+      "info": {
+        "redirectingToAddFunderPage": "Redirecting to Add Funder page."
       }
-    }
+    },
+    "buttons": {
+      "removeFunder": "Remove funder"
+    },
+    "headings": {
+      "deleteFunder": "Delete funder"
+    },
+    "para1Delete": "This funder will be deleted. It will be removed from your list and is <strong>not reversible</strong>.",
+    "para2Delete": "Deleting the funder and funding information will be deleted from all your plans."
   },
   "ProjectsProjectFundingAdd": {
     "title": "Add Funding Details",
-    "description": "Manually add a new fundting source",
+    "description": "Manually add a new funding source",
     "labels": {
       "funderName": "Funder name",
       "fundingStatus": "Funding Status",
@@ -178,7 +191,8 @@
         "projectFundingUpdateFailed": "Error updating project funding details",
         "fundingGrantId": "Invalid funder grant ID value",
         "fundingProjectNumber": "Invalid funder project number value",
-        "fundingName": "Invalid funder name value"
+        "fundingName": "Invalid funder name value",
+        "requiredOtherAffiliation": "Invalid name value"
       },
       "success": {
         "projectFundingUpdated": "Successfully updated project funding details"
@@ -270,7 +284,7 @@
     "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
     "para2": "If they aren't already a member of we'll invite them to join.",
     "para3": "We have sent an invite to <strong>{email}</strong>. They will have access to this project.",
-    "para4": "To also add them as a Project Member, &lt;projectmember&gt; go to the Project Members page &lt;/projectmember&gt;.",
+    "para4": "To also add them as a Project Member, <projectmember> go to the Project Members page </projectmember>.",
     "para5": "They will have access to {access} DMPs in this project.",
     "messaging": {
       "errors": {

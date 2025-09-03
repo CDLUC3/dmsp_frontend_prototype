@@ -155,9 +155,21 @@
         "fundingName": "Valor do nome do financiador inválido"
       },
       "success": {
-        "projectFundingUpdated": "Detalhes do financiador do projeto atualizados com sucesso"
+        "projectFundingUpdated": "Detalhes do financiamento do projeto atualizados com sucesso",
+        "removedFunding": "Financiamento do projeto removido com sucesso."
+      },
+      "info": {
+        "redirectingToAddFunderPage": "Redirecionando para a página Adicionar financiador."
       }
-    }
+    },
+    "buttons": {
+      "removeFunder": "Remover financiador"
+    },
+    "headings": {
+      "deleteFunder": "Excluir financiador"
+    },
+    "para1Delete": "Este financiador será excluído. Ele será removido da sua lista e <strong>não é reversível</strong>.",
+    "para2Delete": "A exclusão do financiador e das informações de financiamento também excluirá todos os seus planos."
   },
   "ProjectsProjectFundingAdd": {
     "title": "Adicionar detalhes de financiamento",

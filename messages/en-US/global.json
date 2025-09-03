@@ -224,7 +224,8 @@
       "preview": "Preview",
       "publish": "Publish",
       "close": "Close",
-      "loadMore": "Load more"
+      "loadMore": "Load more",
+      "addAnother": "Add another"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",
