@@ -14,6 +14,9 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Updated `template.visibility` to `template.latestPublishVisibility` to match backend changes [#715]
+- Update the Publish modal so that a `visibility` radio option is defaulted to previously set one in the last publish date [#715]
+- Updated the template cards so that if `template.latestPublishVisibility` then we remove the `dot` separateor [#715]
 - Update the section questions to show Answered/Not Answered status and buttons Start/Update [#670]
 - Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
 - Updated unit test for `Plan Create` to use new `MockProvider` [#686]
@@ -28,6 +31,7 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Fixed issue where publishing a template with visibility `ORGANIZATION` was breaking because frontend is passing the invalid enum of `PRIVATE` instead of `ORGANIZATION` [#715]
 - Fixed `sass` errors resulting from latest version updates [#751]
 - Fixed issue with some breaking unit tests due to different timezones [#739]
 - Fixed some issues on the `Project details` page [#734]
