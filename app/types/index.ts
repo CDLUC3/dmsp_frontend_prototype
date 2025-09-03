@@ -32,7 +32,7 @@ export interface TemplateSearchResultInterface {
   id?: number | null;
   name?: string | null;
   description?: string | null;
-  visibility?: TemplateVisibility | null;
+  latestPublishVisibility?: TemplateVisibility | null;
   isDirty?: boolean | null;
   latestPublishVersion?: string | null;
   latestPublishDate?: string | null;
@@ -75,7 +75,7 @@ export interface TemplateItemProps {
   publishStatus?: string | null;
   publishDate?: string | null;
   bestPractices?: boolean;
-  visibility?: string | null;
+  latestPublishVisibility?: string | null;
 }
 
 export interface PaginatedVersionedTemplateSearchResultsInterface {
