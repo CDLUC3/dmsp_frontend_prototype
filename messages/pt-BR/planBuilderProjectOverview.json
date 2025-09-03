@@ -66,12 +66,7 @@
     "pageTitle": "Criar um novo blog",
     "form": {
       "projectTitle": "Qual é o título do projeto? (obrigatório)",
-      "projectTitleHelpText": "Este deveria ser o título formal, se já apresentou o pedido de financiamento. pois será usado para encontrar o seu Projeto no banco de dados do Funder. Isto pode ser alterado mais tarde.",
-      "newOrExisting": "Projeto novo ou existente?",
-      "radioExistingLabel": "O projeto já existe ou pode existir",
-      "radioExistingHelpText": "Procuraremos o projeto e faremos o pull de informações associadas para você revisar e editar, se possível, caso contrário, crie um novo projeto",
-      "radioNewLabel": "Novo projeto",
-      "radioNewHelpText": "Digite todos os detalhes do projeto você mesmo.",
+      "projectTitleHelpText": "Você pode alterar isso a qualquer momento. Se você já solicitou financiamento, recomendamos usar o título formal do projeto para manter a consistência.",
       "checkboxGroupLabel": "Este projeto é uma simulação (mock, em inglês) para fins de teste, prática ou educacional",
       "checkboxGroupHelpText": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",
       "checkboxLabel": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste.",
@@ -89,8 +84,12 @@
   "ProjectsCreateProjectFunding": {
     "title": "Vocês já têm financiamento para este projeto?",
     "form": {
-      "radioFundingLabel": "Vocês já têm financiamento para este projeto?",
-      "radioFundingDescription": "Se sim, tentaremos pesquisar o projeto e obter informações associadas para você revisar e editar."
+      "radioFundingLabel": "Você já tem financiamento para este projeto?",
+      "radioFundingDescription": "Você pode atualizar ou remover tudo isso mais tarde, então não se preocupe se ainda estiver esperando os detalhes finais ou um número de prêmio.",
+      "radioYesLabel": "Sim, recebi financiamento",
+      "radioYesDescription": "Ajudaremos você a vincular o projeto a um financiador agora mesmo. Você poderá selecionar um financiador e, se disponível, coletaremos os detalhes relevantes. Tudo poderá ser revisado ou alterado posteriormente.",
+      "radioNoLabel": "Não - Pular por enquanto",
+      "radioNoDescription": "Você ainda pode prosseguir. Se receber financiamento posteriormente, poderá vinculá-lo a este projeto."
     }
   },
   "ProjectsProjectDetail": {
@@ -221,13 +220,16 @@
       "projectMembers": "Membros de projeto"
     },
     "buttons": {
-      "removeMember": "Remover membro"
+      "removeMember": "Remover membro",
+      "removing": "Removendo"
     },
     "headings": {
-      "h2RemoveMember": "Remover membro"
+      "h2RemoveMember": "Remover membro",
+      "removeProjectMember": "Remover membro do projeto"
     },
     "paragraphs": {
-      "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível."
+      "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível.",
+      "modalInfo": "Observe que, se você remover este membro do projeto, ele também será removido de todos os planos associados. Além disso, se este for o único membro do projeto, ele não poderá ser excluído."
     },
     "form": {
       "errors": {

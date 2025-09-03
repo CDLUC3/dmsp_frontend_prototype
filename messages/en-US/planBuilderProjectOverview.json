@@ -66,12 +66,7 @@
     "pageTitle": "Create a new project",
     "form": {
       "projectTitle": "What is the title for the project? (required)",
-      "projectTitleHelpText": "This should be the formal title if you have already applied for funding, as it will be used to find your Project in the Funder’s database. This can be changed later.",
-      "newOrExisting": "New or existing project?",
-      "radioExistingLabel": "The project already exists or might exist",
-      "radioExistingHelpText": "We will search for the project and pull in associated information for you to review and edit if possible, otherwise create a brand new project",
-      "radioNewLabel": "New project",
-      "radioNewHelpText": "Enter all project details yourself.",
+      "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency.",
       "checkboxGroupLabel": "This project is mock project for testing, practice, or educational purposes",
       "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
       "checkboxLabel": "Yes, set this project to a mock or a test project.",
@@ -90,7 +85,11 @@
     "title": "Do you already have funding for this project?",
     "form": {
       "radioFundingLabel": "Do you already have funding for this project?",
-      "radioFundingDescription": "If yes, we will try to search for the project and pull in associated information for you to review and edit."
+      "radioFundingDescription": "You can update or remove all of this later, so don't worry if you are still waiting on final details or an award number.",
+      "radioYesLabel": "Yes - I've been awarded funding",
+      "radioYesDescription": "We'll help you link the project to a funder now. You'll be able to select a funder and, if available, we'll pull in relevant details. Everything can be reviewed or changed later.",
+      "radioNoLabel": "No - Skip for now",
+      "radioNoDescription": "You can still proceed. If you receive funding later, you'll be able to link it to this project."
     }
   },
   "ProjectsProjectDetail": {
@@ -227,13 +226,16 @@
       "projectMembers": "Project members"
     },
     "buttons": {
-      "removeMember": "Remove member"
+      "removeMember": "Remove member",
+      "removing": "Removing"
     },
     "headings": {
-      "h2RemoveMember": "Remove member"
+      "h2RemoveMember": "Remove member",
+      "removeProjectMember": "Remove project member"
     },
     "paragraphs": {
-      "removeMember": "Removing this member means they will no longer be able to access this plan. This is not reversible."
+      "removeMember": "Removing this member means they will no longer be able to access this plan. This is not reversible.",
+      "modalInfo": "Please note that if you remove this project member, the member will also be removed from any associated plans. Also, if this is the only member under the project, it cannot be deleted."
     },
     "form": {
       "errors": {

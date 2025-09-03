@@ -1,5 +1,6 @@
 
 ### Added
+- Added a `dialog` when removing `project members` so we can message them about the member being removed from all plans and allow users to confirm they want to delete this member [#737]
 - Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
 - Added new mutations to `add`, `update`, and `delete` comments [#321]
 - Added new `CommentList` and `CommentsDrawer` components, and `useComments` hook for the comments list [#321]
@@ -28,6 +29,7 @@
 
 ### Fixed
 - Updated `Add Funder` page to use an `affiliationSearch` for the `funder name`. Updated `Edit Funding Details` page to disable the `funder name` on the form, and to add the `Add another` and `Remove funder` buttons [#656]
+- Fixed issue with some breaking unit tests due to different timezones [#739]
 - Fixed some issues on the `Project details` page [#734]
 - Fixed issue with entered Affiliation `label` and `help` text not displaying on the `Question Preview` page
 - Update `PlanOverviewQuestionPage` to make sure that `sample text` displays initially when it is present and `useSampleTextAsDefault` is set to true [#677]
@@ -62,6 +64,7 @@
 - Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
 - Allow for tags in the checkbox group to wrap when the screen size is small. [#489]
+- Changed the create-project flow [#681]
 
 ### Removed
 - Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)

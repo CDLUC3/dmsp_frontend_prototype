@@ -112,3 +112,20 @@ export function extractErrors<T extends Record<string, string | undefined>>(
 
   return newErrors;
 }
+
+
+/**
+ * Utility function to check if any errors exist in an error object.
+ *
+ * @param errs - The error object (can be any shape)
+ * @param keys - The keys to extract errors from
+ * @returns If any error was found, and the orginal error object
+ */
+export function checkErrors<T extends Record<string, string | null | undefined>>(
+  errs: T,
+  keys: (keyof T)[],
+): [boolean, T] {
+  const noErrors = Object.values(errs).every(val => val === null);
+  if (noErrors) return [false, errs];
+  return [keys.some((k) => !!errs[k]), errs];
+}

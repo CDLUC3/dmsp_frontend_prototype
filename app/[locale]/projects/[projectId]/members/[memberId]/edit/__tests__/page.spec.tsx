@@ -1,5 +1,5 @@
 import React from "react";
-import { act, fireEvent, render, screen, waitFor } from '@/utils/test-utils';
+import { act, fireEvent, render, screen, waitFor, within } from '@/utils/test-utils';
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from '@/context/ToastContext';
 import logECS from '@/utils/clientLogger';
@@ -212,7 +212,210 @@ describe("ProjectsProjectMembersEdit", () => {
     });
   });
 
-  it("should handle field level errors from submitting form", async () => {
+  it("should display validation errors if givenName and surName are too short", async () => {
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
+      { loading: false, error: undefined },
+    ]);
+
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    (useProjectMemberData as jest.Mock).mockReturnValue({
+      projectMemberData: {
+        givenName: 'T',
+        surName: 'U',
+        affiliationId: 'test-affiliation',
+        email: 'test@example.com',
+        orcid: '0000-0000-0000-0000',
+      },
+      checkboxRoles: ['1', '2'],
+      setCheckboxRoles: jest.fn(),
+      loading: false,
+      setProjectMemberData: jest.fn(),
+      data: {
+        projectMember: {
+          givenName: 'T',
+          surName: 'U',
+          affiliation: { uri: 'test-affiliation' },
+          email: 'test@example.com',
+          orcid: '0000-0000-0000-0000',
+          memberRoles: [
+            { id: '1', __typename: 'MemberRole' },
+            { id: '2', __typename: 'MemberRole' }
+          ]
+        }
+      },
+      queryError: null
+    });
+
+    await act(async () => {
+      render(
+        <ProjectsProjectMembersEdit />
+      );
+    });
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveChanges/i });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('form.errors.firstName')).toBeInTheDocument();
+      expect(screen.getByText('form.errors.lastName')).toBeInTheDocument();
+    });
+  });
+
+  it("should display real-time email validation error without form submission", async () => {
+    const setProjectMemberDataMock = jest.fn();
+
+    (useProjectMemberData as jest.Mock).mockReturnValue({
+      projectMemberData: {
+        givenName: 'Valid First Name',
+        surName: 'Valid Last Name',
+        affiliationId: 'test-affiliation',
+        email: 'invalid-email-format', // Invalid email format
+        orcid: '0000-0000-0000-0000',
+      },
+      checkboxRoles: ['1', '2'],
+      setCheckboxRoles: jest.fn(),
+      loading: false,
+      setProjectMemberData: setProjectMemberDataMock,
+      data: {
+        projectMember: {
+          givenName: 'Valid First Name',
+          surName: 'Valid Last Name',
+          affiliation: { uri: 'test-affiliation' },
+          email: 'invalid-email-format',
+          orcid: '0000-0000-0000-0000',
+          memberRoles: [
+            { id: '1', __typename: 'MemberRole' },
+            { id: '2', __typename: 'MemberRole' }
+          ]
+        }
+      },
+      queryError: null
+    });
+
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
+      { loading: false, error: undefined },
+    ]);
+
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<ProjectsProjectMembersEdit />);
+    });
+
+    // The email field should show as invalid due to real-time validation
+    // This happens immediately on render, without needing form submission
+    const emailInput = screen.getByLabelText('form.labels.emailAddress');
+
+    expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+
+    // The error message should also be displayed
+    expect(screen.getByText('form.errors.email')).toBeInTheDocument();
+
+    const saveButton = screen.getByRole('button', { name: /buttons.saveChanges/i });
+    fireEvent.click(saveButton);
+
+    expect(screen.getByText('form.errors.email')).toBeInTheDocument();
+
+  });
+
+  it("should clear validation errors when user corrects the field values", async () => {
+    const setProjectMemberDataMock = jest.fn();
+
+    // Start with invalid data
+    (useProjectMemberData as jest.Mock).mockReturnValue({
+      projectMemberData: {
+        givenName: 'A', // Invalid - too short
+        surName: 'B',   // Invalid - too short  
+        affiliationId: 'test-affiliation',
+        email: 'test@example.com',
+        orcid: '0000-0000-0000-0000',
+      },
+      checkboxRoles: ['1', '2'],
+      setCheckboxRoles: jest.fn(),
+      loading: false,
+      setProjectMemberData: setProjectMemberDataMock,
+      data: {
+        projectMember: {
+          givenName: 'A',
+          surName: 'B',
+          affiliation: { uri: 'test-affiliation' },
+          email: 'test@example.com',
+          orcid: '0000-0000-0000-0000',
+          memberRoles: [
+            { id: '1', __typename: 'MemberRole' },
+            { id: '2', __typename: 'MemberRole' }
+          ]
+        }
+      },
+      queryError: null
+    });
+
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
+      { loading: false, error: undefined },
+    ]);
+
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(<ProjectsProjectMembersEdit />);
+    });
+
+    // First submit the form to trigger validation errors
+    const saveButton = screen.getByRole('button', { name: /buttons.saveChanges/i });
+
+    await act(async () => {
+      fireEvent.click(saveButton);
+    });
+
+    // Verify errors are shown
+    await waitFor(() => {
+      expect(screen.getByText('form.errors.firstName')).toBeInTheDocument();
+      expect(screen.getByText('form.errors.lastName')).toBeInTheDocument();
+    });
+
+    // Now fix the first name field
+    const firstNameInput = screen.getByRole('textbox', { name: /firstName/i });
+
+    await act(async () => {
+      fireEvent.change(firstNameInput, { target: { value: 'Valid First Name' } });
+    });
+
+    // Verify that setProjectMemberData was called to update the field
+    expect(setProjectMemberDataMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        givenName: 'Valid First Name'
+      })
+    );
+
+    // Now fix the last name field
+    const lastNameInput = screen.getByRole('textbox', { name: /lastName/i });
+
+    await act(async () => {
+      fireEvent.change(lastNameInput, { target: { value: 'Valid Last Name' } });
+    });
+
+    // Verify that setProjectMemberData was called to update the field
+    expect(setProjectMemberDataMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        surName: 'Valid Last Name'
+      })
+    );
+  });
+
+  it("should handle field level errors returned from submitting form", async () => {
     (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
       jest.fn().mockResolvedValueOnce({ data: { updateProjectMember: { errors: { general: 'Error updating member' } } } }),
       { loading: false, error: undefined },
@@ -283,11 +486,80 @@ describe("ProjectsProjectMembersEdit", () => {
       );
     });
 
-    const removeButton = screen.getByRole('button', { name: /form.labels.removeMemberFromProject/i });
-    fireEvent.click(removeButton);
+    const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
+
+    await act(async () => {
+      fireEvent.click(removeButton);
+    })
+
+    await waitFor(() => {
+      // Modal should open
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      const heading = screen.getByRole('heading', { level: 3 });
+      expect(heading).toBeInTheDocument();
+      expect(heading).toHaveTextContent('headings.removeProjectMember');
+      // Get buttons within the modal/dialog
+      const dialog = screen.getByRole('dialog');
+      const modalButtons = within(dialog).getAllByRole('button');
+      expect(modalButtons).toHaveLength(2);
+      expect(modalButtons[0]).toHaveTextContent('buttons.cancel');
+      expect(modalButtons[1]).toHaveTextContent('buttons.delete');
+    });
+
+    // Click delete button
+    const dialog = screen.getByRole('dialog');
+    const deleteButton = within(dialog).getByRole('button', { name: 'buttons.delete' });
+
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
 
     await waitFor(() => {
       expect(mockRouter.push).toHaveBeenCalledWith('/en-US/projects/1/members');
+    });
+  });
+
+  it("should handle cancel button in Remove Member modal", async () => {
+    (useUpdateProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: mockResponse }),
+      { loading: false, error: undefined },
+    ]);
+
+    (useRemoveProjectMemberMutation as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce({ data: { key: 'value' } }),
+      { loading: false, error: undefined },
+    ]);
+
+    await act(async () => {
+      render(
+        <ProjectsProjectMembersEdit />
+      );
+    });
+
+    const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
+
+    await act(async () => {
+      fireEvent.click(removeButton);
+    })
+
+    await waitFor(() => {
+      // Modal should open
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Click delete button
+    const dialog = screen.getByRole('dialog');
+    const modalButtons = within(dialog).getAllByRole('button');
+    expect(modalButtons).toHaveLength(2);
+    expect(modalButtons[0]).toHaveTextContent('buttons.cancel');
+    expect(modalButtons[1]).toHaveTextContent('buttons.delete');
+
+    await act(async () => {
+      fireEvent.click(modalButtons[0]);
+    });
+
+    await waitFor(() => {
+      expect(dialog).not.toBeInTheDocument();
     });
   });
 
@@ -307,8 +579,23 @@ describe("ProjectsProjectMembersEdit", () => {
       );
     });
 
-    const removeButton = screen.getByRole('button', { name: /form.labels.removeMemberFromProject/i });
-    fireEvent.click(removeButton);
+    const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
+
+    await act(async () => {
+      fireEvent.click(removeButton);
+    })
+
+    await waitFor(() => {
+      // Modal should open
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Click delete button
+    const deleteButton = screen.getByRole('button', { name: 'buttons.delete' });
+
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
 
     expect(await screen.findByText('Error removing member')).toBeInTheDocument();
   });
@@ -329,8 +616,23 @@ describe("ProjectsProjectMembersEdit", () => {
       );
     });
 
-    const removeButton = screen.getByRole('button', { name: /form.labels.removeMemberFromProject/i });
-    fireEvent.click(removeButton);
+    const removeButton = screen.getByRole('button', { name: 'buttons.removeMember' });
+
+    await act(async () => {
+      fireEvent.click(removeButton);
+    })
+
+    await waitFor(() => {
+      // Modal should open
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    // Click delete button
+    const deleteButton = screen.getByRole('button', { name: 'buttons.delete' });
+
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
 
     await waitFor(() => {
       expect(logECS).toHaveBeenCalledWith(
