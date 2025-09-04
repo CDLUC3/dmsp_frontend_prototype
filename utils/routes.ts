@@ -79,8 +79,10 @@ const routes = {
   'projects.dmp.research-outputs.edit': '/projects/:projectId/dmp/:dmpId/research-outputs/edit',
   'projects.dmp.versionedSection': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId',
   'projects.dmp.create': '/projects/:projectId/dmp/create',
+
   'projects.dmp.feedback': '/projects/:projectId/dmp/:dmpId/feedback',
-  'projects.dmp.feedback.invite': '/projects/:projectId/dmp/:dmpId/feedback/invite',
+  'projects.collaboration': '/projects/:projectId/collaboration',
+  'projects.collaboration.invite': '/projects/:projectId/collaboration/invite',
   'projects.dmp.relatedWorks': '/projects/:projectId/dmp/:dmpId/related-works',
 
   // Template

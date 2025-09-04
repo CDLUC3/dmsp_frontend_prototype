@@ -225,7 +225,8 @@
       "publish": "Publish",
       "close": "Close",
       "loadMore": "Load more",
-      "addAnother": "Add another"
+      "addAnother": "Add another",
+      "goToProject": "Go to project"
     },
     "labels": {
       "searchByKeyword": "Search by keyword",

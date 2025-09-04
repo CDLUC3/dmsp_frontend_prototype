@@ -57,7 +57,7 @@ const customJestConfig = {
 
 // createJestConfig seems to add its own transformIgnorePatterns that conflict with our own transformIgnorePatterns
 // so this approach makes sure that only our config is applied
-export default async () => {
+const getJestConfig = async () => {
   const config = await createJestConfig(customJestConfig)();
 
   // Updated transformIgnorePatterns to handle next-intl and its dependencies
@@ -67,3 +67,5 @@ export default async () => {
 
   return config;
 };
+
+export default getJestConfig;

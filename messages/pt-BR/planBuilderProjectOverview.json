@@ -14,20 +14,20 @@
     "edit": "Alterar",
     "editProject": "Editar Detalhes do Projeto",
     "fundings": "Fontes de financiamento",
-    "fundingCount": "{count} Fontes de Financiamento",
+    "fundingCount": "{count, plural, =0 {0 fontes de financiamento} one {1 fonte de financiamento} other {{count} fontes de financiamento}}",
     "fundingInfo": "{name} ({id})",
     "editFundings": "Editar detalhes do financiamento",
     "editFundingDetails": "Editar detalhes do financiamento",
     "projectMembers": "Membros de projeto",
-    "memberCount": "Membros da equipe {count}",
+    "memberCount": "{count, plural, =0 {0 membros da equipe} one {1 membro da equipe} other {{count} membros da equipe}}",
     "memberInfo": "{name} ({role})",
     "editMembers": "Editar Detalhes do Projeto",
     "editProjectMembers": "Editar Detalhes do Projeto",
     "researchOutputs": "Resultados da pesquisa",
-    "outputCount": "{count} Outputs",
+    "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
     "editOutputs": "Editar resultados de pesquisa",
     "editResearchOutputs": "Editar resultados de pesquisa",
-    "plans": "Plano(s)",
+    "plans": "Planos",
     "planActions": "Planejar ações",
     "upload": "Carregar plano",
     "uploadPlan": "Enviar um novo plano",
@@ -49,6 +49,18 @@
     "created": "Criado",
     "messages": {
       "errorGettingProject": "Erro ao obter detalhes do projeto"
+    },
+    "status": {
+      "collaboration": {
+        "title": "Colaboração",
+        "description": "{total, plural, =0 {0 colaboradores} one {1 colaborador} other {{total} colaboradores}}",
+        "link_text": "Gerenciar acesso"
+      },
+      "feedback": {
+        "title": "Feedback",
+        "description": "",
+        "link_text": "Solicitar"
+      }
     }
   },
   "ProjectsListPage": {
@@ -259,7 +271,7 @@
       }
     }
   },
-  "ProjectsProjectPlanFeedbackInvite": {
+  "ProjectsProjectCollaborationInvite": {
     "title": "Quem deve ter acesso a este plano?",
     "breadcrumbs": {
       "manageAccess": "Gerenciar acesso"
