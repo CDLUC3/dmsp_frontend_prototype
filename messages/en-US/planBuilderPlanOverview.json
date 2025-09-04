@@ -45,6 +45,11 @@
       "count": "{count} outputs",
       "edit": "Adjust for this plan"
     },
+    "relatedWorks": {
+      "title": "Related works for this plan",
+      "count": "{count} works",
+      "edit": "Adjust for this plan"
+    },
     "question": {
       "answered": "Answered",
       "notAnswered": "Not answered"
@@ -106,7 +111,7 @@
         "checklistItem": {
           "primaryContact": "have a primary contact",
           "complete": "marked your plan as complete",
-          "percentageAnswered": "have answered at least 50% of the questions (you answered {percentage}%",
+          "percentageAnswered": "have answered at least 50% of the questions (you answered {percentage}%)",
           "fundingText": "have identified your",
           "funding": "funding source(s)",
           "requiredFields": "completed all fields marked as 'required'",

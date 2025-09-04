@@ -1,19 +1,6 @@
 ### Added
-- Static Feedback page with translation and text
-
-### Updated
-
-- Project over is now using sidebar to allow for collaboration
-- Sidebar is now using global styling rather than css modules
-- Renamed collaboration components from `ProjectsProjectPlanFeedback` to `ProjectsProjectCollaboration` for better clarity and consistency:
-  - Updated main collaboration page component name and imports
-  - Updated invite page component name and translation keys
-  - Updated all related test files and component references
-  - Updated translation files in both English and Portuguese
-  - Renamed SCSS module file to match new component naming convention
-
-### Added
-
+- Static Feedback page with translation and text [#750]
+- Added `RelatedWorks` page and associated components `RelatedWorksList`, `RelatedWorksListItem`, `ExpandableNameList` and `LinkFilter`. [#672][#673]
 - Added a `dialog` when removing `project members` so we can message them about the member being removed from all plans and allow users to confirm they want to delete this member [#737]
 - Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
 - Added new mutations to `add`, `update`, and `delete` comments [#321]
@@ -28,7 +15,20 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
-
+- Project over is now using sidebar to allow for collaboration [#750]
+- Sidebar is now using global styling rather than css modules [#750]
+- Renamed collaboration components from `ProjectsProjectPlanFeedback` to `ProjectsProjectCollaboration` for better clarity and consistency: [#750]
+  - Updated main collaboration page component name and imports
+  - Updated invite page component name and translation keys
+  - Updated all related test files and component references
+  - Updated translation files in both English and Portuguese
+  - Renamed SCSS module file to match new component naming convention
+- Use `orcidToUrl` helper function to generate full ORCID URLs. [#672][#673]
+- Moved expand button from `ResearchOutputsList` into its own component `ExpandButton`.[#672][#673]
+- Updated `template.visibility` to `template.latestPublishVisibility` to match backend changes [#715]
+- Update the Publish modal so that a `visibility` radio option is defaulted to previously set one in the last publish date [#715]
+- Updated the template cards so that if `template.latestPublishVisibility` then we remove the `dot` separateor [#715]
+- Updated the `Publish Preview` dialog to show the progress from the resolver so it doesn't have to add progress for all sections but get it directly [#720]
 - Update the section questions to show Answered/Not Answered status and buttons Start/Update [#670]
 - Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
 - Updated unit test for `Plan Create` to use new `MockProvider` [#686]
@@ -43,7 +43,12 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
-
+- Make `Tab` use `cursor: pointer`.
+- Fix styling of `Toggle Switch` as toggle button was vertically off-centre.
+- Fix styling of `Select` by setting `overflow: auto` on `ListBox` so that the list can scroll, and make `ListBoxItem` use `cursor: pointer`.
+- Updated `Add Funder` page to use an `affiliationSearch` for the `funder name`. Updated `Edit Funding Details` page to disable the `funder name` on the form, and to add the `Add another` and `Remove funder` buttons [#656]
+- Fixed issue where publishing a template with visibility `ORGANIZATION` was breaking because frontend is passing the invalid enum of `PRIVATE` instead of `ORGANIZATION` [#715]
+- Fixed `sass` errors resulting from latest version updates [#751]
 - Fixed issue with some breaking unit tests due to different timezones [#739]
 - Fixed some issues on the `Project details` page [#734]
 - Fixed issue with entered Affiliation `label` and `help` text not displaying on the `Question Preview` page
@@ -79,12 +84,16 @@
 - Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
 - Allow for tags in the checkbox group to wrap when the screen size is small. [#489]
+- Changed the create-project flow [#681]
 
 ### Removed
 
 - Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Remove the old QuestinType` graphQL query [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
+
+### Chore
+- Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
 
 ====================================================================================================================================
 

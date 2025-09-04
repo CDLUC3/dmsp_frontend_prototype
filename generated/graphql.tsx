@@ -1091,9 +1091,9 @@ export type MutationCompleteFeedbackArgs = {
 
 export type MutationCreateTemplateVersionArgs = {
   comment?: InputMaybe<Scalars['String']['input']>;
+  latestPublishVisibility: TemplateVisibility;
   templateId: Scalars['Int']['input'];
   versionType?: InputMaybe<TemplateVersionType>;
-  visibility: TemplateVisibility;
 };
 
 
@@ -1411,7 +1411,6 @@ export type MutationUpdateTemplateArgs = {
   bestPractice?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   templateId: Scalars['Int']['input'];
-  visibility: TemplateVisibility;
 };
 
 
@@ -1539,6 +1538,8 @@ export type Plan = {
   modifiedById?: Maybe<Scalars['Int']['output']>;
   /** Anticipated research outputs */
   outputs?: Maybe<Array<PlanOutput>>;
+  /** The progress the user has made within the plan */
+  progress?: Maybe<PlanProgress>;
   /** The project the plan is associated with */
   project?: Maybe<Project>;
   /** The timestamp for when the Plan was registered */
@@ -1752,6 +1753,16 @@ export type PlanOutputErrors = {
   __typename?: 'PlanOutputErrors';
   /** General error messages such as the object already exists */
   general?: Maybe<Scalars['String']['output']>;
+};
+
+export type PlanProgress = {
+  __typename?: 'PlanProgress';
+  /** The total number of questions the user has answered */
+  answeredQuestions: Scalars['Int']['output'];
+  /** The percentage of questions the user has answered */
+  percentComplete: Scalars['Float']['output'];
+  /** The total number of questions in the plan */
+  totalQuestions: Scalars['Int']['output'];
 };
 
 export type PlanSearchResult = {
@@ -3063,6 +3074,8 @@ export type Template = {
   latestPublishDate?: Maybe<Scalars['String']['output']>;
   /** The last published version */
   latestPublishVersion?: Maybe<Scalars['String']['output']>;
+  /** The last published visibility */
+  latestPublishVisibility?: Maybe<TemplateVisibility>;
   /** The timestamp when the Object was last modifed */
   modified?: Maybe<Scalars['String']['output']>;
   /** The user who last modified the Object */
@@ -3075,8 +3088,6 @@ export type Template = {
   sections?: Maybe<Array<Maybe<Section>>>;
   /** The template that this one was derived from */
   sourceTemplateId?: Maybe<Scalars['Int']['output']>;
-  /** The template's availability setting: Public is available to everyone, Private only your affiliation */
-  visibility: TemplateVisibility;
 };
 
 /** A user that that belongs to a different affiliation that can edit the Template */
@@ -3124,11 +3135,11 @@ export type TemplateErrors = {
   general?: Maybe<Scalars['String']['output']>;
   languageId?: Maybe<Scalars['String']['output']>;
   latestPublishVersion?: Maybe<Scalars['String']['output']>;
+  latestPublishVisibility?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   ownerId?: Maybe<Scalars['String']['output']>;
   sectionIds?: Maybe<Scalars['String']['output']>;
   sourceTemplateId?: Maybe<Scalars['String']['output']>;
-  visibility?: Maybe<Scalars['String']['output']>;
 };
 
 /** A search result for templates */
@@ -3152,6 +3163,8 @@ export type TemplateSearchResult = {
   latestPublishDate?: Maybe<Scalars['String']['output']>;
   /** The last published version */
   latestPublishVersion?: Maybe<Scalars['String']['output']>;
+  /** The last published visibility */
+  latestPublishVisibility?: Maybe<TemplateVisibility>;
   /** The timestamp when the Template was last modified */
   modified?: Maybe<Scalars['String']['output']>;
   /** The id of the person who last modified the template */
@@ -3164,8 +3177,6 @@ export type TemplateSearchResult = {
   ownerDisplayName?: Maybe<Scalars['String']['output']>;
   /** The id of the affiliation that owns the Template */
   ownerId?: Maybe<Scalars['String']['output']>;
-  /** The template's availability setting: Public is available to everyone, Private only your affiliation */
-  visibility?: Maybe<TemplateVisibility>;
 };
 
 /** Paginated results of a search for templates */
@@ -3881,7 +3892,7 @@ export type AddAffiliationMutationVariables = Exact<{
 }>;
 
 
-export type AddAffiliationMutation = { __typename?: 'Mutation', addAffiliation?: { __typename?: 'Affiliation', uri: string, errors?: { __typename?: 'AffiliationErrors', name?: string | null } | null } | null };
+export type AddAffiliationMutation = { __typename?: 'Mutation', addAffiliation?: { __typename?: 'Affiliation', uri: string, errors?: { __typename?: 'AffiliationErrors', general?: string | null, name?: string | null } | null } | null };
 
 export type AddAnswerMutationVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4041,6 +4052,13 @@ export type UpdateProjectFundingMutationVariables = Exact<{
 
 export type UpdateProjectFundingMutation = { __typename?: 'Mutation', updateProjectFunding?: { __typename?: 'ProjectFunding', errors?: { __typename?: 'ProjectFundingErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
 
+export type RemoveProjectFundingMutationVariables = Exact<{
+  projectFundingId: Scalars['Int']['input'];
+}>;
+
+
+export type RemoveProjectFundingMutation = { __typename?: 'Mutation', removeProjectFunding?: { __typename?: 'ProjectFunding', id?: number | null, errors?: { __typename?: 'ProjectFundingErrors', affiliationId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, general?: string | null, grantId?: string | null, projectId?: string | null, status?: string | null } | null } | null };
+
 export type UpdateProjectMemberMutationVariables = Exact<{
   input: UpdateProjectMemberInput;
 }>;
@@ -4126,7 +4144,7 @@ export type UpdateSectionDisplayOrderMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSectionDisplayOrderMutation = { __typename?: 'Mutation', updateSectionDisplayOrder: { __typename?: 'ReorderSectionsResult', sections?: Array<{ __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, visibility: TemplateVisibility } | null }> | null } };
+export type UpdateSectionDisplayOrderMutation = { __typename?: 'Mutation', updateSectionDisplayOrder: { __typename?: 'ReorderSectionsResult', sections?: Array<{ __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, latestPublishVisibility?: TemplateVisibility | null } | null }> | null } };
 
 export type AddTemplateCollaboratorMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -4155,7 +4173,7 @@ export type CreateTemplateVersionMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
   comment?: InputMaybe<Scalars['String']['input']>;
   versionType?: InputMaybe<TemplateVersionType>;
-  visibility: TemplateVisibility;
+  latestPublishVisibility: TemplateVisibility;
 }>;
 
 
@@ -4172,11 +4190,10 @@ export type AddTemplateMutation = { __typename?: 'Mutation', addTemplate?: { __t
 export type UpdateTemplateMutationVariables = Exact<{
   templateId: Scalars['Int']['input'];
   name: Scalars['String']['input'];
-  visibility: TemplateVisibility;
 }>;
 
 
-export type UpdateTemplateMutation = { __typename?: 'Mutation', updateTemplate?: { __typename?: 'Template', id?: number | null, name: string, visibility: TemplateVisibility, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, description?: string | null } | null } | null };
+export type UpdateTemplateMutation = { __typename?: 'Mutation', updateTemplate?: { __typename?: 'Template', id?: number | null, name: string, latestPublishVisibility?: TemplateVisibility | null, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, description?: string | null } | null } | null };
 
 export type UpdateUserProfileMutationVariables = Exact<{
   input: UpdateUserProfileInput;
@@ -4266,7 +4283,7 @@ export type PlanQueryVariables = Exact<{
 }>;
 
 
-export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
+export type PlanQuery = { __typename?: 'Query', plan?: { __typename?: 'Plan', id?: number | null, visibility?: PlanVisibility | null, status?: PlanStatus | null, created?: string | null, createdById?: number | null, modified?: string | null, dmpId?: string | null, registered?: string | null, title?: string | null, versionedTemplate?: { __typename?: 'VersionedTemplate', name: string, template?: { __typename?: 'Template', id?: number | null, name: string } | null, owner?: { __typename?: 'Affiliation', uri: string } | null } | null, fundings?: Array<{ __typename?: 'PlanFunding', id?: number | null, projectFunding?: { __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', displayName: string } | null } | null }> | null, project?: { __typename?: 'Project', title: string, fundings?: Array<{ __typename?: 'ProjectFunding', funderOpportunityNumber?: string | null, affiliation?: { __typename?: 'Affiliation', displayName: string, name: string } | null }> | null, collaborators?: Array<{ __typename?: 'ProjectCollaborator', accessLevel?: ProjectCollaboratorAccessLevel | null, user?: { __typename?: 'User', id?: number | null } | null }> | null } | null, members?: Array<{ __typename?: 'PlanMember', isPrimaryContact?: boolean | null, projectMember?: { __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, orcid?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', label: string }> | null } | null }> | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null, progress?: { __typename?: 'PlanProgress', answeredQuestions: number, percentComplete: number, totalQuestions: number } | null, feedback?: Array<{ __typename?: 'PlanFeedback', id?: number | null, completed?: string | null }> | null } | null };
 
 export type PlanMembersQueryVariables = Exact<{
   planId: Scalars['Int']['input'];
@@ -4280,7 +4297,7 @@ export type ProjectFundingQueryVariables = Exact<{
 }>;
 
 
-export type ProjectFundingQuery = { __typename?: 'Query', projectFunding?: { __typename?: 'ProjectFunding', status?: ProjectFundingStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string } | null } | null };
+export type ProjectFundingQuery = { __typename?: 'Query', projectFunding?: { __typename?: 'ProjectFunding', status?: ProjectFundingStatus | null, grantId?: string | null, funderOpportunityNumber?: string | null, funderProjectNumber?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, uri: string } | null } | null };
 
 export type ProjectMembersQueryVariables = Exact<{
   projectId: Scalars['Int']['input'];
@@ -4310,6 +4327,13 @@ export type ProjectQueryVariables = Exact<{
 
 
 export type ProjectQuery = { __typename?: 'Query', project?: { __typename?: 'Project', title: string, abstractText?: string | null, startDate?: string | null, endDate?: string | null, isTestProject?: boolean | null, fundings?: Array<{ __typename?: 'ProjectFunding', id?: number | null, grantId?: string | null, affiliation?: { __typename?: 'Affiliation', name: string, displayName: string, searchName: string } | null }> | null, members?: Array<{ __typename?: 'ProjectMember', givenName?: string | null, surName?: string | null, email?: string | null, memberRoles?: Array<{ __typename?: 'MemberRole', description?: string | null, displayOrder: number, label: string, uri: string }> | null }> | null, outputs?: Array<{ __typename?: 'ProjectOutput', title: string }> | null, researchDomain?: { __typename?: 'ResearchDomain', id?: number | null, parentResearchDomainId?: number | null } | null, plans?: Array<{ __typename?: 'PlanSearchResult', templateTitle?: string | null, id?: number | null, funding?: string | null, dmpId?: string | null, modified?: string | null, created?: string | null, versionedSections?: Array<{ __typename?: 'PlanSectionProgress', answeredQuestions: number, displayOrder: number, versionedSectionId: number, title: string, totalQuestions: number }> | null }> | null } | null };
+
+export type ProjectFundingsApiQueryVariables = Exact<{
+  projectId: Scalars['Int']['input'];
+}>;
+
+
+export type ProjectFundingsApiQuery = { __typename?: 'Query', project?: { __typename?: 'Project', fundings?: Array<{ __typename?: 'ProjectFunding', affiliation?: { __typename?: 'Affiliation', apiTarget?: string | null } | null }> | null } | null };
 
 export type QuestionsDisplayOrderQueryVariables = Exact<{
   sectionId: Scalars['Int']['input'];
@@ -4392,7 +4416,7 @@ export type SectionQueryVariables = Exact<{
 }>;
 
 
-export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, visibility: TemplateVisibility } | null } | null };
+export type SectionQuery = { __typename?: 'Query', section?: { __typename?: 'Section', id?: number | null, introduction?: string | null, name: string, requirements?: string | null, guidance?: string | null, displayOrder?: number | null, bestPractice?: boolean | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null, tags?: Array<{ __typename?: 'Tag', id?: number | null, description?: string | null, name: string } | null> | null, errors?: { __typename?: 'SectionErrors', general?: string | null, name?: string | null, displayOrder?: string | null } | null, template?: { __typename?: 'Template', id?: number | null, bestPractice: boolean, isDirty: boolean, languageId: string, name: string, latestPublishVisibility?: TemplateVisibility | null } | null } | null };
 
 export type TagsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4433,14 +4457,14 @@ export type TemplatesQueryVariables = Exact<{
 }>;
 
 
-export type TemplatesQuery = { __typename?: 'Query', myTemplates?: { __typename?: 'TemplateSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, visibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null } | null> | null } | null };
+export type TemplatesQuery = { __typename?: 'Query', myTemplates?: { __typename?: 'TemplateSearchResults', totalCount?: number | null, nextCursor?: string | null, items?: Array<{ __typename?: 'TemplateSearchResult', id?: number | null, name?: string | null, description?: string | null, latestPublishVisibility?: TemplateVisibility | null, isDirty?: boolean | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, ownerId?: string | null, ownerDisplayName?: string | null, modified?: string | null, modifiedById?: number | null, modifiedByName?: string | null } | null> | null } | null };
 
 export type TemplateQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
 }>;
 
 
-export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, description?: string | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, visibility: TemplateVisibility, bestPractice: boolean, isDirty: boolean, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
+export type TemplateQuery = { __typename?: 'Query', template?: { __typename?: 'Template', id?: number | null, name: string, description?: string | null, latestPublishVersion?: string | null, latestPublishDate?: string | null, created?: string | null, latestPublishVisibility?: TemplateVisibility | null, bestPractice: boolean, isDirty: boolean, errors?: { __typename?: 'TemplateErrors', general?: string | null, name?: string | null, ownerId?: string | null } | null, sections?: Array<{ __typename?: 'Section', id?: number | null, name: string, bestPractice?: boolean | null, displayOrder?: number | null, isDirty: boolean, questions?: Array<{ __typename?: 'Question', displayOrder?: number | null, guidanceText?: string | null, id?: number | null, questionText?: string | null, sectionId: number, templateId: number, errors?: { __typename?: 'QuestionErrors', general?: string | null, templateId?: string | null, sectionId?: string | null, questionText?: string | null, displayOrder?: string | null } | null }> | null } | null> | null, owner?: { __typename?: 'Affiliation', displayName: string, id?: number | null } | null } | null };
 
 export type TemplateCollaboratorsQueryVariables = Exact<{
   templateId: Scalars['Int']['input'];
@@ -4459,6 +4483,7 @@ export const AddAffiliationDocument = gql`
     mutation AddAffiliation($input: AffiliationInput!) {
   addAffiliation(input: $input) {
     errors {
+      general
       name
     }
     uri
@@ -5310,6 +5335,48 @@ export function useUpdateProjectFundingMutation(baseOptions?: Apollo.MutationHoo
 export type UpdateProjectFundingMutationHookResult = ReturnType<typeof useUpdateProjectFundingMutation>;
 export type UpdateProjectFundingMutationResult = Apollo.MutationResult<UpdateProjectFundingMutation>;
 export type UpdateProjectFundingMutationOptions = Apollo.BaseMutationOptions<UpdateProjectFundingMutation, UpdateProjectFundingMutationVariables>;
+export const RemoveProjectFundingDocument = gql`
+    mutation RemoveProjectFunding($projectFundingId: Int!) {
+  removeProjectFunding(projectFundingId: $projectFundingId) {
+    errors {
+      affiliationId
+      funderOpportunityNumber
+      funderProjectNumber
+      general
+      grantId
+      projectId
+      status
+    }
+    id
+  }
+}
+    `;
+export type RemoveProjectFundingMutationFn = Apollo.MutationFunction<RemoveProjectFundingMutation, RemoveProjectFundingMutationVariables>;
+
+/**
+ * __useRemoveProjectFundingMutation__
+ *
+ * To run a mutation, you first call `useRemoveProjectFundingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveProjectFundingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeProjectFundingMutation, { data, loading, error }] = useRemoveProjectFundingMutation({
+ *   variables: {
+ *      projectFundingId: // value for 'projectFundingId'
+ *   },
+ * });
+ */
+export function useRemoveProjectFundingMutation(baseOptions?: Apollo.MutationHookOptions<RemoveProjectFundingMutation, RemoveProjectFundingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveProjectFundingMutation, RemoveProjectFundingMutationVariables>(RemoveProjectFundingDocument, options);
+      }
+export type RemoveProjectFundingMutationHookResult = ReturnType<typeof useRemoveProjectFundingMutation>;
+export type RemoveProjectFundingMutationResult = Apollo.MutationResult<RemoveProjectFundingMutation>;
+export type RemoveProjectFundingMutationOptions = Apollo.BaseMutationOptions<RemoveProjectFundingMutation, RemoveProjectFundingMutationVariables>;
 export const UpdateProjectMemberDocument = gql`
     mutation UpdateProjectMember($input: UpdateProjectMemberInput!) {
   updateProjectMember(input: $input) {
@@ -5836,7 +5903,7 @@ export const UpdateSectionDisplayOrderDocument = gql`
         isDirty
         languageId
         name
-        visibility
+        latestPublishVisibility
       }
     }
   }
@@ -5985,12 +6052,12 @@ export type ArchiveTemplateMutationHookResult = ReturnType<typeof useArchiveTemp
 export type ArchiveTemplateMutationResult = Apollo.MutationResult<ArchiveTemplateMutation>;
 export type ArchiveTemplateMutationOptions = Apollo.BaseMutationOptions<ArchiveTemplateMutation, ArchiveTemplateMutationVariables>;
 export const CreateTemplateVersionDocument = gql`
-    mutation CreateTemplateVersion($templateId: Int!, $comment: String, $versionType: TemplateVersionType, $visibility: TemplateVisibility!) {
+    mutation CreateTemplateVersion($templateId: Int!, $comment: String, $versionType: TemplateVersionType, $latestPublishVisibility: TemplateVisibility!) {
   createTemplateVersion(
     templateId: $templateId
     comment: $comment
     versionType: $versionType
-    visibility: $visibility
+    latestPublishVisibility: $latestPublishVisibility
   ) {
     errors {
       general
@@ -6019,7 +6086,7 @@ export type CreateTemplateVersionMutationFn = Apollo.MutationFunction<CreateTemp
  *      templateId: // value for 'templateId'
  *      comment: // value for 'comment'
  *      versionType: // value for 'versionType'
- *      visibility: // value for 'visibility'
+ *      latestPublishVisibility: // value for 'latestPublishVisibility'
  *   },
  * });
  */
@@ -6072,11 +6139,11 @@ export type AddTemplateMutationHookResult = ReturnType<typeof useAddTemplateMuta
 export type AddTemplateMutationResult = Apollo.MutationResult<AddTemplateMutation>;
 export type AddTemplateMutationOptions = Apollo.BaseMutationOptions<AddTemplateMutation, AddTemplateMutationVariables>;
 export const UpdateTemplateDocument = gql`
-    mutation UpdateTemplate($templateId: Int!, $name: String!, $visibility: TemplateVisibility!) {
-  updateTemplate(templateId: $templateId, name: $name, visibility: $visibility) {
+    mutation UpdateTemplate($templateId: Int!, $name: String!) {
+  updateTemplate(templateId: $templateId, name: $name) {
     id
     name
-    visibility
+    latestPublishVisibility
     errors {
       general
       name
@@ -6102,7 +6169,6 @@ export type UpdateTemplateMutationFn = Apollo.MutationFunction<UpdateTemplateMut
  *   variables: {
  *      templateId: // value for 'templateId'
  *      name: // value for 'name'
- *      visibility: // value for 'visibility'
  *   },
  * });
  */
@@ -6750,6 +6816,11 @@ export const PlanDocument = gql`
       title
       totalQuestions
     }
+    progress {
+      answeredQuestions
+      percentComplete
+      totalQuestions
+    }
     created
     createdById
     modified
@@ -6858,6 +6929,7 @@ export const ProjectFundingDocument = gql`
     affiliation {
       name
       displayName
+      uri
     }
     status
     grantId
@@ -7151,6 +7223,50 @@ export type ProjectQueryHookResult = ReturnType<typeof useProjectQuery>;
 export type ProjectLazyQueryHookResult = ReturnType<typeof useProjectLazyQuery>;
 export type ProjectSuspenseQueryHookResult = ReturnType<typeof useProjectSuspenseQuery>;
 export type ProjectQueryResult = Apollo.QueryResult<ProjectQuery, ProjectQueryVariables>;
+export const ProjectFundingsApiDocument = gql`
+    query ProjectFundingsApi($projectId: Int!) {
+  project(projectId: $projectId) {
+    fundings {
+      affiliation {
+        apiTarget
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useProjectFundingsApiQuery__
+ *
+ * To run a query within a React component, call `useProjectFundingsApiQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectFundingsApiQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectFundingsApiQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectFundingsApiQuery(baseOptions: Apollo.QueryHookOptions<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables> & ({ variables: ProjectFundingsApiQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>(ProjectFundingsApiDocument, options);
+      }
+export function useProjectFundingsApiLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>(ProjectFundingsApiDocument, options);
+        }
+export function useProjectFundingsApiSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>(ProjectFundingsApiDocument, options);
+        }
+export type ProjectFundingsApiQueryHookResult = ReturnType<typeof useProjectFundingsApiQuery>;
+export type ProjectFundingsApiLazyQueryHookResult = ReturnType<typeof useProjectFundingsApiLazyQuery>;
+export type ProjectFundingsApiSuspenseQueryHookResult = ReturnType<typeof useProjectFundingsApiSuspenseQuery>;
+export type ProjectFundingsApiQueryResult = Apollo.QueryResult<ProjectFundingsApiQuery, ProjectFundingsApiQueryVariables>;
 export const QuestionsDisplayOrderDocument = gql`
     query QuestionsDisplayOrder($sectionId: Int!) {
   questions(sectionId: $sectionId) {
@@ -7728,7 +7844,7 @@ export const SectionDocument = gql`
       isDirty
       languageId
       name
-      visibility
+      latestPublishVisibility
     }
   }
 }
@@ -8027,7 +8143,7 @@ export const TemplatesDocument = gql`
       id
       name
       description
-      visibility
+      latestPublishVisibility
       isDirty
       latestPublishVersion
       latestPublishDate
@@ -8114,7 +8230,7 @@ export const TemplateDocument = gql`
       displayName
       id
     }
-    visibility
+    latestPublishVisibility
     bestPractice
     isDirty
   }

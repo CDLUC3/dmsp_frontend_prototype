@@ -1,0 +1,22 @@
+.expandButton {
+  background: none;
+  border: none;
+  font-size: var(--fs-base);
+  line-height: 1;
+  cursor: pointer;
+  color: var(--slate-900) !important;
+  text-decoration: underline;
+  padding: 0;
+  margin: 0;
+  background: transparent !important;
+}
+
+.expandIcon {
+  margin-top: 2px;
+  margin-left: 0;
+  transition: transform 0.3s ease; /* Smooth transition */
+}
+
+.expanded {
+  transform: rotate(180deg); /* Rotate the arrow when expanded */
+}

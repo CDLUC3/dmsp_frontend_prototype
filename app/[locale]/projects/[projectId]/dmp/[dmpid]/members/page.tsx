@@ -50,6 +50,7 @@ import { addPlanMemberAction } from './actions/addPlanMemberAction';
 import { ProjectMembersInterface } from '@/app/types';
 import { routePath } from '@/utils/routes';
 import styles from './ProjectsProjectPlanAdjustMembers.module.scss';
+import { orcidToUrl } from "@/lib/idToUrl";
 
 interface PlanMemberDropdown {
   id: string;
@@ -543,7 +544,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                                 <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
                               </span>
                               <a
-                                href={`https://orcid.org/${member.orcid}`}
+                                href={orcidToUrl(member.orcid)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label={PlanMembers('labels.orcid', { name: member.fullName })}
@@ -651,7 +652,7 @@ const ProjectsProjectPlanAdjustMembers = () => {
                                 <OrcidIcon icon="orcid" classes={styles.orcidLogo} />
                               </span>
                               <a
-                                href={`https://orcid.org/${member.orcid}`}
+                                href={orcidToUrl(member.orcid)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label={PlanMembers('labels.orcid', { name: member.fullName })}

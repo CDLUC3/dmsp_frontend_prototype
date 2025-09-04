@@ -101,7 +101,7 @@ mutation UpdateSectionDisplayOrder($sectionId: Int!, $newDisplayOrder: Int!) {
       isDirty
       languageId
       name
-      visibility
+      latestPublishVisibility
     }
     }
   }

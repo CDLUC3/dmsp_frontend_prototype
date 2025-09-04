@@ -78,12 +78,7 @@
     "pageTitle": "Create a new project",
     "form": {
       "projectTitle": "What is the title for the project? (required)",
-      "projectTitleHelpText": "This should be the formal title if you have already applied for funding, as it will be used to find your Project in the Funder’s database. This can be changed later.",
-      "newOrExisting": "New or existing project?",
-      "radioExistingLabel": "The project already exists or might exist",
-      "radioExistingHelpText": "We will search for the project and pull in associated information for you to review and edit if possible, otherwise create a brand new project",
-      "radioNewLabel": "New project",
-      "radioNewHelpText": "Enter all project details yourself.",
+      "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency.",
       "checkboxGroupLabel": "This project is mock project for testing, practice, or educational purposes",
       "checkboxGroupHelpText": "This is a mock project intended solely for testing, practice, or educational purposes. It allows you to create a project and plans, but you will not be able to receive feedback or publish them.",
       "checkboxLabel": "Yes, set this project to a mock or a test project.",
@@ -102,7 +97,11 @@
     "title": "Do you already have funding for this project?",
     "form": {
       "radioFundingLabel": "Do you already have funding for this project?",
-      "radioFundingDescription": "If yes, we will try to search for the project and pull in associated information for you to review and edit."
+      "radioFundingDescription": "You can update or remove all of this later, so don't worry if you are still waiting on final details or an award number.",
+      "radioYesLabel": "Yes - I've been awarded funding",
+      "radioYesDescription": "We'll help you link the project to a funder now. You'll be able to select a funder and, if available, we'll pull in relevant details. Everything can be reviewed or changed later.",
+      "radioNoLabel": "No - Skip for now",
+      "radioNoDescription": "You can still proceed. If you receive funding later, you'll be able to link it to this project."
     }
   },
   "ProjectsProjectDetail": {
@@ -169,16 +168,29 @@
         "projectFundingUpdateFailed": "Error updating project funding details",
         "fundingGrantId": "Invalid funder grant ID value",
         "fundingProjectNumber": "Invalid funder project number value",
-        "fundingName": "Invalid funder name value"
+        "fundingName": "Invalid funder name value",
+        "requiredOtherAffiliation": "Invalid name value"
       },
       "success": {
-        "projectFundingUpdated": "Successfully updated project funding details"
+        "projectFundingUpdated": "Successfully updated project funding details",
+        "removedFunding": "Successfully removed project funding."
+      },
+      "info": {
+        "redirectingToAddFunderPage": "Redirecting to Add Funder page."
       }
-    }
+    },
+    "buttons": {
+      "removeFunder": "Remove funder"
+    },
+    "headings": {
+      "deleteFunder": "Delete funder"
+    },
+    "para1Delete": "This funder will be deleted. It will be removed from your list and is <strong>not reversible</strong>.",
+    "para2Delete": "Deleting the funder and funding information will be deleted from all your plans."
   },
   "ProjectsProjectFundingAdd": {
     "title": "Add Funding Details",
-    "description": "Manually add a new fundting source",
+    "description": "Manually add a new funding source",
     "labels": {
       "funderName": "Funder name",
       "fundingStatus": "Funding Status",
@@ -191,7 +203,8 @@
         "projectFundingUpdateFailed": "Error updating project funding details",
         "fundingGrantId": "Invalid funder grant ID value",
         "fundingProjectNumber": "Invalid funder project number value",
-        "fundingName": "Invalid funder name value"
+        "fundingName": "Invalid funder name value",
+        "requiredOtherAffiliation": "Invalid name value"
       },
       "success": {
         "projectFundingUpdated": "Successfully updated project funding details"
@@ -283,7 +296,7 @@
     "para1": "When you click <strong>Grant access</strong> we'll send an email to this person inviting them to view your plan.",
     "para2": "If they aren't already a member of we'll invite them to join.",
     "para3": "We have sent an invite to <strong>{email}</strong>. They will have access to this project.",
-    "para4": "To also add them as a Project Member, &lt;projectmember&gt; go to the Project Members page &lt;/projectmember&gt;.",
+    "para4": "To also add them as a Project Member, <projectmember> go to the Project Members page </projectmember>.",
     "para5": "They will have access to {access} DMPs in this project.",
     "messaging": {
       "errors": {

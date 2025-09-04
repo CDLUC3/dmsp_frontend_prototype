@@ -173,6 +173,7 @@ const PlanOverviewPage: React.FC = () => {
   const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
   const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId, dmpId: planId });
   const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
+  const RELATED_WORKS_URL = routePath('projects.dmp.relatedWorks', { projectId, dmpId: planId });
 
   // Set radio button data
   const radioData = {
@@ -200,6 +201,9 @@ const PlanOverviewPage: React.FC = () => {
 
   //TODO: Get research output count from backend
   const researchOutputCount = 3;
+
+  //TODO: Get related works count from backend
+  const relatedWorksCount = 3;
 
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
@@ -374,14 +378,6 @@ const PlanOverviewPage: React.FC = () => {
     }
   };
 
-  const calculatePercentageAnswered = (sections: PlanSectionProgress[]) => {
-    if (sections.length === 0) return 0;
-    const totalAnswered = sections.reduce((sum, section) => sum + section.answeredQuestions, 0);
-    const totalQuestions = sections.reduce((sum, section) => sum + section.totalQuestions, 0);
-    const overallPercentage = totalQuestions > 0 ? (totalAnswered / totalQuestions) * 100 : 0;
-    return Math.round(overallPercentage);
-  }
-
   // Call Server Action updatePlanTitleAction to run the updatePlanTitleMutation
   const updateTitle = async (title: string) => {
     // Don't need a try-catch block here, as the error is handled in the action
@@ -464,7 +460,7 @@ const PlanOverviewPage: React.FC = () => {
               role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
             })) ?? [],
           versionedSections: data?.plan?.versionedSections ?? [],
-          percentageAnswered: calculatePercentageAnswered(data?.plan?.versionedSections ?? []) ?? 0,
+          percentageAnswered: data?.plan?.progress?.percentComplete ?? 0,
         },
       })
       dispatch({
@@ -631,8 +627,24 @@ const PlanOverviewPage: React.FC = () => {
                   {t('outputs.edit')}
                 </Link>
               </section>
-            </div>
 
+              <section className={styles.planOverviewItem}
+                aria-labelledby="related-works-title">
+                <div className={styles.planOverviewItemContent}>
+                  <h2 id="related-works-title"
+                    className={styles.planOverviewItemTitle}>
+                    {t('relatedWorks.title')}
+                  </h2>
+                  <p className={styles.planOverviewItemHeading}>
+                    {t('relatedWorks.count', { count: relatedWorksCount })}
+                  </p>
+                </div>
+                <Link href={RELATED_WORKS_URL}
+                  aria-label={t('relatedWorks.edit')}>
+                  {t('relatedWorks.edit')}
+                </Link>
+              </section>
+            </div>
 
             {state.planData.versionedSections.map((versionedSection) => (
               <section
