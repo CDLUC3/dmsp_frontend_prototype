@@ -13,6 +13,8 @@ import {
   Link,
   ListBoxItem,
   Modal,
+  Radio,
+  Text
 } from 'react-aria-components';
 import {
   PlanSectionProgress,
@@ -175,29 +177,6 @@ const PlanOverviewPage: React.FC = () => {
   const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
   const RELATED_WORKS_URL = routePath('projects.dmp.relatedWorks', { projectId, dmpId: planId });
 
-  // Set radio button data
-  const radioData = {
-    radioGroupLabel: t('publishModal.publish.visibilityOptionsTitle'),
-    radioButtonData: [
-      {
-        value: 'public',
-        label: t('publishModal.publish.visibilityOptions.public.label'),
-        description: <><strong>{t('publishModal.publish.visibilityOptions.public.description')}</strong></>
-      },
-      {
-        value: 'organizational',
-        label: t('publishModal.publish.visibilityOptions.organization.label'),
-        description: <>{t.rich('publishModal.publish.visibilityOptions.organization.description', {
-          strong: (chunks) => <strong>{chunks}</strong>
-        })}</>
-      },
-      {
-        value: 'private',
-        label: t('publishModal.publish.visibilityOptions.private.label'),
-        description: t('publishModal.publish.visibilityOptions.private.description')
-      }
-    ]
-  }
 
   //TODO: Get research output count from backend
   const researchOutputCount = 3;
@@ -856,13 +835,43 @@ const PlanOverviewPage: React.FC = () => {
                 </p>
 
                 <Heading level={2}>{t('publishModal.publish.visibilityOptionsTitle')}</Heading>
+
+
                 <RadioGroupComponent
                   name="visibility"
                   value={state.planVisibility.toLowerCase()}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
+                  radioGroupLabel={t('publishModal.publish.visibilityOptionsTitle')}
                   onChange={handleRadioChange}
-                />
+                >
+                  <div>
+                    <Radio value="public">{t('publishModal.publish.visibilityOptions.public.label')}</Radio>
+                    <Text
+                      slot="description"
+                    >
+                      <strong>{t('publishModal.publish.visibilityOptions.public.description')}</strong>
+                    </Text>
+                  </div>
+
+                  <div>
+                    <Radio value="organizational">{t('publishModal.publish.visibilityOptions.organization.label')}</Radio>
+                    <Text
+                      slot="description"
+                    >
+                      {t.rich('publishModal.publish.visibilityOptions.organization.description', {
+                        strong: (chunks) => <strong>{chunks}</strong>
+                      })}
+                    </Text>
+                  </div>
+
+                  <div>
+                    <Radio value="private">{t('publishModal.publish.visibilityOptions.private.label')}</Radio>
+                    <Text
+                      slot="description"
+                    >
+                      {t('publishModal.publish.visibilityOptions.private.description')}
+                    </Text>
+                  </div>
+                </RadioGroupComponent>
 
                 <div className="modal-actions">
                   <div>
