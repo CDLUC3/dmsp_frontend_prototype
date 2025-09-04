@@ -1,6 +1,8 @@
-
 ### Added
 - Added shared `dmptool-network` to the `docker-compose.yaml` file to allow nextJS server side actions to be able to reach the local apollo server
+- Static Feedback page with translation and text [#750]
+- Added `RelatedWorks` page and associated components `RelatedWorksList`, `RelatedWorksListItem`, `ExpandableNameList` and `LinkFilter`. [#672][#673]
+- Added a `dialog` when removing `project members` so we can message them about the member being removed from all plans and allow users to confirm they want to delete this member [#737]
 - Added new `Comments` functionality. Added new graphql queries to get `answerComments` and `feedbackComments` for the `Question Details` page [#321]
 - Added new mutations to `add`, `update`, and `delete` comments [#321]
 - Added new `CommentList` and `CommentsDrawer` components, and `useComments` hook for the comments list [#321]
@@ -14,6 +16,20 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Project over is now using sidebar to allow for collaboration [#750]
+- Sidebar is now using global styling rather than css modules [#750]
+- Renamed collaboration components from `ProjectsProjectPlanFeedback` to `ProjectsProjectCollaboration` for better clarity and consistency: [#750]
+  - Updated main collaboration page component name and imports
+  - Updated invite page component name and translation keys
+  - Updated all related test files and component references
+  - Updated translation files in both English and Portuguese
+  - Renamed SCSS module file to match new component naming convention
+- Use `orcidToUrl` helper function to generate full ORCID URLs. [#672][#673]
+- Moved expand button from `ResearchOutputsList` into its own component `ExpandButton`.[#672][#673]
+- Updated `template.visibility` to `template.latestPublishVisibility` to match backend changes [#715]
+- Update the Publish modal so that a `visibility` radio option is defaulted to previously set one in the last publish date [#715]
+- Updated the template cards so that if `template.latestPublishVisibility` then we remove the `dot` separateor [#715]
+- Updated the `Publish Preview` dialog to show the progress from the resolver so it doesn't have to add progress for all sections but get it directly [#720]
 - Update the section questions to show Answered/Not Answered status and buttons Start/Update [#670]
 - Updated the `Plan Create` page to switch off of manual `Load more` to new `pagination` queries [#686]
 - Updated unit test for `Plan Create` to use new `MockProvider` [#686]
@@ -28,6 +44,14 @@
 - Updated the funding-search page on the create project step to link to the new page to add the funder manually [#497]
 
 ### Fixed
+- Make `Tab` use `cursor: pointer`.
+- Fix styling of `Toggle Switch` as toggle button was vertically off-centre.
+- Fix styling of `Select` by setting `overflow: auto` on `ListBox` so that the list can scroll, and make `ListBoxItem` use `cursor: pointer`.
+- Updated `Add Funder` page to use an `affiliationSearch` for the `funder name`. Updated `Edit Funding Details` page to disable the `funder name` on the form, and to add the `Add another` and `Remove funder` buttons [#656]
+- Fixed issue where publishing a template with visibility `ORGANIZATION` was breaking because frontend is passing the invalid enum of `PRIVATE` instead of `ORGANIZATION` [#715]
+- Fixed `sass` errors resulting from latest version updates [#751]
+- Fixed issue with some breaking unit tests due to different timezones [#739]
+- Fixed some issues on the `Project details` page [#734]
 - Fixed issue with entered Affiliation `label` and `help` text not displaying on the `Question Preview` page
 - Update `PlanOverviewQuestionPage` to make sure that `sample text` displays initially when it is present and `useSampleTextAsDefault` is set to true [#677]
 - Updated `SectionTypeSelectPage` to only show the `Org section` and `best Practice section` headers if there are any to display [#702]
@@ -61,16 +85,23 @@
 - Added the apiTarget to the funder search and popular funders queries, and make sure that we redirect to the correct page, depending on the apiTarget availability. [#596]
 - Fixed a bug on the funding-search page, to make sure that popular funders are hidden when the user actions a search. [#596]
 - Allow for tags in the checkbox group to wrap when the screen size is small. [#489]
+- Changed the create-project flow [#681]
 
 ### Removed
+
 - Remove `QuestionTypeMap` from the `utils/questionTypeHandler` because it is now provided by `@dmptool/types` [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Remove the old QuestinType` graphQL query [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 - Deleted `__mocks__/mockQuestionTypes.json` as it is no longer needed [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
+### Chore
+- Upgraded to `NextJS v15.5.2` to remove vulnerability and added `next-env.d.ts` to the ignore list for linting. [#751]
+
 ====================================================================================================================================
+
 ## All changes above the line happened after the merge to the main branch on July 21, 2025
 
 ### Added
+
 - Added the `Mark as required` radio buttons on the `QuestionAdd` and `QuestionEdit` pages and updated unit tests [#562]
 - Added three more `icons` for solid down, left and right arrows for the Date Picker [#597]
 - Added a new `ExpandableContentSection` component that allows use to `expand` and `collapse` content, especially for the `Best Practices` right sidebar, but can be used for any content [#578]
@@ -84,10 +115,12 @@
 - Added popular funders to the funder search page when creating a new project. [#380]
 
 ### Updated
+
 - Implement GraphQL integration for plan section questions page [#366]
 - Add `PlanSectionQuestions` query to fetch questions by section ID
 
 ### Updated
+
 - Updated `routePath` with route `projects.share.index` and updated unit test for `ProjectsProjectMembers` [#589]
 - Updated `QuestionView` to use the new `ExpandableContentSection` for the `Best Practices` right sidebar [#578]
 - Updated `graphqlHelper.ts` file to be more robust and correctly refresh tokens and refresh content when there is an `UNAUTHENTICATED` error [#320]
@@ -97,6 +130,7 @@
 - fix translation string to use the correct tags for the `Account Profile` [#515]
 
 ### Fixed
+
 - Fixed the `Plan Overview` breadcrumb so that it includes a link to previous `Project Overview` page, as well as updating them to use `routePath` [#592]
 - Fixed the `Edit` link in the `Project Funding` page so that it includes correct `projectFundingId` in path, and added missing translation keys and updated routes to use `routePath`, and updated unit test [#592]
 - Added error message when the user clicks `Edit` for a funder that has no `funderProjectNumber` [#592]
@@ -110,13 +144,15 @@
 - Fixed broken links on the `Project overview` page that go to the individual plans [#575]
 - Removed the `Sample text` field from the Question Add/Edit forms for all question types except for `textArea` [#564]
 
-
 ## v0.0.1
+
 - Plan Manage Access [#299]
 - Plan Publish [#299]
 - Plan Downloads [#299]
 -
+
 ### Added
+
 - Added new `SectionEditContainer` component, for use in `QuestionEditCard`, to make reordering of questions more smooth [#207]
 - Added new `updateQuestionDisplayorder` and `updateSectionDisplayOrder` server actions to update question and section order when users click the `onMoveUp` and `onMoveDown` arrows [#207]
 - Added question type components to the components/Form/QuestionComponents directory [#157]
@@ -152,6 +188,7 @@
 - QuestionPreview component [#224]
 
 ### Updated
+
 - Updated the template cards in `TemplateListPage` and `PlanCreate` components to use the `TemplateSelectListItem` component, which was updated to correctly display `ownerDisplayName`, `publish status` and `visibility` [#470]
 - Updated the templates cards on `/template` page to match the look of the cards on the `/template/create` page [#470]
 - Switched out all occurrences of Remirror/DMPEditor rich text editor with TinyMCE [#496]
@@ -212,6 +249,7 @@
   and redirect to the correct named urls for the funder search page. [#335]
 
 ### Fixed
+
 - Fixed type error related to `confirm-email` page that was breaking build
 - Fixed issue with search fields not looking good on smaller devices. Made updates to get the `Search` button to wrap for mobile [#488]
 - Fixed breaking build by addressing a type error
@@ -241,15 +279,16 @@
   Private/Public status in the Template Publish Modal [#483]
 
 ### Chore
+
 - Updated a number of packages, such as next, react-aria-components, eslint, next-intl, etc [#529]
 - Updated a number of unit tests to address the reduced coverage of branch tests [#529]
 - Fixed sass warnings and errors introduced with latest updates to packages [#529]
 - Updated and added unit tests to increase coverage in the app [#490]
 - Updated and improved the cypress functional tests to fix them and updated some cypress documentation in the README.md file [#490]
-- Updated NodeJS version to v22 [#144]
-====================================================================================================
+- # Updated NodeJS version to v22 [#144]
 
 ### Added
+
 - Added real data and functionality to the PlanOverviewPage, `/projects/[projectId]/dmp/[dmpId]` [#362]
 - Added new right sidebar with new multi-page Publish modal with checklist data, and `status` select [#362]
 - Added `/projects/[projectId]/project-funding`, copying over the static code from `/projects/[projectId]/create-project/funding`. Updated
@@ -263,12 +302,15 @@
 - Added useSampleTextAsDefault checkbox for text field question types [#188]
 
 ### Fixed
+
 - Fixed `EvalError: Code generation from strings ` bug that was occurring because I set the environment in docker-compose.yml to production
 
 ====================================================================================================
 
 ### Updated
+
 =======
+
 - Updated `/graphql` files to include new backend error objects [#308]
 - Updated `/account/profile/page.tsx` to display the new backend field level errors [#308]
 - Updated `/template/[templateid]/page.tsx` to display the new backend field level errors [#308]
@@ -301,6 +343,7 @@
   trace issues. [#117]
 
 ### Added
+
 - Added `MyVersionedTemplates` and `PublishedTemplates` graphql queries and `addTemplateMutation` graphql mutation [#186]
 - Created the `SelectExistingTemplate` component which displays the publishedTemplates and allows user to filter view [#186]
 - Created `TemplateList` component used by `SelectExistingTemplate`[#186]
@@ -344,7 +387,7 @@
   - Created shared Form components, FormInput and FormSelect
   - Created temporary RightSidebar component
   - Updated TypeAheadWithOther component to work with parent components
-  - Added some shared css for shared form components in a new style file called _form.scss
+  - Added some shared css for shared form components in a new style file called \_form.scss
   - Added corresponding unit tests
 - Added spacing guidelines to the styleguide
 - Cleaned up the styleguide and added additional text to explain the spacing guidelines
@@ -355,8 +398,8 @@
 - Added a `LayoutWithSidebar` container, along with a related
   `SidebarContainer`, and documented their use on the styleguide. [#154, #110]
 
-
 ### Fixed
+
 - Remove duplicate graphqlServerActionHandler.ts and serverAuthHelper.ts
 - Fixed `login` 404 error issue and looping issue in middleware [#194]
 - Removed old `app/layout.tsx` page. It was causing errors, since we have one located at `app/[locale]/layout.tsx` now.
@@ -364,7 +407,9 @@
 - Removed use of NEXT_PUBLIC_GRAPHQL_ENDPOINT env variable, since it was a duplicate of NEXT_PUBLIC_SERVER_ENDPOINT [#171]
 
 ### Added
+
 =======
+
 - Made some updates related to authentication [#142]
 - Updated middleware to redirect to /login if both access token and refresh token is missing
 - Updated refreshAuthTokens method to throw errors that will be caught gqlErrorHandler
@@ -380,7 +425,7 @@
 - Question card component [#75]
 - Tabs component [#75]
 - Template Overview - blocked out page for component builder assistance [#75]
-- Template Edit Section  - blocked out page for component builder assistance [#75]
+- Template Edit Section - blocked out page for component builder assistance [#75]
 - Template Edit Question - blocked out page for component builder assistance [#75]
 - Set up a directory for the account pages, and added the Connections page [#128]
 - Added new shared LeftSidebar, TooltipWithDialog, and ButtonWithImage components. Updated styleguide with the new TooltipWithDialog and ButtonWithImage components. [#128]
@@ -397,18 +442,21 @@
 - Added the initial version of our custom ReMirror text editor [#74].
 
 ### Updates
+
 - Button styles [#75]
 - Text input styles [#75]
 - Made updates to change 'name' to 'displayName' for affiliations, in response to backend changes [#137]
 - Updated endpoints for 'signin' and 'signup' to be 'apollo-signin' and 'apollo-signup' [#99]
 
 ### Fixed
+
 - Fixed Logout button/link not working in header [#103]
 - Fixed an issue with docker-compose not starting the app [#93]
 
 ## v0.0.1
 
 ### Added
+
 - Added logout api and link [#65]
 - Added loading state and velocity controls to the login and signup forms [#66]
 - Added placeholders for /signup and /login pages and added a new api endpoint for setting the access token in a cookie [#19]
@@ -420,6 +468,7 @@
   components. [#51]
 
 ### Updates
+
 - Updated endpoints for 'signin' and 'signup' to be 'apollo-signin' and 'apollo-signup' [#99]
 - Updates for auth pages to accomodate backend changes [#63]
 - Updated lib/graphql/client.ts with adding an errorLink to the client instance, and intercepting specific error types or codes to handle them differently if we want.[#29]
@@ -437,4 +486,5 @@
 - Updated some CSS classes to remove verbose naming. [#51]
 
 ### Fixed
+
 - Fixed an issue with docker-compose not starting the app [#93]

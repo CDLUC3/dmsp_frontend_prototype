@@ -1,13 +1,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { gql } from 'graphql-tag';
-
-
 import { FormInput } from '@/components/Form';
-import TypeAheadWithOther from '@/components/Form/TypeAheadWithOther';
-import {
-  AffiliationsDocument,
-} from '@/generated/graphql';
+import { TypeAheadWithOther, useAffiliationSearch } from '@/components/Form/TypeAheadWithOther';
 import { AffiliationSearchQuestionProps } from '@/app/types';
 
 
@@ -21,23 +15,21 @@ const AffiliationSearchQuestionComponent: React.FC<AffiliationSearchQuestionProp
   handleOtherAffiliationChange
 }) => {
   const Signup = useTranslations('SignupPage');
+  const { suggestions, handleSearch } = useAffiliationSearch();
+
   return (
     <>
       <TypeAheadWithOther
         label={parsedQuestion?.attributes?.label || Signup('institution')}
         fieldName="institution"
-        graphqlQuery={
-          typeof parsedQuestion?.graphQL?.query === 'string'
-            ? gql`${parsedQuestion.graphQL.query}`
-            : AffiliationsDocument
-        }
-        resultsKey={parsedQuestion?.graphQL?.responseField}
         setOtherField={setOtherField}
         required={true}
         error=""
         helpText={parsedQuestion?.attributes?.help || Signup('institutionHelp')}
         updateFormData={handleAffiliationChange}
         value={affiliationData?.affiliationName || ''}
+        suggestions={suggestions}
+        onSearch={handleSearch}
       />
       {otherField && (
         <div className="form-row">

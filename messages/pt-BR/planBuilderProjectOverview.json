@@ -14,20 +14,20 @@
     "edit": "Alterar",
     "editProject": "Editar Detalhes do Projeto",
     "fundings": "Fontes de financiamento",
-    "fundingCount": "{count} Fontes de Financiamento",
+    "fundingCount": "{count, plural, =0 {0 fontes de financiamento} one {1 fonte de financiamento} other {{count} fontes de financiamento}}",
     "fundingInfo": "{name} ({id})",
     "editFundings": "Editar detalhes do financiamento",
     "editFundingDetails": "Editar detalhes do financiamento",
     "projectMembers": "Membros de projeto",
-    "memberCount": "Membros da equipe {count}",
+    "memberCount": "{count, plural, =0 {0 membros da equipe} one {1 membro da equipe} other {{count} membros da equipe}}",
     "memberInfo": "{name} ({role})",
     "editMembers": "Editar Detalhes do Projeto",
     "editProjectMembers": "Editar Detalhes do Projeto",
     "researchOutputs": "Resultados da pesquisa",
-    "outputCount": "{count} Outputs",
+    "outputCount": "{count, plural, =0 {0 outputs} one {1 output} other {{count} outputs}}",
     "editOutputs": "Editar resultados de pesquisa",
     "editResearchOutputs": "Editar resultados de pesquisa",
-    "plans": "Plano(s)",
+    "plans": "Planos",
     "planActions": "Planejar ações",
     "upload": "Carregar plano",
     "uploadPlan": "Enviar um novo plano",
@@ -49,6 +49,18 @@
     "created": "Criado",
     "messages": {
       "errorGettingProject": "Erro ao obter detalhes do projeto"
+    },
+    "status": {
+      "collaboration": {
+        "title": "Colaboração",
+        "description": "{total, plural, =0 {0 colaboradores} one {1 colaborador} other {{total} colaboradores}}",
+        "link_text": "Gerenciar acesso"
+      },
+      "feedback": {
+        "title": "Feedback",
+        "description": "",
+        "link_text": "Solicitar"
+      }
     }
   },
   "ProjectsListPage": {
@@ -66,12 +78,7 @@
     "pageTitle": "Criar um novo blog",
     "form": {
       "projectTitle": "Qual é o título do projeto? (obrigatório)",
-      "projectTitleHelpText": "Este deveria ser o título formal, se já apresentou o pedido de financiamento. pois será usado para encontrar o seu Projeto no banco de dados do Funder. Isto pode ser alterado mais tarde.",
-      "newOrExisting": "Projeto novo ou existente?",
-      "radioExistingLabel": "O projeto já existe ou pode existir",
-      "radioExistingHelpText": "Procuraremos o projeto e faremos o pull de informações associadas para você revisar e editar, se possível, caso contrário, crie um novo projeto",
-      "radioNewLabel": "Novo projeto",
-      "radioNewHelpText": "Digite todos os detalhes do projeto você mesmo.",
+      "projectTitleHelpText": "Você pode alterar isso a qualquer momento. Se você já solicitou financiamento, recomendamos usar o título formal do projeto para manter a consistência.",
       "checkboxGroupLabel": "Este projeto é uma simulação (mock, em inglês) para fins de teste, prática ou educacional",
       "checkboxGroupHelpText": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",
       "checkboxLabel": "Sim, defina este projeto para um simulação (mock, em inglês) ou um projeto de teste.",
@@ -89,15 +96,23 @@
   "ProjectsCreateProjectFunding": {
     "title": "Vocês já têm financiamento para este projeto?",
     "form": {
-      "radioFundingLabel": "Vocês já têm financiamento para este projeto?",
-      "radioFundingDescription": "Se sim, tentaremos pesquisar o projeto e obter informações associadas para você revisar e editar."
+      "radioFundingLabel": "Você já tem financiamento para este projeto?",
+      "radioFundingDescription": "Você pode atualizar ou remover tudo isso mais tarde, então não se preocupe se ainda estiver esperando os detalhes finais ou um número de prêmio.",
+      "radioYesLabel": "Sim, recebi financiamento",
+      "radioYesDescription": "Ajudaremos você a vincular o projeto a um financiador agora mesmo. Você poderá selecionar um financiador e, se disponível, coletaremos os detalhes relevantes. Tudo poderá ser revisado ou alterado posteriormente.",
+      "radioNoLabel": "Não - Pular por enquanto",
+      "radioNoDescription": "Você ainda pode prosseguir. Se receber financiamento posteriormente, poderá vinculá-lo a este projeto."
     }
   },
   "ProjectsProjectDetail": {
-    "title": "Plano: Selecione um modelo DMP",
-    "description": "Selecione um modelo para usar ao criar o DMP.",
+    "title": "Detalhes do projeto",
+    "description": "Insira os detalhes do seu projeto e clique em Salvar abaixo",
     "mockProject": "Projeto fictício",
     "realProject": "Projeto real",
+    "placeholder": {
+      "selectDomain": "Selecione um domínio",
+      "selectSubDomain": "Selecione um subdomínio"
+    },
     "labels": {
       "projectName": "Nome do Projeto",
       "projectType": "Tipo do projeto",
@@ -105,17 +120,17 @@
       "researchDomain": "Domínio de pesquisa",
       "mockProject": "Projeto fictício",
       "realProject": "Projeto real",
-      "childDomain": "Selecione um {name}",
+      "childDomain": "Selecione um subdomínio para {name}:",
       "item": "Produto"
     },
     "helpText": {
-      "selectResearchDomain": "Primeiro selecione um domínio de pesquisa"
+      "selectResearchDomain": "Primeiro selecione um domínio de pesquisa",
+      "selectedRDomain": "Selecionado: {domains}",
+      "selectedCategory": "Categoria selecionada: {category}",
+      "childDropdownUpdated": "Lista suspensa de subdomínios atualizada com opções {childOptionsList} para {selectedParent}"
     },
     "paragraphs": {
-      "para1": "Já tem uma ajuda? Não tem o projeto correto? Use os projetos de pesquisa para encontrar o projeto. Se as principais informações serão preenchidas para você.",
-      "mockProject": "Este é um projeto simulado (mock, em inglês) destinado exclusivamente a testes, práticas ou propósitos educativos. Isso permite que você crie um projeto e planos, mas você não poderá receber comentários ou publicá-los.",
-      "mockProjectDescription": "Continuem num ambiente de testes ou educacionais. Seu projeto continuará operando em modo de simulação, permitindo que você crie planos e experimentos sem a capacidade de receber comentários ou publicar. Você pode melhorar a qualquer momento no futuro.",
-      "realProjectDescription": "Converta para um projeto real e remova o status do projeto fictício. Ao fazê-lo, você terá acesso ao feedback, capacidades de publicação e recursos adicionais. No entanto, esta decisão é permanente e não pode ser revertida. Prossiga apenas se tiver certeza de que não precisa mais de um ambiente simulado."
+      "para1": "Já tem uma ajuda? Não tem o projeto correto? Use os projetos de pesquisa para encontrar o projeto. Se as principais informações serão preenchidas para você."
     },
     "buttons": {
       "searchProjects": "Pesquisar projetos"
@@ -152,9 +167,21 @@
         "fundingName": "Valor do nome do financiador inválido"
       },
       "success": {
-        "projectFundingUpdated": "Detalhes do financiador do projeto atualizados com sucesso"
+        "projectFundingUpdated": "Detalhes do financiamento do projeto atualizados com sucesso",
+        "removedFunding": "Financiamento do projeto removido com sucesso."
+      },
+      "info": {
+        "redirectingToAddFunderPage": "Redirecionando para a página Adicionar financiador."
       }
-    }
+    },
+    "buttons": {
+      "removeFunder": "Remover financiador"
+    },
+    "headings": {
+      "deleteFunder": "Excluir financiador"
+    },
+    "para1Delete": "Este financiador será excluído. Ele será removido da sua lista e <strong>não é reversível</strong>.",
+    "para2Delete": "A exclusão do financiador e das informações de financiamento também excluirá todos os seus planos."
   },
   "ProjectsProjectFundingAdd": {
     "title": "Adicionar detalhes de financiamento",
@@ -205,13 +232,16 @@
       "projectMembers": "Membros de projeto"
     },
     "buttons": {
-      "removeMember": "Remover membro"
+      "removeMember": "Remover membro",
+      "removing": "Removendo"
     },
     "headings": {
-      "h2RemoveMember": "Remover membro"
+      "h2RemoveMember": "Remover membro",
+      "removeProjectMember": "Remover membro do projeto"
     },
     "paragraphs": {
-      "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível."
+      "removeMember": "Remover este membro significa que ele não será mais capaz de acessar este plano. Isso não é reversível.",
+      "modalInfo": "Observe que, se você remover este membro do projeto, ele também será removido de todos os planos associados. Além disso, se este for o único membro do projeto, ele não poderá ser excluído."
     },
     "form": {
       "errors": {
@@ -241,7 +271,7 @@
       }
     }
   },
-  "ProjectsProjectPlanFeedbackInvite": {
+  "ProjectsProjectCollaborationInvite": {
     "title": "Quem deve ter acesso a este plano?",
     "breadcrumbs": {
       "manageAccess": "Gerenciar acesso"

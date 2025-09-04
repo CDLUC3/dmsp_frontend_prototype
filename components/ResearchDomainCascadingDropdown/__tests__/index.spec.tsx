@@ -22,8 +22,8 @@ describe('ResearchDomainCascadingDropdown', () => {
     (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
       data: {
         topLevelResearchDomains: [
-          { id: 1, name: 'Domain 1' },
-          { id: 2, name: 'Domain 2' },
+          { id: 1, name: 'Domain 1', description: 'Domain 1' },
+          { id: 2, name: 'Domain 2', description: 'Domain 2' },
         ],
       },
     });
@@ -50,8 +50,8 @@ describe('ResearchDomainCascadingDropdown', () => {
     (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
       data: {
         topLevelResearchDomains: [
-          { id: 1, name: 'engineering-and-technology' },
-          { id: 2, name: 'natural-sciences' },
+          { id: 1, name: 'engineering-and-technology', description: 'Engineering and Technology' },
+          { id: 2, name: 'natural-sciences', description: 'Natural Sciences' },
         ],
       },
     });
@@ -60,8 +60,8 @@ describe('ResearchDomainCascadingDropdown', () => {
     const refetchMock = jest.fn().mockResolvedValue({
       data: {
         childResearchDomains: [
-          { id: 3, name: 'materials-engineering' },
-          { id: 4, name: 'civil-engineering' },
+          { id: 3, name: 'materials-engineering', description: 'Materials Engineering' },
+          { id: 4, name: 'civil-engineering', description: 'Civil Engineering' },
         ],
       }
     });
@@ -71,8 +71,8 @@ describe('ResearchDomainCascadingDropdown', () => {
     (useChildResearchDomainsQuery as jest.Mock).mockReturnValue({
       data: {
         childResearchDomains: [
-          { id: 3, name: 'materials-engineering' },
-          { id: 4, name: 'civil-engineering' },
+          { id: 3, name: 'materials-engineering', description: 'Materials Engineering' },
+          { id: 4, name: 'civil-engineering', description: 'Civil Engineering' },
         ],
       },
       refetch: refetchMock,
@@ -105,23 +105,23 @@ describe('ResearchDomainCascadingDropdown', () => {
 
       // Assert parent dropdown value
       const parentButton = selectButtons[0];
-      expect(within(parentButton).getByText('engineering-and-technology')).toBeInTheDocument();
+      expect(within(parentButton).getByText('Engineering and Technology')).toBeInTheDocument();
 
       // Assert child dropdown value
       const childButton = selectButtons[1];
-      expect(within(childButton).getByText('materials-engineering')).toBeInTheDocument();
+      expect(within(childButton).getByText('Materials Engineering')).toBeInTheDocument();
     }, { timeout: 3000 });
   });
 
   it('should update child dropdown when a parent domain is selected', async () => {
     // Explicitly define the type for childDomainsData
-    let childDomainsData: { childResearchDomains: { id: number; name: string }[] } = { childResearchDomains: [] };
+    let childDomainsData: { childResearchDomains: { id: number; description: string }[] } = { childResearchDomains: [] };
 
     (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
       data: {
         topLevelResearchDomains: [
-          { id: 1, name: 'Domain 1' },
-          { id: 2, name: 'Domain 2' },
+          { id: 1, name: 'Domain 1', description: 'Domain 1' },
+          { id: 2, name: 'Domain 2', description: 'Domain 2' },
         ],
       },
     });
@@ -130,8 +130,8 @@ describe('ResearchDomainCascadingDropdown', () => {
       if (parentResearchDomainId === 1) {
         childDomainsData = {
           childResearchDomains: [
-            { id: 3, name: 'Child Domain 1' },
-            { id: 4, name: 'Child Domain 2' },
+            { id: 3, description: 'Child Domain 1' },
+            { id: 4, description: 'Child Domain 2' },
           ],
         };
       } else {
@@ -187,13 +187,13 @@ describe('ResearchDomainCascadingDropdown', () => {
 
   it('should set child list to empty array if parentResearchDomainId is missing', async () => {
     // Explicitly define the type for childDomainsData
-    let childDomainsData: { childResearchDomains: { id: number; name: string }[] } = { childResearchDomains: [] };
+    let childDomainsData: { childResearchDomains: { id: number; name: string, description: string }[] } = { childResearchDomains: [] };
 
     (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
       data: {
         topLevelResearchDomains: [
-          { id: null, name: 'Domain 1' },
-          { id: 2, name: 'Domain 2' },
+          { id: null, name: 'Domain 1', description: 'Domain 1' },
+          { id: 2, name: 'Domain 2', description: 'Domain 2' },
         ],
       },
     });
@@ -202,8 +202,8 @@ describe('ResearchDomainCascadingDropdown', () => {
       if (parentResearchDomainId === 1) {
         childDomainsData = {
           childResearchDomains: [
-            { id: 3, name: 'Child Domain 1' },
-            { id: 4, name: 'Child Domain 2' },
+            { id: 3, name: 'Child Domain 1', description: 'Child Domain 1' },
+            { id: 4, name: 'Child Domain 2', description: 'Child Domain 2' },
           ],
         };
       } else {
@@ -269,13 +269,13 @@ describe('ResearchDomainCascadingDropdown', () => {
 
   it('calls setProjectData when a child domain is selected', async () => {
     // Explicitly define the type for childDomainsData
-    let childDomainsData: { childResearchDomains: { id: number; name: string }[] } = { childResearchDomains: [] };
+    let childDomainsData: { childResearchDomains: { id: number; description: string }[] } = { childResearchDomains: [] };
 
     (useTopLevelResearchDomainsQuery as jest.Mock).mockReturnValue({
       data: {
         topLevelResearchDomains: [
-          { id: 1, name: 'Domain 1' },
-          { id: 2, name: 'Domain 2' },
+          { id: 1, name: 'Domain 1', description: 'Domain 1' },
+          { id: 2, name: 'Domain 2', description: 'Domain 2' },
         ],
       },
     });
@@ -284,8 +284,8 @@ describe('ResearchDomainCascadingDropdown', () => {
       if (parentResearchDomainId === 1) {
         childDomainsData = {
           childResearchDomains: [
-            { id: 3, name: 'Child Domain 1' },
-            { id: 4, name: 'Child Domain 2' },
+            { id: 3, description: 'Child Domain 1' },
+            { id: 4, description: 'Child Domain 2' },
           ],
         };
       } else {
