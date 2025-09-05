@@ -76,6 +76,7 @@
   },
   "ProjectsCreateProject": {
     "pageTitle": "Create a new project",
+    "isThisMockProject": "Is this a mock project?",
     "form": {
       "projectTitle": "What is the title for the project? (required)",
       "projectTitleHelpText": "You can change this at any time. If you already applied for funding, we recommend using the formal project title for consistency.",

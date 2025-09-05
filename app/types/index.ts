@@ -298,13 +298,12 @@ export interface CheckboxGroupProps {
   name?: string;
   checkboxGroupLabel?: string;
   checkboxGroupDescription?: string;
-  checkboxData: CheckboxInterface[];
   value?: string[];
   isInvalid?: boolean;
   errorMessage?: string;
   onChange?: ((value: string[]) => void),
   isRequired?: boolean;
-  ariaLabel?: string;
+  children: ReactNode; // allow any Checkboxes or JSX
 }
 
 export interface ProjectMemberErrorInterface {
@@ -482,119 +481,119 @@ export interface ProjectFundingInterface {
 }
 
 export interface Author {
-    firstInitial: string | null;
-    givenName: string | null;
-    middleInitial: string | null;
-    middleName: string | null;
-    surname: string | null;
-    full: string | null;
-    orcid: string | null;
+  firstInitial: string | null;
+  givenName: string | null;
+  middleInitial: string | null;
+  middleName: string | null;
+  surname: string | null;
+  full: string | null;
+  orcid: string | null;
 }
 
 export interface Institution {
-    ror: string | null;
-    name: string | null;
+  ror: string | null;
+  name: string | null;
 }
 
 export interface Funder {
-    ror: string | null;
-    name: string | null;
+  ror: string | null;
+  name: string | null;
 }
 
 export interface Source {
-    name: string;
-    url: string;
+  name: string;
+  url: string;
 }
 
 export interface Work {
-    doi: string;
-    type: WorkType;
-    title: string
-    publicationDate: Date | null;
-    containerTitle: string | null;
-    authors: Author[];
-    institutions: Institution[];
-    funders: Funder[];
-    awardIds: string[];
-    source: Source;
+  doi: string;
+  type: WorkType;
+  title: string
+  publicationDate: Date | null;
+  containerTitle: string | null;
+  authors: Author[];
+  institutions: Institution[];
+  funders: Funder[];
+  awardIds: string[];
+  source: Source;
 }
 
 export enum Status {
-    Pending = "pending",
-    Related = "related",
-    Discarded = "discarded",
+  Pending = "pending",
+  Related = "related",
+  Discarded = "discarded",
 }
 
 export enum Confidence {
-    All = "all",
-    High = "high",
-    Medium = "medium",
-    Low = "low",
+  All = "all",
+  High = "high",
+  Medium = "medium",
+  Low = "low",
 }
 
 export enum RelatedWorksSortBy {
-    ConfidenceHigh = "confidence-high",
-    ConfidenceLow = "confidence-low",
-    ReviewedNew = "reviewed-new",
-    ReviewedOld = "reviewed-old",
-    PublishedNew = "published-new",
-    PublishedOld = "published-old",
-    DateFoundNew = "date-found-new",
-    DateFoundOld = "date-found-old",
+  ConfidenceHigh = "confidence-high",
+  ConfidenceLow = "confidence-low",
+  ReviewedNew = "reviewed-new",
+  ReviewedOld = "reviewed-old",
+  PublishedNew = "published-new",
+  PublishedOld = "published-old",
+  DateFoundNew = "date-found-new",
+  DateFoundOld = "date-found-old",
 }
 
 export enum WorkType {
-    Article = "article",
-    AudioVisual = "audio-visual",
-    Book = "book",
-    BookChapter = "book-chapter",
-    Collection = "collection",
-    DataPaper = "data-paper",
-    Dataset = "dataset",
-    Dissertation = "dissertation",
-    Editorial = "editorial",
-    Erratum = "erratum",
-    Event = "event",
-    Grant = "grant",
-    Image = "image",
-    InteractiveResource = "interactive-resource",
-    Letter = "letter",
-    Libguides = "libguides",
-    Model = "model",
-    Other = "other",
-    Paratext = "paratext",
-    PeerReview = "peer-review",
-    PhysicalObject = "physical-object",
-    Preprint = "preprint",
-    ReferenceEntry = "reference-entry",
-    Report = "report",
-    Retraction = "retraction",
-    Review = "review",
-    Service = "service",
-    Software = "software",
-    Sound = "sound",
-    Standard = "standard",
-    SupplementaryMaterials = "supplementary-materials",
-    Text = "text",
-    Workflow = "workflow",
+  Article = "article",
+  AudioVisual = "audio-visual",
+  Book = "book",
+  BookChapter = "book-chapter",
+  Collection = "collection",
+  DataPaper = "data-paper",
+  Dataset = "dataset",
+  Dissertation = "dissertation",
+  Editorial = "editorial",
+  Erratum = "erratum",
+  Event = "event",
+  Grant = "grant",
+  Image = "image",
+  InteractiveResource = "interactive-resource",
+  Letter = "letter",
+  Libguides = "libguides",
+  Model = "model",
+  Other = "other",
+  Paratext = "paratext",
+  PeerReview = "peer-review",
+  PhysicalObject = "physical-object",
+  Preprint = "preprint",
+  ReferenceEntry = "reference-entry",
+  Report = "report",
+  Retraction = "retraction",
+  Review = "review",
+  Service = "service",
+  Software = "software",
+  Sound = "sound",
+  Standard = "standard",
+  SupplementaryMaterials = "supplementary-materials",
+  Text = "text",
+  Workflow = "workflow",
 }
 
 export interface Match {
-    doi: boolean;
-    title: string | null;
-    abstract: string[];
-    awardIds: number[];
-    authors: number[];
-    institutions: number[];
-    funders: number[];
+  doi: boolean;
+  title: string | null;
+  abstract: string[];
+  awardIds: number[];
+  authors: number[];
+  institutions: number[];
+  funders: number[];
 }
 
 export interface RelatedWork {
-    dmpDoi: string;
-    score: number;
-    work: Work;
-    dateFound: Date;
-    dateReviewed: null | Date;
-    status: Status;
-    match: Match;
+  dmpDoi: string;
+  score: number;
+  work: Work;
+  dateFound: Date;
+  dateReviewed: null | Date;
+  status: Status;
+  match: Match;
 }
