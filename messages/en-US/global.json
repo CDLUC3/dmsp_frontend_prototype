@@ -223,6 +223,91 @@
       }
     }
   },
+  "OrganizationDetails": {
+    "title": "Organization Details",
+    "description": "View organization details",
+    "sections": {
+      "organizationDetails": {
+        "title": "Edit organization details"
+      },
+      "administratorContact": {
+        "title": "Administrator contact"
+      },
+      "branding": {
+        "title": "Branding"
+      },
+      "organizationUrls": {
+        "title": "Organization URL(s)",
+        "description": "You can add up to 5 organization URLs."
+      },
+      "identifiers": {
+        "title": "Identifiers"
+      }
+    },
+    "fields": {
+      "organizationName": {
+        "label": "Organization full name",
+        "placeholder": "Enter organization full name"
+      },
+      "organizationAbbr": {
+        "label": "Organization abbreviated name",
+        "placeholder": "Enter abbreviated name"
+      },
+      "organizationType": {
+        "label": "Organization Type"
+      },
+      "contactEmail": {
+        "label": "Contact email",
+        "placeholder": "Enter contact email"
+      },
+      "linkText": {
+        "label": "Contact email text",
+        "placeholder": "Enter link text"
+      },
+      "url": {
+        "label": "URL",
+        "placeholder": "Enter organization URL"
+      },
+      "urlLinkText": {
+        "label": "Link text for URL",
+        "placeholder": "Enter link text"
+      },
+      "fundRef": {
+        "label": "Crossref Funder Registry (FundRef)"
+      },
+      "ror": {
+        "label": "Research Organization Registry (ROR)"
+      },
+      "shibboleth": {
+        "label": "Institutional Sign In (Shibboleth)"
+      },
+      "domains": {
+        "label": "Domain(s)"
+      }
+    },
+    "actions": {
+      "requestChange": "Request Change",
+      "removeUrl": "Remove URL",
+      "addAnotherUrl": "Add another URL"
+    },
+    "buttons": {
+      "save": "Save"
+    },
+    "upload": {
+      "dropZone": {
+        "ariaLabel": "Drop a file here to upload"
+      },
+      "title": "Upload your organization logo",
+      "description": "Drag and drop your logo here, or click to browse",
+      "fileTypes": "Supports: PNG, JPG, SVG (Max 5MB)",
+      "browseButton": "Browse Files"
+    },
+    "messages": {
+      "success": {
+        "organizationDetailsSaved": "Organization details saved successfully!"
+      }
+    }
+  },
   "Account": {
     "sections": {
       "userProfile": {

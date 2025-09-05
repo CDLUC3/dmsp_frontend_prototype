@@ -222,6 +222,91 @@
       }
     }
   },
+  "OrganizationDetails": {
+    "title": "Detalhes da Organização",
+    "description": "Visualizar detalhes da organização",
+    "sections": {
+      "organizationDetails": {
+        "title": "Editar detalhes da organização"
+      },
+      "administratorContact": {
+        "title": "Contato do administrador"
+      },
+      "branding": {
+        "title": "Identidade visual"
+      },
+      "organizationUrls": {
+        "title": "URL(s) da organização",
+        "description": "Você pode adicionar até 5 URLs da organização."
+      },
+      "identifiers": {
+        "title": "Identificadores"
+      }
+    },
+    "fields": {
+      "organizationName": {
+        "label": "Nome completo da organização",
+        "placeholder": "Digite o nome completo da organização"
+      },
+      "organizationAbbr": {
+        "label": "Nome abreviado da organização",
+        "placeholder": "Digite o nome abreviado"
+      },
+      "organizationType": {
+        "label": "Tipo de organização"
+      },
+      "contactEmail": {
+        "label": "E-mail de contato",
+        "placeholder": "Digite o e-mail de contato"
+      },
+      "linkText": {
+        "label": "Texto do e-mail de contato",
+        "placeholder": "Digite o texto do link"
+      },
+      "url": {
+        "label": "URL",
+        "placeholder": "Digite a URL da organização"
+      },
+      "urlLinkText": {
+        "label": "Texto do link para URL",
+        "placeholder": "Digite o texto do link"
+      },
+      "fundRef": {
+        "label": "Registro de Financiadores Crossref (FundRef)"
+      },
+      "ror": {
+        "label": "Registro de Organizações de Pesquisa (ROR)"
+      },
+      "shibboleth": {
+        "label": "Entrada Institucional (Shibboleth)"
+      },
+      "domains": {
+        "label": "Domínio(s)"
+      }
+    },
+    "actions": {
+      "requestChange": "Solicitar alteração",
+      "removeUrl": "Remover URL",
+      "addAnotherUrl": "Adicionar outra URL"
+    },
+    "buttons": {
+      "save": "Salvar"
+    },
+    "upload": {
+      "dropZone": {
+        "ariaLabel": "Solte um arquivo aqui para fazer upload"
+      },
+      "title": "Fazer upload do logo da sua organização",
+      "description": "Arraste e solte seu logo aqui, ou clique para navegar",
+      "fileTypes": "Suporta: PNG, JPG, SVG (Máx 5MB)",
+      "browseButton": "Navegar arquivos"
+    },
+    "messages": {
+      "success": {
+        "organizationDetailsSaved": "Detalhes da organização salvos com sucesso!"
+      }
+    }
+  },
   "Account": {
     "sections": {
       "userProfile": {
