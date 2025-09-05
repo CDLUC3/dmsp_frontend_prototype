@@ -12,6 +12,8 @@ import {
   Button,
   Form,
   Link,
+  Radio,
+  Text
 } from "react-aria-components";
 
 // Components
@@ -49,7 +51,7 @@ const ProjectsCreateProjectFunding = () => {
       variables: {
         projectId: Number(projectId),
       }
-    }).then(({data}) => {
+    }).then(({ data }) => {
       let nextUrl: string = PROJECT_EDIT_URL;
 
       // NOTE: In the previous step, we selected a funder. So when we get to
@@ -62,22 +64,6 @@ const ProjectsCreateProjectFunding = () => {
       }
       router.push(nextUrl);
     });
-  }
-
-  const radioData = {
-    radioGroupLabel: ProjectFunding('form.radioFundingLabel'),
-    radioButtonData: [
-      {
-        value: 'yes',
-        label: ProjectFunding('form.radioYesLabel'),
-        description: ProjectFunding('form.radioYesDescription'),
-      },
-      {
-        value: 'no',
-        label: ProjectFunding('form.radioNoLabel'),
-        description: ProjectFunding('form.radioNoDescription'),
-      }
-    ]
   }
 
   return (
@@ -101,11 +87,29 @@ const ProjectsCreateProjectFunding = () => {
             <RadioGroupComponent
               name="has_funding"
               value={hasFunding}
+              radioGroupLabel={ProjectFunding('form.radioFundingLabel')}
               description={ProjectFunding('form.radioFundingDescription')}
               onChange={setHasFunding}
-              radioGroupLabel={radioData.radioGroupLabel}
-              radioButtonData={radioData.radioButtonData}
-            />
+            >
+              <div>
+                <Radio value="yes">{ProjectFunding('form.radioYesLabel')}</Radio>
+                <Text
+                  slot="description"
+                >
+                  {ProjectFunding('form.radioYesDescription')}
+                </Text>
+              </div>
+
+              <div>
+                <Radio value="no">{ProjectFunding('form.radioNoLabel')}</Radio>
+                <Text
+                  slot="description"
+                >
+                  {ProjectFunding('form.radioNoDescription')}
+                </Text>
+              </div>
+
+            </RadioGroupComponent>
 
             <Button
               type="submit"
