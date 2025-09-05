@@ -193,8 +193,12 @@
             "title": "Editar detalhes da organização",
             "description": "Atualizar o nome da sua organização, abreviação, instituição, etc"
           },
+          "departments": {
+            "title": "Departamentos",
+            "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
+          },
           "schoolsDepartments": {
-            "title": "Escolas/Departamentos",
+            "title": "Schools/Departments",
             "description": "Gerenciar seus diferentes departamentos, faculdades, escolas ou divisões"
           },
           "manageUserAccounts": {
@@ -305,6 +309,35 @@
       "success": {
         "organizationDetailsSaved": "Detalhes da organização salvos com sucesso!"
       }
+    }
+  },
+  "Departments": {
+    "title": "Departamentos",
+    "sections": {
+      "departmentsList": {
+        "title": "Departamentos",
+        "description": "Gerencie seus diferentes departamentos, faculdades, escolas ou divisões."
+      }
+    },
+    "fields": {
+      "departmentName": {
+        "label": "Nome do Departamento",
+        "placeholder": "Digite o nome do departamento"
+      },
+      "departmentAbbr": {
+        "label": "Nome abreviado do departamento", 
+        "placeholder": "Digite a abreviação"
+      }
+    },
+    "actions": {
+      "addNew": "Adicionar novo",
+      "save": "Salvar",
+      "delete": "Excluir"
+    },
+    "deleteModal": {
+      "title": "Confirmar exclusão",
+      "content": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita.",
+      "deleteButton": "Excluir"
     }
   },
   "Account": {
