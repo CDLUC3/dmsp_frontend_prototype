@@ -273,7 +273,8 @@
         "questionUnexpectedFormat": "Unexpected format for question.json.",
         "questionJSONFParseFailed": "JSON.parse failed."
       },
-      "numDisplaying": "Showing {num} of {total}"
+      "numDisplaying": "Showing {num} of {total}",
+      "unsavedChangesWarning": "You have unsaved changes. Are you sure you want to leave this page?"
     },
     "tabs": {
       "editQuestion": "Edit question",

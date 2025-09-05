@@ -24,6 +24,7 @@ import ErrorMessages from '@/components/ErrorMessages';
 
 //Other
 import { scrollToTop } from '@/utils/general';
+import { routePath } from '@/utils/routes';
 import { useQueryStep } from '@/app/[locale]/template/[templateId]/q/new/utils';
 import { QuestionFormatInterface } from '@/app/types';
 import styles from './newQuestion.module.scss';
@@ -38,7 +39,7 @@ const QuestionTypeSelectPage: React.FC = () => {
   const topRef = useRef<HTMLDivElement>(null);
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
-  const { templateId } = params; // From route /template/:templateId
+  const templateId = String(params.templateId); // From route /template/:templateId
   const sectionId = searchParams.get('section_id');
   const questionId = searchParams.get('questionId');// if user is switching their question type while editing an existing question
 
@@ -71,7 +72,10 @@ const QuestionTypeSelectPage: React.FC = () => {
 
     if (questionId) {
       //If the user came from editing an existing question, we want to return them to that page with the new questionTypeId
-      router.push(`/template/${templateId}/q/${questionId}?questionType=${questionType}`)
+      // We need to use a full page reload to ensure all state is reset so that 'beforeunload' events are properly handled in the next page
+      // to display unsaved changes warning if needed
+      window.location.href = routePath('template.q.slug', { templateId, q_slug: questionId }, { questionType: questionType });
+
     } else {
       // redirect to the Question Edit page if a user is adding a new question
       if (questionType) {

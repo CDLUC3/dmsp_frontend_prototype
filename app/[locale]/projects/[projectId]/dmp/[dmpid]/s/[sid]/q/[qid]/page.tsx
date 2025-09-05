@@ -183,13 +183,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // State variables for tracking auto-save info
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  const [isAutoSaving, setIsAutoSaving] = useState<boolean>(false);
-  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
-
   // Localization
   const Global = useTranslations('Global');
   const PlanOverview = useTranslations('PlanOverview');
@@ -360,7 +353,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         affiliationId: id
       }
     }));
-    setHasUnsavedChanges(true);
   }
 
   const handleOtherAffiliationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -369,7 +361,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       otherAffiliationName: value
     }));
-    setHasUnsavedChanges(true);
   };
 
   // Update the selected radio value when user selects different option
@@ -378,7 +369,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       selectedRadioValue: value
     }));
-    setHasUnsavedChanges(true);
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -387,7 +377,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       urlValue: value
     }));
-    setHasUnsavedChanges(true);
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -396,7 +385,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       emailValue: value
     }));
-    setHasUnsavedChanges(true);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -405,11 +393,10 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       textValue: value
     }));
-    setHasUnsavedChanges(true);
   };
 
   const handleTextAreaChange = () => {
-    setHasUnsavedChanges(true);
+    //TODO: currently handled in TinyMCE editor - but we will need this for auto-save eventually
   };
 
   // Handler for checkbox group changes
@@ -418,7 +405,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       selectedCheckboxValues: values
     }));
-    setHasUnsavedChanges(true);
   };
 
   const handleBooleanChange = (values: string) => {
@@ -426,7 +412,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       yesNoValue: values
     }));
-    setHasUnsavedChanges(true);
   };
 
 
@@ -436,7 +421,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       selectedSelectValue: value
     }));
-    setHasUnsavedChanges(true);
   };
 
 
@@ -446,7 +430,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       selectedMultiSelectValues: values
     }));
-    setHasUnsavedChanges(true);
   };
 
   // Handler for date change
@@ -457,7 +440,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       dateValue: value
     }));
-    setHasUnsavedChanges(true);
   };
 
   // Handler for date range changes
@@ -472,7 +454,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         [key]: value
       }
     }));
-    setHasUnsavedChanges(true);
   };
 
   // Handler for currency changes
@@ -481,7 +462,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       inputCurrencyValue: value
     }));
-    setHasUnsavedChanges(true);
   };
 
 
@@ -491,7 +471,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       numberValue: value
     }));
-    setHasUnsavedChanges(true);
   };
 
   // Handler for number range changes
@@ -506,7 +485,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         [key]: value === '' ? null : Number(value) // Convert empty string to null  
       }
     }));
-    setHasUnsavedChanges(true);
   };
 
   const handleBackToSection = () => {
@@ -754,12 +732,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
   };
 
   // Call Server Action updateAnswerAction or addAnswerAction to save answer
-  const addAnswer = async (isAutoSave = false) => {
-
-    if (isAutoSave) {
-      setIsAutoSaving(true);
-    }
-
+  const addAnswer = async () => {
     const jsonPayload = getAnswerJson();
     // Check is answer already exists. If so, we want to call an update mutation rather than add
     const isUpdate = Boolean(answerData?.answerByVersionedQuestionId);
@@ -794,11 +767,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
             path: routePath('projects.dmp.versionedQuestion.detail', { projectId, dmpId, versionedSectionId, versionedQuestionId })
           }
         });
-      } finally {
-        if (isAutoSave) {
-          setIsAutoSaving(false);
-          setHasUnsavedChanges(false);
-        }
       }
     }
     return {
@@ -815,11 +783,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     // Prevent double submission
     if (isSubmitting) return;
     setIsSubmitting(true);
-
-    // Clear any pending auto-save
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
 
     const result = await addAnswer();
 
@@ -843,28 +806,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
         router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
 
       }
-    }
-  };
-
-  // Helper function to format the last saved messaging
-  const getLastSavedText = () => {
-
-    if (isAutoSaving) {
-      return `${Global('buttons.saving')}...`;
-    }
-
-    if (!lastSavedAt) {
-      return hasUnsavedChanges ? t('messages.unsavedChanges') : '';
-    }
-
-    const diffInMinutes = Math.floor(Math.abs(currentTime.getTime() - lastSavedAt.getTime()) / (1000 * 60));
-
-    if (diffInMinutes === 0) {
-      return t('messages.savedJustNow');
-    } else if (diffInMinutes === 1) {
-      return t('messages.lastSavedOneMinuteAgo');
-    } else {
-      return t('messages.lastSaves', { minutes: diffInMinutes });
     }
   };
 
@@ -971,65 +912,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setAnswerId(answerData?.answerByVersionedQuestionId?.id ?? null);
 
   }, [answerData, questionType]);
-
-
-  // Auto-save logic
-  useEffect(() => {
-    if (!hasUnsavedChanges) return;
-    if (!versionedQuestionId || !versionedSectionId || !question) return;
-
-    // Set a timeout to auto-save after 3 seconds of inactivity
-    autoSaveTimeoutRef.current = setTimeout(async () => {
-      const { success } = await addAnswer(true);
-
-      if (success) {
-        setLastSavedAt(new Date());
-        setHasUnsavedChanges(false);
-      }
-    }, 3000);
-
-    return () => clearTimeout(autoSaveTimeoutRef.current);
-  }, [formData, versionedQuestionId, versionedSectionId, question, hasUnsavedChanges]);
-
-
-  // Auto-save on window blur and before unload
-  useEffect(() => {
-    const handleWindowBlur = () => {
-      if (hasUnsavedChanges && !isAutoSaving) {
-        if (autoSaveTimeoutRef.current) {
-          clearTimeout(autoSaveTimeoutRef.current);
-        }
-        addAnswer(true);
-      }
-    };
-
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
-        e.preventDefault();
-        e.returnValue = ''; // This is required for some browsers to show the confirmation dialog
-      }
-    };
-
-    window.addEventListener('blur', handleWindowBlur);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('blur', handleWindowBlur);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, [hasUnsavedChanges, isAutoSaving]);
-
-  // Set up an interval to update the current time every minute
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60 * 1000); // Update every minute
-
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     // Set whether current user can add comments based on their role and plan data
@@ -1227,11 +1109,6 @@ const PlanOverviewQuestionPage: React.FC = () => {
                   </div>
                   {parsed && questionField}
 
-                </div>
-                <div className="lastSaved mt-5"
-                  aria-live="polite"
-                  role="status">
-                  {getLastSavedText()}
                 </div>
               </Card>
 
