@@ -1,4 +1,16 @@
 ### Added
+
+- added profile overview page
+- added "homepage" which is our temp home page just to add the admin link and made it nicer
+- Added admin overview page
+- Added component for `PageLinkCard`
+- Added  admin route definitions to `utils/routes.ts`
+
+### Updated
+
+- Added Admin section translations to both English (`messages/en-US/global.json`) and Portuguese (`messages/pt-BR/global.json`) language files
+
+### Added
 - Added shared `dmptool-network` to the `docker-compose.yaml` file to allow nextJS server side actions to be able to reach the local apollo server
 - Static Feedback page with translation and text [#750]
 - Added `RelatedWorks` page and associated components `RelatedWorksList`, `RelatedWorksListItem`, `ExpandableNameList` and `LinkFilter`. [#672][#673]
