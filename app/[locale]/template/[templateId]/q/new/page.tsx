@@ -74,7 +74,7 @@ const QuestionTypeSelectPage: React.FC = () => {
       //If the user came from editing an existing question, we want to return them to that page with the new questionTypeId
       // We need to use a full page reload to ensure all state is reset so that 'beforeunload' events are properly handled in the next page
       // to display unsaved changes warning if needed
-      window.location.href = routePath('template.q.slug', { templateId, q_slug: questionId }, { questionType: questionType });
+      window.location.href = routePath('template.q.slug', { templateId, q_slug: questionId }, { questionType });
 
     } else {
       // redirect to the Question Edit page if a user is adding a new question

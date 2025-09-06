@@ -168,7 +168,7 @@ const QuestionEdit = () => {
   const redirectToQuestionTypes = () => {
     const sectionId = selectedQuestion?.question?.sectionId;
     // questionId as query param included to let page know that user is updating an existing question
-    router.push(routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1, questionId: questionId }))
+    router.push(routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1, questionId }))
     //window.location.href = routePath('template.q.new', { templateId }, { section_id: sectionId, step: 1, questionId: questionId });
   }
   //Handle change to Question Text

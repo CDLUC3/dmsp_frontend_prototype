@@ -126,7 +126,6 @@ export function checkErrors<T extends Record<string, string | null | undefined>>
   keys: (keyof T)[],
 ): [boolean, T] {
   const noErrors = Object.values(errs).every(val => val === null);
-  console.log("NO ERRORS", noErrors);
   if (noErrors) return [false, errs];
   return [keys.some((k) => !!errs[k]), errs];
 }
