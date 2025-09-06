@@ -25,21 +25,18 @@ const Toast: React.FC<ToastProps> = ({ toast, state }) => {
 
 
   // Only pass `toast` to `useAriaToast`
-  const { toastProps, contentProps, titleProps, closeButtonProps } = useAriaToast(
-    { toast },
-    state,
-    ref
-  );
+  const { closeButtonProps } = useAriaToast({ toast }, state, ref);
 
   return (
     <div
-      {...toastProps}
+      role={toast.type === 'error' ? 'alert' : 'status'}
+      aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
+      aria-atomic="true"
+      data-testid="toast"
       ref={ref}
       className={`toast toast-${toast.type ? toast.type : 'info'}`}
     >
-      <div {...contentProps}>
-        <div {...titleProps}>{toast.content}</div>
-      </div>
+      <div>{toast.content}</div>
       <Button {...closeButtonProps} aria-label="Close toast">
         ×
       </Button>

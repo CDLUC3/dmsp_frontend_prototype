@@ -14,6 +14,7 @@ import {
   Input,
   Label,
   Link,
+  Radio,
   Tab,
   TabList,
   TabPanel,
@@ -114,21 +115,6 @@ const QuestionAdd = ({
   // localization keys
   const Global = useTranslations('Global');
   const QuestionAdd = useTranslations('QuestionAdd');
-
-  const radioData = {
-    radioGroupLabel: Global('labels.requiredField'),
-    radioButtonData: [
-      {
-        value: 'yes',
-        label: Global('form.yesLabel'),
-      },
-      {
-        value: 'no',
-        label: Global('form.noLabel')
-      }
-    ]
-  }
-
 
   // Initialize add and update question mutations
   const [addQuestionMutation] = useAddQuestionMutation();
@@ -567,11 +553,18 @@ const QuestionAdd = ({
                 <RadioGroupComponent
                   name="radioGroup"
                   value={question?.required ? 'yes' : 'no'}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
+                  radioGroupLabel={Global('labels.requiredField')}
                   description={Global('descriptions.requiredFieldDescription')}
                   onChange={handleRadioChange}
-                />
+                >
+                  <div>
+                    <Radio value="yes">{Global('form.yesLabel')}</Radio>
+                  </div>
+
+                  <div>
+                    <Radio value="no">{Global('form.noLabel')}</Radio>
+                  </div>
+                </RadioGroupComponent>
 
                 {/**We need to set formSubmitted here, so that it is passed down to the child component QuestionOptionsComponent */}
                 <Button type="submit" onPress={() => setFormSubmitted(true)}>{Global('buttons.saveAndAdd')}</Button>

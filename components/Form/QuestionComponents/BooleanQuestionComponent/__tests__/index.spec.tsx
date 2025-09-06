@@ -33,8 +33,8 @@ describe('RadioButtonsQuestionComponent', () => {
       />
     );
 
-    const yesRadio = screen.getByLabelText('Yes') as HTMLInputElement;
-    const noRadio = screen.getByLabelText('No') as HTMLInputElement;
+    const yesRadio = screen.getByLabelText('form.yesLabel') as HTMLInputElement;
+    const noRadio = screen.getByLabelText('form.noLabel') as HTMLInputElement;
 
     // Check that the radios exist
     expect(yesRadio).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('RadioButtonsQuestionComponent', () => {
       />
     );
 
-    const yesRadio = screen.getByLabelText('Yes') as HTMLInputElement;
+    const yesRadio = screen.getByLabelText('form.yesLabel') as HTMLInputElement;
     fireEvent.click(yesRadio);
     expect(mockHandleBooleanChange).toHaveBeenCalledWith('yes');
   });
@@ -82,7 +82,7 @@ describe('RadioButtonsQuestionComponent', () => {
       />
     );
 
-    const noRadio = screen.getByLabelText('No') as HTMLInputElement;
+    const noRadio = screen.getByLabelText('form.noLabel') as HTMLInputElement;
     // no option should be selected by default when no selectedValue is provided
     expect(noRadio.checked).toBe(true);
   });

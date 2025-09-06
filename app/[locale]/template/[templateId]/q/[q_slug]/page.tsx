@@ -17,6 +17,7 @@ import {
   Link,
   Modal,
   ModalOverlay,
+  Radio,
   Tab,
   TabList,
   TabPanel,
@@ -44,6 +45,7 @@ import {
   RangeComponent,
   TypeAheadSearch
 } from '@/components/Form';
+
 import FormTextArea from '@/components/Form/FormTextArea';
 import ErrorMessages from '@/components/ErrorMessages';
 import QuestionView from '@/components/QuestionView';
@@ -59,8 +61,7 @@ import {
   getQuestionTypes,
   questionTypeHandlers
 } from '@/utils/questionTypeHandlers';
-import { checkErrors } from '@/utils/errorHandler';
-import { QuestionTypeMap } from "@dmptool/types";
+import { checkErrors } from '@/utils/errorHandler'; import { QuestionTypeMap } from "@dmptool/types";
 import {
   Question,
   QuestionOptions,
@@ -131,21 +132,6 @@ const QuestionEdit = () => {
 
   // Set URLs
   const TEMPLATE_URL = routePath('template.show', { templateId });
-
-  const radioData = {
-    radioGroupLabel: Global('labels.requiredField'),
-    radioButtonData: [
-      {
-        value: 'yes',
-        label: Global('form.yesLabel'),
-      },
-      {
-        value: 'no',
-        label: Global('form.noLabel')
-      }
-    ]
-  }
-
 
   // Run selected question query
   const {
@@ -306,7 +292,6 @@ const QuestionEdit = () => {
   // Handle form submission to update the question
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-
     // Prevent double submission
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -338,26 +323,28 @@ const QuestionEdit = () => {
           },
         });
 
-        const [hasErrors, errs] = checkErrors(
-          response?.data?.updateQuestion?.errors as QuestionErrors,
-          ['general', 'questionText']
-        );
+        const responseErrors = response?.data?.updateQuestion?.errors;
 
-        if (hasErrors) {
-          setErrors([String(errs.general)]);
-        } else {
-          setIsSubmitting(false);
-          // Show success message and redirect to Edit Template page
-          toastState.add(t('messages.success.questionUpdated'), { type: 'success' });
-          router.push(TEMPLATE_URL);
+        if (responseErrors && typeof responseErrors === 'object') {
+          const [hasErrors, errs] = checkErrors(
+            responseErrors as QuestionErrors,
+            ['general', 'questionText']
+          );
+          if (hasErrors) {
+            setErrors([String(errs.general)]);
+            setIsSubmitting(false);
+            return;
+          }
         }
+        // Show success message and redirect to Edit Template page
+        toastState.add(t('messages.success.questionUpdated'), { type: 'success' });
+        router.push(TEMPLATE_URL);
+        setHasUnsavedChanges(false);
+        setIsSubmitting(false);
       } catch (error) {
         if (!(error instanceof ApolloError)) {
           setErrors(prevErrors => [...prevErrors, t('messages.errors.questionUpdateError')]);
         }
-      } finally {
-        setIsSubmitting(false);
-        setHasUnsavedChanges(false);
       }
     }
   }
@@ -725,11 +712,20 @@ const QuestionEdit = () => {
                 <RadioGroupComponent
                   name="radioGroup"
                   value={question?.required ? 'yes' : 'no'}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
+                  radioGroupLabel={Global('labels.requiredField')}
                   description={Global('descriptions.requiredFieldDescription')}
                   onChange={handleRadioChange}
-                />
+                >
+                  <div>
+                    <Radio value="yes">{Global('form.yesLabel')}</Radio>
+                  </div>
+
+                  <div>
+                    <Radio value="no">{Global('form.noLabel')}</Radio>
+                  </div>
+                </RadioGroupComponent>
+
+
                 <Button
                   type="submit"
                   aria-disabled={isSubmitting}
@@ -737,7 +733,6 @@ const QuestionEdit = () => {
                 >
                   {isSubmitting ? Global('buttons.saving') : Global('buttons.saveAndUpdate')}
                 </Button>
-
               </Form>
 
 

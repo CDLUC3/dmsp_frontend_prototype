@@ -30,15 +30,15 @@ beforeEach(() => {
   // Cannot get the escaping to work in the mock JSON file, so doing it programmatically here
   const affiliationQuery = 'query Affiliations($name: String!){ ' +
     'affiliations(name: $name) { ' +
-      'totalCount ' +
-      'nextCursor ' +
-      'items { ' +
-        'id ' +
-        'displayName ' +
-        'uri ' +
-      '} ' +
+    'totalCount ' +
+    'nextCursor ' +
+    'items { ' +
+    'id ' +
+    'displayName ' +
+    'uri ' +
     '} ' +
-  '}';
+    '} ' +
+    '}';
 
   const json: AffiliationSearchQuestionType = {
     type: 'affiliationSearch',
@@ -355,7 +355,7 @@ describe("QuestionEditPage", () => {
     fireEvent.click(changeTypeButton);
 
     // Verify that router redirects to question types page
-    expect(mockRouter.push).toHaveBeenCalledWith('/template/123/q/new?section_id=67&step=1&questionId=67');
+    expect(mockRouter.push).toHaveBeenCalledWith('/en-US/template/123/q/new?section_id=67&step=1&questionId=67');
   })
 
   it('should call the useUpdateQuestionMutation when user clicks \'save\' button', async () => {
@@ -394,6 +394,7 @@ describe("QuestionEditPage", () => {
 
     // Set required QuestionType value
     fireEvent.change(input, { target: { value: 'Testing' } });
+
 
     const saveButton = screen.getByText('buttons.saveAndUpdate');
     expect(saveButton).toBeInTheDocument();

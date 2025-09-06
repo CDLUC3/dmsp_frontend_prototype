@@ -8,6 +8,7 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
+  Checkbox,
   Form,
   Link,
   Dialog,
@@ -460,13 +461,27 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   isRequired={true}
                   checkboxGroupLabel={t('form.labels.checkboxGroupLabel')}
                   checkboxGroupDescription={t('form.labels.checkboxGroupDescription')}
-                  checkboxData={state.roles && state.roles.map(role => ({
-                    label: role.label,
-                    value: role?.id?.toString() ?? ''
-                  }))}
                   isInvalid={checkboxRoles.length === 0}
                   errorMessage={fieldErrors.projectRoles || t('form.errors.projectRoles')}
-                />
+                >
+                  {state.roles.map((role, index) => (
+                    <div key={index}>
+                      <Checkbox value={role?.id?.toString() ?? ''} aria-label="project roles option">
+                        <div className="checkbox">
+                          <svg viewBox="0 0 18 18" aria-hidden="true">
+                            <polyline points="1 9 7 14 15 4" />
+                          </svg>
+                        </div>
+                        <div className="">
+                          <span>
+                            {role.label}
+                          </span>
+
+                        </div>
+                      </Checkbox>
+                    </div>
+                  ))}
+                </CheckboxGroupComponent>
 
                 <Button type="submit">{Global('buttons.saveChanges')}</Button>
               </div>
