@@ -303,6 +303,32 @@ describe('PlanOverviewQuestionPage render of questions', () => {
     expect(bestPracticeDataVolume).toBeInTheDocument();
   })
 
+  it('should display disabled comment button when an answer does not exist for the question', async () => {
+
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockQuestionDataForTextArea,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: null,
+      loading: false,
+      error: undefined,
+    });
+
+    await act(async () => {
+      render(
+        <PlanOverviewQuestionPage />
+      );
+    });
+
+    // check for comment button
+    const commentButton = screen.getByRole('button', { name: 'buttons.commentWithNumber' });
+    expect(commentButton).toBeInTheDocument();
+    expect(commentButton).toHaveClass('buttonSmallDisabled');
+  })
+
   it('should load sampleText in textArea if useSampleTextAsDefault is true and sampleText exists in question', async () => {
 
     (usePublishedQuestionQuery as jest.Mock).mockReturnValue({

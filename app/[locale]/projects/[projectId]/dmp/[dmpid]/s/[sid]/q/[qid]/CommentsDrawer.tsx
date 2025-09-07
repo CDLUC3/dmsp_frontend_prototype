@@ -32,6 +32,7 @@ export interface CommentsDrawerProps {
   handleEditComment: (comment: MergedComment) => void;
   handleDeleteComment: (comment: MergedComment) => void;
   me: MeQuery | null | undefined;
+  planOwners: number[] | undefined | null;
   locale: string;
   commentsEndRef: React.RefObject<HTMLDivElement>;
   canAddComments: boolean;
@@ -52,6 +53,7 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
   handleEditComment,
   handleDeleteComment,
   me,
+  planOwners,
   locale,
   commentsEndRef,
   canAddComments,
@@ -96,6 +98,7 @@ const CommentsDrawer: React.FC<CommentsDrawerProps> = ({
             editingCommentId={editingCommentId}
             editingCommentText={editingCommentText}
             me={me}
+            planOwners={planOwners}
             handleEditComment={handleEditComment}
             handleUpdateComment={handleUpdateComment}
             handleCancelEdit={handleCancelEdit}
