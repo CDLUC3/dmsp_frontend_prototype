@@ -40,7 +40,7 @@ const QuestionTypeSelectPage: React.FC = () => {
   //For scrolling to error in page
   const errorRef = useRef<HTMLDivElement | null>(null);
   const templateId = String(params.templateId); // From route /template/:templateId
-  const sectionId = searchParams.get('section_id');
+  const sectionId = searchParams.get('section_id') ?? '';
   const questionId = searchParams.get('questionId');// if user is switching their question type while editing an existing question
 
   // State management
@@ -81,7 +81,10 @@ const QuestionTypeSelectPage: React.FC = () => {
       if (questionType) {
         setSelectedQuestionType({ questionType, questionName: questionTypeName, questionJSON });
         setStep(2);
-        router.push(`/template/${templateId}/q/new?section_id=${sectionId}&step=2`)
+        // Use router.replace with restore=true so that 'beforeunload' events are properly detected in the next page. This will cause users to go back to the
+        // Template Overview page rather than the question type selection page when they click "Back" in their browser
+        router.replace(routePath('template.q.new', { templateId }, { section_id: sectionId, step: 2, restore: true }));
+
       }
     }
   }

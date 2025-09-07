@@ -182,6 +182,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  // Track whether there are unsaved changes
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   // Localization
   const Global = useTranslations('Global');
@@ -353,6 +355,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         affiliationId: id
       }
     }));
+    setHasUnsavedChanges(true);
   }
 
   const handleOtherAffiliationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -369,6 +372,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       selectedRadioValue: value
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -377,6 +381,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       urlValue: value
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -385,6 +390,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       emailValue: value
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -393,10 +399,11 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       textValue: value
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleTextAreaChange = () => {
-    //TODO: currently handled in TinyMCE editor - but we will need this for auto-save eventually
+    setHasUnsavedChanges(true);
   };
 
   // Handler for checkbox group changes
@@ -405,6 +412,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       selectedCheckboxValues: values
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleBooleanChange = (values: string) => {
@@ -412,6 +420,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       yesNoValue: values
     }));
+    setHasUnsavedChanges(true);
   };
 
 
@@ -421,6 +430,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       selectedSelectValue: value
     }));
+    setHasUnsavedChanges(true);
   };
 
 
@@ -430,6 +440,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       selectedMultiSelectValues: values
     }));
+    setHasUnsavedChanges(true);
   };
 
   // Handler for date change
@@ -440,6 +451,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       dateValue: value
     }));
+    setHasUnsavedChanges(true);
   };
 
   // Handler for date range changes
@@ -454,6 +466,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         [key]: value
       }
     }));
+    setHasUnsavedChanges(true);
   };
 
   // Handler for currency changes
@@ -462,6 +475,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       inputCurrencyValue: value
     }));
+    setHasUnsavedChanges(true);
   };
 
 
@@ -471,6 +485,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
       ...prev,
       numberValue: value
     }));
+    setHasUnsavedChanges(true);
   };
 
   // Handler for number range changes
@@ -485,6 +500,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
         [key]: value === '' ? null : Number(value) // Convert empty string to null  
       }
     }));
+    setHasUnsavedChanges(true);
   };
 
   const handleBackToSection = () => {
@@ -780,6 +796,8 @@ const PlanOverviewQuestionPage: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    setErrors([]); // Clear previous errors
+
     // Prevent double submission
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -801,6 +819,7 @@ const PlanOverviewQuestionPage: React.FC = () => {
 
       } else {
         setIsSubmitting(false);
+        setHasUnsavedChanges(false);
         // Show user a success message and redirect back to the Section page
         showSuccessToast();
         router.push(routePath('projects.dmp.versionedSection', { projectId, dmpId, versionedSectionId }))
@@ -912,6 +931,21 @@ const PlanOverviewQuestionPage: React.FC = () => {
     setAnswerId(answerData?.answerByVersionedQuestionId?.id ?? null);
 
   }, [answerData, questionType]);
+
+  // Warn user of unsaved changes if they try to leave the page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = ''; // Required for Chrome/Firefox to show the confirm dialog
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   useEffect(() => {
     // Set whether current user can add comments based on their role and plan data

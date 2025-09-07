@@ -2116,3 +2116,108 @@ describe('DrawerPanel', () => {
     expect(sidebarPanel2).toBeInTheDocument();
   })
 });
+
+describe('Prevent unload when user has unsaved changes', () => {
+  let addEventListenerSpy: jest.SpyInstance;
+  let removeEventListenerSpy: jest.SpyInstance;
+  beforeEach(() => {
+    HTMLElement.prototype.scrollIntoView = mockScrollIntoView;
+
+    // Mock window.tinymce
+    window.tinymce = {
+      init: jest.fn(),
+      remove: jest.fn(),
+    };
+
+    // Mock the return value of useParams
+    mockUseParams.mockReturnValue({ projectId: 1, dmpid: 1, sid: 22, qid: 344 });
+    mockUseRouter.mockReturnValue({
+      push: jest.fn(),
+    });
+
+    (usePlanQuery as jest.Mock).mockReturnValue([
+      jest.fn().mockResolvedValueOnce(mockPlanData),
+      { loading: false, error: undefined },
+    ]);
+
+    (useMeQuery as jest.Mock).mockReturnValue({
+      data: mockMeData,
+      loading: false,
+      error: undefined
+    });
+
+    // Mock addEventListener
+    addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+    removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
+  })
+
+  afterEach(() => {
+    // Cleanup
+    removeEventListenerSpy.mockRestore();
+    addEventListenerSpy.mockRestore();
+  })
+
+  it('should prevent unload when there are unsaved changes and user tries to navigate away from page', async () => {
+    (usePublishedQuestionQuery as jest.Mock).mockReturnValue({
+      data: mockCheckboxQuestion,
+      loading: false,
+      error: undefined,
+    });
+
+    (useAnswerByVersionedQuestionIdQuery as jest.Mock).mockReturnValue({
+      data: null,
+      loading: false,
+      error: undefined,
+    });
+
+    (addAnswerAction as jest.Mock).mockResolvedValue({
+      success: true,
+      data: {
+        errors: {
+          general: null,
+        },
+        id: 27,
+        json: "{\"type\":\"checkBoxes\",\"answer\":[\"Barbara\",\"Charlie\",\"Alex\"]}",
+        modified: "1751929006000",
+        versionedQuestion: {
+          versionedSectionId: 20
+        }
+      },
+    });
+
+    render(
+      <PlanOverviewQuestionPage />
+    );
+
+    // Make checkbox change
+    const checkboxGroup = screen.getByTestId('checkbox-group');
+    expect(checkboxGroup).toBeInTheDocument();
+    const checkboxes = within(checkboxGroup).getAllByRole('checkbox');
+    const alexCheckbox = checkboxes.find(
+      (checkbox) => (checkbox as HTMLInputElement).value === 'Alex'
+    );
+
+    await userEvent.click(alexCheckbox!);
+
+    // Wait for state update
+    await waitFor(() => {
+      // Get the last registered 'beforeunload' handler
+      const handler = addEventListenerSpy.mock.calls
+        .filter(([event]) => event === 'beforeunload')
+        .map(([, fn]) => fn)
+        .pop();
+
+      // Simulate event of navigating way from page
+      const event = new Event('beforeunload');
+      Object.defineProperty(event, 'returnValue', {
+        writable: true,
+        value: undefined,
+      });
+
+      if (handler) {
+        handler(event as unknown as BeforeUnloadEvent);
+        expect(event.returnValue).toBe('');
+      }
+    });
+  });
+});
