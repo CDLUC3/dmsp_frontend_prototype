@@ -13,7 +13,12 @@ jest.mock('@/context/ToastContext', () => ({
 }));
 
 jest.mock('next-intl', () => {
+  // Enable the other parts of next-intl to not be mocked
+  const originalModule = jest.requireActual('next-intl');
+
   return {
+    ...originalModule,
+
     useTranslations: jest.fn(() => {
       const mockUseTranslations = (key: string) => key;
       /*eslint-disable-next-line @typescript-eslint/no-explicit-any*/

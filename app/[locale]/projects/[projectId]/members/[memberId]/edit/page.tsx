@@ -8,8 +8,13 @@ import {
   Breadcrumb,
   Breadcrumbs,
   Button,
+  Checkbox,
   Form,
   Link,
+  Dialog,
+  DialogTrigger,
+  Modal,
+  ModalOverlay,
 } from "react-aria-components";
 
 // Components
@@ -81,6 +86,10 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   const { scrollToTop } = useScrollToTop();
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
+  // State for remove project member modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Field errors
   const [fieldErrors, setFieldErrors] = useState<ProjectMemberErrorInterface>({
@@ -184,7 +193,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
 
   // Handle remove member from project
   const handleRemoveMember = async () => {
-
+    setIsDeleting(true);
     const [errors, success] = await removeProjectMember();
 
     if (!success) {
@@ -198,16 +207,16 @@ const ProjectsProjectMembersEdit: React.FC = () => {
           projectRoles: errors.memberRoleIds ?? ''
         });
       }
-      setErrorMessages([errors.general || t('form.errors.updatingMember')]);
+      setErrorMessages([errors.general || t('form.errors.removingMember')]);
+      setIsDeleting(false);
 
+      // Scroll to top of page for errors
+      scrollToTop(topRef);
     } else {
       // Show success message
       showRemoveSuccessToast();
       router.push(PROJECT_MEMBERS_ROUTE);
     }
-
-    // Scroll to top of page
-    scrollToTop(topRef);
   }
 
   // update the project member
@@ -274,10 +283,6 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       ...prevErrors,
       [name]: error
     }));
-    if (error.length > 1) {
-      setErrorMessages(prev => [...prev, error]);
-    }
-
     return error;
   }
 
@@ -285,15 +290,6 @@ const ProjectsProjectMembersEdit: React.FC = () => {
   const isFormValid = (): boolean => {
     // Initialize a flag for form validity
     let isValid = true;
-    // Field errors
-    const errors: ProjectMemberErrorInterface = {
-      givenName: '',
-      surName: '',
-      affiliationId: '',
-      email: '',
-      orcid: '',
-      projectRoles: ''
-    };
 
     // Iterate over formData to validate each field
     Object.keys(projectMemberData).forEach((key) => {
@@ -304,7 +300,6 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       const error = validateField(name, value);
       if (error) {
         isValid = false;
-        errors[name] = error;
       }
     });
     return isValid;
@@ -372,7 +367,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>
-            <Breadcrumb><Link href="/">{Global('breadcrumbs.home')}</Link></Breadcrumb>
+            <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.project')}</Link></Breadcrumb>
             <Breadcrumb><Link href={PROJECT_MEMBERS_ROUTE}>{t('breadcrumbs.projectMembers')}</Link></Breadcrumb>
@@ -387,8 +382,6 @@ const ProjectsProjectMembersEdit: React.FC = () => {
       <LayoutContainer>
         <ContentContainer>
           <div ref={topRef}>
-            <h2>Test{fieldErrors.givenName}</h2>
-
             <Form onSubmit={handleFormSubmit} className={styles.editForm}>
               <div className={styles.formSection}>
                 <FormInput
@@ -402,7 +395,7 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                     setFieldErrors(prev => ({ ...prev, givenName: '' }));
                   }}
                   isInvalid={fieldErrors.givenName.length !== 0}
-                  errorMessage={` ${fieldErrors.givenName} Test`}
+                  errorMessage={fieldErrors.givenName}
                 />
 
                 <FormInput
@@ -468,31 +461,77 @@ const ProjectsProjectMembersEdit: React.FC = () => {
                   isRequired={true}
                   checkboxGroupLabel={t('form.labels.checkboxGroupLabel')}
                   checkboxGroupDescription={t('form.labels.checkboxGroupDescription')}
-                  checkboxData={state.roles && state.roles.map(role => ({
-                    label: role.label,
-                    value: role?.id?.toString() ?? ''
-                  }))}
                   isInvalid={checkboxRoles.length === 0}
                   errorMessage={fieldErrors.projectRoles || t('form.errors.projectRoles')}
-                />
+                >
+                  {state.roles.map((role, index) => (
+                    <div key={index}>
+                      <Checkbox value={role?.id?.toString() ?? ''} aria-label="project roles option">
+                        <div className="checkbox">
+                          <svg viewBox="0 0 18 18" aria-hidden="true">
+                            <polyline points="1 9 7 14 15 4" />
+                          </svg>
+                        </div>
+                        <div className="">
+                          <span>
+                            {role.label}
+                          </span>
+
+                        </div>
+                      </Checkbox>
+                    </div>
+                  ))}
+                </CheckboxGroupComponent>
 
                 <Button type="submit">{Global('buttons.saveChanges')}</Button>
               </div>
             </Form>
           </div>
 
-          <section className={styles.dangerZone} aria-labelledby="remove-section">
-            <h2 id="remove-section">{t('headings.h2RemoveMember')}</h2>
+          {/* Delete Project Member Modal */}
+          <section className={styles.dangerZone} aria-labelledby="remove-member" data-testid="remove-member">
+            <h2 id="remove-member">{t('headings.h2RemoveMember')}</h2>
             <p>
               {t('paragraphs.removeMember')}
             </p>
-            <Button
-              onPress={handleRemoveMember}
-              className="secondary"
-              aria-label={t('form.labels.removeMemberFromProject')}
-            >
-              {t('buttons.removeMember')}
-            </Button>
+            <DialogTrigger isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+              <Button
+                className="secondary"
+                isDisabled={isDeleting}
+              >
+                {isDeleting ? `${t('buttons.removing')}...` : t('buttons.removeMember')}
+              </Button>
+              <ModalOverlay>
+                <Modal>
+                  <Dialog>
+                    {({ close }) => (
+                      <>
+                        <h3>{t('headings.removeProjectMember')}</h3>
+                        <p>{t('paragraphs.modalInfo')}</p>
+                        <div className={styles.deleteConfirmButtons}>
+                          <Button
+                            className="secondary"
+                            aria-label={t('form.labels.removeMemberFromProject')}
+                            autoFocus
+                            onPress={close}>
+                            {Global('buttons.cancel')}
+                          </Button>
+                          <Button
+                            className="primary"
+                            onPress={() => {
+                              handleRemoveMember();
+                              close();
+                            }}
+                          >
+                            {Global('buttons.delete')}
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </Dialog>
+                </Modal>
+              </ModalOverlay>
+            </DialogTrigger>
           </section>
         </ContentContainer>
       </LayoutContainer>

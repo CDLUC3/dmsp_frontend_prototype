@@ -29,7 +29,12 @@ import ErrorMessages from '@/components/ErrorMessages';
 import { scrollToTop } from '@/utils/general';
 import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
+import { extractErrors } from '@/utils/errorHandler';
 import { useToast } from '@/context/ToastContext';
+
+import {
+  removeProjectFundingAction
+} from './actions';
 
 import styles from './projectFunding.module.scss';
 
@@ -45,6 +50,16 @@ interface ProjectFundingInterface {
   funderGrantId: string;
   funderOpportunityNumber: string;
   funderProjectNumber: string;
+}
+
+type RemoveFundingErrors = {
+  general?: string;
+  status?: string;
+  affiliationId?: string;
+  funderOpportunityNumber?: string;
+  funderProjectNumber?: string;
+  grantId?: string;
+  projectId?: string;
 }
 
 const ProjectsProjectFundingEdit = () => {
@@ -92,6 +107,11 @@ const ProjectsProjectFundingEdit = () => {
   const { data, loading, error: queryError, refetch } = useProjectFundingQuery(
     {
       variables: { projectFundingId: Number(projectFundingId) },
+      /*Needed to add this fetchPolicy so that users get fresh data when coming back to this page after editing because it was
+      previously showing stale data. I believe that it's ok to use this here because:
+      - Edit pages typically are low traffic
+      - Data accuracy is critical on form pages and we don't want users overwriting their changes*/
+      fetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true
     }
   );
@@ -194,9 +214,57 @@ const ProjectsProjectFundingEdit = () => {
       // Show success message
       showSuccessToast();
       // Redirect back to the project funding page
-      router.push(`/projects/${projectId}/fundings`);
+      router.push(routePath('projects.fundings.index', { projectId }));
     }
   };
+
+  // Call Server Action removeProjectFundingAction to run the removeProjectFundingMutation
+  const deleteFunding = async () => {
+    // Don't need a try-catch block here, as the error is handled in the action
+    const response = await removeProjectFundingAction({
+      projectFundingId: Number(projectFundingId),
+    })
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
+  }
+
+  const handleDeleteFunding = async () => {
+    const result = await deleteFunding();
+
+    if (!result.success) {
+      const errors = result.errors;
+      if (errors) {
+        setErrorMessages(prev => prev.concat(errors));
+      }
+    } else {
+      if (result?.data?.errors) {
+        const errs = extractErrors<RemoveFundingErrors>(result?.data?.errors, ['general', 'status', 'affiliationId', 'funderOpportunityNumber', 'funderProjectNumber', 'projectId']);
+        if (errs.length > 0) {
+          setErrorMessages(prev => prev.concat(errs));
+        } else {
+          const successMessage = EditFunding('messages.success.removedFunding');
+          toastState.add(successMessage, { type: 'success' });
+          // Redirect back to the project funding page
+          router.push(routePath('projects.fundings.index', { projectId }));
+        }
+      }
+    }
+  }
+
+  const handleAddFunding = async () => {
+    const successMessage = EditFunding('messages.info.redirectingToAddFunderPage');
+    toastState.add(successMessage, { type: 'success' });
+    // Redirect to Add Funding page
+    router.push(routePath('projects.fundings.add', { projectId }));
+  }
 
   useEffect(() => {
     // set project data in state
@@ -249,9 +317,7 @@ const ProjectsProjectFundingEdit = () => {
               isRequired={false}
               label={EditFunding('labels.funderName')}
               value={projectFunding.funderName}
-              onChange={(e) => updateProjectFundingContent('funderName', e.target.value)}
-              isInvalid={(!projectFunding.funderName)}
-              errorMessage={EditFunding('messages.errors.fundingName')}
+              disabled={true}
             />
 
             <FormSelect
@@ -303,8 +369,23 @@ const ProjectsProjectFundingEdit = () => {
               onChange={(e) => updateProjectFundingContent('funderOpportunityNumber', e.target.value)}
             />
 
-            <Button type="submit" className="submit-button">{Global('buttons.saveChanges')}</Button>
+            <div className={styles.buttonsContainer}>
+              <Button type="submit" className="submit-button">{Global('buttons.saveChanges')}</Button>
+              <Button type="button" className="secondary" onPress={handleAddFunding}>{Global('buttons.addAnother')}</Button>
+            </div>
           </Form>
+
+          <div className={styles.deleteWrapper}>
+            <h2>{EditFunding('headings.deleteFunder')}</h2>
+            <p>
+              {EditFunding.rich('para1Delete', {
+                strong: (chunks) => <strong>{chunks}</strong>
+              })}
+            </p>
+            <p>{EditFunding('para2Delete')}</p>
+
+            <Button type="button" className="danger" onPress={handleDeleteFunding}>{EditFunding('buttons.removeFunder')}</Button>
+          </div>
         </ContentContainer>
       </LayoutContainer>
     </>

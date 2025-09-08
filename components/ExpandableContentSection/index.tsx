@@ -13,7 +13,7 @@ export default function ExpandableContentSection({
   children
 }: {
   id: string;
-  heading: string;
+  heading?: string;
   expandLabel?: string;
   collapseLabel?: string;
   summaryCharLimit?: number;
@@ -100,8 +100,9 @@ export default function ExpandableContentSection({
 
   return (
     <section className={styles.section}>
-      <h3 id={`${id}-heading`} className="h5">{heading}</h3>
-
+      {heading && (
+        <h3 id={`${id}-heading`} className="h5">{heading}</h3>
+      )}
       {/**Don't show the summaryElements if the content is expanded */}
       <div className={styles.summaryContent} id={contentId}>
         {isExpanded || !wasTruncated ? children : summaryElements}

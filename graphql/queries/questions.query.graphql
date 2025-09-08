@@ -45,8 +45,8 @@ query Question($questionId: Int!) {
   }
 }
 
-query PublishedQuestions($versionedSectionId: Int!) {
-  publishedQuestions(versionedSectionId: $versionedSectionId) {
+query PublishedQuestions($planId: Int!, $versionedSectionId: Int!) {
+  publishedQuestions(planId: $planId, versionedSectionId: $versionedSectionId) {
     id
     questionText
     displayOrder
@@ -55,6 +55,7 @@ query PublishedQuestions($versionedSectionId: Int!) {
     sampleText
     versionedSectionId
     versionedTemplateId
+    hasAnswer
   }
 }
 
@@ -75,6 +76,7 @@ query PublishedQuestion($versionedQuestionId: Int!) {
     json
     requirementText
     sampleText
+    useSampleTextAsDefault
     versionedSectionId
     versionedTemplateId
     required

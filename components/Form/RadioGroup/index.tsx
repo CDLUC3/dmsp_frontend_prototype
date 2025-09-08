@@ -2,61 +2,52 @@ import React, { ReactNode } from 'react';
 import {
   FieldError,
   Label,
-  Radio,
   RadioGroup,
   Text,
 } from "react-aria-components";
-import classNames from 'classnames';
 
-import { RadioButtonProps } from '@/app/types';
-import styles from './radioGroup.module.scss';
+interface RadioGroupComponentProps {
+  name: string;
+  value: string;
+  classes?: string;
+  description?: ReactNode;
+  radioGroupLabel: string;
+  isInvalid?: boolean;
+  errorMessage?: string;
+  onChange: (value: string) => void;
+  children: ReactNode; // allow any Radio buttons or JSX
+}
 
-const RadioGroupComponent: React.FC<RadioButtonProps> = ({
+const RadioGroupComponent: React.FC<React.PropsWithChildren<RadioGroupComponentProps>> = ({
   name,
   value,
   classes,
   description,
   radioGroupLabel,
-  radioButtonData,
   isInvalid,
   errorMessage,
-  onChange
+  onChange,
+  children,
 }) => {
-
-  const renderDescription = (desc: string | ReactNode) => {
-    // If it's a string, just render it directly
-    // If it's a ReactNode, it will be rendered as JSX
-    return desc;
-  };
   return (
-    <>
-      <RadioGroup
-        name={name}
-        value={value}
-        className={classes}
-        onChange={onChange}
-        aria-label={radioGroupLabel || 'Radio Group'}
-      >
-        <Label>{radioGroupLabel}</Label>
+    <RadioGroup
+      name={name}
+      value={value}
+      className={classes}
+      onChange={onChange}
+      aria-label={radioGroupLabel || 'Radio Group'}
+    >
+      <Label>{radioGroupLabel}</Label>
+      {description && (
         <Text slot="description" className="help">
           {description}
         </Text>
-        {radioButtonData.map((radioButton, index) => (
-          <div key={index}>
-            <Radio value={radioButton.value}>{radioButton.label}</Radio>
-            {radioButton.description && (
-              <Text
-                slot="description"
-                className={classNames('help', styles.radioDescription)}
-              >
-                {renderDescription(radioButton.description)}
-              </Text>
-            )}
-          </div>
-        ))}
-        {isInvalid && <FieldError className='error-message'>{errorMessage}</FieldError>}
-      </RadioGroup>
-    </>
+      )}
+      {children}
+      {isInvalid && (
+        <FieldError className="error-message">{errorMessage}</FieldError>
+      )}
+    </RadioGroup>
   );
 };
 

@@ -1,3 +1,7 @@
+networks:
+  dmsp_backend_prototype_dmptool-network:
+    external: true
+
 services:
   dmsp-frontend-prototype:
     container_name: dmsp_frontend
@@ -6,6 +10,12 @@ services:
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
+    networks:
+      - dmsp_backend_prototype_dmptool-network
+    env_file:
+      - .env.local
+    environment:
+      - SERVER_ENDPOINT=http://apollo-server:4000
     volumes:
     - .:/app
     - /app/node_modules

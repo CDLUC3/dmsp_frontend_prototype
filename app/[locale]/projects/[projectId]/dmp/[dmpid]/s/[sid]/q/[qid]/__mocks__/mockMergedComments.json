@@ -1,0 +1,127 @@
+[
+  {
+    "__typename": "PlanFeedbackComment",
+    "id": 48,
+    "commentText": "Adding a new comment123",
+    "created": "1755557418000",
+    "answerId": 1,
+    "modified": "1755557423000",
+    "PlanFeedback": null,
+    "user": {
+      "__typename": "User",
+      "id": 1,
+      "surName": "Admin",
+      "givenName": "Super"
+    },
+    "type": "feedback",
+    "isAnswerComment": false,
+    "isFeedbackComment": true
+  },
+  {
+    "__typename": "PlanFeedbackComment",
+    "id": 49,
+    "commentText": "Adding an admin comment123",
+    "created": "1755562088000",
+    "answerId": 1,
+    "modified": "1755562092000",
+    "PlanFeedback": null,
+    "user": {
+      "__typename": "User",
+      "id": 1,
+      "surName": "Admin",
+      "givenName": "Super"
+    },
+    "type": "feedback",
+    "isAnswerComment": false,
+    "isFeedbackComment": true
+  },
+  {
+    "__typename": "PlanFeedbackComment",
+    "id": 50,
+    "commentText": "Leaving another admin comment",
+    "created": "1755562100000",
+    "answerId": 1,
+    "modified": "1755562100000",
+    "PlanFeedback": null,
+    "user": {
+      "__typename": "User",
+      "id": 1,
+      "surName": "Admin",
+      "givenName": "Super"
+    },
+    "type": "feedback",
+    "isAnswerComment": false,
+    "isFeedbackComment": true
+  },
+  {
+    "__typename": "AnswerComment",
+    "id": 13,
+    "commentText": "I want to add a comment by a researcher123",
+    "answerId": 1,
+    "created": "1755562145000",
+    "modified": "1755562155000",
+    "user": {
+      "__typename": "User",
+      "id": 7,
+      "surName": "Researcher",
+      "givenName": "UCD"
+    },
+    "type": "answer",
+    "isAnswerComment": true,
+    "isFeedbackComment": false
+  },
+  {
+    "__typename": "PlanFeedbackComment",
+    "id": 51,
+    "commentText": "New admin comment",
+    "created": "1755562431000",
+    "answerId": 1,
+    "modified": "1755562431000",
+    "PlanFeedback": null,
+    "user": {
+      "__typename": "User",
+      "id": 1,
+      "surName": "Admin",
+      "givenName": "Super"
+    },
+    "type": "feedback",
+    "isAnswerComment": false,
+    "isFeedbackComment": true
+  },
+  {
+    "__typename": "PlanFeedbackComment",
+    "id": 52,
+    "commentText": "Can the admin write another comment? Yes",
+    "created": "1755562673000",
+    "answerId": 1,
+    "modified": "1755562685000",
+    "PlanFeedback": null,
+    "user": {
+      "__typename": "User",
+      "id": 1,
+      "surName": "Admin",
+      "givenName": "Super"
+    },
+    "type": "feedback",
+    "isAnswerComment": false,
+    "isFeedbackComment": true
+  },
+  {
+    "__typename": "PlanFeedbackComment",
+    "id": 53,
+    "commentText": "Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data,...Give a summary of the data you will collect or create, noting the content, coverage and data type, e.g., tabular data, survey data, experimental measurements, models, software, audiovisual data,...",
+    "created": "1755615932000",
+    "answerId": 1,
+    "modified": "1755615932000",
+    "PlanFeedback": null,
+    "user": {
+      "__typename": "User",
+      "id": 1,
+      "surName": "Admin",
+      "givenName": "Super"
+    },
+    "type": "feedback",
+    "isAnswerComment": false,
+    "isFeedbackComment": true
+  }
+]

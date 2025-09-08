@@ -11,6 +11,12 @@ import { mockScrollIntoView, mockScrollTo } from "@/__mocks__/common";
 
 expect.extend(toHaveNoViolations);
 
+// Mocking date returned from formatShortMonthDayYear so that it passes for all locales
+jest.mock('@/utils/dateUtils', () => ({
+  ...jest.requireActual('@/utils/dateUtils'),
+  formatShortMonthDayYear: jest.fn(() => 'Jun 25, 2014'),
+}));
+
 jest.mock('@/generated/graphql', () => ({
   useTemplateVersionsQuery: jest.fn(),
 }));

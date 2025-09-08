@@ -171,9 +171,9 @@
     },
     "helpText": {
       "bestPracticeTagsDesc": "Select one or more tags to associate global best practice guidance written by DMP Tool.",
-      "sectionIntroduction": "Enter a short, concise introduction to the question.",
+      "sectionIntroduction": "Enter a short, concise introduction to the section.",
       "sectionRequirements": "Outline the requirements that a user must consider in this section.",
-      "sectionGuidance": "Provide users with helpful guidance to help them answer the question."
+      "sectionGuidance": "Provide users with helpful guidance to help them answer the questions in the section."
     }
   },
   "CreateSectionPage": {

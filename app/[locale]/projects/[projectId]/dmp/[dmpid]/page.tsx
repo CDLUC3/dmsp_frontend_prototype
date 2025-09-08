@@ -13,6 +13,8 @@ import {
   Link,
   ListBoxItem,
   Modal,
+  Radio,
+  Text
 } from 'react-aria-components';
 import {
   PlanSectionProgress,
@@ -173,33 +175,14 @@ const PlanOverviewPage: React.FC = () => {
   const DOWNLOAD_URL = routePath('projects.dmp.download', { projectId, dmpId: planId });
   const FEEDBACK_URL = routePath('projects.dmp.feedback', { projectId, dmpId: planId });
   const CHANGE_PRIMARY_CONTACT_URL = routePath('projects.dmp.members', { projectId, dmpId: planId });
+  const RELATED_WORKS_URL = routePath('projects.dmp.relatedWorks', { projectId, dmpId: planId });
 
-  // Set radio button data
-  const radioData = {
-    radioGroupLabel: t('publishModal.publish.visibilityOptionsTitle'),
-    radioButtonData: [
-      {
-        value: 'public',
-        label: t('publishModal.publish.visibilityOptions.public.label'),
-        description: <><strong>{t('publishModal.publish.visibilityOptions.public.description')}</strong></>
-      },
-      {
-        value: 'organizational',
-        label: t('publishModal.publish.visibilityOptions.organization.label'),
-        description: <>{t.rich('publishModal.publish.visibilityOptions.organization.description', {
-          strong: (chunks) => <strong>{chunks}</strong>
-        })}</>
-      },
-      {
-        value: 'private',
-        label: t('publishModal.publish.visibilityOptions.private.label'),
-        description: t('publishModal.publish.visibilityOptions.private.description')
-      }
-    ]
-  }
 
   //TODO: Get research output count from backend
   const researchOutputCount = 3;
+
+  //TODO: Get related works count from backend
+  const relatedWorksCount = 3;
 
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
@@ -374,14 +357,6 @@ const PlanOverviewPage: React.FC = () => {
     }
   };
 
-  const calculatePercentageAnswered = (sections: PlanSectionProgress[]) => {
-    if (sections.length === 0) return 0;
-    const totalAnswered = sections.reduce((sum, section) => sum + section.answeredQuestions, 0);
-    const totalQuestions = sections.reduce((sum, section) => sum + section.totalQuestions, 0);
-    const overallPercentage = totalQuestions > 0 ? (totalAnswered / totalQuestions) * 100 : 0;
-    return Math.round(overallPercentage);
-  }
-
   // Call Server Action updatePlanTitleAction to run the updatePlanTitleMutation
   const updateTitle = async (title: string) => {
     // Don't need a try-catch block here, as the error is handled in the action
@@ -463,8 +438,8 @@ const PlanOverviewPage: React.FC = () => {
               isPrimaryContact: member?.isPrimaryContact ?? false,
               role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
             })) ?? [],
-          versionedSections:  data?.plan?.versionedSections ?? [],
-          percentageAnswered: calculatePercentageAnswered(data?.plan?.versionedSections ?? []) ?? 0,
+          versionedSections: data?.plan?.versionedSections ?? [],
+          percentageAnswered: data?.plan?.progress?.percentComplete ?? 0,
         },
       })
       dispatch({
@@ -562,7 +537,7 @@ const PlanOverviewPage: React.FC = () => {
             <Breadcrumb><Link href={routePath('app.home')}>{Global('breadcrumbs.home')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.index')}>{Global('breadcrumbs.projects')}</Link></Breadcrumb>
             <Breadcrumb><Link href={routePath('projects.show', { projectId })}>{Global('breadcrumbs.projectOverview')}</Link></Breadcrumb>
-            <Breadcrumb>{state.planData.title}</Breadcrumb>
+            <Breadcrumb>{Global('breadcrumbs.planOverview')}</Breadcrumb>
           </Breadcrumbs>
         }
         onTitleChange={handleTitleChange}
@@ -631,8 +606,24 @@ const PlanOverviewPage: React.FC = () => {
                   {t('outputs.edit')}
                 </Link>
               </section>
-            </div>
 
+              <section className={styles.planOverviewItem}
+                aria-labelledby="related-works-title">
+                <div className={styles.planOverviewItemContent}>
+                  <h2 id="related-works-title"
+                    className={styles.planOverviewItemTitle}>
+                    {t('relatedWorks.title')}
+                  </h2>
+                  <p className={styles.planOverviewItemHeading}>
+                    {t('relatedWorks.count', { count: relatedWorksCount })}
+                  </p>
+                </div>
+                <Link href={RELATED_WORKS_URL}
+                  aria-label={t('relatedWorks.edit')}>
+                  {t('relatedWorks.edit')}
+                </Link>
+              </section>
+            </div>
 
             {state.planData.versionedSections.map((versionedSection) => (
               <section
@@ -684,8 +675,8 @@ const PlanOverviewPage: React.FC = () => {
         </ContentContainer>
 
         <SidebarPanel>
-          <div className={`${styles.statusPanelContent} ${styles.sidePanel} `}>
-            <div className={`${styles.buttonContainer} mb - 5`}>
+          <div className={`statusPanelContent sidePanel`}>
+            <div className={`buttonContainer withBorder  mb-5`}>
               <Button className="secondary">{Global('buttons.preview')}</Button>
               <Button
                 onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })}
@@ -693,18 +684,18 @@ const PlanOverviewPage: React.FC = () => {
                 {Global('buttons.publish')}
               </Button>
             </div>
-            <div className={styles.sidePanelContent}>
-              <div className={`${styles.panelRow} mb-5`}>
+            <div className="sidePanelContent">
+              <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t('status.feedback.title')}</h3>
                 </div>
-                <Link className={styles.sidePanelLink} href={FEEDBACK_URL} aria-label={Global('links.request')} >
+                <Link className="sidePanelLink" href={FEEDBACK_URL} aria-label={Global('links.request')} >
                   {Global('links.request')}
                 </Link >
               </div >
               {state.isEditingPlanStatus ? (
                 <div>
-                  <Form onSubmit={handlePlanStatusForm} className={styles.statusForm}>
+                  <Form onSubmit={handlePlanStatusForm} className="statusForm">
                     <FormSelect
                       label={t('status.title')}
                       ariaLabel={t('status.select.label')}
@@ -722,18 +713,18 @@ const PlanOverviewPage: React.FC = () => {
                   </Form>
                 </div>
               ) : (
-                <div className={`${styles.panelRow} mb-5`}>
+                <div className={`panelRow mb-5`}>
                   <div>
                     <h3>{t('status.title')}</h3>
                     <p>{toTitleCase(state.planData.status)}</p>
                   </div>
-                  <Button className={`${styles.buttonLink} link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
+                  <Button className={`buttonLink link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
                     {Global('buttons.linkUpdate')}
                   </Button>
                 </div>
               )}
 
-              <div className={`${styles.panelRow} mb-5`}>
+              <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t('status.publish.title')}</h3>
                   <p>{state.planData.registered ? PUBLISHED : UNPUBLISHED}</p>
@@ -742,7 +733,7 @@ const PlanOverviewPage: React.FC = () => {
                   {t('status.publish.label')}
                 </Link>
               </div>
-              <div className={`${styles.panelRow} mb-5`}>
+              <div className={`panelRow mb-5`}>
                 <div>
                   <h3>{t('status.download.title')}</h3>
                 </div>
@@ -844,13 +835,43 @@ const PlanOverviewPage: React.FC = () => {
                 </p>
 
                 <Heading level={2}>{t('publishModal.publish.visibilityOptionsTitle')}</Heading>
+
+
                 <RadioGroupComponent
                   name="visibility"
                   value={state.planVisibility.toLowerCase()}
-                  radioGroupLabel={radioData.radioGroupLabel}
-                  radioButtonData={radioData.radioButtonData}
+                  radioGroupLabel={t('publishModal.publish.visibilityOptionsTitle')}
                   onChange={handleRadioChange}
-                />
+                >
+                  <div>
+                    <Radio value="public">{t('publishModal.publish.visibilityOptions.public.label')}</Radio>
+                    <Text
+                      slot="description"
+                    >
+                      <strong>{t('publishModal.publish.visibilityOptions.public.description')}</strong>
+                    </Text>
+                  </div>
+
+                  <div>
+                    <Radio value="organizational">{t('publishModal.publish.visibilityOptions.organization.label')}</Radio>
+                    <Text
+                      slot="description"
+                    >
+                      {t.rich('publishModal.publish.visibilityOptions.organization.description', {
+                        strong: (chunks) => <strong>{chunks}</strong>
+                      })}
+                    </Text>
+                  </div>
+
+                  <div>
+                    <Radio value="private">{t('publishModal.publish.visibilityOptions.private.label')}</Radio>
+                    <Text
+                      slot="description"
+                    >
+                      {t('publishModal.publish.visibilityOptions.private.description')}
+                    </Text>
+                  </div>
+                </RadioGroupComponent>
 
                 <div className="modal-actions">
                   <div>

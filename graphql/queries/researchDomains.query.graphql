@@ -1,6 +1,7 @@
 query TopLevelResearchDomains {
   topLevelResearchDomains {
     name
+    description
     id
   }
 }
@@ -9,5 +10,6 @@ query ChildResearchDomains($parentResearchDomainId: Int!) {
   childResearchDomains(parentResearchDomainId: $parentResearchDomainId) {
     id
     name
+    description
   }
 }
