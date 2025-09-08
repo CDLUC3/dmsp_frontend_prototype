@@ -49,9 +49,44 @@ const mocks = [
               id: count,
               uri: `https://funder${count}`,
               displayName: `Funder ${count}`,
+              apiTarget: `api/target/${count}`,
             };
           }),
           totalCount: 50,
+          limit: 50,
+          nextCursor: null,
+          currentOffset: null,
+          hasNextPage: false,
+          hasPreviousPage: null,
+          availableSortFields: []
+        }
+      }
+    },
+  },
+
+  {
+    request: {
+      query: AffiliationFundersDocument,
+      variables: {
+        name: "no-api-funder",
+        funderOnly: true,
+        paginationOptions: {
+          type: "CURSOR",
+          limit: 50,
+        },
+      },
+    },
+
+    result: {
+      data: {
+        affiliations: {
+          items: [{
+            id: 1,
+            uri: "https://funder-no-api",
+            displayName: "Funder Without Api",
+            apiTarget: null,
+          }],
+          totalCount: 1,
           limit: 50,
           nextCursor: null,
           currentOffset: null,
@@ -71,13 +106,14 @@ const mocks = [
 
     result: {
       data: {
-        popularFunders: Array.from({length: 5}, (_, i) => {
+        popularFunders: Array.from({ length: 5 }, (_, i) => {
           const count = i + 1;
           return {
             id: count,
             uri: `https://funder${count}`,
             displayName: `Popular Funder ${count}`,
             nbrPlans: 10,
+            apiTarget: `api/target/${count}`,
           };
         }),
       }
@@ -137,6 +173,7 @@ const mocks = [
               id: count,
               uri: `https://funder${count}`,
               displayName: `Funder ${count}`,
+              apiTarget: `api/target/${count}`,
             };
           }),
           totalCount: 70,
@@ -175,6 +212,7 @@ const mocks = [
               id: count,
               uri: `https://funder${count}`,
               displayName: `Funder ${count}`,
+              apiTarget: `api/target/${count}`,
             };
           }),
           totalCount: 70,
@@ -204,6 +242,37 @@ const mocks = [
     result: {
       data: {
         addProjectFunding: {
+          id: 18,
+          errors: {
+            affiliationId: null,
+            funderOpportunityNumber: null,
+            funderProjectNumber: null,
+            general: null,
+            grantId: null,
+            projectId: null,
+            status: null,
+          },
+        }
+      }
+    },
+  },
+
+  // Mock the add response for funder without api Target
+  {
+    request: {
+      query: AddProjectFundingDocument,
+      variables: {
+        input: {
+          projectId: 123,
+          affiliationId: "https://funder-no-api",
+        },
+      },
+    },
+
+    result: {
+      data: {
+        addProjectFunding: {
+          id: 18,
           errors: {
             affiliationId: null,
             funderOpportunityNumber: null,
@@ -234,6 +303,7 @@ const mocks = [
     result: {
       data: {
         addProjectFunding: {
+          id: 18,
           errors: {
             affiliationId: null,
             funderOpportunityNumber: null,
@@ -368,7 +438,7 @@ describe("CreateProjectSearchFunder", () => {
     });
   });
 
-  it("Should cleanly handle empty results", async() => {
+  it("Should cleanly handle empty results", async () => {
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
         <CreateProjectSearchFunder />
@@ -474,6 +544,7 @@ describe("CreateProjectSearchFunder", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Funder 1")).toBeInTheDocument();
+      expect(screen.queryByText("popularTitle")).not.toBeInTheDocument();
     });
 
     const firstFunder = screen.getByText("Funder 1").closest('div')!;
@@ -485,11 +556,11 @@ describe("CreateProjectSearchFunder", () => {
     fireEvent.click(selectBtn);
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123/));
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/projects-search/));
     });
   });
 
-  it("Should also run add funder mutation when adding popular funder", async() => {
+  it("Should also run add funder mutation when adding popular funder", async () => {
     const mockPush = jest.fn();
     (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
@@ -498,15 +569,6 @@ describe("CreateProjectSearchFunder", () => {
         <CreateProjectSearchFunder />
       </MockedProvider>
     );
-
-    // NOTE: search-field and search-input are testID's provided by elements
-    // inside the FunderSearch component.
-    const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
-
-    const searchBtn = screen.getByTestId('search-btn');
-    fireEvent.click(searchBtn);
 
     await waitFor(() => {
       expect(screen.getByText("Popular Funder 1")).toBeInTheDocument();
@@ -522,6 +584,41 @@ describe("CreateProjectSearchFunder", () => {
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123/));
+    });
+  });
+
+  it("Should redirect to project info edit page if selected funder doesn't an apiTarget", async () => {
+    const mockPush = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CreateProjectSearchFunder />
+      </MockedProvider>
+    );
+
+    // NOTE: search-field and search-input are testID's provided by elements
+    // inside the FunderSearch component.
+    const searchInput = screen.getByTestId('search-field').querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "no-api-funder" } });
+
+    const searchBtn = screen.getByTestId('search-btn');
+    fireEvent.click(searchBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("Funder Without Api")).toBeInTheDocument();
+    });
+
+    const firstFunder = screen.getByText("Funder Without Api").closest('div')!;
+    const funderContent = within(firstFunder);
+    const selectBtn = funderContent.getByRole('button', {
+      name: /select/i,
+    });
+    expect(selectBtn).toHaveAttribute('data-funder-uri', 'https://funder-no-api');
+    fireEvent.click(selectBtn);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/project/));
     });
   });
 
@@ -571,8 +668,8 @@ describe("CreateProjectSearchFunder", () => {
     // NOTE: search-field and search-input are testID's provided by elements
     // inside the FunderSearch component.
     const searchInput = screen.getByTestId('search-field')
-                              .querySelector('input')!;
-    fireEvent.change(searchInput, {target: {value: "nih" }});
+      .querySelector('input')!;
+    fireEvent.change(searchInput, { target: { value: "nih" } });
 
     const searchBtn = screen.getByTestId('search-btn');
     fireEvent.click(searchBtn);
@@ -609,7 +706,8 @@ describe("CreateProjectSearchFunder", () => {
 
 
   it("Should allow adding a funder manually", async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => { });
+    const mockPush = jest.fn();
+    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
 
     render(
       <MockedProvider mocks={mocks} addTypename={false}>
@@ -631,10 +729,9 @@ describe("CreateProjectSearchFunder", () => {
       fireEvent.click(addBtn);
     });
 
-    expect(logSpy).toHaveBeenCalledWith('TODO: Navigate to create funder page.');
-
-    // Cleanup
-    logSpy.mockRestore();
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/\/projects\/123\/fundings\/add/));
+    });
   });
 
   it('should pass accessibility tests', async () => {

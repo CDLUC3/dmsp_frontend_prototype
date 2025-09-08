@@ -64,7 +64,7 @@
     "headingRelatedActions": "Related actions",
     "primaryEmailDesc": "This email will be used for your account login. It can also be used for password resets.",
     "SSODesc": "This email address is managed by cdl.edu and connected to the institution.",
-    "notificationsDesc": "This email address will be used for DMP notifications. <manage> Manage your notifications </manage>.",
+    "notificationsDesc": "This email address will be used for DMP notifications. <manage> Manage your notifications <manage>.",
     "aliasEmailDesc": "Alias email addresses may be used to help others find you, for example if they‘d like to share a DMP with you.",
     "linkMakePrimary": "Make primary email address",
     "helpTextForAddAlias": "You will be sent an email to confirm this addition",
@@ -123,7 +123,12 @@
     "showCount": "Showing {count} of {total}",
     "addManuallyHeading": "Not in this list?",
     "addManuallyText": "If your project isn’t shown, you can add the details manually.",
-    "addManuallyLabel": "Add funder manually"
+    "addManuallyLabel": "Add funder manually",
+    "messages": {
+      "success": {
+        "addProjectFunding": "Successfully added the funder to the project."
+      }
+    }
   },
   "PlanFunding": {
     "headerTitle": "Plan Funding",
@@ -172,6 +177,7 @@
       "projects": "Projects",
       "projectOverview": "Project overview",
       "projectFunding": "Project funding",
+      "projectFundingSearch": "Project funding search",
       "planOverview": "Plan overview",
       "planFunding": "Plan funding",
       "feedback": "Feedback",
@@ -186,11 +192,17 @@
     "published": "Published",
     "visibility": "Visibility",
     "notPublished": "Not published",
+    "editTitle": "Edit title",
+    "bestPractice": "Best practice by",
+    "dataDescription": "Data description",
+    "dataFormat": "Data format",
+    "dataVolume": "Data volume",
     "buttons": {
       "search": "Search",
       "select": "Select",
       "next": "Next",
       "save": "Save",
+      "saving": "Saving",
       "saveAndAdd": "Save and add",
       "saveAndUpdate": "Save and update",
       "saveChanges": "Save changes",
@@ -212,11 +224,15 @@
       "searchByKeyword": "Search by keyword",
       "startDate": "Start date",
       "endDate": "End date",
-      "funderSearch": "Search by funder name"
+      "funderSearch": "Search by funder name",
+      "requiredField": "Mark as required?"
     },
     "helpText": {
       "searchHelpText": "Search by research organization, field station or lab, template description, etc.",
       "funderSearch": "Search by research organization, funder name, or related keywords."
+    },
+    "descriptions": {
+      "requiredFieldDescription": "Should this question include a warning to the plan builder that an answer is required as a condition of accepting the DMP?(Users will be able to submit the DMP even if they don't answer)"
     },
     "placeholders": {
       "funderSearch": "Enter funder name..."
@@ -227,7 +243,8 @@
       "learnMore": "Learn more",
       "update": "Update",
       "expand": "Expand",
-      "collapse": "Collapse"
+      "collapse": "Collapse",
+      "editTitle": "Edit title"
     },
     "messaging": {
       "loading": "Loading",
@@ -260,6 +277,7 @@
       "radioButtons": "Radio button",
       "checkBoxes": "Checkbox",
       "selectBox": "Select",
+      "multiselectBox": "Multi-select Box",
       "boolean": "Boolean",
       "number": "Number",
       "numberRange": "Number range",
@@ -270,7 +288,7 @@
       "dateRange": "Date range",
       "filteredSearch": "Filtered search",
       "table": "Table",
-      "typeaheadSearch": "Typeahead search"
+      "affiliationSearch": "Affiliation search"
     }
   }
 }

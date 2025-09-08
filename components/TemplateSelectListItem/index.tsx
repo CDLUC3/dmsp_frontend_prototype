@@ -3,7 +3,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import styles from './TemplateSelectListItem.module.scss';
 import { useToast } from '@/context/ToastContext';
-
+import { toTitleCase } from '@/utils/general';
 interface TemplateSelectListItemProps {
   onSelect?: (versionedTemplateId: number) => Promise<void>;
   item: {
@@ -61,13 +61,16 @@ function TemplateSelectListItem({ item, onSelect }: TemplateSelectListItemProps)
             <span
               className={styles.separator}>{Global('lastUpdated')}: {item.lastUpdated}
             </span>
-            <span
-              className={styles.separator}>
-              {item.publishStatus === 'Published' ? Global('published') : Global('notPublished')}
-              {item?.publishDate ? ` (${item.publishDate})` : ''}
-            </span>
+            {item.publishStatus && item.publishStatus.length > 0 && (
+              <span
+                className={styles.separator}>
+                {item.publishStatus}
+                {item?.publishDate ? ` (${item.publishDate})` : ''}
+              </span>
+            )}
+
             <span className={styles.separator}>
-              {Global('visibility')}: {item.visibility}
+              {Global('visibility')}: {item.visibility ? toTitleCase(item.visibility) : ''}
             </span>
           </div>
 

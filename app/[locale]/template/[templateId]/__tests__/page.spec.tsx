@@ -514,13 +514,13 @@ describe("TemplateEditPage", () => {
       render(<TemplateEditPage />);
     });
 
-    const editButton = screen.getByRole('button', { name: /edit template name/i });
+    const editButton = screen.getByRole('button', { name: 'links.editTemplateTitle' });
 
     await act(async () => {
       fireEvent.click(editButton);
     })
 
-    const input = screen.getByPlaceholderText(/enter new template title/i);
+    const input = screen.getByPlaceholderText('editTitle');
     fireEvent.change(input, { target: { value: 'New template name' } });
 
     const saveButton = screen.getByTestId('save-button');
@@ -670,11 +670,11 @@ describe("TemplateEditPage", () => {
     });
 
 
-    const editTemplateButton = screen.getByRole('button', { name: /Edit template name/i });
+    const editTemplateButton = screen.getByRole('button', { name: 'links.editTemplateTitle' });
     fireEvent.click(editTemplateButton);
 
     // Check if the input field is displayed
-    const inputField = screen.getByRole('textbox', { name: /Template title/i });
+    const inputField = screen.getByPlaceholderText('editTitle');
     expect(inputField).toBeInTheDocument();
   });
 
@@ -708,13 +708,13 @@ describe("TemplateEditPage", () => {
     });
 
     // Simulate clicking the "Edit template name" button
-    const editTemplateButton = screen.getByRole('button', { name: /Edit template name/i });
+    const editTemplateButton = screen.getByRole('button', { name: 'links.editTemplateTitle' });
     await act(async () => {
       fireEvent.click(editTemplateButton);
     });
 
     // Simulate typing a new title into the input field
-    const inputField = screen.getByPlaceholderText('Enter new template title');
+    const inputField = screen.getByPlaceholderText('editTitle');
     await act(async () => {
       fireEvent.change(inputField, { target: { value: 'New Template Title' } });
     });
@@ -768,13 +768,13 @@ describe("TemplateEditPage", () => {
     });
 
     // Simulate clicking the "Edit template name" button
-    const editTemplateButton = screen.getByRole('button', { name: /Edit template name/i });
+    const editTemplateButton = screen.getByRole('button', { name: 'links.editTemplateTitle' });
     await act(async () => {
       fireEvent.click(editTemplateButton);
     });
 
     // Simulate typing a new title into the input field
-    const inputField = screen.getByPlaceholderText('Enter new template title');
+    const inputField = screen.getByPlaceholderText('editTitle');
     await act(async () => {
       fireEvent.change(inputField, { target: { value: 'New Template Title' } });
     });

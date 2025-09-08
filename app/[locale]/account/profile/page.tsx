@@ -487,7 +487,7 @@ const ProfilePage: React.FC = () => {
                           items={languages}
                           errorMessage="A selection is required"
                           helpMessage={t('helpTextSelectYourLanguage')}
-                          onSelectionChange={selected => setFormData({ ...formData, languageId: selected as string })}
+                          onChange={selected => setFormData({ ...formData, languageId: selected as string })}
                           selectedKey={formData.languageId.trim()}
                         >
                           {languages && languages.map((language) => {

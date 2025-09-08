@@ -6,7 +6,7 @@ interface CurrencyQuestionProps {
   inputCurrencyValue: number | null;
   currencyLabel?: string;
   placeholder?: string;
-  setInputCurrencyValue: (value: number | null) => void;
+  handleCurrencyChange: (value: number | null) => void;
 }
 
 const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
@@ -14,7 +14,7 @@ const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
   inputCurrencyValue,
   currencyLabel,
   placeholder,
-  setInputCurrencyValue,
+  handleCurrencyChange,
 }) => {
   const minValue = (parsedQuestion?.attributes as { min?: number }).min;
   const maxValue = (parsedQuestion?.attributes as { max?: number }).max;
@@ -22,13 +22,13 @@ const CurrencyQuestionComponent: React.FC<CurrencyQuestionProps> = ({
     <NumberComponent
       label={currencyLabel || ''}
       value={inputCurrencyValue}
-      onChange={value => setInputCurrencyValue(value)}
+      onChange={value => handleCurrencyChange(value)}
       placeholder={placeholder || ''}
       minValue={minValue ?? undefined}
       maxValue={maxValue ?? undefined}
       formatOptions={{
         style: 'currency',
-        currency: parsedQuestion?.meta?.denomination || 'USD', // TODO: Need to eventually get denomination from under attributes
+        currency: parsedQuestion?.attributes?.denomination || 'USD',
         currencyDisplay: 'symbol',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,

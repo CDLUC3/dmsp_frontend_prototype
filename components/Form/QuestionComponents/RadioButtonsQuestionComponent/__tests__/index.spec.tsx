@@ -14,22 +14,17 @@ describe('RadioButtonsQuestionComponent', () => {
       schemaVersion: "1.0",
     },
     type: "radioButtons",
+    attributes: {},
     options: [
       {
-        type: "option",
-        attributes: {
-          label: "Option 1",
-          value: "1",
-          selected: false,
-        },
+        label: "Option 1",
+        value: "1",
+        selected: false,
       },
       {
-        type: "option",
-        attributes: {
-          label: "Option 2",
-          value: "2",
-          selected: true,
-        },
+        label: "Option 2",
+        value: "2",
+        selected: true,
       },
     ],
   };
@@ -100,23 +95,17 @@ describe('RadioButtonsQuestionComponent', () => {
         schemaVersion: "1.0",
       },
       type: "radioButtons",
+      attributes: {},
       options: [
         {
-          type: "option",
-          attributes: {
-            label: "Option 1",
-            value: "option1",
-            selected: false,
-          },
+          label: "Option 1",
+          value: "option1",
+          selected: false,
         },
-
         {
-          type: "option",
-          attributes: {
-            label: "Option 2",
-            value: "option2",
-            selected: false,
-          },
+          label: "Option 2",
+          value: "option2",
+          selected: false,
         },
       ],
     };

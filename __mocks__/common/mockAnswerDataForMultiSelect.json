@@ -2,7 +2,7 @@
   "answerByVersionedQuestionId": {
     "__typename": "Answer",
     "id": 18,
-    "json": "{\"answer\":[\"Banana\",\"Pear\",\"Orange\"]}",
+    "json": "{\"type\":\"multiselectBox\",\"answer\":[\"Banana\",\"Pear\",\"Orange\"]}",
     "versionedQuestion": {
       "__typename": "VersionedQuestion",
       "id": 186

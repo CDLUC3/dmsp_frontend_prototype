@@ -78,8 +78,22 @@ describe('LocaleLayout', () => {
       params: Promise.resolve({ locale: routing.locales[0] }), // Wrap params in a Promise
     });
 
-    // Wrap with empty fragment to match expected DOM structure
-    render(<>{TestComponent}</>);
+    const htmlChildren = TestComponent?.props?.children;
+
+    // Extract children to test, since <html>, <head> and <body> tags are invalid to render inside React Testing Library's test
+    //const bodyContent = (TestComponent as any).props.children.props.children;
+    const bodyNode = Array.isArray(htmlChildren)
+      /* eslint-disable @typescript-eslint/no-explicit-any*/
+      ? htmlChildren.find((el: any) => el?.type === 'body')
+      : null;
+
+    if (!bodyNode) {
+      throw new Error('<body> not found in LocaleLayout output');
+    }
+
+    const bodyContent = bodyNode.props?.children;
+
+    render(<>{bodyContent}</>);
 
     expect(screen.getByText('Mock Header')).toBeInTheDocument();
     expect(screen.getByText('Main Content')).toBeInTheDocument();

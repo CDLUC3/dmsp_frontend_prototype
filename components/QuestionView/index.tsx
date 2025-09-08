@@ -10,7 +10,6 @@ import {
   Button,
 } from "react-aria-components";
 import {
-  useQuestionTypesQuery,
   useTemplateQuery,
 } from '@/generated/graphql';
 
@@ -58,7 +57,7 @@ import {
   CURRENCY_QUESTION_TYPE,
   DATE_QUESTION_TYPE,
   DATE_RANGE_QUESTION_TYPE,
-  EMAIL_QUESTION_TYPE,
+  EMAIL_QUESTION_TYPE, MULTISELECTBOX_QUESTION_TYPE,
   NUMBER_QUESTION_TYPE,
   NUMBER_RANGE_QUESTION_TYPE,
   RADIOBUTTONS_QUESTION_TYPE,
@@ -71,6 +70,7 @@ import {
 import { getParsedQuestionJSON } from '@/components/hooks/getParsedQuestionJSON';
 import styles from './QuestionView.module.scss';
 import ExpandableContentSection from '@/components/ExpandableContentSection';
+import { getQuestionTypes } from "@/utils/questionTypeHandlers";
 
 
 interface QuestionViewProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -99,7 +99,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
 
   const trans = useTranslations('QuestionView');
 
-  const { data: qtData } = useQuestionTypesQuery();
+  const { data: qtData } = { data: getQuestionTypes() };
   const { data: templateData } = useTemplateQuery({
     variables: {
       templateId,
@@ -110,7 +110,10 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   // State was added so that users can change or interact with the question types in the Question Preview
   const [questionType, setQuestionType] = useState<string>('');
   const [otherField, setOtherField] = useState(false);
-  const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({ affiliationName: '', affiliationId: '' });
+  const [affiliationData, setAffiliationData] = useState<{ affiliationName: string, affiliationId: string }>({
+    affiliationName: '',
+    affiliationId: ''
+  });
   const [otherAffiliationName, setOtherAffiliationName] = useState<string>('');
   const [selectedRadioValue, setSelectedRadioValue] = useState<string | undefined>(undefined);
   const [inputValue, setInputValue] = useState<number | null>(null);
@@ -122,9 +125,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   const [yesNoValue, setYesNoValue] = useState<string>('no');
   // Add local state for multiSelect values
   const [selectedMultiSelectValues, setSelectedMultiSelectValues] = useState<Set<string>>(new Set());
-
   // Add local state for selected select value
   const [selectedSelectValue, setSelectedSelectValue] = useState<string | undefined>(undefined);
+  const [dateValue, setDateValue] = useState<string | DateValue | CalendarDate | null>(null);
   const [dateRange, setDateRange] = useState<{ startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null }>({
     startDate: '',
     endDate: '',
@@ -183,8 +186,19 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     setSelectedMultiSelectValues(values);
   };
 
+  const handleSelectChange = (value: string) => {
+    setSelectedSelectValue(value);
+  };
+
+
   // Handler for date range changes
   const handleDateChange = (
+    value: string | DateValue | CalendarDate | null
+  ) => {
+    setDateValue(value);
+  }
+  // Handler for date range changes
+  const handleDateRangeChange = (
     key: string,
     value: string | DateValue | CalendarDate | null
   ) => {
@@ -206,7 +220,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
   };
 
   useEffect(() => {
-    if (!question || !qtData?.questionTypes) return;
+    if (!question || !Array.isArray(qtData) || qtData.length < 1) return;
 
     const { parsed } = getParsedQuestionJSON(question, path, Global);
     if (!parsed) {
@@ -214,9 +228,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
     }
     const type = parsed.type;
 
-    for (const qt of qtData.questionTypes) {
-      if (!qt || !qt.json) continue; // null check
-      const qtJson = JSON.parse(qt.json);
+    for (const qt of qtData) {
+      if (!qt || !qt.defaultJSON) continue; // null check
+      const qtJson = qt.defaultJSON;
       if (qtJson?.type === type) {
         setQuestionType(type);
         break;
@@ -258,30 +272,29 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           )
         }
       }
-      case SELECTBOX_QUESTION_TYPE: {
-        if (parsed.type === 'selectBox' && 'options' in parsed) {
-          const isMultiSelect = parsed.attributes?.multiple || false;
-
+      case MULTISELECTBOX_QUESTION_TYPE: {
+        if (parsed.type === 'multiselectBox' && 'options' in parsed) {
           return (
-            <>
-              {isMultiSelect ? (
-                <MultiSelectQuestionComponent
-                  parsedQuestion={parsed}
-                  selectedMultiSelectValues={selectedMultiSelectValues}
-                  handleMultiSelectChange={handleMultiSelectChange}
-                />
-              ) : (
-                <SelectboxQuestionComponent
-                  parsedQuestion={parsed}
-                  selectedSelectValue={selectedSelectValue}
-                  setSelectedSelectValue={setSelectedSelectValue}
-                />
-              )}
-
-            </>
+            <MultiSelectQuestionComponent
+              parsedQuestion={parsed}
+              selectedMultiSelectValues={selectedMultiSelectValues}
+              handleMultiSelectChange={handleMultiSelectChange}
+            />
           );
         }
       }
+      case SELECTBOX_QUESTION_TYPE: {
+        if (parsed.type === 'selectBox' && 'options' in parsed) {
+          return (
+            <SelectboxQuestionComponent
+              parsedQuestion={parsed}
+              selectedSelectValue={selectedSelectValue}
+              handleSelectChange={handleSelectChange}
+            />
+          );
+        }
+      }
+
       case TEXT_FIELD_QUESTION_TYPE:
         if (parsed.type === 'text') {
 
@@ -316,9 +329,9 @@ const QuestionView: React.FC<QuestionViewProps> = ({
           const dateMaxValue = parsed?.attributes?.max;
           return (
             <DateComponent
-              name="startDate"
-              value={getCalendarDateValue(dateRange.startDate)}
-              onChange={newDate => handleDateChange('startDate', newDate)}
+              name="start"
+              value={getCalendarDateValue(dateValue)}
+              onChange={newDate => handleDateChange(newDate)}
               label="Date"
               minValue={dateMinValue}
               maxValue={dateMaxValue}
@@ -332,7 +345,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             <DateRangeQuestionComponent
               parsedQuestion={parsed}
               dateRange={dateRange}
-              handleDateChange={handleDateChange}
+              handleDateChange={handleDateRangeChange}
             />
           )
         }
@@ -372,7 +385,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             <CurrencyQuestionComponent
               parsedQuestion={parsed}
               inputCurrencyValue={inputCurrencyValue}
-              setInputCurrencyValue={setInputCurrencyValue}
+              handleCurrencyChange={setInputCurrencyValue}
             />
           )
         }
@@ -427,7 +440,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         }
 
       case TYPEAHEAD_QUESTION_TYPE:
-        if (parsed.type === 'typeaheadSearch') {
+        if (parsed.type === 'affiliationSearch') {
           return (
             <AffiliationSearchQuestionComponent
               parsedQuestion={parsed}
@@ -497,8 +510,8 @@ const QuestionView: React.FC<QuestionViewProps> = ({
       </ContentContainer>
 
       <SidebarPanel>
-        <p>
-          {trans('bestPractice')}
+        <div className={styles.headerWithLogo}>
+          <h2 className="h4">{Global('bestPractice')}</h2>
           <Image
             className={styles.Logo}
             src="/images/DMP-logo.svg"
@@ -506,7 +519,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             height="16"
             alt="DMP Tool"
           />
-        </p>
+        </div>
 
         <ExpandableContentSection
           id="data-description"

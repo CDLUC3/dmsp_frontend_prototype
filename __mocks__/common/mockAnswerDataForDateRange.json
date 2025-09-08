@@ -2,7 +2,7 @@
   "answerByVersionedQuestionId": {
     "__typename": "Answer",
     "id": 16,
-    "json": "{\"answer\":{\"endDate\":\"2025-07-05\",\"startDate\":\"2025-05-05\"}}",
+    "json": "{\"type\":\"dateRange\",\"answer\":{\"end\":\"2025-07-05\",\"start\":\"2025-05-05\"}}",
     "versionedQuestion": {
       "__typename": "VersionedQuestion",
       "id": 194
@@ -13,30 +13,12 @@
     },
     "modified": "1751752116000",
     "errors": {
-      "__typename": "AffiliationErrors",
+      "__typename": "AnswerErrors",
       "general": null,
+      "planId": null,
       "versionedSectionId": null,
       "versionedQuestionId": null,
-      "uri": null,
-      "types": null,
-      "subHeaderLinks": null,
-      "ssoEntityId": null,
-      "searchName": null,
-      "provenance": null,
-      "planId": null,
-      "name": null,
-      "logoURI": null,
-      "logoName": null,
-      "json": null,
-      "homepage": null,
-      "fundrefId": null,
-      "feedbackMessage": null,
-      "feedbackEmails": null,
-      "displayName": null,
-      "contactName": null,
-      "contactEmail": null,
-      "aliases": null,
-      "acronyms": null
+      "json": null
     }
   }
 }

@@ -1,5 +1,34 @@
 // utils/routes.ts
 
+/*Usage*/
+/*
+Basic - no idea if we are going to namespace it just an example
+routePath('app.login');
+Output: "/en-US/login"
+
+Route with Path Parameters
+routePath('projects.show', { projectId: '123' });
+Output: "/en-US/projects/123"
+
+routePath('projects.dmp.versionedSection', { projectId: '123', dmpId: '456', versionedSectionId: '789' });
+Output: "/en-US/projects/123/dmp/456/s/789"
+
+Route with Query Parameters
+routePath('projects.index', {}, { page: 2, limit: 10 });
+Output: "/en-US/projects?page=2&limit=10"
+
+routePath('projects.index', {}, { filters: ['active', 'draft'] });
+Output: "/en-US/projects?filters[]=active&filters[]=draft"
+
+Example of both params and query string
+routePath('projects.members.search', { projectId: '123' }, { role: 'PI', status: 'active' });
+Output: "/en-US/projects/123/members/search?role=PI&status=active"
+
+Different locales can be passed if needed but defaults to en-US and should still work with middleware
+routePath('projects.show', { projectId: '123' }, {}, 'pt-BR');
+Output: "/pt-BR/projects/123"
+*/
+
 // Define query param value types
 type QueryParamValue =
   string
@@ -21,14 +50,15 @@ const routes = {
   'projects.index': '/projects',
   'projects.show': '/projects/:projectId',
   'projects.create': '/projects/create-project',
-  'projects.search': '/projects/search',
   'projects.create.funding.search': '/projects/:projectId/funding-search',
-  'projects.create.projects.search': '/projects/:projectId/project',
+  'projects.create.projects.search': '/projects/:projectId/projects-search',
+  'projects.project.info': '/projects/:projectId/project',
   'projects.upload': '/projects/:projectId/upload',
   // 'projects.fundings.index': '/projects/:projectId/project-funding',
   'projects.fundings.index': '/projects/:projectId/fundings',
   'projects.fundings.show': '/projects/:projectId/fundings/:projectFundingId',
   'projects.fundings.search': '/projects/:projectId/fundings/search',
+  'projects.fundings.add': '/projects/:projectId/fundings/add',
   'projects.fundings.edit': '/projects/:projectId/fundings/:projectFundingId/edit',
   'projects.members.index': '/projects/:projectId/members',
   'projects.members.edit': '/projects/:projectId/members/:memberId/edit',
@@ -43,11 +73,11 @@ const routes = {
   'projects.dmp.download': '/projects/:projectId/dmp/:dmpId/download',
   'projects.dmp.fundings': '/projects/:projectId/dmp/:dmpId/fundings',
   'projects.dmp.members': '/projects/:projectId/dmp/:dmpId/members',
-  'projects.dmp.question': '/projects/:projectId/dmp/:dmpId/q',
-  'projects.dmp.question.detail': '/projects/:projectId/dmp/:dmpId/s/:sectionId/q/:questionId',
+  'projects.dmp.versionedQuestion': '/projects/:projectId/dmp/:dmpId/q',
+  'projects.dmp.versionedQuestion.detail': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId/q/:versionedQuestionId',
   'projects.dmp.research-outputs': '/projects/:projectId/dmp/:dmpId/research-outputs',
   'projects.dmp.research-outputs.edit': '/projects/:projectId/dmp/:dmpId/research-outputs/edit',
-  'projects.dmp.section': '/projects/:projectId/dmp/:dmpId/s/:sectionId',
+  'projects.dmp.versionedSection': '/projects/:projectId/dmp/:dmpId/s/:versionedSectionId',
   'projects.dmp.create': '/projects/:projectId/dmp/create',
   'projects.dmp.feedback': '/projects/:projectId/dmp/:dmpId/feedback',
   'projects.dmp.feedback.invite': '/projects/:projectId/dmp/:dmpId/feedback/invite',

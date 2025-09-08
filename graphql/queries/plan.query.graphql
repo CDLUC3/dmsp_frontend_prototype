@@ -10,6 +10,11 @@ query Plan($planId: Int!) {
     }
     fundings {
       id
+      projectFunding {
+        affiliation {
+          displayName
+        }
+      }
     }
     visibility
     status
@@ -35,16 +40,17 @@ query Plan($planId: Int!) {
         }
       }
     }
-    sections {
+    versionedSections {
       answeredQuestions
       displayOrder
-      sectionId
-      sectionTitle
+      versionedSectionId
+      title
       totalQuestions
     }
     created
     modified
     dmpId
     registered
+    title
   }
 }

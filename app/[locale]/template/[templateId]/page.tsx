@@ -40,6 +40,7 @@ import { useFormatDate } from '@/hooks/useFormatDate';
 import logECS from '@/utils/clientLogger';
 import { useToast } from '@/context/ToastContext';
 import { routePath } from '@/utils/routes';
+import { extractErrors } from '@/utils/errorHandler';
 import {
   updateTemplateAction,
   updateSectionDisplayOrderAction
@@ -50,6 +51,13 @@ interface TemplateInfoInterface {
   name: string;
   visibility: TemplateVisibility;
 }
+
+type UpdateTemplateErrors = {
+  general?: string;
+  name?: string;
+  description?: string;
+};
+
 const TemplateEditPage: React.FC = () => {
   const formatDate = useFormatDate();
 
@@ -263,14 +271,21 @@ const TemplateEditPage: React.FC = () => {
     if (!result.success) {
       setErrorMessages([EditTemplate('errors.updateTitleError')])
     } else {
-      if (
-        result.data?.errors &&
-        typeof result.data.errors.general === 'string') {
+      if (result.data?.errors) {
         // Handle errors as an object with general or field-level errors
-        setErrorMessages(prev => [...prev, result.data?.errors?.general || EditTemplate('errors.updateTitleError')]);
+        const errs = extractErrors<UpdateTemplateErrors>(result?.data?.errors, ['general', 'name', 'description']);
+        if (errs.length > 0) {
+          setErrorMessages(errs);
+          return;
+        }
+        setTemplateInfoState({
+          ...templateInfo,
+          name: newTitle
+        })
+
+        const successMessage = EditTemplate('messages.successfullyUpdatedTitle');
+        toastState.add(successMessage, { type: 'success' });
       }
-      //Need to refetch plan data to refresh the info that was changed
-      await refetch();
     }
   }
 
@@ -480,7 +495,6 @@ const TemplateEditPage: React.FC = () => {
   const formattedPublishDate = template.latestPublishDate ? formatDate(template.latestPublishDate) : null;
 
 
-
   // Use localSections instead of sortedSections in render
   const sectionsToRender = localSections.length > 0 ? localSections :
     (template.sections ? sortSections(template.sections.filter((section): section is Section => section !== null)) : []);
@@ -490,11 +504,14 @@ const TemplateEditPage: React.FC = () => {
     (template?.latestPublishDate || formattedPublishDate ? ` - ${Global('lastUpdated')}: ${formattedPublishDate || template.latestPublishDate}` : '');
 
 
+
   return (
     <div>
       <PageHeaderWithTitleChange
-        title={template.name}
+        title={templateInfo.name}
         description={description}
+        linkText={EditTemplate('links.editTemplateTitle')}
+        labelText={EditTemplate('templateTitleLabel')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs>

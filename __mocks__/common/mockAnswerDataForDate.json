@@ -2,7 +2,7 @@
   "answerByVersionedQuestionId": {
     "__typename": "Answer",
     "id": 15,
-    "json": "{\"answer\":{\"endDate\":\"\",\"startDate\":\"2025-07-01\"}}",
+    "json": "{\"type\":\"date\",\"answer\":\"2025-07-01\"}",
     "versionedQuestion": {
       "__typename": "VersionedQuestion",
       "id": 193

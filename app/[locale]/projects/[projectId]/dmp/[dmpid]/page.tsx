@@ -27,14 +27,20 @@ import {
   LayoutWithPanel,
   SidebarPanel
 } from "@/components/Container";
-import PageHeader from "@/components/PageHeader";
 import ErrorMessages from '@/components/ErrorMessages';
 import { DmpIcon } from "@/components/Icons";
 import { FormSelect, RadioGroupComponent } from '@/components/Form';
+import PageHeaderWithTitleChange from "@/components/PageHeaderWithTitleChange";
 
-import logECS from '@/utils/clientLogger';
 import { routePath } from '@/utils/routes';
-import { publishPlanAction, updatePlanStatusAction } from './actions';
+import { toTitleCase } from '@/utils/general';
+import { extractErrors } from '@/utils/errorHandler';
+import { useToast } from '@/context/ToastContext';
+import {
+  publishPlanAction,
+  updatePlanStatusAction,
+  updatePlanTitleAction
+} from './actions';
 import {
   ListItemsInterface,
   PlanMember,
@@ -50,6 +56,22 @@ const planStatusOptions = Object.entries(PlanStatus).map(([name, id]) => ({
   id,
   name
 }));
+
+type UpdateTitleErrors = {
+  general?: string;
+  title?: string;
+};
+
+type UpdateStatusErrors = {
+  general?: string;
+  status?: string;
+}
+
+type PublishPlanErrors = {
+  general?: string;
+  visibility?: string;
+  status?: string;
+}
 
 const initialState: {
   isModalOpen: boolean;
@@ -77,7 +99,7 @@ const initialState: {
     funderName: '',
     primaryContact: '',
     members: [] as PlanMember[],
-    sections: [] as PlanSectionProgress[],
+    versionedSections: [] as PlanSectionProgress[],
     percentageAnswered: 0,
   },
 };
@@ -127,6 +149,8 @@ const PlanOverviewPage: React.FC = () => {
   const dmpId = String(params.dmpid);
   const planId = Number(dmpId);
   const errorRef = useRef<HTMLDivElement | null>(null);
+
+  const toastState = useToast();
 
   // Localization keys
   const t = useTranslations('PlanOverview');
@@ -180,14 +204,12 @@ const PlanOverviewPage: React.FC = () => {
   // Handle changes from RadioGroup
   const handleRadioChange = (value: string) => {
     const selection = value.toUpperCase();
-    if (Object.values(PlanVisibility).includes(selection as PlanVisibility)) {
-      dispatch({
-        type: 'SET_PLAN_VISIBILITY',
-        payload: selection as PlanVisibility,
-      })
-    } else {
-      console.error(`Invalid visibility value: ${value}`);
-    }
+
+    dispatch({
+      type: 'SET_PLAN_VISIBILITY',
+      payload: selection as PlanVisibility,
+    })
+
   };
 
   const handlePlanStatusChange = () => {
@@ -248,55 +270,56 @@ const PlanOverviewPage: React.FC = () => {
         //Handle errors as an array
         dispatch({
           type: 'SET_ERROR_MESSAGES',
-          payload: errors.length > 0 ? errors : [Global('messaging.somethingWentWrong')],
+          payload: errors,
         })
       }
     } else {
-      if (
-        result.data?.errors &&
-        typeof result.data.errors === 'object' &&
-        typeof result.data.errors.general === 'string') {
-        // Handle errors as an object with general or field-level errors
-        dispatch({
-          type: 'SET_ERROR_MESSAGES',
-          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
-        });
+      if (result?.data?.errors) {
+        const errs = extractErrors<UpdateStatusErrors>(result?.data?.errors, ['general', 'status']);
+        if (errs.length > 0) {
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errs
+          });
+        } else {
+
+          // Optimistically update status so UI reflects it smoothly
+          dispatch({
+            type: 'SET_PLAN_STATUS',
+            payload: status
+          });
+
+          // ALSO update the planData.status so the display paragraph updates
+          dispatch({
+            type: 'SET_PLAN_DATA',
+            payload: {
+              ...state.planData,
+              status
+            }
+          });
+          const successMessage = t('messages.success.successfullyUpdatedStatus');
+          toastState.add(successMessage, { type: 'success' });
+        }
       }
-      //Need to refetch plan data to refresh the info that was changed
-      await refetch();
     }
   }
 
   // Call Server Action publishPlanAction to run the publishPlanMutation
-  const updatePlan = async (visibility: PlanVisibility) => {
-    try {
-      const response = await publishPlanAction({
-        planId: Number(planId),
-        visibility
-      })
+  const publishPlan = async (visibility: PlanVisibility) => {
+    const response = await publishPlanAction({
+      planId: Number(planId),
+      visibility
+    })
 
-      if (response.redirect) {
-        router.push(response.redirect);
-      }
-
-      return {
-        success: response.success,
-        errors: response.errors,
-        data: response.data
-      }
-    } catch (error) {
-      logECS('error', 'updatePlan', {
-        error,
-        url: {
-          path: routePath('projects.dmp.show', { projectId, dmpId: planId })
-        }
-      });
+    if (response.redirect) {
+      router.push(response.redirect);
     }
+
     return {
-      success: false,
-      errors: [Global('messaging.somethingWentWrong')],
-      data: null
-    };
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -320,7 +343,7 @@ const PlanOverviewPage: React.FC = () => {
     // Extract the selected radio button value, and make it upper case to match TemplateVisibility enum values
     const visibility = formData.get('visibility')?.toString().toUpperCase() as PlanVisibility;
 
-    const result = await updatePlan(visibility);
+    const result = await publishPlan(visibility);
 
     if (!result.success) {
       const errors = result.errors;
@@ -334,15 +357,17 @@ const PlanOverviewPage: React.FC = () => {
         })
       }
     } else {
-      if (
-        result.data?.errors &&
-        typeof result.data.errors === 'object' &&
-        typeof result.data.errors.general === 'string') {
-        // Handle errors as an object with general or field-level errors
-        dispatch({
-          type: 'SET_ERROR_MESSAGES',
-          payload: [result.data.errors.general || Global('messaging.somethingWentWrong')]
-        });
+      if (result?.data?.errors) {
+        const errs = extractErrors<PublishPlanErrors>(result?.data?.errors, ['general', 'visibility', 'status']);
+        if (errs.length > 0) {
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errs
+          });
+        } else {
+          const successMessage = t('messages.success.successfullyPublished');
+          toastState.add(successMessage, { type: 'success' });
+        }
       }
       //Need to refetch plan data to refresh the info that was changed
       await refetch();
@@ -357,6 +382,62 @@ const PlanOverviewPage: React.FC = () => {
     return Math.round(overallPercentage);
   }
 
+  // Call Server Action updatePlanTitleAction to run the updatePlanTitleMutation
+  const updateTitle = async (title: string) => {
+    // Don't need a try-catch block here, as the error is handled in the action
+    const response = await updatePlanTitleAction({
+      planId: Number(planId),
+      title
+    })
+
+    if (response.redirect) {
+      router.push(response.redirect);
+    }
+
+    return {
+      success: response.success,
+      errors: response.errors,
+      data: response.data
+    }
+  }
+
+  const handleTitleChange = async (newTitle: string) => {
+    const result = await updateTitle(newTitle);
+
+    if (!result.success) {
+      dispatch({
+        type: 'SET_ERROR_MESSAGES',
+        payload: [...state.errorMessages, t('messages.errors.updateTitleError')]
+      });
+    } else {
+      if (result.data?.errors) {
+        // Handle errors as an object with general or field-level errors
+        const errs = extractErrors<UpdateTitleErrors>(result?.data?.errors, ['general', 'title']);
+        if (errs.length > 0) {
+          dispatch({
+            type: 'SET_ERROR_MESSAGES',
+            payload: errs
+          });
+          return;
+        }
+
+        // Optimistically update state so UI reflects it smoothly
+        dispatch({
+          type: 'SET_PLAN_DATA',
+          payload: {
+            ...state.planData,
+            title: newTitle
+          }
+        });
+
+        const successMessage = t('messages.success.successfullyUpdatedTitle');
+        toastState.add(successMessage, { type: 'success' });
+
+      }
+    }
+  }
+
+
   useEffect(() => {
     // When data from backend changes, set project data in state
     if (data && data.plan) {
@@ -366,9 +447,9 @@ const PlanOverviewPage: React.FC = () => {
           id: Number(data?.plan.id) ?? null,
           dmpId: data?.plan.dmpId ?? '',
           registered: data?.plan.registered ?? '',
-          title: data?.plan?.versionedTemplate?.name ?? '',
+          title: data?.plan?.title ?? '',
           status: data?.plan?.status ?? '',
-          funderName: data?.plan?.project?.fundings?.[0]?.affiliation?.displayName ?? '',
+          funderName: data?.plan?.fundings?.map(f => f?.projectFunding?.affiliation?.displayName).filter(Boolean).join(', ') ?? '',
           primaryContact: data.plan.members
             ?.filter(member => member?.isPrimaryContact === true)
             ?.map(member => member?.projectMember?.givenName + ' ' + member?.projectMember?.surName)
@@ -382,8 +463,8 @@ const PlanOverviewPage: React.FC = () => {
               isPrimaryContact: member?.isPrimaryContact ?? false,
               role: (member?.projectMember?.memberRoles ?? []).map((role) => role.label),
             })) ?? [],
-          sections: data?.plan?.sections ?? [],
-          percentageAnswered: calculatePercentageAnswered(data?.plan?.sections ?? []) ?? 0,
+          versionedSections:  data?.plan?.versionedSections ?? [],
+          percentageAnswered: calculatePercentageAnswered(data?.plan?.versionedSections ?? []) ?? 0,
         },
       })
       dispatch({
@@ -469,9 +550,12 @@ const PlanOverviewPage: React.FC = () => {
 
   return (
     <>
-      <PageHeader
-        title={state.planData.title || t('page.pageDescription')}
+      <PageHeaderWithTitleChange
+        title={state.planData.title}
         description={t('page.pageDescription')}
+        linkText={t('links.editTitle')}
+        labelText={t('labels.planTitle')}
+        placeholder={t('page.planTitlePlaceholder')}
         showBackButton={false}
         breadcrumbs={
           <Breadcrumbs aria-label={Global('breadcrumbs.navigation')}>
@@ -481,8 +565,7 @@ const PlanOverviewPage: React.FC = () => {
             <Breadcrumb>{state.planData.title}</Breadcrumb>
           </Breadcrumbs>
         }
-        actions={null}
-        className="page-project-list"
+        onTitleChange={handleTitleChange}
       />
 
       <ErrorMessages errors={state.errorMessages} ref={errorRef} />
@@ -551,19 +634,19 @@ const PlanOverviewPage: React.FC = () => {
             </div>
 
 
-            {state.planData.sections.map((section) => (
+            {state.planData.versionedSections.map((versionedSection) => (
               <section
-                key={section.sectionId}
+                key={versionedSection.versionedSectionId}
                 className={styles.planSectionsList}
-                aria-labelledby={`section-title-${section.sectionId}`}
+                aria-labelledby={`section-title-${versionedSection.versionedSectionId}`}
               >
                 <div className={styles.planSectionsHeader}>
                   <div className={styles.planSectionsTitle}>
-                    <h3 id={`section-title-${section.sectionId}`}>
-                      {section.sectionTitle}
+                    <h3 id={`section-title-${versionedSection.versionedSectionId}`}>
+                      {versionedSection.title}
                     </h3>
                     <p
-                      aria-label={`${section.answeredQuestions} out of ${section.totalQuestions} questions answered for ${section.sectionTitle}`}>
+                      aria-label={`${versionedSection.answeredQuestions} out of ${versionedSection.totalQuestions} questions answered for ${versionedSection.title}`}>
                       <span
                         className={styles.progressIndicator}>
                         <svg
@@ -579,20 +662,20 @@ const PlanOverviewPage: React.FC = () => {
                             d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q133 0 226.5-93.5T800-480q0-18-2-36t-6-35l65-65q11 32 17 66t6 70q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-56-216L254-466l56-56 114 114 400-401 56 56-456 457Z" />
                         </svg>
                         {t('sections.progress', {
-                          current: section.answeredQuestions,
-                          total: section.totalQuestions
+                          current: versionedSection.answeredQuestions,
+                          total: versionedSection.totalQuestions
                         })} {t('sections.questionsAnswered')}
                       </span>
                     </p>
                   </div>
                   <Link
-                    href={routePath('projects.dmp.section', { projectId, dmpId: planId, sectionId: section.sectionId })}
+                    href={routePath('projects.dmp.versionedSection', { projectId, dmpId: planId, versionedSectionId: versionedSection.versionedSectionId })}
                     aria-label={t('sections.updateSection', {
-                      title: section.sectionTitle
+                      title: versionedSection.title
                     })}
                     className={"react-aria-Button react-aria-Button--secondary"}
                   >
-                    {(section.answeredQuestions === 0) ? t('sections.start') : t('sections.update')}
+                    {(versionedSection.answeredQuestions === 0) ? t('sections.start') : t('sections.update')}
                   </Link>
                 </div>
               </section>
@@ -615,7 +698,7 @@ const PlanOverviewPage: React.FC = () => {
                 <div>
                   <h3>{t('status.feedback.title')}</h3>
                 </div>
-                <Link href={FEEDBACK_URL} aria-label={Global('links.request')} >
+                <Link className={styles.sidePanelLink} href={FEEDBACK_URL} aria-label={Global('links.request')} >
                   {Global('links.request')}
                 </Link >
               </div >
@@ -628,7 +711,7 @@ const PlanOverviewPage: React.FC = () => {
                       isRequired
                       name="planStatus"
                       items={planStatusOptions}
-                      onSelectionChange={(selected) => dispatch({ type: 'SET_PLAN_STATUS', payload: selected as PlanStatus })}
+                      onChange={(selected) => dispatch({ type: 'SET_PLAN_STATUS', payload: selected as PlanStatus })}
                       selectedKey={state.planStatus ?? state.planData.status}
                     >
                       {(item) => <ListBoxItem key={item.id}>{item.name}</ListBoxItem>}
@@ -642,11 +725,11 @@ const PlanOverviewPage: React.FC = () => {
                 <div className={`${styles.panelRow} mb-5`}>
                   <div>
                     <h3>{t('status.title')}</h3>
-                    <p>{state.planData.status}</p>
+                    <p>{toTitleCase(state.planData.status)}</p>
                   </div>
-                  <Link className={`${styles.sidePanelLink} react-aria-Link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
+                  <Button className={`${styles.buttonLink} link`} data-testid="updateLink" onPress={handlePlanStatusChange} aria-label={t('status.select.changeLabel')}>
                     {Global('buttons.linkUpdate')}
-                  </Link>
+                  </Button>
                 </div>
               )}
 
@@ -655,7 +738,7 @@ const PlanOverviewPage: React.FC = () => {
                   <h3>{t('status.publish.title')}</h3>
                   <p>{state.planData.registered ? PUBLISHED : UNPUBLISHED}</p>
                 </div>
-                <Link className={`${styles.sidePanelLink} react-aria-Link`} onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })} aria-label={t('status.publish.label')}>
+                <Link href="#" onPress={() => dispatch({ type: 'SET_IS_MODAL_OPEN', payload: true })} aria-label={t('status.publish.label')}>
                   {t('status.publish.label')}
                 </Link>
               </div>

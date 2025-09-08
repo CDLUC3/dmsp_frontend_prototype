@@ -15,7 +15,7 @@ import {
   URL_QUESTION_TYPE,
   EMAIL_QUESTION_TYPE,
   BOOLEAN_QUESTION_TYPE,
-  TYPEAHEAD_QUESTION_TYPE,
+  TYPEAHEAD_QUESTION_TYPE, MULTISELECTBOX_QUESTION_TYPE,
 } from '@/lib/constants';
 
 import {
@@ -46,7 +46,7 @@ import TinyMCEEditor from '@/components/TinyMCEEditor';
 
 import { getCalendarDateValue } from "@/utils/dateUtils";
 
-import { QuestionTypeMap } from '@/utils/questionTypeHandlers';
+import { QuestionTypeMap } from '@dmptool/types';
 
 export type QuestionType = keyof QuestionTypeMap;
 
@@ -70,11 +70,13 @@ export interface RenderQuestionFieldProps {
   textAreaProps?: {
     content: string;
     setContent?: (newContent: string) => void;
+    handleTextAreaChange?: () => void;
   };
 
   selectBoxProps?: {
     selectedSelectValue?: string | undefined;
     setSelectedSelectValue?: (val: string | undefined) => void;
+    handleSelectChange?: (value: string) => void;
   };
 
   multiSelectBoxProps?: {
@@ -83,8 +85,8 @@ export interface RenderQuestionFieldProps {
   };
 
   dateProps?: {
-    dateRange: { startDate: string | DateValue | CalendarDate | null, endDate: string | DateValue | CalendarDate | null };
-    handleDateChange: (key: string, val: DateValue | null) => void;
+    dateValue: string | DateValue | CalendarDate | null;
+    handleDateChange: (val: string | DateValue | CalendarDate | null) => void;
   };
 
   dateRangeProps?: {
@@ -92,18 +94,18 @@ export interface RenderQuestionFieldProps {
       startDate: string | DateValue | CalendarDate | null,
       endDate: string | DateValue | CalendarDate | null
     };
-    handleDateChange: (key: string,
+    handleDateRangeChange: (key: string,
       value: string | DateValue | CalendarDate | null) => void;
   };
 
   numberProps?: {
-    inputValue: number | null;
-    setInputValue: (val: number | null) => void
+    numberValue: number | null;
+    handleNumberChange: (value: number) => void;
   };
 
   numberRangeProps?: {
     numberRange: { startNumber: number | null; endNumber: number | null };
-    handleNumberChange: (key: string, val: number | null) => void
+    handleNumberRangeChange: (key: string, val: number | null) => void
   };
 
   checkBoxProps?: {
@@ -113,7 +115,7 @@ export interface RenderQuestionFieldProps {
 
   currencyProps?: {
     inputCurrencyValue: number | null;
-    setInputCurrencyValue: (val: number | null) => void
+    handleCurrencyChange: (value: number | null) => void;
   };
 
   booleanProps?: {
@@ -193,24 +195,27 @@ export function useRenderQuestionField({
 
     case SELECTBOX_QUESTION_TYPE:
       if (parsed.type === 'selectBox' && 'options' in parsed) {
-        const isMultiSelect = parsed.attributes?.multiple || false;
-        if (isMultiSelect && multiSelectBoxProps?.handleMultiSelectChange) {
+        if (selectBoxProps?.setSelectedSelectValue) {
           return (
-            <MultiSelectQuestionComponent
-              parsedQuestion={parsed}
-              selectedMultiSelectValues={multiSelectBoxProps.selectedMultiSelectValues}
-              handleMultiSelectChange={multiSelectBoxProps.handleMultiSelectChange}
-            />
+              <SelectboxQuestionComponent
+                  parsedQuestion={parsed}
+                  selectedSelectValue={selectBoxProps.selectedSelectValue}
+                  handleSelectChange={selectBoxProps.handleSelectChange}
+              />
           );
         }
+      }
+      break;
 
-        if (!isMultiSelect && selectBoxProps?.setSelectedSelectValue) {
+    case MULTISELECTBOX_QUESTION_TYPE:
+      if (parsed.type === 'multiselectBox' && 'options' in parsed) {
+        if (multiSelectBoxProps?.handleMultiSelectChange) {
           return (
-            <SelectboxQuestionComponent
-              parsedQuestion={parsed}
-              selectedSelectValue={selectBoxProps.selectedSelectValue}
-              setSelectedSelectValue={selectBoxProps.setSelectedSelectValue}
-            />
+              <MultiSelectQuestionComponent
+                  parsedQuestion={parsed}
+                  selectedMultiSelectValues={multiSelectBoxProps.selectedMultiSelectValues}
+                  handleMultiSelectChange={multiSelectBoxProps.handleMultiSelectChange}
+              />
           );
         }
       }
@@ -242,6 +247,7 @@ export function useRenderQuestionField({
             id="question-text-editor"
             content={textAreaProps?.content ?? ''}
             setContent={(value) => textAreaProps?.setContent && textAreaProps?.setContent(value)}
+            onChange={textAreaProps?.handleTextAreaChange}
           />
         );
       }
@@ -253,8 +259,8 @@ export function useRenderQuestionField({
         return (
           <DateComponent
             name="startDate"
-            value={getCalendarDateValue(dateProps?.dateRange.startDate)}
-            onChange={(newDate) => dateProps?.handleDateChange('startDate', newDate)
+            value={getCalendarDateValue(dateProps?.dateValue)}
+            onChange={(newDate) => dateProps?.handleDateChange(newDate)
             }
             label="Date"
             minValue={minValue}
@@ -270,7 +276,7 @@ export function useRenderQuestionField({
           <DateRangeQuestionComponent
             parsedQuestion={parsed}
             dateRange={dateRangeProps?.dateRange}
-            handleDateChange={dateRangeProps?.handleDateChange}
+            handleDateChange={dateRangeProps?.handleDateRangeChange}
           />
         );
       }
@@ -282,9 +288,9 @@ export function useRenderQuestionField({
         return (
           <NumberComponent
             label="number"
-            value={numberProps?.inputValue ?? undefined
+            value={numberProps?.numberValue ?? undefined
             }
-            onChange={numberProps?.setInputValue}
+            onChange={numberProps?.handleNumberChange}
             placeholder="number"
             minValue={minValue}
             {...(typeof maxValue === 'number' ? { maxValue } : {})}
@@ -300,7 +306,7 @@ export function useRenderQuestionField({
           <NumberRangeQuestionComponent
             parsedQuestion={parsed}
             numberRange={numberRangeProps?.numberRange}
-            handleNumberChange={numberRangeProps?.handleNumberChange}
+            handleNumberChange={numberRangeProps?.handleNumberRangeChange}
             startPlaceholder="start"
             endPlaceholder="end"
           />
@@ -314,7 +320,7 @@ export function useRenderQuestionField({
           <CurrencyQuestionComponent
             parsedQuestion={parsed}
             inputCurrencyValue={currencyProps?.inputCurrencyValue}
-            setInputCurrencyValue={currencyProps?.setInputCurrencyValue}
+            handleCurrencyChange={currencyProps?.handleCurrencyChange}
           />
         );
       }
@@ -373,7 +379,7 @@ export function useRenderQuestionField({
       break;
 
     case TYPEAHEAD_QUESTION_TYPE:
-      if (parsed.type === 'typeaheadSearch' && typeaheadSearchProps) {
+      if (parsed.type === 'affiliationSearch' && typeaheadSearchProps) {
         return (
           <AffiliationSearchQuestionComponent
             parsedQuestion={parsed}

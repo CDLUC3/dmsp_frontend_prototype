@@ -12,7 +12,7 @@ interface SelectboxQuestionProps {
   selectName?: string;
   errorMessage?: string;
   helpMessage?: string;
-  setSelectedSelectValue: (value: string) => void;
+  handleSelectChange?: (value: string) => void;
 }
 
 const SelectboxQuestionComponent: React.FC<SelectboxQuestionProps> = ({
@@ -22,18 +22,18 @@ const SelectboxQuestionComponent: React.FC<SelectboxQuestionProps> = ({
   selectName = 'select',
   errorMessage = '',
   helpMessage = '',
-  setSelectedSelectValue
+  handleSelectChange
 }) => {
   // Transform options to items for FormSelect
   const items = parsedQuestion.options?.map((opt: SelectBoxQuestionType['options'][number]) => ({
-    id: opt.attributes.value,
-    name: opt.attributes.label,
-    selected: opt.attributes.selected || false,
+    id: opt.value,
+    name: opt.label,
+    selected: opt.selected || false,
   })) || [];
 
   // Find initial selected value
-  const selectedOption = parsedQuestion.options?.find((opt: SelectBoxQuestionType['options'][number]) => opt.attributes.selected);
-  const initialValue = selectedOption ? selectedOption.attributes.value : '';
+  const selectedOption = parsedQuestion.options?.find((opt: SelectBoxQuestionType['options'][number]) => opt.selected);
+  const initialValue = selectedOption ? selectedOption.value : '';
   const value = selectedSelectValue !== undefined ? selectedSelectValue : initialValue;
 
   return (
@@ -43,9 +43,9 @@ const SelectboxQuestionComponent: React.FC<SelectboxQuestionProps> = ({
       name={selectName}
       items={items}
       selectedKey={value}
-      onSelectionChange={selected => setSelectedSelectValue(selected as string)}
       errorMessage={errorMessage}
       helpMessage={helpMessage}
+      onChange={handleSelectChange}
     >
       {items.map((item: { id: string; name: string }) => (
         <ListBoxItem key={item.id}>{item.name}</ListBoxItem>
