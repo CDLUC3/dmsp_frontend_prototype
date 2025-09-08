@@ -123,12 +123,17 @@ export const serverFetchCsrfToken = async () => {
 };
 
 // Fetch and decode the JWT Access Token
-export const fetchJWTAccessToken = async (): Promise<JWTAccessToken | undefined> => {
+export const serverFetchAccessToken = async (): Promise<JWTAccessToken | undefined> => {
+  try {
     const cookieStore = await cookies();
-    const cookie =  cookieStore.get("dmspt");
+    const cookie = cookieStore.get("dmspt");
     if (!cookie || !cookie.value) return undefined;
 
     const secret = process.env.JWT_SECRET ?? "";
     const token = jwt.verify(String(cookie?.value), secret) as JwtPayload;
     return token ? token as JWTAccessToken : undefined;
+  } catch (err) {
+    logger.error("Error decoding JWT Access Token", err);
+    return undefined;
+  }
 }

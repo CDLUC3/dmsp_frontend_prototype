@@ -1,6 +1,6 @@
 import pino from 'pino';
 import { ecsFormat } from '@elastic/ecs-pino-format';
-import { fetchJWTAccessToken, JWTAccessToken } from "@/utils/server/serverAuthHelper";
+import { serverFetchAccessToken, JWTAccessToken } from "@/utils/server/serverAuthHelper";
 
 const logLevel = process.env.LOG_LEVEL || 'info';
 
@@ -13,8 +13,10 @@ export interface LoggerContext {
   userId?: number;
 }
 
+// Attach important information from the JWT to the log so we can tie activity to
+// activity in the Apollo server backend and other services
 async function buildLogContext(): Promise<LoggerContext> {
-  const token: JWTAccessToken | undefined = await fetchJWTAccessToken();
+  const token: JWTAccessToken | undefined = await serverFetchAccessToken();
   return {
     app: "nextJS",
     env: String(process.env.ENV ?? "development"),
@@ -23,17 +25,13 @@ async function buildLogContext(): Promise<LoggerContext> {
   }
 }
 
-// Filter out undefined fields for cleaner logs
+// Filter out undefined fields for cleaner logs and attach JWT info
 export async function prepareObjectForLogs(obj: object): Promise<object> {
-  const cleansedObject = Object.fromEntries(
-    Object.entries(obj).filter(([_, v]) => v !== undefined && v !== null)
-  );
   const logContext = await buildLogContext();
-
-  return {
-    ...logContext,
-    ...cleansedObject,
-  }
+  const payload = { ...logContext, ...obj };
+  return Object.fromEntries(
+    Object.entries(payload).filter(([_, v]) => v !== undefined && v !== null)
+  );
 }
 
 export default logger;

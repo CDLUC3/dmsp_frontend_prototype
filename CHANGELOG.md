@@ -1,4 +1,5 @@
 ### Added
+- Added a `serverFetchAccessToken` to `serverAuthHelper` to facilitate server side logging
 - Added shared `dmptool-network` to the `docker-compose.yaml` file to allow nextJS server side actions to be able to reach the local apollo server
 - Static Feedback page with translation and text [#750]
 - Added `RelatedWorks` page and associated components `RelatedWorksList`, `RelatedWorksListItem`, `ExpandableNameList` and `LinkFilter`. [#672][#673]
@@ -16,6 +17,7 @@
 - Added missing `planId` from the `PlanFundings` errors [#322](https://github.com/CDLUC3/dmsp_backend_prototype/issues/322)
 
 ### Updated
+- Updated the `utils/server/logger` to use pino ECS formatting and attach JWT info to the log to facilitate debugging
 - Updated the shared`RadioGroupComponent` and `CheckboxGroupComponent` components to be more like a wrapper to reduce duplicate of code and make it more flexible [#743]
 - Project over is now using sidebar to allow for collaboration [#750]
 - Sidebar is now using global styling rather than css modules [#750]

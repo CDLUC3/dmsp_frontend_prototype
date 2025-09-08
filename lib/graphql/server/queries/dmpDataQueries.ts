@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { getClient } from '@/lib/graphql/client';
-import logger from '@/utils/server/logger';
+import logger, { prepareObjectForLogs } from '@/utils/server/logger';
 import userFriendlyErrorMessages, { ErrorMessages } from '@/utils/userFriendlyErrorMessages';
 
 const GET_DATA = gql`
@@ -134,7 +134,7 @@ export async function getData() {
     const friendlyError = userFriendlyErrorMessages[errCode as keyof ErrorMessages];
     const loggerPath = err?.graphQLErrors[0]?.path[0];
 
-    logger.error({ loggerPath }, err.message);//Can add additional data to the logger
+    logger.error(prepareObjectForLogs({ loggerPath, err, errCode, friendlyError }), "GraphQL query error");
 
     if (errCode) {
       throw new Error(friendlyError);
