@@ -160,6 +160,7 @@
     "btnBack": "Voltar"
   },
   "Admin": {
+    "headingRelatedActions": "Ações relacionadas",
     "sections": {
       "organisationTemplatesAndPlans": {
         "title": "Modelos e Planos da Organização",

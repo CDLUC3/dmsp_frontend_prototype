@@ -82,3 +82,17 @@
     font-weight: 600;
     line-height: 1;
 }
+
+.relatedItemsHeaading {
+    margin-bottom: var(--space-6);
+}
+
+.relatedItems {
+    list-style-type: none;
+    padding-left: 0;
+
+    li {
+        font-size: var(--fs-small);
+        padding-bottom: var(--space-3);
+    }
+}

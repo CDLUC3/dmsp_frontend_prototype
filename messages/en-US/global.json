@@ -161,6 +161,7 @@
     "btnBack": "Back"
   },
   "Admin": {
+    "headingRelatedActions": "Related actions",
     "sections": {
       "organisationTemplatesAndPlans": {
         "title": "Organisation Templates and Plans",
