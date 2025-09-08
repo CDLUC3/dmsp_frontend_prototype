@@ -1,7 +1,7 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
-import logger from "@/utils/server/logger";
+import logger, {prepareObjectForLogs} from "@/utils/server/logger";
 import { ActionResponse } from "@/app/types";
 import { UpdateSectionDisplayOrderDocument } from "@/generated/graphql";
 
@@ -13,6 +13,8 @@ export async function updateSectionDisplayOrderAction({
   newDisplayOrder: number;
 }): Promise<ActionResponse> {
   try {
+    logger.debug(await prepareObjectForLogs({ sectionId, newDisplayOrder }), "Updating section display order");
+
     // Execute the mutation using the shared handler
     return await executeGraphQLMutation({
       document: UpdateSectionDisplayOrderDocument,
@@ -21,7 +23,7 @@ export async function updateSectionDisplayOrderAction({
     });
 
   } catch (error) {
-    logger.error(`[Update Section Display Order Error]: ${error}`, { error });
+    logger.error(await prepareObjectForLogs({ sectionId, newDisplayOrder, error }), "Update section display order error");
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

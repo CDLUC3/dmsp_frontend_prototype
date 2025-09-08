@@ -2,7 +2,7 @@
 
 import { DocumentNode, print } from "graphql";
 import { cookies } from "next/headers";
-import logger from "@/utils/server/logger";
+import logger, { prepareObjectForLogs } from "@/utils/server/logger";
 import { serverRefreshAuthTokens, serverFetchCsrfToken } from "@/utils/server/serverAuthHelper";
 
 type GraphQLErrorCode = "UNAUTHENTICATED" | "FORBIDDEN" | "INTERNAL_SERVER_ERROR" | string;
@@ -56,10 +56,14 @@ export async function executeGraphQLMutation<T = unknown, V = Record<string, unk
       Cookie: cookieString,
     };
 
-console.log('server', `${process.env.SERVER_ENDPOINT}/graphql`)
-console.log('headers', headers)
-console.log('mutationString', mutationString)
-console.log('variables', variables)
+    const logPayload = prepareObjectForLogs({
+      host: `${process.env.SERVER_ENDPOINT}/graphql`,
+      method: "POST",
+      headers,
+      mutationString,
+      variables,
+    });
+    logger.debug(logPayload, "Executing GraphQL mutation");
 
     // Make the GraphQL request
     const response = await fetch(`${process.env.SERVER_ENDPOINT}/graphql`, {
@@ -72,9 +76,8 @@ console.log('variables', variables)
       }),
     });
 
-console.log('response', response)
-
     const result = await response.json();
+    logger.debug(prepareObjectForLogs(result), "GraphQL mutation response");
 
     // Handle GraphQL errors
     if (result.errors) {
@@ -87,7 +90,7 @@ console.log('response', response)
               const refreshResult = await serverRefreshAuthTokens();
 
               if (!refreshResult) {
-                logger.error("Auth token refresh failed with no result", { error: "UNAUTHENTICATED" });
+                logger.error(prepareObjectForLogs({ error: "UNAUTHENTICATED" }), "Auth token refresh failed with no result");
                 return { success: false, redirect: "/login" };
               }
 
@@ -96,7 +99,7 @@ console.log('response', response)
               const setCookieHeader = refreshResult?.response?.headers?.get("set-cookie");
 
               if (!setCookieHeader) {
-                logger.error("No set-cookie header found in refresh response", { error: "UNAUTHENTICATED" });
+                logger.error(prepareObjectForLogs({ error: "UNAUTHENTICATED" }), "No set-cookie header found in refresh response");
                 return { success: false, redirect: "/login" };
               }
 
@@ -137,7 +140,7 @@ console.log('response', response)
               const retryResult = await retryResponse.json();
 
               if (retryResult.errors) {
-                logger.error(`[GraphQL Retry Error]: ${retryResult.errors[0]?.message}`, { error: "GRAPHQL_ERROR" });
+                logger.error(prepareObjectForLogs({ error: "GRAPHQL_ERROR" }), `[GraphQL Retry Error]: ${retryResult.errors[0]?.message}`);
                 return { success: false, errors: retryResult.errors.map((err: GraphQLError) => err.message) };
               }
 
@@ -149,7 +152,7 @@ console.log('response', response)
                 data: retryData as T
               };
             } catch (error) {
-              logger.error("Token refresh failed", { error });
+              logger.error(prepareObjectForLogs({ error }), "Token refresh failed");
               return { success: false, redirect: "/login" };
             }
 
@@ -158,16 +161,16 @@ console.log('response', response)
               await serverFetchCsrfToken();
               return { success: false, errors: ["Forbidden. Please check your permissions."] };
             } catch (error) {
-              logger.error("Fetching CSRF token failed", { error });
+              logger.error(prepareObjectForLogs({ error }), "Fetching CSRF token failed");
               return { success: false, redirect: "/login" };
             }
 
           case "INTERNAL_SERVER_ERROR":
-            logger.error(`[GraphQL Error]: INTERNAL_SERVER_ERROR - ${message}`, { error: "INTERNAL_SERVER_ERROR" });
+            logger.error(prepareObjectForLogs({ error: "INTERNAL_SERVER_ERROR" }), "[GraphQL Error]: INTERNAL_SERVER_ERROR");
             return { success: false, redirect: "/500-error" };
 
           default:
-            logger.error(`[GraphQL Error]: ${message}`, { error: "GRAPHQL_ERROR" });
+            logger.error(prepareObjectForLogs({ error: "GRAPHQL_ERROR" }), `[GraphQL Error]: ${message}`);
             return { success: false, errors: [message] };
         }
       }
@@ -181,7 +184,7 @@ console.log('response', response)
       data: responseData as T,
     };
   } catch (networkError) {
-    logger.error(`[GraphQL Network Error]: ${networkError}`, { error: "NETWORK_ERROR" });
+    logger.error(prepareObjectForLogs({ error: "NETWORK_ERROR" }), `[GraphQL Network Error]: ${networkError}`);
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }
