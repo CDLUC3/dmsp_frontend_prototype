@@ -1,7 +1,7 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
-import logger from "@/utils/server/logger";
+import logger, {prepareObjectForLogs} from "@/utils/server/logger";
 import { ActionResponse } from "@/app/types";
 import { AddFeedbackCommentDocument } from "@/generated/graphql";
 
@@ -17,6 +17,8 @@ export async function addFeedbackCommentAction({
   commentText: string;
 }): Promise<ActionResponse> {
   try {
+    logger.debug(await prepareObjectForLogs({ planId, planFeedbackId, answerId, commentText }), "Adding feedback comment");
+
     // Execute the mutation using the shared handler
     return await executeGraphQLMutation({
       document: AddFeedbackCommentDocument,
@@ -24,7 +26,7 @@ export async function addFeedbackCommentAction({
       dataPath: "addFeedbackComment"
     });
   } catch (error) {
-    logger.error(`[Add feedbackComment from answer]: ${error}`, { error });
+    logger.error(await prepareObjectForLogs({ planId, planFeedbackId, answerId, commentText, error }), "Add feedbackComment for answer");
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

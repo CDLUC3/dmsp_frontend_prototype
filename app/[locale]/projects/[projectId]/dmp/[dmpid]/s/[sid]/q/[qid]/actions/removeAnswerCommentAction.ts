@@ -1,7 +1,7 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
-import logger from "@/utils/server/logger";
+import logger, {prepareObjectForLogs} from "@/utils/server/logger";
 import { ActionResponse } from "@/app/types";
 import { RemoveAnswerCommentDocument } from "@/generated/graphql";
 
@@ -13,6 +13,8 @@ export async function removeAnswerCommentAction({
   answerCommentId: number;
 }): Promise<ActionResponse> {
   try {
+    logger.debug(await prepareObjectForLogs({ answerId, answerCommentId }), "Removing answer comment");
+
     // Execute the mutation using the shared handler
     return await executeGraphQLMutation({
       document: RemoveAnswerCommentDocument,
@@ -20,7 +22,7 @@ export async function removeAnswerCommentAction({
       dataPath: "removeAnswerComment"
     });
   } catch (error) {
-    logger.error(`[Remove answerComment from answer]: ${error}`, { error });
+    logger.error(await prepareObjectForLogs({ answerId, answerCommentId, error }), "Remove answerComment from answer");
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }

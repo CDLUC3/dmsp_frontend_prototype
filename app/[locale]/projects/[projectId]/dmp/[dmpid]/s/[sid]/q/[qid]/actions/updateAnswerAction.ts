@@ -1,7 +1,7 @@
 "use server";
 
 import { executeGraphQLMutation } from "@/utils/server/graphqlServerActionHandler";
-import logger from "@/utils/server/logger";
+import logger, { prepareObjectForLogs } from "@/utils/server/logger";
 import { ActionResponse } from "@/app/types";
 import { UpdateAnswerDocument } from "@/generated/graphql";
 
@@ -13,6 +13,8 @@ export async function updateAnswerAction({
   json: string;
 }): Promise<ActionResponse> {
   try {
+    logger.debug(await prepareObjectForLogs({ answerId, json }), "Updating answer");
+
     // Execute the mutation using the shared handler
     return await executeGraphQLMutation({
       document: UpdateAnswerDocument,
@@ -21,7 +23,7 @@ export async function updateAnswerAction({
     });
 
   } catch (error) {
-    logger.error(`[Update answer for question]: ${error}`, { error });
+    logger.error(await prepareObjectForLogs({ answerId, json, error }), "Update answer for question");
     return { success: false, errors: ["There was a problem connecting to the server. Please try again."] };
   }
 }
