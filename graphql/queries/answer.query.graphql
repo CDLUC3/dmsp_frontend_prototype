@@ -13,6 +13,7 @@ query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQue
       commentText
       answerId
       created
+      createdById
       modified
       user {
         id
@@ -24,6 +25,7 @@ query AnswerByVersionedQuestionId($projectId: Int!, $planId: Int!, $versionedQue
       id
       commentText
       created
+      createdById
       answerId
       modified
       PlanFeedback {

@@ -454,6 +454,7 @@ export interface MergedComment {
   commentText?: string | null;
   answerId?: number | null;
   created?: string | null;
+  createdById?: number | null;
   type: 'answer' | 'feedback';
   isAnswerComment: boolean;
   isFeedbackComment: boolean;

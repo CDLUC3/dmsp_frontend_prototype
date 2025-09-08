@@ -26,6 +26,7 @@
       "requiredByFunderInfo": "O financiador marcou isso como uma pergunta necessária no seu modelo. Você pode deixá-lo em branco na ferramenta, mas deve completá-lo antes de enviar sua subvenção.",
       "jumpToGuidance": "Pule para orientação adicional",
       "viewSampleAnswer": "Ver amostra da resposta",
+      "commentTooltip": "Você precisa salvar uma resposta antes que os usuários possam comentar.",
       "guidanceBy": "Guia por {funder}",
       "funderSampleText": "{funder} texto de exemplo",
       "participantsWillBeNotified": "Os participantes serão notificados assim que submetidos.",
