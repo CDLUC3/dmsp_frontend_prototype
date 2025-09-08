@@ -507,5 +507,41 @@
       "table": "Tabela",
       "affiliationSearch": "Affiliation search"
     }
+  },
+  "FeedbackOptions": {
+    "title": "Opções de Feedback",
+    "description": "Se estiver Ativado, usuários da sua organização podem solicitar feedback sobre seus DMPs. Isso será enviado para o e-mail de contato da sua organização, que é support@dmp.edu.",
+    "sections": {
+      "feedbackToggle": {
+        "title": "Ativar ou desativar Feedback"
+      },
+      "feedbackEmail": {
+        "title": "Endereço de e-mail para feedback"
+      },
+      "expertFeedback": {
+        "title": "Solicitar Feedback de Especialista"
+      }
+    },
+    "fields": {
+      "feedbackEnabled": {
+        "label": "Ativar ou desativar Feedback",
+        "options": {
+          "on": "Ativado - Feedback pode ser solicitado",
+          "off": "Desativado - Feedback não pode ser solicitado"
+        }
+      },
+      "feedbackEmail": {
+        "label": "Endereço de e-mail para feedback",
+        "placeholder": "Digite o endereço de e-mail para feedback",
+        "helpText": "Por padrão, este é o endereço de e-mail de contato da organização. No entanto, você pode alterar o endereço de e-mail para feedback"
+      },
+      "feedbackText": {
+        "label": "Solicitar Feedback de Especialista",
+        "placeholder": "Digite o texto de feedback"
+      }
+    },
+    "actions": {
+      "save": "Salvar"
+    }
   }
 }

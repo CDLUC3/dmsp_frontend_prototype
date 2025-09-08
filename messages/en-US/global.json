@@ -342,6 +342,42 @@
       "deleteButton": "Delete"
     }
   },
+  "FeedbackOptions": {
+    "title": "Feedback Options",
+    "description": "If this is On, users from your org can request feedback on their DMPs. It will go to your organization's contact email which is support@dmp.edu.",
+    "sections": {
+      "feedbackToggle": {
+        "title": "Turn Feedback on or off"
+      },
+      "feedbackEmail": {
+        "title": "Feedback email address"
+      },
+      "expertFeedback": {
+        "title": "Request Expert Feedback"
+      }
+    },
+    "fields": {
+      "feedbackEnabled": {
+        "label": "Turn Feedback on or off",
+        "options": {
+          "on": "On - Feedback can be requested",
+          "off": "Off - Feedback can not be requested"
+        }
+      },
+      "feedbackEmail": {
+        "label": "Feedback email address",
+        "placeholder": "Enter feedback email address",
+        "helpText": "By default this is the organisations contact email address, However, you may change the feedback email address"
+      },
+      "feedbackText": {
+        "label": "Request Expert Feedback",
+        "placeholder": "Enter feedback text"
+      }
+    },
+    "actions": {
+      "save": "Save"
+    }
+  },
   "Account": {
     "sections": {
       "userProfile": {

@@ -1,0 +1,54 @@
+.sectionContainer {
+    margin-top: 0;
+    margin-bottom: var(--space-6);
+}
+
+.sectionContent {
+    padding: var(--space-5) var(--space-6);
+    margin-bottom: var(--space-4);
+    border-radius: var(--card-border-radius);
+    background: var(--bg-white);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+}
+
+// Accessibility: Ensure hidden content is properly hidden
+.hidden {
+    display: none !important;
+}
+
+// Smooth transitions for conditional content
+.conditionalRegion {
+    transition: opacity 0.2s ease-in-out;
+
+    &.hidden {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+    }
+
+    &.visible {
+        opacity: 1;
+        max-height: none;
+    }
+}
+
+// Screen reader only content
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.saveButton {
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-6);
+}
