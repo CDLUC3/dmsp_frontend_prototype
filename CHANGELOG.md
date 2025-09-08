@@ -1,4 +1,5 @@
-
+==================================================================================================================
+<!-- Merged below to main branch on Friday, July 18th, 2025  -->
 ### Added
 - Added JSON mocks to `__mocks__` for all types of versioned questions (for use with the project/plan pages)
 - Hooked up the Project Funding Search page at `/projects/[projectId]/fundings/search` [#606]
@@ -247,6 +248,14 @@
 
 ====================================================================================================
 
+
+
+
+
+### Update
+- Update main branch with latest development branch
+
+===============================================================================================================
 ### Updated
 =======
 - Updated `/graphql` files to include new backend error objects [#308]
