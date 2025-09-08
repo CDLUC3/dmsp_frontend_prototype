@@ -312,6 +312,30 @@
       }
     }
   },
+  "EmailPreferences": {
+    "title": "Preferências de E-mail",
+    "sections": {
+      "customizeEmailText": {
+        "title": "Personalizar texto do e-mail",
+        "description": "O seguinte e-mail será enviado aos usuários quando um sistema externo criar um novo DMP (via API) usando um de seus modelos."
+      },
+      "previewEmail": {
+        "title": "Visualizar E-mail"
+      }
+    },
+    "fields": {
+      "subject": {
+        "label": "Assunto",
+        "placeholder": "Digite o assunto do e-mail"
+      },
+      "emailText": {
+        "label": "Texto do E-mail"
+      }
+    },
+    "buttons": {
+      "save": "Salvar"
+    }
+  },
   "Departments": {
     "title": "Departamentos",
     "sections": {
